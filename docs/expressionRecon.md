@@ -116,6 +116,117 @@ spelled operator names; (e) triage of the value movers and spacingT's 139; (f) t
 switch reading any value as on; (h) separately: driveStep driving a holder's name text. **After the buy lands:** the
 TokenXP rule and InvokeArg's UnaryXP alternative leave the grammar, and KANT-43 retires with a dated note.
 
+### ⚠⚠ THE CAREFUL BUILD: PLAN AND RECON (SEQ 313, Clod, 2026-10-07) -- NOTHING BUILT; TONY RULES THE ORDER FIRST (R5)
+
+**Rulings carried (Tony, 2026-10-07):** R0 `opAddAttribute`'s `prior` -> `next` rides the walk turnaround on the
+careful-build branch, never trunk. R1 the call is bound in `interpretXPaccum`'s operand build, beside the prefix; `opCall`
+takes the method, action and rule cases inside itself. R2 juxtaposition wraps by default (`A += B C D` takes one list);
+a per-operator "distributes" property is **banked as a later candidate, not in this plan**. R3 the `opAssign` tap. R4 a
+direct runOP entry `(op, target, arg)` retires the per-step `acStep` list; a step node is always fresh, never the running
+value. R5 Tony rules the order below before any build.
+
+#### R3 -- the opAssign tap (measured 2026-10-07, trunk, kant, reverted md5-identical)
+
+A tap on both `=` roads (`opAssign` and `jitAssignNodeRT`) printed every call and every call whose argument carries a
+non-empty `groupList`. **Population:** every file in `incant/pop` and `incant/pop/jit`, every fixture the checklist
+scripts name through `ip()`, and `incant/jit*` -- 209 runs, all exit 0. It would have found a list-carrying `=` in any
+fleet fixture, because each fleet fixture is in that population.
+
+| | calls | argument carries a list |
+|---|---|---|
+| interpreted `=` | 9,534 | **47**, in 10 fixtures |
+| jitted `=` | 5 | 0 |
+
+The 47, by what the argument is (target's own list was empty in all 47):
+
+| argument | n | fixtures | the list is |
+|---|---|---|---|
+| no data, list only (`JSONblock`, `JSONvalue`, decoder records `H4` `H7` `blastRadius` `byteIdentical` `parked`, `BlocK`) | 36 | jsonTest 27, decodeT 5, decode 3, exprPinT 1 (O1's `r3 = *block(src)`) | **the whole value** -- under setData alone the target gets nothing (a tag echo) |
+| a string with a `stuff` list (StringXP products) | 8 | printFamily 4, printFamilyNew 2, baselineTests 1, baselineTestsNew 1 | StringXP's parts; setData keeps the string and drops the parts |
+| a count with a list (`k7Self`, `Token`) | 2 | kant8T, faceT | members beside a value |
+| `xl1`, a juxtaposition list | 1 | printFamilyNew (`n4`) | a list value (R2's shape) |
+
+So `=` copying a list is **rare (0.5% of calls) but load-bearing where it happens**: the JSON reader and the decoder
+assign whole structures with `=`, and under setData-only those 36 would need another spelling. The ruling is Tony's.
+
+#### R1 -- where the call binds, and whether its argument is one entry
+
+**Read on `expr-accum` (Groups `31069dc`):** pass 1 of `interpretXPaccum` wraps a TokenXP's `InvokeArg` that is
+neither a UnaryXP (`.b`) nor a subscript (`fLAG`) in an `acPostCall` piece holding the InvokeArg node; pass 2 builds
+`acC` from it with `handleCall(node, cur, term[1])` -- **already in the operand build, beside the prefix**, so R1's seat
+exists. `handleCall` hands on `[false, target, arg]`, with `arg` the InvokeArg's group, or the node itself if it has a
+list or data, and **no third operand for an empty `()`**.
+
+**The argument is one entry by grammar:** `Parens leftParen-="(" ExpressioN? rightParen-=")"` (`incant/grammar:130`) --
+one optional ExpressioN, and `,` is in ExpressioN's guard, so `f(a, b)` cannot arrive at all. Under the candidate that
+ExpressioN is built by `interpretXPaccum` like any other, so `f(a + b)` arrives as one acX, `f(a b)` as one xl1 (R2),
+`f()` as nothing. ⚠ **Grade: read, plus seal 87's measured N1/N2 (`fId(qa + qb) * qc` = 36, `qa + fNest(qb) + qc` = 37
+on the candidate). The C rows below were NOT run on the candidate** -- a branch build was declined this session (see
+SEQ 224), so they carry trunk values only. **The stop condition did not fire on anything read or measured.**
+
+**Call rows, trunk (2026-10-07, a copy of exprPinT with six rows added; qa 2 qb 10 qc 3):**
+
+| row | expression | trunk | intended |
+|---|---|---|---|
+| C1 | `qa + fId(qb)` | 12 | 12 |
+| C2 | `qa + fId(qb) + qc` | 15 | 15 |
+| C3 | `fId(qa + qb * qc)` | 32 | 36 |
+| C4 | `fNone()` (empty argument, returns 5) | 5 | 5 |
+| C5 | `fId(qa qb)` | `xl1InSet` | a two-member list (R2) |
+| C6 | `fId(-qa)` | -2 | -2 |
+| O1 | `*block(src)` | pz 0, r3 echo | pz 7 |
+
+**How the two required shapes come out under the plan:**
+- **`a + f(x)`:** flat list `[a, +, acC]`; the running value is `a`; the operand `acC` runs `opCall(f, x)`, the call
+  executor picks the action case, and its value is the right operand of `+`. Measured shape: N2 = 37.
+- **`*block(code)`:** `*` is an access prefix, so it binds to the name first (D4): `acU(*, block)`; the call postfix then
+  makes `acC(acU(*block), code)`. The acU evaluates to the `BlocK` rule and `opCall`'s **rule case** drives it. That
+  reaches BlocK today on the candidate -- and then **(h)**: driveStep drives the HOLDER's name text `[pSrc]`, because
+  `code` is a `:=` holder and `followArgument` follows only `isArgument` holders. **`*block(code)` comes out right only
+  when (h) lands with the call executor**: the rule case reads a holder argument through to what it holds before driving.
+- **`!f(x)`:** `!` is not an access prefix, so it wraps the finished operand: `acU(!, acC(f, x))`, and the call runs.
+
+**The call executor (`opCall`), one kind, cases inside (D5):** method (`target.isMethod`), action (`target.actionType`),
+rule (`isRuleTerm()`, or `hasNewParse` under jitting -- **M3's one door that reads `jitting` moves inside this executor**,
+so no instruction switches executor between phases; the phase is a run-time choice inside it, which is what D5 allows).
+`field()` is the same executor with no argument; the method case then hands the target as its own argument, as runOP's
+last arm does today.
+
+#### R4 -- the direct entry, and the step list
+
+`runOPaccumFrom` mints a fresh `acStep` per step and `runOP` unpacks it as `field[1..3]`. **Plan:** split runOP's body
+into `runOPdirect(op, target, arg)`; `runOP(field)` becomes a three-line unpacker for every existing caller, and the
+accumulator calls the direct entry, so **no step list is built at all**. Tony's sketch's `result +% *op *result *grup`
+attaches the running value to itself; the PoC already used a fresh node, and the direct entry retires the question --
+where any list must still be built, it is a fresh node. The running value's copy-out of `tempField` stays. ⚠ **One
+correction to carry into the build: operand order.** runOP's target is the LEFT operand; a right-to-left sketch must hand
+`[op, left, right]`, not `[op, running, next]`.
+
+#### R0 and R2 together -- the list's order
+
+The PoC holds juxtaposition lists **right to left on purpose** (`interpretXPaccumWrap`'s `acJux` -> `xl1` loop) so that
+`opAddAttribute`'s `prior` still yields source order (probe 2026-10-07: `aoBag +% aoA aoB aoC` reads aoA, aoB, aoC on
+trunk). The turnaround stroke builds `xl1` in source order and flips `prior` -> `next` in the same commit. **Owed in that
+stroke: a census of every other reader of an `isLIST`/`xl1` operand** (`jitPrintList`, `GroupActions.rtn:70`, any
+`iterate` over an argument), because each one walks the order it was built for.
+
+#### R5 -- the proposed order for (a)-(h)
+
+| step | item | why here |
+|---|---|---|
+| 0 | **pin C1-C6 into exprPinT on trunk**, at today's values with the intended beside (D6's pattern) | the call rows are the measuring stick for step 3; today they live only in scratch |
+| 1 | **(g)** the switch reads its value, not its presence | every later measurement is taken through the switch; one line, and an `INCANT_EXPR_ACCUM=0` that reads as ON would void a control run |
+| 2 | **(d)** tier tests from setup data (D3) | removes the spelled operator lists from `runOPaccum`/`runOPaccumFrom`; small, and step 3's executors read the tiers |
+| 3 | **(c)** executor kinds and instruction layout, interpreted road: `opCall` (R1), `runOPdirect` (R4), the walk turnaround with R0 and its `isLIST` census | the core; everything after it reads its layout |
+| 4 | **(h)** the call executor's rule case reads a holder argument through | finishes `*block(code)` = pz 7; small, and it belongs to step 3's executor |
+| 5 | **(e)** triage of the value movers and spacingT's 139 | movers measured after the core moves, not before -- step 3 may move them again |
+| 6 | **(f)** the print-list respells (R2's `,*x`, 10 fixtures) | mechanical; after (e) so a respell is not mistaken for a mover |
+| 7 | **(a)** generated-parse bodies under the candidate | the largest; it compiles against the instruction layout step 3 fixes, so it waits for it |
+| 8 | **(b)** the jit road: a flat list's emit | last, on a settled layout; M3's door is already inside `opCall` from step 3 |
+
+**After the buy lands (unchanged):** the TokenXP rule and InvokeArg's UnaryXP alternative leave the grammar; KANT-43
+retires with a dated note. **Banked, not planned:** R2's per-operator "distributes" property.
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted

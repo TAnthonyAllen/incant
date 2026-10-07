@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
+STATUS:   fresh           # SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
+# prior: SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
 # prior: SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
 # prior: SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
 # prior: SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
@@ -12070,3 +12071,32 @@ the control `if frZeroCall()` 0, and `if falseResult;` with NO call 1 -- so the 
 truthy; runAction's capture is not the cause. NEXT is OPEN (what node the kant name resolves to).
 Nothing else touched: no source, no .mm, binary unchanged (trunk, 1022 / 51, canary 306).
   END SEQ 223
+
+===================================================================
+SEQ 224  -  SEQ 313 DONE: THE CAREFUL BUILD'S PLAN AND RECON; THE opAssign TAP. NOTHING BUILT. SEAL 89.
+===================================================================
+Written 2026-10-07. Everything is in docs/expressionRecon.md, "THE CAREFUL BUILD: PLAN AND RECON (SEQ 313)".
+
+R3 (measured, trunk, both = roads tapped, reverted md5-identical, generated files byte-identical after): 209 runs (every
+incant/pop and incant/pop/jit file, every ip() name in the checklist scripts, incant/jit*), all exit 0. 9,534 interpreted
+= and 5 jitted =; 47 interpreted calls carry a list, in 10 fixtures; 0 jitted. Of the 47: 36 are list-only values (jsonTest
+27, decodeT 5, decode 3, exprPinT's r3 = *block(src)) -- under setData alone those targets get nothing; 8 are StringXP
+strings with a stuff list; 2 counts with members (kant8T, faceT); 1 xl1 (printFamilyNew). Rare, but the JSON reader and
+the decoder depend on it.
+R1: the call is ALREADY bound in interpretXPaccum's operand build (acPostCall -> acC via handleCall), beside the prefix.
+The argument is one entry by grammar (Parens holds ExpressioN?, and `,` is in its guard). Graded READ plus seal 87's
+measured N1 36 / N2 37. The stop condition did not fire. The new call rows C1-C6 were run on TRUNK only (12, 15, 32,
+5, xl1InSet, -2): an in-place checkout of expr-accum was declined by the session's permission layer, and so was the clone
+recipe, so I stopped pursuing a branch run -- it needs Tony's word. *block(code) comes out right only with (h) landing
+inside opCall's rule case: today it drives the holder's name text, because followArgument follows only isArgument holders.
+M3's jitting door moves inside opCall.
+R4: runOPdirect(op, target, arg), with runOP(field) as an unpacker; the accumulator builds no step list. Carried
+correction: runOP's target is the LEFT operand, so the sketch's step must be [op, left, right].
+R0/R2: the PoC holds xl1 right to left on purpose so prior still reads source order (probe: aoA aoB aoC on trunk). The
+turnaround stroke builds source order, flips to next, and owes a census of every isLIST/xl1 reader.
+R5, proposed order: 0 pin C1-C6 into exprPinT on trunk; 1 (g); 2 (d); 3 (c) with R1, R4, R0; 4 (h); 5 (e); 6 (f); 7 (a);
+8 (b). Reasons per row in the doc. Tony rules it before any build.
+Also: Tony's offline checkSKIP and macros committed under his name (74b1eff).
+CERTIFICATE: docs, the transcription, and a reverted tap. Binary rebuilt from byte-identical generated files; pop.sh 1022 /
+51 red / 1 parked; canary 306; groups.ext untouched; Groups, support, TOK clean and pushed.
+  END SEQ 224
