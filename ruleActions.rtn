@@ -1629,17 +1629,141 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
             jux +% cur;
             cur = interpretXPaccumWrap(jux,0); }
         flat +% cur; }
+    // tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)
     if !flat.groupList          node = 0;
     or flat.listLength == 1     node = flat[1];
-    else {
-        node = flat;
-        node.method = runOPaccum;
-        node.invoke = true; }
+    else                        node = accBuild(flat);
     if getenv("INCANT_ACCUM_TRACE")     interpretXPaccumTrace(node,0);
     xpList.clear();
     xpList.group = node;
     return xpList;
 }
+
+/*  THE TIER SPLIT (SEQ 319, c3; D3 and D5). The flat list -- operand, then (op, operand) pairs --
+    is consumed LEFT TO RIGHT and rebuilt as one node per tier, loosest first: an assignment head
+    (acA), then && / || (acAnd / acOr, nested to the left, so a && b || c is (a && b) || c), then
+    one comparison (acK; a second one makes acKchain, refused by name at run time), then the
+    arithmetic fold (acX). Each node gets its executor as its method HERE, so nothing at run time
+    asks an operator for its tier. The tier marks are setup data: assignTier, shortCircuit,
+    compareTier; anything else folds.
+    ⚠ EVERY ITEM IS DETACHED BEFORE IT IS RE-ATTACHED (accPop). addGroup COPIES a node that
+    already has a parent, and a copy is what hid holderT's re-invocation in c1 -- so nothing here
+    attaches an item that still belongs to the flat list.  */
+
+// accPop take the flat list's first item off it, parent cleared, so the next +% attaches IT and not a copy
+extern GroupItem accPop(GroupItem flat)
+{
+GroupItem   item;
+    if !flat.groupList      return null;
+    if !flat.listLength     return null;
+    item = flat[1];
+    if !item    return null;
+    item.remove();
+    item.parent = null;
+    return item;
+}
+
+
+// accNextOp the operator at the head of the list, or null -- these lists alternate, so a peek after an operand is an operator
+extern GroupItem accNextOp(GroupItem flat)
+{
+    if !flat.groupList      return null;
+    if !flat.listLength     return null;
+    return flat[1];
+}
+
+
+// accBuild the loosest tier: an assignment head parks its target and takes the rest as its right side
+extern GroupItem accBuild(GroupItem flat)
+{
+GroupItem   node, right;
+    if !opIsAssignTier(flat[2])     return accLogic(flat);
+    node = new("acA");
+    node +% accPop(flat);
+    node +% accPop(flat);
+    right = accLogic(flat);
+    if right    node +% right;
+    node.method = runAccAssign;
+    node.invoke = true;
+    return node;
+}
+
+
+// accLogic && and ||, nested to the left: each connective takes what is built so far and the next comparison part
+extern GroupItem accLogic(GroupItem flat)
+{
+GroupItem   left, op, right, node;
+    left = accCompare(flat);
+    while opIsShortCircuit(accNextOp(flat)) {
+        op = accPop(flat);
+        right = accCompare(flat);
+        if opIsOR(op) {
+            node = new("acOr");
+            node.method = runAccOr; }
+        else {
+            node = new("acAnd");
+            node.method = runAccAnd; }
+        node +% left;
+        node +% op;
+        if right    node +% right;
+        node.invoke = true;
+        left = node; }
+    return left;
+}
+
+
+// accCompare one comparison between two folds; a second comparison in the same part makes the chain, refused by name
+extern GroupItem accCompare(GroupItem flat)
+{
+GroupItem   left, op, right, node;
+    left = accFold(flat);
+    if !opIsCompareTier(accNextOp(flat))    return left;
+    op = accPop(flat);
+    right = accFold(flat);
+    if opIsCompareTier(accNextOp(flat)) {
+        node = new("acKchain");
+        node +% left;
+        node +% op;
+        if right    node +% right;
+        while opIsCompareTier(accNextOp(flat)) {
+            node +% accPop(flat);
+            right = accFold(flat);
+            if right    node +% right; }
+        node.method = runAccChain;
+        node.invoke = true;
+        return node; }
+    node = new("acK");
+    node +% left;
+    node +% op;
+    if right    node +% right;
+    node.method = runAccCompare;
+    node.invoke = true;
+    return node;
+}
+
+
+// accFold an operand, then (op, operand) for as long as the operator is arithmetic -- one operand alone is itself
+extern GroupItem accFold(GroupItem flat)
+{
+GroupItem   first, op, node;
+    first = accPop(flat);
+    op = accNextOp(flat);
+    if !op                          return first;
+    if opIsShortCircuit(op)         return first;
+    if opIsCompareTier(op)          return first;
+    node = new("acX");
+    node +% first;
+    while op {
+        if opIsShortCircuit(op)     break;
+        if opIsCompareTier(op)      break;
+        node +% accPop(flat);
+        if accNextOp(flat)          node +% accPop(flat);
+        op = accNextOp(flat); }
+    node.method = runAccFold;
+    node.invoke = true;
+    return node;
+}
+
 
 /*  interpretXPaccumU -- one prefix over one operand: an acU, run by runOPaccum.  */
 extern GroupItem interpretXPaccumU(GroupItem op, GroupItem operand)
@@ -1908,7 +2032,7 @@ extern int opIsOR(GroupItem op)
 /*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
     `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
     is the logic tier, and an operator with none of the three folds as arithmetic. They
-    replaced two spelled lists in runOPaccum and runOPaccumFrom.   HANDS, NOT WITNESSES  */
+    replaced two spelled lists in the PoC's runOPaccum; since SEQ 319 c3 the split reads them at BUILD.   HANDS, NOT WITNESSES  */
 extern int opIsAssignTier(GroupItem op)
 {
     if !op                  return 0;

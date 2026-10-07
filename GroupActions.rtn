@@ -1089,16 +1089,14 @@ GroupRules  ruler = groupRules;
 }
 
 
-/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S runOP (SEQ 311, try-and-buy on expr-accum).
-    Three shapes, all built by interpretXPaccum: acU (a prefix over an operand), acC (a call
-    whose target is itself built -- (*block)(code)), and acX, the flat list. A head `A =`
-    (an assignment-tier op in slot 2) is parked: the tail is evaluated, then assigned.
-    Interpreted only: under jitting it refuses (SEQ 311 R4).
-    ⚠ PROOF OF CONCEPT -- the tier tests are setup data since SEQ 316 (opIsAssignTier, opIsCompareTier).  */
+/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S PREFIX AND CALL (SEQ 311; tiers moved out at SEQ 319 c3).
+    Two shapes built by interpretXPaccum: acU (a prefix over an operand) and acC (a call whose
+    target is itself built -- (*block)(code)). The tiers have their own executors below.
+    Interpreted only: under jitting it refuses (SEQ 311 R4).  */
 extern GroupItem runOPaccum(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-GroupItem   op, val, arg, target;
+GroupItem   op, val, arg;
     if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
     if field.tag eq "acU" {
         op = field[1];
@@ -1120,9 +1118,24 @@ GroupItem   op, val, arg, target;
         measureRuleDispatch(falseResult,val,arg);
         if isCallable(val)  return opCall(val,arg);
         return refuseUnknownOperator(falseResult,val); }
-    op = field[2];
-    if !opIsAssignTier(op)  return runOPaccumFrom(field,1);
-    val = runOPaccumFrom(field,3);
+    return refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
+}
+
+
+/*  THE TIER EXECUTORS (SEQ 319, c3). interpretXPaccum builds one node per tier, loosest first,
+    and gives each node ITS executor as its method at build time (D5): acA assign, acAnd / acOr
+    logic, acK compare, acKchain the chained-comparison refusal, acX the arithmetic fold. NOTHING
+    here asks an operator for its tier -- the split already did, once. Operands arrive as nodes
+    and are finished by runOPaccumOperand; runOPdirect fires on finished operands (c1).
+    Interpreted only: under jitting each refuses (SEQ 311 R4).  */
+
+// runAccAssign the assignment tier, a single step: finish the head's target, evaluate the right side, assign
+extern GroupItem runAccAssign(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op = field[2], val = null, target;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    if field.listLength > 2     val = runOPaccumOperand(field[3]);
     // finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
     target = field[1];
     if refuseArgRebind(op,target)   return null;
@@ -1133,48 +1146,79 @@ GroupItem   op, val, arg, target;
     return runOPdirect(op,target,val);
 }
 
-/*  runOPaccumFrom -- THE ACCUMULATOR LOOP from slot i: the running value is a local of
-    this invocation and never tempField (a step answering in tempField is copied out before
-    the next operand can run). && and || decide on the running value and RECURSE: && false
-    (|| true) jumps past the next connective of the other kind, carrying false (true), and
-    what it jumps over never runs; otherwise the tail after the connective is the value. A
-    connective's answer is a SENTINEL, as runShortCircuit's is -- an action's own returned
-    node carries its branch signal. A comparison whose right side continues into arithmetic
-    refuses by name (SEQ 311 R1).  */
-extern GroupItem runOPaccumFrom(GroupItem field, int i)
+
+// runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
+extern GroupItem runAccAnd(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-int         n = field.listLength, keepOR = 0;
-GroupItem   run, op, keep;
-    run = runOPaccumOperand(field[i]);
-    i = i + 1;
+GroupItem   left;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    if !truthOf(left)                       return falseResult;
+    if field.listLength < 3                 return falseResult;
+    if truthOf(runOPaccumOperand(field[3])) return trueResult;
+    return falseResult;
+}
+
+
+// runAccOr the logic tier, ||: evaluate the left side, early-out on true, else the right side decides -- a SENTINEL either way
+extern GroupItem runAccOr(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    if truthOf(left)                        return trueResult;
+    if field.listLength < 3                 return falseResult;
+    if truthOf(runOPaccumOperand(field[3])) return trueResult;
+    return falseResult;
+}
+
+
+// runAccCompare the compare tier, a single step: left side, right side, the comparison
+extern GroupItem runAccCompare(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left, keep, right = null;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    // copyOut a side answering in tempField is copied out before the other side can run
+    if left == ruler.tempField {
+        keep = new("acRun");
+        keep.setContent(left);
+        left = keep; }
+    if !left    left = falseResult;
+    if left.isVirtual   left = copyOf(left);
+    if field.listLength > 2     right = runOPaccumOperand(field[3]);
+    return runOPdirect(field[2],left,right);
+}
+
+
+// runAccChain a CHAINED comparison, seen at build: refused by its own name (SEQ 318 R1)
+extern GroupItem runAccChain(GroupItem field)
+{
+    return refuse(field[2],"a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)");
+}
+
+
+// runAccFold the arithmetic tier, THE FOLD: left to right, no precedence, no tier test -- every operator here is arithmetic by construction
+extern GroupItem runAccFold(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+int         n = field.listLength, i = 2;
+GroupItem   run, keep;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    run = runOPaccumOperand(field[1]);
     while i < n {
+        // copyOut a step answering in tempField is copied out before the next operand can run
         if run == ruler.tempField {
             keep = new("acRun");
             keep.setContent(run);
             run = keep; }
-        op = field[i];
-        if opIsShortCircuit(op) {
-            keepOR = opIsOR(op);
-            if truthOf(run) == keepOR {
-                i = i + 2;
-                while i < n {
-                    if opIsShortCircuit(field[i])
-                        if opIsOR(field[i]) != keepOR   break;
-                    i = i + 2; }
-                if i >= n           run = falseResult;
-                if i >= n && keepOR run = trueResult;
-                if i >= n           return run; }
-            run = runOPaccumFrom(field,i + 1);
-            if truthOf(run)     return trueResult;
-            return falseResult; }
-        if opIsCompareTier(op)
-            if i + 2 < n
-                if !opIsShortCircuit(field[i + 2])  return refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");
         if !run     run = falseResult;
         // finished both sides are finished: the running value is a value, the right side is evaluated once here
         if run.isVirtual    run = copyOf(run);
-        run = runOPdirect(op,run,runOPaccumOperand(field[i + 1]));
+        run = runOPdirect(field[i],run,runOPaccumOperand(field[i + 1]));
         i = i + 2; }
     return run;
 }

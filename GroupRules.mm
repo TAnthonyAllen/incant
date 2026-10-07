@@ -1510,6 +1510,163 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
+// accBuild the loosest tier: an assignment head parks its target and takes the rest as its right side
+extern "C" GroupItem *accBuild(GroupItem *flat)
+{
+GroupItem 	*node = 0;
+GroupItem 	*right = 0;
+	if ( !::opIsAssignTier(flat->get(2)) )
+		return accLogic(flat);
+	node = new GroupItem("acA");
+	node->addAttribute(::accPop(flat));
+	node->addAttribute(::accPop(flat));
+	right = accLogic(flat);
+	if ( right )
+		node->addAttribute(right);
+	node->setMethod(::runAccAssign);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+// accCompare one comparison between two folds; a second comparison in the same part makes the chain, refused by name
+extern "C" GroupItem *accCompare(GroupItem *flat)
+{
+GroupItem 	*left = 0;
+GroupItem 	*op = 0;
+GroupItem 	*right = 0;
+GroupItem 	*node = 0;
+	left = accFold(flat);
+	if ( !::opIsCompareTier(::accNextOp(flat)) )
+		return left;
+	op = ::accPop(flat);
+	right = accFold(flat);
+	if ( ::opIsCompareTier(::accNextOp(flat)) )
+		{
+		node = new GroupItem("acKchain");
+		node->addAttribute(left);
+		node->addAttribute(op);
+		if ( right )
+			node->addAttribute(right);
+		while ( ::opIsCompareTier(::accNextOp(flat)) )
+			{
+			node->addAttribute(::accPop(flat));
+			right = accFold(flat);
+			if ( right )
+				node->addAttribute(right);
+			}
+		node->setMethod(::runAccChain);
+		node->groupBody->flags.invoke = 1;
+		return node;
+		}
+	node = new GroupItem("acK");
+	node->addAttribute(left);
+	node->addAttribute(op);
+	if ( right )
+		node->addAttribute(right);
+	node->setMethod(::runAccCompare);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+// accFold an operand, then (op, operand) for as long as the operator is arithmetic -- one operand alone is itself
+extern "C" GroupItem *accFold(GroupItem *flat)
+{
+GroupItem 	*first = 0;
+GroupItem 	*op = 0;
+GroupItem 	*node = 0;
+	first = ::accPop(flat);
+	op = ::accNextOp(flat);
+	if ( !op )
+		return first;
+	if ( ::opIsShortCircuit(op) )
+		return first;
+	if ( ::opIsCompareTier(op) )
+		return first;
+	node = new GroupItem("acX");
+	node->addAttribute(first);
+	while ( op )
+		{
+		if ( ::opIsShortCircuit(op) )
+			break;
+		if ( ::opIsCompareTier(op) )
+			break;
+		node->addAttribute(::accPop(flat));
+		if ( ::accNextOp(flat) )
+			node->addAttribute(::accPop(flat));
+		op = ::accNextOp(flat);
+		}
+	node->setMethod(::runAccFold);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+// accLogic && and ||, nested to the left: each connective takes what is built so far and the next comparison part
+extern "C" GroupItem *accLogic(GroupItem *flat)
+{
+GroupItem 	*left = 0;
+GroupItem 	*op = 0;
+GroupItem 	*right = 0;
+GroupItem 	*node = 0;
+	left = accCompare(flat);
+	while ( ::opIsShortCircuit(::accNextOp(flat)) )
+		{
+		op = ::accPop(flat);
+		right = accCompare(flat);
+		if ( ::opIsOR(op) )
+			{
+			node = new GroupItem("acOr");
+			node->setMethod(::runAccOr);
+			}
+		else {
+			node = new GroupItem("acAnd");
+			node->setMethod(::runAccAnd);
+			}
+		node->addAttribute(left);
+		node->addAttribute(op);
+		if ( right )
+			node->addAttribute(right);
+		node->groupBody->flags.invoke = 1;
+		left = node;
+		}
+	return left;
+}
+
+// accNextOp the operator at the head of the list, or null -- these lists alternate, so a peek after an operand is an operator
+extern "C" GroupItem *accNextOp(GroupItem *flat)
+{
+	if ( !flat->groupBody->groupList )
+		return 0;
+	if ( !flat->groupBody->groupList->listLength )
+		return 0;
+	return flat->get(1);
+}
+
+/*  THE TIER SPLIT (SEQ 319, c3; D3 and D5). The flat list -- operand, then (op, operand) pairs --
+    is consumed LEFT TO RIGHT and rebuilt as one node per tier, loosest first: an assignment head
+    (acA), then && / || (acAnd / acOr, nested to the left, so a && b || c is (a && b) || c), then
+    one comparison (acK; a second one makes acKchain, refused by name at run time), then the
+    arithmetic fold (acX). Each node gets its executor as its method HERE, so nothing at run time
+    asks an operator for its tier. The tier marks are setup data: assignTier, shortCircuit,
+    compareTier; anything else folds.
+    ⚠ EVERY ITEM IS DETACHED BEFORE IT IS RE-ATTACHED (accPop). addGroup COPIES a node that
+    already has a parent, and a copy is what hid holderT's re-invocation in c1 -- so nothing here
+    attaches an item that still belongs to the flat list.  */
+// accPop take the flat list's first item off it, parent cleared, so the next +% attaches IT and not a copy
+extern "C" GroupItem *accPop(GroupItem *flat)
+{
+GroupItem 	*item = 0;
+	if ( !flat->groupBody->groupList )
+		return 0;
+	if ( !flat->groupBody->groupList->listLength )
+		return 0;
+	item = flat->get(1);
+	if ( !item )
+		return 0;
+	item->remove();
+	item->parent = 0;
+	return item;
+}
+
 /***************************************************************************
     accessorWrite -- `x.name = v`: opDot handed opAssign its COPY of x's
     groupField, marked isAccessorProduct and parented to x. Write the field
@@ -3247,16 +3404,13 @@ GroupItem 	*right = 0;
 			}
 		flat->addAttribute(cur);
 		}
+	// tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)
 	if ( !flat->groupBody->groupList )
 		node = 0;
 	else
 	if ( flat->groupBody->groupList->listLength == 1 )
 		node = flat->get(1);
-	else {
-		node = flat;
-		node->setMethod(::runOPaccum);
-		node->groupBody->flags.invoke = 1;
-		}
+	else	node = accBuild(flat);
 	if ( ::getenv("INCANT_ACCUM_TRACE") )
 		interpretXPaccumTrace(node,0);
 	xpList->clear();
@@ -8005,7 +8159,7 @@ GroupItem 	*result = 0;
 /*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
     `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
     is the logic tier, and an operator with none of the three folds as arithmetic. They
-    replaced two spelled lists in runOPaccum and runOPaccumFrom.   HANDS, NOT WITNESSES  */
+    replaced two spelled lists in the PoC's runOPaccum; since SEQ 319 c3 the split reads them at BUILD.   HANDS, NOT WITNESSES  */
 extern "C" int opIsAssignTier(GroupItem *op)
 {
 	if ( !op )
@@ -10413,6 +10567,134 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
+// runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
+extern "C" GroupItem *runAccAnd(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*left = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	left = runOPaccumOperand(field->get(1));
+	if ( !::truthOf(left) )
+		return ruler->falseResult;
+	if ( field->groupBody->groupList->listLength < 3 )
+		return ruler->falseResult;
+	if ( ::truthOf(runOPaccumOperand(field->get(3))) )
+		return ruler->trueResult;
+	return ruler->falseResult;
+}
+
+/*  THE TIER EXECUTORS (SEQ 319, c3). interpretXPaccum builds one node per tier, loosest first,
+    and gives each node ITS executor as its method at build time (D5): acA assign, acAnd / acOr
+    logic, acK compare, acKchain the chained-comparison refusal, acX the arithmetic fold. NOTHING
+    here asks an operator for its tier -- the split already did, once. Operands arrive as nodes
+    and are finished by runOPaccumOperand; runOPdirect fires on finished operands (c1).
+    Interpreted only: under jitting each refuses (SEQ 311 R4).  */
+// runAccAssign the assignment tier, a single step: finish the head's target, evaluate the right side, assign
+extern "C" GroupItem *runAccAssign(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*op = field->get(2);
+GroupItem 	*val = 0;
+GroupItem 	*target = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	if ( field->groupBody->groupList->listLength > 2 )
+		val = runOPaccumOperand(field->get(3));
+	// finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
+	target = field->get(1);
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	if ( ruler->refused )
+		return 0;
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+		target = target->groupBody->gMethod(target);
+	if ( target && target->groupBody->flags.isVirtual )
+		target = ::copyOf(target);
+	return ::runOPdirect(op,target,val);
+}
+
+// runAccChain a CHAINED comparison, seen at build: refused by its own name (SEQ 318 R1)
+extern "C" GroupItem *runAccChain(GroupItem *field)
+{
+	return ::refuse(field->get(2),"a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)");
+}
+
+// runAccCompare the compare tier, a single step: left side, right side, the comparison
+extern "C" GroupItem *runAccCompare(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*left = 0;
+GroupItem 	*keep = 0;
+GroupItem 	*right = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	left = runOPaccumOperand(field->get(1));
+	// copyOut a side answering in tempField is copied out before the other side can run
+	if ( left == ruler->tempField )
+		{
+		keep = new GroupItem("acRun");
+		keep->setContent(left);
+		left = keep;
+		}
+	if ( !left )
+		left = ruler->falseResult;
+	if ( left->groupBody->flags.isVirtual )
+		left = ::copyOf(left);
+	if ( field->groupBody->groupList->listLength > 2 )
+		right = runOPaccumOperand(field->get(3));
+	return ::runOPdirect(field->get(2),left,right);
+}
+
+// runAccFold the arithmetic tier, THE FOLD: left to right, no precedence, no tier test -- every operator here is arithmetic by construction
+extern "C" GroupItem *runAccFold(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		n = field->groupBody->groupList->listLength;
+int 		i = 2;
+GroupItem 	*run = 0;
+GroupItem 	*keep = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	run = runOPaccumOperand(field->get(1));
+	while ( i < n )
+		{
+		// copyOut a step answering in tempField is copied out before the next operand can run
+		if ( run == ruler->tempField )
+			{
+			keep = new GroupItem("acRun");
+			keep->setContent(run);
+			run = keep;
+			}
+		if ( !run )
+			run = ruler->falseResult;
+		// finished both sides are finished: the running value is a value, the right side is evaluated once here
+		if ( run->groupBody->flags.isVirtual )
+			run = ::copyOf(run);
+		run = ::runOPdirect(field->get(i),run,runOPaccumOperand(field->get(i + 1)));
+		i = i + 2;
+		}
+	return run;
+}
+
+// runAccOr the logic tier, ||: evaluate the left side, early-out on true, else the right side decides -- a SENTINEL either way
+extern "C" GroupItem *runAccOr(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*left = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	left = runOPaccumOperand(field->get(1));
+	if ( ::truthOf(left) )
+		return ruler->trueResult;
+	if ( field->groupBody->groupList->listLength < 3 )
+		return ruler->falseResult;
+	if ( ::truthOf(runOPaccumOperand(field->get(3))) )
+		return ruler->trueResult;
+	return ruler->falseResult;
+}
+
 // runAction run an action that may need code processing -- two arms, the jit arm and the interpreted one, each returning through its own exit
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field)
 {
@@ -10488,19 +10770,16 @@ extern "C" GroupItem *runOP(GroupItem *field)
 	return ::runOPslots(field->get(1),field->get(2),field->get(3));
 }
 
-/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S runOP (SEQ 311, try-and-buy on expr-accum).
-    Three shapes, all built by interpretXPaccum: acU (a prefix over an operand), acC (a call
-    whose target is itself built -- (*block)(code)), and acX, the flat list. A head `A =`
-    (an assignment-tier op in slot 2) is parked: the tail is evaluated, then assigned.
-    Interpreted only: under jitting it refuses (SEQ 311 R4).
-    ⚠ PROOF OF CONCEPT -- the tier tests are setup data since SEQ 316 (opIsAssignTier, opIsCompareTier).  */
+/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S PREFIX AND CALL (SEQ 311; tiers moved out at SEQ 319 c3).
+    Two shapes built by interpretXPaccum: acU (a prefix over an operand) and acC (a call whose
+    target is itself built -- (*block)(code)). The tiers have their own executors below.
+    Interpreted only: under jitting it refuses (SEQ 311 R4).  */
 extern "C" GroupItem *runOPaccum(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*op = 0;
 GroupItem 	*val = 0;
 GroupItem 	*arg = 0;
-GroupItem 	*target = 0;
 	if ( ruler->jitting )
 		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
 	if ( ::compare(field->groupBody->tag,"acU") == 0 )
@@ -10533,89 +10812,7 @@ GroupItem 	*target = 0;
 			return ::opCall(val,arg);
 		return ::refuseUnknownOperator(ruler->falseResult,val);
 		}
-	op = field->get(2);
-	if ( !::opIsAssignTier(op) )
-		return runOPaccumFrom(field,1);
-	val = runOPaccumFrom(field,3);
-	// finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
-	target = field->get(1);
-	if ( ::refuseArgRebind(op,target) )
-		return 0;
-	target = ::followArgument(target);
-	if ( ruler->refused )
-		return 0;
-	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
-		target = target->groupBody->gMethod(target);
-	if ( target && target->groupBody->flags.isVirtual )
-		target = ::copyOf(target);
-	return ::runOPdirect(op,target,val);
-}
-
-/*  runOPaccumFrom -- THE ACCUMULATOR LOOP from slot i: the running value is a local of
-    this invocation and never tempField (a step answering in tempField is copied out before
-    the next operand can run). && and || decide on the running value and RECURSE: && false
-    (|| true) jumps past the next connective of the other kind, carrying false (true), and
-    what it jumps over never runs; otherwise the tail after the connective is the value. A
-    connective's answer is a SENTINEL, as runShortCircuit's is -- an action's own returned
-    node carries its branch signal. A comparison whose right side continues into arithmetic
-    refuses by name (SEQ 311 R1).  */
-extern "C" GroupItem *runOPaccumFrom(GroupItem *field, int i)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-int 		n = field->groupBody->groupList->listLength;
-int 		keepOR = 0;
-GroupItem 	*run = 0;
-GroupItem 	*op = 0;
-GroupItem 	*keep = 0;
-	run = runOPaccumOperand(field->get(i));
-	i = i + 1;
-	while ( i < n )
-		{
-		if ( run == ruler->tempField )
-			{
-			keep = new GroupItem("acRun");
-			keep->setContent(run);
-			run = keep;
-			}
-		op = field->get(i);
-		if ( ::opIsShortCircuit(op) )
-			{
-			keepOR = ::opIsOR(op);
-			if ( ::truthOf(run) == keepOR )
-				{
-				i = i + 2;
-				while ( i < n )
-					{
-					if ( ::opIsShortCircuit(field->get(i)) )
-						if ( ::opIsOR(field->get(i)) != keepOR )
-							break;
-					i = i + 2;
-					}
-				if ( i >= n )
-					run = ruler->falseResult;
-				if ( i >= n && keepOR )
-					run = ruler->trueResult;
-				if ( i >= n )
-					return run;
-				}
-			run = ::runOPaccumFrom(field,i + 1);
-			if ( ::truthOf(run) )
-				return ruler->trueResult;
-			return ruler->falseResult;
-			}
-		if ( ::opIsCompareTier(op) )
-			if ( i + 2 < n )
-				if ( !::opIsShortCircuit(field->get(i + 2)) )
-					return ::refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");
-		if ( !run )
-			run = ruler->falseResult;
-		// finished both sides are finished: the running value is a value, the right side is evaluated once here
-		if ( run->groupBody->flags.isVirtual )
-			run = ::copyOf(run);
-		run = ::runOPdirect(op,run,runOPaccumOperand(field->get(i + 1)));
-		i = i + 2;
-		}
-	return run;
+	return ::refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
 }
 
 /*  runOPaccumOperand -- one operand, evaluated if it carries an invocation.  */
@@ -11683,6 +11880,10 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	read(int,char*,long)
 	driveStep(GroupItem*,GroupItem*,GroupItem*,null*)
 	reportCodeFail(GroupItem*,char*)
+	accFold(GroupItem*)
+	accFold(GroupItem*)
+	accCompare(GroupItem*)
+	accLogic(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
