@@ -6018,6 +6018,14 @@ kindRow "exprPinT H1 hz += qa * qb, hz 1"                  "$(_ep H1)"    "21"  
 kindRow "exprPinT H2 hw := qa * qb + qc"                   "$(_ep H2)"    "23"        # intended 23
 kindRow "exprPinT H3 hx.noPrinT = hy.noPrinT"              "$(_ep H3)"    "1"         # intended 1
 kindRow "exprPinT E1 qa > qb + qc (open edge)"             "$(_ep E1)"    "qr"        # intended: Tony's to rule
+#  callRows SEQ 314 step 0: the call rows, the careful build's measuring stick for opCall (SEQ 313 R1)
+kindRow "exprPinT C1 qa + fId(qb)"                         "$(_ep C1)"    "12"        # intended 12
+kindRow "exprPinT C2 qa + fId(qb) + qc"                    "$(_ep C2)"    "15"        # intended 15
+kindRow "exprPinT C3 fId(qa + qb * qc)"                    "$(_ep C3)"    "32"        # intended 36
+kindRow "exprPinT C4 fNone(), empty argument"              "$(_ep C4)"    "5"         # intended 5
+kindRow "exprPinT C4 fNone runs, lines"                    "$(grep -c '^EP fNone RAN' "$T/ept.e")" "1"  # intended 1
+kindRow "exprPinT C5 fId(qa qb)"                           "$(_ep C5)"    "xl1InSet"  # intended a two-member list (R2)
+kindRow "exprPinT C6 fId(-qa)"                             "$(_ep C6)"    "-2"        # intended -2
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
