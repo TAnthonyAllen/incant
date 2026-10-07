@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
+STATUS:   fresh           # SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+# prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
 # prior: SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
@@ -12231,3 +12232,24 @@ reads 3, E2 stops refusing. Restored md5-identical.
 Shutdown: trunk full checklist clean (1031 / 51, jitLadder, printPop PASSED, decodePop / frontier / dirCheck = captures,
 ddPop 5 / 1, canary 306, exec bits). Next: c4, the turnaround, in a fresh session, opening with the InSet census (R4).
   END SEQ 231
+
+===================================================================
+SEQ 232  -  SEQ 320 DONE: C1 TESTER ON expr-accum, THE TRACE, C1 FLOW, THE InSet CENSUS. SEAL 98.
+===================================================================
+Written 2026-10-07. Details in docs/expressionRecon.md, "C1 FLOW" and "c4's OPENING CENSUS".
+R0: Tony's tester on expr-accum (e5c0dd6). The RULED LINE DOES NOT PARSE, ON EITHER ROAD: `-` is in UnaryOPS, so
+InvokeArg's UnaryXP alternative absorbs `- fId` into lim's term and (qa + qb) is a second postfix (bear-trap 52).
+c1Run keeps it so the failure shows; c1Builds flips the subtraction (fId(qa + qb) - lim), parses, r = 1.
+blk is a holder of blkBody (an action with a code body) -- a star on a non-holder is null by ruling.
+R1: breakpoint ruleActions.rtn:1640 = GroupRules.mm:3483 on the branch, or the symbol accBuilt (called only for traced
+expressions). Scheme env INCANT_EXPR_ACCUM=1; INCANT_ACCUM_TRACE=r for the printout.
+R2: the trace (fbb5561): ACCUM FLAT (before the split), ACCUM TREE (indented, kinds, ops marked, values). The tree is
+EXACTLY the predicted shape: acA [r, =, acOr [acAnd [acK [acX, >, acX], &&, ok], ||, acU [!, done]]]. Fleet unmoved
+both ways; canary 335.
+R3: the chain (17 rows) -- compilation is LAZY: the body is built on the first call, runAction -> processCode ->
+driveStep -> parse -> fireLabelMethod -> interpretXPaccum (two passes) -> accBuild/Logic/Compare/Fold -> accBuilt.
+R4: the InSet set is a BIN's first-character set, given to ANY binType item, LIST included (GroupList(item),
+addGroup's binType block). Six readers reach a LIST value: getText (prints xl1InSet), copyData via = (shares the set
+pointer), opIN (asks it as a character set), getType (PLGset*), get/getFromList (guard reject), getCharacterSet. The
+rest are parse-only or setup. The census finds named fields only; c4's certificate covers the rest.
+  END SEQ 232

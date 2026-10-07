@@ -464,6 +464,81 @@ C6 -2; N1 36, N2 37, O1 pz 0 / r3 echo as seal 87. The argument arrived as one e
 **After the buy lands (unchanged):** the TokenXP rule and InvokeArg's UnaryXP alternative leave the grammar; KANT-43
 retires with a dated note. **Banked, not planned:** R2's per-operator "distributes" property.
 
+### C1 FLOW -- the build-time call chain, interpretXP to the finished tier tree (SEQ 320, Clod, 2026-10-07)
+
+Measured on `expr-accum` `fbb5561` (lldb at `accBuilt`, `IncantForms/WorkingOn/tester`'s `c1Builds`, switch on). Lines are
+the branch's sources; the Xcode `.mm` line is given where Tony will set the breakpoint.
+
+**Run it:** scheme environment `INCANT_EXPR_ACCUM=1` (the candidate; unset or `0` is today's road) and, for the printout,
+`INCANT_ACCUM_TRACE=r` (only expressions whose first item is `r`; `=1` prints every expression).
+**THE BREAKPOINT** -- the tree finished, nothing run: `ruleActions.rtn:1640` `if traced accBuilt(node);` =
+**`GroupRules.mm:3483`**, or the symbol **`accBuilt`** (it is called only for traced expressions, so with `=r` it stops on
+the `r = ...` lines alone). `node` there is the root.
+
+⚠ **COMPILATION IS LAZY.** An action's body is parsed and built on its FIRST CALL, not at `define`: the chain below starts
+from `c1Builds()` being run. So both trace prints come before `C1 variant begin`.
+
+| # | method | file:line | what it does |
+|---|---|---|---|
+| 1 | `runOPaccum` (acC arm) | `GroupActions.rtn:1098` | the statement `c1Builds();` -- a call, handed to opCall |
+| 2 | `opCall` | `GroupActions.rtn` (c2) | the call executor: `c1Builds` is an action -> `runAction` |
+| 3 | `runAction` | `GroupActions.rtn:932` | binds the argument, and on a first call has the body compiled |
+| 4 | `processCode` | `GroupActions.rtn:669` | compiles the action's CodE: `driveStep(code, BlocK, ...)` at `:702` |
+| 5 | `driveStep` | `GroupActions.rtn:221` | drives the BlocK rule over the code text |
+| 6 | `GroupItem::parse` / `testAttributes` / `testOptions` | `GroupItem.twk:1298`, `RuleStuff.twk` | recursive descent: statement -> Xpress -> ExpressioN -> Token+ |
+| 7 | `aCTionTokenXP` (per term) | `ruleActions.rtn:976`, gate `:985` | each TokenXP's actor; under the switch it hands its label up UNTOUCHED (`exprAccumOn`) |
+| 8 | `GroupItem::fireLabelMethod` | `GroupItem.twk:710`, fire `:732` | ExpressioN matched: fires its actor on the label -- `interpretXPaccum`, installed at bootstrap by `setActions` (`GroupItem.twk:1665`, `exprAccumOn`) |
+| 9 | `interpretXPaccum` pass 1 | `ruleActions.rtn:1497`, `:1502` | flattens every TokenXP label into raw pieces -- unary, name, InvokeArg -- in `acSeq` (`:1518` prefix, `:1534` call/subscript) |
+| 10 | `interpretXPaccum` pass 2 | `ruleActions.rtn:1538` on | decides BY POSITION into `flat`: op where an operand is expected = prefix (`interpretXPaccumU`, `:1773`); `.` builds acDot; a call builds acC (`handleCall`, `:1258`, at `:1579`); a subscript acSub (`:1587`); juxtaposed operands wrap to xl1 (`interpretXPaccumWrap`, `:1785`) |
+| 11 | `accTraceWanted` / `accTraceFlat` | `ruleActions.rtn:1633` | under `INCANT_ACCUM_TRACE`, prints `ACCUM FLAT` before the split consumes the list |
+| 12 | `accBuild` | `ruleActions.rtn:1681` (called `:1638`) | assignment head -> acA (target, op, the rest) |
+| 13 | `accLogic` | `:1697` | && / || -> acAnd / acOr, nested to the left |
+| 14 | `accCompare` | `:1720` | one comparison -> acK; a second -> acKchain |
+| 15 | `accFold` | `:1750` | (op, operand) while arithmetic -> acX; one operand alone is itself |
+| 16 | `accPop` | `:1658` | takes an item off `flat`, parent cleared, so `+%` attaches it and not a copy |
+| 17 | **`accBuilt`** | `:1867` (called `:1640`) | **THE BREAKPOINT** -- prints `ACCUM TREE`; then `xpList.group = node` (`:1642`) |
+
+**What the tree reads** for `r = *blk(cv) + n * 2 > fId(qa + qb) - lim && ok || !done` (c1Builds) -- exactly Clay's
+prediction: `acA [r, =, acOr [acAnd [acK [acX [acC [false, acU [*, blk], cv], +, n, *, 2], >, acX [acC [false, fId, acX [qa,
++, qb]], -, lim]], &&, ok], ||, acU [!, done]]]`; it runs to **r = 1**.
+⚠ **THE RULED LINE (`... > lim - fId(qa + qb) ...`, c1Run) DOES NOT PARSE, ON EITHER ROAD.** `-` is in UnaryOPS, so
+InvokeArg's `UnaryXP UnaryOPS ANYtoken` alternative absorbs `- fId` into `lim`'s term, and `(qa + qb)` is then a SECOND
+postfix that TokenXP's single `InvokeArg?` cannot take (bear-trap #52). `lim - fId(qa + qb)` alone fails the same way;
+`qa + fId(qb)` parses because `+` is not in UnaryOPS. It is the grammar change already queued "after the buy lands".
+
+### c4's OPENING CENSUS -- who reads the `tag + "InSet"` set (SEQ 320 R4, read only, trunk sources, 2026-10-07)
+
+**What the set is.** `GroupList(GroupItem item)` (`GroupList.twk:20-27`, generated `GroupList.mm:25-38`): for ANY item whose
+`binType` is non-zero -- BIN, CLASS, **LIST**, REGISTRY -- a new `PLGset` named `tag + "InSet\n"` becomes the item's
+`characterSet` (`setCharacterSet`, `GroupItem.twk:1704-1705`, which also makes its DATA isSET), a `guardSet` is made, and
+`guarding` is set. `addGroup`'s binType block (`GroupItem.twk:136-143`) then adds each child's first character to the
+guardSet and its name to the characterSet. **For a bin that is the point** -- first-character membership for parsing.
+**For a list it is an accident**: `xl1` is `binType` LIST, so it gets a bin's set.
+
+**Who makes LIST-typed items:** trunk's interpretXP (`ruleActions.rtn:1449-1450`, xl1), the branch's
+`interpretXPaccumWrap` (xl1), and the `isList` command (`Commands.rtn:434`, registered `incant/setup:49`, used once:
+`incant/utilities:193` `newStuff isList;`).
+
+**The readers** (census: every `characterSet`, `guardSet`, `guarded`/`guarding`, `isSET`, `InSet` in `*.twk`/`*.rtn`):
+
+| reaches a LIST value? | reader | file:line | what it does with the set |
+|---|---|---|---|
+| **yes -- C5's symptom** | `getText` | `GroupItem.twk:1046` | `case isSET: junkText = characterSet.name` -- a list prints as `xl1InSet` |
+| **yes -- how it travels** | `copyData` via `setContent` (`=`) | `GroupItem.twk:391-402` | copies `data` and the `gText` union: the target gets isSET and THE SAME set pointer |
+| yes | `opIN` | `Instruct.rtn:587-591` | an isSET operand is tested as a CHARACTER SET -- `x IN list` asks the InSet set |
+| yes | `getType` | `Commands.rtn:208` | an isSET value reports type `PLGset*` |
+| yes, consistently | `get(name)`, `getFromList` | `GroupItem.twk:770`, `:890` | `guarded && !guardSet.contains(*name)` -- the first-character reject on a name lookup |
+| yes | `getCharacterSet` | `GroupItem.twk:848-849` | hands the set out for an isSET item |
+| parse only (bins and rules) | `checkGuard`, `ensureGuard`, `setTestMatch`/`testSet`/`testContainer`/`upToMatch` | `RuleStuff.twk:46-49, 128, 241, 273, 329`; `GroupItem.twk:579-655` | the parser's first-character tests |
+| parse only | `parseContainer`, `parseSet`, `setParseWalk` | `Generate.rtn:185, 350, 473` | generated parse of a container or a set |
+| setup and commands | `guard`, `processFlags`, `aCTionSetBrackets`, `makeRegistry`, `bootstrapper`, `setColor` | `Commands.rtn:237-251, 421-423`; `ruleActions.rtn:891`; `GroupItem.twk:1115-1117`; `GroupMain.twk`; `Stylish.twk:136` | build or read sets for bins, rules and colours -- not for a list value |
+
+⚠ **The population's limit:** this finds code that NAMES the set's fields. A reader that switches on `data` with an
+isSET case it does not name this way (a `printField` switch, a jit kind table) is not in it; c4's fleet certificate covers
+that gap. **What it says about c4:** the set is a bin's tool attached to lists by `binType != 0`, and the readers that a
+LIST value reaches are the six "yes" rows -- the place to stop it is the two writers (`GroupList(item)` and `addGroup`'s
+binType block), where LIST can be told apart from the bin kinds. Nothing built.
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted
