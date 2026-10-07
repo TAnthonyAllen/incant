@@ -152,6 +152,63 @@ reason** -- the JSON reader and the decoder assign whole structures with `=`.
 So `=` copying a list is **rare (0.5% of calls) but load-bearing where it happens**: the JSON reader and the decoder
 assign whole structures with `=`, and under setData-only those 36 would need another spelling. The ruling is Tony's.
 
+#### STEP (d) RECON -- TIERS FROM SETUP DATA (SEQ 315, Clod, 2026-10-07; recon only, NOTHING BUILT -- R0)
+
+**(a) Where the candidate decides a tier by spelled name** (`expr-accum` `5868d69`, read; every `tag eq "` and
+`opFields["` in `runOPaccum*` and `interpretXPaccum*`):
+
+| site | decides | how |
+|---|---|---|
+| `GroupActions.rtn:1055` (runOPaccum) | **assignment tier** -- a head op is parked and fires last | **15 spellings**: `=` `:=` `+=` `-=` `*=` `/=` `<-` `:%` `:+` `+%` `+<` `+/` `+*` `:.` `<:` |
+| `GroupActions.rtn:1099` (runOPaccumFrom) | **comparison tier** -- refuses a comparison whose right side continues into arithmetic | **8 spellings**: `>` `>=` `<` `<=` `==` `!=` `~=` `IN` |
+| `ruleActions.rtn:1892/1900` (opIsShortCircuit, opIsOR), called from runOPaccumFrom | **logic tier** and its skip direction | **already data**: `shortCircuit` and `isOR` flags on `'&&'`/`'||'` in setup |
+| everything else | **arithmetic fold** | the default: whatever is not in the three above |
+
+Not tiers, recorded so the census is whole: `GroupActions.rtn:1043-1044` map a prefix `-`/`*` to the `negate`/`deref` entries
+(spelled, a prefix question, not a tier); `ruleActions.rtn:1554/1602` find the `.` postfix (structural); `acU`/`acC`/`acX`/
+`acDot`/`acSub`/`acJux`/`acPostCall`/`acPostSub` are the candidate's own node kinds, not operators. **Untiered entries that
+fold by default today:** `=[` `=/` `=%` `=<` (the opGet family), `modedOP`, `%`, and the unbound `|` `^` `?` `>>` `<<` `:>`
+`:<` `:-` `GO` `&`.
+
+**(b) Operators entries that carry members** (measured, trunk binary, a walk over Operators reading `hasMemberS` and
+`listLengtH` through `:=` captures): **53 entries; exactly one has members -- `'+='`** (hasMembers 1, seven kind members).
+Five others have a non-empty list made only of flag attributes (`||` 2, `*` 2, `&&` 1, `+` 1, `?` 1), and `'+='` is the
+positive control the walk had to find.
+
+**(c) Does a tier attribute on an entry with members trip bear-trap #56?** Scratch probe: five copies of `incant` in the
+scratchpad (setup edited, `IncantForms` linked read-only), each run with a read-back (`dumpContents` of `'>='` and `'+='`)
+and an lldb hit count of the `+=` methods, from a fixture whose `:=` holder target falls to the PARENT's own method
+(`pickKindOP` has no `+=isGROUP` member) and whose count target takes `+=isCOUNT`. `'>='` carries `tier=compare` in V1-V4 as
+the no-members control.
+
+| variant | `'+='` spelling | `tier` reads back | parent method hit | `+=isCOUNT` hit |
+|---|---|---|---|---|
+| V0 control | today's setup | -- | **opPlusEQ** 1 | 1 |
+| V1 | `tier=assign` on the FIRST mention, members on the reopened one | `assign` | **opPlusEQ** 1 | 1 |
+| V2 | `tier=assign` on the REOPENED mention, with the members | `assign` | **opPlusEQ** 1 | 1 |
+| V3 | bare flag `tierAssign` on the reopened mention | present | **opPlusEQ** 1 | 1 |
+| V4 | ONE mention: `operateMethod=opPlusEQ tier=assign` + members | `assign` | **opPlusEQstruct** 1, opPlusEQ **0** | 1 |
+
+**#56 does not bite the tier; it bites the binding.** The tier attribute reads back as written in all four shapes. The one
+that fails is V4, #56's own hazard-2 shape (attributes and members on one mention), and what fails is `operateMethod=`: the
+parent binds to its LAST member's method (`opPlusEQstruct`; #56 recorded `opPlusEQisCOUNT` under the member order of the
+day). Today's two-mention shape is safe whichever mention carries the tier. `'>='` read back `compare` in every variant.
+
+**(d) Candidate spellings, each with its cost:**
+
+| | spelling in setup | reader | cost |
+|---|---|---|---|
+| **T1** | **bare flags**, the `shortCircuit`/`accessClass` precedent: `assignTier` on the 15, `compareTier` on the 8; the logic tier IS `shortCircuit` (no third flag -- two flags for one fact is two channels, one meaning) | `op["assignTier"]` / `op["compareTier"]` presence, as opIsShortCircuit reads today | 23 setup edits; two 4-line helpers (`opIsAssign`, `opIsCompare`) beside opIsShortCircuit; the two spelled lists go. `'+='` takes its flag on the FIRST mention (V1 shape) |
+| **T2** | **one valued attribute** `tier=assign` / `tier=compare` (arithmetic = absent) | `op["tier"]` read, then its TEXT compared | same 23 edits; one helper returning a tier number -- but it compares text against tier names, so a spelling survives in the reader, and a typo in setup (`tier=asign`) silently folds as arithmetic |
+| T3 | off the attribute entirely: a bin per tier in `pROPERTIEs`, the `UnaryOPS bin` shape (`AssignOPS bin` listing the 15) | `AssignOPS[op.tag]` | **not needed -- #56 does not bite the tier (c)**; it names every operator a second time, so adding an operator and forgetting its bin drifts silently |
+
+**Clod's recommendation, for Tony's ruling: T1.** It is the shape the tree already uses for this exact question one tier
+over (`shortCircuit`), it is a presence test with no text in the reader, and a misspelled flag is a missing flag -- which the
+fixture rows (exprPinT's U70/B-rows and the `=` rows) see as a value move rather than a silent fold.
+
+**Carried (R2): C5 `fId(qa qb)`** stays RED in step (c)'s certificate (pinned today at `xl1InSet`; intended a two-member list)
+until the turnaround builds the juxtaposition list in source order, and is **not re-pinned as a mover**.
+
 #### R1 -- where the call binds, and whether its argument is one entry
 
 **Read on `expr-accum` (Groups `31069dc`):** pass 1 of `interpretXPaccum` wraps a TokenXP's `InvokeArg` that is

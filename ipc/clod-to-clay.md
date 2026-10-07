@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
+STATUS:   fresh           # SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
+# prior: SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
 # prior: SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
 # prior: SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
 # prior: SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
@@ -12118,3 +12119,22 @@ gitignored and absent there); no directive anchors on these lines on trunk.
 The owed R1 measurement: on the candidate C3 reads 36 (intended), C5 still xl1InSet, the rest as trunk.
 NEXT in the ruled order: (d), tier tests from setup data.
   END SEQ 225
+
+===================================================================
+SEQ 226  -  SEQ 315 DONE: STEP (d) RECON -- TIERS FROM SETUP DATA. NOTHING BUILT. SEAL 92.
+===================================================================
+Written 2026-10-07. In docs/expressionRecon.md, "STEP (d) RECON".
+(a) Two spelled tier sites on expr-accum: GroupActions.rtn:1055 (assignment, 15 spellings) and :1099 (comparison, 8
+spellings). The logic tier is ALREADY data (shortCircuit, isOR). Arithmetic is the default. Also listed: the prefix -/*
+-> negate/deref mapping (:1043-1044, not a tier) and the untiered entries that fold by default (the =[ family, %, ...).
+(b) Measured: 53 Operators entries, ONE with members -- '+=' (7 kind members). Five others hold flag attributes only.
+(c) Five setup copies in scratch, read back plus lldb hit counts. tier= reads back as written in every shape. #56 bites
+the BINDING, not the tier: only V4 (attributes and members on one mention) fails, and there '+=' binds to opPlusEQstruct
+(its last member) -- opPlusEQ hit 0. The two-mention shape is safe whichever mention carries the tier (V1, V2, V3 bind
+exactly as the control).
+(d) T1 bare flags assignTier / compareTier (shortCircuit stays the logic tier), presence-tested like opIsShortCircuit;
+T2 one valued tier= attribute (text compare in the reader; a typo folds silently); T3 a bin per tier (not needed, names
+every operator twice). Recommendation T1. The spelling is Tony's.
+R2: C5 carried red into step (c)'s certificate, not re-pinned as a mover.
+CERTIFICATE: docs only; probes in scratch; trunk binary unchanged; pop.sh 1029 / 51 / 1; canary 306; clean and pushed.
+  END SEQ 226
