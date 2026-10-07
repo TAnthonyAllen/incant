@@ -7940,6 +7940,28 @@ GroupItem 	*result = 0;
 	return result;
 }
 
+/*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
+    `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
+    is the logic tier, and an operator with none of the three folds as arithmetic. They
+    replaced two spelled lists in runOPaccum and runOPaccumFrom.   HANDS, NOT WITNESSES  */
+extern "C" int opIsAssignTier(GroupItem *op)
+{
+	if ( !op )
+		return 0;
+	if ( op->get("assignTier") )
+		return 1;
+	return 0;
+}
+
+extern "C" int opIsCompareTier(GroupItem *op)
+{
+	if ( !op )
+		return 0;
+	if ( op->get("compareTier") )
+		return 1;
+	return 0;
+}
+
 extern "C" int opIsOR(GroupItem *op)
 {
 	if ( !op )
@@ -10471,7 +10493,7 @@ GroupItem 	*target = field->get(2);
     whose target is itself built -- (*block)(code)), and acX, the flat list. A head `A =`
     (an assignment-tier op in slot 2) is parked: the tail is evaluated, then assigned.
     Interpreted only: under jitting it refuses (SEQ 311 R4).
-    ⚠ PROOF OF CONCEPT -- the tier tests are spellings here; D3 wants them as setup data.  */
+    ⚠ PROOF OF CONCEPT -- the tier tests are setup data since SEQ 316 (opIsAssignTier, opIsCompareTier).  */
 extern "C" GroupItem *runOPaccum(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10503,7 +10525,7 @@ GroupItem 	*step = 0;
 		return ::runOP(step);
 		}
 	op = field->get(2);
-	if ( !(::compare(op->groupBody->tag,"=") == 0 || ::compare(op->groupBody->tag,":=") == 0 || ::compare(op->groupBody->tag,"+=") == 0 || ::compare(op->groupBody->tag,"-=") == 0 || ::compare(op->groupBody->tag,"*=") == 0 || ::compare(op->groupBody->tag,"/=") == 0 || ::compare(op->groupBody->tag,"<-") == 0 || ::compare(op->groupBody->tag,":%") == 0 || ::compare(op->groupBody->tag,":+") == 0 || ::compare(op->groupBody->tag,"+%") == 0 || ::compare(op->groupBody->tag,"+<") == 0 || ::compare(op->groupBody->tag,"+/") == 0 || ::compare(op->groupBody->tag,"+*") == 0 || ::compare(op->groupBody->tag,":.") == 0 || ::compare(op->groupBody->tag,"<:") == 0) )
+	if ( !::opIsAssignTier(op) )
 		return runOPaccumFrom(field,1);
 	val = runOPaccumFrom(field,3);
 	step->addAttribute(op);
@@ -10566,7 +10588,7 @@ GroupItem 	*keep = 0;
 				return ruler->trueResult;
 			return ruler->falseResult;
 			}
-		if ( ::compare(op->groupBody->tag,">") == 0 || ::compare(op->groupBody->tag,">=") == 0 || ::compare(op->groupBody->tag,"<") == 0 || ::compare(op->groupBody->tag,"<=") == 0 || ::compare(op->groupBody->tag,"==") == 0 || ::compare(op->groupBody->tag,"!=") == 0 || ::compare(op->groupBody->tag,"~=") == 0 || ::compare(op->groupBody->tag,"IN") == 0 )
+		if ( ::opIsCompareTier(op) )
 			if ( i + 2 < n )
 				if ( !::opIsShortCircuit(field->get(i + 2)) )
 					return ::refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");

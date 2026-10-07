@@ -95,51 +95,51 @@ define
 *******************************************************************************/
 registry(Operators);
 define
-    '~='    operateMethod=opMatch;
+    '~='    operateMethod=opMatch  compareTier;
     '||'    operateMethod=opOR   shortCircuit isOR;
     '|';
     '&&'    operateMethod=opAND  shortCircuit;
     '^';
-    IN      operateMethod=opIN;
+    IN      operateMethod=opIN  compareTier;
     GO;
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
     deref   unary ruleMethod=opDeref;
     '?';
     '>>';
-    '>='    operateMethod=opGE  jitEmitter=jitEmitGE;
-    '>'     operateMethod=opGT  jitEmitter=jitEmitGT;
+    '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;
+    '>'     operateMethod=opGT  jitEmitter=jitEmitGT  compareTier;
 
-    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ;
+    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ  compareTier;
     '=['    operateMethod=opGet;
     '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
     '=<'    operateMethod=opGetProperty;
-    '='     operateMethod=opAssign;
+    '='     operateMethod=opAssign  assignTier;
 
-    '<='    operateMethod=opLE  jitEmitter=jitEmitLE;
+    '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier;
     '<<';
-    '<:'    operateMethod=opSetTag;
-    '<-'    operateMethod=opRebind;
-    '<'     operateMethod=opLT  jitEmitter=jitEmitLT;
+    '<:'    operateMethod=opSetTag  assignTier;
+    '<-'    operateMethod=opRebind  assignTier;
+    '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier;
 
     ':>';
-    ':='    operateMethod=opSetGroup;
+    ':='    operateMethod=opSetGroup  assignTier;
     ':<';   // not used
     ':-';   // pop not written yet
-    ':+'    operateMethod=opReplaceMember;
-    ':%'    operateMethod=opReplaceAttribute;
-    '/='    operateMethod=opDivEQ;
+    ':+'    operateMethod=opReplaceMember  assignTier;
+    ':%'    operateMethod=opReplaceAttribute  assignTier;
+    '/='    operateMethod=opDivEQ  assignTier;
     '/'     operateMethod=opDiv  jitEmitter=jitEmitDiv;
     '.'     operateMethod=opDot;
-    ':.'    operateMethod=opSetFlag;
-    '-='    operateMethod=opMinusEQ;
+    ':.'    operateMethod=opSetFlag  assignTier;
+    '-='    operateMethod=opMinusEQ  assignTier;
     '--'    unary ruleMethod=opMinusMinus;
 
     '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
-    '+='    operateMethod=opPlusEQ;
-    '+='    // reopened for its members -- an attribute here would be overwritten by theirs (section 9)
+    '+='    operateMethod=opPlusEQ  assignTier;
+    '+='    // bear-trap 56: never merge these two mentions -- attributes and members on one mention bind it to its last member (section 9)
         '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
         '+=isNUMBER' operateMethod=opPlusEQisNUMBER;
         '+=isSTRING' operateMethod=opPlusEQisSTRING;
@@ -148,17 +148,17 @@ define
         '+=isSTAK'   operateMethod=opPlusEQisSTAK;
         '+=struct'   operateMethod=opPlusEQstruct;
     '++'    unary ruleMethod=opPlusPlus;
-    '+*'    operateMethod=opAddPointer;
-    '+%'    operateMethod=opAddAttribute;
-    '+<'    operateMethod=opAddProperty;
-    '+/'    operateMethod=opAddMember;
+    '+*'    operateMethod=opAddPointer  assignTier;
+    '+%'    operateMethod=opAddAttribute  assignTier;
+    '+<'    operateMethod=opAddProperty  assignTier;
+    '+/'    operateMethod=opAddMember  assignTier;
     '+'     operateMethod=opPlus  jitEmitter=jitEmitAdd;
-    '*='    operateMethod=opMultiplyEQ;
+    '*='    operateMethod=opMultiplyEQ  assignTier;
     '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opRem;
-    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE;
+    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier;
     '!'     unary ruleMethod=opNOT;
     ;
 /*******************************************************************************

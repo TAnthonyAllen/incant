@@ -312,6 +312,8 @@ extern "C" GroupItem *opGetAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opGetMember(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opGetProperty(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opIN(GroupItem *argument, GroupItem *target);
+extern "C" int opIsAssignTier(GroupItem *op);
+extern "C" int opIsCompareTier(GroupItem *op);
 extern "C" int opIsOR(GroupItem *op);
 extern "C" int opIsShortCircuit(GroupItem *op);
 extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target);

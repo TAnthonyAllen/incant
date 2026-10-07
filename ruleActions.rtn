@@ -1903,3 +1903,23 @@ extern int opIsOR(GroupItem op)
     if op["isOR"]   return 1;
     return 0;
 }
+
+
+/*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
+    `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
+    is the logic tier, and an operator with none of the three folds as arithmetic. They
+    replaced two spelled lists in runOPaccum and runOPaccumFrom.   HANDS, NOT WITNESSES  */
+extern int opIsAssignTier(GroupItem op)
+{
+    if !op                  return 0;
+    if op["assignTier"]     return 1;
+    return 0;
+}
+
+
+extern int opIsCompareTier(GroupItem op)
+{
+    if !op                  return 0;
+    if op["compareTier"]    return 1;
+    return 0;
+}

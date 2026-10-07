@@ -1031,7 +1031,7 @@ GroupItem   result,
     whose target is itself built -- (*block)(code)), and acX, the flat list. A head `A =`
     (an assignment-tier op in slot 2) is parked: the tail is evaluated, then assigned.
     Interpreted only: under jitting it refuses (SEQ 311 R4).
-    ⚠ PROOF OF CONCEPT -- the tier tests are spellings here; D3 wants them as setup data.  */
+    ⚠ PROOF OF CONCEPT -- the tier tests are setup data since SEQ 316 (opIsAssignTier, opIsCompareTier).  */
 extern GroupItem runOPaccum(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -1052,8 +1052,7 @@ GroupItem   op, val, step;
         if field.listLength > 2     step +% field[3];
         return runOP(step); }
     op = field[2];
-    if !(op.tag eq "=" || op.tag eq ":=" || op.tag eq "+=" || op.tag eq "-=" || op.tag eq "*=" || op.tag eq "/=" || op.tag eq "<-" || op.tag eq ":%" || op.tag eq ":+" || op.tag eq "+%" || op.tag eq "+<" || op.tag eq "+/" || op.tag eq "+*" || op.tag eq ":." || op.tag eq "<:")
-        return runOPaccumFrom(field,1);
+    if !opIsAssignTier(op)  return runOPaccumFrom(field,1);
     val = runOPaccumFrom(field,3);
     step +% op;
     step +% field[1];
@@ -1096,7 +1095,7 @@ GroupItem   run, op, step, keep;
             run = runOPaccumFrom(field,i + 1);
             if truthOf(run)     return trueResult;
             return falseResult; }
-        if op.tag eq ">" || op.tag eq ">=" || op.tag eq "<" || op.tag eq "<=" || op.tag eq "==" || op.tag eq "!=" || op.tag eq "~=" || op.tag eq "IN"
+        if opIsCompareTier(op)
             if i + 2 < n
                 if !opIsShortCircuit(field[i + 2])  return refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");
         step = new("acStep");
