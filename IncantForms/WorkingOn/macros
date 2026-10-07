@@ -9,6 +9,7 @@ Current thinking is use StringXP to do macros
 I had an interesting few fields defined for defining a macro. Sadly they are gone and I do not know what happened to them. Karma. We will have to design how macros get defined and are used from scratch, and not even sure we need macros in incant.
 
 setParse does not have to worry about actionMethod
+parent := grup.parent;      // not sure if this line will work as it should
 /*******************************************************************************
 	parseCode is kant version of processCode
 *******************************************************************************/
@@ -32,3 +33,26 @@ setParse does not have to worry about actionMethod
         return  falseResult;
         };
 
+/*******************************************************************************
+	What I remember of runInstruct (old runOP) translated into sort of kant. Assumes
+    argument list input is in left to right order; if not change --grup to ++grup
+    Entries in the argument list are either an operator or a field. As in kant
+    unary operators are afixed prefix. Thus the first entry on a list can be a
+    unary operator or a field and the last entry has to be a field.
+*******************************************************************************/
+    runInstruct code={
+        result = 0;
+        iterate grup on argument;
+        while --grup;               // does --grup go thru the argument list back to front???  I forget but assume it does
+            if isOperator(*grup);   // we need an isOperator() command
+                op = grup;
+                if isUnary(*op)     result := *op(result);  // need an isUnary command too and *op(result); has to work
+            or result == 0;         result = grup;          // isGROUP is data so result.group will contain grup.group (after opAssign runs setContent())
+            else
+                result  +% *op *result *grup;               // kant grammar does not see op as an Operator even tho it contains an Operator
+                result  := runOP(result);                   // so cannot enter: *result *op *grup; as an expression statement
+        return  *result;
+
+Need a call op to handle A(B); as A call B; so A is target, call is op, and B is argument; and opCall has to handle: A having a method; A is an action; and A is a rule
+runOP can be simpler but must handle target or argument that may come in as invoked fields with method and no argument: like field();
+interpretXP will have to convert A += B C D; either wrap B C D in a list or generate A += B; A += C; A += D;
