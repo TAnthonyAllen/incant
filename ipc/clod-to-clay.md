@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
+STATUS:   fresh           # SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
+# prior: SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
 # prior: SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
 # prior: SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
 # prior: SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
@@ -12154,3 +12155,27 @@ restored md5-identical.
 Note: the session's permission checker returned no verdict ~7 times mid-stroke; edits were made with the Edit tool
 meanwhile and every measurement ran after it recovered.
   END SEQ 227
+
+===================================================================
+SEQ 228  -  SEQ 317 DONE: STEP (c) RECON AND PLAN (EXECUTOR KINDS). NOTHING BUILT. SEAL 94.
+===================================================================
+Written 2026-10-07. In docs/expressionRecon.md, "STEP (c) RECON AND PLAN".
+1. Shape: ONE FLAT LIST, each operator carrying its tier mark (the Operators entries ride in the list with their flags).
+On r = *blk(cv) + n * 2 > lim && ok the trace reads acX [r, =, acC(false, acU(*, blk), cv), +, n, *, 2, >, lim, &&, ok];
+value r = 1, correct (5, 8, 16, 1 on the way). Prefix and call are built nodes; tiers are found at run time.
+2. Kinds: FOLD (acX, with the assignment head), PREFIX (acU, - and * mapped by spelling), CALL (acC via runOP [false ...]),
+BINARY postfix (acDot, acSub with method runOP), and xl1 as a value.
+3. Shared vs split: shared works today at two named lookups per operator per fire and puts a structural choice at run
+time; split at build costs ~40 build lines, four small executors, no run-time tier tests, D3/D5 as written, and an
+emittable shape for the jit road. Recommendation: SPLIT AT BUILD. Open edge with it: a < b < c.
+R4: E1 reads refused (shared, as built), 3 (shared, no guard -- measured), false (shared with a run-time split in
+runOPaccumFrom's compareTier branch), false (split at build, computed). The refusal is not taken as intended.
+Plan: c1 runOPdirect (snag: jitEmitTermCall bakes the instruction node, so that arm moves to opCall); c2 opCall in today's
+ladder order (rule incl. M3's door, action, method); c3 the layout as ruled; c4 the turnaround -- THE READERS ARE SHARED BY
+BOTH ROADS, so both builders turn to source order in the same commit as the eleven readers flip (census in the doc, with
+its limit stated). C5 needs more than the turnaround: xl1 carries a SET (GroupList names a bin-typed list tag+"InSet"), so
+it goes green when the list is in source order, xl1 stops carrying a set, and a printed list prints members -- the printed
+form is Tony's to state (proposal: 2 10).
+repeatClass on + * ? left as context.
+CERTIFICATE: docs only; probes in the clone; trunk 1029 / 51 / 1, canary 306; clean and pushed.
+  END SEQ 228

@@ -152,6 +152,121 @@ reason** -- the JSON reader and the decoder assign whole structures with `=`.
 So `=` copying a list is **rare (0.5% of calls) but load-bearing where it happens**: the JSON reader and the decoder
 assign whole structures with `=`, and under setData-only those 36 would need another spelling. The ruling is Tony's.
 
+#### STEP (c) RECON AND PLAN -- EXECUTOR KINDS (SEQ 317, Clod, 2026-10-07; NOTHING BUILT -- R0)
+
+Measured on `expr-accum` `020672e` in the clone (switch on, `INCANT_ACCUM_TRACE`), unless marked read.
+
+**1. The PoC's instruction shape: ONE FLAT LIST, each operator carrying its tier mark** -- not tiers nested as sub-lists.
+The operator nodes in the list are the Operators entries themselves, so their setup flags ride with them. On
+`r = *blk(cv) + n * 2 > lim && ok;` (blk := fId, cv 5, n 3, lim 8, ok 1) the trace reads:
+
+```
+acX  r · = [assignTier] · acC(false, acU(*, blk), cv) · + · n · * · 2 · > [compareTier] · lim · && [shortCircuit] · ok
+```
+
+Prefix and call are already NODES inside the operand slot (acU, acC), built at instruction build. The tiers are not:
+they are discovered at run time, op by op. **Value: r = 1, correct**, and every prefix of it is right (5, 8, 16, 1). On
+the trunk road `x1 = *blk(cv)` reads a tag echo and the action stops there -- the known lost call. (A first probe named a
+field `code`, which is a Keyword, and read wrong on both roads; it measured the probe, not the candidate.)
+
+**2. The executor kinds that shape needs, and what each does at run time** (read, `runOPaccum`, `runOPaccumFrom`,
+`runOPaccumOperand`, `interpretXPaccum`):
+
+| kind | node | run time |
+|---|---|---|
+| FOLD (with the head) | `acX` | if slot 2 is `assignTier`, evaluate the tail from slot 3 and assign it to slot 1; else fold from slot 1. The fold loop: running value = first operand; for each (op, operand): `shortCircuit` -> decide on the running value, skip or recurse on the tail; `compareTier` -> refuse if arithmetic follows before the next connective; else build an `acStep [op, run, operand]` and `runOP` it |
+| PREFIX | `acU` | evaluate the operand, apply the prefix entry's method (`-` -> `negate`, `*` -> `deref` by SPELLING, `GroupActions.rtn:1043-1044`) |
+| CALL | `acC` | evaluate a built target (acU/acDot/acSub/acC), then `runOP [false, target, arg]` -- runOP's ladder picks rule, action or method |
+| BINARY postfix | `acDot`, `acSub` | `method = runOP` on the node itself: today's runOP with the node as its instruction |
+| (value) | `xl1` | a juxtaposition list; not executed -- an operand that is a list |
+
+**3. Can the logic and compare tiers share the arithmetic fold's executor?** They do today: one loop, two flag tests per
+operator per run. The two answers, with cost:
+
+| | SHARED (today's flat list) | SPLIT AT BUILD (D3 "tiers by split", D5 "dispatch fixed at build") |
+|---|---|---|
+| shape | `acX` flat, tier read per op at run time | ASSIGN `[target, op, rhs]` -> LOGIC `[part, &&, part, ...]` -> COMPARE `[fold, op, fold]` -> FOLD `[operand, op, operand, ...]`, built once by `interpretXPaccum` |
+| executors | one loop with two in-loop branches | four small ones, each with no tier test inside |
+| run-time cost | two named attribute lookups per operator per fire (`op["shortCircuit"]`, `op["compareTier"]`), plus a scan for the next connective at each compare | none for tiers; the split is paid once at build |
+| build cost | none | ~40 lines in `interpretXPaccum` to split loosest-first; the executors are today's loop cut into parts |
+| D5 | the tier is a STRUCTURAL choice made at run time -- against D5's letter | fixed at build -- D5 as written |
+| jit road (b) | the emitter re-derives tiers while walking | LOGIC maps to branches and FOLD to straight-line IR directly |
+
+**R4 -- what E1 `qa > qb + qc` (qa 2, qb 10, qc 3) reads under each layout:**
+
+| layout | E1 | how |
+|---|---|---|
+| SHARED, as built | **refused by name** (row reads empty) | the compareTier guard at `runOPaccumFrom` (`GroupActions.rtn:1098`) sees arithmetic after `>` |
+| SHARED, no guard | **3** | `(qa > qb) + qc` = 0 + 3 -- MEASURED (seal 93's H7) |
+| SHARED, with a run-time split | **0 (false)** | the split happens IN `runOPaccumFrom`'s compareTier branch: evaluate the right side as its own fold up to the next `shortCircuit` op (a recursion with a stop index), then compare -- the same move the `&&` branch already makes |
+| SPLIT AT BUILD | **0 (false)** | COMPARE `[fold(qa), >, fold(qb + qc)]` = 2 > 13 -- by construction (computed from D3, not run) |
+
+The refusal is **not** taken as the intended answer (R4); by D3 the intended value is false, and either split gives it.
+
+**Clod's recommendation for Tony's ruling: SPLIT AT BUILD.** It is what D3 and D5 say in words, it answers E1 without a
+guard, it removes the per-operator lookups, and the jit road inherits a shape it can emit. Open edge for the same ruling:
+a chained comparison `a < b < c` (COMPARE with three parts) -- refuse, or fold left.
+
+**4. The rest of (c) -- the plan (R2), in build order, each a stroke with its own certificate:**
+
+**(c1) runOPdirect(op, left, right).** runOP's body moves into it; `runOP(field)` becomes the three-slot unpacker for every
+existing caller (acDot, acSub, the trunk road). **Snag, from the read:** runOP's rule arm under jitting is
+`jitEmitTermCall(field)`, which bakes the INSTRUCTION NODE's address into IR (`jitEmitters.rtn:977-991`) -- so that arm
+cannot live in a function that has no field. It moves to opCall (c2), which keeps its call node. The accumulator then calls
+runOPdirect with no step list (retires `acStep`; R4 of SEQ 313). Certificate: switch off and on row for row with seal 93.
+
+**(c2) opCall, the CALL executor.** `acC` stops going through `runOP [false, ...]`. Inside opCall, in TODAY's order (runOP's
+ladder, so the certificate can be row for row): **rule** -- `isRuleTerm()`, or `hasNewParse` under jitting, which is M3's
+door, now inside one executor (interpreted: `runRule`; jitting: `jitEmitTermCall` on the call node); **action** --
+`actionType`, `runAction(arg, target)`; **method** -- `isMethod`, `target.method(arg)`, with the target as its own argument
+when there is none (`field()`). The invoked-field resolution runOP does first (`target.invoke` -> `target.method(target)`) and
+`followArgument` come with it. (h) is NOT in this stroke: it is step 4, inside opCall's rule case.
+
+**(c3) the layout** -- SPLIT AT BUILD if ruled: `interpretXPaccum` splits loosest-first; FOLD / COMPARE / LOGIC / ASSIGN
+executors; the compareTier guard retires; E1 moves to false (its pin moves, with a sentence). If SHARED is ruled: the
+run-time split in `runOPaccumFrom`'s compareTier branch, and the guard retires the same way.
+
+**(c4) the turnaround.** ⚠ **THE READERS ARE SHARED BY BOTH ROADS, SO BOTH BUILDERS TURN TOGETHER.** Trunk's interpretXP
+builds `xl1` right to left (`ruleActions.rtn:1446-1450`, appending the left term after the right), and so does the PoC on
+purpose (`interpretXPaccumWrap`'s reverse loop). Flipping the readers while the switch-off road still builds reversed would
+reverse every list on that road -- the switch-off certificate could not hold. **So c4 is one stroke:** the PoC builds in
+source order (drop the reverse loop), the old interpretXP PREPENDS instead of appending (same source order, still walking
+backward), and every reader below flips `prior` -> `next`, in one commit.
+
+**The readers** (census: every `isLIST` in `*.rtn`, `*.twk`, `incant/setup`, `incant/utilities`, `incant/grammar` on trunk,
+plus the branch's builder):
+
+| site | reader | walk today | at c4 |
+|---|---|---|---|
+| `Instruct.rtn:60` | opAddAttribute (`+%`) | prior | **next** (R0 of SEQ 313) |
+| `Instruct.rtn:319` | opDivEQ | prior | next |
+| `Instruct.rtn:743` | opMinusEQ | prior | next |
+| `Instruct.rtn:875` | opMultiplyEQ | prior | next |
+| `Instruct.rtn:1333` | opAddMember (`+/`) | prior | next |
+| `Instruct.rtn:1352` | opReplaceAttribute (`:%`) | prior | next |
+| `Instruct.rtn:1374` | opReplaceMember (`:+`) | prior | next |
+| `Instruct.rtn:1073` | opPlusEQisSTRING | `appendGroup(argument, ...)` | read appendGroup's walk at c4 |
+| `Instruct.rtn:1129` | opPlusEQstruct | `copyListTo` -- STORED order, i.e. reversed today | becomes source order (a mover, with a sentence) |
+| `GroupActions.rtn:70` | printField | prior, or next under `reversePrint` | next; `reversePrint` inverts |
+| `jitEmitters.rtn:2627` | jitPrintList (from `ruleActions.rtn:725`) | prior | next |
+| `Instruct.rtn:1042/1058/1097/1114` | `+=` kind members | refuse a list | order-free |
+| `GroupActions.rtn:592` | pickKindOP | shape test | order-free |
+| `ruleActions.rtn:1449`, `interpretXPaccumWrap` | the two BUILDERS | -- | source order |
+
+⚠ **The population's limit, said out loud:** this census finds code that TESTS `isLIST`. Code that walks an argument list
+WITHOUT testing the flag is not in it. The c4 certificate (fleet row for row on both roads, movers named) is what covers
+that gap.
+
+**C5 red -> green (R2 of SEQ 317):** C5 `fId(qa qb)` reads `xl1InSet` for a reason the turnaround alone does not touch:
+`xl1` carries a SET -- the GroupList constructor names a bin-typed item's list `tag + "InSet"` and gives it a character set
+(`GroupList.twk:21-26`), and SEQ 313's tap read `xl1` with `data=3` (isSET) -- and `=` copies that across. So C5 goes green
+when (i) the list is in source order (c4), (ii) `xl1` stops carrying a set, and (iii) a printed list prints its members.
+**The intended printed form is Tony's to state** (the pin asserts one token today); Clod's proposal: the members' values in
+source order, `2 10`, plus a row for the list length.
+
+**Context, left alone (Tony):** the `+`, `*` and `?` Operators entries carry `repeatClass`, which is the Modifiers
+registry's flag (trace above; seal 92's walk counted it in their list lengths). No row fails on it.
+
 #### STEP (d) RECON -- TIERS FROM SETUP DATA (SEQ 315, Clod, 2026-10-07; recon only, NOTHING BUILT -- R0)
 
 **(a) Where the candidate decides a tier by spelled name** (`expr-accum` `5868d69`, read; every `tag eq "` and
