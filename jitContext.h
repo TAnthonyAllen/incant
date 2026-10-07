@@ -666,4 +666,23 @@ static int        gChanStkTop = 0;
 
 // THE COMPILE OWNER (SEQ 214) moved to GroupRules (gCompileOwner, declared in groups.ext) 2026-10-04 so tok can see it.
 
+// exprAccumOn -- THE CANDIDATE'S SWITCH, READ BY VALUE (SEQ 314 step g, 2026-10-07). INCANT_EXPR_ACCUM=1 is ON; unset, empty
+// or 0 is OFF; any other value is OFF and says so once on stderr. Both sites (setActions' ExpressioN actor, the gate atop
+// aCTionTokenXP) ask this one reader. Before it, both asked getenv for PRESENCE, so =0, an empty value and =no all
+// switched the candidate ON -- and a control run with the switch "off" measured the candidate. Read once and kept.
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+inline int exprAccumOn() {
+    static int state = -1;
+    if ( state < 0 ) {
+        const char *v = getenv("INCANT_EXPR_ACCUM");
+        if ( !v || !*v || !strcmp(v,"0") )  state = 0;
+        else if ( !strcmp(v,"1") )          state = 1;
+        else {
+            fprintf(stderr,"INCANT_EXPR_ACCUM=%s is neither 0 nor 1 -- read as OFF\n",v);
+            state = 0; } }
+    return state;
+}
+
 #endif // JITCONTEXT_H

@@ -982,7 +982,8 @@ GroupItem   swap,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYorNum"];
     // exprAccumGate  SEQ 311: under INCANT_EXPR_ACCUM the label goes up untouched -- interpretXPaccum takes its raw pieces
-    if getenv("INCANT_EXPR_ACCUM")  return xpress;
+    // exprAccumOn  the switch's VALUE, not its presence (SEQ 314 g); one reader for both sites, in jitContext.h
+    -% if ( ::exprAccumOn() ) return xpress; %-
     xpress.clear();
     if isGROUP  ANYtoken = group;
     // leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
