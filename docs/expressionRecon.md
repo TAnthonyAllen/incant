@@ -207,6 +207,23 @@ The refusal is **not** taken as the intended answer (R4); by D3 the intended val
 guard, it removes the per-operator lookups, and the jit road inherits a shape it can emit. Open edge for the same ruling:
 a chained comparison `a < b < c` (COMPARE with three parts) -- refuse, or fold left.
 
+⚠⚠ **RULED (Tony, 2026-10-07, SEQ 318):** layout SPLIT BY TIER AT BUILD, the fold executor runs arithmetic only (R0);
+`a < b < c` REFUSED BY NAME, pinned (R1: exprPinT E2 on trunk -- today it refuses by ACCIDENT, a null operand from the
+right-to-left fold; the candidate refuses it with E1's message); C5 reads `2 10` plus a length row (R2); c1 and c2 build,
+c3 and c4 wait (R3); c4 opens with a census of every reader of the `tag + "InSet"` set (R4).
+
+**c1 LANDED on `expr-accum` `d46aa45` / support `28f0342` (2026-10-07).** Built as three functions, not two, because
+measurement said so: `runOP(field)` unpacks into **`runOPslots(op, target, arg)`** -- the instruction's half: follow, refuse a
+rebound argument, invoke, the virtual fork, and under jitting the term call, which bakes the RAW slots and replays
+`runOPslots` at run time -- and **`runOPdirect(op, target, arg)`** fires on FINISHED operands (D4). The accumulator finishes
+its own operands and builds no step list. **The finding that forced the split:** with `runOPdirect` still resolving its
+operands, holderT recursed to a stack overflow (exit 139) -- the head's value was the unevaluated `acDot` (`htKid.parenT`,
+invoke 1), and `runOPdirect` invoked it again; the old step list had hidden this, because `+%` handed runOP a copy that had
+lost its invoke (measured in lldb). That run is c1's H7. **Certificate:** switch off row for row with seal 93 (1073, 0
+differ); switch on 757 -> **772**, fifteen rows red -> green (jsonTest JT-2/3/5/TREE, omModT OM-1 x2 / OM-2 x4, ruleTermT
+RT-1..4), none green -> red. That those fifteen were the step list's copies is INFERRED, not measured. jitLadder, printPop,
+decodePop PASSED; canary 317.
+
 **4. The rest of (c) -- the plan (R2), in build order, each a stroke with its own certificate:**
 
 **(c1) runOPdirect(op, left, right).** runOP's body moves into it; `runOP(field)` becomes the three-slot unpacker for every

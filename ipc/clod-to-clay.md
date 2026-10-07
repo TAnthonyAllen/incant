@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
+STATUS:   fresh           # SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
+# prior: SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
 # prior: SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
 # prior: SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
 # prior: SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
@@ -12179,3 +12180,22 @@ form is Tony's to state (proposal: 2 10).
 repeatClass on + * ? left as context.
 CERTIFICATE: docs only; probes in the clone; trunk 1029 / 51 / 1, canary 306; clean and pushed.
   END SEQ 228
+
+===================================================================
+SEQ 229  -  SEQ 318 c1 DONE (expr-accum d46aa45 / support 28f0342); R1 PINNED (E2). SEAL 95.
+===================================================================
+Written 2026-10-07.
+c1 is three functions, not two: runOP(field) -> runOPslots(op, target, arg) (follow, refuse a rebound argument,
+invoke, virtual fork; under jitting the term call, baking RAW slots and replaying runOPslots) -> runOPdirect(op,
+target, arg), the fire on FINISHED operands (D4). Accumulator builds no step list and finishes its own operands.
+Why three: with runOPdirect still resolving, holderT recursed to exit 139 -- the head value was the unevaluated
+acDot (htKid.parenT, invoke 1), re-invoked; the old step list's copy had lost the invoke and hid it (lldb). That run
+is the H7.
+Certificate: switch off row for row with seal 93 (1073 / 0 differ); switch on 757 -> 772, fifteen red -> green
+(jsonTest 4, omModT 6, ruleTermT 5), none green -> red; the cause of the fifteen is inferred (the step list's copies).
+jitLadder, printPop, decodePop PASSED; ddPop 5 / 1; canary 317.
+R1: exprPinT E2 qa < qb < qc on trunk -- today REFUSED BY ACCIDENT (qb < qc null, then "an operand that is nothing");
+candidate refuses it with E1's message. Pinned as a refusal-line count 1 and a print-line count 0; H7 (qa < qb) ->
+both red by value; trunk 1031 / 51.
+Next: c2, opCall.
+  END SEQ 229
