@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
+STATUS:   fresh           # SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
+# prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
 # prior: SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
 # prior: SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
 # prior: SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
@@ -12199,3 +12200,16 @@ candidate refuses it with E1's message. Pinned as a refusal-line count 1 and a p
 both red by value; trunk 1031 / 51.
 Next: c2, opCall.
   END SEQ 229
+
+===================================================================
+SEQ 230  -  SEQ 318 c2 DONE (expr-accum 2600a8a / support 7d06fad). SEAL 96. c3 WAITS FOR TONY'S GO.
+===================================================================
+Written 2026-10-07.
+opCall(target, arg): rule, action, method in runOP's old order. callIsRule is M3's door in one predicate, read by
+opCall and by runOPslots' jitting intercept. runOPdirect: operator, method op, isCallable -> opCall, else the
+unknown-operator refusal. acC goes straight to opCall with the dispatch witness kept (searchNewParseT SNP-0 went
+red without it -- measured, then restored).
+Certificate: off and on both row for row with c1 (0 differ; on 772). H7: action case removed -> every action call
+refuses by name via opCall; restored md5-identical. jitLadder, printPop, decodePop PASSED; ddPop 5 / 1; canary 320.
+SEQ 318 R3 done (c1, c2). c3 is the design build -- the push-on-or-pause check is Tony's.
+  END SEQ 230

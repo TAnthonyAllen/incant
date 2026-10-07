@@ -224,6 +224,15 @@ differ); switch on 757 -> **772**, fifteen rows red -> green (jsonTest JT-2/3/5/
 RT-1..4), none green -> red. That those fifteen were the step list's copies is INFERRED, not measured. jitLadder, printPop,
 decodePop PASSED; canary 317.
 
+**c2 LANDED on `expr-accum` `2600a8a` / support `7d06fad` (2026-10-07).** `opCall(target, arg)` -- rule, action, method, in
+runOP's old order; `callIsRule` is M3's door in ONE predicate, read by opCall and by runOPslots' jitting term-call
+intercept, so no instruction changes executor between phases. runOPdirect's ladder: operator, method op,
+`isCallable(target)` -> opCall, else the unknown-operator refusal. The accumulator's `acC` goes straight to opCall, with
+the dispatch witness kept at its seat (without it `searchNewParseT SNP-0` went red -- measured). **Certificate:** switch off
+and switch on both row for row with c1 (1073 / 1075 rows, 0 differ; on 772). **H7:** opCall's action case removed ->
+every action call refuses by name through opCall (A1, A2, ... and no values); restored md5-identical. Canary 320.
+**Next is c3, the layout -- a real design build (SEQ 318's note): check with Tony before it opens.**
+
 **4. The rest of (c) -- the plan (R2), in build order, each a stroke with its own certificate:**
 
 **(c1) runOPdirect(op, left, right).** runOP's body moves into it; `runOP(field)` becomes the three-slot unpacker for every
