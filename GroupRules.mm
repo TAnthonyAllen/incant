@@ -5046,21 +5046,25 @@ extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
 	 return jitEmitBinary(argument, target, jitSub); 
 }
 
-extern "C" GroupItem *jitEmitTermCall(GroupItem *field)
+extern "C" GroupItem *jitEmitTermCall(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	
 	llvm::IRBuilder<> *b = gJitBuilder;
-	if (!b || !field) return nullptr;
+	if (!b || !op) return nullptr;
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
 	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Value *fieldAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)field), ptr, "termNode");
+	llvm::Value *opAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)op), ptr, "termOp");
+	llvm::Value *targetAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "termTarget");
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)arg), ptr, "termArg");
 	llvm::Value *fn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitTermCallRT), ptr, "termFn");
-	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-	gJitResult     = b->CreateCall(ty, fn, {fieldAddr}, "termCall");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr, ptr, ptr}, false);
+	gJitResult     = b->CreateCall(ty, fn, {opAddr, targetAddr, argAddr}, "termCall");
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
 	return new GroupItem((char*)"jitTerm");
@@ -6691,11 +6695,14 @@ extern "C" void jitStoreResult()
     parse tree or on trueResult would outlive the compile (bear-trap #22). (Before
     P4, aCTionBrancH stamped isBranch on whatever came back; the kind now rides the
     ruler slot.)
+    SEQ 318 c1: it bakes the dispatch's three RAW slots -- op, target, argument as
+    they arrived, before following -- and replays runOPslots on them, which is
+    exactly what runOP on the instruction node did (runOP is now that unpacker).
 *******************************************************************************/
-extern "C" int jitTermCallRT(GroupItem *field)
+extern "C" int jitTermCallRT(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	
-	return ::truthOf(::runOP(field));
+	return ::truthOf(::runOPslots(op,target,arg));
 	
 }
 
@@ -10420,72 +10427,10 @@ extern "C" GroupItem *runLeafParse(GroupItem *field)
 	return ::refuse(field,"parseLoop: no parse method is installed on the defining rule");
 }
 
-// runOP the operator dispatch hub: follow the argument, honour the arm, resolve the operands, then fire the op, a rule, an action or a method
+// runOP the instruction's UNPACKER: its three slots, handed to runOPslots (SEQ 318 c1)
 extern "C" GroupItem *runOP(GroupItem *field)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = 0;
-GroupItem 	*op = field->get(1);
-GroupItem 	*arg = field->get(3);
-GroupItem 	*target = field->get(2);
-	// argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
-	if ( ::refuseArgRebind(op,target) )
-		return 0;
-	target = ::followArgument(target);
-	arg = ::followArgument(arg);
-	// storeRuling an armed statement dispatches nothing further, stores included -- interpreted only, emit time must reach every statement
-	if ( ruler->refused )
-		if ( !ruler->jitting )
-			return 0;
-	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
-		target = target->groupBody->gMethod(target);
-	if ( arg )
-		if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
-			arg = arg->groupBody->gMethod(arg);
-	// listOperand a list operand is never resolved here -- that would hand the list operators a copy
-	// virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
-	if ( target && target->groupBody->flags.isVirtual )
-		target = ::copyOf(target);
-	// perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
-	if ( op->groupBody->flags.hasMembers )
-		{
-		if ( ruler->jitting )
-			return jitEmitOpFire(op,arg,target);
-		op = ::pickKindOP(op,target,arg);
-		}
-	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
-	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
-		::jitSeedOperands(target,arg);
-	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
-	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
-	// dispatchSeat which node the name reached, and which arm the fork will take
-	::measureRuleDispatch(op,target,arg);
-	// doorByRoad interpreted, runRule for isRule only; jitting, a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123)
-	if ( isOperator(op->groupBody->flags.instructType) )
-		result = op->groupBody->gOp(arg,target);
-	else
-	if ( isMethod(op->groupBody->flags.instructType) )
-		result = op->groupBody->gMethod(target);
-	else
-	if ( target->isRuleTerm() || (ruler->jitting && target->groupBody->flags.hasNewParse) )
-		{
-		
-		if ( ruler->jitting )   result = ::jitEmitTermCall(field);
-		else                  { ++gTermCallCount; result = ::runRule(arg,target); }
-		
-		}
-	else
-	if ( target->groupBody->flags.actionType )
-		result = ::runAction(arg,target);
-	else
-	if ( isMethod(target->groupBody->flags.instructType) )
-		{
-		if ( !arg )
-			arg = target;
-		result = target->groupBody->gMethod(arg);
-		}
-	else	result = ::refuseUnknownOperator(op,target);
-	return result;
+	return ::runOPslots(field->get(1),field->get(2),field->get(3));
 }
 
 /*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S runOP (SEQ 311, try-and-buy on expr-accum).
@@ -10499,7 +10444,8 @@ extern "C" GroupItem *runOPaccum(GroupItem *field)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*op = 0;
 GroupItem 	*val = 0;
-GroupItem 	*step = 0;
+GroupItem 	*arg = 0;
+GroupItem 	*target = 0;
 	if ( ruler->jitting )
 		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
 	if ( ::compare(field->groupBody->tag,"acU") == 0 )
@@ -10512,27 +10458,37 @@ GroupItem 	*step = 0;
 			op = ruler->opFields->get("deref");
 		return op->groupBody->gMethod(val);
 		}
-	step = new GroupItem("acStep");
+	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
 	if ( ::compare(field->groupBody->tag,"acC") == 0 )
 		{
 		val = field->get(2);
 		if ( ::compare(val->groupBody->tag,"acU") == 0 || ::compare(val->groupBody->tag,"acDot") == 0 || ::compare(val->groupBody->tag,"acSub") == 0 || ::compare(val->groupBody->tag,"acC") == 0 )
 			val = val->groupBody->gMethod(val);
-		step->addAttribute(ruler->falseResult);
-		step->addAttribute(val);
+		// finished the call's operands are finished HERE, as runOP finishes an instruction's: the target followed, the argument followed and invoked
+		val = ::followArgument(val);
+		if ( val && val->groupBody->flags.isVirtual )
+			val = ::copyOf(val);
+		arg = 0;
 		if ( field->groupBody->groupList->listLength > 2 )
-			step->addAttribute(field->get(3));
-		return ::runOP(step);
+			arg = runOPaccumOperand(field->get(3));
+		return ::runOPdirect(ruler->falseResult,val,arg);
 		}
 	op = field->get(2);
 	if ( !::opIsAssignTier(op) )
 		return runOPaccumFrom(field,1);
 	val = runOPaccumFrom(field,3);
-	step->addAttribute(op);
-	step->addAttribute(field->get(1));
-	if ( val )
-		step->addAttribute(val);
-	return ::runOP(step);
+	// finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
+	target = field->get(1);
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	if ( ruler->refused )
+		return 0;
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+		target = target->groupBody->gMethod(target);
+	if ( target && target->groupBody->flags.isVirtual )
+		target = ::copyOf(target);
+	return ::runOPdirect(op,target,val);
 }
 
 /*  runOPaccumFrom -- THE ACCUMULATOR LOOP from slot i: the running value is a local of
@@ -10550,7 +10506,6 @@ int 		n = field->groupBody->groupList->listLength;
 int 		keepOR = 0;
 GroupItem 	*run = 0;
 GroupItem 	*op = 0;
-GroupItem 	*step = 0;
 GroupItem 	*keep = 0;
 	run = runOPaccumOperand(field->get(i));
 	i = i + 1;
@@ -10592,13 +10547,12 @@ GroupItem 	*keep = 0;
 			if ( i + 2 < n )
 				if ( !::opIsShortCircuit(field->get(i + 2)) )
 					return ::refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");
-		step = new GroupItem("acStep");
-		step->addAttribute(op);
 		if ( !run )
 			run = ruler->falseResult;
-		step->addAttribute(run);
-		step->addAttribute(field->get(i + 1));
-		run = ::runOP(step);
+		// finished both sides are finished: the running value is a value, the right side is evaluated once here
+		if ( run->groupBody->flags.isVirtual )
+			run = ::copyOf(run);
+		run = ::runOPdirect(op,run,runOPaccumOperand(field->get(i + 1)));
 		i = i + 2;
 		}
 	return run;
@@ -10612,6 +10566,95 @@ GroupItem 	*val = ::followArgument(operand);
 		if ( isMethod(val->groupBody->flags.instructType) && val->groupBody->flags.invoke )
 			val = val->groupBody->gMethod(val);
 	return val;
+}
+
+// runOPdirect the FIRE: operands arrive FINISHED (D4); pick the kind, then fire the op, a rule, an action or a method
+extern "C" GroupItem *runOPdirect(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*result = 0;
+	// storeRuling an armed statement dispatches nothing further -- interpreted only
+	if ( ruler->refused )
+		if ( !ruler->jitting )
+			return 0;
+	// perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
+	if ( op->groupBody->flags.hasMembers )
+		{
+		if ( ruler->jitting )
+			return jitEmitOpFire(op,arg,target);
+		op = ::pickKindOP(op,target,arg);
+		}
+	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
+	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
+		::jitSeedOperands(target,arg);
+	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
+	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
+	// dispatchSeat which node the name reached, and which arm the fork will take
+	::measureRuleDispatch(op,target,arg);
+	// doorByRoad interpreted, runRule for isRule only; jitting, the term call is runOP's -- it needs the raw slots (SEQ 318 c1)
+	if ( isOperator(op->groupBody->flags.instructType) )
+		result = op->groupBody->gOp(arg,target);
+	else
+	if ( isMethod(op->groupBody->flags.instructType) )
+		result = op->groupBody->gMethod(target);
+	else
+	if ( target->isRuleTerm() || (ruler->jitting && target->groupBody->flags.hasNewParse) )
+		{
+		
+		if ( ruler->jitting )   result = ::refuse(target,"runOPdirect reached a term call under jitting -- runOP owns that emit, with the raw slots (SEQ 318 c1)");
+		else                  { ++gTermCallCount; result = ::runRule(arg,target); }
+		
+		}
+	else
+	if ( target->groupBody->flags.actionType )
+		result = ::runAction(arg,target);
+	else
+	if ( isMethod(target->groupBody->flags.instructType) )
+		{
+		if ( !arg )
+			arg = target;
+		result = target->groupBody->gMethod(arg);
+		}
+	else	result = ::refuseUnknownOperator(op,target);
+	return result;
+}
+
+// runOPslots the INSTRUCTION's half: FINISH the operands -- follow, refuse a rebound argument, invoke -- then fire (SEQ 318 c1)
+extern "C" GroupItem *runOPslots(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// rawSlots declared in passthrough: tok prunes a local that only a passthrough reads (bear-trap 13)
+	 GroupItem *rawOp = op, *rawTarget = target, *rawArg = arg; 
+	// argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	arg = ::followArgument(arg);
+	// storeRuling an armed statement dispatches nothing further, stores included -- interpreted only, emit time must reach every statement
+	if ( ruler->refused )
+		if ( !ruler->jitting )
+			return 0;
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+		target = target->groupBody->gMethod(target);
+	if ( arg )
+		if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
+			arg = arg->groupBody->gMethod(arg);
+	// listOperand a list operand is never resolved here -- that would hand the list operators a copy
+	// virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
+	if ( target && target->groupBody->flags.isVirtual )
+		target = ::copyOf(target);
+	// termCallIntercept jitting, the term call REPLAYS this instruction at run time, so it bakes the RAW slots -- the ladder's own conditions, read here (SEQ 318 c1)
+	if ( ruler->jitting && !op->groupBody->flags.hasMembers && !isOperator(op->groupBody->flags.instructType) && !isMethod(op->groupBody->flags.instructType) )
+		if ( target->isRuleTerm() || target->groupBody->flags.hasNewParse )
+			{
+			
+			if ( !::jitSlotTaken(op) ) {
+			if ( op->groupBody->flags.isUnary )   ::jitSeedOperands(target,arg);
+			::measureRuleDispatch(op,target,arg);
+			return ::jitEmitTermCall(rawOp,rawTarget,rawArg); }
+			
+			}
+	return ::runOPdirect(op,target,arg);
 }
 
 // runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
