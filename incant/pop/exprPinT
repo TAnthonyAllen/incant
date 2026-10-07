@@ -75,6 +75,7 @@ define
     C5 code={ qr = fId(qa qb); cerr "EP C5 " qr:; };
     C6 code={ qr = fId(-qa); cerr "EP C6 " qr:; };
     fNone code={ cerr "EP fNone RAN":; return 5; };
+    E2 code={ qr = qa < qb < qc; cerr "EP E2 " qr:; };
     E1 code={ qr = qa > qb + qc; cerr "EP E1 " qr:; };
     ;
 A1(); A2(); A3(); A4(); A5(); A6(); A7();
@@ -85,6 +86,7 @@ N1(); N2();
 O1(); O2(); O3(); O3b(); O4seed(); O4();
 H1(); H2(); H3();
 E1();
+E2();
 C1(); C2(); C3(); C4(); C5(); C6();
 cerr "EXPRPIN SENTINEL":;
 stop();
@@ -128,6 +130,9 @@ Rows, today -> intended:
   H2  hw := qa * qb + qc             23 -> 23
   H3  hx.noPrinT = hy.noPrinT (seal 51's shared-tempField case, interpreted)   1 -> 1
   E1  qa > qb + qc     a tag echo (false) -- the candidate's answer is Tony's to rule
+  E2  qa < qb < qc   REFUSED, but by accident: the right-to-left fold makes qb < qc null and
+      qa < null refuses as "an operand that is nothing" -> refused BY NAME as a chained
+      comparison (SEQ 318 R1, Tony 2026-10-07)
   C1-C6, the call rows (SEQ 314 step 0, 2026-10-07; the careful build's measuring stick for
   opCall, SEQ 313 R1):
   C1  qa + fId(qb)                   12 -> 12
