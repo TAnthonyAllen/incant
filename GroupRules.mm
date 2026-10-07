@@ -1675,6 +1675,19 @@ extern "C" GroupItem *cLEAR(GroupItem *input)
 	return input;
 }
 
+// callIsRule M3's DOOR, in one place: interpreted, a rule term; jitting, a rule term OR anything with an installed parse (F-123)
+extern "C" int callIsRule(GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !target )
+		return 0;
+	if ( target->isRuleTerm() )
+		return 1;
+	if ( ruler->jitting && target->groupBody->flags.hasNewParse )
+		return 1;
+	return 0;
+}
+
 /*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
     THE SINGLE WRITER of `ruler.refused = 0`, as refuse() is the single writer of the 1.
     docs/refusalScope.md carries the argument and the three measurements behind it.  */
@@ -3311,6 +3324,20 @@ GroupItem 	*done = operand;
 		i = i + 1;
 		}
 	return done;
+}
+
+// isCallable a call has something to call: a rule (callIsRule), an action, or a method
+extern "C" int isCallable(GroupItem *target)
+{
+	if ( !target )
+		return 0;
+	if ( ::callIsRule(target) )
+		return 1;
+	if ( target->groupBody->flags.actionType )
+		return 1;
+	if ( isMethod(target->groupBody->flags.instructType) )
+		return 1;
+	return 0;
 }
 
 /*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
@@ -7316,6 +7343,34 @@ int 		priorLimit = ::limitWriteGuard(target);
 	return target;
 }
 
+// opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
+extern "C" GroupItem *opCall(GroupItem *target, GroupItem *arg)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// storeRuling an armed statement dispatches nothing further -- interpreted only
+	if ( ruler->refused )
+		if ( !ruler->jitting )
+			return 0;
+	// termCallIsRunOPs jitting, the term call is emitted by runOPslots, which holds the raw slots; reaching it here is a defect, said by name
+	if ( ::callIsRule(target) )
+		{
+		
+		if ( ruler->jitting )   return ::refuse(target,"opCall reached a term call under jitting -- runOPslots owns that emit, with the raw slots (SEQ 318 c2)");
+		++gTermCallCount;
+		return ::runRule(arg,target);
+		
+		}
+	if ( target->groupBody->flags.actionType )
+		return ::runAction(arg,target);
+	if ( isMethod(target->groupBody->flags.instructType) )
+		{
+		if ( !arg )
+			arg = target;
+		return target->groupBody->gMethod(arg);
+		}
+	return ::refuse(target,"opCall: nothing to call -- not a rule, an action or a method (SEQ 318 c2)");
+}
+
 /***************************************************************************
 	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
 
@@ -10471,7 +10526,12 @@ GroupItem 	*target = 0;
 		arg = 0;
 		if ( field->groupBody->groupList->listLength > 2 )
 			arg = runOPaccumOperand(field->get(3));
-		return ::runOPdirect(ruler->falseResult,val,arg);
+		// callExecutor the call goes straight to opCall; anything uncallable refuses as runOPdirect's ladder would
+		// dispatchSeat the call's witness, as runOPdirect gave it before opCall existed (searchNewParseT SNP-0 reads it)
+		::measureRuleDispatch(ruler->falseResult,val,arg);
+		if ( ::isCallable(val) )
+			return ::opCall(val,arg);
+		return ::refuseUnknownOperator(ruler->falseResult,val);
 		}
 	op = field->get(2);
 	if ( !::opIsAssignTier(op) )
@@ -10591,30 +10651,15 @@ GroupItem 	*result = 0;
 	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
 	// dispatchSeat which node the name reached, and which arm the fork will take
 	::measureRuleDispatch(op,target,arg);
-	// doorByRoad interpreted, runRule for isRule only; jitting, the term call is runOP's -- it needs the raw slots (SEQ 318 c1)
+	// callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
 	if ( isMethod(op->groupBody->flags.instructType) )
 		result = op->groupBody->gMethod(target);
 	else
-	if ( target->isRuleTerm() || (ruler->jitting && target->groupBody->flags.hasNewParse) )
-		{
-		
-		if ( ruler->jitting )   result = ::refuse(target,"runOPdirect reached a term call under jitting -- runOP owns that emit, with the raw slots (SEQ 318 c1)");
-		else                  { ++gTermCallCount; result = ::runRule(arg,target); }
-		
-		}
-	else
-	if ( target->groupBody->flags.actionType )
-		result = ::runAction(arg,target);
-	else
-	if ( isMethod(target->groupBody->flags.instructType) )
-		{
-		if ( !arg )
-			arg = target;
-		result = target->groupBody->gMethod(arg);
-		}
+	if ( ::isCallable(target) )
+		result = ::opCall(target,arg);
 	else	result = ::refuseUnknownOperator(op,target);
 	return result;
 }
@@ -10645,7 +10690,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		target = ::copyOf(target);
 	// termCallIntercept jitting, the term call REPLAYS this instruction at run time, so it bakes the RAW slots -- the ladder's own conditions, read here (SEQ 318 c1)
 	if ( ruler->jitting && !op->groupBody->flags.hasMembers && !isOperator(op->groupBody->flags.instructType) && !isMethod(op->groupBody->flags.instructType) )
-		if ( target->isRuleTerm() || target->groupBody->flags.hasNewParse )
+		if ( ::callIsRule(target) )
 			{
 			
 			if ( !::jitSlotTaken(op) ) {
