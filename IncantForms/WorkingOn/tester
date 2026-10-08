@@ -93,12 +93,11 @@ define
 debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
 checkSKIP(skipInput);
 
-    testListed isRule lizted=listEntries+ SemI- code={
+    testIterateInReverse isRule lizted=listEntries+ SemI- code={
         print "list passed in:":;
         result = 0;
         iterate grup on *lizted;
-        while ++grup;
-            $$grup;
+        while --grup;
             if *grup.instructTypE != 0;
                 if *grup.isUnarY;       print `"unary op" taG:;
                 else                    print `"regular op" taG:;
