@@ -6029,6 +6029,18 @@ kindRow "exprPinT C4 fNone(), empty argument"              "$(_ep C4)"    "5"   
 kindRow "exprPinT C4 fNone runs, lines"                    "$(grep -c '^EP fNone RAN' "$T/ept.e")" "1"  # intended 1
 kindRow "exprPinT C5 fId(qa qb)"                           "$(_ep C5)"    "xl1InSet"  # intended a two-member list (R2)
 kindRow "exprPinT C6 fId(-qa)"                             "$(_ep C6)"    "-2"        # intended -2
+#  foldedAnd SEQ 323 R1a: if a != 0 && b != 0 && c != 0; -- intended identical to the nested ifs
+kindRow "exprPinT FA1 folded &&, all three set"           "$(_ep FA1)"   "1"         # intended 1
+kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "1"         # intended 0 (it reads a != 0)
+#  staleValue SEQ 323 R1b: qs = 7; qs = fId(qa qb); -- = copies data only, so nothing is left behind
+kindRow "exprPinT ST1 qs = 7 then qs = fId(qa qb)"        "$(_ep ST1)"   "xl1InSet"  # intended qs (its tag)
+#  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
+run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
+kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0
+kindRow "foldAndT it ran up to the if, lines"            "$(grep -c '^FC before' "$T/fat.e")" "1"  # intended 1
+kindRow "foldAndT the body ran to its end, lines"         "$(grep -c '^FC body ran' "$T/fat.e")" "0"  # intended 0
+kindRow "foldAndT reached the line after the if, lines"   "$(grep -c '^FC after' "$T/fat.e")" "0"  # intended 1
+kindRow "foldAndT sentinel, lines"                        "$(grep -c '^FOLDANDT SENTINEL' "$T/fat.e")" "0"  # intended 1
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do

@@ -32,6 +32,12 @@ define
     hy="yv";
     hz=1;
     gLine=0;
+    fpA=1;
+    fpB=0;
+    fpC=3;
+    fpD=4;
+    fpR=0;
+    qs=0;
     fId code={ return argument; };
     fFalse code={ cerr "EP fFalse RAN":; return falseResult; };
     fTrue code={ cerr "EP fTrue RAN":; return trueResult; };
@@ -77,6 +83,9 @@ define
     fNone code={ cerr "EP fNone RAN":; return 5; };
     E2 code={ qr = qa < qb < qc; cerr "EP E2 " qr:; };
     E1 code={ qr = qa > qb + qc; cerr "EP E1 " qr:; };
+    FA1 code={ fpR = 0; if fpA != 0 && fpD != 0 && fpC != 0; fpR = 1; cerr "EP FA1 " fpR:; };
+    FA2 code={ fpR = 0; if fpA != 0 && fpB != 0 && fpC != 0; fpR = 1; cerr "EP FA2 " fpR:; };
+    ST1 code={ qs = 7; qs = fId(qa qb); cerr "EP ST1 " qs:; };
     ;
 A1(); A2(); A3(); A4(); A5(); A6(); A7();
 U70(); U72(); U75(); U302a(); U302b(); U302c();
@@ -88,6 +97,7 @@ H1(); H2(); H3();
 E1();
 E2();
 C1(); C2(); C3(); C4(); C5(); C6();
+FA1(); FA2(); ST1();
 cerr "EXPRPIN SENTINEL":;
 stop();
 
@@ -141,6 +151,13 @@ Rows, today -> intended:
   C4  fNone()  empty argument, returns 5   5 -> 5, and fNone runs once
   C5  fId(qa qb)   xl1InSet -> a two-member list (R2: juxtaposition wraps)
   C6  fId(-qa)                       -2 -> -2
+  FA1/FA2, the folded && in an if (SEQ 323 R1a, 2026-10-08): if a != 0 && b != 0 && c != 0;
+      intended identical to the nested ifs. FA1 all set: 1 -> 1. FA2 the middle one 0:
+      1 -> 0 -- right to left with no tiers it reads a != (0 && ...), i.e. a != 0. The crash
+      that misfire causes when the body touches the empty field is incant/pop/foldAndT.
+  ST1 the stale value (SEQ 323 R1b): qs = 7; qs = fId(qa qb); print qs.
+      xl1InSet -> qs  (= copies data only, so a list with no data leaves no value behind and
+      qs prints its own tag, per the print ruling)
 
 A tag echo is bear-trap 26: a false comparison or opNOT returns null, and = then
 leaves the field with no data, so it prints its own name.
