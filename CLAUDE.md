@@ -3208,6 +3208,8 @@ specimen goes in `tester`, written the way Tony runs it in Xcode. Add rules and 
 his existing driver lines and declarations alone.** He marks the lines he is done with — the
 2026-09-22 file carried `// Clod you can replace the following two lines as needed` — and that
 marker is the invitation, not a general licence over the file.
+⚠⚠ **AND IT MAY BE COMMITTED BETWEEN EDITS; A FAILING `tester` LINE IS NOT A FINDING UNLESS TONY ASKS (Tony, 2026-10-08,
+SEQ 323).** Commit it in whatever state it is in; do not report its broken lines.
 ⚠ **SO `incant++` IS THE ONLY SCRATCH FILE LEFT**, which is the 2026-09-16 ruling with its one
 remaining exception removed.
 ⚠⚠ **`IncantForms/WorkingOn/parser` COMMITS WITH ROUTINE WORK, WIP OR NOT — AND IS NEVER LEFT

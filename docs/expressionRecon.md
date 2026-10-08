@@ -582,6 +582,119 @@ ifs** -- the condition is true exactly where the three nested ifs are. Switch of
 ⚠ Tony's tester and the C1 scaffold share names after the merge (`qa`, `qb` in both TestStuff and C1Tester); testListed's
 walk reads qb as 3 (7 = 4 + 3).
 
+### ⚠⚠ c4 LANDED on `expr-accum` `aaf57cf` (SEQ 323 R0, Clod, 2026-10-08) -- UNMERGED, FOR TONY TO BUY
+
+**Rulings carried (Tony, 2026-10-08):** print is a feature -- a field with no value prints its tag, unchanged. `=` is
+to copy DATA ONLY (setData, not yet built); setContent stays where a list is part of the deal (TraiT, TraiTdata). tester
+may be committed between edits.
+
+**What landed** (built from the parked probe, one commit, on top of trunk `8d1f19c` merged in as `1c59c4e`): both
+builders build xl1 in source order -- trunk's interpretXP appends with `+=` and then `listLastToFront` (a relink, no
+copy); `interpretXPaccumWrap` loses its reverse loop. The seven Instruct readers, printField (`reversePrint` now walks
+`prior`) and jitPrintList walk `next`. `GroupList(item)` and addGroup's binType block skip a LIST: xl1 is a value with
+no first-character set. Canary 338.
+
+**C5 respelled on the branch** to WALK the call's list (`c5L := fId(qa qb); iterate c5C on *c5L; while ++c5C; cerr
+*c5C;`) and to capture the length before printing it: **`2 10`, length `2`**. The same walk reads `10 2` on trunk, so
+the row discriminates the turnaround. Two spelling traps met on the way: a `" "` separator prints `quoteBody` (bear-trap
+28), and with the switch on a string followed by `*` reads the `*` as BINARY -- `cerr "x" *c5C` refuses as "Operator *
+cannot apply"; `cerr *c5C` and a captured length do not.
+
+**Certificate (clone binary, bare):**
+- Fleet off **1039 -> 1040**, on **784 -> 785**. The only movers, both roads: C5 (one row -> two, green) and **ST1,
+  re-pinned `xl1InSet` -> `7`** -- the stale value R1(b) names: xl1 has a list and no data, and setContent keeps qs's 7.
+- printPop: printFamilyNew section 6 re-pinned, `omitted-2 [ xl1InSet ]` -> `[ n4 ]` (same mechanism: n4 had no data,
+  so it prints its tag). printPop PASSED.
+- **H7, two readers.** opAddAttribute left on `prior`: **no fleet row moves**, though the order probe shows `+%` over
+  a juxtaposed list reversed (`attr first 3 last 2`) -- **no row pins the order of `+%` over a juxtaposition; a coverage
+  finding.** printField left on `prior`: **fleet off 1040 -> 610**, red by value (kindT R1 reads `[]` for `3 x2 5`,
+  C5's length row empty, oneTest's baseline diffs). Both restored md5-identical and rebuilt.
+- jitLadder PASSED switch off; switch on row for row with c1's run (128 FAIL each, the SEQ 311 R4 jit refusal).
+  decodePop and frontier byte-identical to their captures; ddPop 5 / 1 standing; dirCheck PASSED, 52 of 56 inject, tree
+  retokked byte-identical (run in the clone with clone include paths and a copy of groupDirectives, restored after).
+  ⚠ **One more parked directive is dark than on trunk: `runOP starting`** -- dark since c1 (`d46aa45`) made runOP a
+  one-line unpacker; the anchor wants `runOPslots` when the branch merges (Tony's file).
+- **The fold rows on the branch:** with the switch on, FA2 reads 0 and foldAndT exits 0 and reaches its foot -- the
+  intended values, red only against trunk's today-pins. They read that way before c4 too (the tiers, c3).
+
+### The fold and the stale value, pinned on trunk (SEQ 323 R1, Clod, 2026-10-08; kant, trunk binary)
+
+**(a) folded `&&` in an if.** exprPinT FA1 (`fpA fpD fpC` all set) reads 1, intended 1; **FA2 (the middle one 0)
+reads 1, intended 0** -- with no tiers, right to left, the line reads `a != (0 && ...)`, i.e. `a != 0`. A plain folded
+line does NOT crash; Tony's 139 is the BODY running on an empty field after that misfire. `incant/pop/foldAndT`
+reproduces it in his shape (`kop=1`, `kres` empty, `ktgt=5`, body `testOP([kop, kres, ktgt])`): **exit 139, `FC before`
+1, body 0, `FC after` 0, sentinel 0**; intended exit 0 and `FC after` 1. The nested-if spelling of the same fields
+exits 0 with the body not run. Its own fixture because a crash would void every exprPinT row after it (H5).
+**(b) the stale value.** exprPinT ST1, `qs = 7; qs = fId(qa qb);` reads **`xl1InSet`** on trunk, intended `qs` (its
+tag: `=` copies data only, and a list has none). On expr-accum since c4 it reads **`7`**.
+**H7:** FA1, FA2, ST1, and foldAndT's exit and FC-after pins mutated -> five reds by value; restored md5-identical.
+Trunk fleet 1031 -> 1039 / 51 / 1.
+
+### setData RECON -- every `=` whose source carries a list (SEQ 323 R3, Clod, 2026-10-08; READ-ONLY, nothing built)
+
+**The tap:** SEQ 313's, re-run on trunk `8d1f19c` in the clone -- both `=` roads (opAssign and jitAssignNodeRT) print
+every call, and every call whose source has a non-empty `groupList`, with its data kind and binType; reverted
+md5-identical. **Population:** every file in `incant/pop`, `incant/pop/jit`, `incant/jit*`, the top-level `designDocs
+grammar directives utilities frontier decoder lookup`, and every fixture a checklist script names through `ip()` (the
+one not already in, `incant/walkRefT`, was run too) -- 203 runs, all exit 0 but foldAndT's pinned 139. A list-carrying
+`=` in any fleet fixture would have been seen, because every fleet fixture is in it. **No per-statement line exists at
+run time** (`GroupActions.rtn:765`), so each hit is mapped to its line by its target and source tags in the run's own
+source and includes.
+
+| | calls | source carries a list |
+|---|---|---|
+| interpreted `=` | 9,376 | **51**, in 12 fixtures |
+| jitted `=` | 5 | 0 |
+
+**LIST ONLY (source has no data) -- 38:**
+
+| file:line | statement | n | does a name or comment say a list is the deal? |
+|---|---|---|---|
+| `incant/utilities:106` (JSONfield) | `*jfOut = *JSONvalue;` | 14 (jsonTest: keys `a` 5, `files` 3, `variants` 3, `subsets` 2, `items` 1) | nothing says; JSONvalue's alternatives are JSONblock / JSONarray, so a structure is what arrives |
+| `incant/pop/jsonTest:24` | `field = JSONblock(argument);` | 13 | nothing says; the next lines read `field.listLengtH` and iterate `field` |
+| `incant/decoder:346` | `hit = decodeCorpus[argument.taG];` | 3 (decode) | nothing says; the next line reads `hit.definition`, an attribute |
+| `incant/pop/decodeT:66, 67, 68` | `h4 = / h7 = / br = decodeCorpus[...]` | 3 | nothing says; the print reads `.definition` ("three spot values") |
+| `incant/pop/decodeT:139, 140` | `pk = / bi = decodeCorpus[...]` | 2 | nothing says; reads `.definition` |
+| `incant/lookup:58` | `luD = decodeCorpus[argument.taG];` | 1 | nothing says; reads `luD.definition` |
+| `incant/lookup:62` | `luP = ProblemRecords[argument.taG];` | 1 | nothing says; `luFull(luP)` walks it |
+| `incant/pop/exprPinT:61` (O1) | `r3 = *block(src);` | 1 (a BlocK) | its row says intended "the BlocK's result" -- not a list |
+
+**LIST AND DATA -- 13:**
+
+| file:line | statement | data | n | does a name or comment say a list is the deal? |
+|---|---|---|---|---|
+| `incant/pop/printFamily:105, 107, 109, 125` | `vDef = #"..." 1 2 3;` and three `$`/`_` strings | string | 1-5 (StringXP parts) | no -- "a string expression"; the parts build the string |
+| `incant/pop/printFamilyNew:204, 206` | `n1 = #"PN-O-one";`, `n2 = #"PN-O" "two";` | string | 1 | no -- spelled strings |
+| `incant/unitTests:244` (baselineTests, baselineTestsNew) | `whatsIt = #"is what" 'I am talking about';` | string | 1 | no -- a string |
+| `incant/pop/printFamilyNew:210` | `n4 = "PN-O" "two";` | SET (xl1) | 2 | no -- its comment says it MUST BECOME `n4 == n2`, a string |
+| `incant/pop/exprPinT:81` (C5) | `qr = fId(qa qb);` | SET (xl1) | 2 | **yes** -- its row says intended "a two-member list" |
+| `incant/pop/exprPinT:88` (ST1) | `qs = 7; qs = fId(qa qb);` | SET (xl1) | 2 | no -- intended: nothing left behind, qs prints its tag |
+| `incant/pop/faceT:34` | `faP1 = faSrc.parenT;` | count | 3 | no -- "want faP1 -- NOT READABLE" (its note, :94: a field with no data) |
+| `incant/pop/kant8T:545` | `kOut = k7Self();` | count | 4 | no -- "want 46; a NAME here = the bracket ate the value" |
+
+Since SEQ 313 (47): +2 `incant/lookup` (not in that population), +2 C5/ST1 (rows written since). ⚠ Context, not a
+finding: C5's and ST1's `xl1` arrives at opAssign with **binType 0** (through the call's argument carrier) where
+printFamilyNew's `n4` arrives with binType 3 -- the carrier hands `=` a node that is not itself the LIST.
+
+**Kant operators that already copy or attach a list (read, trunk sources):**
+
+| operator | method | with a list on the right | reaches |
+|---|---|---|---|
+| `=` | opAssign / jitAssignNodeRT | `copyListFrom`: clears the target's list, adds each entry (an entry with its own list via `new(entry)`) | **setContent** |
+| `+=` | opPlusEQstruct (struct target) | `copyListTo`: each entry added to the target (addGroup copies a parented entry) | addAttribute / addMember |
+| `+=` | opPlusEQisSTRING | concatenates the list's printed parts (appendGroup); no list copy | -- |
+| `+=` | isCOUNT / isNUMBER / isBUFFER / isSTAK | refuse a LIST argument | -- |
+| `+%` `+/` | opAddAttribute / opAddMember | a LIST argument: each item added; otherwise the argument added whole (a copy, `new(group)`, when it already has a parent) | addAttribute / addMember |
+| `:%` `:+` | opReplaceAttribute / opReplaceMember | each item of a LIST replaced in, else the argument | `replace` |
+| `-=` `*=` `/=` | opMinusEQ / opMultiplyEQ / opDivEQ | the op applied per item; no list copy | -- |
+| `+<` | opAddProperty | the argument (copied if parented) onto the property list; its list rides with it | addProperty |
+| `+*` | opAddPointer | an attribute POINTING at the argument; nothing copied | -- |
+| `:=` | opSetGroup | holds the argument; nothing copied | **setGroup** |
+| `<-` | opRebind | `target.group = argument`; nothing copied | **setGroup** |
+
+Not operators, recorded so the list is whole: the `copyOf` command (wraps copyListTo). Whether a `new(group)` copy
+carries the source's list by SHARING the body (C18) or by copying it is read from the docs, not measured here.
+
 ### `&&` in an `if` on trunk -- CONTEXT, not a finding (seal 99, Clod, 2026-10-08; kant, trunk binary of seal 99)
 
 Tony's `testListed` (tester) folded three nested ifs into `if op.datA != 0 && result.datA != 0 && target.datA != 0;` and
