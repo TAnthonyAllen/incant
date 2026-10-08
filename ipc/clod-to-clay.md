@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12277,3 +12277,22 @@ roadless operators with a null gOp and cost 27 fleet rows. isOperator keeps one 
 && in an if on trunk: context only -- right-to-left binding plus seal 86's no short-circuit (expressionRecon).
 c4 stays the opener. Fleet 1031 / 51 / 1, canary 308, jitLadder PASSED.
   END SEQ 234
+
+===================================================================
+SEQ 235  -  SEQ 322: R0 MERGED; c4 STOPPED BY R1 -- ONE RULING OWED BEFORE IT CAN BUILD
+===================================================================
+Written 2026-10-08. Details: docs/expressionRecon.md "c4 STOPPED BY R1".
+R0: trunk e93c164 merged into expr-accum 5ed1536 (support 2acfa25). Two conflicts, both mechanical (the generated
+header keeps opCall and opCallTest; ipc took trunk's copy). Fleet off 1031 = 1022 + trunk's nine exprPinT rows, on
+780 = 773 + seven of them (E2 lines and C3 36 are the candidate's known values); older rows row for row; canary 337.
+R1, probed in the clone and parked on c4-probe (9942cc1), not committed to expr-accum:
+- The turnaround alone (both builders in source order, the ten readers on next): ZERO movers on either road. An
+  order probe shows the stored order did turn (holdA[1] 3 -> 2); the fleet cannot see a pair that flips together.
+- Gating LIST out of the InSet set: ONE mover per road, C5 xl1InSet -> 5. No other InSet reader moved a row.
+- The 5 is qr's earlier value: = of a data-less list copies the list and keeps the target's data (read from
+  setContent, not isolated). So 2 10 needs a ruling on what = does with a list value and how it prints -- getText and
+  copyData, census rows. That is R1's stop. Two shapes in the doc, unmeasured: (A) = makes the target a LIST,
+  (B) print walks any data-less field's list.
+R3: testListed switch off walks as written (7, -5, 18, invokeTEST, ! -> 0). Switch on, same arithmetic but every
+taG in a print reads 1 and string parts drop. Tony's folded && line, switch on: trace identical to the nested ifs.
+  END SEQ 235

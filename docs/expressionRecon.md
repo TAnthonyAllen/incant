@@ -539,6 +539,49 @@ that gap. **What it says about c4:** the set is a bin's tool attached to lists b
 LIST value reaches are the six "yes" rows -- the place to stop it is the two writers (`GroupList(item)` and `addGroup`'s
 binType block), where LIST can be told apart from the bin kinds. Nothing built.
 
+### ⚠⚠ c4 STOPPED BY R1 -- THE TURNAROUND IS CLEAN; C5's `2 10` NEEDS A RULING (SEQ 322, Clod, 2026-10-08; nothing committed to expr-accum but the merge)
+
+**R0 done:** trunk `e93c164` (seal 99 + Tony's tester) merged into `expr-accum` as `5ed1536`, support `main` as `2acfa25`.
+Fleet off 1031 (seal 98's 1022 + trunk's nine exprPinT rows), on 780 (773 + seven of the nine), every older row row for
+row; canary 337.
+
+**What was probed, in the clone, parked on branch `c4-probe` (`9942cc1`, uncertified):**
+- *(i) the turnaround.* trunk's interpretXP appends a juxtaposed term with `+=` (addGroup's work kept) and then moves it
+  to the FRONT (`listLastToFront`, a relink: no copy, listLength and parent untouched), so xl1 ends in source order;
+  `interpretXPaccumWrap` drops its reverse loop; the seven Instruct readers, printField (`reversePrint` now inverts) and
+  jitPrintList walk `next`. Canary 338. **Fleet off 1031, on 780 -- zero movers on either road** (heap addresses only).
+- *Order witness* (one probe, three rows): `holdA = fId(qa qb qc); holdA[1], holdA[3]` reads **3, 2 on trunk** and **2, 3
+  on the probe**, both switches; `holdB +% qa qb qc` and `cerr qa qb qc` read the same on both (2 3 / 2 10 3). So the
+  stored order turned and the flipped readers hand back what they always did -- which is why the fleet does not move.
+  ⚠ **The fleet is order-symmetric here: a pair that flips together is invisible to it.** copyListTo (`+=` on a struct
+  with a list argument), the census's predicted mover, moved nothing: no fleet row reaches it with an xl1.
+- *(ii) xl1 stops carrying the set:* `GroupList(item)` and addGroup's binType block skip a LIST. **One mover on each
+  road: C5 `xl1InSet` -> `5`.** Nothing else moved, so no other InSet reader the census names (copyData, opIN -- which
+  tests `groupList` before the set, so a list argument never reaches the set -- getType, the get/getFromList guard,
+  getCharacterSet) changed a fleet row.
+
+**Why C5 reads `5`, and why that is the stop.** `qr = fId(qa qb)` is `setContent(xl1)`. With no set, xl1 has a list and
+NO DATA, so setContent copies the list and leaves qr's data alone (`GroupItem.twk:1722-1733`) -- qr still holds C4's `5`
+(row C4, `qr = fNone()`, runs just before). **Read from the code and that ordering, not isolated by a run.** The print
+then prints qr's data. So `2 10` cannot come from the turnaround or from removing the set: it needs a decision
+about **what `=` does with a data-less list value, and how such a value prints** -- that is the census's getText and
+copyData rows, i.e. an InSet reader that needs a ruling (R1's stop). Two shapes, NOT measured:
+- (A) `=` with a LIST argument makes the target a LIST (clears its data, takes the list, binType LIST), and printField
+  walks it. Reach: the 1 `=` call in SEQ 313's tap that carries an xl1 (printFamilyNew `n4`), plus whatever a target that
+  STAYS a list does on its next scalar `=` (C6 reuses qr: it would need `=` of a scalar to drop the list again).
+- (B) print a data-less field that has a list as its members. Reach: every print of a structure field, which prints its
+  tag today (bear-trap 26).
+
+**R3's witnesses, on `5ed1536` (no c4), both switches.** *testListed:* switch off walks as Tony wrote it --
+`field qc / regular op + / field qb / result is 7`, then -5, 18, `invokeTEST: righty = 18`, `unary op ! on target 18
+result is 0`, exit 0. Switch on, exit 0, the same arithmetic (7, -5, 18) but **every `taG` in a print reads `1`**
+(`field 1`, `regular op 1`, `invokeTEST: 1 = 18`), the `"result is"` string parts drop, and the unary line prints
+`18 18`; one extra `REFUSED Operators -- a prefix operator with no operand after it [line 11]`. *The folded line*
+`if op.datA != 0 && result.datA != 0 && target.datA != 0;`, switch on: **the trace is byte-identical to the nested
+ifs** -- the condition is true exactly where the three nested ifs are. Switch off it still exits 139 (seal 99).
+⚠ Tony's tester and the C1 scaffold share names after the merge (`qa`, `qb` in both TestStuff and C1Tester); testListed's
+walk reads qb as 3 (7 = 4 + 3).
+
 ### `&&` in an `if` on trunk -- CONTEXT, not a finding (seal 99, Clod, 2026-10-08; kant, trunk binary of seal 99)
 
 Tony's `testListed` (tester) folded three nested ifs into `if op.datA != 0 && result.datA != 0 && target.datA != 0;` and
