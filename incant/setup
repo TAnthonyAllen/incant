@@ -282,6 +282,7 @@ define
     byReF=31;
     hasNewParsE=41;
     isCodeD=40;
+    isUnarY=45;
     nexT=401;
     prioR=402;
     firsT=403;
@@ -290,6 +291,7 @@ define
     actionTypE=406;
     binTypE=407;
     isActioN=408;
+    instructTypE=409;
     lastIndenT=411;
     processingCodE=412;
     ;

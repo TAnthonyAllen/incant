@@ -4,10 +4,60 @@
 *****************************************************************************/
 Start();
 include(utilities);
+include(unitTests);
 search reset stack Grokking;
-search Utilities list;
+search Utilities UnitTests list;
+
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest;
+    ;
+registry(TestStuff);
+define
+    listEntries isRule
+        ANYtoken;
+        NumbeR;
+        Operators;
+    invokeTEST code={ print "invokeTEST:" taG "=" argument:; };
+    testListed isRule lizted=listEntries+ SemI- code={
+        iterate grup on *lizted;
+        while ++grup;
+            if *grup.instructTypE != 0;
+                if *grup.isUnarY;
+                    print `"unary op" taG:;
+                    result := *grup(result);
+                else
+                    op = grup;
+                    print `"regular op" taG:;
+            else
+                if *grup.isLiteraL == 1;    print `"number" *grup:;
+                else                        print `"field" taG:;
+                if target == 0;             target = grup;
+                or result == 0;             result = grup;
+            if op.datA != 0;
+                if result.datA != 0;
+                    if target.datA != 0;
+                        clear(instruct);
+                        print "Running instruct";
+                        instruct    +% *op;
+                        instruct    +% *result;
+                        instruct    +% *target;
+                        target      := testOP(instruct);
+                        print "result is" *target:;
+                        clear(result);
+                        clear(op);
+        return  *target;
+        };
+    ;
+
+testListed("3 * 2 righty -= call invokeTEST;");
 
 stop();
+testListed("3 * 2 -= righty call invokeTEST;");
 
 /***************************************************************************
     parseCode notes (Clod, 2026-10-05, after SEQ 300)
@@ -32,7 +82,8 @@ parser(Search);
 
 include("IncantForms/WorkingOn/checkSKIP");
 // Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
-register(TestStuff);
+registry(TestStuff);
+(TestStuff);
 define
     skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
     skipTester code={
@@ -42,11 +93,25 @@ define
 debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
 checkSKIP(skipInput);
 
+    testListed isRule lizted=listEntries+ SemI- code={
+        print "list passed in:":;
+        result = 0;
+        iterate grup on *lizted;
+        while ++grup;
+            $$grup;
+            if *grup.instructTypE != 0;
+                if *grup.isUnarY;       print `"unary op" taG:;
+                else                    print `"regular op" taG:;
+            or *grup.isLiteraL == 1;    print `"number" *grup:;
+            else                        print `"field" taG:;
+        };
+
 /***************************************************************************
     Current Status
 ***************************************************************************/
 
-register(TESTing);
+registry(TestStuff);
+(TESTing);
 define
     /***************************************************************************
         parseCode is kant version of processCode

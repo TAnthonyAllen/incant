@@ -43,16 +43,17 @@ parent := grup.parent;      // not sure if this line will work as it should
     runInstruct code={
         result = 0;
         iterate grup on argument;
-        while --grup;               // does --grup go thru the argument list back to front???  I forget but assume it does
-            if isOperator(*grup);   // we need an isOperator() command
+        while --grup;
+            if *grup.instructType != 0;
                 op = grup;
-                if isUnary(*op)     result := *op(result);  // need an isUnary command too and *op(result); has to work
+                if *op.isUnarY      result := *op(result);  // need an isUnary command too and *op(result); has to work
             or result == 0;         result = grup;          // isGROUP is data so result.group will contain grup.group (after opAssign runs setContent())
             else
-                result  +% *op *result *grup;               // kant grammar does not see op as an Operator even tho it contains an Operator
+                result  +% *op *result *grup;
                 result  := runOP(result);                   // so cannot enter: *result *op *grup; as an expression statement
         return  *result;
 
 Need a call op to handle A(B); as A call B; so A is target, call is op, and B is argument; and opCall has to handle: A having a method; A is an action; and A is a rule
 runOP can be simpler but must handle target or argument that may come in as invoked fields with method and no argument: like field();
 interpretXP will have to convert A += B C D; either wrap B C D in a list or generate A += B; A += C; A += D;
+

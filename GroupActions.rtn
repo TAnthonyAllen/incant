@@ -1127,7 +1127,13 @@ String      name;
     return item;
 }
 
-
+extern GroupItem testOP(GroupItem field)
+{
+GroupItem result;
+    // this is just a test wrapper for runOP for debugging
+    result = runOP(field);
+    return result;
+}
 
 // verdictCount add one named count to a verdict
 extern void verdictCount(GroupItem verdict,String name,int value)
