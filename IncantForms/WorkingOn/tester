@@ -22,14 +22,25 @@ define
         ANYtoken;
         NumbeR;
         Operators;
-    invokeTEST code={ print "invokeTEST:" taG "=" argument:; };
+    invokeTEST code={ print "invokeTEST:" taG "=" argument:; return argument; };
+    qa=2;
+    qb=3;
+    qc=4;
     testListed isRule lizted=listEntries+ SemI- code={
         iterate grup on *lizted;
-        while ++grup;
+        while --grup;
+            clear(instruct);
             if *grup.instructTypE != 0;
                 if *grup.isUnarY;
-                    print `"unary op" taG:;
-                    result := *grup(result);
+                    instruct    +% *grup;
+                    if result.datA == 0;
+                        print `"unary op" taG "on target" *target;
+                        instruct    +% *target;
+                    else
+                        print `"unary op" taG "on result" *result;
+                        instruct    +% *result;
+                    result      := testOP(instruct);
+                    print " result is" *result:;
                 else
                     op = grup;
                     print `"regular op" taG:;
@@ -41,7 +52,6 @@ define
             if op.datA != 0;
                 if result.datA != 0;
                     if target.datA != 0;
-                        clear(instruct);
                         print "Running instruct";
                         instruct    +% *op;
                         instruct    +% *result;
@@ -54,10 +64,17 @@ define
         };
     ;
 
-testListed("3 * 2 righty -= call invokeTEST;");
+testListed("!invokeTEST call righty -= -qa - qb + qc;");    // -qa does not work because the - needs turning into a negate unary when the list is built
 
 stop();
-testListed("3 * 2 -= righty call invokeTEST;");
+testListed("invokeTEST call righty -= qa * qb + qc;");
+Harder expressions for testListed, each with a pinned trunk answer in exprPinT to compare against:
+- qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
+- xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
+- -qa + qb and !fTrue(qa): a prefix unary on a term, and on a call.
+- fId(qa + qb) * qc and qa + fNest(qb) + qc: calls with an expression inside or between, so A(B) has to become A call B mid-expression.
+- a < b < c: chained comparisons; expr-accum currently refuses this by name.
+- *block(code): a star on a call target.
 
 /***************************************************************************
     parseCode notes (Clod, 2026-10-05, after SEQ 300)
