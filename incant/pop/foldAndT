@@ -1,0 +1,44 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+register(FoldAndT);
+define
+    kop=1;
+    kres;
+    ktgt=5;
+    kins;
+    K1 code={
+        cerr "FC before":;
+        if kop.datA != 0 && kres.datA != 0 && ktgt.datA != 0;
+            kins +% *kop;
+            kins +% *kres;
+            kins +% *ktgt;
+            ktgt := testOP(kins);
+            cerr "FC body ran":;
+        cerr "FC after":;
+        };
+    ;
+K1();
+cerr "FOLDANDT SENTINEL":;
+stop();
+
+What foldAndT Is
+
+SEQ 323 R1a (2026-10-08). The folded && in an if, in the shape of Tony's testListed:
+if op.datA != 0 && result.datA != 0 && target.datA != 0; with result EMPTY. Intended:
+identical to the nested ifs, so the body does not run, FC after prints, exit 0.
+
+Today, trunk: with no tiers and right to left the line reads op.datA != (0 && ...), i.e.
+op.datA != 0, so the body runs with kres empty and testOP over [1, empty, 5] dies --
+exit 139 before FC body ran. The nested-if spelling of the same fields exits 0 and the
+body does not run (measured the same day).
+
+Its own fixture, not a row of exprPinT, because a crash ends the process and would void
+every exprPinT row after it (rule H5). pop.sh pins the crash by its exit status and by
+which lines printed, so a change reads red by value. The value rows of the same misfire,
+without the crash, are exprPinT FA1 and FA2.
