@@ -539,6 +539,18 @@ that gap. **What it says about c4:** the set is a bin's tool attached to lists b
 LIST value reaches are the six "yes" rows -- the place to stop it is the two writers (`GroupList(item)` and `addGroup`'s
 binType block), where LIST can be told apart from the bin kinds. Nothing built.
 
+### `&&` in an `if` on trunk -- CONTEXT, not a finding (seal 99, Clod, 2026-10-08; kant, trunk binary of seal 99)
+
+Tony's `testListed` (tester) folded three nested ifs into `if op.datA != 0 && result.datA != 0 && target.datA != 0;` and
+the clauses "never ran". Measured: **`&&` and `||` are right between plain values** (0/1 flags: 1&&0, 1&&1, 0||1, 0||0 all
+correct). **What fails is binding:** with no tiers and right-to-left, the line reads `op.datA != (0 && (...))`, i.e.
+`op.datA != 0`, so the body ran with `result` empty (exit 139). `zero == 0 && one == 0` takes its branch the same way;
+rows that happen to agree under that reading discriminate nothing. Add seal 86's half: **no short-circuit** --
+`fFalse() && g()` runs g (exprPinT S3). Spellings that do NOT work around it today: grouping parens (`r = (a == b) && ...`
+fails to parse), and `=`-capturing a comparison (a false comparison leaves a data-less field, which reads its tag and is
+truthy, bear-trap 26). Spellings that do: nested ifs, or the 0/1 flag idiom (`fa = 0; if a == b; fa = 1;`). The cure is
+the tier work on expr-accum (compareTier above the `&&`/`||` tier); exprPinT's B, U and S rows are its yardstick.
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted

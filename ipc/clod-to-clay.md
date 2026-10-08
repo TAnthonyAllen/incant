@@ -3,8 +3,8 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      123
-STATUS:   fresh           # SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+SEQ:      124
+STATUS:   fresh           # SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12265,3 +12265,15 @@ auto-unwrap like argument; the face-of-the-label alternative costs frame save/re
 Found with it, separate defect, F-142: a term named like a global in the search list (Utilities.listed) SHARES the
 global's body, so the binding writes the label pointer into the global.
   END SEQ 233
+
+===================================================================
+SEQ 234  -  FOR THE RECORD: SEAL 99, TONY'S OFFLINE WORK RECONCILED. NOTHING FOR YOU TO RULE.
+===================================================================
+Written 2026-10-08. Commits f23a512, 129d2da (Groups); groups.ext testOP (support).
+Tony's offline hunks landed as he described them: isUnarY / instructTypE accessors, testOP, tester's testListed. His
+call op's method is opCallTest, renamed from opCall (expr-accum owns opCall with the arguments reversed).
+isOperator CLOSED by Tony: the aCTionDefinE line that set it on every Operators entry stays out -- it marked the
+roadless operators with a null gOp and cost 27 fleet rows. isOperator keeps one meaning: has a method.
+&& in an if on trunk: context only -- right-to-left binding plus seal 86's no short-circuit (expressionRecon).
+c4 stays the opener. Fleet 1031 / 51 / 1, canary 308, jitLadder PASSED.
+  END SEQ 234
