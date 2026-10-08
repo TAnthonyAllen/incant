@@ -7,7 +7,7 @@
 #   untouched at fbb5561 (support 7d06fad).
 #   
 #   ## LANDED: f23a512 -- Tony's offline work: GroupFields isUnarY=45, instructTypE=409 (opDot cases 45, 409; case 406 now
-#   returns actionType's value); testOP (runOP debugging wrapper, groups.ext mirror support 1st commit of the day); the
+#   returns actionType's value); testOP (runOP debugging wrapper, groups.ext mirror support 9cdbaec); the
 #   call op's method RENAMED opCall -> opCallTest (expr-accum owns opCall(target,arg) -- bear-trap 12 at merge); tester's
 #   testListed. 129d2da -- tester's parked copy below stop() is testIterateInReverse.
 #   isOperator: CLOSED (Tony). aCTionDefinE's "opFields -> isOperator = true" stays OUT -- it took the fleet 1031 -> 1004
