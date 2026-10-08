@@ -224,6 +224,18 @@ GroupItem   ptr;
 
 
 /***************************************************************************
+	test of call op
+***************************************************************************/
+extern GroupItem opCallTest(GroupItem argument,GroupItem target)
+{
+GroupItem result;
+    if target.actionType    result = runAction(argument,target);
+    or target.method        result = target.method(argument);
+    else cerr "opCallTest: "    target.tag "has no method":;
+    return result;
+}
+
+/***************************************************************************
 	operator method for the cout rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
 
     opPrint above consults toBUFFER and so is DIVERTIBLE. This one does not,
@@ -420,6 +432,7 @@ use argument
                     which is the green that flatters. This makes the question askable.
                     Instruct.opDot.debuggeDNoWriteHalf  */
                 case 44:    if target.debugged      product.count = 1;
+                case 45:    if target.isUnary       product.count = 1;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;
@@ -436,7 +449,7 @@ use argument
                 // affiliation-FILTERED first, unlike `.firsT`, which returns the
                 // ATTRIBUTE on an attribute-first node   Instruct.opDot.case405firstMember
                 case 405:   if !target.groupList  product = null; else product = target.nextMember(0);
-                case 406:   if target.actionType  product.count = 1;
+                case 406:   product.count = target.actionType;
                 // binType is an ENUM, so nonzero means ANY container kind --
                 // deliberately wider than isBIN||isREGISTRY   Instruct.opDot.case407binType
                 case 407:   if target.binType     product.count = 1;
@@ -445,6 +458,7 @@ use argument
                 case 408:   if target.isAction    product.count = 1;
                 // unsupportedAccessor  every gCount with no case of its own lands here and
                 // unsupportedAccessor  SAYS SO, rather than answering with a silent null
+                case 409:   product.count = target.instructType;
                 case 411:   product.count   = lastIndent;
                 case 412:   product.count   = inCompile();
                 default:    product.text    = "access to " tag " not supported yet"; }

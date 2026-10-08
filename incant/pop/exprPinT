@@ -68,6 +68,14 @@ define
     U302a code={ across = 0; down = 5; ur = 0; if across > 0 || down > 0; ur = 1; cerr "EP U302a " ur:; };
     U302b code={ across = 5; down = 0; ur = 0; if across > 0 || down > 0; ur = 1; cerr "EP U302b " ur:; };
     U302c code={ across = 0; down = 0; ur = 0; if across > 0 || down > 0; ur = 1; cerr "EP U302c " ur:; };
+    C1 code={ qr = qa + fId(qb); cerr "EP C1 " qr:; };
+    C2 code={ qr = qa + fId(qb) + qc; cerr "EP C2 " qr:; };
+    C3 code={ qr = fId(qa + qb * qc); cerr "EP C3 " qr:; };
+    C4 code={ qr = fNone(); cerr "EP C4 " qr:; };
+    C5 code={ qr = fId(qa qb); cerr "EP C5 " qr:; };
+    C6 code={ qr = fId(-qa); cerr "EP C6 " qr:; };
+    fNone code={ cerr "EP fNone RAN":; return 5; };
+    E2 code={ qr = qa < qb < qc; cerr "EP E2 " qr:; };
     E1 code={ qr = qa > qb + qc; cerr "EP E1 " qr:; };
     ;
 A1(); A2(); A3(); A4(); A5(); A6(); A7();
@@ -78,6 +86,8 @@ N1(); N2();
 O1(); O2(); O3(); O3b(); O4seed(); O4();
 H1(); H2(); H3();
 E1();
+E2();
+C1(); C2(); C3(); C4(); C5(); C6();
 cerr "EXPRPIN SENTINEL":;
 stop();
 
@@ -120,6 +130,17 @@ Rows, today -> intended:
   H2  hw := qa * qb + qc             23 -> 23
   H3  hx.noPrinT = hy.noPrinT (seal 51's shared-tempField case, interpreted)   1 -> 1
   E1  qa > qb + qc     a tag echo (false) -- the candidate's answer is Tony's to rule
+  E2  qa < qb < qc   REFUSED, but by accident: the right-to-left fold makes qb < qc null and
+      qa < null refuses as "an operand that is nothing" -> refused BY NAME as a chained
+      comparison (SEQ 318 R1, Tony 2026-10-07)
+  C1-C6, the call rows (SEQ 314 step 0, 2026-10-07; the careful build's measuring stick for
+  opCall, SEQ 313 R1):
+  C1  qa + fId(qb)                   12 -> 12
+  C2  qa + fId(qb) + qc              15 -> 15
+  C3  fId(qa + qb * qc)              32 -> 36   (the argument folds left to right)
+  C4  fNone()  empty argument, returns 5   5 -> 5, and fNone runs once
+  C5  fId(qa qb)   xl1InSet -> a two-member list (R2: juxtaposition wraps)
+  C6  fId(-qa)                       -2 -> -2
 
 A tag echo is bear-trap 26: a false comparison or opNOT returns null, and = then
 leaves the field with no data, so it prints its own name.

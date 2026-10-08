@@ -52,6 +52,505 @@ expressions (R5). **Open edge, Tony's to rule:** `qa > qb + qc` -- refuse by nam
 `!fTrue(qa)` nor `!fFalse(qa)` runs its action, and both leave a tag echo (rows O3, O3b, and the RAN count). `fFalse() &&
 gSay()` runs `gSay` (S3). `utilities:302`'s `across > 0 || down > 0` reads 0 for across 0, down 5 (U302a).
 
+### ⚠⚠ C1 BOUGHT IN PRINCIPLE (Tony, 2026-10-06, SEQ 312 R1) -- branch `expr-accum` stays pushed and UNMERGED
+
+**`expr-accum` (Groups `31069dc`, support `fc72698`) is the reference for a careful build in a clean session; it is a
+PoC and is not merged.** Built beside today's trio behind `INCANT_EXPR_ACCUM`: one gate atop aCTionTokenXP hands the label
+up untouched; ExpressioN's actor is `interpretXPaccum`, which flattens each TokenXP label to raw pieces and decides by
+position into ONE flat list; `runOPaccum` runs it, recursing at the parked head and at `&&`/`||`. Full report
+clod-to-clay SEQ 222.
+
+**Rulings with the buy:** print lists keep the position rule -- a prefix after a print item needs a separating
+shortcut (`,*x`, `:*x`, any non-operator shortcut, multi-character included); the 10 fixtures' respell belongs to the
+careful build (R2). `return falseResult;` reading truthy is banked as Clod's fixit `falseResultTruthy` (R3). `a = b = c`
+stays HPDL (R4).
+
+**M1 -- exprPinT, switch on** (qa=2 qb=10 qc=3):
+
+| expression | today | candidate | intended |
+|---|---|---|---|
+| qa * qb + qc | 23 | 23 | 23 |
+| 2 * 10 + 3 | 26 | 23 | 23 |
+| qa - qb + qc | -5 | -5 | -5 |
+| qa + qb - qc | 9 | 9 | 9 |
+| qa / qb + qc | 0.153846 | 3.2 | 3.2 |
+| bgSpec * 3 + 2 (jitAttrPop:69) | 25 | 17 | 17 |
+| lt + bk * sc, 1 17 3 (:70) | 52 | 54 | 54 |
+| utilities:70/72/75 forms at 20 | 1 | 0 | false |
+| across > 0 \|\| down > 0: 0 5 / 5 0 / 0 0 | 0 / 1 / 0 | 1 / 1 / 0 | true / true / false |
+| x > px && x < pxw: x 5 / 0 / 20 | 1 / echo / 1 | 1 / 0 / 0 | true / false / false |
+| a && b \|\| c, 0 1 1 | 0 | 1 | true |
+| a \|\| b && c, 0 1 0 | 0 | 0 | false |
+| fFalse() && gSay() | 1, g runs | 1, g runs (a) | false, g does not run |
+| fId(qa + qb) * qc | 36 | 36 | 36 |
+| qa + fNest(qb) + qc | 37 | 37 | 37 |
+| *block(src) | pz 0, r3 echo | pz 0, r3 echo (b) | pz 7 |
+| -qa + qb | 8 | 8 | 8 |
+| !fTrue(qa) | echo, not run | echo (null = false), fTrue runs | false |
+| !fFalse(qa) | echo, not run | echo, fFalse runs (a) | true |
+| *ph.pMid + 1, pMid 41 | 42 | 42 | 42 |
+| hz += qa * qb, hz 1 | 21 | 21 | 21 |
+| hw := qa * qb + qc | 23 | 23; its print line lost (c) | 23 |
+| hx.noPrinT = hy.noPrinT | 1 | 1 | 1 |
+| qa > qb + qc | echo (false) | REFUSED by name | refuse |
+
+(a) `return falseResult;` reads truthy on BOTH roads, and so does a bare `if falseResult;` -- fixit `falseResultTruthy`;
+with a body returning 0 both roads skip g. (b) Two causes, apart: on trunk the call is LOST; under the candidate it
+reaches BlocK, which drives the HOLDER's name text `[pSrc]` (driveStep). (c) `" star " *hw` -- a prefix after a print item
+is binary under the position rule; `,*hw` is the spelling (R2).
+
+**M3 -- P1 answered, on trunk's road** (a tap on the instruction node, reverted md5-identical): 201 fixtures, 10,231
+instruction nodes, 30 arm switches. **ONE INSTRUCTION DOES TAKE TWO ARMS**, and only one kind: a call (`op false`) whose
+target is a BIN with an installed parse (`Operators`, `UnaryOPS`: isRule 0, hasNewParse 1) takes `runRule` at emit time
+and the target's method when interpreted, because arm 3's door is `isRuleTerm() || (jitting && hasNewParse)` (opLenT 20,
+tokJitT 6, sweepT 4). The switch is the jitting PHASE, never a change in the target.
+
+**Switch on, the fleet (M2, information):** 1022 -> 757 green; families are the jit road refusing (R4), the
+generated-parse road ("no carrier" / "no compiled body"), unescaped print stars, and value movers (pointerT, omModT,
+hasActionT ...); spacingT exits 139.
+
+**The careful build opens with a PLAN AND RECON, not a build** (SEQ 312; order Tony's to set): (a) generated-parse bodies
+compiling and running under the candidate (the largest); (b) the jit road: a flat list's emit, and the one door that
+checks jitting (M3); (c) D5 per road: executor kinds and instruction layout; (d) tier tests from setup data (D3), not
+spelled operator names; (e) triage of the value movers and spacingT's 139; (f) the print-list respells (R2); (g) the
+switch reading any value as on; (h) separately: driveStep driving a holder's name text. **After the buy lands:** the
+TokenXP rule and InvokeArg's UnaryXP alternative leave the grammar, and KANT-43 retires with a dated note.
+
+### ⚠⚠ THE CAREFUL BUILD: PLAN AND RECON (SEQ 313, Clod, 2026-10-07) -- NOTHING BUILT; TONY RULES THE ORDER FIRST (R5)
+
+**Rulings carried (Tony, 2026-10-07):** R0 `opAddAttribute`'s `prior` -> `next` rides the walk turnaround on the
+careful-build branch, never trunk. R1 the call is bound in `interpretXPaccum`'s operand build, beside the prefix; `opCall`
+takes the method, action and rule cases inside itself. R2 juxtaposition wraps by default (`A += B C D` takes one list);
+a per-operator "distributes" property is **banked as a later candidate, not in this plan**. R3 the `opAssign` tap. R4 a
+direct runOP entry `(op, target, arg)` retires the per-step `acStep` list; a step node is always fresh, never the running
+value. R5 Tony rules the order below before any build.
+
+#### R3 -- the opAssign tap (measured 2026-10-07, trunk, kant, reverted md5-identical)
+
+A tap on both `=` roads (`opAssign` and `jitAssignNodeRT`) printed every call and every call whose argument carries a
+non-empty `groupList`. **Population:** every file in `incant/pop` and `incant/pop/jit`, every fixture the checklist
+scripts name through `ip()`, and `incant/jit*` -- 209 runs, all exit 0. It would have found a list-carrying `=` in any
+fleet fixture, because each fleet fixture is in that population.
+
+| | calls | argument carries a list |
+|---|---|---|
+| interpreted `=` | 9,534 | **47**, in 10 fixtures |
+| jitted `=` | 5 | 0 |
+
+The 47, by what the argument is (target's own list was empty in all 47):
+
+| argument | n | fixtures | the list is |
+|---|---|---|---|
+| no data, list only (`JSONblock`, `JSONvalue`, decoder records `H4` `H7` `blastRadius` `byteIdentical` `parked`, `BlocK`) | 36 | jsonTest 27, decodeT 5, decode 3, exprPinT 1 (O1's `r3 = *block(src)`) | **the whole value** -- under setData alone the target gets nothing (a tag echo) |
+| a string with a `stuff` list (StringXP products) | 8 | printFamily 4, printFamilyNew 2, baselineTests 1, baselineTestsNew 1 | StringXP's parts; setData keeps the string and drops the parts |
+| a count with a list (`k7Self`, `Token`) | 2 | kant8T, faceT | members beside a value |
+| `xl1`, a juxtaposition list | 1 | printFamilyNew (`n4`) | a list value (R2's shape) |
+
+⚠⚠ **RULED (Tony, 2026-10-07, SEQ 314 R2): setData is PARKED. `=` keeps setContent, and the 47 calls below are the
+reason** -- the JSON reader and the decoder assign whole structures with `=`.
+
+So `=` copying a list is **rare (0.5% of calls) but load-bearing where it happens**: the JSON reader and the decoder
+assign whole structures with `=`, and under setData-only those 36 would need another spelling. The ruling is Tony's.
+
+#### STEP (c) RECON AND PLAN -- EXECUTOR KINDS (SEQ 317, Clod, 2026-10-07; NOTHING BUILT -- R0)
+
+Measured on `expr-accum` `020672e` in the clone (switch on, `INCANT_ACCUM_TRACE`), unless marked read.
+
+**1. The PoC's instruction shape: ONE FLAT LIST, each operator carrying its tier mark** -- not tiers nested as sub-lists.
+The operator nodes in the list are the Operators entries themselves, so their setup flags ride with them. On
+`r = *blk(cv) + n * 2 > lim && ok;` (blk := fId, cv 5, n 3, lim 8, ok 1) the trace reads:
+
+```
+acX  r · = [assignTier] · acC(false, acU(*, blk), cv) · + · n · * · 2 · > [compareTier] · lim · && [shortCircuit] · ok
+```
+
+Prefix and call are already NODES inside the operand slot (acU, acC), built at instruction build. The tiers are not:
+they are discovered at run time, op by op. **Value: r = 1, correct**, and every prefix of it is right (5, 8, 16, 1). On
+the trunk road `x1 = *blk(cv)` reads a tag echo and the action stops there -- the known lost call. (A first probe named a
+field `code`, which is a Keyword, and read wrong on both roads; it measured the probe, not the candidate.)
+
+**2. The executor kinds that shape needs, and what each does at run time** (read, `runOPaccum`, `runOPaccumFrom`,
+`runOPaccumOperand`, `interpretXPaccum`):
+
+| kind | node | run time |
+|---|---|---|
+| FOLD (with the head) | `acX` | if slot 2 is `assignTier`, evaluate the tail from slot 3 and assign it to slot 1; else fold from slot 1. The fold loop: running value = first operand; for each (op, operand): `shortCircuit` -> decide on the running value, skip or recurse on the tail; `compareTier` -> refuse if arithmetic follows before the next connective; else build an `acStep [op, run, operand]` and `runOP` it |
+| PREFIX | `acU` | evaluate the operand, apply the prefix entry's method (`-` -> `negate`, `*` -> `deref` by SPELLING, `GroupActions.rtn:1043-1044`) |
+| CALL | `acC` | evaluate a built target (acU/acDot/acSub/acC), then `runOP [false, target, arg]` -- runOP's ladder picks rule, action or method |
+| BINARY postfix | `acDot`, `acSub` | `method = runOP` on the node itself: today's runOP with the node as its instruction |
+| (value) | `xl1` | a juxtaposition list; not executed -- an operand that is a list |
+
+**3. Can the logic and compare tiers share the arithmetic fold's executor?** They do today: one loop, two flag tests per
+operator per run. The two answers, with cost:
+
+| | SHARED (today's flat list) | SPLIT AT BUILD (D3 "tiers by split", D5 "dispatch fixed at build") |
+|---|---|---|
+| shape | `acX` flat, tier read per op at run time | ASSIGN `[target, op, rhs]` -> LOGIC `[part, &&, part, ...]` -> COMPARE `[fold, op, fold]` -> FOLD `[operand, op, operand, ...]`, built once by `interpretXPaccum` |
+| executors | one loop with two in-loop branches | four small ones, each with no tier test inside |
+| run-time cost | two named attribute lookups per operator per fire (`op["shortCircuit"]`, `op["compareTier"]`), plus a scan for the next connective at each compare | none for tiers; the split is paid once at build |
+| build cost | none | ~40 lines in `interpretXPaccum` to split loosest-first; the executors are today's loop cut into parts |
+| D5 | the tier is a STRUCTURAL choice made at run time -- against D5's letter | fixed at build -- D5 as written |
+| jit road (b) | the emitter re-derives tiers while walking | LOGIC maps to branches and FOLD to straight-line IR directly |
+
+**R4 -- what E1 `qa > qb + qc` (qa 2, qb 10, qc 3) reads under each layout:**
+
+| layout | E1 | how |
+|---|---|---|
+| SHARED, as built | **refused by name** (row reads empty) | the compareTier guard at `runOPaccumFrom` (`GroupActions.rtn:1098`) sees arithmetic after `>` |
+| SHARED, no guard | **3** | `(qa > qb) + qc` = 0 + 3 -- MEASURED (seal 93's H7) |
+| SHARED, with a run-time split | **0 (false)** | the split happens IN `runOPaccumFrom`'s compareTier branch: evaluate the right side as its own fold up to the next `shortCircuit` op (a recursion with a stop index), then compare -- the same move the `&&` branch already makes |
+| SPLIT AT BUILD | **0 (false)** | COMPARE `[fold(qa), >, fold(qb + qc)]` = 2 > 13 -- by construction (computed from D3, not run) |
+
+The refusal is **not** taken as the intended answer (R4); by D3 the intended value is false, and either split gives it.
+
+**Clod's recommendation for Tony's ruling: SPLIT AT BUILD.** It is what D3 and D5 say in words, it answers E1 without a
+guard, it removes the per-operator lookups, and the jit road inherits a shape it can emit. Open edge for the same ruling:
+a chained comparison `a < b < c` (COMPARE with three parts) -- refuse, or fold left.
+
+⚠⚠ **RULED (Tony, 2026-10-07, SEQ 318):** layout SPLIT BY TIER AT BUILD, the fold executor runs arithmetic only (R0);
+`a < b < c` REFUSED BY NAME, pinned (R1: exprPinT E2 on trunk -- today it refuses by ACCIDENT, a null operand from the
+right-to-left fold; the candidate refuses it with E1's message); C5 reads `2 10` plus a length row (R2); c1 and c2 build,
+c3 and c4 wait (R3); c4 opens with a census of every reader of the `tag + "InSet"` set (R4).
+
+**c1 LANDED on `expr-accum` `d46aa45` / support `28f0342` (2026-10-07).** Built as three functions, not two, because
+measurement said so: `runOP(field)` unpacks into **`runOPslots(op, target, arg)`** -- the instruction's half: follow, refuse a
+rebound argument, invoke, the virtual fork, and under jitting the term call, which bakes the RAW slots and replays
+`runOPslots` at run time -- and **`runOPdirect(op, target, arg)`** fires on FINISHED operands (D4). The accumulator finishes
+its own operands and builds no step list. **The finding that forced the split:** with `runOPdirect` still resolving its
+operands, holderT recursed to a stack overflow (exit 139) -- the head's value was the unevaluated `acDot` (`htKid.parenT`,
+invoke 1), and `runOPdirect` invoked it again; the old step list had hidden this, because `+%` handed runOP a copy that had
+lost its invoke (measured in lldb). That run is c1's H7. **Certificate:** switch off row for row with seal 93 (1073, 0
+differ); switch on 757 -> **772**, fifteen rows red -> green (jsonTest JT-2/3/5/TREE, omModT OM-1 x2 / OM-2 x4, ruleTermT
+RT-1..4), none green -> red. That those fifteen were the step list's copies is INFERRED, not measured. jitLadder, printPop,
+decodePop PASSED; canary 317.
+
+**c2 LANDED on `expr-accum` `2600a8a` / support `7d06fad` (2026-10-07).** `opCall(target, arg)` -- rule, action, method, in
+runOP's old order; `callIsRule` is M3's door in ONE predicate, read by opCall and by runOPslots' jitting term-call
+intercept, so no instruction changes executor between phases. runOPdirect's ladder: operator, method op,
+`isCallable(target)` -> opCall, else the unknown-operator refusal. The accumulator's `acC` goes straight to opCall, with
+the dispatch witness kept at its seat (without it `searchNewParseT SNP-0` went red -- measured). **Certificate:** switch off
+and switch on both row for row with c1 (1073 / 1075 rows, 0 differ; on 772). **H7:** opCall's action case removed ->
+every action call refuses by name through opCall (A1, A2, ... and no values); restored md5-identical. Canary 320.
+**Next is c3, the layout -- a real design build (SEQ 318's note): check with Tony before it opens.**
+
+**c3 LANDED on `expr-accum` `15f8b28` (2026-10-07, SEQ 319).** The flat list is consumed left to right and rebuilt
+loosest first, ONE NODE AND ONE EXECUTOR PER TIER, set at build: `acA` (runAccAssign, a single step), `acAnd`/`acOr` (left
+side, early-out, right side if needed; nested to the left, so `a && b || c` is `(a && b) || c`), `acK` (runAccCompare, a
+single step), `acKchain` (a second comparison in one part -- refused by its own name at run time), `acX` (runAccFold, which
+asks no operator for a tier). Every item is DETACHED from the flat list before it is re-attached (`accPop`), because
+`addGroup` copies a node that already has a parent -- c1's hidden-copy lesson, designed out. `runOPaccumFrom` is gone;
+`runOPaccum` keeps the prefix and the call. Canary 331.
+**Certificate:** switch off row for row with c2 (1073, 0 differ); switch on row for row with c2 but for **E1, refused ->
+false** (reads `qr`, trunk's pin; 772 -> 773). **E2** now refuses as *"a chained comparison (a < b < c) -- refused by name"*
+(its rows are trunk-only, read directly). No other mover. Call rows and C3 hold (12, 15, 36, 5, `xl1InSet`, -2); the sample
+`r = *blk(cv) + n * 2 > lim && ok` reads 1. jitLadder, printPop, decodePop PASSED.
+**H7 -- the ruled one is MASKED (H17), and the masker is named.** Giving the compare node the fold executor stays GREEN:
+the compare node already holds two FINISHED folds, so folding `[left, >, right]` is the same single step. The structure,
+not the executor, carries the answer. **The unmasked control:** the builder stops splitting at a comparison -> E1 reads
+**3** (the left fold) and E2 no longer refuses -- red. Both runs restored md5-identical.
+
+**4. The rest of (c) -- the plan (R2), in build order, each a stroke with its own certificate:**
+
+**(c1) runOPdirect(op, left, right).** runOP's body moves into it; `runOP(field)` becomes the three-slot unpacker for every
+existing caller (acDot, acSub, the trunk road). **Snag, from the read:** runOP's rule arm under jitting is
+`jitEmitTermCall(field)`, which bakes the INSTRUCTION NODE's address into IR (`jitEmitters.rtn:977-991`) -- so that arm
+cannot live in a function that has no field. It moves to opCall (c2), which keeps its call node. The accumulator then calls
+runOPdirect with no step list (retires `acStep`; R4 of SEQ 313). Certificate: switch off and on row for row with seal 93.
+
+**(c2) opCall, the CALL executor.** `acC` stops going through `runOP [false, ...]`. Inside opCall, in TODAY's order (runOP's
+ladder, so the certificate can be row for row): **rule** -- `isRuleTerm()`, or `hasNewParse` under jitting, which is M3's
+door, now inside one executor (interpreted: `runRule`; jitting: `jitEmitTermCall` on the call node); **action** --
+`actionType`, `runAction(arg, target)`; **method** -- `isMethod`, `target.method(arg)`, with the target as its own argument
+when there is none (`field()`). The invoked-field resolution runOP does first (`target.invoke` -> `target.method(target)`) and
+`followArgument` come with it. (h) is NOT in this stroke: it is step 4, inside opCall's rule case.
+
+**(c3) the layout** -- SPLIT AT BUILD if ruled: `interpretXPaccum` splits loosest-first; FOLD / COMPARE / LOGIC / ASSIGN
+executors; the compareTier guard retires; E1 moves to false (its pin moves, with a sentence). If SHARED is ruled: the
+run-time split in `runOPaccumFrom`'s compareTier branch, and the guard retires the same way.
+
+**(c4) the turnaround.** ⚠ **THE READERS ARE SHARED BY BOTH ROADS, SO BOTH BUILDERS TURN TOGETHER.** Trunk's interpretXP
+builds `xl1` right to left (`ruleActions.rtn:1446-1450`, appending the left term after the right), and so does the PoC on
+purpose (`interpretXPaccumWrap`'s reverse loop). Flipping the readers while the switch-off road still builds reversed would
+reverse every list on that road -- the switch-off certificate could not hold. **So c4 is one stroke:** the PoC builds in
+source order (drop the reverse loop), the old interpretXP PREPENDS instead of appending (same source order, still walking
+backward), and every reader below flips `prior` -> `next`, in one commit.
+
+**The readers** (census: every `isLIST` in `*.rtn`, `*.twk`, `incant/setup`, `incant/utilities`, `incant/grammar` on trunk,
+plus the branch's builder):
+
+| site | reader | walk today | at c4 |
+|---|---|---|---|
+| `Instruct.rtn:60` | opAddAttribute (`+%`) | prior | **next** (R0 of SEQ 313) |
+| `Instruct.rtn:319` | opDivEQ | prior | next |
+| `Instruct.rtn:743` | opMinusEQ | prior | next |
+| `Instruct.rtn:875` | opMultiplyEQ | prior | next |
+| `Instruct.rtn:1333` | opAddMember (`+/`) | prior | next |
+| `Instruct.rtn:1352` | opReplaceAttribute (`:%`) | prior | next |
+| `Instruct.rtn:1374` | opReplaceMember (`:+`) | prior | next |
+| `Instruct.rtn:1073` | opPlusEQisSTRING | `appendGroup(argument, ...)` | read appendGroup's walk at c4 |
+| `Instruct.rtn:1129` | opPlusEQstruct | `copyListTo` -- STORED order, i.e. reversed today | becomes source order (a mover, with a sentence) |
+| `GroupActions.rtn:70` | printField | prior, or next under `reversePrint` | next; `reversePrint` inverts |
+| `jitEmitters.rtn:2627` | jitPrintList (from `ruleActions.rtn:725`) | prior | next |
+| `Instruct.rtn:1042/1058/1097/1114` | `+=` kind members | refuse a list | order-free |
+| `GroupActions.rtn:592` | pickKindOP | shape test | order-free |
+| `ruleActions.rtn:1449`, `interpretXPaccumWrap` | the two BUILDERS | -- | source order |
+
+⚠ **The population's limit, said out loud:** this census finds code that TESTS `isLIST`. Code that walks an argument list
+WITHOUT testing the flag is not in it. The c4 certificate (fleet row for row on both roads, movers named) is what covers
+that gap.
+
+**C5 red -> green (R2 of SEQ 317):** C5 `fId(qa qb)` reads `xl1InSet` for a reason the turnaround alone does not touch:
+`xl1` carries a SET -- the GroupList constructor names a bin-typed item's list `tag + "InSet"` and gives it a character set
+(`GroupList.twk:21-26`), and SEQ 313's tap read `xl1` with `data=3` (isSET) -- and `=` copies that across. So C5 goes green
+when (i) the list is in source order (c4), (ii) `xl1` stops carrying a set, and (iii) a printed list prints its members.
+**The intended printed form is Tony's to state** (the pin asserts one token today); Clod's proposal: the members' values in
+source order, `2 10`, plus a row for the list length.
+
+**Context, left alone (Tony):** the `+`, `*` and `?` Operators entries carry `repeatClass`, which is the Modifiers
+registry's flag (trace above; seal 92's walk counted it in their list lengths). No row fails on it.
+
+#### STEP (d) RECON -- TIERS FROM SETUP DATA (SEQ 315, Clod, 2026-10-07; recon only, NOTHING BUILT -- R0)
+
+**(a) Where the candidate decides a tier by spelled name** (`expr-accum` `5868d69`, read; every `tag eq "` and
+`opFields["` in `runOPaccum*` and `interpretXPaccum*`):
+
+| site | decides | how |
+|---|---|---|
+| `GroupActions.rtn:1055` (runOPaccum) | **assignment tier** -- a head op is parked and fires last | **15 spellings**: `=` `:=` `+=` `-=` `*=` `/=` `<-` `:%` `:+` `+%` `+<` `+/` `+*` `:.` `<:` |
+| `GroupActions.rtn:1099` (runOPaccumFrom) | **comparison tier** -- refuses a comparison whose right side continues into arithmetic | **8 spellings**: `>` `>=` `<` `<=` `==` `!=` `~=` `IN` |
+| `ruleActions.rtn:1892/1900` (opIsShortCircuit, opIsOR), called from runOPaccumFrom | **logic tier** and its skip direction | **already data**: `shortCircuit` and `isOR` flags on `'&&'`/`'||'` in setup |
+| everything else | **arithmetic fold** | the default: whatever is not in the three above |
+
+Not tiers, recorded so the census is whole: `GroupActions.rtn:1043-1044` map a prefix `-`/`*` to the `negate`/`deref` entries
+(spelled, a prefix question, not a tier); `ruleActions.rtn:1554/1602` find the `.` postfix (structural); `acU`/`acC`/`acX`/
+`acDot`/`acSub`/`acJux`/`acPostCall`/`acPostSub` are the candidate's own node kinds, not operators. **Untiered entries that
+fold by default today:** `=[` `=/` `=%` `=<` (the opGet family), `modedOP`, `%`, and the unbound `|` `^` `?` `>>` `<<` `:>`
+`:<` `:-` `GO` `&`.
+
+**(b) Operators entries that carry members** (measured, trunk binary, a walk over Operators reading `hasMemberS` and
+`listLengtH` through `:=` captures): **53 entries; exactly one has members -- `'+='`** (hasMembers 1, seven kind members).
+Five others have a non-empty list made only of flag attributes (`||` 2, `*` 2, `&&` 1, `+` 1, `?` 1), and `'+='` is the
+positive control the walk had to find.
+
+**(c) Does a tier attribute on an entry with members trip bear-trap #56?** Scratch probe: five copies of `incant` in the
+scratchpad (setup edited, `IncantForms` linked read-only), each run with a read-back (`dumpContents` of `'>='` and `'+='`)
+and an lldb hit count of the `+=` methods, from a fixture whose `:=` holder target falls to the PARENT's own method
+(`pickKindOP` has no `+=isGROUP` member) and whose count target takes `+=isCOUNT`. `'>='` carries `tier=compare` in V1-V4 as
+the no-members control.
+
+| variant | `'+='` spelling | `tier` reads back | parent method hit | `+=isCOUNT` hit |
+|---|---|---|---|---|
+| V0 control | today's setup | -- | **opPlusEQ** 1 | 1 |
+| V1 | `tier=assign` on the FIRST mention, members on the reopened one | `assign` | **opPlusEQ** 1 | 1 |
+| V2 | `tier=assign` on the REOPENED mention, with the members | `assign` | **opPlusEQ** 1 | 1 |
+| V3 | bare flag `tierAssign` on the reopened mention | present | **opPlusEQ** 1 | 1 |
+| V4 | ONE mention: `operateMethod=opPlusEQ tier=assign` + members | `assign` | **opPlusEQstruct** 1, opPlusEQ **0** | 1 |
+
+**#56 does not bite the tier; it bites the binding.** The tier attribute reads back as written in all four shapes. The one
+that fails is V4, #56's own hazard-2 shape (attributes and members on one mention), and what fails is `operateMethod=`: the
+parent binds to its LAST member's method (`opPlusEQstruct`; #56 recorded `opPlusEQisCOUNT` under the member order of the
+day). Today's two-mention shape is safe whichever mention carries the tier. `'>='` read back `compare` in every variant.
+
+**(d) Candidate spellings, each with its cost:**
+
+| | spelling in setup | reader | cost |
+|---|---|---|---|
+| **T1** | **bare flags**, the `shortCircuit`/`accessClass` precedent: `assignTier` on the 15, `compareTier` on the 8; the logic tier IS `shortCircuit` (no third flag -- two flags for one fact is two channels, one meaning) | `op["assignTier"]` / `op["compareTier"]` presence, as opIsShortCircuit reads today | 23 setup edits; two 4-line helpers (`opIsAssign`, `opIsCompare`) beside opIsShortCircuit; the two spelled lists go. `'+='` takes its flag on the FIRST mention (V1 shape) |
+| **T2** | **one valued attribute** `tier=assign` / `tier=compare` (arithmetic = absent) | `op["tier"]` read, then its TEXT compared | same 23 edits; one helper returning a tier number -- but it compares text against tier names, so a spelling survives in the reader, and a typo in setup (`tier=asign`) silently folds as arithmetic |
+| T3 | off the attribute entirely: a bin per tier in `pROPERTIEs`, the `UnaryOPS bin` shape (`AssignOPS bin` listing the 15) | `AssignOPS[op.tag]` | **not needed -- #56 does not bite the tier (c)**; it names every operator a second time, so adding an operator and forgetting its bin drifts silently |
+
+**Clod's recommendation, for Tony's ruling: T1.** It is the shape the tree already uses for this exact question one tier
+over (`shortCircuit`), it is a presence test with no text in the reader, and a misspelled flag is a missing flag -- which the
+fixture rows (exprPinT's U70/B-rows and the `=` rows) see as a value move rather than a silent fold.
+
+⚠⚠ **RULED T1 (Tony, 2026-10-07, SEQ 316) and LANDED on `expr-accum` `020672e` / support `3d0d354`:** `assignTier` on
+the 15, `compareTier` on the 8, `shortCircuit` the logic tier, everything else (the `=[` family included) folds as
+arithmetic. `opIsAssignTier`/`opIsCompareTier` beside `opIsShortCircuit`, mirrored in groups.ext; the two spelled lists are
+gone. `'+='` keeps two mentions, flag on the first, the reopened one naming #56. **Certificate:** switch on 757 row for row
+with seal 91's switch-on run (1075 rows, 0 differ); switch off 1022 row for row with seal 91's switch-off run (1073, 0);
+canary 313 -> 315. **H7:** `compareTier` dropped from `'>'` -> E1 `qa > qb + qc` stops refusing and folds to **3**, the one
+row that moves; restored md5-identical.
+
+**Carried (R2): C5 `fId(qa qb)`** stays RED in step (c)'s certificate (pinned today at `xl1InSet`; intended a two-member list)
+until the turnaround builds the juxtaposition list in source order, and is **not re-pinned as a mover**.
+
+#### R1 -- where the call binds, and whether its argument is one entry
+
+**Read on `expr-accum` (Groups `31069dc`):** pass 1 of `interpretXPaccum` wraps a TokenXP's `InvokeArg` that is
+neither a UnaryXP (`.b`) nor a subscript (`fLAG`) in an `acPostCall` piece holding the InvokeArg node; pass 2 builds
+`acC` from it with `handleCall(node, cur, term[1])` -- **already in the operand build, beside the prefix**, so R1's seat
+exists. `handleCall` hands on `[false, target, arg]`, with `arg` the InvokeArg's group, or the node itself if it has a
+list or data, and **no third operand for an empty `()`**.
+
+**The argument is one entry by grammar:** `Parens leftParen-="(" ExpressioN? rightParen-=")"` (`incant/grammar:130`) --
+one optional ExpressioN, and `,` is in ExpressioN's guard, so `f(a, b)` cannot arrive at all. Under the candidate that
+ExpressioN is built by `interpretXPaccum` like any other, so `f(a + b)` arrives as one acX, `f(a b)` as one xl1 (R2),
+`f()` as nothing. ⚠ **Grade: read, plus seal 87's measured N1/N2 (`fId(qa + qb) * qc` = 36, `qa + fNest(qb) + qc` = 37
+on the candidate). The C rows below were NOT run on the candidate** -- a branch build was declined this session (see
+SEQ 224), so they carry trunk values only. **The stop condition did not fire on anything read or measured.**
+
+**Call rows, trunk (2026-10-07, a copy of exprPinT with six rows added; qa 2 qb 10 qc 3):**
+
+| row | expression | trunk | intended |
+|---|---|---|---|
+| C1 | `qa + fId(qb)` | 12 | 12 |
+| C2 | `qa + fId(qb) + qc` | 15 | 15 |
+| C3 | `fId(qa + qb * qc)` | 32 | 36 |
+| C4 | `fNone()` (empty argument, returns 5) | 5 | 5 |
+| C5 | `fId(qa qb)` | `xl1InSet` | a two-member list (R2) |
+| C6 | `fId(-qa)` | -2 | -2 |
+| O1 | `*block(src)` | pz 0, r3 echo | pz 7 |
+
+**How the two required shapes come out under the plan:**
+- **`a + f(x)`:** flat list `[a, +, acC]`; the running value is `a`; the operand `acC` runs `opCall(f, x)`, the call
+  executor picks the action case, and its value is the right operand of `+`. Measured shape: N2 = 37.
+- **`*block(code)`:** `*` is an access prefix, so it binds to the name first (D4): `acU(*, block)`; the call postfix then
+  makes `acC(acU(*block), code)`. The acU evaluates to the `BlocK` rule and `opCall`'s **rule case** drives it. That
+  reaches BlocK today on the candidate -- and then **(h)**: driveStep drives the HOLDER's name text `[pSrc]`, because
+  `code` is a `:=` holder and `followArgument` follows only `isArgument` holders. **`*block(code)` comes out right only
+  when (h) lands with the call executor**: the rule case reads a holder argument through to what it holds before driving.
+- **`!f(x)`:** `!` is not an access prefix, so it wraps the finished operand: `acU(!, acC(f, x))`, and the call runs.
+
+**The call executor (`opCall`), one kind, cases inside (D5):** method (`target.isMethod`), action (`target.actionType`),
+rule (`isRuleTerm()`, or `hasNewParse` under jitting -- **M3's one door that reads `jitting` moves inside this executor**,
+so no instruction switches executor between phases; the phase is a run-time choice inside it, which is what D5 allows).
+`field()` is the same executor with no argument; the method case then hands the target as its own argument, as runOP's
+last arm does today.
+
+#### R4 -- the direct entry, and the step list
+
+`runOPaccumFrom` mints a fresh `acStep` per step and `runOP` unpacks it as `field[1..3]`. **Plan:** split runOP's body
+into `runOPdirect(op, target, arg)`; `runOP(field)` becomes a three-line unpacker for every existing caller, and the
+accumulator calls the direct entry, so **no step list is built at all**. Tony's sketch's `result +% *op *result *grup`
+attaches the running value to itself; the PoC already used a fresh node, and the direct entry retires the question --
+where any list must still be built, it is a fresh node. The running value's copy-out of `tempField` stays. ⚠ **One
+correction to carry into the build: operand order.** runOP's target is the LEFT operand; a right-to-left sketch must hand
+`[op, left, right]`, not `[op, running, next]`.
+
+#### R0 and R2 together -- the list's order
+
+The PoC holds juxtaposition lists **right to left on purpose** (`interpretXPaccumWrap`'s `acJux` -> `xl1` loop) so that
+`opAddAttribute`'s `prior` still yields source order (probe 2026-10-07: `aoBag +% aoA aoB aoC` reads aoA, aoB, aoC on
+trunk). The turnaround stroke builds `xl1` in source order and flips `prior` -> `next` in the same commit. **Owed in that
+stroke: a census of every other reader of an `isLIST`/`xl1` operand** (`jitPrintList`, `GroupActions.rtn:70`, any
+`iterate` over an argument), because each one walks the order it was built for.
+
+#### R5 -- the proposed order for (a)-(h)
+
+⚠⚠ **RULED AS WRITTEN (Tony, 2026-10-07, SEQ 314 R0).** Step 0 LANDED 2026-10-07: C1-C6 pinned in exprPinT, pop.sh
+1029 / 51 (H7: C1's argument and fNone's line mutated -> both rows red by value; restored md5-identical).
+
+**Step (g) LANDED on `expr-accum` 2026-10-07 (`5868d69`, built and measured in a clone outside Dropbox, SEQ 314 R1):**
+`exprAccumOn()` in `jitContext.h` reads the switch's VALUE -- `1` on; unset, empty or `0` off; anything else off with one
+stderr line. Before it, `INCANT_EXPR_ACCUM=0` switched the candidate ON (pop.sh 757 at `=0`). After: `=0` reads 1022 row for
+row with switch-off before; `=1` row for row with switch-on before; the before-binary's `=0` run differs by 556 lines.
+
+**The call rows on the candidate (owed from SEQ 313, measured the same day in the clone, switch on):** C1 12, C2 15,
+**C3 36** (trunk 32; intended 36), C4 5 with one fNone line, **C5 `xl1InSet`** (unchanged; intended a two-member list),
+C6 -2; N1 36, N2 37, O1 pz 0 / r3 echo as seal 87. The argument arrived as one entry in every row; R1's stop did not fire.
+
+| step | item | why here |
+|---|---|---|
+| 0 | **pin C1-C6 into exprPinT on trunk**, at today's values with the intended beside (D6's pattern) | the call rows are the measuring stick for step 3; today they live only in scratch |
+| 1 | **(g)** the switch reads its value, not its presence | every later measurement is taken through the switch; one line, and an `INCANT_EXPR_ACCUM=0` that reads as ON would void a control run |
+| 2 | **(d)** tier tests from setup data (D3) | removes the spelled operator lists from `runOPaccum`/`runOPaccumFrom`; small, and step 3's executors read the tiers |
+| 3 | **(c)** executor kinds and instruction layout, interpreted road: `opCall` (R1), `runOPdirect` (R4), the walk turnaround with R0 and its `isLIST` census | the core; everything after it reads its layout |
+| 4 | **(h)** the call executor's rule case reads a holder argument through | finishes `*block(code)` = pz 7; small, and it belongs to step 3's executor |
+| 5 | **(e)** triage of the value movers and spacingT's 139 | movers measured after the core moves, not before -- step 3 may move them again |
+| 6 | **(f)** the print-list respells (R2's `,*x`, 10 fixtures) | mechanical; after (e) so a respell is not mistaken for a mover |
+| 7 | **(a)** generated-parse bodies under the candidate | the largest; it compiles against the instruction layout step 3 fixes, so it waits for it |
+| 8 | **(b)** the jit road: a flat list's emit | last, on a settled layout; M3's door is already inside `opCall` from step 3 |
+
+**After the buy lands (unchanged):** the TokenXP rule and InvokeArg's UnaryXP alternative leave the grammar; KANT-43
+retires with a dated note. **Banked, not planned:** R2's per-operator "distributes" property.
+
+### C1 FLOW -- the build-time call chain, interpretXP to the finished tier tree (SEQ 320, Clod, 2026-10-07)
+
+Measured on `expr-accum` `fbb5561` (lldb at `accBuilt`, `IncantForms/WorkingOn/tester`'s `c1Builds`, switch on). Lines are
+the branch's sources; the Xcode `.mm` line is given where Tony will set the breakpoint.
+
+**Run it:** scheme environment `INCANT_EXPR_ACCUM=1` (the candidate; unset or `0` is today's road) and, for the printout,
+`INCANT_ACCUM_TRACE=r` (only expressions whose first item is `r`; `=1` prints every expression).
+**THE BREAKPOINT** -- the tree finished, nothing run: `ruleActions.rtn:1640` `if traced accBuilt(node);` =
+**`GroupRules.mm:3483`**, or the symbol **`accBuilt`** (it is called only for traced expressions, so with `=r` it stops on
+the `r = ...` lines alone). `node` there is the root.
+
+⚠ **COMPILATION IS LAZY.** An action's body is parsed and built on its FIRST CALL, not at `define`: the chain below starts
+from `c1Builds()` being run. So both trace prints come before `C1 variant begin`.
+
+| # | method | file:line | what it does |
+|---|---|---|---|
+| 1 | `runOPaccum` (acC arm) | `GroupActions.rtn:1098` | the statement `c1Builds();` -- a call, handed to opCall |
+| 2 | `opCall` | `GroupActions.rtn` (c2) | the call executor: `c1Builds` is an action -> `runAction` |
+| 3 | `runAction` | `GroupActions.rtn:932` | binds the argument, and on a first call has the body compiled |
+| 4 | `processCode` | `GroupActions.rtn:669` | compiles the action's CodE: `driveStep(code, BlocK, ...)` at `:702` |
+| 5 | `driveStep` | `GroupActions.rtn:221` | drives the BlocK rule over the code text |
+| 6 | `GroupItem::parse` / `testAttributes` / `testOptions` | `GroupItem.twk:1298`, `RuleStuff.twk` | recursive descent: statement -> Xpress -> ExpressioN -> Token+ |
+| 7 | `aCTionTokenXP` (per term) | `ruleActions.rtn:976`, gate `:985` | each TokenXP's actor; under the switch it hands its label up UNTOUCHED (`exprAccumOn`) |
+| 8 | `GroupItem::fireLabelMethod` | `GroupItem.twk:710`, fire `:732` | ExpressioN matched: fires its actor on the label -- `interpretXPaccum`, installed at bootstrap by `setActions` (`GroupItem.twk:1665`, `exprAccumOn`) |
+| 9 | `interpretXPaccum` pass 1 | `ruleActions.rtn:1497`, `:1502` | flattens every TokenXP label into raw pieces -- unary, name, InvokeArg -- in `acSeq` (`:1518` prefix, `:1534` call/subscript) |
+| 10 | `interpretXPaccum` pass 2 | `ruleActions.rtn:1538` on | decides BY POSITION into `flat`: op where an operand is expected = prefix (`interpretXPaccumU`, `:1773`); `.` builds acDot; a call builds acC (`handleCall`, `:1258`, at `:1579`); a subscript acSub (`:1587`); juxtaposed operands wrap to xl1 (`interpretXPaccumWrap`, `:1785`) |
+| 11 | `accTraceWanted` / `accTraceFlat` | `ruleActions.rtn:1633` | under `INCANT_ACCUM_TRACE`, prints `ACCUM FLAT` before the split consumes the list |
+| 12 | `accBuild` | `ruleActions.rtn:1681` (called `:1638`) | assignment head -> acA (target, op, the rest) |
+| 13 | `accLogic` | `:1697` | && / || -> acAnd / acOr, nested to the left |
+| 14 | `accCompare` | `:1720` | one comparison -> acK; a second -> acKchain |
+| 15 | `accFold` | `:1750` | (op, operand) while arithmetic -> acX; one operand alone is itself |
+| 16 | `accPop` | `:1658` | takes an item off `flat`, parent cleared, so `+%` attaches it and not a copy |
+| 17 | **`accBuilt`** | `:1867` (called `:1640`) | **THE BREAKPOINT** -- prints `ACCUM TREE`; then `xpList.group = node` (`:1642`) |
+
+**What the tree reads** for `r = *blk(cv) + n * 2 > fId(qa + qb) - lim && ok || !done` (c1Builds) -- exactly Clay's
+prediction: `acA [r, =, acOr [acAnd [acK [acX [acC [false, acU [*, blk], cv], +, n, *, 2], >, acX [acC [false, fId, acX [qa,
++, qb]], -, lim]], &&, ok], ||, acU [!, done]]]`; it runs to **r = 1**.
+⚠ **THE RULED LINE (`... > lim - fId(qa + qb) ...`, c1Run) DOES NOT PARSE, ON EITHER ROAD.** `-` is in UnaryOPS, so
+InvokeArg's `UnaryXP UnaryOPS ANYtoken` alternative absorbs `- fId` into `lim`'s term, and `(qa + qb)` is then a SECOND
+postfix that TokenXP's single `InvokeArg?` cannot take (bear-trap #52). `lim - fId(qa + qb)` alone fails the same way;
+`qa + fId(qb)` parses because `+` is not in UnaryOPS. It is the grammar change already queued "after the buy lands".
+
+### c4's OPENING CENSUS -- who reads the `tag + "InSet"` set (SEQ 320 R4, read only, trunk sources, 2026-10-07)
+
+**What the set is.** `GroupList(GroupItem item)` (`GroupList.twk:20-27`, generated `GroupList.mm:25-38`): for ANY item whose
+`binType` is non-zero -- BIN, CLASS, **LIST**, REGISTRY -- a new `PLGset` named `tag + "InSet\n"` becomes the item's
+`characterSet` (`setCharacterSet`, `GroupItem.twk:1704-1705`, which also makes its DATA isSET), a `guardSet` is made, and
+`guarding` is set. `addGroup`'s binType block (`GroupItem.twk:136-143`) then adds each child's first character to the
+guardSet and its name to the characterSet. **For a bin that is the point** -- first-character membership for parsing.
+**For a list it is an accident**: `xl1` is `binType` LIST, so it gets a bin's set.
+
+**Who makes LIST-typed items:** trunk's interpretXP (`ruleActions.rtn:1449-1450`, xl1), the branch's
+`interpretXPaccumWrap` (xl1), and the `isList` command (`Commands.rtn:434`, registered `incant/setup:49`, used once:
+`incant/utilities:193` `newStuff isList;`).
+
+**The readers** (census: every `characterSet`, `guardSet`, `guarded`/`guarding`, `isSET`, `InSet` in `*.twk`/`*.rtn`):
+
+| reaches a LIST value? | reader | file:line | what it does with the set |
+|---|---|---|---|
+| **yes -- C5's symptom** | `getText` | `GroupItem.twk:1046` | `case isSET: junkText = characterSet.name` -- a list prints as `xl1InSet` |
+| **yes -- how it travels** | `copyData` via `setContent` (`=`) | `GroupItem.twk:391-402` | copies `data` and the `gText` union: the target gets isSET and THE SAME set pointer |
+| yes | `opIN` | `Instruct.rtn:587-591` | an isSET operand is tested as a CHARACTER SET -- `x IN list` asks the InSet set |
+| yes | `getType` | `Commands.rtn:208` | an isSET value reports type `PLGset*` |
+| yes, consistently | `get(name)`, `getFromList` | `GroupItem.twk:770`, `:890` | `guarded && !guardSet.contains(*name)` -- the first-character reject on a name lookup |
+| yes | `getCharacterSet` | `GroupItem.twk:848-849` | hands the set out for an isSET item |
+| parse only (bins and rules) | `checkGuard`, `ensureGuard`, `setTestMatch`/`testSet`/`testContainer`/`upToMatch` | `RuleStuff.twk:46-49, 128, 241, 273, 329`; `GroupItem.twk:579-655` | the parser's first-character tests |
+| parse only | `parseContainer`, `parseSet`, `setParseWalk` | `Generate.rtn:185, 350, 473` | generated parse of a container or a set |
+| setup and commands | `guard`, `processFlags`, `aCTionSetBrackets`, `makeRegistry`, `bootstrapper`, `setColor` | `Commands.rtn:237-251, 421-423`; `ruleActions.rtn:891`; `GroupItem.twk:1115-1117`; `GroupMain.twk`; `Stylish.twk:136` | build or read sets for bins, rules and colours -- not for a list value |
+
+⚠ **The population's limit:** this finds code that NAMES the set's fields. A reader that switches on `data` with an
+isSET case it does not name this way (a `printField` switch, a jit kind table) is not in it; c4's fleet certificate covers
+that gap. **What it says about c4:** the set is a bin's tool attached to lists by `binType != 0`, and the readers that a
+LIST value reaches are the six "yes" rows -- the place to stop it is the two writers (`GroupList(item)` and `addGroup`'s
+binType block), where LIST can be told apart from the bin kinds. Nothing built.
+
+### `&&` in an `if` on trunk -- CONTEXT, not a finding (seal 99, Clod, 2026-10-08; kant, trunk binary of seal 99)
+
+Tony's `testListed` (tester) folded three nested ifs into `if op.datA != 0 && result.datA != 0 && target.datA != 0;` and
+the clauses "never ran". Measured: **`&&` and `||` are right between plain values** (0/1 flags: 1&&0, 1&&1, 0||1, 0||0 all
+correct). **What fails is binding:** with no tiers and right-to-left, the line reads `op.datA != (0 && (...))`, i.e.
+`op.datA != 0`, so the body ran with `result` empty (exit 139). `zero == 0 && one == 0` takes its branch the same way;
+rows that happen to agree under that reading discriminate nothing. Add seal 86's half: **no short-circuit** --
+`fFalse() && g()` runs g (exprPinT S3). Spellings that do NOT work around it today: grouping parens (`r = (a == b) && ...`
+fails to parse), and `=`-capturing a comparison (a false comparison leaves a data-less field, which reads its tag and is
+truthy, bear-trap 26). Spellings that do: nested ifs, or the 0/1 flag idiom (`fa = 0; if a == b; fa = 1;`). The cure is
+the tier work on expr-accum (compareTier above the `&&`/`||` tier); exprPinT's B, U and S rows are its yardstick.
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted

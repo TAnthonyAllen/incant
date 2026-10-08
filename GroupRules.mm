@@ -7574,6 +7574,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /***************************************************************************
+	test of call op
+***************************************************************************/
+extern "C" GroupItem *opCallTest(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*result = 0;
+	if ( target->groupBody->flags.actionType )
+		result = ::runAction(argument,target);
+	else
+	if ( target->groupBody->gMethod )
+		result = target->groupBody->gMethod(argument);
+	else	::fprintf(stderr,"opCallTest: %shas no method\n",target->groupBody->tag);
+	return result;
+}
+
+/***************************************************************************
 	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
 
     opPrint above is a TWO-arm choice (diverted buffer, else stdout) and there
@@ -7940,6 +7955,10 @@ GroupItem 	*product = 0;
 					if ( target->groupBody->flags.debugged )
 						product->setCount(1);
 					break;
+				case 45:
+					if ( target->groupBody->flags.isUnary )
+						product->setCount(1);
+					break;
 				case 401:
 					if ( !target->nextInParent )
 						product = 0;
@@ -7977,8 +7996,7 @@ GroupItem 	*product = 0;
 					else	product = target->nextMember(0);
 					break;
 				case 406:
-					if ( target->groupBody->flags.actionType )
-						product->setCount(1);
+					product->setCount((int)target->groupBody->flags.actionType);
 					// binType is an ENUM, so nonzero means ANY container kind --
 					// deliberately wider than isBIN||isREGISTRY   Instruct.opDot.case407binType
 					break;
@@ -7993,6 +8011,9 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					// unsupportedAccessor  every gCount with no case of its own lands here and
 					// unsupportedAccessor  SAYS SO, rather than answering with a silent null
+					break;
+				case 409:
+					product->setCount((int)target->groupBody->flags.instructType);
 					break;
 				case 411:
 					product->setCount(ruler->lastIndent);
@@ -11407,6 +11428,14 @@ int 		bailing = 0;
 		::exit(0);
 		}
 	return input;
+}
+
+extern "C" GroupItem *testOP(GroupItem *field)
+{
+GroupItem 	*result = 0;
+	// this is just a test wrapper for runOP for debugging
+	result = ::runOP(field);
+	return result;
 }
 
 /*******************************************************************************

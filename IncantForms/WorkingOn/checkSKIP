@@ -25,10 +25,14 @@ search Utilities TestStuff list;
 
 register(Grokking);
 define
-    EmbeddedComment;
+    EmbeddedQuotes
+        openBlockQuote;
+        endBlockQuote;
+    EmbededBody     body-=EmbeddedQuotes};
+    EmbeddedCommenT EmbeddedBody+-;
     IndenT=[ \n\t]+;
-    BlockCommenT    openBlockQuote EmbeddedCommenT-* commentBody=endBlockQuote};
-    LineCommenT     openLineComment commentBody="\n"};
+    BlockCommenT    openBlockQuote- commentBody-=EmbeddedCommenT};
+    LineCommenT     openLineComment- commentBody-="\n"};
     CommenT
         BlockCommenT;
         LineCommenT;
@@ -49,28 +53,6 @@ bail();
 	Comments on the checkSKIP code
 *****************************************************************************/
 
-    WHY LineCommenT IS SPELLED WITH AN ESCAPE  --  Clod, 2026-09-18, measured
-
-    The bare two-character literal KILLS THIS DEFINE. There is no lexer, so the
-    parser reads it as a comment inside its own source and eats the rest of the
-    line, closing quote and semicolon included. Four runs, one variable each:
-    respelling LineCommenT ALONE fixes the file; respelling BlockCommenT ALONE
-    does not. The block delimiters were never the problem, and the terminator
-    never needed touching. So it is not a Catch-22.
-
-    The ABANDONED report names IndenT, two lines above the offender. Bisect by
-    removing later lines, never by staring at the named one.
-
-    The escape is preferred over two adjacent one-character literals, and that
-    is a measurement rather than a taste: the escaped form gives ONE term
-    matching both characters, the two-literal form gives TWO terms of one
-    character each -- and terms are skip points, so a skipper may run between
-    them. Pinned as SK-1 and SK-2 in incant/pop/skipT.
-
-    What is NOT yet readable is what the rule CONSUMES. Driven standalone it has
-    no enclosing activation to take the label it mints, so its terms still read
-    their own definitions afterwards. That is fixIts F-83 and it is station 6.
-    docs/checkSKIP.md section 2a carries the whole measurement.
-
-    openBlockQuote="/";
-    openLineQuote="/";
+Can we make openBlockQuote have a condition named balance+
+And use the same condition in endBlockQuote as balance--
+And can an EmbededBody action check the condition value and act on it

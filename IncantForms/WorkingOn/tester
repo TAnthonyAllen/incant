@@ -4,8 +4,67 @@
 *****************************************************************************/
 Start();
 include(utilities);
+include(unitTests);
 search reset stack Grokking;
-search Utilities list;
+search Utilities UnitTests list;
+
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest;
+    ;
+registry(TestStuff);
+define
+    listEntries isRule
+        ANYtoken;
+        NumbeR;
+        Operators;
+    invokeTEST code={ print "invokeTEST:" taG "=" argument:; return argument; };
+    qa=2;
+    qb=3;
+    qc=4;
+    testListed isRule lizted=listEntries+ SemI- code={
+        iterate grup on *lizted;
+        while --grup;
+            clear(instruct);
+            if *grup.instructTypE != 0;
+                if *grup.isUnarY;
+                    instruct    +% *grup;
+                    if result.datA == 0;
+                        print `"unary op" taG "on target" *target;
+                        instruct    +% *target;
+                    else
+                        print `"unary op" taG "on result" *result;
+                        instruct    +% *result;
+                    result      := testOP(instruct);
+                    print " result is" *result:;
+                else
+                    op = grup;
+                    print `"regular op" taG:;
+            else
+                if *grup.isLiteraL == 1;    print `"number" *grup:;
+                else                        print `"field" taG:;
+                if target == 0;             target = grup;
+                or result == 0;             result = grup;
+            if op.datA != 0;
+                if result.datA != 0;
+                    if target.datA != 0;
+                        print "Running instruct";
+                        instruct    +% *op;
+                        instruct    +% *result;
+                        instruct    +% *target;
+                        target      := testOP(instruct);
+                        print "result is" *target:;
+                        clear(result);
+                        clear(op);
+        return  *target;
+        };
+    ;
+
+testListed("!invokeTEST call righty -= -qa - qb + qc;");    // -qa does not work because the - needs turning into a negate unary when the list is built
 
 register(C1Tester);
 define
@@ -30,6 +89,14 @@ c1Run();
 cerr "C1 SENTINEL":;
 
 stop();
+testListed("invokeTEST call righty -= qa * qb + qc;");
+Harder expressions for testListed, each with a pinned trunk answer in exprPinT to compare against:
+- qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
+- xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
+- -qa + qb and !fTrue(qa): a prefix unary on a term, and on a call.
+- fId(qa + qb) * qc and qa + fNest(qb) + qc: calls with an expression inside or between, so A(B) has to become A call B mid-expression.
+- a < b < c: chained comparisons; expr-accum currently refuses this by name.
+- *block(code): a star on a call target.
 
 /***************************************************************************
     C1 tester (Clod, 2026-10-07, SEQ 320) -- for the expr-accum branch
@@ -89,7 +156,8 @@ parser(Search);
 
 include("IncantForms/WorkingOn/checkSKIP");
 // Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
-register(TestStuff);
+registry(TestStuff);
+(TestStuff);
 define
     skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
     skipTester code={
@@ -99,11 +167,24 @@ define
 debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
 checkSKIP(skipInput);
 
+    testIterateInReverse isRule lizted=listEntries+ SemI- code={
+        print "list passed in:":;
+        result = 0;
+        iterate grup on *lizted;
+        while --grup;
+            if *grup.instructTypE != 0;
+                if *grup.isUnarY;       print `"unary op" taG:;
+                else                    print `"regular op" taG:;
+            or *grup.isLiteraL == 1;    print `"number" *grup:;
+            else                        print `"field" taG:;
+        };
+
 /***************************************************************************
     Current Status
 ***************************************************************************/
 
-register(TESTing);
+registry(TestStuff);
+(TESTing);
 define
     /***************************************************************************
         parseCode is kant version of processCode

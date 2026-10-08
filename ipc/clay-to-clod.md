@@ -17,8 +17,8 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      217
-STATUS:   working        # SEQ 311 at the FOOT -- accumulator candidate on expr-accum (picked up 2026-10-06); prior: SEQ 310 -- pins on trunk (exprPinT, 3a86896), C1 recorded (clod-to-clay SEQ 221); prior: SEQ 309 cleared; prior: SEQ 288 -- site 1 LANDED 3793f63; no-stash rule; stashes listed (clod-to-clay SEQ 182); prior: SEQ 287 -- site 1 on branch, NOT landed (890->885, guard leak; re-pin ruling); R1-R3 done (clod-to-clay SEQ 181); prior: SEQ 286 -- golden line 5, F-139; failedAtStale stepped: no leak, new road reports no failure point (clod-to-clay SEQ 180); prior: SEQ 285 -- merged a342b75, BN-4 un-pinned, F-138 closed; re-bless HELD, R11 unmoved (clod-to-clay SEQ 179); prior: SEQ 284 -- directives repaired, sweep rule, exitFromParse said in tok 853d6b4 (clod-to-clay SEQ 178); prior: SEQ 283 -- F-138 CURED on f138-cure, awaiting merge (clod-to-clay SEQ 177); prior: SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+SEQ:      320
+STATUS:   cleared        # SEQ 320 -- tester e5c0dd6, trace fbb5561, C1 FLOW, InSet census; seal 98 (clod-to-clay SEQ 232); prior: SEQ 319 -- c3 on expr-accum 15f8b28; seal 97 (clod-to-clay SEQ 231); prior: SEQ 318 -- c1 (seal 95), c2 (seal 96) on expr-accum 2600a8a; clod-to-clay SEQ 230; prior: SEQ 317 -- step (c) recon and plan in expressionRecon; seal 94 (clod-to-clay SEQ 228); prior: SEQ 316 -- step (d) on expr-accum 020672e; seal 93 (clod-to-clay SEQ 227); prior: SEQ 315 -- step (d) recon in expressionRecon; seal 92 (clod-to-clay SEQ 226); prior: SEQ 314 -- step 0 (seal 90), step g on expr-accum 5868d69 (seal 91), clod-to-clay SEQ 225; prior: SEQ 313 -- plan and recon in expressionRecon, opAssign tap; seal 89 (clod-to-clay SEQ 224); prior: SEQ 312 -- C1 bought in principle, recorded; fixit falseResultTruthy; seal 88 (clod-to-clay SEQ 223); prior: SEQ 311 -- C1 built on expr-accum (31069dc / support fc72698), measured, not merged (clod-to-clay SEQ 222); prior: SEQ 310 -- pins on trunk (exprPinT, 3a86896), C1 recorded (clod-to-clay SEQ 221); prior: SEQ 309 cleared; prior: SEQ 288 -- site 1 LANDED 3793f63; no-stash rule; stashes listed (clod-to-clay SEQ 182); prior: SEQ 287 -- site 1 on branch, NOT landed (890->885, guard leak; re-pin ruling); R1-R3 done (clod-to-clay SEQ 181); prior: SEQ 286 -- golden line 5, F-139; failedAtStale stepped: no leak, new road reports no failure point (clod-to-clay SEQ 180); prior: SEQ 285 -- merged a342b75, BN-4 un-pinned, F-138 closed; re-bless HELD, R11 unmoved (clod-to-clay SEQ 179); prior: SEQ 284 -- directives repaired, sweep rule, exitFromParse said in tok 853d6b4 (clod-to-clay SEQ 178); prior: SEQ 283 -- F-138 CURED on f138-cure, awaiting merge (clod-to-clay SEQ 177); prior: SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11917,7 +11917,7 @@ anything today crashed on or refused, by name.
 SEQ 311  -  EXPRESSION: THE ACCUMULATOR CANDIDATE ON A TRY-AND-BUY BRANCH (opener, seal 86)
 ===================================================================
 Dictated via Tony; transcribed by Clod, 2026-10-06.
-STATUS: working 2026-10-06 -- picked up.
+STATUS: cleared 2026-10-06 -- built on expr-accum, M1-M4 reported, certificate held switch off; clod-to-clay SEQ 222.
 
 RULINGS (Tony, 2026-10-06; forwarding this rules what it says):
 R1. The open edge: in the CANDIDATE, a comparison whose right side continues into
@@ -11987,3 +11987,172 @@ SECOND NOTE TO SEQ 311 (Tony, mid-stroke 2026-10-06; dictated via Tony, transcri
   value is a local of each invocation, never a shared field. Short is a goal: report
   its length in M4.
   END SEQ 311
+
+SEQ 312  -  EXPRESSION: C1 BOUGHT IN PRINCIPLE; PAUSE (docs only; then seal and stop)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-06.
+STATUS: cleared 2026-10-06 -- recorded in docs/expressionRecon.md under C1; fixit falseResultTruthy banked; seal 88;
+clod-to-clay SEQ 223.
+
+RULINGS (Tony, 2026-10-06):
+R1. C1 is BOUGHT IN PRINCIPLE. Branch expr-accum stays pushed and UNMERGED, as the
+    reference for a careful build in a clean session. Record the buy, the M1 table and
+    M3's answer in docs/expressionRecon.md under C1.
+R2. Print lists keep the position rule: a prefix after a print item needs a separating
+    shortcut (`,*x`, `:*x`, any non-operator shortcut, multi-character included). The
+    10 fixtures' respell belongs to the careful build, not now.
+R3. Bank a fixit, owner Clod, minimal form: `return falseResult;` comes back TRUTHY on
+    both roads (`if fFalse()` is true on trunk). Severity: wrong.
+R4. `a = b = c` stays HPDL.
+
+THE OPENER (into the seal, for a clean session):
+The careful build of C1, opening with a PLAN AND RECON, not a build. Its scope, from
+SEQ 222's M2 and shortcuts, order Tony's to set:
+  (a) generated-parse bodies compiling and running under the candidate (the largest);
+  (b) the jit road: a flat list's emit, and the one door that checks jitting (M3);
+  (c) D5 per road: executor kinds and instruction layout;
+  (d) tier tests from setup data (D3), not spelled operator names;
+  (e) triage of the value movers (pointerT, omModT, hasActionT ...) and spacingT's 139;
+  (f) the print-list respells (R2);
+  (g) the switch reading any value as on;
+  (h) separately: driveStep driving a holder's name text (*block(src)).
+After the buy lands: the TokenXP rule and InvokeArg's UnaryXP alternative leave the
+grammar, and KANT-43 retires with a dated note.
+
+CERTIFICATE: docs only -- no source touched; seal, clean and pushed.
+  END SEQ 312
+
+===================================================================
+SEQ 313  -  EXPRESSION: THE CAREFUL BUILD'S PLAN AND RECON; THE opAssign TAP (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- plan and recon in docs/expressionRecon.md; tap 47 of 9,534; seal 89; clod-to-clay SEQ 224.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: opAddAttribute's prior → next rides the careful-build branch, in the same stroke as the walk turnaround. Trunk is untouched.
+R1: Call is bound in interpretXPaccum's operand build, beside the prefix. A(B) becomes the target A with a call executor that takes B; field() is the same with an empty argument. opCall handles the method, action and rule cases inside itself. The plan must show a + f(x) and *block(code) coming out right. If recon finds the argument does not arrive as one entry, stop and report.
+R2: Juxtaposition wraps by default: A += B C D takes one list argument. A per-operator "distributes" property is banked as a later candidate and is not in this plan.
+R3: Run the opAssign tap: count the calls whose argument carries a non-empty groupList. That number feeds Tony's setData ruling, which comes later.
+R4: The plan includes runInstruct's direct-call idea, a runOP entry taking (op, target, arg) that retires the per-step acStep list. It also includes the step-list fix: use a fresh step node, never result itself.
+R5: The plan proposes an order for items (a) through (h). Tony rules that order before any build.
+  END SEQ 313
+
+===================================================================
+SEQ 314  -  EXPRESSION: ORDER RULED; BEGIN AT STEP 0, THEN (g) (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- step 0 ccb8893 (seal 90); step g expr-accum 5868d69 (seal 91); clod-to-clay SEQ 225.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: Clod's R5 order is ruled as written: pin C1–C6, then (g), (d), (c), (h), (e), (f), (a), (b).
+R1: The clone build of expr-accum outside Dropbox is approved, per the standing recipe.
+R2: setData is parked. = keeps setContent; the tap's 47 calls are recorded in expressionRecon as the reason.
+R3: Begin at step 0, then (g). Seal after each.
+  END SEQ 314
+
+===================================================================
+SEQ 315  -  EXPRESSION: STEP (d) RECON -- TIERS FROM SETUP DATA (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- step (d) recon in docs/expressionRecon.md; seal 92; clod-to-clay SEQ 226.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: Step (d) opens recon-first. Nothing is built until Tony rules on what the recon finds.
+R1: The recon answers these questions, from code and measurement:
+(a) Where the candidate decides a tier today, by spelled name. List every site.
+(b) Which Operators entries in setup carry members today.
+(c) Whether a tier attribute on an entry with members trips bear-trap #56. Use a scratch probe on a copy of setup: an entry with members and a tier= attribute, then read the attribute back.
+(d) One or two candidate spellings for the tier in setup, each with its cost. If #56 bites, include a spelling that keeps the tier off the attribute, for example a registry per tier or a member.
+R2: C5 fId(qa qb) is carried into (c)'s certificate. It stays red until the turnaround builds the juxtaposition list in source order, and it is not re-pinned as a mover.
+R3: Shutdown target is 2:00 pm. Seal at the end of the recon. If anything after it would run past 1:30, stop and seal there instead.
+
+When the recon comes back, the tier spelling is the one decision that's yours. The rest should follow from what Clod measures.
+  END SEQ 315
+
+===================================================================
+SEQ 316  -  EXPRESSION: STEP (d) BUILD -- TIER SPELLING T1 (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- step (d) expr-accum 020672e / support 3d0d354; seal 93; clod-to-clay SEQ 227.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: The tier spelling is T1. Add the bare flags assignTier (15 entries) and compareTier (8 entries) in setup. shortCircuit stays the logic tier. Anything else folds as arithmetic. The candidate's two spelled-name lists (GroupActions.rtn:1055, :1099) are replaced by presence tests, written as two helpers beside opIsShortCircuit. No operator or tier names are left in code.
+R1: += keeps its two-mention layout in setup. Leave a one-line comment there naming #56 so nobody merges the two mentions.
+R2: The =[ family keeps folding as arithmetic unless Tony says otherwise.
+R3: Certificate: with the switch on, the fleet is row for row with seal 91's switch-on run. With it off, the fleet is row for row with trunk. H7: drop compareTier from one entry, and a row reads red by value. Seal.
+  END SEQ 316
+
+===================================================================
+SEQ 317  -  EXPRESSION: STEP (c) RECON AND PLAN -- EXECUTOR KINDS (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- step (c) recon and plan in docs/expressionRecon.md; seal 94; clod-to-clay SEQ 228.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: Step (c), executor kinds, opens with recon and a plan. Nothing is built until Tony rules.
+R1: The recon answers these questions first, from the PoC on expr-accum:
+The PoC's instruction shape. Is it tiers nested as sub-lists, or one flat list with a tier mark on each operator? Show it on r = *blk(code) + n * 2 > lim && ok;.
+The executor kinds that shape needs, and what each one does at run time.
+Whether the logic tier (fold with early-out) and the compare tier (fold) can share the arithmetic fold's executor. Give the cost either way.
+R2: The plan covers the rest of (c):
+opCall's three cases: method, action, rule.
+runOPdirect(op, left, right), with runOP(field) kept as the unpacker.
+The left-to-right turnaround: build xl1 in source order, flip opAddAttribute's prior to next, and list every other reader of an xl1/isLIST list.
+C5 goes red to green on this certificate.
+R3: Shutdown target is 2:00 pm. Seal the recon and plan before 1:30.
+R4 (added by Tony on "go", 2026-10-07): The plan states what E1 qa > qb + qc reads under each layout. If the flat list keeps it, the plan says where the run-time split happens. E1's refusal is not taken as the intended answer unless Tony rules it so.
+Also: the repeatClass finding is context. Leave it.
+  END SEQ 317
+
+===================================================================
+SEQ 318  -  EXPRESSION: STEP (c) RULINGS; BUILD c1 THEN c2 (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- c1 d46aa45 (seal 95), c2 2600a8a (seal 96); clod-to-clay SEQ 229, 230.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: Layout: split by tier at build. The fold executor runs arithmetic only.
+R1: a < b < c is refused by name. Pin it as a fixture.
+R2: C5 reads 2 10, plus a length row.
+R3: Build c1 (runOPdirect) and then c2 (opCall), each a branch stroke on expr-accum with its own seal. c3 (layout) and c4 (turnaround) wait.
+R4: c4 opens with a census of every reader of the tag + "InSet" set that the list constructor attaches to bin-typed lists, before xl1 stops carrying one.
+R5: Shutdown target is 2:00 pm. Seal by 1:30 at the latest.
+  END SEQ 318
+
+===================================================================
+SEQ 319  -  EXPRESSION: BUILD c3, THE LAYOUT -- SPLIT BY TIER AT BUILD (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- c3 expr-accum 15f8b28; shutdown seal 97; clod-to-clay SEQ 231.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: Build c3 on expr-accum. interpretXPaccum splits the operand-and-operator list by tier, loosest first, using the D3 flags, and builds one node per tier. The executors are: assign: a single step. logic: evaluate the left side, early-out, then the right side if needed. compare: a single step. arithmetic: the fold. The fold no longer tests any tier flag at run time.
+R1: E1 reads false. E2 refuses by its own name for a chained comparison, which the compare node can see at build time.
+R2: Certificate: Switch off: row for row with seal 96. Switch on: row for row with seal 96, except E1 (refused → false) and E2 (message changes). Name every other mover. The call rows and C3 hold. H7: give the compare node the fold executor, and E1 goes back to a wrong value or a refusal.
+R3: Seal by 1:30. If c3 isn't green by 1:00, seal what's measured on the branch, unmerged, and stop.
+After c3 comes c4, the turnaround, which is the riskiest stroke because it touches both roads. That one belongs to a fresh session, so c3's seal is today's natural end either way.
+  END SEQ 319
+
+===================================================================
+SEQ 320  -  EXPRESSION: A TESTER SCAFFOLD FOR C1 ON expr-accum; THE C1 FLOW; c4'S InSet CENSUS (Fearless)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-07.
+STATUS: cleared 2026-10-07 -- tester e5c0dd6, trace fbb5561, C1 FLOW + InSet census in expressionRecon; seal 98; clod-to-clay SEQ 232.
+
+RULINGS (Tony, 2026-10-07)
+
+R0: Write a tester scaffold on expr-accum, under Tony's name, that compiles r = *blk(cv) + n * 2 > lim - fId(qa + qb) && ok || !done;. Give blk a code body, and declare fId, cv, n, lim, qa, qb, ok and done so the line builds.
+R1: Name the one breakpoint where the tier tree is finished and not yet run (file:line), and the scheme environment variable. Tony switches his tree to expr-accum himself.
+R2: Also print the instruction as built, so Tony can compare it with what he sees in Xcode: the flat list from interpretXPaccum; the tier tree after the split, indented one level per node, with each node's kind (acA, acOr, acAnd, acK, acX, acU, acC) and its operands.
+R3: Write the build-time call chain only, from interpretXP to that breakpoint: each method, file:line, and one line on what it does. Put it in expressionRecon under "C1 FLOW".
+R4: c4's opening census (who reads the tag + "InSet" sets), read-only. Nothing is built.
+R5: Seal by 1:30.
+What to expect: if the tier split is right, the root is acA (r =), with acOr under it. acOr's left is an acAnd holding the comparison and ok, and its right is the acU for !done. The comparison acK has an acX on each side.
+  END SEQ 320

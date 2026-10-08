@@ -3,8 +3,19 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      123
-STATUS:   fresh           # SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
+SEQ:      124
+STATUS:   fresh           # SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+# prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
+# prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
+# prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
+# prior: SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
+# prior: SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
+# prior: SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
+# prior: SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
+# prior: SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
+# prior: SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
+# prior: SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
+# prior: SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
 # prior: SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
 # prior: SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
 # prior: SEQ 218 at the FOOT -- R00 explained (Clod's own edit); R0 docs fixes landed (7f7dcac); expression recon step 1 (a map) reported, docs/expressionRecon.md; seal 85
@@ -11989,3 +12000,280 @@ only) · frontier and dirCheck byte-identical to their captures · ddPop 5 / 1 s
 groups.ext untouched · rebuilt first: pop.sh called the 11:05 binary STALE against the seal's 11:45 tokall mtimes;
 after the rebuild, probe output was byte-identical and the fleet read 987 / 51.
   END SEQ 221
+
+SEQ 222  -  SEQ 311 DONE: C1 BUILT ON expr-accum, MEASURED; CERTIFICATE HELD SWITCH OFF. NOTHING MERGED.
+
+RUN: branch expr-accum (Groups 31069dc, support fc72698 -- globals declares getenv). Switch INCANT_EXPR_ACCUM (any value,
+EVEN EMPTY, turns it on -- getenv). Per the amended R3: one gate atop aCTionTokenXP hands the label up untouched; ExpressioN's
+actor is interpretXPaccum (setActions). Candidate: interpretXPaccum flattens each TokenXP label to raw pieces and decides by
+position into ONE flat list; runOPaccum runs it, recursing at the parked head and at && / ||. Interpreted only (R4 refuses).
+No C++ escapes (R5). M1 = incant/pop/exprPinT, switch on.
+
+  expression                         | today              | candidate                         | intended
+  qa * qb + qc                       | 23                 | 23                                | 23
+  2 * 10 + 3                         | 26                 | 23                                | 23
+  qa - qb + qc                       | -5                 | -5                                | -5
+  qa + qb - qc                       | 9                  | 9                                 | 9
+  qa / qb + qc                       | 0.153846           | 3.2                               | 3.2
+  bgSpec * 3 + 2 (jitAttrPop:69)     | 25                 | 17                                | 17
+  lt + bk * sc, 1 17 3 (:70)         | 52                 | 54                                | 54
+  utilities:70/72/75 forms at 20     | 1                  | 0 (falseResult)                   | false
+  across > 0 || down > 0: 0 5/5 0/0 0 | 0 / 1 / 0         | 1 / 1 / 0                         | true / true / false
+  x > px && x < pxw: x 5 / 0 / 20    | 1 / echo / 1       | 1 / 0 / 0                         | true / false / false
+  a && b || c, 0 1 1                 | 0                  | 1                                 | true
+  a || b && c, 0 1 0                 | 0                  | 0                                 | false
+  fFalse() && gSay()                 | 1, g runs          | 1, g runs (*)                     | false, g does not run
+  fId(qa + qb) * qc                  | 36                 | 36                                | 36
+  qa + fNest(qb) + qc                | 37                 | 37                                | 37
+  *block(src)                        | pz 0, r3 echo      | pz 0, r3 echo (**)                | pz 7
+  -qa + qb                           | 8                  | 8                                 | 8
+  !fTrue(qa)                         | echo, NOT RUN      | echo (null = false), fTrue RUNS   | false
+  !fFalse(qa)                        | echo, NOT RUN      | echo, fFalse RUNS (*)             | true
+  *ph.pMid + 1, pMid 41              | 42                 | 42                                | 42
+  hz += qa * qb, hz 1                | 21                 | 21                                | 21
+  hw := qa * qb + qc                 | 23                 | 23; its print line LOST (***)     | 23
+  hx.noPrinT = hy.noPrinT            | 1                  | 1                                 | 1
+  qa > qb + qc                       | echo (false)       | REFUSED by name (R1)              | refuse (R1)
+
+(*) NOT the short circuit: a kant body's `return falseResult;` comes back TRUTHY on BOTH roads (`if fFalse()` is true on
+trunk, measured). With a body returning 0, `fZero() && gSay()` skips g on both roads. O3b's wrong answer is the same cause.
+(**) TWO CAUSES, APART: on trunk the call is LOST (only the deref dispatches; `*blk(pArg)` never runs pAct). Under the
+candidate the call REACHES BlocK (RULEDISPATCH BlocK arm=runRule; `*blk(pArg)` runs pAct) -- and BlocK drives the HOLDER's
+name text, `MARKARM drive text=[pSrc]`: the recon's driveStep finding is what leaves pz 0.
+(***) `print "..." hw " star " *hw` -- the position rule reads `*` after an operand as binary. Tony's house spelling is
+`,*hw` (measured: `,*arOut` reads ARV on both roads; the bare form refuses on the candidate only).
+
+M2 (switch on, information): pop.sh 757 green / 1 parked against 1022 -- 271 rows red, 4 green. Families:
+  - jit road refusing (R4), ~10 fixtures: kindJ1T and kindLiftT TIME OUT (exit 142), kindSRT, kindJ2T, kindJitT,
+    kindHolderJitT, jitDotAssignT, argJitT, argRoundJ, assignRoadT.
+  - the generated-parse road: "PROBE REFUSED: <rule> has no carrier" / "parseRule: <rule> has a parse method but no
+    compiled body" -- site1RoadsT, probeDoorT, opLenT, shapeBodyT, tokJitT, f122NatT, chainTruthT, leafClassT and ~12 more.
+  - print lines with an unescaped `*x` (Operator * refuses): 24 refusals in 10 fixtures -- shapeBodyT, propOpT,
+    assignRoadT, compileInT, memberLitT, ctlStampT, opRoadT, pointerT, propGetT, starDotNullT. Cure: `,*x`.
+  - exprPinT 14 (the intended movers); the rest are value moves (pointerT 10, omModT, modSeamT, hasActionT, deferNatT,
+    ruleTermT, abandonT, jsonTest ...). spacingT exits 139 under the switch.
+  - 4 new greens: setFlagTopT x2, starT S3a, walkRefT row 3.
+M3 (trunk's road, tap on the instruction node, reverted md5-identical): 201 fixtures, 10,231 instruction nodes. 30 arm
+switches, ALL calls (op false) whose target is a BIN with an installed parse (Operators, UnaryOPS: isRule 0, hasNewParse 1),
+in opLenT 20, tokJitT 6, sweepT 4: runRule (3) at emit time, target method (5) when interpreted -- arm 3's door is
+`isRuleTerm() || (jitting && hasNewParse)`. So ONE INSTRUCTION DOES TAKE TWO ARMS, and the switch is the jitting PHASE,
+not a change in the target. No other instruction switched.
+M4 (code lines, comments stripped): today -- aCTionTokenXP 45 + interpretXP 51 + runOP 37 = 133; with what they lean on
+(handleCall/Dot/Subscript/Unary, foldDot, isDotUxp, refuseDotUnaryRight, runShortCircuit) 318. Candidate -- interpretXPaccum
+145 + U 9 + Wrap 19 = 173; runOPaccum 28 + From 39 + Operand 7 = 74 (vs runOP + runShortCircuit 54); it reuses handleCall
+and handleSubscript; Trace 13 (debug only). Plus the gate (2) and the switch (6).
+CERTIFICATE (switch off, branch binary): pop.sh 1022 / 51 row for row (greens differ only in addresses) · jitLadder PASSED
+· printPop PASSED · decodePop row for row (binary echo) · frontier and dirCheck byte-identical · ddPop 5 / 1 standing ·
+canary 313 = 306 + the candidate's 7 externs · exec check clean. STOPPED ON: nothing. The tier tests are spellings in
+runOPaccum (D3 wants them as setup data) -- a PoC shortcut, named.
+Trunk at seal: installed bare, 1022 / 51, canary 306.
+  END SEQ 222
+
+SEQ 223  -  SEQ 312 DONE (docs only): C1 BOUGHT IN PRINCIPLE, RECORDED; FIXIT falseResultTruthy BANKED; SEAL 88.
+
+docs/expressionRecon.md: "C1 BOUGHT IN PRINCIPLE" replaces "C1 measured" -- the buy and its rulings (R2 print-list
+position rule, R3 fixit, R4 HPDL), the M1 table, M3's answer, M2 in brief, and the careful build's scope (a)-(h) with the
+post-buy grammar retirement. expr-accum stays pushed and unmerged (Groups 31069dc, support fc72698).
+incant/fixits/falseResultTruthy, OWNER Clod, severity WRONG. Measured at filing, and it moves the blame: `if frFalse()` 1,
+the control `if frZeroCall()` 0, and `if falseResult;` with NO call 1 -- so the name `falseResult` in kant already reads
+truthy; runAction's capture is not the cause. NEXT is OPEN (what node the kant name resolves to).
+Nothing else touched: no source, no .mm, binary unchanged (trunk, 1022 / 51, canary 306).
+  END SEQ 223
+
+===================================================================
+SEQ 224  -  SEQ 313 DONE: THE CAREFUL BUILD'S PLAN AND RECON; THE opAssign TAP. NOTHING BUILT. SEAL 89.
+===================================================================
+Written 2026-10-07. Everything is in docs/expressionRecon.md, "THE CAREFUL BUILD: PLAN AND RECON (SEQ 313)".
+
+R3 (measured, trunk, both = roads tapped, reverted md5-identical, generated files byte-identical after): 209 runs (every
+incant/pop and incant/pop/jit file, every ip() name in the checklist scripts, incant/jit*), all exit 0. 9,534 interpreted
+= and 5 jitted =; 47 interpreted calls carry a list, in 10 fixtures; 0 jitted. Of the 47: 36 are list-only values (jsonTest
+27, decodeT 5, decode 3, exprPinT's r3 = *block(src)) -- under setData alone those targets get nothing; 8 are StringXP
+strings with a stuff list; 2 counts with members (kant8T, faceT); 1 xl1 (printFamilyNew). Rare, but the JSON reader and
+the decoder depend on it.
+R1: the call is ALREADY bound in interpretXPaccum's operand build (acPostCall -> acC via handleCall), beside the prefix.
+The argument is one entry by grammar (Parens holds ExpressioN?, and `,` is in its guard). Graded READ plus seal 87's
+measured N1 36 / N2 37. The stop condition did not fire. The new call rows C1-C6 were run on TRUNK only (12, 15, 32,
+5, xl1InSet, -2): an in-place checkout of expr-accum was declined by the session's permission layer, and so was the clone
+recipe, so I stopped pursuing a branch run -- it needs Tony's word. *block(code) comes out right only with (h) landing
+inside opCall's rule case: today it drives the holder's name text, because followArgument follows only isArgument holders.
+M3's jitting door moves inside opCall.
+R4: runOPdirect(op, target, arg), with runOP(field) as an unpacker; the accumulator builds no step list. Carried
+correction: runOP's target is the LEFT operand, so the sketch's step must be [op, left, right].
+R0/R2: the PoC holds xl1 right to left on purpose so prior still reads source order (probe: aoA aoB aoC on trunk). The
+turnaround stroke builds source order, flips to next, and owes a census of every isLIST/xl1 reader.
+R5, proposed order: 0 pin C1-C6 into exprPinT on trunk; 1 (g); 2 (d); 3 (c) with R1, R4, R0; 4 (h); 5 (e); 6 (f); 7 (a);
+8 (b). Reasons per row in the doc. Tony rules it before any build.
+Also: Tony's offline checkSKIP and macros committed under his name (74b1eff).
+CERTIFICATE: docs, the transcription, and a reverted tap. Binary rebuilt from byte-identical generated files; pop.sh 1022 /
+51 red / 1 parked; canary 306; groups.ext untouched; Groups, support, TOK clean and pushed.
+  END SEQ 224
+
+===================================================================
+SEQ 225  -  SEQ 314 DONE: STEP 0 (CALL ROWS PINNED, SEAL 90) AND STEP (g) (SWITCH READS ITS VALUE, SEAL 91).
+===================================================================
+Written 2026-10-07.
+Step 0 (trunk, ccb8893): exprPinT C1-C6 at today's values (12, 15, 32, 5 + one fNone line, xl1InSet, -2), intended beside,
+7 pop.sh rows; 1029 / 51. H7: C1's argument and fNone's line mutated -> both red by value, restored md5-identical.
+setData PARKED and the order RULED, recorded in expressionRecon.
+Step (g) (expr-accum 5868d69, clone outside Dropbox per the standing recipe; clone retok reproduced the committed .mm
+byte-identically before the edit): exprAccumOn() in jitContext.h -- 1 on; unset/empty/0 off; other values off, said once
+on stderr. Both sites call it through passthrough. Generated diff: the two sites only; canary 313. Before: =0 switched ON
+(757). After: =0 1022 row for row with off-before; =1 row for row with on-before; before-binary =0 differs 556 lines.
+jitLadder, printPop, decodePop PASSED; frontier row for row; ddPop 5 / 1. dirCheck not run in the clone (groupDirectives is
+gitignored and absent there); no directive anchors on these lines on trunk.
+The owed R1 measurement: on the candidate C3 reads 36 (intended), C5 still xl1InSet, the rest as trunk.
+NEXT in the ruled order: (d), tier tests from setup data.
+  END SEQ 225
+
+===================================================================
+SEQ 226  -  SEQ 315 DONE: STEP (d) RECON -- TIERS FROM SETUP DATA. NOTHING BUILT. SEAL 92.
+===================================================================
+Written 2026-10-07. In docs/expressionRecon.md, "STEP (d) RECON".
+(a) Two spelled tier sites on expr-accum: GroupActions.rtn:1055 (assignment, 15 spellings) and :1099 (comparison, 8
+spellings). The logic tier is ALREADY data (shortCircuit, isOR). Arithmetic is the default. Also listed: the prefix -/*
+-> negate/deref mapping (:1043-1044, not a tier) and the untiered entries that fold by default (the =[ family, %, ...).
+(b) Measured: 53 Operators entries, ONE with members -- '+=' (7 kind members). Five others hold flag attributes only.
+(c) Five setup copies in scratch, read back plus lldb hit counts. tier= reads back as written in every shape. #56 bites
+the BINDING, not the tier: only V4 (attributes and members on one mention) fails, and there '+=' binds to opPlusEQstruct
+(its last member) -- opPlusEQ hit 0. The two-mention shape is safe whichever mention carries the tier (V1, V2, V3 bind
+exactly as the control).
+(d) T1 bare flags assignTier / compareTier (shortCircuit stays the logic tier), presence-tested like opIsShortCircuit;
+T2 one valued tier= attribute (text compare in the reader; a typo folds silently); T3 a bin per tier (not needed, names
+every operator twice). Recommendation T1. The spelling is Tony's.
+R2: C5 carried red into step (c)'s certificate, not re-pinned as a mover.
+CERTIFICATE: docs only; probes in scratch; trunk binary unchanged; pop.sh 1029 / 51 / 1; canary 306; clean and pushed.
+  END SEQ 226
+
+===================================================================
+SEQ 227  -  SEQ 316 DONE: STEP (d) BUILT ON expr-accum (T1). SEAL 93.
+===================================================================
+Written 2026-10-07. expr-accum 020672e (Groups) / 3d0d354 (support), clone build.
+assignTier on 15, compareTier on 8 in setup; shortCircuit stays logic; the rest folds (=[ family included). Helpers
+opIsAssignTier / opIsCompareTier beside opIsShortCircuit, mirrored in groups.ext (tok then calls them ::qualified, as
+opIsShortCircuit). Both spelled lists gone. '+=' two mentions kept, flag on the first, comment naming bear-trap 56.
+Generated diff: two helpers + two call sites; canary 313 -> 315.
+Certificate: switch on 757 row for row with seal 91 on (1075 rows, 0 differ); off 1022 row for row with seal 91 off
+(1073, 0). Call rows unchanged. H7: compareTier off '>' -> E1 folds to 3 instead of refusing; only that row moves;
+restored md5-identical.
+Note: the session's permission checker returned no verdict ~7 times mid-stroke; edits were made with the Edit tool
+meanwhile and every measurement ran after it recovered.
+  END SEQ 227
+
+===================================================================
+SEQ 228  -  SEQ 317 DONE: STEP (c) RECON AND PLAN (EXECUTOR KINDS). NOTHING BUILT. SEAL 94.
+===================================================================
+Written 2026-10-07. In docs/expressionRecon.md, "STEP (c) RECON AND PLAN".
+1. Shape: ONE FLAT LIST, each operator carrying its tier mark (the Operators entries ride in the list with their flags).
+On r = *blk(cv) + n * 2 > lim && ok the trace reads acX [r, =, acC(false, acU(*, blk), cv), +, n, *, 2, >, lim, &&, ok];
+value r = 1, correct (5, 8, 16, 1 on the way). Prefix and call are built nodes; tiers are found at run time.
+2. Kinds: FOLD (acX, with the assignment head), PREFIX (acU, - and * mapped by spelling), CALL (acC via runOP [false ...]),
+BINARY postfix (acDot, acSub with method runOP), and xl1 as a value.
+3. Shared vs split: shared works today at two named lookups per operator per fire and puts a structural choice at run
+time; split at build costs ~40 build lines, four small executors, no run-time tier tests, D3/D5 as written, and an
+emittable shape for the jit road. Recommendation: SPLIT AT BUILD. Open edge with it: a < b < c.
+R4: E1 reads refused (shared, as built), 3 (shared, no guard -- measured), false (shared with a run-time split in
+runOPaccumFrom's compareTier branch), false (split at build, computed). The refusal is not taken as intended.
+Plan: c1 runOPdirect (snag: jitEmitTermCall bakes the instruction node, so that arm moves to opCall); c2 opCall in today's
+ladder order (rule incl. M3's door, action, method); c3 the layout as ruled; c4 the turnaround -- THE READERS ARE SHARED BY
+BOTH ROADS, so both builders turn to source order in the same commit as the eleven readers flip (census in the doc, with
+its limit stated). C5 needs more than the turnaround: xl1 carries a SET (GroupList names a bin-typed list tag+"InSet"), so
+it goes green when the list is in source order, xl1 stops carrying a set, and a printed list prints members -- the printed
+form is Tony's to state (proposal: 2 10).
+repeatClass on + * ? left as context.
+CERTIFICATE: docs only; probes in the clone; trunk 1029 / 51 / 1, canary 306; clean and pushed.
+  END SEQ 228
+
+===================================================================
+SEQ 229  -  SEQ 318 c1 DONE (expr-accum d46aa45 / support 28f0342); R1 PINNED (E2). SEAL 95.
+===================================================================
+Written 2026-10-07.
+c1 is three functions, not two: runOP(field) -> runOPslots(op, target, arg) (follow, refuse a rebound argument,
+invoke, virtual fork; under jitting the term call, baking RAW slots and replaying runOPslots) -> runOPdirect(op,
+target, arg), the fire on FINISHED operands (D4). Accumulator builds no step list and finishes its own operands.
+Why three: with runOPdirect still resolving, holderT recursed to exit 139 -- the head value was the unevaluated
+acDot (htKid.parenT, invoke 1), re-invoked; the old step list's copy had lost the invoke and hid it (lldb). That run
+is the H7.
+Certificate: switch off row for row with seal 93 (1073 / 0 differ); switch on 757 -> 772, fifteen red -> green
+(jsonTest 4, omModT 6, ruleTermT 5), none green -> red; the cause of the fifteen is inferred (the step list's copies).
+jitLadder, printPop, decodePop PASSED; ddPop 5 / 1; canary 317.
+R1: exprPinT E2 qa < qb < qc on trunk -- today REFUSED BY ACCIDENT (qb < qc null, then "an operand that is nothing");
+candidate refuses it with E1's message. Pinned as a refusal-line count 1 and a print-line count 0; H7 (qa < qb) ->
+both red by value; trunk 1031 / 51.
+Next: c2, opCall.
+  END SEQ 229
+
+===================================================================
+SEQ 230  -  SEQ 318 c2 DONE (expr-accum 2600a8a / support 7d06fad). SEAL 96. c3 WAITS FOR TONY'S GO.
+===================================================================
+Written 2026-10-07.
+opCall(target, arg): rule, action, method in runOP's old order. callIsRule is M3's door in one predicate, read by
+opCall and by runOPslots' jitting intercept. runOPdirect: operator, method op, isCallable -> opCall, else the
+unknown-operator refusal. acC goes straight to opCall with the dispatch witness kept (searchNewParseT SNP-0 went
+red without it -- measured, then restored).
+Certificate: off and on both row for row with c1 (0 differ; on 772). H7: action case removed -> every action call
+refuses by name via opCall; restored md5-identical. jitLadder, printPop, decodePop PASSED; ddPop 5 / 1; canary 320.
+SEQ 318 R3 done (c1, c2). c3 is the design build -- the push-on-or-pause check is Tony's.
+  END SEQ 230
+
+===================================================================
+SEQ 231  -  SEQ 319 DONE: c3 BUILT ON expr-accum (15f8b28). SHUTDOWN SEAL 97. c4 IS A FRESH SESSION.
+===================================================================
+Written 2026-10-07.
+The flat list is consumed left to right into one node per tier, loosest first, executors set at build: acA (assign,
+single step), acAnd/acOr (left, early-out, right; nested to the left), acK (compare, single step), acKchain (a second
+comparison -- refused by its own name), acX (the fold, no tier test). Items are detached before re-attaching (addGroup
+copies a parented node). runOPaccumFrom gone. Canary 331.
+Certificate: off row for row with c2; on row for row with c2 but E1 refused -> false (773). E2 refuses as "a chained
+comparison". Call rows and C3 hold. jitLadder, printPop, decodePop PASSED.
+H7: the ruled one (compare node gets the fold executor) stays GREEN -- MASKED: the node already holds two finished folds,
+so the fold is the same single step; the structure carries the answer. Unmasked control: no split at comparisons -> E1
+reads 3, E2 stops refusing. Restored md5-identical.
+Shutdown: trunk full checklist clean (1031 / 51, jitLadder, printPop PASSED, decodePop / frontier / dirCheck = captures,
+ddPop 5 / 1, canary 306, exec bits). Next: c4, the turnaround, in a fresh session, opening with the InSet census (R4).
+  END SEQ 231
+
+===================================================================
+SEQ 232  -  SEQ 320 DONE: C1 TESTER ON expr-accum, THE TRACE, C1 FLOW, THE InSet CENSUS. SEAL 98.
+===================================================================
+Written 2026-10-07. Details in docs/expressionRecon.md, "C1 FLOW" and "c4's OPENING CENSUS".
+R0: Tony's tester on expr-accum (e5c0dd6). The RULED LINE DOES NOT PARSE, ON EITHER ROAD: `-` is in UnaryOPS, so
+InvokeArg's UnaryXP alternative absorbs `- fId` into lim's term and (qa + qb) is a second postfix (bear-trap 52).
+c1Run keeps it so the failure shows; c1Builds flips the subtraction (fId(qa + qb) - lim), parses, r = 1.
+blk is a holder of blkBody (an action with a code body) -- a star on a non-holder is null by ruling.
+R1: breakpoint ruleActions.rtn:1640 = GroupRules.mm:3483 on the branch, or the symbol accBuilt (called only for traced
+expressions). Scheme env INCANT_EXPR_ACCUM=1; INCANT_ACCUM_TRACE=r for the printout.
+R2: the trace (fbb5561): ACCUM FLAT (before the split), ACCUM TREE (indented, kinds, ops marked, values). The tree is
+EXACTLY the predicted shape: acA [r, =, acOr [acAnd [acK [acX, >, acX], &&, ok], ||, acU [!, done]]]. Fleet unmoved
+both ways; canary 335.
+R3: the chain (17 rows) -- compilation is LAZY: the body is built on the first call, runAction -> processCode ->
+driveStep -> parse -> fireLabelMethod -> interpretXPaccum (two passes) -> accBuild/Logic/Compare/Fold -> accBuilt.
+R4: the InSet set is a BIN's first-character set, given to ANY binType item, LIST included (GroupList(item),
+addGroup's binType block). Six readers reach a LIST value: getText (prints xl1InSet), copyData via = (shares the set
+pointer), opIN (asks it as a character set), getType (PLGset*), get/getFromList (guard reject), getCharacterSet. The
+rest are parse-only or setup. The census finds named fields only; c4's certificate covers the rest.
+  END SEQ 232
+
+===================================================================
+SEQ 233  -  FOR A RULING, NOT URGENT: SHOULD A RULE'S LABEL BIND IN ITS CODE THE WAY `argument` DOES? (F-143)
+===================================================================
+Written 2026-10-07. Tony asked for this to wait on you. Details and three options in docs/fixIts.md F-143.
+In a rule's code={ }, a labelled term's name is a local that HOLDS the label (processAction's labelToLocals,
+GroupActions.rtn:648: result.group = grup). So `iterate g on lab` refuses and `*lab` walks. ArgBinding exempts
+`argument` from star-every-use at three sites; labels never got the exemption. Tony's lean: worth doing only as an
+auto-unwrap like argument; the face-of-the-label alternative costs frame save/restore surgery (bear-trap 50).
+Found with it, separate defect, F-142: a term named like a global in the search list (Utilities.listed) SHARES the
+global's body, so the binding writes the label pointer into the global.
+  END SEQ 233
+
+===================================================================
+SEQ 234  -  FOR THE RECORD: SEAL 99, TONY'S OFFLINE WORK RECONCILED. NOTHING FOR YOU TO RULE.
+===================================================================
+Written 2026-10-08. Commits f23a512, 129d2da (Groups); groups.ext testOP (support).
+Tony's offline hunks landed as he described them: isUnarY / instructTypE accessors, testOP, tester's testListed. His
+call op's method is opCallTest, renamed from opCall (expr-accum owns opCall with the arguments reversed).
+isOperator CLOSED by Tony: the aCTionDefinE line that set it on every Operators entry stays out -- it marked the
+roadless operators with a null gOp and cost 27 fleet rows. isOperator keeps one meaning: has a method.
+&& in an if on trunk: context only -- right-to-left binding plus seal 86's no short-circuit (expressionRecon).
+c4 stays the opener. Fleet 1031 / 51 / 1, canary 308, jitLadder PASSED.
+  END SEQ 234

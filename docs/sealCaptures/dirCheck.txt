@@ -36,22 +36,26 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   WARN dark  addGroup starting (parked, line 223 of groupDirectives) -- tok found addGroup in GroupItem.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS addGroup altered (parked, line 226 of groupDirectives) -> GroupItem.twk +2
   ok    INJECTS addGroup ending (parked, line 229 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS getStuff if before (parked, line 238 of groupDirectives) -> GroupItem.twk +6
-  ok    INJECTS parse "callOK      = checkInput" before (armed, line 247 of groupDirectives) -> GroupItem.twk +10
-  ok    INJECTS parse ownPoint (armed, line 255 of groupDirectives) -> GroupItem.twk +18
-  ok    INJECTS parse debugHere (armed, line 268 of groupDirectives) -> GroupItem.twk +16
-  ok    INJECTS push if before (parked, line 281 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS push finishAdd (parked, line 284 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS remove if before (parked, line 287 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS setGroup starting (parked, line 290 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS setRuleStuff if before (parked, line 293 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS bootstrapper pushInput (armed, line 306 of groupDirectives) -> GroupMain.twk +4
-  ok    INJECTS checkSkip stacked before (parked, line 317 of groupDirectives) -> GroupRules.twk +3
-  ok    INJECTS checkSkip "if stacked" before (parked, line 321 of groupDirectives) -> GroupRules.twk +3
-  ok    INJECTS pushInput sourceFILE before (parked, line 325 of groupDirectives) -> GroupRules.twk +1
-  ok    INJECTS popInput return before (parked, line 328 of groupDirectives) -> GroupRules.twk +4
-  ok    INJECTS getWhatFollows followed (parked, line 338 of groupDirectives) -> RuleStuff.twk +2
-DIRCHECK: 52 directives -- 49 inject, 3 dark (0 armed, 3 parked)
+  ok    INJECTS ensureGuard if before (armed, line 238 of groupDirectives) -> GroupItem.twk +1
+  ok    INJECTS ensureGuard "if isCondition" before (armed, line 241 of groupDirectives) -> GroupItem.twk +7
+  ok    INJECTS ensureGuard endSetGuard (parked, line 247 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS ensureGuard returnGuard before (armed, line 250 of groupDirectives) -> GroupItem.twk +8
+  ok    INJECTS getStuff if before (parked, line 257 of groupDirectives) -> GroupItem.twk +6
+  ok    INJECTS parse "callOK      = checkInput" before (armed, line 266 of groupDirectives) -> GroupItem.twk +10
+  ok    INJECTS parse ownPoint (armed, line 274 of groupDirectives) -> GroupItem.twk +18
+  ok    INJECTS parse debugHere (armed, line 287 of groupDirectives) -> GroupItem.twk +16
+  ok    INJECTS push if before (parked, line 300 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS push finishAdd (parked, line 303 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS remove if before (parked, line 306 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS setGroup starting (parked, line 309 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS setRuleStuff if before (parked, line 312 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS bootstrapper pushInput (armed, line 325 of groupDirectives) -> GroupMain.twk +4
+  ok    INJECTS checkSkip stacked before (parked, line 336 of groupDirectives) -> GroupRules.twk +3
+  ok    INJECTS checkSkip "if stacked" before (parked, line 340 of groupDirectives) -> GroupRules.twk +3
+  ok    INJECTS pushInput sourceFILE before (parked, line 344 of groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS popInput return before (parked, line 347 of groupDirectives) -> GroupRules.twk +4
+  ok    INJECTS getWhatFollows followed (parked, line 357 of groupDirectives) -> RuleStuff.twk +2
+DIRCHECK: 56 directives -- 53 inject, 3 dark (0 armed, 3 parked)
   ok    tree retokked bare and byte-identical to the bare snapshot
-DIRCHECK PASSED (49 of 52 inject; parked dark named above, not a failure)
+DIRCHECK PASSED (53 of 56 inject; parked dark named above, not a failure)
 DIRCHECK SENTINEL -- reached the foot
