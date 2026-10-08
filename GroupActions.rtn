@@ -69,10 +69,10 @@ GroupItem   grup,
     if !field.isShortcut
         if field.isLIST
             if field.reversePrint
-                while grup = field.next(grup)
+                while grup = field.prior(grup)
                     printField(grup,format,buffer);
             else
-                while grup = field.prior(grup)
+                while grup = field.next(grup)
                     printField(grup,format,buffer);
         else    printField(field,format,buffer);
     else {

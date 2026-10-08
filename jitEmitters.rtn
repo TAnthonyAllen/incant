@@ -2624,14 +2624,14 @@ extern void jitPrintItem(GroupItem token,GroupItem FormaT,int hasValue)
     entry exists to dodge.
 
     // constancySplit  the measured two-part example, and why the split needs no new evaluation machinery
-    // priorNotNext  why the walk is prior() -- appendGroup's own order, because the list is built in reverse
+    // priorNotNext  the walk is next() -- appendGroup's own order; the list is built in source order since c4
 *******************************************************************************/
 extern void jitPrintList(GroupItem ExpressioN,GroupItem FormaT)
 {
     -%
     if (!gJitBuilder || !ExpressioN) return;
     GroupItem *part = 0;
-    while ((part = ExpressioN->prior(part))) {
+    while ((part = ExpressioN->next(part))) {
         GroupBody *pb = part->groupBody;
         if (pb->flags.isLiteral || isSTRING(pb->flags.data) || isTOKEN(pb->flags.data)) {
             //  CONSTANT: hand the chain the baked node. No evaluation, no value.

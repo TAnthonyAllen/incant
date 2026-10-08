@@ -291,6 +291,7 @@ extern "C" GroupItem *jitTraceRT(GroupItem *field);
 extern "C" int jitUnboxCount(GroupItem *node);
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit);
 extern "C" int limitWriteGuard(GroupItem *target);
+extern "C" GroupItem *listLastToFront(GroupItem *list);
 extern "C" GroupItem *listenTo(GroupItem *input);
 extern "C" GroupItem *loadDirectory(GroupItem *input);
 extern "C" GroupItem *loadInputFromFile(GroupItem *source);

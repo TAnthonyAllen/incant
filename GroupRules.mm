@@ -1781,10 +1781,10 @@ GroupItem 	*field = 0;
 	if ( !field->groupBody->flags.isShortcut )
 		if ( isLIST(field->groupBody->flags.binType) )
 			if ( field->groupBody->flags.reversePrint )
-				while ( grup = field->next(grup) )
+				while ( grup = field->prior(grup) )
 					::printField(grup,format,buffer);
 			else
-			while ( grup = field->prior(grup) )
+			while ( grup = field->next(grup) )
 				::printField(grup,format,buffer);
 		else	::printField(field,format,buffer);
 	else {
@@ -3210,7 +3210,9 @@ GroupItem *token = 0;
 						}
 					if ( arg != xl )
 						xl->addMember(arg);
+					// sourceOrder  the walk is backward, so each term to the left goes to the FRONT (c4)
 					xl->addMember(token);
+					::listLastToFront(xl);
 					arg = xl;
 					}
 				}
@@ -3503,16 +3505,15 @@ extern "C" GroupItem *interpretXPaccumWrap(GroupItem *operand, GroupItem *rest)
 {
 int 		i = 1;
 GroupItem 	*done = operand;
-	// juxtaposed  operands with no op between them are a list, held RIGHT TO LEFT as today's xl1 holds them
+	// juxtaposed  operands with no op between them are a list, held in SOURCE order as xl1 now is (c4)
 	if ( ::compare(done->groupBody->tag,"acJux") == 0 )
 		{
 		done = new GroupItem("xl1");
 		done->groupBody->flags.binType = 3;
-		i = operand->groupBody->groupList->listLength;
-		while ( i > 0 )
+		while ( i <= operand->groupBody->groupList->listLength )
 			{
 			done->addAttribute(operand->get(i));
-			i = i - 1;
+			i = i + 1;
 			}
 		i = 1;
 		}
@@ -6002,14 +6003,14 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
     entry exists to dodge.
 
     // constancySplit  the measured two-part example, and why the split needs no new evaluation machinery
-    // priorNotNext  why the walk is prior() -- appendGroup's own order, because the list is built in reverse
+    // priorNotNext  the walk is next() -- appendGroup's own order; the list is built in source order since c4
 *******************************************************************************/
 extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT)
 {
 	
 	if (!gJitBuilder || !ExpressioN) return;
 	GroupItem *part = 0;
-	while ((part = ExpressioN->prior(part))) {
+	while ((part = ExpressioN->next(part))) {
 	GroupBody *pb = part->groupBody;
 	if (pb->flags.isLiteral || isSTRING(pb->flags.data) || isTOKEN(pb->flags.data)) {
 	//  CONSTANT: hand the chain the baked node. No evaluation, no value.
@@ -7026,6 +7027,29 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
+/*  listLastToFront -- move a list's LAST item to its FRONT, by relinking: no copy, no change to
+    listLength or to the item's parent. interpretXP walks BACKWARD, so a juxtaposed term arrives
+    right to left; appending it with `+=` (which keeps addGroup's work) and then bringing it to the
+    front leaves xl1 in SOURCE order (c4, SEQ 322).  */
+extern "C" GroupItem *listLastToFront(GroupItem *list)
+{
+GroupItem 	*last = 0;
+GroupItem 	*first = 0;
+	last = list->groupBody->groupList->lastInList;
+	first = list->groupBody->groupList->firstInList;
+	if ( !last )
+		return list;
+	if ( last == first )
+		return list;
+	list->groupBody->groupList->lastInList = last->priorInParent;
+	list->groupBody->groupList->lastInList->nextInParent = 0;
+	last->priorInParent = 0;
+	last->nextInParent = first;
+	first->priorInParent = last;
+	list->groupBody->groupList->firstInList = last;
+	return list;
+}
+
 /*******************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a group, the notifier, that will be listened to by listenTo's parent, the
@@ -7401,7 +7425,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			target->addAttribute(grup);
 	else	target->addAttribute(argument);
 	return target;
@@ -7437,7 +7461,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( argument->groupBody->flags.isLiteral )
 		return ::refuse(target,"Operator +/ -- the right side is a literal; membership attaches a field to a list, and a literal is a value with no node to attach");
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			target->addMember(grup);
 	else	target->addMember(argument);
 	return target;
@@ -7766,7 +7790,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
+		while ( result = argument->next(result) )
 			::opDivEQ(result,target);
 	return result;
 }
@@ -8459,7 +8483,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
+		while ( result = argument->next(result) )
 			::opMinusEQ(result,target);
 	return result;
 }
@@ -8627,7 +8651,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
+		while ( result = argument->next(result) )
 			::opMultiplyEQ(result,target);
 	return result;
 }
@@ -9111,7 +9135,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			{
 			added = target->replace(grup);
 			added->options.affiliation = 1;
@@ -9136,7 +9160,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			{
 			added = target->replace(grup);
 			added->options.affiliation = 2;

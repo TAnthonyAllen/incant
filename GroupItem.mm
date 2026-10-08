@@ -287,7 +287,8 @@ GroupItem *GroupItem::addGroup(GroupItem *group)
 		groupBody->flags.isInitialized = 1;
 		if ( !isREGISTRY(groupBody->flags.binType) && group->groupBody->registry && group->groupBody->registry->get("grouped") )
 			group->addMember(this);
-		if ( groupBody->flags.binType )
+		// listHasNoSet  a LIST is a value, not a bin: no set to grow (c4, SEQ 322)
+		if ( groupBody->flags.binType && !isLIST(groupBody->flags.binType) )
 			{
 			PLGset 	*binGuard = groupBody->guardSet;
 			groupBody->flags.altered = 1;

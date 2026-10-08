@@ -1393,6 +1393,26 @@ GroupRules  ruler = groupRules;
     return xpress;
 }
 
+/*  listLastToFront -- move a list's LAST item to its FRONT, by relinking: no copy, no change to
+    listLength or to the item's parent. interpretXP walks BACKWARD, so a juxtaposed term arrives
+    right to left; appending it with `+=` (which keeps addGroup's work) and then bringing it to the
+    front leaves xl1 in SOURCE order (c4, SEQ 322).  */
+extern GroupItem listLastToFront(GroupItem list)
+{
+GroupItem   last, first;
+    last  = list.lastInList;
+    first = list.firstInList;
+    if !last            return list;
+    if last == first    return list;
+    list.lastInList = last.priorInParent;
+    list.lastInList.nextInParent = null;
+    last.priorInParent = null;
+    last.nextInParent  = first;
+    first.priorInParent = last;
+    list.firstInList = last;
+    return list;
+}
+
 /*******************************************************************************
     interpretXP — the interpret/run mode: build the left-associative runOP tree
     the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
@@ -1452,7 +1472,9 @@ GroupItem   op, target, arg, xl, token;
                         xl = new("xl1");
                         xl.isLIST   = true; }
                     if arg != xl    xl += arg;
+                    // sourceOrder  the walk is backward, so each term to the left goes to the FRONT (c4)
                     xl  += token;
+                    listLastToFront(xl);
                     arg = xl; }}}
         if op
             if arg {
@@ -1786,14 +1808,13 @@ extern GroupItem interpretXPaccumWrap(GroupItem operand, GroupItem rest)
 {
 int         i = 1;
 GroupItem   done = operand;
-    // juxtaposed  operands with no op between them are a list, held RIGHT TO LEFT as today's xl1 holds them
+    // juxtaposed  operands with no op between them are a list, held in SOURCE order as xl1 now is (c4)
     if done.tag eq "acJux" {
         done = new("xl1");
         done.isLIST = true;
-        i = operand.listLength;
-        while i > 0 {
+        while i <= operand.listLength {
             done +% operand[i];
-            i = i - 1; }
+            i = i + 1; }
         i = 1; }
     if !rest            return done;
     if !rest.groupList  return done;

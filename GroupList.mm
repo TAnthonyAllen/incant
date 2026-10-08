@@ -28,7 +28,8 @@ GroupList::GroupList(GroupItem *item)
 	lastInList = 0;
 	listLength = 0;
 	stakked = 0;
-	if ( item->groupBody->flags.binType )
+	// listHasNoSet  a LIST is a value, not a bin: it gets no first-character set (c4, SEQ 322)
+	if ( item->groupBody->flags.binType && !isLIST(item->groupBody->flags.binType) )
 		{
 		PLGset 	*set = new PLGset();
 		set->name = ::concat(3,item->groupBody->tag,"InSet","\n");

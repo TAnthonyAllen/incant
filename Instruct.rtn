@@ -58,7 +58,7 @@ GroupRules  ruler = groupRules;
         Instruct.opAddAttribute.storeRuling  */
     if ruler.refused    return null;
     if argument.isLIST
-        while grup = argument.prior(grup)
+        while grup = argument.next(grup)
             target +% grup;
     else    target +% argument;
     return target;
@@ -329,7 +329,7 @@ use target
         result = target;
         if !result  cerr "ERROR Operator /= failed on",tag,"and",argument.tag:; }
     or argument.isLIST
-        while result = argument.prior(result)
+        while result = argument.next(result)
             opDivEQ(result,target);
     return result;
 }
@@ -755,7 +755,7 @@ use target
             default:        result = 0; }
         if !result  cerr "ERROR Operator -= failed on",tag,"and",argument.tag:; }
     or argument.isLIST
-        while result = argument.prior(result)
+        while result = argument.next(result)
             opMinusEQ(result,target);
     return result;
 }
@@ -887,7 +887,7 @@ use target
         result  = target;
         if !result  cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
     or argument.isLIST
-        while result = argument.prior(result)
+        while result = argument.next(result)
             opMultiplyEQ(result,target);
     return result;
 }
@@ -1345,7 +1345,7 @@ GroupRules  ruler = groupRules;
         be a gate that never lands.   Instruct.opAddMember.literalRightSideRefuses  */
     if argument.isLiteral   return refuse(target,"Operator +/ -- the right side is a literal; membership attaches a field to a list, and a literal is a value with no node to attach");
     if argument.isLIST
-        while grup = argument.prior(grup)
+        while grup = argument.next(grup)
             target.addMember(grup);
     else    target.addMember(argument);
     return target;
@@ -1364,7 +1364,7 @@ GroupRules  ruler = groupRules;
         Instruct.opReplaceAttribute.storeRuling  */
     if ruler.refused    return null;
     if argument.isLIST
-        while grup = argument.prior(grup) {
+        while grup = argument.next(grup) {
             added = target.replace(grup);
             added.isAttribute = true; }
     else {
@@ -1386,7 +1386,7 @@ GroupRules  ruler = groupRules;
         Instruct.opReplaceMember.storeRuling  */
     if ruler.refused    return null;
     if argument.isLIST
-        while grup = argument.prior(grup) {
+        while grup = argument.next(grup) {
             added = target.replace(grup);
             added.isMember = true; }
     else {

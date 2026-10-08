@@ -134,7 +134,8 @@ GroupItem addGroup(GroupItem group)
         isInitialized   = true;
         if !isREGISTRY && group.registry && group.registry["grouped"]
             group += this;
-        if binType {
+        // listHasNoSet  a LIST is a value, not a bin: no set to grow (c4, SEQ 322)
+        if binType && !isLIST {
             PLGset binGuard = guardSet;
             altered         = true;
             set((int)*group.tag);
