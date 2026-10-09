@@ -651,6 +651,36 @@ refuses that row (`* *x`) by name.
   WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
   rows' negative control).
 
+#### THE THREE MISS-PRINTS, MEASURED (SEQ 328 R2, Clod, 2026-10-09; trunk, kant; nothing re-pinned -- Tony rules first)
+
+`propGetT:13` `cerr "PG-2 ... = " *pgZ.taG:;`, `propOpT:19` `*poM.taG`, `propOpT:48` `*poSp.taG` -- each prints a MISS.
+
+**Deref or multiply? DEREF.** A `traceParse` run: every star spelling of `*pgZ.taG` -- bare, after a comma, captured --
+takes aCTionTokenXP's `dot-COMPOSED` arm with `unary=*`, i.e. `(*pgZ).taG`; and `cerr "V5num" 5 *pgZ.taG` prints `5 0`,
+where a multiply would print one value. The parse is the same in every spelling; only the PRINT ITEM differs.
+
+**Where the 0 comes from: NOT the lookup.** The miss holds nothing (`if *pgZ` takes its else arm), so `(*pgZ).taG` is
+null in every spelling. What prints depends on where the null sits:
+
+| spelling | the null is | prints |
+|---|---|---|
+| `cerr *pgZ.taG:;` | its own print item | nothing |
+| `cerr "x" ,*pgZ.taG:;` | its own print item (the comma starts one) | nothing |
+| `cerr "x" *pgZ.taG:;` | a member of the juxtaposed item `"x" *pgZ.taG` | `0` |
+| `cerr "x" ,*pgZ.taG " end":;` | a member of the juxtaposed item `*pgZ.taG " end"` | `0 end` |
+
+A juxtaposed item prints its members through **`printField`, whose first line is `if !field  field = falseResult;`**
+(`GroupActions.rtn:604`) -- so the `0` is falseResult's count standing in for a null. A null that is its own item goes
+to `appendGroup` and prints nothing. So the three rows pin falseResult's rendering, not the lookup.
+
+**Proposed spelling (measured, NOT applied):** pin the miss explicitly, with its hit as the control --
+```
+        if *pgZ;    cerr "PG-2 absent name via subscript = HIT":;
+        else        cerr "PG-2 absent name via subscript = MISS":;
+```
+Reads `MISS` on BOTH switches (the present name reads `HIT`), and with no refusal in the action PG-3 shows switch on too.
+Same shape for PO-2 (`*poM`) and PO-8 (`*poSp`); the rows' pins would move `0` -> `MISS`.
+
 #### ⚠⚠ D2-D4 BUILT on `expr-d` `faeb649` (SEQ 327 R3/R4, Clod, 2026-10-09) -- UNMERGED, FOR TONY TO BUY
 
 Off trunk `5c10142` (after R2), in the clone, one commit each; Groups only (support untouched). Canary 338 -> **339**
