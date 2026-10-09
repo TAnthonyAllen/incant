@@ -1,0 +1,55 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(MethodWriteT);
+define
+    mwA=2;
+    mwB=3;
+    mwC=4;
+    mwH1;
+    mwH2;
+    mwH3;
+    mwList;
+    mwJux;
+    mwBound;
+    mwCtl;
+    mwBad;
+    mwLists code={
+        mwH1 := mwA;
+        mwH2 := mwB;
+        mwH3 := mwC;
+        mwList +% *mwH1;
+        mwList +% *mwH2;
+        mwList +% *mwH3;
+        cerr "MW L3 " mwList.listLengtH:;
+        mwJux +% mwA mwB mwC;
+        cerr "MW LJ " mwJux.listLengtH:;
+        };
+    mwMethods code={
+        mwBound.methoD = "testOP";
+        cerr "MW M1 " mwBound.methoD:;
+        cerr "MW I1 " mwBound.isMethoD:;
+        cerr "MW M0 " mwCtl.methoD:;
+        };
+    mwRefuse code={
+        mwBad.methoD = "mwNoSuchMethod";
+        };
+    ;
+mwLists();
+mwMethods();
+mwRefuse();
+cerr "MW MB " mwBad.methoD:;
+cerr "METHODWRITE SENTINEL":;
+stop();
+
+methodWriteT -- Clod, 2026-10-09, for Tony's testListed in tester.
+
+L3 is the control: three +% lines attach three. LJ is the one-line form with plain
+names side by side; interpretXP hands +% its juxtaposition list xl1, and opAddAttribute
+now finishes and attaches each term. Starred terms cannot be written this way:
+*a *b *c reads as a * b * c (KANT-43 absorbs the binary star).
+
+M1/I1: x.methoD = "name" binds the method dlsym finds by that text (accessorWriteMethod,
+as ruleMethod does) and sets isMethod. M0 is the never-written control, so the 1 cannot
+be a default. MB: a name dlsym cannot find is refused by name and binds nothing, read 0.

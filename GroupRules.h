@@ -152,6 +152,7 @@ extern "C" void accTraceItem(GroupItem *item);
 extern "C" void accTraceTree(GroupItem *node, int depth);
 extern "C" int accTraceWanted(GroupItem *flat);
 extern "C" int accessorWrite(GroupItem *argument, GroupItem *product);
+extern "C" int accessorWriteMethod(GroupItem *argument, GroupItem *product);
 extern "C" int accessorWriteValue(int value, GroupItem *product);
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer);
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer);

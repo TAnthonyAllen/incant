@@ -6076,6 +6076,18 @@ kindRow "lastRefT Z the next statement"                    "$(_lr Z-nextStatemen
 kindRow "lastRefT O outside: the argument, then the action" "$(_lr O-outside)"     "lrSolo lrOut "      # both roads
 kindRow "lastRefT W bare taG in a walk"                    "$(_lb W)"               "lrAlpha lrBeta "    # intended the same [on: 1 1 -- D1]
 kindRow "lastRefT O bare taG outside a walk"               "$(_lb O)"               "lrSolo lrOut "      # intended the same [on: 1 1 -- D1]
+#  methodWriteT 2026-10-09 (Tony's testListed): +% given plain names side by side attaches each; x.methoD = "name"
+#  binds a method by dlsym and sets isMethod. L3 and M0 are the controls; MB is the refusal, read back 0.
+run2 methodWriteT "$T/mw.o" "$T/mw.e"; check "methodWriteT runs" 0 $?
+sentinel "methodWriteT sentinel" "$T/mw.e" "METHODWRITE SENTINEL"
+_mw () { awk -v k="$1" '$1=="MW" && $2==k {print $3; exit}' "$T/mw.e"; }
+kindRow "methodWriteT L3 three +% lines, length"            "$(_mw L3)" "3"
+kindRow "methodWriteT LJ +% a b c, length"                  "$(_mw LJ)" "3"
+kindRow "methodWriteT M1 methoD after binding testOP"       "$(_mw M1)" "1"
+kindRow "methodWriteT I1 isMethoD after binding"            "$(_mw I1)" "1"
+kindRow "methodWriteT M0 methoD never written, control"     "$(_mw M0)" "0"
+kindRow "methodWriteT MB unknown name refused, lines"       "$(grep -c '^REFUSED mwBad -- `.methoD`: no method named' "$T/mw.e")" "1"
+kindRow "methodWriteT MB unknown name binds nothing"        "$(_mw MB)" "0"
 #  loneOpT SEQ 327 R1 (Tony): a lone operator is NOT an ExpressioN. Run WITH THE SWITCH ON, whatever the caller's switch:
 #  the candidate refuses each by name. (Switch off the old road reads a verdict -- orc_old's oldRoad column.)
 INCANT_EXPR_ACCUM=1 $B "$(ip loneOpT)" > "$T/lo.o" 2> "$T/lo.e" & _cap loneOpT; check "loneOpT runs (switch on)" 0 $?

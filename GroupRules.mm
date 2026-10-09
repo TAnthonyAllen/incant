@@ -1761,9 +1761,38 @@ extern "C" int accTraceWanted(GroupItem *flat)
 extern "C" int accessorWrite(GroupItem *argument, GroupItem *product)
 {
 int 	value = 0;
+	// methodWrite `x.methoD = "name"` binds a METHOD, which no integer can carry -- it leaves before the value is read
+	if ( ::compare(product->groupBody->tag,"methoD") == 0 )
+		return ::accessorWriteMethod(argument,product);
 	if ( argument )
 		value = argument->getCount();
 	return accessorWriteValue(value,product);
+}
+
+/***************************************************************************
+    accessorWriteMethod -- `x.methoD = "name"`: find the method the
+    argument's text names with dlsym, as ruleMethod does, and bind it as x's
+    method. A name dlsym cannot find is refused by name and x is unchanged.
+***************************************************************************/
+extern "C" int accessorWriteMethod(GroupItem *argument, GroupItem *product)
+{
+GroupItem 	*holder = 0;
+char 		*name = 0;
+	holder = product->parent;
+	if ( !holder || !argument )
+		{
+		::fprintf(stderr,"opAssign: `.methoD` needs a field on its left and a method name on its right -- nothing bound\n");
+		return 1;
+		}
+	name = argument->getText();
+	if ( !::dlsym(RTLD_SELF,name) )
+		{
+		::refuse(holder,"`.methoD`: no method named by the right-hand text -- nothing bound");
+		return 1;
+		}
+	holder->setMethod((GroupItem*(*)(GroupItem*))::dlsym(RTLD_SELF,name));
+	holder->groupBody->flags.instructType = 1;
+	return 1;
 }
 
 /***************************************************************************
@@ -7464,12 +7493,29 @@ extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target)
 {
+int 		i = 0;
+int 		n = 0;
 GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	/*  THE STORE RULING: an armed statement stores nothing.
 	Instruct.opAddAttribute.storeRuling  */
 	if ( ruler->refused )
 		return 0;
+	// juxtaposedTerms `x +% *a *b *c` hands over interpretXP's xl1 with its terms unfinished: finish each as runOPslots would, then attach it
+	if ( ::compare(argument->groupBody->tag,"xl1") == 0 )
+		{
+		n = argument->groupBody->groupList->listLength;
+		while ( i < n )
+			{
+			i = i + 1;
+			grup = argument->get(i);
+			if ( isMethod(grup->groupBody->flags.instructType) && grup->groupBody->flags.invoke )
+				grup = grup->groupBody->gMethod(grup);
+			if ( grup )
+				target->addAttribute(grup);
+			}
+		return target;
+		}
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->next(grup) )
 			target->addAttribute(grup);
@@ -8090,6 +8136,10 @@ GroupItem 	*product = 0;
 					break;
 				case 412:
 					product->setCount(ruler->inCompile());
+					break;
+				case 413:
+					if ( isMethod(target->groupBody->flags.instructType) )
+						product->setCount(1);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));

@@ -34,16 +34,17 @@ define
                 if *grup.isUnarY;
                     instruct    +% *grup;
                     if result.datA == 0;
-                        print `"unary op" taG "on target" ,*target;
+                        print `"unary op" taG "on target" ,*target:;
                         instruct    +% *target;
                     else
-                        print `"unary op" taG "on result" ,*result;
+                        print `"unary op" taG "on result" ,*result:;
                         instruct    +% *result;
-                    result      := testOP(instruct);
-                    print " result is" ,*result:;
+                    //instruct.method = testOP;
+                    result          += instruct;
+                    $$result;
                 else
                     op = grup;
-                    print `"regular op" taG:;
+                    print `"op:" *op:;
             else
                 if *grup.isLiteraL == 1;    print `"number" ,*grup:;
                 else                        print `"field" taG:;
@@ -52,12 +53,11 @@ define
             if op.datA != 0;
                 if result.datA != 0;
                     if target.datA != 0;
-                        print "Running instruct";
                         instruct    +% *op;
                         instruct    +% *result;
                         instruct    +% *target;
-                        target      := testOP(instruct);
-                        print "result is" ,*target:;
+                        //instruct.method = testOP;
+                        target      := instruct;
                         clear(result);
                         clear(op);
         return  *target;
@@ -65,6 +65,7 @@ define
     ;
 
 testListed("!invokeTEST call righty -= -qa - qb + qc;");    // -qa does not work because the - needs turning into a negate unary when the list is built
+stop();
 
 register(C1Tester);
 define
@@ -88,7 +89,6 @@ define
 c1Run();
 cerr "C1 SENTINEL":;
 
-stop();
 testListed("invokeTEST call righty -= qa * qb + qc;");
 Harder expressions for testListed, each with a pinned trunk answer in exprPinT to compare against:
 - qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.

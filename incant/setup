@@ -295,6 +295,7 @@ define
     instructTypE=409;
     lastIndenT=411;
     processingCodE=412;
+    methoD=413;
     ;
 registry(fILEs);
 define
