@@ -6076,7 +6076,7 @@ kindRow "lastRefT Z the next statement"                    "$(_lr Z-nextStatemen
 kindRow "lastRefT O outside: the argument, then the action" "$(_lr O-outside)"     "lrSolo lrOut "      # both roads
 kindRow "lastRefT W bare taG in a walk"                    "$(_lb W)"               "lrAlpha lrBeta "    # intended the same [on: 1 1 -- D1]
 kindRow "lastRefT O bare taG outside a walk"               "$(_lb O)"               "lrSolo lrOut "      # intended the same [on: 1 1 -- D1]
-#  methodWriteT 2026-10-09 (Tony's testListed): +% given plain names side by side attaches each; x.methoD = "name"
+#  methodWriteT 2026-10-09 (Tony's testListed): +% given plain names side by side attaches each (already true); x.methoD = "name"
 #  binds a method by dlsym and sets isMethod. L3 and M0 are the controls; MB is the refusal, read back 0.
 run2 methodWriteT "$T/mw.o" "$T/mw.e"; check "methodWriteT runs" 0 $?
 sentinel "methodWriteT sentinel" "$T/mw.e" "METHODWRITE SENTINEL"

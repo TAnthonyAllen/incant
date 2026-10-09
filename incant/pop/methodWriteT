@@ -45,10 +45,11 @@ stop();
 
 methodWriteT -- Clod, 2026-10-09, for Tony's testListed in tester.
 
-L3 is the control: three +% lines attach three. LJ is the one-line form with plain
-names side by side; interpretXP hands +% its juxtaposition list xl1, and opAddAttribute
-now finishes and attaches each term. Starred terms cannot be written this way:
-*a *b *c reads as a * b * c (KANT-43 absorbs the binary star).
+L3 is the control: three +% lines attach three. LJ pins the one-line form with plain
+names side by side: interpretXP hands +% its juxtaposition list xl1, and opAddAttribute's
+isLIST arm attaches each term -- this worked before 2026-10-09 (H7: an extra xl1 arm was
+built, removed, and LJ stayed 3, so the arm was dropped). Starred terms cannot be
+written this way: *a *b *c reads as a * b * c (KANT-43 absorbs the binary star).
 
 M1/I1: x.methoD = "name" binds the method dlsym finds by that text (accessorWriteMethod,
 as ruleMethod does) and sets isMethod. M0 is the never-written control, so the 1 cannot

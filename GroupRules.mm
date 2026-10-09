@@ -7493,29 +7493,12 @@ extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target)
 {
-int 		i = 0;
-int 		n = 0;
 GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	/*  THE STORE RULING: an armed statement stores nothing.
 	Instruct.opAddAttribute.storeRuling  */
 	if ( ruler->refused )
 		return 0;
-	// juxtaposedTerms `x +% *a *b *c` hands over interpretXP's xl1 with its terms unfinished: finish each as runOPslots would, then attach it
-	if ( ::compare(argument->groupBody->tag,"xl1") == 0 )
-		{
-		n = argument->groupBody->groupList->listLength;
-		while ( i < n )
-			{
-			i = i + 1;
-			grup = argument->get(i);
-			if ( isMethod(grup->groupBody->flags.instructType) && grup->groupBody->flags.invoke )
-				grup = grup->groupBody->gMethod(grup);
-			if ( grup )
-				target->addAttribute(grup);
-			}
-		return target;
-		}
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->next(grup) )
 			target->addAttribute(grup);

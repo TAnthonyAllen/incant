@@ -52,21 +52,11 @@ GroupItem   result;
 ***************************************************************************/
 extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
 {
-int         i = 0, n = 0;
 GroupItem   grup;
 GroupRules  ruler = groupRules;
     /*  THE STORE RULING: an armed statement stores nothing.
         Instruct.opAddAttribute.storeRuling  */
     if ruler.refused    return null;
-    // juxtaposedTerms `x +% *a *b *c` hands over interpretXP's xl1 with its terms unfinished: finish each as runOPslots would, then attach it
-    if argument.tag eq "xl1" {
-        n = argument.listLength;
-        while i < n {
-            i = i + 1;
-            grup = argument[i];
-            if grup.isMethod && grup.invoke     grup = grup.method(grup);
-            if grup     target +% grup; }
-        return target; }
     if argument.isLIST
         while grup = argument.next(grup)
             target +% grup;
