@@ -10897,6 +10897,10 @@ GroupItem 	*arg = 0;
 			op = ruler->opFields->get("negate");
 		if ( ::compare(op->groupBody->tag,"*") == 0 )
 			op = ruler->opFields->get("deref");
+		// nullDeref a star handed NOTHING refuses by name before opDeref, which reads its operand's body and crashed on a null (SEQ 327 D3); only the star -- `!` of a false compare is a lawful null
+		if ( !val )
+			if ( op == ruler->opFields->get("deref") )
+				return ::refuse(op,"a star on an operand that is nothing -- the inner read yielded null (the accumulator candidate, SEQ 327 D3)");
 		return op->groupBody->gMethod(val);
 		}
 	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
