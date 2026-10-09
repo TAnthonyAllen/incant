@@ -1,0 +1,37 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+cerr "ANCHOR silencedCompileSucceeds -- RUN WITH INCANT_EXPR_ACCUM=1: Token's body is refused at build, and compile still reports success":;
+parser(Grokking["Token"]);
+fixSilencedCompileSucceedsHere = 0;
+cerr "SENTINEL silencedCompileSucceeds reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 330, Tony 2026-10-09; banked from the (a) recon)
+
+silencedCompileSucceeds -- a compile whose body carries a statement REFUSED AT BUILD reports success. Run this file with
+INCANT_EXPR_ACCUM=1: parser() generates Token's body,
+    return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();
+the candidate refuses it at build -- REFUSED acPostCall -- a call with nothing to call (A1, the Operators bin read as an
+operator) -- and the next lines still read `compile succeeded for Token`. The refusal silences the statement, so Token's
+body runs nothing, and every new-road expression drive fails behind it with nothing naming the body. Measured 2026-10-09
+(SEQ 329 R2). Switch off is the CONTROL: the same run, no refusal, and the same success line, which there is true.
+
+What is wrong is the REPORT, not the refusal's scope: the statement is rightly silenced (scope ruled 2026-09-17), but a
+compile that silenced one should not read as clean -- compile (Commands.rtn:79) prints success whenever processCode
+returns a block, and a refused statement does not stop it returning one.
+
+⚠ A RELATED SHAPE, MEASURED AND NOT THIS ONE: a statement refused at build inside a body compiled through compileIn,
+switch off (`x := a.*b`), leaks its refusal into the CALLER'S statement -- the `if compileIn(req); ok = 1;` around it is
+armed and does nothing, so ok reads 0 whatever compileIn answered. Any repro of this fixit must read the answer from a
+line that is not armed by the refusal it is measuring; compile's own tok print is such a line.
+
+⚠ THIS REPRO STOPS SHOWING WHEN A1 LANDS (Token then compiles clean). The defect does not go with it: any build-time
+refusal inside a compiled body reproduces it. Re-aim the repro then rather than retire the file.
+
+NEXT: OPEN -- what would generate a candidate: where processCode / the drive can see that ruler.refused was raised during
+the build (it is cleared per statement, so it must be read before clearRefusal), and whether compile then answers false or
+answers true with a count of silenced statements. Taken: switch on, this file prints a refusal and no unqualified success.

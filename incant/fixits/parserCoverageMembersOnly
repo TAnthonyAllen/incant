@@ -1,0 +1,57 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(PcMembersOnly);
+define
+    pmMembers=0;
+    pmAttrs=0;
+    pmBins=0;
+    pmM code={
+        iterate pmC members on *argument;
+        while ++pmC;
+            if noPrinT;     continue;
+            if binTypE;     ++pmBins;
+            if binTypE;     print "PM bin skipped" ,taG:;
+            if binTypE;     continue;
+            if !isRulE;     continue;
+            if actionTypE != 0;     continue;
+            ++pmMembers;
+        };
+    pmA code={
+        iterate pmC attributes on *argument;
+        while ++pmC;
+            if noPrinT;     continue;
+            ++pmAttrs;
+            print "PM attribute never walked" ,taG:;
+        };
+    ;
+cerr "ANCHOR parserCoverageMembersOnly -- parserCoverage walks Grokking's MEMBERS only; its attribute rules, ExpressioN and Token among them, are never generated or compiled by it":;
+pmM(Grokking);
+pmA(Grokking);
+print "PM members walked " pmMembers " bins skipped " pmBins " attributes never walked " pmAttrs:;
+fixParserCoverageMembersOnlyHere = 0;
+cerr "SENTINEL parserCoverageMembersOnly reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (SEQ 330, Tony 2026-10-09; banked from the (a) recon -- ⚠ RE-AIMED AT FILING, see below)
+
+parserCoverageMembersOnly -- genLadder/parserCoverage.sh asks "how many grammar rules does parser() generate and compile",
+and its population walk is `iterate pcCur members on *argument` over Grokking. Grokking's ATTRIBUTE rules are never in it
+-- ExpressioN and Token among them -- yet parser(Start) generates and compiles them (walkRules descends every term). The
+cost, measured 2026-10-09 (SEQ 329 R2): with the switch on, Token's generated body,
+`return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();`, is refused and silences every new-road expression
+drive, while parserCoverage reads 47 of 47 compile on BOTH switches -- Token is not in its population. This file runs the
+same member filter (63 rules, parserCoverage's count) and then lists the attributes the walk never reaches.
+
+⚠ RE-AIMED AT FILING. It was banked (SEQ 330) as "parserCoverage skips bins", on Clod's SEQ 329 report that Token was
+skipped as a bin. Measured while filing: Token is NOT a bin (binTypE reads empty); the walk's bin skip drops only BrancheS
+and Operators. Token is missed because it is an ATTRIBUTE of Grokking, and the walk takes members. The ruling's subject
+-- parserCoverage cannot see Token -- stands; the mechanism named in it is struck.
+
+NEXT: BEST GUESS -- widen the population to Grokking's attribute rules (and the two bins, as walkRules generates them),
+a COMPILES / LEAF row each, re-pinning parserCoverage.target with a sentence. Promote: Tony rules the instrument's
+population. Kill: a ruling that attribute rules are out of scope for the coverage question. Taken: parserCoverage names
+ExpressioN and Token.

@@ -651,6 +651,20 @@ refuses that row (`* *x`) by name.
   WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
   rows' negative control).
 
+#### ⚠⚠ RULED (Tony, 2026-10-09, SEQ 330) -- the two (a) causes are CANDIDATE DEFECTS; built NEXT session, not today
+
+- **A1. A name matches as an operator only if it is an ENTRY in the Operators registry, never the registry's own name; a
+  name followed by `(` is a call.** (Cause 1: the `Operators` bin read as a prefix operator in Token's body.)
+- **A2. A bare rule name as an argument passes the rule; only `name(...)` fires it.** (Cause 2: `parser(list)` -> `labelNO`.)
+- **Opener:** A1 and A2 on branch `expr-a`, one commit each, with H7s, then re-diff the switches.
+- **Banked as fixits, owner Clod:** `incant/fixits/silencedCompileSucceeds` -- a compile that silences a statement reports
+  success (specimen: switch on, `parser(Grokking["Token"])` prints the refusal and `compile succeeded for Token`); and
+  `incant/fixits/parserCoverageMembersOnly` -- ⚠ **re-aimed at filing**: banked as "parserCoverage skips bins", but measured,
+  Token is NOT a bin (the bin skip drops only BrancheS and Operators). parserCoverage walks Grokking's MEMBERS (63, its own
+  count) and never its 22 ATTRIBUTE rules, ExpressioN and Token among them. The "skips bins" sentence in "(a) RECON" below
+  is struck by that measurement: the subject (it cannot see Token) stands, the mechanism was wrong.
+- R1 stands as built: PG-3 / PO-3 / PO-9 were a misnaming in the dispatch.
+
 #### (a) RECON -- THE GENERATED-PARSE ROWS, BY CAUSE (SEQ 329 R2, Clod, 2026-10-09; READ-ONLY, nothing built)
 
 **Population, measured, not estimated:** trunk `827cb1c` (D1 merged, the miss-prints respelled), installed binary.
@@ -684,8 +698,8 @@ fail the compile -- it silences the statement inside Token's body, and every new
 ⚠ **It is the FIRST blocker, not proven the only one** (H9's corollary): rows behind it are counted here because their
 fixture carries this refusal and nothing else new; what each needs once Token compiles is unmeasured. probeDoorT and
 site1RoadsT also carry (b)'s jit refusals (`acAnd`, `acOr`, `acC`) for their jitted halves. **Why parserCoverage cannot see
-it:** its population walk skips bins (`if binTypE; continue;`), and Token is a bin -- every rule it walks compiles, 47 of 47,
-on both switches.
+it:** ~~its population walk skips bins, and Token is a bin~~ -- CORRECTED at filing (SEQ 330): Token is an ATTRIBUTE of
+Grokking and the walk takes MEMBERS only; every rule it walks compiles, 47 of 47, on both switches.
 
 **Cause 2, the specimen.** carrierT's `parser(list);`. Switch off it generates `list = CodE {...}`; switch on it prints
 `Generating parse code for labelNO`. Measured with an action that shows its argument: `apShow(list)` receives `list`

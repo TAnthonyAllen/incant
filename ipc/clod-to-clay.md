@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12425,3 +12425,18 @@ with nothing to call" (tap, reverted md5-identical). Trunk takes the call arm. C
 silenced. First blocker, not proven the only one. parserCoverage cannot see it: it skips bins. 1: carrierT CT-4 -- a rule
 with an action passed as an argument is driven, `parser(list)` generates for `labelNO`.
   END SEQ 242
+
+===================================================================
+SEQ 243  -  SEQ 330: SHUTDOWN SEAL; A1/A2 RECORDED; TWO FIXITS BANKED (ONE RE-AIMED)
+===================================================================
+Written 2026-10-09. A1 (a name is an operator only as an Operators ENTRY; name( is a call) and A2 (a bare rule argument
+passes the rule) recorded in expressionRecon for the opener: expr-a, one commit each, H7s, re-diff.
+Fixits, OWNER Clod: silencedCompileSucceeds -- switch on, parser(Grokking["Token"]) prints the refusal AND "compile succeeded
+for Token" (switch off the control). parserCoverageMembersOnly -- RE-AIMED AT FILING: banked as "skips bins", but Token is
+NOT a bin (binTypE empty; the skip drops only BrancheS and Operators). parserCoverage walks Grokking's MEMBERS (63, its
+count); its 22 ATTRIBUTE rules, ExpressioN and Token among them, are never walked. My SEQ 329 sentence was wrong; struck
+in the recon. Also measured while filing: a refusal at build inside a compileIn'd body ARMS THE CALLER'S statement, so a
+repro must read its answer from a line the refusal cannot silence (recorded in the fixit).
+Kitchen pass: fleet 1069 / 51 / 1 row for row (fixture names 227), ladder, printPop PASSED, ddPop 5/1, captures identical,
+canary 340, exec bits clean, tester unchanged. Clod's fixits 7.
+  END SEQ 243
