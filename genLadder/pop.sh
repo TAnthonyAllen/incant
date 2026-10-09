@@ -6034,6 +6034,8 @@ kindRow "exprPinT FA1 folded &&, all three set"           "$(_ep FA1)"   "1"    
 kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "1"         # intended 0 (it reads a != 0)
 #  staleValue SEQ 323 R1b: qs = 7; qs = fId(qa qb); -- = copies data only, so nothing is left behind
 kindRow "exprPinT ST1 qs = 7 then qs = fId(qa qb)"        "$(_ep ST1)"   "xl1InSet"  # intended qs (its tag)
+#  plusPctOrder SEQ 324 R1: holdB +% qa qb qc; -- length, then entries 1 2 3 by value; nothing else pins this order
+kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep PA1a) $(_ep PA1b) $(_ep PA1c)"   "3: 2 10 3"  # intended 3: 2 10 3 (source order)
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
 kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0
