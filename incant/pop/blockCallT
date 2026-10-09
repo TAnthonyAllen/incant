@@ -38,4 +38,7 @@ Rows, trunk switch off today -> intended (switch on today in brackets):
       Switch off the star-call is lost before any drive (docs/expressionRecon.md step 1
       section 3); switch on (*block)(pSrc) calls. Not (h): (h) is the holder.
 
+  expr-h (SEQ 325 R2): driveStep unwraps the holder at entry. Switch off BC1 and BC3 read 7, 7 and 7;
+  switch on BC1, BC2 and BC3 read 7. BC2 switch off stays 0 / rc -- the star-call (BC4).
+
 Own fixture, not rows in exprPinT: a drive of the wrong text can fail anywhere in the parse.

@@ -231,6 +231,8 @@ int         baseStak = 0,
             priorIndent;
 ParseActivation driveFloor;
 String      driveBase;
+    // unwrapTheHolder THE SINGLE DEREFERENCE OF THE CARRIER, before anything reads the field: a holder drives what it holds, never its name (SEQ 325 (h))
+    if field && field.isGROUP   field = field.gGroup;
 use rule
     // ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
     measureRuleDoor(field,rule);
@@ -266,9 +268,8 @@ use ruler
         measureMarkPoint("2a-after-push"); }
     // frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
     measureFrameProbe(field,rule);
-    // unwrapTheHolder THIS LINE IS THE SINGLE DEREFERENCE OF THE CARRIER -- never add a second one below the fork
+    // heldField the carrier was dereferenced at entry (unwrapTheHolder) -- never add a second one here or below the fork
     intoField = field;
-    if intoField && intoField.isGROUP   intoField = intoField.gGroup;
     // gateOnlyNeverGenerate runRule GATES on hasNewParse and NEVER installs a parse -- generation is explicit, through parser
     if rule.hasNewParse {
         // noSilentFallthrough NEVER fall through to the old parse here -- it trades a loud crash for a quiet wrong answer

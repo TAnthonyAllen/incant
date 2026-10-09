@@ -2341,6 +2341,9 @@ int 				priorFloor = 0;
 int 				priorIndent = 0;
 ParseActivation 	driveFloor;
 char 				*driveBase = 0;
+	// unwrapTheHolder THE SINGLE DEREFERENCE OF THE CARRIER, before anything reads the field: a holder drives what it holds, never its name (SEQ 325 (h))
+	if ( field && isGROUP(field->groupBody->flags.data) )
+		field = field->groupBody->gGroup;
 	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
 	::measureRuleDoor(field,rule);
 	// branchFrame a drive is its own execution root: the control slot is saved, cleared and restored, so a branch fired inside it cannot leak to the caller (SEQ 264)
@@ -2378,10 +2381,8 @@ char 				*driveBase = 0;
 		}
 	// frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
 	::measureFrameProbe(field,rule);
-	// unwrapTheHolder THIS LINE IS THE SINGLE DEREFERENCE OF THE CARRIER -- never add a second one below the fork
+	// heldField the carrier was dereferenced at entry (unwrapTheHolder) -- never add a second one here or below the fork
 	intoField = field;
-	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
-		intoField = intoField->groupBody->gGroup;
 	// gateOnlyNeverGenerate runRule GATES on hasNewParse and NEVER installs a parse -- generation is explicit, through parser
 	if ( rule->groupBody->flags.hasNewParse )
 		{

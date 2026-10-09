@@ -6007,8 +6007,8 @@ kindRow "exprPinT S3 fFalse() && gSay(): g ran, lines"     "$(grep -c '^EP S3-G 
 kindRow "exprPinT S3 value"                                "$(_ep S3)"    "1"         # intended false
 kindRow "exprPinT N1 fId(qa + qb) * qc"                    "$(_ep N1)"    "36"        # intended 36
 kindRow "exprPinT N2 qa + fNest(qb) + qc"                  "$(_ep N2)"    "37"        # intended 37
-kindRow "exprPinT O1 *block(src) -- pz"                    "$(awk '$1=="EP" && $2=="O1" {print $4; exit}' "$T/ept.e")" "0"   # intended 7
-kindRow "exprPinT O1 *block(src) -- r3"                    "$(awk '$1=="EP" && $2=="O1" {print $6; exit}' "$T/ept.e")" "r3"  # intended the BlocK's result
+kindRow "exprPinT O1 *block(src) -- pz"                    "$(awk '$1=="EP" && $2=="O1" {print $4; exit}' "$T/ept.e")" "0"   # intended 7 [on: 7 since expr-h, (h)]
+kindRow "exprPinT O1 *block(src) -- r3"                    "$(awk '$1=="EP" && $2=="O1" {print $6; exit}' "$T/ept.e")" "r3"  # intended the BlocK's result [on: 7 since expr-h, (h); switch off the star-call loses the call]
 kindRow "exprPinT O2 -qa + qb"                             "$(_ep O2)"    "8"         # intended 8
 kindRow "exprPinT O3 !fTrue(qa)"                           "$(_ep O3)"    "nr"        # intended false (null), fTrue runs
 kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "nr"        # intended true
@@ -6056,11 +6056,11 @@ sentinel "blockCallT sentinel" "$T/bct.e" "BLOCKCALL SENTINEL"
 _bc () { awk -v k="$1" '$1=="BC" && $2==k {print $3; exit}' "$T/bct.e"; }
 kindRow "blockCallT BC0 BlocK(pSrc), the control -- pz"     "$(_bc BC0pz)" "7"         # intended 7 [on: 7]
 kindRow "blockCallT BC0 BlocK(pSrc), the control -- rc"     "$(_bc BC0rc)" "7"         # intended 7 [on: 7]
-kindRow "blockCallT BC1 rc = BlocK(holder) -- pz"           "$(_bc BC1pz)" "0"         # intended 7 [on: 0]
-kindRow "blockCallT BC1 rc = BlocK(holder) -- rc"           "$(_bc BC1rc)" "rc"        # intended 7 [on: rc]
-kindRow "blockCallT BC2 rc = *block(holder) -- pz"          "$(_bc BC2pz)" "0"         # intended 7 [on: 0]
-kindRow "blockCallT BC2 rc = *block(holder) -- rc"          "$(_bc BC2rc)" "rc"        # intended 7 [on: rc]
-kindRow "blockCallT BC3 BlocK(holder); a statement -- pz"   "$(_bc BC3pz)" "0"         # intended 7 [on: 0]
+kindRow "blockCallT BC1 rc = BlocK(holder) -- pz"           "$(_bc BC1pz)" "7"         # intended 7 [on: 7] -- (h) fixed, expr-h
+kindRow "blockCallT BC1 rc = BlocK(holder) -- rc"           "$(_bc BC1rc)" "7"         # intended 7 [on: 7] -- (h) fixed, expr-h
+kindRow "blockCallT BC2 rc = *block(holder) -- pz"          "$(_bc BC2pz)" "0"         # intended 7 [on: 7] -- switch off it is the star-call (BC4), not (h)
+kindRow "blockCallT BC2 rc = *block(holder) -- rc"          "$(_bc BC2rc)" "rc"        # intended 7 [on: 7] -- switch off it is the star-call (BC4), not (h)
+kindRow "blockCallT BC3 BlocK(holder); a statement -- pz"   "$(_bc BC3pz)" "7"         # intended 7 [on: 7] -- (h) fixed, expr-h
 kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- pz" "$(_bc BC4pz)" "0"         # intended 7 [on: 7] -- the star-call, not (h)
 kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "rc"        # intended 7 [on: 7] -- the star-call, not (h)
 
