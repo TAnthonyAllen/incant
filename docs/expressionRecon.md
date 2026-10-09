@@ -641,6 +641,16 @@ fixture plus counting lines (bear-trap 43), and one lldb batch run.
 with `val` null, `opDeref(null)` dereferences it (lldb: opDeref <- runOPaccum <- runOPaccumOperand <- runAccAssign). Trunk
 refuses that row (`* *x`) by name.
 
+**⚠⚠ RULED (Tony, 2026-10-09, SEQ 327):**
+- **R0 -- THE BARE ACCESSOR STAYS.** A bare `taG` / `noPrinT` / `isRulE` resolves through `lastREF` on BOTH roads. The
+  candidate not doing so is **defect D1**, its own stroke next (SEQ 328). Cause 1 below is D1.
+- **R1 -- A LONE OPERATOR IS NOT AN ExpressioN.** The (?) row is **(L)**: checked, every one of orc_old's 12 lone-operator
+  inputs (`@ + * ? ! %`, as StatemenT and as ExpressioN) is refused BY NAME (`REFUSED + -- a prefix operator with no
+  operand after it`), none silent. The 166 -> 155 is those 12 lost, plus one GAINED: **or067, `.5`**, which switch off
+  gets F-117's by-name refusal and switch on reads `m=1 c=2` -- D4's family. Pinned: `incant/pop/loneOpT`, run by pop.sh
+  WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
+  rows' negative control).
+
 **The four (D) causes:**
 1. **Bare accessor -- 24 rows.** Inside a walk, `taG`, `noPrinT`, `isRulE`, `hasAttributeS` read their own GroupFields
    value (`taG=1`, `isRulE=23`, `noPrinT=29`): the candidate never takes the accessor road through `lastREF` that

@@ -6049,6 +6049,13 @@ kindRow "foldAndT it ran up to the if, lines"            "$(grep -c '^FC before'
 kindRow "foldAndT the body ran to its end, lines"         "$(grep -c '^FC body ran' "$T/fat.e")" "0"  # intended 0
 kindRow "foldAndT reached the line after the if, lines"   "$(grep -c '^FC after' "$T/fat.e")" "0"  # intended 1
 kindRow "foldAndT sentinel, lines"                        "$(grep -c '^FOLDANDT SENTINEL' "$T/fat.e")" "0"  # intended 1
+#  loneOpT SEQ 327 R1 (Tony): a lone operator is NOT an ExpressioN. Run WITH THE SWITCH ON, whatever the caller's switch:
+#  the candidate refuses each by name. (Switch off the old road reads a verdict -- orc_old's oldRoad column.)
+INCANT_EXPR_ACCUM=1 $B "$(ip loneOpT)" > "$T/lo.o" 2> "$T/lo.e" & _cap loneOpT; check "loneOpT runs (switch on)" 0 $?
+sentinel "loneOpT sentinel" "$T/lo.e" "LONEOP SENTINEL"
+kindRow "loneOpT + refused by name, switch on, lines"     "$(grep -c '^REFUSED + -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
+kindRow "loneOpT ! refused by name, switch on, lines"     "$(grep -c '^REFUSED ! -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
+kindRow "loneOpT read a verdict anyway, switch on, lines" "$(grep -c '^LO matched' "$T/lo.e")" "0"   # intended 0
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
 #  driven; rc is what came back (its tag = nothing). Pins are switch OFF today; [on: x] is the switch-on read today.
 run2 blockCallT "$T/bct.o" "$T/bct.e"; check "blockCallT runs" 0 $?

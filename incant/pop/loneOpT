@@ -1,0 +1,26 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    loSay code={
+        v := tell(argument);
+        m := *v["matched"];
+        cerr "LO matched " m:;
+        };
+    loPlus=(ExpressioN +#);
+    loBang=(ExpressioN !#);
+    ;
+loSay(loPlus);
+loSay(loBang);
+cerr "LONEOP SENTINEL":;
+stop();
+
+What loneOpT Is
+
+SEQ 327 R1 (Tony, 2026-10-09): a lone operator (+, !, * ...) is NOT an ExpressioN. The
+candidate (switch on) refuses it BY NAME: REFUSED + -- a prefix operator with no operand
+after it. pop.sh runs this fixture WITH THE SWITCH ON and pins one named refusal per
+operator. Switch off the old road reads a verdict instead (orc_old's oldRoad column).
+The refusal ends loSay, so no LO line prints for either; the sentinel says the run
+reached its foot.
