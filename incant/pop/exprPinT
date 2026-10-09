@@ -96,7 +96,7 @@ define
     FA1 code={ fpR = 0; if fpA != 0 && fpD != 0 && fpC != 0; fpR = 1; cerr "EP FA1 " fpR:; };
     FA2 code={ fpR = 0; if fpA != 0 && fpB != 0 && fpC != 0; fpR = 1; cerr "EP FA2 " fpR:; };
     ST1 code={ qs = 7; qs = fId(qa qb); cerr "EP ST1 " qs:; };
-    PA1 code={ holdB +% qa qb qc; pn := holdB.listLengtH; p1 := holdB[1]; p2 := holdB[2]; p3 := holdB[3]; cerr "EP PA1a " *p1:; cerr "EP PA1b " *p2:; cerr "EP PA1c " *p3:; cerr "EP PA1n " *pn:; };
+    PA1 code={ holdB +% qa qb qc; pn = holdB.listLengtH; p1 = holdB[1]; p2 = holdB[2]; p3 = holdB[3]; cerr "EP PA1a " p1:; cerr "EP PA1b " p2:; cerr "EP PA1c " p3:; cerr "EP PA1n " pn:; };
     ;
 A1(); A2(); A3(); A4(); A5(); A6(); A7();
 U70(); U72(); U75(); U302a(); U302b(); U302c();
@@ -175,8 +175,10 @@ Rows, today -> intended:
       qs prints its own tag, per the print ruling)
   PA1 the order of +% over a juxtaposed list (SEQ 324 R1, 2026-10-09): holdB +% qa qb qc;
       then holdB's length and its entries 1, 2, 3 by value.   3: 2 10 3 -> 3: 2 10 3
-      (source order). One print per entry: `cerr *p1 *p2 *p3` reads the stars as binary
-      and exits 139 on trunk. Last action, so a crash here can take only the sentinel.
+      (source order). Captured with = (each entry carries its data) and printed one per
+      line with no star: `cerr *p1 *p2 *p3` exits 139 on trunk, and on expr-accum with the
+      switch on `cerr "x" *p` reads the star as binary and refuses the rest of the action.
+      Last action, so a crash here can take only the sentinel.
 
 A tag echo is bear-trap 26: a false comparison or opNOT returns null, and = then
 leaves the field with no data, so it prints its own name.
