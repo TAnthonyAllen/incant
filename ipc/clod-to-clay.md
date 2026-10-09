@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12333,3 +12333,20 @@ with a census of every <- use. ST1 stays pinned 7.
 Context: cerr *p1 *p2 *p3 exits 139 on trunk; one dirCheck run printed a tok Bus error in its bare retok loop, still
 byte-identical, not reproduced in four more passes.
   END SEQ 237
+
+===================================================================
+SEQ 238  -  SEQ 325: (h) PINNED, RECON'D, BUILT ON expr-h (UNMERGED, FOR TONY TO BUY)
+===================================================================
+Written 2026-10-09. Details: docs/expressionRecon.md "(h) BUILT on expr-h", "(h) RECON".
+R0 (trunk 3888016): incant/pop/blockCallT. BlocK(pSrc) control pz 7 / back 7; BlocK(holder), *block(holder),
+BlocK(holder); pz 0 / tag, intended 7. BC4 *block(pSrc) no holder: switch off 0 (the star-call loses the call),
+switch on 7 -- it separates BC2's two defects. Fleet 1041 -> 1052 / 51 / 1.
+R1 (3388cff): ONE door on every road -- opCall's rule case -> runRule -> driveStep (trunk via runOPdirect, candidate
+via acC, jit via jitTermCallRT replaying runOPslots). driveStep pushes the holder, whose text is the HELD field's NAME
+("pSrc"), and unwraps only after the push. Census tap (204 files, both switches): 6 holder drives, all BlocK(pSrc),
+all fail -- nobody relies on the name. STOP not met.
+R2 (Tony: both roads, in driveStep): expr-h fabb4a2, the unwrap moved to entry. R3: off 1052, movers BC1/BC3 -> 7
+(re-pinned); on 791, also BC2 and exprPinT O1 -> 7 (the acceptance line works switch on). H7 (unwrap removed): off
+1049, BC1 x2 / BC3 red by value; restored md5-identical. Ladder off PASSED / on = c4's; printPop PASSED; ddPop 5/1;
+decodePop echo only; frontier identical; dirCheck identical, retok byte-identical.
+  END SEQ 238

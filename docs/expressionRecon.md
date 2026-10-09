@@ -617,6 +617,24 @@ cannot apply"; `cerr *c5C` and a captured length do not.
 - **The fold rows on the branch:** with the switch on, FA2 reads 0 and foldAndT exits 0 and reaches its foot -- the
   intended values, red only against trunk's today-pins. They read that way before c4 too (the tiers, c3).
 
+### ⚠⚠ (h) BUILT on `expr-h` `fabb4a2` (SEQ 325 R2/R3, Clod, 2026-10-09) -- UNMERGED, FOR TONY TO BUY
+
+**Ruled (Tony, 2026-10-09): both roads, in driveStep.** driveStep's unwrapTheHolder moves to ENTRY, before anything
+reads the field -- still the single dereference; `intoField` reads the already-unwrapped field. Generated diff: exactly
+the moved lines, nothing re-aimed (bear-trap 42); canary 338. Groups only -- support untouched.
+
+**Certificate (clone binary, bare; baseline = the trunk-source binary):**
+- Fleet switch off 1052 -> 1052 with the re-pins: movers **BC1 pz/rc and BC3 pz, 0/rc -> 7** (re-pinned to their
+  intended 7). Switch on 795 -> 791 (the four: BC2 x2 and O1 x2 now read their intended 7, red only against the switch-off pins): movers BC1, BC3, **BC2 and exprPinT O1 -> 7** -- the acceptance line
+  `result = *block(code);` works switch on. Nothing else moves on either road.
+- Switch off, BC2 and O1 stay 0 / tag: their call never happens (the star-call defect, BC4) -- not (h).
+- **H7, the entry unwrap removed:** off 1052 -> 1049, BC1 x2 and BC3 red by value (`0`, `rc`); on, BC1 and BC3 red and
+  BC2 and O1 back to 0 / tag. Restored md5-identical, rebuilt.
+- jitLadder PASSED switch off, switch on row for row with c4 (128 FAIL each); printPop PASSED; ddPop 5 / 1 standing;
+  decodePop binary echo only; frontier identical; dirCheck identical to trunk's capture (52 of 56, run in the clone with
+  clone include paths and a copy of groupDirectives, removed after), and its bare retok of every `.twk` left the tree
+  byte-identical.
+
 ### (h) RECON -- A RULE CALLED WITH A HOLDER (SEQ 325 R0/R1, Clod, 2026-10-09; READ-ONLY, nothing built)
 
 **R0, pinned on trunk `3888016`: `incant/pop/blockCallT`.** pSrc holds `{ pz = 7; }`, so `pz` reads 7 only if the
