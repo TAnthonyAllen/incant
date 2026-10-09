@@ -50,13 +50,13 @@ define
     rowC code={
         iterate asCur attributes on *argument;
         while ++asCur;
-            print "C guard poisoned rule carries attribute" ~taG:;
+            print "C guard poisoned rule carries attribute" ,~taG:;
         };
     poison code={
         dud <- copyOf(dummy);
         dud :. noPrinT;
         argument +% dud;
-        print "A ok    poisoned" ~taG "with one noPrint attribute":;
+        print "A ok    poisoned" ,~taG "with one noPrint attribute":;
         };
     ;
 poison(ANYorNum);

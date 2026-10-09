@@ -12,7 +12,7 @@ define
         *orNode = 7;
         orBagA +% *orNode;
         orLenA := orBagA.listLengtH;
-        cerr "ROAD-A registered +% len = " *orLenA:;
+        cerr "ROAD-A registered +% len = " ,*orLenA:;
         cerr "ROAD-B reached, about to use the methodless token":;
         orBagB << *orNode;
         cerr "ROAD-C UNREACHABLE -- a refusal is terminal for the unit":;

@@ -9,9 +9,9 @@ define
         pgA := *pgR["builtinActoR"];
         pgZ := *pgR["zzzNotAProperty"];
         pgT := *pgR["QuotE1"];
-        cerr "PG-1 property via subscript = " *pgA.taG:;
+        cerr "PG-1 property via subscript = " ,*pgA.taG:;
         cerr "PG-2 absent name via subscript = " *pgZ.taG:;
-        cerr "PG-3 term via subscript = " *pgT.taG:;
+        cerr "PG-3 term via subscript = " ,*pgT.taG:;
         };
     pgTerm code={
         cerr "PG-4 term " taG:;

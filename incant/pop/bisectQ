@@ -85,7 +85,7 @@ define
         bqLen = listLengtH;
         bqGen(argument);
         bqSeen = bqSeen + 1;
-        cerr "SEQ" bqSeen ~taG:;
+        cerr "SEQ" bqSeen ,~taG:;
         compile(argument);
         if bqLen > 0;
             iterate bqCur on *argument;

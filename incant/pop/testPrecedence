@@ -37,7 +37,7 @@ define
         // rowLabelIsCaptured tpMintRow sits between the capture and this line, and lastREF
         // rowLabelIsCaptured answers WHAT WAS REFERENCED LAST, calls included -- so a bare taG
         // rowLabelIsCaptured here prints the string taG. Capture, then call, then read the capture
-        cerr "ROW" *tpName "WANT" argument "GOT " *tpRead:;
+        cerr "ROW" ,*tpName "WANT" argument "GOT " ,*tpRead:;
         };
     tpAssignBare code={
         // tpMark := new("assignBare"); tpPending +% *tpMark; writes the target outright. A bare name IS the field.

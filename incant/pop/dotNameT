@@ -34,9 +34,9 @@ define
     dnRun code={
         cerr "DN-0 control  dnBag.listLengtH        = " dnBag.listLengtH " (want 2 -- the bag really has two)":;
         dnRes := dnBag.dnKid;
-        cerr "DN-1 member   dnBag.dnKid       taG   = " *dnRes.taG " (want dnKid)":;
+        cerr "DN-1 member   dnBag.dnKid       taG   = " ,*dnRes.taG " (want dnKid)":;
         dnRes := dnBag.zzNoSuchMember;
-        cerr "DN-2 miss     dnBag.zzNoSuchMember    = " *dnRes.taG " (want 0 -- a miss mints nothing)":;
+        cerr "DN-2 miss     dnBag.zzNoSuchMember    = " ,*dnRes.taG " (want 0 -- a miss mints nothing)":;
         cerr "DN-3 accessor dnBag.noPrinT  BEFORE   = " dnBag.noPrinT " (want 0)":;
         dnBag :. noPrinT;
         cerr "DN-4 accessor dnBag.noPrinT  AFTER    = " dnBag.noPrinT " (want 1 -- DN-3's non-zero sibling; a dead accessor reads 0 both times)":;

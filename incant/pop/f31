@@ -65,7 +65,7 @@ define
         printTO(0);
         fbCount = fbCount + 1;
         if fbCount == 1;    fbFirst +% argument;
-        cerr "INSTALL " fbCount " " ~taG:;
+        cerr "INSTALL " fbCount " " ,~taG:;
         };
     fbWalk code={
         iterate fbCur members on argument;
@@ -89,7 +89,7 @@ define
         cerr "== compiling the FIRST body, the one known good alone ==":;
         iterate fbC on fbFirst;
         while ++fbC;
-            cerr "COMPILING " ~taG:;
+            cerr "COMPILING " ,~taG:;
             compile(*fbC);
         fixF31Here = 0;
         cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;

@@ -21,11 +21,11 @@ arInner := arSrc;
 arOuter := arInner;
 arOut = "none";
 testing(arDrive);
-print "AR-J jitted      : *arOut =" *arOut " (want ARV)":;
+print "AR-J jitted      : *arOut =" ,*arOut " (want ARV)":;
 
 arOut = "none";
 arDrive();
-print "AR-I interpreted : *arOut =" *arOut " (want ARV)":;
+print "AR-I interpreted : *arOut =" ,*arOut " (want ARV)":;
 print "ASSIGNROAD SENTINEL -- reached the foot":;
 stop();
 

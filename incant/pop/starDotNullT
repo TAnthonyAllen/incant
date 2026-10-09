@@ -10,7 +10,7 @@ define
     sdRun code={
         sdReq.result := sdHeld;
         blk = sdReq.result;
-        print "SD-1 the temporary spelling reads through -> " *blk:;
+        print "SD-1 the temporary spelling reads through -> " ,*blk:;
         sdEmpty := *sdReq.result;
         print "SD-2x the action went on past the refusal":;
         };

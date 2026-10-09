@@ -71,7 +71,7 @@ define
             scDcol(*scCur);
             if scIsG != 0;      print "G";
             else                print "-";
-            print " " ~scTag:;
+            print " " ,~scTag:;
         };
     scAttrs code={
         iterate scCur2 attributes on *argument;
@@ -93,7 +93,7 @@ define
             scDcol(*scCur2);
             if scIsG != 0;      print "G";
             else                print "-";
-            print " " ~scTag:;
+            print " " ,~scTag:;
         };
     ;
 print "== SHADOW CENSUS: members of Grokking ==":;

@@ -27,7 +27,7 @@ define
     ucRun code={
         ucH := ucBag;
         cerr "UC-0 control  ucBag.listLengtH  bare  = " ucBag.listLengtH " (want 3 -- the bag really has three)":;
-        cerr "UC-1 access   *ucH.listLengtH         = " *ucH.listLengtH " (want 3 -- deref bound to the PRIMARY)":;
+        cerr "UC-1 access   *ucH.listLengtH         = " ,*ucH.listLengtH " (want 3 -- deref bound to the PRIMARY)":;
         cerr "UC-2 holder    ucH.listLengtH         = " ucH.listLengtH " (the holder's own, NOT 3)":;
         cerr "UC-3 value    !ucH.listLengtH         = " !ucH.listLengtH:;
         cerr "UC-4 value    -ucH.listLengtH         = " -ucH.listLengtH:;

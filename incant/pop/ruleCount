@@ -34,8 +34,8 @@ define
         while ++rcCur;
             rcAll = rcAll + 1;
             if isRulE;  rcRules = rcRules + 1;
-            if isRulE;  print "  rule    " ~taG:;
-            else        print "  NOTRULE " ~taG:;
+            if isRulE;  print "  rule    " ,~taG:;
+            else        print "  NOTRULE " ,~taG:;
         return rcAll;
         };
     countAttrs code={
@@ -45,8 +45,8 @@ define
         while ++rcCur3;
             rcAll = rcAll + 1;
             if isRulE;  rcRules = rcRules + 1;
-            if isRulE;  print "  attrRule " ~taG:;
-            else        print "  attrNOT  " ~taG:;
+            if isRulE;  print "  attrRule " ,~taG:;
+            else        print "  attrNOT  " ,~taG:;
         return rcAll;
         };
     ;

@@ -15,9 +15,9 @@ define
         poP := poHost =< "poKid";
         poM := poHost =< "zzzNotAProperty";
         poA := poHost =% "poKid";
-        cerr "PO-1 =< reads the filed property = " *poP:;
+        cerr "PO-1 =< reads the filed property = " ,*poP:;
         cerr "PO-2 =< a miss reads = " *poM.taG:;
-        cerr "PO-3 =% the same name = " *poA.taG:;
+        cerr "PO-3 =% the same name = " ,*poA.taG:;
         };
     poTermOf code={
         cerr "PO-4 term " taG:;
@@ -36,17 +36,17 @@ define
         poColl +< *poCP;
         poSub := poColl["BlocK"];
         poGet := poColl =< "BlocK";
-        cerr "PO-5 host[BlocK] = " *poSub:;
-        cerr "PO-6 host =< BlocK = " *poGet:;
+        cerr "PO-5 host[BlocK] = " ,*poSub:;
+        cerr "PO-6 host =< BlocK = " ,*poGet:;
         };
     poStatement code={
         poS := Grokking["StatemenT"];
         poSt := *poS["BlocK"];
         poSp := *poS =< "BlocK";
         poSa := *poS =< "builtinActoR";
-        cerr "PO-7 StatemenT[BlocK] = " *poSt.taG:;
+        cerr "PO-7 StatemenT[BlocK] = " ,*poSt.taG:;
         cerr "PO-8 StatemenT =< BlocK = " *poSp.taG:;
-        cerr "PO-9 StatemenT =< builtinActoR = " *poSa.taG:;
+        cerr "PO-9 StatemenT =< builtinActoR = " ,*poSa.taG:;
         };
     ;
 poFile();

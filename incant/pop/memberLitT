@@ -12,7 +12,7 @@ define
         cerr "ML-1 CONTROL  +/ a FIELD attaches":;
         mlBag +/ mlNum;
         mlLen := mlBag.listLengtH;
-        cerr "ML-1 length = " *mlLen " (want 1)":;
+        cerr "ML-1 length = " ,*mlLen " (want 1)":;
         };
     mlLiteral code={
         cerr "ML-2 SUBJECT  +/ a LITERAL must refuse":;
@@ -21,7 +21,7 @@ define
         };
     mlAfter code={
         mlLen := mlBag.listLengtH;
-        cerr "ML-3 length AFTER the refusal = " *mlLen " (want 1 -- nothing was attached)":;
+        cerr "ML-3 length AFTER the refusal = " ,*mlLen " (want 1 -- nothing was attached)":;
         };
     ;
 mlField(mlBag);

@@ -58,9 +58,9 @@ define
         print "pointerT L  three ptrs   =" ptBagL.listLengtH "  want 3":;
         print "pointerT L1 prints values =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER -- these elements HOLD DATA, no follow involved":;
         ptNamed <- ptBagL["ptSrc"];
-        print "pointerT L2 name-then-star =" *ptNamed "  want CHANGED -- LAW 4, the lawful read":;
+        print "pointerT L2 name-then-star =" ,*ptNamed "  want CHANGED -- LAW 4, the lawful read":;
         ptAssigned = ptBagL["ptSrc"];
-        print "pointerT L3 assign-then-star =" *ptAssigned "  want CHANGED -- = with a holder on the right carries its group across":;
+        print "pointerT L3 assign-then-star =" ,*ptAssigned "  want CHANGED -- = with a holder on the right carries its group across":;
 
         cerr "pointerT L4 -- LAW 2 ASKED BY IDENTITY. Read the BODY column only.":;
         cerr "  L4 asks question 1 of rule H13 -- same thing through a carrier -- so BODY.":;
@@ -101,7 +101,7 @@ define
         ptBagD +* ptInner;
         print "pointerT D  depth        =" ptBagD["ptInner"] "  want ptOther -- the holder, not the leaf":;
 
-        print "pointerT X  star binds tightest =" *ptBagP["ptSrc"] "  want 0 -- LAW 3, the star took ptBagP":;
+        print "pointerT X  star binds tightest =" ,*ptBagP["ptSrc"] "  want 0 -- LAW 3, the star took ptBagP":;
 
         ptBagT +* nosuchFieldAtAll;
         print "pointerT F1 undeclared   =" ptBagT.listLengtH "  want 1 -- NOT a refusal, see the note":;

@@ -100,7 +100,7 @@ define
         dcQ1 := dcRoot["dcMid"];
         dcQ2 := *dcQ1["dcLeaf"];
         dcQ3 := *dcQ2["dcTwig"];
-        cerr "DC-S seed: mid=" *dcQ1 " leaf=" *dcQ2 " twig=" *dcQ3:; };
+        cerr "DC-S seed: mid=" ,*dcQ1 " leaf=" ,*dcQ2 " twig=" ,*dcQ3:; };
     dcRA code={ dcK := dcRoot.dcMid.dcLeaf.dcTwig;      cerr "DC-A a.b.c.d    = " dcK:; };
     dcRB code={ dcL2 := dcRoot["dcMid"].dcLeaf.dcTwig;  cerr "DC-B a[b].c.d   = " dcL2:; };
     dcRun code={

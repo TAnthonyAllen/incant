@@ -42,7 +42,7 @@ define
         idF := copyOf(argument);
         iterate w on *idF;
         while ++w;
-            cerr "ROW1 member" ~taG:;
+            cerr "ROW1 member" ,~taG:;
         cerr "ROW1 survived":;
         };
     r2 code={

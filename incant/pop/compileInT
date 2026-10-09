@@ -17,14 +17,14 @@ define
         ciSrc := argument.CodE;
         ciReq.owner  := argument;
         ciReq.source := ciSrc;
-        print "CI-4a currentMETHOD before compileIn -> " *currentMETHOD:;
+        print "CI-4a currentMETHOD before compileIn -> " ,*currentMETHOD:;
         if compileIn(ciReq);
             ciBlock = ciReq.result;
             *ciBlock :. noPrinT;
             argument :. isActioN;
             argument +< *ciBlock;
         print "CI-3 the statement after compileIn runs -> 1":;
-        print "CI-4b currentMETHOD after compileIn  -> " *currentMETHOD:;
+        print "CI-4b currentMETHOD after compileIn  -> " ,*currentMETHOD:;
         print "CI-9a after a good compile, request.result holds a group -> " ciReq.result.isGrouP:;
         };
     ciCompileBad code={

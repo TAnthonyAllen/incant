@@ -62,7 +62,7 @@ define
         print "W drive   walking a real eight member group":;
         iterate w on *argument;
         while ++w;
-            print "W member" ~taG:;
+            print "W member" ,~taG:;
         };
     ;
 rowR(irLeaf);

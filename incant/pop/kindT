@@ -15,7 +15,7 @@ define
     kShow code={
         iterate kShC on argument;
         while ++kShC;
-            cerr "R1 value " *kShC:;
+            cerr "R1 value " ,*kShC:;
         };
     kRun code={
         cerr "MARK R1 begin":;

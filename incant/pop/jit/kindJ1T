@@ -27,7 +27,7 @@ define
     kjShow code={
         iterate h members on argument;
         while ++h
-            cerr "J1 value " *h:;
+            cerr "J1 value " ,*h:;
         };
     ;
 cerr "MARK J1jit1 begin":;

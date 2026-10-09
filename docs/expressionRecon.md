@@ -651,6 +651,94 @@ refuses that row (`* *x`) by name.
   WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
   rows' negative control).
 
+#### (f) RESPELLED ON TRUNK (SEQ 327 R2, Clod, 2026-10-09) -- fixtures only, no source change
+
+**The house form, checked first** (a scratchpad probe, both switches): `cerr "x=" ,*h " y"` prints exactly what
+`cerr "x=" *h " y"` prints switch off (`x= 7 y`), and switch on it parses where the bare form refuses; `,~taG` likewise.
+**The census:** a scanner over every tracked `incant/` file's live region (above `stop();`/`bail();`), skipping strings,
+flagging a `*` or `~` tight to an operand after the first print item -- validated on a probe in both directions (flags the
+four bare forms, none of the comma forms). 99 raw hits, of which the comment banners and prose (`*****`, `**WRONG**`, the
+`* *x` notes) are noise; the live hits are in 24 fleet fixtures, plus the attic, a probe and a fixit (not respelled, below).
+
+**45 respells on 42 lines** (`,` inserted before the prefix, nothing else touched):
+
+| file:line | before | after |
+|---|---|---|
+| `incant/pop/altShadowT:53` | `print "C guard poisoned rule carries attribute" ~taG:;` | `print "C guard poisoned rule carries attribute" ,~taG:;` |
+| `incant/pop/altShadowT:59` | `print "A ok    poisoned" ~taG "with one noPrint attribute":;` | `print "A ok    poisoned" ,~taG "with one noPrint attribute":;` |
+| `incant/pop/assignRoadT:24` | `print "AR-J jitted      : *arOut =" *arOut " (want ARV)":;` | `print "AR-J jitted      : *arOut =" ,*arOut " (want ARV)":;` |
+| `incant/pop/assignRoadT:28` | `print "AR-I interpreted : *arOut =" *arOut " (want ARV)":;` | `print "AR-I interpreted : *arOut =" ,*arOut " (want ARV)":;` |
+| `incant/pop/bisectQ:88` | `cerr "SEQ" bqSeen ~taG:;` | `cerr "SEQ" bqSeen ,~taG:;` |
+| `incant/pop/compileInT:20` | `print "CI-4a currentMETHOD before compileIn -> " *currentMETHOD:;` | `print "CI-4a currentMETHOD before compileIn -> " ,*currentMETHOD:;` |
+| `incant/pop/compileInT:27` | `print "CI-4b currentMETHOD after compileIn  -> " *currentMETHOD:;` | `print "CI-4b currentMETHOD after compileIn  -> " ,*currentMETHOD:;` |
+| `incant/pop/ctlStampT:47` | `cerr "CT LV-1 action returned value " *ctGot:;` | `cerr "CT LV-1 action returned value " ,*ctGot:;` |
+| `incant/pop/dotChainT:103` | `cerr "DC-S seed: mid=" *dcQ1 " leaf=" *dcQ2 " twig=" *dcQ3:; };` | `cerr "DC-S seed: mid=" ,*dcQ1 " leaf=" ,*dcQ2 " twig=" ,*dcQ3:; };` |
+| `incant/pop/dotNameT:37` | `cerr "DN-1 member   dnBag.dnKid       taG   = " *dnRes.taG " (want dnKid)":;` | `cerr "DN-1 member   dnBag.dnKid       taG   = " ,*dnRes.taG " (want dnKid)":;` |
+| `incant/pop/dotNameT:39` | `cerr "DN-2 miss     dnBag.zzNoSuchMember    = " *dnRes.taG " (want 0 -- a miss mints nothing)":;` | `cerr "DN-2 miss     dnBag.zzNoSuchMember    = " ,*dnRes.taG " (want 0 -- a miss mints nothing)":;` |
+| `incant/pop/exprPinT:69` | `H2 code={ hw := qa * qb + qc; cerr "EP H2 " hw " star " *hw:; };` | `H2 code={ hw := qa * qb + qc; cerr "EP H2 " hw " star " ,*hw:; };` |
+| `incant/pop/f31:68` | `cerr "INSTALL " fbCount " " ~taG:;` | `cerr "INSTALL " fbCount " " ,~taG:;` |
+| `incant/pop/f31:92` | `cerr "COMPILING " ~taG:;` | `cerr "COMPILING " ,~taG:;` |
+| `incant/pop/iterRefuseT:65` | `print "W member" ~taG:;` | `print "W member" ,~taG:;` |
+| `incant/pop/jit/kindJ1T:30` | `cerr "J1 value " *h:;` | `cerr "J1 value " ,*h:;` |
+| `incant/pop/kindT:18` | `cerr "R1 value " *kShC:;` | `cerr "R1 value " ,*kShC:;` |
+| `incant/pop/memberLitT:15` | `cerr "ML-1 length = " *mlLen " (want 1)":;` | `cerr "ML-1 length = " ,*mlLen " (want 1)":;` |
+| `incant/pop/memberLitT:24` | `cerr "ML-3 length AFTER the refusal = " *mlLen " (want 1 -- nothing was attached)":;` | `cerr "ML-3 length AFTER the refusal = " ,*mlLen " (want 1 -- nothing was attached)":;` |
+| `incant/pop/opRoadT:15` | `cerr "ROAD-A registered +% len = " *orLenA:;` | `cerr "ROAD-A registered +% len = " ,*orLenA:;` |
+| `incant/pop/pointerT:61` | `print "pointerT L2 name-then-star =" *ptNamed "  want CHANGED -- LAW 4, the lawful read":;` | `print "pointerT L2 name-then-star =" ,*ptNamed "  want CHANGED -- LAW 4, the lawful read":;` |
+| `incant/pop/pointerT:63` | `print "pointerT L3 assign-then-star =" *ptAssigned "  want CHANGED -- = with a holder on the right carries its group across":;` | `print "pointerT L3 assign-then-star =" ,*ptAssigned "  want CHANGED -- = with a holder on the right carries its group across":;` |
+| `incant/pop/pointerT:104` | `print "pointerT X  star binds tightest =" *ptBagP["ptSrc"] "  want 0 -- LAW 3, the star took ptBagP":;` | `print "pointerT X  star binds tightest =" ,*ptBagP["ptSrc"] "  want 0 -- LAW 3, the star took ptBagP":;` |
+| `incant/pop/propGetT:12` | `cerr "PG-1 property via subscript = " *pgA.taG:;` | `cerr "PG-1 property via subscript = " ,*pgA.taG:;` |
+| `incant/pop/propGetT:14` | `cerr "PG-3 term via subscript = " *pgT.taG:;` | `cerr "PG-3 term via subscript = " ,*pgT.taG:;` |
+| `incant/pop/propOpT:18` | `cerr "PO-1 =< reads the filed property = " *poP:;` | `cerr "PO-1 =< reads the filed property = " ,*poP:;` |
+| `incant/pop/propOpT:20` | `cerr "PO-3 =% the same name = " *poA.taG:;` | `cerr "PO-3 =% the same name = " ,*poA.taG:;` |
+| `incant/pop/propOpT:39` | `cerr "PO-5 host[BlocK] = " *poSub:;` | `cerr "PO-5 host[BlocK] = " ,*poSub:;` |
+| `incant/pop/propOpT:40` | `cerr "PO-6 host =< BlocK = " *poGet:;` | `cerr "PO-6 host =< BlocK = " ,*poGet:;` |
+| `incant/pop/propOpT:47` | `cerr "PO-7 StatemenT[BlocK] = " *poSt.taG:;` | `cerr "PO-7 StatemenT[BlocK] = " ,*poSt.taG:;` |
+| `incant/pop/propOpT:49` | `cerr "PO-9 StatemenT =< builtinActoR = " *poSa.taG:;` | `cerr "PO-9 StatemenT =< builtinActoR = " ,*poSa.taG:;` |
+| `incant/pop/ruleCount:37` | `if isRulE;  print "  rule    " ~taG:;` | `if isRulE;  print "  rule    " ,~taG:;` |
+| `incant/pop/ruleCount:38` | `else        print "  NOTRULE " ~taG:;` | `else        print "  NOTRULE " ,~taG:;` |
+| `incant/pop/ruleCount:48` | `if isRulE;  print "  attrRule " ~taG:;` | `if isRulE;  print "  attrRule " ,~taG:;` |
+| `incant/pop/ruleCount:49` | `else        print "  attrNOT  " ~taG:;` | `else        print "  attrNOT  " ,~taG:;` |
+| `incant/pop/shadowCensus:74` | `print " " ~scTag:;` | `print " " ,~scTag:;` |
+| `incant/pop/shadowCensus:96` | `print " " ~scTag:;` | `print " " ,~scTag:;` |
+| `incant/pop/shapeBodyT:14` | `if rp == 1;     cerr "LABEL " argument " text=[" *lt "]":;` | `if rp == 1;     cerr "LABEL " argument " text=[" ,*lt "]":;` |
+| `incant/pop/starDotNullT:13` | `print "SD-1 the temporary spelling reads through -> " *blk:;` | `print "SD-1 the temporary spelling reads through -> " ,*blk:;` |
+| `incant/pop/starIdiomT:45` | `cerr "ROW1 member" ~taG:;` | `cerr "ROW1 member" ,~taG:;` |
+| `incant/pop/testPrecedence:40` | `cerr "ROW" *tpName "WANT" argument "GOT " *tpRead:;` | `cerr "ROW" ,*tpName "WANT" argument "GOT " ,*tpRead:;` |
+| `incant/pop/unaryClassT:30` | `cerr "UC-1 access   *ucH.listLengtH         = " *ucH.listLengtH " (want 3 -- deref bound to the PRIMARY)":;` | `cerr "UC-1 access   *ucH.listLengtH         = " ,*ucH.listLengtH " (want 3 -- deref bound to the PRIMARY)":;` |
+
+**NOT respelled, and why:**
+- `incant/pop/spacingT:64`, `print "spacingT E value    =" * *spWrap:;` -- the SPACED star is spacingT's subject (the
+  spelling law: spaced is binary). Respelling it deletes the row's question.
+- **Three respells REVERTED because they moved a switch-off value** (the ruling: such a respell is a mistake, not a
+  mover): `propGetT:13` `*pgZ.taG`, `propOpT:19` `*poM.taG`, `propOpT:48` `*poSp.taG`. Each is a MISS that yields null:
+  the bare form prints `0` on trunk, the comma form prints nothing, so PG-2 / PO-2 / PO-8 read `=` instead of `0`. They stay
+  bare and stay (f) -- and they take PG-3, PO-3, PO-9 with them switch on (the refusal ends the action). **A spelling that
+  keeps the `0` is owed a ruling.**
+- Off the fleet, reported only: `incant/attic/derefAllT:15,17,18`, `attic/membersFlagCapture:11`,
+  `attic/traitDataCapture:11` (x2), `incant/probes/unrunIf:40,42`, and Clod's fixit `incant/fixits/defineCapture:22`
+  (x2), `:38`.
+- **Tony's incantations, reported only:** `IncantForms/WorkingOn/tester:37` `print \`"unary op" taG "on target" *target;`,
+  `:40` `... "on result" *result;`, `:43` `print " result is" *result:;`, `:48` `if *grup.isLiteraL == 1;    print \`"number"
+  *grup:;`, `:60` `print "result is" *target:;`. Nothing else under `IncantForms/` (the other hits are banners and prose).
+
+**Certificate.** Switch off **row for row** with the pre-respell run (1057 / 51 / 1). Switch on 796 -> **835** green.
+**38 of the 46 (f) rows** now read their switch-off values; the other 8: `,~taG` reads `1` in iterRefuseT and starIdiomT
+(**D1** -- the comma form goes through the bare accessor), and the three reverted rows plus their three collaterals.
+**Re-diff of the two switches: 236 rows move, NO NEW MOVER** -- a row a refused print hid was already counted as moved,
+so revealing it either cured it or left it moved under the same switch-off text. One correction to the triage: row 162,
+shapeBodyT's OLD-road label (`aaac`), was bucketed (a) and is cured by the respell at `shapeBodyT:14` -- it was (f).
+
+| bucket | before R2 | after R2 |
+|---|---|---|
+| (a) | 116 | 115 |
+| (b) | 44 | 44 |
+| (f) | 46 | 6 |
+| (L) | 28 | 29 (orc_old's row, R1) |
+| (D) | 40 | 42 (D1 24 -> 26) |
+| (?) | 1 | 0 |
+| **moved** | **275** | **236** |
+
 **The four (D) causes:**
 1. **Bare accessor -- 24 rows.** Inside a walk, `taG`, `noPrinT`, `isRulE`, `hasAttributeS` read their own GroupFields
    value (`taG=1`, `isRulE=23`, `noPrinT=29`): the candidate never takes the accessor road through `lastREF` that

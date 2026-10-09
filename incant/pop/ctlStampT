@@ -44,7 +44,7 @@ define
         ctContOp();
         cerr "CT P4-1s continue v loop ran " ctK:;
         ctGot := ctRet();
-        cerr "CT LV-1 action returned value " *ctGot:;
+        cerr "CT LV-1 action returned value " ,*ctGot:;
         ctLoop();
         cerr "CT SL-1 loop over a returning action ran " ctK:;
         ctGenLoop();
