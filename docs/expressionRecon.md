@@ -651,6 +651,32 @@ refuses that row (`* *x`) by name.
   WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
   rows' negative control).
 
+#### ⚠⚠ D2-D4 BUILT on `expr-d` `faeb649` (SEQ 327 R3/R4, Clod, 2026-10-09) -- UNMERGED, FOR TONY TO BUY
+
+Off trunk `5c10142` (after R2), in the clone, one commit each; Groups only (support untouched). Canary 338 -> **339**
+(one new extern, `refuseDotUnaryOp`).
+
+| commit | defect | the change | switch on, rows that move | H7 (the fix reverted alone) |
+|---|---|---|---|---|
+| `5ead5f0` | **D2** a.*b refused at build abandoned the file / action | interpretXPaccum no longer returns `refuse()`'s null from the actor: it refuses with TRUNK'S WORDS through `refuseDotUnaryOp(op, aop)` -- refuseDotUnaryRight's tail split out, one hand for both roads -- and keeps building; the armed statement dispatches nothing | abandonT AB-1..AB-5, stopPreT SP-1/SP-3/SP-4, truncT TR-4, dotChainT DC-9 x2 -- **11 rows** to their switch-off values | 846 -> 835, the same 11 red by value |
+| `e324736` | **D3** spacingT's 139 | runOPaccum's prefix case: a STAR handed a null refuses by name before opDeref (`REFUSED deref -- a star on an operand that is nothing`). Only the star: `!` of a false compare is a lawful null | spacingT runs (139 -> 0) and sentinel -- **2 rows** | 848 -> 846, the 2 red (exit 139) |
+| `faeb649` | **D4** `.5` by name | interpretXPaccum's first pass hands a unary over a name to `refuseLeadingDotNumber`, trunk's F-117 hand; a refused `.5` keeps its name as a harmless primary and drops the `.` | dotNumT -- **1 row**; and the oldRoad anti-vacuity count 155 -> 154 (orc_old's or067 `.5` is refused again, as switch off) | 849 -> 848, dotNumT red, the count back to 155 |
+
+Each H7 was committed-first (SEQ 293 R3), restored md5-identical and rebuilt.
+
+**Certificate (R4, clone binary, bare):** switch off **row for row with trunk after R2** (1057 / 51 / 1; the one line that
+differs is the fixture-name census, 217 against 224 -- the clone carries no untracked files). Switch on **835 -> 849**, and
+the ONLY movers are D2's 11, D3's 2, D4's 1 and the oldRoad count. jitLadder switch off PASSED; switch on ROW FOR ROW with trunk's (128 FAIL each);
+printPop PASSED; ddPop 5 / 1 standing; decodePop binary echo only; frontier byte-identical; dirCheck identical to trunk's
+capture (run in the clone with clone include paths and a copy of groupDirectives, removed after) and its bare retok left
+the clone tree byte-identical. Context: with the switch on, D3's refusal ends spacingT's action, so its A-D print lines do
+not appear (no pop.sh row reads them).
+
+**R5 -- the order after this, and the caps.** D1 (lastREF, with rows checking the same field reads the same through
+`lastREF` on both switches, inside a walk), then (a), then (b). **kindJ1T and kindLiftT are capped**: only pop.sh runs
+them, under `POPCAP` (90s), and the switch-on run reports `TIMED OUT after 90s -- KILLED, not failed.` and `runs (exit
+124)` for each -- a hang costs 90 seconds per switch-on fleet run, never the run. (jitLadder has its own `JITCAP`, 90s.)
+
 #### (f) RESPELLED ON TRUNK (SEQ 327 R2, Clod, 2026-10-09) -- fixtures only, no source change
 
 **The house form, checked first** (a scratchpad probe, both switches): `cerr "x=" ,*h " y"` prints exactly what

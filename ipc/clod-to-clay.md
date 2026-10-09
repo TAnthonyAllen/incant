@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12368,3 +12368,24 @@ dotNumT 1 -- F-117's .5 by-name refusal bypassed. (?): orc_old's lone operators 
 Seal 88's names: pointerT (f); omModT not a mover; hasActionT (D) bare accessor; spacingT (D) crash.
 No source tap; probes were scratchpad copies. Nothing re-pinned, respelled or fixed.
   END SEQ 239
+
+===================================================================
+SEQ 240  -  SEQ 327: (f) RESPELLED ON TRUNK; D2-D4 ON expr-d (UNMERGED, FOR TONY TO BUY)
+===================================================================
+Written 2026-10-09. Details: docs/expressionRecon.md "(e) TRIAGE" (ruled R0/R1, "(f) RESPELLED", "D2-D4 BUILT").
+R0 recorded: the bare accessor stays; D1 next. R1: orc_old's 12 lone operators are each refused BY NAME -> (L); the
+166 -> 155 is those 12 plus or067 (.5) GAINING a verdict switch on (D4's family). incant/pop/loneOpT pinned, run with
+the switch on: + and ! refused by name, no verdict (478a7fb).
+R2 (03f4f83): 45 respells on 42 lines in 24 fixtures, ,*x / ,~taG. Switch off row for row; switch on 796 -> 835; 38 of 46
+(f) rows read their switch-off values. Not respelled: spacingT:64 (its subject); THREE REVERTED -- propGetT:13, propOpT:19,
+:48 -- a null miss prints 0 bare and nothing after a comma, so the respell moved a switch-off value (a spelling that keeps
+the 0 is owed a ruling); they take PG-3/PO-3/PO-9 with them. ,~taG reads 1 (D1). Re-diff: 236 movers, NONE new; row 162
+(shapeBodyT old-road label) was (f), not (a). Now: a 115, b 44, f 6, L 29, D 42 (D1 26), ? 0. Tony's tester: 5 bare forms
+(:37 :40 :43 :48 :60), reported.
+R3/R4 (expr-d, Groups only, canary 339): D2 5ead5f0 -- a.*b refuses with trunk's words via refuseDotUnaryOp and keeps
+building (11 rows). D3 e324736 -- a star on a null refuses by name before opDeref, no 139 (2 rows). D4 faeb649 -- .5
+reaches refuseLeadingDotNumber (1 row; oldRoad count 155 -> 154). Each H7 red by value, restored md5-identical.
+Certificate: switch off row for row with trunk after R2; switch on 835 -> 849, only those rows. Ladder off PASSED, on
+row for row with trunk; printPop PASSED; ddPop 5/1; decodePop echo only; frontier identical; dirCheck identical,
+retok byte-identical. R5: kindJ1T and kindLiftT are capped by pop.sh's POPCAP (TIMED OUT after 90s, exit 124).
+  END SEQ 240
