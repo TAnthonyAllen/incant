@@ -29,8 +29,8 @@ define
     testListed isRule lizted=listEntries+ SemI- code={
         iterate grup on *lizted;
         while --grup;
-            clear(instruct);
             if *grup.instructTypE != 0;
+                clear(instruct);
                 if *grup.isUnarY;
                     instruct    +% *grup;
                     if result.datA == 0;
@@ -39,7 +39,7 @@ define
                     else
                         print `"unary op" taG "on result" ,*result:;
                         instruct    +% *result;
-                    //instruct.method = testOP;
+                    instruct.methoD = "testOP";
                     result          += instruct;
                     $$result;
                 else
@@ -50,21 +50,22 @@ define
                 else                        print `"field" taG:;
                 if target == 0;             target = grup;
                 or result == 0;             result = grup;
-            if op.datA != 0;
-                if result.datA != 0;
-                    if target.datA != 0;
-                        instruct    +% *op;
-                        instruct    +% *result;
-                        instruct    +% *target;
-                        //instruct.method = testOP;
-                        target      := instruct;
-                        clear(result);
-                        clear(op);
+            if op.datA && result.datA  && target.datA != 0;
+                clear(instruct);
+                instruct    +% *op;
+                instruct    +% *result;
+                instruct    +% *target;
+                instruct.methoD = "testOP";
+                target      := copyOf(instruct);
+                clear(result);
+                clear(op);
+        print "We done":;
+        *target(*target);
         return  *target;
         };
     ;
 
-testListed("!invokeTEST call righty -= -qa - qb + qc;");    // -qa does not work because the - needs turning into a negate unary when the list is built
+testListed("invokeTEST call righty -= qa - qb + qc;");    // -qa does not work because the - needs turning into a negate unary when the list is built
 stop();
 
 register(C1Tester);

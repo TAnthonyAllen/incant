@@ -6088,6 +6088,10 @@ kindRow "methodWriteT I1 isMethoD after binding"            "$(_mw I1)" "1"
 kindRow "methodWriteT M0 methoD never written, control"     "$(_mw M0)" "0"
 kindRow "methodWriteT MB unknown name refused, lines"       "$(grep -c '^REFUSED mwBad -- `.methoD`: no method named' "$T/mw.e")" "1"
 kindRow "methodWriteT MB unknown name binds nothing"        "$(_mw MB)" "0"
+kindRow "methodWriteT IA invokE = 1 sets invoke"            "$(_mw IA)" "1"
+kindRow "methodWriteT IS :. invokE sets invoke"             "$(_mw IS)" "1"
+kindRow "methodWriteT IC invokE = 1 then = 0 clears"        "$(_mw IC)" "0"
+kindRow "methodWriteT I0 invokE never written, control"     "$(_mw I0)" "0"
 #  loneOpT SEQ 327 R1 (Tony): a lone operator is NOT an ExpressioN. Run WITH THE SWITCH ON, whatever the caller's switch:
 #  the candidate refuses each by name. (Switch off the old road reads a verdict -- orc_old's oldRoad column.)
 INCANT_EXPR_ACCUM=1 $B "$(ip loneOpT)" > "$T/lo.o" 2> "$T/lo.e" & _cap loneOpT; check "loneOpT runs (switch on)" 0 $?

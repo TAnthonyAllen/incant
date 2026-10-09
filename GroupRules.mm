@@ -11207,8 +11207,12 @@ int 		on = 0;
 		return 0;
 	if ( value )
 		on = 1;
+	// invokeWrite  case 11 is the write half of opDot's case 11; without it `x.invokE = 1` and `x :. invokE` fell to default and wrote nothing at exit 0 (2026-10-09)
 	switch (fieldNo)
 		{
+		case 11:
+			target->groupBody->flags.invoke = on;
+			break;
 		case 21:
 			target->groupBody->flags.isPercent = on;
 			break;
