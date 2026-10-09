@@ -10,7 +10,10 @@ define
         pgZ := *pgR["zzzNotAProperty"];
         pgT := *pgR["QuotE1"];
         cerr "PG-1 property via subscript = " ,*pgA.taG:;
-        cerr "PG-2 absent name via subscript = " *pgZ.taG:;
+        if *pgZ;    cerr "PG-2 absent name via subscript = HIT":;
+        else        cerr "PG-2 absent name via subscript = MISS":;
+        if *pgA;    cerr "PG-2c control, a present name = HIT":;
+        else        cerr "PG-2c control, a present name = MISS":;
         cerr "PG-3 term via subscript = " ,*pgT.taG:;
         };
     pgTerm code={

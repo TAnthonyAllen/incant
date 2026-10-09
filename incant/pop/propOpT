@@ -16,7 +16,10 @@ define
         poM := poHost =< "zzzNotAProperty";
         poA := poHost =% "poKid";
         cerr "PO-1 =< reads the filed property = " ,*poP:;
-        cerr "PO-2 =< a miss reads = " *poM.taG:;
+        if *poM;    cerr "PO-2 =< a miss reads = HIT":;
+        else        cerr "PO-2 =< a miss reads = MISS":;
+        if *poP;    cerr "PO-2c control, the filed property = HIT":;
+        else        cerr "PO-2c control, the filed property = MISS":;
         cerr "PO-3 =% the same name = " ,*poA.taG:;
         };
     poTermOf code={
@@ -45,7 +48,10 @@ define
         poSp := *poS =< "BlocK";
         poSa := *poS =< "builtinActoR";
         cerr "PO-7 StatemenT[BlocK] = " ,*poSt.taG:;
-        cerr "PO-8 StatemenT =< BlocK = " *poSp.taG:;
+        if *poSp;   cerr "PO-8 StatemenT =< BlocK = HIT":;
+        else        cerr "PO-8 StatemenT =< BlocK = MISS":;
+        if *poSa;   cerr "PO-8c control, StatemenT =< builtinActoR = HIT":;
+        else        cerr "PO-8c control, StatemenT =< builtinActoR = MISS":;
         cerr "PO-9 StatemenT =< builtinActoR = " ,*poSa.taG:;
         };
     ;

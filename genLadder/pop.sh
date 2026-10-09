@@ -283,6 +283,7 @@ fi
 #  The sentinel is checked on stderr; the comparisons read stdout only.
 run2 baselineTestsNew "$T/baseN" "$T/baseN.err"; check "baselineTestsNew runs" 0 $?
 sentinel "baselineTestsNew reached its end (BASELINENEW SENTINEL)" "$T/baseN.err" "BASELINENEW SENTINEL"
+#  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
 if grep -q "^setParse ended and that ends compileRules" "$T/baseN"; then
     echo "  ok    baselineTestsNew BN-2 parser(Start) ran -- the new road is on"; green=$((green+1))
 else
@@ -300,6 +301,7 @@ if [ "$(wc -l < "$T/bo.head")" -ge 40 ] && [ -s "$T/bo.tail" ]; then
 else
     echo "  FAIL  baselineTestsNew BN-3 VACUOUS -- the old-road head is $(wc -l < "$T/bo.head") lines (want >= 40) or its tail is empty"; fail=1
 fi
+#  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
 diffcheck "baselineTestsNew BN-4 printDefinitions agrees with the old road" "$T/bo.tail" "$T/bn.tail"
 
 #  ============================================================================
@@ -1966,6 +1968,7 @@ done
 #  keyword-initial statements parsed throughout.
 #  CT9 -- a RE-EMIT after a drive must carry no `argument()`. The slot was a TERM as
 #  well as a frame member, so it shows up in an emitted body first.
+#  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
 if grep -q "CT-CALL-RAN" "$T/ct"; then
     echo "  ok    chainTruthT CT8 a call statement after a drive RAN"; green=$((green+1))
 else
@@ -2959,6 +2962,7 @@ _pt2r=$(awk '/^PT-2 /{f=1} /^PT-3 /{f=0} f' "$T/ptst.e" | grep -c "PARSERESULT")
 echo "  ..    parserTest parseRule arrivals: PT-1 Search = $_pt1r, PT-2 DO = $_pt2r (want each > 0)"
 if [ "$_pt1r" -gt 0 ]; then echo "  ok    parserTest PT-1 road check -- the Search drive reached parseRule"; green=$((green+1))
 else echo "  FAIL  parserTest PT-1 road check -- 0 arrivals; the instrument cannot see the new road"; fail=1; fi
+#  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
 if [ "$_pt2r" -gt 0 ]; then echo "  ok    parserTest PT-2 road check -- the DO drive reached parseRule (NEW road)"; green=$((green+1))
 else echo "  FAIL  parserTest PT-2 road check -- 0 arrivals: the DO drive ran the OLD road. BORN RED 2026-09-23"
      echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
@@ -2972,6 +2976,7 @@ sentinel "paReachT sentinel" "$T/par.e" "PAREACH SENTINEL"
 _pat=$(awk '/^PA BEGIN/{f=1} /^PA END/{f=0} f' "$T/par.e" | grep -c "PARSECLASS")
 _paa=$(awk '/^PA BEGIN/{f=1} /^PA END/{f=0} f' "$T/par.e" | grep -c "PARSECLASS.*method=parseAction")
 echo "  ..    paReachT faces classified = $_pat, of them parseAction = $_paa"
+#  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
 if [ "$_pat" -gt 0 ]; then echo "  ok    paReachT anti-vacuity: generation classified $_pat faces"; green=$((green+1))
 else echo "  FAIL  paReachT anti-vacuity: no PARSECLASS lines -- the instrument saw nothing"; fail=1; fi
 if [ "$_paa" -eq 0 ]; then echo "  ok    paReachT parseAction faces = 0"; green=$((green+1))
@@ -2989,6 +2994,7 @@ for _un in "unNeg ExpressioN" "unDot ExpressioN" "unSet StatemenT" "unAbc Expres
     sentinel "unaryNatT $1 sentinel" "$T/$1.e" "UNARYNAT SENTINEL"
     _ur=$(awk '/^UN BEGIN/{f=1} /^UN RETURNED/{f=0} f' "$T/$1.e" | grep -c "PARSERESULT")
     echo "  ..    unaryNatT $1 parseRule arrivals in the drive = $_ur (want > 0)"
+    #  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
     if [ "$_ur" -gt 0 ]; then echo "  ok    unaryNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
     else echo "  FAIL  unaryNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
 done
@@ -3028,6 +3034,7 @@ for _nn in "nnFmt ExpressioN" "nnFmtN ExpressioN" "nnFmtS StatemenT" "nnAbc Expr
     sentinel "nestNatT $1 sentinel" "$T/$1.e" "NESTNAT SENTINEL"
     _nr=$(awk '/^NN BEGIN/{f=1} /^NN RETURNED/{f=0} f' "$T/$1.e" | grep -c "PARSERESULT")
     echo "  ..    nestNatT $1 parseRule arrivals in the drive = $_nr (want > 0)"
+    #  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
     if [ "$_nr" -gt 0 ]; then echo "  ok    nestNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
     else echo "  FAIL  nestNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
     #  THE DIRECT ROW (2026-09-24): the OUTERMOST ExpressioN fires last, and its label must still
@@ -3053,6 +3060,7 @@ for _qn in "qnHi ExpressioN" "qnPr StatemenT" "qnCe StatemenT" "qnPs StatemenT" 
     sentinel "quoteNatT $1 sentinel" "$T/$1.e" "QUOTENAT SENTINEL"
     _qr=$(awk '/^QN BEGIN/{f=1} /^QN RETURNED/{f=0} f' "$T/$1.e" | grep -c "PARSERESULT")
     echo "  ..    quoteNatT $1 parseRule arrivals in the drive = $_qr (want > 0)"
+    #  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
     if [ "$_qr" -gt 0 ]; then echo "  ok    quoteNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
     else echo "  FAIL  quoteNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
 done
@@ -3475,6 +3483,7 @@ fi
 #  refused through define since 3f872c4. parseTrace is on from just before DW-4.
 _dw4r=$(awk '/^DW-4 target/{f=1} /^DW-4 TWIN RETURNED/{f=0} f' "$T/dwn.e" | grep -c "PARSERESULT")
 echo "  ..    doWhileNameT DW-9 parseRule arrivals in the DW-4 window = $_dw4r (want > 0)"
+#  exposedA SEQ 329 R0 (Tony), bucket (a), switch on: green on trunk by luck -- bodies built from bare reads of 1; with D1 the real body is generated and the candidate refuses it at compile.
 if [ "$_dw4r" -gt 0 ]; then echo "  ok    doWhileNameT DW-9 road check -- the DW-4 drive ran the NEW road"; green=$((green+1))
 else echo "  FAIL  doWhileNameT DW-9 road check -- 0 arrivals: DW-4 ran the OLD road. BORN RED 2026-09-23"
      echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
@@ -5738,7 +5747,10 @@ kindRow "leafClassT LC-6 QuotE \"abc\": old road / new road (F-O37 fixed by 0f24
 run2 propGetT "$T/pg.o" "$T/pg.e"; check "propGetT runs" 0 $?
 sentinel "propGetT sentinel" "$T/pg.e" "PROPGET SENTINEL"
 kindRow "propGetT PG-1 QuotE[\"builtinActoR\"] reads the property" "$(grep '^PG-1 ' "$T/pg.e" | awk '{print $NF}')" "builtinActoR"
-kindRow "propGetT PG-2 a missing name reads 0" "$(grep '^PG-2 ' "$T/pg.e" | awk '{print $NF}')" "0"
+#  missPrint SEQ 329 R1 (Tony): the miss is pinned EXPLICITLY -- if *x printing HIT, else MISS -- because a null inside a
+#  juxtaposed print item prints printField's falseResult (0), not the lookup (SEQ 328 R2). Each miss has a HIT control.
+kindRow "propGetT PG-2 a missing name reads MISS" "$(grep '^PG-2 ' "$T/pg.e" | awk '{print $NF}')" "MISS"
+kindRow "propGetT PG-2c control: a present name reads HIT" "$(grep '^PG-2c ' "$T/pg.e" | awk '{print $NF}')" "HIT"
 kindRow "propGetT PG-3 a term reads by subscript (non-zero sibling of PG-2)" "$(grep '^PG-3 ' "$T/pg.e" | awk '{print $NF}')" "QuotE1"
 kindRow "propGetT PG-4 QuotE's terms, walked" "$(grep '^PG-4 ' "$T/pg.e" | awk '{print $NF}' | tr '\n' ' ')" "QuotE1 QuotE2 "
 
@@ -5756,13 +5768,15 @@ run2 propOpT "$T/po.o" "$T/po.e"; check "propOpT runs" 0 $?
 sentinel "propOpT sentinel" "$T/po.e" "PROPOP SENTINEL"
 _po () { grep "^$1 " "$T/po.e" | awk '{print $NF}' | tr '\n' ' ' | sed 's/ $//'; }
 kindRow "propOpT PO-1 +< files, =< reads it back by value" "$(_po PO-1)" "KID"
-kindRow "propOpT PO-2 =< a miss reads 0" "$(_po PO-2)" "0"
+kindRow "propOpT PO-2 =< a miss reads MISS" "$(_po PO-2)" "MISS"
+kindRow "propOpT PO-2c control: the filed property reads HIT" "$(_po PO-2c)" "HIT"
 kindRow "propOpT PO-3 =% reads by name: terms first, then properties (intended, SEQ 225 R1)" "$(_po PO-3)" "poKid"
 kindRow "propOpT PO-4 host's terms are the +% child only -- +< is not on groupList" "$(_po PO-4)" "poTerm"
 kindRow "propOpT PO-5 collision: host[BlocK] answers the TERM" "$(_po PO-5)" "TERM"
 kindRow "propOpT PO-6 collision: host =< BlocK answers the PROPERTY" "$(_po PO-6)" "PROP"
 kindRow "propOpT PO-7 StatemenT[BlocK] is the grammar term" "$(_po PO-7)" "BlocK"
-kindRow "propOpT PO-8 StatemenT =< BlocK: no BlocK property at rest" "$(_po PO-8)" "0"
+kindRow "propOpT PO-8 StatemenT =< BlocK: no BlocK property at rest, MISS" "$(_po PO-8)" "MISS"
+kindRow "propOpT PO-8c control: StatemenT =< builtinActoR reads HIT" "$(_po PO-8c)" "HIT"
 kindRow "propOpT PO-9 StatemenT =< builtinActoR reaches its real property" "$(_po PO-9)" "builtinActoR"
 
 #  ---- macroStrip: THE RULE-SIDE isMacro CENSUS, PINNED (SEQ 225, 2026-09-29) ----
