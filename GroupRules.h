@@ -139,6 +139,7 @@ extern "C" GroupItem *aCTionTraiT(GroupItem *input);
 extern "C" GroupItem *aCTionTraiTdata(GroupItem *input);
 extern "C" GroupItem *aCTionWhilE(GroupItem *input);
 extern "C" GroupItem *aCTionXpress(GroupItem *input);
+extern "C" GroupItem *accBare(GroupItem *term, GroupItem *next);
 extern "C" GroupItem *accBuild(GroupItem *flat);
 extern "C" void accBuilt(GroupItem *node);
 extern "C" GroupItem *accCompare(GroupItem *flat);
