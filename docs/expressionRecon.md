@@ -617,6 +617,175 @@ cannot apply"; `cerr *c5C` and a captured length do not.
 - **The fold rows on the branch:** with the switch on, FA2 reads 0 and foldAndT exits 0 and reaches its foot -- the
   intended values, red only against trunk's today-pins. They read that way before c4 too (the tiers, c3).
 
+### ⚠⚠ (e) TRIAGE -- THE SWITCH-ON MOVERS, BUCKETED BY CAUSE (SEQ 326 R1-R3, Clod, 2026-10-09; READ-ONLY, nothing re-pinned)
+
+**Population, measured:** trunk `ed1089d` (expr-h merged), installed binary, bare. `pop.sh` switch off **1052 / 51 / 1**,
+switch on **791 / 314 / 1**. A row-sequence diff (heap addresses normalised) pairs **275 moved rows**. Each is mapped to the
+fixture that produced it. A wrapper binary logged the fleet's 174 invocations (36 of them pop.sh's generated `.twk`
+snippets, kept aside), and each was run both ways under a 90s alarm: **119 differ in output**, four in exit status (foldAndT
+139 -> 0, kindJ1T and kindLiftT 0 -> killed, spacingT 0 -> 139). **No source tap:** every probe was a scratchpad copy of a
+fixture plus counting lines (bear-trap 43), and one lldb batch run.
+
+| bucket | rows | what it is |
+|---|---|---|
+| **(a)** generated-parse bodies | **116** | `parseRule: X has a parse method but no compiled body` / `PROBE REFUSED: X has no carrier`; the new-road column reads 0/0 while the old road holds |
+| **(b)** the jit road | **44** | `the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)`; jitted columns move, interpreted ones hold. **kindJ1T and kindLiftT HANG** after the refusals of `acU`/`acA` in `kjWalk` |
+| **(f)** print-list position rule | **46** | a prefix after a print item reads as binary: `Operator * -- cannot apply`, and the refusal ENDS THE ACTION, so every later row in it disappears (pointerT loses L2-F1 and all of L4-L6). Two use `~taG` (iterRefuseT, starIdiomT), not `*` |
+| **(L)** the ruled direction | **28** | moves to the intended value |
+| **(D)** candidate defect | **40** | four causes, below |
+| **(?)** not classifiable | **1** | below |
+
+**Seal 88's named movers:** **pointerT** -- (f), 10 rows: `print "... =" *ptNamed` refused at L2 ends the action.
+**omModT** -- NOT a mover today: identical output on both switches. **hasActionT** -- (D) bare accessor, 6 rows:
+`HA 1 -> 36` (the rule's tag reads `1`). **spacingT's 139** -- (D), a crash: `runOPaccum`'s `acU` fires `op.method(val)`
+with `val` null, `opDeref(null)` dereferences it (lldb: opDeref <- runOPaccum <- runOPaccumOperand <- runAccAssign). Trunk
+refuses that row (`* *x`) by name.
+
+**The four (D) causes:**
+1. **Bare accessor -- 24 rows.** Inside a walk, `taG`, `noPrinT`, `isRulE`, `hasAttributeS` read their own GroupFields
+   value (`taG=1`, `isRulE=23`, `noPrinT=29`): the candidate never takes the accessor road through `lastREF` that
+   aCTionTokenXP's `dot-LEADING` arm gives trunk. Measured on parseClass's own walk: switch off 11 members seen and 11 pass,
+   switch on 65 seen and **0 pass** `if noPrinT; continue;`. Switch-on reads: traitFlagsT 87 / 87 / 87 / 0, walkRefT `1`,
+   cursorReadT A `bare= 1`, B `bare= ENCLOSING`, artifactSkipT `1 isRulE 23 noPrinT 29`, actorOrderT 1, parserCoverage
+   `0 rules`, shadowCensus nothing, propOpT PO-4 `1`, propGetT PG-4 `1 1`, iterT1/iterT1m `at 1 trunk`. ⚠ Stroke 6b's ruling
+   retires the bare accessor in favour of the explicit `cur.taG`, which today reads the CURSOR (cursorReadT); whether these
+   rows are a candidate defect or a respell owed is Tony's.
+2. **`a.*b` refused at BUILD -- 11 rows** (abandonT 5, stopPreT 3, truncT 1, dotChainT DC-9 2). The candidate's
+   `REFUSED * -- an operator on the right of a dot` fails the statement's parse, so the run abandons the file
+   (`ABANDONED ... the parse STOPPED with input left over`) or the action (`processCode: dcR9 parse failed`). Trunk refuses at
+   RUN time and carries on -- the refusal is scoped to its statement, which is what these fixtures pin.
+3. **The prefix on a null -- 2 rows** (spacingT runs, sentinel): the 139 above.
+4. **`.5` by name -- 1 row** (dotNumT): F-117's by-name refusal lives in aCTionTokenXP, which the candidate bypasses;
+   `opDot` refuses with "the left of this dot holds nothing" instead. (The `un*`/`sr*` `.5` rows are (a): their new road
+   refuses first.)
+
+**(?) -- 1 row:** oldRoad anti-vacuity, 166 -> 155 inputs read a verdict. orc_old drives lone operators (`+ ! ? @ * %`) as
+an ExpressioN; the candidate refuses each as `a prefix operator with no operand after it`. Still green either way. **What
+would classify it:** whether a lone operator is an ExpressioN (then (D)) or not (then (L)).
+
+**The (L) rows**, each moving to the intended value: exprPinT A2 23, A5 3.2, A6 17, A7 54, U70/U72/U75 0, B2/B3 0, U302a 1,
+S1 1, C3 36, FA2 0, O1 pz 7 / r3 7, O3 3 lines, E2 (refused by its new name -- the row counts the old message); foldAndT
+exit 0, after 1, sentinel 1; blockCallT BC2 and BC4 (pz 7, rc 7); testPrecedence 8 -> 5 rows not yet true; starT S3a `stD`;
+setFlagTopT SFT-1 1 and the noPrint dump (top-level `:.` keeps its operand). exprPinT H2 is (f) (`" star " *hw`).
+
+**Per-row detail** (generated; numbers are the row's position in the paired diff):
+
+*** *x: runOPaccum acU hands null to opDeref -- crash 139** (2 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 23 | spacingT | spacingT runs | spacingT runs (exit 139) | exit 0, row C refuses by name |
+| 24 | spacingT | spacingT sentinel (no truncation) | spacingT sentinel MISSING -- F-36 regressed to a crash | exit 0, row C refuses by name |
+
+**bare accessor reads its GroupFields value (taG 1, isRulE 23, noPrinT 29)** (24 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 36 | parseClass | anti-vacuity: parseRule carries 11 parked actions (must be > 0) | anti-vacuity: parseRule carries NO parked actions -- the extractor | 11 parked actions |
+| 37 | traitFlagsT | traitFlagsT TF-2 carrying hasAttributeS       =  49 -- PINNED BY VALUE | traitFlagsT TF-2 carrying hasAttributeS       =  49 -- MOVED. TF-5 is the TraiT packet | 49 / 49 / 49 / 38 |
+| 38 | traitFlagsT | traitFlagsT TF-3 carrying hasTraitS           =  49 -- PINNED BY VALUE | traitFlagsT TF-3 carrying hasTraitS           =  49 -- MOVED. TF-5 is the TraiT packet | 49 / 49 / 49 / 38 |
+| 39 | traitFlagsT | traitFlagsT TF-4 carrying BOTH                =  49 -- PINNED BY VALUE | traitFlagsT TF-4 carrying BOTH                =  49 -- MOVED. TF-5 is the TraiT packet | 49 / 49 / 49 / 38 |
+| 40 | traitFlagsT | traitFlagsT TF-6 no attributes                =  38 -- PINNED BY VALUE | traitFlagsT TF-6 no attributes                =  38 -- MOVED. TF-5 is the TraiT packet | 49 / 49 / 49 / 38 |
+| 46 | iterT1 | iterT1 (per-frame locals, deep) | iterT1 (per-frame locals, deep) | trunk walk |
+| 47 | iterT1m | iterT1m (mutual recursion, each node once) | iterT1m (mutual recursion, each node once) | trunk walk |
+| 147 | artifactSkipT | artifactSkip term numberSet    is a rule -- PINNED BY VALUE | artifactSkip term numberSet    is a rule -- MOVED. The 1 1 0 0 census is the | 1 1 0 0 |
+| 148 | artifactSkipT | artifactSkip term FloaT        is a rule -- PINNED BY VALUE | artifactSkip term FloaT        is a rule -- MOVED. The 1 1 0 0 census is the | 1 1 0 0 |
+| 149 | artifactSkipT | artifactSkip artifact builtinActoR is NOT -- PINNED BY VALUE | artifactSkip artifact builtinActoR is NOT -- MOVED. The 1 1 0 0 census is the | 1 1 0 0 |
+| 152 | cursorReadT/Tb | cursorRead A: bare reads the MEMBER, explicit reads the CURSOR -- PINNED BY VALUE | cursorRead A moved -- the two spellings no longer read what they read on 2026-09-10: | trunk value (the member / the shadow) |
+| 153 | cursorReadT/Tb | cursorRead B: a declared same-named field SHADOWS both spellings -- PINNED BY VALUE | cursorRead B moved -- the shadowing changed: | trunk value (the member / the shadow) |
+| 155 | shadowCensus | shadowCensus walked 87 rules, 14 members-shaped, 19 data-shaped (non-vacuous) | shadowCensus walked nothing, or a COLUMN went inert | 87 rules walked |
+| 175 | parserCoverage.sh | parserCoverage.target (parser() over the whole grammar: 47 compile of 63) | parserCoverage.target (parser() over the whole grammar: 47 compile of 63) | 47 compile of 63 |
+| 176 | walkRefT | W bare taG = aa -- PINNED BY VALUE (invariant, both arms) | W bare taG = aa -- moved | the member tag (aa, bb, wrHeld) |
+| 177 | walkRefT | W bare taG = bb -- PINNED BY VALUE (invariant, both arms) | W bare taG = bb -- moved | the member tag (aa, bb, wrHeld) |
+| 178 | walkRefT | walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is | walkRefT row 3 is neither wrTarget nor wrHeld -- a third answer | the member tag (aa, bb, wrHeld) |
+| 234 | actorOrderT | actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling) = [33] | actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling) -- got [1] want [33] | 33 |
+| 245 | hasActionT | hasActionT HA IF has an action, at rest = [1] | hasActionT HA IF has an action, at rest -- got [] want [1] | 1 / 0 per rule |
+| 246 | hasActionT | hasActionT HA DO has an action, at rest = [1] | hasActionT HA DO has an action, at rest -- got [] want [1] | 1 / 0 per rule |
+| 247 | hasActionT | hasActionT HA FOR has an action, at rest = [1] | hasActionT HA FOR has an action, at rest -- got [] want [1] | 1 / 0 per rule |
+| 248 | hasActionT | hasActionT HA ExpressioN has an action, at rest = [1] | hasActionT HA ExpressioN has an action, at rest -- got [] want [1] | 1 / 0 per rule |
+| 249 | hasActionT | hasActionT HA NamE has an action, at rest = [1] | hasActionT HA NamE has an action, at rest -- got [] want [1] | 1 / 0 per rule |
+| 250 | hasActionT | hasActionT HA SemI control: no actor, no action = [0] | hasActionT HA SemI control: no actor, no action -- got [] want [0] | 1 / 0 per rule |
+
+**a.*b refused at BUILD: dcR9 parse failed** (2 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 56 | dotChainT | dotChain DC-9 a.*b is REFUSED, by message not by absence | dotChain DC-9 a.*b -- NO REFUSAL. Actual: | refused once, by message |
+| 57 | dotChainT | dotChain DC-9 refuses EXACTLY ONCE (seat is inside the target guard) | dotChain DC-9 refused 0 times, want exactly 1 -- a count of 2 means | refused once, by message |
+
+**.5 by-name refusal lost (lives in aCTionTokenXP); opDot refuses instead** (1 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 62 | dotNumT | dotNumT old road refuses .5 by name | dotNumT old road did not refuse .5 by name | .5 refused by name (F-117) |
+
+**lone operator driven as ExpressioN refused by the candidate -- is a lone operator an ExpressioN?** (1 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 115 | orc_* | oldRoad column anti-vacuity: the old road reads a verdict on 166 inputs | oldRoad column anti-vacuity: the old road reads a verdict on 155 inputs | ? |
+
+**a.*b refused at BUILD: the statement fails to parse, the file is abandoned** (9 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 138 | truncT | truncT TR-4 the resume point quotes the first UNPARSED statement | truncT TR-4 no resume text -- the report names no place | trunk: resume text |
+| 139 | abandonT | abandonT AB-1 ran TWICE -- the refusal is scoped to its statement | abandonT AB-1 ran 1 times, want exactly 2 -- a 1 means the refusal | trunk: scoped refusal, run continues |
+| 140 | abandonT | abandonT AB-2 a plain statement after the refusal RAN | abandonT AB-2 did not run -- execution did not survive the refusal | trunk: scoped refusal, run continues |
+| 141 | abandonT | abandonT AB-3 the refusal fired -- without it AB-1 and AB-2 are vacuous | abandonT AB-3 NO REFUSAL -- every row above passes trivially now | trunk: scoped refusal, run continues |
+| 142 | abandonT | abandonT AB-4 the run ended properly -- stop() fired with a refusal behind it | abandonT AB-4 stop() did not fire | trunk: scoped refusal, run continues |
+| 143 | abandonT | abandonT AB-5 not abandoned (0) -- read WITH AB-4, never alone | abandonT AB-5 ABANDONED 1 times -- a refusal reached end of file | trunk: scoped refusal, run continues |
+| 144 | stopPreT | stopPreT SP-1 execution is NOT halted by a refusal | stopPreT SP-1 did not run -- the refusal halted execution | trunk: scoped refusal |
+| 145 | stopPreT | stopPreT SP-3 stop() FIRED -- the positive that makes SP-2 readable | stopPreT SP-3 stop() never fired, so SP-2's zero means nothing | trunk: scoped refusal |
+| 146 | stopPreT | stopPreT SP-4 the refusal was standing -- without it the fixture is vacuous | stopPreT SP-4 NO REFUSAL -- nothing here is being tested | trunk: scoped refusal |
+
+**bare taG in the walk reads 1** (2 rows)
+
+| # | fixture | switch off | switch on | intended |
+|---|---|---|---|---|
+| 224 | propGetT | propGetT PG-4 QuotE's terms, walked = [QuotE1 QuotE2 ] | propGetT PG-4 QuotE's terms, walked -- got [1 1 ] want [QuotE1 QuotE2 ] | QuotE1 QuotE2 |
+| 228 | propOpT | propOpT PO-4 host's terms are the +% child only -- +< is not on groupList = [poTerm] | propOpT PO-4 host's terms are the +% child only -- +< is not on groupList -- got [1] want [poTerm] | poTerm |
+
+**(L) rows**
+
+| # | row (switch off pin) | switch on |
+|---|---|---|
+| 19 | setFlagTopT -- wanted: SFT-1 top-level :. read-back  ->  1 | setFlagTopT SFT-1 top-level :. read-back  ->  1 -- PINNED BY VALUE |
+| 20 | setFlagTopT -- dumpContents shows sfTop WITHOUT noPrint | setFlagTopT dumpContents shows sfTop noPrint |
+| 25 | starT S3a **x  ONE-deep   = stD -- moved | starT S3a **x  ONE-deep   = stD -- PINNED BY VALUE |
+| 51 | testPrecedence 8 of 35 rows not yet true (ratchet: 8) | testPrecedence 5 of 35 rows not yet true (ratchet: 8) |
+| 251 | exprPinT A2 2 * 10 + 3 (KANT-43 split) = [26] | exprPinT A2 2 * 10 + 3 (KANT-43 split) -- got [23] want [26] |
+| 252 | exprPinT A5 qa / qb + qc = [0.153846] | exprPinT A5 qa / qb + qc -- got [3.2] want [0.153846] |
+| 253 | exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69) = [25] | exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69) -- got [17] want [25] |
+| 254 | exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70) = [52] | exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70) -- got [54] want [52] |
+| 255 | exprPinT U70 xw > px && xw < pxw, xw 20 = [1] | exprPinT U70 xw > px && xw < pxw, xw 20 -- got [0] want [1] |
+| 256 | exprPinT U72 y > py && y < pyh, y 20 = [1] | exprPinT U72 y > py && y < pyh, y 20 -- got [0] want [1] |
+| 257 | exprPinT U75 yh > py && yh < pyh, yh 20 = [1] | exprPinT U75 yh > py && yh < pyh, yh 20 -- got [0] want [1] |
+| 258 | exprPinT B2 utilities:67, x 0 = [goodToGo] | exprPinT B2 utilities:67, x 0 -- got [0] want [goodToGo] |
+| 259 | exprPinT B3 utilities:67, x 20 = [1] | exprPinT B3 utilities:67, x 20 -- got [0] want [1] |
+| 260 | exprPinT U302a across > 0 // down > 0, 0 5 = [0] | exprPinT U302a across > 0 // down > 0, 0 5 -- got [1] want [0] |
+| 261 | exprPinT S1 a && b // c, 0 1 1 = [0] | exprPinT S1 a && b // c, 0 1 1 -- got [1] want [0] |
+| 262 | exprPinT O1 *block(src) -- pz = [0] | exprPinT O1 *block(src) -- pz -- got [7] want [0] |
+| 263 | exprPinT O1 *block(src) -- r3 = [r3] | exprPinT O1 *block(src) -- r3 -- got [7] want [r3] |
+| 264 | exprPinT O3 the called action runs, lines = [1] | exprPinT O3 the called action runs, lines -- got [3] want [1] |
+| 266 | exprPinT E2 qa < qb < qc refused, lines = [1] | exprPinT E2 qa < qb < qc refused, lines -- got [0] want [1] |
+| 267 | exprPinT C3 fId(qa + qb * qc) = [32] | exprPinT C3 fId(qa + qb * qc) -- got [36] want [32] |
+| 268 | exprPinT FA2 folded &&, the middle one 0 = [1] | exprPinT FA2 folded &&, the middle one 0 -- got [0] want [1] |
+| 269 | foldAndT folded && with an empty clause, exit = [139] | foldAndT folded && with an empty clause, exit -- got [0] want [139] |
+| 270 | foldAndT reached the line after the if, lines = [0] | foldAndT reached the line after the if, lines -- got [1] want [0] |
+| 271 | foldAndT sentinel, lines = [0] | foldAndT sentinel, lines -- got [1] want [0] |
+| 272 | blockCallT BC2 rc = *block(holder) -- pz = [0] | blockCallT BC2 rc = *block(holder) -- pz -- got [7] want [0] |
+| 273 | blockCallT BC2 rc = *block(holder) -- rc = [rc] | blockCallT BC2 rc = *block(holder) -- rc -- got [7] want [rc] |
+| 274 | blockCallT BC4 rc = *block(pSrc), no holder -- pz = [0] | blockCallT BC4 rc = *block(pSrc), no holder -- pz -- got [7] want [0] |
+| 275 | blockCallT BC4 rc = *block(pSrc), no holder -- rc = [rc] | blockCallT BC4 rc = *block(pSrc), no holder -- rc -- got [7] want [rc] |
+
+**(a)**: probeDoorT 15, tokJitT 10, f122NatT 7, opLenT 7, df* 6, modSeamT 6, leafClassT 6, shapeBodyT 5, searchNewParseT 4, un* 4, site1RoadsT 4, orc_* 4, qn* 3, sweepT 3, doWhileNameT 3, zeroWidthT 3, ownerT 3, driveCompileT 3, termCountT 3, failPointT 3, adoptT 2, treeRowT 2, definerT 2, baselineTestsNew 1, leafLabelT 1, chainTruthT 1, df*/nn*/un*/qn* 1, nn*/un*/qn* 1, sr* 1, carrierT 1, driveDoorT 1
+
+**(b)**: kindLiftT 14, kindJ1T 8, kindSRT 4, jitDotAssignT 3, kindJitT 3, kindHolderJitT 3, kindJ2T 3, argJitT 2, assignRoadT 2, argRoundJ 2
+
+**(f)**: pointerT 10, propOpT 8, compileInT 6, ctlStampT 4, opRoadT 3, propGetT 3, starDotNullT 2, memberLitT 2, assignRoadT 1, starIdiomT 1, dotChainT 1, dotNameT 1, unaryClassT 1, iterRefuseT 1, kindT 1, exprPinT 1
+
+
 ### ⚠⚠ (h) BUILT on `expr-h` `fabb4a2` (SEQ 325 R2/R3, Clod, 2026-10-09) -- UNMERGED, FOR TONY TO BUY
 
 **Ruled (Tony, 2026-10-09): both roads, in driveStep.** driveStep's unwrapTheHolder moves to ENTRY, before anything

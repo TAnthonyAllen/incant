@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12350,3 +12350,21 @@ R2 (Tony: both roads, in driveStep): expr-h fabb4a2, the unwrap moved to entry. 
 1049, BC1 x2 / BC3 red by value; restored md5-identical. Ladder off PASSED / on = c4's; printPop PASSED; ddPop 5/1;
 decodePop echo only; frontier identical; dirCheck identical, retok byte-identical.
   END SEQ 238
+
+===================================================================
+SEQ 239  -  SEQ 326: expr-h BOUGHT; (e) TRIAGE OF THE SWITCH-ON MOVERS
+===================================================================
+Written 2026-10-09. Details: docs/expressionRecon.md "(e) TRIAGE".
+R0: expr-h merged (6c10930), deleted in the clone, live and GitHub. BC2, BC4, exprPinT O1 keep their switch-off pins with
+the ruled sentence (ed1089d). Bare tokall byte-identical, canary 338, binary rebuilt; fleet 1052 / 51 / 1; jitLadder and
+printPop PASSED, ddPop 5/1, decodePop echo only, frontier and dirCheck identical.
+R1-R3: switch on 791 / 314. 275 moved rows, each mapped to its fixture (174 invocations logged by a wrapper binary, run
+both ways). Buckets: (a) 116, (b) 44 (kindJ1T and kindLiftT HANG), (f) 46 (the refused print ends the action; two use
+~taG), (L) 28, (D) 40, (?) 1.
+(D): bare accessor 24 -- taG/noPrinT/isRulE read their GroupFields value (1/29/23) in a walk, the candidate never takes the
+lastREF road (stroke 6b's retirement ruling bears on it); a.*b refused at BUILD 11 -- the statement fails to parse and the
+file or action is abandoned (abandonT, stopPreT, truncT, dotChainT DC-9); spacingT 139 2 -- acU hands null to opDeref;
+dotNumT 1 -- F-117's .5 by-name refusal bypassed. (?): orc_old's lone operators as ExpressioN (166 -> 155, green both).
+Seal 88's names: pointerT (f); omModT not a mover; hasActionT (D) bare accessor; spacingT (D) crash.
+No source tap; probes were scratchpad copies. Nothing re-pinned, respelled or fixed.
+  END SEQ 239
