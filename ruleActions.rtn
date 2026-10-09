@@ -1540,7 +1540,10 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
         if unary {
             piece = ruler.opFields[unary.tag];
             if !piece   piece = unary;
-            seq +% piece; }
+            // leadingDotNumber `.5` is refused by name with trunk's F-117 hand, and the term stays a harmless primary (SEQ 327 D4)
+            if !invoke
+                if refuseLeadingDotNumber(piece,name)   piece = 0;
+            if piece    seq +% piece; }
         seq +% name;
         if !invoke  continue;
         if invoke.groupList {

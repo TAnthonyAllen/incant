@@ -3312,7 +3312,12 @@ GroupItem 	*right = 0;
 			piece = ruler->opFields->get(unary->groupBody->tag);
 			if ( !piece )
 				piece = unary;
-			seq->addAttribute(piece);
+			// leadingDotNumber `.5` is refused by name with trunk's F-117 hand, and the term stays a harmless primary (SEQ 327 D4)
+			if ( !invoke )
+				if ( ::refuseLeadingDotNumber(piece,name) )
+					piece = 0;
+			if ( piece )
+				seq->addAttribute(piece);
 			}
 		seq->addAttribute(name);
 		if ( !invoke )
