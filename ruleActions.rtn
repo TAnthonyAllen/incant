@@ -1625,6 +1625,10 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
         if term.actionType || term.instructType     term.invoke = true;
         if expectOperand {
             cur = term;
+            // bareAccessor a GroupFields name with no prefix and no postfix reads through lastREF (accBare; SEQ 328 D1)
+            right = 0;
+            if i <= n   right = seq[i];
+            if !pend.groupList  cur = accBare(term,right);
             j = 0;
             if pend.groupList   j = pend.listLength;
             while j > 0 {
@@ -1651,7 +1655,10 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
         rest = 0;
         if !jux     jux = new("acJux");
         jux +% cur;
-        cur = term; }
+        // bareAccessor a juxtaposed operand takes the same road -- a print item's `"x" taG` (SEQ 328 D1)
+        right = 0;
+        if i <= n   right = seq[i];
+        cur = accBare(term,right); }
     if pend.groupList   return refuse(pend[1],"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
     if cur {
         cur = interpretXPaccumWrap(cur,rest);
@@ -1671,6 +1678,24 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
     xpList.clear();
     xpList.group = node;
     return xpList;
+}
+
+// accBare a GroupFields name standing alone -- no postfix after it -- reads through lastREF: the dot with no left operand, which is what trunk's dot-LEADING arm builds (SEQ 328 D1)
+extern GroupItem accBare(GroupItem term, GroupItem next)
+{
+GroupRules  ruler = groupRules;
+GroupItem   node;
+    if term.registry != ruler.groupFields   return term;
+    if next {
+        if next.tag eq "acPostCall" || next.tag eq "acPostSub"  return term;
+        if next.registry == ruler.opFields
+            if next.tag eq "."  return term; }
+    node = new("acDot");
+    node +% ruler.opFields["."];
+    node +% term;
+    node.method = runOP;
+    node.invoke = true;
+    return node;
 }
 
 /*  THE TIER SPLIT (SEQ 319, c3; D3 and D5). The flat list -- operand, then (op, operand) pairs --

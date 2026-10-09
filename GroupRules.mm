@@ -1510,6 +1510,29 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
+// accBare a GroupFields name standing alone -- no postfix after it -- reads through lastREF: the dot with no left operand, which is what trunk's dot-LEADING arm builds (SEQ 328 D1)
+extern "C" GroupItem *accBare(GroupItem *term, GroupItem *next)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*node = 0;
+	if ( term->groupBody->registry != ruler->groupFields )
+		return term;
+	if ( next )
+		{
+		if ( ::compare(next->groupBody->tag,"acPostCall") == 0 || ::compare(next->groupBody->tag,"acPostSub") == 0 )
+			return term;
+		if ( next->groupBody->registry == ruler->opFields )
+			if ( ::compare(next->groupBody->tag,".") == 0 )
+				return term;
+		}
+	node = new GroupItem("acDot");
+	node->addAttribute(ruler->opFields->get("."));
+	node->addAttribute(term);
+	node->setMethod(::runOP);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
 // accBuild the loosest tier: an assignment head parks its target and takes the rest as its right side
 extern "C" GroupItem *accBuild(GroupItem *flat)
 {
@@ -3431,6 +3454,12 @@ GroupItem 	*right = 0;
 		if ( expectOperand )
 			{
 			cur = term;
+			// bareAccessor a GroupFields name with no prefix and no postfix reads through lastREF (accBare; SEQ 328 D1)
+			right = 0;
+			if ( i <= n )
+				right = seq->get(i);
+			if ( !pend->groupBody->groupList )
+				cur = accBare(term,right);
 			j = 0;
 			if ( pend->groupBody->groupList )
 				j = pend->groupBody->groupList->listLength;
@@ -3468,7 +3497,11 @@ GroupItem 	*right = 0;
 		if ( !jux )
 			jux = new GroupItem("acJux");
 		jux->addAttribute(cur);
-		cur = term;
+		// bareAccessor a juxtaposed operand takes the same road -- a print item's `"x" taG` (SEQ 328 D1)
+		right = 0;
+		if ( i <= n )
+			right = seq->get(i);
+		cur = accBare(term,right);
 		}
 	if ( pend->groupBody->groupList )
 		return ::refuse(pend->get(1),"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
@@ -12009,6 +12042,7 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	accCompare(GroupItem*)
 	accLogic(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
+	accBare(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
 	refuseDotUnaryOp(GroupItem*,GroupItem*)
