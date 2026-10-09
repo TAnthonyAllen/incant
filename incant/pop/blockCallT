@@ -1,0 +1,41 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+register(BlockCallT);
+define
+    pz=0;
+    pSrc="{ pz = 7; }";
+    BC0 code={ pz = 0; rc = BlocK(pSrc); cerr "BC BC0pz " pz:; cerr "BC BC0rc " rc:; };
+    BC1 code={ pz = 0; src := pSrc; rc = BlocK(src); cerr "BC BC1pz " pz:; cerr "BC BC1rc " rc:; };
+    BC2 code={ pz = 0; src := pSrc; block := Grokking["BlocK"]; rc = *block(src); cerr "BC BC2pz " pz:; cerr "BC BC2rc " rc:; };
+    BC3 code={ pz = 0; src := pSrc; BlocK(src); cerr "BC BC3pz " pz:; };
+    BC4 code={ pz = 0; block := Grokking["BlocK"]; rc = *block(pSrc); cerr "BC BC4pz " pz:; cerr "BC BC4rc " rc:; };
+    ;
+BC0(); BC1(); BC2(); BC3(); BC4();
+cerr "BLOCKCALL SENTINEL":;
+stop();
+
+What blockCallT Is
+
+SEQ 325 R0 (2026-10-09): defect (h), seal 85 -- a rule called with a HOLDER drives the holder's
+NAME text, not the held field's text. driveStep pushes the field it is handed and unwraps the
+holder one line later (GroupActions.rtn, unwrapTheHolder), so BlocK(src) with src := pSrc parses
+"src". Acceptance lines (SEQ 309): BlocK(code) and result = *block(code); -- both kant.
+
+pSrc holds "{ pz = 7; }", so pz reads 7 only if the SOURCE TEXT was driven: pz is the by-value
+read of what was driven, rc of what came back. A failed drive hands back nothing and rc prints
+its own tag (bear-trap 26).
+
+Rows, trunk switch off today -> intended (switch on today in brackets):
+  BC0 BlocK(pSrc), the field itself -- the control   pz 7, rc 7 -> 7, 7  [7, 7]
+  BC1 rc = BlocK(src), src := pSrc                    pz 0, rc rc -> 7, 7 [0, rc]
+  BC2 rc = *block(src), block := Grokking["BlocK"]    pz 0, rc rc -> 7, 7 [0, rc]
+      (O1's shape; switch off it ALSO loses the call at the star -- see BC4)
+  BC3 BlocK(src); as a statement                      pz 0 -> 7           [0]
+  BC4 rc = *block(pSrc), no holder -- separates BC2's two defects
+                                                      pz 0, rc rc -> 7, 7 [7, 7]
+      Switch off the star-call is lost before any drive (docs/expressionRecon.md step 1
+      section 3); switch on (*block)(pSrc) calls. Not (h): (h) is the holder.
+
+Own fixture, not rows in exprPinT: a drive of the wrong text can fail anywhere in the parse.

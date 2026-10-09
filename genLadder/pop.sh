@@ -6049,6 +6049,20 @@ kindRow "foldAndT it ran up to the if, lines"            "$(grep -c '^FC before'
 kindRow "foldAndT the body ran to its end, lines"         "$(grep -c '^FC body ran' "$T/fat.e")" "0"  # intended 0
 kindRow "foldAndT reached the line after the if, lines"   "$(grep -c '^FC after' "$T/fat.e")" "0"  # intended 1
 kindRow "foldAndT sentinel, lines"                        "$(grep -c '^FOLDANDT SENTINEL' "$T/fat.e")" "0"  # intended 1
+#  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
+#  driven; rc is what came back (its tag = nothing). Pins are switch OFF today; [on: x] is the switch-on read today.
+run2 blockCallT "$T/bct.o" "$T/bct.e"; check "blockCallT runs" 0 $?
+sentinel "blockCallT sentinel" "$T/bct.e" "BLOCKCALL SENTINEL"
+_bc () { awk -v k="$1" '$1=="BC" && $2==k {print $3; exit}' "$T/bct.e"; }
+kindRow "blockCallT BC0 BlocK(pSrc), the control -- pz"     "$(_bc BC0pz)" "7"         # intended 7 [on: 7]
+kindRow "blockCallT BC0 BlocK(pSrc), the control -- rc"     "$(_bc BC0rc)" "7"         # intended 7 [on: 7]
+kindRow "blockCallT BC1 rc = BlocK(holder) -- pz"           "$(_bc BC1pz)" "0"         # intended 7 [on: 0]
+kindRow "blockCallT BC1 rc = BlocK(holder) -- rc"           "$(_bc BC1rc)" "rc"        # intended 7 [on: rc]
+kindRow "blockCallT BC2 rc = *block(holder) -- pz"          "$(_bc BC2pz)" "0"         # intended 7 [on: 0]
+kindRow "blockCallT BC2 rc = *block(holder) -- rc"          "$(_bc BC2rc)" "rc"        # intended 7 [on: rc]
+kindRow "blockCallT BC3 BlocK(holder); a statement -- pz"   "$(_bc BC3pz)" "0"         # intended 7 [on: 0]
+kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- pz" "$(_bc BC4pz)" "0"         # intended 7 [on: 7] -- the star-call, not (h)
+kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "rc"        # intended 7 [on: 7] -- the star-call, not (h)
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
