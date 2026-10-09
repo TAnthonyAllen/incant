@@ -6040,6 +6040,8 @@ kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "1"    
 #  data, and setContent (=) copies the list and leaves qs's 7 -- the stale value R1b names. setData (= copies data
 #  only) is what turns it to qs; not built.
 kindRow "exprPinT ST1 qs = 7 then qs = fId(qa qb)"        "$(_ep ST1)"   "7"         # intended qs (its tag)
+#  plusPctOrder SEQ 324 R1: holdB +% qa qb qc; -- length, then entries 1 2 3 by value; nothing else pins this order
+kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep PA1a) $(_ep PA1b) $(_ep PA1c)"   "3: 2 10 3"  # intended 3: 2 10 3 (source order)
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
 kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0

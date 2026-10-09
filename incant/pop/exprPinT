@@ -38,6 +38,7 @@ define
     fpD=4;
     fpR=0;
     qs=0;
+    holdB;
     fId code={ return argument; };
     fFalse code={ cerr "EP fFalse RAN":; return falseResult; };
     fTrue code={ cerr "EP fTrue RAN":; return trueResult; };
@@ -95,6 +96,7 @@ define
     FA1 code={ fpR = 0; if fpA != 0 && fpD != 0 && fpC != 0; fpR = 1; cerr "EP FA1 " fpR:; };
     FA2 code={ fpR = 0; if fpA != 0 && fpB != 0 && fpC != 0; fpR = 1; cerr "EP FA2 " fpR:; };
     ST1 code={ qs = 7; qs = fId(qa qb); cerr "EP ST1 " qs:; };
+    PA1 code={ holdB +% qa qb qc; pn := holdB.listLengtH; p1 := holdB[1]; p2 := holdB[2]; p3 := holdB[3]; cerr "EP PA1a " *p1:; cerr "EP PA1b " *p2:; cerr "EP PA1c " *p3:; cerr "EP PA1n " *pn:; };
     ;
 A1(); A2(); A3(); A4(); A5(); A6(); A7();
 U70(); U72(); U75(); U302a(); U302b(); U302c();
@@ -107,6 +109,7 @@ E1();
 E2();
 C1(); C2(); C3(); C4(); C5(); C6();
 FA1(); FA2(); ST1();
+PA1();
 cerr "EXPRPIN SENTINEL":;
 stop();
 
@@ -170,6 +173,10 @@ Rows, today -> intended:
   ST1 the stale value (SEQ 323 R1b): qs = 7; qs = fId(qa qb); print qs.
       xl1InSet -> qs  (= copies data only, so a list with no data leaves no value behind and
       qs prints its own tag, per the print ruling)
+  PA1 the order of +% over a juxtaposed list (SEQ 324 R1, 2026-10-09): holdB +% qa qb qc;
+      then holdB's length and its entries 1, 2, 3 by value.   3: 2 10 3 -> 3: 2 10 3
+      (source order). One print per entry: `cerr *p1 *p2 *p3` reads the stars as binary
+      and exits 139 on trunk. Last action, so a crash here can take only the sentinel.
 
 A tag echo is bear-trap 26: a false comparison or opNOT returns null, and = then
 leaves the field with no data, so it prints its own name.

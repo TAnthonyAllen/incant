@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12296,3 +12296,22 @@ R1, probed in the clone and parked on c4-probe (9942cc1), not committed to expr-
 R3: testListed switch off walks as written (7, -5, 18, invokeTEST, ! -> 0). Switch on, same arithmetic but every
 taG in a print reads 1 and string parts drop. Tony's folded && line, switch on: trace identical to the nested ifs.
   END SEQ 235
+
+===================================================================
+SEQ 236  -  SEQ 323: c4 ON expr-accum (UNMERGED, FOR TONY TO BUY); FOLD AND STALE ROWS ON TRUNK; setData RECON
+===================================================================
+Written 2026-10-08. Details: docs/expressionRecon.md "c4 LANDED", "The fold and the stale value", "setData RECON".
+R1 (trunk 8d1f19c): exprPinT FA1 1 (intended 1), FA2 middle-zero 1 (intended 0); ST1 xl1InSet (intended qs). A plain
+folded line does not crash -- the 139 is the body running on the empty field; incant/pop/foldAndT pins it (exit 139,
+FC after 0). H7: five mutated pins red, restored md5-identical. Trunk fleet 1039 / 51 / 1.
+R0/R2 (expr-accum aaf57cf, trunk merged first as 1c59c4e; c4-probe deleted): off 1039 -> 1040, on 784 -> 785. Movers:
+C5 walked 2 10 + length 2 (the walk reads 10 2 on trunk), ST1 re-pinned 7 (the stale value), printFamilyNew sec.6
+n4 prints its tag. H7: printField on prior -> 1040 -> 610, red by value; opAddAttribute on prior -> NO row moves,
+though +% over a juxtaposition is reversed -- nothing pins it (coverage finding). Fold rows with the switch on read
+the intended values. jitLadder off PASSED (on = c1's, the R4 jit refusal), printPop PASSED, decodePop and frontier =
+captures, ddPop 5/1, dirCheck PASSED 52/56 (runOP starting dark since c1 -- re-aim at merge), canary 338.
+R3: 9,376 interpreted = calls, 5 jitted; 51 carry a list, 38 list-only (the JSON reader 27, decoder records 10, O1's
+BlocK 1), 13 list-and-data (StringXP strings 8, xl1 3, counts 2). Only C5's comment says a list is the deal; the
+JSON and decoder sites say nothing and read the list right after. Operators: = reaches setContent; := and <- reach
+setGroup; += struct, +%, +/ attach items; the rest copy nothing.
+  END SEQ 236
