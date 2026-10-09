@@ -388,6 +388,7 @@ extern "C" GroupItem *rEGISTER(GroupItem *item);
 extern "C" GroupItem *recordLabel(RuleStuff *s);
 extern "C" GroupItem *refuse(GroupItem *subject, char *why);
 extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target);
+extern "C" int refuseDotUnaryOp(GroupItem *op, GroupItem *aop);
 extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg);
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);
 extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target);

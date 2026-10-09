@@ -3312,7 +3312,12 @@ GroupItem 	*right = 0;
 			piece = ruler->opFields->get(unary->groupBody->tag);
 			if ( !piece )
 				piece = unary;
-			seq->addAttribute(piece);
+			// leadingDotNumber `.5` is refused by name with trunk's F-117 hand, and the term stays a harmless primary (SEQ 327 D4)
+			if ( !invoke )
+				if ( ::refuseLeadingDotNumber(piece,name) )
+					piece = 0;
+			if ( piece )
+				seq->addAttribute(piece);
 			}
 		seq->addAttribute(name);
 		if ( !invoke )
@@ -3365,8 +3370,15 @@ GroupItem 	*right = 0;
 					return ::refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
 				right = seq->get(i);
 				i = i + 1;
+				// dotOpScope a.*b refuses with trunk's words and the build GOES ON: the armed statement dispatches nothing, and the refusal ends the statement, never the parse (SEQ 327 D2; scope ruled 2026-09-17)
 				if ( right->groupBody->registry == ruler->opFields )
-					return ::refuse(right,"an operator on the right of a dot (the accumulator candidate, SEQ 311)");
+					{
+					unary = right;
+					if ( ::compare(right->groupBody->tag,"*") == 0 )
+						unary = ruler->opFields->get("deref");
+					refuseDotUnaryOp(term,unary);
+					right = new GroupItem(right->groupBody->tag);
+					}
 				if ( right->groupBody->registry != ruler->groupFields )
 					right = new GroupItem(right->groupBody->tag);
 				node = new GroupItem("acDot");
@@ -10272,6 +10284,26 @@ extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target)
 	
 }
 
+// refuseDotUnaryOp the refusal itself, for any road that holds the dot and the unary after it: trunk's uxp, the candidate's flat list (SEQ 327 D2)
+extern "C" int refuseDotUnaryOp(GroupItem *op, GroupItem *aop)
+{
+	/*  derefIsTheTag  NAME THE OPERATOR BY ITS REGISTRY TAG AND DO NOT RECONSTRUCT THE
+	SOURCE SPELLING -- the unary star registers as `deref` (incant/setup:115), so
+	echoing the tag into a cure produced `a[derefb]` on the first cut of this line.
+	The cure is spelled as the SHAPE, with the star as the worked example.
+	⚠ THE CONCATENATION IDIOM IS setActions' -- juxtaposition allocates, so it is
+	freed after the refusal has printed it.  */
+	/*  escalated  refuse() PROPER, NOT A cerr, ON TONY'S RULING OF 2026-09-17. It rides
+	escalated  WITH the refusalBoundary report above, because the two are one stroke
+	escalated  seen from both ends: this raises ruler.refused, and the boundary is
+	escalated  what turns that flag into a named removal instead of a silent one.
+	ruleActions.interpretXP.dotUnaryRight  */
+char *why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is never seen by opDot -- move it inside a subscript: a[*b], not a.*b");
+	::refuse(op,why);
+	::free(why);
+	return 1;
+}
+
 /*  refuseDotUnaryRight -- `a.*b`. THE STAR IS ONLY VISIBLE HERE, AND THE REFUSAL THE
     2026-09-16 ruling asked for COULD NOT GO WHERE IT WAS SITED.
 
@@ -10309,21 +10341,7 @@ GroupItem 	*aop = 0;
 		return 0;
 	if ( ::compare(aop->groupBody->tag,".") == 0 )
 		return 0;
-	/*  derefIsTheTag  NAME THE OPERATOR BY ITS REGISTRY TAG AND DO NOT RECONSTRUCT THE
-	SOURCE SPELLING -- the unary star registers as `deref` (incant/setup:115), so
-	echoing the tag into a cure produced `a[derefb]` on the first cut of this line.
-	The cure is spelled as the SHAPE, with the star as the worked example.
-	⚠ THE CONCATENATION IDIOM IS setActions' -- juxtaposition allocates, so it is
-	freed after the refusal has printed it.  */
-	/*  escalated  refuse() PROPER, NOT A cerr, ON TONY'S RULING OF 2026-09-17. It rides
-	escalated  WITH the refusalBoundary report above, because the two are one stroke
-	escalated  seen from both ends: this raises ruler.refused, and the boundary is
-	escalated  what turns that flag into a named removal instead of a silent one.
-	ruleActions.interpretXP.dotUnaryRight  */
-char 		*why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is never seen by opDot -- move it inside a subscript: a[*b], not a.*b");
-	::refuse(op,why);
-	::free(why);
-	return 1;
+	return refuseDotUnaryOp(op,aop);
 }
 
 /*  refuseLeadingDotNumber -- A NUMBER NEEDS A LEADING DIGIT (Tony, ruled 2026-09-24, F-117 option (a)). `.5` is
@@ -10884,6 +10902,10 @@ GroupItem 	*arg = 0;
 			op = ruler->opFields->get("negate");
 		if ( ::compare(op->groupBody->tag,"*") == 0 )
 			op = ruler->opFields->get("deref");
+		// nullDeref a star handed NOTHING refuses by name before opDeref, which reads its operand's body and crashed on a null (SEQ 327 D3); only the star -- `!` of a false compare is a lawful null
+		if ( !val )
+			if ( op == ruler->opFields->get("deref") )
+				return ::refuse(op,"a star on an operand that is nothing -- the inner read yielded null (the accumulator candidate, SEQ 327 D3)");
 		return op->groupBody->gMethod(val);
 		}
 	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
@@ -11989,14 +12011,22 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
+	refuseDotUnaryOp(GroupItem*,GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
+	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusPlusWrite(GroupItem*)
+	measurePlusEQWrite(GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,int)
 	floor(double)
 */
