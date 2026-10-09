@@ -718,9 +718,9 @@ four bare forms, none of the comma forms). 99 raw hits, of which the comment ban
 - Off the fleet, reported only: `incant/attic/derefAllT:15,17,18`, `attic/membersFlagCapture:11`,
   `attic/traitDataCapture:11` (x2), `incant/probes/unrunIf:40,42`, and Clod's fixit `incant/fixits/defineCapture:22`
   (x2), `:38`.
-- **Tony's incantations, reported only:** `IncantForms/WorkingOn/tester:37` `print \`"unary op" taG "on target" *target;`,
-  `:40` `... "on result" *result;`, `:43` `print " result is" *result:;`, `:48` `if *grup.isLiteraL == 1;    print \`"number"
-  *grup:;`, `:60` `print "result is" *target:;`. Nothing else under `IncantForms/` (the other hits are banners and prose).
+- **Tony's incantations, reported only:** `IncantForms/WorkingOn/tester:37` ``print `"unary op" taG "on target" *target;``,
+  `:40` ``... "on result" *result;``, `:43` `print " result is" *result:;`, `:48` ``if *grup.isLiteraL == 1;    print `"number"
+  *grup:;``, `:60` `print "result is" *target:;`. Nothing else under `IncantForms/` (the other hits are banners and prose).
 
 **Certificate.** Switch off **row for row** with the pre-respell run (1057 / 51 / 1). Switch on 796 -> **835** green.
 **38 of the 46 (f) rows** now read their switch-off values; the other 8: `,~taG` reads `1` in iterRefuseT and starIdiomT
