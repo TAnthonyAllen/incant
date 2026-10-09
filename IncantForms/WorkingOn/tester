@@ -34,18 +34,18 @@ define
                 if *grup.isUnarY;
                     instruct    +% *grup;
                     if result.datA == 0;
-                        print `"unary op" taG "on target" *target;
+                        print `"unary op" taG "on target" ,*target;
                         instruct    +% *target;
                     else
-                        print `"unary op" taG "on result" *result;
+                        print `"unary op" taG "on result" ,*result;
                         instruct    +% *result;
                     result      := testOP(instruct);
-                    print " result is" *result:;
+                    print " result is" ,*result:;
                 else
                     op = grup;
                     print `"regular op" taG:;
             else
-                if *grup.isLiteraL == 1;    print `"number" *grup:;
+                if *grup.isLiteraL == 1;    print `"number" ,*grup:;
                 else                        print `"field" taG:;
                 if target == 0;             target = grup;
                 or result == 0;             result = grup;
@@ -57,7 +57,7 @@ define
                         instruct    +% *result;
                         instruct    +% *target;
                         target      := testOP(instruct);
-                        print "result is" *target:;
+                        print "result is" ,*target:;
                         clear(result);
                         clear(op);
         return  *target;

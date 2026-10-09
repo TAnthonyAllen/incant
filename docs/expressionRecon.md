@@ -651,6 +651,50 @@ refuses that row (`* *x`) by name.
   WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
   rows' negative control).
 
+#### (a) RECON -- THE GENERATED-PARSE ROWS, BY CAUSE (SEQ 329 R2, Clod, 2026-10-09; READ-ONLY, nothing built)
+
+**Population, measured, not estimated:** trunk `827cb1c` (D1 merged, the miss-prints respelled), installed binary.
+Fleet switch off 1069 / 51 / 1, switch on **955**. A row-sequence diff pairs **137 movers: (a) 66, (b) 44, (L) 26**, plus
+orc's anti-vacuity row, now (L) by SEQ 327 R1 -- **not ~137 (a) rows**: D1 cured most of the old (a) bucket, and the 22
+exposed rows are among the 66. The fixtures behind them (26 tracked, 32 of pop.sh's generated snippets) were each run on
+both switches, and every REFUSED / ERROR / ABANDONED line that appears only switch on was tallied. **49 of 58 carry one
+line**, `REFUSED acPostCall -- a call with nothing to call`.
+
+| cause | (a) rows | specimen |
+|---|---|---|
+| **1. Token's generated body: the candidate reads the call target `Operators` as an OPERATOR** | **65** (the 22 exposed, probeDoorT 14, tokJitT 9, opLenT 4, sweepT 3, site1RoadsT 2, adoptT 2, definerT 2, orc's oldRoad se 2, BN-3, the tripwire and loopVerdict counts, driveCompileT C, leafClassT LC-1) | below |
+| **2. A rule with an action, passed as a call ARGUMENT, is fired** | **1** (carrierT CT-4) | below |
+
+**Cause 1, the specimen.** `parser()` generates, for the bin `Token` (`incant/grammar:136`, `QuotE NumbeR StringXP TokenXP
+Operators`), the SAME body on both switches:
+```
+Token = CodE {
+	return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();
+	}
+```
+and the candidate refuses it: `REFUSED acPostCall -- a call with nothing to call`. A temporary tap at that refusal (clone,
+reverted md5-identical) printed interpretXPaccum's sequence, `:OP` marking an item whose registry is `ruler.opFields`:
+`[QuotE] [acPostCall] [||:OP] [NumbeR] [acPostCall] [||:OP] [StringXP] [acPostCall] [||:OP] [TokenXP] [acPostCall] [||:OP]
+[Operators:OP] [acPostCall]`. **`Operators` IS `ruler.opFields`** (`GroupControl.twk:189`, `opFields = getRegistry("Operators")`),
+and its own `registry` is that registry, so pass 2's `if term.registry == ruler.opFields` takes the bin for a PREFIX
+operator, parks it in `pend`, and the call after it arrives with an operand still expected. **Trunk** reads the same
+instruction as a TokenXP with an InvokeArg -- the `call` arm -- whose target is the Operators bin with its installed parse
+(M3: interpreted, it takes the target's method); `compile succeeded for Token` on both switches, so the refusal does not
+fail the compile -- it silences the statement inside Token's body, and every new-road expression drive fails behind it.
+⚠ **It is the FIRST blocker, not proven the only one** (H9's corollary): rows behind it are counted here because their
+fixture carries this refusal and nothing else new; what each needs once Token compiles is unmeasured. probeDoorT and
+site1RoadsT also carry (b)'s jit refusals (`acAnd`, `acOr`, `acC`) for their jitted halves. **Why parserCoverage cannot see
+it:** its population walk skips bins (`if binTypE; continue;`), and Token is a bin -- every rule it walks compiles, 47 of 47,
+on both switches.
+
+**Cause 2, the specimen.** carrierT's `parser(list);`. Switch off it generates `list = CodE {...}`; switch on it prints
+`Generating parse code for labelNO`. Measured with an action that shows its argument: `apShow(list)` receives `list`
+(isRulE 1) switch off and **`labelNO` (isRulE 0)** switch on -- the candidate marks a term with an action invocable (`if
+term.actionType || term.instructType  term.invoke = true;`), so the argument is DRIVEN and its label handed over. `Start`
+and `Grokking["list"]` arrive unchanged on both switches. CT-4 then reads no parked carrier (`0`, switch off `1`).
+
+**Context, not (a):** orc's lone operators (`REFUSED + -- a prefix operator ...`) ride in the same orc runs and are (L).
+
 #### ⚠⚠ D1 BUILT on `expr-d1` `75c7969` (SEQ 328 R3, Clod, 2026-10-09) -- UNMERGED, FOR TONY TO BUY
 
 **The STOP check, pinned on trunk first (`0f9fbc4`, `incant/pop/lastRefT`).** A read-only report verb, `lastRefOf("label")`

@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12409,3 +12409,19 @@ with bare reads right, parser() generates real bodies and the candidate refuses 
 call"), so nothing installs and the road checks see 0 arrivals; on trunk they passed on bodies generated from bare reads
 of 1. Step (a)'s.
   END SEQ 241
+
+===================================================================
+SEQ 242  -  SEQ 329: expr-d1 BOUGHT; MISS-PRINTS RESPELLED; (a) RECON
+===================================================================
+Written 2026-10-09. Details: docs/expressionRecon.md "(a) RECON".
+R0: expr-d1 merged (0caa7bb), deleted clone/live/GitHub; bare tokall byte-identical, canary 340, binary rebuilt. The 22
+exposed rows carry the ruled (a) sentence in pop.sh. Checklist clean.
+R1 (827cb1c): PG-2, PO-2, PO-8 respelled `if *x` HIT / else MISS, each with a HIT control; re-pinned 0 -> MISS; both switches
+read MISS / HIT; PG-3, PO-3, PO-9 now read their switch-off values switch on. Fleet 1069 / 51 / 1, switch on 955.
+R2: 137 switch-on movers today -- (a) 66, (b) 44, (L) 26 + orc's (L). Of the 66: 65 behind ONE refusal -- parser()'s body
+for the bin Token, `return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();`, where the candidate reads
+`Operators` (the opFields registry itself, so registry == opFields) as a PREFIX operator and the call after it as "a call
+with nothing to call" (tap, reverted md5-identical). Trunk takes the call arm. Compile still "succeeds"; the statement is
+silenced. First blocker, not proven the only one. parserCoverage cannot see it: it skips bins. 1: carrierT CT-4 -- a rule
+with an action passed as an argument is driven, `parser(list)` generates for `labelNO`.
+  END SEQ 242
