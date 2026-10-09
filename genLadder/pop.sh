@@ -6049,6 +6049,19 @@ kindRow "foldAndT it ran up to the if, lines"            "$(grep -c '^FC before'
 kindRow "foldAndT the body ran to its end, lines"         "$(grep -c '^FC body ran' "$T/fat.e")" "0"  # intended 0
 kindRow "foldAndT reached the line after the if, lines"   "$(grep -c '^FC after' "$T/fat.e")" "0"  # intended 1
 kindRow "foldAndT sentinel, lines"                        "$(grep -c '^FOLDANDT SENTINEL' "$T/fat.e")" "0"  # intended 1
+#  lastRefT SEQ 328 R3: WHICH FIELD lastREF HOLDS at the slot a bare accessor is read, by value -- the same on both roads
+#  (measured before D1 was built: the STOP check). lastRefOf is a read-only report verb. The bare rows are D1's subject.
+run2 lastRefT "$T/lr.o" "$T/lr.e"; check "lastRefT runs" 0 $?
+sentinel "lastRefT sentinel" "$T/lr.e" "LASTREFT SENTINEL"
+_lr () { awk -v k="$1" '$1=="LASTREF" && $2==k {printf "%s ", $3}' "$T/lr.e"; }
+_lb () { awk -v k="$1" '$1=="LR" && $2==k && $3=="bare" {printf "%s ", $4}' "$T/lr.e"; }
+kindRow "lastRefT W in a walk, lastREF at the slot"        "$(_lr W-walk)"          "lrAlpha lrBeta "    # both roads
+kindRow "lastRefT X after a call in the item"              "$(_lr X-afterCall)"     "lrOther lrOther "   # both roads
+kindRow "lastRefT Y before a call in the item"             "$(_lr Y-beforeCall)"    "lrOther lrOther "   # both roads
+kindRow "lastRefT Z the next statement"                    "$(_lr Z-nextStatement)" "lrOther lrOther "   # both roads
+kindRow "lastRefT O outside: the argument, then the action" "$(_lr O-outside)"     "lrSolo lrOut "      # both roads
+kindRow "lastRefT W bare taG in a walk"                    "$(_lb W)"               "lrAlpha lrBeta "    # intended the same [on: 1 1 -- D1]
+kindRow "lastRefT O bare taG outside a walk"               "$(_lb O)"               "lrSolo lrOut "      # intended the same [on: 1 1 -- D1]
 #  loneOpT SEQ 327 R1 (Tony): a lone operator is NOT an ExpressioN. Run WITH THE SWITCH ON, whatever the caller's switch:
 #  the candidate refuses each by name. (Switch off the old road reads a verdict -- orc_old's oldRoad column.)
 INCANT_EXPR_ACCUM=1 $B "$(ip loneOpT)" > "$T/lo.o" 2> "$T/lo.e" & _cap loneOpT; check "loneOpT runs (switch on)" 0 $?

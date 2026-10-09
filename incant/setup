@@ -19,6 +19,7 @@ define
     virtual immediateAction=processFlags noPrint;
     guard immediateAction noPrint virtual;
     addrOf immediateAction;
+    lastRefOf immediateAction;
     audit immediateAction=auditRStuff;
     bail=stopParsingInput immediateAction;
     bin immediateAction=processFlags noPrint;

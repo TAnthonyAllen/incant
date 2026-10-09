@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(LastRefT);
+define
+    lrBag   lrAlpha lrBeta;
+    lrSolo=5;
+    lrOther=9;
+    lrEcho code={ return argument; };
+    lrWalk code={
+        iterate lrCur on *argument;
+        while ++lrCur;
+            lastRefOf("W-walk");
+            cerr "LR W bare" ,taG:;
+            cerr "LR X" lrEcho(lrOther) lastRefOf("X-afterCall"):;
+            cerr "LR Y" lastRefOf("Y-beforeCall") lrEcho(lrOther):;
+            lastRefOf("Z-nextStatement");
+        };
+    lrOut code={
+        lastRefOf("O-outside");
+        cerr "LR O bare" ,taG:;
+        };
+    ;
+lrWalk(lrBag);
+lrOut(lrSolo);
+lrOut();
+cerr "LASTREFT SENTINEL":;
+stop();
+
+What lastRefT Is
+
+SEQ 328 R3 (2026-10-09): before D1 is built, WHICH FIELD IS lastREF at the moment a bare accessor
+is read, on both roads. lastRefOf("label") is a report verb (measure.twk): it prints
+LASTREF <label> <tag of the field lastREF holds>, reads only, and as a command it does not
+move lastREF. It sits in the exact slot a bare read would take, so it sees lastREF then.
+
+W   inside a walk, after ++lrCur                       -- the member
+O   outside: lrOut(lrSolo) -- the argument; lrOut() -- the action itself (runAction's fallback)
+X   after a call in the SAME juxtaposed item: lrEcho(lrOther) then the slot
+Y   before a call in the same item
+Z   the next statement after X and Y
+X and Y are where the roads could differ: runAction writes lastREF = the call's argument,
+so whether the slot is read before or after lrEcho decides what it sees.

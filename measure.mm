@@ -268,6 +268,18 @@ extern "C" GroupItem *labelTree(GroupItem *field)
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+// lastRefOf a report verb: print the field lastREF holds at this moment, by tag -- reads only, writes nothing; a command, so calling it does not move lastREF (SEQ 328 R3)
+extern "C" GroupItem *lastRefOf(GroupItem *label)
+{
+	
+	GroupItem *lr = GroupControl::groupController->groupRules->lastREF;
+	GroupItem *held = ( lr && isGROUP(lr->groupBody->flags.data) ) ? lr->groupBody->gGroup : 0;
+	char *name = label ? label->getText() : 0;
+	fprintf(stderr,"LASTREF %s %s\n", name ? name : "(none)", held ? held->groupBody->tag : "(null)");
+	
+	return 0;
+}
+
 // measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
 extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted)
 {

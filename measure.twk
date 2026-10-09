@@ -93,6 +93,18 @@ extern GroupItem addrOf(GroupItem field)
     %-
     return field;
 }
+// lastRefOf a report verb: print the field lastREF holds at this moment, by tag -- reads only, writes nothing; a command, so calling it does not move lastREF (SEQ 328 R3)
+extern GroupItem lastRefOf(GroupItem label)
+{
+    -%
+    GroupItem *lr = GroupControl::groupController->groupRules->lastREF;
+    GroupItem *held = ( lr && isGROUP(lr->groupBody->flags.data) ) ? lr->groupBody->gGroup : 0;
+    char *name = label ? label->getText() : 0;
+    fprintf(stderr,"LASTREF %s %s\n", name ? name : "(none)", held ? held->groupBody->tag : "(null)");
+    %-
+    return null;
+}
+
 
 /*  the invariant is a BICONDITIONAL -- isRule IFF has rStuff -- and the summary
     prints even when clean, because an absence check passes by being deleted.
