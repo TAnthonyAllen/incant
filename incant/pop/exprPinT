@@ -79,7 +79,16 @@ define
     C2 code={ qr = qa + fId(qb) + qc; cerr "EP C2 " qr:; };
     C3 code={ qr = fId(qa + qb * qc); cerr "EP C3 " qr:; };
     C4 code={ qr = fNone(); cerr "EP C4 " qr:; };
-    C5 code={ qr = fId(qa qb); cerr "EP C5 " qr:; };
+    C5 code={
+        c5L := fId(qa qb);
+        cerr "EP C5";
+        iterate c5C on *c5L;
+        while ++c5C;
+            cerr *c5C;
+        cerr :;
+        c5n := *c5L.listLengtH;
+        cerr "EP C5L " c5n:;
+        };
     C6 code={ qr = fId(-qa); cerr "EP C6 " qr:; };
     fNone code={ cerr "EP fNone RAN":; return 5; };
     E2 code={ qr = qa < qb < qc; cerr "EP E2 " qr:; };
@@ -152,7 +161,10 @@ Rows, today -> intended:
   C2  qa + fId(qb) + qc              15 -> 15
   C3  fId(qa + qb * qc)              32 -> 36   (the argument folds left to right)
   C4  fNone()  empty argument, returns 5   5 -> 5, and fNone runs once
-  C5  fId(qa qb)   xl1InSet -> a two-member list (R2: juxtaposition wraps)
+  C5  fId(qa qb), its list WALKED (iterate, in stored order), not read through =
+      (SEQ 323 R0, c4): 2 10, length 2. Before c4 the walk read 10 2 -- xl1 was built right
+      to left. No separator literal: a whitespace-only one prints quoteBody (bear-trap 28),
+      and with the switch on a string followed by * reads the * as binary.
   C6  fId(-qa)                       -2 -> -2
   FA1/FA2, the folded && in an if (SEQ 323 R1a, 2026-10-08): if a != 0 && b != 0 && c != 0;
       intended identical to the nested ifs. FA1 all set: 1 -> 1. FA2 the middle one 0:

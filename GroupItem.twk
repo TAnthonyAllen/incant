@@ -134,7 +134,8 @@ GroupItem addGroup(GroupItem group)
         isInitialized   = true;
         if !isREGISTRY && group.registry && group.registry["grouped"]
             group += this;
-        if binType {
+        // listHasNoSet  a LIST is a value, not a bin: no set to grow (c4, SEQ 322)
+        if binType && !isLIST {
             PLGset binGuard = guardSet;
             altered         = true;
             set((int)*group.tag);
@@ -1659,6 +1660,13 @@ void setActions()
     or !isMethod {
         String  methodName = "aCTion" tag;
         void*   methodAddress;
+        // exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; unset, nothing moves
+        // exprAccumOn  reads the switch's VALUE, never its presence -- presence turned INCANT_EXPR_ACCUM=0 on (SEQ 314 g)
+        -%
+        if ( ::exprAccumOn() && !strcmp(groupBody->tag,"ExpressioN") ) {
+            free(methodName);
+            methodName = strdup("interpretXPaccum"); }
+        %-
         if methodAddress = dlsym(RTLD_SELF,methodName) {
             // markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActions.markThenAdd
             GroupItem builtinActoR  = new("builtinActoR");

@@ -69,10 +69,10 @@ GroupItem   grup,
     if !field.isShortcut
         if field.isLIST
             if field.reversePrint
-                while grup = field.next(grup)
+                while grup = field.prior(grup)
                     printField(grup,format,buffer);
             else
-                while grup = field.prior(grup)
+                while grup = field.next(grup)
                     printField(grup,format,buffer);
         else    printField(field,format,buffer);
     else {
@@ -977,14 +977,19 @@ exitRunAction:
 }
 
 
-// runOP the operator dispatch hub: follow the argument, honour the arm, resolve the operands, then fire the op, a rule, an action or a method
+// runOP the instruction's UNPACKER: its three slots, handed to runOPslots (SEQ 318 c1)
 extern GroupItem runOP(GroupItem field)
 {
+    return runOPslots(field[1],field[2],field[3]);
+}
+
+
+// runOPslots the INSTRUCTION's half: FINISH the operands -- follow, refuse a rebound argument, invoke -- then fire (SEQ 318 c1)
+extern GroupItem runOPslots(GroupItem op,GroupItem target,GroupItem arg)
+{
 GroupRules  ruler = groupRules;
-GroupItem   result,
-            op      = field[1],
-            arg     = field[3],
-            target  = field[2];
+    // rawSlots declared in passthrough: tok prunes a local that only a passthrough reads (bear-trap 13)
+    -% GroupItem *rawOp = op, *rawTarget = target, *rawArg = arg; %-
     // argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
     if refuseArgRebind(op,target)   return null;
     target  = followArgument(target);
@@ -998,6 +1003,28 @@ GroupItem   result,
     // listOperand a list operand is never resolved here -- that would hand the list operators a copy
     // virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
     if target && target.isVirtual   target = copyOf(target);
+    // termCallIntercept jitting, the term call REPLAYS this instruction at run time, so it bakes the RAW slots -- the ladder's own conditions, read here (SEQ 318 c1)
+    if jitting && !op.hasMembers && !op.isOperator && !op.isMethod
+        if callIsRule(target) {
+            -%
+            if ( !::jitSlotTaken(op) ) {
+                if ( op->groupBody->flags.isUnary )   ::jitSeedOperands(target,arg);
+                ::measureRuleDispatch(op,target,arg);
+                return ::jitEmitTermCall(rawOp,rawTarget,rawArg); }
+            %-
+        }
+    return runOPdirect(op,target,arg);
+}
+
+
+// runOPdirect the FIRE: operands arrive FINISHED (D4); pick the kind, then fire the op, a rule, an action or a method
+extern GroupItem runOPdirect(GroupItem op,GroupItem target,GroupItem arg)
+{
+GroupRules  ruler = groupRules;
+GroupItem   result;
+    // storeRuling an armed statement dispatches nothing further -- interpreted only
+    if ruler.refused
+        if !jitting     return null;
     // perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
     if op.hasMembers {
         if jitting      return jitEmitOpFire(op,arg,target);
@@ -1008,23 +1035,202 @@ GroupItem   result,
     -% if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); %-
     // dispatchSeat which node the name reached, and which arm the fork will take
     measureRuleDispatch(op,target,arg);
-    // doorByRoad interpreted, runRule for isRule only; jitting, a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123)
+    // callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
     if op.isOperator                result = op.operat(arg,target);
     or op.isMethod                  result = op.method(target);
-    or target.isRuleTerm() || (jitting && target.hasNewParse) {
-        -%
-        if ( ruler->jitting )   result = ::jitEmitTermCall(field);
-        else                  { ++gTermCallCount; result = ::runRule(arg,target); }
-        %-
-    }
-    or target.actionType            result = runAction(arg,target);
-    or target.isMethod {
-        if !arg arg = target;
-        result = target.method(arg); }
+    or isCallable(target)           result = opCall(target,arg);
     else    result = refuseUnknownOperator(op,target);
     return result;
 }
 
+
+// callIsRule M3's DOOR, in one place: interpreted, a rule term; jitting, a rule term OR anything with an installed parse (F-123)
+extern int callIsRule(GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if !target                  return 0;
+    if target.isRuleTerm()      return 1;
+    if jitting && target.hasNewParse    return 1;
+    return 0;
+}
+
+
+// isCallable a call has something to call: a rule (callIsRule), an action, or a method
+extern int isCallable(GroupItem target)
+{
+    if !target              return 0;
+    if callIsRule(target)   return 1;
+    if target.actionType    return 1;
+    if target.isMethod      return 1;
+    return 0;
+}
+
+
+// opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
+extern GroupItem opCall(GroupItem target,GroupItem arg)
+{
+GroupRules  ruler = groupRules;
+    // storeRuling an armed statement dispatches nothing further -- interpreted only
+    if ruler.refused
+        if !jitting     return null;
+    // termCallIsRunOPs jitting, the term call is emitted by runOPslots, which holds the raw slots; reaching it here is a defect, said by name
+    if callIsRule(target) {
+        -%
+        if ( ruler->jitting )   return ::refuse(target,"opCall reached a term call under jitting -- runOPslots owns that emit, with the raw slots (SEQ 318 c2)");
+        ++gTermCallCount;
+        return ::runRule(arg,target);
+        %-
+    }
+    if target.actionType            return runAction(arg,target);
+    if target.isMethod {
+        if !arg arg = target;
+        return target.method(arg); }
+    return refuse(target,"opCall: nothing to call -- not a rule, an action or a method (SEQ 318 c2)");
+}
+
+
+/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S PREFIX AND CALL (SEQ 311; tiers moved out at SEQ 319 c3).
+    Two shapes built by interpretXPaccum: acU (a prefix over an operand) and acC (a call whose
+    target is itself built -- (*block)(code)). The tiers have their own executors below.
+    Interpreted only: under jitting it refuses (SEQ 311 R4).  */
+extern GroupItem runOPaccum(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op, val, arg;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    if field.tag eq "acU" {
+        op = field[1];
+        val = runOPaccumOperand(field[2]);
+        if op.tag eq "-"    op = ruler.opFields["negate"];
+        if op.tag eq "*"    op = ruler.opFields["deref"];
+        return op.method(val); }
+    // noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
+    if field.tag eq "acC" {
+        val = field[2];
+        if val.tag eq "acU" || val.tag eq "acDot" || val.tag eq "acSub" || val.tag eq "acC"     val = val.method(val);
+        // finished the call's operands are finished HERE, as runOP finishes an instruction's: the target followed, the argument followed and invoked
+        val = followArgument(val);
+        if val && val.isVirtual     val = copyOf(val);
+        arg = null;
+        if field.listLength > 2     arg = runOPaccumOperand(field[3]);
+        // callExecutor the call goes straight to opCall; anything uncallable refuses as runOPdirect's ladder would
+        // dispatchSeat the call's witness, as runOPdirect gave it before opCall existed (searchNewParseT SNP-0 reads it)
+        measureRuleDispatch(falseResult,val,arg);
+        if isCallable(val)  return opCall(val,arg);
+        return refuseUnknownOperator(falseResult,val); }
+    return refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
+}
+
+
+/*  THE TIER EXECUTORS (SEQ 319, c3). interpretXPaccum builds one node per tier, loosest first,
+    and gives each node ITS executor as its method at build time (D5): acA assign, acAnd / acOr
+    logic, acK compare, acKchain the chained-comparison refusal, acX the arithmetic fold. NOTHING
+    here asks an operator for its tier -- the split already did, once. Operands arrive as nodes
+    and are finished by runOPaccumOperand; runOPdirect fires on finished operands (c1).
+    Interpreted only: under jitting each refuses (SEQ 311 R4).  */
+
+// runAccAssign the assignment tier, a single step: finish the head's target, evaluate the right side, assign
+extern GroupItem runAccAssign(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op = field[2], val = null, target;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    if field.listLength > 2     val = runOPaccumOperand(field[3]);
+    // finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
+    target = field[1];
+    if refuseArgRebind(op,target)   return null;
+    target = followArgument(target);
+    if ruler.refused    return null;
+    if op.instructType && target.isMethod && target.invoke  target = target.method(target);
+    if target && target.isVirtual   target = copyOf(target);
+    return runOPdirect(op,target,val);
+}
+
+
+// runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
+extern GroupItem runAccAnd(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    if !truthOf(left)                       return falseResult;
+    if field.listLength < 3                 return falseResult;
+    if truthOf(runOPaccumOperand(field[3])) return trueResult;
+    return falseResult;
+}
+
+
+// runAccOr the logic tier, ||: evaluate the left side, early-out on true, else the right side decides -- a SENTINEL either way
+extern GroupItem runAccOr(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    if truthOf(left)                        return trueResult;
+    if field.listLength < 3                 return falseResult;
+    if truthOf(runOPaccumOperand(field[3])) return trueResult;
+    return falseResult;
+}
+
+
+// runAccCompare the compare tier, a single step: left side, right side, the comparison
+extern GroupItem runAccCompare(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left, keep, right = null;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    // copyOut a side answering in tempField is copied out before the other side can run
+    if left == ruler.tempField {
+        keep = new("acRun");
+        keep.setContent(left);
+        left = keep; }
+    if !left    left = falseResult;
+    if left.isVirtual   left = copyOf(left);
+    if field.listLength > 2     right = runOPaccumOperand(field[3]);
+    return runOPdirect(field[2],left,right);
+}
+
+
+// runAccChain a CHAINED comparison, seen at build: refused by its own name (SEQ 318 R1)
+extern GroupItem runAccChain(GroupItem field)
+{
+    return refuse(field[2],"a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)");
+}
+
+
+// runAccFold the arithmetic tier, THE FOLD: left to right, no precedence, no tier test -- every operator here is arithmetic by construction
+extern GroupItem runAccFold(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+int         n = field.listLength, i = 2;
+GroupItem   run, keep;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    run = runOPaccumOperand(field[1]);
+    while i < n {
+        // copyOut a step answering in tempField is copied out before the next operand can run
+        if run == ruler.tempField {
+            keep = new("acRun");
+            keep.setContent(run);
+            run = keep; }
+        if !run     run = falseResult;
+        // finished both sides are finished: the running value is a value, the right side is evaluated once here
+        if run.isVirtual    run = copyOf(run);
+        run = runOPdirect(field[i],run,runOPaccumOperand(field[i + 1]));
+        i = i + 2; }
+    return run;
+}
+
+/*  runOPaccumOperand -- one operand, evaluated if it carries an invocation.  */
+extern GroupItem runOPaccumOperand(GroupItem operand)
+{
+GroupItem   val = followArgument(operand);
+    if val
+        if val.isMethod && val.invoke   val = val.method(val);
+    return val;
+}
 
 // runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
 extern GroupItem runRule(GroupItem field,GroupItem rule)

@@ -19,7 +19,8 @@ GroupList()
 
 GroupList(GroupItem item)
 {
-    if binType {
+    // listHasNoSet  a LIST is a value, not a bin: it gets no first-character set (c4, SEQ 322)
+    if binType && !isLIST {
         PLGset  set = new;
         name            = tag "InSet":;
         if !guardSet    guardSet = new;

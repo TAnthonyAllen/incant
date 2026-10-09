@@ -6027,13 +6027,19 @@ kindRow "exprPinT C2 qa + fId(qb) + qc"                    "$(_ep C2)"    "15"  
 kindRow "exprPinT C3 fId(qa + qb * qc)"                    "$(_ep C3)"    "32"        # intended 36
 kindRow "exprPinT C4 fNone(), empty argument"              "$(_ep C4)"    "5"         # intended 5
 kindRow "exprPinT C4 fNone runs, lines"                    "$(grep -c '^EP fNone RAN' "$T/ept.e")" "1"  # intended 1
-kindRow "exprPinT C5 fId(qa qb)"                           "$(_ep C5)"    "xl1InSet"  # intended a two-member list (R2)
+#  c5Walk SEQ 323 R0 (c4, expr-accum): C5 WALKS the call's list in stored order -- 2 10 since both builders build in
+#  source order (it read 10 2 before), and xl1 no longer carries the InSet set, so nothing reads xl1InSet any more
+kindRow "exprPinT C5 fId(qa qb), walked"                   "$(awk '$1=="EP" && $2=="C5" {print $3" "$4; exit}' "$T/ept.e")" "2 10"  # intended 2 10
+kindRow "exprPinT C5 fId(qa qb), length"                   "$(_ep C5L)"   "2"         # intended 2
 kindRow "exprPinT C6 fId(-qa)"                             "$(_ep C6)"    "-2"        # intended -2
 #  foldedAnd SEQ 323 R1a: if a != 0 && b != 0 && c != 0; -- intended identical to the nested ifs
 kindRow "exprPinT FA1 folded &&, all three set"           "$(_ep FA1)"   "1"         # intended 1
 kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "1"         # intended 0 (it reads a != 0)
 #  staleValue SEQ 323 R1b: qs = 7; qs = fId(qa qb); -- = copies data only, so nothing is left behind
-kindRow "exprPinT ST1 qs = 7 then qs = fId(qa qb)"        "$(_ep ST1)"   "xl1InSet"  # intended qs (its tag)
+#  staleValue RE-PINNED on expr-accum at c4 (SEQ 323 R0): xl1 no longer carries the InSet set, so it has a list and no
+#  data, and setContent (=) copies the list and leaves qs's 7 -- the stale value R1b names. setData (= copies data
+#  only) is what turns it to qs; not built.
+kindRow "exprPinT ST1 qs = 7 then qs = fId(qa qb)"        "$(_ep ST1)"   "7"         # intended qs (its tag)
 #  plusPctOrder SEQ 324 R1: holdB +% qa qb qc; -- length, then entries 1 2 3 by value; nothing else pins this order
 kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep PA1a) $(_ep PA1b) $(_ep PA1c)"   "3: 2 10 3"  # intended 3: 2 10 3 (source order)
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines

@@ -287,7 +287,8 @@ GroupItem *GroupItem::addGroup(GroupItem *group)
 		groupBody->flags.isInitialized = 1;
 		if ( !isREGISTRY(groupBody->flags.binType) && group->groupBody->registry && group->groupBody->registry->get("grouped") )
 			group->addMember(this);
-		if ( groupBody->flags.binType )
+		// listHasNoSet  a LIST is a value, not a bin: no set to grow (c4, SEQ 322)
+		if ( groupBody->flags.binType && !isLIST(groupBody->flags.binType) )
 			{
 			PLGset 	*binGuard = groupBody->guardSet;
 			groupBody->flags.altered = 1;
@@ -2129,6 +2130,13 @@ void GroupItem::setActions()
 		{
 		char 	*methodName = ::concat(2,"aCTion",groupBody->tag);
 		void 	*methodAddress = 0;
+		// exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; unset, nothing moves
+		// exprAccumOn  reads the switch's VALUE, never its presence -- presence turned INCANT_EXPR_ACCUM=0 on (SEQ 314 g)
+		
+		if ( ::exprAccumOn() && !strcmp(groupBody->tag,"ExpressioN") ) {
+		free(methodName);
+		methodName = strdup("interpretXPaccum"); }
+		
 		if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
 			{
 			// markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActions.markThenAdd

@@ -1265,6 +1265,9 @@ GroupItem 	*swap = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYorNum");
+	// exprAccumGate  SEQ 311: under INCANT_EXPR_ACCUM the label goes up untouched -- interpretXPaccum takes its raw pieces
+	// exprAccumOn  the switch's VALUE, not its presence (SEQ 314 g); one reader for both sites, in jitContext.h
+	 if ( ::exprAccumOn() ) return xpress; 
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
@@ -1507,6 +1510,225 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
+// accBuild the loosest tier: an assignment head parks its target and takes the rest as its right side
+extern "C" GroupItem *accBuild(GroupItem *flat)
+{
+GroupItem 	*node = 0;
+GroupItem 	*right = 0;
+	if ( !::opIsAssignTier(flat->get(2)) )
+		return accLogic(flat);
+	node = new GroupItem("acA");
+	node->addAttribute(::accPop(flat));
+	node->addAttribute(::accPop(flat));
+	right = accLogic(flat);
+	if ( right )
+		node->addAttribute(right);
+	node->setMethod(::runAccAssign);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+// accBuilt THE BREAKPOINT SYMBOL (SEQ 320): called with the finished tier tree, before anything runs; it prints the tree
+extern "C" void accBuilt(GroupItem *node)
+{
+	::accTraceTree(node,0);
+}
+
+// accCompare one comparison between two folds; a second comparison in the same part makes the chain, refused by name
+extern "C" GroupItem *accCompare(GroupItem *flat)
+{
+GroupItem 	*left = 0;
+GroupItem 	*op = 0;
+GroupItem 	*right = 0;
+GroupItem 	*node = 0;
+	left = accFold(flat);
+	if ( !::opIsCompareTier(::accNextOp(flat)) )
+		return left;
+	op = ::accPop(flat);
+	right = accFold(flat);
+	if ( ::opIsCompareTier(::accNextOp(flat)) )
+		{
+		node = new GroupItem("acKchain");
+		node->addAttribute(left);
+		node->addAttribute(op);
+		if ( right )
+			node->addAttribute(right);
+		while ( ::opIsCompareTier(::accNextOp(flat)) )
+			{
+			node->addAttribute(::accPop(flat));
+			right = accFold(flat);
+			if ( right )
+				node->addAttribute(right);
+			}
+		node->setMethod(::runAccChain);
+		node->groupBody->flags.invoke = 1;
+		return node;
+		}
+	node = new GroupItem("acK");
+	node->addAttribute(left);
+	node->addAttribute(op);
+	if ( right )
+		node->addAttribute(right);
+	node->setMethod(::runAccCompare);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+// accFold an operand, then (op, operand) for as long as the operator is arithmetic -- one operand alone is itself
+extern "C" GroupItem *accFold(GroupItem *flat)
+{
+GroupItem 	*first = 0;
+GroupItem 	*op = 0;
+GroupItem 	*node = 0;
+	first = ::accPop(flat);
+	op = ::accNextOp(flat);
+	if ( !op )
+		return first;
+	if ( ::opIsShortCircuit(op) )
+		return first;
+	if ( ::opIsCompareTier(op) )
+		return first;
+	node = new GroupItem("acX");
+	node->addAttribute(first);
+	while ( op )
+		{
+		if ( ::opIsShortCircuit(op) )
+			break;
+		if ( ::opIsCompareTier(op) )
+			break;
+		node->addAttribute(::accPop(flat));
+		if ( ::accNextOp(flat) )
+			node->addAttribute(::accPop(flat));
+		op = ::accNextOp(flat);
+		}
+	node->setMethod(::runAccFold);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+// accLogic && and ||, nested to the left: each connective takes what is built so far and the next comparison part
+extern "C" GroupItem *accLogic(GroupItem *flat)
+{
+GroupItem 	*left = 0;
+GroupItem 	*op = 0;
+GroupItem 	*right = 0;
+GroupItem 	*node = 0;
+	left = accCompare(flat);
+	while ( ::opIsShortCircuit(::accNextOp(flat)) )
+		{
+		op = ::accPop(flat);
+		right = accCompare(flat);
+		if ( ::opIsOR(op) )
+			{
+			node = new GroupItem("acOr");
+			node->setMethod(::runAccOr);
+			}
+		else {
+			node = new GroupItem("acAnd");
+			node->setMethod(::runAccAnd);
+			}
+		node->addAttribute(left);
+		node->addAttribute(op);
+		if ( right )
+			node->addAttribute(right);
+		node->groupBody->flags.invoke = 1;
+		left = node;
+		}
+	return left;
+}
+
+// accNextOp the operator at the head of the list, or null -- these lists alternate, so a peek after an operand is an operator
+extern "C" GroupItem *accNextOp(GroupItem *flat)
+{
+	if ( !flat->groupBody->groupList )
+		return 0;
+	if ( !flat->groupBody->groupList->listLength )
+		return 0;
+	return flat->get(1);
+}
+
+/*  THE TIER SPLIT (SEQ 319, c3; D3 and D5). The flat list -- operand, then (op, operand) pairs --
+    is consumed LEFT TO RIGHT and rebuilt as one node per tier, loosest first: an assignment head
+    (acA), then && / || (acAnd / acOr, nested to the left, so a && b || c is (a && b) || c), then
+    one comparison (acK; a second one makes acKchain, refused by name at run time), then the
+    arithmetic fold (acX). Each node gets its executor as its method HERE, so nothing at run time
+    asks an operator for its tier. The tier marks are setup data: assignTier, shortCircuit,
+    compareTier; anything else folds.
+    ⚠ EVERY ITEM IS DETACHED BEFORE IT IS RE-ATTACHED (accPop). addGroup COPIES a node that
+    already has a parent, and a copy is what hid holderT's re-invocation in c1 -- so nothing here
+    attaches an item that still belongs to the flat list.  */
+// accPop take the flat list's first item off it, parent cleared, so the next +% attaches IT and not a copy
+extern "C" GroupItem *accPop(GroupItem *flat)
+{
+GroupItem 	*item = 0;
+	if ( !flat->groupBody->groupList )
+		return 0;
+	if ( !flat->groupBody->groupList->listLength )
+		return 0;
+	item = flat->get(1);
+	if ( !item )
+		return 0;
+	item->remove();
+	item->parent = 0;
+	return item;
+}
+
+// accTraceFlat the flat list from interpretXPaccum's second pass, on one line, before the split
+extern "C" void accTraceFlat(GroupItem *flat)
+{
+	
+	::fprintf(stderr,"ACCUM FLAT  ");
+	for ( int k = 1; flat && flat->groupBody->groupList && k <= flat->groupBody->groupList->listLength; k++ )
+	::accTraceItem(flat->get(k));
+	::fprintf(stderr,"\n");
+	
+}
+
+// accTraceItem one item: its tag, (op) for an operator entry, =value where it carries data
+extern "C" void accTraceItem(GroupItem *item)
+{
+	
+	if ( !item ) { ::fprintf(stderr," (null)"); return; }
+	::fprintf(stderr," %s",item->groupBody->tag);
+	if ( item->groupBody->registry == GroupControl::groupController->groupRules->opFields ) ::fprintf(stderr,"(op)");
+	else if ( item->groupBody->flags.data ) ::fprintf(stderr,"=%s",item->getText());
+	
+}
+
+// accTraceTree one node per line, two spaces of indent per level; descends into the candidate's own nodes (ac..., xl1) only
+extern "C" void accTraceTree(GroupItem *node, int depth)
+{
+	
+	::fprintf(stderr,"ACCUM TREE  ");
+	for ( int k = 0; k < depth; k++ ) ::fprintf(stderr,"  ");
+	::accTraceItem(node);
+	::fprintf(stderr,"\n");
+	if ( !node || depth > 20 || !node->groupBody->groupList ) return;
+	const char *t = node->groupBody->tag;
+	if ( ::strncmp(t,"ac",2) && ::strcmp(t,"xl1") ) return;
+	for ( int k = 1; k <= node->groupBody->groupList->listLength; k++ )
+	::accTraceTree(node->get(k),depth + 1);
+	
+}
+
+/*  THE C1 TRACE (SEQ 320). INCANT_ACCUM_TRACE is read by VALUE: unset, empty or 0 is off; 1
+    traces every expression; any other value traces the expressions whose FIRST item carries that
+    tag (INCANT_ACCUM_TRACE=r for `r = ...`). accTraceFlat prints the flat list before the split
+    consumes it; accBuilt prints the tier tree and is the breakpoint symbol -- the tree is finished
+    there and nothing has run. Output is stderr, one item per token, ops marked (op), a value
+    after = where the item carries data.  */
+extern "C" int accTraceWanted(GroupItem *flat)
+{
+	
+	const char *v = ::getenv("INCANT_ACCUM_TRACE");
+	if ( !v || !*v || !::strcmp(v,"0") )    return 0;
+	if ( !::strcmp(v,"1") )                 return 1;
+	if ( !flat || !flat->groupBody->groupList || !flat->groupBody->groupList->listLength ) return 0;
+	GroupItem *first = flat->get(1);
+	return first && !::strcmp(first->groupBody->tag,v);
+	
+}
+
 /***************************************************************************
     accessorWrite -- `x.name = v`: opDot handed opAssign its COPY of x's
     groupField, marked isAccessorProduct and parented to x. Write the field
@@ -1559,10 +1781,10 @@ GroupItem 	*field = 0;
 	if ( !field->groupBody->flags.isShortcut )
 		if ( isLIST(field->groupBody->flags.binType) )
 			if ( field->groupBody->flags.reversePrint )
-				while ( grup = field->next(grup) )
+				while ( grup = field->prior(grup) )
 					::printField(grup,format,buffer);
 			else
-			while ( grup = field->prior(grup) )
+			while ( grup = field->next(grup) )
 				::printField(grup,format,buffer);
 		else	::printField(field,format,buffer);
 	else {
@@ -1670,6 +1892,19 @@ extern "C" GroupItem *cLEAR(GroupItem *input)
 		input->clearList();
 		}
 	return input;
+}
+
+// callIsRule M3's DOOR, in one place: interpreted, a rule term; jitting, a rule term OR anything with an installed parse (F-123)
+extern "C" int callIsRule(GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !target )
+		return 0;
+	if ( target->isRuleTerm() )
+		return 1;
+	if ( ruler->jitting && target->groupBody->flags.hasNewParse )
+		return 1;
+	return 0;
 }
 
 /*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
@@ -2975,7 +3210,9 @@ GroupItem *token = 0;
 						}
 					if ( arg != xl )
 						xl->addMember(arg);
+					// sourceOrder  the walk is backward, so each term to the left goes to the FRONT (c4)
 					xl->addMember(token);
+					::listLastToFront(xl);
 					arg = xl;
 					}
 				}
@@ -3014,6 +3251,296 @@ finishXP:
 	xpList->clear();
 	xpList->setGroup(arg);
 	return xpList;
+}
+
+/*  interpretXPaccum -- THE ACCUMULATOR CANDIDATE'S interpretXP (SEQ 311, try-and-buy on
+    expr-accum; a proof of concept). ExpressioN's actor under INCANT_EXPR_ACCUM, which also
+    makes aCTionTokenXP hand its label up untouched. Pass 1 flattens every TokenXP label
+    into its raw pieces -- unary, name, InvokeArg's parts -- so KANT-43's absorbed `qa * qb`
+    arrives as qa, *, qb. Pass 2 decides by POSITION: an op where an operand is expected is
+    a prefix; an op after an operand is binary; `.`, a call, a subscript after an operand
+    are postfixes on it. An ACCESS prefix (`*`, a leading `.`) binds to the name before the
+    postfixes, any other prefix to the finished operand: *block(code) is (*block)(code),
+    !f(x) is !(f(x)). The result is ONE FLAT list -- operand, then (op, operand) pairs --
+    whose method is runOPaccum.  */
+extern "C" GroupItem *interpretXPaccum(GroupItem *xpList)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		i = 0;
+int 		j = 0;
+int 		n = 0;
+int 		expectOperand = 1;
+int 		traced = 0;
+GroupItem 	*seq = 0;
+GroupItem 	*flat = 0;
+GroupItem 	*term = 0;
+GroupItem 	*name = 0;
+GroupItem 	*unary = 0;
+GroupItem 	*invoke = 0;
+GroupItem 	*piece = 0;
+GroupItem 	*cur = 0;
+GroupItem 	*pend = 0;
+GroupItem 	*rest = 0;
+GroupItem 	*node = 0;
+GroupItem 	*jux = 0;
+GroupItem 	*right = 0;
+	seq = new GroupItem("acSeq");
+	i = 1;
+	n = 0;
+	if ( xpList->groupBody->groupList )
+		n = xpList->groupBody->groupList->listLength;
+	while ( i <= n )
+		{
+		term = xpList->get(i);
+		i = i + 1;
+		name = term->get("ANYorNum");
+		if ( !name )
+			{
+			seq->addAttribute(term);
+			continue;
+			}
+		unary = term->get("UnaryOPS");
+		invoke = term->get("InvokeArg");
+		if ( isGROUP(name->groupBody->flags.data) )
+			name = name->getGroup();
+		if ( unary )
+			if ( isGROUP(unary->groupBody->flags.data) )
+				unary = unary->getGroup();
+		if ( unary )
+			{
+			piece = ruler->opFields->get(unary->groupBody->tag);
+			if ( !piece )
+				piece = unary;
+			seq->addAttribute(piece);
+			}
+		seq->addAttribute(name);
+		if ( !invoke )
+			continue;
+		if ( invoke->groupBody->groupList )
+			{
+			piece = invoke->groupBody->groupList->firstInList;
+			if ( isGROUP(piece->groupBody->flags.data) )
+				piece = piece->getGroup();
+			right = ruler->opFields->get(piece->groupBody->tag);
+			if ( right )
+				piece = right;
+			seq->addAttribute(piece);
+			right = invoke->groupBody->groupList->lastInList;
+			if ( isGROUP(right->groupBody->flags.data) )
+				right = right->getGroup();
+			seq->addAttribute(right);
+			continue;
+			}
+		if ( invoke->groupBody->flags.fLAG )
+			piece = new GroupItem("acPostSub");
+		else	piece = new GroupItem("acPostCall");
+		piece->addAttribute(invoke);
+		seq->addAttribute(piece);
+		}
+	flat = new GroupItem("acX");
+	cur = 0;
+	jux = 0;
+	pend = new GroupItem("acPend");
+	rest = 0;
+	expectOperand = 1;
+	i = 1;
+	n = 0;
+	if ( seq->groupBody->groupList )
+		n = seq->groupBody->groupList->listLength;
+	while ( i <= n )
+		{
+		term = seq->get(i);
+		i = i + 1;
+		if ( term->groupBody->registry == ruler->opFields )
+			{
+			if ( expectOperand )
+				{
+				pend->addAttribute(term);
+				continue;
+				}
+			if ( ::compare(term->groupBody->tag,".") == 0 )
+				{
+				if ( i > n )
+					return ::refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
+				right = seq->get(i);
+				i = i + 1;
+				if ( right->groupBody->registry == ruler->opFields )
+					return ::refuse(right,"an operator on the right of a dot (the accumulator candidate, SEQ 311)");
+				if ( right->groupBody->registry != ruler->groupFields )
+					right = new GroupItem(right->groupBody->tag);
+				node = new GroupItem("acDot");
+				node->addAttribute(term);
+				node->addAttribute(cur);
+				node->addAttribute(right);
+				node->setMethod(::runOP);
+				node->groupBody->flags.invoke = 1;
+				cur = node;
+				continue;
+				}
+			cur = interpretXPaccumWrap(cur,rest);
+			rest = 0;
+			if ( jux )
+				{
+				jux->addAttribute(cur);
+				cur = interpretXPaccumWrap(jux,0);
+				jux = 0;
+				}
+			flat->addAttribute(cur);
+			cur = 0;
+			flat->addAttribute(term);
+			expectOperand = 1;
+			continue;
+			}
+		if ( ::compare(term->groupBody->tag,"acPostCall") == 0 )
+			{
+			if ( expectOperand )
+				return ::refuse(term,"a call with nothing to call (the accumulator candidate, SEQ 311)");
+			node = new GroupItem("acC");
+			::handleCall(node,cur,term->get(1));
+			node->setMethod(::runOPaccum);
+			node->groupBody->flags.invoke = 1;
+			cur = node;
+			continue;
+			}
+		if ( ::compare(term->groupBody->tag,"acPostSub") == 0 )
+			{
+			if ( expectOperand )
+				return ::refuse(term,"a subscript with nothing to subscript (the accumulator candidate, SEQ 311)");
+			node = new GroupItem("acSub");
+			::handleSubscript(node,0,cur,term->get(1));
+			node->setMethod(::runOP);
+			node->groupBody->flags.invoke = 1;
+			cur = node;
+			continue;
+			}
+		if ( term->groupBody->flags.actionType || term->groupBody->flags.instructType )
+			term->groupBody->flags.invoke = 1;
+		if ( expectOperand )
+			{
+			cur = term;
+			j = 0;
+			if ( pend->groupBody->groupList )
+				j = pend->groupBody->groupList->listLength;
+			while ( j > 0 )
+				{
+				piece = pend->get(j);
+				if ( ::compare(piece->groupBody->tag,".") == 0 )
+					{
+					node = new GroupItem("acDot");
+					node->addAttribute(piece);
+					node->addAttribute(cur);
+					node->setMethod(::runOP);
+					node->groupBody->flags.invoke = 1;
+					cur = node;
+					}
+				else
+				if ( ::unaryIsAccess(piece) )
+					cur = interpretXPaccumU(piece,cur);
+				else	break;
+				j = j - 1;
+				}
+			rest = new GroupItem("acRest");
+			while ( j > 0 )
+				{
+				rest->addAttribute(pend->get(j));
+				j = j - 1;
+				}
+			pend = new GroupItem("acPend");
+			expectOperand = 0;
+			continue;
+			}
+		// juxtaposed  an operand after an operand with no op between: the finished one joins the list, the new one is current
+		cur = interpretXPaccumWrap(cur,rest);
+		rest = 0;
+		if ( !jux )
+			jux = new GroupItem("acJux");
+		jux->addAttribute(cur);
+		cur = term;
+		}
+	if ( pend->groupBody->groupList )
+		return ::refuse(pend->get(1),"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
+	if ( cur )
+		{
+		cur = interpretXPaccumWrap(cur,rest);
+		if ( jux )
+			{
+			jux->addAttribute(cur);
+			cur = interpretXPaccumWrap(jux,0);
+			}
+		flat->addAttribute(cur);
+		}
+	// accTrace INCANT_ACCUM_TRACE=1 traces every expression, =<name> those whose first item is <name>; the flat list prints before the split consumes it
+	traced = accTraceWanted(flat);
+	if ( traced )
+		accTraceFlat(flat);
+	// tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)
+	if ( !flat->groupBody->groupList )
+		node = 0;
+	else
+	if ( flat->groupBody->groupList->listLength == 1 )
+		node = flat->get(1);
+	else	node = accBuild(flat);
+	// accBuilt THE BREAKPOINT: the tier tree is finished and not yet run (SEQ 320)
+	if ( traced )
+		accBuilt(node);
+	xpList->clear();
+	xpList->setGroup(node);
+	return xpList;
+}
+
+/*  interpretXPaccumU -- one prefix over one operand: an acU, run by runOPaccum.  */
+extern "C" GroupItem *interpretXPaccumU(GroupItem *op, GroupItem *operand)
+{
+GroupItem 	*node = new GroupItem("acU");
+	node->addAttribute(op);
+	node->addAttribute(operand);
+	node->setMethod(::runOPaccum);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+/*  interpretXPaccumWrap -- the prefixes that did NOT bind to the name (rest, nearest the
+    name first) wrap the finished operand: !f(x) is !(f(x)).  */
+extern "C" GroupItem *interpretXPaccumWrap(GroupItem *operand, GroupItem *rest)
+{
+int 		i = 1;
+GroupItem 	*done = operand;
+	// juxtaposed  operands with no op between them are a list, held in SOURCE order as xl1 now is (c4)
+	if ( ::compare(done->groupBody->tag,"acJux") == 0 )
+		{
+		done = new GroupItem("xl1");
+		done->groupBody->flags.binType = 3;
+		while ( i <= operand->groupBody->groupList->listLength )
+			{
+			done->addAttribute(operand->get(i));
+			i = i + 1;
+			}
+		i = 1;
+		}
+	if ( !rest )
+		return done;
+	if ( !rest->groupBody->groupList )
+		return done;
+	while ( i <= rest->groupBody->groupList->listLength )
+		{
+		done = ::interpretXPaccumU(rest->get(i),done);
+		i = i + 1;
+		}
+	return done;
+}
+
+// isCallable a call has something to call: a rule (callIsRule), an action, or a method
+extern "C" int isCallable(GroupItem *target)
+{
+	if ( !target )
+		return 0;
+	if ( ::callIsRule(target) )
+		return 1;
+	if ( target->groupBody->flags.actionType )
+		return 1;
+	if ( isMethod(target->groupBody->flags.instructType) )
+		return 1;
+	return 0;
 }
 
 /*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
@@ -4749,21 +5276,25 @@ extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
 	 return jitEmitBinary(argument, target, jitSub); 
 }
 
-extern "C" GroupItem *jitEmitTermCall(GroupItem *field)
+extern "C" GroupItem *jitEmitTermCall(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	
 	llvm::IRBuilder<> *b = gJitBuilder;
-	if (!b || !field) return nullptr;
+	if (!b || !op) return nullptr;
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
 	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Value *fieldAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)field), ptr, "termNode");
+	llvm::Value *opAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)op), ptr, "termOp");
+	llvm::Value *targetAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "termTarget");
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)arg), ptr, "termArg");
 	llvm::Value *fn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitTermCallRT), ptr, "termFn");
-	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-	gJitResult     = b->CreateCall(ty, fn, {fieldAddr}, "termCall");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr, ptr, ptr}, false);
+	gJitResult     = b->CreateCall(ty, fn, {opAddr, targetAddr, argAddr}, "termCall");
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
 	return new GroupItem((char*)"jitTerm");
@@ -5472,14 +6003,14 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
     entry exists to dodge.
 
     // constancySplit  the measured two-part example, and why the split needs no new evaluation machinery
-    // priorNotNext  why the walk is prior() -- appendGroup's own order, because the list is built in reverse
+    // priorNotNext  the walk is next() -- appendGroup's own order; the list is built in source order since c4
 *******************************************************************************/
 extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT)
 {
 	
 	if (!gJitBuilder || !ExpressioN) return;
 	GroupItem *part = 0;
-	while ((part = ExpressioN->prior(part))) {
+	while ((part = ExpressioN->next(part))) {
 	GroupBody *pb = part->groupBody;
 	if (pb->flags.isLiteral || isSTRING(pb->flags.data) || isTOKEN(pb->flags.data)) {
 	//  CONSTANT: hand the chain the baked node. No evaluation, no value.
@@ -6394,11 +6925,14 @@ extern "C" void jitStoreResult()
     parse tree or on trueResult would outlive the compile (bear-trap #22). (Before
     P4, aCTionBrancH stamped isBranch on whatever came back; the kind now rides the
     ruler slot.)
+    SEQ 318 c1: it bakes the dispatch's three RAW slots -- op, target, argument as
+    they arrived, before following -- and replays runOPslots on them, which is
+    exactly what runOP on the instruction node did (runOP is now that unpacker).
 *******************************************************************************/
-extern "C" int jitTermCallRT(GroupItem *field)
+extern "C" int jitTermCallRT(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	
-	return ::truthOf(::runOP(field));
+	return ::truthOf(::runOPslots(op,target,arg));
 	
 }
 
@@ -6491,6 +7025,29 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( target->groupBody == ruler->repeatLimit->groupBody )
 		return ruler->repeatLimit->getCount();
 	return 0;
+}
+
+/*  listLastToFront -- move a list's LAST item to its FRONT, by relinking: no copy, no change to
+    listLength or to the item's parent. interpretXP walks BACKWARD, so a juxtaposed term arrives
+    right to left; appending it with `+=` (which keeps addGroup's work) and then bringing it to the
+    front leaves xl1 in SOURCE order (c4, SEQ 322).  */
+extern "C" GroupItem *listLastToFront(GroupItem *list)
+{
+GroupItem 	*last = 0;
+GroupItem 	*first = 0;
+	last = list->groupBody->groupList->lastInList;
+	first = list->groupBody->groupList->firstInList;
+	if ( !last )
+		return list;
+	if ( last == first )
+		return list;
+	list->groupBody->groupList->lastInList = last->priorInParent;
+	list->groupBody->groupList->lastInList->nextInParent = 0;
+	last->priorInParent = 0;
+	last->nextInParent = first;
+	first->priorInParent = last;
+	list->groupBody->groupList->firstInList = last;
+	return list;
 }
 
 /*******************************************************************************
@@ -6868,7 +7425,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			target->addAttribute(grup);
 	else	target->addAttribute(argument);
 	return target;
@@ -6904,7 +7461,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( argument->groupBody->flags.isLiteral )
 		return ::refuse(target,"Operator +/ -- the right side is a literal; membership attaches a field to a list, and a literal is a value with no node to attach");
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			target->addMember(grup);
 	else	target->addMember(argument);
 	return target;
@@ -7010,6 +7567,34 @@ int 		priorLimit = ::limitWriteGuard(target);
 	if ( priorLimit )
 		::limitWriteCheck(target,priorLimit);
 	return target;
+}
+
+// opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
+extern "C" GroupItem *opCall(GroupItem *target, GroupItem *arg)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// storeRuling an armed statement dispatches nothing further -- interpreted only
+	if ( ruler->refused )
+		if ( !ruler->jitting )
+			return 0;
+	// termCallIsRunOPs jitting, the term call is emitted by runOPslots, which holds the raw slots; reaching it here is a defect, said by name
+	if ( ::callIsRule(target) )
+		{
+		
+		if ( ruler->jitting )   return ::refuse(target,"opCall reached a term call under jitting -- runOPslots owns that emit, with the raw slots (SEQ 318 c2)");
+		++gTermCallCount;
+		return ::runRule(arg,target);
+		
+		}
+	if ( target->groupBody->flags.actionType )
+		return ::runAction(arg,target);
+	if ( isMethod(target->groupBody->flags.instructType) )
+		{
+		if ( !arg )
+			arg = target;
+		return target->groupBody->gMethod(arg);
+		}
+	return ::refuse(target,"opCall: nothing to call -- not a rule, an action or a method (SEQ 318 c2)");
 }
 
 /***************************************************************************
@@ -7205,7 +7790,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
+		while ( result = argument->next(result) )
 			::opDivEQ(result,target);
 	return result;
 }
@@ -7664,6 +8249,28 @@ GroupItem 	*result = 0;
 	return result;
 }
 
+/*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
+    `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
+    is the logic tier, and an operator with none of the three folds as arithmetic. They
+    replaced two spelled lists in the PoC's runOPaccum; since SEQ 319 c3 the split reads them at BUILD.   HANDS, NOT WITNESSES  */
+extern "C" int opIsAssignTier(GroupItem *op)
+{
+	if ( !op )
+		return 0;
+	if ( op->get("assignTier") )
+		return 1;
+	return 0;
+}
+
+extern "C" int opIsCompareTier(GroupItem *op)
+{
+	if ( !op )
+		return 0;
+	if ( op->get("compareTier") )
+		return 1;
+	return 0;
+}
+
 extern "C" int opIsOR(GroupItem *op)
 {
 	if ( !op )
@@ -7876,7 +8483,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
+		while ( result = argument->next(result) )
 			::opMinusEQ(result,target);
 	return result;
 }
@@ -8044,7 +8651,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( result = argument->prior(result) )
+		while ( result = argument->next(result) )
 			::opMultiplyEQ(result,target);
 	return result;
 }
@@ -8528,7 +9135,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			{
 			added = target->replace(grup);
 			added->options.affiliation = 1;
@@ -8553,7 +9160,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
-		while ( grup = argument->prior(grup) )
+		while ( grup = argument->next(grup) )
 			{
 			added = target->replace(grup);
 			added->options.affiliation = 2;
@@ -10053,6 +10660,134 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
+// runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
+extern "C" GroupItem *runAccAnd(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*left = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	left = runOPaccumOperand(field->get(1));
+	if ( !::truthOf(left) )
+		return ruler->falseResult;
+	if ( field->groupBody->groupList->listLength < 3 )
+		return ruler->falseResult;
+	if ( ::truthOf(runOPaccumOperand(field->get(3))) )
+		return ruler->trueResult;
+	return ruler->falseResult;
+}
+
+/*  THE TIER EXECUTORS (SEQ 319, c3). interpretXPaccum builds one node per tier, loosest first,
+    and gives each node ITS executor as its method at build time (D5): acA assign, acAnd / acOr
+    logic, acK compare, acKchain the chained-comparison refusal, acX the arithmetic fold. NOTHING
+    here asks an operator for its tier -- the split already did, once. Operands arrive as nodes
+    and are finished by runOPaccumOperand; runOPdirect fires on finished operands (c1).
+    Interpreted only: under jitting each refuses (SEQ 311 R4).  */
+// runAccAssign the assignment tier, a single step: finish the head's target, evaluate the right side, assign
+extern "C" GroupItem *runAccAssign(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*op = field->get(2);
+GroupItem 	*val = 0;
+GroupItem 	*target = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	if ( field->groupBody->groupList->listLength > 2 )
+		val = runOPaccumOperand(field->get(3));
+	// finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
+	target = field->get(1);
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	if ( ruler->refused )
+		return 0;
+	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
+		target = target->groupBody->gMethod(target);
+	if ( target && target->groupBody->flags.isVirtual )
+		target = ::copyOf(target);
+	return ::runOPdirect(op,target,val);
+}
+
+// runAccChain a CHAINED comparison, seen at build: refused by its own name (SEQ 318 R1)
+extern "C" GroupItem *runAccChain(GroupItem *field)
+{
+	return ::refuse(field->get(2),"a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)");
+}
+
+// runAccCompare the compare tier, a single step: left side, right side, the comparison
+extern "C" GroupItem *runAccCompare(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*left = 0;
+GroupItem 	*keep = 0;
+GroupItem 	*right = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	left = runOPaccumOperand(field->get(1));
+	// copyOut a side answering in tempField is copied out before the other side can run
+	if ( left == ruler->tempField )
+		{
+		keep = new GroupItem("acRun");
+		keep->setContent(left);
+		left = keep;
+		}
+	if ( !left )
+		left = ruler->falseResult;
+	if ( left->groupBody->flags.isVirtual )
+		left = ::copyOf(left);
+	if ( field->groupBody->groupList->listLength > 2 )
+		right = runOPaccumOperand(field->get(3));
+	return ::runOPdirect(field->get(2),left,right);
+}
+
+// runAccFold the arithmetic tier, THE FOLD: left to right, no precedence, no tier test -- every operator here is arithmetic by construction
+extern "C" GroupItem *runAccFold(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		n = field->groupBody->groupList->listLength;
+int 		i = 2;
+GroupItem 	*run = 0;
+GroupItem 	*keep = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	run = runOPaccumOperand(field->get(1));
+	while ( i < n )
+		{
+		// copyOut a step answering in tempField is copied out before the next operand can run
+		if ( run == ruler->tempField )
+			{
+			keep = new GroupItem("acRun");
+			keep->setContent(run);
+			run = keep;
+			}
+		if ( !run )
+			run = ruler->falseResult;
+		// finished both sides are finished: the running value is a value, the right side is evaluated once here
+		if ( run->groupBody->flags.isVirtual )
+			run = ::copyOf(run);
+		run = ::runOPdirect(field->get(i),run,runOPaccumOperand(field->get(i + 1)));
+		i = i + 2;
+		}
+	return run;
+}
+
+// runAccOr the logic tier, ||: evaluate the left side, early-out on true, else the right side decides -- a SENTINEL either way
+extern "C" GroupItem *runAccOr(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*left = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	left = runOPaccumOperand(field->get(1));
+	if ( ::truthOf(left) )
+		return ruler->trueResult;
+	if ( field->groupBody->groupList->listLength < 3 )
+		return ruler->falseResult;
+	if ( ::truthOf(runOPaccumOperand(field->get(3))) )
+		return ruler->trueResult;
+	return ruler->falseResult;
+}
+
 // runAction run an action that may need code processing -- two arms, the jit arm and the interpreted one, each returning through its own exit
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field)
 {
@@ -10122,14 +10857,109 @@ extern "C" GroupItem *runLeafParse(GroupItem *field)
 	return ::refuse(field,"parseLoop: no parse method is installed on the defining rule");
 }
 
-// runOP the operator dispatch hub: follow the argument, honour the arm, resolve the operands, then fire the op, a rule, an action or a method
+// runOP the instruction's UNPACKER: its three slots, handed to runOPslots (SEQ 318 c1)
 extern "C" GroupItem *runOP(GroupItem *field)
+{
+	return ::runOPslots(field->get(1),field->get(2),field->get(3));
+}
+
+/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S PREFIX AND CALL (SEQ 311; tiers moved out at SEQ 319 c3).
+    Two shapes built by interpretXPaccum: acU (a prefix over an operand) and acC (a call whose
+    target is itself built -- (*block)(code)). The tiers have their own executors below.
+    Interpreted only: under jitting it refuses (SEQ 311 R4).  */
+extern "C" GroupItem *runOPaccum(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*op = 0;
+GroupItem 	*val = 0;
+GroupItem 	*arg = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	if ( ::compare(field->groupBody->tag,"acU") == 0 )
+		{
+		op = field->get(1);
+		val = runOPaccumOperand(field->get(2));
+		if ( ::compare(op->groupBody->tag,"-") == 0 )
+			op = ruler->opFields->get("negate");
+		if ( ::compare(op->groupBody->tag,"*") == 0 )
+			op = ruler->opFields->get("deref");
+		return op->groupBody->gMethod(val);
+		}
+	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
+	if ( ::compare(field->groupBody->tag,"acC") == 0 )
+		{
+		val = field->get(2);
+		if ( ::compare(val->groupBody->tag,"acU") == 0 || ::compare(val->groupBody->tag,"acDot") == 0 || ::compare(val->groupBody->tag,"acSub") == 0 || ::compare(val->groupBody->tag,"acC") == 0 )
+			val = val->groupBody->gMethod(val);
+		// finished the call's operands are finished HERE, as runOP finishes an instruction's: the target followed, the argument followed and invoked
+		val = ::followArgument(val);
+		if ( val && val->groupBody->flags.isVirtual )
+			val = ::copyOf(val);
+		arg = 0;
+		if ( field->groupBody->groupList->listLength > 2 )
+			arg = runOPaccumOperand(field->get(3));
+		// callExecutor the call goes straight to opCall; anything uncallable refuses as runOPdirect's ladder would
+		// dispatchSeat the call's witness, as runOPdirect gave it before opCall existed (searchNewParseT SNP-0 reads it)
+		::measureRuleDispatch(ruler->falseResult,val,arg);
+		if ( ::isCallable(val) )
+			return ::opCall(val,arg);
+		return ::refuseUnknownOperator(ruler->falseResult,val);
+		}
+	return ::refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
+}
+
+/*  runOPaccumOperand -- one operand, evaluated if it carries an invocation.  */
+extern "C" GroupItem *runOPaccumOperand(GroupItem *operand)
+{
+GroupItem 	*val = ::followArgument(operand);
+	if ( val )
+		if ( isMethod(val->groupBody->flags.instructType) && val->groupBody->flags.invoke )
+			val = val->groupBody->gMethod(val);
+	return val;
+}
+
+// runOPdirect the FIRE: operands arrive FINISHED (D4); pick the kind, then fire the op, a rule, an action or a method
+extern "C" GroupItem *runOPdirect(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
-GroupItem 	*op = field->get(1);
-GroupItem 	*arg = field->get(3);
-GroupItem 	*target = field->get(2);
+	// storeRuling an armed statement dispatches nothing further -- interpreted only
+	if ( ruler->refused )
+		if ( !ruler->jitting )
+			return 0;
+	// perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
+	if ( op->groupBody->flags.hasMembers )
+		{
+		if ( ruler->jitting )
+			return jitEmitOpFire(op,arg,target);
+		op = ::pickKindOP(op,target,arg);
+		}
+	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
+	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
+		::jitSeedOperands(target,arg);
+	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
+	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
+	// dispatchSeat which node the name reached, and which arm the fork will take
+	::measureRuleDispatch(op,target,arg);
+	// callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
+	if ( isOperator(op->groupBody->flags.instructType) )
+		result = op->groupBody->gOp(arg,target);
+	else
+	if ( isMethod(op->groupBody->flags.instructType) )
+		result = op->groupBody->gMethod(target);
+	else
+	if ( ::isCallable(target) )
+		result = ::opCall(target,arg);
+	else	result = ::refuseUnknownOperator(op,target);
+	return result;
+}
+
+// runOPslots the INSTRUCTION's half: FINISH the operands -- follow, refuse a rebound argument, invoke -- then fire (SEQ 318 c1)
+extern "C" GroupItem *runOPslots(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// rawSlots declared in passthrough: tok prunes a local that only a passthrough reads (bear-trap 13)
+	 GroupItem *rawOp = op, *rawTarget = target, *rawArg = arg; 
 	// argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
 	if ( ::refuseArgRebind(op,target) )
 		return 0;
@@ -10148,46 +10978,18 @@ GroupItem 	*target = field->get(2);
 	// virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
-	// perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
-	if ( op->groupBody->flags.hasMembers )
-		{
-		if ( ruler->jitting )
-			return jitEmitOpFire(op,arg,target);
-		op = ::pickKindOP(op,target,arg);
-		}
-	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
-	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
-		::jitSeedOperands(target,arg);
-	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
-	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
-	// dispatchSeat which node the name reached, and which arm the fork will take
-	::measureRuleDispatch(op,target,arg);
-	// doorByRoad interpreted, runRule for isRule only; jitting, a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123)
-	if ( isOperator(op->groupBody->flags.instructType) )
-		result = op->groupBody->gOp(arg,target);
-	else
-	if ( isMethod(op->groupBody->flags.instructType) )
-		result = op->groupBody->gMethod(target);
-	else
-	if ( target->isRuleTerm() || (ruler->jitting && target->groupBody->flags.hasNewParse) )
-		{
-		
-		if ( ruler->jitting )   result = ::jitEmitTermCall(field);
-		else                  { ++gTermCallCount; result = ::runRule(arg,target); }
-		
-		}
-	else
-	if ( target->groupBody->flags.actionType )
-		result = ::runAction(arg,target);
-	else
-	if ( isMethod(target->groupBody->flags.instructType) )
-		{
-		if ( !arg )
-			arg = target;
-		result = target->groupBody->gMethod(arg);
-		}
-	else	result = ::refuseUnknownOperator(op,target);
-	return result;
+	// termCallIntercept jitting, the term call REPLAYS this instruction at run time, so it bakes the RAW slots -- the ladder's own conditions, read here (SEQ 318 c1)
+	if ( ruler->jitting && !op->groupBody->flags.hasMembers && !isOperator(op->groupBody->flags.instructType) && !isMethod(op->groupBody->flags.instructType) )
+		if ( ::callIsRule(target) )
+			{
+			
+			if ( !::jitSlotTaken(op) ) {
+			if ( op->groupBody->flags.isUnary )   ::jitSeedOperands(target,arg);
+			::measureRuleDispatch(op,target,arg);
+			return ::jitEmitTermCall(rawOp,rawTarget,rawArg); }
+			
+			}
+	return ::runOPdirect(op,target,arg);
 }
 
 // runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
@@ -11179,6 +11981,12 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	read(int,char*,long)
 	driveStep(GroupItem*,GroupItem*,GroupItem*,null*)
 	reportCodeFail(GroupItem*,char*)
+	accFold(GroupItem*)
+	accFold(GroupItem*)
+	accCompare(GroupItem*)
+	accLogic(GroupItem*)
+	interpretXPaccumWrap(GroupItem*,GroupItem*)
+	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
@@ -11188,5 +11996,6 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	measureKindArm(char*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
+	interpretXPaccumWrap(GroupItem*,int)
 	floor(double)
 */

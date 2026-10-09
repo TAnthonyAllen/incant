@@ -981,6 +981,9 @@ GroupItem   swap,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYorNum"];
+    // exprAccumGate  SEQ 311: under INCANT_EXPR_ACCUM the label goes up untouched -- interpretXPaccum takes its raw pieces
+    // exprAccumOn  the switch's VALUE, not its presence (SEQ 314 g); one reader for both sites, in jitContext.h
+    -% if ( ::exprAccumOn() ) return xpress; %-
     xpress.clear();
     if isGROUP  ANYtoken = group;
     // leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
@@ -1390,6 +1393,26 @@ GroupRules  ruler = groupRules;
     return xpress;
 }
 
+/*  listLastToFront -- move a list's LAST item to its FRONT, by relinking: no copy, no change to
+    listLength or to the item's parent. interpretXP walks BACKWARD, so a juxtaposed term arrives
+    right to left; appending it with `+=` (which keeps addGroup's work) and then bringing it to the
+    front leaves xl1 in SOURCE order (c4, SEQ 322).  */
+extern GroupItem listLastToFront(GroupItem list)
+{
+GroupItem   last, first;
+    last  = list.lastInList;
+    first = list.firstInList;
+    if !last            return list;
+    if last == first    return list;
+    list.lastInList = last.priorInParent;
+    list.lastInList.nextInParent = null;
+    last.priorInParent = null;
+    last.nextInParent  = first;
+    first.priorInParent = last;
+    list.firstInList = last;
+    return list;
+}
+
 /*******************************************************************************
     interpretXP — the interpret/run mode: build the left-associative runOP tree
     the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
@@ -1449,7 +1472,9 @@ GroupItem   op, target, arg, xl, token;
                         xl = new("xl1");
                         xl.isLIST   = true; }
                     if arg != xl    xl += arg;
+                    // sourceOrder  the walk is backward, so each term to the left goes to the FRONT (c4)
                     xl  += token;
+                    listLastToFront(xl);
                     arg = xl; }}}
         if op
             if arg {
@@ -1479,6 +1504,390 @@ finishXP:
     xpList.clear();
     xpList.group = arg;
     return xpList;
+}
+
+/*  interpretXPaccum -- THE ACCUMULATOR CANDIDATE'S interpretXP (SEQ 311, try-and-buy on
+    expr-accum; a proof of concept). ExpressioN's actor under INCANT_EXPR_ACCUM, which also
+    makes aCTionTokenXP hand its label up untouched. Pass 1 flattens every TokenXP label
+    into its raw pieces -- unary, name, InvokeArg's parts -- so KANT-43's absorbed `qa * qb`
+    arrives as qa, *, qb. Pass 2 decides by POSITION: an op where an operand is expected is
+    a prefix; an op after an operand is binary; `.`, a call, a subscript after an operand
+    are postfixes on it. An ACCESS prefix (`*`, a leading `.`) binds to the name before the
+    postfixes, any other prefix to the finished operand: *block(code) is (*block)(code),
+    !f(x) is !(f(x)). The result is ONE FLAT list -- operand, then (op, operand) pairs --
+    whose method is runOPaccum.  */
+extern GroupItem interpretXPaccum(GroupItem xpList)
+{
+GroupRules  ruler = groupRules;
+int         i = 0, j = 0, n = 0, expectOperand = 1, traced = 0;
+GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, jux, right;
+    seq = new("acSeq");
+    i = 1;
+    n = 0;
+    if xpList.groupList     n = xpList.listLength;
+    while i <= n {
+        term = xpList[i];
+        i = i + 1;
+        name = term["ANYorNum"];
+        if !name {
+            seq +% term;
+            continue; }
+        unary = term["UnaryOPS"];
+        invoke = term["InvokeArg"];
+        if name.isGROUP     name = name.group;
+        if unary
+            if unary.isGROUP    unary = unary.group;
+        if unary {
+            piece = ruler.opFields[unary.tag];
+            if !piece   piece = unary;
+            seq +% piece; }
+        seq +% name;
+        if !invoke  continue;
+        if invoke.groupList {
+            piece = invoke.firstInList;
+            if piece.isGROUP    piece = piece.group;
+            right = ruler.opFields[piece.tag];
+            if right    piece = right;
+            seq +% piece;
+            right = invoke.lastInList;
+            if right.isGROUP    right = right.group;
+            seq +% right;
+            continue; }
+        if invoke.fLAG  piece = new("acPostSub");
+        else            piece = new("acPostCall");
+        piece +% invoke;
+        seq +% piece; }
+    flat = new("acX");
+    cur = 0;
+    jux = 0;
+    pend = new("acPend");
+    rest = 0;
+    expectOperand = 1;
+    i = 1;
+    n = 0;
+    if seq.groupList    n = seq.listLength;
+    while i <= n {
+        term = seq[i];
+        i = i + 1;
+        if term.registry == ruler.opFields {
+            if expectOperand {
+                pend +% term;
+                continue; }
+            if term.tag eq "." {
+                if i > n    return refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
+                right = seq[i];
+                i = i + 1;
+                if right.registry == ruler.opFields     return refuse(right,"an operator on the right of a dot (the accumulator candidate, SEQ 311)");
+                if right.registry != ruler.groupFields  right = new(right.tag);
+                node = new("acDot");
+                node +% term;
+                node +% cur;
+                node +% right;
+                node.method = runOP;
+                node.invoke = true;
+                cur = node;
+                continue; }
+            cur = interpretXPaccumWrap(cur,rest);
+            rest = 0;
+            if jux {
+                jux +% cur;
+                cur = interpretXPaccumWrap(jux,0);
+                jux = 0; }
+            flat +% cur;
+            cur = 0;
+            flat +% term;
+            expectOperand = 1;
+            continue; }
+        if term.tag eq "acPostCall" {
+            if expectOperand    return refuse(term,"a call with nothing to call (the accumulator candidate, SEQ 311)");
+            node = new("acC");
+            handleCall(node,cur,term[1]);
+            node.method = runOPaccum;
+            node.invoke = true;
+            cur = node;
+            continue; }
+        if term.tag eq "acPostSub" {
+            if expectOperand    return refuse(term,"a subscript with nothing to subscript (the accumulator candidate, SEQ 311)");
+            node = new("acSub");
+            handleSubscript(node,0,cur,term[1]);
+            node.method = runOP;
+            node.invoke = true;
+            cur = node;
+            continue; }
+        if term.actionType || term.instructType     term.invoke = true;
+        if expectOperand {
+            cur = term;
+            j = 0;
+            if pend.groupList   j = pend.listLength;
+            while j > 0 {
+                piece = pend[j];
+                if piece.tag eq "." {
+                    node = new("acDot");
+                    node +% piece;
+                    node +% cur;
+                    node.method = runOP;
+                    node.invoke = true;
+                    cur = node; }
+                or unaryIsAccess(piece)     cur = interpretXPaccumU(piece,cur);
+                else    break;
+                j = j - 1; }
+            rest = new("acRest");
+            while j > 0 {
+                rest +% pend[j];
+                j = j - 1; }
+            pend = new("acPend");
+            expectOperand = 0;
+            continue; }
+        // juxtaposed  an operand after an operand with no op between: the finished one joins the list, the new one is current
+        cur = interpretXPaccumWrap(cur,rest);
+        rest = 0;
+        if !jux     jux = new("acJux");
+        jux +% cur;
+        cur = term; }
+    if pend.groupList   return refuse(pend[1],"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
+    if cur {
+        cur = interpretXPaccumWrap(cur,rest);
+        if jux {
+            jux +% cur;
+            cur = interpretXPaccumWrap(jux,0); }
+        flat +% cur; }
+    // accTrace INCANT_ACCUM_TRACE=1 traces every expression, =<name> those whose first item is <name>; the flat list prints before the split consumes it
+    traced = accTraceWanted(flat);
+    if traced   accTraceFlat(flat);
+    // tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)
+    if !flat.groupList          node = 0;
+    or flat.listLength == 1     node = flat[1];
+    else                        node = accBuild(flat);
+    // accBuilt THE BREAKPOINT: the tier tree is finished and not yet run (SEQ 320)
+    if traced   accBuilt(node);
+    xpList.clear();
+    xpList.group = node;
+    return xpList;
+}
+
+/*  THE TIER SPLIT (SEQ 319, c3; D3 and D5). The flat list -- operand, then (op, operand) pairs --
+    is consumed LEFT TO RIGHT and rebuilt as one node per tier, loosest first: an assignment head
+    (acA), then && / || (acAnd / acOr, nested to the left, so a && b || c is (a && b) || c), then
+    one comparison (acK; a second one makes acKchain, refused by name at run time), then the
+    arithmetic fold (acX). Each node gets its executor as its method HERE, so nothing at run time
+    asks an operator for its tier. The tier marks are setup data: assignTier, shortCircuit,
+    compareTier; anything else folds.
+    ⚠ EVERY ITEM IS DETACHED BEFORE IT IS RE-ATTACHED (accPop). addGroup COPIES a node that
+    already has a parent, and a copy is what hid holderT's re-invocation in c1 -- so nothing here
+    attaches an item that still belongs to the flat list.  */
+
+// accPop take the flat list's first item off it, parent cleared, so the next +% attaches IT and not a copy
+extern GroupItem accPop(GroupItem flat)
+{
+GroupItem   item;
+    if !flat.groupList      return null;
+    if !flat.listLength     return null;
+    item = flat[1];
+    if !item    return null;
+    item.remove();
+    item.parent = null;
+    return item;
+}
+
+
+// accNextOp the operator at the head of the list, or null -- these lists alternate, so a peek after an operand is an operator
+extern GroupItem accNextOp(GroupItem flat)
+{
+    if !flat.groupList      return null;
+    if !flat.listLength     return null;
+    return flat[1];
+}
+
+
+// accBuild the loosest tier: an assignment head parks its target and takes the rest as its right side
+extern GroupItem accBuild(GroupItem flat)
+{
+GroupItem   node, right;
+    if !opIsAssignTier(flat[2])     return accLogic(flat);
+    node = new("acA");
+    node +% accPop(flat);
+    node +% accPop(flat);
+    right = accLogic(flat);
+    if right    node +% right;
+    node.method = runAccAssign;
+    node.invoke = true;
+    return node;
+}
+
+
+// accLogic && and ||, nested to the left: each connective takes what is built so far and the next comparison part
+extern GroupItem accLogic(GroupItem flat)
+{
+GroupItem   left, op, right, node;
+    left = accCompare(flat);
+    while opIsShortCircuit(accNextOp(flat)) {
+        op = accPop(flat);
+        right = accCompare(flat);
+        if opIsOR(op) {
+            node = new("acOr");
+            node.method = runAccOr; }
+        else {
+            node = new("acAnd");
+            node.method = runAccAnd; }
+        node +% left;
+        node +% op;
+        if right    node +% right;
+        node.invoke = true;
+        left = node; }
+    return left;
+}
+
+
+// accCompare one comparison between two folds; a second comparison in the same part makes the chain, refused by name
+extern GroupItem accCompare(GroupItem flat)
+{
+GroupItem   left, op, right, node;
+    left = accFold(flat);
+    if !opIsCompareTier(accNextOp(flat))    return left;
+    op = accPop(flat);
+    right = accFold(flat);
+    if opIsCompareTier(accNextOp(flat)) {
+        node = new("acKchain");
+        node +% left;
+        node +% op;
+        if right    node +% right;
+        while opIsCompareTier(accNextOp(flat)) {
+            node +% accPop(flat);
+            right = accFold(flat);
+            if right    node +% right; }
+        node.method = runAccChain;
+        node.invoke = true;
+        return node; }
+    node = new("acK");
+    node +% left;
+    node +% op;
+    if right    node +% right;
+    node.method = runAccCompare;
+    node.invoke = true;
+    return node;
+}
+
+
+// accFold an operand, then (op, operand) for as long as the operator is arithmetic -- one operand alone is itself
+extern GroupItem accFold(GroupItem flat)
+{
+GroupItem   first, op, node;
+    first = accPop(flat);
+    op = accNextOp(flat);
+    if !op                          return first;
+    if opIsShortCircuit(op)         return first;
+    if opIsCompareTier(op)          return first;
+    node = new("acX");
+    node +% first;
+    while op {
+        if opIsShortCircuit(op)     break;
+        if opIsCompareTier(op)      break;
+        node +% accPop(flat);
+        if accNextOp(flat)          node +% accPop(flat);
+        op = accNextOp(flat); }
+    node.method = runAccFold;
+    node.invoke = true;
+    return node;
+}
+
+
+/*  interpretXPaccumU -- one prefix over one operand: an acU, run by runOPaccum.  */
+extern GroupItem interpretXPaccumU(GroupItem op, GroupItem operand)
+{
+GroupItem   node = new("acU");
+    node +% op;
+    node +% operand;
+    node.method = runOPaccum;
+    node.invoke = true;
+    return node;
+}
+
+/*  interpretXPaccumWrap -- the prefixes that did NOT bind to the name (rest, nearest the
+    name first) wrap the finished operand: !f(x) is !(f(x)).  */
+extern GroupItem interpretXPaccumWrap(GroupItem operand, GroupItem rest)
+{
+int         i = 1;
+GroupItem   done = operand;
+    // juxtaposed  operands with no op between them are a list, held in SOURCE order as xl1 now is (c4)
+    if done.tag eq "acJux" {
+        done = new("xl1");
+        done.isLIST = true;
+        while i <= operand.listLength {
+            done +% operand[i];
+            i = i + 1; }
+        i = 1; }
+    if !rest            return done;
+    if !rest.groupList  return done;
+    while i <= rest.listLength {
+        done = interpretXPaccumU(rest[i],done);
+        i = i + 1; }
+    return done;
+}
+
+/*  THE C1 TRACE (SEQ 320). INCANT_ACCUM_TRACE is read by VALUE: unset, empty or 0 is off; 1
+    traces every expression; any other value traces the expressions whose FIRST item carries that
+    tag (INCANT_ACCUM_TRACE=r for `r = ...`). accTraceFlat prints the flat list before the split
+    consumes it; accBuilt prints the tier tree and is the breakpoint symbol -- the tree is finished
+    there and nothing has run. Output is stderr, one item per token, ops marked (op), a value
+    after = where the item carries data.  */
+extern int accTraceWanted(GroupItem flat)
+{
+    -%
+    const char *v = ::getenv("INCANT_ACCUM_TRACE");
+    if ( !v || !*v || !::strcmp(v,"0") )    return 0;
+    if ( !::strcmp(v,"1") )                 return 1;
+    if ( !flat || !flat->groupBody->groupList || !flat->groupBody->groupList->listLength ) return 0;
+    GroupItem *first = flat->get(1);
+    return first && !::strcmp(first->groupBody->tag,v);
+    %-
+}
+
+
+// accTraceItem one item: its tag, (op) for an operator entry, =value where it carries data
+extern void accTraceItem(GroupItem item)
+{
+    -%
+    if ( !item ) { ::fprintf(stderr," (null)"); return; }
+    ::fprintf(stderr," %s",item->groupBody->tag);
+    if ( item->groupBody->registry == GroupControl::groupController->groupRules->opFields ) ::fprintf(stderr,"(op)");
+    else if ( item->groupBody->flags.data ) ::fprintf(stderr,"=%s",item->getText());
+    %-
+}
+
+
+// accTraceFlat the flat list from interpretXPaccum's second pass, on one line, before the split
+extern void accTraceFlat(GroupItem flat)
+{
+    -%
+    ::fprintf(stderr,"ACCUM FLAT  ");
+    for ( int k = 1; flat && flat->groupBody->groupList && k <= flat->groupBody->groupList->listLength; k++ )
+        ::accTraceItem(flat->get(k));
+    ::fprintf(stderr,"\n");
+    %-
+}
+
+
+// accTraceTree one node per line, two spaces of indent per level; descends into the candidate's own nodes (ac..., xl1) only
+extern void accTraceTree(GroupItem node, int depth)
+{
+    -%
+    ::fprintf(stderr,"ACCUM TREE  ");
+    for ( int k = 0; k < depth; k++ ) ::fprintf(stderr,"  ");
+    ::accTraceItem(node);
+    ::fprintf(stderr,"\n");
+    if ( !node || depth > 20 || !node->groupBody->groupList ) return;
+    const char *t = node->groupBody->tag;
+    if ( ::strncmp(t,"ac",2) && ::strcmp(t,"xl1") ) return;
+    for ( int k = 1; k <= node->groupBody->groupList->listLength; k++ )
+        ::accTraceTree(node->get(k),depth + 1);
+    %-
+}
+
+
+// accBuilt THE BREAKPOINT SYMBOL (SEQ 320): called with the finished tier tree, before anything runs; it prints the tree
+extern void accBuilt(GroupItem node)
+{
+    accTraceTree(node,0);
 }
 
 /*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
@@ -1692,5 +2101,25 @@ extern int opIsOR(GroupItem op)
 {
     if !op          return 0;
     if op["isOR"]   return 1;
+    return 0;
+}
+
+
+/*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
+    `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
+    is the logic tier, and an operator with none of the three folds as arithmetic. They
+    replaced two spelled lists in the PoC's runOPaccum; since SEQ 319 c3 the split reads them at BUILD.   HANDS, NOT WITNESSES  */
+extern int opIsAssignTier(GroupItem op)
+{
+    if !op                  return 0;
+    if op["assignTier"]     return 1;
+    return 0;
+}
+
+
+extern int opIsCompareTier(GroupItem op)
+{
+    if !op                  return 0;
+    if op["compareTier"]    return 1;
     return 0;
 }

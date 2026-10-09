@@ -180,7 +180,11 @@ strip "$T/pn.o" > "$T/pn.f"
 #  is a known-cause re-pin waiting on Tony's word, deliberately NOT absorbed
 #  into the xl1 re-pin -- absorbing it would have made one ruling silently
 #  cover two.
-diffcheck "printFamilyNew.divergence (stdout: sinks CORRECT; sec.6 xl1InSet still 35b; printToBuffer lines owed a re-pin)" \
+#  ⚠ RE-PINNED ON expr-accum AT c4 (SEQ 323 R0, 2026-10-08): section 6 reads `omitted-2 [ n4 ]`, not
+#  `xl1InSet`. xl1 no longer carries the InSet set, so `n4 = "PN-O" "two"` assigns a list with NO DATA and
+#  setContent leaves n4 data-less: it prints its own tag (bear-trap 26). Still not n2's value -- 35b's
+#  answer is the = ruling (setData, not built). The xl1InSet token named the set, and the set is gone.
+diffcheck "printFamilyNew.divergence (stdout: sinks CORRECT; sec.6 n4 prints its tag (c4), still 35b)" \
           genLadder/printFamilyNew.divergence "$T/pn.f"
 diffcheck "printFamilyNew.err.divergence (stderr: cerr native, flush holds print ALONE)" \
           genLadder/printFamilyNew.err.divergence "$T/pn.e"

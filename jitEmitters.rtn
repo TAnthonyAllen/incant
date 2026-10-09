@@ -966,29 +966,36 @@ extern GroupItem jitEmitOpFire(GroupItem op,GroupItem arg,GroupItem target)
     parse tree or on trueResult would outlive the compile (bear-trap #22). (Before
     P4, aCTionBrancH stamped isBranch on whatever came back; the kind now rides the
     ruler slot.)
+    SEQ 318 c1: it bakes the dispatch's three RAW slots -- op, target, argument as
+    they arrived, before following -- and replays runOPslots on them, which is
+    exactly what runOP on the instruction node did (runOP is now that unpacker).
 *******************************************************************************/
-extern int jitTermCallRT(GroupItem field)
+extern int jitTermCallRT(GroupItem op,GroupItem target,GroupItem arg)
 {
     -%
-    return ::truthOf(::runOP(field));
+    return ::truthOf(::runOPslots(op,target,arg));
     %-
 }
 
-extern GroupItem jitEmitTermCall(GroupItem field)
+extern GroupItem jitEmitTermCall(GroupItem op,GroupItem target,GroupItem arg)
 {
     -%
     llvm::IRBuilder<> *b = gJitBuilder;
-    if (!b || !field) return nullptr;
+    if (!b || !op) return nullptr;
     llvm::LLVMContext &ctx = b->getContext();
     llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
     llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
     llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-    llvm::Value *fieldAddr = b->CreateIntToPtr(
-        llvm::ConstantInt::get(i64, (uint64_t)(void*)field), ptr, "termNode");
+    llvm::Value *opAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)op), ptr, "termOp");
+    llvm::Value *targetAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "termTarget");
+    llvm::Value *argAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)arg), ptr, "termArg");
     llvm::Value *fn = b->CreateIntToPtr(
         llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitTermCallRT), ptr, "termFn");
-    llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-    gJitResult     = b->CreateCall(ty, fn, {fieldAddr}, "termCall");
+    llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr, ptr, ptr}, false);
+    gJitResult     = b->CreateCall(ty, fn, {opAddr, targetAddr, argAddr}, "termCall");
     gJitEmitted    = true;
     gJitLastIsNode = false;
     return new GroupItem((char*)"jitTerm");
@@ -2617,14 +2624,14 @@ extern void jitPrintItem(GroupItem token,GroupItem FormaT,int hasValue)
     entry exists to dodge.
 
     // constancySplit  the measured two-part example, and why the split needs no new evaluation machinery
-    // priorNotNext  why the walk is prior() -- appendGroup's own order, because the list is built in reverse
+    // priorNotNext  the walk is next() -- appendGroup's own order; the list is built in source order since c4
 *******************************************************************************/
 extern void jitPrintList(GroupItem ExpressioN,GroupItem FormaT)
 {
     -%
     if (!gJitBuilder || !ExpressioN) return;
     GroupItem *part = 0;
-    while ((part = ExpressioN->prior(part))) {
+    while ((part = ExpressioN->next(part))) {
         GroupBody *pb = part->groupBody;
         if (pb->flags.isLiteral || isSTRING(pb->flags.data) || isTOKEN(pb->flags.data)) {
             //  CONSTANT: hand the chain the baked node. No evaluation, no value.
