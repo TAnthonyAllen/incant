@@ -617,6 +617,62 @@ cannot apply"; `cerr *c5C` and a captured length do not.
 - **The fold rows on the branch:** with the switch on, FA2 reads 0 and foldAndT exits 0 and reaches its foot -- the
   intended values, red only against trunk's today-pins. They read that way before c4 too (the tiers, c3).
 
+### (h) RECON -- A RULE CALLED WITH A HOLDER (SEQ 325 R0/R1, Clod, 2026-10-09; READ-ONLY, nothing built)
+
+**R0, pinned on trunk `3888016`: `incant/pop/blockCallT`.** pSrc holds `{ pz = 7; }`, so `pz` reads 7 only if the
+SOURCE TEXT was driven; `rc` is what came back (its tag = nothing). Switch off today, intended, [switch on today]:
+
+| row | spelling | pz | rc |
+|---|---|---|---|
+| BC0 control | `rc = BlocK(pSrc)` | 7 -> 7 [7] | 7 -> 7 [7] |
+| BC1 | `src := pSrc; rc = BlocK(src)` | 0 -> 7 [0] | rc -> 7 [rc] |
+| BC2 (O1's shape) | `block := Grokking["BlocK"]; rc = *block(src)` | 0 -> 7 [0] | rc -> 7 [rc] |
+| BC3 | `BlocK(src);` as a statement | 0 -> 7 [0] | -- |
+| BC4 | `rc = *block(pSrc)`, no holder | 0 -> 7 [**7**] | rc -> 7 [**7**] |
+
+**BC4 separates BC2's two defects.** Switch off the star-call is lost before any drive (step 1 section 3: the call
+node never gets a method); switch on, `(*block)(pSrc)` calls. So BC2 is (h) AND the star-call switch off, and (h)
+alone switch on. Fleet 1041 -> 1052 / 51 / 1; switch on, BC4's two rows read 7, nothing else differs.
+
+**R1 -- THE DOORS. There is ONE.** Every road a kant rule call takes reaches `driveStep` through `opCall`'s rule case
+(`GroupActions.rtn:1077-1081`, `callIsRule` -> `runRule(arg,target)` -> `driveStep(arg,rule,null,null)`):
+
+| road | how it gets to opCall |
+|---|---|
+| trunk (switch off) | `runOPslots` -> `runOPdirect` -> `isCallable` -> `opCall` |
+| candidate (switch on) | `runOPaccum`'s `acC` (the call, target finished first) -> `isCallable` -> `opCall` |
+| jit | `runOPslots` under jitting emits `jitTermCallRT`, which at run time replays `runOPslots` on the raw slots -> the trunk row |
+
+**What driveStep reads off the argument** (`GroupActions.rtn:221`): `field.data` as the gate -- a holder passes, its
+data is the isGROUP kind; `pushInput(field)`, i.e. **`field.getText()`, which for a holder is the HELD field's NAME**
+(`driven=[pSrc]`, not the holder's own tag `src`, and not pSrc's text); `measureMarkArm(field)`; and only after the
+push, `intoField = field.gGroup` (unwrapTheHolder) -- read solely by the old-road `noDataMeansLabel` arm. So the held
+field's TEXT is never read.
+
+**Other drive doors, for the record -- none is a kant rule call:** RunRulE's action (`ruleActions.rtn:800`) already
+unwraps ONE level before `runRule`; `compileIn` (`:745-746`) unwraps every level (`while ... isGROUP`); `compile`
+(`:702`) drives the action's CodE property; `aCTionTell` builds a fresh message node from `message.getText()` (a
+holder message would hand it the held name the same way -- not a call, not in (h)); `treeOf` (`genParse.rtn:137`)
+drives its argument unwrapped (a command, not a call).
+
+**Census (temporary tap in driveStep, clone, every drive handed a holder, reverted md5-identical).** Population: every
+file in `incant/pop`, `incant/pop/jit`, `incant/jit*`, the top-level corpus files and `walkRefT` -- 204 files, both
+switches, 408 runs. A holder drive anywhere in the fleet would have been seen, because every fleet fixture is in it.
+
+| switch | holder drives | where | outcome |
+|---|---|---|---|
+| off | 2 | blockCallT BC1, BC3 | result 0 |
+| on | 4 | blockCallT BC1, BC2, BC3; exprPinT O1 | result 0 |
+
+All six are `BlocK` holding `pSrc`, and **every one fails -- no caller relies on the name text being driven** (R1's
+STOP not met). Switch on, 19 jit fixtures crash (14 x 139, 5 x 142) identically on the untapped binary: standing
+switch-on behaviour (the SEQ 311 R4 jit refusal family), not the tap.
+
+**What it means for R2's open question.** Because the door is shared, the one-line unwrap -- in `opCall`'s rule case
+before `runRule`, or `driveStep`'s unwrapTheHolder moved above the push -- fixes BOTH roads (and the jit replay) at
+once; a candidate-only fix would need a switch test added at the door. BC1 and BC3 turn green on both switches; BC2 turns
+green switch on only, because switch off its call never happens (the star-call defect, BC4).
+
 ### ⚠⚠ c4 BOUGHT AND MERGED (SEQ 324, Clod, 2026-10-09) -- the switch stays OFF by default
 
 **R1 first -- the +% order row, which seal 101's H7 showed nothing pinned.** exprPinT **PA1**: `holdB +% qa qb qc;`
