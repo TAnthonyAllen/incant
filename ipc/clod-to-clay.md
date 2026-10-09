@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12315,3 +12315,21 @@ BlocK 1), 13 list-and-data (StringXP strings 8, xl1 3, counts 2). Only C5's comm
 JSON and decoder sites say nothing and read the list right after. Operators: = reaches setContent; := and <- reach
 setGroup; += struct, +%, +/ attach items; the rest copy nothing.
   END SEQ 236
+
+===================================================================
+SEQ 237  -  SEQ 324: PA1 PINNED; c4 BOUGHT AND MERGED; setData PARKED
+===================================================================
+Written 2026-10-09. Details: docs/expressionRecon.md "c4 BOUGHT AND MERGED", "setData PARKED".
+R1: exprPinT PA1 -- holdB +% qa qb qc; length and entries 1-3 by value: 3: 2 10 3, intended the same. Trunk 1039 ->
+1040 (9099b08; respelled 2d90c05 -- the := + cerr "x" *p spelling printed nothing on expr-accum switch on, the star
+read as binary). expr-accum (clone, trunk merged d25a3e8): off 1041, on 786, PA1 the only mover. H7 opAddAttribute on
+prior: PA1 red 3: 3 10 2 on both switches, nothing else moved; restored md5-identical.
+R2: trunk d0c0d7b merges expr-accum (tree identical to it); support main 4394d53 merges 2acfa25. expr-accum deleted
+local and remote in both repos (and in the clone). Bare tokall byte-identical, canary 338, binary rebuilt. Trunk
+fleet 1041 / 51 / 1 (switch off + PA1; vs this morning only c4's C5 and ST1 move). jitLadder PASSED, printPop PASSED,
+ddPop 5/1, decodePop binary echo only, frontier identical, dirCheck PASSED 52/56 (runOP starting dark, R3).
+R0: setData parked, the proposal recorded unruled (= setData clears on no data, <- setContent, := holder), opening
+with a census of every <- use. ST1 stays pinned 7.
+Context: cerr *p1 *p2 *p3 exits 139 on trunk; one dirCheck run printed a tok Bus error in its bare retok loop, still
+byte-identical, not reproduced in four more passes.
+  END SEQ 237

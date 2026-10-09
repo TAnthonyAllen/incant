@@ -28,7 +28,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS processCode result (parked, line 188 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS rEGISTER currentRegistry (parked, line 191 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS runAction if before (parked, line 195 of groupDirectives) -> GroupRules.twk +2
-  ok    INJECTS runOP starting (parked, line 199 of groupDirectives) -> GroupRules.twk +2
+  WARN dark  runOP starting (parked, line 199 of groupDirectives) -- tok found runOP in GroupRules.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS runRule if (parked, line 202 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS restoreLocalFields starting (parked, line 205 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS saveLocalFields ending (parked, line 208 of groupDirectives) -> GroupRules.twk +1
@@ -55,7 +55,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS pushInput sourceFILE before (parked, line 344 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS popInput return before (parked, line 347 of groupDirectives) -> GroupRules.twk +4
   ok    INJECTS getWhatFollows followed (parked, line 357 of groupDirectives) -> RuleStuff.twk +2
-DIRCHECK: 56 directives -- 53 inject, 3 dark (0 armed, 3 parked)
+DIRCHECK: 56 directives -- 52 inject, 4 dark (0 armed, 4 parked)
   ok    tree retokked bare and byte-identical to the bare snapshot
-DIRCHECK PASSED (53 of 56 inject; parked dark named above, not a failure)
+DIRCHECK PASSED (52 of 56 inject; parked dark named above, not a failure)
 DIRCHECK SENTINEL -- reached the foot

@@ -617,6 +617,32 @@ cannot apply"; `cerr *c5C` and a captured length do not.
 - **The fold rows on the branch:** with the switch on, FA2 reads 0 and foldAndT exits 0 and reaches its foot -- the
   intended values, red only against trunk's today-pins. They read that way before c4 too (the tiers, c3).
 
+### ⚠⚠ c4 BOUGHT AND MERGED (SEQ 324, Clod, 2026-10-09) -- the switch stays OFF by default
+
+**R1 first -- the +% order row, which seal 101's H7 showed nothing pinned.** exprPinT **PA1**: `holdB +% qa qb qc;`
+then holdB's length and its entries 1, 2, 3, captured with `=` and printed one per line: **`3: 2 10 3`**, intended the
+same (source order). The first spelling read through `:=` holders and printed `cerr "x" *p`: on expr-accum with the
+switch on that star reads as BINARY and refuses the rest of the action (the trap c4 met), so the row printed nothing;
+`cerr *p1 *p2 *p3` in one line exits 139 on trunk (context, not chased). Last action in exprPinT, so a crash there
+can take only the sentinel.
+
+**Certificate:**
+- trunk (installed binary): fleet 1039 -> **1040** / 51 / 1, PA1 green (`9099b08`, respelled `2d90c05`).
+- expr-accum (clone binary, trunk merged in as `d25a3e8`, rebuilt from the committed `.mm`): switch off 1040 -> **1041**,
+  on 785 -> **786**; PA1 the ONLY mover against c4's runs on both roads.
+- **H7, opAddAttribute left on `prior`** (`Instruct.rtn:61`, built into a second DerivedData): off 1041 -> 1040, on
+  786 -> 785, **PA1 red by value, `3: 3 10 2`**, and nothing else moves. Restored md5-identical (Instruct.rtn,
+  GroupRules.mm, GroupRules.h).
+
+**R2 -- merged.** Groups: trunk `d0c0d7b` merges expr-accum `d25a3e8` (tree identical to the branch). Support: main
+`4394d53` merges expr-accum `2acfa25` (groups.ext +7, globals +1). Branch deleted local and remote in both repos. Full
+bare tokall on trunk byte-identical, canary **338**. Trunk fleet **1041 / 51 / 1** -- row for row with the clone's
+switch-off run but for two counts the live tree owns (fixture names 222, the clone lacks untracked fixtures; groups.ext
+arity 258 -> 265, the merged mirror lines), and against this morning's trunk the only movers are c4's own (C5 one row
+-> two, `2 10` and `2`; ST1 `xl1InSet` -> `7`). dirCheck 52 of 56: **`runOP starting` dark** (parked; R3, no worry).
+Context: one dirCheck run printed `Bus error: 10` from a tok in its bare retok loop and still came out byte-identical;
+three further bare passes and a re-run were clean.
+
 ### The fold and the stale value, pinned on trunk (SEQ 323 R1, Clod, 2026-10-08; kant, trunk binary)
 
 **(a) folded `&&` in an if.** exprPinT FA1 (`fpA fpD fpC` all set) reads 1, intended 1; **FA2 (the middle one 0)
@@ -694,6 +720,19 @@ printFamilyNew's `n4` arrives with binType 3 -- the carrier hands `=` a node tha
 
 Not operators, recorded so the list is whole: the `copyOf` command (wraps copyListTo). Whether a `new(group)` copy
 carries the source's list by SHARING the body (C18) or by copying it is read from the docs, not measured here.
+
+#### ⚠⚠ setData PARKED (SEQ 324 R0, Tony, 2026-10-09) -- a design decision is owed; NOTHING BUILT
+
+**The proposal on the table, NOT ruled:**
+
+| operator | becomes | does |
+|---|---|---|
+| `=` | **setData** | copies data only; **CLEARS** the target when the argument has none |
+| `<-` | **setContent** | copies content, list included |
+| `:=` | setGroup (unchanged) | the holder |
+
+**It opens with a census of every `<-` use** (kant and fixtures): which sites rely on holder/rebind behaviour, and
+whether `:=` covers them unchanged. **ST1 stays pinned** -- `7` on trunk since the c4 merge (intended `qs`) -- until then.
 
 ### `&&` in an `if` on trunk -- CONTEXT, not a finding (seal 99, Clod, 2026-10-08; kant, trunk binary of seal 99)
 
