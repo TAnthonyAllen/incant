@@ -1577,7 +1577,12 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
                 if i > n    return refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
                 right = seq[i];
                 i = i + 1;
-                if right.registry == ruler.opFields     return refuse(right,"an operator on the right of a dot (the accumulator candidate, SEQ 311)");
+                // dotOpScope a.*b refuses with trunk's words and the build GOES ON: the armed statement dispatches nothing, and the refusal ends the statement, never the parse (SEQ 327 D2; scope ruled 2026-09-17)
+                if right.registry == ruler.opFields {
+                    unary = right;
+                    if right.tag eq "*"     unary = ruler.opFields["deref"];
+                    refuseDotUnaryOp(term,unary);
+                    right = new(right.tag); }
                 if right.registry != ruler.groupFields  right = new(right.tag);
                 node = new("acDot");
                 node +% term;
@@ -1943,6 +1948,12 @@ GroupItem   aop;
     if !aop                             return 0;
     if aop.registry != ruler.opFields   return 0;
     if aop.tag eq "."                   return 0;
+    return refuseDotUnaryOp(op,aop);
+}
+
+// refuseDotUnaryOp the refusal itself, for any road that holds the dot and the unary after it: trunk's uxp, the candidate's flat list (SEQ 327 D2)
+extern int refuseDotUnaryOp(GroupItem op, GroupItem aop)
+{
     /*  derefIsTheTag  NAME THE OPERATOR BY ITS REGISTRY TAG AND DO NOT RECONSTRUCT THE
         SOURCE SPELLING -- the unary star registers as `deref` (incant/setup:115), so
         echoing the tag into a cure produced `a[derefb]` on the first cut of this line.
