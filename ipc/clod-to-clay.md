@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      124
-STATUS:   fresh           # SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12389,3 +12389,23 @@ Certificate: switch off row for row with trunk after R2; switch on 835 -> 849, o
 row for row with trunk; printPop PASSED; ddPop 5/1; decodePop echo only; frontier identical; dirCheck identical,
 retok byte-identical. R5: kindJ1T and kindLiftT are capped by pop.sh's POPCAP (TIMED OUT after 90s, exit 124).
   END SEQ 240
+
+===================================================================
+SEQ 241  -  SEQ 328: expr-d BOUGHT; THE MISS-PRINTS MEASURED; D1 ON expr-d1 (UNMERGED, FOR TONY TO BUY)
+===================================================================
+Written 2026-10-09. Details: docs/expressionRecon.md "THE THREE MISS-PRINTS", "D1 BUILT on expr-d1".
+R0: expr-d merged (437dea5), deleted clone/live/GitHub; bare tokall byte-identical, canary 339, binary rebuilt; fleet row
+for row 1057 / 51 / 1; full checklist clean.
+R2: the bare star DEREFS (traceParse: dot-COMPOSED unary=* in every spelling; `5 *x` prints `5 0`). The 0 is NOT the
+lookup: a null that is a MEMBER of a juxtaposed print item prints through printField, whose first line substitutes
+falseResult for a null; a null that is its own item prints nothing. Proposed, not applied: `if *pgZ; ... "= HIT" else
+... "= MISS"` -- MISS on both switches, HIT for the present-name control.
+R3: STOP check pinned on trunk first (0f9fbc4, support 4d8e329): incant/pop/lastRefT + a read-only verb lastRefOf. lastREF
+names the same field on both roads at every slot (walk, outside, around calls, in binary ops and conditions). D1 on
+expr-d1 75c7969: accBare -- a GroupFields name with no prefix/postfix becomes trunk's leading dot, at both operand sites.
+Switch off row for row; switch on 856 -> 946; all 26 D1 rows and lastRefT's bare rows read their switch-off values; ladder
+on: one cure (JC depth 3). H7 -> 856, D1 rows read 1. EXPOSED: 22 rows on the generated-parse road regress switch on --
+with bare reads right, parser() generates real bodies and the candidate refuses one at compile ("a call with nothing to
+call"), so nothing installs and the road checks see 0 arrivals; on trunk they passed on bodies generated from bare reads
+of 1. Step (a)'s.
+  END SEQ 241

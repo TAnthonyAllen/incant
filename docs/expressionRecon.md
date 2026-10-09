@@ -651,6 +651,40 @@ refuses that row (`* *x`) by name.
   WITH THE SWITCH ON -- `+` and `!` each refused by name once, no verdict read (switch off it prints two verdicts, the
   rows' negative control).
 
+#### ⚠⚠ D1 BUILT on `expr-d1` `75c7969` (SEQ 328 R3, Clod, 2026-10-09) -- UNMERGED, FOR TONY TO BUY
+
+**The STOP check, pinned on trunk first (`0f9fbc4`, `incant/pop/lastRefT`).** A read-only report verb, `lastRefOf("label")`
+(measure.twk; a command, so calling it does not move lastREF), sits in the slot a bare read takes. **lastREF names the SAME
+field on both roads** at every slot measured: in a walk the member; after or before a call in the same print item, and
+the next statement, the call's argument; outside a walk the argument, else the action itself. A follow-up probe put the slot
+in binary expressions and conditions (`a() && slot`, `slot || a()`, `a() + f(slot)`, `f(slot) + a()`, `a() == slot`): same
+on both roads. **So the STOP did not trip.** Only the bare READ differed (switch on `1`).
+
+**The change.** `accBare(term, next)` builds what trunk's `dot-LEADING` arm builds -- the dot with no left operand, which
+opDot resolves through lastREF -- for a GroupFields name with no prefix and no postfix (no call, subscript or `.` after
+it), at BOTH operand sites of interpretXPaccum: an item's first operand, and a juxtaposed one. ⚠ The first cut covered
+only the first site and left `print "x" taG` reading `1` -- the parser incantation's `Generating parse code for 1` is
+what showed it. Canary 340. `~taG` needs nothing more: in a print list `~` is a separator, and `~taG` takes the same
+dot-LEADING arm as bare `taG` (traced).
+
+**Certificate (clone binary, bare):** switch off **row for row** with trunk (1066 / 51 / 1; the fixture-name census
+differs, 218 against 225, the clone carrying no untracked files). Switch on **856 -> 946**. **All 26 D1 rows** (the 24
+bare-accessor rows, iterRefuseT's and starIdiomT's `,~taG`) read their switch-off values, and lastRefT's two bare rows
+read `lrAlpha lrBeta` / `lrSolo lrOut`. 103 rows cured in all, 32 move between two wrong values. **H7** (both `accBare`
+calls back to `cur = term`): switch on 946 -> 856, exactly trunk's, the D1 rows reading `1` again; restored md5-identical.
+jitLadder switch off PASSED; switch on row for row with trunk's but ONE cure -- JC now reaches depth 3 (its walk reads a
+bare accessor). printPop PASSED; ddPop 5 / 1; decodePop binary echo only; frontier identical; dirCheck identical, retok
+byte-identical.
+
+**⚠ 22 ROWS REGRESS SWITCH ON -- EXPOSED, NOT CAUSED, AND THEY ARE STEP (a)'S.** unaryNatT x6, nestNatT x4, quoteNatT x6
+road checks; baselineTestsNew BN-2/BN-4; parserTest PT-2; paReachT's anti-vacuity; doWhileNameT DW-9; chainTruthT CT8. On
+trunk switch on these passed on generated bodies built from bare reads of `1` (`Generating parse code for 1`): a parse
+method was installed, the drive ARRIVED at parseRule and then refused "no compiled body" -- an arrival the road checks
+count. With bare reads right, `parser()` generates the real bodies (about 158 rules), the candidate refuses one at compile
+-- `REFUSED acPostCall -- a call with nothing to call` (a generated `return do() && followedBy() && ...`) -- so nothing is
+installed and the drive takes the old road: 0 arrivals. Every one of these fixtures shows that refusal once; chainTruthT
+instead abandons at the `();` of a call statement once a generated body is installed. Same road, same step.
+
 #### THE THREE MISS-PRINTS, MEASURED (SEQ 328 R2, Clod, 2026-10-09; trunk, kant; nothing re-pinned -- Tony rules first)
 
 `propGetT:13` `cerr "PG-2 ... = " *pgZ.taG:;`, `propOpT:19` `*poM.taG`, `propOpT:48` `*poSp.taG` -- each prints a MISS.
