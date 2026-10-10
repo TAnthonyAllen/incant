@@ -4717,6 +4717,13 @@ GroupItem 	*result = ExpressioN;
 		result = ExpressioN;
 		::jitEmitBareRead(ExpressioN);
 		}
+	// nullCondition a condition that emitted no value (its expression was refused) degrades by name; jitIfBegin would branch on a null (SEQ 331 J1)
+	
+	if (!gJitResult) {
+	jitDegrade("IF condition produced no value", ExpressioN);
+	return nullptr;
+	}
+	
 	jitIfBegin();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
