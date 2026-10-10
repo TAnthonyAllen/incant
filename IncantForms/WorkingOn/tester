@@ -31,20 +31,35 @@ define
         while --grup;
             if *grup.instructTypE != 0;
                 clear(instruct);
-                if *grup.isUnarY;
-                    instruct    +% *grup;
+                op = grup;
+                /***************************************************************************
+                                unary handling - check for negate and deref
+                    still have to handle leading - or * with nothing on the left of it
+                ***************************************************************************/
+                if priorEntry := *grup.prioR;
+                    if *priorEntry.isOperatoR;
+                        if *op.taG == "-";  op := Operators["negate"];
+                        or *op.taG == "*";  op := Operators["deref"];
+                if *op.isUnarY;
+                    instruct    +% *op;
                     if result.datA == 0;
                         print `"unary op" taG "on target" ,*target:;
                         instruct    +% *target;
                     else
                         print `"unary op" taG "on result" ,*result:;
                         instruct    +% *result;
-                    instruct.methoD = "testOP";
-                    result          += instruct;
-                    $$result;
-                else
-                    op = grup;
-                    print `"op:" *op:;
+                    instruct        :. noPrinT;
+                /***************************************************************************
+                                        temporary workaround
+                    if invoke were set on the prior line instead of noPrint, runOP would run
+                    instruct on the following statement because it would see an invoked argument.
+                    testOP checks for noPrint; would use fLAG instead but flaG was removed from
+                    GroupFields (put it back);
+                ***************************************************************************/
+                    if result == 0; clear(target);
+                    result          := copyOf(instruct);
+                    clear(op);
+                else    print `"op:" *op.taG:;
             else
                 if *grup.isLiteraL == 1;    print `"number" ,*grup:;
                 else                        print `"field" taG:;
@@ -55,18 +70,19 @@ define
                 instruct    +% *op;
                 instruct    +% *result;
                 instruct    +% *target;
-                instruct.methoD = "testOP";
+                instruct    :. noPrinT;
                 target      := copyOf(instruct);
                 clear(result);
                 clear(op);
         print "We done":;
-        *target(*target);
-        return  *target;
+        result  = testOP(*target);
+        return  result;
         };
     ;
 
-testListed("invokeTEST call righty -= qa - qb + qc;");    // -qa does not work because the - needs turning into a negate unary when the list is built
+testListed("invokeTEST call righty -= qa - qb + -qc;");
 stop();
+testListed("invokeTEST call righty -= qa - qb + qc;");
 
 register(C1Tester);
 define

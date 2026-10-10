@@ -1339,9 +1339,15 @@ String      name;
 
 extern GroupItem testOP(GroupItem field)
 {
-GroupItem result;
-    // this is just a test wrapper for runOP for debugging
-    result = runOP(field);
+GroupItem   result,
+            op = field[1],
+            argument = field[3];
+    // noPrint is set instead of invoke because if invoke is set runOP runs the invoked field before it gets here
+    if argument && noPrint  argument = testOP(argument);
+GroupItem   target = field[2];
+    if noPrint              target = testOP(target);
+    if op.isUnary   result = op.method(target);
+    else            result = op.operat(argument,target);
     return result;
 }
 
