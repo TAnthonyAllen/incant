@@ -1147,13 +1147,14 @@ extern GroupItem runAccAssign(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 GroupItem   op = field[2], val = null, target;
-    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    // jitAssign this body is runOPslots' order, so under jitting it emits as trunk's instruction does; only the stored-refusal stop is interpreted only (SEQ 331 J2)
     if field.listLength > 2     val = runOPaccumOperand(field[3]);
     // finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
     target = field[1];
     if refuseArgRebind(op,target)   return null;
     target = followArgument(target);
-    if ruler.refused    return null;
+    if ruler.refused
+        if !ruler.jitting   return null;
     if op.instructType && target.isMethod && target.invoke  target = target.method(target);
     if target && target.isVirtual   target = copyOf(target);
     return runOPdirect(op,target,val);

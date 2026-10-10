@@ -4695,18 +4695,14 @@ extern "C" GroupItem *jitEmitGE(GroupItem *argument, GroupItem *target)
 	 return jitEmitCompare(argument, target, jitGE); 
 }
 
-/*******************************************************************************
-    jitEmitGIF -- THE gIF EMITTER, riding the INTERPRET walk (pivot,
-    2026-06-30). Called from aCTionIF's jitting gate with the live if-node.
-
-    // gifRidesTheWalk  the five-step bracket, and why owning the traversal is the structural cure for the deferred path's stack corruption
-*******************************************************************************/
 extern "C" GroupItem *jitEmitGIF(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*StatemenT = input->getLabelGroup("StatemenT");
 GroupItem 	*ElsE = input->getLabelGroup("ElsE");
 GroupItem 	*result = ExpressioN;
+	// freshCondition nothing may be in flight before the condition emits, so a refused condition reads as NO value, never as the last statement's (SEQ 331)
+	 gJitResult = nullptr; 
 	/*  ⚠ A BARE CONDITION OPERAND MUST BE MATERIALIZED -- `if isMethod` is
 	FALSE for a bare read, so without the call below the condition emits
 	nothing and the compare branches on whatever was last in flight.  */
@@ -4717,11 +4713,13 @@ GroupItem 	*result = ExpressioN;
 		result = ExpressioN;
 		::jitEmitBareRead(ExpressioN);
 		}
-	// nullCondition a condition that emitted no value (its expression was refused) degrades by name; jitIfBegin would branch on a null (SEQ 331 J1)
+	// wholeIfInterpreted a condition with no value degrades the WHOLE if to the interpreted road: one run-time call runs it through aCTionIF, and no arm is ever emitted without its condition (SEQ 331, Tony)
 	
 	if (!gJitResult) {
-	jitDegrade("IF condition produced no value", ExpressioN);
-	return nullptr;
+	jitDegrade("IF condition produced no value -- the whole IF runs INTERPRETED", ExpressioN);
+	jitEmitIfRT(input);
+	gJitResult = nullptr;
+	return new GroupItem((char*)"jitIfRT");
 	}
 	
 	jitIfBegin();
@@ -4758,6 +4756,26 @@ GroupItem 	*result = ExpressioN;
 extern "C" GroupItem *jitEmitGT(GroupItem *argument, GroupItem *target)
 {
 	 return jitEmitCompare(argument, target, jitGT); 
+}
+
+extern "C" void jitEmitIfRT(GroupItem *input)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !input) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *ifAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)input), ptr, "ifNode");
+	llvm::Value *fn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitIfRT), ptr, "ifFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	b->CreateCall(ty, fn, {ifAddr}, "ifRT");
+	gJitEmitted    = true;
+	gJitLastIsNode = false;
+	
 }
 
 /*******************************************************************************
@@ -5779,6 +5797,26 @@ extern "C" void jitIfEnd()
 	gIfElseBlocks.pop_back();
 	b->CreateBr(endBB);
 	b->SetInsertPoint(endBB);
+	
+}
+
+/*******************************************************************************
+    jitEmitGIF -- THE gIF EMITTER, riding the INTERPRET walk (pivot,
+    2026-06-30). Called from aCTionIF's jitting gate with the live if-node.
+
+    // gifRidesTheWalk  the five-step bracket, and why owning the traversal is the structural cure for the deferred path's stack corruption
+*******************************************************************************/
+/*  jitIfRT -- an IF the jit could not emit, run at RUN time on the interpreted road: aCTionIF on the
+    statement node, with jitting off as it always is at run time. Its value is not used.
+    A REFUSAL'S SCOPE IS THE STATEMENT: the emit walk's refusals are still raised when the first fire
+    runs, so this statement opens with none in force and clears its own on the way out.  */
+extern "C" int jitIfRT(GroupItem *input)
+{
+	
+	::clearRefusal(input);
+	::aCTionIF(input);
+	::clearRefusal(input);
+	return 0;
 	
 }
 
@@ -10797,8 +10835,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*op = field->get(2);
 GroupItem 	*val = 0;
 GroupItem 	*target = 0;
-	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	// jitAssign this body is runOPslots' order, so under jitting it emits as trunk's instruction does; only the stored-refusal stop is interpreted only (SEQ 331 J2)
 	if ( field->groupBody->groupList->listLength > 2 )
 		val = runOPaccumOperand(field->get(3));
 	// finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
@@ -10807,7 +10844,8 @@ GroupItem 	*target = 0;
 		return 0;
 	target = ::followArgument(target);
 	if ( ruler->refused )
-		return 0;
+		if ( !ruler->jitting )
+			return 0;
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
 	if ( target && target->groupBody->flags.isVirtual )
