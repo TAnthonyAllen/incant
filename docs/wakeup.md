@@ -2,7 +2,9 @@
 #
 #   ## THE OPENER: J3 (acU), then J6 (acK + acX), then J4a, re-taking the census (pop.sh AND jitLadder) on each binary.
 #   Registered for J6 already: J6 and JRt1 degrade (pinned 1), JS degrade (pinned 3). kindJ1T / kindLiftT carried to J3's
-#   hang rule. Reported, not built: jitEmitShortCircuit's guard has the same faults the IF guard had (nothing clears
+#   hang rule. The clone is in session 0325efe6's scratchpad (clone/rb.sh builds, twoway.sh and ladcmp.sh diff pop.sh and
+#   jitLadder both switches, census.sh reads a kept run with the refuse() tap); if it is gone, seal 91's recipe rebuilds it.
+#   expr-b is merged and deleted (live, GitHub, clone); J3 starts a new branch. Reported, not built: jitEmitShortCircuit's guard has the same faults the IF guard had (nothing clears
 #   gJitResult before either operand, so a refused RIGHT reads the LEFT -- a && <refused> = a && a; a refused LEFT omits
 #   the connective), and jitEmitAssign's "assign operand unseeded" also emits nothing for its statement.
 #   
