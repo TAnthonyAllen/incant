@@ -625,6 +625,40 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J2 BUILT (expr-b a9bbdca), NOT MERGED -- jitLadder MOVED ROWS NO CENSUS HAD REGISTERED (Clod, 2026-10-10)
+
+**pop.sh, as registered:** switch off 1087 row for row; switch on 1002 -> 1018 = **exactly the 16 registered rows**, nothing
+else. H7 (the refusal put back): switch on 1002, row for row. **The stop is jitLadder**, which the census never covered: switch
+on ok 69 -> 75. Green: JP x3, JPd, JPl, JE fire 2, JS R3 x2, JRt4 degrade, JM3 unary-refused. **Green -> red:** J6 and JRt1
+degrade count (the assignment now emits, its right side is a refused acX, and jitEmitAssign degrades the unseeded operand by
+name); and **JS exits 139** -- a RUN-TIME stack overflow (jitSaveFrameRT -> saveLocalFields): the recursive callee's base-case
+IF has an acK condition that the J1 guard degrades, so the jitted recursion has no working stop. JS's pinned degrade row moves
+with it. ⚠ **That is the degrade doctrine's own case:** the guard's line says a fallback occurred, never that it was sound, and
+for a base case it is not. All three reds sit on acK / acX -- J6's layer.
+
+**THE CENSUS ON THE J2 BINARY, NOW OVER pop.sh AND jitLadder** (tap as before, reverted md5-identical). Top refusals and the
+named fall-throughs beneath them:
+
+| population | blocked by | named fall-throughs |
+|---|---|---|
+| pop.sh: argJitT | acX | assign operand unseeded |
+| pop.sh: argRoundJ | acK x2, acU x2 | -- |
+| pop.sh: assignRoadT | acU | assign operand unseeded |
+| pop.sh: kindJ1T, kindLiftT | acU x2 | operator-with-members, TARGET has no run-time producer; **both still TIME OUT** |
+| pop.sh: opLenT, tokJitT, probeDoorT, site1RoadsT, sweepT | acOr / acAnd over acC | **return operand produced no value** (new: a generated body returning a refused chain) |
+| jitLadder: J1, J6, J7, JF, JRt1, jitSlotT | acX | assign operand unseeded |
+| jitLadder: J2, JR, JRL, JRt2, JRt4, jitSlotT3, JC | acK | IF condition produced no value |
+| jitLadder: J3, J4, J5, JE, JRt3, jitAttrPop, jitSlotT4, jitXtemplate, JS, JV | acK + acX | both |
+| jitLadder: jitXe2, jitXnest, jitSlotT2 | acK | assign operand unseeded |
+| jitLadder: JU, JUi, jitIterTwice | acU | -- |
+| jitLadder: JD | acU + acX | assign operand unseeded |
+| jitLadder: jitXand, jitXand2 / jitXor | acAnd / acOr | assign operand unseeded |
+| jitLadder: JPd | -- | cerr under jit (standing) |
+
+**What it means for the order:** jitLadder's population is mostly **acK and acX**, so J6 is the ladder's main stroke, and J2's
+reds are J6's to restore. A crash cannot be pinned the house way (an exit 139 is not a value), so J2 merging alone would put a
+139 on the ladder until J6 lands. ⚠ **kindJ1T and kindLiftT still time out on the J2 binary**, before J3.
+
 #### ⚠⚠ THE CENSUS THAT SEES THROUGH CALLS, ON THE J1 + GUARD BINARY (expr-b f7607f4, Clod, 2026-10-10; clone tap, reverted)
 
 **The tap:** at a refusal under jitting, `refuse()` walked the refused node's whole subtree (skipping rules and registries)
