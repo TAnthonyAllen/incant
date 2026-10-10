@@ -4717,6 +4717,13 @@ GroupItem 	*result = ExpressioN;
 		result = ExpressioN;
 		::jitEmitBareRead(ExpressioN);
 		}
+	// nullCondition a condition that emitted no value (its expression was refused) degrades by name; jitIfBegin would branch on a null (SEQ 331 J1)
+	
+	if (!gJitResult) {
+	jitDegrade("IF condition produced no value", ExpressioN);
+	return nullptr;
+	}
+	
 	jitIfBegin();
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
@@ -10973,8 +10980,21 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*op = 0;
 GroupItem 	*val = 0;
 GroupItem 	*arg = 0;
+	// jitCall an acC is the call instruction's own shape, so under jitting its RAW slots go to runOPslots, which owns the term-call emit (SEQ 331 J1)
 	if ( ruler->jitting )
+		{
+		if ( ::compare(field->groupBody->tag,"acC") == 0 )
+			{
+			val = field->get(2);
+			if ( ::compare(val->groupBody->tag,"acU") == 0 || ::compare(val->groupBody->tag,"acDot") == 0 || ::compare(val->groupBody->tag,"acSub") == 0 || ::compare(val->groupBody->tag,"acC") == 0 )
+				return ::refuse(field,"a call whose target is built -- not yet on the jit road (SEQ 331 J1)");
+			arg = 0;
+			if ( field->groupBody->groupList->listLength > 2 )
+				arg = field->get(3);
+			return ::runOPslots(field->get(1),val,arg);
+			}
 		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+		}
 	if ( ::compare(field->groupBody->tag,"acU") == 0 )
 		{
 		op = field->get(1);
