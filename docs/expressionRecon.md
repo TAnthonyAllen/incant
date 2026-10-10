@@ -665,6 +665,28 @@ refuses that row (`* *x`) by name.
   is struck by that measurement: the subject (it cannot see Token) stands, the mechanism was wrong.
 - R1 stands as built: PG-3 / PO-3 / PO-9 were a misnaming in the dispatch.
 
+#### ⚠⚠ THE (a) LEDGER AFTER A1 + A2 (expr-a 1574516, Clod, 2026-10-10; clone binary, switch on)
+
+Seal 107's 66 (a) rows, rebuilt from the recon table below (its per-fixture counts) by diffing today's trunk switch off
+against switch on, then read on A1 + A2. Switch on: trunk 968, A1 982, A1 + A2 995; switch off row for row throughout.
+**41 green, 25 still red. None is held by A1's four exposures** -- A2 cured all four (a fired rule stopped the new road's
+parse of the rest of the file) -- **and none by anything new.** With Token compiling, each red row reaches its NEXT
+blocker (H9's corollary), and every one is a known bucket:
+
+| rows | now | what holds it |
+|---|---|---|
+| the 22 exposed by D1 (unary/nest/quoteNatT road checks x16, BN-2, BN-4, PT-2, paReachT, DW-9, CT8) | **green** | -- |
+| probeDoorT reads x6, BN-3, definerT x2, orc se x2, loopVerdict, tripwire count, driveCompileT C, leafClassT LC-1, carrierT CT-4, adoptT x2, tokJitT `:` | **green** (19) | -- |
+| probeDoorT jitted = interpreted x8 | red | **(b)**: interpreted now reads the real verdicts; jitted refuses (acAnd / acOr / acC, SEQ 311 R4) |
+| tokJitT jitted = interpreted x7 | red | **(b)**, same refusals |
+| tokJitT `%` | red | **(L)**: a lone `%` is refused by name (SEQ 327 R1), so the row's old-road "accepts 1 of 1" is owed a re-pin; jitted half (b) |
+| opLenT `==` `<=` `+=` `=` x4 | red | **(L)**: each message is a lone operator, refused by name (R1); the rows pin the old road's verdict=1. Jitted half (b) |
+| sweepT x3 | red | **(b)**: 49 certified, 0 agree (31 acAnd, 9 acC, 9 acOr refusals); its lone-operator refusals are (L) |
+| site1RoadsT x2 | red | **(b)**: sr69-sr72 2 of 4 drives, 0 of 8 compiles at degrade 0 |
+
+Standing, not a cause: `nextGroup: ERROR builtinParseR does not contain a list` prints 6 times in probeDoorT on trunk and on
+expr-a, both switches.
+
 #### (a) RECON -- THE GENERATED-PARSE ROWS, BY CAUSE (SEQ 329 R2, Clod, 2026-10-09; READ-ONLY, nothing built)
 
 **Population, measured, not estimated:** trunk `827cb1c` (D1 merged, the miss-prints respelled), installed binary.
