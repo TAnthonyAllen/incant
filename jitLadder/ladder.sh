@@ -1002,7 +1002,15 @@ else
 fi
 #  DEPTH IS ASSERTED BY NAME, because identical-and-shallow would pass the diff.
 #  zeta is the depth-3 leaf; a walk that stopped at depth 1 agrees with itself.
-if grep -qF "zeta" "$T/jc.jit"; then
+#  RE-PINNED switch on (SEQ 331, 2026-10-10, Tony: the next layer showing). Its former green switch on was the REFUSED CALL
+#  hiding the callee: with acC refused (SEQ 311 R4) the callee was never walked, so zeta came from the interpreted fallback.
+#  J1 lets the call through and the callee refuses acA and acK, so the jitted walk stops short. PINNED: zeta absent.
+#  INTENDED: zeta present. Expected to restore it: J2 (acA) + J6 (acK) -- registered to those strokes; this pin goes red then.
+if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+    _jcz=$(grep -cF "zeta" "$T/jc.jit")
+    if [ "$_jcz" = "0" ]; then echo "  ok    JC depth switch on PINNED: zeta lines = 0 (intended: present -- restored by J2 + J6)"; green=$((green+1))
+    else echo "  FAIL  JC depth switch on MOVED: zeta lines = $_jcz (pinned 0; intended present) -- re-pin to the intended row, the restoration J2 + J6 registered"; fail=1; fi
+elif grep -qF "zeta" "$T/jc.jit"; then
     echo "  ok    JC reached DEPTH 3 (zeta present -- identical-but-shallow cannot pass)"; green=$((green+1))
 else
     echo "  FAIL  JC never reached depth 3: the halves may agree while both stop early"; fail=1
@@ -1059,7 +1067,14 @@ if [ "$jso" = "3" ]; then
     echo "  ok    JS out = 3  (the outermost activation's local survived the call)"; green=$((green+1))
 else echo "  FAIL  JS out = '$jso', want 3. 0 means the locals ALIAS."; fail=1; fi
 
-if [ "$jsd" = "0" ]; then echo "  ok    JS degrade count 0"; green=$((green+1))
+#  RE-PINNED switch on (SEQ 331, 2026-10-10, Tony: the next layer showing). Its former green switch on was the REFUSED CALL
+#  hiding the callee: with acC refused the callee was never walked, so nothing could fall through. J1 lets the call through;
+#  the callee's IF condition is an acK, refused, and the J1 guard degrades that IF by name. PINNED: 1.
+#  INTENDED: 0. Expected to restore it: J6 (acK) -- registered to that stroke; this pin goes red then.
+if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+    if [ "$jsd" = "1" ]; then echo "  ok    JS degrade count switch on PINNED: 1, the guard's IF fall-through on acK (intended: 0 -- restored by J6)"; green=$((green+1))
+    else echo "  FAIL  JS degrade count switch on MOVED: '$jsd' (pinned 1; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
+elif [ "$jsd" = "0" ]; then echo "  ok    JS degrade count 0"; green=$((green+1))
 else echo "  FAIL  JS degrade count = '$jsd', want 0"; fail=1; fi
 #  THE BRIEF'S OWN DISCRIMINATOR: two functions inside ONE compile leaves this at
 #  1. If it moved, the implementation NESTED jitRunAction instead of sequencing
