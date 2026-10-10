@@ -3491,8 +3491,10 @@ GroupItem 	*right = 0;
 			cur = node;
 			continue;
 			}
+		// ruleArgument a bare rule name is passed, never fired; only name(...) fires it (SEQ 330 A2)
 		if ( term->groupBody->flags.actionType || term->groupBody->flags.instructType )
-			term->groupBody->flags.invoke = 1;
+			if ( !term->groupBody->flags.isRule )
+				term->groupBody->flags.invoke = 1;
 		if ( expectOperand )
 			{
 			cur = term;

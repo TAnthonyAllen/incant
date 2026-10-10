@@ -1630,7 +1630,9 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
             node.invoke = true;
             cur = node;
             continue; }
-        if term.actionType || term.instructType     term.invoke = true;
+        // ruleArgument a bare rule name is passed, never fired; only name(...) fires it (SEQ 330 A2)
+        if term.actionType || term.instructType
+            if !term.isRule     term.invoke = true;
         if expectOperand {
             cur = term;
             // bareAccessor a GroupFields name with no prefix and no postfix reads through lastREF (accBare; SEQ 328 D1)
