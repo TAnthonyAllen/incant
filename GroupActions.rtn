@@ -1098,7 +1098,16 @@ extern GroupItem runOPaccum(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 GroupItem   op, val, arg;
-    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    // jitCall an acC is the call instruction's own shape, so under jitting its RAW slots go to runOPslots, which owns the term-call emit (SEQ 331 J1)
+    if ruler.jitting {
+        if field.tag eq "acC" {
+            val = field[2];
+            if val.tag eq "acU" || val.tag eq "acDot" || val.tag eq "acSub" || val.tag eq "acC"
+                return refuse(field,"a call whose target is built -- not yet on the jit road (SEQ 331 J1)");
+            arg = null;
+            if field.listLength > 2     arg = field[3];
+            return runOPslots(field[1],val,arg); }
+        return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)"); }
     if field.tag eq "acU" {
         op = field[1];
         val = runOPaccumOperand(field[2]);
