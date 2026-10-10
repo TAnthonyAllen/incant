@@ -625,6 +625,20 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ CORRECTED BY J1 (expr-b 9f68322, 2026-10-10): THE CENSUS BELOW WAS A FIRST-BLOCKER CENSUS -- A REFUSED CALL HID ITS CALLEE
+
+The tap walked the REFUSED NODE, so it could not see a callee's body, which the jit reaches only through the call (runAction's
+jitting arm inlines it). With acC through (J1), all 13 acC refusals are gone and two callees show what they hold: **argJitT's
+callee refuses acA**; **argRoundJ's callee refuses acU, acA and acK**, and then crashes -- `jitIfBegin` dereferences the null
+condition the refused acK left (GroupRules.mm:5730, jitEmitGIF <- aCTionIF; a trunk emitter with no null guard, exposed by
+J1). So "no acK in the jitted population" below is **wrong**, and J6 is not empty. Refusals on the J1 binary, switch on:
+acA 21, acAnd 40, acOr 14, acU 3, acK 1, acC 0.
+
+**What J1 moved, against what it registered:** registered argJitT 2 + argRoundJ 2 -- argJitT unmoved, argRoundJ 0 -> exit 139.
+Unregistered: probeDoorT ExpressioN #1 / #2 green; site1RoadsT agree 3 -> 11, degrade 1 of 8; sweepT agree 0 -> 9 of 49 (still
+red). Fleet switch off 1087 row for row, switch on 1000 -> 1000. **Not merged.** R1's per-kind needs and R2 stand; R3's row
+counts do not, and a re-registration needs the census re-taken stroke by stroke (each stroke's binary shows the next blocker).
+
 #### R0 -- THE CENSUS: 5 refused kinds, 15 fixtures, 70 rows
 
 Outermost refusals on switch on: **acAnd 40, acA 19, acOr 14, acC 13, acU 2**. **No acX (fold), acK (compare) or
