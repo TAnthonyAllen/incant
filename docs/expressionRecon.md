@@ -617,6 +617,105 @@ cannot apply"; `cerr *c5C` and a captured length do not.
 - **The fold rows on the branch:** with the switch on, FA2 reads 0 and foldAndT exits 0 and reaches its foot -- the
   intended values, red only against trunk's today-pins. They read that way before c4 too (the tiers, c3).
 
+### ⚠⚠ (b) RECON -- THE JIT ROAD UNDER THE CANDIDATE (SEQ 331 R0-R3, Clod, 2026-10-10; READ-ONLY, nothing built)
+
+**Population, measured:** trunk `19d4987` (seal 114, expr-a merged), installed binary, bare. pop.sh switch off 1087, switch
+on 1000. A copy of pop.sh that keeps its temp directory was run switch on, and every output file was grepped for `under
+jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting walked the refused node and printed every
+executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
+the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
+
+#### R0 -- THE CENSUS: 5 refused kinds, 15 fixtures, 70 rows
+
+Outermost refusals on switch on: **acAnd 40, acA 19, acOr 14, acC 13, acU 2**. **No acX (fold), acK (compare) or
+acKchain** is refused or sits beneath a refusal anywhere in the jitted population. Beneath (tap): acAnd > acC, acAnd > acAnd,
+acOr > acC, acOr > acOr, acA > acU (a star target), acA > acDot (a dot target). No acC has a built target (acU / acDot / acSub /
+acC) beneath it.
+
+| fixture | rows held | kinds (outermost; beneath) |
+|---|---|---|
+| argJitT | 2 (AJ fire 1, fire 2) | acC |
+| argRoundJ | 2 (local column, JIT argument column) | acC |
+| assignRoadT | 2 (AR-J, degrade count) | acA; acA > acU |
+| jitDotAssignT | 3 (JD-1, JD-2, JD-3) | acA x4; acA > acDot |
+| kindJitT | 3 (R3 values, arms, degrade) | acA |
+| kindHolderJitT | 3 (fire 1, refire, degrade) | acA |
+| kindJ2T | 3 (values, arms, degrade) | acA |
+| kindSRT | 4 (local, field, EMPTY local, degrade) | acA x7 |
+| kindJ1T | 8 (TIMED OUT, runs, sentinel, fire 1/2 values, interpreted values, arms, degrade) | acA, acU; acA > acU -- **HANGS** after the refusals |
+| kindLiftT | 14 (TIMED OUT, runs, sentinel, 4 values, list args, stak depth, 4 arms, degrade) | acA x3, acU; acA > acU -- **HANGS** |
+| opLenT | 4 (the `(b) jitted twice = interpreted` rows) | acOr; acOr > acC, acOr > acOr |
+| tokJitT | 8 (7 `jitted = interpreted`, degrade) | acOr; acOr > acC, acOr > acOr |
+| probeDoorT | 8 (`jitted = interpreted` x8) | acAnd x4, acOr, acC; acAnd > acC / acAnd, acOr > acC / acOr |
+| site1RoadsT | 3 (pairs, sr69-sr72, degrade) | acAnd x5, acOr x2, acC; the same beneath |
+| sweepT | 3 (MOVED, AGREE, degrade line) | acAnd x31, acOr x9, acC x9; the same beneath |
+
+**Reconciles with seal 107's 44:** the first ten fixtures sum to **44**, which is that bucket exactly. **+20** arrived from (a)
+when A1 let Token compile and the jitted halves met real values (probeDoorT 8, tokJitT 7, sweepT 3, site1RoadsT 2); **+2**
+went red the same way (tokJitT's degrade row, site1RoadsT's pairs row, both green on trunk switch on before A1); **+4** are
+opLenT's jitted halves, split into their own rows by seal 114's re-pin. 44 + 20 + 2 + 4 = **70**. argRoundT carries an acA
+refusal and holds no row (its output file name, `art`, is reused by assignRoadT -- the refusal read there is assignRoadT's).
+
+#### R1 -- WHAT EACH KIND NEEDS, AND WHERE TODAY'S EMIT ASSUMES THE TREE
+
+Every executor opens `if ruler.jitting return refuse(...)` (GroupActions.rtn, runOPaccum and the five tier executors). What
+each needs once that line goes:
+
+- **acC** `[falseResult, target, arg]` -- **the call instruction's own shape** (handleCall builds both). Under jitting it
+  should hand its RAW slots to `runOPslots`, which already emits the term call (rule target) and reaches runAction's jitting
+  arm (action target) on trunk. It must NOT go through its interpreted body, which follows and copies the target and
+  evaluates the argument at emit time, then calls `opCall` -- and `opCall` refuses a term call under jitting by name. A built
+  target (`(*block)(code)`) has no jitted population today; refuse it by name in this stroke.
+- **acA** `[target, op, right]` -- its body is already runOPslots' order (refuseArgRebind, follow, invoke the target, copy a
+  virtual, `runOPdirect`). Two run-time-only lines need the `!jitting` gate runOPslots carries: `if ruler.refused return
+  null` (storeRuling: emit time must reach every statement). The right side is emitted by runOPaccumOperand's method call.
+- **acU** `[op, operand]` -- calls `op.method(val)` directly, which skips runOPdirect's jitting work (jitSeedOperands for
+  isUnary, the slot fork). Under jitting it should go through `runOPdirect(op,val,null)`; the null-deref refusal is a run-time
+  fact and must not be taken at emit time.
+- **acAnd / acOr** `[left, op, right]` -- emit is `jitEmitShortCircuit`, which reads **`field[1]` as the OP and `field[2]` as
+  the left operand: the tree shape** (`jitEmitters.rtn:1909`, xl2 `[op, target, arg]`). The candidate puts the op in the
+  middle. Cure by the runOP / runOPslots split, done once more: `jitEmitShortCircuitSlots(op, left, right)`, the tree wrapper
+  unpacking into it, the candidate's executors calling it as `(field[2], field[1], field[3])`. Nested connectives need nothing
+  more: the operand test is `isMethod && invoke`, which the acAnd / acOr nodes carry.
+- **acX / acK** -- no population. Their bodies hold run-time copy-outs (tempField, isVirtual, `!run -> falseResult`) that
+  must be gated off under jitting; per step they already fire through `runOPdirect`, which is how trunk emits a nested xl2.
+
+**Where the emit assumes the tree, the whole list:** `jitEmitShortCircuit(field)` (above) is the only emitter that reads a
+node by position. `runOP(field)` unpacks `[op, target, arg]` too, but the candidate builds acDot and acSub in that shape on
+purpose, so it holds. `jitEmitTermCall`, `jitTermCallRT`, `jitEmitOpFire` and the slot emitters take slots, not nodes.
+
+**Seal 94's note -- "jitEmitTermCall bakes the instruction node, so the jitting rule arm moves to opCall" -- is CORRECTED,
+both halves.** Since c1 (`d46aa45`, SEQ 318) `jitEmitTermCall(op, target, arg)` bakes the **three raw slots** and
+`jitTermCallRT` replays `runOPslots` on them at run time (jitEmitters.rtn:973-991). And the arm **did not move**: c2
+(`2600a8a`) kept it in `runOPslots`, because only runOPslots holds the slots raw, and made `opCall` refuse a term call under
+jitting by name (`opCall reached a term call under jitting -- runOPslots owns that emit`, GroupActions.rtn:1080). So the
+candidate's call reaches the jit through runOPslots, not opCall.
+
+#### R2 -- M3's DOOR SURVIVES AS IT IS
+
+`callIsRule(target)` (GroupActions.rtn:1048): interpreted, `isRuleTerm()`; jitting, also `hasNewParse`. Read by runOPslots'
+term-call intercept (the emit), `opCall` (interpreted dispatch, and the refusal under jitting) and `isCallable`. With acC
+routed to runOPslots under jitting (R1), the candidate reads the door exactly where trunk does -- emit in runOPslots,
+interpreted in opCall -- and the run-time replay (`jitTermCallRT` -> runOPslots, jitting off) reads the interpreted half.
+**No split.** It would split only if the emit moved into opCall, which R1 rejects: opCall receives finished operands.
+
+#### R3 -- STROKES, ONE KIND EACH, ROWS PRE-REGISTERED
+
+Ordered so each stroke's rows need only kinds already landed. Every H7 is that stroke's jitting arm put back to the refusal.
+
+| # | stroke | should cure (pre-registered) | H7 |
+|---|---|---|---|
+| J1 | **acC** -> runOPslots on the raw slots; a built target refused by name | argJitT 2, argRoundJ 2 = **4** | the arm out: the 4 red, `REFUSED acC` back |
+| J2 | **acA** -- guard out, `refused` gated `!jitting` | kindJitT 3, kindHolderJitT 3, kindJ2T 3, kindSRT 4, jitDotAssignT 3 = **16** | guard back: the 16 red |
+| J3 | **acU** -> runOPdirect(op,val,null) under jitting | assignRoadT 2, and **if the hang is downstream of the refusal**, kindJ1T 8 and kindLiftT 14 = **2 to 24** | arm out: assignRoadT red. Run kindJ1T / kindLiftT ALONE under an alarm first (H5's other half) -- the hang is a cause of its own until shown otherwise |
+| J4 | **acOr** -- jitEmitShortCircuitSlots, the tree wrapper unchanged | opLenT 4, tokJitT 8 = **12** | arm out: the 12 red. Control first (H15): jitLadder switch off row for row, since the wrapper split touches trunk's emitter |
+| J5 | **acAnd** -- the same emitter, the AND direction | probeDoorT 8, site1RoadsT 3, sweepT 3 = **14** | arm out: the 14 red |
+| J6 | **acX / acK** -- copy-outs gated off under jitting | **none in the fleet** -- needs a new jitted fixture first (`a + b * c` and `a < b` in a jitted action, values on two fires) | the gate out: the new rows red |
+
+4 + 16 + 24 + 12 + 14 = **70**. J3's upper bound carries the hang: if kindJ1T and kindLiftT still time out after J3, their 22
+rows are a NEW cause and J3 cures 2. J6 cures nothing measured today. jitLadder switch on (126 FAIL, one acC refusal in its
+own output) is a separate instrument and is not in the 70.
+
 ### ⚠⚠ (e) TRIAGE -- THE SWITCH-ON MOVERS, BUCKETED BY CAUSE (SEQ 326 R1-R3, Clod, 2026-10-09; READ-ONLY, nothing re-pinned)
 
 **Population, measured:** trunk `ed1089d` (expr-h merged), installed binary, bare. `pop.sh` switch off **1052 / 51 / 1**,
