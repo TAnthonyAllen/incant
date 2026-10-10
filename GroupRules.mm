@@ -10797,8 +10797,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*op = field->get(2);
 GroupItem 	*val = 0;
 GroupItem 	*target = 0;
-	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	// jitAssign this body is runOPslots' order, so under jitting it emits as trunk's instruction does; only the stored-refusal stop is interpreted only (SEQ 331 J2)
 	if ( field->groupBody->groupList->listLength > 2 )
 		val = runOPaccumOperand(field->get(3));
 	// finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
@@ -10807,7 +10806,8 @@ GroupItem 	*target = 0;
 		return 0;
 	target = ::followArgument(target);
 	if ( ruler->refused )
-		return 0;
+		if ( !ruler->jitting )
+			return 0;
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
 	if ( target && target->groupBody->flags.isVirtual )
