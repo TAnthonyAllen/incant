@@ -3324,6 +3324,7 @@ int 		j = 0;
 int 		n = 0;
 int 		expectOperand = 1;
 int 		traced = 0;
+int 		opTerm = 0;
 GroupItem 	*seq = 0;
 GroupItem 	*flat = 0;
 GroupItem 	*term = 0;
@@ -3409,7 +3410,19 @@ GroupItem 	*right = 0;
 		{
 		term = seq->get(i);
 		i = i + 1;
+		// operatorEntry an operator is an ENTRY of the Operators registry, never the registry itself, and a name followed by a call is the call's target (SEQ 330 A1)
+		opTerm = 0;
 		if ( term->groupBody->registry == ruler->opFields )
+			opTerm = 1;
+		if ( isREGISTRY(term->groupBody->flags.binType) )
+			opTerm = 0;
+		right = 0;
+		if ( i <= n )
+			right = seq->get(i);
+		if ( right )
+			if ( ::compare(right->groupBody->tag,"acPostCall") == 0 )
+				opTerm = 0;
+		if ( opTerm )
 			{
 			if ( expectOperand )
 				{

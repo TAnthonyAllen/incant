@@ -1519,7 +1519,7 @@ finishXP:
 extern GroupItem interpretXPaccum(GroupItem xpList)
 {
 GroupRules  ruler = groupRules;
-int         i = 0, j = 0, n = 0, expectOperand = 1, traced = 0;
+int         i = 0, j = 0, n = 0, expectOperand = 1, traced = 0, opTerm = 0;
 GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, jux, right;
     seq = new("acSeq");
     i = 1;
@@ -1572,7 +1572,15 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
     while i <= n {
         term = seq[i];
         i = i + 1;
-        if term.registry == ruler.opFields {
+        // operatorEntry an operator is an ENTRY of the Operators registry, never the registry itself, and a name followed by a call is the call's target (SEQ 330 A1)
+        opTerm = 0;
+        if term.registry == ruler.opFields  opTerm = 1;
+        if term.isREGISTRY                  opTerm = 0;
+        right = 0;
+        if i <= n   right = seq[i];
+        if right
+            if right.tag eq "acPostCall"    opTerm = 0;
+        if opTerm {
             if expectOperand {
                 pend +% term;
                 continue; }

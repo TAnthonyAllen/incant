@@ -1,0 +1,22 @@
+Start();
+register(OpEntry);
+define
+    oeShow code={
+        oeN := Operators.listLengtH;
+        cerr "OE-R Operators.listLengtH reads " oeN:;
+        oeS := 3 + 4;
+        cerr "OE-E 3 + 4 reads " oeS:;
+        };
+    ;
+oeShow();
+cerr "OPENTRY SENTINEL":;
+stop();
+
+What opEntryT Is
+
+SEQ 330 A1 (Tony, 2026-10-09): a name matches as an operator only if it is an ENTRY of the
+Operators registry, never the registry itself; a name followed by a call is the call's target.
+pop.sh runs this fixture WITH THE SWITCH ON. OE-R names the registry bare and reads its length:
+before A1 the candidate took Operators for a prefix operator, refused it by name, and the refusal
+ended oeShow, so neither row printed. OE-E is the control: an entry (+) is still an operator.
+The call clause is pinned by the fleet's generated-parse rows (Token's body ends Operators()).
