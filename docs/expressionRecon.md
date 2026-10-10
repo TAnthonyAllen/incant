@@ -625,6 +625,40 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE CENSUS THAT SEES THROUGH CALLS, ON THE J1 + GUARD BINARY (expr-b f7607f4, Clod, 2026-10-10; clone tap, reverted)
+
+**The tap:** at a refusal under jitting, `refuse()` walked the refused node's whole subtree (skipping rules and registries)
+and printed every executor kind; at each acC beneath it, it followed the target, if an ACTION, into `actionBlocK()` and did
+the same there (calls within calls bounded). Reverted md5-identical, canary 341. A callee the jit already walks shows its own
+refusals at top level, so top + beneath is the population. Rule targets are TERM CALLS (jitEmitTermCall replays them
+interpreted at run time), so their bodies are not on the jit road and are not counted.
+
+| fixture | refused at top | beneath (hidden) | needs |
+|---|---|---|---|
+| kindJitT, kindHolderJitT, kindJ2T | acA | -- | J2 |
+| kindSRT | acA x7 | -- | J2 |
+| jitDotAssignT | acA x4 | -- | J2 |
+| assignRoadT | acA | acU | J2 + J3 |
+| kindJ1T, kindLiftT | acA, acU | acU | J2 + J3, then the hang rule |
+| argJitT | acA | **acX** | J2 + J6 |
+| argRoundJ | acA, acK, acU | -- | J2 + J3 + J6 |
+| opLenT, tokJitT | acOr | acOr, acC | J4b |
+| probeDoorT, site1RoadsT, sweepT | acAnd, acOr | acAnd, acOr, acC | J4b + J4c |
+
+**So J6 is acK AND acX** (argJitT's callee folds). **Registration for J2 from this census: kindJitT 3, kindHolderJitT 3,
+kindJ2T 3, kindSRT 4, jitDotAssignT 3 = 16.** J3 then: assignRoadT 2, kindJ1T 8, kindLiftT 14 (hang rule). J6: argJitT 2,
+argRoundJ's red rows.
+⚠ **One blind spot is left and named:** an `if` whose condition degrades (the J1 guard) does not walk its arms, so what sits in
+them is still unseen. Each stroke's binary re-takes the census, which is where it would show.
+
+#### ⚠⚠ J1 + GUARD: CERTIFIED ON pop.sh, NOT MERGED -- TWO jitLadder ROWS GO GREEN -> RED (2026-10-10)
+
+acC refusals 13 -> 0. pop.sh switch off 1087 row for row; switch on 1000 -> 1002, no row green -> red; movers named in
+`f7607f4`. Guard H7: argRoundJ 139 with the guard alone removed. **jitLadder switch on: JC "reached depth 3" and JS "degrade
+count 0" go green -> red** -- both were green only because the refused call left the callee unwalked: JC's jitted walk now stops
+at the callee's acA / acK, and JS's count is now the guard's named fall-through. 9 ladder rows cured, 33 newly run. The go
+word's certificate says no row green -> red, so the merge waits for Tony.
+
 #### ⚠⚠ CORRECTED BY J1 (expr-b 9f68322, 2026-10-10): THE CENSUS BELOW WAS A FIRST-BLOCKER CENSUS -- A REFUSED CALL HID ITS CALLEE
 
 The tap walked the REFUSED NODE, so it could not see a callee's body, which the jit reaches only through the call (runAction's
