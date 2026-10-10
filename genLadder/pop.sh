@@ -3270,7 +3270,11 @@ done
 #  RE-PINNED terms 6 -> 5 (SEQ 288 R1, 2026-10-03): guardOK as an argument cannot outlive its call; the stored bit
 #  survived getStuff's in-process copy and gave later parses of the rule an unearned guard pass, one extra term
 #  attempted per drive.
-if [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=5 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
+#  RE-PINNED switch on (SEQ 331, 2026-10-10): a lone % is not an ExpressioN (SEQ 327 R1) -- the candidate refuses it by
+#  name and the drive reads verdict 0 at consumed 0. The old road's "accepts 1 of 1" stays the switch-off pin.
+if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+    if [ "$(_tjl INTERP 4)" = "verdict=0 consumed=0 length=1 terms=5 fires=1 true=1" ] && [ "$(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")" = 1 ]; then echo "  ok    tokJitT % (L) a lone operator is refused by name, switch on"; green=$((green+1)); else echo "  FAIL  tokJitT % (L) reads $(_tjl INTERP 4), refusals $(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")"; fail=1; fi
+elif [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=5 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
 if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=5 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
 _tjd=$(grep -c '=== jitDegrade count = 0 ===' "$T/tj.o"); _tjc=$(grep -c 'jitDegrade count' "$T/tj.o")
 if [ "$_tjc" -gt 0 ] && [ "$_tjd" -eq "$_tjc" ]; then echo "  ok    tokJitT $_tjc compile(s), degrade 0"; green=$((green+1))
@@ -3359,6 +3363,17 @@ _oll() { grep "^PROBEDRIVE root=ExpressioN armed=Token" "$T/ol.e" | sed -n "${1}
 for _op in "1 2 3 == 2 5" "4 5 6 <= 2 5" "7 8 9 += 2 6" "10 11 12 = 1 5"; do
     set -- $_op
     _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3); _w="verdict=1 consumed=$5 length=$5 terms=$6 fires=1 true=1"
+    if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+        #  RE-PINNED switch on (SEQ 331, 2026-10-10): each message is a LONE operator, and a lone operator is not an
+        #  ExpressioN (SEQ 327 R1) -- the candidate refuses it by name and the drive reads verdict 0 at consumed 0.
+        #  The old road's verdict=1 stays the switch-off pin. The jitted halves are (b) (SEQ 311 R4), their own row.
+        _w="verdict=0 consumed=0 length=$5 terms=$6 fires=1 true=1"
+        _r=$(grep -c "^REFUSED $4 -- a prefix operator with no operand" "$T/ol.e")
+        if [ "$_c" = "$_w" ] && [ "$_r" = 1 ]; then echo "  ok    opLenT '$4' (L) a lone operator is refused by name, switch on: I [$_c]"; green=$((green+1))
+        else echo "  FAIL  opLenT '$4' (L) want I [$_w] and 1 refusal by name: I [$_c], refusals $_r"; fail=1; fi
+        if [ "$_a" = "$_c" ] && [ "$_b" = "$_c" ]; then echo "  ok    opLenT '$4' (b) jitted twice = interpreted, switch on"; green=$((green+1))
+        else echo "  FAIL  opLenT '$4' (b) jitted twice = interpreted, switch on -- the jit refusal (SEQ 311 R4): J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
+        continue; fi
     if [ "$_a" = "$_w" ] && [ "$_b" = "$_w" ] && [ "$_c" = "$_w" ]; then echo "  ok    opLenT '$4' consumes $5 of $5, jitted twice and interpreted"; green=$((green+1))
     else echo "  FAIL  opLenT '$4' want [$_w]: J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
 done
