@@ -6099,6 +6099,13 @@ sentinel "loneOpT sentinel" "$T/lo.e" "LONEOP SENTINEL"
 kindRow "loneOpT + refused by name, switch on, lines"     "$(grep -c '^REFUSED + -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
 kindRow "loneOpT ! refused by name, switch on, lines"     "$(grep -c '^REFUSED ! -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
 kindRow "loneOpT read a verdict anyway, switch on, lines" "$(grep -c '^LO matched' "$T/lo.e")" "0"   # intended 0
+#  opEntryT SEQ 330 A1 (Tony): an operator is an ENTRY of Operators, never the registry itself. Run WITH THE SWITCH ON.
+#  H7: the isREGISTRY clause removed, OE-R and OE-E vanish (the refusal ends the action) and the sentinel still prints.
+INCANT_EXPR_ACCUM=1 $B "$(ip opEntryT)" > "$T/oe.o" 2> "$T/oe.e" & _cap opEntryT; check "opEntryT runs (switch on)" 0 $?
+sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
+kindRow "opEntryT OE-R bare Operators is an operand, its length, switch on" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "53"
+kindRow "opEntryT OE-E an entry is still an operator, 3 + 4, switch on"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
+kindRow "opEntryT no refusal names Operators, switch on, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
 #  driven; rc is what came back (its tag = nothing). Pins are switch OFF today; [on: x] is the switch-on read today.
 run2 blockCallT "$T/bct.o" "$T/bct.e"; check "blockCallT runs" 0 $?
