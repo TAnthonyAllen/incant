@@ -625,6 +625,30 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J3 BUILT (expr-j3 df260c7), NOT MERGED -- TWO UNREGISTERED FIXTURES MOVED RED -> GREEN (SEQ 332, Clod, 2026-10-11)
+
+**The stroke:** runOPaccum's jitting arm takes acU -- map `-` / `*` to negate / deref, finish the operand, `runOPdirect(op,
+val, null)`. Clone binary, bare, canary 343.
+**Registered, all cured:** assignRoadT 2, JU 3. **Hang rule (R1): all four now COMPLETE** -- kindJ1T, kindLiftT, JUi and JI
+(jitIterTwice) run alone under a 60 s alarm to exit 0 with no refusal and degrade 0, and their rows go green by value (kindJ1T 7,
+kindLiftT 13, JUi 2, JI 7). So the hang WAS the refused acU: the unary under an iterate never advanced.
+**Switch off:** pop.sh 1090 row for row; jitLadder PASSED 215. **Switch on:** pop.sh 1020 -> 1043, jitLadder ok 99 -> 115.
+**No row green -> red on either switch.** H7 (the arm out, rebuilt): switch on 1020 / 99 ok, row for row with trunk; J3
+restored md5-identical. printPop and frontier identical to trunk both switches; ddPop and decodePop differ only in the binary
+line; dirCheck cannot move (no directive targets runOPaccum).
+
+**THE STOP (R3): two fixtures the census did not register moved red -> green.**
+- **argRoundJ, JIT argument column (1 row).** The census said acK holds it. With acU through, the acK is an IF CONDITION,
+  and the safe guard (8b90151) runs that whole IF interpreted -- degrade #1 "IF condition produced no value", by name. The
+  values come out right; argRoundJ asserts no degrade count, so the row goes green on a sound fallback.
+- **JD, four rows** (sentinel, `--` advance emitted, null-test condition, interpreted oracle 4). The census said acX holds it.
+  The acX is an assignment operand (`jdCount`), which jitEmitAssign degrades as "unseeded" -- the seal-120 fault, R4's to
+  name, not fix. JD's degrade row stays red, `''` -> `'1'`.
+**The census was right about the kinds and wrong about the rows:** a refusal that lands in an IF condition or an assignment
+operand now falls back by name, so the rows that assert values cure and only a degrade row can still see it.
+**Options for Tony:** (1) merge J3 with argRoundJ and JD's four as named movers (no green -> red; JD's degrade row re-pinned
+`1`, intended 0, J6); (2) hold J3 and go on to J6 on top of it, merging the two together.
+
 #### ⚠⚠ J3 R0 -- THE acU CENSUS ON TRUNK 9f37bea (SEQ 332, Clod, 2026-10-11; clone tap, reverted md5-identical)
 
 **Binary:** trunk `9f37bea` (includes `124de97`, Tony's opMinus / opUnaryMinus `ruler` local), built in the clone, bare,
