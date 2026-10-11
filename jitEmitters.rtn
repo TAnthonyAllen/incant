@@ -1939,6 +1939,42 @@ extern int jitEmitSelfCall(GroupItem argument,GroupItem action)
 }
 
 
+/*  jitScOperandRT -- one AND/OR operand the jit could not emit, evaluated at RUN time on the interpreted road, as
+    runShortCircuit evaluates it; its truth comes back as an i32. A refusal's scope is the operand: it opens with none
+    in force and clears its own on the way out, as jitIfRT does.  */
+extern int jitScOperandRT(GroupItem operand)
+{
+GroupItem   value = operand;
+int         truth;
+    clearRefusal(operand);
+    if value
+        if value.isMethod && value.invoke   value = value.method(value);
+    truth = truthOf(value);
+    clearRefusal(operand);
+    return truth;
+}
+
+extern void jitEmitScOperandRT(GroupItem operand)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b || !operand) return;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    llvm::Value *opAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "scOpNode");
+    llvm::Value *fn = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitScOperandRT), ptr, "scOpFn");
+    llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+    gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
+    gJitEmitted    = true;
+    gJitLastIsNode = false;
+    %-
+}
+
+
 /*******************************************************************************
     jitEmitShortCircuit -- TIER 3 UNDER THE JIT. 2026-08-11, docs/andOrRung.md
     §3 part 2, ruling SEQ 32.
@@ -1959,6 +1995,8 @@ GroupItem   op      = field[1],
 int         isAND   = 0;
     // skipByRegistration the direction is the operator's isOR registration, never its spelling -- `op.tag eq "AND"` stood here until 2026-09-23 and read `&&` as OR
     if !opIsOR(op)      isAND = 1;
+    // freshOperand nothing may be in flight before an operand emits, so an operand that emits nothing reads as NO value, never as the last thing emitted (SEQ 335 R2)
+    -% gJitResult = nullptr; %-
     if target.isMethod && target.invoke     target.method(target);
     else                                    jitEmitBareRead(target);
     /*  gJitResult is a C++ global in jitContext.h and is NOT a field, so it
@@ -1968,18 +2006,22 @@ int         isAND   = 0;
         pointing at a word from the error TEXT. Every test of it therefore
         lives in passthrough. (Three-languages-share-the-tree, and the
         generated line is the only place that says which one you were in.)  */
+    // operandRT an operand with no value is ONE run-time call that evaluates it interpreted and hands back its truth -- the connective is never omitted, and the right side stays inside its own branch (SEQ 335 R2, jitIfRT's pattern)
     -%
     if (!gJitResult) {
-        jitDegrade("AND/OR LEFT operand produced no value", target);
-        return nullptr;
+        jitDegrade("AND/OR LEFT operand produced no value -- it runs INTERPRETED", target);
+        jitEmitScOperandRT(target);
     }
     %-
     jitScBegin(isAND);
+    -% gJitResult = nullptr; %-
     if arg.isMethod && arg.invoke           arg.method(arg);
     else                                    jitEmitBareRead(arg);
     -%
-    if (!gJitResult)
-        jitDegrade("AND/OR RIGHT operand produced no value", arg);
+    if (!gJitResult) {
+        jitDegrade("AND/OR RIGHT operand produced no value -- it runs INTERPRETED", arg);
+        jitEmitScOperandRT(arg);
+    }
     %-
     jitScEnd(field);
     return field;

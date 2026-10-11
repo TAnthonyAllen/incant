@@ -239,6 +239,7 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 extern "C" int jitEmitRefusedCheck();
 extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
 extern "C" int jitEmitReturn();
+extern "C" void jitEmitScOperandRT(GroupItem *operand);
 extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action);
 extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field);
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target);
@@ -283,6 +284,7 @@ extern "C" int jitRunIfTest(GroupItem *fld);
 extern "C" void jitSaveFrameRT(GroupItem *field);
 extern "C" void jitScBegin(int isAND);
 extern "C" void jitScEnd(GroupItem *resultNode);
+extern "C" int jitScOperandRT(GroupItem *operand);
 extern "C" GroupItem *jitSeedField(GroupItem *token);
 extern "C" GroupItem *jitSeedLiteral(GroupItem *token);
 extern "C" void jitSeedOperands(GroupItem *target, GroupItem *arg);
