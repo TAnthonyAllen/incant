@@ -1752,28 +1752,19 @@ extern "C" int accTraceWanted(GroupItem *flat)
 	
 }
 
-/***************************************************************************
-    accessorWrite -- `x.name = v`: opDot handed opAssign its COPY of x's
-    groupField, marked isAccessorProduct and parented to x. Write the field
-    on x through setGroupField. A groupField with no write case says so by
-    name and leaves x unchanged.
-***************************************************************************/
+// accessorWrite x.name = v: opDot handed opAssign its isAccessorProduct copy of x's groupField, parented to x; write the field on x through setGroupField, or say by name that it has no write case
 extern "C" int accessorWrite(GroupItem *argument, GroupItem *product)
 {
 int 	value = 0;
 	// methodWrite `x.methoD = "name"` binds a METHOD, which no integer can carry -- it leaves before the value is read
 	if ( ::compare(product->groupBody->tag,"methoD") == 0 )
-		return ::accessorWriteMethod(argument,product);
+		return accessorWriteMethod(argument,product);
 	if ( argument )
 		value = argument->getCount();
 	return accessorWriteValue(value,product);
 }
 
-/***************************************************************************
-    accessorWriteMethod -- `x.methoD = "name"`: find the method the
-    argument's text names with dlsym, as ruleMethod does, and bind it as x's
-    method. A name dlsym cannot find is refused by name and x is unchanged.
-***************************************************************************/
+// accessorWriteMethod x.methoD = "name": find the named method with dlsym, as ruleMethod does, and bind it as x's method; a name dlsym cannot find is refused and x is unchanged
 extern "C" int accessorWriteMethod(GroupItem *argument, GroupItem *product)
 {
 GroupItem 	*holder = 0;
@@ -1795,18 +1786,14 @@ char 		*name = 0;
 	return 1;
 }
 
-/***************************************************************************
-    accessorWriteValue -- accessorWrite's body, handed the value rather than
-    the node it came from, so the jitted `=` can call it with a scalar
-    (jitAccessorWriteRT, SEQ 297 R0). One writer for both roads.
-***************************************************************************/
+// accessorWriteValue accessorWrite's body, handed the value rather than its node so the jitted = can call it with a scalar (jitAccessorWriteRT, SEQ 297 R0) -- one writer for both roads
 extern "C" int accessorWriteValue(int value, GroupItem *product)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*flagDef = 0;
 	flagDef = ruler->groupFields->get(product->groupBody->tag);
 	if ( flagDef )
-		if ( ::setGroupField(product->parent,flagDef->groupBody->gCount,value) )
+		if ( setGroupField(product->parent,flagDef->groupBody->gCount,value) )
 			return 1;
 	::fprintf(stderr,"opAssign: `.%s` has no write case -- the field is unchanged\n",product->groupBody->tag);
 	return 0;
@@ -2113,7 +2100,7 @@ char 		*failText = 0;
 	if ( !ciSlot )
 		ciSlot = spec->addAttribute(new GroupItem("result"));
 	ciSlot->setGroup(0);
-	result = ::driveStep(ciSource,blockRULE,ciReport,ciOwner);
+	result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
 	if ( result && result != ruler->falseResult )
 		{
 		ciSlot->setGroup(result);
@@ -2835,29 +2822,13 @@ Buffer 		*buffet = 0;
 	return filing;
 }
 
-/*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and fromThis
-    It returns the line wrapped in a GroupItem field using setToken (as a stream
-    pointer into the buffer with a length). The field will only contain
-    valid text as long as the buffer contains it in place. Note: getMarkLineAt
-    calls findInBuffer to locate the matching line so if there is already
-    a mark set, it will search for the matching line from that mark on.
-    It then sets mark at beginning of the line in the source buffer. This
-    method is called by the getLine incant command defined in setup.
-*****************************************************************************/
+// getMarkLineAt the getLine command: find the line holding fromThis's text in the source buffer, hand it back as a token field into the buffer (valid only while the buffer holds it in place), and leave the mark at the line's start; a mark already set is where the search starts
 extern "C" GroupItem *getMarkLineAt(GroupItem *argument)
 {
 GroupItem 	*source = argument->get("source");
 GroupItem 	*fromThis = argument->get("fromThis");
 GroupItem 	*result = 0;
-	/*  ⚠ NOT A SENTINEL-AS-DATA SITE, and the 2026-09-05 table said it was.
-	`result` is a bare local -- tok emits `GroupItem *result = 0` -- so both
-	arms below ALREADY returned the testable nothing. What they did not do
-	was ARM, so the caller carried on. Ordinary routing, not a promotion.
-	⚠ AND THIS PROSE SITS ABOVE THE WHOLE CHAIN ON PURPOSE (bear-trap #29):
-	the first cut put it between the arms, immediately before an `else`, and
-	wiped the extern block to 36. Comments go above the chain or inside an
-	arm, never in the gap between arms.   Instruct.getMarkLineAt.storeRuling  */
+	// notASentinel both refusal arms already return the testable nothing; prose for this chain goes above it, never between its arms (bear-trap #29)
 	if ( source && isBUFFER(source->groupBody->flags.data) )
 		if ( fromThis )
 			{
@@ -7523,24 +7494,7 @@ extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat)
 	
 }
 
-/***************************************************************************
-	Rule action for the AND operator
-
-    ⚠ THE SHORT-CIRCUIT DOES NOT LIVE HERE AND CANNOT. runOP evaluates
-    both operands BEFORE it dispatches, so by the time this is entered the
-    right arm has already run, side effects included (docs/andOrRung.md
-    section 1a). Declining to evaluate is not available at this position at
-    all -- runShortCircuit in GroupActions.rtn is where AND/OR are actually
-    reached from, and it intercepts ABOVE the resolution lines.
-
-    This handler remains as the STRICT fallback for any path that reaches
-    the operator table directly, and it is brought up to the ruling: it
-    returns 1 or 0, never null, and it tests both operands through the one
-    contract. Before 2026-08-11 it returned trueResult or NULL, and opOR
-    returned trueResult/falseResult -- the two were not even consistent
-    with each other, so nothing here is changing behaviour anyone could
-    have relied on.
-***************************************************************************/
+// opAND the AND operator's STRICT fallback: both operands have already run, so the short-circuit is runShortCircuit's, never this; answers 1 or 0 through truthOf
 extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 {
 	if ( ::truthOf(target) && ::truthOf(argument) )
@@ -7548,15 +7502,12 @@ extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 	return GroupControl::groupController->groupRules->falseResult;
 }
 
-/***************************************************************************
-	Rule action for the +% operator
-***************************************************************************/
+// opAddAttribute the +% operator: add the argument, or each item of a list argument, as an attribute of target
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opAddAttribute.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
@@ -7566,33 +7517,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-    Rule action for the +/ ADD-MEMBER operator.
-
-    THE FAMILY READS FROM ITS CHARACTERS: += value, +% attribute, +/ member,
-    +* pointer. `/` is tok's own get-member-by-name spelling, which is why `+/`
-    is legible to anyone who has read tok.
-
-    SHARE-BODY, exactly as +% is -- the two differ by WHICH LIST, never by
-    copy-versus-share. If a membership-by-copy form is ever wanted it is a
-    third spelling and not a mode on this one, so += never grows a second
-    meaning.   Instruct.opAddMember.familyReadsFromCharacters
-***************************************************************************/
+// opAddMember the +/ operator: add the argument, or each item of a list, as a member of target -- share-body, as +% is
 extern "C" GroupItem *opAddMember(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opAddMember.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
-	/*  ⚠ A LITERAL RIGHT SIDE REFUSES, AND THE TEST IS PRESENCE RATHER THAN KIND.
-	Tony's nod, 2026-09-11. Membership attaches a NODE to a list; a literal is a
-	value with nowhere to be attached from, so `bag +/ 7` is asking the membership
-	channel to do the value channel's job. Refusing by presence -- isLiteral, which
-	the parse already knows -- rather than by consulting a classifier is deliberate:
-	the classifier was S3 and S3 was withdrawn, and a gate that waits for one would
-	be a gate that never lands.   Instruct.opAddMember.literalRightSideRefuses  */
+	// literalRightSideRefuses membership attaches a NODE; a literal is a value, refused by presence (isLiteral), never by a classifier
 	if ( argument->groupBody->flags.isLiteral )
 		return ::refuse(target,"Operator +/ -- the right side is a literal; membership attaches a field to a list, and a literal is a value with no node to attach");
 	if ( isLIST(argument->groupBody->flags.binType) )
@@ -7602,34 +7535,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the +* add-pointer operator
-***************************************************************************/
+// opAddPointer the +* operator: add an attribute that POINTS AT the argument (+% adds a copy); read it back with *
 extern "C" GroupItem *opAddPointer(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*ptr = 0;
-	/*  `a +* b` -- ADD A POINTER. The sibling of `+%`, and the whole difference
-	is copy versus reference: `a +% b` adds a COPY of b, `a +* b` adds an
-	attribute that POINTS AT b. Read it back with `*`; `**` is `*` twice.
-	Minted 2026-09-01 (SEQ 111), taking the `+*` slot from opCopyList, which
-	had ZERO call sites and retires with it. copyListTo is frozen substrate
-	and did not move -- anything wanting a list copy calls it on GroupItem.
-	⚠ THE LIFETIME RULE IS A LAW, NOT A GUARD (Tony): the target is a real
-	field, so its contents are safe. Point at a tempField and it changes
-	underneath you -- user beware, exactly as for any post-definition write.
-	Nothing here checks, deliberately, and incant/pointerT carries a row that
-	WITNESSES the tempField case rather than forbidding it.
-	⚠ AND IT REFUSES A NULL OPERAND BY NAME, F-41's shape, because
-	`a +* *b` is now an ordinary thing to type.  */
+	// pointerLifetime nothing checks the pointee's lifetime, deliberately -- point at a tempField and it changes underneath you
 	if ( !argument )
 		{
-		/*  F-43: name TARGET explicitly. Bare `tag` resolved to `ptr` -- declared
-		above and still null here -- so this guard crashed instead of refusing.   Instruct.opAddPointer.f43  */
-		/*  ⚠ PROMOTED 2026-09-05 FROM SENTINEL-AS-DATA. This returned `target`
-		after announcing a failure -- a VALUE that looks like a successful
-		answer, so a caller could not tell the refusal from a result. It now
-		refuses: null out, arm set, and the statement after does not run.
-		Instruct.opAddPointer.f43  */
+		// f43 name TARGET explicitly (bare tag resolved to ptr, still null here), and refuse -- never hand target back as if it were an answer
 		return ::refuse(target,"Operator +* -- an operand that is nothing");
 		}
 	ptr = new GroupItem(argument->groupBody->tag);
@@ -7640,10 +7553,7 @@ GroupItem 	*ptr = 0;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the +< addProperty operator: files the argument on the
-    target's property list, never among its terms (SEQ 224)
-***************************************************************************/
+// opAddProperty the +< operator: file the argument on target's property list, never among its terms (SEQ 224)
 extern "C" GroupItem *opAddProperty(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7654,15 +7564,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the = assign operator: setContent, which sets the
-    target's data to the argument's data (Tony, 2026-10-04). A holder on the
-    right carries its group across, so the target ends up isGROUP too. A null
-    argument clears the target. The jitted = (jitAssignNodeRT) does the same;
-    edit the two together -- incant/pop/assignRoadT pins both roads.
-    The `:. byRef` arm (store the argument BY REFERENCE) is gone with the
-    same change: `=` never aliases now, whatever byRef says.   byRefProvenance (history)
-***************************************************************************/
+// opAssign the = operator: setContent -- target takes the argument's data, a holder carries its group across, a null clears; it never aliases, whatever byRef says; jitAssignNodeRT is its jitted twin, so edit the two together (assignRoadT pins both)
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7671,34 +7573,16 @@ int 		priorLimit = ::limitWriteGuard(target);
 		{
 		 return jitEmitAssign(argument, target); 
 		}
-	/*  ⚠ THE STORE RULING (Tony, 2026-09-05): AN ARMED STATEMENT STORES NOTHING.
-	AND THE CHECK HAS TO BE HERE RATHER THAN AT runOP's ENTRY, which is where
-	it was first put and where it does not work. MEASURED: an assignment
-	DISPATCHES BEFORE ITS OWN RIGHT-HAND SIDE -- a STORECAM trace reads
-	`op== refused=0` and only then `op=+*`, with the refusal firing later
-	still, inside the +* dispatch. So the enclosing operator is entered while
-	the arm is clear and an entry check can never see its own operand refuse.
-	⚠ AND WITHOUT THIS THE REFUSAL DESTROYS ITS TARGET: a refused right-hand
-	side is null, and opAssign's `else target.clearData()` below is what
-	BLANKS the field. sentinelT ST-1 read its own tag instead of the 111 it
-	went in with, for exactly that reason.   Instruct.opAssign.storeRuling  */
+	// storeRulingHere an armed statement stores nothing -- asked HERE, not at runOP's entry, because an assignment dispatches before its own right-hand side
 	if ( ruler->refused )
 		return 0;
 	// accessorWrite `x.name = v` writes the FIELD x through setGroupField, not only the copy opDot handed back (SEQ 295 R3)
 	if ( target->groupBody->flags.isAccessorProduct )
-		accessorWrite(argument,target);
+		::accessorWrite(argument,target);
 	if ( argument )
 		target->setContent(argument);
 	else	target->clearData();
-	/*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
-	maxLimit and here is what to restore, so every other assignment in the
-	system pays one int test. See limitWriteGuard's header in
-	GroupActions.rtn for why the refusal has to be here rather than in
-	modify(), and why it takes two halves.
-	⚠ THE GUARD CALL SITS ABOVE THE jitting ARM DELIBERATELY: it must run on
-	the same passes the write does, and it mentions `target` so the bare
-	`group` below still resolves to target -- verified in the generated .mm,
-	which is the only way that question has ever been answerable here.  */
+	// limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
 	if ( priorLimit )
 		::limitWriteCheck(target,priorLimit);
 	return target;
@@ -7732,9 +7616,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ::refuse(target,"opCall: nothing to call -- not a rule, an action or a method (SEQ 318 c2)");
 }
 
-/***************************************************************************
-	test of call op
-***************************************************************************/
+// opCallTest test of the call op: run target's action, or its method, on the argument
 extern "C" GroupItem *opCallTest(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
@@ -7747,30 +7629,7 @@ GroupItem 	*result = 0;
 	return result;
 }
 
-/***************************************************************************
-	operator method for the cerr rule -- THE STDERR SINK, added 2026-08-01.
-
-    opPrint above is a TWO-arm choice (diverted buffer, else stdout) and there
-    was no third arm to select; that absence is what grammar-minion round 1
-    refused on with evidence (docs/grammarCorpus.md CLAIM GRAM-4), and it is
-    what held minionA round 2 -- genParse's emitters write their PRODUCT via
-    cerr, so a kant version could not reproduce its own target.
-
-    ⚠ DELIBERATELY A SIBLING, NOT A THIRD ARM IN opPrint. Two reasons:
-      1. It follows Tony's own precedent. aCTionStringXP was split out of the
-         print action rather than folded into it -- "it duplicates much of the
-         print action, but no biggie it is short, and no if statement needed to
-         figure out what print method to invoke."
-      2. It does NOT preempt `sink=`. Selecting a sink per statement is an OPEN
-         design item Tony owns (GRAM-P1, the replacement for the first-character
-         test). A sibling rule needs no selector at all, so it leaves that
-         decision exactly where it was.
-
-    NOTE the toBUFFER asymmetry, and it is intentional: cerr does NOT honour the
-    print diversion. `printTO` exists to capture program output; a diagnostic
-    that silently vanished into a capture buffer would be the opposite of what a
-    diagnostic is for. If that turns out to be wrong it is a one-line change.
-***************************************************************************/
+// opCerr the cerr rule's operator method, the stderr sink: a SIBLING of opPrint rather than a third arm, and it does not honour the print diversion, on purpose
 extern "C" GroupItem *opCerr(GroupItem *target, Buffer *buffer)
 {
 char 	*printText = buffer->string();
@@ -7782,19 +7641,7 @@ char 	*printText = buffer->string();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/***************************************************************************
-	operator method for the cout rule -- THE EXPLICIT STDOUT SINK, 2026-08-01.
-
-    opPrint above consults toBUFFER and so is DIVERTIBLE. This one does not,
-    and that is its entire reason for existing (Tony): once you have diverted
-    `print` with printTO(), you invariably need to reach the terminal anyway,
-    and there was no way to. `cout` is that way.
-
-    ⚠ THE MISSING toBUFFER TEST IS THE FEATURE, NOT AN OVERSIGHT, and it is
-    the line that closes KANT-23 -- the pinned defect where a grafted `cout`
-    was swallowed by an armed diversion. Do not "fix" this by adding the
-    toBUFFER arm back; that would restore the defect exactly.
-***************************************************************************/
+// opCout the cout rule's operator method, the explicit stdout sink: it never consults toBUFFER, and that missing test IS the feature (KANT-23)
 extern "C" GroupItem *opCout(GroupItem *target, Buffer *buffer)
 {
 char 	*printText = buffer->string();
@@ -7806,9 +7653,7 @@ char 	*printText = buffer->string();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/***************************************************************************
-	Rule action for the $$ debug marker. 
-***************************************************************************/
+// opDebug the $$ debug marker: an Xcode inspection point that unwraps a group and hands it back
 extern "C" GroupItem *opDebug(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7821,23 +7666,7 @@ GroupItem 	*lastRef = 0;
 	return result;
 }
 
-/***************************************************************************
-	opDeref -- the prefix unary * . Hands back the GROUP a field contains,
-	explicitly, where runOP used to do it silently for everything.
-
-	Routed here from handleUnary via the named "deref" op, keeping the binary
-	* slot (opMultiply, which carries all three of operateMethod,
-	interpretMethod and jitEmitter) completely isolated -- the same two-slot
-	separation prefix - has from opMinus, and for the same reason.
-
-	IT REFUSES RATHER THAN SUBSTITUTES. A * on a field holding no group is a
-	user error under the new algebra, and handing the field back would make
-	*field and field indistinguishable at exactly the sites the migration is
-	trying to tell apart. Null is the honest answer and it is loud.
-
-	NO JIT EMITTER YET, ruled: interpreter-only is fine for the facility, so
-	the jitting arm degrades by name rather than folding a value at emit time.
-***************************************************************************/
+// opDeref the prefix unary *: hand back the group a field holds, or null -- its own op, so the binary * slot (opMultiply) stays isolated; under jit, jitEmitDeref or a degrade by name
 extern "C" GroupItem *opDeref(GroupItem *result)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
@@ -7845,43 +7674,20 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 		 if (!::jitEmitDeref(result))
 		::jitDegrade("unary * under jit -- emitter refused",result); 
 		}
-	/*  ⚠ THE STAR RULING (Tony, 2026-09-05). `*x` ON A FIELD THAT HOLDS NO
-	GROUP YIELDS NULL -- the testable nothing -- AND DOES NOT REFUSE.
-	REFUSAL IS FOR CATEGORY ERRORS; asking a field for what it holds is a
-	legitimate question with a legitimate empty answer, and `if *x` must be
-	able to take its else arm without ending the activation.
-	⚠ THE CONSUMER OF THE NULL REFUSES, and that is where the name belongs:
-	an iterate handed nothing says so about the ITERATE, which is the
-	statement the writer actually typed. f31's spin was diagnosed for a day
-	as a star problem because the star was the thing shouting.
-	Instruct.opDeref.starRuling  */
+	// starRuling *x on a field holding no group yields NULL and does not refuse; the consumer of the null refuses, in its own name (Tony, 2026-09-05)
 	if ( isGROUP(result->groupBody->flags.data) )
 		return result->getGroup();
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the / divide operator
-***************************************************************************/
+// opDiv the / operator: always a DOUBLE, even when exact -- 10 / 4 is 2.5
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitSDiv); 
 		}
-	/*  `/` PROMOTES (Tony's ruling, 2026-08-01, clause 1). DIVISION MEANS
-	DIVISION -- the same operator never silently changes mathematical
-	meaning by operand type, so count-over-count yielding a fraction gives a
-	DOUBLE: 10 / 4 is 2.5, not 3 and not 2. The old arm was wrong twice,
-	truncating AND count-typing.
-	⚠ ALWAYS A DOUBLE, INCLUDING THE EXACT CASE (8 / 4). Tony left the
-	exact-result behaviour open; this is the proposal and its reason is the
-	JIT rather than taste. Premise 1 is the datA-stability contract: a
-	field's datA is fixed for the lifetime of jitted code that observed it.
-	Making the RESULT TYPE depend on whether the division happens to come out
-	even makes it depend on runtime VALUES, so the emitter could not know it
-	at emit time and the table arc's promote leaf would have no static
-	answer. One arm is also the cheapest thing in the file. */
+	// alwaysDouble division never changes meaning by operand type, and an exact quotient stays a double so the jit knows the result type at emit time
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
@@ -7891,15 +7697,12 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-/***************************************************************************
-	Rule action for the /= slash equal operator
-***************************************************************************/
+// opDivEQ the /= operator: divide as / does, then narrow into the slot target already is
 extern "C" GroupItem *opDivEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opDivEQ.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( ruler->jitting )
@@ -7909,11 +7712,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
-		/*  `/=` divides as `/` does (clause 1) and then NARROWS into whatever
-		slot the target already is (clause 3). A count target therefore
-		rounds half-up rather than truncating; a double target keeps the
-		fraction. Written through the same floor(x+0.5) as getCount so the
-		two cannot drift. */
+		// a count target rounds half-up through getCount's floor(x+0.5), so the two cannot drift; a double keeps the fraction
 		if ( isCOUNT(target->groupBody->flags.data) )
 			target->setCount((int)floor((target->getNumber() / argument->getNumber()) + 0.5));
 		else
@@ -7930,18 +7729,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
-/***************************************************************************
-	Dot operator method returns the field referenced in a dot product
-    expression like: field, IWC field can be a group field or the
-    name (in field.tag) of a component of target that may or may not exist.
-    Note: local fields are ignored
-***************************************************************************/
+// opDot the . operator: the field a dot expression names -- a groupField accessor read off target, or target's component of that tag; local fields are ignored
 extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*product = 0;
-	// ONE gate for the whole accessor family; remove it and a jitted `if noPrinT`
-	// branches on whatever was last in flight   Instruct.opDot.accessorGate
+	// accessorGate ONE gate for the whole accessor family; remove it and a jitted `if noPrinT` branches on whatever was last in flight
 	if ( ruler->jitting )
 		{
 		 return jitEmitDot(argument, target, ruler->tempField); 
@@ -7954,14 +7747,11 @@ GroupItem 	*product = 0;
 			target = ruler->lastREF->getGroup();
 			}
 		else	::fprintf(stderr,"opDot: lastREF not set\n");
-	// what arrived on the right, and whether it is a groupField   measure.measureDotOperands
+	// what arrived on the right, and whether it is a groupField
 	::measureDotOperands(argument,target);
 	if ( argument )
 		{
-		// rightIsATag  the right operand is a LITERAL NAME, so read its TAG. Reading
-		// rightIsATag  .text worked only through bear-trap 26's fall-through on a
-		// rightIsATag  data-less node, which handleDot mints deliberately -- but a
-		// rightIsATag  reader should not depend on another site's deliberate accident
+		// rightIsATag the right operand is a LITERAL NAME, so read its TAG -- never .text, which answers only through bear-trap #26's fall-through
 		// nullTarget a star on a field that holds no group yields NULL, and `*x.y` folds the star onto x -- refuse by name, never read through null (starDotNull, SEQ 301)
 		if ( argument->groupBody->registry != ruler->groupFields )
 			{
@@ -8007,8 +7797,7 @@ GroupItem 	*product = 0;
 				case 8:
 					if ( target->groupBody->flags.hasMembers )
 						product->setCount(1);
-					// NOT case 7: setParse makes hasAttributes TRUE for every walked
-					// rule, so only this one discriminates   Instruct.opDot.case42hasTraits
+					// case42hasTraits NOT case 7: setParse makes hasAttributes TRUE for every walked rule, so only this one discriminates
 					break;
 				case 42:
 					if ( target->groupBody->flags.hasTraits )
@@ -8074,41 +7863,17 @@ GroupItem 	*product = 0;
 				case 40:
 					if ( isCoded(target->groupBody->flags.actionType) )
 						product->setCount(1);
-					// case41hasNewParse  READ half; the WRITE half is opSetFlag case 41 -- they
-					// case41hasNewParse  ship together or the flag is unassertable
+					// case41hasNewParse the READ half; the write half is setGroupField case 41 -- they ship together or the flag is unassertable
 					break;
 				case 41:
 					if ( target->groupBody->flags.hasNewParse )
 						product->setCount(1);
-					/*  isGrouPNoWriteHalf  READ-ONLY, AND THAT IS NOT THE case 41 SHAPE ABOVE.
-					isGROUP is a VALUE of GroupBody's 5-bit `data` enum -- it sits beside
-					isCOUNT and isSTRING -- and is NOT a boolean flag. So there is no
-					opSetFlag write half to ship with it, and its absence is DELIBERATE
-					rather than owed: a field's data TYPE is not set through the flag
-					channel. ⚠ Do not read the missing half as the unassertable-flag
-					defect case 41 warns about; that rule is about flags.
-					⚠ AND IT EXISTS BECAUSE THE QUESTION WAS OTHERWISE UNASKABLE IN KANT.
-					`datA` returns the enum as a RAW NUMBER, so the only spelling before
-					this was `field.datA == 5` -- a magic constant against an enum whose
-					order is an implementation detail.   Instruct.opDot.isGrouPNoWriteHalf  */
+					// isGrouPNoWriteHalf READ-ONLY by design: isGROUP is a data KIND, not a flag, so no write half is owed
 					break;
 				case 43:
 					if ( isGROUP(target->groupBody->flags.data) )
 						product->setCount(1);
-					/*  debuggeDNoWriteHalf  READ-ONLY, AND THE MISSING HALF IS DELIBERATE, as
-					it is for isGrouP above -- but for a different reason, so do not read
-					the two as one rule. `debugged` IS a boolean flag, so a write half
-					COULD exist; it must not. THE DEBUG RULE IS ITS ONLY WRITER --
-					aCTionDEBUG toggles it and GroupItem::setDebug propagates the toggle
-					down -- and a second writer through opSetFlag would let a fixture set
-					the very flag it is trying to observe, which is an instrument that can
-					fake its own reading.
-					⚠ IT IS AN INSTRUMENT, NOT A FIX. `debugged` has no reader anywhere in
-					the tree: its consumers were directive-injected and culled by C-155
-					(docs/c155Cull.md). So on a bare build `debug ALL X` is invisible, and
-					the only thing anyone could say about it was that nothing complained --
-					which is the green that flatters. This makes the question askable.
-					Instruct.opDot.debuggeDNoWriteHalf  */
+					// debuggeDNoWriteHalf READ-ONLY by design: the debug rule is the flag's only writer, and a second would let a fixture fake its own reading
 					break;
 				case 44:
 					if ( target->groupBody->flags.debugged )
@@ -8133,9 +7898,7 @@ GroupItem 	*product = 0;
 						product = target->priorInParent;
 						product->groupBody->flags.isInitialized = 1;
 						}
-					// ⚠ THE `groupList &&` PREFIX IS LOAD-BEARING. Without it these
-					// SEGFAULT on a listless node -- the guard dereferenced the very
-					// pointer it guarded   Instruct.opDot.cases403to404
+					// cases403to404 the `groupList &&` prefix is LOAD-BEARING -- without it the guard dereferences the pointer it guards
 					break;
 				case 403:
 					if ( !target->groupBody->groupList || !target->groupBody->groupList->firstInList )
@@ -8146,8 +7909,7 @@ GroupItem 	*product = 0;
 					if ( !target->groupBody->groupList || !target->groupBody->groupList->lastInList )
 						product = 0;
 					else	product = target->groupBody->groupList->lastInList;
-					// affiliation-FILTERED first, unlike `.firsT`, which returns the
-					// ATTRIBUTE on an attribute-first node   Instruct.opDot.case405firstMember
+					// case405firstMember affiliation-FILTERED first, unlike `.firsT`, which returns the attribute on an attribute-first node
 					break;
 				case 405:
 					if ( !target->groupBody->groupList )
@@ -8156,20 +7918,17 @@ GroupItem 	*product = 0;
 					break;
 				case 406:
 					product->setCount((int)target->groupBody->flags.actionType);
-					// binType is an ENUM, so nonzero means ANY container kind --
-					// deliberately wider than isBIN||isREGISTRY   Instruct.opDot.case407binType
+					// case407binType binType is an ENUM, so nonzero means ANY container kind -- deliberately wider than isBIN||isREGISTRY
 					break;
 				case 407:
 					if ( target->groupBody->flags.binType )
 						product->setCount(1);
-					// 406 cannot witness isCoded -> isAction; this tests isAction
-					// SPECIFICALLY, as parseRule does   Instruct.opDot.case408isAction
+					// case408isAction 406 cannot witness isCoded -> isAction; this tests isAction SPECIFICALLY, as parseRule does
 					break;
 				case 408:
 					if ( isAction(target->groupBody->flags.actionType) )
 						product->setCount(1);
-					// unsupportedAccessor  every gCount with no case of its own lands here and
-					// unsupportedAccessor  SAYS SO, rather than answering with a silent null
+					// unsupportedAccessor a gCount with no case of its own lands on default and SAYS SO, rather than answering with a silent null
 					break;
 				case 409:
 					product->setCount((int)target->groupBody->flags.instructType);
@@ -8197,16 +7956,14 @@ GroupItem 	*product = 0;
 	return product;
 }
 
-/***************************************************************************
-	Rule action for the == operator
-***************************************************************************/
+// opEQ the == operator: a data-less operand equals a numeric zero; otherwise compareValues decides
 extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitEQ); 
 		}
-	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator == -- an operand that is nothing");
@@ -8230,16 +7987,14 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the >= operator
-***************************************************************************/
+// opGE the >= operator, on opEQ's shape
 extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitGE); 
 		}
-	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator >= -- an operand that is nothing");
@@ -8263,16 +8018,14 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the > operator
-***************************************************************************/
+// opGT the > operator, on opEQ's shape
 extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitGT); 
 		}
-	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator > -- an operand that is nothing");
@@ -8296,14 +8049,12 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action that handles [argument] references.
-***************************************************************************/
+// opGet the [] subscript: target's component by count or by name; a group argument names it by its gText
 extern "C" GroupItem *opGet(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 char 		*txt = 0;
-	// null target is a lawful empty answer, as in opDot   Instruct.opGet.nullTarget
+	// nullTarget a null target is a lawful empty answer, as in opDot
 	if ( !target )
 		return 0;
 	if ( isGROUP(argument->groupBody->flags.data) && argument->groupBody->gText )
@@ -8315,43 +8066,28 @@ char 		*txt = 0;
 	return result;
 }
 
-/***************************************************************************
-	Rule action for the =% getAttribute operator
-***************************************************************************/
+// opGetAttribute the =% operator: target's attribute named by the argument's text
 extern "C" GroupItem *opGetAttribute(GroupItem *argument, GroupItem *target)
 {
 char 	*strung = argument->getText();
 	return target->getAttribute(strung);
 }
 
-/***************************************************************************
-	Rule action for the =/ getMember operator
-***************************************************************************/
+// opGetMember the =/ operator: target's member named by the argument's text
 extern "C" GroupItem *opGetMember(GroupItem *argument, GroupItem *target)
 {
 char 	*strung = argument->getText();
 	return target->getMember(strung);
 }
 
-/***************************************************************************
-	Rule action for the =< getProperty operator: reads the target's property
-    list only, so a term of the same name cannot answer (SEQ 224)
-***************************************************************************/
+// opGetProperty the =< operator: reads target's property list only, so a term of the same name cannot answer (SEQ 224)
 extern "C" GroupItem *opGetProperty(GroupItem *argument, GroupItem *target)
 {
 char 	*strung = argument->getText();
 	return target->getProperty(strung);
 }
 
-/***************************************************************************
-	Rule action for the IN operator.
-        If argument is a set return true if target contains any character in it
-        If target is a set return true if every character in argument is in the set
-            REWRITE THIS ONCE WE HAVE SET OPERATORS need to know for any target
-                is first character in
-                is any character in argument set
-                are all characters in argument set
-***************************************************************************/
+// opIN the IN operator: a list argument holds target's tag; a set argument holds any of target's characters; a set target holds all of the argument's; a buffer argument contains target's text -- to be rewritten once there are set operators
 extern "C" GroupItem *opIN(GroupItem *argument, GroupItem *target)
 {
 PLGset 		*set = 0;
@@ -8376,12 +8112,7 @@ GroupItem 	*result = 0;
 	if ( isBUFFER(argument->groupBody->flags.data) )
 		{
 		char 	*searchString = target->getText();
-		/*******************************************************************
-		search argument buffer for text in it that matches target
-		On match, buffer's mark is set to start of match (side effect);
-		we return argument so caller has the matched string for
-		length-of-match computations (argument.count).
-		*******************************************************************/
+		// findInBuffer leaves the buffer's mark at the match; target goes back so the caller has the match length
 		if ( argument->getBuffer()->findInBuffer(searchString) )
 			result = target;
 		}
@@ -8435,16 +8166,14 @@ extern "C" int opIsShortCircuit(GroupItem *op)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the <= operator
-***************************************************************************/
+// opLE the <= operator, on opEQ's shape
 extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitLE); 
 		}
-	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator <= -- an operand that is nothing");
@@ -8468,16 +8197,14 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the < operator
-***************************************************************************/
+// opLT the < operator, on opEQ's shape
 extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitLT); 
 		}
-	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator < -- an operand that is nothing");
@@ -8501,9 +8228,7 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for @ operator
-***************************************************************************/
+// opLastREF the @ operator: point lastREF at the result and hand it back
 extern "C" GroupItem *opLastREF(GroupItem *result)
 {
 	GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = result;
@@ -8511,9 +8236,7 @@ extern "C" GroupItem *opLastREF(GroupItem *result)
 	return result;
 }
 
-/***************************************************************************
-	Rule action for ~= match operator
-***************************************************************************/
+// opMatch the ~= match operator: true when target's text and the argument's compare equal
 extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *target)
 {
 	if ( !::compare(target->getText(),argument->getText()) )
@@ -8521,9 +8244,7 @@ extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the - operator
-***************************************************************************/
+// opMinus the - operator: numbers subtract (a double operand promotes the result); a string drops the argument's count of characters from its tail
 extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -8531,21 +8252,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitBinary(argument, target, jitSub); 
 		}
-	/*  F-41 null-operand guard -- see the note on opPlus.  */
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator - -- an operand that is nothing");
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
-		/*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
-		`.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
-		-3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
-		THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
-		to narrow into -- its result is a fresh temp -- so the ruling's POP
-		(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
-		promotion-first rule applied in the interpreter. Count OP count stays
-		a count, so nothing that was already integral moves.  */
+		// binaryPromotes a double operand promotes the result; count OP count stays a count (see opPlus)
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 			ruler->tempField->setNumber(target->getNumber() - argument->getNumber());
 		else	ruler->tempField->setCount(target->groupBody->gCount - argument->getCount());
@@ -8561,15 +8275,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->tempField;
 }
 
-/***************************************************************************
-	Rule action for the -= operator
-***************************************************************************/
+// opMinusEQ the -= operator: remove a member by tag from a list, or subtract in place -- computed in doubles, narrowed at the result
 extern "C" GroupItem *opMinusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opMinusEQ.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( ruler->jitting )
@@ -8585,21 +8296,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		result = target;
 		switch (target->groupBody->flags.data)
 			{
-				/*  WORD 2 (Tony, 2026-08-01): COMPUTE IN DOUBLES, NARROW AT THE
-				RESULT. The narrowing point moves off OPERAND-ENTRY and onto
-				RESULT-COMMIT for the whole compound-assign family. It used to
-				read `gCount -= argument.count`, and `.count` on a double
-				operand narrowed it BEFORE the arithmetic -- so 0 -= 2.5 went
-				0 - 3 = -3 where the ruling wants 0 - 2.5 = -2.5 -> -2.
-				⚠ ROUTED THROUGH tempField.count ON PURPOSE, so the half-up rule
-				keeps ONE IMPLEMENTER: getCount. Writing floor(x+0.5) inline
-				here would make a second copy that can drift from the first, and
-				this family exists precisely because two copies of one rule
-				disagreed. Same shape in opPlusEQ and opMultiplyEQ; opDivEQ
-				already computed in doubles.
-				`+=` CANNOT DISCRIMINATE the two readings (0 + 2.5 gives 3 under
-				both), so only a subtraction with a fractional operand shows the
-				difference -- incant/divT's c4 row is that test.  */
+				// narrowAtResult compute in doubles, narrow at the result -- through tempField.count, so getCount stays the ONE half-up implementer
 				break;
 			case 5:
 				ruler->tempField->setNumber(target->getNumber() - argument->getNumber());
@@ -8628,33 +8325,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
-/***************************************************************************
-	Rule action for -- operator
-***************************************************************************/
+// opMinusMinus the -- operator: an iterator steps BACK one child; a value steps down by one; a field never assigned is absent and refuses
 extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opMinusMinus.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
-		/*******************************************************************
-		note: because result is an iterator it is not unwrapped in runOP()
-		also -- does not differentiate between members and attributes
-		because GroupItem does not offer priorMember() or priorAttribute().
-		*******************************************************************/
-		/*  ⚠ PLACEMENT IS THE FIX, and this gate is INSIDE the arm and ABOVE
-		the return for the same reason opPlusPlus's is. F-53, 2026-09-04.
-		The old order returned from this arm before the gate below, so an
-		iterator under `--` never reached it: the walk ran once at EMIT
-		time and the compiled function contained NO LOOP -- silently, with
-		no refusal and no degrade line. opPlusPlus was fixed this way on
-		2026-08-04 and `--` was left behind; C-158a's JIT census found it.
-		The arm below is untouched and remains the definition of correct;
-		jitEmitIterStepBack emits a CALL TO THIS FUNCTION so the two cannot
-		drift.   Instruct.opMinusMinus.iterGate  */
+		// an iterator is not unwrapped in runOP; -- cannot tell members from attributes, as GroupItem has no priorMember() or priorAttribute()
+		// iterGate the jitting gate sits INSIDE the iterator arm and ABOVE its return, or the compiled walk has no loop (F-53)
 		if ( ruler->jitting )
 			{
 			 return jitEmitIterStepBack(result); 
@@ -8677,14 +8358,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitUnary(result, jitDec); 
 		}
-	/*  ⚠ THE SAME ZERO-IS-NOT-ABSENT LINE AS opPlusPlus, and for the sharper reason:
-	`--` had no data-less arm at all, so a data-less node with a LIST fell through to
-	`or groupList pop()` and `--bag["kid"]` REMOVED A MEMBER -- silently, at exit 0,
-	because the unary binds to the name before the subscript. That pop arm is gone
-	with this stroke: `--` is value-channel per the channel-by-operator ruling, and
-	removing a member is `remove`'s job. Census at the stroke: of 21 live `--`
-	operator sites in the corpus, ZERO used the pop arm -- all are numeric counters
-	or the iterator walk.   Instruct.opMinusMinus.zeroIsNotAbsent  */
+	// zeroIsNotAbsent a field never assigned refuses by name; there is no pop arm -- removing a member is remove's job
 	if ( !result->groupBody->flags.data )
 		return ::refuse(result,"Operator -- -- this field has no value to step; a field assigned 0 is a count and steps to -1, one never assigned is absent");
 	else
@@ -8714,34 +8388,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
-/***************************************************************************
-	Rule action for the * multiply operator
-***************************************************************************/
+// opMultiply the * multiply operator: a double operand promotes the result
 extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitMul); 
 		}
-	/*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
-	`.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
-	-3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
-	THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
-	to narrow into -- its result is a fresh temp -- so the ruling's POP
-	(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
-	promotion-first rule applied in the interpreter. Count OP count stays
-	a count, so nothing that was already integral moves.  */
-	/*  ⚠ A NULL OPERAND IS REACHABLE AND WAS F-36's SECOND CRASH. Guarded
-	2026-09-01. A refusing UNARY returns null -- `*x` on a field holding no
-	group prints `ERROR unary * on x` and returns null -- and that null
-	arrives here as the right operand of the very next operator. Reading
-	`argument.isCOUNT` on it dies at 139.
-	This is why `* *x` crashed in PRINT-ITEM position: the leading spaced `*`
-	is BINARY MULTIPLY (there is an operand to its left), and its right
-	operand is the refused inner unary. The star was never the subject; a
-	refusing operand feeding the next operator is.
-	REFUSE BY NAME, which is what the operator already does for a wrong TYPE
-	-- a missing operand is simply the other way it cannot apply.  */
+	// binaryPromotes as for + (see opPlus)
+	// f41 a refused operand arrives as null -- refuse it by name (see opPlus); F-36's second crash was here
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator * -- an operand that is nothing");
@@ -8759,15 +8414,12 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-/***************************************************************************
-	Rule action for the *= operator
-***************************************************************************/
+// opMultiplyEQ the *= operator: multiply in place -- computed in doubles, narrowed at the result
 extern "C" GroupItem *opMultiplyEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opMultiplyEQ.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( ruler->jitting )
@@ -8796,16 +8448,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
-/***************************************************************************
-	Rule action for ! operator
-***************************************************************************/
-/*  ⚠ `!` ANSWERS BY truthOf, NOT BY PRESENCE. It read `!contents()` until 2026-09-10,
-    which is the presence question, so `!0` came back FALSE -- a node holding zero HAS
-    contents. Same class as aCTionIF/bareIfTruth: the operator was asking whether
-    anything is there when it had to ask whether what is there is TRUE. The contract is
-    layered and lives in ONE place (truthOf, this file): absent is false, a numeric node
-    answers BY ITS VALUE, and a node with no numeric value is true by presence.
-        Instruct.opNOT.answersByTruthOf  */
+// opNOT the ! operator: answers by truthOf, never by presence -- a node holding zero is false, so !0 is true
 extern "C" GroupItem *opNOT(GroupItem *result)
 {
 	if ( !::truthOf(result) )
@@ -8813,9 +8456,7 @@ extern "C" GroupItem *opNOT(GroupItem *result)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the != operator
-***************************************************************************/
+// opNotEQ the != operator, on opEQ's shape
 extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
@@ -8841,9 +8482,7 @@ extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-/***************************************************************************
-	Rule action for the OR operator
-***************************************************************************/
+// opOR the OR operator's STRICT fallback, as for AND (see opAND)
 extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 {
 	if ( ::truthOf(target) || ::truthOf(argument) )
@@ -8851,46 +8490,21 @@ extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 	return GroupControl::groupController->groupRules->falseResult;
 }
 
-/***************************************************************************
-	Rule action for the + operator
-***************************************************************************/
+// opPlus the + operator: numbers add (a double operand promotes the result); a string advances by the argument's count
 extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitAdd); 
 		}
-	/*  ⚠⚠ F-41, 2026-09-01: A REFUSED OPERAND IS NOT A NUMBER, AND READING IT
-	WAS A LATENT 139 IN SEVEN OPERATORS AT ONCE. A refusing unary returns
-	null -- `*x` on a field holding no group prints its own error and hands
-	back nothing -- and that null arrives here as the right operand. Every
-	`argument.` read below dies on it.
-	Measured on opMultiply during F-36 (opMultiply+76, GroupRules.mm:9903,
-	from runOP <- appendPrintXP <- aCTionPrinT); the other six were censused
-	structurally -- zero `if !argument` guards against 3 to 6 dereferences
-	each -- and are guarded here on that basis rather than on seven separate
-	crashes.
-	⚠ WHY NOW RATHER THAN WHEN IT BITES: unary `*` is quarantined from the
-	corpus until the flip, so refused operands are rare TODAY. The flip makes
-	them ordinary, and `a + *b` is a spelling the +* fixture is about to put
-	in front of people. This is the arm-the-latent-bug pattern caught one
-	stroke early instead of one stroke late.
-	REFUSE BY NAME. A missing operand is simply the other way an operator
-	cannot apply, beside the wrong-type case each already names.  */
+	// f41 a refused operand arrives as null -- refuse it by name, beside the wrong-type case each operator already names
 	if ( !argument )
 		{
 		return ::refuse(target,"Operator + -- an operand that is nothing");
 		}
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
-		/*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
-		`.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
-		-3 as a COUNT before anything else ran. ⚠ THE FIX IS PROMOTION, NOT
-		THE COMPOUND FAMILY'S NARROW-AT-RESULT: a binary op has NO COUNT SLOT
-		to narrow into -- its result is a fresh temp -- so the ruling's POP
-		(`0 - 2.5 -> -2.5 TYPED DOUBLE`) is asking for premise 2's
-		promotion-first rule applied in the interpreter. Count OP count stays
-		a count, so nothing that was already integral moves.  */
+		// binaryPromotes a binary op has no count slot to narrow into, so a double operand promotes the result; count OP count stays a count
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() + argument->getNumber());
 		else
@@ -8909,39 +8523,22 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-/***************************************************************************
-	Rule action for the += operator -- NOW ONLY THE NAMED REFUSAL.
-
-    FINISH += (Tony, 2026-09-25): every kind this op used to handle is a MEMBER
-    of '+=' (opPlusEQisCOUNT ... opPlusEQstruct, below), picked per fire by
-    pickKindOP on both roads. This is the answer for a pick with no member.
-    The T1 dispatch tree that lived here -- shared dispatch, forked leaves,
-    exhaustive degrades -- is retired; its reasoning is in git history (and the
-    degrade citizen it created moved to a cerr: jitLadder rung JPd).
-***************************************************************************/
+// opPlusEQ the += operator, now only the named refusal: every kind is a member of '+=' picked by pickKindOP on both roads, and this answers a pick with no member
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opPlusEQ.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	measurePlusEQWrite(target);
-	/*  WHAT IS LEFT OF opPlusEQ (FINISH +=, 2026-09-25): THE NAMED REFUSAL, and
-	nothing else. Every kind it used to handle is a member of '+=', picked by
-	pickKindOP on both roads; this is the answer for a pick with no member --
-	a holder, a set, a map, any kind nobody armed.
-	⚠ THE ONE `if jitting` LINE IS KEPT, deliberately, after a read: it is the
-	only thing that would announce opPlusEQ being reached AT EMIT TIME, which
-	happens only if '+=' has NO members (runOP's call-through is gated on
-	hasMembers, a fact of setup registration). Every other jitting branch left
-	with the arm that carried it.   */
+	// keptJitLine the one jitting line announces opPlusEQ reached at EMIT time, which happens only if '+=' has no members
 	if ( ruler->jitting )
 		::jitDegrade("+= on an unhandled datA",target);
 	else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 	return target;
 }
 
+// opPlusEQisBUFFER the '+=isBUFFER' member: an empty target takes the argument's data; else write the text into the buffer
 extern "C" GroupItem *opPlusEQisBUFFER(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -8955,13 +8552,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return target;
 		}
 	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
-		return ::plusEQshapeRefusal("isBUFFER",argument,target);
-	// if buffer mark is set, argument is inserted into buffer at mark
-	// otherwise it is appended at end of buffer. mark is left as is
+		return plusEQshapeRefusal("isBUFFER",argument,target);
+	// with a mark set the text goes in at the mark, else at the end; the mark is left as is
 	target->getBuffer()->appendString(argument->getText(),0,0);
 	return target;
 }
 
+// opPlusEQisCOUNT the '+=isCOUNT' member: an empty target takes the argument's data; else add, computed in doubles and narrowed at the result
 extern "C" GroupItem *opPlusEQisCOUNT(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -8976,12 +8573,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return target;
 		}
 	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
-		return ::plusEQshapeRefusal("isCOUNT",argument,target);
+		return plusEQshapeRefusal("isCOUNT",argument,target);
 	ruler->tempField->setNumber(target->getNumber() + argument->getNumber());
 	target->groupBody->gCount = ruler->tempField->getCount();
 	return target;
 }
 
+// opPlusEQisNUMBER the '+=isNUMBER' member: an empty target takes the argument's data; else add
 extern "C" GroupItem *opPlusEQisNUMBER(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -8995,11 +8593,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return target;
 		}
 	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
-		return ::plusEQshapeRefusal("isNUMBER",argument,target);
+		return plusEQshapeRefusal("isNUMBER",argument,target);
 	target->groupBody->gNumber += argument->getNumber();
 	return target;
 }
 
+// opPlusEQisSTAK the '+=isSTAK' member: an empty target takes the argument's data; else push the argument
 extern "C" GroupItem *opPlusEQisSTAK(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9013,14 +8612,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return target;
 		}
 	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
-		return ::plusEQshapeRefusal("isSTAK",argument,target);
+		return plusEQshapeRefusal("isSTAK",argument,target);
 	target->groupBody->gStak->push(argument);
 	return target;
 }
 
-/*  ONE METHOD, TWO REGISTRATIONS: '+=isSTRING' and '+=isTOKEN'. It absorbs branch
-    A -- a list argument concatenates into a string target, or into an EMPTY one
-    (pick step 4a, the 35a ruling).  */
+// opPlusEQisSTRING the '+=isSTRING' and '+=isTOKEN' member, one method under two registrations: a list argument concatenates, into an EMPTY target too (pick step 4a); else append the text
 extern "C" GroupItem *opPlusEQisSTRING(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9044,15 +8641,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return target;
 		}
 	if ( !argument->groupBody->flags.data )
-		return ::plusEQshapeRefusal("isSTRING",argument,target);
+		return plusEQshapeRefusal("isSTRING",argument,target);
 	target->setText(::concat(2,target->getText(),argument->getText()));
 	return target;
 }
 
-/*  THE STRUCTURAL MEMBER, '+=struct' -- branches C and F, and B. A bin or
-    registry, a field with MEMBERS (rules and actions included: a grammar graft),
-    or an EMPTY field given a dataless node. A list argument is copied in
-    (copyListTo); anything else is appended.  */
+// opPlusEQstruct the '+=struct' member: a bin or registry, a field with members (a grammar graft included), or an empty field given a dataless node -- a list argument is copied in (copyListTo), anything else appended
 extern "C" GroupItem *opPlusEQstruct(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9069,60 +8663,25 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for ++ operator
-***************************************************************************/
+// opPlusPlus the ++ operator: an iterator steps to the next child; a value steps up by one; a field never assigned is absent and refuses
 extern "C" GroupItem *opPlusPlus(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opPlusPlus.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	measurePlusPlusWrite(result);
-	/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
-	The refusal was already announced once at the Iterate; this is silent
-	and simply does not move, so the enclosing `while` exits on the false
-	it already trusts -- the loop needed no change at all.  */
+	// poisonedIterator a refused iterate does not move, so the enclosing while exits on the false it already trusts (Tony, 2026-08-02)
 	if ( result->groupBody->flags.fLAG )
 		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
-		/*  ⚠ THE JITTING GATE IS INSIDE THE ITERATOR ARM, NOT BELOW IT, AND THE
-		PLACEMENT IS THE FIX. Tony's ruling 2026-08-04: an unqualified
-		iterate visits EVERY DECLARED CHILD, the interpreter is right, and
-		the JIT's 0-visit walk is the defect.
-		The old order tested isIterator FIRST and returned, so an iterator
-		under ++ never reached the jitting gate below -- it took the
-		interpreted arm and EMITTED NOTHING, which is why the compiled
-		function contained no loop and visited 0 where the interpreter
-		visited 3. The arm below is untouched and remains the definition of
-		correct; jitEmitIterStep emits a CALL TO THIS FUNCTION so the two
-		cannot drift.  */
+		// iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)
 		if ( ruler->jitting )
 			{
 			 return jitEmitIterStep(result); 
 			}
-		/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is
-		here. The refusal was already announced once at the Iterate; this is
-		silent and simply does not move, so the enclosing `while` exits on
-		the false it already trusts -- the loop needed no change at all.
-		
-		⚠ MOVED BELOW THE JITTING GATE, 2026-08-05, by the run-time-flag
-		census. It used to sit ABOVE it, at the top of the function, where it
-		was a RUN-TIME FLAG STEERING THE EMIT WALK -- the sixth member of the
-		one-channel-one-meaning family and the same class as aCTionBlocK's
-		isBranch break. `fLAG` means "the LAST iterate on this node was
-		refused", which is a fact about execution; read at EMIT time, a
-		poisoned node would have produced a compiled loop containing NO
-		ADVANCE INSTRUCTION AT ALL -- silent, permanent, baked into the
-		function.
-		It did not bite, and the reason is the danger: aCTionIterate clears
-		fLAG on its success path, which happened to run first. Correct by
-		accident of ordering, which is exactly what the census was for.
-		Below the gate, the poison is evaluated at RUN time inside the
-		emitted call to this very function -- which re-enters with jitting
-		down and reaches this line properly.  */
+		// poisonedIterator read below the jitting gate, at RUN time -- read at emit time it would bake a loop with no advance
 		if ( result->groupBody->flags.fLAG )
 			return 0;
 		//note: because result is an iterator it is not unwrapped in runOP()
@@ -9154,15 +8713,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		 return jitEmitUnary(result, jitInc); 
 		}
 	measurePlusPlusWrite(result);
-	/*  ⚠ ZERO IS NOT ABSENT, and this line is where the difference is enforced.
-	Ruled 2026-09-11. `field = 0` puts a value in the slot and sets isCOUNT, so
-	`++field` reads a numeric zero and writes 1 through the arm below. A field that
-	was never assigned has NO value, is the ABSENT kind, and must say so by name.
-	This line used to read `if !data count = 1;` -- it stamped 1 onto anything
-	data-less, which on a CONTAINER meant `++bag["kid"]` silently wrote 1 to the bag
-	while leaving the member alone, because a prefix unary binds to the name before
-	the subscript. The wrong target is a grammar question; writing to it regardless
-	was this line.   Instruct.opPlusPlus.zeroIsNotAbsent  */
+	// zeroIsNotAbsent a field assigned 0 is a count and bumps to 1; one never assigned is absent and refuses by name
 	if ( !result->groupBody->flags.data )
 		return ::refuse(result,"Operator ++ -- this field has no value to bump; a field assigned 0 is a count and bumps to 1, one never assigned is absent");
 	else
@@ -9183,24 +8734,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
-/*****************************************************************************
-	=* as unary op to make its argument a pointer
-*****************************************************************************/
+// opPointer the =* unary: mark the operand a pointer -- fired as a noPrint definition attribute (setPointer), fLAG redirects it to the field being defined, a la processFlags
 extern "C" GroupItem *opPointer(GroupItem *field)
 {
-	// Fired as a noPrint definition attribute (setPointer), fLAG is set on the
-	// command node — redirect to its parent (the field being defined), a la
-	// processFlags/rEGISTER. As the =* unary op, fLAG is clear and we mark the
-	// operand directly.
 	if ( field->groupBody->flags.fLAG )
 		field = field->parent;
 	field->groupBody->flags.isPointer = 1;
 	return field;
 }
 
-/***************************************************************************
-	operator method for the print rule.
-***************************************************************************/
+// opPrint the print rule's operator method: the text goes to the buffer printTO diverted to, else to stdout
 extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9216,19 +8759,11 @@ char 		*printText = buffer->string();
 	return ruler->trueResult;
 }
 
-/***************************************************************************
-	Rule action for the <- rebind operator — the clean slot rebind.
-    Sets the LHS local's group to the evaluated RHS node, with NO byRef
-    stamp (unlike :=) and no content copy (unlike =). This is exactly the
-    pointer-set aCTionScopeXP uses (local.group = node), wired to a runtime
-    RHS instead of a name lookup -- giving a fresh stampable handle each
-    loop pass:  cell <- argument :+ new(nm);
-***************************************************************************/
+// opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
 extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opRebind.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( argument )
@@ -9236,42 +8771,30 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the % integer div operator
-***************************************************************************/
+// opRem the % operator: integer remainder
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE FALLBACK COLUMN'S FIRST REAL CUSTOMER. Rather than reimplementing
-	remainder in IR, emit a CALL to this very function and unbox its result
-	-- the shape every non-scalar op will use. The gate returns before the
-	interpreted body, exactly like the arithmetic gates.  */
+	// jitEmitRem emits a CALL to this very function and unboxes its result, the shape every non-scalar op uses
 	if ( ruler->jitting )
 		{
 		 return jitEmitRem(argument, target, ruler->tempField); 
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		ruler->tempField->setCount(target->getCount() % argument->getCount());
-	/*  ⚠ PROMOTED 2026-09-05 FROM SENTINEL-AS-DATA. This announced the failure
-	and then returned `tempField` -- which at this point HAS NO DATA, so the
-	caller received a field that looks like an answer and reads back as its
-	own tag. The failure reached a human and was concealed from the program.
-	Instruct.opRem.storeRuling  */
+	// a refusal, never a data-less tempField that reads back as its own tag (promoted from sentinel-as-data, 2026-09-05)
 	if ( !ruler->tempField->groupBody->flags.data )
 		return ::refuse(target,"Operator % -- cannot apply to these operands");
 	return ruler->tempField;
 }
 
-/***************************************************************************
-	Rule action for the :% replace operator.
-***************************************************************************/
+// opReplaceAttribute the :% operator: replace target's component of the same tag with the argument, or each list item, as an attribute
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*added = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opReplaceAttribute.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
@@ -9287,16 +8810,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the :+ replace operator.
-***************************************************************************/
+// opReplaceMember the :+ operator: replace target's component of the same tag with the argument, or each list item, as a member
 extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*added = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opReplaceMember.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
@@ -9312,20 +8832,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the :. operator — the inverse of opDot. Where opDot reads
-    a groupField property off target, opSetFlag toggles the flag named by the
-    groupField argument ON the target. Explicit operands (target . argument)
-    sidestep the processFlags item.tag command-detection problem.
-        cellA :. mergeON    toggles mergeOn on cellA
-    Extend by adding the relevant gCount case (see groupFields in setup).
-***************************************************************************/
+// opSetFlag the :. operator, the inverse of opDot: SET the groupField flag the argument names on target -- it never toggles; explicit operands sidestep processFlags' command detection
 extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*flagDef = 0;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opSetFlag.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( !argument )
@@ -9347,32 +8859,8 @@ GroupItem 	*flagDef = 0;
 		char 	*why = ::concat(3,"`:. ",argument->groupBody->tag,"` -- not a groupField, so there is no flag to set; for a use-then-toss mark, +% a noPrint marker defined in pROPERTIEs (docs/flagCensus.md)");
 		return ::refuse(target,why);
 		}
-	/*  ⚠⚠ `:.` SETS. IT DOES NOT TOGGLE. Tony's ruling, 2026-08-17.
-	A toggle makes "make sure this flag is on" UNWRITABLE -- there is no
-	idempotent spelling, so every site is a bet about the current state and
-	the odds depend on whatever C++ hygiene ran first. Measured the
-	expensive way: a defensive `CodE :. noPrinT` in genParseTest was
-	CLEARING a flag that was already set, which let the walk descend into
-	the generated attribute, which masked a printTO leak, which made the run
-	appear to terminate. ONE TOGGLE, THREE SYMPTOMS, mutually masking.
-	Census before the ruling, 12 executable sites: ZERO relied on
-	clear-by-second-toggle, and FIVE were actively BROKEN by it -- the
-	isPercenT sites in incant/utilities target reused locals inside loops,
-	so every other cell silently lost its percent sizing. Set fixes five and
-	breaks none. If a toggle is ever wanted, it gets its own spelling then.
-	
-	⚠ THE ENUM-VALUED FLAGS ARE PASSTHROUGH WITH LITERAL VALUES AND HAVE TO
-	BE. binType and actionType are ENUMS, not bitfields -- isBIN 1,
-	isCLASS 2, isLIST 3, isREGISTRY 4; isAction 1, isCoded 2
-	(GroupBody.h:65-78). Writing `target.isLIST = true` generates
-	`binType = !isLIST(binType)`, because tok renders the accessor as its
-	TEST MACRO on the left of an assignment too -- so it assigns 0 or 1 and
-	can NEVER assign 3. Measured: `x :. isCodeD` was assigning actionType 1,
-	which is isACTION. That is why compile refused every generated rule
-	while the actionTypE gate still closed -- the gate was reading a flag
-	the wrong write had set. One bad spelling, two false readings.
-	Setting an enum CLOBBERS whatever it was, which is inherent to an enum
-	and is the intended meaning of "set this kind".  */
+	// setsNeverToggles a toggle makes "make sure it is on" unwritable (Tony, 2026-08-17)
+	// enumLiteral an enum KIND (binType, actionType) is written as a literal value, never through its test macro, which can only write 0 or 1
 	// oneSetter `:.` is setGroupField with the value 1 -- the cases live there, beside `=`'s (SEQ 295 R3)
 	if ( argument && target )
 		{
@@ -9383,19 +8871,11 @@ GroupItem 	*flagDef = 0;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the := set group operator. It stashes argument as isGROUP
-    in target without changing its parent or affiliation.
-
-    ⚠ THROUGH setGroup, NOT BY HAND -- ONE SPELLING (R2, Tony 2026-09-03).
-    Do not re-inline the gGroup write; and note `x := null` now CLEARS x.
-    Instruct.opSetGroup.oneSpelling
-***************************************************************************/
+// opSetGroup the := operator: hold the argument as target's group, parent and affiliation unchanged -- through setGroup, never by hand, so x := null CLEARS x
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opSetGroup.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( target )
@@ -9403,14 +8883,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	Rule action for the <: set tag operator.
-***************************************************************************/
+// opSetTag the <: operator: target takes the argument's text as its tag
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	/*  THE STORE RULING: an armed statement stores nothing.
-	Instruct.opSetTag.storeRuling  */
+	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
 	if ( argument )
@@ -9418,9 +8895,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-	operator method for the string rule.
-***************************************************************************/
+// opString the string rule's operator method: the print text becomes target's text
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 {
 	target->setText(buffer->toString());
@@ -9430,24 +8905,7 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 	return target;
 }
 
-/*  opDerefAll RETIRED 2026-09-01 (SEQ 111), with the `**` operator it served.
-    Tony's star law: `*x` reads ONE level, `**x` is `*` applied TWICE, and a `*`
-    past the leaf refuses. A FIXPOINT IS NOT A SPELLING -- it is a named call or
-    nothing. So `**` leaves the operator table AND the UnaryOPS bin,
-    longest-match stops merging two stars, and `**x` tokenizes as two unaries
-    that COMPOSE.
-    Censused before removal: ZERO call sites. The only `**` operator uses in the
-    whole corpus were FOUR, all inside fixtures -- derefAllT x2, spacingT x2 --
-    and the other 39 textual hits are markdown bold in prose or stale comments
-    about the debug marker, which was renamed `**` -> `$$` earlier the same day.
-    The certificate that it is gone is incant/starT: `**x` on a ONE-deep pointer
-    must REFUSE. If it ever reads, the fixpoint has crept back in.  */
-/***************************************************************************
-	Rule action for the prefix unary minus (negate). Value-producing like
-	opMinus, NOT in-place like opMinusMinus: 0 - operand into tempField; the
-	operand is left untouched. Routed here from handleUnary via the named
-	"negate" op (ruleMethod=opUnaryMinus), distinct from the binary - slot.
-***************************************************************************/
+// opUnaryMinus the prefix unary - (negate): 0 - operand into tempField, the operand untouched -- its own op, distinct from the binary - slot
 extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9884,20 +9342,7 @@ extern "C" GroupItem *pickKindOP(GroupItem *op, GroupItem *target, GroupItem *ar
 	
 }
 
-/***************************************************************************
-    THE += MEMBERS -- one method per kind, picked by pickKindOP on both roads
-    (Tony, FINISH +=, 2026-09-25). Each is opPlusEQ's arm for its kind LIFTED,
-    not rewritten, and each handles its own argument shapes:
-      an EMPTY target (a data member picked by its ARGUMENT's kind, step 4b)
-        takes the argument's data -- branch E, copyData;
-      a LIST argument onto a data kind refuses by name (branch B was reached by
-        nothing in 175 files, and B belongs to the structural member alone) --
-        except the string member, which absorbs branch A and concatenates;
-      a DATALESS argument onto a data kind refuses by name, the same way.
-    No `if jitting` branch is carried: the jitted road reaches these only at
-    RUN time, through jitOpFireRT.
-***************************************************************************/
-//  shapeRefusal through refuse(), which prints REFUSED and never ERROR -- pop.sh's ERROR ratchet
+// plusEQshapeRefusal a += member's refusal of a list or dataless argument, through refuse(), which prints REFUSED and never ERROR -- pop.sh's ERROR ratchet
 extern "C" GroupItem *plusEQshapeRefusal(char *kind, GroupItem *argument, GroupItem *target)
 {
 	
@@ -10663,11 +10108,7 @@ char 		*whichFile = "(no file)";
 	::fprintf(stderr,"ABANDONED %s -- the run ended with a refusal outstanding. Nothing after the REFUSED line above is reliable: action and command dispatch is silenced, so statements can be skipped AND a stop() can be missed, leaving the region below it parsed as source. The exit status is still 0\n",whichFile);
 }
 
-/*****************************************************************************
-    reset — incant command (bound as reset immediateAction=resetField in
-    setup). Self-describing by argument: for now it knows buffers (resets the
-    mark). A fuller incant action dispatching on argument.taG comes later.
-*****************************************************************************/
+// resetField the reset command (reset immediateAction=resetField): for now it knows buffers, and resets the mark
 extern "C" GroupItem *resetField(GroupItem *argument)
 {
 Buffer 	*buff = argument->getBuffer();
@@ -11263,18 +10704,14 @@ void 	*methodAddress = 0;
 	return 0;
 }
 
+// setFile point the buffer field's buffer at the named file
 extern "C" void setFile(GroupItem *bufField, char *name)
 {
 	if ( isBUFFER(bufField->groupBody->flags.data) )
 		bufField->getBuffer()->setFile(name);
 }
 
-/***************************************************************************
-    setFileOp — operator-signature shim over Buffer.setFile, for the modedOP
-    writable-operator path: `doc modedOP "path"` points doc's buffer at a
-    file. target is the buffer field, argument carries the path text. Same
-    (argument, target) shape as opAssign and the other binary op methods.
-***************************************************************************/
+// setFileOp the modedOP shim over Buffer.setFile: doc modedOP "path" points doc's buffer at a file -- opAssign's (argument, target) shape
 extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target)
 {
 	if ( isBUFFER(target->groupBody->flags.data) )
@@ -11282,17 +10719,7 @@ extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target)
 	return target;
 }
 
-/***************************************************************************
-    setGroupField -- THE ONE WRITER OF A groupField BY NUMBER (SEQ 295 R3).
-    Both spellings land here: `x :. name` hands it 1, and `x.name = v` hands
-    it v through opAssign, which knows its target is opDot's copy by the
-    isAccessorProduct mark. A flag takes value != 0. An enum KIND (binType,
-    actionType) is set by a non-zero value and cleared by zero only when the
-    field holds that kind. Returns 1 when the number has a write case and 0
-    when it has none, so each caller refuses in its own words. Read-only
-    accessors (isGrouP 43, debuggeD 44) have no case here on purpose -- see
-    opDot.
-***************************************************************************/
+// setGroupField THE ONE WRITER OF A groupField BY NUMBER (SEQ 295 R3): x :. name hands it 1, x.name = v hands it v; a flag takes value != 0, an enum kind is set by non-zero and cleared by zero only when it holds that kind; 0 back when the number has no write case; the read-only accessors (43, 44) have none, on purpose
 extern "C" int setGroupField(GroupItem *target, int fieldNo, int value)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11321,12 +10748,7 @@ int 		on = 0;
 			break;
 		case 31:
 			target->groupBody->flags.byRef = on;
-			/*  hasNewParse -- THE ARTIFACT GATE, 2026-08-24. Ruled on
-			architectural grounds: a generated parse body's address must be
-			FACE-PROOF BY CONSTRUCTION, so it parks as a noPrint member on
-			the shared child list (processCode's proven pattern) and this
-			flag is the cheap test that says one is there. The rStuff field
-			spelling for parseMethod/actionMethod retires behind it.  */
+			// hasNewParse the artifact gate: a generated parse body parks as a noPrint member on the shared child list, and this flag says one is there (2026-08-24)
 			break;
 		case 32:
 			if ( on )
@@ -11351,25 +10773,7 @@ int 		on = 0;
 			break;
 		case 41:
 			target->groupBody->flags.hasNewParse = on;
-			/*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
-			existed since incant/enumT; only the write was missing, so
-			`x :. isActioN` printed "no case yet -- gCount 408" and did
-			NOTHING. incant/frontier station 6 hit it: the station reported
-			PASS while the flag it was setting never took.
-			
-			⚠ PASSTHROUGH WITH A LITERAL, per the enum paragraph above, and
-			for exactly the reason it gives -- `target.isAction = true`
-			would generate `actionType = !isAction(actionType)`, which can
-			only ever write 0 or 1 by accident of isAction being 1. Here 1
-			happens to be right, and that is precisely why it must NOT be
-			spelled that way: the next enum case to be added would inherit
-			a spelling that is wrong everywhere except by coincidence.
-			
-			ONE CHANNEL: actionType = 1 is what isAction(button) tests
-			(GroupBody.h:74) and what processCode writes when it commissions
-			a parsed body (GroupRules.mm:11685). Flag and artifact are
-			constitutionally unable to disagree because they are the same
-			integer, which is isCodeD's discipline applied to its sibling.  */
+			// isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
 			break;
 		case 408:
 			if ( on )
@@ -11410,11 +10814,7 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 	return 0;
 }
 
-/*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and markOffset
-    attributes. The source must contain a buffer and markOffset must contain
-    a valid count. setMark is defined as an incant command in setup.
-*****************************************************************************/
+// setMark the setMark command: advance the source buffer's mark by markOffset, or set it that far from the start; an offset past the current end refuses
 extern "C" GroupItem *setMark(GroupItem *argument)
 {
 GroupItem 	*source = argument->get("source");
@@ -11711,58 +11111,7 @@ GroupItem 	*result = 0;
 	return ruler->trueResult;
 }
 
-/***************************************************************************
-    truthOf -- THE OPERAND TRUTHINESS CONTRACT. Ruled 2026-08-11 by Tony,
-    carried by Clay (SEQ 32); spec docs/andOrRung.md section 3 part 1.
-    Normative for BOTH engines and BOTH word forms, and it lives in ONE
-    place on purpose -- a contract duplicated at three call sites is the
-    one-channel-one-meaning failure waiting for its second reader.
-
-    LAYERED: presence decides only when no value exists to decide by.
-
-        1  absent / null                 -> false
-        2  node holding a NUMERIC value  -> BY ITS VALUE   (0 false)
-        3  node holding no numeric value -> true BY PRESENCE
-
-    Row 2 covers comparison results, ALWAYS, and that is what forces the
-    layering rather than merely preferring it: under a flat "any present
-    node is true", a comparison returning 0 would be TRUE and every
-    conditional over a value-bearing expression would be always-true.
-    That is not a semantics, it is the abolition of falsehood. Row 3 is
-    the parse-consumer row -- parseR's GroupItem-or-null, structural
-    nodes, rule results -- which is the frame the original table was
-    written in, where null-vs-node IS the whole discrimination.
-
-    ⚠ ROW 4, TEXT-VALUED OPERANDS, IS DELIBERATELY UNRULED. No measured
-    customer needs it, and it borders KE-4's territory. At EMIT a text
-    operand is REFUSED (jitEmitShortCircuit calls jitDegrade rather than
-    substituting a constant -- a substituted constant is asserted by
-    nothing, and the degrade counter is asserted at zero by every rung).
-    At RUN it lands on row 3 and answers true-by-presence. The two arms
-    therefore AGREE in outcome, because a refused emit falls back to
-    interpretation; they are not two answers, they are one answer and a
-    refusal to bake it.
-
-    ⚠ MEASURED, 2026-08-11, and recorded because it is NOT what a reader
-    expects: `if <field>` and `<field> AND ...` ALREADY DISAGREE in the
-    shipping language. A field holding 0 dumps as `aFalse=0 int` -- it
-    carries isCOUNT and gCount 0 -- and `if aFalse;` reads TRUE while
-    `aFalse AND aTrue` reads false. This contract matches the OPERATOR
-    behaviour, which is the one it governs; it does not touch `if`, and
-    closing that gap is a separate ruling with its own customer.
-    Instrument: incant/andProbe rows 1 and 5.
-
-    ⚠ AND ONE CONSEQUENCE, MEASURED 2026-09-09 AND WORTH STATING BECAUSE IT
-    RETIRES A WORRY RATHER THAN ADDING ONE: `isInitialized` ON AN isCOUNT NODE IS
-    NOT LOAD-BEARING FOR TRUTH WHERE truthOf IS THE READER. The row above reads
-    the COUNT, so `falseResult` -- built in C++ with `.isCOUNT = true`, which
-    raises no isInitialized (GroupControl.twk:155) -- reads FALSE here, while a
-    presence test on the same node reads true. Measured on ruling (c')'s gate:
-    the AND chain hands back falseResult with count 0 and isInitialized 0, and
-    truthOf answers 0. So a caller that asks truthOf does not need the node
-    initialised; a caller that asks by PRESENCE does, and that is F-55's whole
-    subject. Ask truthOf.
-***************************************************************************/
+// truthOf THE OPERAND TRUTHINESS CONTRACT, in ONE place (Tony, 2026-08-11): absent is false, a numeric node answers by its value, any other node is true by presence
 extern "C" int truthOf(GroupItem *field)
 {
 	if ( !field )
@@ -11772,6 +11121,7 @@ extern "C" int truthOf(GroupItem *field)
 	return 1;
 }
 
+// unMark clear the buffer field's mark
 extern "C" void unMark(GroupItem *bufField)
 {
 	if ( isBUFFER(bufField->groupBody->flags.data) )
@@ -12176,7 +11526,6 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	driveStep(GroupItem*,GroupItem*,GroupItem*,null*)
-	reportCodeFail(GroupItem*,char*)
 	accFold(GroupItem*)
 	accFold(GroupItem*)
 	accCompare(GroupItem*)
@@ -12192,12 +11541,16 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
+	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
+	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
+	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
+	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measurePlusEQWrite(GroupItem*)

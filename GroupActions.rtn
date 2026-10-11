@@ -1,6 +1,3 @@
-
-
-
 // aCTionTell the tell rule's action, the one door into a field's grammar: drive the target with the message and return a verdict; an unknown target is a verdict, never a refuse()
 extern GroupItem aCTionTell(GroupItem input)
 {
@@ -92,6 +89,17 @@ GroupItem   grup,
 }
 
 
+// callIsRule M3's DOOR, in one place: interpreted, a rule term; jitting, a rule term OR anything with an installed parse (F-123)
+extern int callIsRule(GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if !target                  return 0;
+    if target.isRuleTerm()      return 1;
+    if jitting && target.hasNewParse    return 1;
+    return 0;
+}
+
+
 // closeFile close the buffer's file; with no file set, the field's tag is the filename
 extern int closeFile(GroupItem bufField)
 {
@@ -102,58 +110,44 @@ extern int closeFile(GroupItem bufField)
 }
 
 
-// ruleOfCensus the instance -> rule link's invariants over every node reachable from the registries (terms AND properties) and from the argument: ruleOf never aimed at a copy, same body as its original, and ONE root per body (every node sharing a body names the same original -- only the copy constructor shares a body); lists the cross-registry copies with what they wrote into the shared body (stroke 4.1; ruleOf-only since isCopy was deleted, 4.2); prints unconditionally
-extern GroupItem ruleOfCensus(GroupItem input)
+// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299); answers true or false, the BlocK goes on the request's `result` (SEQ 300)
+extern GroupItem compileIn(GroupItem input)
 {
 GroupRules  ruler = groupRules;
-    -%
-    static GroupItem **seen = 0; static void **bodyKey = 0; static GroupItem **bodyRoot = 0; static long cap = 0; long used = 0;
-    if ( !seen ) { cap = 1 << 20; seen = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); bodyKey = (void**)::calloc(cap,sizeof(void*)); bodyRoot = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); }
-    else { ::memset(seen,0,cap * sizeof(GroupItem*)); ::memset(bodyKey,0,cap * sizeof(void*)); ::memset(bodyRoot,0,cap * sizeof(GroupItem*)); }
-    GroupItem **stack = (GroupItem**)::malloc(sizeof(GroupItem*) * cap); long sp = 0;
-    long labels = 0, nodes = 0, copies = 0, toCopy = 0, bodyMis = 0, rootConflict = 0;
-    GroupItem *regs = ruler->registries;
-    if ( regs ) stack[sp++] = regs;
-    if ( input ) stack[sp++] = input;
-    while ( sp > 0 ) {
-        GroupItem *n = stack[--sp];
-        if ( !n ) continue;
-        unsigned long h = ((unsigned long)n >> 4) & (cap - 1);
-        while ( seen[h] && seen[h] != n ) h = (h + 1) & (cap - 1);
-        if ( seen[h] == n || used > cap / 2 ) continue;
-        seen[h] = n; used++; nodes++;
-        if ( n->groupBody->groupList ) for ( GroupItem *c = n->groupBody->groupList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
-        if ( n->groupBody->propertyList ) for ( GroupItem *c = n->groupBody->propertyList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
-        GroupItem *L = n->ruleOf;
-        if ( L ) copies++;
-        if ( n->groupBody->flags.isLabel ) labels++;
-        {   GroupItem *root = L ? L : n; void *b = (void*)n->groupBody;
-            unsigned long k = ((unsigned long)b >> 4) & (cap - 1);
-            while ( bodyKey[k] && bodyKey[k] != b ) k = (k + 1) & (cap - 1);
-            if ( !bodyKey[k] ) { bodyKey[k] = b; bodyRoot[k] = root; }
-            else if ( bodyRoot[k] != root ) { rootConflict++; if ( rootConflict <= 5 ) ::fprintf(stderr,"  RULEOF two roots for one body: %s@%p names %p, the body's first reader named %p\n",n->groupBody->tag,n,root,bodyRoot[k]); } }
-        if ( L && L->ruleOf ) { toCopy++; if ( toCopy <= 5 ) ::fprintf(stderr,"  RULEOF aims at a copy: %s@%p -> %s@%p\n",n->groupBody->tag,n,L->groupBody->tag,L); }
-        if ( L && L->groupBody != n->groupBody ) bodyMis++;
-        }
-    ::free(stack);
-    ::fprintf(stderr,"RULEOF nodes=%ld labels=%ld copies=%ld aimsAtCopy=%ld bodyMismatch=%ld rootConflict=%ld\n",nodes,labels,copies,toCopy,bodyMis,rootConflict);
-    int xr = 0;
-    if ( regs && regs->groupBody->groupList ) for ( GroupItem *rg = regs->groupBody->groupList->firstInList; rg; rg = rg->nextInParent )
-        if ( rg->groupBody->groupList ) for ( GroupItem *e = rg->groupBody->groupList->firstInList; e; e = e->nextInParent ) {
-            GroupItem *L = e->ruleOf;
-            if ( !L || !L->parent || L->parent == rg || L->parent->parent != regs ) continue;
-            xr++;
-            int kids = 0, kidsOfCopy = 0, props = 0, propsOfCopy = 0;
-            if ( e->groupBody->groupList ) for ( GroupItem *c = e->groupBody->groupList->firstInList; c; c = c->nextInParent ) { kids++; if ( c->parent == e ) kidsOfCopy++; }
-            if ( e->groupBody->propertyList ) for ( GroupItem *c = e->groupBody->propertyList->firstInList; c; c = c->nextInParent ) { props++; if ( c->parent == e ) propsOfCopy++; }
-            ::fprintf(stderr,"  RULEOF XREG %s/%s <- %s/%s  terms=%d (written through the copy %d)  properties=%d (through the copy %d)  isRule=%d binType=%d instructType=%d actionType=%d\n",
-                rg->groupBody->tag,e->groupBody->tag,L->parent->groupBody->tag,L->groupBody->tag,kids,kidsOfCopy,props,propsOfCopy,
-                (int)e->groupBody->flags.isRule,(int)e->groupBody->flags.binType,(int)e->groupBody->flags.instructType,(int)e->groupBody->flags.actionType);
-            }
-    ::fprintf(stderr,"RULEOF cross-registry copies=%d\n",xr);
-    %-
-    return trueResult;
+GroupItem   spec = input,
+            blockRULE = grokking/BlocK,
+            ciReport = new("driveReport"),
+            ciOwner,
+            ciSource,
+            ciSlot,
+            got,
+            result;
+String      failText;
+    if spec && spec.isGROUP     spec = spec.gGroup;
+    if spec {
+        ciOwner     = spec["owner"];
+        ciSource    = spec["source"]; }
+    // namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
+    while ciOwner && ciOwner.isGROUP && ciOwner.gGroup      ciOwner = ciOwner.gGroup;
+    while ciSource && ciSource.isGROUP && ciSource.gGroup   ciSource = ciSource.gGroup;
+    if !ciOwner || !ciSource
+        return refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
+    if !ciSource.data
+        return refuse(ciOwner,"compileIn: `source` carries no code");
+    // resultSlot the BlocK goes back on the request's `result`, never as the answer -- truth-testing a label FIRES it (#34); emptied first, so a failure leaves it empty, never stale (SEQ 300)
+    ciSlot = spec["result"];
+    if !ciSlot      ciSlot = spec.addAttribute(new("result"));
+    ciSlot.setGroup(null);
+    result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
+    if result && result != falseResult {
+        ciSlot.setGroup(result);
+        return trueResult; }
+    if got = ciReport["failedAt"]
+        if got.count >= 0   failText = ciSource.getText() + got.count;
+    reportCodeFail(ciOwner,failText);
+    return falseResult;
 }
+
 
 // definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether instanceRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally; and whether every child of the shared list is parented to its owner
 extern GroupItem definersOf(GroupItem input)
@@ -393,6 +387,16 @@ extern int hasRepeatClass(String modifier)
 }
 
 
+// isCallable a call has something to call: a rule (callIsRule), an action, or a method
+extern int isCallable(GroupItem target)
+{
+    if !target              return 0;
+    if callIsRule(target)   return 1;
+    if target.actionType    return 1;
+    if target.isMethod      return 1;
+    return 0;
+}
+
 
 // jitSeedOperands seed both operands for the emitter -- a literal as a constant, anything else as a field
 extern void jitSeedOperands(GroupItem target,GroupItem arg)
@@ -460,7 +464,6 @@ GroupRules  ruler = groupRules;
 }
 
 
-
 // makeDataType set target to the data type the argument names -- called from setInternalType
 extern GroupItem makeDataType(GroupItem target,GroupItem argument)
 {
@@ -493,7 +496,6 @@ use target
         default:    cerr argument.tag,"is not a known type":; }
     return target;
 }
-
 
 
 // materialiseTerms rStuff at DEFINE TIME, for the rule and each term -- it closes the gap the bootstrapper's hand-built rules leave
@@ -569,6 +571,50 @@ extern void modifyClass(GroupItem field,String modifier,int wantRepeat)
         if ( ::modifierIsRepeat(one) == wantRepeat ) ::modify(field,one);
         }
     %-
+}
+
+
+// opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
+extern GroupItem opCall(GroupItem target,GroupItem arg)
+{
+GroupRules  ruler = groupRules;
+    // storeRuling an armed statement dispatches nothing further -- interpreted only
+    if ruler.refused
+        if !jitting     return null;
+    // termCallIsRunOPs jitting, the term call is emitted by runOPslots, which holds the raw slots; reaching it here is a defect, said by name
+    if callIsRule(target) {
+        -%
+        if ( ruler->jitting )   return ::refuse(target,"opCall reached a term call under jitting -- runOPslots owns that emit, with the raw slots (SEQ 318 c2)");
+        ++gTermCallCount;
+        return ::runRule(arg,target);
+        %-
+    }
+    if target.actionType            return runAction(arg,target);
+    if target.isMethod {
+        if !arg arg = target;
+        return target.method(arg); }
+    return refuse(target,"opCall: nothing to call -- not a rule, an action or a method (SEQ 318 c2)");
+}
+
+
+// parseOnFloor the file's top-level parse runs on a FLOOR, as a drive does -- every failure then has a floor below it (SEQ 186 R1, shape (i))
+extern GroupItem parseOnFloor(GroupItem rule)
+{
+ParseActivation topFloor;
+GroupItem   result;
+GroupRules  ruler = groupRules;
+    topFloor.instance   = null;
+    topFloor.isFloor    = 1;
+    topFloor.compileOwner = null;
+    topFloor.label      = null;
+    topFloor.prev       = ruler.gParseActive;
+    topFloor.failPoint  = null;
+    ruler.gParseActive  = &topFloor;
+    // activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
+use ruler
+    result = rule.parse(null,0,null);
+    ruler.gParseActive  = topFloor.prev;
+    return result;
 }
 
 
@@ -718,45 +764,6 @@ use field
 }
 
 
-// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299); answers true or false, the BlocK goes on the request's `result` (SEQ 300)
-extern GroupItem compileIn(GroupItem input)
-{
-GroupRules  ruler = groupRules;
-GroupItem   spec = input,
-            blockRULE = grokking/BlocK,
-            ciReport = new("driveReport"),
-            ciOwner,
-            ciSource,
-            ciSlot,
-            got,
-            result;
-String      failText;
-    if spec && spec.isGROUP     spec = spec.gGroup;
-    if spec {
-        ciOwner     = spec["owner"];
-        ciSource    = spec["source"]; }
-    // namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
-    while ciOwner && ciOwner.isGROUP && ciOwner.gGroup      ciOwner = ciOwner.gGroup;
-    while ciSource && ciSource.isGROUP && ciSource.gGroup   ciSource = ciSource.gGroup;
-    if !ciOwner || !ciSource
-        return refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
-    if !ciSource.data
-        return refuse(ciOwner,"compileIn: `source` carries no code");
-    // resultSlot the BlocK goes back on the request's `result`, never as the answer -- truth-testing a label FIRES it (#34); emptied first, so a failure leaves it empty, never stale (SEQ 300)
-    ciSlot = spec["result"];
-    if !ciSlot      ciSlot = spec.addAttribute(new("result"));
-    ciSlot.setGroup(null);
-    result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
-    if result && result != falseResult {
-        ciSlot.setGroup(result);
-        return trueResult; }
-    if got = ciReport["failedAt"]
-        if got.count >= 0   failText = ciSource.getText() + got.count;
-    reportCodeFail(ciOwner,failText);
-    return falseResult;
-}
-
-
 // refuse THE ONE FUNNEL: print the line, arm the unwind, hand back null -- a refusal ends the activation that raised it
 extern GroupItem refuse(GroupItem subject,String why)
 {
@@ -809,27 +816,6 @@ GroupRules  ruler = groupRules;
     cerr "ERROR processCode: " field.tag,"parse failed":;
     cerr "    failed at " getDebugText(failText, 40):;
     cerr "    on line " toStringFromInt(sourceLINE):;
-}
-
-
-// parseOnFloor the file's top-level parse runs on a FLOOR, as a drive does -- every failure then has a floor below it (SEQ 186 R1, shape (i))
-extern GroupItem parseOnFloor(GroupItem rule)
-{
-ParseActivation topFloor;
-GroupItem   result;
-GroupRules  ruler = groupRules;
-    topFloor.instance   = null;
-    topFloor.isFloor    = 1;
-    topFloor.compileOwner = null;
-    topFloor.label      = null;
-    topFloor.prev       = ruler.gParseActive;
-    topFloor.failPoint  = null;
-    ruler.gParseActive  = &topFloor;
-    // activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
-use ruler
-    result = rule.parse(null,0,null);
-    ruler.gParseActive  = topFloor.prev;
-    return result;
 }
 
 
@@ -929,6 +915,171 @@ use input
 }
 
 
+// ruleOfCensus the instance -> rule link's invariants over every node reachable from the registries (terms AND properties) and from the argument: ruleOf never aimed at a copy, same body as its original, and ONE root per body (every node sharing a body names the same original -- only the copy constructor shares a body); lists the cross-registry copies with what they wrote into the shared body (stroke 4.1; ruleOf-only since isCopy was deleted, 4.2); prints unconditionally
+extern GroupItem ruleOfCensus(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    static GroupItem **seen = 0; static void **bodyKey = 0; static GroupItem **bodyRoot = 0; static long cap = 0; long used = 0;
+    if ( !seen ) { cap = 1 << 20; seen = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); bodyKey = (void**)::calloc(cap,sizeof(void*)); bodyRoot = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); }
+    else { ::memset(seen,0,cap * sizeof(GroupItem*)); ::memset(bodyKey,0,cap * sizeof(void*)); ::memset(bodyRoot,0,cap * sizeof(GroupItem*)); }
+    GroupItem **stack = (GroupItem**)::malloc(sizeof(GroupItem*) * cap); long sp = 0;
+    long labels = 0, nodes = 0, copies = 0, toCopy = 0, bodyMis = 0, rootConflict = 0;
+    GroupItem *regs = ruler->registries;
+    if ( regs ) stack[sp++] = regs;
+    if ( input ) stack[sp++] = input;
+    while ( sp > 0 ) {
+        GroupItem *n = stack[--sp];
+        if ( !n ) continue;
+        unsigned long h = ((unsigned long)n >> 4) & (cap - 1);
+        while ( seen[h] && seen[h] != n ) h = (h + 1) & (cap - 1);
+        if ( seen[h] == n || used > cap / 2 ) continue;
+        seen[h] = n; used++; nodes++;
+        if ( n->groupBody->groupList ) for ( GroupItem *c = n->groupBody->groupList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
+        if ( n->groupBody->propertyList ) for ( GroupItem *c = n->groupBody->propertyList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
+        GroupItem *L = n->ruleOf;
+        if ( L ) copies++;
+        if ( n->groupBody->flags.isLabel ) labels++;
+        {   GroupItem *root = L ? L : n; void *b = (void*)n->groupBody;
+            unsigned long k = ((unsigned long)b >> 4) & (cap - 1);
+            while ( bodyKey[k] && bodyKey[k] != b ) k = (k + 1) & (cap - 1);
+            if ( !bodyKey[k] ) { bodyKey[k] = b; bodyRoot[k] = root; }
+            else if ( bodyRoot[k] != root ) { rootConflict++; if ( rootConflict <= 5 ) ::fprintf(stderr,"  RULEOF two roots for one body: %s@%p names %p, the body's first reader named %p\n",n->groupBody->tag,n,root,bodyRoot[k]); } }
+        if ( L && L->ruleOf ) { toCopy++; if ( toCopy <= 5 ) ::fprintf(stderr,"  RULEOF aims at a copy: %s@%p -> %s@%p\n",n->groupBody->tag,n,L->groupBody->tag,L); }
+        if ( L && L->groupBody != n->groupBody ) bodyMis++;
+        }
+    ::free(stack);
+    ::fprintf(stderr,"RULEOF nodes=%ld labels=%ld copies=%ld aimsAtCopy=%ld bodyMismatch=%ld rootConflict=%ld\n",nodes,labels,copies,toCopy,bodyMis,rootConflict);
+    int xr = 0;
+    if ( regs && regs->groupBody->groupList ) for ( GroupItem *rg = regs->groupBody->groupList->firstInList; rg; rg = rg->nextInParent )
+        if ( rg->groupBody->groupList ) for ( GroupItem *e = rg->groupBody->groupList->firstInList; e; e = e->nextInParent ) {
+            GroupItem *L = e->ruleOf;
+            if ( !L || !L->parent || L->parent == rg || L->parent->parent != regs ) continue;
+            xr++;
+            int kids = 0, kidsOfCopy = 0, props = 0, propsOfCopy = 0;
+            if ( e->groupBody->groupList ) for ( GroupItem *c = e->groupBody->groupList->firstInList; c; c = c->nextInParent ) { kids++; if ( c->parent == e ) kidsOfCopy++; }
+            if ( e->groupBody->propertyList ) for ( GroupItem *c = e->groupBody->propertyList->firstInList; c; c = c->nextInParent ) { props++; if ( c->parent == e ) propsOfCopy++; }
+            ::fprintf(stderr,"  RULEOF XREG %s/%s <- %s/%s  terms=%d (written through the copy %d)  properties=%d (through the copy %d)  isRule=%d binType=%d instructType=%d actionType=%d\n",
+                rg->groupBody->tag,e->groupBody->tag,L->parent->groupBody->tag,L->groupBody->tag,kids,kidsOfCopy,props,propsOfCopy,
+                (int)e->groupBody->flags.isRule,(int)e->groupBody->flags.binType,(int)e->groupBody->flags.instructType,(int)e->groupBody->flags.actionType);
+            }
+    ::fprintf(stderr,"RULEOF cross-registry copies=%d\n",xr);
+    %-
+    return trueResult;
+}
+
+
+// runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
+extern GroupItem runAccAnd(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    if !truthOf(left)                       return falseResult;
+    if field.listLength < 3                 return falseResult;
+    if truthOf(runOPaccumOperand(field[3])) return trueResult;
+    return falseResult;
+}
+
+
+/*  THE TIER EXECUTORS (SEQ 319, c3). interpretXPaccum builds one node per tier, loosest first,
+    and gives each node ITS executor as its method at build time (D5): acA assign, acAnd / acOr
+    logic, acK compare, acKchain the chained-comparison refusal, acX the arithmetic fold. NOTHING
+    here asks an operator for its tier -- the split already did, once. Operands arrive as nodes
+    and are finished by runOPaccumOperand; runOPdirect fires on finished operands (c1).
+    Interpreted only: under jitting each refuses (SEQ 311 R4).  */
+
+// runAccAssign the assignment tier, a single step: finish the head's target, evaluate the right side, assign
+extern GroupItem runAccAssign(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op = field[2], val = null, target;
+    // jitAssign this body is runOPslots' order, so under jitting it emits as trunk's instruction does; only the stored-refusal stop is interpreted only (SEQ 331 J2)
+    if field.listLength > 2     val = runOPaccumOperand(field[3]);
+    // finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
+    target = field[1];
+    if refuseArgRebind(op,target)   return null;
+    target = followArgument(target);
+    if ruler.refused
+        if !ruler.jitting   return null;
+    if op.instructType && target.isMethod && target.invoke  target = target.method(target);
+    if target && target.isVirtual   target = copyOf(target);
+    return runOPdirect(op,target,val);
+}
+
+
+// runAccChain a CHAINED comparison, seen at build: refused by its own name (SEQ 318 R1)
+extern GroupItem runAccChain(GroupItem field)
+{
+    return refuse(field[2],"a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)");
+}
+
+
+// runAccCompare the compare tier, a single step: left side, right side, the comparison
+extern GroupItem runAccCompare(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left, keep, right = null;
+    // jitCompare under jitting the body emits as it stands: both sides finished, runOPdirect seeds them and the op's gate emits the compare (SEQ 334 J6)
+    left = runOPaccumOperand(field[1]);
+    // copyOut a side answering in tempField is copied out before the other side can run
+    if left == ruler.tempField {
+        keep = new("acRun");
+        keep.setContent(left);
+        left = keep; }
+    // refuseNotSubstitute under jitting a side that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
+    if !left
+        if ruler.jitting    return refuse(field,"a compare side produced nothing under jitting (SEQ 334 J6)");
+    if !left    left = falseResult;
+    if left.isVirtual   left = copyOf(left);
+    if field.listLength > 2     right = runOPaccumOperand(field[3]);
+    if !right
+        if ruler.jitting    return refuse(field,"a compare side produced nothing under jitting (SEQ 334 J6)");
+    return runOPdirect(field[2],left,right);
+}
+
+
+// runAccFold the arithmetic tier, THE FOLD: left to right, no precedence, no tier test -- every operator here is arithmetic by construction
+extern GroupItem runAccFold(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+int         n = field.listLength, i = 2;
+GroupItem   run, keep;
+    // jitFold under jitting the fold emits as it stands: each step is runOPdirect, which seeds an unseeded operand and the op's gate emits; a step's result rides on its target (SEQ 334 J6)
+    run = runOPaccumOperand(field[1]);
+    while i < n {
+        // copyOut a step answering in tempField is copied out before the next operand can run
+        if run == ruler.tempField {
+            keep = new("acRun");
+            keep.setContent(run);
+            run = keep; }
+        // refuseNotSubstitute under jitting an operand that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
+        if !run
+            if ruler.jitting    return refuse(field,"a fold operand produced nothing under jitting (SEQ 334 J6)");
+        if !run     run = falseResult;
+        // finished both sides are finished: the running value is a value, the right side is evaluated once here
+        if run.isVirtual    run = copyOf(run);
+        run = runOPdirect(field[i],run,runOPaccumOperand(field[i + 1]));
+        i = i + 2; }
+    return run;
+}
+
+
+// runAccOr the logic tier, ||: evaluate the left side, early-out on true, else the right side decides -- a SENTINEL either way
+extern GroupItem runAccOr(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   left;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    left = runOPaccumOperand(field[1]);
+    if truthOf(left)                        return trueResult;
+    if field.listLength < 3                 return falseResult;
+    if truthOf(runOPaccumOperand(field[3])) return trueResult;
+    return falseResult;
+}
+
+
 // runAction run an action that may need code processing -- two arms, the jit arm and the interpreted one, each returning through its own exit
 extern GroupItem runAction(GroupItem argument,GroupItem field)
 {
@@ -985,111 +1136,6 @@ extern GroupItem runOP(GroupItem field)
 }
 
 
-// runOPslots the INSTRUCTION's half: FINISH the operands -- follow, refuse a rebound argument, invoke -- then fire (SEQ 318 c1)
-extern GroupItem runOPslots(GroupItem op,GroupItem target,GroupItem arg)
-{
-GroupRules  ruler = groupRules;
-    // rawSlots declared in passthrough: tok prunes a local that only a passthrough reads (bear-trap 13)
-    -% GroupItem *rawOp = op, *rawTarget = target, *rawArg = arg; %-
-    // argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
-    if refuseArgRebind(op,target)   return null;
-    target  = followArgument(target);
-    arg     = followArgument(arg);
-    // storeRuling an armed statement dispatches nothing further, stores included -- interpreted only, emit time must reach every statement
-    if ruler.refused
-        if !jitting     return null;
-    if op.instructType && target.isMethod && target.invoke  target = target.method(target);
-    if arg
-        if arg.isMethod && arg.invoke                       arg = arg.method(arg);
-    // listOperand a list operand is never resolved here -- that would hand the list operators a copy
-    // virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
-    if target && target.isVirtual   target = copyOf(target);
-    // termCallIntercept jitting, the term call REPLAYS this instruction at run time, so it bakes the RAW slots -- the ladder's own conditions, read here (SEQ 318 c1)
-    if jitting && !op.hasMembers && !op.isOperator && !op.isMethod
-        if callIsRule(target) {
-            -%
-            if ( !::jitSlotTaken(op) ) {
-                if ( op->groupBody->flags.isUnary )   ::jitSeedOperands(target,arg);
-                ::measureRuleDispatch(op,target,arg);
-                return ::jitEmitTermCall(rawOp,rawTarget,rawArg); }
-            %-
-        }
-    return runOPdirect(op,target,arg);
-}
-
-
-// runOPdirect the FIRE: operands arrive FINISHED (D4); pick the kind, then fire the op, a rule, an action or a method
-extern GroupItem runOPdirect(GroupItem op,GroupItem target,GroupItem arg)
-{
-GroupRules  ruler = groupRules;
-GroupItem   result;
-    // storeRuling an armed statement dispatches nothing further -- interpreted only
-    if ruler.refused
-        if !jitting     return null;
-    // perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
-    if op.hasMembers {
-        if jitting      return jitEmitOpFire(op,arg,target);
-        op = pickKindOP(op,target,arg); }
-    // seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
-    if jitting && (op.isOperator || op.isUnary)     jitSeedOperands(target,arg);
-    // slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
-    -% if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); %-
-    // dispatchSeat which node the name reached, and which arm the fork will take
-    measureRuleDispatch(op,target,arg);
-    // callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
-    if op.isOperator                result = op.operat(arg,target);
-    or op.isMethod                  result = op.method(target);
-    or isCallable(target)           result = opCall(target,arg);
-    else    result = refuseUnknownOperator(op,target);
-    return result;
-}
-
-
-// callIsRule M3's DOOR, in one place: interpreted, a rule term; jitting, a rule term OR anything with an installed parse (F-123)
-extern int callIsRule(GroupItem target)
-{
-GroupRules  ruler = groupRules;
-    if !target                  return 0;
-    if target.isRuleTerm()      return 1;
-    if jitting && target.hasNewParse    return 1;
-    return 0;
-}
-
-
-// isCallable a call has something to call: a rule (callIsRule), an action, or a method
-extern int isCallable(GroupItem target)
-{
-    if !target              return 0;
-    if callIsRule(target)   return 1;
-    if target.actionType    return 1;
-    if target.isMethod      return 1;
-    return 0;
-}
-
-
-// opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
-extern GroupItem opCall(GroupItem target,GroupItem arg)
-{
-GroupRules  ruler = groupRules;
-    // storeRuling an armed statement dispatches nothing further -- interpreted only
-    if ruler.refused
-        if !jitting     return null;
-    // termCallIsRunOPs jitting, the term call is emitted by runOPslots, which holds the raw slots; reaching it here is a defect, said by name
-    if callIsRule(target) {
-        -%
-        if ( ruler->jitting )   return ::refuse(target,"opCall reached a term call under jitting -- runOPslots owns that emit, with the raw slots (SEQ 318 c2)");
-        ++gTermCallCount;
-        return ::runRule(arg,target);
-        %-
-    }
-    if target.actionType            return runAction(arg,target);
-    if target.isMethod {
-        if !arg arg = target;
-        return target.method(arg); }
-    return refuse(target,"opCall: nothing to call -- not a rule, an action or a method (SEQ 318 c2)");
-}
-
-
 /*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S PREFIX AND CALL (SEQ 311; tiers moved out at SEQ 319 c3).
     Two shapes built by interpretXPaccum: acU (a prefix over an operand) and acC (a call whose
     target is itself built -- (*block)(code)). The tiers have their own executors below.
@@ -1141,116 +1187,6 @@ GroupItem   op, val, arg;
 }
 
 
-/*  THE TIER EXECUTORS (SEQ 319, c3). interpretXPaccum builds one node per tier, loosest first,
-    and gives each node ITS executor as its method at build time (D5): acA assign, acAnd / acOr
-    logic, acK compare, acKchain the chained-comparison refusal, acX the arithmetic fold. NOTHING
-    here asks an operator for its tier -- the split already did, once. Operands arrive as nodes
-    and are finished by runOPaccumOperand; runOPdirect fires on finished operands (c1).
-    Interpreted only: under jitting each refuses (SEQ 311 R4).  */
-
-// runAccAssign the assignment tier, a single step: finish the head's target, evaluate the right side, assign
-extern GroupItem runAccAssign(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-GroupItem   op = field[2], val = null, target;
-    // jitAssign this body is runOPslots' order, so under jitting it emits as trunk's instruction does; only the stored-refusal stop is interpreted only (SEQ 331 J2)
-    if field.listLength > 2     val = runOPaccumOperand(field[3]);
-    // finished the head's target is finished here; val is a VALUE and is never invoked again (holderT, SEQ 318 c1)
-    target = field[1];
-    if refuseArgRebind(op,target)   return null;
-    target = followArgument(target);
-    if ruler.refused
-        if !ruler.jitting   return null;
-    if op.instructType && target.isMethod && target.invoke  target = target.method(target);
-    if target && target.isVirtual   target = copyOf(target);
-    return runOPdirect(op,target,val);
-}
-
-
-// runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
-extern GroupItem runAccAnd(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-GroupItem   left;
-    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
-    left = runOPaccumOperand(field[1]);
-    if !truthOf(left)                       return falseResult;
-    if field.listLength < 3                 return falseResult;
-    if truthOf(runOPaccumOperand(field[3])) return trueResult;
-    return falseResult;
-}
-
-
-// runAccOr the logic tier, ||: evaluate the left side, early-out on true, else the right side decides -- a SENTINEL either way
-extern GroupItem runAccOr(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-GroupItem   left;
-    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
-    left = runOPaccumOperand(field[1]);
-    if truthOf(left)                        return trueResult;
-    if field.listLength < 3                 return falseResult;
-    if truthOf(runOPaccumOperand(field[3])) return trueResult;
-    return falseResult;
-}
-
-
-// runAccCompare the compare tier, a single step: left side, right side, the comparison
-extern GroupItem runAccCompare(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-GroupItem   left, keep, right = null;
-    // jitCompare under jitting the body emits as it stands: both sides finished, runOPdirect seeds them and the op's gate emits the compare (SEQ 334 J6)
-    left = runOPaccumOperand(field[1]);
-    // copyOut a side answering in tempField is copied out before the other side can run
-    if left == ruler.tempField {
-        keep = new("acRun");
-        keep.setContent(left);
-        left = keep; }
-    // refuseNotSubstitute under jitting a side that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
-    if !left
-        if ruler.jitting    return refuse(field,"a compare side produced nothing under jitting (SEQ 334 J6)");
-    if !left    left = falseResult;
-    if left.isVirtual   left = copyOf(left);
-    if field.listLength > 2     right = runOPaccumOperand(field[3]);
-    if !right
-        if ruler.jitting    return refuse(field,"a compare side produced nothing under jitting (SEQ 334 J6)");
-    return runOPdirect(field[2],left,right);
-}
-
-
-// runAccChain a CHAINED comparison, seen at build: refused by its own name (SEQ 318 R1)
-extern GroupItem runAccChain(GroupItem field)
-{
-    return refuse(field[2],"a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)");
-}
-
-
-// runAccFold the arithmetic tier, THE FOLD: left to right, no precedence, no tier test -- every operator here is arithmetic by construction
-extern GroupItem runAccFold(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-int         n = field.listLength, i = 2;
-GroupItem   run, keep;
-    // jitFold under jitting the fold emits as it stands: each step is runOPdirect, which seeds an unseeded operand and the op's gate emits; a step's result rides on its target (SEQ 334 J6)
-    run = runOPaccumOperand(field[1]);
-    while i < n {
-        // copyOut a step answering in tempField is copied out before the next operand can run
-        if run == ruler.tempField {
-            keep = new("acRun");
-            keep.setContent(run);
-            run = keep; }
-        // refuseNotSubstitute under jitting an operand that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
-        if !run
-            if ruler.jitting    return refuse(field,"a fold operand produced nothing under jitting (SEQ 334 J6)");
-        if !run     run = falseResult;
-        // finished both sides are finished: the running value is a value, the right side is evaluated once here
-        if run.isVirtual    run = copyOf(run);
-        run = runOPdirect(field[i],run,runOPaccumOperand(field[i + 1]));
-        i = i + 2; }
-    return run;
-}
-
 /*  runOPaccumOperand -- one operand, evaluated if it carries an invocation.  */
 extern GroupItem runOPaccumOperand(GroupItem operand)
 {
@@ -1259,6 +1195,67 @@ GroupItem   val = followArgument(operand);
         if val.isMethod && val.invoke   val = val.method(val);
     return val;
 }
+
+
+// runOPdirect the FIRE: operands arrive FINISHED (D4); pick the kind, then fire the op, a rule, an action or a method
+extern GroupItem runOPdirect(GroupItem op,GroupItem target,GroupItem arg)
+{
+GroupRules  ruler = groupRules;
+GroupItem   result;
+    // storeRuling an armed statement dispatches nothing further -- interpreted only
+    if ruler.refused
+        if !jitting     return null;
+    // perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
+    if op.hasMembers {
+        if jitting      return jitEmitOpFire(op,arg,target);
+        op = pickKindOP(op,target,arg); }
+    // seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
+    if jitting && (op.isOperator || op.isUnary)     jitSeedOperands(target,arg);
+    // slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
+    -% if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); %-
+    // dispatchSeat which node the name reached, and which arm the fork will take
+    measureRuleDispatch(op,target,arg);
+    // callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
+    if op.isOperator                result = op.operat(arg,target);
+    or op.isMethod                  result = op.method(target);
+    or isCallable(target)           result = opCall(target,arg);
+    else    result = refuseUnknownOperator(op,target);
+    return result;
+}
+
+
+// runOPslots the INSTRUCTION's half: FINISH the operands -- follow, refuse a rebound argument, invoke -- then fire (SEQ 318 c1)
+extern GroupItem runOPslots(GroupItem op,GroupItem target,GroupItem arg)
+{
+GroupRules  ruler = groupRules;
+    // rawSlots declared in passthrough: tok prunes a local that only a passthrough reads (bear-trap 13)
+    -% GroupItem *rawOp = op, *rawTarget = target, *rawArg = arg; %-
+    // argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
+    if refuseArgRebind(op,target)   return null;
+    target  = followArgument(target);
+    arg     = followArgument(arg);
+    // storeRuling an armed statement dispatches nothing further, stores included -- interpreted only, emit time must reach every statement
+    if ruler.refused
+        if !jitting     return null;
+    if op.instructType && target.isMethod && target.invoke  target = target.method(target);
+    if arg
+        if arg.isMethod && arg.invoke                       arg = arg.method(arg);
+    // listOperand a list operand is never resolved here -- that would hand the list operators a copy
+    // virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
+    if target && target.isVirtual   target = copyOf(target);
+    // termCallIntercept jitting, the term call REPLAYS this instruction at run time, so it bakes the RAW slots -- the ladder's own conditions, read here (SEQ 318 c1)
+    if jitting && !op.hasMembers && !op.isOperator && !op.isMethod
+        if callIsRule(target) {
+            -%
+            if ( !::jitSlotTaken(op) ) {
+                if ( op->groupBody->flags.isUnary )   ::jitSeedOperands(target,arg);
+                ::measureRuleDispatch(op,target,arg);
+                return ::jitEmitTermCall(rawOp,rawTarget,rawArg); }
+            %-
+        }
+    return runOPdirect(op,target,arg);
+}
+
 
 // runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
 extern GroupItem runRule(GroupItem field,GroupItem rule)
@@ -1361,6 +1358,7 @@ String      name;
     return item;
 }
 
+
 extern GroupItem testOP(GroupItem field)
 {
 GroupItem   result,
@@ -1374,6 +1372,7 @@ GroupItem   target = field[2];
     else            result = op.operat(argument,target);
     return result;
 }
+
 
 // verdictCount add one named count to a verdict
 extern void verdictCount(GroupItem verdict,String name,int value)
