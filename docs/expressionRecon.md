@@ -625,6 +625,42 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J4a BUILT (expr-j4a 14b4295), NOT MERGED -- FIVE (L) ROWS GO GREEN -> RED (SEQ 335, Clod, 2026-10-11)
+
+**R0, JA:** jitAttrPop on the candidate's INTERPRETED road (the fixture with `jitFieldMethod(bgColor)` replaced by
+`bgColor()`, switch on, no jitting) reads **17 / 68 / 170, bake 17**; switch off 25 / 75 / 125, bake 25. Re-pinned switch on
+(c17b0ff, "the strict left fold, ruled 2026-10-06"). H7: each switch's pins fed the other road's values go red, all four rows.
+**R1, census** (trunk c17b0ff, under the cap, no timeouts): **acAnd 42** (pop.sh 40 -- probeDoorT, site1RoadsT, sweepT;
+jitLadder 2 -- jitXand, jitXand2), **acOr 15** (pop.sh 14 -- opLenT, probeDoorT, site1RoadsT, sweepT, tokJitT; jitLadder 1 --
+jitXor). Beneath them only connectives and acC; no followed callee shows a kind. = the opener's line. Register: pop.sh 24
+(probeDoorT 6, site1RoadsT 3, tokJitT 8, sweepT 3, opLenT 4), jitLadder 10 (JXD-1/2/3).
+**R2, the faults, each its own commit ahead of the kinds:**
+- **A (a0560d8):** jitEmitShortCircuit clears gJitResult before each operand; an operand with no value is ONE run-time call,
+  jitScOperandRT (interpreted, as runShortCircuit evaluates it; truth as i32) -- the right side's call stays inside its branch.
+  ⚠ **No row reached that arm**, so a fixture first: `incant/pop/jit/jitXscRT` + rung **JXD-4** (14b4295) -- `*fId(x)` has no
+  emit, one such operand per connective (`xrL && *fId(xrR)`, `*fId(xrL) || xrR`), both fires against the oracle on both inputs.
+  It found a live defect on SWITCH OFF: trunk's jit reads 9 9 on both fires where the oracle reads 0 0 / 0 1.
+  H7 (A out, full stack): switch off 9 9 -- red by value; switch on the values HOLD (fault B runs the unseeded statement
+  interpreted -- the masker, H17) and only the degrade row goes red (1, want 2).
+- **B (b938ca3):** aCTionBlocK publishes the statement under emission (gJitStmt, restored at the foot); jitEmitAssign's
+  unseeded arm still degrades by name and hands the WHOLE statement to one run-time call (jitStmtRT), once per statement.
+  H7 at its own commit (B out = a0560d8): JXD's 7 value rows red (9); with B green, only the degrade rows at 1. On the full stack
+  B is masked -- the kinds leave no unseeded operand.
+**R3, the kinds:** jitEmitShortCircuit becomes the tree unpacker into **jitEmitShortCircuitSlots(op, left, right, resultNode)**
+(the (b) recon's split, runOP / runOPslots once more). acAnd (230ca00) and acOr (7b54cd2) call it as (field[2], field[1],
+field[3], field); a connective with no right side refuses by name under jitting. H7: acOr out -> opLenT 4, probeDoorT 1,
+site1RoadsT 3, sweepT 3, tokJitT 8, JXD-2 red; acAnd out -> probeDoorT 5, site1RoadsT 3, sweepT 3, JXD-1, JXD-3 red.
+**R4, certificate:** switch off pop.sh 1091 and jitLadder 215 (219 with JXD-4) row for row. Switch on: pop.sh 1046 -> 1065, ALL
+24 registered rows cured; jitLadder **PASSED** (205 -> 215, then 219) -- all 10 JXD rows; no accumulator refusal left anywhere.
+printPop, ddPop, decodePop, frontier identical to trunk both switches; no directive targets a touched function. Canary 348.
+**THE STOP: five rows green -> red, switch on -- tokJitT `%` (L) and opLenT `==` `<=` `+=` `=` (L).** Their interpreted value is
+unchanged and right; what moved is the count of "a prefix operator with no operand", 1 -> 3. The rows count it over the whole
+file, and the file drives each message three times (two jitted, one interpreted). Before J4a the jitted drives refused at the
+outer acOr and never reached the operator; now they reach it and refuse it by name exactly as the interpreted drive does --
+the (b) rows beside them now agree. **The pinned 1 was the jit refusal leaking into the (L) row.**
+**Options for Tony:** (1) merge with the five re-pinned to 3 (one per drive), sentence above; (2) re-scope the (L) rows to the
+interpreted drive's own refusal (still 1), then merge; (3) hold.
+
 #### ⚠⚠ J6 MERGED (e3abe6b) -- acK AND acX ON THE JIT ROAD (SEQ 334, Clod, 2026-10-11)
 
 **Census (R1), trunk at seal 122, tap from `genLadder/censusTap.patch`, under the cap:** acK **36** refusals (pop.sh 1 --

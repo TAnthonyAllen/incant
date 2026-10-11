@@ -3,8 +3,8 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      124
-STATUS:   fresh           # SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+SEQ:      125
+STATUS:   fresh           # SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12466,3 +12466,27 @@ on 99 ok / 114 fail.
 - Next (Tony's order): J3 acU, J6 acK + acX, J4a; then the short-circuit measurement and his ruling; J4b / J4c after.
   kindJ1T / kindLiftT still time out (J3's hang rule decides).
   END SEQ 244
+
+===================================================================
+SEQ 245  -  SEQ 332-335 (Tony in chat): J3 + J6 MERGED; JA RE-PINNED; J4a BUILT, NOT MERGED; SHUTDOWN SEAL 124
+===================================================================
+Written 2026-10-11. Seals 121-124. Trunk: fleet 1091 / 51 / 1, switch on 1046, canary 343; jitLadder off PASSED 215,
+on 205 ok / 10 fail (JXD -- J4a's).
+- Offline reconciliation (124de97): tester orTest, macros, opMinus / opUnaryMinus ruler local. Tony's || finding: no
+  precedence today, so `a == x || b == y` is `a == (x || (b == y))`, and the bare-holder left half never compares equal
+  (bear-trap 55). The candidate binds comparisons first. Pinned as exprPinT OR1-OR3 (9f37bea).
+- J3 (acU -> runOPdirect), merged 461c1fc. Census 22 acU / 8 fixtures. The hang rule closed all four timeouts
+  (kindJ1T, kindLiftT, JUi, JI): the hang WAS the refused acU (the iterate's unary never advanced). argRoundJ and JD moved
+  outside the register (guard fallback; unseeded assign) -- named in the merge, their degrade rows pinned 1 for J6 (afb54fc).
+- The census tap is kept: genLadder/censusTap.patch (dafae05), applied only in the clone by census.sh.
+- J6 (acK + acX through their own bodies, a null side refuses by name), merged e3abe6b. Census acK 36, acX 32. 85 ladder
+  rows red -> green, the five degrade rows back to 0. acK ALONE IS UNSAFE (measured: JS 139, J3 / J5 hang) -- the arms
+  emit and their acX assignments emitted nothing.
+- JA re-pinned switch on to the strict left fold (17 / 68 / 170, read first on the candidate's interpreted road).
+- J4a on expr-j4a: fault A (short-circuit operand: clear, then one run-time call), fault B (unseeded assign: the whole
+  statement as one run-time call, via gJitStmt), acAnd and acOr through jitEmitShortCircuitSlots. Every registered row cures;
+  jitLadder switch on PASSES. New rung JXD-4 (jitXscRT) -- it found trunk's jit WRONG ON SWITCH OFF for a connective with
+  an operand that has no emit (9 9 where the oracle reads 0 0 / 0 1). STOPPED: five (L) rows green -> red -- the lone
+  operator's by-name refusal counted over the file, 1 -> 3, because the jitted drives now reach it. Options in the seal.
+- Next: Tony rules J4a; then the short-circuit measurement (R5), J4b / J4c.
+  END SEQ 245
