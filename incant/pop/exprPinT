@@ -39,6 +39,8 @@ define
     fpR=0;
     qs=0;
     holdB;
+    orOne=1;
+    orZero=0;
     fId code={ return argument; };
     fFalse code={ cerr "EP fFalse RAN":; return falseResult; };
     fTrue code={ cerr "EP fTrue RAN":; return trueResult; };
@@ -96,6 +98,9 @@ define
     FA1 code={ fpR = 0; if fpA != 0 && fpD != 0 && fpC != 0; fpR = 1; cerr "EP FA1 " fpR:; };
     FA2 code={ fpR = 0; if fpA != 0 && fpB != 0 && fpC != 0; fpR = 1; cerr "EP FA2 " fpR:; };
     ST1 code={ qs = 7; qs = fId(qa qb); cerr "EP ST1 " qs:; };
+    OR1 code={ oh := orOne; ur = 0; if oh == 0 || *oh == 1; ur = 1; cerr "EP OR1 " ur:; };
+    OR2 code={ oh := orZero; ur = 0; if *oh == 1 || *oh == 0; ur = 1; cerr "EP OR2 " ur:; };
+    OR3 code={ oh := orOne; ur = 0; if *oh == 1 || *oh == 0; ur = 1; cerr "EP OR3 " ur:; };
     PA1 code={ holdB +% qa qb qc; pn = holdB.listLengtH; p1 = holdB[1]; p2 = holdB[2]; p3 = holdB[3]; cerr "EP PA1a " p1:; cerr "EP PA1b " p2:; cerr "EP PA1c " p3:; cerr "EP PA1n " pn:; };
     ;
 A1(); A2(); A3(); A4(); A5(); A6(); A7();
@@ -110,6 +115,7 @@ E2();
 C1(); C2(); C3(); C4(); C5(); C6();
 FA1(); FA2(); ST1();
 PA1();
+OR1(); OR2(); OR3();
 cerr "EXPRPIN SENTINEL":;
 stop();
 

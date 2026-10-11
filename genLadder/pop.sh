@@ -6071,6 +6071,13 @@ kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "1"    
 kindRow "exprPinT ST1 qs = 7 then qs = fId(qa qb)"        "$(_ep ST1)"   "7"         # intended qs (its tag)
 #  plusPctOrder SEQ 324 R1: holdB +% qa qb qc; -- length, then entries 1 2 3 by value; nothing else pins this order
 kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep PA1a) $(_ep PA1b) $(_ep PA1c)"   "3: 2 10 3"  # intended 3: 2 10 3 (source order)
+#  orHolder 2026-10-11 (Tony's tester orTest, Clay's pin-it): || between two comparisons. Today the fold is right to left, so
+#  a == x || b == y is a == (x || (b == y)); the candidate's tiers bind the comparisons first [on: OR1 1, OR2 1, OR3 1].
+#  OR1 is the tester line verbatim: its LEFT half compares the := holder unstarred, which is never equal (bear-trap 55) on
+#  either road, so OR1 is true only through its right half. OR2 is the starred discriminator; OR3 its non-zero sibling.
+kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "0"         # intended 1 (through the right half only)
+kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "0"         # intended 1
+kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"         # intended 1
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
 kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0
