@@ -778,15 +778,11 @@ else
     echo "          want: argument = 7, as "$(ip argRoundT)" reads it interpreted"
     fail=1
 fi
-#  arjDegrade SEQ 333 R1 (Tony, 2026-10-11): the degrade count, which argRoundJ never asserted. PINNED switch on: 1 -- since J3
-#  (acU emits) the one refusal left is an acK in the callee's base-case IF condition, and the safe guard (8b90151) runs that
-#  whole IF interpreted, by name. That is why the argument column above went green on switch on at J3 with no row seeing the
-#  fallback. INTENDED: 0 -- restored by J6 (acK + acX); this pin goes red then. Switch off: 0.
+#  arjDegrade SEQ 333 R1 (Tony, 2026-10-11): argRoundJ's degrade count, which it never asserted -- RESTORED to 0 on both
+#  switches by J6 (SEQ 334): the switch-on pin of 1 (the acK base-case IF run whole and interpreted by the safe guard) retired
+#  when J6 put acK on the jit road.
 _arjdg=$(sed -n 's/.*jitDegrade count = \([0-9][0-9]*\).*/\1/p' "$T/arj" | tail -1)
-if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
-    if [ "$_arjdg" = "1" ]; then echo "  ok    argRoundJ degrade count switch on PINNED: 1, the acK IF run whole and interpreted (intended: 0 -- restored by J6)"; green=$((green+1))
-    else echo "  FAIL  argRoundJ degrade count switch on MOVED: '$_arjdg' (pinned 1; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
-elif [ "$_arjdg" = "0" ]; then echo "  ok    argRoundJ degrade count 0"; green=$((green+1))
+if [ "$_arjdg" = "0" ]; then echo "  ok    argRoundJ degrade count 0"; green=$((green+1))
 else echo "  FAIL  argRoundJ degrade count = '$_arjdg', want 0"; fail=1; fi
 
 #  ============================================================================
