@@ -705,8 +705,11 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
     // null-check returning target would be worse than the crash it replaces --
     // exit 0 with wrong IR. So this DEGRADES, countably, and gJitDegradeCount is
     // asserted 0 by every rung, which is what stops it passing silently.
+    // stmtRT an unseeded operand never leaves its statement emitting nothing: the WHOLE statement becomes one run-time call on the interpreted road, once per statement (SEQ 335 R2, jitIfRT's pattern)
     if (!argument || !argument->jitData || !target || !target->jitData) {
         jitDegrade("assign operand reached jitEmitAssign unseeded", target);
+        if (gJitStmt && !gJitStmtRTDone) { jitEmitStmtRT(gJitStmt); gJitStmtRTDone = true; }
+        gJitResult = nullptr;
         return target;
     }
     llvm::IRBuilder<> *b = gJitBuilder;
@@ -1935,6 +1938,38 @@ extern int jitEmitSelfCall(GroupItem argument,GroupItem action)
         gJitResult  = v;
         gJitEmitted = true;
         return 1; }
+    %-
+}
+
+
+/*  jitStmtRT -- a statement the jit could not emit, run at RUN time on the interpreted road: its own method on its own
+    node, with jitting off as it always is at run time. Its value is not used. A refusal's scope is the statement, as in
+    jitIfRT.  */
+extern int jitStmtRT(GroupItem statement)
+{
+    clearRefusal(statement);
+    if statement.isMethod   statement.gMethod(statement);
+    clearRefusal(statement);
+    return 0;
+}
+
+extern void jitEmitStmtRT(GroupItem statement)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b || !statement) return;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    llvm::Value *stAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)statement), ptr, "stmtNode");
+    llvm::Value *fn = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
+    llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+    b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+    gJitEmitted    = true;
+    gJitLastIsNode = false;
     %-
 }
 

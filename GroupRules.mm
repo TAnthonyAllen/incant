@@ -53,10 +53,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 GroupItem 	*prior = 0;
+	// stmtUnderEmit under jitting each statement is published as gJitStmt, so an emitter that cannot emit its part hands the whole statement to one run-time call; the enclosing statement is restored at the foot (SEQ 335 R2)
+	 GroupItem *outerJitStmt = gJitStmt; bool outerJitStmtRTDone = gJitStmtRTDone; 
 	while ( grup = input->next(grup) )
 		{
 		prior = result;
 		ruler->branchKind = 0;
+		 if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; } 
 		if ( isMethod(grup->groupBody->flags.instructType) )
 			result = grup->groupBody->gMethod(grup);
 		else	result = grup;
@@ -96,6 +99,7 @@ GroupItem 	*prior = 0;
 			break;
 			}
 		}
+	 gJitStmt = outerJitStmt; gJitStmtRTDone = outerJitStmtRTDone; 
 	if ( result && isGROUP(result->groupBody->flags.data) )
 		result = result->groupBody->gGroup;
 	/*  ⚠ A BLOCK THAT RAN TO THE END AND YIELDED NOTHING SUCCEEDED AND HAS NO VALUE --
@@ -4337,8 +4341,11 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	// null-check returning target would be worse than the crash it replaces --
 	// exit 0 with wrong IR. So this DEGRADES, countably, and gJitDegradeCount is
 	// asserted 0 by every rung, which is what stops it passing silently.
+	// stmtRT an unseeded operand never leaves its statement emitting nothing: the WHOLE statement becomes one run-time call on the interpreted road, once per statement (SEQ 335 R2, jitIfRT's pattern)
 	if (!argument || !argument->jitData || !target || !target->jitData) {
 	jitDegrade("assign operand reached jitEmitAssign unseeded", target);
+	if (gJitStmt && !gJitStmtRTDone) { jitEmitStmtRT(gJitStmt); gJitStmtRTDone = true; }
+	gJitResult = nullptr;
 	return target;
 	}
 	llvm::IRBuilder<> *b = gJitBuilder;
@@ -5410,6 +5417,26 @@ int 		isAND = 0;
 	
 	jitScEnd(field);
 	return field;
+}
+
+extern "C" void jitEmitStmtRT(GroupItem *statement)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !statement) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *stAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)statement), ptr, "stmtNode");
+	llvm::Value *fn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+	gJitEmitted    = true;
+	gJitLastIsNode = false;
+	
 }
 
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
@@ -7062,6 +7089,18 @@ extern "C" int jitSlotTaken(GroupItem *op)
 	++gJitSlotCount;
 	return 1;
 	
+}
+
+/*  jitStmtRT -- a statement the jit could not emit, run at RUN time on the interpreted road: its own method on its own
+    node, with jitting off as it always is at run time. Its value is not used. A refusal's scope is the statement, as in
+    jitIfRT.  */
+extern "C" int jitStmtRT(GroupItem *statement)
+{
+	::clearRefusal(statement);
+	if ( isMethod(statement->groupBody->flags.instructType) )
+		statement->groupBody->gMethod(statement);
+	::clearRefusal(statement);
+	return 0;
 }
 
 /*******************************************************************************

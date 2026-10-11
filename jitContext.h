@@ -540,6 +540,12 @@ inline llvm::BasicBlock *gJitEpilogueBB = nullptr;
 // one: jitPrintNodeRT. So an arithmetic body needs no checks at all.
 inline bool gJitStmtCanRefuse = false;
 
+// THE STATEMENT UNDER EMISSION (SEQ 335 R2). aCTionBlocK sets it for each statement it walks under jitting and restores
+// the enclosing one on the way out, so an emitter that cannot emit its part can hand the WHOLE statement to one run-time
+// call (jitStmtRT) instead of emitting nothing for it. gJitStmtRTDone keeps that call to one per statement.
+inline GroupItem *gJitStmt = nullptr;
+inline bool gJitStmtRTDone = false;
+
 // SET BY DISCOVERY, READ BY THE BUILD LOOP. The function currently under
 // construction is now known to be wrong and must be erased rather than finished
 // into the module -- so this is not an error channel, it is "start over knowing
