@@ -1670,7 +1670,14 @@ if [ "$jdo" = "4" ]; then
     echo "  ok    JD interpreted oracle = 4 (fire 2 added a member; a folded walk would read 3)"; green=$((green+1))
 else echo "  FAIL  JD interpreted oracle '$jdo', want 4"; fail=1; fi
 jdd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitJD" | tail -1)
-if [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
+#  RE-PINNED switch on (SEQ 333 R1, Tony, 2026-10-11): before J3 the run timed out on a refused acU (the -- never advanced)
+#  and this row read ''. With acU emitting, the one fall-through left is jdCount's assignment: its right side is a refused acX,
+#  and jitEmitAssign degrades the unseeded operand by name and runs it interpreted. PINNED: 1.
+#  INTENDED: 0. Expected to restore it: J6 (acK + acX) -- registered to that stroke; this pin goes red then.
+if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+    if [ "$jdd" = "1" ]; then echo "  ok    JD degrade count switch on PINNED: 1, jdCount's assignment over a refused acX (intended: 0 -- restored by J6)"; green=$((green+1))
+    else echo "  FAIL  JD degrade count switch on MOVED: '$jdd' (pinned 1; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
+elif [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
 else echo "  FAIL  JD degrade count = '$jdd', want 0"; fail=1; fi
 
 #  A CAPPED FIXTURE FAILS THE LADDER BY NAME, even if every row it fed happened to read green:
