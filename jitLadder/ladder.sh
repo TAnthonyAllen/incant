@@ -410,10 +410,9 @@ echo "-- J6  + AN EMITTED CALL -- and the trace is its own evidence"
 #  fires at EMIT time and reports compile-time state ONCE, looking like it
 #  worked. A trace appearing TWICE WITH DIFFERENT VALUES can only have been
 #  called from compiled code on each fire.
-#  DEGRADE RE-PINNED switch on (SEQ 331 J2, 2026-10-10, Tony). Green switch on only while acA refused: with J2 the
-#  assignment emits, its right side is a refused acX, and jitEmitAssign degrades the unseeded operand by name.
-#  PINNED: 1. INTENDED: 0. Expected to restore it: J6 (acX) -- registered to that stroke.
-rung jitJ6 "J6 SENTINEL" "J6" 8 22 1
+#  DEGRADE RESTORED to 0 on both switches (SEQ 334 J6): the switch-on pin of 1 (SEQ 331 J2, the acX right side degrading
+#  as an unseeded assign operand) retired when J6 put acX on the jit road -- the 6th argument is gone.
+rung jitJ6 "J6 SENTINEL" "J6" 8 22
 #  Two jitted traces (one per fire) plus one from the interpreted oracle.
 tr1=$(grep "JIT TRACE" "$T/jitJ6" | sed -n '1s/.*= \([0-9-][0-9]*\).*/\1/p')
 tr2=$(grep "JIT TRACE" "$T/jitJ6" | sed -n '2s/.*= \([0-9-][0-9]*\).*/\1/p')
@@ -1068,16 +1067,9 @@ if [ "$jso" = "3" ]; then
     echo "  ok    JS out = 3  (the outermost activation's local survived the call)"; green=$((green+1))
 else echo "  FAIL  JS out = '$jso', want 3. 0 means the locals ALIAS."; fail=1; fi
 
-#  RE-PINNED switch on (SEQ 331, 2026-10-10, Tony: the next layer showing). Its former green switch on was the REFUSED CALL
-#  hiding the callee: with acC refused the callee was never walked, so nothing could fall through. J1 lets the call through;
-#  the callee's IF condition is an acK, refused, and the J1 guard degrades that IF by name. PINNED: 1.
-#  RE-PINNED 1 -> 3 (SEQ 331 J2): the acK IF now runs whole on the interpreted road (one degrade), and with acA emitting,
-#  sfPre = sfPre + 1 and sfCount = sfCount + 1 reach jitEmitAssign with a refused acX right side (two more).
-#  INTENDED: 0. Expected to restore it: J6 (acK + acX) -- registered to that stroke; this pin goes red then.
-if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
-    if [ "$jsd" = "3" ]; then echo "  ok    JS degrade count switch on PINNED: 3, the IF on acK plus two acX assignments (intended: 0 -- restored by J6)"; green=$((green+1))
-    else echo "  FAIL  JS degrade count switch on MOVED: '$jsd' (pinned 3; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
-elif [ "$jsd" = "0" ]; then echo "  ok    JS degrade count 0"; green=$((green+1))
+#  DEGRADE RESTORED to 0 on both switches (SEQ 334 J6): the switch-on pins (1 at J1, 3 at J2 -- the acK IF run whole and
+#  interpreted, plus two acX assignments) retired when J6 put acK and acX on the jit road.
+if [ "$jsd" = "0" ]; then echo "  ok    JS degrade count 0"; green=$((green+1))
 else echo "  FAIL  JS degrade count = '$jsd', want 0"; fail=1; fi
 #  THE BRIEF'S OWN DISCRIMINATOR: two functions inside ONE compile leaves this at
 #  1. If it moved, the implementation NESTED jitRunAction instead of sequencing
@@ -1196,10 +1188,9 @@ retrung () {                    # retrung <file> <sentinel> <label> <want1> <wan
 }
 
 #  F1 -- the base case. A returned scalar from a NON-recursive action.
-#  DEGRADE RE-PINNED switch on (SEQ 331 J2, 2026-10-10, Tony). Green switch on only while acA refused: with J2 the
-#  assignment emits, its right side is a refused acX, and jitEmitAssign degrades the unseeded operand by name.
-#  PINNED: 1. INTENDED: 0. Expected to restore it: J6 (acX) -- registered to that stroke.
-retrung jitJRt1 "JRt1 SENTINEL" "JRt1" 21 27 1
+#  DEGRADE RESTORED to 0 on both switches (SEQ 334 J6): the switch-on pin of 1 (SEQ 331 J2, the acX right side degrading
+#  as an unseeded assign operand) retired when J6 put acX on the jit road -- the 6th argument is gone.
+retrung jitJRt1 "JRt1 SENTINEL" "JRt1" 21 27
 o1=$(sed -n 's/.*JRt1 interpreted  *: rtOut = *\([0-9-][0-9]*\).*/\1/p' "$T/jitJRt1" | head -1)
 if [ "$o1" = "21" ]; then echo "  ok    JRt1 oracle agrees: interpreted returned 21 == jitted"; green=$((green+1))
 else echo "  FAIL  JRt1 ORACLE DISAGREES: interpreted '$o1' vs jitted 21"; fail=1; fi
@@ -1670,14 +1661,9 @@ if [ "$jdo" = "4" ]; then
     echo "  ok    JD interpreted oracle = 4 (fire 2 added a member; a folded walk would read 3)"; green=$((green+1))
 else echo "  FAIL  JD interpreted oracle '$jdo', want 4"; fail=1; fi
 jdd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitJD" | tail -1)
-#  RE-PINNED switch on (SEQ 333 R1, Tony, 2026-10-11): before J3 the run timed out on a refused acU (the -- never advanced)
-#  and this row read ''. With acU emitting, the one fall-through left is jdCount's assignment: its right side is a refused acX,
-#  and jitEmitAssign degrades the unseeded operand by name and runs it interpreted. PINNED: 1.
-#  INTENDED: 0. Expected to restore it: J6 (acK + acX) -- registered to that stroke; this pin goes red then.
-if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
-    if [ "$jdd" = "1" ]; then echo "  ok    JD degrade count switch on PINNED: 1, jdCount's assignment over a refused acX (intended: 0 -- restored by J6)"; green=$((green+1))
-    else echo "  FAIL  JD degrade count switch on MOVED: '$jdd' (pinned 1; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
-elif [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
+#  DEGRADE RESTORED to 0 on both switches (SEQ 334 J6): the switch-on pin of 1 (SEQ 333, jdCount's assignment over a refused
+#  acX) retired when J6 put acX on the jit road.
+if [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
 else echo "  FAIL  JD degrade count = '$jdd', want 0"; fail=1; fi
 
 #  A CAPPED FIXTURE FAILS THE LADDER BY NAME, even if every row it fed happened to read green:
