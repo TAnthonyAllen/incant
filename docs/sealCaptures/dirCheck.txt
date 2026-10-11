@@ -1,5 +1,5 @@
 tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
-  ok    INJECTS aCTionDefinE "if Attributes" before (parked, line 14 of groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS aCTionDefinE "if Attributes" before (armed, line 14 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS aCTionNamE if before (armed, line 22 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS aCTionRunRulE if within (parked, line 25 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS aCTionSearch cout (parked, line 28 of groupDirectives) -> GroupRules.twk +1
