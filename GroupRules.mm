@@ -11021,8 +11021,13 @@ extern "C" GroupItem *runAccOr(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*left = 0;
+	// jitOr under jitting the connective's slots go to the tree's own emitter, which owns the short-circuit diamond (SEQ 335 J4a)
 	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+		{
+		if ( field->groupBody->groupList->listLength < 3 )
+			return ::refuse(field,"a connective with no right side under jitting (SEQ 335 J4a)");
+		return jitEmitShortCircuitSlots(field->get(2),field->get(1),field->get(3),field);
+		}
 	left = runOPaccumOperand(field->get(1));
 	if ( ::truthOf(left) )
 		return ruler->trueResult;
@@ -12274,6 +12279,7 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	accBare(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
+	jitEmitShortCircuitSlots(GroupItem*,GroupItem*,GroupItem*,GroupItem*)
 	refuseDotUnaryOp(GroupItem*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
