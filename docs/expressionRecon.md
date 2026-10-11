@@ -625,6 +625,32 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J3 R0 -- THE acU CENSUS ON TRUNK 9f37bea (SEQ 332, Clod, 2026-10-11; clone tap, reverted md5-identical)
+
+**Binary:** trunk `9f37bea` (includes `124de97`, Tony's opMinus / opUnaryMinus `ruler` local), built in the clone, bare,
+canary 343. The tap is seal 117's (refuse() under jitting walks the refused node's subtree and follows each acC's ACTION
+target into its built BlocK), rewritten because its source was not kept; totals with the tap in: pop.sh off 1090 / on 1020,
+jitLadder off PASSED 215 / on 99 ok, 114 fail -- the same as without it. Switch off: no `ac*` refusal anywhere.
+
+**Switch on: 22 acU refusals in 8 fixtures, and no acU sits beneath another kind's refusal or inside a followed callee.**
+
+| population | acU | other kinds in the same run | rows red on switch on | register |
+|---|---|---|---|---|
+| pop.sh assignRoadT | 1 | -- (the "assign operand unseeded" degrade beneath is acU's operand) | 2 (AR-J value, degrade count) | **cure: 2** |
+| pop.sh kindJ1T | 2 | -- | 8, TIMED OUT | **hang rule (R1)** |
+| pop.sh kindLiftT | 2 | -- | 14, TIMED OUT | **hang rule (R1)** |
+| pop.sh argRoundJ | 1 | acK 1 | 1 (JIT argument column) | not registered: acK holds it (J6) |
+| jitLadder JU | 3 | -- | 3 (fire 1, fire 2, unary ops in IR) | **cure: 3** |
+| jitLadder JUi | 2 | -- | 1 + the cap line, exit 137 (switch off: 2 rows) | **hang rule, as R1** |
+| jitLadder JI (jitIterTwice) | 6 | -- | 1 + the cap line, exit 137 (switch off: 7 rows) | **hang rule, as R1** |
+| jitLadder JD | 1 | acX 1 | 6 + two cap lines, TIMED OUT | not registered: acX holds it (J6) |
+
+**The register for J3: 5 rows to cure (assignRoadT 2, JU 3), plus kindJ1T, kindLiftT, JUi and JI under the hang rule**
+(JUi and JI are iterator rungs that time out on exactly the kindJ1T shape, so R1's rule is applied to them too). Anything else
+that moves on either switch is outside the register and stops the merge.
+⚠ **The blind spot is unchanged and named:** an IF whose condition degrades now runs whole and interpreted (8b90151), so its
+arms are not walked at emit time and not seen by the tap.
+
 #### ⚠⚠ J2 BUILT (expr-b a9bbdca), NOT MERGED -- jitLadder MOVED ROWS NO CENSUS HAD REGISTERED (Clod, 2026-10-10)
 
 **pop.sh, as registered:** switch off 1087 row for row; switch on 1002 -> 1018 = **exactly the 16 registered rows**, nothing
