@@ -22,3 +22,21 @@ How to convert an action into an instruction chain?
 Can xpTest be revised to do the conversion? Where would that conversion happen (when parsing an action)? Feed xpTest a BlocK label and see what results.
 If a statement does not return a result (testOP is running the statement chain) then result gets set to 0???
 The nested chain process is hard to envision. Will have to test it to see how it goes.
+To apply xpTestList to rules
+    a rule should return its label and not apply its action
+        each label may contain a list of labels
+    then we can walk the label tree and flatten it out
+    xpTestList then walks the flattened label list and turns it into an instruction chain
+    What happens when a label has an action or method?
+        The label action fires and all its component labels are already in instruction chain format
+        An inlining opportunity maybe; ideally the label action statements all convert into instruction chains too, and we need an erector set assembly
+        if we can assemble label action into a chain it is turtles all the way down
+This looks like a juggling exercise: here is your molotov cocktail, war hammer, bowling ball; now juggle.
+
+How to attack?
+    maybe gate parse to gate and skip fireLabelMethod so rule actions never happen during the parse, only the label attachments happen; or try and buy w/fireLabelMethod commented out for a quick test - the one thing that will pooch is a rule action rejecting its label. Probably will have to allow those actions to happen to not pooch the parse - HPDL
+    or initially: feed in a flattened label tree from a simplified instance of an IF rule that prints a simple message and see if xpTestList handles it
+        if A || B; print "I am a bum":;
+    flattened that would be
+        A || B if print "I am a bum" :    if and print become operators (print op is unary)
+        Note the print op gets handles a list w/2 items; right now instruction chain does not handle lists

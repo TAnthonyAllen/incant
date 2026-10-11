@@ -81,17 +81,8 @@ define
         result  = testOP(*target);
         return  result;
         };
-    orTest code={
-        trueResult = 1;
-        embed := trueResult;
-        print "orTest should work":;
-        if embed == 0 || *embed == 1; print `"|| works":;
-        else print `"|| does not work":;
-        if *embed == 1; print "The second part works on its own":;
-        };
     ;
 
-orTest();
 stop();
 xpListTest("invokeTEST call -righty -= qa - qb + qc;");
 
