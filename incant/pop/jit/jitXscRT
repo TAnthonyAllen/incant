@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+
+register(JitXscRT);
+define
+    xrL;
+    xrR;
+    xrA;
+    xrB;
+    fId code={ return argument; };
+    xrDriver code={
+        xrA = xrL && *fId(xrR);
+        xrB = *fId(xrL) || xrR;
+        };
+    ;
+
+xrL = 0; xrR = 0; xrA = 9; xrB = 9;
+testing(xrDriver);
+print "XR fire 1 result: xrA =" xrA " xrB =" xrB:;
+
+xrL = 1; xrR = 1;
+jitRefire();
+print "XR fire 2 result: xrA =" xrA " xrB =" xrB:;
+
+xrL = 0; xrR = 0; xrA = 9; xrB = 9;
+xrDriver();
+print "XR interpreted 1: xrA =" xrA " xrB =" xrB:;
+xrL = 1; xrR = 1; xrA = 9; xrB = 9;
+xrDriver();
+print "XR interpreted 2: xrA =" xrA " xrB =" xrB:;
+
+print "XR SENTINEL -- run reached the end":;
+stop();
+
+jitXscRT -- AN AND/OR OPERAND THAT EMITS NOTHING UNDER JIT (SEQ 335 R2, fault A). 2026-10-11.
+
+`*fId(x)` is a star on a call target: the jit has no emit for it (switch off the operand yields no value; switch on the
+candidate refuses "a call whose target is built"). So each connective has one operand with no value at emit time:
+    xrA = xrL && *fId(xrR);     the RIGHT operand
+    xrB = *fId(xrL) || xrR;     the LEFT operand -- and its value is decided by xrR, so fire 2 must read 1
+jitEmitShortCircuit now clears the value in flight before each operand and runs an operand with no value as ONE run-time
+call (jitScOperandRT, interpreted). Before that fix the right case read the stale assignment (9) and the left case omitted
+the connective entirely, so xrB read back its own tag. The interpreted oracle runs last, after the jitted fires
+(bear-trap 25), on both input sets.
+Wanted: fire 1 = interpreted 1 = 0 0; fire 2 = interpreted 2 = 0 1. The degrade count is 2 -- two named fallbacks, and the
+values are what say they were sound (the degrade doctrine: a degrade line asserts a fallback occurred, never that it was).
