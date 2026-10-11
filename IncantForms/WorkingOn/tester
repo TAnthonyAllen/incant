@@ -26,7 +26,7 @@ define
     qa=2;
     qb=3;
     qc=4;
-    testListed isRule lizted=listEntries+ SemI- code={
+    xpListTest isRule lizted=listEntries+ SemI- code={
         iterate grup on *lizted;
         while --grup;
             if *grup.instructTypE != 0;
@@ -34,14 +34,18 @@ define
                 op = grup;
                 /***************************************************************************
                                 unary handling - check for negate and deref
-                    still have to handle leading - or * with nothing on the left of it
                 ***************************************************************************/
                 if priorEntry := *grup.prioR;
-                    if *priorEntry.isOperatoR;
-                        if *op.taG == "-";  op := Operators["negate"];
-                        or *op.taG == "*";  op := Operators["deref"];
+                    if priorEntry.datA == 0;    convertUnary = true;
+                    if *priorEntry.isOperatoR;  convertUnary = true;
+                if convertUnary;
+                    if *op.taG == "-";  op := Operators["negate"];
+                    or *op.taG == "*";  op := Operators["deref"];
+                    convertUnary = false;
                 if *op.isUnarY;
                     instruct    +% *op;
+                        $$result;
+                        $$target;
                     if result.datA == 0;
                         print `"unary op" taG "on target" ,*target:;
                         instruct    +% *target;
@@ -59,30 +63,37 @@ define
                     if result == 0; clear(target);
                     result          := copyOf(instruct);
                     clear(op);
-                else    print `"op:" *op.taG:;
             else
-                if *grup.isLiteraL == 1;    print `"number" ,*grup:;
-                else                        print `"field" taG:;
-                if target == 0;             target = grup;
-                or result == 0;             result = grup;
+                if result == 0;     result = grup;
+                or target == 0;     target = grup;
             if op.datA && result.datA  && target.datA != 0;
                 clear(instruct);
                 instruct    +% *op;
-                instruct    +% *result;
                 instruct    +% *target;
+                instruct    +% *result;
                 instruct    :. noPrinT;
-                target      := copyOf(instruct);
-                clear(result);
+                dumpField(instruct);
+                result      := copyOf(instruct);
+                clear(target);
                 clear(op);
         print "We done":;
+        if target.datA == 0; target = result;
         result  = testOP(*target);
         return  result;
         };
+    orTest code={
+        trueResult = 1;
+        embed := trueResult;
+        print "orTest should work":;
+        if embed == 0 || *embed == 1; print `"|| works":;
+        else print `"|| does not work":;
+        if *embed == 1; print "The second part works on its own":;
+        };
     ;
 
-testListed("invokeTEST call righty -= qa - qb + -qc;");
+orTest();
 stop();
-testListed("invokeTEST call righty -= qa - qb + qc;");
+xpListTest("invokeTEST call -righty -= qa - qb + qc;");
 
 register(C1Tester);
 define
@@ -105,15 +116,6 @@ define
     ;
 c1Run();
 cerr "C1 SENTINEL":;
-
-testListed("invokeTEST call righty -= qa * qb + qc;");
-Harder expressions for testListed, each with a pinned trunk answer in exprPinT to compare against:
-- qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
-- xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
-- -qa + qb and !fTrue(qa): a prefix unary on a term, and on a call.
-- fId(qa + qb) * qc and qa + fNest(qb) + qc: calls with an expression inside or between, so A(B) has to become A call B mid-expression.
-- a < b < c: chained comparisons; expr-accum currently refuses this by name.
-- *block(code): a star on a call target.
 
 /***************************************************************************
     C1 tester (Clod, 2026-10-07, SEQ 320) -- for the expr-accum branch
@@ -148,18 +150,6 @@ Harder expressions for testListed, each with a pinned trunk answer in exprPinT t
     cannot take (bear-trap 52). c1Run flips the subtraction, fId(qa + qb) - lim.
     The UnaryXP alternative leaves the grammar after the buy (expressionRecon,
     C1 BOUGHT IN PRINCIPLE).
-***************************************************************************/
-
-/***************************************************************************
-    parseCode notes (Clod, 2026-10-05, after SEQ 300)
-    compileIn drives the code on a floor that carries the owner and pops it, so
-    parseCode needs no processingCodE pair and no currentMETHOD or lastIndenT
-    bracket -- the 2026-10-04 BLOCKER is gone with them.
-    The owner is `action`, as in processCode: the CodE for a rule, else the argument.
-    compileIn answers true or false; the BlocK rides back on pcReq.result.
-    Read it as `blk = pcReq.result;` then `*blk`. `*pcReq.result` CRASHES (exit 139):
-    the star binds to pcReq, which holds nothing.
-    Never `if blk;` -- truth-testing the BlocK fires it (bear-trap 34).
 ***************************************************************************/
 
 /***************************************************************************
@@ -200,32 +190,11 @@ checkSKIP(skipInput);
     Current Status
 ***************************************************************************/
 
-registry(TestStuff);
-(TESTing);
-define
-    /***************************************************************************
-        parseCode is kant version of processCode
-    ***************************************************************************/
-    invokeTest code={ print "invokeTest:"` anotherTest(); print Invoked:; };
-    parseCode code={
-        code    := argument.CodE;
-        if code.datA == 0;
-            cerr taG "has no CodE, has parser() been run on it?":;
-            return;
-        if isRulE;  action := code;
-        else        action := argument;
-        block       := Grokking["BlocK"];
-        $$block;
-        result      = *block(code);
-        $$result;
-        if result;
-            result :. noPrinT;
-            argument :. isActioN;
-            argument +< *blk;
-            return trueResult;
-        cerr "parseCode: failed parse of" taG:;
-        return  falseResult;
-        };
-    ;
-
-parseCode(invokeTest);
+Need to test && and ||
+Harder expressions for xpListTest, each with a pinned trunk answer in exprPinT to compare against:
+- qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
+- xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
+- -qa + qb and !fTrue(qa): a prefix unary on a term, and on a call.
+- fId(qa + qb) * qc and qa + fNest(qb) + qc: calls with an expression inside or between, so A(B) has to become A call B mid-expression.
+- a < b < c: chained comparisons; expr-accum currently refuses this by name.
+- *block(code): a star on a call target.

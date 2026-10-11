@@ -8526,7 +8526,8 @@ extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 {
-	if ( GroupControl::groupController->groupRules->jitting )
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitSub); 
 		}
@@ -8546,18 +8547,18 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 		promotion-first rule applied in the interpreter. Count OP count stays
 		a count, so nothing that was already integral moves.  */
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
-			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() - argument->getNumber());
-		else	GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount - argument->getCount());
+			ruler->tempField->setNumber(target->getNumber() - argument->getNumber());
+		else	ruler->tempField->setCount(target->groupBody->gCount - argument->getCount());
 		}
 	else
 	if ( (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && argument->getCount() > 0 )
 		if ( target->groupBody->gCount > argument->getCount() )
-			GroupControl::groupController->groupRules->tempField->setText(::headToCount(target->getText(),target->groupBody->gCount - argument->getCount()));
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+			ruler->tempField->setText(::headToCount(target->getText(),target->groupBody->gCount - argument->getCount()));
+	if ( !ruler->tempField->groupBody->flags.data )
 		{
 		return ::refuse(target,"Operator - -- cannot apply to these operands");
 		}
-	return GroupControl::groupController->groupRules->tempField;
+	return ruler->tempField;
 }
 
 /***************************************************************************
@@ -9449,20 +9450,21 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 ***************************************************************************/
 extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 {
-	if ( GroupControl::groupController->groupRules->jitting )
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->jitting )
 		{
 		 return jitEmitUnary(result, jitNeg); 
 		}
 	if ( isCOUNT(result->groupBody->flags.data) )
-		GroupControl::groupController->groupRules->tempField->setCount(0 - result->groupBody->gCount);
+		ruler->tempField->setCount(0 - result->groupBody->gCount);
 	else
 	if ( isNUMBER(result->groupBody->flags.data) )
-		GroupControl::groupController->groupRules->tempField->setNumber((double)0 - result->groupBody->gNumber);
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+		ruler->tempField->setNumber((double)0 - result->groupBody->gNumber);
+	if ( !ruler->tempField->groupBody->flags.data )
 		{
 		return ::refuse(result,"Operator unary - -- cannot apply");
 		}
-	return GroupControl::groupController->groupRules->tempField;
+	return ruler->tempField;
 }
 
 // parkInRecord a label handed up to a parent whose RECORD is live goes there; with no such record it is dropped -- nothing reads it (1.2f, SEQ 306 R1)

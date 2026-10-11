@@ -9,51 +9,16 @@ Current thinking is use StringXP to do macros
 I had an interesting few fields defined for defining a macro. Sadly they are gone and I do not know what happened to them. Karma. We will have to design how macros get defined and are used from scratch, and not even sure we need macros in incant.
 
 setParse does not have to worry about actionMethod
-parent := grup.parent;      // not sure if this line will work as it should
-/*******************************************************************************
-	parseCode is kant version of processCode
-*******************************************************************************/
-    pcReq owner source result;
-    parseCode code={
-        code    := argument.CodE;
-        if code.datA == 0;
-            cerr taG "has no CodE, has parser() been run on it?":;
-            return;
-        if isRulE;  action := code;
-        else        action := argument;
-        pcReq.owner  := action;
-        pcReq.source := code;
-        if compileIn(pcReq);
-            blk = pcReq.result;
-            *blk :. noPrinT;
-            argument :. isActioN;
-            argument +< *blk;
-            return trueResult;
-        cerr "parseCode: failed parse of" taG:;
-        return  falseResult;
-        };
 
 /*******************************************************************************
-	What I remember of runInstruct (old runOP) translated into sort of kant. Assumes
-    argument list input is in left to right order; if not change --grup to ++grup
-    Entries in the argument list are either an operator or a field. As in kant
-    unary operators are afixed prefix. Thus the first entry on a list can be a
-    unary operator or a field and the last entry has to be a field.
+	Working on
 *******************************************************************************/
-    runInstruct code={
-        result = 0;
-        iterate grup on argument;
-        while --grup;
-            if *grup.instructType != 0;
-                op = grup;
-                if *op.isUnarY      result := *op(result);  // need an isUnary command too and *op(result); has to work
-            or result == 0;         result = grup;          // isGROUP is data so result.group will contain grup.group (after opAssign runs setContent())
-            else
-                result  +% *op *result *grup;
-                result  := runOP(result);                   // so cannot enter: *result *op *grup; as an expression statement
-        return  *result;
-
-Need a call op to handle A(B); as A call B; so A is target, call is op, and B is argument; and opCall has to handle: A having a method; A is an action; and A is a rule
-runOP can be simpler but must handle target or argument that may come in as invoked fields with method and no argument: like field();
-interpretXP will have to convert A += B C D; either wrap B C D in a list or generate A += B; A += C; A += D;
-
+A rule invoke in an expression list? Some rules do not return a result; they do stuff when they run and when done they done. However, what if a rule run in an expression list does not do stuff aside from returning its label that contains an action or method; can we treat the label action as an expression? An action is a list of statements that are not linked the way expression component are but who cares; if xpTest can treat a rule label as an argument to the rule action, can it dive into the action and treat its statements like an expression list? action argument setup and local field clearing would have to happen first. Both those things could happen as statements 1 and 2 in an action (that might simplify methods like runAction and parseAction).
+How would a DO statment in an expression list be processed? do statement while xp; the instruction chain could be xp opWhile statement which would fire opWhile(xp,statement); it would be simpler than running aCTionWhilE while doing pretty much the same thing in a tight loop. The DO rule produces a label when it runs that contains xp and statement. The statement could be a block and even if not, it would be a chain.
+What if BlocK ran as an instruction chain -> could xpTest run on a statement label convert statement into an instruction chain? Why not. The chain is produced at interpret/compile time and the chain is executed at run time. And if opWhile is an action acting as an operator? And if the opWhile statement is a chain?
+Right now runOP runs BlocK statements if statements turn into chain entries running testOP on those entries will descend into their own chains???
+Were this to happen, and I think I have been there done that, chain walking might eliminate a lot of looping.
+How to convert an action into an instruction chain?
+Can xpTest be revised to do the conversion? Where would that conversion happen (when parsing an action)? Feed xpTest a BlocK label and see what results.
+If a statement does not return a result (testOP is running the statement chain) then result gets set to 0???
+The nested chain process is hard to envision. Will have to test it to see how it goes.

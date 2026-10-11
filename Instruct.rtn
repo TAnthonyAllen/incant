@@ -688,6 +688,7 @@ extern GroupItem opMatch(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opMinus(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
     if jitting {
         -% return jitEmitBinary(argument, target, jitSub); %-
     }
@@ -1691,6 +1692,7 @@ extern GroupItem opDeref(GroupItem result)
 ***************************************************************************/
 extern GroupItem opUnaryMinus(GroupItem result)
 {
+GroupRules  ruler = groupRules;
     if jitting {
         -% return jitEmitUnary(result, jitNeg); %-
     }
