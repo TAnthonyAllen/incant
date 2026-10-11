@@ -5378,10 +5378,13 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 *******************************************************************************/
 extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field)
 {
-GroupItem 	*op = field->get(1);
-GroupItem 	*target = field->get(2);
-GroupItem 	*arg = field->get(3);
-int 		isAND = 0;
+	return jitEmitShortCircuitSlots(field->get(1),field->get(2),field->get(3),field);
+}
+
+// jitEmitShortCircuitSlots the emit on the connective's SLOTS -- the tree shape is [op, left, right] and the candidate's is [left, op, right], so each unpacks into this, as runOP does into runOPslots (SEQ 335 J4a); `field` is the node the result rides on
+extern "C" GroupItem *jitEmitShortCircuitSlots(GroupItem *op, GroupItem *target, GroupItem *arg, GroupItem *field)
+{
+int 	isAND = 0;
 	// skipByRegistration the direction is the operator's isOR registration, never its spelling -- `op.tag eq "AND"` stood here until 2026-09-23 and read `&&` as OR
 	if ( !::opIsOR(op) )
 		isAND = 1;
@@ -10893,8 +10896,13 @@ extern "C" GroupItem *runAccAnd(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*left = 0;
+	// jitAnd under jitting the connective's slots go to the tree's own emitter, which owns the short-circuit diamond (SEQ 335 J4a)
 	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+		{
+		if ( field->groupBody->groupList->listLength < 3 )
+			return ::refuse(field,"a connective with no right side under jitting (SEQ 335 J4a)");
+		return jitEmitShortCircuitSlots(field->get(2),field->get(1),field->get(3),field);
+		}
 	left = runOPaccumOperand(field->get(1));
 	if ( !::truthOf(left) )
 		return ruler->falseResult;
