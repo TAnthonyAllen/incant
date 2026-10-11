@@ -10868,8 +10868,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*left = 0;
 GroupItem 	*keep = 0;
 GroupItem 	*right = 0;
-	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	// jitCompare under jitting the body emits as it stands: both sides finished, runOPdirect seeds them and the op's gate emits the compare (SEQ 334 J6)
 	left = runOPaccumOperand(field->get(1));
 	// copyOut a side answering in tempField is copied out before the other side can run
 	if ( left == ruler->tempField )
@@ -10878,12 +10877,19 @@ GroupItem 	*right = 0;
 		keep->setContent(left);
 		left = keep;
 		}
+	// refuseNotSubstitute under jitting a side that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
+	if ( !left )
+		if ( ruler->jitting )
+			return ::refuse(field,"a compare side produced nothing under jitting (SEQ 334 J6)");
 	if ( !left )
 		left = ruler->falseResult;
 	if ( left->groupBody->flags.isVirtual )
 		left = ::copyOf(left);
 	if ( field->groupBody->groupList->listLength > 2 )
 		right = runOPaccumOperand(field->get(3));
+	if ( !right )
+		if ( ruler->jitting )
+			return ::refuse(field,"a compare side produced nothing under jitting (SEQ 334 J6)");
 	return ::runOPdirect(field->get(2),left,right);
 }
 
