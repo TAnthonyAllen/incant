@@ -1,0 +1,48 @@
+censusTap.patch -- THE THROUGH-CALLS CENSUS TAP (SEQ 334 R0, Tony, 2026-10-11). NEVER APPLIED ON TRUNK.
+
+Applied in the clone only (seal 91's recipe), by the clone's census.sh: `git apply` this file, retok + build, run pop.sh
+and jitLadder both switches keeping every fixture's output, `git apply -R`, check GroupActions.rtn md5-identical, rebuild.
+What it does: at a refusal UNDER JITTING, refuse() walks the refused node's subtree (not into rules) and prints
+`ACTAP <scope> <kind>` for every accumulator executor node (acU acC acA acAnd acOr acK acKchain acX acDot acSub); at an acC
+whose target is an ACTION it follows actionBlocK() one more level (scope = the callee's tag; `ACTAP <callee> UNBUILT` when
+none). A refusal fires at the outermost node and returns before its operands run, so without the walk a census sees only
+the outermost kind. Its first version (seal 117) was reverted and not kept; this is it rewritten (SEQ 332).
+If the patch stops applying, refuse()'s REFUSED line moved -- re-aim the context, do not hand-apply.
+
+diff --git a/GroupActions.rtn b/GroupActions.rtn
+index c468ea1..e69e565 100644
+--- a/GroupActions.rtn
++++ b/GroupActions.rtn
+@@ -765,6 +765,32 @@ String      name = "(none)";
+     if subject      name = subject.tag;
+     // theLine sourceLINE is where the PARSER is, stale for a cached body -- no usable per-statement line exists; do not chase it
+     cerr "REFUSED " name " -- " why " [line " toStringFromInt(sourceLINE) "]":;
++    -%
++    if ( subject && GroupControl::groupController->groupRules->jitting ) {
++        static const char *kinds[] = {"acU","acC","acA","acAnd","acOr","acK","acKchain","acX","acDot","acSub",0};
++        GroupItem *stk[8192]; const char *scp[8192]; int dep[8192]; int sp = 0, visits = 0;
++        stk[sp] = subject; scp[sp] = "top"; dep[sp] = 0; sp++;
++        while ( sp > 0 && visits < 20000 ) {
++            sp--; GroupItem *n = stk[sp]; const char *sc = scp[sp]; int d = dep[sp]; visits++;
++            if ( !n || !n->groupBody ) continue;
++            const char *t = n->groupBody->tag; int isK = 0;
++            if ( t ) for ( int k = 0; kinds[k]; k++ ) if ( !strcmp(t,kinds[k]) ) { isK = 1; break; }
++            if ( isK ) fprintf(stderr,"ACTAP %s %s\n",sc,t);
++            if ( isK && !strcmp(t,"acC") && d < 2 && n->groupBody->groupList && n->groupBody->groupList->listLength >= 2 ) {
++                GroupItem *tg = n->groupBody->groupList->firstInList ? n->groupBody->groupList->firstInList->nextInParent : 0;
++                if ( tg && tg->groupBody && isAction(tg->groupBody->flags.actionType) ) {
++                    GroupItem *blk = tg->actionBlocK();
++                    if ( !blk ) fprintf(stderr,"ACTAP %s UNBUILT\n",tg->groupBody->tag);
++                    else if ( sp < 8190 ) { stk[sp] = blk; scp[sp] = tg->groupBody->tag; dep[sp] = d + 1; sp++; }
++                }
++            }
++            if ( n != subject && n->groupBody->flags.isRule ) continue;
++            if ( n->groupBody->groupList )
++                for ( GroupItem *c = n->groupBody->groupList->firstInList; c && sp < 8190; c = c->nextInParent )
++                    { stk[sp] = c; scp[sp] = sc; dep[sp] = d; sp++; }
++        }
++    }
++    %-
+     ruler.refused = 1;
+     return null;
+ }
