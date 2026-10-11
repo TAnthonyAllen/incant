@@ -754,15 +754,21 @@ else
     else echo "  FAIL  JA 'FIRST FIRE' seen $jafirst times, want 1"; fail=1; fi
     if [ "$jaslots" = "2" ]; then echo "  ok    JA fires 2 and 3 both dispatched THROUGH THE SLOT"
     else echo "  FAIL  JA slot dispatches = $jaslots, want 2"; fail=1; fi
-    if [ "$ja1" = "25" ]; then echo "  ok    JA fire 1 : layoutTotal = 25"
-    else echo "  FAIL  JA fire 1 layoutTotal = '$ja1', want 25"; fail=1; fi
-    if [ "$ja2" = "75" ]; then echo "  ok    JA fire 2 : layoutTotal = 75  <- RUN-TIME PROOF (applyScale moved after emission)"
-    else echo "  FAIL  JA fire 2 layoutTotal = '$ja2', want 75 -- operands folded at compile time?"; fail=1; fi
-    if [ "$ja3" = "125" ]; then echo "  ok    JA fire 3 : layoutTotal = 125 (the slot is a path, not a one-off)"
-    else echo "  FAIL  JA fire 3 layoutTotal = '$ja3', want 125"; fail=1; fi
-    if [ "$jas" = "9" ] && [ "$jab" = "25" ]; then
-        echo "  ok    JA bake is IDEMPOTENT: bgSpec moved 5->9, bgBaked stayed 25 (R2 contract)"
-    else echo "  FAIL  JA idempotence: bgSpec='$jas' (want 9) bgBaked='$jab' (want 25) -- it re-baked"; fail=1; fi
+    #  jaFold SWITCH ON, the strict left fold, ruled 2026-10-06 (SEQ 335 R0): bgSpec * 3 + 2 is (5*3)+2 = 17 and
+    #  layoutTotal + bgBaked * applyScale is (lt+bk)*sc -- 17, then (17+17)*2 = 68, then (68+17)*2 = 170. Read on the candidate's
+    #  INTERPRETED road first (fixture with the jitted fire replaced by a plain call): 17 / 68 / 170, bake 17 -- the jit agrees.
+    #  Switch off keeps the old road's right-to-left 25 / 75 / 125, bake 25.
+    jw1=25; jw2=75; jw3=125; jwb=25
+    if [ "$INCANT_EXPR_ACCUM" = 1 ]; then jw1=17; jw2=68; jw3=170; jwb=17; fi
+    if [ "$ja1" = "$jw1" ]; then echo "  ok    JA fire 1 : layoutTotal = $jw1"
+    else echo "  FAIL  JA fire 1 layoutTotal = '$ja1', want $jw1"; fail=1; fi
+    if [ "$ja2" = "$jw2" ]; then echo "  ok    JA fire 2 : layoutTotal = $jw2  <- RUN-TIME PROOF (applyScale moved after emission)"
+    else echo "  FAIL  JA fire 2 layoutTotal = '$ja2', want $jw2 -- operands folded at compile time?"; fail=1; fi
+    if [ "$ja3" = "$jw3" ]; then echo "  ok    JA fire 3 : layoutTotal = $jw3 (the slot is a path, not a one-off)"
+    else echo "  FAIL  JA fire 3 layoutTotal = '$ja3', want $jw3"; fail=1; fi
+    if [ "$jas" = "9" ] && [ "$jab" = "$jwb" ]; then
+        echo "  ok    JA bake is IDEMPOTENT: bgSpec moved 5->9, bgBaked stayed $jwb (R2 contract)"
+    else echo "  FAIL  JA idempotence: bgSpec='$jas' (want 9) bgBaked='$jab' (want $jwb) -- it re-baked"; fail=1; fi
     if [ "$jad" = "0" ]; then echo "  ok    JA degrade count 0 on every fire (no silent emit-time fallback)"
     else echo "  FAIL  JA degrade count = '$jad', want 0"; fail=1; fi
     #  CORESIDENCE, and the vacuity guard is the byte count: "JiT is present" can
