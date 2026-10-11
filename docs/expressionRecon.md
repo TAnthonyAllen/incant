@@ -625,6 +625,28 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J6 MERGED (e3abe6b) -- acK AND acX ON THE JIT ROAD (SEQ 334, Clod, 2026-10-11)
+
+**Census (R1), trunk at seal 122, tap from `genLadder/censusTap.patch`, under the cap:** acK **36** refusals (pop.sh 1 --
+argRoundJ; jitLadder 35 over 20 rungs), acX **32** (pop.sh 1 -- argJitT; jitLadder 31 over 16 rungs); none beneath another kind,
+and **no timeout** on either switch (J3 had cured them). The clone's kept-run harnesses were stale copies from before seal 122's
+pins (totals one row short); censusrun.sh now regenerates them each run, and an untapped run matched trunk exactly.
+**Recon (R2): neither kind needs a new executor.** `runAccCompare` already finishes both sides and fires `runOPdirect`, which
+seeds unseeded operands and reaches `jitEmitCompare` through the op's gate. `runAccFold` is a left-to-right loop of
+`runOPdirect` steps -- the old road's nested-instruction shape a step at a time: an emitter writes its result into the target's
+`jitData` and returns the target, and `jitSeedOperands` does not re-seed an operand that already carries one. Both are J2's
+shape: the refusal goes, the body stays. One guard added to each: under jitting a side that produced nothing refuses BY NAME,
+where the interpreted body substitutes falseResult (a substituted constant would be seeded and emitted).
+**What moved:** see the merge commit (counts, H7s). In short: switch off row for row on both harnesses; switch on pop.sh 1044 ->
+1046, jitLadder 116 -> 201 ok, 85 rows red -> green, all in census rungs; the five degrade rows read 0; no row green -> red.
+⚠ **acK ALONE IS UNSAFE, measured on the intermediate commit:** with the IF conditions emitting, their arms emit too, and the
+arms' acX assignments degrade "unseeded" and emit nothing -- a loop counter that never moves. JS exit 139, J3 / J5 timed out,
+JR / JRt2 nonzero exits. The two kinds land together or not at all.
+**Named, not fixed:** JA (jitAttrPop) stays red at 17 / 68 / 170 against old-road pins 25 / 75 / 125 -- the candidate's fold is
+left to right (exprPinT A6 17, A7 54 interpreted) and the jit agrees with it; a switch-on pin is Tony's. The seal-120 faults
+survive only in acAnd / acOr territory: "unseeded" in jitXand / jitXand2 / jitXor, and JXD-1/2/3's values (jitEmitShortCircuit's
+guard) -- J4 / J5.
+
 #### ⚠⚠ J3 BUILT (expr-j3 df260c7), NOT MERGED -- TWO UNREGISTERED FIXTURES MOVED RED -> GREEN (SEQ 332, Clod, 2026-10-11)
 
 **The stroke:** runOPaccum's jitting arm takes acU -- map `-` / `*` to negate / deref, finish the operand, `runOPdirect(op,
