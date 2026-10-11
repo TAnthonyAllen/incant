@@ -11033,6 +11033,16 @@ GroupItem 	*arg = 0;
 				arg = field->get(3);
 			return ::runOPslots(field->get(1),val,arg);
 			}
+		// jitPrefix an acU goes through runOPdirect, which seeds a unary and takes the slot fork; the null-deref refusal is a run-time fact, never taken at emit time (SEQ 332 J3)
+		if ( ::compare(field->groupBody->tag,"acU") == 0 )
+			{
+			op = field->get(1);
+			if ( ::compare(op->groupBody->tag,"-") == 0 )
+				op = ruler->opFields->get("negate");
+			if ( ::compare(op->groupBody->tag,"*") == 0 )
+				op = ruler->opFields->get("deref");
+			return ::runOPdirect(op,runOPaccumOperand(field->get(2)),0);
+			}
 		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
 		}
 	if ( ::compare(field->groupBody->tag,"acU") == 0 )

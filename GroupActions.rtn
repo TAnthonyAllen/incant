@@ -1107,6 +1107,12 @@ GroupItem   op, val, arg;
             arg = null;
             if field.listLength > 2     arg = field[3];
             return runOPslots(field[1],val,arg); }
+        // jitPrefix an acU goes through runOPdirect, which seeds a unary and takes the slot fork; the null-deref refusal is a run-time fact, never taken at emit time (SEQ 332 J3)
+        if field.tag eq "acU" {
+            op = field[1];
+            if op.tag eq "-"    op = ruler.opFields["negate"];
+            if op.tag eq "*"    op = ruler.opFields["deref"];
+            return runOPdirect(op,runOPaccumOperand(field[2]),null); }
         return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)"); }
     if field.tag eq "acU" {
         op = field[1];
