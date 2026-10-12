@@ -2231,13 +2231,13 @@ extern void* jitEngine()
 /* jitExecBlock  the JIT body driver (pivot, 2026-06-30) — replaces the deferred
    jitWalkBlock walk. Hoists the action's parsed BlocK and runs its gMethod, which
    EXECUTES the statement runOP trees under jitting so each opMethod gate emits LLVM
-   in place. Control flow lands through aCTionIF's jitting gate -> jitEmitGIF. The
-   BlocK hoist is tok-native so it's reliable; jitRunAction calls it after
-   processCode has built the BlocK. */
+   in place. Control flow lands through aCTionIF's jitting gate -> jitEmitGIF.
+   jitRunAction calls it after processCode has built the BlocK. */
 extern GroupItem jitExecBlock(GroupItem input)
 {
-GroupItem   BlocK:;
-    if BlocK    BlocK.gMethod(BlocK);
+    // artifactNotTag the body is an ARTIFACT, read off the property list -- never a tag search through terms, which finds a bare BlocK the body itself names (SEQ 344)
+GroupItem   body = input.actionBlocK();
+    if body     body.gMethod(body);
     return input;
 }
 
