@@ -1,0 +1,23 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitBlockNameT);
+define
+    pz=0;
+    pSrc="{ pz = 7; }";
+    bjR=9;
+    BJ code={ code := pSrc; nm := BlocK; pz = 7; };
+    ;
+pz = 0; testing(BJ); cerr "BJ fire pz " pz:;
+pz = 0; jitRefire(); cerr "BJ jit pz " pz:;
+pz = 0; BJ(); cerr "BJ int pz " pz:;
+cerr "BJ SENTINEL":;
+stop();
+
+jitBlockNameT -- SEQ 344 (2026-10-12): jitExecBlock found the action's body by a tag search for "BlocK", so a bare BlocK in the
+body (which mints a child tagged BlocK with no method) was hoisted instead and the jit called address 0 (exit 139).
+This file: the bare name mentioned, never called -- want exit 0 (pz 7 is the body after the mention).
+Jitted first (testing, then a refire), the interpreted oracle last (bear-trap 25). pz 7 means the block was driven.

@@ -12412,3 +12412,26 @@ Switch-off cells that differ from the intended value are (I), the old road's fol
 Kitchen pass, seal, stop.
 If the candidate folds left everywhere, step 2 is the jitExecBlock crash, and then the flip.
   END SEQ 343
+
+===================================================================
+SEQ 344  -  FIXIT jitExecBlock (OWNER CLOD): A BARE BlocK IN AN ACTION BODY CRASHES THE JIT. ON TRUNK. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0: The mechanism is as seal 132 reported. jitExecBlock (jitEmitters.rtn:2237) finds the action's parsed body by looking up
+    the tag "BlocK". A bare BlocK written in the body makes a child with that tag and no method, the lookup returns that
+    child, and the jit calls address 0.
+R1: The intended behaviour is that the jit reaches the action's body as an artifact, through the property list, the way
+    stroke 3's artifact accessors do. It never finds it by a tag search through terms. If the cure needs anything else,
+    stop and report before building.
+
+THE STROKE
+Certificate rows, jitted, on both switches: BlocK(code); gives exit 0, pz 7. Mentioning BlocK without calling it gives
+exit 0. The control: reaching the rule through Grokking["BlocK"] stays green. The rows are born red, with exit 139.
+The cure, on trunk. Commit the fix before its H7.
+H7: revert the cure alone. The certificate rows go red (exit 139). Restore md5-identical.
+Stop condition: if any row outside the certificate moves, on either switch, stop and report before committing.
+Kitchen pass, seal, stop.
+  END SEQ 344

@@ -6293,6 +6293,26 @@ scRow "s3 A int" "scR = falseResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 
 scRow "s4 A jit" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 scRow "s4 A int" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 
+#  ⚑ jitBlock*T -- SEQ 344 (2026-10-12): a bare BlocK in an action body crashed the jit. jitExecBlock found the body by a
+#  tag search for "BlocK" (tok's `BlocK:;`), and the body's own mention mints a child tagged BlocK with no method, so the jit
+#  called address 0 (exit 139). One process per fixture, jitted (testing, refire) then interpreted. Born red at 139; cured when
+#  jitExecBlock reaches the body as an artifact through actionBlocK() (the property list, stroke 3).
+_bjv () { tr -s ' ' < "$T/$1.e" | awk -v k="$2" '$1=="BJ" && $2==k {print $4; exit}'; }
+for _bj in jitBlockCallT jitBlockNameT; do
+    run2 $_bj "$T/$_bj.o" "$T/$_bj.e"; _bje=$?
+    kindRow "$_bj jitted, exit"                 "$_bje"                                  "0"   # born red: 139
+    kindRow "$_bj sentinel, lines"              "$(grep -c '^BJ SENTINEL' "$T/$_bj.e")"  "1"
+    kindRow "$_bj jitted refire, pz"            "$(_bjv $_bj jit)"                        "7"
+    kindRow "$_bj interpreted, pz"              "$(_bjv $_bj int)"                        "7"
+done
+#  the CONTROL: the rule reached through Grokking["BlocK"], no bare name -- exit 0 before and after. pz is the star-call's:
+#  switch off the old road loses the call (0, BC4's (P) row), switch on 7.
+run2 jitBlockCtlT "$T/jitBlockCtlT.o" "$T/jitBlockCtlT.e"; _bje=$?
+kindRow "jitBlockCtlT jitted, exit (control)"   "$_bje"                                       "0"
+kindRow "jitBlockCtlT sentinel, lines"          "$(grep -c '^BJ SENTINEL' "$T/jitBlockCtlT.e")" "1"
+kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
+kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
