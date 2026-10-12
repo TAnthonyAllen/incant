@@ -135,6 +135,14 @@ sentinel () {                   # sentinel <name> <file> <text>
          echo "        row after it was silently dropped, at exit 0. Find the row"
          echo "        that stopped parsing, not the row that diffed."; fail=1; fi
 }
+#  fdRow SEQ 345 (defined HERE, beside check and sentinel, since SEQ 347: callers above its first home met "command not found"): a row pinned at TODAY's value with the INTENDED value beside it (R1: the interpreted road is the oracle). Green
+#  when they agree; BORN RED while it still reads its today-pin; MOVED for anything else.
+fdRow () {
+    if [ "$2" = "$4" ]; then echo "  ok    $1 = [$2]"; green=$((green+1))
+    elif [ "$2" = "$3" ]; then echo "  FAIL  $1 born red (SEQ 345): today [$2], intended [$4]"; fail=1
+    else echo "  FAIL  $1 MOVED: reads [$2], pinned today [$3], intended [$4]"; fail=1; fi
+}
+_epk () { awk -v k="$1" '$1=="EPK" && $2==k {print $3; exit}' "$T/ept.e"; }
 
 #  PARKED CHECKS -- Tony's reclassification, 2026-08-01. A parked check RUNS and
 #  REPORTS exactly like any other; the only difference is that its failure does
@@ -6094,14 +6102,6 @@ kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep 
 kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "0"         # intended 1 (through the right half only)
 kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "0"         # intended 1
 kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"         # intended 1
-#  fdRow SEQ 345: a row pinned at TODAY's value with the INTENDED value beside it (R1: the interpreted road is the oracle). Green
-#  when they agree; BORN RED while it still reads its today-pin; MOVED for anything else.
-fdRow () {
-    if [ "$2" = "$4" ]; then echo "  ok    $1 = [$2]"; green=$((green+1))
-    elif [ "$2" = "$3" ]; then echo "  FAIL  $1 born red (SEQ 345): today [$2], intended [$4]"; fail=1
-    else echo "  FAIL  $1 MOVED: reads [$2], pinned today [$3], intended [$4]"; fail=1; fi
-}
-_epk () { awk -v k="$1" '$1=="EPK" && $2==k {print $3; exit}' "$T/ept.e"; }
 #  FP1-FP8 SEQ 343 (Tony, 2026-10-12, R0 restating 2026-10-06): ARITHMETIC IS A STRICT LEFT FOLD, NO PRECEDENCE --
 #  a + b * c is (a+b)*c = 36, never a+(b*c) = 32; a * b + c and a / b - c are the controls, where fold and precedence agree.
 #  Each line jitted (j: a jitRefire after qr = 0; f, the testing() fire, is printed beside it) and interpreted (last, bear-
