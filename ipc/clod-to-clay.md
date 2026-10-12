@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      125
-STATUS:   fresh           # SEQ 254 at the FOOT -- SEQ 344: jitExecBlock cured 320b0d3 (actionBlocK); seal 134; prior: SEQ 253 at the FOOT -- SEQ 343: the candidate folds left everywhere; jitted / truncates (CreateSDiv); seal 133; prior: SEQ 252 at the FOOT -- SEQ 342: switch-on census P27 I25 D0 ?0; BlocK(code) jitted crashes both switches (jitExecBlock); seal 132; prior: SEQ 251 at the FOOT -- SEQ 341: J4b STOPPED by R0 (not defined; census finds no population); seal 131; prior: SEQ 250 at the FOOT -- SEQ 340: falseResultTruthy cured (583c06b) and retired (9dc0247); seal 130; prior: SEQ 249 at the FOOT -- SEQ 339: cure built on frt-cure, STOPPED: exprPinT O3b moved (on, nr -> 1, its intended); seal 129; prior: SEQ 248 at the FOOT -- SEQ 338: call rows agree; sentinel rows split by road (jitSeedField vs truthOf, falseResultTruthy); nested = folded; seal 128; prior: SEQ 247 at the FOOT -- SEQ 337: short-circuit measured (shortCircT 746ab48): on/jit exits early, candidate agrees; m1 off born red (KANT-43); seal 127; prior: SEQ 246 at the FOOT -- SEQ 336: J4a bought and merged 68ea8fb, five (L) rows re-pinned 3 (bfde51e); shutdown seal 126; prior: SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 255 at the FOOT -- SEQ 345: jitDivide certificate banked 7532cd7, cure NOT built (the jitted store keeps the target kind); seal 135; prior: SEQ 254 at the FOOT -- SEQ 344: jitExecBlock cured 320b0d3 (actionBlocK); seal 134; prior: SEQ 253 at the FOOT -- SEQ 343: the candidate folds left everywhere; jitted / truncates (CreateSDiv); seal 133; prior: SEQ 252 at the FOOT -- SEQ 342: switch-on census P27 I25 D0 ?0; BlocK(code) jitted crashes both switches (jitExecBlock); seal 132; prior: SEQ 251 at the FOOT -- SEQ 341: J4b STOPPED by R0 (not defined; census finds no population); seal 131; prior: SEQ 250 at the FOOT -- SEQ 340: falseResultTruthy cured (583c06b) and retired (9dc0247); seal 130; prior: SEQ 249 at the FOOT -- SEQ 339: cure built on frt-cure, STOPPED: exprPinT O3b moved (on, nr -> 1, its intended); seal 129; prior: SEQ 248 at the FOOT -- SEQ 338: call rows agree; sentinel rows split by road (jitSeedField vs truthOf, falseResultTruthy); nested = folded; seal 128; prior: SEQ 247 at the FOOT -- SEQ 337: short-circuit measured (shortCircT 746ab48): on/jit exits early, candidate agrees; m1 off born red (KANT-43); seal 127; prior: SEQ 246 at the FOOT -- SEQ 336: J4a bought and merged 68ea8fb, five (L) rows re-pinned 3 (bfde51e); shutdown seal 126; prior: SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12677,3 +12677,42 @@ Written 2026-10-12.
 - dirCheck flickered (F-141): three runs on one tree darkened parseString, then setRuleStuff (GroupItem.twk, untouched), then
   matched the capture; one run also logged a tok Bus error in the final bare-retok loop while its byte-identity check held.
   END SEQ 254
+
+===================================================================
+SEQ 255  -  SEQ 345 (Tony, Fearless): jitDivide STOPPED BEFORE THE CURE; SEAL 135
+===================================================================
+Written 2026-10-12.
+**R1's oracle is consistent:** interpreted `/` is always a NUMBER (opDiv, "always a DOUBLE, even when exact"): 10/2 -> 5, 7/2
+-> 3.5, 2/10 -> 0.2, all datA 9, both switches. So R1's stop does not trip.
+
+**Certificate rows banked (7532cd7), born red, both switches identical** -- 10 / 2, 7 / 2, 2 / 10 into qr (a count):
+
+| line | jit value / kind | interpreted value / kind (oracle) |
+|---|---|---|
+| 10 / 2 counts | 5 / count | 5 / NUMBER |
+| 10.0 / 2, 10 / 2.0 | **0** / count | 5 / NUMBER |
+| 7 / 2 counts | **3** / count | 3.5 / NUMBER |
+| 7.0 / 2, 7 / 2.0 | **0** / count | 3.5 / NUMBER |
+| 2 / 10 counts | **0** / count | 0.2 / NUMBER |
+| 2.0 / 10, 2 / 10.0 | **-1717986918** / count | 0.2 / NUMBER |
+| FP7 / FP8 (qa / qb - qc) | -3 on, 0 off | -2.8 on, 0.285714 off |
+
+**THE CENSUS (scratch, both switches identical, jitted refire vs interpreted, 7 and 2):**
+- `%` AGREES for every kind pair -- its jit emits a CALL to opRem, the interpreted function itself.
+- `+ - *` on count / count AGREE. With a NUMBER operand into a COUNT target the jit reads **0** where the interpreted road reads the
+  NUMBER (7.0 + 2 -> 0 vs 9). Into a NUMBER target the jit is right (9, 3.5) -- but a COUNT result into a NUMBER target reads
+  the integer's bits as a double (7 + 2 -> 4.4e-323) where the interpreted road re-kinds the target to a count 9.
+- compound: `/=` on a count target, jit 3 (SDiv) vs interpreted 4 (round half-up, opDivEQ); `-=` / `*=` with a NUMBER right,
+  jit 0 vs 5 / 14; `+=` with a NUMBER right agrees (9).
+- `%=` is NOT a registered operator; with the switch on, its jitted spelling crashes (139). Out of scope, noted.
+
+**WHY THE CURE IS NOT BUILT -- STOPPED BEFORE IT, FOR TONY.** The divergence is not `/` alone. **Jitted assignment keeps the
+TARGET's kind and stores the raw result into it; the interpreted road re-kinds the target to the RESULT's kind** (setContent).
+Replacing CreateSDiv with a promote-and-FDiv makes `/` yield a double -- and a double stored into a count target reads 0, as
+`7.0 / 2` does today. So a /-only cure leaves every count-target row red and moves FP7's jit cell from -3 to 0; R1's "same
+kind and same value" needs the jitted STORE to re-kind its target (a double -> gNumber + NUMBER, an integer -> gCount +
+COUNT), which touches every operator's assignment -- beyond SEQ 345's "don't fix anything beyond /".
+**The shape, for Tony to rule:** (1) `/` promotes and emits FDiv (jitEmitBinary, matching opDiv), AND jitted assignment re-kinds
+its target as setContent does (jitEmitAssign and the compound emitters) -- which also cures the `+ - *` NUMBER cells and `-=`/
+`*=`; `/=`'s round-half-up is a separate line. (2) `/` only, accepting count-target rows stay red. (3) hold.
+  END SEQ 255

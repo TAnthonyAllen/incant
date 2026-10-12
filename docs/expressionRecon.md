@@ -625,6 +625,42 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ jitDivide -- CERTIFICATE BANKED, CENSUS TAKEN, CURE NOT BUILT: THE STORE KEEPS THE TARGET'S KIND (SEQ 345, Clod, 2026-10-12)
+
+**R1's oracle is consistent:** interpreted `/` is always a NUMBER (opDiv, "always a DOUBLE, even when exact"): 10/2 -> 5, 7/2
+-> 3.5, 2/10 -> 0.2, all datA 9, both switches. So R1's stop does not trip.
+
+**Certificate rows banked (7532cd7), born red, both switches identical** -- 10 / 2, 7 / 2, 2 / 10 into qr (a count):
+
+| line | jit value / kind | interpreted value / kind (oracle) |
+|---|---|---|
+| 10 / 2 counts | 5 / count | 5 / NUMBER |
+| 10.0 / 2, 10 / 2.0 | **0** / count | 5 / NUMBER |
+| 7 / 2 counts | **3** / count | 3.5 / NUMBER |
+| 7.0 / 2, 7 / 2.0 | **0** / count | 3.5 / NUMBER |
+| 2 / 10 counts | **0** / count | 0.2 / NUMBER |
+| 2.0 / 10, 2 / 10.0 | **-1717986918** / count | 0.2 / NUMBER |
+| FP7 / FP8 (qa / qb - qc) | -3 on, 0 off | -2.8 on, 0.285714 off |
+
+**THE CENSUS (scratch, both switches identical, jitted refire vs interpreted, 7 and 2):**
+- `%` AGREES for every kind pair -- its jit emits a CALL to opRem, the interpreted function itself.
+- `+ - *` on count / count AGREE. With a NUMBER operand into a COUNT target the jit reads **0** where the interpreted road reads the
+  NUMBER (7.0 + 2 -> 0 vs 9). Into a NUMBER target the jit is right (9, 3.5) -- but a COUNT result into a NUMBER target reads
+  the integer's bits as a double (7 + 2 -> 4.4e-323) where the interpreted road re-kinds the target to a count 9.
+- compound: `/=` on a count target, jit 3 (SDiv) vs interpreted 4 (round half-up, opDivEQ); `-=` / `*=` with a NUMBER right,
+  jit 0 vs 5 / 14; `+=` with a NUMBER right agrees (9).
+- `%=` is NOT a registered operator; with the switch on, its jitted spelling crashes (139). Out of scope, noted.
+
+**WHY THE CURE IS NOT BUILT -- STOPPED BEFORE IT, FOR TONY.** The divergence is not `/` alone. **Jitted assignment keeps the
+TARGET's kind and stores the raw result into it; the interpreted road re-kinds the target to the RESULT's kind** (setContent).
+Replacing CreateSDiv with a promote-and-FDiv makes `/` yield a double -- and a double stored into a count target reads 0, as
+`7.0 / 2` does today. So a /-only cure leaves every count-target row red and moves FP7's jit cell from -3 to 0; R1's "same
+kind and same value" needs the jitted STORE to re-kind its target (a double -> gNumber + NUMBER, an integer -> gCount +
+COUNT), which touches every operator's assignment -- beyond SEQ 345's "don't fix anything beyond /".
+**The shape, for Tony to rule:** (1) `/` promotes and emits FDiv (jitEmitBinary, matching opDiv), AND jitted assignment re-kinds
+its target as setContent does (jitEmitAssign and the compound emitters) -- which also cures the `+ - *` NUMBER cells and `-=`/
+`*=`; `/=`'s round-half-up is a separate line. (2) `/` only, accepting count-target rows stay red. (3) hold.
+
 #### ⚠⚠ jitExecBlock CURED -- A BARE BlocK NO LONGER CRASHES THE JIT (SEQ 344, Clod, 2026-10-12)
 
 - Certificate (7065517): incant/pop/jit/jitBlockCallT (BlocK(code);), jitBlockNameT (nm := BlocK;, never called) -- born red at
