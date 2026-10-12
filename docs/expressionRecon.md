@@ -625,6 +625,69 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE CAST RULE -- CENSUS (SEQ 346, Clod, 2026-10-12; nothing built)
+
+**Where kind lives.** `GroupBody.flags.data`, five bits (GroupBody.h:17): 0 none, 3 SET, 5 COUNT, 6 GROUP, 9 NUMBER, 13 STRING,
+14 TOKEN. getDataType (GroupItem.twk:870) reads it through dataName (genParse.rtn:25). A field has NO kind when it was
+declared without a value (`x;`), is a fresh `new`, or was cleared (clearData, GroupItem.twk:362 -- opAssign's null arm).
+gCount, gNumber and gText are separate slots, not a union.
+
+**Store sites, both roads, when the kinds differ:**
+
+| site | what it does today |
+|---|---|
+| opAssign (Instruct.rtn:146) -> setContent (GroupItem.twk:1723) -> **copyData** (:395) | **RETYPES**: target takes the argument's data, gText and gNumber; the target's kind is lost |
+| `+=` members (opPlusEQisCOUNT / isNUMBER / isSTRING / isBUFFER / isSTAK) | an EMPTY target takes the argument (copyData); otherwise **keeps its kind** -- count computes in doubles and narrows half-up |
+| opMinusEQ, opMultiplyEQ, opDivEQ | **keep the target's kind**, count narrowed half-up (already R0/R5-shaped) |
+| setData | does not exist (parked, R4) |
+| jitEmitAssign (jitEmitters.rtn:718) | **raw CreateStore** of the value's SSA type into the slot typed by the TARGET's kind at seed time -- no cast, no re-kind. A double into a count's slot writes 8 bytes at &gCount (reads 0 / low word); an i32 into a NUMBER's writes 4 bytes into the double |
+| jitSeedField (:3539) | types the slot from the target's CURRENT kind: NUMBER -> double at &gNumber, anything else -> i32 at &gCount |
+| gJitFrameAssigned (:722, flush :893) | a frame local written by `=` is flushed through jitFlushNumberRT / jitFlushCountRT by the SLOT's type -- the only jit re-kind, and it is the target's kind |
+
+**Who relies on retyping today** -- tap in copyData (interpreted) and jitEmitAssign (jit), clone only, over pop.sh + jitLadder
+both switches (identical) and Tony's IncantForms/WorkingOn (checkSKIP docs drawing forms jitter macros parser tester -- all
+run, exit 0): **interpreted 149 + 52, jit 6.** Reverted md5-identical (GroupItem.twk, jitEmitters.rtn, both .mm); the tap's
+own line moved one row (baselineTestsNew BN-3, H3). No per-statement line exists (refuse's own note), so by fixture and field:
+
+| fixture | the store | kinds | today | projected R0-R3 |
+|---|---|---|---|---|
+| **every run that loads unitTests** (114 pop captures, 51 ladder, tester) | unitTests:87 `counter=0` resolves to the grammar's digit set (grammar:29); aCTionTraiT ruleActions.rtn:1063 `trait.setContent` | SET <- COUNT | SET retyped to count 0 (F-O40, attic counterCapture) | SET keeps its kind; a count has no SET cast -> **a refusal by name in every such run** (and the grammar keeps [0-9]) |
+| exprPinT A5 (off), FP7 / FP8 int, FD1-FD9 int | qr (count) = a NUMBER | COUNT <- NUMBER | 0.153846 / -2.8 / 0.285714 / 5, 3.5, 0.2, kind NUMBER | 0 / -3 / 0 / 5, 4, 0, kind COUNT |
+| exprPinT A2, A6 | qr (NUMBER) = a count | NUMBER <- COUNT | 17, 25 | 17, 25 -- value unchanged, kind stays NUMBER |
+| methodWriteT M1 / MB | `x.methoD = "testOP"` -- an ACCESSOR product (count) | COUNT <- STRING | binds testOP / refuses mwNoSuchMethod | 6 / 14 -- **breaks the method bind unless accessor writes are exempt** |
+| kant8T K6 | kOut = taG, later kOut = a count | COUNT <- STRING, STRING <- COUNT | k6big, 3 | 5, "3" |
+| cursorReadTb CR-B | define `taG="ENCLOSING"` resolves to GroupFields' taG (a count) | COUNT <- STRING | ENCLOSING | 9 -- **a capture of the counterCapture family** |
+| compileFloorT, jitSlotT4, dirT | cfN = 5; jsdOut = 12.0; markOffset = line | STRING <- COUNT, COUNT <- NUMBER, STRING <- TOKEN | 5, 12, the line | "5", 12, the line -- no visible move |
+| baselineTests, argRoundT | grup = 0; arOut = a string | GROUP <- ... | -- | out of scope (R4) |
+| exprPinT FD jit (the 6 jit events) | qr (count) <- a double | -- | 0 / garbage | 5, 4, 0 -- the jit casts as interpreted would |
+
+**Each kind's count and text today** (interpreted, both switches): STRING "12" kind 13, text 12, count (gCount, set by setText =
+strlen) 2. TOKEN from getLine kind 14, text "12\n", count 3 -- getLine's span includes the newline, so it IS the text length.
+NUMBER 3.5 kind 9, text 3.5, getCount 4 (half-up). count 3 kind 5, text 3. **Kant has no `.count` accessor** (texT and datA
+exist). **Both roads read a STRING's / TOKEN's count as its text length** -- getCount (GroupItem.twk:854) and jitSeedField's
+i32 load of gCount. **The site that reads something else: getNumber (GroupItem.twk:943) answers 0 for a STRING or TOKEN**, and
+it is what `argument.number` reads in opPlusEQisCOUNT / isNUMBER, opMinusEQ, opMultiplyEQ, opDivEQ and opPlus.
+
+**Mixed operands today** (into a data-less target, both switches identical):
+
+| | interpreted | jitted (the statement's value) | projected |
+|---|---|---|---|
+| 3 + "12" | REFUSED (+ cannot apply) | 5 | 5 |
+| 3.5 + "12" | REFUSED | 5 (5.5 into the i32 result) | 5.5 |
+| "12" + 3 | REFUSED (opPlus on a STRING left advances the text; 3 > length 2) | 5 | reported, not ruled |
+| "ab" + "cd" | REFUSED | 4 | reported, not ruled |
+| 3 + tok12 / 3.5 + tok12 / tok12 + 3 / tokab + tokcd | REFUSED | 6 / 6 / 6 / 6 (count 3 each) | 6 / 6.5 / reported / reported |
+
+The jitted target stays kind 0 -- the store wrote its count slot and stamped no kind, so the field reads as having no value.
+
+**R1 -- today's interpreted /= on a count target rounds HALF UP (toward +infinity):** -7 /= 2 -> **-3**, 7 /= 2 -> 4, -5 /= 2
+-> -2 (opDivEQ: floor(x + 0.5), getCount's arithmetic). Both switches.
+
+**The %= crash, pinned (883faeb, incant/pop/modEqT + jit/modEqJitT):** `%=` is not a registered operator. Switch off both roads
+read 7. **Switch on, BOTH roads (not only jitted) exit 139:** the candidate reads `x %= y` as `x % (= y)`; runOPaccum's acU arm
+(GroupActions.rtn:1165-1172, `op.gMethod(val)`) calls **opAssign as a unary, with one argument**, so its target is a garbage
+register and it faults in opAssign (GroupRules.mm:7664). Intended under R5: 1. Not fixed.
+
 #### ⚠⚠ jitDivide -- CERTIFICATE BANKED, CENSUS TAKEN, CURE NOT BUILT: THE STORE KEEPS THE TARGET'S KIND (SEQ 345, Clod, 2026-10-12)
 
 **R1's oracle is consistent:** interpreted `/` is always a NUMBER (opDiv, "always a DOUBLE, even when exact"): 10/2 -> 5, 7/2

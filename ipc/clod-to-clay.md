@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      125
-STATUS:   fresh           # SEQ 255 at the FOOT -- SEQ 345: jitDivide certificate banked 7532cd7, cure NOT built (the jitted store keeps the target kind); seal 135; prior: SEQ 254 at the FOOT -- SEQ 344: jitExecBlock cured 320b0d3 (actionBlocK); seal 134; prior: SEQ 253 at the FOOT -- SEQ 343: the candidate folds left everywhere; jitted / truncates (CreateSDiv); seal 133; prior: SEQ 252 at the FOOT -- SEQ 342: switch-on census P27 I25 D0 ?0; BlocK(code) jitted crashes both switches (jitExecBlock); seal 132; prior: SEQ 251 at the FOOT -- SEQ 341: J4b STOPPED by R0 (not defined; census finds no population); seal 131; prior: SEQ 250 at the FOOT -- SEQ 340: falseResultTruthy cured (583c06b) and retired (9dc0247); seal 130; prior: SEQ 249 at the FOOT -- SEQ 339: cure built on frt-cure, STOPPED: exprPinT O3b moved (on, nr -> 1, its intended); seal 129; prior: SEQ 248 at the FOOT -- SEQ 338: call rows agree; sentinel rows split by road (jitSeedField vs truthOf, falseResultTruthy); nested = folded; seal 128; prior: SEQ 247 at the FOOT -- SEQ 337: short-circuit measured (shortCircT 746ab48): on/jit exits early, candidate agrees; m1 off born red (KANT-43); seal 127; prior: SEQ 246 at the FOOT -- SEQ 336: J4a bought and merged 68ea8fb, five (L) rows re-pinned 3 (bfde51e); shutdown seal 126; prior: SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 256 at the FOOT -- SEQ 346: cast-rule census; three movers need a ruling (counter SET, accessor writes, taG capture); %= pinned 883faeb; seal 136; prior: SEQ 255 at the FOOT -- SEQ 345: jitDivide certificate banked 7532cd7, cure NOT built (the jitted store keeps the target kind); seal 135; prior: SEQ 254 at the FOOT -- SEQ 344: jitExecBlock cured 320b0d3 (actionBlocK); seal 134; prior: SEQ 253 at the FOOT -- SEQ 343: the candidate folds left everywhere; jitted / truncates (CreateSDiv); seal 133; prior: SEQ 252 at the FOOT -- SEQ 342: switch-on census P27 I25 D0 ?0; BlocK(code) jitted crashes both switches (jitExecBlock); seal 132; prior: SEQ 251 at the FOOT -- SEQ 341: J4b STOPPED by R0 (not defined; census finds no population); seal 131; prior: SEQ 250 at the FOOT -- SEQ 340: falseResultTruthy cured (583c06b) and retired (9dc0247); seal 130; prior: SEQ 249 at the FOOT -- SEQ 339: cure built on frt-cure, STOPPED: exprPinT O3b moved (on, nr -> 1, its intended); seal 129; prior: SEQ 248 at the FOOT -- SEQ 338: call rows agree; sentinel rows split by road (jitSeedField vs truthOf, falseResultTruthy); nested = folded; seal 128; prior: SEQ 247 at the FOOT -- SEQ 337: short-circuit measured (shortCircT 746ab48): on/jit exits early, candidate agrees; m1 off born red (KANT-43); seal 127; prior: SEQ 246 at the FOOT -- SEQ 336: J4a bought and merged 68ea8fb, five (L) rows re-pinned 3 (bfde51e); shutdown seal 126; prior: SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12716,3 +12716,69 @@ COUNT), which touches every operator's assignment -- beyond SEQ 345's "don't fix
 its target as setContent does (jitEmitAssign and the compound emitters) -- which also cures the `+ - *` NUMBER cells and `-=`/
 `*=`; `/=`'s round-half-up is a separate line. (2) `/` only, accepting count-target rows stay red. (3) hold.
   END SEQ 255
+
+===================================================================
+SEQ 256  -  SEQ 346 (Tony, Fearless): THE CAST RULE CENSUS; SEAL 136
+===================================================================
+Written 2026-10-12. Nothing built but the %= pin.
+**Where kind lives.** `GroupBody.flags.data`, five bits (GroupBody.h:17): 0 none, 3 SET, 5 COUNT, 6 GROUP, 9 NUMBER, 13 STRING,
+14 TOKEN. getDataType (GroupItem.twk:870) reads it through dataName (genParse.rtn:25). A field has NO kind when it was
+declared without a value (`x;`), is a fresh `new`, or was cleared (clearData, GroupItem.twk:362 -- opAssign's null arm).
+gCount, gNumber and gText are separate slots, not a union.
+
+**Store sites, both roads, when the kinds differ:**
+
+| site | what it does today |
+|---|---|
+| opAssign (Instruct.rtn:146) -> setContent (GroupItem.twk:1723) -> **copyData** (:395) | **RETYPES**: target takes the argument's data, gText and gNumber; the target's kind is lost |
+| `+=` members (opPlusEQisCOUNT / isNUMBER / isSTRING / isBUFFER / isSTAK) | an EMPTY target takes the argument (copyData); otherwise **keeps its kind** -- count computes in doubles and narrows half-up |
+| opMinusEQ, opMultiplyEQ, opDivEQ | **keep the target's kind**, count narrowed half-up (already R0/R5-shaped) |
+| setData | does not exist (parked, R4) |
+| jitEmitAssign (jitEmitters.rtn:718) | **raw CreateStore** of the value's SSA type into the slot typed by the TARGET's kind at seed time -- no cast, no re-kind. A double into a count's slot writes 8 bytes at &gCount (reads 0 / low word); an i32 into a NUMBER's writes 4 bytes into the double |
+| jitSeedField (:3539) | types the slot from the target's CURRENT kind: NUMBER -> double at &gNumber, anything else -> i32 at &gCount |
+| gJitFrameAssigned (:722, flush :893) | a frame local written by `=` is flushed through jitFlushNumberRT / jitFlushCountRT by the SLOT's type -- the only jit re-kind, and it is the target's kind |
+
+**Who relies on retyping today** -- tap in copyData (interpreted) and jitEmitAssign (jit), clone only, over pop.sh + jitLadder
+both switches (identical) and Tony's IncantForms/WorkingOn (checkSKIP docs drawing forms jitter macros parser tester -- all
+run, exit 0): **interpreted 149 + 52, jit 6.** Reverted md5-identical (GroupItem.twk, jitEmitters.rtn, both .mm); the tap's
+own line moved one row (baselineTestsNew BN-3, H3). No per-statement line exists (refuse's own note), so by fixture and field:
+
+| fixture | the store | kinds | today | projected R0-R3 |
+|---|---|---|---|---|
+| **every run that loads unitTests** (114 pop captures, 51 ladder, tester) | unitTests:87 `counter=0` resolves to the grammar's digit set (grammar:29); aCTionTraiT ruleActions.rtn:1063 `trait.setContent` | SET <- COUNT | SET retyped to count 0 (F-O40, attic counterCapture) | SET keeps its kind; a count has no SET cast -> **a refusal by name in every such run** (and the grammar keeps [0-9]) |
+| exprPinT A5 (off), FP7 / FP8 int, FD1-FD9 int | qr (count) = a NUMBER | COUNT <- NUMBER | 0.153846 / -2.8 / 0.285714 / 5, 3.5, 0.2, kind NUMBER | 0 / -3 / 0 / 5, 4, 0, kind COUNT |
+| exprPinT A2, A6 | qr (NUMBER) = a count | NUMBER <- COUNT | 17, 25 | 17, 25 -- value unchanged, kind stays NUMBER |
+| methodWriteT M1 / MB | `x.methoD = "testOP"` -- an ACCESSOR product (count) | COUNT <- STRING | binds testOP / refuses mwNoSuchMethod | 6 / 14 -- **breaks the method bind unless accessor writes are exempt** |
+| kant8T K6 | kOut = taG, later kOut = a count | COUNT <- STRING, STRING <- COUNT | k6big, 3 | 5, "3" |
+| cursorReadTb CR-B | define `taG="ENCLOSING"` resolves to GroupFields' taG (a count) | COUNT <- STRING | ENCLOSING | 9 -- **a capture of the counterCapture family** |
+| compileFloorT, jitSlotT4, dirT | cfN = 5; jsdOut = 12.0; markOffset = line | STRING <- COUNT, COUNT <- NUMBER, STRING <- TOKEN | 5, 12, the line | "5", 12, the line -- no visible move |
+| baselineTests, argRoundT | grup = 0; arOut = a string | GROUP <- ... | -- | out of scope (R4) |
+| exprPinT FD jit (the 6 jit events) | qr (count) <- a double | -- | 0 / garbage | 5, 4, 0 -- the jit casts as interpreted would |
+
+**Each kind's count and text today** (interpreted, both switches): STRING "12" kind 13, text 12, count (gCount, set by setText =
+strlen) 2. TOKEN from getLine kind 14, text "12\n", count 3 -- getLine's span includes the newline, so it IS the text length.
+NUMBER 3.5 kind 9, text 3.5, getCount 4 (half-up). count 3 kind 5, text 3. **Kant has no `.count` accessor** (texT and datA
+exist). **Both roads read a STRING's / TOKEN's count as its text length** -- getCount (GroupItem.twk:854) and jitSeedField's
+i32 load of gCount. **The site that reads something else: getNumber (GroupItem.twk:943) answers 0 for a STRING or TOKEN**, and
+it is what `argument.number` reads in opPlusEQisCOUNT / isNUMBER, opMinusEQ, opMultiplyEQ, opDivEQ and opPlus.
+
+**Mixed operands today** (into a data-less target, both switches identical):
+
+| | interpreted | jitted (the statement's value) | projected |
+|---|---|---|---|
+| 3 + "12" | REFUSED (+ cannot apply) | 5 | 5 |
+| 3.5 + "12" | REFUSED | 5 (5.5 into the i32 result) | 5.5 |
+| "12" + 3 | REFUSED (opPlus on a STRING left advances the text; 3 > length 2) | 5 | reported, not ruled |
+| "ab" + "cd" | REFUSED | 4 | reported, not ruled |
+| 3 + tok12 / 3.5 + tok12 / tok12 + 3 / tokab + tokcd | REFUSED | 6 / 6 / 6 / 6 (count 3 each) | 6 / 6.5 / reported / reported |
+
+The jitted target stays kind 0 -- the store wrote its count slot and stamped no kind, so the field reads as having no value.
+
+**R1 -- today's interpreted /= on a count target rounds HALF UP (toward +infinity):** -7 /= 2 -> **-3**, 7 /= 2 -> 4, -5 /= 2
+-> -2 (opDivEQ: floor(x + 0.5), getCount's arithmetic). Both switches.
+
+**The %= crash, pinned (883faeb, incant/pop/modEqT + jit/modEqJitT):** `%=` is not a registered operator. Switch off both roads
+read 7. **Switch on, BOTH roads (not only jitted) exit 139:** the candidate reads `x %= y` as `x % (= y)`; runOPaccum's acU arm
+(GroupActions.rtn:1165-1172, `op.gMethod(val)`) calls **opAssign as a unary, with one argument**, so its target is a garbage
+register and it faults in opAssign (GroupRules.mm:7664). Intended under R5: 1. Not fixed.
+  END SEQ 256
