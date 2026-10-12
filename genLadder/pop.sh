@@ -6093,6 +6093,14 @@ kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep 
 kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "0"         # intended 1 (through the right half only)
 kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "0"         # intended 1
 kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"         # intended 1
+#  fdRow SEQ 345: a row pinned at TODAY's value with the INTENDED value beside it (R1: the interpreted road is the oracle). Green
+#  when they agree; BORN RED while it still reads its today-pin; MOVED for anything else.
+fdRow () {
+    if [ "$2" = "$4" ]; then echo "  ok    $1 = [$2]"; green=$((green+1))
+    elif [ "$2" = "$3" ]; then echo "  FAIL  $1 born red (SEQ 345): today [$2], intended [$4]"; fail=1
+    else echo "  FAIL  $1 MOVED: reads [$2], pinned today [$3], intended [$4]"; fail=1; fi
+}
+_epk () { awk -v k="$1" '$1=="EPK" && $2==k {print $3; exit}' "$T/ept.e"; }
 #  FP1-FP8 SEQ 343 (Tony, 2026-10-12, R0 restating 2026-10-06): ARITHMETIC IS A STRICT LEFT FOLD, NO PRECEDENCE --
 #  a + b * c is (a+b)*c = 36, never a+(b*c) = 32; a * b + c and a / b - c are the controls, where fold and precedence agree.
 #  Each line jitted (j: a jitRefire after qr = 0; f, the testing() fire, is printed beside it) and interpreted (last, bear-
@@ -6111,10 +6119,50 @@ kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "$([ "$
 kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 23)"  # intended 23
 kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
 kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
-kindRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended -2.8
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended: the interpreted value (SEQ 345 R1)
 kindRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended -2.8
-kindRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended -2.8
+fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended: the interpreted value (SEQ 345 R1)
 kindRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended -2.8
+#  FD1-FD9 SEQ 345 (fixit jitDivide): / on counts, a NUMBER left, a NUMBER right -- value and KIND (datA: 5 count, 9 NUMBER),
+#  jitted (refire) and interpreted, into qr (a count). The interpreted road is the oracle: / is always a NUMBER (opDiv).
+#  Both switches read the same. The jit keeps the TARGET's kind (count) and stores an integer divide, or drops / garbles a
+#  double -- jitEmitBinary's CreateSDiv AND jitted assignment's target-kind store (seal 135).
+fdRow "exprPinT FD1 10 / 2, counts, jit value" "$(_ep FD1j)" "5" "5"
+fdRow "exprPinT FD1 10 / 2, counts, jit kind" "$(_epk FD1j)" "5" "9"
+fdRow "exprPinT FD1 10 / 2, counts, int value" "$(_ep FD1)" "5" "5"
+fdRow "exprPinT FD1 10 / 2, counts, int kind" "$(_epk FD1)" "9" "9"
+fdRow "exprPinT FD2 10.0 / 2, NUMBER left, jit value" "$(_ep FD2j)" "0" "5"
+fdRow "exprPinT FD2 10.0 / 2, NUMBER left, jit kind" "$(_epk FD2j)" "5" "9"
+fdRow "exprPinT FD2 10.0 / 2, NUMBER left, int value" "$(_ep FD2)" "5" "5"
+fdRow "exprPinT FD2 10.0 / 2, NUMBER left, int kind" "$(_epk FD2)" "9" "9"
+fdRow "exprPinT FD3 10 / 2.0, NUMBER right, jit value" "$(_ep FD3j)" "0" "5"
+fdRow "exprPinT FD3 10 / 2.0, NUMBER right, jit kind" "$(_epk FD3j)" "5" "9"
+fdRow "exprPinT FD3 10 / 2.0, NUMBER right, int value" "$(_ep FD3)" "5" "5"
+fdRow "exprPinT FD3 10 / 2.0, NUMBER right, int kind" "$(_epk FD3)" "9" "9"
+fdRow "exprPinT FD4 7 / 2, counts, jit value" "$(_ep FD4j)" "3" "3.5"
+fdRow "exprPinT FD4 7 / 2, counts, jit kind" "$(_epk FD4j)" "5" "9"
+fdRow "exprPinT FD4 7 / 2, counts, int value" "$(_ep FD4)" "3.5" "3.5"
+fdRow "exprPinT FD4 7 / 2, counts, int kind" "$(_epk FD4)" "9" "9"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, jit value" "$(_ep FD5j)" "0" "3.5"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, jit kind" "$(_epk FD5j)" "5" "9"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, int value" "$(_ep FD5)" "3.5" "3.5"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, int kind" "$(_epk FD5)" "9" "9"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, jit value" "$(_ep FD6j)" "0" "3.5"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, jit kind" "$(_epk FD6j)" "5" "9"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, int value" "$(_ep FD6)" "3.5" "3.5"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, int kind" "$(_epk FD6)" "9" "9"
+fdRow "exprPinT FD7 2 / 10, counts, jit value" "$(_ep FD7j)" "0" "0.2"
+fdRow "exprPinT FD7 2 / 10, counts, jit kind" "$(_epk FD7j)" "5" "9"
+fdRow "exprPinT FD7 2 / 10, counts, int value" "$(_ep FD7)" "0.2" "0.2"
+fdRow "exprPinT FD7 2 / 10, counts, int kind" "$(_epk FD7)" "9" "9"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, jit value" "$(_ep FD8j)" "-1717986918" "0.2"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, jit kind" "$(_epk FD8j)" "5" "9"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, int value" "$(_ep FD8)" "0.2" "0.2"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, int kind" "$(_epk FD8)" "9" "9"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, jit value" "$(_ep FD9j)" "-1717986918" "0.2"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, jit kind" "$(_epk FD9j)" "5" "9"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int value" "$(_ep FD9)" "0.2" "0.2"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int kind" "$(_epk FD9)" "9" "9"
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
 kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0

@@ -12435,3 +12435,29 @@ H7: revert the cure alone. The certificate rows go red (exit 139). Restore md5-i
 Stop condition: if any row outside the certificate moves, on either switch, stop and report before committing.
 Kitchen pass, seal, stop.
   END SEQ 344
+
+===================================================================
+SEQ 345  -  FIXIT jitDivide (OWNER CLOD): JITTED / TRUNCATES. ON TRUNK. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0: The mechanism is as seal 133 reported. When both operands are counts, jitEmitBinary (jitEmitters.rtn:1088) emits an
+    integer divide, CreateSDiv. The interpreted road promotes the result.
+R1: The intended behaviour is that jitted / gives the same kind and the same value as the interpreted road, for every
+    operand-kind pair. The interpreted road is the oracle. If it is itself inconsistent (for example, 10/2 gives a NUMBER
+    but 7/2 gives a count), stop and report before building.
+
+THE STROKE
+Certificate rows, jitted and interpreted, on both switches: exprPinT FP7 and FP8 (the / cells, today -3 and 0). New:
+10 / 2, 7 / 2, 2 / 10, with counts on both sides, a NUMBER on the left, and a NUMBER on the right. Each reads back its value
+and its kind (getDataType). Pin today's value with the intended value beside it. The jit cells that differ are born red.
+Census before the cure: does % or any other count-and-count operator in jitEmitBinary diverge from the interpreted road in
+the same way? Report what you find. Don't fix anything beyond /.
+The cure, on trunk. Commit the fix before its H7.
+H7: revert the cure alone. The jit / cells go red by value. Restore md5-identical.
+Stop condition: if any row outside the certificate moves, on either switch, stop and report before committing.
+Kitchen pass, seal, stop.
+After this one, only the flip is left in the campaign.
+  END SEQ 345
