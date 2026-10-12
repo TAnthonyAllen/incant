@@ -12387,3 +12387,28 @@ The acceptance lines from SEQ 309: result = *block(code); and BlocK(code). Run b
 what each does. Report BC2, BC4 and exprPinT O1 alongside them.
 Report: counts by class at the top, then the table by fixture, then the acceptance lines. Seal, then stop.
   END SEQ 342
+
+===================================================================
+SEQ 343  -  FOLD OR PRECEDENCE, ONE ROW SET. MEASURE AND PIN ONLY. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0 (Tony, 2026-10-12, restating 2026-10-06): Arithmetic is a strict left fold, with no precedence. a + b * c is (a+b)c, and
+    a * b + c is (ab)+c.
+R1: SEQ 342's report described A2/A5/A6/A7/C3 as "* and / bind before + and -". That describes precedence. The re-pin
+    sentences for those rows will say "the strict left fold", and this stroke checks that the candidate does exactly that.
+
+THE STROKE
+Add these exprPinT lines, on all four columns (switch off or on, interpreted or jitted), pinned at today's value with the
+intended value beside each:
+  a + b * c and a - b * c, both with names and with literals -- the lines that separate a fold from precedence.
+  a * b + c and a / b - c, both with names and with literals -- controls, where a fold and precedence agree.
+Use values that make every reading distinct (e.g. a=2, b=10, c=3: (a+b)c = 36, a+(bc) = 32, a*(b+c) = 26).
+Report a table at the top: expression, the four columns, and the intended value.
+If the candidate gives a+(b*c) anywhere, that's a (D). Name the site, don't fix it, and stop.
+Switch-off cells that differ from the intended value are (I), the old road's fold.
+Kitchen pass, seal, stop.
+If the candidate folds left everywhere, step 2 is the jitExecBlock crash, and then the flip.
+  END SEQ 343

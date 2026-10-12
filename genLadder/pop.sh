@@ -6093,6 +6093,28 @@ kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep 
 kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "0"         # intended 1 (through the right half only)
 kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "0"         # intended 1
 kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"         # intended 1
+#  FP1-FP8 SEQ 343 (Tony, 2026-10-12, R0 restating 2026-10-06): ARITHMETIC IS A STRICT LEFT FOLD, NO PRECEDENCE --
+#  a + b * c is (a+b)*c = 36, never a+(b*c) = 32; a * b + c and a / b - c are the controls, where fold and precedence agree.
+#  Each line jitted (j: a jitRefire after qr = 0; f, the testing() fire, is printed beside it) and interpreted (last, bear-
+#  trap 25). Pinned at TODAY's value per switch; the intended value is the comment. Switch off reads the old road's
+#  right-to-left fold (I). FP7 / FP8 jitted read -3 on switch on: jitEmitBinary (jitEmitters.rtn:1088) divides two counts
+#  with CreateSDiv, an integer divide, where the interpreted road promotes to 0.2 -- the jit's numeric type, not the fold.
+kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, jit" "$(_ep FP1j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, int" "$(_ep FP1)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP2 2 + 10 * 3, jit" "$(_ep FP2j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP2 2 + 10 * 3, int" "$(_ep FP2)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, jit" "$(_ep FP3j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -24)"  # intended -24
+kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, int" "$(_ep FP3)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -24)"  # intended -24
+kindRow "exprPinT FP4 2 - 10 * 3, jit" "$(_ep FP4j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -28)"  # intended -24
+kindRow "exprPinT FP4 2 - 10 * 3, int" "$(_ep FP4)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -28)"  # intended -24
+kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 23)"  # intended 23
+kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 23)"  # intended 23
+kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
+kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
+kindRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended -2.8
+kindRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended -2.8
+kindRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended -2.8
+kindRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended -2.8
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
 kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0
