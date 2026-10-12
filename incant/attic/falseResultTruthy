@@ -44,3 +44,24 @@ spelling a sentinel gets a copy) but says that copy answers truthOf 0; this one 
 
 NEXT: OPEN -- what generates a candidate: what node `falseResult` resolves to in kant (registry, data flag, isCOUNT), read
 beside the C++ falseResult it is meant to be. Taken: all three FRT lines read 0, and exprPinT's S3 and O3b move.
+
+RETIRED 2026-10-12 (SEQ 340, Tony) -- CURED, by mapping to its rows.
+
+ATTEMPT LOG
+- 2026-10-06 filed (SEQ 312 R3): `if frFalse()`, `fFalse() && g()` and bare `if falseResult;` truthy on both roads; the
+  zero-returning control false. -> exprPinT S3 / O3b pinned at the wrong value.
+- 2026-10-12 SEQ 338: the jit twin -- shortCircT k3 / k4 split by road: jitSeedField reads the name as 0, truthOf as 1.
+- 2026-10-12 SEQ 339 recon: the kant name mints a data-less action local (isLocal 1, no registry); the C++ sentinels are
+  registered as `true` / `false` only (GroupControl.twk:150-157). Certificate rows shortCircT s1-s4 pinned (16c2061).
+- 2026-10-12 SEQ 339 cure on frt-cure (25b9ad7): register trueResult (count 1) / falseResult (isCOUNT 0), noPrint, in
+  setBaseRegistries -> every certificate row red -> green both switches; STOPPED on exprPinT O3b (switch on, nr -> 1).
+- 2026-10-12 SEQ 340: O3b joins the certificate; re-pinned (cc rows, S3, O3b); merged 583c06b. H7 -- the six registration
+  lines removed -> 12 shortCircT rows + S3 x2 red by value both switches, O3b red switch on; restored md5-identical.
+- Certified by pop.sh: `shortCircT s1 I int [if falseResult;, bare sentinel]` -- ok, both switches.
+
+MAPPING (each assertion this file made, and its row now)
+- FRT line 1 `if frFalse()` -> shortCircT k3 I int (and k3 A / N / B int; k3 jit for the jit road)
+- FRT line 2 `if frZeroCall()`, the control -> shortCircT k1 (all seats, both roads)
+- FRT line 3 `if falseResult;` -> shortCircT s1 I int / jit
+- `fFalse() && g()` -> exprPinT S3 (g ran 0, value 0)
+- the jit twin -> shortCircT k4 jit, s2 jit, s4 jit; trueResult read back -> s4 int; falseResult read back -> s3
