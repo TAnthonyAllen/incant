@@ -625,6 +625,34 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE CAST RULE BUILT ON expr-cast (87cd6b5), NOT MERGED -- STOPPED ON ONE UNREGISTERED MOVER (SEQ 347, Clod, 2026-10-12)
+
+**Certificate on trunk, born red:** 36d4f84 (opMixT 32 rows; exprPinT A5, FP7 / FP8, FD1-FD9 re-stated under R0 / R2; kant8T
+K6c; modEqT / modEqJitT), b92c66f (fdRow moved beside check / sentinel -- 36d4f84's K6c and A5 rows had called it above its
+definition, printed "command not found" and ceased to exist; K6c's old green pin went with them), d8496e8 (unaryNoTargetT:
+`x &= y` reaches runOPaccum's unary arm once %= is an operator -- the refusal's own row). Controls named: methodWriteT (11),
+cursorReadTb, the counter rows, opPrefix -= /= *=, every run loading unitTests.
+
+**expr-cast (clone; pushed live and GitHub, NOT merged) -- one commit per piece, each H7 red by value, restored md5-identical:**
+
+| piece | commit | moved (both switches, against the previous piece) | H7 |
+|---|---|---|---|
+| (a) castStore in opAssign | edd8fe3 | 19 rows red -> green: K6c 5, A5 0 / 3, FP7 / FP8 int, FD int value and kind | cast call out: the 19 red |
+| (b) jit / yields a NUMBER; jitEmitAssign casts and re-kinds | 3f2388c | FD jit values, opMixT L1 / L2 jit red -> green | raw store back: 27 red; SDiv back alone: FD4 jit red (FP7 / FD7 round alike -- masked, H17) |
+| (c) mixed operands: getNumber reads a STRING / TOKEN's count, the numeric operators take one on the right, a STRING / TOKEN left concatenates (both roads; jitEmitConcat calls opPlus at run time) | 6aa30d8 | opMixT 24 rows red -> green | concat arm out: 16 red; jit route out: 8 red; getNumber out: L2 / L6 int red |
+| (d) '%=' -> opRemEQ; the unary arm refuses an operator with no target | 87cd6b5 | modEqT / modEqJitT, unaryNoTargetT green | %= out: modEq value red and OE-R back to 53; refusal out: unaryNoTargetT 139 (switch on only -- off refuses `&` by name already, H17) |
+
+Two corrections inside the build, each measured: (a)'s first cut refused a HOLDER into a STRING target (assignRoadT AR-I)
+-- a GROUP argument now keeps setContent (SEQ 346 R4's scope); (c)'s jit concatenation first missed the '+' slot (jitEmitAdd)
+-- routed there too. Canary 348 -> 354.
+
+**THE RE-DIFF, branch against trunk:** off 1215 -> 1266, on 1197 -> 1252; registered rows red -> green 52 off / 56 on; jitLadder
+PASSED 219 both; no control moved. **STOPPED -- one unregistered mover: opEntryT OE-R, the Operators registry's length, 53 ->
+54. Mechanism: R4 registers one more operator, '%='** -- (d)'s H7 confirms it (registration out -> 53). Its re-pin needs a
+ruling. **Also still red, registered: opMixT L5 / L6 (8 rows) read 6 / 6.5, not 5 / 5.5 -- a getLine TOKEN spans its
+terminator (getMarkLineAt's `mark++`), so "12" counts 3.** The intended values assumed a TOKEN of length 2; Tony rules
+whether the TOKEN or the row changes. Kitchen pass NOT run (the stop).
+
 #### ⚠⚠ THE CAST RULE -- CENSUS (SEQ 346, Clod, 2026-10-12; nothing built)
 
 **Where kind lives.** `GroupBody.flags.data`, five bits (GroupBody.h:17): 0 none, 3 SET, 5 COUNT, 6 GROUP, 9 NUMBER, 13 STRING,
