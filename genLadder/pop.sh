@@ -6043,15 +6043,19 @@ kindRow "exprPinT U302b across > 0 || down > 0, 5 0"       "$(_ep U302b)" "1"   
 kindRow "exprPinT U302c across > 0 || down > 0, 0 0"       "$(_ep U302c)" "0"         # intended 0
 kindRow "exprPinT S1 a && b || c, 0 1 1"                   "$(_ep S1)"    "0"         # intended 1
 kindRow "exprPinT S2 a || b && c, 0 1 0"                   "$(_ep S2)"    "0"         # intended 0
-kindRow "exprPinT S3 fFalse() && gSay(): g ran, lines"     "$(grep -c '^EP S3-G g RAN' "$T/ept.e")" "1"  # intended 0
-kindRow "exprPinT S3 value"                                "$(_ep S3)"    "1"         # intended false
+#  RE-PINNED to intended (SEQ 340, falseResultTruthy cured): kant names trueResult / falseResult now resolve to registered
+#  nodes valued as the sentinels (GroupControl.twk setBaseRegistries) -- both roads read falseResult false, trueResult true.
+kindRow "exprPinT S3 fFalse() && gSay(): g ran, lines"     "$(grep -c '^EP S3-G g RAN' "$T/ept.e")" "0"  # intended 0
+kindRow "exprPinT S3 value"                                "$(_ep S3)"    "0"         # intended false
 kindRow "exprPinT N1 fId(qa + qb) * qc"                    "$(_ep N1)"    "36"        # intended 36
 kindRow "exprPinT N2 qa + fNest(qb) + qc"                  "$(_ep N2)"    "37"        # intended 37
 kindRow "exprPinT O1 *block(src) -- pz"                    "$(awk '$1=="EP" && $2=="O1" {print $4; exit}' "$T/ept.e")" "0"   # intended 7 [on: 7 since expr-h, (h)] -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips.
 kindRow "exprPinT O1 *block(src) -- r3"                    "$(awk '$1=="EP" && $2=="O1" {print $6; exit}' "$T/ept.e")" "r3"  # intended the BlocK's result [on: 7 since expr-h, (h); switch off the star-call loses the call] -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips.
 kindRow "exprPinT O2 -qa + qb"                             "$(_ep O2)"    "8"         # intended 8
 kindRow "exprPinT O3 !fTrue(qa)"                           "$(_ep O3)"    "nr"        # intended false (null), fTrue runs
-kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "nr"        # intended true
+#  O3b RE-PINNED switch on (SEQ 340 R1, falseResultTruthy cured): !fFalse(qa) reads 1. Switch off keeps nr -- the old
+#  road's ! is a separate behaviour.
+kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 1 || echo nr)"  # intended true
 kindRow "exprPinT O3 the called action runs, lines"        "$(grep -c '^EP f\(True\|False\) RAN' "$T/ept.e")" "1"  # intended 3 (fFalse from S3 + both O3s)
 kindRow "exprPinT O4 *ph.pMid + 1, pMid 41"                "$(_ep O4)"    "42"        # intended 42
 kindRow "exprPinT H1 hz += qa * qb, hz 1"                  "$(_ep H1)"    "21"        # intended 21
@@ -6162,7 +6166,7 @@ kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "rc" 
 #  k1-k4 put a CALL on the left (SEQ 338). k1 / k2 return 0 / 1 and agree everywhere: the call is not the difference.
 #  k3 / k4 return falseResult / trueResult and the ROADS DISAGREE, both switches -- the node kant's sentinel names resolve
 #  to carries no count (fixit falseResultTruthy): the jit's jitSeedField loads its gCount (0, both read false), the
-#  interpreted truthOf answers 1 for a non-count (both read true). k3 int and k4 jit are born red.
+#  interpreted truthOf answers 1 for a non-count (both read true). k3 int and k4 jit were born red; cured SEQ 340.
 #  n1 / n2 are the WITNESS CONTROL: X runs once, so a 0 there means the counter is broken and no other row means anything.
 #  scRow pins TODAY'S value and the INTENDED value (R2): green when they agree; a row whose today differs from intended is
 #  BORN RED and stays red until a stroke cures it; any other value is MOVED. m1 is the strict left fold, (a || b) && c:
@@ -6239,29 +6243,33 @@ scRow "k2 I jit" "fT() || X, fT returns 1, folded if a && b;" "x 0 y 0 a 1 b 0 c
 scRow "k2 I int" "fT() || X, fT returns 1, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k2 B jit" "fT() || X, fT returns 1, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k2 B int" "fT() || X, fT returns 1, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
+#  RE-PINNED to intended (SEQ 340, falseResultTruthy cured): kant names trueResult / falseResult now resolve to registered
+#  nodes valued as the sentinels (GroupControl.twk setBaseRegistries) -- both roads read falseResult false, trueResult true.
 scRow "k3 A jit" "fF() && X, fF returns falseResult, as =" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
-scRow "k3 A int" "fF() && X, fF returns falseResult, as =" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 0"
+scRow "k3 A int" "fF() && X, fF returns falseResult, as =" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
 scRow "k3 I jit" "fF() && X, fF returns falseResult, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
-scRow "k3 I int" "fF() && X, fF returns falseResult, folded if a && b;" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 0"
+scRow "k3 I int" "fF() && X, fF returns falseResult, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
 scRow "k3 N jit" "fF() && X, fF returns falseResult, nested if a; if b;" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
-scRow "k3 N int" "fF() && X, fF returns falseResult, nested if a; if b;" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 0"
+scRow "k3 N int" "fF() && X, fF returns falseResult, nested if a; if b;" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
 scRow "k3 B jit" "fF() && X, fF returns falseResult, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
-scRow "k3 B int" "fF() && X, fF returns falseResult, if, two-statement body" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 0"
-scRow "k4 A jit" "fT() || X, fT returns trueResult, as =" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
+scRow "k3 B int" "fF() && X, fF returns falseResult, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
+scRow "k4 A jit" "fT() || X, fT returns trueResult, as =" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k4 A int" "fT() || X, fT returns trueResult, as =" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
-scRow "k4 I jit" "fT() || X, fT returns trueResult, folded if a && b;" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
+scRow "k4 I jit" "fT() || X, fT returns trueResult, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k4 I int" "fT() || X, fT returns trueResult, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
-scRow "k4 B jit" "fT() || X, fT returns trueResult, if, two-statement body" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
+scRow "k4 B jit" "fT() || X, fT returns trueResult, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k4 B int" "fT() || X, fT returns trueResult, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
+#  RE-PINNED to intended (SEQ 340, falseResultTruthy cured): kant names trueResult / falseResult now resolve to registered
+#  nodes valued as the sentinels (GroupControl.twk setBaseRegistries) -- both roads read falseResult false, trueResult true.
 #  s1-s4 (SEQ 339): the bare sentinels, no call -- falseResultTruthy's certificate with k3, k4 and exprPinT S3.
 scRow "s1 I jit" "if falseResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
-scRow "s1 I int" "if falseResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 0"
-scRow "s2 I jit" "if trueResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "s1 I int" "if falseResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "s2 I jit" "if trueResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 scRow "s2 I int" "if trueResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 scRow "s3 A jit" "scR = falseResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
-scRow "s3 A int" "scR = falseResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v falseResult" "x 0 y 0 a 0 b 0 c 0 v 0"
-scRow "s4 A jit" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 1"
-scRow "s4 A int" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v trueResult" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "s3 A int" "scR = falseResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "s4 A jit" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "s4 A int" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do

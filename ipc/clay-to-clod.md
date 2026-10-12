@@ -12318,3 +12318,27 @@ rows (KANT-43) stay red, as expected.
 Retire the fixit by mapping to its rows. Its attempt log ends at the certifying pop.sh row.
 Kitchen pass, seal, stop.
   END SEQ 339
+
+===================================================================
+SEQ 340  -  frt-cure BOUGHT. RE-PIN, MERGE, H7, RETIRE THE FIXIT. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0: frt-cure (25b9ad7) is bought, under option (1).
+R1: exprPinT O3b joins the certificate as a named cure, re-pinned to 1 with the switch on. Switch off keeps nr, because
+    the old road's ! is a separate behaviour.
+R2: exprPinT S3 is re-pinned to its intended value (g ran 0, value 0), on both switches.
+
+THE STROKE
+On trunk, re-pin S3, O3b, and every certificate row to its intended value, each with the falseResultTruthy sentence.
+Commit this on its own.
+Merge frt-cure.
+H7: revert the six registration lines alone. The certificate rows and O3b go red by value. Restore md5-identical.
+Retire falseResultTruthy by mapping to its rows. The attempt log ends at the certifying pop.sh row.
+Full kitchen pass, then delete frt-cure in the clone, live and on GitHub.
+Seal, then stop.
+If anything moves beyond the certificate rows and O3b, stop and report before merging.
+J4b comes after this report, by a fresh dispatch.
+  END SEQ 340
