@@ -625,6 +625,18 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ jitExecBlock CURED -- A BARE BlocK NO LONGER CRASHES THE JIT (SEQ 344, Clod, 2026-10-12)
+
+- Certificate (7065517): incant/pop/jit/jitBlockCallT (BlocK(code);), jitBlockNameT (nm := BlocK;, never called) -- born red at
+  exit 139 both switches, 8 rows; jitBlockCtlT, the control (Grokking["BlocK"]) -- exit 0, pz 0 off / 7 on, green.
+- Cure (320b0d3, R1): jitExecBlock reads the body as `input.actionBlocK()` -- the artifact on the property list -- in place of
+  tok's `BlocK:;` (getLabelGroup, a search through terms). Generated diff: comment + three lines; canary 348.
+- Before commit, both switches: the 8 rows red -> green (exit 0, sentinel, pz 7 jitted and interpreted), the control unchanged,
+  nothing else; jitLadder PASSED both, row for row. H7 (the tag search put back alone): the 8 rows red, exit 139, both
+  switches; control green; restored md5-identical (.rtn and .mm), rebuilt.
+- dirCheck flickered (F-141): three runs on one tree darkened parseString, then setRuleStuff (GroupItem.twk, untouched), then
+  matched the capture; one run also logged a tok Bus error in the final bare-retok loop while its byte-identity check held.
+
 #### ⚠⚠ FOLD OR PRECEDENCE -- exprPinT FP1-FP8 (SEQ 343, Clod, 2026-10-12; measure and pin only)
 
 **R0 (Tony):** arithmetic is a strict left fold, no precedence. **R1:** SEQ 342's "`*` `/` bind before `+` `-`" for A2 A5 A6 A7 C3 described precedence and is WITHDRAWN -- their re-pin sentence is "the strict left fold" (A2 2 * 10 + 3 -> 23, A5 qa / qb + qc -> 3.2, A6 -> 17, A7 -> 54, C3 fId(qa + qb * qc) -> 36: each is the left fold, measured).
