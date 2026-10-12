@@ -207,6 +207,8 @@ extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target);
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field);
 extern "C" GroupItem *jitBodyField(GroupItem *action);
 extern "C" int jitBuildFunction(GroupItem *action);
+extern "C" void jitCastCountTextRT(GroupItem *field, int value);
+extern "C" void jitCastNumberTextRT(GroupItem *field, double value);
 extern "C" int jitDegrade(char *what, GroupItem *node);
 extern "C" GroupItem *jitDerefRT(GroupItem *operand);
 extern "C" void jitDiscardPartial();

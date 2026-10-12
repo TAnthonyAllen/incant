@@ -715,7 +715,30 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
     llvm::IRBuilder<> *b = gJitBuilder;
     // Plain `=`: pure store-back of the source operand's SSA value into the
     // target's slot. No arithmetic.
-    b->CreateStore(argument->jitData->jitValue, target->jitData->jitSlot);
+    //  castRule a store CASTS into the target's kind and never writes a raw value of the other type (SEQ 347 R0) -- a target
+    //  with no kind takes the argument's at run time; a STRING target takes the value as text
+    {
+        llvm::LLVMContext &cctx = b->getContext();
+        llvm::Type *dT = llvm::Type::getDoubleTy(cctx), *iT = llvm::Type::getInt32Ty(cctx), *pT = llvm::PointerType::getUnqual(cctx);
+        llvm::Value *v = argument->jitData->jitValue;
+        GroupBody *tbk = target->groupBody;
+        JitFrameSlot *tfs = jitFrameFind((void*)&(tbk->gCount));
+        if (!tfs) tfs = jitFrameFind((void*)&(tbk->gNumber));
+        bool vNum = v->getType()->isDoubleTy();
+        auto bake64 = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(cctx), (uint64_t)p), pT, nm); };
+        if (!tfs && (!tbk->flags.data || isSTRING(tbk->flags.data))) {
+            void *fn = !tbk->flags.data ? (vNum ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT)
+                                        : (vNum ? (void*)&jitCastNumberTextRT : (void*)&jitCastCountTextRT);
+            llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(cctx), {pT, v->getType()}, false);
+            b->CreateCall(fty, bake64(fn, "castFn"), {bake64((void*)target, "castField"), v});
+        } else {
+            llvm::Type *slotT = tfs ? tfs->ty : (isNUMBER(tbk->flags.data) ? dT : iT);
+            if (slotT->isDoubleTy() && !vNum)       v = b->CreateSIToFP(v, dT, "castNum");
+            else if (!slotT->isDoubleTy() && vNum)  v = b->CreateFPToSI(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor,
+                                                         b->CreateFAdd(v, llvm::ConstantFP::get(dT, 0.5), "castHalf")), iT, "castCount");
+            b->CreateStore(v, target->jitData->jitSlot);
+        }
+    }
     //  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given
     {
         GroupBody *tb = target->groupBody;
@@ -864,6 +887,18 @@ extern void jitFlushCountRT(GroupItem field,int value)
 extern void jitFlushNumberRT(GroupItem field,double value)
 {
     -% if (field) field->setNumber(value); %-
+}
+
+// jitCastCountTextRT a jitted store of a count into a STRING target takes it as text (SEQ 347 R0)
+extern void jitCastCountTextRT(GroupItem field,int value)
+{
+    -% if (field) { char *t = (char*)malloc(24); snprintf(t,24,"%d",value); field->setText(t); } %-
+}
+
+// jitCastNumberTextRT a jitted store of a NUMBER into a STRING target takes it as text (SEQ 347 R0)
+extern void jitCastNumberTextRT(GroupItem field,double value)
+{
+    -% if (field) { char *t = (char*)malloc(32); snprintf(t,32,"%g",value); field->setText(t); } %-
 }
 
 extern GroupItem jitOpFireRT(GroupItem op,GroupItem arg,GroupItem target)
@@ -1074,7 +1109,8 @@ extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
     // Numeric promotion: if either operand is double, the op is floating-point and
     // the integer operand is promoted (CreateSIToFP) before it. This is where
     // "assume operands match" comes due — mixed count+number now coerces cleanly.
-    bool fp = l->getType()->isDoubleTy() || r->getType()->isDoubleTy();
+    // divNumber `/` always yields a NUMBER, as opDiv does -- two counts are promoted and divided as doubles (SEQ 347)
+    bool fp = l->getType()->isDoubleTy() || r->getType()->isDoubleTy() || op == jitSDiv;
     if (fp) {
         llvm::Type *d = llvm::Type::getDoubleTy(b->getContext());
         if (l->getType() != d) l = b->CreateSIToFP(l, d, "promo");
