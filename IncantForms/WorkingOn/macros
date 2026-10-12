@@ -34,9 +34,11 @@ To apply xpTestList to rules
 This looks like a juggling exercise: here is your molotov cocktail, war hammer, bowling ball; now juggle.
 
 How to attack?
-    maybe gate parse to gate and skip fireLabelMethod so rule actions never happen during the parse, only the label attachments happen; or try and buy w/fireLabelMethod commented out for a quick test - the one thing that will pooch is a rule action rejecting its label. Probably will have to allow those actions to happen to not pooch the parse - HPDL
-    or initially: feed in a flattened label tree from a simplified instance of an IF rule that prints a simple message and see if xpTestList handles it
+    maybe feed in a flattened label tree from a simplified instance of an IF rule that prints a simple message and see if xpTestList handles it
         if A || B; print "I am a bum":;
     flattened that would be
         A || B if print "I am a bum" :    if and print become operators (print op is unary)
         Note the print op gets handed a list w/2 items; right now instruction chain does not handle lists
+Describe how each statement will get handled
+    define a new rule modeled after the statement but w/no rule action; then what to do about rule actions? Park them in a noPrint rule attribute?
+    run the rule then produces a label but does nothing
