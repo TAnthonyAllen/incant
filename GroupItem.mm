@@ -1277,6 +1277,9 @@ double GroupItem::getNumber()
 			return groupBody->gNumber;
 		if ( isCOUNT(groupBody->flags.data) )
 			return (double)groupBody->gCount;
+		// countAsNumber a STRING or TOKEN read as a number is its count, its text length (SEQ 347 R3)
+		if ( isSTRING(groupBody->flags.data) || isTOKEN(groupBody->flags.data) )
+			return (double)groupBody->gCount;
 		if ( isGROUP(groupBody->flags.data) )
 			{
 			::fprintf(stderr,"ERROR getNumber on %s -- holds a group; say *\n",groupBody->tag);

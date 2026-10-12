@@ -2152,6 +2152,19 @@ char 		*failText = 0;
 	return ruler->falseResult;
 }
 
+// concatText a fresh text: left followed by right (SEQ 347 R3)
+extern "C" char *concatText(char *left, char *right)
+{
+	
+	if ( !left )    left = (char*)"";
+	if ( !right )   right = (char*)"";
+	size_t n = strlen(left) + strlen(right) + 1;
+	char *t = (char*)malloc(n);
+	snprintf(t,n,"%s%s",left,right);
+	return t;
+	
+}
+
 /*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
@@ -3712,7 +3725,8 @@ extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 	storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
 	if ( GroupControl::groupController->groupRules->refused ) return 0;
 	if ( !target )  return 0;
-	if ( source )   target->setContent(source);
+	//  castRule opAssign's twin casts as opAssign does (SEQ 347 R0)
+	if ( source )   { if ( !::castStore(source,target) ) target->setContent(source); }
 	else            target->clearData();
 	return target;
 	
@@ -4258,6 +4272,11 @@ extern "C" void jitDoEnd()
 
 extern "C" GroupItem *jitEmitAdd(GroupItem *argument, GroupItem *target)
 {
+	// concatJit a STRING or TOKEN left is a run-time concatenation, as opPlus's own jitting gate does (SEQ 347 R3)
+	if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
+		{
+		 return jitEmitConcat(argument, target); 
+		}
 	 return jitEmitBinary(argument, target, jitAdd); 
 }
 
@@ -4543,6 +4562,25 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	}
 	target->jitData->setJitter(res);
 	gJitResult = res;
+	return target;
+	
+}
+
+// jitEmitConcat a STRING or TOKEN left of `+`: a run-time call to opPlus itself, its node published as the value (SEQ 347 R3)
+extern "C" GroupItem *jitEmitConcat(GroupItem *argument, GroupItem *target)
+{
+	
+	if (!gJitBuilder || !target) return target;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	llvm::Value *res = b->CreateCall(opTy, bake((void*)&opPlus, "concatFn"), {bake((void*)argument, "concatArg"), bake((void*)target, "concatTgt")}, "concatRes");
+	gJitResultNode = res;
+	gJitLastIsNode = true;
+	gJitEmitted    = true;
 	return target;
 	
 }
@@ -7847,7 +7885,7 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 		 return jitEmitBinary(argument, target, jitSDiv); 
 		}
 	// alwaysDouble division never changes meaning by operand type, and an exact quotient stays a double so the jit knows the result type at emit time
-	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
 		GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
@@ -7869,7 +7907,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		 jitEmitBinary(argument, target, jitSDiv);
 		return jitEmitAssign(target, target); 
 		}
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// a count target rounds half-up through getCount's floor(x+0.5), so the two cannot drift; a double keeps the fraction
 		if ( isCOUNT(target->groupBody->flags.data) )
@@ -8416,7 +8454,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		return ::refuse(target,"Operator - -- an operand that is nothing");
 		}
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// binaryPromotes a double operand promotes the result; count OP count stays a count (see opPlus)
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -8560,7 +8598,7 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 		{
 		return ::refuse(target,"Operator * -- an operand that is nothing");
 		}
-	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
 		else
@@ -8654,6 +8692,11 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
+		// concatJit a STRING or TOKEN left is a run-time concatenation, published as a node (SEQ 347 R3)
+		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
+			{
+			 return jitEmitConcat(argument, target); 
+			}
 		 return jitEmitBinary(argument, target, jitAdd); 
 		}
 	// f41 a refused operand arrives as null -- refuse it by name, beside the wrong-type case each operator already names
@@ -8661,7 +8704,11 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		{
 		return ::refuse(target,"Operator + -- an operand that is nothing");
 		}
-	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	// concatLeft a STRING or TOKEN on the left concatenates the right side's text (SEQ 347 R3)
+	if ( target->groupBody->flags.data && (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && argument->groupBody->flags.data )
+		GroupControl::groupController->groupRules->tempField->setText(::concatText(target->getText(),argument->getText()));
+	else
+	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// binaryPromotes a binary op has no count slot to narrow into, so a double operand promotes the result; count OP count stays a count
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -8669,11 +8716,6 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		else
 		if ( isCOUNT(target->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount + argument->getCount());
-		else
-		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
-			if ( target->groupBody->gCount > argument->getCount() )
-				GroupControl::groupController->groupRules->tempField->setText(target->groupBody->gText + argument->getCount());
-			else	::fprintf(stderr,"opPlus WARNING: tried to advance a string past its length on %s -- the value stands\n",target->groupBody->tag);
 		}
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
@@ -8939,7 +8981,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitRem(argument, target, ruler->tempField); 
 		}
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		ruler->tempField->setCount(target->getCount() % argument->getCount());
 	// a refusal, never a data-less tempField that reads back as its own tag (promoted from sentinel-as-data, 2026-09-05)
 	if ( !ruler->tempField->groupBody->flags.data )

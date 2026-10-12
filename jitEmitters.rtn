@@ -43,7 +43,8 @@ extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
         storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
     if ( GroupControl::groupController->groupRules->refused ) return 0;
     if ( !target )  return 0;
-    if ( source )   target->setContent(source);
+    //  castRule opAssign's twin casts as opAssign does (SEQ 347 R0)
+    if ( source )   { if ( !::castStore(source,target) ) target->setContent(source); }
     else            target->clearData();
     return target;
     %-
@@ -603,6 +604,10 @@ extern void jitDoEnd()
 
 extern GroupItem jitEmitAdd(GroupItem argument,GroupItem target)
 {
+    // concatJit a STRING or TOKEN left is a run-time concatenation, as opPlus's own jitting gate does (SEQ 347 R3)
+    if target.isSTRING || target.isTOKEN {
+        -% return jitEmitConcat(argument, target); %-
+    }
     -% return jitEmitBinary(argument, target, jitAdd); %-
 }
 
@@ -1213,6 +1218,26 @@ extern int jitEmitContinue()
     gJitEmitted = true;
     gJitResult  = nullptr;
     return 1;
+    %-
+}
+
+
+// jitEmitConcat a STRING or TOKEN left of `+`: a run-time call to opPlus itself, its node published as the value (SEQ 347 R3)
+extern GroupItem jitEmitConcat(GroupItem argument,GroupItem target)
+{
+    -%
+    if (!gJitBuilder || !target) return target;
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+    llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+    llvm::Value *res = b->CreateCall(opTy, bake((void*)&opPlus, "concatFn"), {bake((void*)argument, "concatArg"), bake((void*)target, "concatTgt")}, "concatRes");
+    gJitResultNode = res;
+    gJitLastIsNode = true;
+    gJitEmitted    = true;
+    return target;
     %-
 }
 

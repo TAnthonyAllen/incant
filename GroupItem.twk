@@ -946,6 +946,8 @@ double getNumber()
         {
         if isNUMBER  return number;
         if isCOUNT   return (double)count;
+        // countAsNumber a STRING or TOKEN read as a number is its count, its text length (SEQ 347 R3)
+        if isSTRING || isTOKEN  return (double)count;
         if isGROUP {
             cerr "ERROR getNumber on",tag,"-- holds a group; say *":;
             return 0; }

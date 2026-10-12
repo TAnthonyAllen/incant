@@ -63,6 +63,19 @@ extern int castStore(GroupItem argument,GroupItem target)
     return 1;
 }
 
+// concatText a fresh text: left followed by right (SEQ 347 R3)
+extern String concatText(String left,String right)
+{
+    -%
+    if ( !left )    left = (char*)"";
+    if ( !right )   right = (char*)"";
+    size_t n = strlen(left) + strlen(right) + 1;
+    char *t = (char*)malloc(n);
+    snprintf(t,n,"%s%s",left,right);
+    return t;
+    %-
+}
+
 // getMarkLineAt the getLine command: find the line holding fromThis's text in the source buffer, hand it back as a token field into the buffer (valid only while the buffer holds it in place), and leave the mark at the line's start; a mark already set is where the search starts
 extern GroupItem getMarkLineAt(GroupItem argument)
 {
@@ -254,7 +267,7 @@ extern GroupItem opDiv(GroupItem argument,GroupItem target)
         -% return jitEmitBinary(argument, target, jitSDiv); %-
     }
     // alwaysDouble division never changes meaning by operand type, and an exact quotient stays a double so the jit knows the result type at emit time
-    if argument.isCOUNT || argument.isNUMBER
+    if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN
         tempField.number = number / argument.number;
     if !tempField.data {
         return refuse(target,"Operator / -- not supported for these operands"); }
@@ -274,7 +287,7 @@ GroupRules  ruler = groupRules;
            return jitEmitAssign(target, target); %-
     }
 use target
-    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
         // a count target rounds half-up through getCount's floor(x+0.5), so the two cannot drift; a double keeps the fraction
         if isCOUNT  count   = (int)floor((number / argument.number) + 0.5);
         or isNUMBER number  = number / argument.number;
@@ -569,7 +582,7 @@ GroupRules  ruler = groupRules;
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus)
     if !argument {
         return refuse(target,"Operator - -- an operand that is nothing"); }
-    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
         // binaryPromotes a double operand promotes the result; count OP count stays a count (see opPlus)
         if isNUMBER || argument.isNUMBER    tempField.number = number - argument.number;
         else                                tempField.count  = gCount - argument.count; }
@@ -666,7 +679,7 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus); F-36's second crash was here
     if !argument {
         return refuse(target,"Operator * -- an operand that is nothing"); }
-    if argument.isCOUNT || argument.isNUMBER
+    if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN
         if isNUMBER || argument.isNUMBER    tempField.number = number * argument.number;
         or isCOUNT                          tempField.count  = count * argument.count;
     if !tempField.data {
@@ -737,18 +750,22 @@ extern GroupItem opOR(GroupItem argument,GroupItem target)
 extern GroupItem opPlus(GroupItem argument,GroupItem target)
 {
     if jitting {
+        // concatJit a STRING or TOKEN left is a run-time concatenation, published as a node (SEQ 347 R3)
+        if target.isSTRING || target.isTOKEN {
+            -% return jitEmitConcat(argument, target); %-
+        }
         -% return jitEmitBinary(argument, target, jitAdd); %-
     }
     // f41 a refused operand arrives as null -- refuse it by name, beside the wrong-type case each operator already names
     if !argument {
         return refuse(target,"Operator + -- an operand that is nothing"); }
-    if data && (argument.isCOUNT || argument.isNUMBER) {
+    // concatLeft a STRING or TOKEN on the left concatenates the right side's text (SEQ 347 R3)
+    if data && (isSTRING || isTOKEN) && argument.data
+        tempField.text = concatText(text,argument.text);
+    or data && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
         // binaryPromotes a binary op has no count slot to narrow into, so a double operand promotes the result; count OP count stays a count
         if isNUMBER || argument.isNUMBER    tempField.number = number + argument.number;
-        or isCOUNT                          tempField.count  = gCount + argument.count;
-        or isSTRING || isTOKEN
-            if gCount > argument.count  tempField.text = gText + argument.count;
-            else    cerr "opPlus WARNING: tried to advance a string past its length on",tag,"-- the value stands":; }
+        or isCOUNT                          tempField.count  = gCount + argument.count; }
     if !tempField.data {
         return refuse(target,"Operator + -- cannot apply to these operands"); }
     return tempField;
@@ -972,7 +989,7 @@ GroupRules  ruler = groupRules;
     if jitting {
         -% return jitEmitRem(argument, target, ruler->tempField); %-
     }
-    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
+    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN)
         tempField.count = count % argument.count;
     // a refusal, never a data-less tempField that reads back as its own tag (promoted from sentinel-as-data, 2026-09-05)
     if !tempField.data  return refuse(target,"Operator % -- cannot apply to these operands");
