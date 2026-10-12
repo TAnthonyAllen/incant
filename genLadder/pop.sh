@@ -6253,6 +6253,15 @@ scRow "k4 I jit" "fT() || X, fT returns trueResult, folded if a && b;" "x 1 y 0 
 scRow "k4 I int" "fT() || X, fT returns trueResult, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k4 B jit" "fT() || X, fT returns trueResult, if, two-statement body" "x 1 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
 scRow "k4 B int" "fT() || X, fT returns trueResult, if, two-statement body" "x 0 y 0 a 1 b 0 c 0 v 1" "x 0 y 0 a 1 b 0 c 0 v 1"
+#  s1-s4 (SEQ 339): the bare sentinels, no call -- falseResultTruthy's certificate with k3, k4 and exprPinT S3.
+scRow "s1 I jit" "if falseResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "s1 I int" "if falseResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "s2 I jit" "if trueResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "s2 I int" "if trueResult;, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "s3 A jit" "scR = falseResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "s3 A int" "scR = falseResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v falseResult" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "s4 A jit" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "s4 A int" "scR = trueResult; read back, bare sentinel" "x 0 y 0 a 0 b 0 c 0 v trueResult" "x 0 y 0 a 0 b 0 c 0 v 1"
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do

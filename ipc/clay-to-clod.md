@@ -12290,3 +12290,31 @@ Respell that seat's rows. The two-statement-body rows can stay, under their own 
 Kitchen pass, seal, stop.
 Proposed (not ruled): if the call row comes back agreeing, short-circuit is closed with no stroke owed, and J4b/J4c next.
   END SEQ 338
+
+===================================================================
+SEQ 339  -  FIXIT falseResultTruthy (OWNER CLOD), WITH ITS JIT TWIN. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0: The jit twin from seal 128 folds into falseResultTruthy. Its "where" line names both readers: truthOf (Instruct.rtn:1164)
+    on the interpreted road, and jitSeedField (jitEmitters.rtn:3570) on the jit road.
+R1: The intended reading is that falseResult is false and trueResult is true, on all four columns, in every seat: a bare
+    if, an operand of && or ||, and the right side of =.
+R2: Cure at the source if one site can do it. The sentinels carry a value that both readers already agree on. If the cure
+    needs a change at each reader instead, stop and report before building.
+
+THE STROKE
+Recon, briefly. Find what falseResult and trueResult resolve to, and where that node is made. Seal 88 found that
+if falseResult; reads truthy even with no call involved, so the kant name itself is the suspect.
+Certificate rows. If they aren't pinned already, add bare-sentinel rows to shortCircT across the four columns:
+if falseResult;, if trueResult;, and r = falseResult; read back. The certificate is these rows, together with shortCircT's
+k3 and k4 and exprPinT S3. All of them must go red to green.
+The cure, on trunk. Commit the fix before its H7.
+H7. Revert the cure alone. The certificate rows go red by value. Restore md5-identical.
+Stop condition. If any row outside the certificate moves, on either switch, stop and report it before committing. The m1
+rows (KANT-43) stay red, as expected.
+Retire the fixit by mapping to its rows. Its attempt log ends at the certifying pop.sh row.
+Kitchen pass, seal, stop.
+  END SEQ 339

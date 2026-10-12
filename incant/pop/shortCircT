@@ -150,6 +150,10 @@ define
             scR = 1;
             scR2 = 1;
         };
+    s1I code={ scR = 0; if falseResult; scR = 1; };
+    s2I code={ scR = 0; if trueResult; scR = 1; };
+    s3A code={ scR = falseResult; };
+    s4A code={ scR = trueResult; };
     ;
 
 scReset(); testing(d1A); scShow("d1 A fire");
@@ -229,6 +233,15 @@ scReset(); jitRefire(); scShow("k4 I jit");
 scReset(); testing(k4B); scShow("k4 B fire");
 scReset(); jitRefire(); scShow("k4 B jit");
 
+scReset(); testing(s1I); scShow("s1 I fire");
+scReset(); jitRefire(); scShow("s1 I jit");
+scReset(); testing(s2I); scShow("s2 I fire");
+scReset(); jitRefire(); scShow("s2 I jit");
+scReset(); testing(s3A); scShow("s3 A fire");
+scReset(); jitRefire(); scShow("s3 A jit");
+scReset(); testing(s4A); scShow("s4 A fire");
+scReset(); jitRefire(); scShow("s4 A jit");
+
 scReset(); d1A(); scShow("d1 A int");
 scReset(); d1I(); scShow("d1 I int");
 scReset(); d1N(); scShow("d1 N int");
@@ -267,6 +280,10 @@ scReset(); k3B(); scShow("k3 B int");
 scReset(); k4A(); scShow("k4 A int");
 scReset(); k4I(); scShow("k4 I int");
 scReset(); k4B(); scShow("k4 B int");
+scReset(); s1I(); scShow("s1 I int");
+scReset(); s2I(); scShow("s2 I int");
+scReset(); s3A(); scShow("s3 A int");
+scReset(); s4A(); scShow("s4 A int");
 
 cerr "SHORTCIRC SENTINEL -- run reached the end":;
 stop();
@@ -287,6 +304,8 @@ falseResult / trueResult. k1 / k2 agree on every road -- the call is not the dif
 switches: the node kant's sentinel names resolve to carries no count (fixit falseResultTruthy). The jit seeds it with
 jitSeedField, which loads gCount (0) -- both sentinels read FALSE; the interpreted truthOf answers 1 for a non-count -- both
 read TRUE. So k3 is wrong interpreted (exprPinT S3's row) and k4 is wrong jitted.
+s1-s4 (SEQ 339) are the bare sentinels with no call: s1 `if falseResult;`, s2 `if trueResult;`, s3 `scR = falseResult;`,
+s4 `scR = trueResult;` read back. They are falseResultTruthy's certificate with k3, k4 and exprPinT S3.
 Columns: fire = the testing() run (emit + first fire); jit = jitRefire after a counter reset, so it counts run time only;
 int = the interpreted oracle, run last (bear-trap 25). The switch is the environment's INCANT_EXPR_ACCUM.
 m1's values are a=1 b=1 c=0, chosen so the two folds disagree on value AND counts: left fold (a||b)&&c reads a1 b0 c1 v0;
