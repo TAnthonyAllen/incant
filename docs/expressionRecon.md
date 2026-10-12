@@ -625,6 +625,28 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ FOLD OR PRECEDENCE -- exprPinT FP1-FP8 (SEQ 343, Clod, 2026-10-12; measure and pin only)
+
+**R0 (Tony):** arithmetic is a strict left fold, no precedence. **R1:** SEQ 342's "`*` `/` bind before `+` `-`" for A2 A5 A6 A7 C3 described precedence and is WITHDRAWN -- their re-pin sentence is "the strict left fold" (A2 2 * 10 + 3 -> 23, A5 qa / qb + qc -> 3.2, A6 -> 17, A7 -> 54, C3 fId(qa + qb * qc) -> 36: each is the left fold, measured).
+
+| expression | off/interp | off/jit | on/interp | on/jit | intended |
+|---|---|---|---|---|---|
+| a + b * c (qa qb qc = 2 10 3) | 32 (I) | 32 (I) | **36** | **36** | 36 |
+| 2 + 10 * 3 | 32 (I) | 32 (I) | **36** | **36** | 36 |
+| a - b * c | -24 | -24 | **-24** | **-24** | -24 |
+| 2 - 10 * 3 | -28 (I) | -28 (I) | **-24** | **-24** | -24 |
+| a * b + c (control) | 23 | 23 | 23 | 23 | 23 |
+| 2 * 10 + 3 (control) | 26 (I) | 26 (I) | 23 | 23 | 23 |
+| a / b - c (control) | 0.285714 (I) | 0 | -2.8 | **-3** | -2.8 |
+| 2 / 10 - 3 (control) | 0.285714 (I) | 0 | -2.8 | **-3** | -2.8 |
+
+**The candidate folds left everywhere: no cell reads a+(b*c) = 32 or a-(b*c) = -28 with the switch on, so no (D) of the
+stop's kind.** Switch off is the old road's right-to-left fold, (I) -- with one curiosity, recorded not diagnosed: the old
+road reads the NAMED `a - b * c` as -24 but the LITERAL one as -28. **One finding off the fold's axis: jitted `/` truncates.**
+FP7 / FP8 jitted read -3 (switch on) and 0 (switch off) where the interpreted road reads -2.8 / 0.285714: jitEmitBinary
+(jitEmitters.rtn:1088) emits CreateSDiv for two count operands -- an integer divide -- while the interpreted road promotes to
+a NUMBER. Switch-independent, a jit-road numeric-type defect; not fixed. The jit and the oracle agree on every + - * cell.
+
 #### ⚠⚠ THE SWITCH-ON CENSUS -- INPUT TO THE DEFAULT-ON RULING (SEQ 342, Clod, 2026-10-12; measure only, nothing re-pinned)
 
 **R0 recorded:** J4b and J4c are CLOSED -- census labels J4a absorbed; the jit step (b) of the C1 build order is complete.
@@ -643,7 +665,7 @@ switch-specific rows); jitLadder: **5** (rung JA). Nothing re-pinned or fixed.
 
 | fixture | rows | class | off -> on | the sentence (P) / the reason (I) |
 |---|---|---|---|---|
-| exprPinT A2 A5 A6 A7 C3 | 5 | P | 26 0.153846 25 52 32 -> 23 3.2 17 54 36 | the candidate binds `*` `/` before `+` `-` and folds left within a tier; KANT-43's right-to-left split retires |
+| exprPinT A2 A5 A6 A7 C3 | 5 | P | 26 0.153846 25 52 32 -> 23 3.2 17 54 36 | ~~the candidate binds `*` `/` before `+` `-`~~ (precedence -- withdrawn, SEQ 343 R1): **the strict left fold**; KANT-43's right-to-left fold retires |
 | exprPinT U70 U72 U75 B2 B3 | 5 | P | 1 1 1 goodToGo 1 -> 0 0 0 0 0 | comparisons bind before `&&`: `x > a && x < b` is two comparisons |
 | exprPinT U302a S1 OR1 OR2 | 4 | P | 0 0 0 0 -> 1 1 1 1 | comparisons first, then `&&` / `\|\|` fold left |
 | exprPinT FA2; foldAndT x3 | 4 | P | 1; 139 0 0 -> 0; 0 1 1 | a folded `&&` over comparisons reads each `a != 0`; foldAndT runs to its foot |
