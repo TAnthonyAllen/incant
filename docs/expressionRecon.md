@@ -625,6 +625,14 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J4a MERGED (68ea8fb) -- BOUGHT UNDER OPTION (1); THE FIVE (L) ROWS RE-PINNED TO 3 (SEQ 336, Clod, 2026-10-12)
+
+**R1 (Tony):** a lone operator's by-name refusal count is 3 with the switch on -- SEQ 327 R1 holding on all three drives.
+Re-pinned in bfde51e, merged in 68ea8fb (GroupActions.rtn's conflict with 70cbb80's alpha order resolved by re-applying the
+two jitting arms; GroupRules.mm retokked bare, code-only identical to the textual merge). Against the clone's run: pop.sh
+off 1091 row for row, on 1065 -> 1070 (the five rows only); jitLadder PASSED both switches, row for row. H7: tokJitT's pin
+back to 1 -> red by value (refusals 3). expr-j4a deleted. **Next: the short-circuit measurement, then J4b / J4c.**
+
 #### ⚠⚠ J4a BUILT (expr-j4a 14b4295), NOT MERGED -- FIVE (L) ROWS GO GREEN -> RED (SEQ 335, Clod, 2026-10-11)
 
 **R0, JA:** jitAttrPop on the candidate's INTERPRETED road (the fixture with `jitFieldMethod(bgColor)` replaced by
