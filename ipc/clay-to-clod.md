@@ -12461,3 +12461,38 @@ Stop condition: if any row outside the certificate moves, on either switch, stop
 Kitchen pass, seal, stop.
 After this one, only the flip is left in the campaign.
   END SEQ 345
+
+===================================================================
+SEQ 346  -  KIND ON STORE AND OPERANDS (THE CAST RULE). CENSUS ONLY. NOTHING BUILT. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0 (Tony, 2026-10-12): the cast rule on store, on both roads. A target with no kind takes the argument's kind, then the
+    store happens. A target that has a kind keeps it, and the argument is cast to that kind. The expression's own value is
+    unchanged: / still produces a NUMBER. The rule is designed jit-first. The interpreted road follows it; it is not the oracle.
+R1 (Tony): A NUMBER cast to a count ROUNDS. Report what today's interpreted /= does for -3.5; that becomes the rule unless
+    Tony says otherwise.
+R2 (Tony): counts, NUMBERs, STRINGs and TOKENs. Counts and NUMBERs cast to each other. A STRING's or TOKEN's count is its
+    text length. A STRING or TOKEN operand beside a number reads as its count: count op string is count op string.count, and
+    NUMBER op string is NUMBER op string.count converted to a NUMBER. So "12" + 3 is 5. A STRING target takes argument.text.
+    A count or NUMBER target given a STRING or TOKEN takes its count, cast as above. User-beware syntax, accepted.
+R3: A kind with no count and no text refuses by name.
+R4 (lean, not ruled): Clearing a target's kind belongs to the parked setData proposal, where = with a data-less argument
+    clears the target. Lists, holders and groups are out of scope, and = with a list keeps setContent.
+R5: Compound operators follow from R0: x op= y means x = x op y, cast into x's kind.
+
+THE CENSUS
+Where a field's kind lives today (the slot or flags getDataType reads; how a field comes to have no kind). Every store
+site, both roads (interpreted: opAssign, setContent, setData, the compound operators; jit: jitEmitAssign, jitSeedField,
+gJitFrameAssigned, and seal 135's raw stores) -- what each does today when the kinds differ. Who relies on retyping: a tap
+counting every store where the target already has a kind that differs from the argument's, by fixture and line with the
+kind pair, over the fleet, jitLadder and Tony's incantations (IncantForms/WorkingOn, tester, macros) wherever they run;
+revert md5-identical. Projected movers under R0-R3, by name, today's value and projected (a projection, not a build).
+What each kind's count and text hold today, and mixed operands on both roads: confirm a STRING's and TOKEN's count is the
+text length on both roads, name any site that reads something else; .count and .text for a STRING, TOKEN, NUMBER, count;
+3 + "12" (projected 5), 3.5 + "12" (projected 5.5), "12" + 3, "ab" + "cd", then the same in a TOKEN spelling. String-on-the-
+left and string op string are reported, not ruled. The %= crash (switch on, jitted): pin a row at today's value and name
+the site. Don't fix it. Seal, then stop.
+  END SEQ 346

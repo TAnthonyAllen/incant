@@ -6361,6 +6361,15 @@ kindRow "jitBlockCtlT sentinel, lines"          "$(grep -c '^BJ SENTINEL' "$T/ji
 kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
 kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
 
+#  ⚑ modEqT / modEqJitT -- SEQ 346: `%=` is NOT a registered operator. Pinned at TODAY's value per switch, not fixed.
+#  Switch on, both roads exit 139: the candidate reads `x %= y` as `x % (= y)` and runOPaccum's acU arm calls opAssign
+#  as a unary (one argument). Intended under R5: x = x % y -> 1.
+for _me in modEqT modEqJitT; do
+    run2 $_me "$T/$_me.o" "$T/$_me.e"; _mee=$?
+    kindRow "$_me 7 %= 2, exit"   "$_mee"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 139 || echo 0)"  # intended 0
+    kindRow "$_me 7 %= 2, value"  "$(tr -s ' ' < "$T/$_me.e" | awk '$1=="ME" && ($2=="int" || $2=="jit") {print $3; exit}')"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo '' || echo 7)"  # intended 1 (R5)
+done
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
