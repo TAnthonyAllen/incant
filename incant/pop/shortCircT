@@ -25,11 +25,21 @@ define
     scA code={ scNa = scNa + 1; return scVa; };
     scB code={ scNb = scNb + 1; return scVb; };
     scC code={ scNc = scNc + 1; return scVc; };
+    scL0 code={ scNa = scNa + 1; return scF; };
+    scL1 code={ scNa = scNa + 1; return scT; };
+    scLf code={ scNa = scNa + 1; return falseResult; };
+    scLt code={ scNa = scNa + 1; return trueResult; };
     scReset code={ scNX = 0; scNY = 0; scNa = 0; scNb = 0; scNc = 0; scR = 9; scR2 = 0; };
     scShow code={ cerr "SC " argument " x " scNX " y " scNY " a " scNa " b " scNb " c " scNc " v " scR:; };
     d1A code={ scR = scF && scX(); };
     d1I code={ scR = 0; if scF && scX(); scR = 1; };
-    d1F code={
+    d1N code={
+        scR = 0;
+        if scF;
+            if scX();
+                scR = 1;
+        };
+    d1B code={
         scR = 0;
         if scF && scX();
             scR = 1;
@@ -37,7 +47,7 @@ define
         };
     d2A code={ scR = scT || scX(); };
     d2I code={ scR = 0; if scT || scX(); scR = 1; };
-    d2F code={
+    d2B code={
         scR = 0;
         if scT || scX();
             scR = 1;
@@ -45,7 +55,13 @@ define
         };
     n1A code={ scR = scT && scX(); };
     n1I code={ scR = 0; if scT && scX(); scR = 1; };
-    n1F code={
+    n1N code={
+        scR = 0;
+        if scT;
+            if scX();
+                scR = 1;
+        };
+    n1B code={
         scR = 0;
         if scT && scX();
             scR = 1;
@@ -53,7 +69,7 @@ define
         };
     n2A code={ scR = scF || scX(); };
     n2I code={ scR = 0; if scF || scX(); scR = 1; };
-    n2F code={
+    n2B code={
         scR = 0;
         if scF || scX();
             scR = 1;
@@ -61,7 +77,14 @@ define
         };
     c1A code={ scR = scF && scX() && scY(); };
     c1I code={ scR = 0; if scF && scX() && scY(); scR = 1; };
-    c1F code={
+    c1N code={
+        scR = 0;
+        if scF;
+            if scX();
+                if scY();
+                    scR = 1;
+        };
+    c1B code={
         scR = 0;
         if scF && scX() && scY();
             scR = 1;
@@ -69,7 +92,7 @@ define
         };
     c2A code={ scR = scT || scX() || scY(); };
     c2I code={ scR = 0; if scT || scX() || scY(); scR = 1; };
-    c2F code={
+    c2B code={
         scR = 0;
         if scT || scX() || scY();
             scR = 1;
@@ -77,9 +100,53 @@ define
         };
     m1A code={ scR = scA() || scB() && scC(); };
     m1I code={ scR = 0; if scA() || scB() && scC(); scR = 1; };
-    m1F code={
+    m1B code={
         scR = 0;
         if scA() || scB() && scC();
+            scR = 1;
+            scR2 = 1;
+        };
+    k1A code={ scR = scL0() && scX(); };
+    k1I code={ scR = 0; if scL0() && scX(); scR = 1; };
+    k1N code={
+        scR = 0;
+        if scL0();
+            if scX();
+                scR = 1;
+        };
+    k1B code={
+        scR = 0;
+        if scL0() && scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    k2A code={ scR = scL1() || scX(); };
+    k2I code={ scR = 0; if scL1() || scX(); scR = 1; };
+    k2B code={
+        scR = 0;
+        if scL1() || scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    k3A code={ scR = scLf() && scX(); };
+    k3I code={ scR = 0; if scLf() && scX(); scR = 1; };
+    k3N code={
+        scR = 0;
+        if scLf();
+            if scX();
+                scR = 1;
+        };
+    k3B code={
+        scR = 0;
+        if scLf() && scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    k4A code={ scR = scLt() || scX(); };
+    k4I code={ scR = 0; if scLt() || scX(); scR = 1; };
+    k4B code={
+        scR = 0;
+        if scLt() || scX();
             scR = 1;
             scR2 = 1;
         };
@@ -89,66 +156,117 @@ scReset(); testing(d1A); scShow("d1 A fire");
 scReset(); jitRefire(); scShow("d1 A jit");
 scReset(); testing(d1I); scShow("d1 I fire");
 scReset(); jitRefire(); scShow("d1 I jit");
-scReset(); testing(d1F); scShow("d1 F fire");
-scReset(); jitRefire(); scShow("d1 F jit");
+scReset(); testing(d1N); scShow("d1 N fire");
+scReset(); jitRefire(); scShow("d1 N jit");
+scReset(); testing(d1B); scShow("d1 B fire");
+scReset(); jitRefire(); scShow("d1 B jit");
 scReset(); testing(d2A); scShow("d2 A fire");
 scReset(); jitRefire(); scShow("d2 A jit");
 scReset(); testing(d2I); scShow("d2 I fire");
 scReset(); jitRefire(); scShow("d2 I jit");
-scReset(); testing(d2F); scShow("d2 F fire");
-scReset(); jitRefire(); scShow("d2 F jit");
+scReset(); testing(d2B); scShow("d2 B fire");
+scReset(); jitRefire(); scShow("d2 B jit");
 scReset(); testing(n1A); scShow("n1 A fire");
 scReset(); jitRefire(); scShow("n1 A jit");
 scReset(); testing(n1I); scShow("n1 I fire");
 scReset(); jitRefire(); scShow("n1 I jit");
-scReset(); testing(n1F); scShow("n1 F fire");
-scReset(); jitRefire(); scShow("n1 F jit");
+scReset(); testing(n1N); scShow("n1 N fire");
+scReset(); jitRefire(); scShow("n1 N jit");
+scReset(); testing(n1B); scShow("n1 B fire");
+scReset(); jitRefire(); scShow("n1 B jit");
 scReset(); testing(n2A); scShow("n2 A fire");
 scReset(); jitRefire(); scShow("n2 A jit");
 scReset(); testing(n2I); scShow("n2 I fire");
 scReset(); jitRefire(); scShow("n2 I jit");
-scReset(); testing(n2F); scShow("n2 F fire");
-scReset(); jitRefire(); scShow("n2 F jit");
+scReset(); testing(n2B); scShow("n2 B fire");
+scReset(); jitRefire(); scShow("n2 B jit");
 scReset(); testing(c1A); scShow("c1 A fire");
 scReset(); jitRefire(); scShow("c1 A jit");
 scReset(); testing(c1I); scShow("c1 I fire");
 scReset(); jitRefire(); scShow("c1 I jit");
-scReset(); testing(c1F); scShow("c1 F fire");
-scReset(); jitRefire(); scShow("c1 F jit");
+scReset(); testing(c1N); scShow("c1 N fire");
+scReset(); jitRefire(); scShow("c1 N jit");
+scReset(); testing(c1B); scShow("c1 B fire");
+scReset(); jitRefire(); scShow("c1 B jit");
 scReset(); testing(c2A); scShow("c2 A fire");
 scReset(); jitRefire(); scShow("c2 A jit");
 scReset(); testing(c2I); scShow("c2 I fire");
 scReset(); jitRefire(); scShow("c2 I jit");
-scReset(); testing(c2F); scShow("c2 F fire");
-scReset(); jitRefire(); scShow("c2 F jit");
+scReset(); testing(c2B); scShow("c2 B fire");
+scReset(); jitRefire(); scShow("c2 B jit");
 scReset(); testing(m1A); scShow("m1 A fire");
 scReset(); jitRefire(); scShow("m1 A jit");
 scReset(); testing(m1I); scShow("m1 I fire");
 scReset(); jitRefire(); scShow("m1 I jit");
-scReset(); testing(m1F); scShow("m1 F fire");
-scReset(); jitRefire(); scShow("m1 F jit");
+scReset(); testing(m1B); scShow("m1 B fire");
+scReset(); jitRefire(); scShow("m1 B jit");
+scReset(); testing(k1A); scShow("k1 A fire");
+scReset(); jitRefire(); scShow("k1 A jit");
+scReset(); testing(k1I); scShow("k1 I fire");
+scReset(); jitRefire(); scShow("k1 I jit");
+scReset(); testing(k1N); scShow("k1 N fire");
+scReset(); jitRefire(); scShow("k1 N jit");
+scReset(); testing(k1B); scShow("k1 B fire");
+scReset(); jitRefire(); scShow("k1 B jit");
+scReset(); testing(k2A); scShow("k2 A fire");
+scReset(); jitRefire(); scShow("k2 A jit");
+scReset(); testing(k2I); scShow("k2 I fire");
+scReset(); jitRefire(); scShow("k2 I jit");
+scReset(); testing(k2B); scShow("k2 B fire");
+scReset(); jitRefire(); scShow("k2 B jit");
+scReset(); testing(k3A); scShow("k3 A fire");
+scReset(); jitRefire(); scShow("k3 A jit");
+scReset(); testing(k3I); scShow("k3 I fire");
+scReset(); jitRefire(); scShow("k3 I jit");
+scReset(); testing(k3N); scShow("k3 N fire");
+scReset(); jitRefire(); scShow("k3 N jit");
+scReset(); testing(k3B); scShow("k3 B fire");
+scReset(); jitRefire(); scShow("k3 B jit");
+scReset(); testing(k4A); scShow("k4 A fire");
+scReset(); jitRefire(); scShow("k4 A jit");
+scReset(); testing(k4I); scShow("k4 I fire");
+scReset(); jitRefire(); scShow("k4 I jit");
+scReset(); testing(k4B); scShow("k4 B fire");
+scReset(); jitRefire(); scShow("k4 B jit");
 
 scReset(); d1A(); scShow("d1 A int");
 scReset(); d1I(); scShow("d1 I int");
-scReset(); d1F(); scShow("d1 F int");
+scReset(); d1N(); scShow("d1 N int");
+scReset(); d1B(); scShow("d1 B int");
 scReset(); d2A(); scShow("d2 A int");
 scReset(); d2I(); scShow("d2 I int");
-scReset(); d2F(); scShow("d2 F int");
+scReset(); d2B(); scShow("d2 B int");
 scReset(); n1A(); scShow("n1 A int");
 scReset(); n1I(); scShow("n1 I int");
-scReset(); n1F(); scShow("n1 F int");
+scReset(); n1N(); scShow("n1 N int");
+scReset(); n1B(); scShow("n1 B int");
 scReset(); n2A(); scShow("n2 A int");
 scReset(); n2I(); scShow("n2 I int");
-scReset(); n2F(); scShow("n2 F int");
+scReset(); n2B(); scShow("n2 B int");
 scReset(); c1A(); scShow("c1 A int");
 scReset(); c1I(); scShow("c1 I int");
-scReset(); c1F(); scShow("c1 F int");
+scReset(); c1N(); scShow("c1 N int");
+scReset(); c1B(); scShow("c1 B int");
 scReset(); c2A(); scShow("c2 A int");
 scReset(); c2I(); scShow("c2 I int");
-scReset(); c2F(); scShow("c2 F int");
+scReset(); c2B(); scShow("c2 B int");
 scReset(); m1A(); scShow("m1 A int");
 scReset(); m1I(); scShow("m1 I int");
-scReset(); m1F(); scShow("m1 F int");
+scReset(); m1B(); scShow("m1 B int");
+scReset(); k1A(); scShow("k1 A int");
+scReset(); k1I(); scShow("k1 I int");
+scReset(); k1N(); scShow("k1 N int");
+scReset(); k1B(); scShow("k1 B int");
+scReset(); k2A(); scShow("k2 A int");
+scReset(); k2I(); scShow("k2 I int");
+scReset(); k2B(); scShow("k2 B int");
+scReset(); k3A(); scShow("k3 A int");
+scReset(); k3I(); scShow("k3 I int");
+scReset(); k3N(); scShow("k3 N int");
+scReset(); k3B(); scShow("k3 B int");
+scReset(); k4A(); scShow("k4 A int");
+scReset(); k4I(); scShow("k4 I int");
+scReset(); k4B(); scShow("k4 B int");
 
 cerr "SHORTCIRC SENTINEL -- run reached the end":;
 stop();
@@ -161,8 +279,14 @@ not decide, the right operand runs exactly once. The mixed line is the strict le
 The operands X Y a b c are callees that bump their own declared counter (declared, because two actions touch each --
 bear-trap 39) and return a value; scF / scT are plain fields holding 0 / 1. Each line prints
     SC <line> <seat> <column> x <X ran> y <Y ran> a <..> b <..> c <..> v <value>
-Seats: A = on the right of `=`; I = an if condition with a one-statement arm on the same line; F = folded, the if's arm an
-indented two-statement body. For the if seats v is 1 when the arm ran.
+Seats (respelled SEQ 338): A = on the right of `=`; I = the folded condition `if a && b;` (one-statement arm); N = the same
+as nested ifs `if a; if b;` (the && lines only -- || has no nested spelling without else); B = an if whose arm is an
+indented two-statement body (this seat was "F" in SEQ 337). For the if seats v is 1 when the arm ran.
+k1-k4 (SEQ 338) put a CALL on the left, counted in the a column: k1 / k2 return the fields 0 / 1, k3 / k4 return
+falseResult / trueResult. k1 / k2 agree on every road -- the call is not the difference. k3 / k4 split by ROAD, both
+switches: the node kant's sentinel names resolve to carries no count (fixit falseResultTruthy). The jit seeds it with
+jitSeedField, which loads gCount (0) -- both sentinels read FALSE; the interpreted truthOf answers 1 for a non-count -- both
+read TRUE. So k3 is wrong interpreted (exprPinT S3's row) and k4 is wrong jitted.
 Columns: fire = the testing() run (emit + first fire); jit = jitRefire after a counter reset, so it counts run time only;
 int = the interpreted oracle, run last (bear-trap 25). The switch is the environment's INCANT_EXPR_ACCUM.
 m1's values are a=1 b=1 c=0, chosen so the two folds disagree on value AND counts: left fold (a||b)&&c reads a1 b0 c1 v0;

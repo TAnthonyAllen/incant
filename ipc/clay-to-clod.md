@@ -12272,3 +12272,21 @@ Kitchen pass, seal, stop.
 The ruling comes after the table. The answer that matters most is the on/jit column: whether J4a's emitter already exits
 early, and whether the candidate's interpreted road agrees with it.
   END SEQ 337
+
+===================================================================
+SEQ 338  -  SHORT-CIRCUIT, TWO LOOSE ENDS BEFORE THE RULING. NOTHING BUILT. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS: none (the dispatch rules nothing; its proposed ruling is stated at the foot as a proposal).
+
+Seal 86 against seal 127. exprPinT pinned fFalse() && g() as running g on trunk. shortCircT says a deciding false left
+skips X on every road. Report exprPinT's row as it reads today, on both switches. If a call on the left is the difference,
+add shortCircT lines with call operands on the left (fF() && X, fT() || X), across all four columns, pinned like the rest.
+Name the site of any disagreement; don't fix it.
+"Folded" means the folded condition compared with nested ifs: if a && b; against if a; if b;, with the same counter reads.
+Respell that seat's rows. The two-statement-body rows can stay, under their own name.
+Kitchen pass, seal, stop.
+Proposed (not ruled): if the call row comes back agreeing, short-circuit is closed with no stroke owed, and J4b/J4c next.
+  END SEQ 338
