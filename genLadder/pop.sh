@@ -6154,6 +6154,67 @@ kindRow "blockCallT BC3 BlocK(holder); a statement -- pz"   "$(_bc BC3pz)" "7"  
 kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- pz" "$(_bc BC4pz)" "0"         # intended 7 [on: 7] -- the star-call, not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips.
 kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "rc"        # intended 7 [on: 7] -- the star-call, not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips.
 
+#  ⚑ shortCircT -- SEQ 337 (Tony, 2026-10-12): && and || EXIT EARLY (the C1 buy, 2026-10-06, R1) -- measured on both roads
+#  of whichever switch this run is. Operands X Y a b c are callees that bump their own counter; each line prints what ran
+#  and the value. The jit cell is a jitRefire after a counter reset (run time only); the interpreted oracle runs last
+#  (bear-trap 25). Seats: as `=`, as an if condition (one-statement arm), folded (indented two-statement body).
+#  n1 / n2 are the WITNESS CONTROL: X runs once, so a 0 there means the counter is broken and no other row means anything.
+#  scRow pins TODAY'S value and the INTENDED value (R2): green when they agree; a row whose today differs from intended is
+#  BORN RED and stays red until a stroke cures it; any other value is MOVED. m1 is the strict left fold, (a || b) && c:
+#  switch off reads the old road's right-to-left fold, a || (b && c) (KANT-43), so its six off rows are born red.
+run2 shortCircT "$T/sc.o" "$T/sc.e"; check "shortCircT runs" 0 $?
+sentinel "shortCircT sentinel" "$T/sc.e" "SHORTCIRC SENTINEL -- run reached the end"
+_scsw=$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo on || echo off)
+_scv () { tr -s ' ' < "$T/sc.e" | grep "^SC $1 " | head -1 | sed "s/^SC $1 //" | sed 's/ $//'; }   # cerr pads items: squeeze first
+scRow () {
+    _sv=$(_scv "$1"); _sl="shortCircT $1 [$2] $_scsw/${1##* }"
+    if [ "$_sv" = "$4" ]; then echo "  ok    $_sl: $_sv"; green=$((green+1))
+    elif [ "$_sv" = "$3" ]; then echo "  FAIL  $_sl born red (SEQ 337 R2): today $_sv, intended $4"; fail=1
+    else echo "  FAIL  $_sl MOVED: reads [$_sv], pinned today [$3], intended [$4]"; fail=1; fi
+}
+scRow "d1 A jit" "false && X, as =" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "d1 A int" "false && X, as =" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "d1 I jit" "false && X, if condition" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "d1 I int" "false && X, if condition" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "d1 F jit" "false && X, folded if" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "d1 F int" "false && X, folded if" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "d2 A jit" "true || X, as =" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "d2 A int" "true || X, as =" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "d2 I jit" "true || X, if condition" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "d2 I int" "true || X, if condition" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "d2 F jit" "true || X, folded if" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "d2 F int" "true || X, folded if" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "n1 A jit" "true && X (control), as =" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n1 A int" "true && X (control), as =" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n1 I jit" "true && X (control), if condition" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n1 I int" "true && X (control), if condition" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n1 F jit" "true && X (control), folded if" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n1 F int" "true && X (control), folded if" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n2 A jit" "false || X (control), as =" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n2 A int" "false || X (control), as =" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n2 I jit" "false || X (control), if condition" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n2 I int" "false || X (control), if condition" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n2 F jit" "false || X (control), folded if" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "n2 F int" "false || X (control), folded if" "x 1 y 0 a 0 b 0 c 0 v 1" "x 1 y 0 a 0 b 0 c 0 v 1"
+scRow "c1 A jit" "false && X && Y, as =" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "c1 A int" "false && X && Y, as =" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "c1 I jit" "false && X && Y, if condition" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "c1 I int" "false && X && Y, if condition" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "c1 F jit" "false && X && Y, folded if" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "c1 F int" "false && X && Y, folded if" "x 0 y 0 a 0 b 0 c 0 v 0" "x 0 y 0 a 0 b 0 c 0 v 0"
+scRow "c2 A jit" "true || X || Y, as =" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "c2 A int" "true || X || Y, as =" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "c2 I jit" "true || X || Y, if condition" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "c2 I int" "true || X || Y, if condition" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "c2 F jit" "true || X || Y, folded if" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "c2 F int" "true || X || Y, folded if" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
+scRow "m1 A jit" "a || b && c, a=1 b=1 c=0, as =" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+scRow "m1 A int" "a || b && c, a=1 b=1 c=0, as =" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+scRow "m1 I jit" "a || b && c, a=1 b=1 c=0, if condition" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+scRow "m1 I int" "a || b && c, a=1 b=1 c=0, if condition" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+scRow "m1 F jit" "a || b && c, a=1 b=1 c=0, folded if" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+scRow "m1 F int" "a || b && c, a=1 b=1 c=0, folded if" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

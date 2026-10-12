@@ -12240,3 +12240,35 @@ Delete expr-j4a in the clone, live and on GitHub.
 Seal, then stop.
 If anything moves besides the five re-pinned rows and J4a's registered cures, stop and report it before merging.
   END SEQ 336
+
+===================================================================
+SEQ 337  -  THE SHORT-CIRCUIT MEASUREMENT, BOTH SWITCHES, BOTH ROADS. MEASURE AND PIN ONLY; NOTHING BUILT. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0: This is a measurement. No engine source changes. The one exception is a tap, which is reverted md5-identical before
+    any number is reported.
+R1: The intended value comes from the C1 buy (2026-10-06): && and || exit early. When the left operand decides the
+    answer, the right operand does not run. When the left operand does not decide, the right operand runs exactly once.
+R2: Rows are pinned at today's value, with the intended value written beside each one, in the exprPinT style. A row whose
+    value today differs from the intended value is born red, and stays red until a stroke cures it.
+
+THE STROKE
+Fixture: incant/pop/shortCircT. Its operands have a side effect, a counter the fixture can read back after each line. The
+spelling is up to you. Each line gets four columns: switch off or on, crossed with the interpreted or jitted road. Lines:
+  Deciding left: false && X, true || X. Intended: X does not run.
+  Non-deciding left: true && X, false || X. Intended: X runs once. Also the control for the witness: if they read 0, the
+    counter is broken, and no other row means anything.
+  Chained: false && X && Y, true || X || Y.
+  Mixed, left fold: a || b && c, under the strict left fold.
+  Each of the above in three seats: as an if condition, on the right of =, and folded in an if (if a && b;).
+pop.sh rows: one per line per column. Each row pins what ran and the value, with the intended value beside it.
+H7: break the counter's read-back. The control rows must go red by value. Restore md5-identical.
+Report. Table at the top, columns: expression | off/interp | off/jit | on/interp | on/jit | intended. Then the movers by
+name. If two cells disagree on the same road or switch for a reason you can point to, name the site. Don't fix it.
+Kitchen pass, seal, stop.
+The ruling comes after the table. The answer that matters most is the on/jit column: whether J4a's emitter already exits
+early, and whether the candidate's interpreted road agrees with it.
+  END SEQ 337

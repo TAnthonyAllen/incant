@@ -1,0 +1,170 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+
+register(ShortCircT);
+define
+    scF=0;
+    scT=1;
+    scVa=1;
+    scVb=1;
+    scVc=0;
+    scNX;
+    scNY;
+    scNa;
+    scNb;
+    scNc;
+    scR;
+    scR2;
+    scX code={ scNX = scNX + 1; return 1; };
+    scY code={ scNY = scNY + 1; return 1; };
+    scA code={ scNa = scNa + 1; return scVa; };
+    scB code={ scNb = scNb + 1; return scVb; };
+    scC code={ scNc = scNc + 1; return scVc; };
+    scReset code={ scNX = 0; scNY = 0; scNa = 0; scNb = 0; scNc = 0; scR = 9; scR2 = 0; };
+    scShow code={ cerr "SC " argument " x " scNX " y " scNY " a " scNa " b " scNb " c " scNc " v " scR:; };
+    d1A code={ scR = scF && scX(); };
+    d1I code={ scR = 0; if scF && scX(); scR = 1; };
+    d1F code={
+        scR = 0;
+        if scF && scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    d2A code={ scR = scT || scX(); };
+    d2I code={ scR = 0; if scT || scX(); scR = 1; };
+    d2F code={
+        scR = 0;
+        if scT || scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    n1A code={ scR = scT && scX(); };
+    n1I code={ scR = 0; if scT && scX(); scR = 1; };
+    n1F code={
+        scR = 0;
+        if scT && scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    n2A code={ scR = scF || scX(); };
+    n2I code={ scR = 0; if scF || scX(); scR = 1; };
+    n2F code={
+        scR = 0;
+        if scF || scX();
+            scR = 1;
+            scR2 = 1;
+        };
+    c1A code={ scR = scF && scX() && scY(); };
+    c1I code={ scR = 0; if scF && scX() && scY(); scR = 1; };
+    c1F code={
+        scR = 0;
+        if scF && scX() && scY();
+            scR = 1;
+            scR2 = 1;
+        };
+    c2A code={ scR = scT || scX() || scY(); };
+    c2I code={ scR = 0; if scT || scX() || scY(); scR = 1; };
+    c2F code={
+        scR = 0;
+        if scT || scX() || scY();
+            scR = 1;
+            scR2 = 1;
+        };
+    m1A code={ scR = scA() || scB() && scC(); };
+    m1I code={ scR = 0; if scA() || scB() && scC(); scR = 1; };
+    m1F code={
+        scR = 0;
+        if scA() || scB() && scC();
+            scR = 1;
+            scR2 = 1;
+        };
+    ;
+
+scReset(); testing(d1A); scShow("d1 A fire");
+scReset(); jitRefire(); scShow("d1 A jit");
+scReset(); testing(d1I); scShow("d1 I fire");
+scReset(); jitRefire(); scShow("d1 I jit");
+scReset(); testing(d1F); scShow("d1 F fire");
+scReset(); jitRefire(); scShow("d1 F jit");
+scReset(); testing(d2A); scShow("d2 A fire");
+scReset(); jitRefire(); scShow("d2 A jit");
+scReset(); testing(d2I); scShow("d2 I fire");
+scReset(); jitRefire(); scShow("d2 I jit");
+scReset(); testing(d2F); scShow("d2 F fire");
+scReset(); jitRefire(); scShow("d2 F jit");
+scReset(); testing(n1A); scShow("n1 A fire");
+scReset(); jitRefire(); scShow("n1 A jit");
+scReset(); testing(n1I); scShow("n1 I fire");
+scReset(); jitRefire(); scShow("n1 I jit");
+scReset(); testing(n1F); scShow("n1 F fire");
+scReset(); jitRefire(); scShow("n1 F jit");
+scReset(); testing(n2A); scShow("n2 A fire");
+scReset(); jitRefire(); scShow("n2 A jit");
+scReset(); testing(n2I); scShow("n2 I fire");
+scReset(); jitRefire(); scShow("n2 I jit");
+scReset(); testing(n2F); scShow("n2 F fire");
+scReset(); jitRefire(); scShow("n2 F jit");
+scReset(); testing(c1A); scShow("c1 A fire");
+scReset(); jitRefire(); scShow("c1 A jit");
+scReset(); testing(c1I); scShow("c1 I fire");
+scReset(); jitRefire(); scShow("c1 I jit");
+scReset(); testing(c1F); scShow("c1 F fire");
+scReset(); jitRefire(); scShow("c1 F jit");
+scReset(); testing(c2A); scShow("c2 A fire");
+scReset(); jitRefire(); scShow("c2 A jit");
+scReset(); testing(c2I); scShow("c2 I fire");
+scReset(); jitRefire(); scShow("c2 I jit");
+scReset(); testing(c2F); scShow("c2 F fire");
+scReset(); jitRefire(); scShow("c2 F jit");
+scReset(); testing(m1A); scShow("m1 A fire");
+scReset(); jitRefire(); scShow("m1 A jit");
+scReset(); testing(m1I); scShow("m1 I fire");
+scReset(); jitRefire(); scShow("m1 I jit");
+scReset(); testing(m1F); scShow("m1 F fire");
+scReset(); jitRefire(); scShow("m1 F jit");
+
+scReset(); d1A(); scShow("d1 A int");
+scReset(); d1I(); scShow("d1 I int");
+scReset(); d1F(); scShow("d1 F int");
+scReset(); d2A(); scShow("d2 A int");
+scReset(); d2I(); scShow("d2 I int");
+scReset(); d2F(); scShow("d2 F int");
+scReset(); n1A(); scShow("n1 A int");
+scReset(); n1I(); scShow("n1 I int");
+scReset(); n1F(); scShow("n1 F int");
+scReset(); n2A(); scShow("n2 A int");
+scReset(); n2I(); scShow("n2 I int");
+scReset(); n2F(); scShow("n2 F int");
+scReset(); c1A(); scShow("c1 A int");
+scReset(); c1I(); scShow("c1 I int");
+scReset(); c1F(); scShow("c1 F int");
+scReset(); c2A(); scShow("c2 A int");
+scReset(); c2I(); scShow("c2 I int");
+scReset(); c2F(); scShow("c2 F int");
+scReset(); m1A(); scShow("m1 A int");
+scReset(); m1I(); scShow("m1 I int");
+scReset(); m1F(); scShow("m1 F int");
+
+cerr "SHORTCIRC SENTINEL -- run reached the end":;
+stop();
+
+shortCircT -- && AND || EXIT EARLY, BOTH SWITCHES, BOTH ROADS (SEQ 337, 2026-10-12). Measure and pin only.
+
+Intended (the C1 buy, 2026-10-06): when the left operand decides the answer, the right operand does not run; when it does
+not decide, the right operand runs exactly once. The mixed line is the strict left fold, (a || b) && c.
+
+The operands X Y a b c are callees that bump their own declared counter (declared, because two actions touch each --
+bear-trap 39) and return a value; scF / scT are plain fields holding 0 / 1. Each line prints
+    SC <line> <seat> <column> x <X ran> y <Y ran> a <..> b <..> c <..> v <value>
+Seats: A = on the right of `=`; I = an if condition with a one-statement arm on the same line; F = folded, the if's arm an
+indented two-statement body. For the if seats v is 1 when the arm ran.
+Columns: fire = the testing() run (emit + first fire); jit = jitRefire after a counter reset, so it counts run time only;
+int = the interpreted oracle, run last (bear-trap 25). The switch is the environment's INCANT_EXPR_ACCUM.
+m1's values are a=1 b=1 c=0, chosen so the two folds disagree on value AND counts: left fold (a||b)&&c reads a1 b0 c1 v0;
+right fold a||(b&&c) reads a1 b0 c0 v1.
+n1 and n2 are the witness control: X runs once there. If they read 0 the counter is broken and no other row means anything.
