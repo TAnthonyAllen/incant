@@ -12496,3 +12496,40 @@ text length on both roads, name any site that reads something else; .count and .
 left and string op string are reported, not ruled. The %= crash (switch on, jitted): pin a row at today's value and name
 the site. Don't fix it. Seal, then stop.
   END SEQ 346
+
+===================================================================
+SEQ 347  -  THE CAST RULE, BUILT ON BRANCH expr-cast. NOT MERGED, FOR TONY TO BUY. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0 (Tony, 2026-10-12): the cast rule. It applies to run-time stores by = and op=, on both roads. A target with no kind takes
+    the argument's kind. A target that has a kind keeps it, and the argument is cast to that kind. Counts and NUMBERs cast
+    to each other. A NUMBER becomes a count by rounding half up, toward +inf, as today's /= does: -3.5 gives -3. A STRING
+    target takes argument.text. A count or NUMBER target given a STRING or TOKEN takes its count, which is its text length.
+    A kind with no count and no text refuses by name.
+R1 (Tony): scope. Defines (declarations) and accessor writes (setGroupField) are exempt. unitTests' counter=0,
+    methodWriteT, and cursorReadTb's taG="ENCLOSING" must not move. The capture defect (F-O40's family) stays parked.
+R2 (Tony): reused variables. A reused variable keeps its first kind. FP7, FP8, FD and exprPinT A5 move under the rule:
+    re-state their intended values under it, each with a sentence.
+R3 (Tony): mixed operands. If the left value is a count or NUMBER, a STRING or TOKEN on the right reads as its count:
+    3 + "12" is 5, and 3.5 + "12" is 5.5. If the left value is a STRING or TOKEN, + concatenates the right side's text:
+    "ab" + "cd" is "abcd", and "12" + 3 is "123". (Lean, not ruled.) Any other arithmetic operator with a STRING or TOKEN
+    on the left refuses by name.
+R4 (Tony): %= is registered with the compound operators. runOPaccum's unary arm (GroupActions.rtn:1165) refuses by name
+    when it has no target, instead of faulting.
+
+THE STROKE (on expr-cast, in the clone)
+Register the certificate on trunk first, all born red where today differs from intended: SEQ 345's 19 rows, with intended
+values re-stated under R0; R2's rows; kant8T K6; modEqT and modEqJitT; the R3 operand lines on all four columns, including
+TOKEN spellings, string op string, and string-left. Also list the control rows that must not move: R1's three, and the
+existing -=, *=, /= rows.
+Build one commit per piece, each with its H7 (one variable at a time, red by value, restored md5-identical):
+(a) the interpreted store cast; (b) the jit store: a cast and re-kind replacing seal 135's raw stores, and a jitted target
+that keeps a kind; (c) mixed operands, both roads, including a count read for STRING and TOKEN where getNumber reads 0;
+(d) %= and the unary arm's refusal.
+Re-diff both switches against trunk. If any unregistered row moves, stop and report it with its mechanism.
+Kitchen pass on the branch binary, push the branch, don't merge.
+Seal, then stop.
+  END SEQ 347

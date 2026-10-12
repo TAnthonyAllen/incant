@@ -883,11 +883,10 @@ for _k in "K5 call 1 returned = 42" \
         echo "  FAIL  ${_k%%=*}-- wanted: $_k"; fail=1
     fi
 done
-if grep -qF "K6c outer returned = k6big" "$T/k8"; then
-    echo "  ok    K6c outer = k6big (mutual recursion carries its own argument) -- PINNED BY VALUE"; green=$((green+1))
-else
-    echo "  FAIL  K6c outer -- got: $(grep -o 'K6c outer returned = [a-zA-Z0-9]*' "$T/k8" | head -1)"; fail=1
-fi
+#  K6c RE-STATED under the cast rule (SEQ 347 R2): kOut is a reused variable whose first kind is a count (K3's 42), so storing
+#  the returned name k6big casts it to its count, its text length -- 5. It still discriminates: the inner's k6small reads 7.
+_k6c=$(grep -o 'K6c outer returned = [a-zA-Z0-9]*' "$T/k8" | head -1 | sed 's/.*= //')
+fdRow "K6c outer returned (mutual recursion carries its own argument)" "$_k6c" "k6big" "5"
 for _arm in "K2x row 0 control  = k2xBig" \
             "K2x row 1 recursed = k2xBig" \
             "K2x row 2 depth 0  = k2xBig"; do
@@ -6029,7 +6028,9 @@ kindRow "exprPinT A1 qa * qb + qc"                         "$(_ep A1)"    "23"  
 kindRow "exprPinT A2 2 * 10 + 3 (KANT-43 split)"           "$(_ep A2)"    "26"        # intended 23
 kindRow "exprPinT A3 qa - qb + qc"                         "$(_ep A3)"    "-5"        # intended -5
 kindRow "exprPinT A4 qa + qb - qc"                         "$(_ep A4)"    "9"         # intended 9
-kindRow "exprPinT A5 qa / qb + qc"                         "$(_ep A5)"    "0.153846"  # intended 3.2
+#  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
+#  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
+fdRow "exprPinT A5 qa / qb + qc" "$(_ep A5)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 3.2 || echo 0.153846)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 3 || echo 0)"
 kindRow "exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69)"       "$(_ep A6)"    "25"        # intended 17
 kindRow "exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70)" "$(_ep A7)"    "52"        # intended 54
 kindRow "exprPinT U70 xw > px && xw < pxw, xw 20"          "$(_ep U70)"   "1"         # intended false
@@ -6119,50 +6120,56 @@ kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "$([ "$
 kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 23)"  # intended 23
 kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
 kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
-fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended: the interpreted value (SEQ 345 R1)
-kindRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended -2.8
-fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended: the interpreted value (SEQ 345 R1)
-kindRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)"  # intended -2.8
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
+#  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
+#  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"
+fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
+#  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
+#  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
+fdRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"
+#  FD1-FD9 intended RE-STATED SEQ 347 (cast rule): qr is a count and keeps it -- 10/2 -> 5, 7/2 -> 3.5 -> 4, 2/10 -> 0.2 -> 0,
+#  kind count (5) on both roads. The interpreted cells are born red at NUMBER; the jit cells at their raw stores.
 #  FD1-FD9 SEQ 345 (fixit jitDivide): / on counts, a NUMBER left, a NUMBER right -- value and KIND (datA: 5 count, 9 NUMBER),
 #  jitted (refire) and interpreted, into qr (a count). The interpreted road is the oracle: / is always a NUMBER (opDiv).
 #  Both switches read the same. The jit keeps the TARGET's kind (count) and stores an integer divide, or drops / garbles a
 #  double -- jitEmitBinary's CreateSDiv AND jitted assignment's target-kind store (seal 135).
 fdRow "exprPinT FD1 10 / 2, counts, jit value" "$(_ep FD1j)" "5" "5"
-fdRow "exprPinT FD1 10 / 2, counts, jit kind" "$(_epk FD1j)" "5" "9"
+fdRow "exprPinT FD1 10 / 2, counts, jit kind" "$(_epk FD1j)" "5" "5"
 fdRow "exprPinT FD1 10 / 2, counts, int value" "$(_ep FD1)" "5" "5"
-fdRow "exprPinT FD1 10 / 2, counts, int kind" "$(_epk FD1)" "9" "9"
+fdRow "exprPinT FD1 10 / 2, counts, int kind" "$(_epk FD1)" "9" "5"
 fdRow "exprPinT FD2 10.0 / 2, NUMBER left, jit value" "$(_ep FD2j)" "0" "5"
-fdRow "exprPinT FD2 10.0 / 2, NUMBER left, jit kind" "$(_epk FD2j)" "5" "9"
+fdRow "exprPinT FD2 10.0 / 2, NUMBER left, jit kind" "$(_epk FD2j)" "5" "5"
 fdRow "exprPinT FD2 10.0 / 2, NUMBER left, int value" "$(_ep FD2)" "5" "5"
-fdRow "exprPinT FD2 10.0 / 2, NUMBER left, int kind" "$(_epk FD2)" "9" "9"
+fdRow "exprPinT FD2 10.0 / 2, NUMBER left, int kind" "$(_epk FD2)" "9" "5"
 fdRow "exprPinT FD3 10 / 2.0, NUMBER right, jit value" "$(_ep FD3j)" "0" "5"
-fdRow "exprPinT FD3 10 / 2.0, NUMBER right, jit kind" "$(_epk FD3j)" "5" "9"
+fdRow "exprPinT FD3 10 / 2.0, NUMBER right, jit kind" "$(_epk FD3j)" "5" "5"
 fdRow "exprPinT FD3 10 / 2.0, NUMBER right, int value" "$(_ep FD3)" "5" "5"
-fdRow "exprPinT FD3 10 / 2.0, NUMBER right, int kind" "$(_epk FD3)" "9" "9"
-fdRow "exprPinT FD4 7 / 2, counts, jit value" "$(_ep FD4j)" "3" "3.5"
-fdRow "exprPinT FD4 7 / 2, counts, jit kind" "$(_epk FD4j)" "5" "9"
-fdRow "exprPinT FD4 7 / 2, counts, int value" "$(_ep FD4)" "3.5" "3.5"
-fdRow "exprPinT FD4 7 / 2, counts, int kind" "$(_epk FD4)" "9" "9"
-fdRow "exprPinT FD5 7.0 / 2, NUMBER left, jit value" "$(_ep FD5j)" "0" "3.5"
-fdRow "exprPinT FD5 7.0 / 2, NUMBER left, jit kind" "$(_epk FD5j)" "5" "9"
-fdRow "exprPinT FD5 7.0 / 2, NUMBER left, int value" "$(_ep FD5)" "3.5" "3.5"
-fdRow "exprPinT FD5 7.0 / 2, NUMBER left, int kind" "$(_epk FD5)" "9" "9"
-fdRow "exprPinT FD6 7 / 2.0, NUMBER right, jit value" "$(_ep FD6j)" "0" "3.5"
-fdRow "exprPinT FD6 7 / 2.0, NUMBER right, jit kind" "$(_epk FD6j)" "5" "9"
-fdRow "exprPinT FD6 7 / 2.0, NUMBER right, int value" "$(_ep FD6)" "3.5" "3.5"
-fdRow "exprPinT FD6 7 / 2.0, NUMBER right, int kind" "$(_epk FD6)" "9" "9"
-fdRow "exprPinT FD7 2 / 10, counts, jit value" "$(_ep FD7j)" "0" "0.2"
-fdRow "exprPinT FD7 2 / 10, counts, jit kind" "$(_epk FD7j)" "5" "9"
-fdRow "exprPinT FD7 2 / 10, counts, int value" "$(_ep FD7)" "0.2" "0.2"
-fdRow "exprPinT FD7 2 / 10, counts, int kind" "$(_epk FD7)" "9" "9"
-fdRow "exprPinT FD8 2.0 / 10, NUMBER left, jit value" "$(_ep FD8j)" "-1717986918" "0.2"
-fdRow "exprPinT FD8 2.0 / 10, NUMBER left, jit kind" "$(_epk FD8j)" "5" "9"
-fdRow "exprPinT FD8 2.0 / 10, NUMBER left, int value" "$(_ep FD8)" "0.2" "0.2"
-fdRow "exprPinT FD8 2.0 / 10, NUMBER left, int kind" "$(_epk FD8)" "9" "9"
-fdRow "exprPinT FD9 2 / 10.0, NUMBER right, jit value" "$(_ep FD9j)" "-1717986918" "0.2"
-fdRow "exprPinT FD9 2 / 10.0, NUMBER right, jit kind" "$(_epk FD9j)" "5" "9"
-fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int value" "$(_ep FD9)" "0.2" "0.2"
-fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int kind" "$(_epk FD9)" "9" "9"
+fdRow "exprPinT FD3 10 / 2.0, NUMBER right, int kind" "$(_epk FD3)" "9" "5"
+fdRow "exprPinT FD4 7 / 2, counts, jit value" "$(_ep FD4j)" "3" "4"
+fdRow "exprPinT FD4 7 / 2, counts, jit kind" "$(_epk FD4j)" "5" "5"
+fdRow "exprPinT FD4 7 / 2, counts, int value" "$(_ep FD4)" "3.5" "4"
+fdRow "exprPinT FD4 7 / 2, counts, int kind" "$(_epk FD4)" "9" "5"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, jit value" "$(_ep FD5j)" "0" "4"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, jit kind" "$(_epk FD5j)" "5" "5"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, int value" "$(_ep FD5)" "3.5" "4"
+fdRow "exprPinT FD5 7.0 / 2, NUMBER left, int kind" "$(_epk FD5)" "9" "5"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, jit value" "$(_ep FD6j)" "0" "4"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, jit kind" "$(_epk FD6j)" "5" "5"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, int value" "$(_ep FD6)" "3.5" "4"
+fdRow "exprPinT FD6 7 / 2.0, NUMBER right, int kind" "$(_epk FD6)" "9" "5"
+fdRow "exprPinT FD7 2 / 10, counts, jit value" "$(_ep FD7j)" "0" "0"
+fdRow "exprPinT FD7 2 / 10, counts, jit kind" "$(_epk FD7j)" "5" "5"
+fdRow "exprPinT FD7 2 / 10, counts, int value" "$(_ep FD7)" "0.2" "0"
+fdRow "exprPinT FD7 2 / 10, counts, int kind" "$(_epk FD7)" "9" "5"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, jit value" "$(_ep FD8j)" "-1717986918" "0"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, jit kind" "$(_epk FD8j)" "5" "5"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, int value" "$(_ep FD8)" "0.2" "0"
+fdRow "exprPinT FD8 2.0 / 10, NUMBER left, int kind" "$(_epk FD8)" "9" "5"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, jit value" "$(_ep FD9j)" "-1717986918" "0"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, jit kind" "$(_epk FD9j)" "5" "5"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int value" "$(_ep FD9)" "0.2" "0"
+fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int kind" "$(_epk FD9)" "9" "5"
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
 kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "139"       # intended 0
@@ -6366,9 +6373,49 @@ kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([
 #  as a unary (one argument). Intended under R5: x = x % y -> 1.
 for _me in modEqT modEqJitT; do
     run2 $_me "$T/$_me.o" "$T/$_me.e"; _mee=$?
-    kindRow "$_me 7 %= 2, exit"   "$_mee"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 139 || echo 0)"  # intended 0
-    kindRow "$_me 7 %= 2, value"  "$(tr -s ' ' < "$T/$_me.e" | awk '$1=="ME" && ($2=="int" || $2=="jit") {print $3; exit}')"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo '' || echo 7)"  # intended 1 (R5)
+    #  RE-STATED SEQ 347 R4: %= is registered with the compound operators -- 7 %= 2 is 1, exit 0, both switches.
+    fdRow "$_me 7 %= 2, exit"   "$_mee"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 139 || echo 0)"  "0"
+    fdRow "$_me 7 %= 2, value"  "$(tr -s ' ' < "$T/$_me.e" | awk '$1=="ME" && ($2=="int" || $2=="jit") {print $3; exit}')"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo '' || echo 7)"  "1"
 done
+
+#  ⚑ opMixT -- SEQ 347 R3 (Tony, 2026-10-12): mixed operands. Count / NUMBER left reads a STRING / TOKEN right as its count;
+#  STRING / TOKEN left concatenates. Cells "text datA": jitF first fire into a no-kind target, jitR refire (kept kind), int,
+#  int2. Today every cell reads the target's own tag and kind 0: interpreted refuses, the jit stores with no kind.
+run2 opMixT "$T/om.o" "$T/om.e"; check "opMixT runs" 0 $?
+sentinel "opMixT sentinel" "$T/om.e" "OPMIX SENTINEL"
+_omv () { tr -s ' ' < "$T/om.e" | awk -v k="$1" -v c="$2" '$1=="OM"{m=($2==k && $3==c); next} $1=="OMV" && m {print $2" "$3; exit}'; }
+fdRow "opMixT L1 3 + "12", jitF" "$(_omv L1 jitF)" "o1J 0" "5 5"
+fdRow "opMixT L1 3 + "12", jitR" "$(_omv L1 jitR)" "o1J 0" "5 5"
+fdRow "opMixT L1 3 + "12", int" "$(_omv L1 int)" "o1I 0" "5 5"
+fdRow "opMixT L1 3 + "12", int2" "$(_omv L1 int2)" "o1I 0" "5 5"
+fdRow "opMixT L2 3.5 + "12", jitF" "$(_omv L2 jitF)" "o2J 0" "5.5 9"
+fdRow "opMixT L2 3.5 + "12", jitR" "$(_omv L2 jitR)" "o2J 0" "5.5 9"
+fdRow "opMixT L2 3.5 + "12", int" "$(_omv L2 int)" "o2I 0" "5.5 9"
+fdRow "opMixT L2 3.5 + "12", int2" "$(_omv L2 int2)" "o2I 0" "5.5 9"
+fdRow "opMixT L3 "12" + 3, jitF" "$(_omv L3 jitF)" "o3J 0" "123 13"
+fdRow "opMixT L3 "12" + 3, jitR" "$(_omv L3 jitR)" "o3J 0" "123 13"
+fdRow "opMixT L3 "12" + 3, int" "$(_omv L3 int)" "o3I 0" "123 13"
+fdRow "opMixT L3 "12" + 3, int2" "$(_omv L3 int2)" "o3I 0" "123 13"
+fdRow "opMixT L4 "ab" + "cd", jitF" "$(_omv L4 jitF)" "o4J 0" "abcd 13"
+fdRow "opMixT L4 "ab" + "cd", jitR" "$(_omv L4 jitR)" "o4J 0" "abcd 13"
+fdRow "opMixT L4 "ab" + "cd", int" "$(_omv L4 int)" "o4I 0" "abcd 13"
+fdRow "opMixT L4 "ab" + "cd", int2" "$(_omv L4 int2)" "o4I 0" "abcd 13"
+fdRow "opMixT L5 3 + tok12, jitF" "$(_omv L5 jitF)" "o5J 0" "5 5"
+fdRow "opMixT L5 3 + tok12, jitR" "$(_omv L5 jitR)" "o5J 0" "5 5"
+fdRow "opMixT L5 3 + tok12, int" "$(_omv L5 int)" "o5I 0" "5 5"
+fdRow "opMixT L5 3 + tok12, int2" "$(_omv L5 int2)" "o5I 0" "5 5"
+fdRow "opMixT L6 3.5 + tok12, jitF" "$(_omv L6 jitF)" "o6J 0" "5.5 9"
+fdRow "opMixT L6 3.5 + tok12, jitR" "$(_omv L6 jitR)" "o6J 0" "5.5 9"
+fdRow "opMixT L6 3.5 + tok12, int" "$(_omv L6 int)" "o6I 0" "5.5 9"
+fdRow "opMixT L6 3.5 + tok12, int2" "$(_omv L6 int2)" "o6I 0" "5.5 9"
+fdRow "opMixT L7 tok12 + 3, jitF" "$(_omv L7 jitF)" "o7J 0" "123 13"
+fdRow "opMixT L7 tok12 + 3, jitR" "$(_omv L7 jitR)" "o7J 0" "123 13"
+fdRow "opMixT L7 tok12 + 3, int" "$(_omv L7 int)" "o7I 0" "123 13"
+fdRow "opMixT L7 tok12 + 3, int2" "$(_omv L7 int2)" "o7I 0" "123 13"
+fdRow "opMixT L8 tokab + tokcd, jitF" "$(_omv L8 jitF)" "o8J 0" "abcd 13"
+fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
+fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
+fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do

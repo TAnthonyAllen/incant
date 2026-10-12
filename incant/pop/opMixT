@@ -1,0 +1,107 @@
+Start();
+include(unitTests);
+include(generate);
+include(directives);
+search reset stack Grokking;
+search Generating UnitTests Utilities Directives list;
+register(OpMixT);
+define
+    source="incant/opMix12";
+    g1 source fromThis="12";
+    g2 source fromThis="ab";
+    g3 source fromThis="cd";
+    tk12;
+    tkab;
+    tkcd;
+    s12="12";
+    sab="ab";
+    scd="cd";
+    n35=3.5;
+    c3=3;
+    show code={ k := argument.datA; x := argument.texT; cerr "OMV" x k:; };
+    T1 code={ tk12 = getLine(g1); };
+    T2 code={ tkab = getLine(g2); };
+    T3 code={ tkcd = getLine(g3); };
+    o1J;
+    o1I;
+    L1J code={ o1J = c3 + s12; };
+    L1I code={ o1I = c3 + s12; };
+    o2J;
+    o2I;
+    L2J code={ o2J = n35 + s12; };
+    L2I code={ o2I = n35 + s12; };
+    o3J;
+    o3I;
+    L3J code={ o3J = s12 + c3; };
+    L3I code={ o3I = s12 + c3; };
+    o4J;
+    o4I;
+    L4J code={ o4J = sab + scd; };
+    L4I code={ o4I = sab + scd; };
+    o5J;
+    o5I;
+    L5J code={ o5J = c3 + tk12; };
+    L5I code={ o5I = c3 + tk12; };
+    o6J;
+    o6I;
+    L6J code={ o6J = n35 + tk12; };
+    L6I code={ o6I = n35 + tk12; };
+    o7J;
+    o7I;
+    L7J code={ o7J = tk12 + c3; };
+    L7I code={ o7I = tk12 + c3; };
+    o8J;
+    o8I;
+    L8J code={ o8J = tkab + tkcd; };
+    L8I code={ o8I = tkab + tkcd; };
+    ;
+getFile(source);
+T1();
+source = "incant/opMixab";
+getFile(source);
+T2();
+source = "incant/opMixcd";
+getFile(source);
+T3();
+testing(L1J); cerr "OM L1 jitF":; show(o1J);
+jitRefire(); cerr "OM L1 jitR":; show(o1J);
+testing(L2J); cerr "OM L2 jitF":; show(o2J);
+jitRefire(); cerr "OM L2 jitR":; show(o2J);
+testing(L3J); cerr "OM L3 jitF":; show(o3J);
+jitRefire(); cerr "OM L3 jitR":; show(o3J);
+testing(L4J); cerr "OM L4 jitF":; show(o4J);
+jitRefire(); cerr "OM L4 jitR":; show(o4J);
+testing(L5J); cerr "OM L5 jitF":; show(o5J);
+jitRefire(); cerr "OM L5 jitR":; show(o5J);
+testing(L6J); cerr "OM L6 jitF":; show(o6J);
+jitRefire(); cerr "OM L6 jitR":; show(o6J);
+testing(L7J); cerr "OM L7 jitF":; show(o7J);
+jitRefire(); cerr "OM L7 jitR":; show(o7J);
+testing(L8J); cerr "OM L8 jitF":; show(o8J);
+jitRefire(); cerr "OM L8 jitR":; show(o8J);
+L1I(); cerr "OM L1 int":; show(o1I);
+L1I(); cerr "OM L1 int2":; show(o1I);
+L2I(); cerr "OM L2 int":; show(o2I);
+L2I(); cerr "OM L2 int2":; show(o2I);
+L3I(); cerr "OM L3 int":; show(o3I);
+L3I(); cerr "OM L3 int2":; show(o3I);
+L4I(); cerr "OM L4 int":; show(o4I);
+L4I(); cerr "OM L4 int2":; show(o4I);
+L5I(); cerr "OM L5 int":; show(o5I);
+L5I(); cerr "OM L5 int2":; show(o5I);
+L6I(); cerr "OM L6 int":; show(o6I);
+L6I(); cerr "OM L6 int2":; show(o6I);
+L7I(); cerr "OM L7 int":; show(o7I);
+L7I(); cerr "OM L7 int2":; show(o7I);
+L8I(); cerr "OM L8 int":; show(o8I);
+L8I(); cerr "OM L8 int2":; show(o8I);
+cerr "OPMIX SENTINEL":;
+stop();
+
+opMixT -- SEQ 347 R3 (Tony, 2026-10-12): MIXED OPERANDS. A count or NUMBER on the left reads a STRING or TOKEN on the right
+as its count (its text length): 3 + "12" is 5, 3.5 + "12" is 5.5. A STRING or TOKEN on the left concatenates the right
+side's text: "ab" + "cd" is "abcd", "12" + 3 is "123". L5-L8 are the same with TOKENs, each read clean (no newline) by
+getLine from its own one-line sample (incant/opMix12, opMixab, opMixcd).
+Four cells per line: jitF the jitted first fire into a target with NO kind (it takes the result's kind, R0); jitR a refire
+into the now-kinded target (it keeps it); int and int2 the same two on the interpreted road, run last (bear-trap 25).
+Each cell prints OM <line> <cell> then OMV <text> <datA>: 5 count, 9 NUMBER, 13 STRING, 14 TOKEN, 0 none.
