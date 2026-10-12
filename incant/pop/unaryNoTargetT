@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(UnaryNoTargetT);
+define
+    utA=7;
+    utB=2;
+    utT=0;
+    UT code={ utT = utA; utT &= utB; };
+    ;
+utT = 0; UT(); cerr "UT int " utT:;
+cerr "UT SENTINEL":;
+stop();
+
+unaryNoTargetT -- SEQ 347 R4 (2026-10-12): an operator in a PREFIX position with no target. `&=` is not registered, so
+`utT &= utB` reads as `utT & (= utB)` and `=` lands in runOPaccum's acU arm as a unary. Today (switch on) that arm calls
+opAssign with ONE argument and faults (exit 139). Intended: the arm refuses by name and the run continues -- exit 0, one
+REFUSED line. Switch off, the old road already refuses `&` by name ("has no road"). utT stays 7 either way.

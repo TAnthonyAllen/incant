@@ -6378,6 +6378,13 @@ for _me in modEqT modEqJitT; do
     fdRow "$_me 7 %= 2, value"  "$(tr -s ' ' < "$T/$_me.e" | awk '$1=="ME" && ($2=="int" || $2=="jit") {print $3; exit}')"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo '' || echo 7)"  "1"
 done
 
+#  ⚑ unaryNoTargetT -- SEQ 347 R4: a binary operator in a prefix position (`x &= y` read as `x & (= y)`). Intended on both
+#  switches: exit 0 and the statement refused by name. Today switch on exits 139 (runOPaccum's acU arm calls opAssign as a
+#  unary); switch off the old road refuses `&` by name.
+run2 unaryNoTargetT "$T/ut.o" "$T/ut.e"; _ute=$?
+fdRow "unaryNoTargetT x &= y, exit" "$_ute" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 139 || echo 0)" "0"
+fdRow "unaryNoTargetT x &= y, refused by name, lines" "$(grep -c '^REFUSED' "$T/ut.e")" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 0 || echo 1)" "1"
+
 #  ⚑ opMixT -- SEQ 347 R3 (Tony, 2026-10-12): mixed operands. Count / NUMBER left reads a STRING / TOKEN right as its count;
 #  STRING / TOKEN left concatenates. Cells "text datA": jitF first fire into a no-kind target, jitR refire (kept kind), int,
 #  int2. Today every cell reads the target's own tag and kind 0: interpreted refuses, the jit stores with no kind.
