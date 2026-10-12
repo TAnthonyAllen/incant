@@ -159,6 +159,7 @@ extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buf
 extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer);
 extern "C" GroupItem *cLEAR(GroupItem *input);
 extern "C" int callIsRule(GroupItem *target);
+extern "C" int castStore(GroupItem *argument, GroupItem *target);
 extern "C" int clearRefusal(GroupItem *where);
 extern "C" void clearWalked(GroupItem *field);
 extern "C" int closeFile(GroupItem *bufField);

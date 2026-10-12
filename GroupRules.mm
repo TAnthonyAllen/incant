@@ -1950,6 +1950,41 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
+// castStore the cast rule's store (SEQ 347 R0): a count, NUMBER or STRING target that has a kind keeps it and the argument is cast in; answers 1 when it took the store
+extern "C" int castStore(GroupItem *argument, GroupItem *target)
+{
+	if ( !target->groupBody->flags.data || !argument->groupBody->flags.data )
+		return 0;
+	if ( target->groupBody->flags.data == argument->groupBody->flags.data )
+		return 0;
+	// castExempt an accessor product is a write THROUGH a field, and those are exempt (R1); a holder carries its group across and lists keep setContent (SEQ 346 R4)
+	if ( target->groupBody->flags.isAccessorProduct )
+		return 0;
+	if ( isGROUP(argument->groupBody->flags.data) )
+		return 0;
+	if ( !isCOUNT(target->groupBody->flags.data) && !isNUMBER(target->groupBody->flags.data) && !isSTRING(target->groupBody->flags.data) )
+		return 0;
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
+		{
+		// castCount .count is getCount: a NUMBER rounds half up toward +inf, a STRING or TOKEN reads its text length
+		if ( isCOUNT(target->groupBody->flags.data) )
+			target->setCount(argument->getCount());
+		else
+		if ( isNUMBER(target->groupBody->flags.data) )
+			{
+			if ( isNUMBER(argument->groupBody->flags.data) )
+				target->setNumber(argument->getNumber());
+			else	target->setNumber((double)argument->getCount());
+			}
+		else
+		if ( isSTRING(target->groupBody->flags.data) )
+			target->setText(argument->getText());
+		return 1;
+		}
+	::refuse(target,"Operator = -- the argument has no count and no text to cast into this kind (SEQ 347 R0)");
+	return 1;
+}
+
 /*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
     THE SINGLE WRITER of `ruler.refused = 0`, as refuse() is the single writer of the 1.
     docs/refusalScope.md carries the argument and the three measurements behind it.  */
@@ -7663,8 +7698,12 @@ int 		priorLimit = ::limitWriteGuard(target);
 	// accessorWrite `x.name = v` writes the FIELD x through setGroupField, not only the copy opDot handed back (SEQ 295 R3)
 	if ( target->groupBody->flags.isAccessorProduct )
 		::accessorWrite(argument,target);
+	// castRule a target that has a kind keeps it and the argument is cast in (SEQ 347 R0); one with no kind takes the argument's, as setContent does
 	if ( argument )
-		target->setContent(argument);
+		{
+		if ( !::castStore(argument,target) )
+			target->setContent(argument);
+		}
 	else	target->clearData();
 	// limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
 	if ( priorLimit )

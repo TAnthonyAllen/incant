@@ -42,6 +42,27 @@ use product
 }
 
 
+// castStore the cast rule's store (SEQ 347 R0): a count, NUMBER or STRING target that has a kind keeps it and the argument is cast in; answers 1 when it took the store
+extern int castStore(GroupItem argument,GroupItem target)
+{
+    if !target.data || !argument.data       return 0;
+    if target.data == argument.data         return 0;
+    // castExempt an accessor product is a write THROUGH a field, and those are exempt (R1); a holder carries its group across and lists keep setContent (SEQ 346 R4)
+    if target.isAccessorProduct             return 0;
+    if argument.isGROUP                     return 0;
+    if !target.isCOUNT && !target.isNUMBER && !target.isSTRING  return 0;
+    if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN {
+        // castCount .count is getCount: a NUMBER rounds half up toward +inf, a STRING or TOKEN reads its text length
+        if target.isCOUNT       target.count    = argument.count;
+        or target.isNUMBER {
+            if argument.isNUMBER    target.number   = argument.number;
+            else                    target.number   = argument.count; }
+        or target.isSTRING      target.text     = argument.text;
+        return 1; }
+    refuse(target,"Operator = -- the argument has no count and no text to cast into this kind (SEQ 347 R0)");
+    return 1;
+}
+
 // getMarkLineAt the getLine command: find the line holding fromThis's text in the source buffer, hand it back as a token field into the buffer (valid only while the buffer holds it in place), and leave the mark at the line's start; a mark already set is where the search starts
 extern GroupItem getMarkLineAt(GroupItem argument)
 {
@@ -155,7 +176,9 @@ int         priorLimit = limitWriteGuard(target);
     // accessorWrite `x.name = v` writes the FIELD x through setGroupField, not only the copy opDot handed back (SEQ 295 R3)
     if target.isAccessorProduct     accessorWrite(argument,target);
 use target
-    if argument         setContent(argument);
+    // castRule a target that has a kind keeps it and the argument is cast in (SEQ 347 R0); one with no kind takes the argument's, as setContent does
+    if argument {
+        if !castStore(argument,target)  target.setContent(argument); }
     else    target.clearData();
     // limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
     if priorLimit   limitWriteCheck(target,priorLimit);
