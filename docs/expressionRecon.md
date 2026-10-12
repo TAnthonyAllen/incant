@@ -625,6 +625,28 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE SHORT-CIRCUIT MEASUREMENT -- incant/pop/shortCircT (SEQ 337, Clod, 2026-10-12; measure and pin only, 746ab48)
+
+| expression (each in 3 seats: =, if, folded if) | off/interp | off/jit | on/interp | on/jit | intended |
+|---|---|---|---|---|---|
+| false && X | X0 v0 | X0 v0 | X0 v0 | X0 v0 | X0 v0 |
+| true \|\| X | X0 v1 | X0 v1 | X0 v1 | X0 v1 | X0 v1 |
+| true && X (control) | X1 v1 | X1 v1 | X1 v1 | X1 v1 | X1 v1 |
+| false \|\| X (control) | X1 v1 | X1 v1 | X1 v1 | X1 v1 | X1 v1 |
+| false && X && Y | X0 Y0 v0 | X0 Y0 v0 | X0 Y0 v0 | X0 Y0 v0 | X0 Y0 v0 |
+| true \|\| X \|\| Y | X0 Y0 v1 | X0 Y0 v1 | X0 Y0 v1 | X0 Y0 v1 | X0 Y0 v1 |
+| a \|\| b && c (a1 b1 c0) | **a1 b0 c0 v1** | **a1 b0 c0 v1** | a1 b0 c1 v0 | a1 b0 c1 v0 | a1 b0 c1 v0 |
+
+All three seats agree in every cell, and the testing() fire agrees with the jitRefire cell everywhere. Degrade 0 on all 21
+jitted drivers, both switches; all 21 entered jitRunAction. **The on/jit column exits early, and the candidate's
+interpreted road agrees with it cell for cell.** The IR shows it structurally: the inlined callee's counter add sits inside
+`scRhs`, which the left operand's `br` skips (INCANT_JIT_DUMP=2; both switches reach jitEmitShortCircuitSlots -- the
+tree emitter unpacks into it). Switch off also exits early: `&&` / `||` carry `shortCircuit` (incant/setup:100,102; KANT-34's
+both-arms line was retired, docs/andOrRung.md). **The only red is m1 switch off, all six cells: the old road's
+right-to-left fold, a || (b && c) (KANT-43)** -- given that fold it short-circuits correctly (a decides, b and c skipped). Born
+red (R2); retires when the switch flips. H7: the x column read from scNa -- all 12 control rows red by value on both
+switches (x 1 -> 0), the deciding rows stayed green (which is why the control is required); restored md5-identical.
+
 #### ⚠⚠ J4a MERGED (68ea8fb) -- BOUGHT UNDER OPTION (1); THE FIVE (L) ROWS RE-PINNED TO 3 (SEQ 336, Clod, 2026-10-12)
 
 **R1 (Tony):** a lone operator's by-name refusal count is 3 with the switch on -- SEQ 327 R1 holding on all three drives.

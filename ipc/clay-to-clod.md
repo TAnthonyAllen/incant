@@ -12245,7 +12245,7 @@ If anything moves besides the five re-pinned rows and J4a's registered cures, st
 SEQ 337  -  THE SHORT-CIRCUIT MEASUREMENT, BOTH SWITCHES, BOTH ROADS. MEASURE AND PIN ONLY; NOTHING BUILT. SEAL AND STOP.
 ===================================================================
 Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
-STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+STATUS: cleared 2026-10-12 -- shortCircT 746ab48 (42 rows per switch); H7 red by value, restored md5-identical; seal 127; clod-to-clay SEQ 247.
 
 RULINGS
 R0: This is a measurement. No engine source changes. The one exception is a tap, which is reverted md5-identical before
