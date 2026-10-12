@@ -625,6 +625,22 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ J4b -- NOT DEFINED; THE CENSUS FINDS NO POPULATION. STOPPED BY R0, NOTHING BUILT (SEQ 341, Clod, 2026-10-12)
+
+**R0: the record does not define J4b.** "J4b" / "J4c" appear only as labels in the census table of 2026-10-10 (`| opLenT,
+tokJitT | ... | J4b |`, `| probeDoorT, site1RoadsT, sweepT | ... | J4b + J4c |`), written before J4a took the R3 plan's J4
+(acOr) AND J5 (acAnd) together with faults A and B. J4a's certificate already read "no accumulator refusal left anywhere".
+**R1, the census on today's trunk** (8aa3cf1, seal 130; clone, censusTap.patch applied, reverted md5-identical, rebuilt):
+pop.sh 1171 / 1156 and jitLadder PASSED 219 / PASSED 219 = trunk. Switch off: no ac refusal, no tap line. **Switch on, pop.sh:
+no fixture carries a jit refusal or a degrade (66 runs entered jitRunAction across both instruments).** jitLadder: jitXscRT
+refuses `acC` x2 -- "a call whose target is built", the `*fId(x)` star-call JXD-4 was written around -- with its two pinned
+degrades (AND/OR operand produced no value, run interpreted); jpd degrades `cerr under jit` once (JPd, by design). The search
+is not blind: the same grep over the pre-J4a census (a4.pk1) finds 108 lines.
+**Proposal, for Tony -- nothing built:** (1) J4b closes EMPTY: no registered row exists to cure. (2) If a J4b is wanted, the only
+expression kind still refused under jitting is the **built-target call** (`*f(x)`, acC refused by name since J1): emit it, and
+register jitLadder JXD-4's degrade row (pinned 2, intended 0) and the two acC refusals (2 -> 0); the values already hold (fault
+A runs the operand interpreted). `cerr under jit` is a statement, not an expression kind, and is not proposed.
+
 #### ⚠⚠ SHORT-CIRCUIT, THE TWO LOOSE ENDS (SEQ 338, Clod, 2026-10-12; nothing built, 0c889d6)
 
 | expression | off/interp | off/jit | on/interp | on/jit | intended |
