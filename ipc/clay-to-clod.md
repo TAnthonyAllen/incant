@@ -12216,3 +12216,27 @@ R3  setData recon, READ-ONLY, nothing built: re-run SEQ 313's opAssign tap on to
     recommended -- the spelling is Tony's.
 c4 unmerged, for Tony to buy. Seal and stop.
   END SEQ 323
+
+===================================================================
+SEQ 336  -  J4a BOUGHT: RE-PIN THE FIVE (L) ROWS TO 3 AND MERGE expr-j4a. SEAL AND STOP.
+===================================================================
+Dictated via Tony ("Fearless"); transcribed by Clod AT PICKUP, 2026-10-12, before any edit.
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R0: J4a is bought (expr-j4a, 14b4295), under option (1) from seal 124.
+R1: In the five (L) rows, a lone operator's by-name refusal count is pinned at 3, with switch on. That is SEQ 327 R1
+    holding on all three drives: the jitted drives now reach the operator and refuse it by name, as the interpreted
+    drive does. Each row carries that sentence. Switch off keeps its current pin.
+
+THE STROKE
+On trunk, re-pin the five rows from 1 to 3, each with R1's sentence. Commit this on its own.
+Merge expr-j4a.
+H7: mutate one pinned 3 back to 1. That row goes red by value. Restore it md5-identical.
+Kitchen pass on trunk, after a rebuild and a bare retok. Report each item row for row against the expr-j4a clone run:
+pop.sh, both switches; jitLadder, both switches (switch on should now pass); printPop, ddPop, decodePop, frontier;
+dirCheck; canary; exec bits; groups.ext.
+Delete expr-j4a in the clone, live and on GitHub.
+Seal, then stop.
+If anything moves besides the five re-pinned rows and J4a's registered cures, stop and report it before merging.
+  END SEQ 336
