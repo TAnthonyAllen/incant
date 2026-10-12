@@ -39,4 +39,4 @@ How to attack?
         if A || B; print "I am a bum":;
     flattened that would be
         A || B if print "I am a bum" :    if and print become operators (print op is unary)
-        Note the print op gets handles a list w/2 items; right now instruction chain does not handle lists
+        Note the print op gets handed a list w/2 items; right now instruction chain does not handle lists
