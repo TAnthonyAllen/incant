@@ -134,6 +134,7 @@ GroupItem   result;
 void setBaseRegistries()
 {
 GroupItem   action;
+GroupItem   kantName;
     fieldBUFFER             = new;
     stringBUFFER            = new("string buffer");
     formatBUFFER            = new("format buffer");
@@ -155,6 +156,13 @@ GroupItem   action;
     falseResult             = properties += new("false");
     falseResult.isCOUNT     = true;
     falseResult.noPrint     = true;
+    // kantSentinelNames kant spells the sentinels trueResult / falseResult, so they are registered under those names too, valued as the sentinels -- else the name mints a data-less local both readers misread (SEQ 339)
+    kantName                = properties += new("trueResult");
+    kantName.count          = 1;
+    kantName.noPrint        = true;
+    kantName                = properties += new("falseResult");
+    kantName.isCOUNT        = true;
+    kantName.noPrint        = true;
     /*  labelNO -- the return channel's third value (LA''-0, PC-3, 2026-08-07).
         NULL = failed · labelNO = succeeded and yields NOTHING · any other node
         = succeeded and yields that node.

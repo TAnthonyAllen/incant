@@ -133,6 +133,7 @@ GroupItem 	*result = 0;
 void GroupControl::setBaseRegistries()
 {
 GroupItem 	*action = 0;
+GroupItem 	*kantName = 0;
 	groupRules->fieldBUFFER = new Buffer();
 	groupRules->stringBUFFER = new Buffer("string buffer");
 	groupRules->formatBUFFER = new Buffer("format buffer");
@@ -154,6 +155,13 @@ GroupItem 	*action = 0;
 	groupRules->falseResult = groupRules->properties->addMember(new GroupItem("false"));
 	groupRules->falseResult->groupBody->flags.data = 5;
 	groupRules->falseResult->groupBody->flags.noPrint = 1;
+	// kantSentinelNames kant spells the sentinels trueResult / falseResult, so they are registered under those names too, valued as the sentinels -- else the name mints a data-less local both readers misread (SEQ 339)
+	kantName = groupRules->properties->addMember(new GroupItem("trueResult"));
+	kantName->setCount(1);
+	kantName->groupBody->flags.noPrint = 1;
+	kantName = groupRules->properties->addMember(new GroupItem("falseResult"));
+	kantName->groupBody->flags.data = 5;
+	kantName->groupBody->flags.noPrint = 1;
 	/*  labelNO -- the return channel's third value (LA''-0, PC-3, 2026-08-07).
 	NULL = failed · labelNO = succeeded and yields NOTHING · any other node
 	= succeeded and yields that node.
