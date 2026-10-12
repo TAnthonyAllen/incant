@@ -2,7 +2,7 @@
 #
 #   ## THE OPENER: J4b, by a fresh dispatch.
 #
-#   ## THE ONE-LINE STATE: trunk at this seal installed, bare -- fleet 1171 / 52 red / 1 · switch on 1156 · canary 348.
+#   ## THE ONE-LINE STATE: trunk at this seal installed, bare -- fleet 1171 / 57 red / 1 (counted) · switch on 1156 · canary 348.
 #   jitLadder PASSED both switches (219). Short-circuit: every shortCircT row green but m1 switch off (KANT-43, six rows).
 #
 #   ## LANDED: 568762b -- shortCircT s1-s4 / k3 int / k4 jit
