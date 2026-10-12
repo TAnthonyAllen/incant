@@ -625,6 +625,55 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE SWITCH-ON CENSUS -- INPUT TO THE DEFAULT-ON RULING (SEQ 342, Clod, 2026-10-12; measure only, nothing re-pinned)
+
+**R0 recorded:** J4b and J4c are CLOSED -- census labels J4a absorbed; the jit step (b) of the C1 build order is complete.
+**R1:** `*f(x)` stays refused by name under jitting, rows as pinned; TODO.md Pending item 4, "emit the built-target call".
+
+**Population:** trunk 8aa3cf1 (seal 130), installed binary, bare. Rows paired switch off against switch on by a sequence diff
+with the switch token in shortCircT's labels normalised. pop.sh: **43 rows off / 47 on** differ (the 4 extra are opLenT's
+switch-specific rows); jitLadder: **5** (rung JA). Nothing re-pinned or fixed.
+
+| class | rows (switch on) | |
+|---|---|---|
+| **(P) re-pin owed** | **27** | exprPinT 19, foldAndT 3, blockCallT 4, testPrecedence 1 |
+| **(I) intended** | **25** | shortCircT m1 6, opLenT 8 (off 4), tokJitT 3, starT S3a 1, exprPinT O3b 1, oldRoad anti-vacuity 1, jitLadder JA 5 |
+| **(D) candidate defect** | **0** | |
+| **(?) unexplained** | **0** | |
+
+| fixture | rows | class | off -> on | the sentence (P) / the reason (I) |
+|---|---|---|---|---|
+| exprPinT A2 A5 A6 A7 C3 | 5 | P | 26 0.153846 25 52 32 -> 23 3.2 17 54 36 | the candidate binds `*` `/` before `+` `-` and folds left within a tier; KANT-43's right-to-left split retires |
+| exprPinT U70 U72 U75 B2 B3 | 5 | P | 1 1 1 goodToGo 1 -> 0 0 0 0 0 | comparisons bind before `&&`: `x > a && x < b` is two comparisons |
+| exprPinT U302a S1 OR1 OR2 | 4 | P | 0 0 0 0 -> 1 1 1 1 | comparisons first, then `&&` / `\|\|` fold left |
+| exprPinT FA2; foldAndT x3 | 4 | P | 1; 139 0 0 -> 0; 0 1 1 | a folded `&&` over comparisons reads each `a != 0`; foldAndT runs to its foot |
+| exprPinT O1 x2; blockCallT BC2 x2, BC4 x2 | 6 | P | pz 0, rc/r3 tag echo -> 7, 7 | a prefix binds its name first (R1, 2026-10-06): `*block(x)` is `(*block)(x)`, the call is kept |
+| exprPinT O3 (lines) | 1 | P | 1 -> 3 | `!fTrue(x)` runs fTrue -- the prefix binds the name, the call applies |
+| exprPinT E2 (refused, lines) | 1 | P | 1 -> 0 | the row greps the old road's ACCIDENTAL refusal; the candidate refuses `a < b < c` BY NAME (SEQ 318 R1) -- re-pin the grep to that message |
+| testPrecedence | 1 | P | 8 -> 5 of 35 not yet true | ratchet 8 -> 5: `++*x` / `--*x` act on the dereferenced field (prefix binds the name first) |
+| shortCircT m1 x6 | 6 | I | red -> green | the strict left fold; the old road's a \|\| (b && c) is KANT-43 |
+| opLenT x4 / x8; tokJitT x3 | 7 / 11 | I | switch-specific pins | a lone operator is not an ExpressioN, refused by name (SEQ 327 R1) |
+| starT S3a | 1 | I | FAIL -> ok | `**x` one-deep: the old road reads LEAF; the candidate refuses (stD), the fixture's stated want |
+| exprPinT O3b | 1 | I | nr -> 1 | the old road's `!` is separate (SEQ 340 R1); already pinned per switch |
+| oldRoad anti-vacuity | 1 | I | 166 -> 154 inputs | the six lone operators (@ + * ? ! %) x two roots refuse by name; row stays green (> 150) |
+| jitLadder JA x5 | 5 | I | 25/75/125 -> 17/68/170, IR bytes | the strict left fold, pinned per switch (SEQ 335 R0) |
+
+**The acceptance lines (SEQ 309)** -- a scratch probe with blockCallT's spellings (`code := pSrc`, pSrc = "{ pz = 7; }"),
+each line jitted (testing, then a refire) and interpreted, each crash isolated in its own process:
+
+| line | off / interp | off / jit | on / interp | on / jit |
+|---|---|---|---|---|
+| `result = *block(code);` | pz 0, result 9 (unwritten) | pz 0, result 9 | **pz 7, result 7** | **pz 7, result 7** -- via the by-name acC refusal and fault B (the statement run interpreted, degrade 1) |
+| `BlocK(code);` | **pz 7** | **exit 139** | **pz 7** | **exit 139** |
+| alongside: BC2 / BC4 / O1 (interpreted) | pz 0, rc tag echo | -- | pz 7, rc 7 | -- |
+
+**`BlocK(code);` jitted is a JIT-ROAD DEFECT ON BOTH SWITCHES, not a candidate one.** Site: **jitExecBlock**
+(jitEmitters.rtn:2237, GroupRules.mm:5611) hoists the action's body as `input->getLabelGroup("BlocK")` and calls its gMethod.
+A bare `BlocK` in the action body mints a child of the action TAGGED `BlocK` with no gMethod, and the lookup by tag returns it:
+lldb at the call -- node tagged BlocK, parent AL2, gMethod 0x0; the crash is a call to address 0. Control, one variable each:
+`nm := BlocK; pz = 7;` (the name, no call) -> 139 both switches; `blk := Grokking["BlocK"]; blk(code);` (the call, no bare
+name) -> exit 0. Not fixed.
+
 #### ⚠⚠ J4b -- NOT DEFINED; THE CENSUS FINDS NO POPULATION. STOPPED BY R0, NOTHING BUILT (SEQ 341, Clod, 2026-10-12)
 
 **R0: the record does not define J4b.** "J4b" / "J4c" appear only as labels in the census table of 2026-10-10 (`| opLenT,

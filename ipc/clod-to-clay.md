@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      125
-STATUS:   fresh           # SEQ 251 at the FOOT -- SEQ 341: J4b STOPPED by R0 (not defined; census finds no population); seal 131; prior: SEQ 250 at the FOOT -- SEQ 340: falseResultTruthy cured (583c06b) and retired (9dc0247); seal 130; prior: SEQ 249 at the FOOT -- SEQ 339: cure built on frt-cure, STOPPED: exprPinT O3b moved (on, nr -> 1, its intended); seal 129; prior: SEQ 248 at the FOOT -- SEQ 338: call rows agree; sentinel rows split by road (jitSeedField vs truthOf, falseResultTruthy); nested = folded; seal 128; prior: SEQ 247 at the FOOT -- SEQ 337: short-circuit measured (shortCircT 746ab48): on/jit exits early, candidate agrees; m1 off born red (KANT-43); seal 127; prior: SEQ 246 at the FOOT -- SEQ 336: J4a bought and merged 68ea8fb, five (L) rows re-pinned 3 (bfde51e); shutdown seal 126; prior: SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 252 at the FOOT -- SEQ 342: switch-on census P27 I25 D0 ?0; BlocK(code) jitted crashes both switches (jitExecBlock); seal 132; prior: SEQ 251 at the FOOT -- SEQ 341: J4b STOPPED by R0 (not defined; census finds no population); seal 131; prior: SEQ 250 at the FOOT -- SEQ 340: falseResultTruthy cured (583c06b) and retired (9dc0247); seal 130; prior: SEQ 249 at the FOOT -- SEQ 339: cure built on frt-cure, STOPPED: exprPinT O3b moved (on, nr -> 1, its intended); seal 129; prior: SEQ 248 at the FOOT -- SEQ 338: call rows agree; sentinel rows split by road (jitSeedField vs truthOf, falseResultTruthy); nested = folded; seal 128; prior: SEQ 247 at the FOOT -- SEQ 337: short-circuit measured (shortCircT 746ab48): on/jit exits early, candidate agrees; m1 off born red (KANT-43); seal 127; prior: SEQ 246 at the FOOT -- SEQ 336: J4a bought and merged 68ea8fb, five (L) rows re-pinned 3 (bfde51e); shutdown seal 126; prior: SEQ 245 at the FOOT -- SEQ 332-335: J3 and J6 merged; JA re-pinned; J4a built on expr-j4a, NOT merged (five (L) rows); shutdown seal 124; prior: SEQ 244 at the FOOT -- SEQ 330-331: expr-a bought; (b) recon; J1 + J2 + the safe IF guard merged; shutdown seal 120; prior: SEQ 243 at the FOOT -- SEQ 330: SHUTDOWN seal 108; A1/A2 recorded for expr-a; two fixits banked (one re-aimed: parserCoverage walks members, Token is an attribute); prior: SEQ 242 at the FOOT -- SEQ 329: expr-d1 merged; miss-prints respelled; (a) recon (66 rows: Token's Operators() 65, rule argument fired 1); seal 107; prior: SEQ 241 at the FOOT -- SEQ 328: expr-d merged; miss-prints measured; lastRefT; D1 on expr-d1 75c7969 (unmerged, exposes 22 (a) rows); seal 106; prior: SEQ 240 at the FOOT -- SEQ 327: loneOpT; (f) respelled on trunk (45, switch on 796 -> 835); D2-D4 on expr-d faeb649 (unmerged); seal 105; prior: SEQ 239 at the FOOT -- SEQ 326: expr-h bought and merged; (e) triage of 275 switch-on movers (a 116, b 44, f 46, L 28, D 40, ? 1); seal 104; prior: SEQ 238 at the FOOT -- SEQ 325: (h) pinned (blockCallT), one door, built on expr-h fabb4a2 (unmerged, for Tony to buy); seal 103; prior: SEQ 237 at the FOOT -- SEQ 324: PA1 (+% order) pinned; c4 BOUGHT, expr-accum merged into trunk d0c0d7b / support 4394d53, branch deleted; setData parked; seal 102; prior: SEQ 236 at the FOOT -- SEQ 323: c4 landed on expr-accum aaf57cf (unmerged); fold/stale rows on trunk; setData recon; seal 101; prior: SEQ 235 at the FOOT -- SEQ 322: R0 merged; c4 STOPPED by R1 -- C5 2 10 needs a ruling on = and print of a list value; seal 100; prior: SEQ 234 at the FOOT -- seal 99: Tony's offline work reconciled (f23a512, 129d2da); isOperator closed; && context; c4 stays the opener; prior: SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12588,3 +12588,55 @@ expression kind still refused under jitting is the **built-target call** (`*f(x)
 register jitLadder JXD-4's degrade row (pinned 2, intended 0) and the two acC refusals (2 -> 0); the values already hold (fault
 A runs the operand interpreted). `cerr under jit` is a statement, not an expression kind, and is not proposed.
   END SEQ 251
+
+===================================================================
+SEQ 252  -  SEQ 342 (Tony, Fearless): J4b / J4c CLOSED; THE SWITCH-ON CENSUS; SEAL 132
+===================================================================
+Written 2026-10-12. Measure only.
+**R0 recorded:** J4b and J4c are CLOSED -- census labels J4a absorbed; the jit step (b) of the C1 build order is complete.
+**R1:** `*f(x)` stays refused by name under jitting, rows as pinned; TODO.md Pending item 4, "emit the built-target call".
+
+**Population:** trunk 8aa3cf1 (seal 130), installed binary, bare. Rows paired switch off against switch on by a sequence diff
+with the switch token in shortCircT's labels normalised. pop.sh: **43 rows off / 47 on** differ (the 4 extra are opLenT's
+switch-specific rows); jitLadder: **5** (rung JA). Nothing re-pinned or fixed.
+
+| class | rows (switch on) | |
+|---|---|---|
+| **(P) re-pin owed** | **27** | exprPinT 19, foldAndT 3, blockCallT 4, testPrecedence 1 |
+| **(I) intended** | **25** | shortCircT m1 6, opLenT 8 (off 4), tokJitT 3, starT S3a 1, exprPinT O3b 1, oldRoad anti-vacuity 1, jitLadder JA 5 |
+| **(D) candidate defect** | **0** | |
+| **(?) unexplained** | **0** | |
+
+| fixture | rows | class | off -> on | the sentence (P) / the reason (I) |
+|---|---|---|---|---|
+| exprPinT A2 A5 A6 A7 C3 | 5 | P | 26 0.153846 25 52 32 -> 23 3.2 17 54 36 | the candidate binds `*` `/` before `+` `-` and folds left within a tier; KANT-43's right-to-left split retires |
+| exprPinT U70 U72 U75 B2 B3 | 5 | P | 1 1 1 goodToGo 1 -> 0 0 0 0 0 | comparisons bind before `&&`: `x > a && x < b` is two comparisons |
+| exprPinT U302a S1 OR1 OR2 | 4 | P | 0 0 0 0 -> 1 1 1 1 | comparisons first, then `&&` / `\|\|` fold left |
+| exprPinT FA2; foldAndT x3 | 4 | P | 1; 139 0 0 -> 0; 0 1 1 | a folded `&&` over comparisons reads each `a != 0`; foldAndT runs to its foot |
+| exprPinT O1 x2; blockCallT BC2 x2, BC4 x2 | 6 | P | pz 0, rc/r3 tag echo -> 7, 7 | a prefix binds its name first (R1, 2026-10-06): `*block(x)` is `(*block)(x)`, the call is kept |
+| exprPinT O3 (lines) | 1 | P | 1 -> 3 | `!fTrue(x)` runs fTrue -- the prefix binds the name, the call applies |
+| exprPinT E2 (refused, lines) | 1 | P | 1 -> 0 | the row greps the old road's ACCIDENTAL refusal; the candidate refuses `a < b < c` BY NAME (SEQ 318 R1) -- re-pin the grep to that message |
+| testPrecedence | 1 | P | 8 -> 5 of 35 not yet true | ratchet 8 -> 5: `++*x` / `--*x` act on the dereferenced field (prefix binds the name first) |
+| shortCircT m1 x6 | 6 | I | red -> green | the strict left fold; the old road's a \|\| (b && c) is KANT-43 |
+| opLenT x4 / x8; tokJitT x3 | 7 / 11 | I | switch-specific pins | a lone operator is not an ExpressioN, refused by name (SEQ 327 R1) |
+| starT S3a | 1 | I | FAIL -> ok | `**x` one-deep: the old road reads LEAF; the candidate refuses (stD), the fixture's stated want |
+| exprPinT O3b | 1 | I | nr -> 1 | the old road's `!` is separate (SEQ 340 R1); already pinned per switch |
+| oldRoad anti-vacuity | 1 | I | 166 -> 154 inputs | the six lone operators (@ + * ? ! %) x two roots refuse by name; row stays green (> 150) |
+| jitLadder JA x5 | 5 | I | 25/75/125 -> 17/68/170, IR bytes | the strict left fold, pinned per switch (SEQ 335 R0) |
+
+**The acceptance lines (SEQ 309)** -- a scratch probe with blockCallT's spellings (`code := pSrc`, pSrc = "{ pz = 7; }"),
+each line jitted (testing, then a refire) and interpreted, each crash isolated in its own process:
+
+| line | off / interp | off / jit | on / interp | on / jit |
+|---|---|---|---|---|
+| `result = *block(code);` | pz 0, result 9 (unwritten) | pz 0, result 9 | **pz 7, result 7** | **pz 7, result 7** -- via the by-name acC refusal and fault B (the statement run interpreted, degrade 1) |
+| `BlocK(code);` | **pz 7** | **exit 139** | **pz 7** | **exit 139** |
+| alongside: BC2 / BC4 / O1 (interpreted) | pz 0, rc tag echo | -- | pz 7, rc 7 | -- |
+
+**`BlocK(code);` jitted is a JIT-ROAD DEFECT ON BOTH SWITCHES, not a candidate one.** Site: **jitExecBlock**
+(jitEmitters.rtn:2237, GroupRules.mm:5611) hoists the action's body as `input->getLabelGroup("BlocK")` and calls its gMethod.
+A bare `BlocK` in the action body mints a child of the action TAGGED `BlocK` with no gMethod, and the lookup by tag returns it:
+lldb at the call -- node tagged BlocK, parent AL2, gMethod 0x0; the crash is a call to address 0. Control, one variable each:
+`nm := BlocK; pz = 7;` (the name, no call) -> 139 both switches; `blk := Grokking["BlocK"]; blk(code);` (the call, no bare
+name) -> exit 0. Not fixed.
+  END SEQ 252

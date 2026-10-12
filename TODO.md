@@ -489,6 +489,9 @@ projectBible.md "Phase Generate Tawk".
      Same family as starDotNull (`*a.b`) and bear-traps #48/#52 (one prefix, one postfix per `TokenXP`).
   3. **Tony's `parseCode` in `IncantForms/WorkingOn/tester` is PARKED as a design probe until the expression work
      lands.** `compileIn` stays as `processCode`'s tool.
+  4. **JITTER DOCKET -- emit the built-target call (SEQ 342 R1, 2026-10-12).** `*f(x)` stays refused by name under jitting
+     ("a call whose target is built", acC, since J1) with its rows pinned as they are: jitLadder JXD-4's degrade row (2)
+     and jitXscRT's two refusals. Its VALUE is right (fault A / fault B run it interpreted), so it is docket, not a fixit.
 
 - [ ] **parseR -- a road anyone uses, or a cleanup candidate? Tony's call.** (Docketed 2026-10-04, SEQ 290 R5, no
   action.) Its only entry is a kant rule called with a field that has no data (driveStep's no-data arm). Before
