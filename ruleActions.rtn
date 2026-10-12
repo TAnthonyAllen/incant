@@ -23,9 +23,12 @@ GroupRules  ruler = groupRules;
 GroupItem   grup,
             result,
             prior;
+    // stmtUnderEmit under jitting each statement is published as gJitStmt, so an emitter that cannot emit its part hands the whole statement to one run-time call; the enclosing statement is restored at the foot (SEQ 335 R2)
+    -% GroupItem *outerJitStmt = gJitStmt; bool outerJitStmtRTDone = gJitStmtRTDone; %-
     while grup = input.next(grup) {
         prior = result;
         branchKind = 0;
+        -% if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; } %-
         if grup.isMethod    result = grup.gMethod(grup);
         else                result = grup;
         /*  THE RESULT SLOT (Tony's ruling, 2026-07-31). Under jitting, every
@@ -56,6 +59,7 @@ GroupItem   grup,
             if jitting  continue;
             broke = 1;
             break; }}
+    -% gJitStmt = outerJitStmt; gJitStmtRTDone = outerJitStmtRTDone; %-
     if result && result.isGROUP  result = result.gGroup;
     /*  ⚠ A BLOCK THAT RAN TO THE END AND YIELDED NOTHING SUCCEEDED AND HAS NO VALUE --
         which is labelNO, not null. NULL means FAILED (GroupControl.twk:158), and

@@ -53,10 +53,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 GroupItem 	*prior = 0;
+	// stmtUnderEmit under jitting each statement is published as gJitStmt, so an emitter that cannot emit its part hands the whole statement to one run-time call; the enclosing statement is restored at the foot (SEQ 335 R2)
+	 GroupItem *outerJitStmt = gJitStmt; bool outerJitStmtRTDone = gJitStmtRTDone; 
 	while ( grup = input->next(grup) )
 		{
 		prior = result;
 		ruler->branchKind = 0;
+		 if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; } 
 		if ( isMethod(grup->groupBody->flags.instructType) )
 			result = grup->groupBody->gMethod(grup);
 		else	result = grup;
@@ -96,6 +99,7 @@ GroupItem 	*prior = 0;
 			break;
 			}
 		}
+	 gJitStmt = outerJitStmt; gJitStmtRTDone = outerJitStmtRTDone; 
 	if ( result && isGROUP(result->groupBody->flags.data) )
 		result = result->groupBody->gGroup;
 	/*  ⚠ A BLOCK THAT RAN TO THE END AND YIELDED NOTHING SUCCEEDED AND HAS NO VALUE --
@@ -4308,8 +4312,11 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	// null-check returning target would be worse than the crash it replaces --
 	// exit 0 with wrong IR. So this DEGRADES, countably, and gJitDegradeCount is
 	// asserted 0 by every rung, which is what stops it passing silently.
+	// stmtRT an unseeded operand never leaves its statement emitting nothing: the WHOLE statement becomes one run-time call on the interpreted road, once per statement (SEQ 335 R2, jitIfRT's pattern)
 	if (!argument || !argument->jitData || !target || !target->jitData) {
 	jitDegrade("assign operand reached jitEmitAssign unseeded", target);
+	if (gJitStmt && !gJitStmtRTDone) { jitEmitStmtRT(gJitStmt); gJitStmtRTDone = true; }
+	gJitResult = nullptr;
 	return target;
 	}
 	llvm::IRBuilder<> *b = gJitBuilder;
@@ -5136,6 +5143,26 @@ extern "C" int jitEmitReturn()
 	
 }
 
+extern "C" void jitEmitScOperandRT(GroupItem *operand)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !operand) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *opAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "scOpNode");
+	llvm::Value *fn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitScOperandRT), ptr, "scOpFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
+	gJitEmitted    = true;
+	gJitLastIsNode = false;
+	
+}
+
 /*******************************************************************************
     jitEmitSelfCall -- THE RECURSIVE CALL, emitted rather than inlined. Returns
     1 when it emitted, 0 when it did not -- and 0 is the common, CORRECT
@@ -5322,13 +5349,18 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 *******************************************************************************/
 extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field)
 {
-GroupItem 	*op = field->get(1);
-GroupItem 	*target = field->get(2);
-GroupItem 	*arg = field->get(3);
-int 		isAND = 0;
+	return jitEmitShortCircuitSlots(field->get(1),field->get(2),field->get(3),field);
+}
+
+// jitEmitShortCircuitSlots the emit on the connective's SLOTS -- the tree shape is [op, left, right] and the candidate's is [left, op, right], so each unpacks into this, as runOP does into runOPslots (SEQ 335 J4a); `field` is the node the result rides on
+extern "C" GroupItem *jitEmitShortCircuitSlots(GroupItem *op, GroupItem *target, GroupItem *arg, GroupItem *field)
+{
+int 	isAND = 0;
 	// skipByRegistration the direction is the operator's isOR registration, never its spelling -- `op.tag eq "AND"` stood here until 2026-09-23 and read `&&` as OR
 	if ( !::opIsOR(op) )
 		isAND = 1;
+	// freshOperand nothing may be in flight before an operand emits, so an operand that emits nothing reads as NO value, never as the last thing emitted (SEQ 335 R2)
+	 gJitResult = nullptr; 
 	if ( isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target->groupBody->gMethod(target);
 	else	::jitEmitBareRead(target);
@@ -5339,22 +5371,46 @@ int 		isAND = 0;
 	pointing at a word from the error TEXT. Every test of it therefore
 	lives in passthrough. (Three-languages-share-the-tree, and the
 	generated line is the only place that says which one you were in.)  */
+	// operandRT an operand with no value is ONE run-time call that evaluates it interpreted and hands back its truth -- the connective is never omitted, and the right side stays inside its own branch (SEQ 335 R2, jitIfRT's pattern)
 	
 	if (!gJitResult) {
-	jitDegrade("AND/OR LEFT operand produced no value", target);
-	return nullptr;
+	jitDegrade("AND/OR LEFT operand produced no value -- it runs INTERPRETED", target);
+	jitEmitScOperandRT(target);
 	}
 	
 	jitScBegin(isAND);
+	 gJitResult = nullptr; 
 	if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 		arg->groupBody->gMethod(arg);
 	else	::jitEmitBareRead(arg);
 	
-	if (!gJitResult)
-	jitDegrade("AND/OR RIGHT operand produced no value", arg);
+	if (!gJitResult) {
+	jitDegrade("AND/OR RIGHT operand produced no value -- it runs INTERPRETED", arg);
+	jitEmitScOperandRT(arg);
+	}
 	
 	jitScEnd(field);
 	return field;
+}
+
+extern "C" void jitEmitStmtRT(GroupItem *statement)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !statement) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *stAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)statement), ptr, "stmtNode");
+	llvm::Value *fn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+	gJitEmitted    = true;
+	gJitLastIsNode = false;
+	
 }
 
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
@@ -6838,6 +6894,22 @@ extern "C" void jitScEnd(GroupItem *resultNode)
 	
 }
 
+/*  jitScOperandRT -- one AND/OR operand the jit could not emit, evaluated at RUN time on the interpreted road, as
+    runShortCircuit evaluates it; its truth comes back as an i32. A refusal's scope is the operand: it opens with none
+    in force and clears its own on the way out, as jitIfRT does.  */
+extern "C" int jitScOperandRT(GroupItem *operand)
+{
+GroupItem 	*value = operand;
+int 		truth = 0;
+	::clearRefusal(operand);
+	if ( value )
+		if ( isMethod(value->groupBody->flags.instructType) && value->groupBody->flags.invoke )
+			value = value->groupBody->gMethod(value);
+	truth = ::truthOf(value);
+	::clearRefusal(operand);
+	return truth;
+}
+
 /*******************************************************************************
     jitSeedField -- unbox a real count/number field operand, past constant
     folding: bake the stable GroupItem address, load gCount/gNumber, and stash
@@ -6991,6 +7063,18 @@ extern "C" int jitSlotTaken(GroupItem *op)
 	++gJitSlotCount;
 	return 1;
 	
+}
+
+/*  jitStmtRT -- a statement the jit could not emit, run at RUN time on the interpreted road: its own method on its own
+    node, with jitting off as it always is at run time. Its value is not used. A refusal's scope is the statement, as in
+    jitIfRT.  */
+extern "C" int jitStmtRT(GroupItem *statement)
+{
+	::clearRefusal(statement);
+	if ( isMethod(statement->groupBody->flags.instructType) )
+		statement->groupBody->gMethod(statement);
+	::clearRefusal(statement);
+	return 0;
 }
 
 /*******************************************************************************
@@ -10253,8 +10337,13 @@ extern "C" GroupItem *runAccAnd(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*left = 0;
+	// jitAnd under jitting the connective's slots go to the tree's own emitter, which owns the short-circuit diamond (SEQ 335 J4a)
 	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+		{
+		if ( field->groupBody->groupList->listLength < 3 )
+			return ::refuse(field,"a connective with no right side under jitting (SEQ 335 J4a)");
+		return jitEmitShortCircuitSlots(field->get(2),field->get(1),field->get(3),field);
+		}
 	left = runOPaccumOperand(field->get(1));
 	if ( !::truthOf(left) )
 		return ruler->falseResult;
@@ -10373,8 +10462,13 @@ extern "C" GroupItem *runAccOr(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*left = 0;
+	// jitOr under jitting the connective's slots go to the tree's own emitter, which owns the short-circuit diamond (SEQ 335 J4a)
 	if ( ruler->jitting )
-		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+		{
+		if ( field->groupBody->groupList->listLength < 3 )
+			return ::refuse(field,"a connective with no right side under jitting (SEQ 335 J4a)");
+		return jitEmitShortCircuitSlots(field->get(2),field->get(1),field->get(3),field);
+		}
 	left = runOPaccumOperand(field->get(1));
 	if ( ::truthOf(left) )
 		return ruler->trueResult;
@@ -11534,6 +11628,8 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	accBare(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
+	clearRefusal(GroupItem*)
+	clearRefusal(GroupItem*)
 	refuseDotUnaryOp(GroupItem*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
 	measurePlusPlusWrite(GroupItem*)

@@ -1452,6 +1452,33 @@ else echo "  FAIL  JXD-3 fire 2 xaOut = '$xao2', want 1"; fail=1; fi
 if [ "$xad" = "0" ]; then echo "  ok    JXD-3 degrade count = 0"; green=$((green+1))
 else echo "  FAIL  JXD-3 degrade count = '$xad', want 0"; fail=1; fi
 
+#  JXD-4 -- AN AND/OR OPERAND THAT EMITS NOTHING (SEQ 335 R2, fault A, 2026-10-11). `*fId(x)` has no emit, so each
+#  connective carries one operand with no value at emit time: xrA's RIGHT, xrB's LEFT. jitEmitShortCircuit clears the value
+#  in flight before each operand and runs an operand with no value as ONE run-time call (jitScOperandRT). Before it, the
+#  right case read the stale value and the left case omitted the connective. Values are the claim, both fires against the
+#  interpreted oracle on both input sets; xrB's fire 2 = 1 is the non-zero sibling. The degrade count is 2, named, and is NOT
+#  the soundness proof -- the values are (the degrade doctrine). H7 at landing, the fix removed: switch off both fires read
+#  9 9 (the statements emitted nothing) against the oracle's 0 0 / 0 1; switch on the values HOLD -- fault B runs the
+#  unseeded statement interpreted, the masker (H17) -- and only this degrade row goes red (1, want 2).
+echo "-- JXD-4  AN AND/OR OPERAND WITH NO VALUE RUNS AS ONE RUN-TIME CALL."
+$B "$(ip jitXscRT)" > "$T/jitXscRT" 2>&1
+xre=$?
+if [ $xre != 0 ]; then echo "  FAIL  JXD-4 -- nonzero exit ($xre)"; fail=1
+elif ! grep -qF "XR SENTINEL" "$T/jitXscRT"; then
+    echo "  FAIL  JXD-4 -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1
+else
+    echo "  ok    JXD-4 runs, sentinel"; green=$((green+1))
+    _xr() { sed -n "s/.*XR $1 *: xrA = \([0-9a-zA-Z]*\) *xrB = \([0-9a-zA-Z]*\).*/\1 \2/p" "$T/jitXscRT" | head -1; }
+    xr1=$(_xr "fire 1 result"); xr2=$(_xr "fire 2 result"); xo1=$(_xr "interpreted 1"); xo2=$(_xr "interpreted 2")
+    if [ "$xr1" = "0 0" ] && [ "$xo1" = "0 0" ]; then echo "  ok    JXD-4 fire 1 = interpreted = 0 0"; green=$((green+1))
+    else echo "  FAIL  JXD-4 fire 1 '$xr1', interpreted '$xo1', want 0 0"; fail=1; fi
+    if [ "$xr2" = "0 1" ] && [ "$xo2" = "0 1" ]; then echo "  ok    JXD-4 fire 2 = interpreted = 0 1 (xrB decided by its right side)"; green=$((green+1))
+    else echo "  FAIL  JXD-4 fire 2 '$xr2', interpreted '$xo2', want 0 1"; fail=1; fi
+    xrd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitXscRT" | tail -1)
+    if [ "$xrd" = "2" ]; then echo "  ok    JXD-4 degrade count = 2 -- one named run-time operand per connective"; green=$((green+1))
+    else echo "  FAIL  JXD-4 degrade count = '$xrd', want 2"; fail=1; fi
+fi
+
 echo ""
 echo "-- JE2 / JXN  E2 OWNED WHILE IT WAITS. TWO MORE INVERTED ROWS."
 #  ⚠⚠ E2 IS A CAMPAIGN PREREQUISITE, NOT PARALLEL-TRACK PURITY WORK (R1, Tony,
@@ -1684,7 +1711,7 @@ for _mf in "$T"/.missingFixture.*; do
     echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
 done
 rm -f "$JITCAPLOG"
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JD + J-R THE PROOF + SLOT: JM1 JM2)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JD + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

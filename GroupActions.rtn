@@ -974,7 +974,10 @@ extern GroupItem runAccAnd(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 GroupItem   left;
-    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    // jitAnd under jitting the connective's slots go to the tree's own emitter, which owns the short-circuit diamond (SEQ 335 J4a)
+    if ruler.jitting {
+        if field.listLength < 3     return refuse(field,"a connective with no right side under jitting (SEQ 335 J4a)");
+        return jitEmitShortCircuitSlots(field[2],field[1],field[3],field); }
     left = runOPaccumOperand(field[1]);
     if !truthOf(left)                       return falseResult;
     if field.listLength < 3                 return falseResult;
@@ -1071,7 +1074,10 @@ extern GroupItem runAccOr(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 GroupItem   left;
-    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    // jitOr under jitting the connective's slots go to the tree's own emitter, which owns the short-circuit diamond (SEQ 335 J4a)
+    if ruler.jitting {
+        if field.listLength < 3     return refuse(field,"a connective with no right side under jitting (SEQ 335 J4a)");
+        return jitEmitShortCircuitSlots(field[2],field[1],field[3],field); }
     left = runOPaccumOperand(field[1]);
     if truthOf(left)                        return trueResult;
     if field.listLength < 3                 return falseResult;
