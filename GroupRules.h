@@ -370,6 +370,7 @@ extern "C" GroupItem *opPointer(GroupItem *field);
 extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opRemEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target);

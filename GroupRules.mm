@@ -8989,6 +8989,32 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->tempField;
 }
 
+// opRemEQ the %= operator: x = x % y, kept in x's kind (SEQ 347 R4, R5)
+extern "C" GroupItem *opRemEQ(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		remainder = 0;
+	// storeRuling an armed statement stores nothing
+	if ( ruler->refused )
+		return 0;
+	if ( ruler->jitting )
+		{
+		 jitEmitRem(argument, target, target);
+		return jitEmitAssign(target, target); 
+		}
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
+		{
+		remainder = target->getCount() % argument->getCount();
+		if ( isCOUNT(target->groupBody->flags.data) )
+			target->setCount(remainder);
+		else
+		if ( isNUMBER(target->groupBody->flags.data) )
+			target->setNumber((double)remainder);
+		return target;
+		}
+	return ::refuse(target,"Operator %= -- cannot apply to these operands");
+}
+
 // opReplaceAttribute the :% operator: replace target's component of the same tag with the argument, or each list item, as an attribute
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target)
 {
@@ -10718,6 +10744,9 @@ GroupItem 	*arg = 0;
 		if ( !val )
 			if ( op == ruler->opFields->get("deref") )
 				return ::refuse(op,"a star on an operand that is nothing -- the inner read yielded null (the accumulator candidate, SEQ 327 D3)");
+		// noTarget an operator that is not a unary has no target in a prefix position -- `x &= y` read as `x & (= y)`; refuse it by name, never call it as one (SEQ 347 R4)
+		if ( !op->groupBody->flags.isUnary && ::compare(op->groupBody->tag,".") != 0 )
+			return ::refuse(op,"an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)");
 		return op->groupBody->gMethod(val);
 		}
 	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
