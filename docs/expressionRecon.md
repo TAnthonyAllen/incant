@@ -625,6 +625,26 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ SHORT-CIRCUIT, THE TWO LOOSE ENDS (SEQ 338, Clod, 2026-10-12; nothing built, 0c889d6)
+
+| expression | off/interp | off/jit | on/interp | on/jit | intended |
+|---|---|---|---|---|---|
+| exprPinT S3: fFalse() && gSay() (interpreted only) | g ran, v 1 | -- | g ran, v 1 | -- | g not run, v false |
+| k1 fF() && X, fF returns 0 | a1 X0 v0 | a1 X0 v0 | a1 X0 v0 | a1 X0 v0 | a1 X0 v0 |
+| k2 fT() \|\| X, fT returns 1 | a1 X0 v1 | a1 X0 v1 | a1 X0 v1 | a1 X0 v1 | a1 X0 v1 |
+| k3 fF() && X, fF returns falseResult | **a1 X1 v1** | a1 X0 v0 | **a1 X1 v1** | a1 X0 v0 | a1 X0 v0 |
+| k4 fT() \|\| X, fT returns trueResult | a1 X0 v1 | **a1 X1 v1** | a1 X0 v1 | **a1 X1 v1** | a1 X0 v1 |
+| nested if a; if b; (d1 n1 c1 k1 k3) | = folded `if a && b;` | = folded | = folded | = folded | = folded |
+
+**A call on the left is not the difference** (k1 / k2 agree everywhere, all seats). **The returned sentinel is, and it splits
+by ROAD, not by switch:** the node kant's `falseResult` / `trueResult` resolve to carries no count (fixit falseResultTruthy).
+The jit seeds it through **jitSeedField** (jitEmitters.rtn:3570-3575), which loads its gCount -- 0 -- so BOTH sentinels read
+false (k4 runs X). The interpreted road asks **truthOf** (Instruct.rtn:1164), which answers 1 for any non-count -- so BOTH read
+true (k3 runs X; exprPinT S3 is this row). The short-circuit itself is sound on every road: each road skips or runs X exactly
+as its own reading of the left operand says. Not fixed. **"Folded" respelled:** I is the folded `if a && b;`, N the nested
+`if a; if b;` with the same counter reads -- they agree in every cell, both roads, both switches. The two-statement-body
+rows stay as seat B (were F). pop.sh rows: 76 per switch; off 13 born red (m1 x6, k3 int x4, k4 jit x3), on 7.
+
 #### ⚠⚠ THE SHORT-CIRCUIT MEASUREMENT -- incant/pop/shortCircT (SEQ 337, Clod, 2026-10-12; measure and pin only, 746ab48)
 
 | expression (each in 3 seats: =, if, folded if) | off/interp | off/jit | on/interp | on/jit | intended |
