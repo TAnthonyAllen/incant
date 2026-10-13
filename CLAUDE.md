@@ -2950,9 +2950,14 @@ direction the campaign might take, it is a state the machinery must report as a 
 > *"which instrument reads what I touched, and did I run it."* When the honest answer is *none of
 > them*, that is a coverage finding, not a clean bill.
 >
+> ⚠⚠ **EVERY INSTRUMENT NAMES ITS SWITCH (Tony, SEQ 350 R1, 2026-10-13).** The six scripts below set
+> INCANT_EXPR_ACCUM themselves -- not given reads as 0 and is exported as 0; `unset` is the one deliberate way to run the
+> binary's default -- and echo it under the binary. pop.sh and the ladder pick their pins by `SW`, never by the variable.
+>
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> **`printPop.sh`** · `incant/frontier` · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
+> **`printPop.sh`** · `incant/frontier` (an incantation, so it cannot name its own switch: the pass runs it as
+> `INCANT_EXPR_ACCUM=0` and `=1`, SEQ 350 R1) · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
 > retokked bare) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >

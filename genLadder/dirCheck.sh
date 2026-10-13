@@ -19,6 +19,17 @@ cd "$(dirname "$0")/.." || exit 2
 TOKBIN=$(command -v tok)
 if [ -z "$TOKBIN" ]; then echo "FAIL dirCheck: no tok on PATH"; exit 1; fi
 echo "tok: $TOKBIN  $(stat -f '%z bytes  %Sm' "$TOKBIN")"
+#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 0 and is EXPORTED as 0;
+#  INCANT_EXPR_ACCUM=unset is the one deliberate way to run the binary's own default.
+#  dirCheck runs tok and never the incant binary, so here the switch is inert -- named so the rule has no exception.
+case "${INCANT_EXPR_ACCUM-}" in
+    0|1)    ;;
+    "")     INCANT_EXPR_ACCUM=0 ;;
+    unset)  ;;
+    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1 or unset"; exit 2 ;;
+esac
+if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM unset -- the binary's default"
+else export INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 DIRFILES="groupDirectives"
 for f in $DIRFILES; do
     if [ ! -f "$f" ]; then echo "FAIL dirCheck: directive file MISSING: $f"; exit 1; fi

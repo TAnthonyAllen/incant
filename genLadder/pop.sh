@@ -36,6 +36,19 @@ if [ ! -x "$B" ]; then
 fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
+#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 0 and is EXPORTED as 0, so no
+#  run reaches the binary's own default by accident. INCANT_EXPR_ACCUM=unset is the one deliberate way to run that default
+#  (the H7 of a default): the variable is unset for the binary, and the pins follow EXPR_ACCUM_DEFAULT -- the binary's
+#  default, which moves when exprAccumOn() (jitContext.h) does. Rows choose their pins by SW, never by the variable.
+EXPR_ACCUM_DEFAULT=0
+case "${INCANT_EXPR_ACCUM-}" in
+    1)      SW=1 ;;
+    0|"")   SW=0; INCANT_EXPR_ACCUM=0 ;;
+    unset)  SW=$EXPR_ACCUM_DEFAULT ;;
+    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1 or unset"; exit 2 ;;
+esac
+if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM unset -- the binary's default, pinned as $SW"
+else export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 
 #  ⚠ IS THE BINARY BUILT FROM THE SOURCE ON DISK? Added 2026-09-05, and it is
 #  rule H1's second half: H1 says ECHO the binary, this says CHECK it against
@@ -3287,7 +3300,7 @@ done
 #  name and the drive reads verdict 0 at consumed 0. The old road's "accepts 1 of 1" stays the switch-off pin.
 #  RE-PINNED refusals 1 -> 3, switch on (SEQ 336 R1, 2026-10-12): a lone operator's by-name refusal count is 3 -- SEQ 327 R1
 #  holding on all three drives: the jitted drives now reach the operator and refuse it by name, as the interpreted drive does.
-if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+if [ "$SW" = 1 ]; then
     if [ "$(_tjl INTERP 4)" = "verdict=0 consumed=0 length=1 terms=5 fires=1 true=1" ] && [ "$(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")" = 3 ]; then echo "  ok    tokJitT % (L) a lone operator is refused by name, switch on"; green=$((green+1)); else echo "  FAIL  tokJitT % (L) reads $(_tjl INTERP 4), refusals $(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")"; fail=1; fi
 elif [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=5 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
 if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=5 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
@@ -3378,7 +3391,7 @@ _oll() { grep "^PROBEDRIVE root=ExpressioN armed=Token" "$T/ol.e" | sed -n "${1}
 for _op in "1 2 3 == 2 5" "4 5 6 <= 2 5" "7 8 9 += 2 6" "10 11 12 = 1 5"; do
     set -- $_op
     _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3); _w="verdict=1 consumed=$5 length=$5 terms=$6 fires=1 true=1"
-    if [ "$INCANT_EXPR_ACCUM" = 1 ]; then
+    if [ "$SW" = 1 ]; then
         #  RE-PINNED switch on (SEQ 331, 2026-10-10): each message is a LONE operator, and a lone operator is not an
         #  ExpressioN (SEQ 327 R1) -- the candidate refuses it by name and the drive reads verdict 0 at consumed 0.
         #  The old road's verdict=1 stays the switch-off pin. The jitted halves are (b) (SEQ 311 R4), their own row.
@@ -6038,7 +6051,7 @@ kindRow "exprPinT A3 qa - qb + qc"                         "$(_ep A3)"    "-5"  
 kindRow "exprPinT A4 qa + qb - qc"                         "$(_ep A4)"    "9"         # intended 9
 #  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
 #  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
-fdRow "exprPinT A5 qa / qb + qc" "$(_ep A5)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 3.2 || echo 0.153846)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 3 || echo 0)"
+fdRow "exprPinT A5 qa / qb + qc" "$(_ep A5)" "$([ "$SW" = 1 ] && echo 3.2 || echo 0.153846)" "$([ "$SW" = 1 ] && echo 3 || echo 0)"
 kindRow "exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69)"       "$(_ep A6)"    "25"        # intended 17
 kindRow "exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70)" "$(_ep A7)"    "52"        # intended 54
 kindRow "exprPinT U70 xw > px && xw < pxw, xw 20"          "$(_ep U70)"   "1"         # intended false
@@ -6064,7 +6077,7 @@ kindRow "exprPinT O2 -qa + qb"                             "$(_ep O2)"    "8"   
 kindRow "exprPinT O3 !fTrue(qa)"                           "$(_ep O3)"    "nr"        # intended false (null), fTrue runs
 #  O3b RE-PINNED switch on (SEQ 340 R1, falseResultTruthy cured): !fFalse(qa) reads 1. Switch off keeps nr -- the old
 #  road's ! is a separate behaviour.
-kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 1 || echo nr)"  # intended true
+kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "$([ "$SW" = 1 ] && echo 1 || echo nr)"  # intended true
 kindRow "exprPinT O3 the called action runs, lines"        "$(grep -c '^EP f\(True\|False\) RAN' "$T/ept.e")" "1"  # intended 3 (fFalse from S3 + both O3s)
 kindRow "exprPinT O4 *ph.pMid + 1, pMid 41"                "$(_ep O4)"    "42"        # intended 42
 kindRow "exprPinT H1 hz += qa * qb, hz 1"                  "$(_ep H1)"    "21"        # intended 21
@@ -6108,26 +6121,26 @@ kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"    
 #  trap 25). Pinned at TODAY's value per switch; the intended value is the comment. Switch off reads the old road's
 #  right-to-left fold (I). FP7 / FP8 jitted read -3 on switch on: jitEmitBinary (jitEmitters.rtn:1088) divides two counts
 #  with CreateSDiv, an integer divide, where the interpreted road promotes to 0.2 -- the jit's numeric type, not the fold.
-kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, jit" "$(_ep FP1j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, int" "$(_ep FP1)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP2 2 + 10 * 3, jit" "$(_ep FP2j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP2 2 + 10 * 3, int" "$(_ep FP2)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, jit" "$(_ep FP3j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -24)"  # intended -24
-kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, int" "$(_ep FP3)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -24)"  # intended -24
-kindRow "exprPinT FP4 2 - 10 * 3, jit" "$(_ep FP4j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -28)"  # intended -24
-kindRow "exprPinT FP4 2 - 10 * 3, int" "$(_ep FP4)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -24 || echo -28)"  # intended -24
-kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 23)"  # intended 23
-kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 23)"  # intended 23
-kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
-kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 23 || echo 26)"  # intended 23
-fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
+kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, jit" "$(_ep FP1j)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, int" "$(_ep FP1)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP2 2 + 10 * 3, jit" "$(_ep FP2j)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP2 2 + 10 * 3, int" "$(_ep FP2)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
+kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, jit" "$(_ep FP3j)" "$([ "$SW" = 1 ] && echo -24 || echo -24)"  # intended -24
+kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, int" "$(_ep FP3)" "$([ "$SW" = 1 ] && echo -24 || echo -24)"  # intended -24
+kindRow "exprPinT FP4 2 - 10 * 3, jit" "$(_ep FP4j)" "$([ "$SW" = 1 ] && echo -24 || echo -28)"  # intended -24
+kindRow "exprPinT FP4 2 - 10 * 3, int" "$(_ep FP4)" "$([ "$SW" = 1 ] && echo -24 || echo -28)"  # intended -24
+kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "$([ "$SW" = 1 ] && echo 23 || echo 23)"  # intended 23
+kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "$([ "$SW" = 1 ] && echo 23 || echo 23)"  # intended 23
+kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "$([ "$SW" = 1 ] && echo 23 || echo 26)"  # intended 23
+kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "$([ "$SW" = 1 ] && echo 23 || echo 26)"  # intended 23
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$SW" = 1 ] && echo -3 || echo 0)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
 #  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
 #  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
-fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"
-fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$SW" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"
+fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$SW" = 1 ] && echo -3 || echo 0)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
 #  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
 #  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
-fdRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo -3 || echo 0)"
+fdRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$SW" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"
 #  FD1-FD9 intended RE-STATED SEQ 347 (cast rule): qr is a count and keeps it -- 10/2 -> 5, 7/2 -> 3.5 -> 4, 2/10 -> 0.2 -> 0,
 #  kind count (5) on both roads. The interpreted cells are born red at NUMBER; the jit cells at their raw stores.
 #  FD1-FD9 SEQ 345 (fixit jitDivide): / on counts, a NUMBER left, a NUMBER right -- value and KIND (datA: 5 count, 9 NUMBER),
@@ -6250,7 +6263,7 @@ kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "rc" 
 #  switch off reads the old road's right-to-left fold, a || (b && c) (KANT-43), so its six off rows are born red.
 run2 shortCircT "$T/sc.o" "$T/sc.e"; check "shortCircT runs" 0 $?
 sentinel "shortCircT sentinel" "$T/sc.e" "SHORTCIRC SENTINEL -- run reached the end"
-_scsw=$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo on || echo off)
+_scsw=$([ "$SW" = 1 ] && echo on || echo off)
 _scv () { tr -s ' ' < "$T/sc.e" | grep "^SC $1 " | head -1 | sed "s/^SC $1 //" | sed 's/ $//'; }   # cerr pads items: squeeze first
 scRow () {
     _sv=$(_scv "$1"); _sl="shortCircT $1 [$2] $_scsw/${1##* }"
@@ -6365,15 +6378,15 @@ done
 run2 jitBlockCtlT "$T/jitBlockCtlT.o" "$T/jitBlockCtlT.e"; _bje=$?
 kindRow "jitBlockCtlT jitted, exit (control)"   "$_bje"                                       "0"
 kindRow "jitBlockCtlT sentinel, lines"          "$(grep -c '^BJ SENTINEL' "$T/jitBlockCtlT.e")" "1"
-kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
-kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
+kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "$([ "$SW" = 1 ] && echo 7 || echo 0)"  # intended 7
+kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([ "$SW" = 1 ] && echo 7 || echo 0)"  # intended 7
 
 #  ⚑ unaryNoTargetT -- SEQ 347 R4: a binary operator in a prefix position (`x &= y` read as `x & (= y)`). Intended on both
 #  switches: exit 0 and the statement refused by name. Today switch on exits 139 (runOPaccum's acU arm calls opAssign as a
 #  unary); switch off the old road refuses `&` by name.
 run2 unaryNoTargetT "$T/ut.o" "$T/ut.e"; _ute=$?
-fdRow "unaryNoTargetT x &= y, exit" "$_ute" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 139 || echo 0)" "0"
-fdRow "unaryNoTargetT x &= y, refused by name, lines" "$(grep -c '^REFUSED' "$T/ut.e")" "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 0 || echo 1)" "1"
+fdRow "unaryNoTargetT x &= y, exit" "$_ute" "$([ "$SW" = 1 ] && echo 139 || echo 0)" "0"
+fdRow "unaryNoTargetT x &= y, refused by name, lines" "$(grep -c '^REFUSED' "$T/ut.e")" "$([ "$SW" = 1 ] && echo 0 || echo 1)" "1"
 
 #  ⚑ opMixT -- SEQ 347 R3 (Tony, 2026-10-12): mixed operands. Count / NUMBER left reads a STRING / TOKEN right as its count;
 #  STRING / TOKEN left concatenates. Cells "text datA": jitF first fire into a no-kind target, jitR refire (kept kind), int,
