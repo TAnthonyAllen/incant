@@ -625,6 +625,32 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ R0a AND R1 ON expr-cast (6fa4245) -- THE CAST RULE READY TO BUY, NOT MERGED (SEQ 348 cont., Clod, 2026-10-13)
+
+**R0a (Tony): the acU refusal stays** -- 6e7089b re-applies that half of (d) alone; %= and opRemEQ stay reverted, OE-R 53.
+Canary 353. Against 8ba59a6: unaryNoTargetT switch on red -> green (exit 0, refused by name), nothing else; jitLadder no
+movers. H7 (refusal out, rebuilt, the fixture alone under an alarm): switch on exit 139, 0 refusals, no sentinel; switch off
+still refuses by name (the old road refuses `&` already -- H17). Restored from git, md5-identical (.rtn and .mm), rebuilt.
+
+**R1 (Tony): getLine stays as built.** Its callers: `incant/directives:29` (insertAt -- the terminator is what it needs;
+pop.sh's dirT rows read its refusal text at :2809) and, until this stroke, opMixT's T1-T3. No other caller in kant, tok or
+Tony's IncantForms. **The spelling (6fa4245):** a TOKEN is the label of a `TOKENize` rule -- fireLabelMethod's captureSpan
+gives it exactly the matched text, kind 14 (setToken). opMixT registers OpMixTk with `TkTwelve isRule TOKENize tw-="12";`
+(TkAB, TkCD alike) and mints each with `v := tell("TkTwelve 12"); rp = *v["reply"]; tk12 = *rp;` (tell is in
+incant/utilities, now included). OM T1-T3 print 12 / ab / cd, kind 14. **Two spellings measured wrong on the way:** `tk12 =
+*v["reply"]` copies the verdict's `reply` holder -- a GROUP that reads kind 14 at top level (unwrapped) and refuses as an
+operand ("getNumber on tk12 -- holds a group"); `tk12 = **rr` works switch on only -- the old road does not compose two
+prefix stars (bear-trap #52's prefix face). incant/opMix12, opMixab, opMixcd deleted (opMixT was their only reader).
+
+**Rows, both switches:** L5 `3 + tok12` reads 5 5 (count) and L6 `3.5 + tok12` reads 5.5 9 (NUMBER), every cell (jitF, jitR,
+int, int2) -- red -> green, 8 rows per switch; L1-L4, L7, L8 unchanged; nothing else moved. A same-run control (probe) put a
+getLine TOKEN beside it: 6 against 5 -- the terminator, and only it.
+
+**KITCHEN PASS on the branch binary (clone dd/, Oct 13 10:56, = 6fa4245's engine source):** pop.sh off 1271 / on 1257 ·
+jitLadder off and on PASSED, no movers against R0a · printPop PASSED both · ddPop 5 / 1 both · decodePop = capture both
+(binary line only) · frontier = capture both · dirCheck PASSED 53 / 57 = capture, tree bare · canary 353 · exec bits clean ·
+groups.ext untouched · clone clean. Against the tip before SEQ 348 (87cd6b5): off 1266 -> 1271, on 1252 -> 1257.
+
 #### ⚠⚠ R0 APPLIED ON expr-cast (8ba59a6) -- %= OUT -- STOPPED ON unaryNoTargetT (SEQ 348, Clod, 2026-10-13)
 
 **R0 (Tony): %= is not an operator, and nothing pins it.** 8ba59a6 reverts piece (d) (87cd6b5) whole -- the '%=' registration,
