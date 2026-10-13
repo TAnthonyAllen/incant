@@ -638,7 +638,7 @@ value is 5.5 and the result is a NUMBER; the target had no kind, so it takes the
 every cell, both switches.
 
 **OM T1-T3 in the counts:** they are not rows. opMixT prints them (`OM T1 tk12` then `OMV 12 14`, ab, cd), but no pop.sh row
-reads them (grep "OM T" in pop.sh: 0) -- so 1271 / 1257 are 1263 / 1249 plus L5 / L6's eight rows per switch, and nothing
+reads them (pop.sh reads opMixT only through `_omv`, called for L1-L8 and never for T1-T3; its four textual "OM T" matches are prose -- "FROM THE", "IDIOM THROUGH"; jitLadder does not run opMixT) -- so 1271 / 1257 are 1263 / 1249 plus L5 / L6's eight rows per switch, and nothing
 else. The TOKEN's text and count are asserted indirectly, by L5-L8's values (5, 5.5, 123, abcd); its KIND 14 is asserted by no
 row. A direct row (T1-T3 text and kind) is a fleet-row addition, offered, not made.
 
