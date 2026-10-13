@@ -625,6 +625,43 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE FLIP'S RE-CENSUS -- STOPPED BY R2 ON exprPinT E2 BEFORE expr-flip (SEQ 350, Clod, 2026-10-13)
+
+**Step 0 (56a90ce):** opMixT T1-T3 are pop.sh rows (text 12 / ab / cd, kind 14), green both switches. H7: T1 minted through
+getLine reads "12\n" and L5 6 / L6 6.5 / L7 move -- 13 rows red by value both switches; restored md5-identical. Tony's docket
+into TODO.md (after the flip: the old-road retirement, recon first, then a pause; setData and `.` parked until after jitter).
+
+**Step 1, R1 (94bb176):** pop.sh, jitLadder, printPop, ddPop, decodePop and dirCheck set INCANT_EXPR_ACCUM themselves -- not
+given reads as 0 and is exported as 0; `unset` is the one deliberate way to run the binary's default; anything else fails by
+name. Pins read `SW`; on `unset`, SW follows EXPR_ACCUM_DEFAULT (0 on trunk). frontier runs with =0 / =1 named by the checklist
+(CLAUDE.md). Row for row with the pre-change captures both switches (pop.sh 1274 / 1260, jitLadder PASSED, frontier identical;
+the other four gain only the switch line).
+
+**Step 2, the re-census (trunk 94bb176, ~/bin/incant Oct 13 11:13; seal 132's pairing -- a sequence diff of the ok/FAIL rows,
+shortCircT's off/on token normalised):** pop.sh **57 rows off / 61 on** differ (seal 132: 43 / 47), jitLadder **5** (5).
+
+| class | rows (switch on) | seal 132 | |
+|---|---|---|---|
+| **(P) re-pin owed** | **26** | 27 | exprPinT 18, foldAndT 3, blockCallT 4, testPrecedence 1 |
+| **(I) intended** | **40** | 25 | seal 132's 25, plus exprPinT A5 1, FP1/FP2/FP4/FP6/FP7/FP8 12, jitBlockCtlT 2 |
+| **(D)** | **0** | 0 | |
+| **(?)** | **0** | 0 | |
+
+**Changed class since seal 132 -- one row:** exprPinT A5 (P -> I). SEQ 347 re-stated it per switch under the cast rule (off 0,
+on 3 = its intended), so both switches are green and the flip owes it nothing. **New since seal 132, all (I), pinned per switch
+with the switch-on pin equal to the intended:** FP1 FP2 FP4 FP6 (strict left fold: 36 36 -24 23; seal 133), FP7 FP8 jit and int
+(-3 under the cast rule; seals 133 / 137), jitBlockCtlT jitted / interpreted pz (7; seal 134). No row left the population.
+
+**R2 against the (P) rows -- every switch-on value equals its own `# intended` but ONE:** A2 23, A6 17, A7 54, U70 U72 U75 B2
+B3 0 (false), U302a S1 OR1 OR2 1, O1 pz / r3 7, O3 lines 3, C3 36, FA2 0, foldAndT exit 0 / after 1 / sentinel 1, blockCallT
+BC2 / BC4 pz 7 rc 7 -- all equal. testPrecedence is a ratchet, not a pin: 8 -> 5 is its intended direction (H6: lower TPWANT
+with the graduated rows named). **exprPinT E2 (`qa < qb < qc refused, lines`): switch on reads 0, intended 1 -- STOP.** The
+candidate DOES refuse by name -- `REFUSED < -- a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)` -- but the
+row greps the old road's message, `REFUSED qa -- Operator < -- an operand that is nothing`, so it counts 0. Re-pinning to 0
+would contradict the intended; the cure is respelling the row's grep (seal 132 said as much). R2 does not cover a respell.
+**Nothing on expr-flip was started.** For Tony: (1) the E2 grep follows SW -- the chained-comparison message switch on, the old
+message switch off -- both reading 1; or (2) the grep matches either message; then the flip runs as recorded.
+
 #### ⚠⚠ THE CAST RULE BOUGHT -- expr-cast MERGED (6bb0d57) (SEQ 349, Clod, 2026-10-13)
 
 **Merge 6bb0d57** (clean; no conflicts). Bare retok of GroupItem.twk and GroupRules.twk byte-identical to the textual merge;
