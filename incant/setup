@@ -158,7 +158,6 @@ define
     '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass;
     '@'     unary ruleMethod=opLastREF;
     '&';
-    '%='    operateMethod=opRemEQ  assignTier;
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier;
     '!'     unary ruleMethod=opNOT;

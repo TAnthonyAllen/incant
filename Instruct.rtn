@@ -997,27 +997,6 @@ GroupRules  ruler = groupRules;
 }
 
 
-// opRemEQ the %= operator: x = x % y, kept in x's kind (SEQ 347 R4, R5)
-extern GroupItem opRemEQ(GroupItem argument,GroupItem target)
-{
-GroupRules  ruler = groupRules;
-int         remainder;
-    // storeRuling an armed statement stores nothing
-    if ruler.refused    return null;
-    if jitting {
-        -% jitEmitRem(argument, target, target);
-           return jitEmitAssign(target, target); %-
-    }
-use target
-    if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
-        remainder = count % argument.count;
-        if isCOUNT  count   = remainder;
-        or isNUMBER number  = remainder;
-        return target; }
-    return refuse(target,"Operator %= -- cannot apply to these operands");
-}
-
-
 // opReplaceAttribute the :% operator: replace target's component of the same tag with the argument, or each list item, as an attribute
 extern GroupItem opReplaceAttribute(GroupItem argument,GroupItem target)
 {
