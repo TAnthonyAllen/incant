@@ -1,8 +1,8 @@
 # ⚠⚠⚠ SEALED 2026-10-13 (139) ON TRUNK -- SEQ 348 DONE: expr-cast 6fa4245 READY TO BUY, NOT MERGED. %= OUT, acU REFUSAL KEPT, opMixT GREEN.
 #
-#   ## THE OPENER: Tony buys expr-cast (expressionRecon "R0a AND R1 ON expr-cast"). Every registered row of the cast rule is
-#   green on the branch but the four still owed nothing; the kitchen pass ran on the branch binary. On the buy: merge, bare
-#   retok, rebuild ~/bin/incant, fleet row for row against the clone (k348 / r1 captures), seal.
+#   ## THE OPENER: Tony buys expr-cast (expressionRecon "R0a AND R1 ON expr-cast"). SEQ 347's two stops are closed (OE-R
+#   stays 53; opMixT L5 / L6 green) and the kitchen pass ran on the branch binary. On the buy: merge, bare retok, rebuild
+#   ~/bin/incant, fleet row for row against the clone (r1 / k348 captures), seal.
 #
 #   ## THE ONE-LINE STATE: trunk unchanged in source since seal 137, measured this session -- fleet 1215 off / 1197 on ·
 #   canary 348. expr-cast at 6fa4245 (clone, live, GitHub): 1271 off / 1257 on, jitLadder PASSED both, canary 353.
