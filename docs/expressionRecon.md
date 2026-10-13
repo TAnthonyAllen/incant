@@ -625,6 +625,23 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ R0 APPLIED ON expr-cast (8ba59a6) -- %= OUT -- STOPPED ON unaryNoTargetT (SEQ 348, Clod, 2026-10-13)
+
+**R0 (Tony): %= is not an operator, and nothing pins it.** 8ba59a6 reverts piece (d) (87cd6b5) whole -- the '%=' registration,
+opRemEQ, and runOPaccum's acU no-target refusal -- and deletes modEqT, modEqJitT and their pop.sh block (jitLadder carried no
+modEq rows). Bare retok byte-identical to the textual revert; canary 354 -> 353. Pushed live and GitHub, NOT merged.
+
+**The re-diff against the tip (87cd6b5), both switches:** off 1266 -> 1263, on 1252 -> 1247; jitLadder PASSED 219 both, no
+movers. Expected and seen: the modEq rows gone; opEntryT OE-R back to 53 (R0). **UNEXPECTED -- STOPPED: unaryNoTargetT, switch
+on only, green -> red: exit 139, 0 refusals** (both rows). Mechanism: the reverted refusal arm was its cure. `&=` is not
+registered either, so `utT &= utB` reads as `utT & (= utB)`; `=` reaches runOPaccum's acU arm as a unary and is called with ONE
+argument -- opAssign's target is a garbage register and it faults (the SEQ 346 %= crash, through `&`). Switch off it stays
+green: the old road refuses `&` by name. (d)'s own H7 (refusal out -> 139, switch on only) predicted exactly this.
+
+**For Tony:** (1) R0's principle covers `&=` too -- delete unaryNoTargetT and its rows, leaving switch on to crash on any
+`x <binary>= y` spelling of a non-operator; (2) keep the acU refusal (re-apply that half of (d) alone) -- then unaryNoTargetT
+stays green and OE-R stays 53; (3) leave the row red. R1 (opMixT L5 / L6's TOKEN) and the kitchen pass were NOT started.
+
 #### ⚠⚠ THE CAST RULE BUILT ON expr-cast (87cd6b5), NOT MERGED -- STOPPED ON ONE UNREGISTERED MOVER (SEQ 347, Clod, 2026-10-12)
 
 **Certificate on trunk, born red:** 36d4f84 (opMixT 32 rows; exprPinT A5, FP7 / FP8, FD1-FD9 re-stated under R0 / R2; kant8T
