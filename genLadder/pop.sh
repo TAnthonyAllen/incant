@@ -6085,7 +6085,11 @@ kindRow "exprPinT H2 hw := qa * qb + qc"                   "$(_ep H2)"    "23"  
 kindRow "exprPinT H3 hx.noPrinT = hy.noPrinT"              "$(_ep H3)"    "1"         # intended 1
 kindRow "exprPinT E1 qa > qb + qc (open edge)"             "$(_ep E1)"    "qr"        # intended: Tony's to rule
 #  chainedCompare SEQ 318 R1: a < b < c is refused by name -- today it refuses by ACCIDENT (right-to-left fold, a null operand)
-kindRow "exprPinT E2 qa < qb < qc refused, lines"          "$(grep -c '^REFUSED qa -- Operator < -- an operand that is nothing' "$T/ept.e")" "1"  # intended 1, refused BY NAME as a chained comparison
+#  e2PerSwitch SEQ 350 R2a (Tony, 2026-10-13): the search follows SW -- switch on, the candidate's refusal BY NAME; switch off,
+#  the old road's "an operand that is nothing": the old road refuses by accident; retires with the old road. Both read 1.
+if [ "$SW" = 1 ]; then _e2pat='^REFUSED < -- a chained comparison (a < b < c) -- refused by name'
+else _e2pat='^REFUSED qa -- Operator < -- an operand that is nothing'; fi
+kindRow "exprPinT E2 qa < qb < qc refused, lines"          "$(grep -c "$_e2pat" "$T/ept.e")" "1"  # intended 1, refused BY NAME as a chained comparison
 kindRow "exprPinT E2 qa < qb < qc printed a value, lines"  "$(grep -c '^EP E2' "$T/ept.e")" "0"  # intended 0
 #  callRows SEQ 314 step 0: the call rows, the careful build's measuring stick for opCall (SEQ 313 R1)
 kindRow "exprPinT C1 qa + fId(qb)"                         "$(_ep C1)"    "12"        # intended 12
