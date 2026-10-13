@@ -625,6 +625,33 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE FLIP BUILT ON expr-flip (8aafbe9), NOT MERGED (SEQ 350 R2a + step 3, Clod, 2026-10-13)
+
+**R2a on trunk (083b32c):** exprPinT E2 searches per switch -- on, the candidate's "a chained comparison (a < b < c) -- refused
+by name"; off, the old road's "an operand that is nothing" (the old road refuses by accident; retires with the old road). Both
+read 1; E2 on red -> green, nothing else. H7: the two strings swapped -> both cells 0 against 1, red by value; restored
+md5-identical.
+
+**Step 3 on expr-flip (clone, from trunk 083b32c; pushed live and GitHub):** exprAccumOn() (jitContext.h -- the one reader both
+sites reach through passthrough) reads unset as on, its comment "unset reads as on (the flip, 2026-10-13); =0 is the old road
+until its retirement." Empty and 0 stay off; any other value stays off with its stderr line. GroupItem.twk's site comment
+respelled (=0, not unset, is the old road); GroupItem.mm comment-only (codeOnly identical). pop.sh / jitLadder:
+EXPR_ACCUM_DEFAULT=1. **R2 re-pins, per switch (the old pin kept for =0), each "the flip, 2026-10-13":** exprPinT A2 23, A6 17,
+A7 54, U70 U72 U75 B2 B3 0, U302a S1 OR1 OR2 1, O1 pz / r3 7, O3 lines 3, C3 36, FA2 0; foldAndT exit 0, after 1, sentinel 1;
+blockCallT BC2 / BC4 pz 7, rc 7; testPrecedence's ratchet 5 on (plusPlusStar, plusPlusStarsub, minusMinusStar graduate), 8 off.
+
+**Re-diff against trunk 083b32c:** =0 row for row (1274); =1 the 24 rows red -> green and the ratchet line, nothing else (1261 ->
+1285); unset row for row with =1 (1285; jitLadder PASSED, = =1). **H7:** the old default back (unset reads off), rebuilt --
+unset 1285 -> 1231, 57 rows moved: every switch-dependent row, pinned as on, reads the old road. Restored md5-identical,
+rebuilt, unset = =1 again.
+
+**Kitchen pass on the branch binary (=0 and =1 named):** pop.sh 1274 / 1285 · jitLadder PASSED both, no movers against trunk ·
+printPop PASSED · ddPop 5 / 1 · decodePop, frontier, dirCheck = trunk's runs · canary 353 · exec bits clean · clone clean.
+
+**Two things left as built, for Tony:** (1) an EMPTY INCANT_EXPR_ACCUM still reads as off -- the ruling named unset only; (2)
+the instruments' "not given" still exports 0 (R1 as built), so after the buy a bare `genLadder/pop.sh` measures the OLD road,
+while a bare `incant` runs the new one. Whether "not given" follows the flip to 1 is open.
+
 #### ⚠⚠ THE FLIP'S RE-CENSUS -- STOPPED BY R2 ON exprPinT E2 BEFORE expr-flip (SEQ 350, Clod, 2026-10-13)
 
 **Step 0 (56a90ce):** opMixT T1-T3 are pop.sh rows (text 12 / ab / cd, kind 14), green both switches. H7: T1 minted through
