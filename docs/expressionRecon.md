@@ -625,6 +625,23 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE CAST RULE BOUGHT -- expr-cast MERGED (6bb0d57) (SEQ 349, Clod, 2026-10-13)
+
+**Merge 6bb0d57** (clean; no conflicts). Bare retok of GroupItem.twk and GroupRules.twk byte-identical to the textual merge;
+canary 353. ~/bin/incant rebuilt (TOK.xcodeproj, Oct 13 11:13). **Fleet row for row with the clone's 6fa4245 captures (r1),
+both switches: off 1271, on 1257** -- the only differing line is the fixture-name uniqueness row, 228 in the clone and 235 on
+trunk: the seven gitignored searchAcc* scratch fixtures (H3, as seal 126). jitLadder row for row with the clone's k348 run.
+
+**opMixT L6's second value, 9:** the line is `o6J / o6I = n35 + tk12` -- 3.5 (a NUMBER) plus the TOKEN "12". Each cell prints
+`texT datA`, so 9 is the result's KIND, NUMBER. Under R3 a NUMBER left reads a STRING / TOKEN right as its count (2), so the
+value is 5.5 and the result is a NUMBER; the target had no kind, so it takes the result's (R0) -> intended `5.5 9`, read on
+every cell, both switches.
+
+**OM T1-T3 in the counts:** they are not rows. opMixT prints them (`OM T1 tk12` then `OMV 12 14`, ab, cd), but no pop.sh row
+reads them (grep "OM T" in pop.sh: 0) -- so 1271 / 1257 are 1263 / 1249 plus L5 / L6's eight rows per switch, and nothing
+else. The TOKEN's text and count are asserted indirectly, by L5-L8's values (5, 5.5, 123, abcd); its KIND 14 is asserted by no
+row. A direct row (T1-T3 text and kind) is a fleet-row addition, offered, not made.
+
 #### ⚠⚠ R0a AND R1 ON expr-cast (6fa4245) -- THE CAST RULE READY TO BUY, NOT MERGED (SEQ 348 cont., Clod, 2026-10-13)
 
 **R0a (Tony): the acU refusal stays** -- 6e7089b re-applies that half of (d) alone; %= and opRemEQ stay reverted, OE-R 53.
