@@ -625,6 +625,103 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ RETIRING THE OLD EXPRESSION ROAD -- THE RECON (SEQ 352, Clod, 2026-10-13; measure only, nothing built)
+
+**Population.** Clone at trunk 0b1adfd. The tap is a COVERAGE BUILD (-fprofile-instr-generate -fcoverage-mapping, its own
+DerivedData), so no source changed -- clone sources md5-identical before and after; ~/bin/incant and the clone's dd untouched.
+pop.sh + jitLadder at =0 and =1: **299 processes per switch, 299 profiles** (a wrapper counted invocations against profiles;
+no harness calls a hardcoded binary). pop.sh's two explicit `INCANT_EXPR_ACCUM=1` runs (loneOpT, opEntryT) leak the new road
+into an =0 run -- their two processes are EXCLUDED from the =0 profile by pid (the first, unfiltered pass hid the whole
+accumulator from "only at =1"). Fleet under the tap: =0 1274, =1 1285, jitLadder PASSED both -- the trunk numbers.
+
+**CODE -- reached only at =0 (12):** `aCTionExpressioN` (the old ExpressioN actor; 36,145 calls), **`interpretXP` (THE OLD
+BUILDER, 36,145)**, `listLastToFront`, `handleDot`, `handleUnary`, `foldDot`, `isDotUxp`, `refuseDotUnaryRight`,
+**`runShortCircuit`** (the old tree's &&/||/AND/OR executor, 206,403) and its jit twin **`jitEmitShortCircuit`** (212) -- the
+jit work reached only through the old tree's shape --, `measureTokenArm` (the witness on aCTionTokenXP's old arms), and
+`GroupItem::prior` (old-road reach only; it has two other callers, GroupActions.rtn:69 and ruleActions.rtn:505, so it STAYS).
+**Reached only at =1 (23):** `interpretXPaccum`, `interpretXPaccumU`, `interpretXPaccumWrap`, `runOPaccum`,
+`runOPaccumOperand`, the `acc*` builders (accBare accBuild accCompare accFold accLogic accNextOp accPop accTraceWanted), the
+`runAcc*` executors (And Or Compare Assign Fold Chain), `opIsAssignTier`, `opIsCompareTier`, `jitStmtRT`, `jitEmitStmtRT`.
+**Shared, carrying an exprAccumOn() branch -- the two gates:** `GroupItem::setActions` (GroupItem.twk:1668 -- picks
+ExpressioN's actor: interpretXPaccum at =1) and **`aCTionTokenXP`** (ruleActions.rtn:990 -- at =1 returns the label
+untouched; its other **59 lines run only at =0**: the arm dispatch over unary-only / dot-LEADING / primary / dot-COMPOSED /
+subscript / call). **Shared with arms at one switch only:** `handleSubscript` (its access-star `uxp` arm, 14 lines, =0),
+`runOPslots` (refuseArgRebind's return, the armed-statement return, the isVirtual fork -- 4 lines, =0: INCIDENTAL arms that the
+old road's refusals happen to reach; shared machinery, stays), `opLT` / `opMultiply` (the old road's accidental refusals --
+"an operand that is nothing", "cannot apply", =0), `jitDerefRT` (one return-0, =0); and at =1 only: `opMinus` (the
+STRING/TOKEN mixed arm), `jitEmitAssign` (the unseeded degrade), `opCall`, `opPlusPlus`, `isCallable`, `opIsShortCircuit`,
+`GroupItem::remove` -- new-road reach of shared code, unaffected.
+**runOP stays:** reached 159,472 times at =1 (statement-level instructions), 781,130 at =0; its OLD path is the `uxp` / `xl1` /
+`xl2` nodes interpretXP and the handle* arms mint with `method = runOP` / `runShortCircuit`. Nothing in the expression area is
+dead at both switches (only `reportMaxLimit`, unrelated).
+
+**GRAMMAR -- and the finding that changes the plan.** References: `incant/grammar:126` (`UnaryXP UnaryOPS ANYtoken`), `:131`
+(InvokeArg's `UnaryXP;` alternative), `:135` (`TokenXP UnaryOPS? ANYorNum^ InvokeArg?`), `:140` (Token's `TokenXP;`);
+IncantForms/BackupXML/grammar:153/159 (a backup, its own older TokenXP); genLadder/parserCoverage.target rows `COMPILES TokenXP`
+and `COMPILES UnaryXP` (63 rules -> 61, 47 bodies -> 45); Token's generated body `return QuotE() || NumbeR() || StringXP() ||
+TokenXP() || Operators();` (tokJitT, fixits silencedCompileSucceeds / parserCoverageMembersOnly prose); prose in starFlagT,
+deferNatT, unaryNatT, doWhileNameT, testPrecedence, parseClass, bisectQ, iterT1m, tester. **THE NEW ROAD READS THESE LABELS:**
+interpretXPaccum's pass 1 takes `term["ANYorNum"]`, `["UnaryOPS"]`, `["InvokeArg"]` from every TokenXP label, and reads
+InvokeArg's LIST shape -- UnaryXP's -- as a postfix op and its right operand. So the two cannot simply "leave the grammar":
+it is a grammar respell (Token's alternatives hand the pieces up flat) PLUS a pass-1 rewrite, and aCTionTokenXP's gate goes
+with it. **That is its own stroke, with its own recon -- not part of the deletion.**
+
+**ROWS** (trunk's kitchen-pass runs, seal 132's pairing): pop.sh **S 1309** (switch-independent, including SW-pinned rows whose
+two pins agree) · **C 45** differing, green both (collapse to the =1 pin) + **8** rows that exist only at =1 (opLenT's (L) and
+(b) rows, kept) · **R 7**, red only at =0: starT S3a, shortCircT m1 A / I / B x jit / int (KANT-43's six) · **O 4**, only at =0:
+opLenT '==' '<=' '+=' '=' "consumes N of N, jitted twice and interpreted" -- retire by mapping to the same operator's (L) and
+(b) rows. jitLadder: **S 214 · C 5** (JA fire 1-3, bake idempotent, JiT IR bytes) · R 0 · O 0. Source: 51 SW pin sites in
+pop.sh, 3 in the ladder. ⚠ Name collision: pop.sh's "oldRoad column" rows are the old PARSE road (no parser()), not this road;
+they are C here only because lone operators refuse by name at =1 (166 -> 154 inputs), and they stay.
+
+**INSTRUMENTS -- what goes when =0 goes:** pop.sh -- the switch block (12 lines naming the variable, EXPR_ACCUM_DEFAULT, the
+`unset`/`empty` modes), SW and its 51 pin sites (E2's per-switch search, TPWANT, the FP / A5 / O3b / jitBlockCtlT / shortCircT
+/ opLenT per-switch pins), the two explicit `INCANT_EXPR_ACCUM=1` runs (they become plain runs). jitLadder -- the switch block
+(10), SW's 3 pins (JA's). printPop, ddPop, decodePop, dirCheck -- the 7-line switch block and the `switch:` line each (so
+decodePop's and dirCheck's seal captures lose a line). CLAUDE.md -- the H12 "every instrument names its switch" paragraph and
+frontier's two runs (=0 / =1) become one. Also: incant/fixits/silencedCompileSucceeds's "RUN WITH INCANT_EXPR_ACCUM=1" anchor.
+
+**TONY'S INCANTATIONS (R1) -- all 82 tracked IncantForms files plus a copy of the untracked incant++, =0 and =1, alarm 60:**
+exit codes identical (76 x 0, 6 x 2 -- Windows bigify db drag inspector layout wraplist, 1 x 139 -- Windows sheet). **82
+identical, 1 differs.** ⚠ Coverage, measured per file with the tap: **only 11 of 83 evaluate an expression on the old road**
+(Windows cards descriptions fit keyStroke scroll simple tabs toggles 23-35 each, tester 20, BackupXML/unitTests 4,
+BackupXML/grammar 1); 42 stop at a parse failure ("expected a method", prose and notes), and macros, incant++, checkSKIP and
+jitter stop early (parse failure / ABANDONED) -- identical at both switches, and saying nothing about any expression after
+their first failure. tester prints only its driver lines. **The difference -- IncantForms/BackupXML/unitTests, =1 only:**
+`REFUSED * -- a prefix operator with no operand after it (the accumulator candidate, SEQ 311) [line 13]`. **Mechanism:** line
+9's `down=*` -- a lone `*` as a value. The candidate's pass 2 meets an operator where an operand is expected, reads it as a
+prefix, finds nothing after it, and refuses by name; the old road hands the lone operator term back with no refusal.
+Confirmed one variable at a time: respelling that one token to `down=star` removes the refusal, and the =0 run has none.
+The `[line 13]` is the reporter's line counter, not the token's line. What `down` HOLDS at each switch is NOT measured (a probe
+line did not print). Not classed intended (R1); stdout is identical.
+
+**DOCUMENTS describing the old road:** CLAUDE.md bear-traps #9 (aCTionExpressioN's jitting branch), #23's callout note (the
+handle* hands in aCTionTokenXP), #26 payment 7, #34 (truth-testing names aCTionExpressioN), **#48** (law 3 -- its "AFTER A DOT"
+half is KANT-43 and TokenXP), **#52** (two-postfix chain: TokenXP's singular slots, interpretXP's fold), the H12 switch
+paragraph, H9's UnaryXP note; incant/designDocs (~23 entries): GroupActions.runShortCircuit, ruleActions.aCTionTokenXP (+
+.starDotRotation, .onePrintXPWalk, .arms), ruleActions.handleCall, ruleActions.interpretXP.dotUnaryRight (and .dotFold,
+.tier3Binding pointers), measure.TokenXParms / PostfixFoldBlocked / UnaryClassSplit / RightIsAName / DotLeftOperand /
+DotRightIsEvaluated / ShortCircuitIsASpelling / AndOrAreCSpellings / ModifierTwoClasses / NeverSelectBySpelling,
+Instruct.opAND / opDeref, jitEmitters.allocaInEntryBlock / crashTradedForSilence, UtilitiesIncantation.tokenXPshapes /
+ParserModifierSeam, GroupItem.attachLabel.rung2bRed, ruleActions.degradeByDefault.FALLS; docs/expressionRecon.md (the whole
+arc), docs/kantCorpus.md KANT-43 (:2032), docs/unaryPlacement.md, docs/dotChain.md, docs/andOrRung.md, docs/grammarCorpus.md,
+docs/fixIts.md (67 mentions), TODO.md. Historical wakeup vintages stay as written. **KANT-43's dated retirement note is
+DRAFTED, NOT COMMITTED** (Clod's scratchpad, kant43draft.md; quoted in the seal report).
+
+**PROPOSED STROKES -- each one variable (H15), each with pre-registered movers and an H7:**
+
+| # | stroke | pre-registered movers | H7 |
+|---|---|---|---|
+| **1** | **the switch goes, WITH THE TWO GATES IT GUARDS:** exprAccumOn() and both sites made unconditional (setActions always installs interpretXPaccum; aCTionTokenXP always hands the label up); every instrument loses its switch block and SW, the C rows collapse to their =1 pin, the 4 (O) rows retire by mapping, frontier runs once | at the default: none -- row for row with today's =1 (1285), less the 4 retired rows and the switch lines; =0 no longer exists | put one gate back on the old road (setActions installs aCTionExpressioN) -> the 45 C and 7 R rows go red by value at the default |
+| **2** | **the old builder goes** -- now unreachable: aCTionExpressioN, interpretXP, listLastToFront, handleDot, handleUnary, foldDot, isDotUxp, refuseDotUnaryRight, runShortCircuit, jitEmitShortCircuit, measureTokenArm, aCTionTokenXP's body below the gate, handleSubscript's old access-star arm, the =0-only refusal arms in opLT / opMultiply (Tony's call: keep as defensive) | none -- the fleet and ladder row for row; canary drops by the deleted externs (counted in the stroke) | the coverage tap before deletion is the certificate (0 hits, full fleet + ladder); the link is the structural proof -- a surviving caller fails the build by name |
+| **3** | **documents** -- KANT-43's dated note (the draft), bear-traps #48 / #52 dated, DesignDocs entries for deleted functions marked retired, CLAUDE.md H12's switch paragraph retired | none (docs) | -- |
+| **4** | **TokenXP and UnaryXP leave the grammar -- SEPARATE, RECON FIRST** (the finding above): Token's alternatives respelled to hand pieces up flat, interpretXPaccum's pass 1 rewritten, aCTionTokenXP deleted | parserCoverage 63 -> 61 rules (TokenXP, UnaryXP rows retire by mapping); every generated Token body; testPrecedence / starFlagT / unaryNatT notes | the old grammar line back -> pass 1 reads no pieces, the expression rows go red |
+
+**Where the switch's deletion falls: WITH THE CODE IT GATES, as stroke 1 -- not first alone and not last.** Deleted alone, the
+gates would read a function that no longer exists; deleted last, strokes 1-2 would have to keep an =0 that measures dead code.
+Taken with its two gates it is one variable -- the old road becomes unreachable -- and stroke 2 then deletes only code the tap
+proves unreached, with no row moving.
+
 #### ⚠⚠ THE FLIP BOUGHT -- expr-flip MERGED (0b1adfd). THE CANDIDATE ROAD IS THE DEFAULT (SEQ 351, Clod, 2026-10-13)
 
 **R1 (2caf8dd):** exprAccumOn() reads an EMPTY INCANT_EXPR_ACCUM as on, the same as unset, and says so in its comment; 0 is off;
