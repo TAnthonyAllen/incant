@@ -6381,6 +6381,11 @@ fdRow "unaryNoTargetT x &= y, refused by name, lines" "$(grep -c '^REFUSED' "$T/
 run2 opMixT "$T/om.o" "$T/om.e"; check "opMixT runs" 0 $?
 sentinel "opMixT sentinel" "$T/om.e" "OPMIX SENTINEL"
 _omv () { tr -s ' ' < "$T/om.e" | awk -v k="$1" -v c="$2" '$1=="OM"{m=($2==k && $3==c); next} $1=="OMV" && m {print $2" "$3; exit}'; }
+#  the TOKENs themselves (SEQ 350 step 0): each is a TOKENize rule's label via tell -- its text alone, kind 14. H7: one minted
+#  through getLine instead reads "12\n" (its terminator) and goes red by value.
+kindRow "opMixT T1 tk12, text kind" "$(_omv T1 tk12)" "12 14"
+kindRow "opMixT T2 tkab, text kind" "$(_omv T2 tkab)" "ab 14"
+kindRow "opMixT T3 tkcd, text kind" "$(_omv T3 tkcd)" "cd 14"
 fdRow "opMixT L1 3 + "12", jitF" "$(_omv L1 jitF)" "o1J 0" "5 5"
 fdRow "opMixT L1 3 + "12", jitR" "$(_omv L1 jitR)" "o1J 0" "5 5"
 fdRow "opMixT L1 3 + "12", int" "$(_omv L1 int)" "o1I 0" "5 5"

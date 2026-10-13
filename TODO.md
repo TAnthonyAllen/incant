@@ -472,6 +472,13 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **DOCKET (Tony, 2026-10-13, with SEQ 350's step 0). The order after the flip:**
+  1. **THE OLD-ROAD RETIREMENT -- recon first, then a pause.** Once the flip (SEQ 350, INCANT_EXPR_ACCUM on by default)
+     is bought, the old expression road (reachable by INCANT_EXPR_ACCUM=0 until then) is retired: a read-only recon of
+     what it touches comes first, and the work pauses there for Tony. The switch, `exprAccumOn()` and the
+     INCANT_EXPR_ACCUM name go with it (the name stays until then, by ruling).
+  2. **`setData` and the `.` operator are PARKED until after jitter.**
+
 - [ ] **SEQ 309 DOCKET (2026-10-05, Tony by forwarding; docs only, nothing built or measured). Three design items,
   in this order of business:**
   1. **CONTAINERS RECON (read-only), BEFORE 1.3/1.4 are dispatched.** Tony's idea, **not ruled**: the group list
