@@ -2951,8 +2951,9 @@ direction the campaign might take, it is a state the machinery must report as a 
 > them*, that is a coverage finding, not a clean bill.
 >
 > ⚠⚠ **EVERY INSTRUMENT NAMES ITS SWITCH (Tony, SEQ 350 R1, 2026-10-13).** The six scripts below set
-> INCANT_EXPR_ACCUM themselves -- not given reads as 0 and is exported as 0; `unset` is the one deliberate way to run the
-> binary's default -- and echo it under the binary. pop.sh and the ladder pick their pins by `SW`, never by the variable.
+> INCANT_EXPR_ACCUM themselves -- not given reads as 1 and is exported as 1 (SEQ 351 R2: a bare run measures what a bare
+> incant runs; `=0` is the explicit way to the old road); `unset` and `empty` are the deliberate ways to run the binary's own
+> reading of those -- and echo it under the binary. pop.sh and the ladder pick their pins by `SW`, never by the variable.
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·

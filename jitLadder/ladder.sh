@@ -166,18 +166,21 @@ runcap () {                     # runcap <label> <fixture> <outfile> [env-prefix
 if [ ! -x "$B" ]; then echo "  FAIL  binary not executable: $B"; exit 1; fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
-#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 0 and is EXPORTED as 0, so no
-#  run reaches the binary's own default by accident. INCANT_EXPR_ACCUM=unset is the one deliberate way to run that default
-#  (the H7 of a default): the variable is unset for the binary, and the pins follow EXPR_ACCUM_DEFAULT -- the binary's
-#  default, which moves when exprAccumOn() (jitContext.h) does. Rows choose their pins by SW, never by the variable.
+#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 1 and is EXPORTED as 1 (SEQ 351 R2:
+#  a bare run measures what a bare incant runs); =0 is the explicit way to the old road. INCANT_EXPR_ACCUM=unset and =empty are
+#  the deliberate ways to run the binary's own reading of those (the H7 of a default): the variable is unset, or set empty,
+#  for the binary, and the pins follow EXPR_ACCUM_DEFAULT -- the binary's default, which moves when exprAccumOn()
+#  (jitContext.h) does. Rows choose their pins by SW, never by the variable.
 EXPR_ACCUM_DEFAULT=1     # the flip, 2026-10-13: the binary reads unset as on
 case "${INCANT_EXPR_ACCUM-}" in
     1)      SW=1 ;;
-    0|"")   SW=0; INCANT_EXPR_ACCUM=0 ;;
-    unset)  SW=$EXPR_ACCUM_DEFAULT ;;
-    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1 or unset"; exit 2 ;;
+    0)      SW=0 ;;
+    "")     SW=1; INCANT_EXPR_ACCUM=1 ;;
+    unset|empty)  SW=$EXPR_ACCUM_DEFAULT ;;
+    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1, unset or empty"; exit 2 ;;
 esac
 if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM unset -- the binary's default, pinned as $SW"
+elif [ "$INCANT_EXPR_ACCUM" = empty ]; then INCANT_EXPR_ACCUM=; export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM empty -- the binary's reading of empty, pinned as $SW"
 else export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 #  H5 FOR EVERY RUNG (SEQ 230 R4): from here on $B is jitLadder/capcmd, which runs the real binary
 #  under a ${JITCAP}s wall-clock cap and logs a killed fixture by name to $JITCAPLOG. The binary
