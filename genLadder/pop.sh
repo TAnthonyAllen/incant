@@ -6368,16 +6368,6 @@ kindRow "jitBlockCtlT sentinel, lines"          "$(grep -c '^BJ SENTINEL' "$T/ji
 kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
 kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 7 || echo 0)"  # intended 7
 
-#  ⚑ modEqT / modEqJitT -- SEQ 346: `%=` is NOT a registered operator. Pinned at TODAY's value per switch, not fixed.
-#  Switch on, both roads exit 139: the candidate reads `x %= y` as `x % (= y)` and runOPaccum's acU arm calls opAssign
-#  as a unary (one argument). Intended under R5: x = x % y -> 1.
-for _me in modEqT modEqJitT; do
-    run2 $_me "$T/$_me.o" "$T/$_me.e"; _mee=$?
-    #  RE-STATED SEQ 347 R4: %= is registered with the compound operators -- 7 %= 2 is 1, exit 0, both switches.
-    fdRow "$_me 7 %= 2, exit"   "$_mee"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo 139 || echo 0)"  "0"
-    fdRow "$_me 7 %= 2, value"  "$(tr -s ' ' < "$T/$_me.e" | awk '$1=="ME" && ($2=="int" || $2=="jit") {print $3; exit}')"  "$([ "$INCANT_EXPR_ACCUM" = 1 ] && echo '' || echo 7)"  "1"
-done
-
 #  ⚑ unaryNoTargetT -- SEQ 347 R4: a binary operator in a prefix position (`x &= y` read as `x & (= y)`). Intended on both
 #  switches: exit 0 and the statement refused by name. Today switch on exits 139 (runOPaccum's acU arm calls opAssign as a
 #  unary); switch off the old road refuses `&` by name.

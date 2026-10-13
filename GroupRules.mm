@@ -1950,6 +1950,41 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
+// castStore the cast rule's store (SEQ 347 R0): a count, NUMBER or STRING target that has a kind keeps it and the argument is cast in; answers 1 when it took the store
+extern "C" int castStore(GroupItem *argument, GroupItem *target)
+{
+	if ( !target->groupBody->flags.data || !argument->groupBody->flags.data )
+		return 0;
+	if ( target->groupBody->flags.data == argument->groupBody->flags.data )
+		return 0;
+	// castExempt an accessor product is a write THROUGH a field, and those are exempt (R1); a holder carries its group across and lists keep setContent (SEQ 346 R4)
+	if ( target->groupBody->flags.isAccessorProduct )
+		return 0;
+	if ( isGROUP(argument->groupBody->flags.data) )
+		return 0;
+	if ( !isCOUNT(target->groupBody->flags.data) && !isNUMBER(target->groupBody->flags.data) && !isSTRING(target->groupBody->flags.data) )
+		return 0;
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
+		{
+		// castCount .count is getCount: a NUMBER rounds half up toward +inf, a STRING or TOKEN reads its text length
+		if ( isCOUNT(target->groupBody->flags.data) )
+			target->setCount(argument->getCount());
+		else
+		if ( isNUMBER(target->groupBody->flags.data) )
+			{
+			if ( isNUMBER(argument->groupBody->flags.data) )
+				target->setNumber(argument->getNumber());
+			else	target->setNumber((double)argument->getCount());
+			}
+		else
+		if ( isSTRING(target->groupBody->flags.data) )
+			target->setText(argument->getText());
+		return 1;
+		}
+	::refuse(target,"Operator = -- the argument has no count and no text to cast into this kind (SEQ 347 R0)");
+	return 1;
+}
+
 /*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
     THE SINGLE WRITER of `ruler.refused = 0`, as refuse() is the single writer of the 1.
     docs/refusalScope.md carries the argument and the three measurements behind it.  */
@@ -2115,6 +2150,19 @@ char 		*failText = 0;
 			failText = ciSource->getText() + got->getCount();
 	reportCodeFail(ciOwner,failText);
 	return ruler->falseResult;
+}
+
+// concatText a fresh text: left followed by right (SEQ 347 R3)
+extern "C" char *concatText(char *left, char *right)
+{
+	
+	if ( !left )    left = (char*)"";
+	if ( !right )   right = (char*)"";
+	size_t n = strlen(left) + strlen(right) + 1;
+	char *t = (char*)malloc(n);
+	snprintf(t,n,"%s%s",left,right);
+	return t;
+	
 }
 
 /*******************************************************************************
@@ -3677,7 +3725,8 @@ extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 	storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
 	if ( GroupControl::groupController->groupRules->refused ) return 0;
 	if ( !target )  return 0;
-	if ( source )   target->setContent(source);
+	//  castRule opAssign's twin casts as opAssign does (SEQ 347 R0)
+	if ( source )   { if ( !::castStore(source,target) ) target->setContent(source); }
 	else            target->clearData();
 	return target;
 	
@@ -4081,6 +4130,18 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	
 }
 
+// jitCastCountTextRT a jitted store of a count into a STRING target takes it as text (SEQ 347 R0)
+extern "C" void jitCastCountTextRT(GroupItem *field, int value)
+{
+	 if (field) { char *t = (char*)malloc(24); snprintf(t,24,"%d",value); field->setText(t); } 
+}
+
+// jitCastNumberTextRT a jitted store of a NUMBER into a STRING target takes it as text (SEQ 347 R0)
+extern "C" void jitCastNumberTextRT(GroupItem *field, double value)
+{
+	 if (field) { char *t = (char*)malloc(32); snprintf(t,32,"%g",value); field->setText(t); } 
+}
+
 /*******************************************************************************
     jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30. It ANNOUNCES and
     RETURNS; the caller then does the interpreted thing.
@@ -4211,6 +4272,11 @@ extern "C" void jitDoEnd()
 
 extern "C" GroupItem *jitEmitAdd(GroupItem *argument, GroupItem *target)
 {
+	// concatJit a STRING or TOKEN left is a run-time concatenation, as opPlus's own jitting gate does (SEQ 347 R3)
+	if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
+		{
+		 return jitEmitConcat(argument, target); 
+		}
 	 return jitEmitBinary(argument, target, jitAdd); 
 }
 
@@ -4322,7 +4388,30 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	llvm::IRBuilder<> *b = gJitBuilder;
 	// Plain `=`: pure store-back of the source operand's SSA value into the
 	// target's slot. No arithmetic.
-	b->CreateStore(argument->jitData->jitValue, target->jitData->jitSlot);
+	//  castRule a store CASTS into the target's kind and never writes a raw value of the other type (SEQ 347 R0) -- a target
+	//  with no kind takes the argument's at run time; a STRING target takes the value as text
+	{
+	llvm::LLVMContext &cctx = b->getContext();
+	llvm::Type *dT = llvm::Type::getDoubleTy(cctx), *iT = llvm::Type::getInt32Ty(cctx), *pT = llvm::PointerType::getUnqual(cctx);
+	llvm::Value *v = argument->jitData->jitValue;
+	GroupBody *tbk = target->groupBody;
+	JitFrameSlot *tfs = jitFrameFind((void*)&(tbk->gCount));
+	if (!tfs) tfs = jitFrameFind((void*)&(tbk->gNumber));
+	bool vNum = v->getType()->isDoubleTy();
+	auto bake64 = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(cctx), (uint64_t)p), pT, nm); };
+	if (!tfs && (!tbk->flags.data || isSTRING(tbk->flags.data))) {
+	void *fn = !tbk->flags.data ? (vNum ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT)
+	: (vNum ? (void*)&jitCastNumberTextRT : (void*)&jitCastCountTextRT);
+	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(cctx), {pT, v->getType()}, false);
+	b->CreateCall(fty, bake64(fn, "castFn"), {bake64((void*)target, "castField"), v});
+	} else {
+	llvm::Type *slotT = tfs ? tfs->ty : (isNUMBER(tbk->flags.data) ? dT : iT);
+	if (slotT->isDoubleTy() && !vNum)       v = b->CreateSIToFP(v, dT, "castNum");
+	else if (!slotT->isDoubleTy() && vNum)  v = b->CreateFPToSI(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor,
+	b->CreateFAdd(v, llvm::ConstantFP::get(dT, 0.5), "castHalf")), iT, "castCount");
+	b->CreateStore(v, target->jitData->jitSlot);
+	}
+	}
 	//  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given
 	{
 	GroupBody *tb = target->groupBody;
@@ -4405,7 +4494,8 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 	// Numeric promotion: if either operand is double, the op is floating-point and
 	// the integer operand is promoted (CreateSIToFP) before it. This is where
 	// "assume operands match" comes due — mixed count+number now coerces cleanly.
-	bool fp = l->getType()->isDoubleTy() || r->getType()->isDoubleTy();
+	// divNumber `/` always yields a NUMBER, as opDiv does -- two counts are promoted and divided as doubles (SEQ 347)
+	bool fp = l->getType()->isDoubleTy() || r->getType()->isDoubleTy() || op == jitSDiv;
 	if (fp) {
 	llvm::Type *d = llvm::Type::getDoubleTy(b->getContext());
 	if (l->getType() != d) l = b->CreateSIToFP(l, d, "promo");
@@ -4472,6 +4562,25 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	}
 	target->jitData->setJitter(res);
 	gJitResult = res;
+	return target;
+	
+}
+
+// jitEmitConcat a STRING or TOKEN left of `+`: a run-time call to opPlus itself, its node published as the value (SEQ 347 R3)
+extern "C" GroupItem *jitEmitConcat(GroupItem *argument, GroupItem *target)
+{
+	
+	if (!gJitBuilder || !target) return target;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	llvm::Value *res = b->CreateCall(opTy, bake((void*)&opPlus, "concatFn"), {bake((void*)argument, "concatArg"), bake((void*)target, "concatTgt")}, "concatRes");
+	gJitResultNode = res;
+	gJitLastIsNode = true;
+	gJitEmitted    = true;
 	return target;
 	
 }
@@ -7663,8 +7772,12 @@ int 		priorLimit = ::limitWriteGuard(target);
 	// accessorWrite `x.name = v` writes the FIELD x through setGroupField, not only the copy opDot handed back (SEQ 295 R3)
 	if ( target->groupBody->flags.isAccessorProduct )
 		::accessorWrite(argument,target);
+	// castRule a target that has a kind keeps it and the argument is cast in (SEQ 347 R0); one with no kind takes the argument's, as setContent does
 	if ( argument )
-		target->setContent(argument);
+		{
+		if ( !::castStore(argument,target) )
+			target->setContent(argument);
+		}
 	else	target->clearData();
 	// limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
 	if ( priorLimit )
@@ -7772,7 +7885,7 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 		 return jitEmitBinary(argument, target, jitSDiv); 
 		}
 	// alwaysDouble division never changes meaning by operand type, and an exact quotient stays a double so the jit knows the result type at emit time
-	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
 		GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
@@ -7794,7 +7907,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		 jitEmitBinary(argument, target, jitSDiv);
 		return jitEmitAssign(target, target); 
 		}
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// a count target rounds half-up through getCount's floor(x+0.5), so the two cannot drift; a double keeps the fraction
 		if ( isCOUNT(target->groupBody->flags.data) )
@@ -8341,7 +8454,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		return ::refuse(target,"Operator - -- an operand that is nothing");
 		}
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// binaryPromotes a double operand promotes the result; count OP count stays a count (see opPlus)
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -8485,7 +8598,7 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 		{
 		return ::refuse(target,"Operator * -- an operand that is nothing");
 		}
-	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
 		else
@@ -8579,6 +8692,11 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
+		// concatJit a STRING or TOKEN left is a run-time concatenation, published as a node (SEQ 347 R3)
+		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
+			{
+			 return jitEmitConcat(argument, target); 
+			}
 		 return jitEmitBinary(argument, target, jitAdd); 
 		}
 	// f41 a refused operand arrives as null -- refuse it by name, beside the wrong-type case each operator already names
@@ -8586,7 +8704,11 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		{
 		return ::refuse(target,"Operator + -- an operand that is nothing");
 		}
-	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	// concatLeft a STRING or TOKEN on the left concatenates the right side's text (SEQ 347 R3)
+	if ( target->groupBody->flags.data && (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && argument->groupBody->flags.data )
+		GroupControl::groupController->groupRules->tempField->setText(::concatText(target->getText(),argument->getText()));
+	else
+	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// binaryPromotes a binary op has no count slot to narrow into, so a double operand promotes the result; count OP count stays a count
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -8594,11 +8716,6 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		else
 		if ( isCOUNT(target->groupBody->flags.data) )
 			GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount + argument->getCount());
-		else
-		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
-			if ( target->groupBody->gCount > argument->getCount() )
-				GroupControl::groupController->groupRules->tempField->setText(target->groupBody->gText + argument->getCount());
-			else	::fprintf(stderr,"opPlus WARNING: tried to advance a string past its length on %s -- the value stands\n",target->groupBody->tag);
 		}
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
@@ -8864,7 +8981,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitRem(argument, target, ruler->tempField); 
 		}
-	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
+	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		ruler->tempField->setCount(target->getCount() % argument->getCount());
 	// a refusal, never a data-less tempField that reads back as its own tag (promoted from sentinel-as-data, 2026-09-05)
 	if ( !ruler->tempField->groupBody->flags.data )
@@ -10601,6 +10718,9 @@ GroupItem 	*arg = 0;
 		if ( !val )
 			if ( op == ruler->opFields->get("deref") )
 				return ::refuse(op,"a star on an operand that is nothing -- the inner read yielded null (the accumulator candidate, SEQ 327 D3)");
+		// noTarget an operator that is not a unary has no target in a prefix position -- `x &= y` read as `x & (= y)`; refuse it by name, never call it as one (SEQ 347 R4)
+		if ( !op->groupBody->flags.isUnary && ::compare(op->groupBody->tag,".") != 0 )
+			return ::refuse(op,"an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)");
 		return op->groupBody->gMethod(val);
 		}
 	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)

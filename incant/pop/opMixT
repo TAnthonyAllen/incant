@@ -1,15 +1,17 @@
 Start();
 include(unitTests);
 include(generate);
-include(directives);
+include(utilities);
 search reset stack Grokking;
-search Generating UnitTests Utilities Directives list;
+register(OpMixTk);
+define
+    TkTwelve isRule TOKENize tw-="12";
+    TkAB isRule TOKENize ta-="ab";
+    TkCD isRule TOKENize tc-="cd";
+    ;
+search Generating UnitTests Utilities OpMixTk list;
 register(OpMixT);
 define
-    source="incant/opMix12";
-    g1 source fromThis="12";
-    g2 source fromThis="ab";
-    g3 source fromThis="cd";
     tk12;
     tkab;
     tkcd;
@@ -19,9 +21,9 @@ define
     n35=3.5;
     c3=3;
     show code={ k := argument.datA; x := argument.texT; cerr "OMV" x k:; };
-    T1 code={ tk12 = getLine(g1); };
-    T2 code={ tkab = getLine(g2); };
-    T3 code={ tkcd = getLine(g3); };
+    T1 code={ v := tell("TkTwelve 12"); rp = *v["reply"]; tk12 = *rp; };
+    T2 code={ v := tell("TkAB ab"); rp = *v["reply"]; tkab = *rp; };
+    T3 code={ v := tell("TkCD cd"); rp = *v["reply"]; tkcd = *rp; };
     o1J;
     o1I;
     L1J code={ o1J = c3 + s12; };
@@ -55,14 +57,9 @@ define
     L8J code={ o8J = tkab + tkcd; };
     L8I code={ o8I = tkab + tkcd; };
     ;
-getFile(source);
-T1();
-source = "incant/opMixab";
-getFile(source);
-T2();
-source = "incant/opMixcd";
-getFile(source);
-T3();
+T1(); cerr "OM T1 tk12":; show(tk12);
+T2(); cerr "OM T2 tkab":; show(tkab);
+T3(); cerr "OM T3 tkcd":; show(tkcd);
 testing(L1J); cerr "OM L1 jitF":; show(o1J);
 jitRefire(); cerr "OM L1 jitR":; show(o1J);
 testing(L2J); cerr "OM L2 jitF":; show(o2J);
@@ -100,8 +97,13 @@ stop();
 
 opMixT -- SEQ 347 R3 (Tony, 2026-10-12): MIXED OPERANDS. A count or NUMBER on the left reads a STRING or TOKEN on the right
 as its count (its text length): 3 + "12" is 5, 3.5 + "12" is 5.5. A STRING or TOKEN on the left concatenates the right
-side's text: "ab" + "cd" is "abcd", "12" + 3 is "123". L5-L8 are the same with TOKENs, each read clean (no newline) by
-getLine from its own one-line sample (incant/opMix12, opMixab, opMixcd).
+side's text: "ab" + "cd" is "abcd", "12" + 3 is "123". L5-L8 are the same with TOKENs. SEQ 348 R1: a TOKEN is minted
+from a parse, never by getLine (getLine's TOKEN spans its line's terminator, which insertAt needs): each is the label of a
+TOKENize rule (TkTwelve, TkAB, TkCD) handed back by tell() -- captureSpan gives it exactly the matched text, kind 14. tell's verdict carries the
+label in `reply`, a GROUP holding it: `rp = *v["reply"]` copies that holder and `*rp` is the label itself, one star per
+statement because the old road (switch off) does not compose `**`. Copying `*v["reply"]` alone would make the TOKEN a
+holder, which reads as kind 14 at top level and as a group in an operand. The
+rows OM T1-T3 print each TOKEN before it is used.
 Four cells per line: jitF the jitted first fire into a target with NO kind (it takes the result's kind, R0); jitR a refire
 into the now-kinded target (it keeps it); int and int2 the same two on the interpreted road, run last (bear-trap 25).
 Each cell prints OM <line> <cell> then OMV <text> <datA>: 5 count, 9 NUMBER, 13 STRING, 14 TOKEN, 0 none.
