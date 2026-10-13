@@ -116,15 +116,17 @@ if [ -x "$B" ]; then
 else
     echo "  FAIL  binary not found or not executable: $B"; fail=1
 fi
-#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 0 and is EXPORTED as 0;
-#  INCANT_EXPR_ACCUM=unset is the one deliberate way to run the binary's own default.
+#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 1 and is EXPORTED as 1 (SEQ 351
+#  R2: a bare run measures what a bare incant runs); =0 is the explicit way to the old road; INCANT_EXPR_ACCUM=unset and
+#  =empty are the deliberate ways to run the binary's own reading of those.
 case "${INCANT_EXPR_ACCUM-}" in
     0|1)    ;;
-    "")     INCANT_EXPR_ACCUM=0 ;;
-    unset)  ;;
-    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1 or unset"; exit 2 ;;
+    "")     INCANT_EXPR_ACCUM=1 ;;
+    unset|empty)  ;;
+    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1, unset or empty"; exit 2 ;;
 esac
 if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM unset -- the binary's default"
+elif [ "$INCANT_EXPR_ACCUM" = empty ]; then INCANT_EXPR_ACCUM=; export INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM empty -- the binary's reading of empty"
 else export INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 
 # --------------------------------------------------------------------------
