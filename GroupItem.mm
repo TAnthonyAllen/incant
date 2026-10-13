@@ -2133,7 +2133,7 @@ void GroupItem::setActions()
 		{
 		char 	*methodName = ::concat(2,"aCTion",groupBody->tag);
 		void 	*methodAddress = 0;
-		// exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; unset, nothing moves
+		// exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; =0 (the old road), nothing moves -- unset is on since the flip (SEQ 350)
 		// exprAccumOn  reads the switch's VALUE, never its presence -- presence turned INCANT_EXPR_ACCUM=0 on (SEQ 314 g)
 		
 		if ( ::exprAccumOn() && !strcmp(groupBody->tag,"ExpressioN") ) {

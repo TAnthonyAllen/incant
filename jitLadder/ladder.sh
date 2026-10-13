@@ -170,7 +170,7 @@ echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 #  run reaches the binary's own default by accident. INCANT_EXPR_ACCUM=unset is the one deliberate way to run that default
 #  (the H7 of a default): the variable is unset for the binary, and the pins follow EXPR_ACCUM_DEFAULT -- the binary's
 #  default, which moves when exprAccumOn() (jitContext.h) does. Rows choose their pins by SW, never by the variable.
-EXPR_ACCUM_DEFAULT=0
+EXPR_ACCUM_DEFAULT=1     # the flip, 2026-10-13: the binary reads unset as on
 case "${INCANT_EXPR_ACCUM-}" in
     1)      SW=1 ;;
     0|"")   SW=0; INCANT_EXPR_ACCUM=0 ;;
