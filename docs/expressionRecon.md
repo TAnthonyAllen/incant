@@ -625,6 +625,22 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ THE FLIP BOUGHT -- expr-flip MERGED (0b1adfd). THE CANDIDATE ROAD IS THE DEFAULT (SEQ 351, Clod, 2026-10-13)
+
+**R1 (2caf8dd):** exprAccumOn() reads an EMPTY INCANT_EXPR_ACCUM as on, the same as unset, and says so in its comment; 0 is off;
+any other value off with its stderr line. **R2:** pop.sh, jitLadder, printPop, ddPop, decodePop and dirCheck export 1 when no
+switch is given -- a bare run measures what a bare incant runs; =0 is the explicit way to the old road. A new `empty` mode hands
+the binary an empty value (pins follow EXPR_ACCUM_DEFAULT, as `unset` does).
+**On the branch binary:** bare, unset, empty and =1 row for row (1285); =0 row for row with trunk's off (1274). **H7 for R1:**
+empty read as off, rebuilt -- the `empty` run 1285 -> 1231, 57 lines red by value (A2 26 vs 23, BC2 pz 0 vs 7, the ratchet 8
+vs 5, ...); restored md5-identical, rebuilt, empty = =1 again.
+**The buy:** merge 0b1adfd; bare retok byte-identical (GroupItem, GroupRules); canary 353; ~/bin/incant rebuilt Oct 13 11:52.
+**Fleet row for row with the clone, both switches:** =0 1274, =1 1285 (fixture-name count 235 vs 228, the searchAcc* scratch,
+H3); bare = =1. **Kitchen pass, =0 and =1:** jitLadder PASSED, no movers against the clone · printPop PASSED · ddPop 5 / 1 ·
+decodePop PASSED · frontier = capture at =0 and =1 · dirCheck PASSED 53 / 57 · captures refreshed (decodePop, dirCheck: the
+switch line and the binary mtime only) · canary 353 · exec bits clean · groups.ext untouched. expr-flip deleted (clone, live,
+GitHub).
+
 #### ⚠⚠ THE FLIP BUILT ON expr-flip (8aafbe9), NOT MERGED (SEQ 350 R2a + step 3, Clod, 2026-10-13)
 
 **R2a on trunk (083b32c):** exprPinT E2 searches per switch -- on, the candidate's "a chained comparison (a < b < c) -- refused
