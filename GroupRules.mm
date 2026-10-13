@@ -10718,6 +10718,9 @@ GroupItem 	*arg = 0;
 		if ( !val )
 			if ( op == ruler->opFields->get("deref") )
 				return ::refuse(op,"a star on an operand that is nothing -- the inner read yielded null (the accumulator candidate, SEQ 327 D3)");
+		// noTarget an operator that is not a unary has no target in a prefix position -- `x &= y` read as `x & (= y)`; refuse it by name, never call it as one (SEQ 347 R4)
+		if ( !op->groupBody->flags.isUnary && ::compare(op->groupBody->tag,".") != 0 )
+			return ::refuse(op,"an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)");
 		return op->groupBody->gMethod(val);
 		}
 	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
