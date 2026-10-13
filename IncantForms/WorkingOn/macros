@@ -33,12 +33,18 @@ To apply xpTestList to rules
         if we can assemble label action into a chain it is turtles all the way down
 This looks like a juggling exercise: here is your molotov cocktail, war hammer, bowling ball; now juggle.
 
-How to attack?
-    maybe feed in a flattened label tree from a simplified instance of an IF rule that prints a simple message and see if xpTestList handles it
-        if A || B; print "I am a bum":;
-    flattened that would be
-        A || B if print "I am a bum" :    if and print become operators (print op is unary)
-        Note the print op gets handed a list w/2 items; right now instruction chain does not handle lists
 Describe how each statement will get handled
-    define a new rule modeled after the statement but w/no rule action; then what to do about rule actions? Park them in a noPrint rule attribute?
-    run the rule then produces a label but does nothing
+    define a new rule modeled after the statement but w/no rule action; then what to do about rule actions? Park them in the rule label like deferred
+    run the rule then produces a label but does nothing (directive?).
+    if the list is a rule like an if statement: run the rule to return its label. This is simple, the rule result goes into the instruction chain just the way any action or operator result would. The rule action just returns a label as if it were deferred. It does not get fired until the instruction chain is fired.
+Statements are not expressions so a BlocK of statements will produce results with no associated op; A result with no associated op does not go on the chain (that is how xpTestList works). The BlocK action (embodied in its label) will have to run thru its statments, each of which produces a label, then fire the label to produce a result that will be ignored (branches being the exception)
+The difference is the parse runs actions but they only produce labels that feed into an instruction chain. The label actions then get run when the chain runs. An exception would be if a parse action might fail and reject the label ...
+The way I would like an if expression to work; given an expression containing
+    if A; print "something":;      if should be recognized as start of a rule with a method that runs the rule consuming the rule and leaving its label as its result
+        probably can add a rule start registry to the search list so if gets found with its associated method and it needs to run to replace itself with its label (that has noPrint set). Each registry entry will have to have an associated rule in its group. xpTestList will have to check to see if a field is in the RuleStart registry and if so: fire the associated rule to get its result
+    if xp statement xp and statement end up in the xp action as unresolved labels and the xp action can become an instruction stuck on the chain
+    What would while xp statement look like; how would the loop be handled?
+        the while rule runs, consumes what it consumes; and the while action ends up with xp and statement as unresolved actions as with the if rule process; it then fires op=while target=statement argument=xp statement and xp are chains and while runs them until xp fails. The difference is hopefully the chain is faster than running statement and xp actions the way they run now
+Would be interesting if label attachment was a chain attach
+    label action would be a chain that includes all the label components and then the label action; no change in the action processing required for proof of concept
+    what would the label chain look like???
