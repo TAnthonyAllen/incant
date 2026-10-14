@@ -307,7 +307,7 @@ read TRUE. So k3 is wrong interpreted (exprPinT S3's row) and k4 is wrong jitted
 s1-s4 (SEQ 339) are the bare sentinels with no call: s1 `if falseResult;`, s2 `if trueResult;`, s3 `scR = falseResult;`,
 s4 `scR = trueResult;` read back. They are falseResultTruthy's certificate with k3, k4 and exprPinT S3.
 Columns: fire = the testing() run (emit + first fire); jit = jitRefire after a counter reset, so it counts run time only;
-int = the interpreted oracle, run last (bear-trap 25). The switch is the environment's INCANT_EXPR_ACCUM.
+int = the interpreted oracle, run last (bear-trap 25). One road since the old road retired, 2026-10-14.
 m1's values are a=1 b=1 c=0, chosen so the two folds disagree on value AND counts: left fold (a||b)&&c reads a1 b0 c1 v0;
 right fold a||(b&&c) reads a1 b0 c0 v1.
 n1 and n2 are the witness control: X runs once there. If they read 0 the counter is broken and no other row means anything.

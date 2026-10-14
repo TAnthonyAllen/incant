@@ -1461,6 +1461,8 @@ Hard-won lessons. Each one has cost real debugging time.
    non-literal — and it would be wrongly handed to `jitSeedField`, which bakes a bogus
    `gCount` address. Latent: only bites when chaining lands. Guard on "already carries
    `jitData`" (the emit result) before treating an operand as a field. (Phase JIT, 2026-06-18.)
+   ⚠ **DATED 2026-10-14: HISTORY.** `aCTionExpressioN` and its jitting branch are gone (the old builder deleted, SEQ 355, 2026-10-14); the
+   accumulator road's jitted operands do not pass through this gate.
 
 10. **Adding a GroupBody flag needs `groups.ext` sync AND `tokall` — miss either and it
     fails *silently and catastrophically*.** A new boolean in `GroupBody.twk`'s `bools` block
@@ -1806,7 +1808,7 @@ Hard-won lessons. Each one has cost real debugging time.
     ⚠ **THERE ARE TWO SPECIES OF CALLOUT AND THE PREFIX IS WHAT TELLS THEM APART: A WITNESS
     REPORTS AND A HAND CHANGES THE TREE.** A witness wears `measure` and is bound by everything
     above — gated, inert when disarmed, writes nothing it is handed. A **hand** is an ordinary
-    extracted arm (`handleUnary`, `handleCall`, `handleSubscript`, `handleDot` in `aCTionTokenXP`)
+    extracted arm (`handleCall`, `handleSubscript`; `handleUnary` and `handleDot` went with the old builder deleted, SEQ 355, 2026-10-14)
     and wears **no prefix**, because it is load-bearing code that happens to be called from one
     line. **The reserved prefix is the whole discipline: `grep -n 'measure[A-Z]'` has to return
     instruments and nothing else, or the census stops meaning anything.** A hand that took the
@@ -2145,7 +2147,7 @@ Hard-won lessons. Each one has cost real debugging time.
     the investigating agent's OWN probe within the hour. `aCTionIF` evaluates its condition by
     calling the condition node's method — `GroupRules.mm:857`, behind the `isMethod(instructType)`
     gate — which is the normal path, because a condition is usually an `ExpressioN` whose `gMethod`
-    is `aCTionExpressioN`. But `instructType` and `gMethod` both live in **`groupBody`**, and
+    was `aCTionExpressioN` (since the old builder deleted, SEQ 355, 2026-10-14, ExpressioN's actor is `interpretXPaccum`). But `instructType` and `gMethod` both live in **`groupBody`**, and
     `copyOf` (`Commands.rtn:252`) does `*groupBody = *grup.groupBody`. **So a `copyOf` twin of a
     rule carries that rule's action, and `if twin;` RUNS IT.**
     For `Braced` the action is four lines (`GroupRules.mm:136`): `input->clear()` then
@@ -2197,6 +2199,8 @@ Hard-won lessons. Each one has cost real debugging time.
     its NAME first, then postfixes (`.`, call, subscript) apply in order. So `*block(code)` is
     `(*block)(code)`** -- which today it is not (the call arm loses the call, expressionRecon.md section 3).
     The two-mechanisms text stays above as the record of what was measured on 2026-09-04.
+    ⚠ **DATED 2026-10-14: BOTH HALVES ARE THE OLD ROAD'S RECORD.** aCTionTokenXP's arms and handleDot were deleted
+    (the old builder deleted, SEQ 355, 2026-10-14); on the accumulator road a prefix binds its name first, so `*a.b` is `(*a).b` by pass 1, not by a rotation.
 
 35. **A CHAINED-SUBSCRIPT READ IN PRINT POSITION IS UNRELIABLE — `opDot` UNWRAPS ONCE.** Second
     confirmed instance of the same single-unwrap poisoning (Tony named the first on 2026-08-22
@@ -2517,6 +2521,8 @@ Hard-won lessons. Each one has cost real debugging time.
     **A detector that is right about its own question can still let a second claim rot beside it.**
     **FIXED 2026-09-16** by the chain fold in `interpretXP` — `ruleActions.interpretXP.dotFold`,
     fixture `incant/pop/dotChainT` rows DC-2 and DC-4.
+    ⚠ **DATED 2026-10-14:** `interpretXP` and its fold were deleted (the old builder deleted, SEQ 355, 2026-10-14); DC-2 / DC-4 now certify the
+    accumulator road. The grammar's singular slots stand until stroke 4 (TokenXP / UnaryXP out of the grammar).
     ⚠ **THE USEFUL COROLLARY, and it answers the question people will ask: the trailing `.C` is
     NOT a leading-dot spelling riding `lastREF`.** No `dot-LEADING` arm fires for it. So retiring
     the leading form does not owe `X[…].Y` a respell — that shape is a **dropped term**, and it is
@@ -2950,17 +2956,9 @@ direction the campaign might take, it is a state the machinery must report as a 
 > *"which instrument reads what I touched, and did I run it."* When the honest answer is *none of
 > them*, that is a coverage finding, not a clean bill.
 >
-> ⚠⚠ **EVERY INSTRUMENT NAMES ITS SWITCH (Tony, SEQ 350 R1, 2026-10-13).** The six scripts below set
-> INCANT_EXPR_ACCUM themselves -- not given reads as 1 and is exported as 1 (SEQ 351 R2: a bare run measures what a bare
-> incant runs; `=0` is the explicit way to the old road); `unset` and `empty` are the deliberate ways to run the binary's own
-> reading of those -- and echo it under the binary. pop.sh and the ladder pick their pins by `SW`, never by the variable.
-> ⚠ **DATED 2026-10-14 (SEQ 353 stroke 1): the switch is gone -- no instrument sets it, no `SW`, one pin per row. This
-> paragraph retires with stroke 3's documents.**
->
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> **`printPop.sh`** · `incant/frontier` (run once; it ran at `INCANT_EXPR_ACCUM=0` and `=1` until the old road
-> retired, 2026-10-13, SEQ 353) · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
+> **`printPop.sh`** · `incant/frontier` (run once) · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
 > retokked bare) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >

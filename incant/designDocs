@@ -173,7 +173,7 @@ define
                 refusing row costs only itself, which is what lets testPrecedence carry forty
                 rows of which several refuse. A file that puts two refusable statements in one
                 action can only ever measure the first.#);
-            tokenXPshapes=(THE BEFORE-PICTURE FOR THE FOLD. Measured 2026-09-11 at the TokenXP
+            tokenXPshapes=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). THE BEFORE-PICTURE FOR THE FOLD. Measured 2026-09-11 at the TokenXP
                 seat through measureTokenArm, thirteen spellings, one run each, with traceParse
                 armed at PARSE time and the expression at TOP LEVEL -- an expression inside an
                 action body never reaches this seat, because the body is parsed at define time
@@ -1662,8 +1662,8 @@ define
                     forbidding it.#);
             opAND=(THE STRICT FALLBACK, NOT THE SHORT-CIRCUIT. runOP evaluates both operands BEFORE it
                 dispatches, so by the time this is entered the right arm has already run, side
-                effects included (docs/andOrRung.md section 1a). runShortCircuit in GroupActions.rtn
-                is where AND/OR are actually reached from; it intercepts above the resolution lines.
+                effects included (docs/andOrRung.md section 1a). runAccAnd / runAccOr in GroupActions.rtn
+                are where AND/OR are reached from (runShortCircuit was, until the old builder was deleted 2026-10-14).
                 This remains for any path that reaches the operator table directly, brought up to
                 the ruling: 1 or 0, never null, both operands through truthOf. Before 2026-08-11 it
                 returned trueResult or NULL and opOR returned trueResult/falseResult, so nothing
@@ -1724,7 +1724,7 @@ define
                 toBUFFER TEST IS THE FEATURE and the line that closes KANT-23, where a grafted cout
                 was swallowed by an armed diversion. Do not add the arm back; that restores the
                 defect exactly.#);
-            opDeref=(the prefix unary *, routed from handleUnary by the named `deref` op, so the binary *
+            opDeref=(the prefix unary *, routed by runOPaccum's acU arm (handleUnary until 2026-10-14) to the named `deref` op, so the binary *
                 slot (opMultiply, carrying operateMethod, interpretMethod and jitEmitter) stays
                 isolated -- the same two-slot separation prefix - has from opMinus. ⚠ Its old header
                 said it REFUSES and has NO JIT EMITTER; both were stale by 2026-10-11 (the star
@@ -2012,7 +2012,7 @@ define
                     would be always-true -- the abolition of falsehood. Row 3 is the parse-consumer
                     row (parseR's node-or-null, structural nodes, rule results).#);
                 row4Unruled=(ROW 4, TEXT-VALUED OPERANDS, IS DELIBERATELY UNRULED: no measured customer, and
-                    it borders KE-4. At EMIT a text operand is REFUSED (jitEmitShortCircuit calls
+                    it borders KE-4. At EMIT a text operand is REFUSED (jitEmitShortCircuitSlots calls
                     jitDegrade rather than substitute a constant, which nothing would assert). At
                     RUN it lands on row 3, true by presence. The two agree, because a refused emit
                     falls back to interpretation: one answer and a refusal to bake it.#);
@@ -2390,7 +2390,7 @@ define
                 gJitResult, allocates the merge slot, pre-stores the short-circuit answer, and
                 branches so the RIGHT arm's block is entered only on the non-deciding value,
                 leaving insertion in scRhs. `isAND` is PASSED rather than re-derived from the op,
-                so the two callers of the contract -- this and runShortCircuit's interpreted arm
+                so the two callers of the contract -- this and runShortCircuit's interpreted arm (deleted 2026-10-14)
                 -- cannot disagree about which word they are emitting.#):
                 CodeSite="jitEmitters.rtn:jitScBegin";
             e1FirstCustomer=(⚠ E1's FIRST AUDIT CUSTOMER: A BRACKETING EMITTER LEAVES NOTHING IN
@@ -2654,7 +2654,7 @@ define
                 caller can produce. -9 means two functions in one module wanted the same name,
                 which the build loop's erase discipline should make unreachable.#):
                 CodeSite="jitEmitters.rtn:jitBuildFunction";
-            crashTradedForSilence=(⚠ WHY jitEmitShortCircuit EXISTS AT ALL, measured the same day
+            crashTradedForSilence=(⚠ WHY jitEmitShortCircuitSlots EXISTS AT ALL, measured the same day
                 and worth keeping: promoting AND/OR to an intercepting action fixed the
                 `AND`-under-jit 139 AND REPLACED IT WITH THE SILENT WRONG ANSWER.
 
@@ -2664,7 +2664,7 @@ define
                 makes the promotion honest. 2026-08-11, docs/andOrRung.md §3 part 2, ruling
                 SEQ 32.#):
                 CodeSite="jitEmitters.rtn:jitEmitShortCircuitSlots";
-            unboxedCannotSee=(WHAT jitEmitShortCircuit CAN AND CANNOT SEE, stated precisely
+            unboxedCannotSee=(WHAT jitEmitShortCircuitSlots CAN AND CANNOT SEE, stated precisely
                 because the agreement claim depends on it.
 
                 An arm that emits leaves an UNBOXED i32 in flight, and `icmp ne 0` on it IS
@@ -3588,7 +3588,7 @@ define
                 source only because a one-line call-out costs nothing to keep.
 
                 No percent-dash in the format string (bear-trap 40).#);
-            AndOrAreCSpellings=(LANDED 2026-09-10 in three strokes. THE SPELLING IS C, THE
+            AndOrAreCSpellings=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). LANDED 2026-09-10 in three strokes. THE SPELLING IS C, THE
                 SEMANTICS ARE AND/OR'S, and the rename was not free.
 
                 `&&` and `||` carry opAND/opOR, short-circuit, and an unevaluated right
@@ -3628,7 +3628,7 @@ define
 
                 ⚠ C PRECEDENCE IS NOT DONE and is not a registration to add: KANT-43 says
                 this language has none and associates right to left. Its own arc.#);
-            ShortCircuitIsASpelling=(MEASURED 2026-09-10, and 2a DID NOT LAND. Recorded
+            ShortCircuitIsASpelling=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). MEASURED 2026-09-10, and 2a DID NOT LAND. Recorded
                 because the measurement is worth more than the attempt.
 
                 THE GAP, measured with a side effect rather than argued:
@@ -3775,7 +3775,7 @@ define
                 immediately before an `or`, and took the canary 322 to 0 -- the exact cell of
                 that trap's measured table. Moved above the whole chain; canary back to 322.
                 The generated .mm was read before the build, which is what caught it.#);
-            DotRightIsEvaluated=(MEASURED 2026-09-10, strokes 3 and 4, off
+            DotRightIsEvaluated=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). MEASURED 2026-09-10, strokes 3 and 4, off
                 measureDotOperands, and together they say what 6b-i has to be.
 
                 STROKE 3 -- THE SINGLE DOT ON A GROUP MEMBER, and it is exactly the road
@@ -3818,7 +3818,7 @@ define
                 taking its right operand as a name. The "fold-left is TokenXP's loop" clause
                 assumes a loop that does not exist yet -- building it IS the stroke, not a
                 consequence of it.#);
-            DotLeftOperand=(MEASURED 2026-09-10, stroke 1, off measureDotOperands, and it
+            DotLeftOperand=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). MEASURED 2026-09-10, stroke 1, off measureDotOperands, and it
                 moves the `.` defect from the RIGHT operand to the LEFT.
 
                 THE QUESTION WAS whether `taG` arrives at opDot the way `noPrint` does --
@@ -3932,7 +3932,7 @@ define
                 DISAGREE in the shipping language, and `!` has now crossed to the operator
                 side while BARE `if aFalse;` (AP-5) has not. Two spellings, one contract,
                 one still owed.#);
-            RightIsAName=(LANDED 2026-09-10, and it is the half of 6b-i that does not need
+            RightIsAName=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). LANDED 2026-09-10, and it is the half of 6b-i that does not need
                 the fold. The dot's RIGHT OPERAND IS A NAME, never a value.
 
                 THE DEFECT: the right operand arrived RESOLVED, and a resolved node WITH
@@ -3967,7 +3967,7 @@ define
 
                 SCOPE: single-dot rows only. Chains still drop their second postfix
                 (bear-trap 52) and wait on the fold, which is blocked elsewhere.#);
-            UnaryClassSplit=(RULING, Tony, try-and-buy 2026-09-10, LANDED as a structural
+            UnaryClassSplit=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). RULING, Tony, try-and-buy 2026-09-10, LANDED as a structural
                 cleanup with its buy row green. THE SECOND DESIGN FACT FOR THE FOLD, beside
                 the container-arrives-loop-unpacks row.
 
@@ -4009,7 +4009,7 @@ define
                 no rebuild, and the file was restored md5-identical.
 
                 REVERT IS ONE COMMIT: put the two literals back and drop the registration.#);
-            PostfixFoldBlocked=(MEASURED 2026-09-10, stroke 3, AND THE BLOCKER IS NOT
+            PostfixFoldBlocked=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). MEASURED 2026-09-10, stroke 3, AND THE BLOCKER IS NOT
                 REPETITION. 6b-i wants TokenXP to carry a repeated postfix so the dispatch
                 can fold left; the grammar will not take one, and the controls say why not
                 -- or rather, say what it is NOT.
@@ -4103,7 +4103,7 @@ define
                 because there is no grammar shape today that delivers more than one postfix.
                 Bear-trap 52 stands unfixed and its cause is now known to be deeper than the
                 `?`.#);
-            TokenXParms=(aCTionTokenXP's FOUR ARMS, extracted 2026-09-10 as stroke 6a --
+            TokenXParms=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). aCTionTokenXP's FOUR ARMS, extracted 2026-09-10 as stroke 6a --
                 A PURE MOVE, certified byte-identical and re-pinning nothing.
 
                 THE SHAPE. A TokenXP is prefix unaries, then a primary, then postfixes.
@@ -4171,7 +4171,7 @@ define
                 only line in the tree that says it happened.
 
                 No percent-dash in the format string (bear-trap 40).#);
-            NeverSelectBySpelling=(THE SENTENCE, 2026-09-10: AN ACTION NEVER SELECTS
+            NeverSelectBySpelling=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). THE SENTENCE, 2026-09-10: AN ACTION NEVER SELECTS
                 BEHAVIOUR BY SPELLING. The class lives on the REGISTRATION and the action
                 asks a PREDICATE. Three casualties, all found inside one campaign, all the
                 same shape.
@@ -4468,7 +4468,7 @@ define
                     WITH WHATEVER THE METHOD RETURNS, AND UNDER JITTING THAT
                     METHOD IS AN
                     EMITTER THAT RETURNS NULL TO MEAN "I REFUSED".
-                    jitEmitShortCircuit ends
+                    jitEmitShortCircuit (the old wrapper, deleted 2026-10-14, SEQ 355) ended
                     its degrade path with a bare `return nullptr`, so a body
                     whose operand
                     the emitter cannot see -- a command invocation, which
@@ -4885,7 +4885,7 @@ define
             aCTionTokenXP=(THE TokenXP RULE'S ACTION -- it returns a token or a
                 token expression, and it is where a prefix unary is paired with its
                 operand.#):
-                starDotRotation=(THE STAR BINDS TIGHTER THAN A POSTFIX, and this is
+                starDotRotation=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). THE STAR BINDS TIGHTER THAN A POSTFIX, and this is
                     where that is made true. `*a.b` means `(*a).b` and `*a[k]` means
                     `(*a)[k]`. Landed 2026-09-07; no grammar change, and opDot was
                     not touched.
@@ -5052,8 +5052,8 @@ define
                 the gap is
                 COUNTED rather than invisible.
                 docs/gateCensus.md: one of the five. The WALK MACHINERY
-                (aCTionExpressioN
-                et al.) is deliberately NOT in this set -- degrading the
+                (interpretXPaccum
+                et al.; aCTionExpressioN until 2026-10-14) is deliberately NOT in this set -- degrading the
                 emit walk would
                 stop the compiler rather than surface a bug.
                 ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a

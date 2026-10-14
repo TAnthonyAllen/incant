@@ -625,6 +625,37 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠⚠ THE OLD EXPRESSION ROAD IS RETIRED -- CLOSING (SEQ 357, Clod, 2026-10-14)
+
+**What retired:** the right-to-left `interpretXP` road (KANT-43's fold) and its switch. One road remains, the accumulator
+(`interpretXPaccum`): a strict left fold with no precedence, comparisons before `&&` / `||`, a prefix binding its name
+first. KANT-43 is CLOSED (docs/kantCorpus.md, dated note).
+
+| stroke | what | commits |
+|---|---|---|
+| recon | measure only: 12 functions only at =0, 23 only at =1, the two gates, the row census | SEQ 352, seal 144 |
+| 0 | `down` / `across` take the string `"*"` (12 sites in IncantForms) | 29f5736 |
+| 1 | the switch goes: both gates unconditional, exprAccumOn() deleted, every instrument switchless, rows at their =1 pin, opLenT's 4 (O) retired by mapping | db8a5e3 182cd73 b4ad371, merge 024da49 |
+| 2 | the old builder deleted: eleven functions, aCTionTokenXP's body below its gate, 5 groups.ext lines, 2 DesignDocs entries; canary 353 -> 343 | 333eda6 (support 4b261f4), merges aa09bde / ea4f831 |
+| 3 | documents: KANT-43 closed; CLAUDE.md's switch paragraph gone, bear-traps #9 / #34 / #48 / #52 and the hands note dated; DesignDocs swept; the last INCANT_EXPR_ACCUM mentions respelled | SEQ 357 |
+
+**The H7's reach (stroke 1):** 53 of the 60 registered rows went red by value; the 7 that could not are agreement rows (tokJitT
+%-fire1 / %-fire2 and the oldRoad threshold were misclassed (C); opLenT (b) x4); E2 and loneOpT x3 went red unregistered,
+each by the H7's own mechanism. Stroke 2's certificate was the zero census (coverage build, 299 / 299) plus row-for-row
+identity. **Left:** stroke 4 -- TokenXP / UnaryXP out of the grammar, recon first (pass 1 reads their labels). Open: the
+`XML/` respell; `down == "*"` is Tony's, offline.
+
+**Stroke 3's DesignDocs sweep (21 entries named the old road or a deleted function):** marked HISTORY (12) --
+fireCounter.tokenXPshapes, measure.AndOrAreCSpellings / ShortCircuitIsASpelling / DotRightIsEvaluated / DotLeftOperand /
+RightIsAName / UnaryClassSplit / PostfixFoldBlocked / TokenXParms / NeverSelectBySpelling, aCTionTokenXP.starDotRotation,
+aCTionBrancH.ke3NullOperand. Respelled to today's code (7) -- Instruct.opAND (AND/OR reached from runAccAnd / runAccOr),
+Instruct.opDeref (routed by runOPaccum's acU arm), truthOf.row4Unruled and jitEmitters.crashTradedForSilence /
+unboxedCannotSee (jitEmitShortCircuitSlots), jitEmitters.allocaInEntryBlock (runShortCircuit dated), degradeByDefault
+(interpretXPaccum). Untouched (2): RuleStuff.testAction / testContainer -- their "old road" is the old PARSE road.
+**Found in passing, not chased:** `incant/fixits/silencedCompileSucceeds` (Clod's lane) no longer prints its REFUSED line --
+`compile succeeded for Token` with no refusal, before and after its anchor respell -- so its defect may already be gone;
+fixitNag reads exit codes and cannot see it.
+
 #### ⚠⚠ STROKE 2 BOUGHT -- expr-delete MERGED (Groups aa09bde, support ea4f831). THE OLD BUILDER IS GONE (SEQ 356, Clod, 2026-10-14)
 
 **R0:** bought, both repos. **R1:** the three bookkeeping movers accepted (arity 266 -> 261, the designDocs md5, the

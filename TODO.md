@@ -481,6 +481,12 @@ projectBible.md "Phase Generate Tawk".
      builder; documents); stroke 4 (TokenXP / UnaryXP out of the grammar) gets its own recon later. R0: `down` and
      `across` take the STRING `"*"`; a lone `*` stays refused by name. The 12 `down=*` / `across=*` in IncantForms are
      respelled (`incant/unitTests:91` and `XML/` are outside the ruling's scope and untouched).
+     **STROKES 1-3 DONE (2026-10-14):** the switch gone (merge 024da49), the old builder deleted (merge aa09bde, support
+     ea4f831), the documents (SEQ 357; KANT-43 closed). **NEXT: STROKE 4 -- TokenXP / UnaryXP out of the grammar, RECON
+     FIRST** (the accumulator's pass 1 reads their labels, so it is a grammar respell plus a pass-1 rewrite; expressionRecon
+     "RETIRING THE OLD EXPRESSION ROAD -- THE RECON"). Still open: whether the `XML/` copies get respelled.
+     **`down == "*"` IS TONY'S, OFFLINE (SEQ 357 R0):** fillDownAcross's test (`incant/utilities:204`) reads 0 for a
+     `down` whose text is `*`, for both `down=*` and `down="*"` (measured SEQ 355).
   2. **`setData` and the `.` operator are PARKED until after jitter.**
 
 - [ ] **SEQ 309 DOCKET (2026-10-05, Tony by forwarding; docs only, nothing built or measured). Three design items,

@@ -2029,7 +2029,17 @@ scope:       Extends CLAIM KANT-26 from quoted strings to comments; the
              case a fixture that emitted nothing at all.
 ```
 
-### CLAIM KANT-43 — NO OPERATOR PRECEDENCE: an expression associates RIGHT TO LEFT, **by design**
+### CLAIM KANT-43 — NO OPERATOR PRECEDENCE: an expression associates RIGHT TO LEFT, **by design** — ⚠ CLOSED 2026-10-14
+
+> ⚠⚠ **RETIRED WITH THE OLD ROAD -- KANT-43 CLOSES (SEQ 357, 2026-10-14; drafted SEQ 352).** KANT-43 described the OLD
+> expression road: `interpretXP` walked a term list right to left, so `a * 10 + b` read `a * (10 + b)` (26). The default
+> road became the accumulator (`interpretXPaccum`) at **the flip, 2026-10-13** (SEQ 351, merge 0b1adfd); the switch went
+> with stroke 1 (merge 024da49) and **the old builder was deleted 2026-10-14** (stroke 2, merge aa09bde) -- so nothing
+> reads right to left any more. Arithmetic is a STRICT LEFT FOLD with no precedence -- `2 * 10 + 3` is 23, `2 + 10 * 3` is
+> 36 (exprPinT A2, FP1-FP8) -- comparisons bind before `&&` / `||`, and a prefix binds its name first. **The rule that
+> survives is the one this entry ended on: an incant expression with more than one operator writes the parentheses or
+> splits the statement** -- only the direction of the fold changed. The text below is the record of the old road.
+
 
 **`a * 10 + b` is `a * (10 + b)`.** Not a defect and not a bug to be filed — Tony's design
 decision, 2026-09-04, stated in his own terms: *"That is how kant do. A design built in because I
