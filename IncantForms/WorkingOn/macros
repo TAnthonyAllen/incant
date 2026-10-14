@@ -13,38 +13,11 @@ setParse does not have to worry about actionMethod
 /*******************************************************************************
 	Working on
 *******************************************************************************/
-A rule invoke in an expression list? Some rules do not return a result; they do stuff when they run and when done they done. However, what if a rule run in an expression list does not do stuff aside from returning its label that contains an action or method; can we treat the label action as an expression? An action is a list of statements that are not linked the way expression component are but who cares; if xpTest can treat a rule label as an argument to the rule action, can it dive into the action and treat its statements like an expression list? action argument setup and local field clearing would have to happen first. Both those things could happen as statements 1 and 2 in an action (that might simplify methods like runAction and parseAction).
-How would a DO statment in an expression list be processed? do statement while xp; the instruction chain could be xp opWhile statement which would fire opWhile(xp,statement); it would be simpler than running aCTionWhilE while doing pretty much the same thing in a tight loop. The DO rule produces a label when it runs that contains xp and statement. The statement could be a block and even if not, it would be a chain.
-What if BlocK ran as an instruction chain -> could xpTest run on a statement label convert statement into an instruction chain? Why not. The chain is produced at interpret/compile time and the chain is executed at run time. And if opWhile is an action acting as an operator? And if the opWhile statement is a chain?
-Right now runOP runs BlocK statements if statements turn into chain entries running testOP on those entries will descend into their own chains???
-Were this to happen, and I think I have been there done that, chain walking might eliminate a lot of looping.
-How to convert an action into an instruction chain?
-Can xpTest be revised to do the conversion? Where would that conversion happen (when parsing an action)? Feed xpTest a BlocK label and see what results.
-If a statement does not return a result (testOP is running the statement chain) then result gets set to 0???
-The nested chain process is hard to envision. Will have to test it to see how it goes.
+My thinking on xpTestList got too complex trying to extend it beyond just an expression -> chain; reverting back to its simpler function
 To apply xpTestList to rules
-    a rule should return its label and not apply its action
-        each label may contain a list of labels
-    then we can walk the label tree and flatten it out
-    xpTestList then walks the flattened label list and turns it into an instruction chain
-    What happens when a label has an action or method?
-        The label action fires and all its component labels are already in instruction chain format
-        An inlining opportunity maybe; ideally the label action statements all convert into instruction chains too, and we need an erector set assembly
-        if we can assemble label action into a chain it is turtles all the way down
-This looks like a juggling exercise: here is your molotov cocktail, war hammer, bowling ball; now juggle.
-
-Describe how each statement will get handled
-    define a new rule modeled after the statement but w/no rule action; then what to do about rule actions? Park them in the rule label like deferred
-    run the rule then produces a label but does nothing (directive?).
-    if the list is a rule like an if statement: run the rule to return its label. This is simple, the rule result goes into the instruction chain just the way any action or operator result would. The rule action just returns a label as if it were deferred. It does not get fired until the instruction chain is fired.
-Statements are not expressions so a BlocK of statements will produce results with no associated op; A result with no associated op does not go on the chain (that is how xpTestList works). The BlocK action (embodied in its label) will have to run thru its statments, each of which produces a label, then fire the label to produce a result that will be ignored (branches being the exception)
-The difference is the parse runs actions but they only produce labels that feed into an instruction chain. The label actions then get run when the chain runs. An exception would be if a parse action might fail and reject the label ...
 The way I would like an if expression to work; given an expression containing
-    if A; print "something":;      if should be recognized as start of a rule with a method that runs the rule consuming the rule and leaving its label as its result
-        probably can add a rule start registry to the search list so if gets found with its associated method and it needs to run to replace itself with its label (that has noPrint set). Each registry entry will have to have an associated rule in its group. xpTestList will have to check to see if a field is in the RuleStart registry and if so: fire the associated rule to get its result
-    if xp statement xp and statement end up in the xp action as unresolved labels and the xp action can become an instruction stuck on the chain
-    What would while xp statement look like; how would the loop be handled?
-        the while rule runs, consumes what it consumes; and the while action ends up with xp and statement as unresolved actions as with the if rule process; it then fires op=while target=statement argument=xp statement and xp are chains and while runs them until xp fails. The difference is hopefully the chain is faster than running statement and xp actions the way they run now
-Would be interesting if label attachment was a chain attach
-    label action would be a chain that includes all the label components and then the label action; no change in the action processing required for proof of concept
-    what would the label chain look like???
+    if A; print "something":;
+        the if should be recognized as start of a rule with a method that runs the rule consuming the rule and leaving its label as its result
+        probably can add a rule start registry to the search list so if gets found its action will run the rule and return its result, much like a method invocation; the problem is what input is the rule invocation dealing with? It might work if the rules in the RuleStart registry were designed to process fields not an input stream.
+        so given the expression above: if A ; print "something" : and ; would be a list of fields to go thru the field parse??? All the fields on the expression list from if up to the trailing ; at the end of the print would be consumed and the if rule action would fire
+        can we write a field parse???
