@@ -2,8 +2,17 @@ Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
-cerr "ANCHOR silencedCompileSucceeds -- Token's body is refused at build, and compile still reports success":;
-parser(Grokking["Token"]);
+register(SilencedCompile);
+define
+    scA=1;
+    scB=2;
+    scX=0;
+    scBad code={ scX := scA.*scB; cerr "SC bad ran":; };
+    scGood code={ scX = scA + scB; cerr "SC good ran":; };
+    ;
+cerr "ANCHOR silencedCompileSucceeds -- scBad's body is refused at build, and compile still reports success":;
+compile(scBad);
+compile(scGood);
 fixSilencedCompileSucceedsHere = 0;
 cerr "SENTINEL silencedCompileSucceeds reached the foot":;
 stop();
@@ -12,7 +21,12 @@ LANE:  kant
 BLAST: OVERLAPS
 OWNER: Clod     (SEQ 330, Tony 2026-10-09; banked from the (a) recon)
 
-silencedCompileSucceeds -- a compile whose body carries a statement REFUSED AT BUILD reports success. Run this file:
+⚠ RE-AIMED 2026-10-14 (SEQ 358, R1): the Token repro below stopped showing at df82ed7 (merge expr-a, A1) -- measured in the
+clone at =1: 67f29fe (its first parent) prints REFUSED acPostCall, df82ed7 prints none. The defect did not go, as the note
+further down predicted: the live region now compiles scBad, whose `scX := scA.*scB` is refused at build (a unary on the right
+of a dot), and compile still prints `compile succeeded for scBad` -- the same line as scGood, the clean control.
+
+silencedCompileSucceeds -- a compile whose body carries a statement REFUSED AT BUILD reports success. The original repro:
 parser() generates Token's body,
     return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();
 the candidate refuses it at build -- REFUSED acPostCall -- a call with nothing to call (A1, the Operators bin read as an

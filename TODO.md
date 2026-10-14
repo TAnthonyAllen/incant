@@ -485,6 +485,10 @@ projectBible.md "Phase Generate Tawk".
      ea4f831), the documents (SEQ 357; KANT-43 closed). **NEXT: STROKE 4 -- TokenXP / UnaryXP out of the grammar, RECON
      FIRST** (the accumulator's pass 1 reads their labels, so it is a grammar respell plus a pass-1 rewrite; expressionRecon
      "RETIRING THE OLD EXPRESSION ROAD -- THE RECON"). Still open: whether the `XML/` copies get respelled.
+     **STROKE 4 CARRIES:** interpretXPaccum's header (ruleActions.rtn:1191) still names INCANT_EXPR_ACCUM -- respell it in
+     stroke 4's build (a comment, but a .rtn edit and a retok).
+     **INSTRUMENT GAP, NOT FIXED (SEQ 358):** fixitNag reads only a repro's EXIT CODE, so a fixit whose defect stopped showing
+     still reads as waiting (silencedCompileSucceeds' Token repro went quiet at df82ed7 and nothing said so).
      **`down == "*"` IS TONY'S, OFFLINE (SEQ 357 R0):** fillDownAcross's test (`incant/utilities:204`) reads 0 for a
      `down` whose text is `*`, for both `down=*` and `down="*"` (measured SEQ 355).
   2. **`setData` and the `.` operator are PARKED until after jitter.**
