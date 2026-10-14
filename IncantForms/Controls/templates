@@ -54,7 +54,7 @@ The perforation block draws the perforation.
 <perforation drawPath fill=$perfColor border selectable=no>%@ 0 u~ 8 perfLeft 5 perfTop 5 u depth r 10 d 2 perfRight 5 d 8 l 10 perfBottom 5;</perforation>
 
 The following are used in tables
-<tableBody normalFont flex down=*/>
+<tableBody normalFont flex down="*"/>
 <tableCell selectable=no style/>
 <tableHead headerFont height=30 across/>
 <tableLabel flex center selectable=no/>

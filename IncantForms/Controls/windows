@@ -23,7 +23,7 @@
     <intro height=50 pad fill=white rounded>
         <heading="Windows" label align=center font=title border=off/>
         <space height=5/></intro>
-    <buttons source=windowList down=* directory="/Users/anthony/data/Tawk/Groups/XML">
+    <buttons source=windowList down="*" directory="/Users/anthony/data/Tawk/Groups/XML">
         <button height=25 across border=off pad next=buttons>
             <one rounded left=20 right=20 fill=paleGray pad>
                 <body border=off left=5 cell tag merge/></buttons>

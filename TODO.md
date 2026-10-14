@@ -477,6 +477,10 @@ projectBible.md "Phase Generate Tawk".
      is bought, the old expression road (reachable by INCANT_EXPR_ACCUM=0 until then) is retired: a read-only recon of
      what it touches comes first, and the work pauses there for Tony. The switch, `exprAccumOn()` and the
      INCANT_EXPR_ACCUM name go with it (the name stays until then, by ruling).
+     **RULED (Tony, SEQ 353, 2026-10-14):** strokes 1-3 as the recon proposed (the switch with its two gates; the old
+     builder; documents); stroke 4 (TokenXP / UnaryXP out of the grammar) gets its own recon later. R0: `down` and
+     `across` take the STRING `"*"`; a lone `*` stays refused by name. The 12 `down=*` / `across=*` in IncantForms are
+     respelled (`incant/unitTests:91` and `XML/` are outside the ruling's scope and untouched).
   2. **`setData` and the `.` operator are PARKED until after jitter.**
 
 - [ ] **SEQ 309 DOCKET (2026-10-05, Tony by forwarding; docs only, nothing built or measured). Three design items,

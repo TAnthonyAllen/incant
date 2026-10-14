@@ -10,12 +10,12 @@ wraplist window x=400 y=400 width=400 height=450 fill=saberBrown title="Wrap Lis
         wrap pad layers perfColor=darkerGray
             wrapPerf perforation;
             body source=artist pad=15 border=off font=normal
-                rows pad rounded down=* fill=paleGray
-                    cells across=* height=20 border=off doNotScroll
+                rows pad rounded down="*" fill=paleGray
+                    cells across="*" height=20 border=off doNotScroll
                         crap label=tag align=left left=5 right=5 next=body width=160 jit=showTag
                 more across border=off height=40%
                     blank pad rounded fill=lightGreen width=50%;
-                    list pad rounded down=* fill=paleGray
+                    list pad rounded down="*" fill=paleGray
                         junk label=tag next=body height=20 border=off jit=showTag;
 ;
 

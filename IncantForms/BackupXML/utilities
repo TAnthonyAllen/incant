@@ -89,7 +89,7 @@ define
             if recurse == 0     print :;
             }
         /***************************************************************************
-            fillDown deals with down=* framing. It expects the argument passed in
+            fillDown deals with down="*" framing. It expects the argument passed in
             to have only one member with a height and a full frame.
         ***************************************************************************/
         fillDown argument; {
@@ -108,7 +108,7 @@ define
                 return;
             }
         /***************************************************************************
-            fillAcross deals with across=* framing. It expects the argument passed in
+            fillAcross deals with across="*" framing. It expects the argument passed in
             to have one and only one member with a width and a full frame.
             When it resizes the list of variable column members is trimmed or
             extended as needed.
