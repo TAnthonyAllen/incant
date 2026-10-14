@@ -2071,24 +2071,6 @@ extern void jitEmitScOperandRT(GroupItem operand)
 }
 
 
-/*******************************************************************************
-    jitEmitShortCircuit -- TIER 3 UNDER THE JIT. 2026-08-11, docs/andOrRung.md
-    §3 part 2, ruling SEQ 32.
-
-    ⚠ THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". For an AND/OR
-    inside a multi-fire jitted action the fallback is NOT safe -- an emit-time
-    fold returns fire 1's answer forever. Rungs assert the VALUES on both
-    fires; they must not accept the counter as the proof.
-
-    // crashTradedForSilence  what promoting AND/OR fixed, and the silent wrong answer it introduced at degrade count 0
-    // unboxedCannotSee  which of truthOf's four rows an unboxed i32 can represent, and why the other three are refused rather than guessed
-*******************************************************************************/
-extern GroupItem jitEmitShortCircuit(GroupItem field)
-{
-    return jitEmitShortCircuitSlots(field[1],field[2],field[3],field);
-}
-
-
 // jitEmitShortCircuitSlots the emit on the connective's SLOTS -- the tree shape is [op, left, right] and the candidate's is [left, op, right], so each unpacks into this, as runOP does into runOPslots (SEQ 335 J4a); `field` is the node the result rides on
 extern GroupItem jitEmitShortCircuitSlots(GroupItem op,GroupItem target,GroupItem arg,GroupItem field)
 {

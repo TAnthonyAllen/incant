@@ -789,25 +789,6 @@ extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed, GroupIt
 	return 0;
 }
 
-/*  WHICH ARM OF aCTionTokenXP's DISPATCH A TERM TOOK, and whether the dot it carries is
-    the LEADING form. parseTrace gated. ⚠ It READS the arm it is handed rather than
-    re-deriving the ladder -- the callout convention's fourth sentence, paid for by
-    measureRuleDispatch going stale. ⚠ No percent-dash in the format string (bear-trap
-    #40).   measure.measureTokenArm  */
-extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem *InvokeArg, GroupItem *unary)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace )
-	::fprintf(stderr,"TOKENARM %s primary=%s invokeArg=%s invokeList=%d unary=%s\n",
-	arm ? arm : "(none)",
-	ANYtoken ? ANYtoken->groupBody->tag : "(null)",
-	InvokeArg ? InvokeArg->groupBody->tag : "(none)",
-	(InvokeArg && InvokeArg->groupBody->groupList) ? 1 : 0,
-	unary ? unary->groupBody->tag : "(none)");
-	
-	return ANYtoken;
-}
-
 // modsOf print a term's four modifier facts on its BODY and on its INSTANCE, isUnGuarded's answer, and the body's bound method -- it calls the readers' predicate and reads the bound pointer, never re-derives either
 extern "C" GroupItem *modsOf(GroupItem *field)
 {

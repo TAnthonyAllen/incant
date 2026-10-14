@@ -1277,29 +1277,6 @@ GroupItem   result = driveStep(field,rule,null,null);
 }
 
 
-// runShortCircuit TIER 3: AND/OR/|| skip the right arm, which runOP would already have fired -- a sibling of runOP, bound at tree build by interpretXP
-extern GroupItem runShortCircuit(GroupItem field)
-{
-GroupItem   op      = field[1],
-            target  = field[2],
-            arg     = field[3];
-int         leftIsTrue;
-    // phaseGate emit time never enters a run-time handler for its value -- and the floor is a REFUSAL, never a fall-through
-    if jitting {
-        -% return jitEmitShortCircuit(field); %-
-    }
-    if op.instructType && target.isMethod && target.invoke   target = target.method(target);
-    leftIsTrue = truthOf(target);
-    // theSkip the right arm is never touched on these two paths -- only COUNTING proves it, a value assertion cannot
-    // skipByRegistration the skip direction is a REGISTRATION (opIsOR), never a spelling -- `||` matched neither tag test
-    if !opIsOR(op)  && !leftIsTrue      return falseResult;
-    if opIsOR(op)   &&  leftIsTrue      return trueResult;
-    if arg && arg.isMethod && arg.invoke            arg = arg.method(arg);
-    if truthOf(arg)     return trueResult;
-    return falseResult;
-}
-
-
 // saveLocalFields save an action's argument and locals before a nested call, so each activation starts from its own state
 extern void saveLocalFields(GroupItem action)
 {
