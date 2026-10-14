@@ -625,6 +625,50 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ STROKE 2: THE OLD BUILDER DELETED -- BUILT ON expr-delete (Groups 333eda6, support 4b261f4), NOT MERGED (SEQ 355, Clod, 2026-10-14)
+
+**R0 -- what `down` receives on `incant/unitTests:91`.** A probe defined the line verbatim twice (bar the name), once
+`down=*` and once `down="*"`, both with `across=2` and the `crossing` child, and read each through `:argument down across`:
+**identical** -- down's text `*`, kind 6; across 2, kind 6; `down == "*"` 0 and `down > 0` 1 on both; `printDefinition`
+prints `down=* across=2` for both, which is baselineTests.golden's line 58. So the line stays; nothing committed for step 0.
+⚠ Context, not a finding (no row is red): `down == "*"` reads 0 for a value whose text is `*`, on both spellings -- the test
+`fillDownAcross` (`incant/utilities:204`) makes. R1: tester:119 stays (below its stop()).
+
+**Census, before any cut** (trunk 99062c4; coverage build in the clone's dd-cov, no source change, 0 live paths in its
+build log; pop.sh and jitLadder through a counting wrapper -- **299 processes, 299 profiles**; fleet 1285, ladder PASSED).
+**0 calls each:** interpretXP, aCTionExpressioN, runShortCircuit, jitEmitShortCircuit, handleDot, handleUnary, foldDot,
+isDotUxp, refuseDotUnaryRight, listLastToFront, measureTokenArm; **aCTionTokenXP: all 59 counted lines below its gate read
+0** (44,685 calls stop at the gate). GroupItem::prior also reads 0 and stays (ruled). **No registration names any of them**
+-- incant/setup, incant/grammar and groupDirectives searched; setup:365-398's mentions are prose. Their neighbours keep
+live callers on the new road: handleCall 20,671, handleSubscript 579, unaryIsAccess 2,881, refuseLeadingDotNumber 2,267,
+refuseDotUnaryOp 4, jitEmitShortCircuitSlots 212.
+
+**The cut (expr-delete, clone; pushed live and GitHub for Groups and support).** The eleven, with their headers;
+aCTionTokenXP's six dead locals, its 43 source lines below the gate and its four-callout header lines -- it is now
+`return xpress;`. groups.ext: 5 lines (measureTokenArm, aCTionExpressioN, handleDot, handleUnary, runShortCircuit; the
+other six never had one). DesignDocs: `GroupActions.runShortCircuit` (+ notAHandler, phaseGate, skipByRegistration) and
+`ruleActions.interpretXP` (+ dotUnaryRight, tier3Binding). **Kept, by judgment:** `jitEmitters.crashTradedForSilence` and
+`unboxedCannotSee` -- they describe the AND/OR emit that survives in jitEmitShortCircuitSlots; their CodeSite respelled to
+it, and they now have no inline pointer. **Trimmed:** the two surviving pointers into the deleted entries --
+opIsShortCircuit's header (`interpretXP.tier3Binding`) and refuseDotUnaryOp's comment (`interpretXP.dotUnaryRight`).
+
+**Full bare tokall (clone paths):** GroupRules.h -10 externs (aCTionExpressioN, foldDot, handleDot, handleUnary,
+interpretXP, isDotUxp, jitEmitShortCircuit, listLastToFront, refuseDotUnaryRight, runShortCircuit), measure.h -1
+(measureTokenArm); **canary 353 -> 343**. Function by function: 11 gone, none new; two bodies changed (aCTionTokenXP; the
+pointer comment inside refuseDotUnaryOp); every other function byte-identical; GroupItem.mm untouched. Added lines: the 2
+pointer trims. tok's "referenced but not declared" listing went 34 -> 22 with nothing added: isDotUxp and refuseDotUnaryOp
+were referenced from deleted code; **measurePlusEQWrite x6 and plusEQshapeRefusal x4 vanish from it with every call site
+unchanged** -- not groups.ext (the old one still gives 22), not measure.h (the old one still gives 22); cause not isolated,
+recorded as a symptom of a diagnostic comment. The build's "will never be executed" warning is gone; no new warnings.
+
+**Fleet on the branch binary against trunk (~/bin/incant, t354):** pop.sh 1285 ok / 50 FAIL both; jitLadder PASSED, 0
+movers; printPop, decodePop = trunk; frontier = capture; dirCheck = trunk (53 / 57, tree bare); ddPop 5 / 1. **Text moved
+on three rows, each by the stroke's own edit or the clone, none by behaviour:** pop.sh's groups.ext mirror-arity row, "0
+drift over 266 comparable names" -> 261 -- the 5 deleted extern lines; ddPop's "designDocs restored byte-identical (md5)"
+-- the md5 of the file this stroke edited; the fixture-name count 235 -> 228 -- the live tree's searchAcc* scratch (H3).
+⚠ The dispatch said any mover stops the stroke; I read these three as accounted and carried on to the push and seal,
+**flagged for Tony at the buy.** No H7 (step 4): the certificate is the zero census plus the identity.
+
 #### ⚠⚠ STROKE 1 BOUGHT -- expr-retire MERGED (024da49). ONE ROAD, NO SWITCH (SEQ 354, Clod, 2026-10-14)
 
 **The buy.** Merge 024da49; bare retok of GroupItem and GroupRules -- the tree unchanged, every `.mm` / `.h` equal to the
