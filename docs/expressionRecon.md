@@ -625,6 +625,34 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ STROKE 1 BOUGHT -- expr-retire MERGED (024da49). ONE ROAD, NO SWITCH (SEQ 354, Clod, 2026-10-14)
+
+**The buy.** Merge 024da49; bare retok of GroupItem and GroupRules -- the tree unchanged, every `.mm` / `.h` equal to the
+branch's; canary 353; ~/bin/incant rebuilt Oct 14 10:08. **Row for row with the clone's k353 run:** pop.sh 1285 (the one
+mover is the fixture-name count, 235 live vs 228 clone -- the live tree's searchAcc* scratch, H3, as at seals 140 and 143) ·
+jitLadder PASSED, 0 movers · printPop PASSED, = clone · ddPop 5 / 1, = clone · decodePop PASSED (capture: the binary line
+refreshed) · frontier = capture · dirCheck PASSED 53 / 57 = capture, tree bare · exec bits clean · groups.ext untouched.
+expr-retire deleted (clone, live, GitHub).
+
+**THE H7's ACTUAL REACH (R5 of SEQ 354).** Both gates put back on the old road, rebuilt: **53 of the 60 registered pop.sh
+rows went red by value** -- 42 of the 45 (C), the 4 opLenT (L), all 7 (R).
+- **7 registered rows CANNOT go red under it -- they are agreement rows, true on both roads:** tokJitT `%-fire1` and
+  `%-fire2` (jitted = interpreted -- both drives read the old road's verdict=1 together), the oldRoad column's anti-vacuity
+  threshold (> 150 verdicts; 166 on the old road, 154 on the new), and the 4 opLenT (b) rows (J1 = J2 = I). **The first three
+  were MISCLASSED as (C) by the recon:** (C) was "the printed line differs between switches", and these lines print the value
+  they compared, so the text moved while the verdict cannot. The registration should have read 42 (C) + 3 agreement.
+- **E2 went red, unregistered:** its search followed the switch (SEQ 350 R2a) -- the old road's accidental refusal at =0,
+  the by-name refusal at =1, both reading 1 -- so it was (S) in the recon; stroke 1 kept only the by-name search, and on the
+  old road that message is never printed, so it reads 0 against 1.
+- **loneOpT's 3 rows went red, unregistered:** the run was forced to `INCANT_EXPR_ACCUM=1` in both of trunk's runs, so its
+  rows were (S); stroke 1 made it a plain run, so under the H7 it meets the old road for the first time -- no by-name
+  refusal of `+` or `!` (0 against 1 each) and a verdict read anyway (2 against 0).
+- jitLadder: JA fire 1-3 and the bake red (25 / 75 / 125 / 25); the fifth (C), the JiT IR byte count, moved and stays ok --
+  it is printed, not pinned.
+
+**Open, not in this dispatch:** what `down` receives on `incant/unitTests:91` (`down=* across=2`), and whether the `XML/`
+copies get respelled.
+
 #### ⚠⚠ RETIRING THE OLD ROAD, STROKE 1: THE SWITCH GOES -- BUILT ON expr-retire, NOT MERGED (SEQ 353, Clod, 2026-10-14)
 
 **Rulings.** R0 (Tony): `down` and `across` take the STRING `"*"`; a lone `*` stays refused by name; every `down=*` /
