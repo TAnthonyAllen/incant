@@ -625,6 +625,60 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ RETIRING THE OLD ROAD, STROKE 1: THE SWITCH GOES -- BUILT ON expr-retire, NOT MERGED (SEQ 353, Clod, 2026-10-14)
+
+**Rulings.** R0 (Tony): `down` and `across` take the STRING `"*"`; a lone `*` stays refused by name; every `down=*` /
+`across=*` in IncantForms, BackupXML and WorkingOn respelled. R1: strokes 1-3 as proposed; the grammar (stroke 4) gets its
+own recon later.
+
+**Step 0, on trunk (29f5736).** The readers accept the string: `incant/utilities` fillDownAcross `direct == "*"` (:204);
+`IncantForms/BackupXML/utilities` setFrame `across == "*"` / `down == "*"` (:146-147). Respelled, tokens only:
+BackupXML/unitTests 1, BackupXML/utilities 2 (prose in its fillDown / fillAcross headers), Controls/windows 1,
+Controls/templates 1, Windows/list 2, Windows/wraplist 3 -- 10 in git; Tests/filterList 2 on disk (gitignored by `Tests/`).
+WorkingOn: none. Runs before and after, =0 and =1, stdout + stderr + exit: BackupXML/unitTests at =1 loses its one
+`REFUSED * -- a prefix operator with no operand` line and nothing else; every other file and switch byte-identical.
+**Outside the ruling's named scope and untouched:** `incant/unitTests:91` (`down=* across=2`, a fleet fixture pinned by
+baselineTests.golden; it is green at =1), the tracked `XML/*.xml` copies (5 files, 9 sites) and the gitignored
+`XML/BackupXML/` (3 sites).
+
+**Stroke 1 on expr-retire (clone, from trunk 7c8089b; pushed live and GitHub).**
+- **1a (db8a5e3), the engine:** setActions always installs interpretXPaccum for ExpressioN (GroupItem.twk); aCTionTokenXP
+  always hands its label up (ruleActions.rtn) -- its 59 old-road lines now unreachable (clang: "code will never be
+  executed"; stroke 2 deletes them); exprAccumOn() deleted from jitContext.h. Retok: the .mm move on the gate lines only,
+  the .h unchanged, canary 353. Fleet and ladder at =1 row for row with trunk (1285, PASSED, 0 movers).
+- **1b (182cd73), the instruments and rows:** the switch block, SW and EXPR_ACCUM_DEFAULT gone from pop.sh and jitLadder
+  (16 lines each), printPop / ddPop / decodePop (12) and dirCheck (13). pop.sh's two forced `INCANT_EXPR_ACCUM=1` runs are
+  plain: **loneOpT** (runs; `+` refused by name; `!` refused by name; read a verdict anyway) and **opEntryT** (runs; OE-R
+  length 53; OE-E 3 + 4 = 7; no refusal names Operators). Collapsed to the =1 pin, each "the old road retired,
+  2026-10-13": 52 pop.sh pin lines (FP3 / FP5 x jit / int already equal both ways), TPWANT 5, E2's search by name,
+  tokJitT % (L), the opLenT (L) / (b) loop, shortCircT's six m1 (R) rows; jitLadder JA 17 / 68 / 170 / 17 and the dgPin arm.
+  **Retired by mapping:** opLenT '==' '<=' '+=' '=' "consumes N of N, jitted twice and interpreted" -> the same operator's
+  (L) (interpreted) and (b) (both jitted drives); the no-overrun row stays. CLAUDE.md: frontier runs once; H12's switch
+  paragraph dated (it retires with stroke 3). Labels lose ", switch on" / "(switch on)" and shortCircT's "on/".
+- **1c (b4ad371):** decodePop's and dirCheck's seal captures lose their switch line.
+
+**Re-diff against trunk's =1 run:** pop.sh 1285 ok / 50 FAIL both sides; 101 movers, every one ok -> ok and label-only
+(loneOpT 4, opEntryT 4, opLenT 8, tokJitT 1, shortCircT 84) -- with the dropped wording normalised the rows are
+byte-identical. The 4 (O) rows existed only at =0, so they are absent from both sides. jitLadder PASSED, 0 movers.
+
+**H7 -- both gates back on the old road (setActions `0 &&`, aCTionTokenXP `if (0)`), rebuilt:** pop.sh 1285 -> 1228, 57 red
+by value; jitLadder FAILED, JA fire 1-3 and bake red (25 / 75 / 125 / 25), the JiT byte count moved and stays ok. Against the
+registration (60 pop.sh rows), measured on trunk's own =0 / =1 runs: **53 red** -- 42 of the 45 (C), the 4 opLenT (L), all 7
+(R) (starT S3a, shortCircT m1 x 6). **7 stay green by construction** -- they assert a relation that holds on both roads,
+never a per-switch pin: tokJitT %-fire1 / %-fire2 (jitted = interpreted), the oldRoad anti-vacuity threshold (>150; reads
+166 on the old road, 154 on the new), the 4 opLenT (b) (J1 = J2 = I). The recon classed the first three (C) by their
+printed text. **4 red outside the registration, by the H7's own mechanism:** exprPinT E2 (its search was per switch, now
+by name only) and loneOpT's three rows (the formerly forced =1 run). Restored md5-identical, rebuilt.
+
+**Kitchen pass on the branch binary (one switch):** pop.sh 1285 · jitLadder PASSED · printPop PASSED · ddPop 5 / 1 ·
+decodePop PASSED · frontier = capture (once) · dirCheck PASSED 53 / 57, tree bare · captures: the switch line only · canary
+353 · exec bits clean · groups.ext untouched · clone clean.
+
+**Left for the buy and later strokes:** at the buy, rebuild ~/bin/incant and refresh decodePop's binary line. Stroke 3:
+H12's switch paragraph, KANT-43's note, `incant/fixits/silencedCompileSucceeds`'s "RUN WITH INCANT_EXPR_ACCUM=1" anchor,
+`incant/pop/shortCircT:310`'s prose; `IncantForms/WorkingOn/tester:119` names the variable (Tony's). pop.sh's per-switch
+"today" pins on unaryNoTargetT collapsed to their =1 value (139 / 0), unchanged in meaning: the row reads its intended.
+
 #### ⚠⚠ RETIRING THE OLD EXPRESSION ROAD -- THE RECON (SEQ 352, Clod, 2026-10-13; measure only, nothing built)
 
 **Population.** Clone at trunk 0b1adfd. The tap is a COVERAGE BUILD (-fprofile-instr-generate -fcoverage-mapping, its own
