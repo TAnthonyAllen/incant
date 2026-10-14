@@ -1269,9 +1269,8 @@ GroupItem 	*swap = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYorNum");
-	// exprAccumGate  SEQ 311: under INCANT_EXPR_ACCUM the label goes up untouched -- interpretXPaccum takes its raw pieces
-	// exprAccumOn  the switch's VALUE, not its presence (SEQ 314 g); one reader for both sites, in jitContext.h
-	 if ( ::exprAccumOn() ) return xpress; 
+	// exprAccumGate  the label goes up untouched, always -- interpretXPaccum takes its raw pieces; the old road retired, 2026-10-13 (SEQ 353)
+	 return xpress; 
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
