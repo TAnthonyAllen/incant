@@ -36,22 +36,6 @@ if [ ! -x "$B" ]; then
 fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
-#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 1 and is EXPORTED as 1 (SEQ 351 R2:
-#  a bare run measures what a bare incant runs); =0 is the explicit way to the old road. INCANT_EXPR_ACCUM=unset and =empty are
-#  the deliberate ways to run the binary's own reading of those (the H7 of a default): the variable is unset, or set empty,
-#  for the binary, and the pins follow EXPR_ACCUM_DEFAULT -- the binary's default, which moves when exprAccumOn()
-#  (jitContext.h) does. Rows choose their pins by SW, never by the variable.
-EXPR_ACCUM_DEFAULT=1     # the flip, 2026-10-13: the binary reads unset as on
-case "${INCANT_EXPR_ACCUM-}" in
-    1)      SW=1 ;;
-    0)      SW=0 ;;
-    "")     SW=1; INCANT_EXPR_ACCUM=1 ;;
-    unset|empty)  SW=$EXPR_ACCUM_DEFAULT ;;
-    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1, unset or empty"; exit 2 ;;
-esac
-if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM unset -- the binary's default, pinned as $SW"
-elif [ "$INCANT_EXPR_ACCUM" = empty ]; then INCANT_EXPR_ACCUM=; export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM empty -- the binary's reading of empty, pinned as $SW"
-else export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 
 #  ⚠ IS THE BINARY BUILT FROM THE SOURCE ON DISK? Added 2026-09-05, and it is
 #  rule H1's second half: H1 says ECHO the binary, this says CHECK it against
@@ -2622,8 +2606,9 @@ fi
 #  and never set their own marker, so they showed as pending while counting as true. They
 #  now mark their slot where they bump the counter, and marker-count and counter say 8 each.
 #  THE FLIP, 2026-10-13 (SEQ 350): switch on the ratchet is 5 -- plusPlusStar, plusPlusStarsub and minusMinusStar graduate
-#  (a prefix binds its name first, so ++*x / --*x act on the dereferenced field). Switch off it stays 8 until the old road retires.
-TPWANT=$([ "$SW" = 1 ] && echo 5 || echo 8)
+#  (a prefix binds its name first, so ++*x / --*x act on the dereferenced field). Switch off it stayed 8 until the old road
+#  retired: 5 alone now, the old road retired, 2026-10-13 (SEQ 353).
+TPWANT=5
 run2 testPrecedence "$T/tp.o" "$T/tp.e"; check "testPrecedence runs" 0 $?
 sentinel "testPrecedence sentinel (no truncation)" "$T/tp.e" "PRECEDENCE SENTINEL"
 #  ⚠ THE EXTRACTOR READS A LEADING MINUS, AND A NEGATIVE COUNT IS LOUD. It used to strip
@@ -3305,9 +3290,8 @@ done
 #  name and the drive reads verdict 0 at consumed 0. The old road's "accepts 1 of 1" stays the switch-off pin.
 #  RE-PINNED refusals 1 -> 3, switch on (SEQ 336 R1, 2026-10-12): a lone operator's by-name refusal count is 3 -- SEQ 327 R1
 #  holding on all three drives: the jitted drives now reach the operator and refuse it by name, as the interpreted drive does.
-if [ "$SW" = 1 ]; then
-    if [ "$(_tjl INTERP 4)" = "verdict=0 consumed=0 length=1 terms=5 fires=1 true=1" ] && [ "$(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")" = 3 ]; then echo "  ok    tokJitT % (L) a lone operator is refused by name, switch on"; green=$((green+1)); else echo "  FAIL  tokJitT % (L) reads $(_tjl INTERP 4), refusals $(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")"; fail=1; fi
-elif [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=5 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
+#  The old road's "accepts 1 of 1" was the switch-off pin: the old road retired, 2026-10-13 (SEQ 353).
+if [ "$(_tjl INTERP 4)" = "verdict=0 consumed=0 length=1 terms=5 fires=1 true=1" ] && [ "$(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")" = 3 ]; then echo "  ok    tokJitT % (L) a lone operator is refused by name"; green=$((green+1)); else echo "  FAIL  tokJitT % (L) reads $(_tjl INTERP 4), refusals $(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")"; fail=1; fi
 if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=5 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
 _tjd=$(grep -c '=== jitDegrade count = 0 ===' "$T/tj.o"); _tjc=$(grep -c 'jitDegrade count' "$T/tj.o")
 if [ "$_tjc" -gt 0 ] && [ "$_tjd" -eq "$_tjc" ]; then echo "  ok    tokJitT $_tjc compile(s), degrade 0"; green=$((green+1))
@@ -3395,23 +3379,23 @@ _oll() { grep "^PROBEDRIVE root=ExpressioN armed=Token" "$T/ol.e" | sed -n "${1}
 #  attempted per drive. Per operator: '+=' was not moved (no leaked pass on its drives) and stays 6.
 for _op in "1 2 3 == 2 5" "4 5 6 <= 2 5" "7 8 9 += 2 6" "10 11 12 = 1 5"; do
     set -- $_op
-    _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3); _w="verdict=1 consumed=$5 length=$5 terms=$6 fires=1 true=1"
-    if [ "$SW" = 1 ]; then
-        #  RE-PINNED switch on (SEQ 331, 2026-10-10): each message is a LONE operator, and a lone operator is not an
-        #  ExpressioN (SEQ 327 R1) -- the candidate refuses it by name and the drive reads verdict 0 at consumed 0.
-        #  The old road's verdict=1 stays the switch-off pin. The jitted halves are (b) (SEQ 311 R4), their own row.
-        _w="verdict=0 consumed=0 length=$5 terms=$6 fires=1 true=1"
-        #  RE-PINNED refusals 1 -> 3, switch on (SEQ 336 R1, 2026-10-12): a lone operator's by-name refusal count is 3 --
-        #  SEQ 327 R1 holding on all three drives: the jitted drives now reach the operator and refuse it by name, as the
-        #  interpreted drive does.
-        _r=$(grep -c "^REFUSED $4 -- a prefix operator with no operand" "$T/ol.e")
-        if [ "$_c" = "$_w" ] && [ "$_r" = 3 ]; then echo "  ok    opLenT '$4' (L) a lone operator is refused by name, switch on: I [$_c]"; green=$((green+1))
-        else echo "  FAIL  opLenT '$4' (L) want I [$_w] and 3 refusals by name: I [$_c], refusals $_r"; fail=1; fi
-        if [ "$_a" = "$_c" ] && [ "$_b" = "$_c" ]; then echo "  ok    opLenT '$4' (b) jitted twice = interpreted, switch on"; green=$((green+1))
-        else echo "  FAIL  opLenT '$4' (b) jitted twice = interpreted, switch on -- the jit refusal (SEQ 311 R4): J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
-        continue; fi
-    if [ "$_a" = "$_w" ] && [ "$_b" = "$_w" ] && [ "$_c" = "$_w" ]; then echo "  ok    opLenT '$4' consumes $5 of $5, jitted twice and interpreted"; green=$((green+1))
-    else echo "  FAIL  opLenT '$4' want [$_w]: J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
+    _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3)
+    #  RE-PINNED switch on (SEQ 331, 2026-10-10): each message is a LONE operator, and a lone operator is not an
+    #  ExpressioN (SEQ 327 R1) -- the candidate refuses it by name and the drive reads verdict 0 at consumed 0.
+    #  The jitted halves are (b) (SEQ 311 R4), their own row.
+    #  RETIRED BY MAPPING, the old road retired, 2026-10-13 (SEQ 353): the switch-off row "opLenT '<op>' consumes N of N,
+    #  jitted twice and interpreted" asserted the old road's verdict=1 on all three drives. Its interpreted drive now
+    #  lives in (L) (verdict 0, consumed 0, length N, refused by name), its two jitted drives in (b) (equal to the
+    #  interpreted). Its no-overrun half stays below ("no drive's mark passes the end", 12 drives).
+    _w="verdict=0 consumed=0 length=$5 terms=$6 fires=1 true=1"
+    #  RE-PINNED refusals 1 -> 3, switch on (SEQ 336 R1, 2026-10-12): a lone operator's by-name refusal count is 3 --
+    #  SEQ 327 R1 holding on all three drives: the jitted drives now reach the operator and refuse it by name, as the
+    #  interpreted drive does.
+    _r=$(grep -c "^REFUSED $4 -- a prefix operator with no operand" "$T/ol.e")
+    if [ "$_c" = "$_w" ] && [ "$_r" = 3 ]; then echo "  ok    opLenT '$4' (L) a lone operator is refused by name: I [$_c]"; green=$((green+1))
+    else echo "  FAIL  opLenT '$4' (L) want I [$_w] and 3 refusals by name: I [$_c], refusals $_r"; fail=1; fi
+    if [ "$_a" = "$_c" ] && [ "$_b" = "$_c" ]; then echo "  ok    opLenT '$4' (b) jitted twice = interpreted"; green=$((green+1))
+    else echo "  FAIL  opLenT '$4' (b) jitted twice = interpreted -- the jit refusal (SEQ 311 R4): J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
 done
 if [ "$(grep -c '^PROBEDRIVE .* consumed=-1 ' "$T/ol.e")" -eq 0 ] && [ "$(grep -c '^PROBEDRIVE ' "$T/ol.e")" -eq 12 ]; then echo "  ok    opLenT no drive's mark passes the end of its message (12 drives)"; green=$((green+1))
 else echo "  FAIL  opLenT a mark passed the end, or drives went missing: $(grep -c '^PROBEDRIVE ' "$T/ol.e") drives"; fail=1; fi
@@ -6051,24 +6035,24 @@ run2 exprPinT "$T/ept.o" "$T/ept.e"; check "exprPinT runs" 0 $?
 sentinel "exprPinT sentinel" "$T/ept.e" "EXPRPIN SENTINEL"
 _ep () { awk -v k="$1" '$1=="EP" && $2==k {print $3; exit}' "$T/ept.e"; }
 kindRow "exprPinT A1 qa * qb + qc"                         "$(_ep A1)"    "23"        # intended 23
-kindRow "exprPinT A2 2 * 10 + 3 (KANT-43 split)"           "$(_ep A2)"    "$([ "$SW" = 1 ] && echo 23 || echo 26)"        # intended 23 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT A2 2 * 10 + 3 (KANT-43 split)"           "$(_ep A2)"    "23"        # intended 23 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT A3 qa - qb + qc"                         "$(_ep A3)"    "-5"        # intended -5
 kindRow "exprPinT A4 qa + qb - qc"                         "$(_ep A4)"    "9"         # intended 9
 #  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
 #  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
-fdRow "exprPinT A5 qa / qb + qc" "$(_ep A5)" "$([ "$SW" = 1 ] && echo 3.2 || echo 0.153846)" "$([ "$SW" = 1 ] && echo 3 || echo 0)"
-kindRow "exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69)"       "$(_ep A6)"    "$([ "$SW" = 1 ] && echo 17 || echo 25)"        # intended 17 -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70)" "$(_ep A7)"    "$([ "$SW" = 1 ] && echo 54 || echo 52)"        # intended 54 -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT U70 xw > px && xw < pxw, xw 20"          "$(_ep U70)"   "$([ "$SW" = 1 ] && echo 0 || echo 1)"         # intended false -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT U72 y > py && y < pyh, y 20"             "$(_ep U72)"   "$([ "$SW" = 1 ] && echo 0 || echo 1)"         # intended false -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT U75 yh > py && yh < pyh, yh 20"          "$(_ep U75)"   "$([ "$SW" = 1 ] && echo 0 || echo 1)"         # intended false -- re-pinned to switch on, the flip, 2026-10-13
+fdRow "exprPinT A5 qa / qb + qc" "$(_ep A5)" "3.2" "3"  # the old road retired, 2026-10-13
+kindRow "exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69)"       "$(_ep A6)"    "17"        # intended 17 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70)" "$(_ep A7)"    "54"        # intended 54 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT U70 xw > px && xw < pxw, xw 20"          "$(_ep U70)"   "0"         # intended false -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT U72 y > py && y < pyh, y 20"             "$(_ep U72)"   "0"         # intended false -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT U75 yh > py && yh < pyh, yh 20"          "$(_ep U75)"   "0"         # intended false -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT B1 utilities:67, x 5"                    "$(_ep B1)"    "1"         # intended true
-kindRow "exprPinT B2 utilities:67, x 0"                    "$(_ep B2)"    "$([ "$SW" = 1 ] && echo 0 || echo goodToGo)"  # intended false -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT B3 utilities:67, x 20"                   "$(_ep B3)"    "$([ "$SW" = 1 ] && echo 0 || echo 1)"         # intended false -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT U302a across > 0 || down > 0, 0 5"       "$(_ep U302a)" "$([ "$SW" = 1 ] && echo 1 || echo 0)"         # intended 1 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT B2 utilities:67, x 0"                    "$(_ep B2)"    "0"  # intended false -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT B3 utilities:67, x 20"                   "$(_ep B3)"    "0"         # intended false -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT U302a across > 0 || down > 0, 0 5"       "$(_ep U302a)" "1"         # intended 1 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT U302b across > 0 || down > 0, 5 0"       "$(_ep U302b)" "1"         # intended 1
 kindRow "exprPinT U302c across > 0 || down > 0, 0 0"       "$(_ep U302c)" "0"         # intended 0
-kindRow "exprPinT S1 a && b || c, 0 1 1"                   "$(_ep S1)"    "$([ "$SW" = 1 ] && echo 1 || echo 0)"         # intended 1 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT S1 a && b || c, 0 1 1"                   "$(_ep S1)"    "1"         # intended 1 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT S2 a || b && c, 0 1 0"                   "$(_ep S2)"    "0"         # intended 0
 #  RE-PINNED to intended (SEQ 340, falseResultTruthy cured): kant names trueResult / falseResult now resolve to registered
 #  nodes valued as the sentinels (GroupControl.twk setBaseRegistries) -- both roads read falseResult false, trueResult true.
@@ -6076,14 +6060,14 @@ kindRow "exprPinT S3 fFalse() && gSay(): g ran, lines"     "$(grep -c '^EP S3-G 
 kindRow "exprPinT S3 value"                                "$(_ep S3)"    "0"         # intended false
 kindRow "exprPinT N1 fId(qa + qb) * qc"                    "$(_ep N1)"    "36"        # intended 36
 kindRow "exprPinT N2 qa + fNest(qb) + qc"                  "$(_ep N2)"    "37"        # intended 37
-kindRow "exprPinT O1 *block(src) -- pz"                    "$(awk '$1=="EP" && $2=="O1" {print $4; exit}' "$T/ept.e")" "$([ "$SW" = 1 ] && echo 7 || echo 0)"   # intended 7 [on: 7 since expr-h, (h)] -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT O1 *block(src) -- r3"                    "$(awk '$1=="EP" && $2=="O1" {print $6; exit}' "$T/ept.e")" "$([ "$SW" = 1 ] && echo 7 || echo r3)"  # intended the BlocK's result [on: 7 since expr-h, (h); switch off the star-call loses the call] -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT O1 *block(src) -- pz"                    "$(awk '$1=="EP" && $2=="O1" {print $4; exit}' "$T/ept.e")" "7"   # intended 7 [on: 7 since expr-h, (h)] -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT O1 *block(src) -- r3"                    "$(awk '$1=="EP" && $2=="O1" {print $6; exit}' "$T/ept.e")" "7"  # intended the BlocK's result [on: 7 since expr-h, (h); switch off the star-call loses the call] -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT O2 -qa + qb"                             "$(_ep O2)"    "8"         # intended 8
 kindRow "exprPinT O3 !fTrue(qa)"                           "$(_ep O3)"    "nr"        # intended false (null), fTrue runs
 #  O3b RE-PINNED switch on (SEQ 340 R1, falseResultTruthy cured): !fFalse(qa) reads 1. Switch off keeps nr -- the old
 #  road's ! is a separate behaviour.
-kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "$([ "$SW" = 1 ] && echo 1 || echo nr)"  # intended true
-kindRow "exprPinT O3 the called action runs, lines"        "$(grep -c '^EP f\(True\|False\) RAN' "$T/ept.e")" "$([ "$SW" = 1 ] && echo 3 || echo 1)"  # intended 3 (fFalse from S3 + both O3s) -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "1"  # intended true -- the old road retired, 2026-10-13
+kindRow "exprPinT O3 the called action runs, lines"        "$(grep -c '^EP f\(True\|False\) RAN' "$T/ept.e")" "3"  # intended 3 (fFalse from S3 + both O3s) -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT O4 *ph.pMid + 1, pMid 41"                "$(_ep O4)"    "42"        # intended 42
 kindRow "exprPinT H1 hz += qa * qb, hz 1"                  "$(_ep H1)"    "21"        # intended 21
 kindRow "exprPinT H2 hw := qa * qb + qc"                   "$(_ep H2)"    "23"        # intended 23
@@ -6092,14 +6076,14 @@ kindRow "exprPinT E1 qa > qb + qc (open edge)"             "$(_ep E1)"    "qr"  
 #  chainedCompare SEQ 318 R1: a < b < c is refused by name -- today it refuses by ACCIDENT (right-to-left fold, a null operand)
 #  e2PerSwitch SEQ 350 R2a (Tony, 2026-10-13): the search follows SW -- switch on, the candidate's refusal BY NAME; switch off,
 #  the old road's "an operand that is nothing": the old road refuses by accident; retires with the old road. Both read 1.
-if [ "$SW" = 1 ]; then _e2pat='^REFUSED < -- a chained comparison (a < b < c) -- refused by name'
-else _e2pat='^REFUSED qa -- Operator < -- an operand that is nothing'; fi
+#  The old road's accidental refusal was the switch-off search: the old road retired, 2026-10-13 (SEQ 353).
+_e2pat='^REFUSED < -- a chained comparison (a < b < c) -- refused by name'
 kindRow "exprPinT E2 qa < qb < qc refused, lines"          "$(grep -c "$_e2pat" "$T/ept.e")" "1"  # intended 1, refused BY NAME as a chained comparison
 kindRow "exprPinT E2 qa < qb < qc printed a value, lines"  "$(grep -c '^EP E2' "$T/ept.e")" "0"  # intended 0
 #  callRows SEQ 314 step 0: the call rows, the careful build's measuring stick for opCall (SEQ 313 R1)
 kindRow "exprPinT C1 qa + fId(qb)"                         "$(_ep C1)"    "12"        # intended 12
 kindRow "exprPinT C2 qa + fId(qb) + qc"                    "$(_ep C2)"    "15"        # intended 15
-kindRow "exprPinT C3 fId(qa + qb * qc)"                    "$(_ep C3)"    "$([ "$SW" = 1 ] && echo 36 || echo 32)"        # intended 36 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT C3 fId(qa + qb * qc)"                    "$(_ep C3)"    "36"        # intended 36 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT C4 fNone(), empty argument"              "$(_ep C4)"    "5"         # intended 5
 kindRow "exprPinT C4 fNone runs, lines"                    "$(grep -c '^EP fNone RAN' "$T/ept.e")" "1"  # intended 1
 #  c5Walk SEQ 323 R0 (c4, expr-accum): C5 WALKS the call's list in stored order -- 2 10 since both builders build in
@@ -6109,7 +6093,7 @@ kindRow "exprPinT C5 fId(qa qb), length"                   "$(_ep C5L)"   "2"   
 kindRow "exprPinT C6 fId(-qa)"                             "$(_ep C6)"    "-2"        # intended -2
 #  foldedAnd SEQ 323 R1a: if a != 0 && b != 0 && c != 0; -- intended identical to the nested ifs
 kindRow "exprPinT FA1 folded &&, all three set"           "$(_ep FA1)"   "1"         # intended 1
-kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "$([ "$SW" = 1 ] && echo 0 || echo 1)"         # intended 0 (it reads a != 0) -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT FA2 folded &&, the middle one 0"        "$(_ep FA2)"   "0"         # intended 0 (it reads a != 0) -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 #  staleValue SEQ 323 R1b: qs = 7; qs = fId(qa qb); -- = copies data only, so nothing is left behind
 #  staleValue RE-PINNED on expr-accum at c4 (SEQ 323 R0): xl1 no longer carries the InSet set, so it has a list and no
 #  data, and setContent (=) copies the list and leaves qs's 7 -- the stale value R1b names. setData (= copies data
@@ -6121,8 +6105,8 @@ kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep 
 #  a == x || b == y is a == (x || (b == y)); the candidate's tiers bind the comparisons first [on: OR1 1, OR2 1, OR3 1].
 #  OR1 is the tester line verbatim: its LEFT half compares the := holder unstarred, which is never equal (bear-trap 55) on
 #  either road, so OR1 is true only through its right half. OR2 is the starred discriminator; OR3 its non-zero sibling.
-kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "$([ "$SW" = 1 ] && echo 1 || echo 0)"         # intended 1 (through the right half only) -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "$([ "$SW" = 1 ] && echo 1 || echo 0)"         # intended 1 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "1"         # intended 1 (through the right half only) -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "1"         # intended 1 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"         # intended 1
 #  FP1-FP8 SEQ 343 (Tony, 2026-10-12, R0 restating 2026-10-06): ARITHMETIC IS A STRICT LEFT FOLD, NO PRECEDENCE --
 #  a + b * c is (a+b)*c = 36, never a+(b*c) = 32; a * b + c and a / b - c are the controls, where fold and precedence agree.
@@ -6130,26 +6114,26 @@ kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"    
 #  trap 25). Pinned at TODAY's value per switch; the intended value is the comment. Switch off reads the old road's
 #  right-to-left fold (I). FP7 / FP8 jitted read -3 on switch on: jitEmitBinary (jitEmitters.rtn:1088) divides two counts
 #  with CreateSDiv, an integer divide, where the interpreted road promotes to 0.2 -- the jit's numeric type, not the fold.
-kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, jit" "$(_ep FP1j)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, int" "$(_ep FP1)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP2 2 + 10 * 3, jit" "$(_ep FP2j)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP2 2 + 10 * 3, int" "$(_ep FP2)" "$([ "$SW" = 1 ] && echo 36 || echo 32)"  # intended 36
-kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, jit" "$(_ep FP3j)" "$([ "$SW" = 1 ] && echo -24 || echo -24)"  # intended -24
-kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, int" "$(_ep FP3)" "$([ "$SW" = 1 ] && echo -24 || echo -24)"  # intended -24
-kindRow "exprPinT FP4 2 - 10 * 3, jit" "$(_ep FP4j)" "$([ "$SW" = 1 ] && echo -24 || echo -28)"  # intended -24
-kindRow "exprPinT FP4 2 - 10 * 3, int" "$(_ep FP4)" "$([ "$SW" = 1 ] && echo -24 || echo -28)"  # intended -24
-kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "$([ "$SW" = 1 ] && echo 23 || echo 23)"  # intended 23
-kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "$([ "$SW" = 1 ] && echo 23 || echo 23)"  # intended 23
-kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "$([ "$SW" = 1 ] && echo 23 || echo 26)"  # intended 23
-kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "$([ "$SW" = 1 ] && echo 23 || echo 26)"  # intended 23
-fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "$([ "$SW" = 1 ] && echo -3 || echo 0)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
+kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, jit" "$(_ep FP1j)" "36"  # intended 36 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP1 qa + qb * qc, 2 10 3, int" "$(_ep FP1)" "36"  # intended 36 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP2 2 + 10 * 3, jit" "$(_ep FP2j)" "36"  # intended 36 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP2 2 + 10 * 3, int" "$(_ep FP2)" "36"  # intended 36 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, jit" "$(_ep FP3j)" "-24"  # intended -24 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP3 qa - qb * qc, 2 10 3, int" "$(_ep FP3)" "-24"  # intended -24 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP4 2 - 10 * 3, jit" "$(_ep FP4j)" "-24"  # intended -24 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP4 2 - 10 * 3, int" "$(_ep FP4)" "-24"  # intended -24 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), jit" "$(_ep FP5j)" "23"  # intended 23 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP5 qa * qb + qc, 2 10 3 (control), int" "$(_ep FP5)" "23"  # intended 23 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP6 2 * 10 + 3 (control), jit" "$(_ep FP6j)" "23"  # intended 23 -- the old road retired, 2026-10-13
+kindRow "exprPinT FP6 2 * 10 + 3 (control), int" "$(_ep FP6)" "23"  # intended 23 -- the old road retired, 2026-10-13
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), jit" "$(_ep FP7j)" "-3" "-3"  # intended under the cast rule (SEQ 347) -- the old road retired, 2026-10-13
 #  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
 #  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
-fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "$([ "$SW" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"
-fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "$([ "$SW" = 1 ] && echo -3 || echo 0)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"  # intended under the cast rule (SEQ 347)
+fdRow "exprPinT FP7 qa / qb - qc, 2 10 3 (control), int" "$(_ep FP7)" "-2.8" "-3"  # the old road retired, 2026-10-13
+fdRow "exprPinT FP8 2 / 10 - 3 (control), jit" "$(_ep FP8j)" "-3" "-3"  # intended under the cast rule (SEQ 347) -- the old road retired, 2026-10-13
 #  RE-STATED under the cast rule (SEQ 347 R0/R2, Tony 2026-10-12): qr is a count (its first kind) and keeps it -- the NUMBER
 #  result is cast into it, rounding half up toward +inf. Today's pin is the first value, intended the second.
-fdRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "$([ "$SW" = 1 ] && echo -2.8 || echo 0.285714)" "$([ "$SW" = 1 ] && echo -3 || echo 0)"
+fdRow "exprPinT FP8 2 / 10 - 3 (control), int" "$(_ep FP8)" "-2.8" "-3"  # the old road retired, 2026-10-13
 #  FD1-FD9 intended RE-STATED SEQ 347 (cast rule): qr is a count and keeps it -- 10/2 -> 5, 7/2 -> 3.5 -> 4, 2/10 -> 0.2 -> 0,
 #  kind count (5) on both roads. The interpreted cells are born red at NUMBER; the jit cells at their raw stores.
 #  FD1-FD9 SEQ 345 (fixit jitDivide): / on counts, a NUMBER left, a NUMBER right -- value and KIND (datA: 5 count, 9 NUMBER),
@@ -6194,11 +6178,11 @@ fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int value" "$(_ep FD9)" "0.2" "0"
 fdRow "exprPinT FD9 2 / 10.0, NUMBER right, int kind" "$(_epk FD9)" "9" "5"
 #  foldAndT the same misfire where the body touches the empty field: today a crash, pinned by exit and lines
 run2 foldAndT "$T/fat.o" "$T/fat.e"; _fat=$?
-kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "$([ "$SW" = 1 ] && echo 0 || echo 139)"       # intended 0 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "foldAndT folded && with an empty clause, exit"   "$_fat"        "0"       # intended 0 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "foldAndT it ran up to the if, lines"            "$(grep -c '^FC before' "$T/fat.e")" "1"  # intended 1
 kindRow "foldAndT the body ran to its end, lines"         "$(grep -c '^FC body ran' "$T/fat.e")" "0"  # intended 0
-kindRow "foldAndT reached the line after the if, lines"   "$(grep -c '^FC after' "$T/fat.e")" "$([ "$SW" = 1 ] && echo 1 || echo 0)"  # intended 1 -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "foldAndT sentinel, lines"                        "$(grep -c '^FOLDANDT SENTINEL' "$T/fat.e")" "$([ "$SW" = 1 ] && echo 1 || echo 0)"  # intended 1 -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "foldAndT reached the line after the if, lines"   "$(grep -c '^FC after' "$T/fat.e")" "1"  # intended 1 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "foldAndT sentinel, lines"                        "$(grep -c '^FOLDANDT SENTINEL' "$T/fat.e")" "1"  # intended 1 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 #  lastRefT SEQ 328 R3: WHICH FIELD lastREF HOLDS at the slot a bare accessor is read, by value -- the same on both roads
 #  (measured before D1 was built: the STOP check). lastRefOf is a read-only report verb. The bare rows are D1's subject.
 run2 lastRefT "$T/lr.o" "$T/lr.e"; check "lastRefT runs" 0 $?
@@ -6228,20 +6212,21 @@ kindRow "methodWriteT IA invokE = 1 sets invoke"            "$(_mw IA)" "1"
 kindRow "methodWriteT IS :. invokE sets invoke"             "$(_mw IS)" "1"
 kindRow "methodWriteT IC invokE = 1 then = 0 clears"        "$(_mw IC)" "0"
 kindRow "methodWriteT I0 invokE never written, control"     "$(_mw I0)" "0"
-#  loneOpT SEQ 327 R1 (Tony): a lone operator is NOT an ExpressioN. Run WITH THE SWITCH ON, whatever the caller's switch:
-#  the candidate refuses each by name. (Switch off the old road reads a verdict -- orc_old's oldRoad column.)
-INCANT_EXPR_ACCUM=1 $B "$(ip loneOpT)" > "$T/lo.o" 2> "$T/lo.e" & _cap loneOpT; check "loneOpT runs (switch on)" 0 $?
+#  loneOpT SEQ 327 R1 (Tony): a lone operator is NOT an ExpressioN -- the candidate refuses each by name. It ran with the
+#  switch forced on, whatever the caller's; a plain run now, the old road retired, 2026-10-13 (SEQ 353).
+$B "$(ip loneOpT)" > "$T/lo.o" 2> "$T/lo.e" & _cap loneOpT; check "loneOpT runs" 0 $?
 sentinel "loneOpT sentinel" "$T/lo.e" "LONEOP SENTINEL"
-kindRow "loneOpT + refused by name, switch on, lines"     "$(grep -c '^REFUSED + -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
-kindRow "loneOpT ! refused by name, switch on, lines"     "$(grep -c '^REFUSED ! -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
-kindRow "loneOpT read a verdict anyway, switch on, lines" "$(grep -c '^LO matched' "$T/lo.e")" "0"   # intended 0
-#  opEntryT SEQ 330 A1 (Tony): an operator is an ENTRY of Operators, never the registry itself. Run WITH THE SWITCH ON.
+kindRow "loneOpT + refused by name, lines"     "$(grep -c '^REFUSED + -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
+kindRow "loneOpT ! refused by name, lines"     "$(grep -c '^REFUSED ! -- a prefix operator with no operand' "$T/lo.e")" "1"   # intended 1
+kindRow "loneOpT read a verdict anyway, lines" "$(grep -c '^LO matched' "$T/lo.e")" "0"   # intended 0
+#  opEntryT SEQ 330 A1 (Tony): an operator is an ENTRY of Operators, never the registry itself. It ran with the switch
+#  forced on; a plain run now, the old road retired, 2026-10-13 (SEQ 353).
 #  H7: the isREGISTRY clause removed, OE-R and OE-E vanish (the refusal ends the action) and the sentinel still prints.
-INCANT_EXPR_ACCUM=1 $B "$(ip opEntryT)" > "$T/oe.o" 2> "$T/oe.e" & _cap opEntryT; check "opEntryT runs (switch on)" 0 $?
+$B "$(ip opEntryT)" > "$T/oe.o" 2> "$T/oe.e" & _cap opEntryT; check "opEntryT runs" 0 $?
 sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
-kindRow "opEntryT OE-R bare Operators is an operand, its length, switch on" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "53"
-kindRow "opEntryT OE-E an entry is still an operator, 3 + 4, switch on"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
-kindRow "opEntryT no refusal names Operators, switch on, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
+kindRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "53"
+kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
+kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
 #  driven; rc is what came back (its tag = nothing). Pins are switch OFF today; [on: x] is the switch-on read today.
 run2 blockCallT "$T/bct.o" "$T/bct.e"; check "blockCallT runs" 0 $?
@@ -6251,11 +6236,11 @@ kindRow "blockCallT BC0 BlocK(pSrc), the control -- pz"     "$(_bc BC0pz)" "7"  
 kindRow "blockCallT BC0 BlocK(pSrc), the control -- rc"     "$(_bc BC0rc)" "7"         # intended 7 [on: 7]
 kindRow "blockCallT BC1 rc = BlocK(holder) -- pz"           "$(_bc BC1pz)" "7"         # intended 7 [on: 7] -- (h) fixed, expr-h
 kindRow "blockCallT BC1 rc = BlocK(holder) -- rc"           "$(_bc BC1rc)" "7"         # intended 7 [on: 7] -- (h) fixed, expr-h
-kindRow "blockCallT BC2 rc = *block(holder) -- pz"          "$(_bc BC2pz)" "$([ "$SW" = 1 ] && echo 7 || echo 0)"         # intended 7 [on: 7] -- switch off it is the star-call (BC4), not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "blockCallT BC2 rc = *block(holder) -- rc"          "$(_bc BC2rc)" "$([ "$SW" = 1 ] && echo 7 || echo rc)"        # intended 7 [on: 7] -- switch off it is the star-call (BC4), not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "blockCallT BC2 rc = *block(holder) -- pz"          "$(_bc BC2pz)" "7"         # intended 7 [on: 7] -- switch off it is the star-call (BC4), not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "blockCallT BC2 rc = *block(holder) -- rc"          "$(_bc BC2rc)" "7"        # intended 7 [on: 7] -- switch off it is the star-call (BC4), not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "blockCallT BC3 BlocK(holder); a statement -- pz"   "$(_bc BC3pz)" "7"         # intended 7 [on: 7] -- (h) fixed, expr-h
-kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- pz" "$(_bc BC4pz)" "$([ "$SW" = 1 ] && echo 7 || echo 0)"         # intended 7 [on: 7] -- the star-call, not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip, 2026-10-13
-kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "$([ "$SW" = 1 ] && echo 7 || echo rc)"        # intended 7 [on: 7] -- the star-call, not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip, 2026-10-13
+kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- pz" "$(_bc BC4pz)" "7"         # intended 7 [on: 7] -- the star-call, not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "7"        # intended 7 [on: 7] -- the star-call, not (h) -- the old road loses a star-call before the drive (interpretXP's binding, seal 85); the candidate binds prefix first and reads 7 -- retires when the switch flips. -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 
 #  ⚑ shortCircT -- SEQ 337 (Tony, 2026-10-12): && and || EXIT EARLY (the C1 buy, 2026-10-06, R1) -- measured on both roads
 #  of whichever switch this run is. Operands X Y a b c are callees that bump their own counter; each line prints what ran
@@ -6269,13 +6254,13 @@ kindRow "blockCallT BC4 rc = *block(pSrc), no holder -- rc" "$(_bc BC4rc)" "$([ 
 #  n1 / n2 are the WITNESS CONTROL: X runs once, so a 0 there means the counter is broken and no other row means anything.
 #  scRow pins TODAY'S value and the INTENDED value (R2): green when they agree; a row whose today differs from intended is
 #  BORN RED and stays red until a stroke cures it; any other value is MOVED. m1 is the strict left fold, (a || b) && c:
-#  switch off reads the old road's right-to-left fold, a || (b && c) (KANT-43), so its six off rows are born red.
+#  switch off read the old road's right-to-left fold, a || (b && c) (KANT-43), and its six off rows were born red; one pin
+#  now, the old road retired, 2026-10-13 (SEQ 353).
 run2 shortCircT "$T/sc.o" "$T/sc.e"; check "shortCircT runs" 0 $?
 sentinel "shortCircT sentinel" "$T/sc.e" "SHORTCIRC SENTINEL -- run reached the end"
-_scsw=$([ "$SW" = 1 ] && echo on || echo off)
 _scv () { tr -s ' ' < "$T/sc.e" | grep "^SC $1 " | head -1 | sed "s/^SC $1 //" | sed 's/ $//'; }   # cerr pads items: squeeze first
 scRow () {
-    _sv=$(_scv "$1"); _sl="shortCircT $1 [$2] $_scsw/${1##* }"
+    _sv=$(_scv "$1"); _sl="shortCircT $1 [$2] ${1##* }"
     if [ "$_sv" = "$4" ]; then echo "  ok    $_sl: $_sv"; green=$((green+1))
     elif [ "$_sv" = "$3" ]; then echo "  FAIL  $_sl born red (SEQ 337 R2): today $_sv, intended $4"; fail=1
     else echo "  FAIL  $_sl MOVED: reads [$_sv], pinned today [$3], intended [$4]"; fail=1; fi
@@ -6322,12 +6307,12 @@ scRow "c2 I jit" "true || X || Y, folded if a && b;" "x 0 y 0 a 0 b 0 c 0 v 1" "
 scRow "c2 I int" "true || X || Y, folded if a && b;" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 scRow "c2 B jit" "true || X || Y, if, two-statement body" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
 scRow "c2 B int" "true || X || Y, if, two-statement body" "x 0 y 0 a 0 b 0 c 0 v 1" "x 0 y 0 a 0 b 0 c 0 v 1"
-scRow "m1 A jit" "a || b && c, a=1 b=1 c=0, as =" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
-scRow "m1 A int" "a || b && c, a=1 b=1 c=0, as =" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
-scRow "m1 I jit" "a || b && c, a=1 b=1 c=0, folded if a && b;" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
-scRow "m1 I int" "a || b && c, a=1 b=1 c=0, folded if a && b;" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
-scRow "m1 B jit" "a || b && c, a=1 b=1 c=0, if, two-statement body" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
-scRow "m1 B int" "a || b && c, a=1 b=1 c=0, if, two-statement body" "$([ "$_scsw" = on ] && echo "x 0 y 0 a 1 b 0 c 1 v 0" || echo "x 0 y 0 a 1 b 0 c 0 v 1")" "x 0 y 0 a 1 b 0 c 1 v 0"
+scRow "m1 A jit" "a || b && c, a=1 b=1 c=0, as =" "x 0 y 0 a 1 b 0 c 1 v 0" "x 0 y 0 a 1 b 0 c 1 v 0"  # the old road retired, 2026-10-13
+scRow "m1 A int" "a || b && c, a=1 b=1 c=0, as =" "x 0 y 0 a 1 b 0 c 1 v 0" "x 0 y 0 a 1 b 0 c 1 v 0"  # the old road retired, 2026-10-13
+scRow "m1 I jit" "a || b && c, a=1 b=1 c=0, folded if a && b;" "x 0 y 0 a 1 b 0 c 1 v 0" "x 0 y 0 a 1 b 0 c 1 v 0"  # the old road retired, 2026-10-13
+scRow "m1 I int" "a || b && c, a=1 b=1 c=0, folded if a && b;" "x 0 y 0 a 1 b 0 c 1 v 0" "x 0 y 0 a 1 b 0 c 1 v 0"  # the old road retired, 2026-10-13
+scRow "m1 B jit" "a || b && c, a=1 b=1 c=0, if, two-statement body" "x 0 y 0 a 1 b 0 c 1 v 0" "x 0 y 0 a 1 b 0 c 1 v 0"  # the old road retired, 2026-10-13
+scRow "m1 B int" "a || b && c, a=1 b=1 c=0, if, two-statement body" "x 0 y 0 a 1 b 0 c 1 v 0" "x 0 y 0 a 1 b 0 c 1 v 0"  # the old road retired, 2026-10-13
 scRow "k1 A jit" "fF() && X, fF returns 0, as =" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
 scRow "k1 A int" "fF() && X, fF returns 0, as =" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
 scRow "k1 I jit" "fF() && X, fF returns 0, folded if a && b;" "x 0 y 0 a 1 b 0 c 0 v 0" "x 0 y 0 a 1 b 0 c 0 v 0"
@@ -6387,15 +6372,15 @@ done
 run2 jitBlockCtlT "$T/jitBlockCtlT.o" "$T/jitBlockCtlT.e"; _bje=$?
 kindRow "jitBlockCtlT jitted, exit (control)"   "$_bje"                                       "0"
 kindRow "jitBlockCtlT sentinel, lines"          "$(grep -c '^BJ SENTINEL' "$T/jitBlockCtlT.e")" "1"
-kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "$([ "$SW" = 1 ] && echo 7 || echo 0)"  # intended 7
-kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "$([ "$SW" = 1 ] && echo 7 || echo 0)"  # intended 7
+kindRow "jitBlockCtlT jitted refire, pz"        "$(_bjv jitBlockCtlT jit)"  "7"  # intended 7 -- the old road retired, 2026-10-13
+kindRow "jitBlockCtlT interpreted, pz"          "$(_bjv jitBlockCtlT int)"  "7"  # intended 7 -- the old road retired, 2026-10-13
 
 #  ⚑ unaryNoTargetT -- SEQ 347 R4: a binary operator in a prefix position (`x &= y` read as `x & (= y)`). Intended on both
 #  switches: exit 0 and the statement refused by name. Today switch on exits 139 (runOPaccum's acU arm calls opAssign as a
 #  unary); switch off the old road refuses `&` by name.
 run2 unaryNoTargetT "$T/ut.o" "$T/ut.e"; _ute=$?
-fdRow "unaryNoTargetT x &= y, exit" "$_ute" "$([ "$SW" = 1 ] && echo 139 || echo 0)" "0"
-fdRow "unaryNoTargetT x &= y, refused by name, lines" "$(grep -c '^REFUSED' "$T/ut.e")" "$([ "$SW" = 1 ] && echo 0 || echo 1)" "1"
+fdRow "unaryNoTargetT x &= y, exit" "$_ute" "139" "0"  # the old road retired, 2026-10-13
+fdRow "unaryNoTargetT x &= y, refused by name, lines" "$(grep -c '^REFUSED' "$T/ut.e")" "0" "1"  # the old road retired, 2026-10-13
 
 #  ⚑ opMixT -- SEQ 347 R3 (Tony, 2026-10-12): mixed operands. Count / NUMBER left reads a STRING / TOKEN right as its count;
 #  STRING / TOKEN left concatenates. Cells "text datA": jitF first fire into a no-kind target, jitR refire (kept kind), int,

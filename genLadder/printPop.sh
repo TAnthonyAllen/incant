@@ -24,18 +24,6 @@
 #  ⚠ $? IS TAKEN DIRECTLY, NEVER THROUGH A PIPE. ${PIPESTATUS[0]} is silently
 #  empty in zsh and reports every run as passing.
 B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
-#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 1 and is EXPORTED as 1 (SEQ 351
-#  R2: a bare run measures what a bare incant runs); =0 is the explicit way to the old road; INCANT_EXPR_ACCUM=unset and
-#  =empty are the deliberate ways to run the binary's own reading of those.
-case "${INCANT_EXPR_ACCUM-}" in
-    0|1)    ;;
-    "")     INCANT_EXPR_ACCUM=1 ;;
-    unset|empty)  ;;
-    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1, unset or empty"; exit 2 ;;
-esac
-if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM unset -- the binary's default"
-elif [ "$INCANT_EXPR_ACCUM" = empty ]; then INCANT_EXPR_ACCUM=; export INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM empty -- the binary's reading of empty"
-else export INCANT_EXPR_ACCUM; echo "switch: INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 
 #  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
 #  without touching a single row label. Falls back to incant/<name> so an unknown name

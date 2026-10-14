@@ -2954,11 +2954,13 @@ direction the campaign might take, it is a state the machinery must report as a 
 > INCANT_EXPR_ACCUM themselves -- not given reads as 1 and is exported as 1 (SEQ 351 R2: a bare run measures what a bare
 > incant runs; `=0` is the explicit way to the old road); `unset` and `empty` are the deliberate ways to run the binary's own
 > reading of those -- and echo it under the binary. pop.sh and the ladder pick their pins by `SW`, never by the variable.
+> ⚠ **DATED 2026-10-14 (SEQ 353 stroke 1): the switch is gone -- no instrument sets it, no `SW`, one pin per row. This
+> paragraph retires with stroke 3's documents.**
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> **`printPop.sh`** · `incant/frontier` (an incantation, so it cannot name its own switch: the pass runs it as
-> `INCANT_EXPR_ACCUM=0` and `=1`, SEQ 350 R1) · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
+> **`printPop.sh`** · `incant/frontier` (run once; it ran at `INCANT_EXPR_ACCUM=0` and `=1` until the old road
+> retired, 2026-10-13, SEQ 353) · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
 > retokked bare) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >

@@ -166,22 +166,6 @@ runcap () {                     # runcap <label> <fixture> <outfile> [env-prefix
 if [ ! -x "$B" ]; then echo "  FAIL  binary not executable: $B"; exit 1; fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
-#  THE SWITCH IS NAMED, NEVER INHERITED UNSET (SEQ 350 R1, 2026-10-13). Not given reads as 1 and is EXPORTED as 1 (SEQ 351 R2:
-#  a bare run measures what a bare incant runs); =0 is the explicit way to the old road. INCANT_EXPR_ACCUM=unset and =empty are
-#  the deliberate ways to run the binary's own reading of those (the H7 of a default): the variable is unset, or set empty,
-#  for the binary, and the pins follow EXPR_ACCUM_DEFAULT -- the binary's default, which moves when exprAccumOn()
-#  (jitContext.h) does. Rows choose their pins by SW, never by the variable.
-EXPR_ACCUM_DEFAULT=1     # the flip, 2026-10-13: the binary reads unset as on
-case "${INCANT_EXPR_ACCUM-}" in
-    1)      SW=1 ;;
-    0)      SW=0 ;;
-    "")     SW=1; INCANT_EXPR_ACCUM=1 ;;
-    unset|empty)  SW=$EXPR_ACCUM_DEFAULT ;;
-    *)      echo "  FAIL  INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM -- give 0, 1, unset or empty"; exit 2 ;;
-esac
-if [ "$INCANT_EXPR_ACCUM" = unset ]; then unset INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM unset -- the binary's default, pinned as $SW"
-elif [ "$INCANT_EXPR_ACCUM" = empty ]; then INCANT_EXPR_ACCUM=; export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM empty -- the binary's reading of empty, pinned as $SW"
-else export INCANT_EXPR_ACCUM; echo "  switch INCANT_EXPR_ACCUM=$INCANT_EXPR_ACCUM"; fi
 #  H5 FOR EVERY RUNG (SEQ 230 R4): from here on $B is jitLadder/capcmd, which runs the real binary
 #  under a ${JITCAP}s wall-clock cap and logs a killed fixture by name to $JITCAPLOG. The binary
 #  was echoed ABOVE, so H1 still names the real one.
@@ -211,10 +195,11 @@ rung () {
         echo "        fire 1 proved nothing. If empty, the refire never happened."
         fail=1
     fi
-    #  dgPin a 6th argument pins the degrade count SWITCH ON only, with the intended 0 beside it; the call site carries the sentence
-    if [ "$SW" = 1 ] && [ -n "$6" ]; then
-        if [ "$dg" = "$6" ]; then echo "  ok    $label degrade count switch on PINNED: $dg (intended: 0 -- restored by J6)"
-        else echo "  FAIL  $label degrade count switch on MOVED: '$dg' (pinned $6; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
+    #  dgPin a 6th argument pins the degrade count, with the intended 0 beside it; the call site carries the sentence (it was
+    #  switch on only until the old road retired, 2026-10-13)
+    if [ -n "$6" ]; then
+        if [ "$dg" = "$6" ]; then echo "  ok    $label degrade count PINNED: $dg (intended: 0 -- restored by J6)"
+        else echo "  FAIL  $label degrade count MOVED: '$dg' (pinned $6; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
     elif [ "$dg" = "0" ]; then echo "  ok    $label degrade count 0 (no silent emit-time fallback)"
     else echo "  FAIL  $label degrade count = '$dg', want 0 -- a construct fell through"; fail=1; fi
     #  THE ORACLE'S TESTIMONY, captured while it can still testify. Not an
@@ -773,9 +758,8 @@ else
     #  jaFold SWITCH ON, the strict left fold, ruled 2026-10-06 (SEQ 335 R0): bgSpec * 3 + 2 is (5*3)+2 = 17 and
     #  layoutTotal + bgBaked * applyScale is (lt+bk)*sc -- 17, then (17+17)*2 = 68, then (68+17)*2 = 170. Read on the candidate's
     #  INTERPRETED road first (fixture with the jitted fire replaced by a plain call): 17 / 68 / 170, bake 17 -- the jit agrees.
-    #  Switch off keeps the old road's right-to-left 25 / 75 / 125, bake 25.
-    jw1=25; jw2=75; jw3=125; jwb=25
-    if [ "$SW" = 1 ]; then jw1=17; jw2=68; jw3=170; jwb=17; fi
+    #  Switch off kept the old road's right-to-left 25 / 75 / 125, bake 25: the old road retired, 2026-10-13 (SEQ 353).
+    jw1=17; jw2=68; jw3=170; jwb=17
     if [ "$ja1" = "$jw1" ]; then echo "  ok    JA fire 1 : layoutTotal = $jw1"
     else echo "  FAIL  JA fire 1 layoutTotal = '$ja1', want $jw1"; fail=1; fi
     if [ "$ja2" = "$jw2" ]; then echo "  ok    JA fire 2 : layoutTotal = $jw2  <- RUN-TIME PROOF (applyScale moved after emission)"
@@ -1201,10 +1185,11 @@ retrung () {                    # retrung <file> <sentinel> <label> <want1> <wan
     fi
     #  E4: INSIDE A SELF-TEST-PASSING CALLEE A RETURN MUST NOT DEGRADE. This is
     #  the no-degrade-in-family posture made real at its first site.
-    #  dgPin a 6th argument pins the degrade count SWITCH ON only, with the intended 0 beside it; the call site carries the sentence
-    if [ "$SW" = 1 ] && [ -n "$6" ]; then
-        if [ "$dg" = "$6" ]; then echo "  ok    $label degrade count switch on PINNED: $dg (intended: 0 -- restored by J6)"; green=$((green+1))
-        else echo "  FAIL  $label degrade count switch on MOVED: '$dg' (pinned $6; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
+    #  dgPin a 6th argument pins the degrade count, with the intended 0 beside it; the call site carries the sentence (it was
+    #  switch on only until the old road retired, 2026-10-13)
+    if [ -n "$6" ]; then
+        if [ "$dg" = "$6" ]; then echo "  ok    $label degrade count PINNED: $dg (intended: 0 -- restored by J6)"; green=$((green+1))
+        else echo "  FAIL  $label degrade count MOVED: '$dg' (pinned $6; intended 0) -- re-pin to the intended row, the restoration J6 registered"; fail=1; fi
     elif [ "$dg" = "0" ]; then echo "  ok    $label degrade count 0 (the return EMITTED; nothing fell through)"; green=$((green+1))
     else echo "  FAIL  $label degrade count = '$dg', want 0 -- a return fell through"; fail=1; fi
 }
