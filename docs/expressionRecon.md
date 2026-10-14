@@ -625,6 +625,86 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ STROKE 4 RECON -- TokenXP AND UnaryXP OUT OF THE GRAMMAR (SEQ 358, Clod, 2026-10-14; read-only, nothing built)
+
+**Step 0.** `incant/fixits/silencedCompileSucceeds` (R1): its Token repro went quiet at **df82ed7** (merge expr-a, A1) --
+measured in the clone at =1: 67f29fe (first parent) prints `REFUSED acPostCall`, df82ed7 prints none. **The defect did not
+go** (the fixit's own note predicted it): a body refused at build still reports `compile succeeded`. Re-aimed, not retired
+(4251d2a): scBad (`scX := scA.*scB`) prints the REFUSED line and then `compile succeeded for scBad`, as the clean scGood does.
+TODO: fixitNag reads exit codes only (a quiet fixit reads as waiting); interpretXPaccum's header rides stroke 4's build.
+
+**1 -- Census** (tracked, gitignored, generated; word matches; 55 tracked files):
+
+| class | sites |
+|---|---|
+| **DEFINES** | `incant/grammar:126` (`UnaryXP  UnaryOPS ANYtoken;`), `:131` (InvokeArg's `UnaryXP;`), `:135` (`TokenXP  UnaryOPS? ANYorNum^ InvokeArg?;`), `:140` (Token's `TokenXP;`); `aCTionTokenXP` (`ruleActions.rtn:964`, `return xpress;`) and its `groups.ext:489` line; IncantForms/BackupXML/grammar:153/159 (a backup, its own older shape) |
+| **READS THE LABEL** | **no engine source reads either name** (`.rtn` / `.twk` / `.h`: comments only -- Generate.rtn:233, ruleActions.rtn:962/1192, jitEmitters.rtn:2180). Pass 1 reads the PIECES (below), not the names. By generation: Token's generated body `... StringXP() \|\| TokenXP() \|\| Operators()`; targets `genLadder/parserCoverage.target:47/50` (COMPILES TokenXP / UnaryXP), `parseClass.target:133/139`, `oneTest.base:37/38/41` (AUDIT TERM); `incant/pop/bisectQ:99` (`bqWalk(TokenXP)`); `groupDirectives:184` `debugRuleNamed("TokenXP")` -- PARKED (`ctive`) |
+| **NAMES IN PROSE** | 38 doc / ipc / CLAUDE.md / designDocs files; fixture prose in doWhileNameT, starFlagT, unaryNatT, deferNatT, tokJitT, testPrecedence, parseClass, bisectQ; fixits silencedCompileSucceeds / parserCoverageMembersOnly; pop.sh comments (1628 2833 2858 3426 3500 5479); tester:139-142 (Tony's); incant++:50 |
+
+**2 -- Pass 1 (reading + a gated tap in the clone, reverted md5-identical).** Per term of the ExpressioN it receives -- the
+term is tagged **`Token`** (TokenXP's label sits under Token's name) -- pass 1 asks three children by name:
+
+| piece | fact it gives | tap, known answers (H16) |
+|---|---|---|
+| `["ANYorNum"]` | present: this term is a NAME TERM and this is the name; absent: the term passes whole (a literal, a quote, an operator) | `pa = 5` -> `Token=5` passes whole; `pa = pb` -> `pb` |
+| `["UnaryOPS"]` | a PREFIX, pushed before the name (and `.5` refused here, with no InvokeArg) | `-pb` `!pb` `*ph` `++pc` `--pc` `.taG` -> op then name |
+| `["InvokeArg"]` LIST shape (UnaryXP) | a POSTFIX op and its right operand | `ph.taG` -> `ph . taG` |
+| `["InvokeArg"]` with `fLAG` (Braced) / without (Parens) | a SUBSCRIPT (`acPostSub`) / a CALL (`acPostCall`), on the name before it | `ps[pk]` -> acPostSub, `pf(pb)` -> acPostCall |
+
+**TokenXP's job is the GROUPING** -- prefix, name, postfix in one term. **A space is not significant today:** `pf (pb)` and
+`ps [pk]` are a call and a subscript, exactly as `pf(pb)` / `ps[pk]` (the `^` on ANYorNum does not reach InvokeArg).
+**aCTionTokenXP's registration is NOT load-bearing** (tap 2: the extern renamed so dlsym misses, TokenXP has no actor):
+the 21 probe trees identical; jitLadder PASSED, 0 movers; pop.sh 1284 -- the one red `actorOrderT AO-1` (rules whose
+actor is found by lookup, 33 -> 32: TokenXP itself), and the arity count 261 -> 260 (its groups.ext line).
+
+**3 -- The shape without them (scratch grammar in the clone, runtime file, restored git-clean).** Probe: 22 statements --
+literal, name, `2 * 10 + 3`, the six prefixes, call, call-in-arithmetic, subscript, dot, star-dot, a chain, spaced call /
+subscript, quote, `&&` / `||`, leading dot, comparison, `-pf(pb)`, a leading parenthesised group.
+- **V1, pure removal** (TokenXP's rule, Token's `TokenXP;` and InvokeArg's `UnaryXP;` deleted): **0 of 22 reach pass 1.** No
+  Token alternative parses a NAME, so `search ...` (line 4) fails and the file is abandoned. **Stroke 4 cannot be a deletion.**
+- **V2, flat** (as V1, plus Token gains `ANYorNum;` and `InvokeArg;` before `Operators;`): all 22 parse. Pass 1's flat
+  sequence (unchanged pass 1) is **identical to today's for 15 of the 21** (inputs 01-08, 12-14, 17-20) -- literal, name,
+  arithmetic, the five prefixes, dot, star-dot, chain, quote, `&&`/`||`, leading dot, comparison: names arrive as the resolved field, prefixes and
+  dots as Operators entries, and pass 2 already decides by position. **It differs for every call and subscript (6: inputs 09-11, 15, 16, 21):**
+  `pf(pb)` -> `pf pb`, `pf(pb + 1) * 2` -> `pf acX * Token`, `ps[pk]` -> `ps pk`, `pf (pb)`, `ps [pk]`, `-pf(pb)` -> `- pf pb` -- the Parens / Braced label does not
+  survive (the inner expression's result arrives bare), so call, subscript and juxtaposition read alike.
+  **And input 22, `pa = (pb + 1) * 2;`, ABANDONS THE FILE TODAY** (no Token alternative is a leading group) **and parses
+  under V2** (`pa = acX * Token`). Context, not a finding: no row pins it.
+
+**4 -- What pass 1 would need, per fact:**
+
+| fact | today | without the labels | options (costs) |
+|---|---|---|---|
+| name-term boundary | the Token wrapper | position: an operand where pass 2 expects one | none needed -- measured identical (15 inputs) |
+| prefix | UnaryOPS child | an Operators entry before the operand | none -- pass 2's expect-operand rule; the six prefixes measured identical. `.5`'s refusal moves from pass 1 to pass 2 (dotNumT pins it) |
+| postfix dot | InvokeArg list shape | `.(op)` then a name | none -- measured identical (dot, star-dot, chain, leading dot) |
+| **call vs subscript vs juxtaposition** | InvokeArg + fLAG | **LOST in V2** | (a) Parens / Braced reach Token as LABELLED nodes (rules whose tag survives the promotion), and pass 1 reads "a group right after an operand is a call / subscript; elsewhere a group"; (b) keep a postfix rule bound to the name -- TokenXP's shape under another name, i.e. no real change; (c) pass 1 inspects the arriving node's provenance -- not measured, no handle found |
+| leading `( ... )` group | does not parse | parses (V2) | comes free with (a); a design question whether a leading group is wanted |
+
+**Ambiguous without a label:** call vs juxtaposition (`f (x)` vs `f x` -- juxtaposition is meaningful, e.g. `+% a b c`) and
+call vs subscript. **Spacing cannot disambiguate**, because today ignores it (measured).
+
+**5 -- The roads.** Old parse road: reaches TokenXP only as a grammar rule. New parse road: through generation (Token's body,
+the coverage and class targets), never by a hard-coded name. Jit: neither name read (a comment at jitEmitters.rtn:2180);
+the ladder did not move with TokenXP's actor gone. All three depend on the GRAMMAR, none on the NAMES.
+
+**6 -- Proposal (options set out; the call/subscript fact is a design ruling, Tony's):**
+- **S4a -- aCTionTokenXP deleted** (independent; tap 2 shows it inert): the extern, its groups.ext line, its DesignDocs
+  entries (aCTionTokenXP.*). Pre-registered: actorOrderT AO-1 33 -> 32, oneTest.base `AUDIT TERM TokenXP [4]
+  builtinActoR`, the arity row (-1) and designDocs md5 (standing rule). H7: the extern back -> AO-1 back to 33.
+- **S4b -- the grammar respell + pass 1 rewrite, ONE stroke** (V2 measured that the grammar alone breaks every call):
+  TokenXP's rule and Token's alternative go, InvokeArg's UnaryXP alternative goes (and UnaryXP's rule if nothing else names
+  it -- IterSource uses UnaryOPS, not UnaryXP), Token gains ANYorNum and the call / subscript carrier per the ruling;
+  pass 1 reads by position; `.5`'s refusal moves to pass 2; interpretXPaccum's header respelled (TODO).
+  Pre-registered: parserCoverage.target (TokenXP / UnaryXP COMPILES rows; 47 -> 45 + any new carrier rule), parseClass.target
+  PC rows, oneTest.base AUDIT TERM rows, Token's generated body (tokJitT; the two fixits' prose), testPrecedence's ratchet
+  (two-prefix rows may graduate -- prefixes arrive flat), dotNumT, and any row reading a leading group. H7: the old
+  Token / InvokeArg lines back with the new pass 1 -> every call and subscript row red by value.
+- **S4c -- documents:** bear-traps #52 (singular slots) and #48, the DesignDocs entries on TokenXP's shape
+  (fireCounter.tokenXPshapes, measure.TokenXParms ...), the targets' history.
+- **Order:** S4a first (inert, cheap), or folded into S4b. **Rulings owed:** (1) the call / subscript carrier -- option (a),
+  (b) or other; (2) whether a leading `( ... )` group becomes legal (it does under (a)); (3) S4a alone or with S4b.
+
 #### ⚠⚠⚠ THE OLD EXPRESSION ROAD IS RETIRED -- CLOSING (SEQ 357, Clod, 2026-10-14)
 
 **What retired:** the right-to-left `interpretXP` road (KANT-43's fold) and its switch. One road remains, the accumulator
