@@ -1662,10 +1662,9 @@ void setActions()
     or !isMethod {
         String  methodName = "aCTion" tag;
         void*   methodAddress;
-        // exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; =0 (the old road), nothing moves -- unset is on since the flip (SEQ 350)
-        // exprAccumOn  reads the switch's VALUE, never its presence -- presence turned INCANT_EXPR_ACCUM=0 on (SEQ 314 g)
+        // exprAccum  ExpressioN's actor is the accumulator's interpretXPaccum, always -- the old road retired, 2026-10-13 (SEQ 353)
         -%
-        if ( ::exprAccumOn() && !strcmp(groupBody->tag,"ExpressioN") ) {
+        if ( !strcmp(groupBody->tag,"ExpressioN") ) {
             free(methodName);
             methodName = strdup("interpretXPaccum"); }
         %-
