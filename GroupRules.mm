@@ -573,17 +573,6 @@ GroupItem 	*grup = dtext->groupBody->groupList->firstInList;
 }
 
 /*******************************************************************************
-	ExpressioN rule immediate action. Note: operators including unary operators
-    have to preceed their arguments.
-        ExpressioN      Token+ SemI?- defer;
-*******************************************************************************/
-extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList)
-{
-	// oneMode serves interpretation and the jit alike; the bytecode road's generateXP retired with it (deepClean S4, 2026-10-02)
-	return interpretXP(xpList);
-}
-
-/*******************************************************************************
 	Runs the action associated with a for statement
         Looper=ANYtoken;
         LoopRestrict:
@@ -1255,88 +1244,11 @@ int 		stoppedAt = 0;
 
 /*******************************************************************************
 	TokenXP returns a token or a token expression.
-
-    ⚠ THIS IS A SEAT WITH FOUR CALLOUTS, NOT A BODY. Since 2026-09-10 the arms live
-    in handleUnary, handleCall, handleSubscript and handleDot; what is left here is
-    the dispatch and the two control facts it reads back from an arm.
-        ruleActions.aCTionTokenXP.arms
 *******************************************************************************/
 extern "C" GroupItem *aCTionTokenXP(GroupItem *xpress)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-int 		unaryOwed = 0;
-GroupItem 	*swap = 0;
-GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
-GroupItem 	*InvokeArg = xpress->get("InvokeArg");
-GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 	// exprAccumGate  the label goes up untouched, always -- interpretXPaccum takes its raw pieces; the old road retired, 2026-10-13 (SEQ 353)
 	 return xpress; 
-	xpress->clear();
-	if ( isGROUP(ANYtoken->groupBody->flags.data) )
-		ANYtoken = ANYtoken->getGroup();
-	// leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
-	if ( UnaryOPS && !InvokeArg && ::refuseLeadingDotNumber(UnaryOPS,ANYtoken) )
-		{
-		xpress->setGroup(ANYtoken);
-		goto endToken;
-		}
-	if ( !InvokeArg )
-		{
-		// unaryOnlyArm  the ONE arm with no callout until 2026-09-16, which is why
-		// unaryOnlyArm  bear-trap 52 read "no arm" for a term that fires handleUnary
-		if ( UnaryOPS )
-			::measureTokenArm("unary-only",ANYtoken,0,UnaryOPS);
-		if ( !UnaryOPS )
-			if ( ANYtoken->groupBody->registry == ruler->groupFields )
-				{
-				::measureTokenArm("dot-LEADING",ANYtoken,0,UnaryOPS);
-				::handleDot(xpress,UnaryOPS,ANYtoken,0);
-				}
-			else {
-				::measureTokenArm("primary",ANYtoken,0,UnaryOPS);
-				xpress->setGroup(ANYtoken);
-				}
-		}
-	else {
-		if ( InvokeArg->groupBody->groupList )
-			{
-			::measureTokenArm("dot-COMPOSED",ANYtoken,InvokeArg,UnaryOPS);
-			swap = ::handleDot(xpress,UnaryOPS,ANYtoken,InvokeArg);
-			if ( swap )
-				ANYtoken = swap;
-			}
-		else
-		if ( InvokeArg->groupBody->flags.fLAG )
-			{
-			::measureTokenArm("subscript",ANYtoken,InvokeArg,UnaryOPS);
-			::handleSubscript(xpress,UnaryOPS,ANYtoken,InvokeArg);
-			}
-		else {
-			::measureTokenArm("call",ANYtoken,InvokeArg,UnaryOPS);
-			::handleCall(xpress,ANYtoken,InvokeArg);
-			}
-		if ( !swap )
-			xpress->groupBody->flags.invoke = 1;
-		}
-	/*  ⚠ A ROTATING ARM FINISHES THE TERM ITSELF AND SAYS SO BY SETTING THE METHOD.
-	That is the one control fact the loop needs from an arm, and reading it here
-	is what preserves the old `goto endToken` out of both rotations -- the star is
-	already spent on the dot's LEFT operand, so running the prefix arm again would
-	apply it twice.   ruleActions.aCTionTokenXP.arms  */
-	unaryOwed = 0;
-	if ( UnaryOPS )
-		unaryOwed = 1;
-	if ( xpress->groupBody->gMethod )
-		unaryOwed = 0;
-	if ( unaryOwed )
-		{
-		::handleUnary(xpress,UnaryOPS,ANYtoken);
-		goto endToken;
-		}
-	if ( xpress->groupBody->flags.invoke )
-		xpress->setMethod(::runOP);
-endToken:
-	return xpress;
 }
 
 /*******************************************************************************
@@ -2699,72 +2611,6 @@ char 	*name = input->getText();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*  foldDot -- MINT ONE xdot: a dot whose left operand the parser never handed it.
-    THE ONLY PLACE AN xdot IS BUILT. Extracted from interpretXP 2026-09-17 when the fold
-    grew a stack; before that it was inline and could only ever run once.
-    docs/dotChain.md carries the argument.  */
-extern "C" GroupItem *foldDot(GroupItem *dotUxp, GroupItem *left)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*op = 0;
-GroupItem 	*operand = 0;
-GroupItem 	*innerOp = 0;
-GroupItem 	*innerLeft = 0;
-GroupItem 	*innerRight = 0;
-GroupItem 	*lower = 0;
-GroupItem 	*upper = 0;
-GroupItem 	*folded = 0;
-	op = dotUxp->groupBody->groupList->firstInList;
-	operand = dotUxp->groupBody->groupList->lastInList;
-	/*  ⚠ THE ORPHAN'S OPERAND MAY ITSELF BE A WHOLE DOT, AND THAT IS THE CHAIN CASE.
-	`TokenXP UnaryOPS? ANYorNum^ InvokeArg?` takes ONE leading unary AND ONE postfix,
-	so dots arrive in PAIRS: `a.b.c.d` is TWO terms, `a.b` and `.c.d`, not four and
-	not three. Measured with measureTokenArm 2026-09-17 -- two dot-COMPOSED arms, the
-	second carrying unary `.`. So the orphan here is `.`(c.d) and wrapping it would
-	build `(a.b).(c.d)`, handing opDot a dot node as its right operand.
-	SPLICE INSTEAD: push `left` into the INNERMOST-LEFT position, giving ((a.b).c).d.
-	docs/dotChain.md carries the argument.  */
-	// groupListFirst  listLength dereferences groupList, which is NULL on a leaf -- the
-	// groupListFirst  raw field is what the runtime itself tests before walking
-	if ( operand )
-		if ( operand->groupBody->groupList )
-			if ( operand->groupBody->groupList->listLength == 3 )
-				{
-				innerOp = operand->groupBody->groupList->firstInList;
-				// nullGuards  every one of these reads exits 139 on a null, and the two-element
-				// nullGuards  chain reaches here with an operand that has no list at all
-				if ( !innerOp )
-					goto plainFold;
-				if ( innerOp->groupBody->registry == ruler->opFields )
-					if ( ::compare(innerOp->groupBody->tag,".") == 0 )
-						{
-						innerLeft = operand->get(2);
-						innerRight = operand->groupBody->groupList->lastInList;
-						lower = new GroupItem("xdot");
-						lower->addAttribute(op);
-						lower->addAttribute(left);
-						lower->addAttribute(innerLeft);
-						lower->setMethod(::runOP);
-						lower->groupBody->flags.invoke = 1;
-						upper = new GroupItem("xdot");
-						upper->addAttribute(innerOp);
-						upper->addAttribute(lower);
-						upper->addAttribute(innerRight);
-						upper->setMethod(::runOP);
-						upper->groupBody->flags.invoke = 1;
-						return upper;
-						}
-				}
-plainFold:
-	folded = new GroupItem("xdot");
-	folded->addAttribute(op);
-	folded->addAttribute(left);
-	folded->addAttribute(operand);
-	folded->setMethod(::runOP);
-	folded->groupBody->flags.invoke = 1;
-	return folded;
-}
-
 // followArgument argument is a BINDING, not a field: an isArgument operand holding a group yields what it holds
 extern "C" GroupItem *followArgument(GroupItem *operand)
 {
@@ -3057,84 +2903,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/*  handleDot -- the `.` arm, both shapes. With no InvokeArg it is the LEADING form
-    (`.taG`), which hangs the dot op with no right operand so opDot falls to lastREF.
-    With one it is the composed form, where InvokeArg arrived as a UnaryXP holding the
-    operator and the right-hand name.
-    ⚠ IT RETURNS A REPLACEMENT ANYtoken OR NULL, and that is the whole control
-    protocol: non-null means the caller must run the prefix arm over the node handed
-    back, null means the term is finished.   ruleActions.aCTionTokenXP.arms  */
-extern "C" GroupItem *handleDot(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg)
-{
-int 		dotName = 0;
-GroupItem 	*op = 0;
-GroupItem 	*arg = 0;
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	if ( !InvokeArg )
-		{
-		op = ruler->opFields->get(".");
-		xpress->addAttribute(op);
-		xpress->addAttribute(ANYtoken);
-		// w/no argument opDot will try to use lastREF
-		xpress->groupBody->flags.invoke = 1;
-		return 0;
-		}
-	op = InvokeArg->groupBody->groupList->firstInList;
-	arg = InvokeArg->groupBody->groupList->lastInList;
-	if ( isGROUP(op->groupBody->flags.data) )
-		op = op->getGroup();
-	if ( isGROUP(arg->groupBody->flags.data) )
-		arg = arg->getGroup();
-	/*  THE DOT'S RIGHT OPERAND IS A NAME, NEVER A VALUE. It arrives RESOLVED, and a
-	resolved node WITH DATA returns its DATA from .text (bear-trap 26) -- which is
-	why `DesignDocs.TokFiles` looked up the whole description paragraph and missed.
-	So hand opDot a fresh DATA-LESS node carrying the name as its tag: #26 working
-	deliberately instead of by accident.
-	⚠ ACCESSORS ARE EXEMPT AND THE EXEMPTION IS LOAD-BEARING -- a groupFields entry
-	is selected by REGISTRY MEMBERSHIP and re-minting would strip it, taking the
-	whole accessor family off its road.   ruleActions.handleDot.rightIsAName  */
-	dotName = 0;
-	if ( ::compare(op->groupBody->tag,".") == 0 )
-		dotName = 1;
-	 if ( arg && arg->groupBody->registry == ruler->groupFields ) dotName = 0; 
-	if ( dotName == 1 )
-		arg = new GroupItem(arg->groupBody->tag);
-	if ( unary )
-		{
-		/*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
-		is applied to the dot's LEFT operand and the dot re-applied to
-		the result -- not wrapped around the finished dot node.
-		ruleActions.aCTionTokenXP.starDotRotation  */
-		if ( ::unaryIsAccess(unary) )
-			if ( ::compare(op->groupBody->tag,".") == 0 )
-				{
-				GroupItem 	*starred = new GroupItem("uxp");
-				starred->addAttribute(ruler->opFields->get("deref"));
-				starred->addAttribute(ANYtoken);
-				starred->setMethod(::runOP);
-				starred->groupBody->flags.invoke = 1;
-				xpress->addAttribute(op);
-				xpress->addAttribute(starred);
-				xpress->addAttribute(arg);
-				xpress->groupBody->flags.invoke = 1;
-				xpress->setMethod(::runOP);
-				return 0;
-				}
-		// this happens with two unary ops like: !field.someThing
-		GroupItem *xp = new GroupItem("xp");
-		xp->addAttribute(op);
-		xp->addAttribute(ANYtoken);
-		xp->addAttribute(arg);
-		xp->setMethod(::runOP);
-		xp->groupBody->flags.invoke = 1;
-		return xp;
-		}
-	xpress->addAttribute(op);
-	xpress->addAttribute(ANYtoken);
-	xpress->addAttribute(arg);
-	return 0;
-}
-
 /*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
             `*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
 extern "C" GroupItem *handleSubscript(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg)
@@ -3168,29 +2936,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/*  handleUnary -- the PREFIX operators. Wraps ANYtoken in a `uxp` under the unary's
-    own op and hangs it as xpress's group. ⚠ A HAND, NOT A WITNESS: it changes the
-    tree, so it does NOT wear the measure prefix.   ruleActions.aCTionTokenXP.arms  */
-extern "C" GroupItem *handleUnary(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken)
-{
-GroupItem 	*op = 0;
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	// Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
-	// binary - slot (opMinus) completely isolated. Other unaries resolve
-	// their method straight from their own Operators entry.
-	if ( ::compare(unary->groupBody->tag,"-") == 0 )
-		unary = ruler->opFields->get("negate");
-	if ( ::compare(unary->groupBody->tag,"*") == 0 )
-		unary = ruler->opFields->get("deref");
-	op = new GroupItem("uxp");
-	op->addAttribute(unary);
-	op->addAttribute(ANYtoken);
-	op->setMethod(::runOP);
-	op->groupBody->flags.invoke = 1;
-	xpress->setGroup(op);
-	return xpress;
-}
-
 // hasRepeatClass 1 when any character of the modifier is in the repetition class
 extern "C" int hasRepeatClass(char *modifier)
 {
@@ -3203,129 +2948,6 @@ extern "C" int hasRepeatClass(char *modifier)
 	}
 	
 	return 0;
-}
-
-/*******************************************************************************
-    interpretXP — the interpret/run mode: build the left-associative runOP tree
-    the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
-    fallthrough below the generating/jitting branches.)
-*******************************************************************************/
-extern "C" GroupItem *interpretXP(GroupItem *xpList)
-{
-	/*  ⚠ canFold IS DECLARED BEFORE THE GroupItem LINE, NOT AFTER. Every bare field in the
-	loop below resolves against the MOST RECENTLY DECLARED name (bear-trap #42), and
-	`token` is the one they mean.  */
-int canFold = 0;
-GroupItem *op = 0;
-GroupItem *target = 0;
-GroupItem *arg = 0;
-GroupItem *xl = 0;
-GroupItem *token = 0;
-	if ( xpList->groupBody->groupList->listLength == 1 )
-		{
-		arg = xpList->groupBody->groupList->firstInList;
-		
-		
-		goto finishXP;
-		}
-	while ( token = xpList->prior(token) )
-		{
-		if ( token->groupBody->registry == GroupControl::groupController->groupRules->opFields )
-			op = token;
-		else {
-			if ( !arg )
-				arg = token;
-			else
-			if ( op )
-				{
-				target = token;
-				if ( xl )
-					xl = 0;
-				}
-			else {
-				/*  ⚠ THE ACCUMULATOR IS THE RIGHT-HAND SIDE HERE, NOT THE LEFT, AND
-				NOTHING ELSE IN THIS FUNCTION SAYS SO. The loop walks
-				`xpList.prior` -- BACKWARD -- so the term already in `arg` sits
-				further RIGHT in the source and the `token` arriving now is its
-				LEFT. `a.b.c` dumps as [uxp, Token] for exactly that reason.
-				Read that before changing anything below it.
-				ruleActions.interpretXP.dotFold  */
-				canFold = 0;
-				if ( isDotUxp(arg) )
-					canFold = 1;
-				// threeTermChainNotFolded  FIVE names is the first chain that produces THREE
-				// threeTermChainNotFolded  terms, and folding one pair of them leaves the
-				// threeTermChainNotFolded  other orphaned -- which TRUNCATES the run at exit 0.
-				// threeTermChainNotFolded  Refuse to fold and it answers `xl1` as it always
-				// threeTermChainNotFolded  has: wrong, but VISIBLE. fixIts F-80.
-				if ( isDotUxp(token) )
-					canFold = 0;
-				if ( canFold )
-					{
-					/*  THE CHAIN FOLD. An orphaned `.c` juxtaposed against a term on its
-					left is not a juxtaposition at all -- it is a dot whose left
-					operand the parser never handed it. Hand it one. Left associative
-					BY CONSTRUCTION: the left is whatever arrived.
-					⚠ A CHAIN LONGER THAN TWO NEEDS A STACK, because the walk is
-					BACKWARD: `a.b.c.d` arrives as .d, then .c, then the primary, so
-					the dots are met in the OPPOSITE order to the one they apply in.
-					A dot met while another is still pending CANNOT fold yet -- its
-					left operand has not arrived -- so it is stacked, and the stack
-					unwinds LIFO onto the primary the moment a non-dot term shows up.
-					ruleActions.interpretXP.dotFold  */
-					arg = ::foldDot(arg,token);
-					if ( xl )
-						xl = 0;
-					}
-				else {
-					if ( !xl )
-						{
-						xl = new GroupItem("xl1");
-						xl->groupBody->flags.binType = 3;
-						}
-					if ( arg != xl )
-						xl->addMember(arg);
-					// sourceOrder  the walk is backward, so each term to the left goes to the FRONT (c4)
-					xl->addMember(token);
-					::listLastToFront(xl);
-					arg = xl;
-					}
-				}
-			}
-		if ( op )
-			if ( arg )
-				{
-				if ( arg->groupBody->flags.actionType || arg->groupBody->flags.instructType )
-					arg->groupBody->flags.invoke = 1;
-				if ( target )
-					{
-					// dotUnaryRight  `a.*b` -- ASK HERE OR NOWHERE; opDot's lastREF fixup has
-					// dotUnaryRight  already destroyed both operands by the time it could ask.
-					// dotUnaryRight  INSIDE the target guard: the backward walk reaches the arg
-					// dotUnaryRight  block once with op set and again with target set, so a seat
-					// dotUnaryRight  above this line fires TWICE on one expression
-					refuseDotUnaryRight(op,arg);
-					xl = new GroupItem("xl2");
-					xl->addMember(op);
-					xl->addMember(target);
-					xl->addMember(arg);
-					// TIER-3 BINDING, AND THE SET IS A REGISTRATION -- `shortCircuit` on the
-					// operator in incant/setup, never a list of spellings here
-					// tier3Binding
-					if ( ::opIsShortCircuit(op) )
-						xl->setMethod(::runShortCircuit);
-					else	xl->setMethod(::runOP);
-					xl->groupBody->flags.invoke = 1;
-					op = 0;
-					target = 0;
-					arg = xl;
-					}
-				}
-		}
-finishXP:
-	xpList->clear();
-	xpList->setGroup(arg);
-	return xpList;
 }
 
 /*  interpretXPaccum -- THE ACCUMULATOR CANDIDATE'S interpretXP (SEQ 311, try-and-buy on
@@ -3653,34 +3275,6 @@ extern "C" int isCallable(GroupItem *target)
 	if ( isMethod(target->groupBody->flags.instructType) )
 		return 1;
 	return 0;
-}
-
-/*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
-
-    IDENTIFY IT BY ITS OP AND BY NOTHING ELSE. By the time interpretXP sees the
-    term, handleUnary has already wrapped it -- the raw `UnaryOPS ANYorNum` shape
-    is gone, so a shape test would be testing the wrapper. This asks the one
-    durable question: is the first attribute the Operators entry `.`?
-    ⚠ THE REGISTRY TEST IS NOT DECORATION. A bare tag compare would start
-    answering yes the day anything else mints a node tagged `.`; membership of
-    opFields is what makes it THE OPERATOR rather than a name that looks like
-    one.   ruleActions.interpretXP.dotFold  */
-extern "C" int isDotUxp(GroupItem *node)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*op = 0;
-	if ( !node )
-		return 0;
-	if ( ::compare(node->groupBody->tag,"uxp") != 0 )
-		return 0;
-	op = node->groupBody->groupList->firstInList;
-	if ( !op )
-		return 0;
-	if ( op->groupBody->registry != ruler->opFields )
-		return 0;
-	if ( ::compare(op->groupBody->tag,".") != 0 )
-		return 0;
-	return 1;
 }
 
 extern "C" GroupItem *jitAccessorNodeRT(GroupItem *source, GroupItem *product)
@@ -5441,23 +5035,6 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	gJitEmitted = true;
 	return 1; }
 	
-}
-
-/*******************************************************************************
-    jitEmitShortCircuit -- TIER 3 UNDER THE JIT. 2026-08-11, docs/andOrRung.md
-    §3 part 2, ruling SEQ 32.
-
-    ⚠ THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". For an AND/OR
-    inside a multi-fire jitted action the fallback is NOT safe -- an emit-time
-    fold returns fire 1's answer forever. Rungs assert the VALUES on both
-    fires; they must not accept the counter as the proof.
-
-    // crashTradedForSilence  what promoting AND/OR fixed, and the silent wrong answer it introduced at degrade count 0
-    // unboxedCannotSee  which of truthOf's four rows an unboxed i32 can represent, and why the other three are refused rather than guessed
-*******************************************************************************/
-extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field)
-{
-	return jitEmitShortCircuitSlots(field->get(1),field->get(2),field->get(3),field);
 }
 
 // jitEmitShortCircuitSlots the emit on the connective's SLOTS -- the tree shape is [op, left, right] and the candidate's is [left, op, right], so each unpacks into this, as runOP does into runOPslots (SEQ 335 J4a); `field` is the node the result rides on
@@ -7325,29 +6902,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/*  listLastToFront -- move a list's LAST item to its FRONT, by relinking: no copy, no change to
-    listLength or to the item's parent. interpretXP walks BACKWARD, so a juxtaposed term arrives
-    right to left; appending it with `+=` (which keeps addGroup's work) and then bringing it to the
-    front leaves xl1 in SOURCE order (c4, SEQ 322).  */
-extern "C" GroupItem *listLastToFront(GroupItem *list)
-{
-GroupItem 	*last = 0;
-GroupItem 	*first = 0;
-	last = list->groupBody->groupList->lastInList;
-	first = list->groupBody->groupList->firstInList;
-	if ( !last )
-		return list;
-	if ( last == first )
-		return list;
-	list->groupBody->groupList->lastInList = last->priorInParent;
-	list->groupBody->groupList->lastInList->nextInParent = 0;
-	last->priorInParent = 0;
-	last->nextInParent = first;
-	first->priorInParent = last;
-	list->groupBody->groupList->firstInList = last;
-	return list;
-}
-
 /*******************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a group, the notifier, that will be listened to by listenTo's parent, the
@@ -8352,7 +7906,7 @@ extern "C" int opIsOR(GroupItem *op)
     runShortCircuit chose the skip direction by tag. `||` could be seen by neither, on
     the very same operateMethod as `OR`, and fixing only the first made `true || false`
     read FALSE because the second then sent it past both skips.
-    ⚠ HANDS, NOT WITNESSES -- no measure prefix.   ruleActions.interpretXP.tier3Binding  */
+    ⚠ HANDS, NOT WITNESSES -- no measure prefix.  */
 extern "C" int opIsShortCircuit(GroupItem *op)
 {
 	if ( !op )
@@ -10069,52 +9623,11 @@ extern "C" int refuseDotUnaryOp(GroupItem *op, GroupItem *aop)
 	/*  escalated  refuse() PROPER, NOT A cerr, ON TONY'S RULING OF 2026-09-17. It rides
 	escalated  WITH the refusalBoundary report above, because the two are one stroke
 	escalated  seen from both ends: this raises ruler.refused, and the boundary is
-	escalated  what turns that flag into a named removal instead of a silent one.
-	ruleActions.interpretXP.dotUnaryRight  */
+	escalated  what turns that flag into a named removal instead of a silent one.  */
 char *why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is never seen by opDot -- move it inside a subscript: a[*b], not a.*b");
 	::refuse(op,why);
 	::free(why);
 	return 1;
-}
-
-/*  refuseDotUnaryRight -- `a.*b`. THE STAR IS ONLY VISIBLE HERE, AND THE REFUSAL THE
-    2026-09-16 ruling asked for COULD NOT GO WHERE IT WAS SITED.
-
-    A unary on the right of a dot never reaches opDot as a unary. Measured 2026-09-17:
-    `a.*b` parses as TWO terms, `a` (bare primary, no InvokeArg) and `*b` (unary-only) --
-    no dot-COMPOSED arm at all -- and opDot then arrives with a NULL right operand,
-    because the 09-05 star ruling makes `*b` on a non-group field yield null.
-    ⚠ THAT NULL IS INDISTINGUISHABLE FROM A LEADING DOT, so opDot's lastREF fixup fires,
-    rewrites BOTH operands, and the expression silently becomes `.a`. DOTOPERANDS reads
-    left=right=a, which is what F-72 recorded and mis-read as "no dot forms".
-    ⚠ ONE CHANNEL, TWO MEANINGS: `!argument` in opDot means BOTH "no right operand was
-    written" (a parse fact) and "the right operand evaluated to null" (a value fact). By
-    the time opDot can ask, the evidence is gone -- so the question is asked HERE, where
-    the uxp still carries its operator.
-    A dot-uxp is NOT this: that is the chain, and the fold above has already taken it.
-    ruleActions.interpretXP.dotUnaryRight  */
-extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*aop = 0;
-	if ( !op )
-		return 0;
-	if ( op->groupBody->registry != ruler->opFields )
-		return 0;
-	if ( ::compare(op->groupBody->tag,".") != 0 )
-		return 0;
-	if ( !arg )
-		return 0;
-	if ( ::compare(arg->groupBody->tag,"uxp") != 0 )
-		return 0;
-	aop = arg->groupBody->groupList->firstInList;
-	if ( !aop )
-		return 0;
-	if ( aop->groupBody->registry != ruler->opFields )
-		return 0;
-	if ( ::compare(aop->groupBody->tag,".") == 0 )
-		return 0;
-	return refuseDotUnaryOp(op,aop);
 }
 
 /*  refuseLeadingDotNumber -- A NUMBER NEEDS A LEADING DIGIT (Tony, ruled 2026-09-24, F-117 option (a)). `.5` is
@@ -10838,34 +10351,6 @@ GroupItem 	*result = ::driveStep(field,rule,0,0);
 	if ( rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult )
 		return ruler->trueResult;
 	return result;
-}
-
-// runShortCircuit TIER 3: AND/OR/|| skip the right arm, which runOP would already have fired -- a sibling of runOP, bound at tree build by interpretXP
-extern "C" GroupItem *runShortCircuit(GroupItem *field)
-{
-GroupItem 	*op = field->get(1);
-GroupItem 	*target = field->get(2);
-GroupItem 	*arg = field->get(3);
-int 		leftIsTrue = 0;
-	// phaseGate emit time never enters a run-time handler for its value -- and the floor is a REFUSAL, never a fall-through
-	if ( GroupControl::groupController->groupRules->jitting )
-		{
-		 return jitEmitShortCircuit(field); 
-		}
-	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
-		target = target->groupBody->gMethod(target);
-	leftIsTrue = ::truthOf(target);
-	// theSkip the right arm is never touched on these two paths -- only COUNTING proves it, a value assertion cannot
-	// skipByRegistration the skip direction is a REGISTRATION (opIsOR), never a spelling -- `||` matched neither tag test
-	if ( !::opIsOR(op) && !leftIsTrue )
-		return GroupControl::groupController->groupRules->falseResult;
-	if ( ::opIsOR(op) && leftIsTrue )
-		return GroupControl::groupController->groupRules->trueResult;
-	if ( arg && isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
-		arg = arg->groupBody->gMethod(arg);
-	if ( ::truthOf(arg) )
-		return GroupControl::groupController->groupRules->trueResult;
-	return GroupControl::groupController->groupRules->falseResult;
 }
 
 // saveLocalFields save an action's argument and locals before a nested call, so each activation starts from its own state
@@ -11746,29 +11231,17 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	accBare(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
-	isDotUxp(GroupItem*)
 	clearRefusal(GroupItem*)
 	clearRefusal(GroupItem*)
-	refuseDotUnaryOp(GroupItem*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusEQWrite(GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusEQWrite(GroupItem*)
-	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusEQWrite(GroupItem*)
-	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusEQWrite(GroupItem*)
-	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusEQWrite(GroupItem*)
-	plusEQshapeRefusal(char*,GroupItem*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusEQWrite(GroupItem*)
-	measurePlusEQWrite(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,int)
 	floor(double)
 */

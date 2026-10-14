@@ -1013,25 +1013,6 @@ define
                 label and runRule maps it back to one bit (ruling c'). Its old children --
                 gateOnlyNeverGenerate, unwrapTheHolder, noSilentFallthrough, noDataMeansLabel
                 -- are under driveStep, where their code is.#);
-            runShortCircuit=(TIER 3, the evaluation-controlling arm (docs/andOrRung.md sections
-                1a and 6; ruling SEQ 32).#):
-                notAHandler=(runOP resolves BOTH operands before it dispatches, so an AND
-                    entered from there has already fired the right arm, side effects included.
-                    It is reachable here because an unresolved operand is still an UNFIRED
-                    METHOD. A SIBLING OF runOP, NOT A BRANCH IN IT (Tony, 2026-08-11): a binary
-                    has no node until interpretXP builds the tree, so the category is decided
-                    there once per expression, and runOP stays the strict dispatcher and nothing
-                    else. The operand contract is truthOf's alone, so the engines cannot drift.
-                    THE TIER-3 SET IS CLOSED -- if, AND/OR, iteration -- and widening it is a
-                    ruling, named at its binding site in interpretXP.#);
-                phaseGate=(Emit time never enters a run-time handler for its value, and the floor
-                    is a REFUSAL: promoting AND/OR once replaced a 139 with a silent wrong answer
-                    at degrade count 0 (jitXand2, jitXor). Refusing restores the loudness,
-                    because every rung asserts degrade zero.#);
-                skipByRegistration=(The skip direction is read off the registration, opIsOR,
-                    never the tag. Until 2026-09-10 the lines tested the tags AND and OR, so
-                    `||` -- same operateMethod as OR -- matched neither, and `true || false`
-                    read FALSE.#);
             saveLocalFields=(saves an action's argument and locals before a nested call,
                 so each activation starts from its own state. REWRITTEN 2026-09-06.#):
                 identityPair=(THE FIELD TRAVELS WITH ITS BODY. Before this, save pushed a body
@@ -2682,7 +2663,7 @@ define
                 Trading a crash for the dangerous-one is not progress, and this function is what
                 makes the promotion honest. 2026-08-11, docs/andOrRung.md §3 part 2, ruling
                 SEQ 32.#):
-                CodeSite="jitEmitters.rtn:jitEmitShortCircuit";
+                CodeSite="jitEmitters.rtn:jitEmitShortCircuitSlots";
             unboxedCannotSee=(WHAT jitEmitShortCircuit CAN AND CANNOT SEE, stated precisely
                 because the agreement claim depends on it.
 
@@ -2702,7 +2683,7 @@ define
                 multi-fire jitted action it is NOT -- an emit-time fold returns fire 1's answer
                 forever. Rungs assert the VALUES on both fires; they must not accept the counter
                 as the proof.#):
-                CodeSite="jitEmitters.rtn:jitEmitShortCircuit";
+                CodeSite="jitEmitters.rtn:jitEmitShortCircuitSlots";
             constancySplit=(jitPrintList -- A MULTI-PART PRINT OPERAND, CLASSIFIED BY CONSTANCY.
                 Tony's ruling via Clay, 2026-08-05, and the ruling is what makes the hard half
                 evaporate.
@@ -5029,101 +5010,6 @@ define
                     THE GUARD IS ON CONTENT, NEVER ON THE TAG: it asks for a groupList or
                     for data. A tag test would be bear-trap 26's family, since a data-less
                     node reads back its own name and would answer yes to everything.#);
-            interpretXP=(the interpret/run mode of the expression walk.#):
-                dotUnaryRight=(F-72 -- `a.*b`, and WHY THE REFUSAL COULD NOT GO WHERE
-                    THE RULING SITED IT. Ruled 2026-09-16 as a refusal in opDot
-                    "before the switch(gCount)"; diagnosed 2026-09-17 and sited here
-                    instead. The diagnosis is the whole entry.
-
-                    WHAT `a.*b` ACTUALLY PARSES AS. Two terms, not one: `a` as a bare
-                    primary with NO InvokeArg, and `*b` as a unary-only term. Measured
-                    with measureTokenArm against `a.b` in the same run -- `a.b` fires
-                    ONE dot-COMPOSED arm carrying its InvokeArg, `a.*b` fires a primary
-                    and a unary-only and no dot arm at all. The `.` is on neither term.
-
-                    ⚠ THE 09-16 RECORD SAID "a.*b NEVER FORMS A DOT AT ALL" AND THAT IS
-                    WRONG. opDot FIRES. The `.` is an Operators entry, so at expression
-                    level it is an ordinary binary op and interpretXP builds the xl2 for
-                    it. What opDot never sees is the STAR.
-
-                    WHY IT NEVER SEES IT. `*b` on a field holding no group yields NULL
-                    by Tony's star ruling of 2026-09-05 (Instruct.opDeref.starRuling).
-                    So opDot arrives with argument == null.
-
-                    ⚠⚠ AND THAT NULL IS ONE CHANNEL CARRYING TWO MEANINGS, which is this
-                    project's named family and is the actual defect. opDot's head reads
-                    `if !argument` and takes it to mean "no right operand was WRITTEN" --
-                    a PARSE fact -- and fires the lastREF fixup, which assigns
-                    argument = target and target = lastREF.group. But it also means "a
-                    right operand WAS written and EVALUATED to null" -- a VALUE fact.
-                    One test, two eras. The fixup rewrites BOTH operands, which is why
-                    DOTOPERANDS reads left = right = a, and it is why no refusal can be
-                    sited in opDot: by the time opDot can ask the question, it has
-                    already destroyed the evidence.
-
-                    SO THE QUESTION IS ASKED IN interpretXP, where the right operand is
-                    still the uxp handleUnary minted and still carries its operator as
-                    its first attribute. refuseDotUnaryRight asks exactly that, and it
-                    asks it the way isDotUxp does -- opFields MEMBERSHIP plus a tag
-                    compare, never a bare tag compare, so nothing that merely mints a
-                    node tagged `.` can answer yes. A dot-uxp is explicitly NOT this
-                    case: that is the chain, and the fold above has already taken it.
-
-                    ⚠ THE SEAT IS INSIDE THE `if target` GUARD AND THAT IS LOAD-BEARING.
-                    The walk is BACKWARD, so the arg block is reached once with `op` set
-                    and again with `target` set. A seat above the target guard fires
-                    TWICE on one expression. That was the first cut, it was measured,
-                    and pop.sh pins the count at 1 for exactly that reason -- a presence
-                    check cannot see the drift, and the control proves it: moving the
-                    seat back up leaves the MESSAGE row green and reddens only the COUNT.
-
-                    ⚠ ESCALATED 2026-09-17 ON TONY'S RULING -- IT IS refuse() PROPER
-                    NOW, and it rides with refusalBoundary gaining a voice, because the
-                    two are one stroke seen from both ends: this raises ruler.refused and
-                    the boundary is what turns that flag into a NAMED removal.
-                    ⚠ AND THE MEASUREMENT FOUND THE RULING'S CERTIFICATE UNCASHABLE, which
-                    is the part to keep. At RUN time the escalation behaves exactly as
-                    intended: the refusal ends the action, aCTionBlocK breaks, DC-9 prints
-                    no value. At DEFINE time it does NOT reach the boundary at all -- it
-                    truncates the file at exit 0 with no sentinel, because the boundary is
-                    what CLEARS the flag and the expression path never gets there. The
-                    positive control is argRetiredT, whose refusal comes from a RULE ACTION,
-                    reaches the boundary, is reported, is cleared, and lets the parse finish.
-                    Banked as fixIts F-76; surfaced by this escalation, not caused by it.
-
-                    ⚠ AND THE MESSAGE NAMES THE OPERATOR BY ITS REGISTRY TAG, `deref`,
-                    RATHER THAN RECONSTRUCTING THE SOURCE SPELLING. The unary star
-                    registers as `deref` (incant/setup:115), so the first cut of the line
-                    echoed the tag into the cure and printed `a[derefb]`. The cure is
-                    spelled as a SHAPE with the star as the worked example.#);
-                tier3Binding=(TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
-                    2026-08-11, docs/andOrRung.md section 6; seat ruled
-                    by Tony the same day.
-
-                    Section 6 splits the operator table three ways, and
-                    the third tier -- "evaluation-controlling
-                    constructs, NOT operators at all" -- cannot go
-                    through runOP, which resolves both operands before
-                    it dispatches. Binding a DIFFERENT method here is
-                    the whole promotion: the node is built identically
-                    ([1]=op [2]=target [3]=arg), and only who walks it
-                    changes.
-
-                    ⚠ DECIDED AT TREE BUILD, ON PURPOSE. The category
-                    of an operator is a parse-time fact, so it is paid
-                    once per expression rather than re-tested on every
-                    evaluation -- and runOP stays what section 6 calls
-                    it, the strict dispatcher and nothing else.
-
-                    ⚠ THE SET IS CLOSED: `if`, AND/OR, iteration, then
-                    the door closes. The SYMBOL forms are deliberately
-                    NOT here -- `&&` is not even registered (setup:162
-                    has bare `'&'`, no operateMethod, the same state
-                    `'|'` was in before 2026-08-01) and `||` is strict.
-                    That asymmetry -- `OR` short-circuits, `||` does
-                    not, on one shared handler -- is FILED AND UNRULED,
-                    not overlooked. Widening tier 3 to the symbols is a
-                    ruling, and it costs an edit to this line.#);
             trailingContinueGuard=(THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's
                 word, modelled on aCTionWhilE's fix b88f33d. The sentinel must not
                 survive the loop that consumed it: if a `continue` is the LAST
