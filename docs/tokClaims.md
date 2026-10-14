@@ -138,6 +138,28 @@ a claim about what is in the tree needed checking.
 
 ---
 
+### CLAIM TOK-6 — the "referenced but not declared" listing moves without its call sites (a symptom, not chased)
+```
+statement:   tok's trailing comment "Warning: the following methods were referenced but not
+             declared" in GroupRules.mm went 34 -> 22 entries when SEQ 355 deleted eleven
+             functions. Nothing was added. Two of the twelve were references FROM the deleted
+             code (isDotUxp, refuseDotUnaryOp). The other ten -- measurePlusEQWrite x6,
+             plusEQshapeRefusal x4 -- vanished while all twelve of their call sites
+             (GroupRules.mm, the += arms) stayed byte-identical.
+confidence:  MEASURED (symptom); cause NOT isolated
+provenance:  the bare tokall of expr-delete 333eda6 against trunk 99062c4, compared as a
+             multiset. Two variables ruled out, one at a time: the old groups.ext with the
+             new sources still gives 22; the old measure.h with the new sources still
+             gives 22.
+asOf:        2026-10-14 (SEQ 355; recorded by SEQ 356 R4)
+scope:       A diagnostic COMMENT only -- every function body outside the deleted eleven
+             compared byte-identical, and the build is unchanged. Recorded, not chased (SEQ
+             356 R4): settling it is tok work, and nothing reads the listing. So the listing
+             is NOT an instrument: do not diff it as evidence of a code change.
+```
+
+---
+
 ## Format verdict — B0's acceptance test
 
 **The format did not have to be bent.** Five real claims, five records, no field left

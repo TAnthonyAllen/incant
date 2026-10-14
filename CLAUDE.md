@@ -3077,6 +3077,13 @@ direction the campaign might take, it is a state the machinery must report as a 
 > when a discrepancy IS found, the witness is named before the correction is written — here rung
 > **JD** green on all five rows, which would have gone red had the extern actually vanished.
 
+> ⚠⚠ **A DELETION STROKE PRE-REGISTERS TWO BOOKKEEPING MOVERS (Tony, standing, SEQ 356 R1, 2026-10-14).** A stroke
+> that deletes externs or DesignDocs entries registers, before its fleet run, pop.sh's **groups.ext mirror-arity row**
+> ("0 drift over N comparable names" -- N drops by the deleted extern lines) and **ddPop's designDocs md5** as expected
+> movers. Both are counts or checksums of the edited files, not behaviour. Paid for in SEQ 355: unregistered, they read
+> as movers under "any mover stops the stroke" and needed a ruling at the buy. (The fixture-name count, clone vs live,
+> stays H3 noise.)
+
 > **RULE H13 — AN IDENTITY ROW NAMES ITS QUESTION BEFORE IT NAMES ITS COLUMN.** Clay, ruled
 > 2026-09-04 out of C-154. `addrOf` prints a **field** number and a **body** number; they answer
 > **different questions**, and a row pinned on the wrong one **goes green while asserting

@@ -625,6 +625,16 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠ STROKE 2 BOUGHT -- expr-delete MERGED (Groups aa09bde, support ea4f831). THE OLD BUILDER IS GONE (SEQ 356, Clod, 2026-10-14)
+
+**R0:** bought, both repos. **R1:** the three bookkeeping movers accepted (arity 266 -> 261, the designDocs md5, the
+fixture-name count); standing in CLAUDE.md -- a deletion stroke pre-registers the arity row and the designDocs md5.
+**The buy:** both merges; bare tokall of every top-level `.twk` -- tree unchanged, generated files equal the branch's,
+canary 343; ~/bin/incant rebuilt Oct 14 10:32, no "will never be executed". **Row for row with the clone's k355:** pop.sh
+1285 (the one mover the fixture-name count, R1) · jitLadder PASSED, 0 movers · printPop, ddPop = clone · decodePop PASSED
+(binary line refreshed) · frontier = capture · dirCheck 53 / 57 = capture, tree bare. expr-delete deleted (clone, live,
+GitHub, both repos). R4: the not-declared listing's 34 -> 22 is docs/tokClaims.md CLAIM TOK-6, a symptom, not chased.
+
 #### ⚠⚠ STROKE 2: THE OLD BUILDER DELETED -- BUILT ON expr-delete (Groups 333eda6, support 4b261f4), NOT MERGED (SEQ 355, Clod, 2026-10-14)
 
 **R0 -- what `down` receives on `incant/unitTests:91`.** A probe defined the line verbatim twice (bar the name), once
