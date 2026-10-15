@@ -5908,8 +5908,10 @@ aoCount () { awk '
 /^AOACTOR /{act[$2]=1; next}
 /^AOCHILD /{if($2=="builtinActoR") bad[r]=1}
 END{na=0;nb=0;names="";for(k in act)na++; for(k in bad){nb++; names=names " " k}; print na "/" nb names}' "$T/ao.e"; }
+#  RE-PINNED 2026-10-15 33 -> 32 (SEQ 361 R0, S4a, sentence): aCTionTokenXP deleted (measured inert, SEQ 358 tap 2), so
+#  TokenXP's actor is no longer found by lookup -- the one rule that left the count.
 AO=$(aoCount)
-kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "33"
+kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "32"
 AOB=${AO#*/}
 kindRow "actorOrderT AO-2 rules with a builtinActoR AMONG their children (names follow if any)" "$AOB" "0"
 

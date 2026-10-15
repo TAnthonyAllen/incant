@@ -133,7 +133,6 @@ extern "C" GroupItem *aCTionShortcuT(GroupItem *group);
 extern "C" GroupItem *aCTionStatemenT(GroupItem *input);
 extern "C" GroupItem *aCTionStringXP(GroupItem *input);
 extern "C" GroupItem *aCTionTell(GroupItem *input);
-extern "C" GroupItem *aCTionTokenXP(GroupItem *xpress);
 extern "C" GroupItem *aCTionTraiT(GroupItem *input);
 extern "C" GroupItem *aCTionTraiTdata(GroupItem *input);
 extern "C" GroupItem *aCTionWhilE(GroupItem *input);

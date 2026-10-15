@@ -1243,15 +1243,6 @@ int 		stoppedAt = 0;
 }
 
 /*******************************************************************************
-	TokenXP returns a token or a token expression.
-*******************************************************************************/
-extern "C" GroupItem *aCTionTokenXP(GroupItem *xpress)
-{
-	// exprAccumGate  the label goes up untouched, always -- interpretXPaccum takes its raw pieces; the old road retired, 2026-10-13 (SEQ 353)
-	 return xpress; 
-}
-
-/*******************************************************************************
 	Immediate method for the TraiT rule that defines an attribute. It can be
         TraiTdata="="       DatA Modifier?;
         TraiT               NamE@ Modifier? TraiTdata? TraiTlist?;
