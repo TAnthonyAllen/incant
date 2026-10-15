@@ -1,0 +1,61 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(VtLadder);
+define
+    vtA=10;
+    vtB=4;
+    vtN=2.5;
+    vtC;
+    vt1 code={ vtA = 10; -vtA += 3; };
+    vt2 code={ vtA = 10; -vtA = 3; };
+    vt3 code={ vtA = 10; -vtA -= 3; };
+    vt4 code={ vtA = 10; -vtA *= 2; };
+    vt5 code={ vtA = 10; -vtA /= 2; };
+    vt6 code={ vtA = 10; ++-vtA; };
+    vt7 code={ vtA = 10; ---vtA; };
+    vt8 code={ vtA = 10; vtB = 4; vtA + vtB += 1; };
+    vk1 code={ vtA = 10; vtA += 3; };
+    vk2 code={ vtA = 10; vtA = -vtA; };
+    vk3 code={ vtA = 10; vtA.datA = 1; };
+    vk4 code={ vtLocal = 1; cerr "VK-4 a noPrint action local assigned x = 1 -> " vtLocal:; };
+    r2a code={ vtA = 7; vtA *= -1; };
+    r2b code={ vtA = 7; vtA = -vtA; };
+    r2c code={ vtN = 2.5; vtN *= -1; };
+    r2d code={ vtN = 2.5; vtN = -vtN; };
+    vp1 code={ vtA = 3; vtB = 4; vtC = -vtA + -vtB; };
+    ;
+search VtLadder UnitTests Utilities list;
+vt1(); cerr "VT-1 -a += 3 -> a " vtA:;
+vt2(); cerr "VT-2 -a = 3 -> a " vtA:;
+vt3(); cerr "VT-3 -a -= 3 -> a " vtA:;
+vt4(); cerr "VT-4 -a *= 2 -> a " vtA:;
+vt5(); cerr "VT-5 -a /= 2 -> a " vtA:;
+vt6(); cerr "VT-6 ++-a -> a " vtA:;
+vt7(); cerr "VT-7 ---a -> a " vtA:;
+vt8(); cerr "VT-8 a + b += 1 -> a " vtA " b " vtB:;
+vk1(); cerr "VK-1 a += 3 -> a " vtA:;
+vk2(); cerr "VK-2 a = -a -> a " vtA:;
+vk3(); cerr "VK-3 a.datA = 1 -> a " vtA " kind " vtA.datA:;
+vk4();
+r2a(); cerr "R2-1 count a *= -1 -> " vtA " kind " vtA.datA:;
+r2b(); cerr "R2-2 count a = -a -> " vtA " kind " vtA.datA:;
+r2c(); cerr "R2-3 number a *= -1 -> " vtN " kind " vtN.datA:;
+r2d(); cerr "R2-4 number a = -a -> " vtN " kind " vtN.datA:;
+vp1(); cerr "VP-1 c = -a + -b, a 3 b 4 -> " vtC:;
+cerr "VALUETARGET SENTINEL":;
+stop();
+
+valueTargetT -- SEQ 360 R1 / R2 (Tony, 2026-10-15): AN ASSIGNMENT ONTO A COMPUTED VALUE REFUSES.
+
+An assigning operator (=, +=, -=, *=, /=, ++, --) whose target IS ruler.tempField -- identity, not noPrint, not the
+name -- refuses by name: "the left of <op> is a value, not a field". -a and a + b hand back tempField, so before the
+cure each of VT-1 .. VT-8 wrote tempField silently: a stayed 10 and nothing said so. Each case is its own action,
+because a refusal abandons the rest of its block; the value is read at top level after the call.
+  VT-1 .. VT-8   a (and b) unchanged, one REFUSED line per case naming its operator
+  VK-1 .. VK-4   controls: a real field, a field negated into itself, an accessor write, an action local -- none
+                 refuses (the fixture's total REFUSED count is exactly the VT cases)
+  R2-1 .. R2-4   pins: a *= -1 and a = -a on a count (7 -> -7, kind 5) and a number (2.5 -> -2.5, kind 9)
+  VP-1           probe, report only: c = -a + -b with a 3, b 4 (shared tempField; Clay's guess -7)
+The jit road is incant/pop/jit/jitValueTargetT.

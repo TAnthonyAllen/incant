@@ -5982,6 +5982,49 @@ kindRow "flagRetiredT FR-1 the refusal names :. fLAG" "$(grep -c '^REFUSED frX -
 kindRow "flagRetiredT FR-0 the refused statement's block was abandoned" "$(grep -c '^FR-0' "$T/frt")" "0"
 kindRow "flagRetiredT FR-2 an unflagged count increments" "$(grep '^FR-2' "$T/frt" | awk '{print $NF}')" "6"
 
+#  ⚑ valueTargetT -- SEQ 360 R1 (Tony, 2026-10-15): an assigning operator (= += -= *= /= ++ --) whose target IS
+#  ruler.tempField refuses by name, "the left of <op> is a value, not a field" -- -a and a + b hand back tempField, and
+#  before the cure every VT case wrote it silently (a stayed 10, no word). Born red: 0 REFUSED lines on cb074ba.
+#  Controls cannot refuse: the fixture's total REFUSED count is exactly the eight VT cases. R2 pins a *= -1 and a = -a,
+#  value and kind. H7: refuseValueTarget's test removed -> the REFUSED rows red. The jit road is jitValueTargetT below.
+run1 valueTargetT "$T/vtt";   check "valueTargetT runs" 0 $?
+sentinel "valueTargetT sentinel" "$T/vtt" "VALUETARGET SENTINEL"
+for _vt in "1 +=" "2 =" "3 -=" "4 *=" "5 /=" "6 ++" "7 --"; do
+    set -- $_vt
+    kindRow "valueTargetT VT-$1 -a $2 leaves a" "$(grep "^VT-$1 " "$T/vtt" | awk '{print $NF}')" "10"
+    kindRow "valueTargetT VT-$1 the line before it is the refusal naming $2" "$(awk -v n="^VT-$1 " -v w="REFUSED $2 -- the left of $2 is a value, not a field" '$0 ~ n {print (index(prev,w)==1)} {prev=$0}' "$T/vtt")" "1"
+done
+kindRow "valueTargetT VT-8 the line before it is the refusal naming +=" "$(awk -v w='REFUSED += -- the left of += is a value, not a field' '/^VT-8 / {print (index(prev,w)==1)} {prev=$0}' "$T/vtt")" "1"
+kindRow "valueTargetT VT-8 a + b += 1 leaves a, b" "$(grep '^VT-8 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "10 4"
+kindRow "valueTargetT REFUSED lines, the whole fixture (VT-8's += is the 8th; the controls add none)" "$(grep -c '^REFUSED' "$T/vtt")" "8"
+kindRow "valueTargetT VK-1 a += 3" "$(grep '^VK-1 ' "$T/vtt" | awk '{print $NF}')" "13"
+kindRow "valueTargetT VK-2 a = -a" "$(grep '^VK-2 ' "$T/vtt" | awk '{print $NF}')" "-10"
+kindRow "valueTargetT VK-3 a.datA = 1 leaves a, kind" "$(grep '^VK-3 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "10 5"
+kindRow "valueTargetT VK-4 an action local assigned" "$(grep '^VK-4 ' "$T/vtt" | awk '{print $NF}')" "1"
+kindRow "valueTargetT R2-1 count a *= -1, kind" "$(grep '^R2-1 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "-7 5"
+kindRow "valueTargetT R2-2 count a = -a, kind" "$(grep '^R2-2 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "-7 5"
+kindRow "valueTargetT R2-3 number a *= -1, kind" "$(grep '^R2-3 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
+kindRow "valueTargetT R2-4 number a = -a, kind" "$(grep '^R2-4 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
+
+#  ⚑ jitValueTargetT -- SEQ 360 R1 / R2 on the jit road. The jit hands back the OPERAND (jitEmitUnary / jitEmitBinary),
+#  never tempField, so R1's identity cannot see a computed target here: JVT-1 / 2 / 6 / 8 WRITE THE OPERAND and are
+#  pinned at that value as a KNOWN DEFECT (they move when the jit road learns to refuse; the discriminator is a ruling
+#  owed). Controls and R2's pins are real.
+run1 jitValueTargetT "$T/jvt";   check "jitValueTargetT runs" 0 $?
+sentinel "jitValueTargetT sentinel" "$T/jvt" "JITVALUETARGET SENTINEL"
+kindRow "jitValueTargetT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on jvAct' "$T/jvt")" "1"
+kindRow "jitValueTargetT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jvt")" "0"
+kindRow "jitValueTargetT JVT-1 -a += 3 writes a (KNOWN DEFECT pin)" "$(grep '^JVT-1 ' "$T/jvt" | awk '{print $NF}')" "13"
+kindRow "jitValueTargetT JVT-2 -a = 3 writes a (KNOWN DEFECT pin)" "$(grep '^JVT-2 ' "$T/jvt" | awk '{print $NF}')" "3"
+kindRow "jitValueTargetT JVT-6 ++-a writes a (KNOWN DEFECT pin)" "$(grep '^JVT-6 ' "$T/jvt" | awk '{print $NF}')" "-9"
+kindRow "jitValueTargetT JVT-8 a + b += 1 writes a (KNOWN DEFECT pin)" "$(grep '^JVT-8 ' "$T/jvt" | awk '{print $NF}')" "11"
+kindRow "jitValueTargetT JVK-1 a += 3" "$(grep '^JVK-1 ' "$T/jvt" | awk '{print $NF}')" "13"
+kindRow "jitValueTargetT JVK-2 a = -a" "$(grep '^JVK-2 ' "$T/jvt" | awk '{print $NF}')" "-10"
+kindRow "jitValueTargetT JR2-1 count a *= -1, kind" "$(grep '^JR2-1 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-7 5"
+kindRow "jitValueTargetT JR2-2 count a = -a, kind" "$(grep '^JR2-2 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-7 5"
+kindRow "jitValueTargetT JR2-3 number a *= -1, kind" "$(grep '^JR2-3 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
+kindRow "jitValueTargetT JR2-4 number a = -a, kind" "$(grep '^JR2-4 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
+
 #  ⚑ parseRT -- STROKE 1.1 SITE 2 (2026-10-04): driveStep's no-data arm, parseR, attaches into the caller's field
 #  with into as an ARGUMENT to parse()/attachLabel() -- the throwaway RuleStuff is gone. Nothing else in the fleet
 #  reaches parseR (a tap counted 0). H7: attachLabel's into arm returning without attaching -> PR-1 and PR-2 read 0.

@@ -1,0 +1,62 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    jvA=10;
+    jvB=4;
+    jvN=2.5;
+    jv1;
+    jv2;
+    jv6;
+    jv8;
+    jk1;
+    jk2;
+    jr1;
+    jr2;
+    jr3;
+    jr4;
+    jp1;
+    jvAct code={
+        jvA = 10; -jvA += 3; jv1 = jvA;
+        jvA = 10; -jvA = 3; jv2 = jvA;
+        jvA = 10; ++-jvA; jv6 = jvA;
+        jvA = 10; jvB = 4; jvA + jvB += 1; jv8 = jvA;
+        jvA = 10; jvA += 3; jk1 = jvA;
+        jvA = 10; jvA = -jvA; jk2 = jvA;
+        jvA = 7; jvA *= -1; jr1 = jvA;
+        jvA = 7; jvA = -jvA; jr2 = jvA;
+        jvN = 2.5; jvN *= -1; jr3 = jvN;
+        jvN = 2.5; jvN = -jvN; jr4 = jvN;
+        jvA = 3; jvB = 4; jp1 = -jvA + -jvB;
+        };
+    ;
+testing(jvAct);
+cerr "JVT-1 -a += 3 -> a " jv1:;
+cerr "JVT-2 -a = 3 -> a " jv2:;
+cerr "JVT-6 ++-a -> a " jv6:;
+cerr "JVT-8 a + b += 1 -> a " jv8:;
+cerr "JVK-1 a += 3 -> a " jk1:;
+cerr "JVK-2 a = -a -> a " jk2:;
+cerr "JR2-1 count a *= -1 -> " jr1 " kind " jr1.datA:;
+cerr "JR2-2 count a = -a -> " jr2 " kind " jr2.datA:;
+cerr "JR2-3 number a *= -1 -> " jr3 " kind " jr3.datA:;
+cerr "JR2-4 number a = -a -> " jr4 " kind " jr4.datA:;
+cerr "JVP-1 c = -a + -b, a 3 b 4 -> " jp1:;
+cerr "JITVALUETARGET SENTINEL":;
+stop();
+
+jitValueTargetT -- SEQ 360 R1 / R2 on the JIT road (Tony, 2026-10-15). One testing(), no oracle: the interpreted half is
+incant/pop/valueTargetT, a separate process (bear-trap #25).
+
+R1's discriminator is tempField identity, and the jit road never hands tempField back: jitEmitUnary and jitEmitBinary
+return the OPERAND, carrying the computed value as its jitValue. So the identity cannot see a computed target here,
+and JVT-1 / JVT-2 / JVT-6 / JVT-8 WRITE THE OPERAND. They are pinned at that value as a KNOWN DEFECT -- a pin that moves
+when the jit road learns to refuse, not a claim that the value is right. The discriminator for this road is a ruling
+owed (SEQ 360 report).
+  JVK-1 / JVK-2   controls
+  JR2-1 .. JR2-4  R2's pins, value and kind
+  JVP-1           probe, report only
