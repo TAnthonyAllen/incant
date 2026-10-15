@@ -129,8 +129,13 @@ GroupItem 	*prior = 0;
 extern "C" GroupItem *aCTionBraced(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
+GroupItem 	*held = 0;
 	input->clear();
-	input->setGroup(ExpressioN);
+	// carrierHolder the inner expression is HELD in a member, never attached -- a name inside keeps its identity, and the label keeps a member, so it reaches pass 1 as a labelled node (SEQ 361 R1)
+	held = new GroupItem("InvokeArg");
+	held->setGroup(ExpressioN);
+	held->groupBody->flags.fLAG = 1;
+	input->addAttribute(held);
 	input->groupBody->flags.fLAG = 1;
 	return input;
 }
@@ -870,9 +875,13 @@ char 	*arg = input->getText();
 extern "C" GroupItem *aCTionParens(GroupItem *input)
 {
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
+GroupItem 	*held = 0;
 	input->clear();
+	// carrierHolder the inner expression is HELD in a member, as Braced's; an empty () holds nothing and still has its member (SEQ 361 R1)
+	held = new GroupItem("InvokeArg");
 	if ( ExpressioN )
-		input->setGroup(ExpressioN);
+		held->setGroup(ExpressioN);
+	input->addAttribute(held);
 	return input;
 }
 
@@ -1535,6 +1544,16 @@ GroupItem 	*node = 0;
 	return node;
 }
 
+// accGroupTerm 1 for a Parens / Braced term: tagged Token, and its first member is the InvokeArg holder aCTionParens / aCTionBraced mint (SEQ 361 R1)
+extern "C" int accGroupTerm(GroupItem *term)
+{
+	
+	if ( !term || ::strcmp(term->groupBody->tag,"Token") || !term->groupBody->groupList ) return 0;
+	GroupItem *m = term->groupBody->groupList->firstInList;
+	return m && !::strcmp(m->groupBody->tag,"InvokeArg");
+	
+}
+
 // accLogic && and ||, nested to the left: each connective takes what is built so far and the next comparison part
 extern "C" GroupItem *accLogic(GroupItem *flat)
 {
@@ -1574,6 +1593,18 @@ extern "C" GroupItem *accNextOp(GroupItem *flat)
 	if ( !flat->groupBody->groupList->listLength )
 		return 0;
 	return flat->get(1);
+}
+
+// accOperandBefore 1 when seq's last piece is an OPERAND, so a group after it is a call or a subscript; 0 for nothing or an operator entry -- a word-named entry is a name (SEQ 330 A1) (SEQ 361 R2)
+extern "C" int accOperandBefore(GroupItem *seq)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if ( !seq || !seq->groupBody->groupList || !seq->groupBody->groupList->listLength ) return 0;
+	GroupItem *last = seq->groupBody->groupList->lastInList;
+	if ( last->groupBody->registry != ruler->opFields || isREGISTRY(last->groupBody->flags.binType) ) return 1;
+	return ::isalpha((unsigned char)last->groupBody->tag[0]) ? 1 : 0;
+	
 }
 
 /*  THE TIER SPLIT (SEQ 319, c3; D3 and D5). The flat list -- operand, then (op, operand) pairs --
@@ -2952,12 +2983,13 @@ extern "C" int hasRepeatClass(char *modifier)
 	return 0;
 }
 
-/*  interpretXPaccum -- THE ACCUMULATOR CANDIDATE'S interpretXP (SEQ 311, try-and-buy on
-    expr-accum; a proof of concept). ExpressioN's actor under INCANT_EXPR_ACCUM, which also
-    makes aCTionTokenXP hand its label up untouched. Pass 1 flattens every TokenXP label
-    into its raw pieces -- unary, name, InvokeArg's parts -- so KANT-43's absorbed `qa * qb`
-    arrives as qa, *, qb. Pass 2 decides by POSITION: an op where an operand is expected is
-    a prefix; an op after an operand is binary; `.`, a call, a subscript after an operand
+/*  interpretXPaccum -- ExpressioN's actor, the one expression road (SEQ 311; the old road
+    retired 2026-10-13). The grammar hands it a FLAT list of Token terms (TokenXP and UnaryXP
+    left the grammar, SEQ 361): a name, a literal, an operator entry, or a GROUP -- a Parens /
+    Braced label, retagged Token, whose member holds its inner expression. Pass 1 reads each
+    group by position: after an operand it is a call or a subscript; with no operand before
+    it, kant has no parenthetical expressions and it refuses. Pass 2 decides by POSITION: an
+    op where an operand is expected is a prefix; an op after an operand is binary; `.`, a call, a subscript after an operand
     are postfixes on it. An ACCESS prefix (`*`, a leading `.`) binds to the name before the
     postfixes, any other prefix to the finished operand: *block(code) is (*block)(code),
     !f(x) is !(f(x)). The result is ONE FLAT list -- operand, then (op, operand) pairs --
@@ -2993,54 +3025,27 @@ GroupItem 	*right = 0;
 		{
 		term = xpList->get(i);
 		i = i + 1;
-		name = term->get("ANYorNum");
-		if ( !name )
+		// groupTerm a Parens / Braced reaches here as a LABELLED node -- retagged Token, its first member the InvokeArg holder its actor minted; asked of the member, because a quote can also arrive as a data-less Token (SEQ 361 R1)
+		if ( ::accGroupTerm(term) )
 			{
-			seq->addAttribute(term);
-			continue;
-			}
-		unary = term->get("UnaryOPS");
-		invoke = term->get("InvokeArg");
-		if ( isGROUP(name->groupBody->flags.data) )
-			name = name->getGroup();
-		if ( unary )
-			if ( isGROUP(unary->groupBody->flags.data) )
-				unary = unary->getGroup();
-		if ( unary )
-			{
-			piece = ruler->opFields->get(unary->groupBody->tag);
-			if ( !piece )
-				piece = unary;
-			// leadingDotNumber `.5` is refused by name with trunk's F-117 hand, and the term stays a harmless primary (SEQ 327 D4)
-			if ( !invoke )
-				if ( ::refuseLeadingDotNumber(piece,name) )
-					piece = 0;
-			if ( piece )
-				seq->addAttribute(piece);
-			}
-		seq->addAttribute(name);
-		if ( !invoke )
-			continue;
-		if ( invoke->groupBody->groupList )
-			{
-			piece = invoke->groupBody->groupList->firstInList;
-			if ( isGROUP(piece->groupBody->flags.data) )
-				piece = piece->getGroup();
-			right = ruler->opFields->get(piece->groupBody->tag);
-			if ( right )
-				piece = right;
+			invoke = term->get(1);
+			// noParenthetical a group with no operand directly before it is a parenthetical expression, and kant has none: refused by name, and the build GOES ON with its inner value as a harmless primary -- the armed statement dispatches nothing, the next one runs (standing, 2026-09-29; SEQ 361 R2)
+			if ( !::accOperandBefore(seq) )
+				{
+				::refuse(term,"kant has no parenthetical expressions");
+				if ( isGROUP(invoke->groupBody->flags.data) )
+					seq->addAttribute(invoke->getGroup());
+				else	seq->addAttribute(ruler->falseResult);
+				continue;
+				}
+			if ( invoke->groupBody->flags.fLAG )
+				piece = new GroupItem("acPostSub");
+			else	piece = new GroupItem("acPostCall");
+			piece->addAttribute(invoke);
 			seq->addAttribute(piece);
-			right = invoke->groupBody->groupList->lastInList;
-			if ( isGROUP(right->groupBody->flags.data) )
-				right = right->getGroup();
-			seq->addAttribute(right);
 			continue;
 			}
-		if ( invoke->groupBody->flags.fLAG )
-			piece = new GroupItem("acPostSub");
-		else	piece = new GroupItem("acPostCall");
-		piece->addAttribute(invoke);
-		seq->addAttribute(piece);
+		seq->addAttribute(term);
 		}
 	flat = new GroupItem("acX");
 	cur = 0;
@@ -3156,6 +3161,14 @@ GroupItem 	*right = 0;
 			while ( j > 0 )
 				{
 				piece = pend->get(j);
+				// leadingDotNumber `.5` is refused by name with trunk's F-117 hand and the dot dropped, so the number stays a harmless primary -- moved here from pass 1 (SEQ 361; SEQ 327 D4)
+				if ( ::compare(piece->groupBody->tag,".") == 0 )
+					if ( !right || (::compare(right->groupBody->tag,"acPostCall") != 0 && ::compare(right->groupBody->tag,"acPostSub") != 0) )
+						if ( ::refuseLeadingDotNumber(piece,term) )
+							{
+							j = j - 1;
+							continue;
+							}
 				if ( ::compare(piece->groupBody->tag,".") == 0 )
 					{
 					node = new GroupItem("acDot");
