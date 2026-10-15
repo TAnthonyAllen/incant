@@ -13,11 +13,102 @@ setParse does not have to worry about actionMethod
 /*******************************************************************************
 	Working on
 *******************************************************************************/
-My thinking on xpTestList got too complex trying to extend it beyond just an expression -> chain; reverting back to its simpler function
-To apply xpTestList to rules
-The way I would like an if expression to work; given an expression containing
-    if A; print "something":;
-        the if should be recognized as start of a rule with a method that runs the rule consuming the rule and leaving its label as its result
-        probably can add a rule start registry to the search list so if gets found its action will run the rule and return its result, much like a method invocation; the problem is what input is the rule invocation dealing with? It might work if the rules in the RuleStart registry were designed to process fields not an input stream.
-        so given the expression above: if A ; print "something" : and ; would be a list of fields to go thru the field parse??? All the fields on the expression list from if up to the trailing ; at the end of the print would be consumed and the if rule action would fire
-        can we write a field parse???
+    xpListTest isRule lizted=listEntries+ SemI- code={
+        iterate grup on *lizted;
+        while --grup;
+            if *grup.instructTypE != 0;
+                /***************************************************************************
+                                        temporary workaround
+                    if invoke were set on instruct instead of flaG, runOP would run
+                    instruct too soon. testOP checks for flaG and treats it like invoke;
+                ***************************************************************************/
+                clear(instruct);
+                op = grup;
+                /***************************************************************************
+                                unary handling - check for negate and deref
+                ***************************************************************************/
+                if priorEntry := *grup.prioR;
+                    if priorEntry.datA == 0;    convertUnary = true;
+                    if *priorEntry.isOperatoR;  convertUnary = true;
+                if convertUnary;
+                    if *op.taG == "-";  op := Operators["negate"];
+                    or *op.taG == "*";  op := Operators["deref"];
+                    convertUnary = false;
+                if *op.isUnarY;
+                    instruct    +% *op;
+                    instruct    +% *result;
+                    instruct        :. flaG;
+                    if result.datA == 0;    target := instruct;
+                    else                    result := copyOf(instruct);
+                    clear(op);
+            else
+                if result == 0; result = grup;
+                or target == 0; target = grup;
+            if op.datA && result.datA  && target.datA != 0;
+                clear(instruct);
+                instruct    +% *op;
+                instruct    +% *target;
+                instruct    +% *result;
+                instruct    :. flaG;
+                result      := copyOf(instruct);
+                clear(target);
+                clear(op);
+        print "We done":;
+        if target.datA == 0; target = result;
+        listChain(*target);
+        result  = testOP(*target);
+        return  result;
+        };
+
+invokeTEST call qa > 0 || falseResult;
+Change xpListTest to getInstruction that returns one of the following
+    field w/no list
+    field w/unary wrapped in an instruction becomes field
+    field w/op then getInstruction
+        
+    xpListTest isRule lizted=listEntries+ SemI- code={
+        iterate grup on *lizted;
+        while --grup;
+            if *grup.instructTypE != 0;
+                /***************************************************************************
+                                        temporary workaround
+                    if invoke were set on instruct instead of flaG, runOP would run
+                    instruct too soon. testOP checks for flaG and treats it like invoke;
+                ***************************************************************************/
+                clear(instruct);
+                op = grup;
+                /***************************************************************************
+                                unary handling - check for negate and deref
+                ***************************************************************************/
+                if priorEntry := *grup.prioR;
+                    if priorEntry.datA == 0;    convertUnary = true;
+                    if *priorEntry.isOperatoR;  convertUnary = true;
+                if convertUnary;
+                    if *op.taG == "-";  op := Operators["negate"];
+                    or *op.taG == "*";  op := Operators["deref"];
+                    convertUnary = false;
+                if *op.isUnarY;
+                    instruct    +% *op;
+                    instruct    +% *result;
+                    instruct        :. flaG;
+                    if result.datA == 0;    target := instruct;
+                    else                    result := copyOf(instruct);
+                    clear(op);
+            else
+                if result == 0; result = grup;
+                or target == 0; target = grup;
+            if op.datA && result.datA  && target.datA != 0;
+                clear(instruct);
+                instruct    +% *op;
+                instruct    +% *target;
+                instruct    +% *result;
+                instruct    :. flaG;
+                result      := copyOf(instruct);
+                clear(target);
+                clear(op);
+        print "We done":;
+        if target.datA == 0; target = result;
+        listChain(*target);
+        result  = testOP(*target);
+        return  result;
+        };

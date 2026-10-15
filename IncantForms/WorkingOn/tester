@@ -26,12 +26,21 @@ define
     qa=2;
     qb=3;
     qc=4;
-    xpListTest isRule lizted=listEntries+ SemI- code={
-        iterate grup on *lizted;
-        while --grup;
-            if *grup.instructTypE != 0;
-                clear(instruct);
-                op = grup;
+    wrapIterate;
+    listChain code={
+        dumpContents(argument);
+        if listLengtH != 0;
+            target  := argument[2];
+            arg     := argument[3];
+            if *target.listLengtH != 0 && *target.flaG; listChain(*target);
+            if *arg.listLengtH != 0 && *arg.flaG; listChain(*arg);
+        };
+    getInstruction code={
+        grup = argument;
+        $$grup;
+        while grup;
+            if result == 0; result = grup;
+            or *grup.instructTypE != 0;
                 /***************************************************************************
                                 unary handling - check for negate and deref
                 ***************************************************************************/
@@ -44,45 +53,30 @@ define
                     convertUnary = false;
                 if *op.isUnarY;
                     instruct    +% *op;
-                        $$result;
-                        $$target;
-                    if result.datA == 0;
-                        print `"unary op" taG "on target" ,*target:;
-                        instruct    +% *target;
-                    else
-                        print `"unary op" taG "on result" ,*result:;
-                        instruct    +% *result;
-                    instruct        :. noPrinT;
-                /***************************************************************************
-                                        temporary workaround
-                    if invoke were set on the prior line instead of noPrint, runOP would run
-                    instruct on the following statement because it would see an invoked argument.
-                    testOP checks for noPrint; would use fLAG instead but flaG was removed from
-                    GroupFields (put it back);
-                ***************************************************************************/
-                    if result == 0; clear(target);
-                    result          := copyOf(instruct);
-                    clear(op);
-            else
-                if result == 0;     result = grup;
-                or target == 0;     target = grup;
-            if op.datA && result.datA  && target.datA != 0;
-                clear(instruct);
-                instruct    +% *op;
-                instruct    +% *target;
-                instruct    +% *result;
-                instruct    :. noPrinT;
-                dumpField(instruct);
-                result      := copyOf(instruct);
-                clear(target);
-                clear(op);
-        print "We done":;
-        if target.datA == 0; target = result;
-        result  = testOP(*target);
-        return  result;
+                    instruct    +% *result;
+                    instruct        :. flaG;
+                    result := instruct;
+                    print "Saw unary":;
+            target  := getInstruction(wrapIterate := grup);
+            // need to set loop here maybe grup = grup.prioR???
+        if op.datA && result.datA  && target.datA != 0;
+            result := copyOf(instruct);
+            clear(instruct);
+            instruct    +% *op;
+            instruct    +% *target;
+            instruct    +% *result;
+            instruct    :. flaG;
+            print "Saw full instruct":;
+        if instruct.listLengtH; return instruct;
+        else return result;
+        };
+    xpListTest isRule lizted=listEntries+ SemI- code={
+        grup := *lizted.lasT;
+        result := getInstruction(grup);
         };
     ;
 
+xpListTest("invokeTEST call qa > 0 || falseResult;");
 stop();
 xpListTest("invokeTEST call -righty -= qa - qb + qc;");
 
