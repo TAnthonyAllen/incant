@@ -7,7 +7,7 @@ define
     frX=5;
     frY=5;
     frSet code={
-        frX :. flaG;
+        frX :. fLAG;
         cerr "FR-0 the statement after the refused set ran":;
         };
     frInc code={
@@ -30,3 +30,13 @@ engine bit that poisons `++` (F-131). The refusal abandons the rest of frSet, so
   FR-2  ++ on an unflagged count                          want 6  (non-zero sibling)
 H7, measured 2026-10-02: `flaG=12;` put back in incant/setup (runtime only, same binary) -> no refusal, FR-0
 prints, FR-1 red. The census behind the retirement is docs/flagCensus.md.
+
+RETIRED BY MAPPING 2026-10-15 (SEQ 359 R1): flaG is a GroupField again (Tony, 2026-10-15 -- reverses the case-12
+retirement above, consistent with the 2026-10-05 ruling to keep fLAG), so `:. flaG` no longer refuses and the two
+refusal rows lose their subject. Their assertions move to `:. fLAG`, a name that is still no groupField:
+  FR-1  the refusal names `:. flaG`   ->  FR-1 the refusal names `:. fLAG`   (same notAFlag arm, Instruct.rtn:1056)
+  FR-0  the block was abandoned        ->  unchanged, now behind the `:. fLAG` refusal
+  FR-2  unchanged.
+The claim "F-131 closed by construction" above is history: with flaG settable, a flagged count does not ++ again
+(measured 2026-10-15 on the working tree: 5 stays 5; the unflagged sibling reaches 6). Reported, not fixed.
+H7, measured 2026-10-15: frSet spelled `:. flaG` again on the flaG binary -> no refusal, FR-0 prints, FR-1 red.

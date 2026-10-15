@@ -5974,9 +5974,11 @@ kindRow "ruleGlobalT RG-4 no fire saw the last fire's local" "$(grep '^RG-4' "$T
 #  ⚑ flagRetiredT -- SEQ 267 R1: kant's generic flag (case 12) is retired; `x :. flaG` refuses by name, so kant can no
 #  longer set the bit that steers ++ (F-131 closed by construction). H7: `flaG=12;` restored in incant/setup -> no
 #  refusal, FR-0 prints, red.
+#  RETIRED BY MAPPING 2026-10-15 (SEQ 359 R1): flaG is a GroupField again (Tony), so FR-1 / FR-0 re-aim to `:. fLAG`,
+#  still no groupField -- the notAFlag refusal keeps its only pin. The fixture's dead region carries the mapping.
 run1 flagRetiredT "$T/frt";   check "flagRetiredT runs" 0 $?
 sentinel "flagRetiredT sentinel" "$T/frt" "FLAGRETIRED SENTINEL"
-kindRow "flagRetiredT FR-1 the refusal names :. flaG" "$(grep -c '^REFUSED frX -- `:. flaG` -- not a groupField' "$T/frt")" "1"
+kindRow "flagRetiredT FR-1 the refusal names :. fLAG" "$(grep -c '^REFUSED frX -- `:. fLAG` -- not a groupField' "$T/frt")" "1"
 kindRow "flagRetiredT FR-0 the refused statement's block was abandoned" "$(grep -c '^FR-0' "$T/frt")" "0"
 kindRow "flagRetiredT FR-2 an unflagged count increments" "$(grep '^FR-2' "$T/frt" | awk '{print $NF}')" "6"
 
