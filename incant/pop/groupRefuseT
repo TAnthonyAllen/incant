@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(GroupRefuse);
+define
+    pa=0;
+    pb=5;
+    pob
+        pm code={ return argument; };
+    ;
+cerr "GR BEGIN":;
+pa = (pb + 1) * 2;
+cerr "GR-1 next ran":;
+pa = pb + (pb);
+cerr "GR-2 next ran":;
+pa = (pb);
+cerr "GR-3 next ran":;
+pa = [pb];
+cerr "GR-4 next ran":;
+pa = pb + [pb];
+cerr "GR-5 next ran":;
+pa = 0;
+pa = pob.pm(pb);
+cerr "AB-1 pob.pm(pb) " pa:;
+cerr "GROUPREFUSE SENTINEL":;
+stop();
+
+groupRefuseT -- SEQ 361 R2 / R3 (Tony, 2026-10-15): KANT HAS NO PARENTHETICAL EXPRESSIONS (standing, 2026-09-29).
+
+A Parens or Braced with no operand directly before it refuses by name -- "kant has no parenthetical expressions" --
+and the file's next statement runs. TODAY every one of these ABANDONS THE FILE (RunRulE: expected a method not pa;
+ABANDONED ... exit 0): no Token alternative starts with ( or [. So the whole fixture is born red: no GR-n line, no AB-1
+line, no sentinel. After S4b each GR-n line follows its own REFUSED line.
+  GR-1  a leading group             (pb + 1) * 2
+  GR-2  a mid-expression group      pb + (pb)
+  GR-3  a lone group                (pb)
+  GR-4  a leading Braced            [pb]
+  GR-5  a mid-expression Braced     pb + [pb]
+  AB-1  a.b(c): pob.pm(pb). R3 named it a control; it ABANDONS today (TokenXP's one InvokeArg slot -- .pm takes it and
+        (pb) has nowhere to go). Under the 2026-10-06 ruling (a prefix binds its name first, then postfixes in order)
+        it is (pob.pm)(pb) = 5. Pinned born red at 5.

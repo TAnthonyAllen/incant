@@ -1624,6 +1624,17 @@ extern "C" void accTraceItem(GroupItem *item)
 	
 }
 
+// accTraceSeq the sequence from interpretXPaccum's FIRST pass, on one line -- the pieces pass 2 reads by position (SEQ 361 R3)
+extern "C" void accTraceSeq(GroupItem *seq)
+{
+	
+	::fprintf(stderr,"ACCUM SEQ   ");
+	for ( int k = 1; seq && seq->groupBody->groupList && k <= seq->groupBody->groupList->listLength; k++ )
+	::accTraceItem(seq->get(k));
+	::fprintf(stderr,"\n");
+	
+}
+
 // accTraceTree one node per line, two spaces of indent per level; descends into the candidate's own nodes (ac..., xl1) only
 extern "C" void accTraceTree(GroupItem *node, int depth)
 {
@@ -3196,6 +3207,9 @@ GroupItem 	*right = 0;
 		}
 	// accTrace INCANT_ACCUM_TRACE=1 traces every expression, =<name> those whose first item is <name>; the flat list prints before the split consumes it
 	traced = accTraceWanted(flat);
+	// accTraceSeq pass 1's own sequence, which pass 2 only reads -- stroke 4's certificate compares it (SEQ 361 R3)
+	if ( traced )
+		accTraceSeq(seq);
 	if ( traced )
 		accTraceFlat(flat);
 	// tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)

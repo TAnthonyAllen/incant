@@ -147,6 +147,7 @@ extern "C" GroupItem *accNextOp(GroupItem *flat);
 extern "C" GroupItem *accPop(GroupItem *flat);
 extern "C" void accTraceFlat(GroupItem *flat);
 extern "C" void accTraceItem(GroupItem *item);
+extern "C" void accTraceSeq(GroupItem *seq);
 extern "C" void accTraceTree(GroupItem *node, int depth);
 extern "C" int accTraceWanted(GroupItem *flat);
 extern "C" int accessorWrite(GroupItem *argument, GroupItem *product);

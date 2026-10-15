@@ -1,0 +1,86 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(Pass1Seq);
+define
+    pa=0;
+    pb=1;
+    pc=2;
+    pd=3;
+    pk=0;
+    ps=0;
+    ph=0;
+    pp=0;
+    pf code={ return argument; };
+    pv=0;
+    pw=5;
+    pz=0;
+    pSrc="{ pz = 7; }";
+    pl
+        pl1=11;
+        pl2=22;
+    pvBlock code={ pz = 0; block := Grokking["BlocK"]; pv = *block(pSrc); };
+    ;
+cerr "PS BEGIN":;
+cerr "PS-01 pa = 5;":;
+pa = 5;
+cerr "PS-02 pa = pb;":;
+pa = pb;
+cerr "PS-03 pa = 2 * 10 + 3;":;
+pa = 2 * 10 + 3;
+cerr "PS-04 pa = -pb;":;
+pa = -pb;
+cerr "PS-05 pa = !pb;":;
+pa = !pb;
+cerr "PS-06 pa = *ph;":;
+pa = *ph;
+cerr "PS-07 pa = ++pc;":;
+pa = ++pc;
+cerr "PS-08 pa = --pc;":;
+pa = --pc;
+cerr "PS-09 pa = pf(pb);":;
+pa = pf(pb);
+cerr "PS-10 pa = pf(pb + 1) * 2;":;
+pa = pf(pb + 1) * 2;
+cerr "PS-11 pa = ps[pk];":;
+pa = ps[pk];
+cerr "PS-12 pa = ph.taG;":;
+pa = ph.taG;
+cerr "PS-13 pa = *ph.taG;":;
+pa = *ph.taG;
+cerr "PS-14 pa = pp.pq.taG;":;
+pa = pp.pq.taG;
+cerr "PS-15 pa = pf (pb);":;
+pa = pf (pb);
+cerr "PS-16 pa = ps [pk];":;
+pa = ps [pk];
+cerr "PS-17 pa = (quote)str + pb;":;
+pa = "str" + pb;
+cerr "PS-18 pa = pb && pc || pd;":;
+pa = pb && pc || pd;
+cerr "PS-19 pa = .taG;":;
+pa = .taG;
+cerr "PS-20 pa = pb < pc;":;
+pa = pb < pc;
+cerr "PS-21 pa = -pf(pb);":;
+pa = -pf(pb);
+cerr "PS CONTROLS":;
+pv = pf(-pw); cerr "PC-1 pf(-pw) " pv:;
+pvBlock(); cerr "PC-2 *block(code) pz " pz " rc " pv:;
+pv = pf (pw); cerr "PC-3 pf (pw) " pv:;
+pv = pl[0]; cerr "PC-4 pl[0] " pv:;
+pv = pl[1]; cerr "PC-5 pl[1] " pv:;
+cerr "PASS1SEQ SENTINEL":;
+stop();
+
+pass1SeqT -- SEQ 361 R3 (Tony, 2026-10-15): STROKE 4's CERTIFICATE, PRE-REGISTERED ON TRUNK BEFORE S4b.
+
+The 21 inputs are SEQ 358's recon probe (probe358), verbatim. Run under INCANT_ACCUM_TRACE=pa, so only the statements
+whose first flat item is pa trace, and each prints ACCUM SEQ -- interpretXPaccum's FIRST pass, the pieces pass 2 reads by
+position (accTraceSeq, added for this certificate) -- after its PS-nn marker. Pinned at today's values; after S4b all 21
+identical, the six calls / subscripts (09 10 11 15 16 21) included -- those are the rows V2 collapsed to juxtaposition.
+H7 (S4b): Parens' label dropped -> those six red by value.
+  PC-1 .. PC-5  controls, by value: fId(-qa)'s shape, *block(code) (blockCallT BC4's shape), pf (pw) -- spacing not
+                significant, still a call -- and a[0] / a[1] (indexing starts at 1: pl[0] reads the tag echo pv).
+a.b(c) is NOT here: pob.pm(pb) abandons the file today (TokenXP's one InvokeArg slot) -- see groupRefuseT.

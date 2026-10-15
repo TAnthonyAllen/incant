@@ -6030,6 +6030,58 @@ kindRow "jitValueTargetT JR2-2 count a = -a, kind" "$(grep '^JR2-2 ' "$T/jvt" | 
 kindRow "jitValueTargetT JR2-3 number a *= -1, kind" "$(grep '^JR2-3 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 kindRow "jitValueTargetT JR2-4 number a = -a, kind" "$(grep '^JR2-4 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 
+#  ⚑ pass1SeqT -- SEQ 361 R3 (Tony, 2026-10-15): STROKE 4's CERTIFICATE, pre-registered on trunk before S4b. SEQ 358's 21
+#  recon inputs verbatim, run under INCANT_ACCUM_TRACE=pa; each prints ACCUM SEQ (accTraceSeq: interpretXPaccum's FIRST pass,
+#  the pieces pass 2 reads by position). Compared by TAG -- a name's =value is run-time state, so it is stripped; a Token
+#  keeps its literal value; an operator keeps (op). After S4b all 21 identical, the six calls / subscripts (09 10 11 15 16
+#  21) included. H7 (S4b): Parens' label dropped -> those six red by value. PC-1..5 are controls by value.
+INCANT_ACCUM_TRACE=pa run1 pass1SeqT "$T/p1s";   check "pass1SeqT runs" 0 $?
+sentinel "pass1SeqT sentinel" "$T/p1s" "PASS1SEQ SENTINEL"
+_p1s () { awk -v m="^PS-$1 " '$0 ~ m {f=1; next} f && /^ACCUM SEQ/ {sub(/^ACCUM SEQ +/,""); o=""; for(i=1;i<=NF;i++){t=$i; if(t !~ /\(op\)$/ && t !~ /^Token=/) sub(/=.*/,"",t); o=o (o==""?"":" ") t}; print o; exit}' "$T/p1s"; }
+kindRow "pass1SeqT ACCUM SEQ lines (exactly the 21 pa statements)" "$(grep -c '^ACCUM SEQ' "$T/p1s")" "21"
+while IFS='|' read -r _n _want; do
+    kindRow "pass1SeqT PS-$_n pass-1 sequence" "$(_p1s $_n)" "$_want"
+done <<'P1SEQ'
+01|pa =(op) Token=5
+02|pa =(op) pb
+03|pa =(op) Token=2 *(op) Token=10 +(op) Token=3
+04|pa =(op) -(op) pb
+05|pa =(op) !(op) pb
+06|pa =(op) *(op) ph
+07|pa =(op) ++(op) pc
+08|pa =(op) --(op) pc
+09|pa =(op) pf acPostCall
+10|pa =(op) pf acPostCall *(op) Token=2
+11|pa =(op) ps acPostSub
+12|pa =(op) ph .(op) taG
+13|pa =(op) *(op) ph .(op) taG
+14|pa =(op) pp .(op) pq .(op) taG
+15|pa =(op) pf acPostCall
+16|pa =(op) ps acPostSub
+17|pa =(op) Token=str +(op) pb
+18|pa =(op) pb &&(op) pc ||(op) pd
+19|pa =(op) .(op) taG
+20|pa =(op) pb <(op) pc
+21|pa =(op) -(op) pf acPostCall
+P1SEQ
+kindRow "pass1SeqT PC-1 pf(-pw), fId(-qa)'s shape" "$(grep '^PC-1 ' "$T/p1s" | awk '{print $NF}')" "-5"
+kindRow "pass1SeqT PC-2 *block(code) pz, rc" "$(grep '^PC-2 ' "$T/p1s" | awk '{print $(NF-2), $NF}')" "7 7"
+kindRow "pass1SeqT PC-3 pf (pw) -- spacing not significant, still a call" "$(grep '^PC-3 ' "$T/p1s" | awk '{print $NF}')" "5"
+kindRow "pass1SeqT PC-4 pl[0] -- indexing starts at 1, the tag echo" "$(grep '^PC-4 ' "$T/p1s" | awk '{print $NF}')" "pv"
+kindRow "pass1SeqT PC-5 pl[1]" "$(grep '^PC-5 ' "$T/p1s" | awk '{print $NF}')" "11"
+
+#  ⚑ groupRefuseT -- SEQ 361 R2 / R3: kant has no parenthetical expressions (standing, 2026-09-29). A Parens or Braced with
+#  no operand directly before it refuses by name and the next statement runs. BORN RED: today each ABANDONS THE FILE, so
+#  no GR line, no AB-1, no sentinel. AB-1 is a.b(c) -- R3 named it a control, but pob.pm(pb) abandons today (TokenXP's one
+#  InvokeArg slot); pinned at its 2026-10-06 reading, (pob.pm)(pb) = 5.
+run1 groupRefuseT "$T/grf";   check "groupRefuseT runs" 0 $?
+sentinel "groupRefuseT sentinel (BORN RED: the file abandons today)" "$T/grf" "GROUPREFUSE SENTINEL"
+for _gr in 1 2 3 4 5; do
+    kindRow "groupRefuseT GR-$_gr the line before 'next ran' is the refusal (BORN RED)" "$(awk -v n="^GR-$_gr next ran" '$0 ~ n {print (index(prev,"REFUSED")==1 && index(prev,"kant has no parenthetical expressions")>0)} {prev=$0}' "$T/grf")" "1"
+done
+kindRow "groupRefuseT REFUSED lines naming the rule (BORN RED)" "$(grep -c '^REFUSED.*kant has no parenthetical expressions' "$T/grf")" "5"
+kindRow "groupRefuseT AB-1 pob.pm(pb) = (pob.pm)(pb) (BORN RED)" "$(grep '^AB-1 ' "$T/grf" | awk '{print $NF}')" "5"
+
 #  ⚑ parseRT -- STROKE 1.1 SITE 2 (2026-10-04): driveStep's no-data arm, parseR, attaches into the caller's field
 #  with into as an ARGUMENT to parse()/attachLabel() -- the throwaway RuleStuff is gone. Nothing else in the fleet
 #  reaches parseR (a tap counted 0). H7: attachLabel's into arm returning without attaching -> PR-1 and PR-2 read 0.
