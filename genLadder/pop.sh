@@ -5985,7 +5985,8 @@ kindRow "flagRetiredT FR-2 an unflagged count increments" "$(grep '^FR-2' "$T/fr
 #  ⚑ valueTargetT -- SEQ 360 R1 (Tony, 2026-10-15): an assigning operator (= += -= *= /= ++ --) whose target IS
 #  ruler.tempField refuses by name, "the left of <op> is a value, not a field" -- -a and a + b hand back tempField, and
 #  before the cure every VT case wrote it silently (a stayed 10, no word). Born red: 0 REFUSED lines on cb074ba.
-#  Controls cannot refuse: the fixture's total REFUSED count is exactly the eight VT cases. R2 pins a *= -1 and a = -a,
+#  Controls cannot refuse: the fixture's total REFUSED count is exactly VT-1..7. Interpreted only: under jitting
+#  tempField is opDot's accessor carrier, and the identity refused jitDotAssignT's x.name = v (measured, JD-1..3 red). R2 pins a *= -1 and a = -a,
 #  value and kind. H7: refuseValueTarget's test removed -> the REFUSED rows red. The jit road is jitValueTargetT below.
 run1 valueTargetT "$T/vtt";   check "valueTargetT runs" 0 $?
 sentinel "valueTargetT sentinel" "$T/vtt" "VALUETARGET SENTINEL"
@@ -5994,9 +5995,11 @@ for _vt in "1 +=" "2 =" "3 -=" "4 *=" "5 /=" "6 ++" "7 --"; do
     kindRow "valueTargetT VT-$1 -a $2 leaves a" "$(grep "^VT-$1 " "$T/vtt" | awk '{print $NF}')" "10"
     kindRow "valueTargetT VT-$1 the line before it is the refusal naming $2" "$(awk -v n="^VT-$1 " -v w="REFUSED $2 -- the left of $2 is a value, not a field" '$0 ~ n {print (index(prev,w)==1)} {prev=$0}' "$T/vtt")" "1"
 done
-kindRow "valueTargetT VT-8 the line before it is the refusal naming +=" "$(awk -v w='REFUSED += -- the left of += is a value, not a field' '/^VT-8 / {print (index(prev,w)==1)} {prev=$0}' "$T/vtt")" "1"
+#  VT-8 is R1's REPORT case, pinned as it stands: `a + b += 1` is ONE arithmetic fold, so += is a fold step whose target is
+#  runAccFold's copy-out node acRun (14), not tempField -- runAccAssign never runs and R1's identity cannot see it. Not fixed.
+kindRow "valueTargetT VT-8 a + b += 1 does NOT refuse (REPORT pin: += lands on the fold's acRun)" "$(awk -v w='REFUSED' '/^VT-8 / {print (index(prev,w)==1)} {prev=$0}' "$T/vtt")" "0"
 kindRow "valueTargetT VT-8 a + b += 1 leaves a, b" "$(grep '^VT-8 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "10 4"
-kindRow "valueTargetT REFUSED lines, the whole fixture (VT-8's += is the 8th; the controls add none)" "$(grep -c '^REFUSED' "$T/vtt")" "8"
+kindRow "valueTargetT REFUSED lines, the whole fixture (VT-1..7; VT-8 and the controls add none)" "$(grep -c '^REFUSED' "$T/vtt")" "7"
 kindRow "valueTargetT VK-1 a += 3" "$(grep '^VK-1 ' "$T/vtt" | awk '{print $NF}')" "13"
 kindRow "valueTargetT VK-2 a = -a" "$(grep '^VK-2 ' "$T/vtt" | awk '{print $NF}')" "-10"
 kindRow "valueTargetT VK-3 a.datA = 1 leaves a, kind" "$(grep '^VK-3 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "10 5"

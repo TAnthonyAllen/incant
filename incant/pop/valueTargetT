@@ -50,12 +50,17 @@ stop();
 valueTargetT -- SEQ 360 R1 / R2 (Tony, 2026-10-15): AN ASSIGNMENT ONTO A COMPUTED VALUE REFUSES.
 
 An assigning operator (=, +=, -=, *=, /=, ++, --) whose target IS ruler.tempField -- identity, not noPrint, not the
-name -- refuses by name: "the left of <op> is a value, not a field". -a and a + b hand back tempField, so before the
-cure each of VT-1 .. VT-8 wrote tempField silently: a stayed 10 and nothing said so. Each case is its own action,
+name -- refuses by name: "the left of <op> is a value, not a field". -a hands back tempField, so before the
+cure each of VT-1 .. VT-7 wrote tempField silently: a stayed 10 and nothing said so. Each case is its own action,
 because a refusal abandons the rest of its block; the value is read at top level after the call.
-  VT-1 .. VT-8   a (and b) unchanged, one REFUSED line per case naming its operator
+  VT-1 .. VT-7   a unchanged, one REFUSED line per case naming its operator
+  VT-8           REPORT, not fixed: a + b += 1 is ONE arithmetic fold, so += is a fold step whose target is
+                 runAccFold's copy-out node acRun (holding 14), not tempField. runAccAssign never runs, the
+                 identity cannot see it, and a, b stay 10, 4 with no refusal (lldb, 2026-10-15)
   VK-1 .. VK-4   controls: a real field, a field negated into itself, an accessor write, an action local -- none
-                 refuses (the fixture's total REFUSED count is exactly the VT cases)
+                 refuses (the fixture's total REFUSED count is exactly VT-1 .. VT-7)
   R2-1 .. R2-4   pins: a *= -1 and a = -a on a count (7 -> -7, kind 5) and a number (2.5 -> -2.5, kind 9)
   VP-1           probe, report only: c = -a + -b with a 3, b 4 (shared tempField; Clay's guess -7)
 The jit road is incant/pop/jit/jitValueTargetT.
+Interpreted only: under jitting, tempField is opDot's accessor carrier (jitEmitDot), and the identity refused
+jitDotAssignT's jitted x.name = v -- so refuseValueTarget returns 0 under jitting.

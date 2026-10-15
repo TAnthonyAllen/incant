@@ -794,6 +794,23 @@ extern int refuseArgRebind(GroupItem op,GroupItem target)
 }
 
 
+// refuseValueTarget an assigning operator whose target IS tempField -- a computed value, never a field -- refuses by name; 1 when it refused (Tony, SEQ 360 R1). Interpreted only: under jitting tempField is opDot's accessor carrier (jitEmitDot), so the identity would refuse x.name = v
+extern int refuseValueTarget(GroupItem op,GroupItem target)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    if ( !op || !target || ruler->jitting || target != ruler->tempField ) return 0;
+    void *gop = (void*)op->groupBody->gOp, *gm = (void*)op->groupBody->gMethod;
+    if ( gop != (void*)&opAssign && gop != (void*)&opPlusEQ && gop != (void*)&opMinusEQ && gop != (void*)&opMultiplyEQ
+         && gop != (void*)&opDivEQ && gm != (void*)&opPlusPlus && gm != (void*)&opMinusMinus ) return 0;
+    char why[128];
+    ::snprintf(why,sizeof(why),"the left of %s is a value, not a field",op->groupBody->tag);
+    ::refuse(op,why);
+    return 1;
+    %-
+}
+
+
 // refuseUnknownOperator an operator registered in Operators with no operateMethod refuses by name; a rule, action or value reaching the foot is untouched
 extern GroupItem refuseUnknownOperator(GroupItem op,GroupItem target)
 {
@@ -1007,6 +1024,8 @@ GroupItem   op = field[2], val = null, target;
     if ruler.refused
         if !ruler.jitting   return null;
     if op.instructType && target.isMethod && target.invoke  target = target.method(target);
+    // valueTarget a computed target -- tempField -- refuses by name (Tony, SEQ 360 R1)
+    if refuseValueTarget(op,target)     return null;
     if target && target.isVirtual   target = copyOf(target);
     return runOPdirect(op,target,val);
 }
@@ -1177,6 +1196,8 @@ GroupItem   op, val, arg;
         // noTarget an operator that is not a unary has no target in a prefix position -- `x &= y` read as `x & (= y)`; refuse it by name, never call it as one (SEQ 347 R4)
         if !op.isUnary && op.tag ne "."
             return refuse(op,"an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)");
+        // valueTarget ++ or -- on a computed value -- tempField -- refuses by name (Tony, SEQ 360 R1)
+        if refuseValueTarget(op,val)    return null;
         return op.method(val); }
     // noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
     if field.tag eq "acC" {

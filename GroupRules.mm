@@ -9674,6 +9674,22 @@ extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target)
 	
 }
 
+// refuseValueTarget an assigning operator whose target IS tempField -- a computed value, never a field -- refuses by name; 1 when it refused (Tony, SEQ 360 R1). Interpreted only: under jitting tempField is opDot's accessor carrier (jitEmitDot), so the identity would refuse x.name = v
+extern "C" int refuseValueTarget(GroupItem *op, GroupItem *target)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if ( !op || !target || ruler->jitting || target != ruler->tempField ) return 0;
+	void *gop = (void*)op->groupBody->gOp, *gm = (void*)op->groupBody->gMethod;
+	if ( gop != (void*)&opAssign && gop != (void*)&opPlusEQ && gop != (void*)&opMinusEQ && gop != (void*)&opMultiplyEQ
+	&& gop != (void*)&opDivEQ && gm != (void*)&opPlusPlus && gm != (void*)&opMinusMinus ) return 0;
+	char why[128];
+	::snprintf(why,sizeof(why),"the left of %s is a value, not a field",op->groupBody->tag);
+	::refuse(op,why);
+	return 1;
+	
+}
+
 // repeatsInLoop the ONE test for "this term repeats inside parseLoop": every rule body, and max > 1 when not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208). Its first clause is ruling A -- every rule body (SEQ 203; reverted SEQ 211, back with the drive-compile merge, SEQ 217)
 extern "C" int repeatsInLoop(GroupItem *field)
 {
@@ -10013,6 +10029,9 @@ GroupItem 	*target = 0;
 			return 0;
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
+	// valueTarget a computed target -- tempField -- refuses by name (Tony, SEQ 360 R1)
+	if ( ::refuseValueTarget(op,target) )
+		return 0;
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
 	return ::runOPdirect(op,target,val);
@@ -10237,6 +10256,9 @@ GroupItem 	*arg = 0;
 		// noTarget an operator that is not a unary has no target in a prefix position -- `x &= y` read as `x & (= y)`; refuse it by name, never call it as one (SEQ 347 R4)
 		if ( !op->groupBody->flags.isUnary && ::compare(op->groupBody->tag,".") != 0 )
 			return ::refuse(op,"an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)");
+		// valueTarget ++ or -- on a computed value -- tempField -- refuses by name (Tony, SEQ 360 R1)
+		if ( ::refuseValueTarget(op,val) )
+			return 0;
 		return op->groupBody->gMethod(val);
 		}
 	// noStepList each step goes straight to runOPdirect -- no acStep list is built (SEQ 318 c1)
