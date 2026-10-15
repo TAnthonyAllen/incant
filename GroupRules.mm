@@ -7633,6 +7633,10 @@ GroupItem 	*product = 0;
 					if ( target->groupBody->flags.isUnary )
 						product->setCount(1);
 					break;
+				case 46:
+					if ( target->groupBody->flags.fLAG )
+						product->setCount(1);
+					break;
 				case 401:
 					if ( !target->nextInParent )
 						product = 0;
@@ -10471,6 +10475,9 @@ int 		on = 0;
 			break;
 		case 41:
 			target->groupBody->flags.hasNewParse = on;
+			break;
+		case 46:
+			target->groupBody->flags.fLAG = on;
 			// isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
 			break;
 		case 408:
@@ -10745,10 +10752,10 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*argument = field->get(3);
 	// noPrint is set instead of invoke because if invoke is set runOP runs the invoked field before it gets here
-	if ( argument && argument->groupBody->flags.noPrint )
+	if ( argument && argument->groupBody->flags.fLAG )
 		argument = ::testOP(argument);
 GroupItem 	*target = field->get(2);
-	if ( target->groupBody->flags.noPrint )
+	if ( target->groupBody->flags.fLAG )
 		target = ::testOP(target);
 	if ( op->groupBody->flags.isUnary )
 		result = op->groupBody->gMethod(target);

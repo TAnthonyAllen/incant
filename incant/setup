@@ -284,6 +284,7 @@ define
     hasNewParsE=41;
     isCodeD=40;
     isUnarY=45;
+    flaG=46;
     nexT=401;
     prioR=402;
     firsT=403;

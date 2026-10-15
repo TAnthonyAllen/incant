@@ -364,6 +364,7 @@ use argument
                 // debuggeDNoWriteHalf READ-ONLY by design: the debug rule is the flag's only writer, and a second would let a fixture fake its own reading
                 case 44:    if target.debugged      product.count = 1;
                 case 45:    if target.isUnary       product.count = 1;
+                case 46:    if target.fLAG          product.count = 1;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;
@@ -1173,6 +1174,7 @@ int         on = 0;
             case 40:    if on   target.actionType = 2;
                         or target.actionType == 2   target.actionType = 0;
             case 41:    target.hasNewParse  = on;
+            case 46:    target.fLAG         = on;
             // isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
             case 408:   if on   target.actionType = 1;
                         or target.actionType == 1   target.actionType = 0;
