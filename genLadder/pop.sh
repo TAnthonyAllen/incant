@@ -1846,10 +1846,12 @@ sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 #  new Grokking rules each carrying attributes and traits (tik, quoteBody) -- +2 on TF-2/3/4; QuotE itself is
 #  now a bin of those two members and carries no attributes -- -1 on TF-2/3/4 and +1 on TF-6. Net TF-2/3/4
 #  48 -> 49, TF-6 37 -> 38. TF-5 unmoved at 0.
-for _arm in "TF-1 rules seen                   =  87" \
-            "TF-2 carrying hasAttributeS       =  49" \
-            "TF-3 carrying hasTraitS           =  49" \
-            "TF-4 carrying BOTH                =  49" \
+#  RE-PINNED 2026-10-15 (SEQ 362 R0): TF-1 87 -> 85, TF-2/3/4 49 -> 47 -- TokenXP and UnaryXP left the grammar (S4b).
+#  TF-5 and TF-6 unmoved.
+for _arm in "TF-1 rules seen                   =  85" \
+            "TF-2 carrying hasAttributeS       =  47" \
+            "TF-3 carrying hasTraitS           =  47" \
+            "TF-4 carrying BOTH                =  47" \
             "TF-6 no attributes                =  38" \
             "TF-5 the two flags DISAGREE on    =  0"; do
     if grep -qF "$_arm" "$T/tf"; then
@@ -3291,8 +3293,10 @@ done
 #  RE-PINNED refusals 1 -> 3, switch on (SEQ 336 R1, 2026-10-12): a lone operator's by-name refusal count is 3 -- SEQ 327 R1
 #  holding on all three drives: the jitted drives now reach the operator and refuse it by name, as the interpreted drive does.
 #  The old road's "accepts 1 of 1" was the switch-off pin: the old road retired, 2026-10-13 (SEQ 353).
-if [ "$(_tjl INTERP 4)" = "verdict=0 consumed=0 length=1 terms=5 fires=1 true=1" ] && [ "$(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")" = 3 ]; then echo "  ok    tokJitT % (L) a lone operator is refused by name"; green=$((green+1)); else echo "  FAIL  tokJitT % (L) reads $(_tjl INTERP 4), refusals $(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")"; fail=1; fi
-if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=5 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
+#  RE-PINNED 2026-10-15 (SEQ 362 R0): % (L) and : bb cc terms 5 -> 6 -- Token gained an alternative in S4b's respell; verdicts
+#  and refusals unchanged.
+if [ "$(_tjl INTERP 4)" = "verdict=0 consumed=0 length=1 terms=6 fires=1 true=1" ] && [ "$(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")" = 3 ]; then echo "  ok    tokJitT % (L) a lone operator is refused by name"; green=$((green+1)); else echo "  FAIL  tokJitT % (L) reads $(_tjl INTERP 4), refusals $(grep -c '^REFUSED % -- a prefix operator with no operand' "$T/tj.e")"; fail=1; fi
+if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=6 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
 _tjd=$(grep -c '=== jitDegrade count = 0 ===' "$T/tj.o"); _tjc=$(grep -c 'jitDegrade count' "$T/tj.o")
 if [ "$_tjc" -gt 0 ] && [ "$_tjd" -eq "$_tjc" ]; then echo "  ok    tokJitT $_tjc compile(s), degrade 0"; green=$((green+1))
 else echo "  FAIL  tokJitT degrade: $_tjd of $_tjc compiles at 0"; fail=1; fi
@@ -3316,11 +3320,13 @@ run2 sweepT "$T/sw.o" "$T/sw.e"; check "sweepT runs" 0 $?
 if grep -qxE 'SWEEP SENTINEL ?' "$T/sw.e"; then echo "  ok    sweepT sentinel (exact line)"; green=$((green+1)); else echo "  FAIL  sweepT sentinel missing -- the file was abandoned or truncated"; fail=1; fi
 #  RE-PINNED 2026-09-29 (0f24004, Tony's QuotE respell): 47 -> 49 carriers certified -- QuotE1 and QuotE2 are two new
 #  rules the sweep reaches, and both AGREE at degrade 0; diff stays 0.
-if grep -q '^SWEEP END .* certified=49 agree=49 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=49 agree=49 diff=0"; green=$((green+1))
+#  RE-PINNED 2026-10-15 (SEQ 362 R0): 49 -> 47 certified, carriers 66 -> 64 -- TokenXP and UnaryXP left the grammar (S4b);
+#  exactly those two results left the set, and every remaining one still AGREEs, diff 0.
+if grep -q '^SWEEP END .* certified=47 agree=47 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=47 agree=47 diff=0"; green=$((green+1))
 else echo "  FAIL  sweepT MOVED: $(grep '^SWEEP END' "$T/sw.e")"; fail=1; fi
 _swr=$(grep -c '^SWEEP RESULT .* AGREE degrade=0$' "$T/sw.e"); _swa=$(grep -c '^SWEEP RESULT ' "$T/sw.e")
-if [ "$_swa" -eq 49 ] && [ "$_swr" -eq 49 ]; then echo "  ok    sweepT 49 carrier results, every one AGREE at degrade 0"; green=$((green+1))
-else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 49 of 49)"; fail=1; fi
+if [ "$_swa" -eq 47 ] && [ "$_swr" -eq 47 ]; then echo "  ok    sweepT 47 carrier results, every one AGREE at degrade 0"; green=$((green+1))
+else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 47 of 47)"; fail=1; fi
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
 
@@ -3377,7 +3383,9 @@ _oll() { grep "^PROBEDRIVE root=ExpressioN armed=Token" "$T/ol.e" | sed -n "${1}
 #  RE-PINNED terms 6 -> 5 (SEQ 288 R1, 2026-10-03): guardOK as an argument cannot outlive its call; the stored bit
 #  survived getStuff's in-process copy and gave later parses of the rule an unearned guard pass, one extra term
 #  attempted per drive. Per operator: '+=' was not moved (no leaked pass on its drives) and stays 6.
-for _op in "1 2 3 == 2 5" "4 5 6 <= 2 5" "7 8 9 += 2 6" "10 11 12 = 1 5"; do
+#  RE-PINNED 2026-10-15 (SEQ 362 R0): '==' '<=' '=' terms 5 -> 6 -- Token gained an alternative in S4b's respell; verdicts and
+#  refusals unchanged. '+=' did not move (measured) and stays 6.
+for _op in "1 2 3 == 2 6" "4 5 6 <= 2 6" "7 8 9 += 2 6" "10 11 12 = 1 6"; do
     set -- $_op
     _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3)
     #  RE-PINNED switch on (SEQ 331, 2026-10-10): each message is a LONE operator, and a lone operator is not an
@@ -3429,7 +3437,9 @@ done
 #      recording scope DISCARDS it, counted, and the drive's verdict (0) is the whole report.
 #  The engine is read off the binary (ptfScopeOpen), never assumed. The branch row asserts
 #  the discard BY VALUE beside the refusal's absence, so the absence never stands alone (H4).
-_srRef='REFUSED ANYorNum -- `.5` is not a number -- a number needs a leading digit; write 0.5'
+#  RE-PINNED 2026-10-15 (SEQ 362 R0): the refusal now names Token; .5 still refused (S4b moved it to pass 2, where its subject
+#  is the literal -- there is no ANYorNum label any more).
+_srRef='REFUSED Token -- `.5` is not a number -- a number needs a leading digit; write 0.5'
 if nm -gU "$(readlink "$B" || echo "$B")" 2>/dev/null | grep -q '_ptfScopeOpen$' && [ "${PTF:-1}" != 0 ]; then
     PTF_TRACE=1 $B "$T/srDot.twk" > "$T/srDotT.e" 2>&1
     if grep -qF 'PTF DISCARD rejected parse rule=StatemenT records=3' "$T/srDotT.e" && ! grep -qF "$_srRef" "$T/srDotT.e"; then
