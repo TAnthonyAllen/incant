@@ -123,21 +123,19 @@ define
     PrintXP
         ShortcuT;
         PrintField  ExpressioN FormaT?;
-    UnaryXP         UnaryOPS ANYtoken;
     IterSource      UnaryOPS? ANYtoken;
     InvokeArg
         Braced      leftBrace-="[" ExpressioN rightBrace-="]";
         Parens      leftParen-="(" ExpressioN? rightParen-=")";
-        UnaryXP;
     ANYorNum
         NumbeR;
         ANYtoken;
-    TokenXP         UnaryOPS? ANYorNum^ InvokeArg?;
     Token
         QuotE;
         NumbeR;
         StringXP    pound-="#" stuff=PrintXP+ defer;
-        TokenXP;
+        ANYorNum;
+        InvokeArg;
         Operators;
     ExpressioN      Token+;
     ScopeField
