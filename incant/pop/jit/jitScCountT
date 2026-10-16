@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    scL;
+    scR;
+    scA;
+    scB;
+    scN;
+    scId code={ scN += 1; return argument; };
+    scDriver code={
+        scH := scId;
+        scA = scL && *scH(scR);
+        scB = *scH(scL) || scR;
+        };
+    ;
+scL = 1; scR = 1; scN = 0;
+testing(scDriver);
+cerr "JSC jitted      calls " scN " a " scA " b " scB:;
+scL = 1; scR = 1; scN = 0;
+scDriver();
+cerr "JSC interpreted calls " scN " a " scA " b " scB:;
+cerr "JITSCCOUNT SENTINEL":;
+stop();
+
+jitScCountT -- SEQ 372 R2 (Tony, 2026-10-16): jitXscRT's shape with a call counter. Each AND/OR operand the jit
+cannot emit (a starred call) runs at run time on the interpreted road (jitScOperandRT). A statement is handed over
+ONCE: the boundary must not also hand the whole statement to jitStmtRT, or each call runs twice. The jitted count
+must equal the interpreted count. scN is declared because two actions touch it (bear-trap #39).

@@ -6085,6 +6085,22 @@ kindRow "jitRefuseUntakenT jitted" "$(grep -c '^=== jitRunAction: entering on ru
 kindRow "jitRefuseUntakenT JRS-U = RS-U: n b c d" "$(grep '^JRS-U ' "$T/jru" | awk '{print $6, $8, $10, $12}')" "10 1 7 6"
 kindRow "jitRefuseUntakenT REFUSED lines (an untaken branch refuses nothing) (BORN RED 2026-10-16)" "$(grep -c '^REFUSED' "$T/jru")" "0"
 
+#  ⚑ jitParseRefuseT / jitScCountT -- SEQ 372 (Tony, 2026-10-16), two repairs on jit-refuse-scope.
+#  jitParseRefuseT (R0, R1): pgAct's first parse happens inside testing()'s build (jitting set). Its pass-1 refusal
+#  ("kant has no parenthetical expressions") must PRINT, once, as on trunk -- the silence is scoped to the emit walk -- and
+#  must end with the parse: no run-time interpreted call in the IR. Born red on 02f2cec: REFUSED 0, stmtRT 1.
+run1 jitParseRefuseT "$T/jpr";   check "jitParseRefuseT runs" 0 $?
+sentinel "jitParseRefuseT sentinel" "$T/jpr" "JITPARSEREFUSE SENTINEL"
+kindRow "jitParseRefuseT a c (= interpreted: 12 7)" "$(grep '^JPR ' "$T/jpr" | awk '{print $(NF-2), $NF}')" "12 7"
+kindRow "jitParseRefuseT the parse's refusal printed, once (BORN RED 2026-10-16)" "$(grep -c '^REFUSED Token -- kant has no parenthetical expressions' "$T/jpr")" "1"
+kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinned on a statement) (BORN RED 2026-10-16)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitParseRefuseT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "0"
+#  jitScCountT (R2): each AND/OR operand the jit cannot emit runs interpreted at run time (jitScOperandRT); the statement is
+#  handed over ONCE. Born red on 02f2cec: jitted 4 calls, interpreted 2 -- the boundary handed the whole statement over too.
+run1 jitScCountT "$T/jsc";   check "jitScCountT runs" 0 $?
+sentinel "jitScCountT sentinel" "$T/jsc" "JITSCCOUNT SENTINEL"
+kindRow "jitScCountT interpreted calls a b" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')" "2 1 1"
+kindRow "jitScCountT jitted calls = interpreted (BORN RED 2026-10-16)" "$(grep '^JSC jitted ' "$T/jsc" | awk '{print $4, $6, $8}')" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')"
+
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
 #  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the
