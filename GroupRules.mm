@@ -3601,7 +3601,14 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// =========================== end frame prologue ===========================
 	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
 	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
+	//  walkScope the emit walk begins clean (a parse's refusal ended with the parse) and is the only stretch where refuse() is silent (SEQ 372 R0, R1)
+	{
+	::clearRefusal(action);
+	bool walkSave = gJitEmitWalk;
+	gJitEmitWalk = true;
 	jitExecBlock(action);
+	gJitEmitWalk = walkSave;
+	}
 	ruler->jitting = 0;
 	ruler->branchKind = emitBranchSave;
 	
@@ -4887,6 +4894,8 @@ extern "C" void jitEmitScOperandRT(GroupItem *operand)
 	gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
+	//  handedOnce the operand's run-time call is its statement's hand-over: the boundary must not hand the whole statement to jitStmtRT as well (SEQ 372 R2)
+	if (gJitStmt)   gJitStmtRTDone = true;
 	
 }
 
@@ -9435,7 +9444,10 @@ char 		*failText = 0;
 	ruler->lastIndent = 0;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
 	// compileOwner the drive's floor carries the owner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214, SEQ 299)
+	// parseSpeaks a parse's refusal prints, even mid-walk, and ends with the parse -- never pinned on an emitted statement (SEQ 372 R0, R1)
+	 bool walkSave = gJitEmitWalk; gJitEmitWalk = false; 
 	result = ::driveStep(code,blockRULE,codeReport,action);
+	 gJitEmitWalk = walkSave; if ( walkSave ) ::clearRefusal(field); 
 	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
@@ -9631,11 +9643,13 @@ extern "C" GroupItem *refuse(GroupItem *subject, char *why)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*name = "(none)";
+int 		silent = 0;
 	if ( subject )
 		name = subject->groupBody->tag;
 	// theLine sourceLINE is where the PARSER is, stale for a cached body -- no usable per-statement line exists; do not chase it
-	// emitSilent while jitting a refusal is not announced: the statement runs on the interpreted road at RUN time, which announces it there if it refuses there (SEQ 370 R1)
-	if ( !ruler->jitting )
+	// emitSilent only in the jit EMIT WALK is a refusal not announced: the statement runs on the interpreted road at RUN time, which announces it there (SEQ 370 R1, scoped by SEQ 372 R0)
+	 silent = ruler->jitting && gJitEmitWalk; 
+	if ( !silent )
 		::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
 	ruler->refused = 1;
 	return 0;

@@ -325,7 +325,14 @@ extern int jitBuildFunction(GroupItem action)
     // =========================== end frame prologue ===========================
     // Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
     // control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
-    jitExecBlock(action);
+    //  walkScope the emit walk begins clean (a parse's refusal ended with the parse) and is the only stretch where refuse() is silent (SEQ 372 R0, R1)
+    {
+        ::clearRefusal(action);
+        bool walkSave = gJitEmitWalk;
+        gJitEmitWalk = true;
+        jitExecBlock(action);
+        gJitEmitWalk = walkSave;
+    }
     ruler->jitting = 0;
     ruler->branchKind = emitBranchSave;
 
@@ -2089,6 +2096,8 @@ extern void jitEmitScOperandRT(GroupItem operand)
     gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
     gJitEmitted    = true;
     gJitLastIsNode = false;
+    //  handedOnce the operand's run-time call is its statement's hand-over: the boundary must not hand the whole statement to jitStmtRT as well (SEQ 372 R2)
+    if (gJitStmt)   gJitStmtRTDone = true;
     %-
 }
 
