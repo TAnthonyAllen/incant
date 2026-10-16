@@ -6053,6 +6053,28 @@ kindRow "jitValueTargetT JR2-2 count a = -a, kind" "$(grep '^JR2-2 ' "$T/jvt" | 
 kindRow "jitValueTargetT JR2-3 number a *= -1, kind" "$(grep '^JR2-3 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 kindRow "jitValueTargetT JR2-4 number a = -a, kind" "$(grep '^JR2-4 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 
+#  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
+#  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
+#  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the
+#  intended value is in its label: refused by name ("the left of <op> is a value, not a field"), operands unchanged.
+#  `a + b += 1` alone is VT-8 (interpreted) and JVT-8 (jitted) above -- not duplicated.
+run1 opEqFoldT "$T/oef";   check "opEqFoldT runs" 0 $?
+sentinel "opEqFoldT sentinel" "$T/oef" "OPEQFOLD SENTINEL"
+kindRow "opEqFoldT OF-1 a < b += 1 -> a b  # intended: refused, 10 4" "$(grep '^OF-1 ' "$T/oef" | awk '{print $(NF-2), $NF}')" "10 5"
+kindRow "opEqFoldT OF-2 s + t += x -> s t  # intended: refused, ab cd" "$(grep '^OF-2 ' "$T/oef" | awk '{print $(NF-2), $NF}')" "ab cd"
+kindRow "opEqFoldT OF-3 r = a < b += 1 -> r (its own tag)  # intended: refused" "$(grep '^OF-3 ' "$T/oef" | awk '{print $NF}')" "ofQ"
+kindRow "opEqFoldT OF-4 r = a + b += 1 -> a r  # intended: refused, a 10" "$(grep '^OF-4 ' "$T/oef" | awk '{print $(NF-2), $NF}')" "10 15"
+kindRow "opEqFoldT REFUSED lines  # intended: 4" "$(grep -c '^REFUSED' "$T/oef")" "0"
+run1 jitOpEqFoldT "$T/joef";   check "jitOpEqFoldT runs" 0 $?
+sentinel "jitOpEqFoldT sentinel" "$T/joef" "JITOPEQFOLD SENTINEL"
+kindRow "jitOpEqFoldT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on joAct' "$T/joef")" "1"
+kindRow "jitOpEqFoldT JOF-1 a < b += 1 -> a b  # intended: refused, 10 4" "$(grep '^JOF-1 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "10 5"
+kindRow "jitOpEqFoldT JOF-2 s + t += x -> s t, BOTH WRITTEN  # intended: refused, ab cd" "$(grep '^JOF-2 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "2x 1"
+kindRow "jitOpEqFoldT JOF-3 r = a < b += 1 -> r  # intended: refused" "$(grep '^JOF-3 ' "$T/joef" | awk '{print $NF}')" "0"
+kindRow "jitOpEqFoldT JOF-4 r = a + b += 1 -> a r  # intended: refused, a 10" "$(grep '^JOF-4 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "10 15"
+kindRow "jitOpEqFoldT JOF-4 degrade count (the outer = gets a null)  # intended: 0" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/joef")" "1"
+kindRow "jitOpEqFoldT REFUSED lines (JOF-4's fold step)  # intended: 4" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/joef")" "1"
+
 #  ⚑ flagPlusT / jitFlagPlusT -- F-131 (SEQ 364, Tony, 2026-10-16): opPlusPlus stops reading fLAG. A flagged count ++s like
 #  any other count, and a flagged iterator steps. Born red on trunk: `if result.fLAG return 0;` sat in opPlusPlus twice --
 #  copy 1 above the iterator arm (so above both jitting gates: it guarded counts on both roads, and at EMIT time on the

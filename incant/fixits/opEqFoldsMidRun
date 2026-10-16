@@ -1,0 +1,61 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(OpEqFoldsMidRun);
+define
+    oeA=10;
+    oeB=4;
+    oeS="ab";
+    oeT="cd";
+    oeJ1; oeJ2; oeJ3; oeJ4;
+    oeI1; oeI2; oeI3; oeI4;
+    oeJit code={
+        oeA = 10; oeB = 4; oeA < oeB += 1; oeJ1 = oeB;
+        oeS = "ab"; oeT = "cd"; oeS + oeT += "x"; oeJ2 = oeS; oeJ3 = oeT;
+        };
+    oeInt code={
+        oeA = 10; oeB = 4; oeA < oeB += 1; oeI1 = oeB;
+        oeS = "ab"; oeT = "cd"; oeS + oeT += "x"; oeI2 = oeS; oeI3 = oeT;
+        };
+    ;
+cerr "ANCHOR opEqFoldsMidRun -- a compound assignment folds mid-run instead of splitting at its tier; operands get written":;
+testing(oeJit);
+oeInt();
+print "OEF jitted      a < b += 1    -> b " oeJ1 "  (want 4, refused by name)":;
+print "OEF interpreted a < b += 1    -> b " oeI1 "  (want 4, refused by name)":;
+print "OEF jitted      s + t += x    -> s " oeJ2 " t " oeJ3 "  (want ab cd, refused by name)":;
+print "OEF interpreted s + t += x    -> s " oeI2 " t " oeI3 "  (want ab cd, refused by name)":;
+fixOpEqFoldsMidRunHere = 0;
+cerr "SENTINEL opEqFoldsMidRun reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 367 R2, Tony; severity LATENT)
+
+opEqFoldsMidRun -- a compound assignment (+= -= *= /=) whose left side is an expression is folded MID-RUN as one more
+arithmetic step, instead of being split at the assignment tier at build (the 10-06 direction). So its target is
+whatever the run holds at that point: a FIELD read (a < b += 1 is acK(a, <, acX(b, +=, 1)), so b is written, both
+roads), a copy (a + b += 1 and s + t += x interpreted land on runAccFold's acRun copy, no word), or -- jitted -- the
+left operand carrying a computed value. jitEmitBinary records its value (SEQ 365), so a jitted a + b += 1 refuses;
+jitEmitConcat records none, so a jitted s + t += x writes BOTH operands (s 2x, t 1). r = a < b += 1 leaves r with no
+value interpreted (its tag) and 0 jitted; r = a + b += 1 reads a 10 r 15 both roads, jitted after one degrade.
+Severity latent: no fleet row or incantation writes these shapes. Pinned at today's values by incant/pop/opEqFoldT and
+incant/pop/jit/jitOpEqFoldT, each row labelled with its intended value.
+
+where: the op= fold step, both roads -- interpretXPaccum's tier split (ruleActions.rtn) and runAccFold (GroupActions.rtn).
+guess: compound assignment is not split at its tier at build.
+
+NEXT: OPEN -- what would generate a candidate: the ACCUM TREE (INCANT_ACCUM_TRACE=1) for each shape beside the tree for a
+plain a += 1 (acA), to see where the split decides that an op= after an operand is a fold step rather than the
+assignment tier; then the 10-06 direction's text for which tier an op= belongs to. Taken: all four lines read the
+wanted values with a REFUSED line each. Not taken: the values above.
+
+ATTEMPT LOG
+  2026-10-16 SEQ 366 measure -- a < b += 1 b 5 both roads (STOP: interpreted writes an operand); s + t += x interpreted
+    ab cd, jitted 2x 1; r = a + b += 1 a 10 r 15 both, jitted one degrade.
+  2026-10-16 SEQ 367 pinned at today's values: opEqFoldT OF-1..4, jitOpEqFoldT JOF-1..4 + degrade 1 + REFUSED 1.
+    New reading: jitted r = a < b += 1 reads r 0 (interpreted: the tag ofQ). Not cured.

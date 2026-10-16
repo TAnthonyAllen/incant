@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(OpEqFold);
+define
+    ofA=10;
+    ofB=4;
+    ofS="ab";
+    ofT="cd";
+    ofR;
+    ofQ;
+    ofC1;
+    ofC2;
+    ofK1;
+    ofK2;
+    ofN;
+    ofAct code={
+        ofA = 10; ofB = 4; ofA < ofB += 1; ofC1 = ofA; ofC2 = ofB;
+        ofS = "ab"; ofT = "cd"; ofS + ofT += "x"; ofK1 = ofS; ofK2 = ofT;
+        ofA = 10; ofB = 4; ofQ = ofA < ofB += 1;
+        ofA = 10; ofB = 4; ofR = ofA + ofB += 1; ofN = ofA;
+        };
+    ;
+ofAct();
+cerr "OF-1 a < b += 1          -> a " ofC1 " b " ofC2:;
+cerr "OF-2 s + t += x          -> s " ofK1 " t " ofK2:;
+cerr "OF-3 r = a < b += 1      -> r " ofQ:;
+cerr "OF-4 r = a + b += 1      -> a " ofN " r " ofR:;
+cerr "OPEQFOLD SENTINEL":;
+stop();
+
+opEqFoldT -- SEQ 367 (Tony, 2026-10-16): the op= fold oddities, PINNED AT TODAY'S VALUES on the interpreted road
+(jitOpEqFoldT is the jit road, its own process). Not cured -- fixit incant/fixits/opEqFoldsMidRun.
+A compound assignment is folded MID-RUN as an arithmetic fold step instead of being split at the assignment tier, so:
+  OF-1  a < b += 1      -> a 10 b 5. The tier tree is acK(a, <, acX(b, +=, 1)): the fold's running value starts as
+        the FIELD b, so b is written. Intended: refused by name ("the left of += is a value, not a field"), b 4.
+  OF-2  s + t += "x"    -> s ab t cd. Lands on runAccFold's acRun copy, as VT-8 does. Intended: refused, s ab t cd.
+  OF-3  r = a < b += 1  -> r has no value and prints its own tag (ofQ). Intended: refused.
+  OF-4  r = a + b += 1  -> a 10 r 15. Intended: refused, a 10.
+a + b += 1 alone is valueTargetT VT-8 (interpreted, lands on the copy) and jitValueTargetT JVT-8 (jitted, refused) --
+not duplicated here.

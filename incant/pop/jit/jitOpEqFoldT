@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    joA=10;
+    joB=4;
+    joS="ab";
+    joT="cd";
+    joR;
+    joQ;
+    joC1;
+    joC2;
+    joK1;
+    joK2;
+    joN;
+    joAct code={
+        joA = 10; joB = 4; joA < joB += 1; joC1 = joA; joC2 = joB;
+        joS = "ab"; joT = "cd"; joS + joT += "x"; joK1 = joS; joK2 = joT;
+        joA = 10; joB = 4; joQ = joA < joB += 1;
+        joA = 10; joB = 4; joR = joA + joB += 1; joN = joA;
+        };
+    ;
+testing(joAct);
+cerr "JOF-1 a < b += 1          -> a " joC1 " b " joC2:;
+cerr "JOF-2 s + t += x          -> s " joK1 " t " joK2:;
+cerr "JOF-3 r = a < b += 1      -> r " joQ:;
+cerr "JOF-4 r = a + b += 1      -> a " joN " r " joR:;
+cerr "JITOPEQFOLD SENTINEL":;
+stop();
+
+jitOpEqFoldT -- SEQ 367: opEqFoldT's shapes on the jit road (testing() routes the coded action to jitRunAction; the
+interpreted road is opEqFoldT, its own process). Pinned at today's values; fixit incant/fixits/opEqFoldsMidRun.
+  JOF-1  a < b += 1      -> a 10 b 5 (as interpreted: b written). Intended: refused, b 4.
+  JOF-2  s + t += "x"    -> s 2x t 1 -- BOTH operands written (jitEmitConcat records no computed value). Intended:
+         refused, s ab t cd.
+  JOF-3  r = a < b += 1  -> r 0 (interpreted: no value, the tag). Intended: refused.
+  JOF-4  r = a + b += 1  -> a 10 r 15: the fold step refuses (REFUSED +=, SEQ 365) and the outer = degrades once and
+         runs interpreted. Intended: refused, a 10, no degrade.
