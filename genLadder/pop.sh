@@ -6043,6 +6043,29 @@ kindRow "jitValueTargetT JR2-2 count a = -a, kind" "$(grep '^JR2-2 ' "$T/jvt" | 
 kindRow "jitValueTargetT JR2-3 number a *= -1, kind" "$(grep '^JR2-3 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 kindRow "jitValueTargetT JR2-4 number a = -a, kind" "$(grep '^JR2-4 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 
+#  ⚑ flagPlusT / jitFlagPlusT -- F-131 (SEQ 364, Tony, 2026-10-16): opPlusPlus stops reading fLAG. A flagged count ++s like
+#  any other count, and a flagged iterator steps. Born red on trunk: `if result.fLAG return 0;` sat in opPlusPlus twice --
+#  copy 1 above the iterator arm (so above both jitting gates: it guarded counts on both roads, and at EMIT time on the
+#  jit road), copy 2 inside the iterator arm below its jitting gate (interpreted iterators only). Census before the cut:
+#  0 flagged hits on either copy across pop.sh and jitLadder; no kant `:. flaG` in the fleet; the engine's own fLAG writers
+#  (aCTionIterate's poison, Braced, define attributes, attachLabel) never reached ++. FP-F / JFP-F prove the flag is set.
+#  The jit row sets the flag interpreted (jfSet): `:. flaG` in a jitted action refuses (jitSetFlagTemp), so no jit
+#  iterator row can be built.
+run1 flagPlusT "$T/fpt";   check "flagPlusT runs" 0 $?
+sentinel "flagPlusT sentinel" "$T/fpt" "FLAGPLUS SENTINEL"
+kindRow "flagPlusT FP-0 control ++y" "$(grep '^FP-0 ' "$T/fpt" | awk '{print $NF}')" "6"
+kindRow "flagPlusT FP-F the flag is set" "$(grep '^FP-F ' "$T/fpt" | awk '{print $NF}')" "1"
+kindRow "flagPlusT FP-1 x :. flaG; ++x (BORN RED 2026-10-16)" "$(grep '^FP-1 ' "$T/fpt" | awk '{print $NF}')" "6"
+kindRow "flagPlusT FP-2 control unflagged walk" "$(grep '^FP-2 ' "$T/fpt" | awk '{print $NF}')" "3"
+kindRow "flagPlusT FP-3 flagged iterator walks (BORN RED 2026-10-16)" "$(grep '^FP-3 ' "$T/fpt" | awk '{print $NF}')" "3"
+run1 jitFlagPlusT "$T/jfp";   check "jitFlagPlusT runs" 0 $?
+sentinel "jitFlagPlusT sentinel" "$T/jfp" "JITFLAGPLUS SENTINEL"
+kindRow "jitFlagPlusT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on jfAct' "$T/jfp")" "1"
+kindRow "jitFlagPlusT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jfp")" "0"
+kindRow "jitFlagPlusT JFP-0 control ++y jitted" "$(grep '^JFP-0 ' "$T/jfp" | awk '{print $NF}')" "6"
+kindRow "jitFlagPlusT JFP-F the flag is set" "$(grep '^JFP-F ' "$T/jfp" | awk '{print $NF}')" "1"
+kindRow "jitFlagPlusT JFP-1 flagged ++x jitted (BORN RED 2026-10-16)" "$(grep '^JFP-1 ' "$T/jfp" | awk '{print $NF}')" "6"
+
 #  ⚑ pass1SeqT -- SEQ 361 R3 (Tony, 2026-10-15): STROKE 4's CERTIFICATE, pre-registered on trunk before S4b. SEQ 358's 21
 #  recon inputs verbatim, run under INCANT_ACCUM_TRACE=pa; each prints ACCUM SEQ (accTraceSeq: interpretXPaccum's FIRST pass,
 #  the pieces pass 2 reads by position). Compared by TAG -- a name's =value is run-time state, so it is stripped; a Token

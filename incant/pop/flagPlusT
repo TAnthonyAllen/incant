@@ -1,0 +1,43 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FlagPlus);
+define
+    fpBag   fpAlpha fpBeta fpGamma;
+    fpX;
+    fpY;
+    fpN;
+    fpM;
+    fpAct code={
+        fpY = 5; ++fpY;
+        fpX = 5; fpX :. flaG; ++fpX;
+        fpM = 0;
+        iterate fpJ on fpBag;
+        while ++fpJ;
+            fpM += 1;
+        fpN = 0;
+        iterate fpI on fpBag;
+        fpI :. flaG;
+        while ++fpI;
+            fpN += 1;
+        };
+    ;
+fpAct();
+cerr "FP-0 control  y = 5; ++y          -> " fpY:;
+cerr "FP-F flag set x.flaG              -> " fpX.flaG:;
+cerr "FP-1 flagged  x :. flaG; ++x      -> " fpX:;
+cerr "FP-2 control  unflagged walk      -> " fpM:;
+cerr "FP-3 flagged  iterator walk       -> " fpN:;
+cerr "FLAGPLUS SENTINEL":;
+stop();
+
+flagPlusT -- F-131 (SEQ 364): a flagged count ++s like any other count, and a flagged iterator steps.
+Kant road, interpreted. jitFlagPlusT is the jit road.
+  FP-0  control: an unflagged count bumps 5 -> 6
+  FP-F  the flag really is set (x.flaG reads 1, after the ++) -- without it FP-1 asserts nothing
+  FP-1  x :. flaG; ++x reads 6. Born red on trunk: opPlusPlus's `if result.fLAG return 0;` (copy 1, above the
+        iterator arm) returned before the bump, so x stayed 5.
+  FP-2  control: an unflagged iterator walks fpBag's three members
+  FP-3  a flagged iterator walks them too: 3. Copy 2 (inside the iterator arm, below the jitting gate) is the
+        read this row isolates; copy 1 also stops it, so only the copy-2-alone H7 tells the two apart.

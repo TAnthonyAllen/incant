@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    jfX=5;
+    jfY=5;
+    jfSet code={
+        jfY = 5;
+        jfX = 5; jfX :. flaG;
+        };
+    jfAct code={
+        ++jfY;
+        ++jfX;
+        };
+    ;
+jfSet();
+testing(jfAct);
+cerr "JFP-0 control  y = 5; ++y          -> " jfY:;
+cerr "JFP-F flag set x.flaG              -> " jfX.flaG:;
+cerr "JFP-1 flagged  x :. flaG; ++x      -> " jfX:;
+cerr "JITFLAGPLUS SENTINEL":;
+stop();
+
+jitFlagPlusT -- F-131 (SEQ 364) on the jit road; flagPlusT is the kant road, interpreted.
+  JFP-0  control: an unflagged count, ++ jitted, 5 -> 6
+  JFP-F  the flag really is set (read after the ++)
+  JFP-1  a flagged count, ++ jitted, reads 6. Born red on trunk: copy 1 of opPlusPlus's fLAG read sits above the
+         jitting gate, so at EMIT time it returned 0 and no increment was emitted.
+The flag is set in jfSet, interpreted, because `:. flaG` inside a jitted action refuses (`:. tempField` -- Clod's
+jitSetFlagTemp fixit). For the same reason there is no iterator row here: iterate clears fLAG and `:.` cannot set it
+under jit, so a jitted iterator never carries the flag. Copy 2 guards the interpreted iterator only (flagPlusT FP-3).
+testing() routes a coded action to jitRunAction (bear-trap #25); flagPlusT is the interpreted oracle, its own process.
