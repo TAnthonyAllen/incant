@@ -6069,13 +6069,37 @@ kindRow "jitRefuseScopeT the refusal raised by name, once" "$(grep -c '^REFUSED 
 run1 jitRefuseFlagT "$T/jrf";   check "jitRefuseFlagT runs" 0 $?
 sentinel "jitRefuseFlagT sentinel" "$T/jrf" "JITREFUSEFLAG SENTINEL"
 kindRow "jitRefuseFlagT jitted" "$(grep -c '^=== jitRunAction: entering on rfBody' "$T/jrf")" "1"
-kindRow "jitRefuseFlagT JRS-F = RS-F: a b c d -- a's flag SET (BORN RED 2026-10-16)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $6, $8, $10, $12}')" "1 1 7 6"
+kindRow "jitRefuseFlagT JRS-F = RS-F: b c d -- the later statements land (BORN RED 2026-10-16)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $8, $10, $12}')" "1 7 6"
+#  JRS-F's `a`: KNOWN DEFECT, jitSetFlagTemp re-aimed (SEQ 370 R3). The refused `a :. noPrinT` now runs interpreted at
+#  RUN time, and there opSetFlag receives a NULL argument (measured: interpreted, before or after the build, it receives
+#  `noPrinT`), takes its leading-dot arm, and sets nothing. Moves to 1 when that is cured.
+kindRow "jitRefuseFlagT JRS-F a's flag  # intended: 1 (= RS-F), jitSetFlagTemp" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $6}')" "0"
 kindRow "jitRefuseFlagT REFUSED lines (jit-only, raises nothing)" "$(grep -c '^REFUSED' "$T/jrf")" "0"
+#  THE BOUNDARY CLEAR'S WITNESS: no value row can see it -- without it the refusal stands and every LATER statement is
+#  handed to the run-time call too, so the values still land (H7 #4, measured). The IR shows it: one run-time call with
+#  the clear, four without (statement 1 and each of the three after it).
+kindRow "jitRefuseFlagT run-time interpreted calls in the IR (the refused statement only)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRefuseFlagT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "1"
 run1 jitRefuseUntakenT "$T/jru";   check "jitRefuseUntakenT runs" 0 $?
 sentinel "jitRefuseUntakenT sentinel" "$T/jru" "JITREFUSEUNTAKEN SENTINEL"
 kindRow "jitRefuseUntakenT jitted" "$(grep -c '^=== jitRunAction: entering on ruBody' "$T/jru")" "1"
 kindRow "jitRefuseUntakenT JRS-U = RS-U: n b c d" "$(grep '^JRS-U ' "$T/jru" | awk '{print $6, $8, $10, $12}')" "10 1 7 6"
 kindRow "jitRefuseUntakenT REFUSED lines (an untaken branch refuses nothing) (BORN RED 2026-10-16)" "$(grep -c '^REFUSED' "$T/jru")" "0"
+
+#  ⚑ jitParseRefuseT / jitScCountT -- SEQ 372 (Tony, 2026-10-16), two repairs on jit-refuse-scope.
+#  jitParseRefuseT (R0, R1): pgAct's first parse happens inside testing()'s build (jitting set). Its pass-1 refusal
+#  ("kant has no parenthetical expressions") must PRINT, once, as on trunk -- the silence is scoped to the emit walk -- and
+#  must end with the parse: no run-time interpreted call in the IR. Born red on 02f2cec: REFUSED 0, stmtRT 1.
+run1 jitParseRefuseT "$T/jpr";   check "jitParseRefuseT runs" 0 $?
+sentinel "jitParseRefuseT sentinel" "$T/jpr" "JITPARSEREFUSE SENTINEL"
+kindRow "jitParseRefuseT a c (= interpreted: 12 7)" "$(grep '^JPR ' "$T/jpr" | awk '{print $(NF-2), $NF}')" "12 7"
+kindRow "jitParseRefuseT the parse's refusal printed, once (BORN RED 2026-10-16)" "$(grep -c '^REFUSED Token -- kant has no parenthetical expressions' "$T/jpr")" "1"
+kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinned on a statement) (BORN RED 2026-10-16)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitParseRefuseT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "0"
+#  jitScCountT (R2): each AND/OR operand the jit cannot emit runs interpreted at run time (jitScOperandRT); the statement is
+#  handed over ONCE. Born red on 02f2cec: jitted 4 calls, interpreted 2 -- the boundary handed the whole statement over too.
+run1 jitScCountT "$T/jsc";   check "jitScCountT runs" 0 $?
+sentinel "jitScCountT sentinel" "$T/jsc" "JITSCCOUNT SENTINEL"
+kindRow "jitScCountT interpreted calls a b" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')" "2 1 1"
+kindRow "jitScCountT jitted calls = interpreted (BORN RED 2026-10-16)" "$(grep '^JSC jitted ' "$T/jsc" | awk '{print $4, $6, $8}')" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')"
 
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
@@ -6097,7 +6121,10 @@ kindRow "jitOpEqFoldT JOF-2 s + t += x -> s t, BOTH WRITTEN  # intended: refused
 kindRow "jitOpEqFoldT JOF-3 r = a < b += 1 -> r  # intended: refused" "$(grep '^JOF-3 ' "$T/joef" | awk '{print $NF}')" "0"
 kindRow "jitOpEqFoldT JOF-4 r = a + b += 1 -> a r  # intended: refused, a 10" "$(grep '^JOF-4 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "10 15"
 kindRow "jitOpEqFoldT JOF-4 degrade count (the outer = gets a null)  # intended: 0" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/joef")" "1"
-kindRow "jitOpEqFoldT REFUSED lines (JOF-4's fold step)  # intended: 4" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/joef")" "1"
+#  RE-PINNED 2026-10-16 (SEQ 370 R1) 1 -> 0: JOF-4's fold-step refusal is jit-only (interpreted the step lands on the acRun
+#  copy and refuses nothing, opEqFoldT REFUSED 0), and a jit-only refusal now raises nothing -- the statement runs
+#  interpreted at run time. JOF-4's values (a 10 r 15) and its degrade (1) do not move.
+kindRow "jitOpEqFoldT REFUSED lines (= opEqFoldT's 0)  # intended: 4" "$(grep -c '^REFUSED' "$T/joef")" "0"
 
 #  ⚑ flagPlusT / jitFlagPlusT -- F-131 (SEQ 364, Tony, 2026-10-16): opPlusPlus stops reading fLAG. A flagged count ++s like
 #  any other count, and a flagged iterator steps. Born red on trunk: `if result.fLAG return 0;` sat in opPlusPlus twice --

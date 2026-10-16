@@ -553,6 +553,10 @@ inline bool gJitStmtCanRefuse = false;
 // call (jitStmtRT) instead of emitting nothing for it. gJitStmtRTDone keeps that call to one per statement.
 inline GroupItem *gJitStmt = nullptr;
 inline bool gJitStmtRTDone = false;
+// ⚠ THE EMIT WALK IS ON (SEQ 372 R0). refuse() is silent only while this is set: a refusal raised in the emit walk is
+// announced by the statement's run-time interpreted run instead. Set by jitBuildFunction around jitExecBlock only;
+// processCode suspends it, so a parse's refusal prints as on trunk even when the parse happens mid-walk.
+inline bool gJitEmitWalk = false;
 
 // SET BY DISCOVERY, READ BY THE BUILD LOOP. The function currently under
 // construction is now known to be wrong and must be erased rather than finished

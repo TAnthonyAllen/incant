@@ -325,7 +325,14 @@ extern int jitBuildFunction(GroupItem action)
     // =========================== end frame prologue ===========================
     // Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
     // control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
-    jitExecBlock(action);
+    //  walkScope the emit walk begins clean (a parse's refusal ended with the parse) and is the only stretch where refuse() is silent (SEQ 372 R0, R1)
+    {
+        ::clearRefusal(action);
+        bool walkSave = gJitEmitWalk;
+        gJitEmitWalk = true;
+        jitExecBlock(action);
+        gJitEmitWalk = walkSave;
+    }
     ruler->jitting = 0;
     ruler->branchKind = emitBranchSave;
 
@@ -2012,10 +2019,14 @@ extern int jitEmitSelfCall(GroupItem argument,GroupItem action)
     jitIfRT.  */
 extern int jitStmtRT(GroupItem statement)
 {
+GroupRules  ruler = groupRules;
+int         refusedHere = 0;
     clearRefusal(statement);
     if statement.isMethod   statement.gMethod(statement);
+    // endsTheAction a refusal raised by the interpreted run ends the action: the emitted call leaves the function on a 1 (SEQ 370 R1)
+    if ruler.refused    refusedHere = 1;
     clearRefusal(statement);
-    return 0;
+    return refusedHere;
 }
 
 extern void jitEmitStmtRT(GroupItem statement)
@@ -2032,9 +2043,23 @@ extern void jitEmitStmtRT(GroupItem statement)
     llvm::Value *fn = b->CreateIntToPtr(
         llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
     llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-    b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+    llvm::Value *rv = b->CreateCall(ty, fn, {stAddr}, "stmtRT");
     gJitEmitted    = true;
     gJitLastIsNode = false;
+    // refusalExit the interpreted run refused: leave the function as runAction's exit leaves the action -- an inlined
+    // callee through its own exit block, else the epilogue, which clears the arm (SEQ 370 R1)
+    llvm::Function   *rfn  = b->GetInsertBlock()->getParent();
+    llvm::BasicBlock *exit = nullptr;
+    if (!gJitInlining.empty()) {
+        if (!gJitInlineFrames.empty() && gJitInlineFrames.back().exitBB) {
+            JitInlineFrame &f = gJitInlineFrames.back();
+            if (!f.used) { rfn->insert(rfn->end(), f.exitBB); f.used = true; }
+            exit = f.exitBB; } }
+    else exit = gJitEpilogueBB;
+    if (!exit) return;
+    llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx, "stmtNotRefused", rfn);
+    b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
+    b->SetInsertPoint(cont);
     %-
 }
 
@@ -2071,6 +2096,8 @@ extern void jitEmitScOperandRT(GroupItem operand)
     gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
     gJitEmitted    = true;
     gJitLastIsNode = false;
+    //  handedOnce the operand's run-time call is its statement's hand-over: the boundary must not hand the whole statement to jitStmtRT as well (SEQ 372 R2)
+    if (gJitStmt)   gJitStmtRTDone = true;
     %-
 }
 

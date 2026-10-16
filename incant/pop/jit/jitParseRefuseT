@@ -1,0 +1,26 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    pa=0;
+    pb=5;
+    pc=1;
+    pgAct code={
+        pa = (pb + 1) * 2;
+        pc = 7;
+        };
+    ;
+testing(pgAct);
+cerr "JPR jitted -> a " pa " c " pc:;
+cerr "JITPARSEREFUSE SENTINEL":;
+stop();
+
+jitParseRefuseT -- SEQ 372 R0 / R1 (Tony, 2026-10-16). pgAct is CODED and never run, so testing()'s build is its first
+parse: jitBuildFunction sets jitting and calls processCode, and pass 1 refuses the leading group ("kant has no
+parenthetical expressions") during that PARSE. R0: the silence is scoped to the emit walk, so the parse's refusal prints,
+once, as on trunk. R1: a parse's refusal ends with the parse, so it is never pinned on the first emitted statement --
+the IR carries NO run-time interpreted call (stmtRT). The values are the interpreted road's: a 12, c 7.

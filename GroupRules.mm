@@ -76,6 +76,9 @@ GroupItem 	*prior = 0;
 			//  statement that can actually refuse at RUN time, and the flag is
 			//  cleared here so it cannot leak into the next statement.
 			 jitEmitRefusedCheck(); gJitStmtCanRefuse = false; 
+			//  refusedAtEmit a statement whose emit refused runs on the interpreted road at RUN time, once -- a degrade
+			//  that already handed it over counts -- and the build-time refusal ends here, so the walk keeps emitting (SEQ 370 R1)
+			 if ( ruler->refused ) { if ( !gJitStmtRTDone ) { jitEmitStmtRT(grup); gJitStmtRTDone = true; } ::clearRefusal(grup); } 
 			}
 		/*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
 		EMIT walk -- same era split as the branch check below, and the
@@ -3598,7 +3601,14 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// =========================== end frame prologue ===========================
 	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
 	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
+	//  walkScope the emit walk begins clean (a parse's refusal ended with the parse) and is the only stretch where refuse() is silent (SEQ 372 R0, R1)
+	{
+	::clearRefusal(action);
+	bool walkSave = gJitEmitWalk;
+	gJitEmitWalk = true;
 	jitExecBlock(action);
+	gJitEmitWalk = walkSave;
+	}
 	ruler->jitting = 0;
 	ruler->branchKind = emitBranchSave;
 	
@@ -4884,6 +4894,8 @@ extern "C" void jitEmitScOperandRT(GroupItem *operand)
 	gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
+	//  handedOnce the operand's run-time call is its statement's hand-over: the boundary must not hand the whole statement to jitStmtRT as well (SEQ 372 R2)
+	if (gJitStmt)   gJitStmtRTDone = true;
 	
 }
 
@@ -5114,9 +5126,23 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	llvm::Value *fn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-	b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+	llvm::Value *rv = b->CreateCall(ty, fn, {stAddr}, "stmtRT");
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
+	// refusalExit the interpreted run refused: leave the function as runAction's exit leaves the action -- an inlined
+	// callee through its own exit block, else the epilogue, which clears the arm (SEQ 370 R1)
+	llvm::Function   *rfn  = b->GetInsertBlock()->getParent();
+	llvm::BasicBlock *exit = nullptr;
+	if (!gJitInlining.empty()) {
+	if (!gJitInlineFrames.empty() && gJitInlineFrames.back().exitBB) {
+	JitInlineFrame &f = gJitInlineFrames.back();
+	if (!f.used) { rfn->insert(rfn->end(), f.exitBB); f.used = true; }
+	exit = f.exitBB; } }
+	else exit = gJitEpilogueBB;
+	if (!exit) return;
+	llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx, "stmtNotRefused", rfn);
+	b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
+	b->SetInsertPoint(cont);
 	
 }
 
@@ -6779,11 +6805,16 @@ extern "C" int jitSlotTaken(GroupItem *op)
     jitIfRT.  */
 extern "C" int jitStmtRT(GroupItem *statement)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		refusedHere = 0;
 	::clearRefusal(statement);
 	if ( isMethod(statement->groupBody->flags.instructType) )
 		statement->groupBody->gMethod(statement);
+	// endsTheAction a refusal raised by the interpreted run ends the action: the emitted call leaves the function on a 1 (SEQ 370 R1)
+	if ( ruler->refused )
+		refusedHere = 1;
 	::clearRefusal(statement);
-	return 0;
+	return refusedHere;
 }
 
 /*******************************************************************************
@@ -9413,7 +9444,10 @@ char 		*failText = 0;
 	ruler->lastIndent = 0;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
 	// compileOwner the drive's floor carries the owner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214, SEQ 299)
+	// parseSpeaks a parse's refusal prints, even mid-walk, and ends with the parse -- never pinned on an emitted statement (SEQ 372 R0, R1)
+	 bool walkSave = gJitEmitWalk; gJitEmitWalk = false; 
 	result = ::driveStep(code,blockRULE,codeReport,action);
+	 gJitEmitWalk = walkSave; if ( walkSave ) ::clearRefusal(field); 
 	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
@@ -9609,10 +9643,14 @@ extern "C" GroupItem *refuse(GroupItem *subject, char *why)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*name = "(none)";
+int 		silent = 0;
 	if ( subject )
 		name = subject->groupBody->tag;
 	// theLine sourceLINE is where the PARSER is, stale for a cached body -- no usable per-statement line exists; do not chase it
-	::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
+	// emitSilent only in the jit EMIT WALK is a refusal not announced: the statement runs on the interpreted road at RUN time, which announces it there (SEQ 370 R1, scoped by SEQ 372 R0)
+	 silent = ruler->jitting && gJitEmitWalk; 
+	if ( !silent )
+		::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
 	ruler->refused = 1;
 	return 0;
 }
@@ -9707,8 +9745,6 @@ extern "C" int refuseValueTarget(GroupItem *op, GroupItem *target)
 	char why[128];
 	::snprintf(why,sizeof(why),"the left of %s is a value, not a field",op->groupBody->tag);
 	::refuse(op,why);
-	// emitScope under jitting the refusal's scope is the store it refuses -- the caller emits nothing for it; left set, ruler.refused silenced every later emitter in the build (SEQ 365: JVK-1 read 10, not 13)
-	if ( ruler->jitting )   ::clearRefusal(op);
 	return 1;
 	
 }
