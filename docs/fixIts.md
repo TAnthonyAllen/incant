@@ -394,7 +394,7 @@ ATTEMPT LOG
   2026-10-02 filed (SEQ 270 R2); measured only, nothing changed.
 ```
 
-### F-131 — ✅ CLOSED 2026-10-02 — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
+### F-131 — ✅ CLOSED 2026-10-16 (first closed 2026-10-02, live again 2026-10-15) — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
 
 **What.** `opPlusPlus` reads the iterator poison (`fLAG`) for EVERY operand at its top, before it tests isIterator, so a
 plain count whose generic flag was set from kant (opSetFlag case 12, `x :. flaG`) silently does not increment. It is
@@ -417,6 +417,20 @@ ATTEMPT LOG
     ("`:. flaG` -- not a groupField ..."), so kant cannot set the bit that steers ++. probes/flagPlusPlus: PFI-1 5
     (red) -> the refusal. Fleet fixture incant/pop/flagRetiredT FR-1/FR-0/FR-2; H7: `flaG=12;` restored in setup ->
     no refusal, FR-0 prints, red. The engine's fLAG meanings A-D stay held for step 1.
+  2026-10-15 LIVE AGAIN (seal 151): Tony's offline work made flaG a GroupField again (case 46), so `x :. flaG` sets
+    fLAG once more and a flagged count does not ++. Reported, not fixed.
+  2026-10-16 SEQ 364 census, read-only (temporary tap in the .mm, removed md5-identical): across pop.sh and jitLadder,
+    0 flagged hits on either opPlusPlus copy; no kant `:. flaG` in the fleet; the engine writers (aCTionIterate's
+    poison W4 1 / W7 90, Braced, define attributes, attachLabel) never reach ++. No STOP. H16: the tap fired on the
+    fixture (W9 then HIT1, interpreted and emit-time).
+  2026-10-16 fixtures incant/pop/flagPlusT and incant/pop/jit/jitFlagPlusT, born red: FP-1 5, FP-3 0, JFP-1 5 (want 6,
+    3, 6); controls 6 / 3 / 6, flag reads 1. No jit iterator row: `:. flaG` in a jitted action refuses (jitSetFlagTemp)
+    and iterate clears fLAG. Committed before the cut.
+  2026-10-16 R0: both `if result.fLAG return 0;` cut (9bf5714). Bare retok: exactly the six lines. FP-1 6, FP-3 3,
+    JFP-1 6; everything else row for row. H7, one copy back at a time: copy 1 alone -> FP-1 5, FP-3 0, JFP-1 5 (red on
+    both roads); copy 2 alone -> FP-3 0 only -- it lives inside the iterator arm, so it cannot turn a count row red,
+    and on the jit road it sits below the gate where no jitted iterator carries the flag. Restored md5-identical.
+  CERTIFIED BY pop.sh flagPlusT FP-1 / FP-3 and jitFlagPlusT JFP-1.
 ```
 
 ### F-132 — ✅ CLOSED 2026-10-02 (no road, by design) — opDot on `a.<null>` silently swaps its operands instead of refusing
