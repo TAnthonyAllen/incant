@@ -1920,17 +1920,10 @@ define
                     reached the gate: it took the interpreted arm and EMITTED NOTHING, and the
                     compiled function visited 0 where the interpreter visited 3. jitEmitIterStep
                     emits a CALL TO THIS FUNCTION, so the two cannot drift.#);
-                poisonedIterator=(POISONED ITERATOR (Tony, 2026-08-02). fLAG means the LAST iterate on this node
-                    was refused; announced once at the Iterate, here it simply does not move, so the
-                    enclosing while exits on the false it already trusts. MOVED BELOW THE JITTING
-                    GATE 2026-08-05 by the run-time-flag census: above it, a run-time flag steered
-                    the EMIT walk (the one-channel-one-meaning family, same class as aCTionBlocK's
-                    isBranch break), and a poisoned node would have baked a compiled loop with NO
-                    ADVANCE, silently. It did not bite only because aCTionIterate clears fLAG on
-                    success first -- correct by accident of ordering. Below the gate the poison is
-                    read at RUN time, inside the emitted call to this function. ⚠ As of 2026-10-11 a
-                    second `if result.fLAG return 0;` also stands ABOVE the gate, near the top of
-                    the function.#);
+                poisonedIterator=(⚠ HISTORY (2026-10-16): F-131, SEQ 364 -- opPlusPlus no longer reads fLAG, so a
+                    flagged count ++s and a flagged iterator steps. Both copies were cut (above the iterator arm, and
+                    inside it below the jitting gate); the census found neither reached by any fleet row. It was the
+                    POISONED ITERATOR (Tony, 2026-08-02): a refused iterate did not move. docs/fixIts.md F-131.#);
                 zeroIsNotAbsent=(Ruled 2026-09-11. `field = 0` puts a value in the slot and sets isCOUNT, so ++
                     reads a numeric zero and writes 1. A field never assigned has NO value, is the
                     ABSENT kind, and must say so by name. The line used to read `if !data count =

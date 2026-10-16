@@ -8447,9 +8447,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	measurePlusPlusWrite(result);
-	// poisonedIterator a refused iterate does not move, so the enclosing while exits on the false it already trusts (Tony, 2026-08-02)
-	if ( result->groupBody->flags.fLAG )
-		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
 		// iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)
@@ -8457,9 +8454,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			{
 			 return jitEmitIterStep(result); 
 			}
-		// poisonedIterator read below the jitting gate, at RUN time -- read at emit time it would bake a loop with no advance
-		if ( result->groupBody->flags.fLAG )
-			return 0;
 		//note: because result is an iterator it is not unwrapped in runOP()
 		GroupItem *iterator = result->getGroup();
 		if ( result->groupBody->flags.hasAttributes )

@@ -904,15 +904,11 @@ GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
     measurePlusPlusWrite(result);
-    // poisonedIterator a refused iterate does not move, so the enclosing while exits on the false it already trusts (Tony, 2026-08-02)
-    if result.fLAG      return 0;
     if isIterator {
         // iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)
         if jitting {
             -% return jitEmitIterStep(result); %-
         }
-        // poisonedIterator read below the jitting gate, at RUN time -- read at emit time it would bake a loop with no advance
-        if result.fLAG      return 0;
         //note: because result is an iterator it is not unwrapped in runOP()
         GroupItem iterator = group;
         if result.hasAttributes iterator = result.nextAttribute(iterator);
