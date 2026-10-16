@@ -9,54 +9,61 @@ define
     jvA=10;
     jvB=4;
     jvN=2.5;
-    jv1;
-    jv2;
-    jv6;
-    jv8;
-    jk1;
-    jk2;
-    jr1;
-    jr2;
-    jr3;
-    jr4;
-    jp1;
-    jvAct code={
-        jvA = 10; -jvA += 3; jv1 = jvA;
-        jvA = 10; -jvA = 3; jv2 = jvA;
-        jvA = 10; ++-jvA; jv6 = jvA;
-        jvA = 10; jvB = 4; jvA + jvB += 1; jv8 = jvA;
-        jvA = 10; jvA += 3; jk1 = jvA;
-        jvA = 10; jvA = -jvA; jk2 = jvA;
-        jvA = 7; jvA *= -1; jr1 = jvA;
-        jvA = 7; jvA = -jvA; jr2 = jvA;
-        jvN = 2.5; jvN *= -1; jr3 = jvN;
-        jvN = 2.5; jvN = -jvN; jr4 = jvN;
-        jvA = 3; jvB = 4; jp1 = -jvA + -jvB;
+    jv1; jv2; jv6; jv8; jk1; jk2; jr1; jr2; jr3; jr4; jp1;
+    jvC1 code={ jvA = 10; -jvA += 3; };
+    jvC2 code={ jvA = 10; -jvA = 3; };
+    jvC6 code={ jvA = 10; ++-jvA; };
+    jvC8 code={ jvA = 10; jvB = 4; jvA + jvB += 1; };
+    jvK1 code={ jvA = 10; jvA += 3; };
+    jvK2 code={ jvA = 10; jvA = -jvA; };
+    jvR1 code={ jvA = 7; jvA *= -1; };
+    jvR2 code={ jvA = 7; jvA = -jvA; };
+    jvR3 code={ jvN = 2.5; jvN *= -1; };
+    jvR4 code={ jvN = 2.5; jvN = -jvN; };
+    jvP1 code={ jvA = 3; jvB = 4; jp1 = -jvA + -jvB; };
+    jvDrive code={
+        jvC1(); jv1 = jvA;
+        jvC2(); jv2 = jvA;
+        jvC6(); jv6 = jvA;
+        jvC8(); jv8 = jvA;
+        jvK1(); jk1 = jvA;
+        jvK2(); jk2 = jvA;
+        jvR1(); jr1 = jvA;
+        jvR2(); jr2 = jvA;
+        jvR3(); jr3 = jvN;
+        jvR4(); jr4 = jvN;
+        jvP1();
+        };
+    jvShow code={
+        cerr argument " JVT-1 -a += 3 -> a " jv1:;
+        cerr argument " JVT-2 -a = 3 -> a " jv2:;
+        cerr argument " JVT-6 ++-a -> a " jv6:;
+        cerr argument " JVT-8 a + b += 1 -> a " jv8:;
+        cerr argument " JVK-1 a += 3 -> a " jk1:;
+        cerr argument " JVK-2 a = -a -> a " jk2:;
+        cerr argument " JR2-1 count a *= -1 -> " jr1 " kind " jr1.datA:;
+        cerr argument " JR2-2 count a = -a -> " jr2 " kind " jr2.datA:;
+        cerr argument " JR2-3 number a *= -1 -> " jr3 " kind " jr3.datA:;
+        cerr argument " JR2-4 number a = -a -> " jr4 " kind " jr4.datA:;
+        cerr argument " JVP-1 c = -a + -b, a 3 b 4 -> " jp1:;
         };
     ;
-testing(jvAct);
-cerr "JVT-1 -a += 3 -> a " jv1:;
-cerr "JVT-2 -a = 3 -> a " jv2:;
-cerr "JVT-6 ++-a -> a " jv6:;
-cerr "JVT-8 a + b += 1 -> a " jv8:;
-cerr "JVK-1 a += 3 -> a " jk1:;
-cerr "JVK-2 a = -a -> a " jk2:;
-cerr "JR2-1 count a *= -1 -> " jr1 " kind " jr1.datA:;
-cerr "JR2-2 count a = -a -> " jr2 " kind " jr2.datA:;
-cerr "JR2-3 number a *= -1 -> " jr3 " kind " jr3.datA:;
-cerr "JR2-4 number a = -a -> " jr4 " kind " jr4.datA:;
-cerr "JVP-1 c = -a + -b, a 3 b 4 -> " jp1:;
+testing(jvDrive);
+jvShow(JIT);
+cerr "JVT INTERPRETED HALF":;
+jvDrive();
+jvShow(INT);
 cerr "JITVALUETARGET SENTINEL":;
 stop();
 
-jitValueTargetT -- SEQ 360 R1 / R2 on the JIT road (Tony, 2026-10-15). One testing(), no oracle: the interpreted half is
-incant/pop/valueTargetT, a separate process (bear-trap #25).
-
-R1's discriminator is tempField identity, and the jit road never hands tempField back: jitEmitUnary and jitEmitBinary
-return the OPERAND, carrying the computed value as its jitValue. So the identity cannot see a computed target here,
-and JVT-1 / JVT-2 / JVT-6 / JVT-8 WRITE THE OPERAND. They are pinned at that value as a KNOWN DEFECT -- a pin that moves
-when the jit road learns to refuse, not a claim that the value is right. The discriminator for this road is a ruling
-owed (SEQ 360 report).
-  JVK-1 / JVK-2   controls
-  JR2-1 .. JR2-4  R2's pins, value and kind
-  JVP-1           probe, report only
+jitValueTargetT -- SEQ 360 R1 / R2 on the JIT road, SPLIT one action per case by SEQ 370 R4 (Tony, 2026-10-16). A
+refusal ends the ACTION on both roads (R0), so each case is its own action and the driver reads the result after each
+call. The driver runs jitted first (testing() -> jitRunAction; the cases inline into it), then interpreted in the same
+process; every case re-initialises its fields, so the two halves are independent. Each JIT row must equal its INT twin.
+  JVT-1 / JVT-2 / JVT-6   a computed target: refused by name (the left of <op> is a value, not a field), a stays 10
+  JVT-8                   a + b += 1: interpreted it lands on runAccFold's copy (VT-8), so a 10 and no refusal
+  JVK-1 / JVK-2           controls
+  JR2-1 .. JR2-4          R2's pins, value and kind
+  JVP-1                   probe
+History: until SEQ 365 JVT-1/2/6/8 were pinned at the written operand (13 / 3 / -9 / 11) as a KNOWN DEFECT; SEQ 365
+made them refuse; SEQ 370 split the body so the controls keep their subject.

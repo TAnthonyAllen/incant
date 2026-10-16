@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    ruN=10; ruB="bv"; ruC=1; ruD=5; ruZ=0;
+    ruBody code={
+        if ruZ == 1;    -ruN += 3;
+        ruB.noPrinT = 1;
+        ruC = 7;
+        ++ruD;
+        };
+    ;
+ruZ = 0;
+testing(ruBody);
+cerr "JRS-U untaken branch  -> n " ruN " b " ruB.noPrinT " c " ruC " d " ruD:;
+cerr "JITREFUSEUNTAKEN SENTINEL":;
+stop();
+
+jitRefuseUntakenT -- SEQ 370 (Tony, 2026-10-16): one body, jitted (testing() routes it to jitRunAction). refuseScopeT is the
+interpreted twin; the jitted row must equal it. A statement whose emit refused runs on the interpreted road at run
+time; if that run refuses, the function is left as runAction's exit leaves it.

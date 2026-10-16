@@ -6024,34 +6024,58 @@ kindRow "valueTargetT R2-2 count a = -a, kind" "$(grep '^R2-2 ' "$T/vtt" | awk '
 kindRow "valueTargetT R2-3 number a *= -1, kind" "$(grep '^R2-3 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 kindRow "valueTargetT R2-4 number a = -a, kind" "$(grep '^R2-4 ' "$T/vtt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
 
-#  ⚑ jitValueTargetT -- SEQ 360 R1 / R2 on the jit road. The jit hands back the OPERAND (jitEmitUnary / jitEmitBinary),
-#  never tempField, so R1's identity cannot see a computed target here: JVT-1 / 2 / 6 / 8 WRITE THE OPERAND and are
-#  pinned at that value as a KNOWN DEFECT (they move when the jit road learns to refuse; the discriminator is a ruling
-#  owed). Controls and R2's pins are real.
-#  RE-PINNED 2026-10-16 (SEQ 365 R0): the jit road refuses too. jitEmitBinary and jitEmitUnary's negate record the SSA
-#  value they compute (gJitComputedVal); refuseValueTarget refuses an assigning operator whose target's jitValue IS that
-#  value, at runAccAssign, the jit acU arm and each runAccFold step. JVT-1 13 -> 10, JVT-2 3 -> 10, JVT-6 -9 -> 10,
-#  JVT-8 11 -> 10, each refused by name at emit time (four REFUSED lines: += twice, = once, ++ once). JVT-8 is jitted
-#  `a + b += 1`: interpreted it lands on runAccFold's acRun copy and does not refuse (valueTargetT VT-8); jitted the
-#  running value IS operand a, so it falls under R0. H7: discriminator out -> the four rows back to 13 / 3 / -9 / 11.
+#  ⚑ jitValueTargetT -- SEQ 360 R1 / R2 on the jit road; refusing since SEQ 365; SPLIT one action per case by SEQ 370 R4
+#  (Tony, 2026-10-16). A refusal ends the ACTION on both roads, so the old single body (whose first refusal would have
+#  ended every later case) became eleven case actions and a driver, run jitted then interpreted in one process. Every
+#  JIT row is pinned by value AND must equal its INT twin. History: JVT-1/2/6/8 were 13 / 3 / -9 / 11 (KNOWN DEFECT)
+#  until SEQ 365; SEQ 365 refused all four at EMIT time (four REFUSED lines, JVT-8's a jit-only fold-step refusal);
+#  SEQ 370 runs a refused statement interpreted at RUN time, so the jitted half raises exactly what the interpreted half
+#  raises -- three (+=, =, ++); JVT-8 a 10 with no refusal, VT-8's answer.
 run1 jitValueTargetT "$T/jvt";   check "jitValueTargetT runs" 0 $?
 sentinel "jitValueTargetT sentinel" "$T/jvt" "JITVALUETARGET SENTINEL"
-kindRow "jitValueTargetT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on jvAct' "$T/jvt")" "1"
+kindRow "jitValueTargetT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on jvDrive' "$T/jvt")" "1"
 kindRow "jitValueTargetT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jvt")" "0"
-kindRow "jitValueTargetT JVT-1 -a += 3 leaves a" "$(grep '^JVT-1 ' "$T/jvt" | awk '{print $NF}')" "10"
-kindRow "jitValueTargetT JVT-2 -a = 3 leaves a" "$(grep '^JVT-2 ' "$T/jvt" | awk '{print $NF}')" "10"
-kindRow "jitValueTargetT JVT-6 ++-a leaves a" "$(grep '^JVT-6 ' "$T/jvt" | awk '{print $NF}')" "10"
-kindRow "jitValueTargetT JVT-8 a + b += 1 leaves a" "$(grep '^JVT-8 ' "$T/jvt" | awk '{print $NF}')" "10"
-kindRow "jitValueTargetT refusals naming +=" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/jvt")" "2"
-kindRow "jitValueTargetT refusals naming =" "$(grep -c '^REFUSED = -- the left of = is a value, not a field' "$T/jvt")" "1"
-kindRow "jitValueTargetT refusals naming ++" "$(grep -c '^REFUSED ++ -- the left of ++ is a value, not a field' "$T/jvt")" "1"
-kindRow "jitValueTargetT REFUSED lines, the whole fixture (the controls add none)" "$(grep -c '^REFUSED' "$T/jvt")" "4"
-kindRow "jitValueTargetT JVK-1 a += 3" "$(grep '^JVK-1 ' "$T/jvt" | awk '{print $NF}')" "13"
-kindRow "jitValueTargetT JVK-2 a = -a" "$(grep '^JVK-2 ' "$T/jvt" | awk '{print $NF}')" "-10"
-kindRow "jitValueTargetT JR2-1 count a *= -1, kind" "$(grep '^JR2-1 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-7 5"
-kindRow "jitValueTargetT JR2-2 count a = -a, kind" "$(grep '^JR2-2 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-7 5"
-kindRow "jitValueTargetT JR2-3 number a *= -1, kind" "$(grep '^JR2-3 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
-kindRow "jitValueTargetT JR2-4 number a = -a, kind" "$(grep '^JR2-4 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-2.5 9"
+for _jv in "JVT-1 10" "JVT-2 10" "JVT-6 10" "JVT-8 10" "JVK-1 13" "JVK-2 -10" "JVP-1 -7"; do
+    set -- $_jv
+    kindRow "jitValueTargetT $1 jitted" "$(grep "^JIT $1 " "$T/jvt" | awk '{print $NF}')" "$2"
+    kindRow "jitValueTargetT $1 jitted = interpreted" "$(grep "^JIT $1 " "$T/jvt" | awk '{print $NF}')" "$(grep "^INT $1 " "$T/jvt" | awk '{print $NF}')"
+done
+for _jv in "JR2-1 -7:5" "JR2-2 -7:5" "JR2-3 -2.5:9" "JR2-4 -2.5:9"; do
+    set -- $_jv
+    kindRow "jitValueTargetT $1 jitted, kind" "$(grep "^JIT $1 " "$T/jvt" | awk '{print $(NF-2)":"$NF}')" "$2"
+    kindRow "jitValueTargetT $1 jitted = interpreted" "$(grep "^JIT $1 " "$T/jvt" | awk '{print $(NF-2)":"$NF}')" "$(grep "^INT $1 " "$T/jvt" | awk '{print $(NF-2)":"$NF}')"
+done
+_jvJ=$(sed -n '1,/^JVT INTERPRETED HALF/p' "$T/jvt"); _jvI=$(sed -n '/^JVT INTERPRETED HALF/,$p' "$T/jvt")
+kindRow "jitValueTargetT jitted half: REFUSED lines (+=, =, ++ -- raised at RUN time)" "$(printf '%s\n' "$_jvJ" | grep -c '^REFUSED')" "3"
+kindRow "jitValueTargetT jitted half: one each of += = ++" "$(printf '%s\n' "$_jvJ" | grep '^REFUSED' | awk '{print $2}' | sort | tr '\n' ' ')" "++ += = "
+kindRow "jitValueTargetT interpreted half: REFUSED lines" "$(printf '%s\n' "$_jvI" | grep -c '^REFUSED')" "3"
+
+#  ⚑ refuseScopeT / jitRefuseScopeT / jitRefuseFlagT / jitRefuseUntakenT -- SEQ 370 (Tony, 2026-10-16): A STATEMENT THE JIT
+#  CANNOT EMIT RUNS INTERPRETED; ITS REFUSAL ENDS THE ACTION. Each jitted body is its own process and must equal its
+#  interpreted twin (refuseScopeT). Born red on trunk (SEQ 365's local clear): JRS-A n 10 b 1 c 7 d 6, JRS-F a 0 b 0 c 7
+#  d 5, JRS-U printed an emit-time REFUSED line. H7: the run-time call replaced by emitting nothing -> JRS-A, JRS-F and
+#  JRS-U red; the refusal exit removed -> JRS-A red.
+run1 refuseScopeT "$T/rst";   check "refuseScopeT runs" 0 $?
+sentinel "refuseScopeT sentinel" "$T/rst" "REFUSESCOPE SENTINEL"
+kindRow "refuseScopeT RS-A a refusal ends the body: n b c d" "$(grep '^RS-A ' "$T/rst" | awk '{print $6, $8, $10, $12}')" "10 0 1 5"
+kindRow "refuseScopeT RS-F :. does not refuse interpreted: a b c d" "$(grep '^RS-F ' "$T/rst" | awk '{print $6, $8, $10, $12}')" "1 1 7 6"
+kindRow "refuseScopeT RS-U untaken branch: n b c d" "$(grep '^RS-U ' "$T/rst" | awk '{print $6, $8, $10, $12}')" "10 1 7 6"
+kindRow "refuseScopeT REFUSED lines (RS-A's only)" "$(grep -c '^REFUSED' "$T/rst")" "1"
+run1 jitRefuseScopeT "$T/jrs";   check "jitRefuseScopeT runs" 0 $?
+sentinel "jitRefuseScopeT sentinel" "$T/jrs" "JITREFUSESCOPE SENTINEL"
+kindRow "jitRefuseScopeT jitted" "$(grep -c '^=== jitRunAction: entering on rsBody' "$T/jrs")" "1"
+kindRow "jitRefuseScopeT JRS-A = RS-A: n b c d (BORN RED 2026-10-16)" "$(grep '^JRS-A ' "$T/jrs" | awk '{print $6, $8, $10, $12}')" "10 0 1 5"
+kindRow "jitRefuseScopeT the refusal raised by name, once" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/jrs")" "1"
+run1 jitRefuseFlagT "$T/jrf";   check "jitRefuseFlagT runs" 0 $?
+sentinel "jitRefuseFlagT sentinel" "$T/jrf" "JITREFUSEFLAG SENTINEL"
+kindRow "jitRefuseFlagT jitted" "$(grep -c '^=== jitRunAction: entering on rfBody' "$T/jrf")" "1"
+kindRow "jitRefuseFlagT JRS-F = RS-F: a b c d -- a's flag SET (BORN RED 2026-10-16)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $6, $8, $10, $12}')" "1 1 7 6"
+kindRow "jitRefuseFlagT REFUSED lines (jit-only, raises nothing)" "$(grep -c '^REFUSED' "$T/jrf")" "0"
+run1 jitRefuseUntakenT "$T/jru";   check "jitRefuseUntakenT runs" 0 $?
+sentinel "jitRefuseUntakenT sentinel" "$T/jru" "JITREFUSEUNTAKEN SENTINEL"
+kindRow "jitRefuseUntakenT jitted" "$(grep -c '^=== jitRunAction: entering on ruBody' "$T/jru")" "1"
+kindRow "jitRefuseUntakenT JRS-U = RS-U: n b c d" "$(grep '^JRS-U ' "$T/jru" | awk '{print $6, $8, $10, $12}')" "10 1 7 6"
+kindRow "jitRefuseUntakenT REFUSED lines (an untaken branch refuses nothing) (BORN RED 2026-10-16)" "$(grep -c '^REFUSED' "$T/jru")" "0"
 
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic

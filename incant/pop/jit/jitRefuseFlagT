@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    rfA="av"; rfB="bv"; rfC=1; rfD=5;
+    rfBody code={
+        rfA :. noPrinT;
+        rfB.noPrinT = 1;
+        rfC = 7;
+        ++rfD;
+        };
+    ;
+rfC = 1;
+testing(rfBody);
+cerr "JRS-F flag body       -> a " rfA.noPrinT " b " rfB.noPrinT " c " rfC " d " rfD:;
+cerr "JITREFUSEFLAG SENTINEL":;
+stop();
+
+jitRefuseFlagT -- SEQ 370 (Tony, 2026-10-16): one body, jitted (testing() routes it to jitRunAction). refuseScopeT is the
+interpreted twin; the jitted row must equal it. A statement whose emit refused runs on the interpreted road at run
+time; if that run refuses, the function is left as runAction's exit leaves it.

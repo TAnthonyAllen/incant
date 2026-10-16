@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    rsA="av"; rsB="bv"; rsC=1; rsD=5; rsN=10; rsZ=0;
+    rfA="av"; rfB="bv"; rfC=1; rfD=5;
+    ruN=10; ruB="bv"; ruC=1; ruD=5; ruZ=0;
+    rsBody code={
+        -rsN += 3;
+        rsB.noPrinT = 1;
+        rsC = 7;
+        ++rsD;
+        };
+    rfBody code={
+        rfA :. noPrinT;
+        rfB.noPrinT = 1;
+        rfC = 7;
+        ++rfD;
+        };
+    ruBody code={
+        if ruZ == 1;    -ruN += 3;
+        ruB.noPrinT = 1;
+        ruC = 7;
+        ++ruD;
+        };
+    ;
+rsBody();
+cerr "RS-A refusing body   -> n " rsN " b " rsB.noPrinT " c " rsC " d " rsD:;
+rfBody();
+cerr "RS-F flag body       -> a " rfA.noPrinT " b " rfB.noPrinT " c " rfC " d " rfD:;
+ruBody();
+cerr "RS-U untaken branch  -> n " ruN " b " ruB.noPrinT " c " ruC " d " ruD:;
+cerr "REFUSESCOPE SENTINEL":;
+stop();
+
+refuseScopeT -- SEQ 370 (Tony, 2026-10-16): the interpreted twin of jitRefuseScopeT / jitRefuseFlagT /
+jitRefuseUntakenT. A refusal ends the ACTION body on both roads (R0); each body is its own action.
+  RS-A  -n += 3 refuses (a value, not a field), so b c d keep their values: n 10 b 0 c 1 d 5
+  RS-F  a :. noPrinT does not refuse interpreted: a 1 b 1 c 7 d 6
+  RS-U  the refusing statement sits in an untaken branch: nothing refuses, b 1 c 7 d 6, no REFUSED line
