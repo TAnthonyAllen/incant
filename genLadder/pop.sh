@@ -6075,6 +6075,10 @@ kindRow "jitRefuseFlagT JRS-F = RS-F: b c d -- the later statements land (BORN R
 #  `noPrinT`), takes its leading-dot arm, and sets nothing. Moves to 1 when that is cured.
 kindRow "jitRefuseFlagT JRS-F a's flag  # intended: 1 (= RS-F), jitSetFlagTemp" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $6}')" "0"
 kindRow "jitRefuseFlagT REFUSED lines (jit-only, raises nothing)" "$(grep -c '^REFUSED' "$T/jrf")" "0"
+#  THE BOUNDARY CLEAR'S WITNESS: no value row can see it -- without it the refusal stands and every LATER statement is
+#  handed to the run-time call too, so the values still land (H7 #4, measured). The IR shows it: one run-time call with
+#  the clear, four without (statement 1 and each of the three after it).
+kindRow "jitRefuseFlagT run-time interpreted calls in the IR (the refused statement only)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRefuseFlagT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "1"
 run1 jitRefuseUntakenT "$T/jru";   check "jitRefuseUntakenT runs" 0 $?
 sentinel "jitRefuseUntakenT sentinel" "$T/jru" "JITREFUSEUNTAKEN SENTINEL"
 kindRow "jitRefuseUntakenT jitted" "$(grep -c '^=== jitRunAction: entering on ruBody' "$T/jru")" "1"
