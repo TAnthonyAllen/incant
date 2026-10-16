@@ -652,11 +652,12 @@ AB-1 `a.b(c)` reads `(pob.pm)(pb)` = 5).
 | R0 / S4c | parserCoverage re-pinned (COMPILES TokenXP / UnaryXP gone, ANYorNum / InvokeArg new; 63 rules, 47 compile, 14 leaves, 2 no body, unchanged); bear-traps #48 / #52 dated; DesignDocs aCTionTokenXP, handleCall, onePrintXPWalk, iterSource and ModifierTwoClasses dated or respelled; the dangling `aCTionTokenXP.arms` / `.leadingDotNumber` / `.unaryClass` keys removed from ruleActions.rtn comments | SEQ 363 |
 
 **ANYorNum and InvokeArg in parserCoverage:** both were rules before S4b (their grammar lines did not change), but neither
-was in the coverage population: the population is Grokking's members, and today both read as plain Grokking members with
-none of the four filters set. Before S4b they were named only as TERMS of TokenXP; now Token names them as alternatives.
-Containers named only as terms (Token, ExpressioN, PrintXP, ElsE, LoopRestrict, ScopeField) are not Grokking members
-today either, which fits. **Not measured directly:** the pre-S4b grammar does not load on today's binary, and a scratch
-control removing Token's two alternatives voided the same way (no grammar, 0 members).
+was in the coverage population. The population walks Grokking's MEMBERS only, and a rule named only as a TERM of another
+rule lands as a Grokking ATTRIBUTE instead -- Clod's fixit `parserCoverageMembersOnly` lists 20 such today, Token,
+ExpressioN, PrintXP and ElsE among them (members walked 63). Before S4b, ANYorNum and InvokeArg were named only as terms of
+TokenXP; now Token names them as alternatives, so they are members with none of the four filters set. **The pre-S4b
+attribute status is inferred, not measured:** the pre-S4b grammar does not load on today's binary, and a scratch control
+removing Token's two alternatives voided the same way (no grammar, 0 members).
 
 **Left:** the jit road's discriminator for a computed target (seal 151); F-131 (SEQ 364). Found in passing, not chased:
 unaryClassT UC-3 / UC-4 / UC-5 (`!ucH.listLengtH`, `-ucH.listLengtH`, `!*ucH.listLengtH`) print nothing; no row pins them.
