@@ -40,8 +40,16 @@ NEXT: OPEN -- what would generate a candidate: trace runAccAssign / runOPaccumOp
 jitStmtRT against the same statement run interpreted after the build (they differ only in what the jitted run has left
 in force: seeded jitData on the operand nodes, gJitSeeded not yet flushed, tempField's content, the emitted partial
 `opDot(null, noPrinT)` that runs first). Taken: jitRefuseFlagT JRS-F a reads 1. Not taken: 0.
+GUESS (SEQ 371 R2, Tony): the run-time interpreted run may not be fully interpreted (jitting still set, or jit operand
+resolution) -- would affect every handed-over statement. MEASURED 2026-10-16 (tap in jitStmtRT, clone, removed):
+ruler->jitting is 0 in every run (5 of 5, four fixtures) -- so not jitting. Still in force during the run: gJitBuilder
+is NON-NULL in 4 of 5 (it points into jitBuildFunction's stack frame, which has returned -- a dangling builder), and the
+operand nodes' seeded jitData is not flushed (jitFlushTransient runs at the NEXT build). Either is the "jit operand
+resolution" half of the guess; neither is measured as the cause.
 
 ATTEMPT LOG
   2026-10-05 filed (SEQ 298 R1): the refusal, and every later store silenced.
   2026-10-16 SEQ 370 (branch jit-refuse-scope): persistence cured -- b c d 1 7 6. The flag still 0: opSetFlag gets a
     null argument at run time. Re-aimed at that (R3). Row: jitRefuseFlagT JRS-F a.
+  2026-10-16 SEQ 371 R2: jitting = 0 inside jitStmtRT's run (measured); gJitBuilder dangling and seeded jitData unflushed
+    during it (measured); not fixed.
