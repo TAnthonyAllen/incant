@@ -472,6 +472,12 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **STATEMENT-SCOPED CLEARING OF JITTED REFUSALS (SEQ 366 R2, Tony, 2026-10-16) -- its own stroke, together with the
+  jitSetFlagTemp fixit.** Today an emit-time refusal leaves `ruler.refused` set for the rest of the build, silencing every
+  later emitter that tests it; refuseValueTarget clears its own at once (`::clearRefusal(op)`, SEQ 365) as a local stop-gap,
+  and that local clear stays until this stroke replaces it with a per-statement clear in the jit emit walk (aCTionBlocK's
+  jitting arm), measured against every emit-time refusal (refuseArgRebind, the accumulator's "under jitting it refuses",
+  `:. tempField` -- jitSetFlagTemp).
 - [ ] **DOCKET (Tony, 2026-10-13, with SEQ 350's step 0). The order after the flip:**
   1. **THE OLD-ROAD RETIREMENT -- recon first, then a pause.** Once the flip (SEQ 350, INCANT_EXPR_ACCUM on by default)
      is bought, the old expression road (reachable by INCANT_EXPR_ACCUM=0 until then) is retired: a read-only recon of
