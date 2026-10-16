@@ -794,18 +794,23 @@ extern int refuseArgRebind(GroupItem op,GroupItem target)
 }
 
 
-// refuseValueTarget an assigning operator whose target IS tempField -- a computed value, never a field -- refuses by name; 1 when it refused (Tony, SEQ 360 R1). Interpreted only: under jitting tempField is opDot's accessor carrier (jitEmitDot), so the identity would refuse x.name = v
+// refuseValueTarget an assigning operator whose target is a computed value, never a field, refuses by name; 1 when it refused (Tony, SEQ 360 R1). Interpreted: the target IS tempField. Jitted: tempField is opDot's accessor carrier (R1), so the test is the target's jitValue BEING the last computed value, gJitComputedVal (SEQ 365 R0)
 extern int refuseValueTarget(GroupItem op,GroupItem target)
 {
     -%
     GroupRules *ruler = GroupControl::groupController->groupRules;
-    if ( !op || !target || ruler->jitting || target != ruler->tempField ) return 0;
+    if ( !op || !target ) return 0;
+    if ( ruler->jitting ) {
+        if ( !target->jitData || !target->jitData->jitValue || target->jitData->jitValue != gJitComputedVal ) return 0; }
+    else if ( target != ruler->tempField ) return 0;
     void *gop = (void*)op->groupBody->gOp, *gm = (void*)op->groupBody->gMethod;
     if ( gop != (void*)&opAssign && gop != (void*)&opPlusEQ && gop != (void*)&opMinusEQ && gop != (void*)&opMultiplyEQ
          && gop != (void*)&opDivEQ && gm != (void*)&opPlusPlus && gm != (void*)&opMinusMinus ) return 0;
     char why[128];
     ::snprintf(why,sizeof(why),"the left of %s is a value, not a field",op->groupBody->tag);
     ::refuse(op,why);
+    // emitScope under jitting the refusal's scope is the store it refuses -- the caller emits nothing for it; left set, ruler.refused silenced every later emitter in the build (SEQ 365: JVK-1 read 10, not 13)
+    if ( ruler->jitting )   ::clearRefusal(op);
     return 1;
     %-
 }
@@ -1082,6 +1087,8 @@ GroupItem   run, keep;
         if !run     run = falseResult;
         // finished both sides are finished: the running value is a value, the right side is evaluated once here
         if run.isVirtual    run = copyOf(run);
+        // valueTarget a step's target is the running value; jitted, a computed one rides on its LEFT OPERAND, so an assigning step refuses rather than write it (SEQ 365 R0) -- interpreted it is the acRun copy and never refuses
+        if refuseValueTarget(field[i],run)  return null;
         run = runOPdirect(field[i],run,runOPaccumOperand(field[i + 1]));
         i = i + 2; }
     return run;
@@ -1183,7 +1190,10 @@ GroupItem   op, val, arg;
             op = field[1];
             if op.tag eq "-"    op = ruler.opFields["negate"];
             if op.tag eq "*"    op = ruler.opFields["deref"];
-            return runOPdirect(op,runOPaccumOperand(field[2]),null); }
+            val = runOPaccumOperand(field[2]);
+            // valueTarget ++ or -- on a computed value refuses by name on the jit road too (SEQ 365 R0)
+            if refuseValueTarget(op,val)    return null;
+            return runOPdirect(op,val,null); }
         return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)"); }
     if field.tag eq "acU" {
         op = field[1];

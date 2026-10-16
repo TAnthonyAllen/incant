@@ -271,6 +271,14 @@ inline bool gJitLastIsNode = false;
 inline GroupItem   *gJitDotSeeded    = nullptr;
 inline llvm::Value *gJitDotSeededVal = nullptr;
 inline llvm::Value *gJitDotProduct   = nullptr;
+// ⚠ THE LAST COMPUTED VALUE (SEQ 365 R0). jitEmitBinary and jitEmitUnary's negate hand back
+// their LEFT OPERAND carrying the result as its jitValue, so a store that follows lands in
+// that operand's slot: a jitted `-a += 3` wrote a. Each records the SSA value it computed
+// here, and refuseValueTarget refuses an assigning operator whose target's jitValue IS this
+// value -- the value's identity, never a name or a flag. A read re-seeds the field with a
+// fresh load, so a field read after the arithmetic no longer matches. Reset per function
+// build (jitBuildFunction). An opDot product never comes from these emitters (R1).
+inline llvm::Value *gJitComputedVal  = nullptr;
 // ⚠ WHERE A TARGET'S VALUE LIVES (SEQ 141, F-50). jitEmitAssign's NODE branch
 // stores through jitAssignNodeRT, which writes the FIELD; the ordinary branch
 // stores into the jitSlot, which is a REGISTER. A print must read whichever one

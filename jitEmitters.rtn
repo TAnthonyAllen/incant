@@ -141,6 +141,8 @@ extern int jitBuildFunction(GroupItem action)
     //  not change when it dies. jitRunAction still nulls gJitBuilder on the way
     //  out so it never dangles at a destroyed frame.
     llvm::IRBuilder<> B(C);
+    // computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
+    gJitComputedVal = nullptr;
 
     llvm::Type *i32 = llvm::Type::getInt32Ty(C);
     //  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -1130,6 +1132,8 @@ extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
     }
     target->jitData->setJitter(res);
     gJitResult = res;
+    // computedVal the target now carries a computed value, not its field's -- an assigning operator on it refuses (SEQ 365 R0)
+    gJitComputedVal = res;
     return target;
     %-
 }
@@ -2201,6 +2205,8 @@ extern GroupItem jitEmitUnary(GroupItem target,int op)
         res = v->getType()->isDoubleTy() ? b->CreateFNeg(v, "neg") : b->CreateNeg(v, "neg");
         target->jitData->setJitter(res);
         gJitResult = res;
+        // computedVal -a is a value, not a field (SEQ 365 R0)
+        gJitComputedVal = res;
         return target;
     }
     if (v->getType()->isDoubleTy()) {
