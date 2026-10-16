@@ -5377,6 +5377,9 @@ sh genLadder/parserCoverage.sh 2>&1 | grep -v '^  bin ' > "$T/pcov"
 #  gone is `COMPILES  Limit`; every other rule reads exactly as before.
 #  RE-PINNED 2026-09-29 (0f24004, Tony's QuotE respell): 61 -> 63 rules, 45 -> 47 compiling bodies -- the two lines
 #  added are `COMPILES  QuotE1` and `COMPILES  QuotE2`; every other rule reads exactly as before.
+#  RE-PINNED 2026-10-16 (SEQ 363 R0): stroke 4 (SEQ 361 S4b): TokenXP / UnaryXP left the grammar; Token takes ANYorNum and
+#  InvokeArg directly. Four lines move -- `COMPILES  TokenXP` and `COMPILES  UnaryXP` gone, `COMPILES  ANYorNum` and
+#  `COMPILES  InvokeArg` new -- so the totals hold at 63 rules, 47 compiling bodies, 14 leaves, 2 no body.
 diffcheck "parserCoverage.target (parser() over the whole grammar: 47 compile of 63)" genLadder/parserCoverage.target "$T/pcov"
 
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09

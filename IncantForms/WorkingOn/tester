@@ -26,7 +26,6 @@ define
     qa=2;
     qb=3;
     qc=4;
-    wrapIterate;
     listChain code={
         dumpContents(argument);
         if listLengtH != 0;
@@ -35,44 +34,96 @@ define
             if *target.listLengtH != 0 && *target.flaG; listChain(*target);
             if *arg.listLengtH != 0 && *arg.flaG; listChain(*arg);
         };
-    getInstruction code={
-        grup = argument;
+    instructEntry;
+    getTarget code={
+        $$argument;
+        grup := argument.prioR;
         $$grup;
-        while grup;
-            if result == 0; result = grup;
+        };
+    getInstruction code={
+        grup = instructEntry;
+        hold = *grup.taG;
+        print "Starting getInstruction on" hold:;
+        while grup.datA != 0;
+            if result == 0;
+                print "Setting initial result":;
+                result = grup;
+                resultTAG = *result.taG;
             or *grup.instructTypE != 0;
+                op = grup;
+                hold = *op.taG;
+                print `"Handling operator" hold:;
                 /***************************************************************************
                                 unary handling - check for negate and deref
                 ***************************************************************************/
                 if priorEntry := *grup.prioR;
-                    if priorEntry.datA == 0;    convertUnary = true;
+                    if priorEntry.datA == 0;    cerr "Cannot start with an operator like" *grup.taG:;
                     if *priorEntry.isOperatoR;  convertUnary = true;
                 if convertUnary;
                     if *op.taG == "-";  op := Operators["negate"];
                     or *op.taG == "*";  op := Operators["deref"];
                     convertUnary = false;
                 if *op.isUnarY;
+                    print `"Saw unary" hold:;
+                    unstruct    +% *op;
+                    unstruct    +% *result;
+                    unstruct    :. flaG;
+                    result := unstruct;
+                    clear(op);
+            else
+                print `"Setting target":;
+                instructEntry := *grup;
+                if grup.datA;   grupTAG = *grup.taG;
+                if op.datA;     opTAG = *op.taG;
+                target = getTarget(*grup);
+                if target.datA == 0;
+                    target      = grup;
+                    targetTAG   = *target.taG;
+                print "line:" grupTAG opTAG targetTAG resultTAG:;
+                if op.datA && result.datA  && target.datA != 0;
+                    print `"About to create instruction":;
                     instruct    +% *op;
+                    instruct    +% *target;
                     instruct    +% *result;
-                    instruct        :. flaG;
-                    result := instruct;
-                    print "Saw unary":;
-            target  := getInstruction(wrapIterate := grup);
-            // need to set loop here maybe grup = grup.prioR???
+                    instruct    :. flaG;
+                    print `"Setting result = instruct":;
+                    result      := instruct;
+                    clear(target);
+                    clear(op);
+                    opTAG       = "no op";
+                    targetTAG   = "no target";
+                    resultTAG   = "instruct";
+                    dumpContents(instruct);
+                hold := getInstruction(trueResult);
+                print `"After setting target":;
+                wrapIterate = *hold;
+                target  = wrapIterate[1];
+                hold    = wrapIterate[2];
+                grup    := *hold;
+                clear(wrapIterate);
+            print `"Setting next field":;
+            grup := *grup.prioR;
+            if grup.datA == 0;
+                print `"No more next field":;
+                break;
         if op.datA && result.datA  && target.datA != 0;
-            result := copyOf(instruct);
-            clear(instruct);
+            print `"About to create instruction":;
             instruct    +% *op;
             instruct    +% *target;
             instruct    +% *result;
             instruct    :. flaG;
-            print "Saw full instruct":;
-        if instruct.listLengtH; return instruct;
-        else return result;
+            print `"Setting result = instruct":;
+            result      := instruct;
+            clear(target);
+            clear(op);
+        wrapIterate +% result;
+        wrapIterate +% grup;
+        print "About to return from getInstruction":;
+        return wrapIterate;
         };
     xpListTest isRule lizted=listEntries+ SemI- code={
-        grup := *lizted.lasT;
-        result := getInstruction(grup);
+        instructEntry := *lizted.lasT;
+        result := getInstruction(trueResult);
         };
     ;
 

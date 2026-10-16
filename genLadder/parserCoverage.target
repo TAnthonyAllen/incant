@@ -1,3 +1,4 @@
+  COMPILES  ANYorNum
   COMPILES  ANYtoken
   LEAF      Any
   COMPILES  Attributes
@@ -23,6 +24,7 @@
   COMPILES  IF
   COMPILES  InitiatE
   COMPILES  InvokE
+  COMPILES  InvokeArg
   COMPILES  IterSource
   COMPILES  Iterate
   COMPILES  Looper
@@ -44,10 +46,8 @@
   LEAF      ShortcuT
   COMPILES  Start
   COMPILES  StringXP
-  COMPILES  TokenXP
   COMPILES  TraiT
   COMPILES  TraiTdata
-  COMPILES  UnaryXP
   COMPILES  WardeD
   COMPILES  WhilE
   COMPILES  Xpress
