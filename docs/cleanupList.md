@@ -6,6 +6,19 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
+### aCTionIterate's fLAG poison -- no reader left (seen 2026-10-16, SEQ 365 rider a)
+- **What/where:** `ruleActions.rtn` aCTionIterate -- `iterator.fLAG = 1;` in the null-source and pointer arms (:591, :598),
+  `iterator.fLAG = true;` in the refusedSource arm (:609), and the clear `iterator.fLAG = false;` on success (:606).
+- **Why it looks deletable:** its one reader was opPlusPlus (two copies), cut by F-131 (SEQ 364, 9bf5714). Census of every
+  `fLAG` read in `*.rtn` / `*.twk` on 2026-10-16: define-attribute meanings (guard, fAIL, ruleMethod, jitEmitter, Commands
+  :285 :312 :376 :417 :482, opPointer), testOP's macro meaning (GroupActions :1375 :1377), the Braced subscript mark
+  (ruleActions :1246), opDot case 46 (a generic kant `.flaG` read), and measurePlusPlusWrite's print. None reads an
+  iterator's poison. Kant readers of `flaG` (tester, macros) use the testOP meaning, not iterators. The refuse() in each
+  arm still announces the refusal; the bit itself steers nothing.
+- **Confirm:** a log at the four writes and at opDot case 46 / measurePlusPlusWrite across the checklist -- writes
+  present (SEQ 364's census saw W4 1 / W7 90), reads of a poisoned iterator 0; cut, fleet row for row.
+- **Seen:** 2026-10-16.
+
 ### `testAttributes`' artifact skip -- **KEEP: skips locals (this, tempField)** (SEQ 260 R8, 2026-10-02)
 - **What/where:** `RuleStuff.twk:269`, `if noPrint continue;` in `testAttributes` (old road).
 - **Why deletable:** after stroke 3, artifacts should not be on term lists.

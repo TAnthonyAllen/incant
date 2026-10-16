@@ -1932,9 +1932,10 @@ define
                     binds to the name before the subscript. The wrong target is a grammar question;
                     writing to it regardless was this line.#);
             opSetFlag=(THE :. SET-FLAG OPERATOR. Sets a GroupFields flag; it never toggles.#):
-                notAFlag=(A USE-THEN-TOSS MARK IS AN ATTRIBUTE, NOT A FLAG. Kant's generic
-                    flaG (case 12) retired 2026-10-02 (SEQ 267); a name with no groupFields
-                    entry is refused. The sanctioned form: a noPrint marker defined in
+                notAFlag=(A USE-THEN-TOSS MARK IS AN ATTRIBUTE, NOT A FLAG. A name with no
+                    groupFields entry is refused. flaG IS a groupField (case 46, since SEQ 359,
+                    2026-10-15; its case-12 spelling retired 2026-10-02, SEQ 267), so `:. flaG`
+                    sets fLAG -- and since F-131 (SEQ 364) ++ no longer reads it. The sanctioned form: a noPrint marker defined in
                     pROPERTIEs, set with +%, tested by subscript, tossed with -=. Two
                     measured caveats: it PRINTS while attached, and it COUNTS in listLengtH
                     and in walks. docs/flagCensus.md has the census and the probe.#);
