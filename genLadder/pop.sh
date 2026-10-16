@@ -6101,6 +6101,30 @@ sentinel "jitScCountT sentinel" "$T/jsc" "JITSCCOUNT SENTINEL"
 kindRow "jitScCountT interpreted calls a b" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')" "2 1 1"
 kindRow "jitScCountT jitted calls = interpreted (BORN RED 2026-10-16)" "$(grep '^JSC jitted ' "$T/jsc" | awk '{print $4, $6, $8}')" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')"
 
+#  ⚑ recurSaveT / jitRecurSaveT / jitRecurSaveGT -- SEQ 373 (Tony, 2026-10-16): RECURSION'S SAVE/RESTORE, BOTH ROADS,
+#  MEASURE ONLY. Pinned at today's values; nothing fixed. RS-1 t = n; r = f(n-1); r = r + t (intended 10). RS-2
+#  r = g(n-1); r = r + n (intended 10). The jit half is two processes: rsG's build is refused as INVALID IR, and a refused
+#  build runs nothing, so it would have hidden RS-1. Cap (R1): `if argument < 0; return -1;` plus POPCAP.
+run1 recurSaveT "$T/rcs";   check "recurSaveT runs" 0 $?
+sentinel "recurSaveT sentinel" "$T/rcs" "RECURSAVE SENTINEL"
+kindRow "recurSaveT RS-1 f(4), a local live across the call" "$(grep '^RS-1 ' "$T/rcs" | awk '{print $NF}')" "10"
+#  DISAGREE (interpreted vs the ruling): the argument read AFTER the recursive call is not restored per activation --
+#  every inner activation reads 0 (the innermost's), only the outermost (bound to the literal 4) reads 4, so g(4) = 4.
+kindRow "recurSaveT RS-2 g(4), the argument after the call  # intended: 10 -- DISAGREE, argument not restored" "$(grep '^RS-2 ' "$T/rcs" | awk '{print $NF}')" "4"
+run1 jitRecurSaveT "$T/jrcs";   check "jitRecurSaveT runs" 0 $?
+sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
+#  DISAGREE: the jitted f(4) hands back a value of datA 14 that prints empty, where the interpreted road reads 10.
+kindRow "jitRecurSaveT JRS-1 f(4) kind  # intended: 10 (= RS-1) -- DISAGREE, an empty kind-14 value" "$(grep '^JRS-1 ' "$T/jrcs" | awk '{print $NF}')" "14"
+kindRow "jitRecurSaveT RS-3 degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jrcs")" "0"
+kindRow "jitRecurSaveT RS-3 rsF built as its own function (one restart)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jrcs")" "1"
+kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
+run1 jitRecurSaveGT "$T/jrcg";   check "jitRecurSaveGT runs" 0 $?
+sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
+#  DISAGREE: rsG's IR fails the verifier (`add i32 %frame, i1 false` -- `r + argument` emits the argument as i1 false), so
+#  the build is refused and nothing runs: rs2 keeps its initial -9.
+kindRow "jitRecurSaveGT the build is refused (INVALID IR for jit_rsDrive and jit_rsG)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "2"
+kindRow "jitRecurSaveGT JRS-2 g(4), never run  # intended: 4 (= RS-2; the ruling says 10) -- DISAGREE" "$(grep '^JRS-2 ' "$T/jrcg" | awk '{print $NF}')" "-9"
+
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
 #  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the

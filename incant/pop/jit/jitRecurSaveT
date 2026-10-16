@@ -1,0 +1,39 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    rs1=-9;
+    rs2=-9;
+    rsF code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        t = argument;
+        r = rsF(argument - 1);
+        r = r + t;
+        return r;
+        };
+    rsG code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        r = rsG(argument - 1);
+        r = r + argument;
+        return r;
+        };
+    rsDrive code={
+        rs1 = rsF(4);
+        };
+    ;
+testing(rsDrive);
+cerr "JRS-1 f(4), a local live across the call -> [" rs1 "] kind " rs1.datA:;
+cerr "JRS cap: a negative argument returns -1":;
+cerr "JITRECURSAVE SENTINEL":;
+stop();
+
+jitRecurSaveT -- SEQ 373: recurSaveT's RS-1 on the JIT road (RS-2 is jitRecurSaveGT, its own process, because rsG's
+build is refused as INVALID IR and a refused build runs NOTHING -- it would have hidden this row too) (testing() -> jitRunAction; rsF / rsG are self-calling, so
+each is built as its own function and called through jitEmitSelfCall -- the IR witness in pop.sh counts the calls).
+Measure only: a row that disagrees with recurSaveT is pinned at today's value, # intended: the interpreted value.

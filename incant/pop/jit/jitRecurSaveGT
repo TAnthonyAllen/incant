@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    rs1=-9;
+    rs2=-9;
+    rsF code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        t = argument;
+        r = rsF(argument - 1);
+        r = r + t;
+        return r;
+        };
+    rsG code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        r = rsG(argument - 1);
+        r = r + argument;
+        return r;
+        };
+    rsDrive code={
+        rs2 = rsG(4);
+        };
+    ;
+testing(rsDrive);
+cerr "JRS-2 g(4), the argument read after the call -> " rs2:;
+cerr "JRS cap: a negative argument returns -1":;
+cerr "JITRECURSAVEG SENTINEL":;
+stop();
+
+jitRecurSaveGT -- SEQ 373: recurSaveT's RS-2 on the JIT road, split from jitRecurSaveT so its refused build cannot hide RS-1 (testing() -> jitRunAction; rsF / rsG are self-calling, so
+each is built as its own function and called through jitEmitSelfCall -- the IR witness in pop.sh counts the calls).
+Measure only: a row that disagrees with recurSaveT is pinned at today's value, # intended: the interpreted value.

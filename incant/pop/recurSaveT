@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(RecurSave);
+define
+    rs1=-9;
+    rs2=-9;
+    rsF code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        t = argument;
+        r = rsF(argument - 1);
+        r = r + t;
+        return r;
+        };
+    rsG code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        r = rsG(argument - 1);
+        r = r + argument;
+        return r;
+        };
+    rsDrive code={
+        rs1 = rsF(4);
+        rs2 = rsG(4);
+        };
+    ;
+rsDrive();
+cerr "RS-1 f(4), a local live across the call -> " rs1:;
+cerr "RS-2 g(4), the argument read after the call -> " rs2:;
+cerr "RS cap: a negative argument returns -1":;
+cerr "RECURSAVE SENTINEL":;
+stop();
+
+recurSaveT -- SEQ 373 (Tony, 2026-10-16): recursion's save/restore on the INTERPRETED road, measure only. Its twin is
+incant/pop/jit/jitRecurSaveT, its own process. RS-1: t = n; r = f(n-1); r = r + t -- t must survive the recursive call
+(per-activation locals), f(4) = 4+3+2+1 = 10. RS-2: r = g(n-1); r = r + n -- the ARGUMENT read after the call returns,
+g(4) = 10. R1: the cap writes nothing -- `if argument < 0; return -1;` stops a downward overshoot with a named wrong value, and
+pop.sh's POPCAP fails any other runaway BY NAME as a timeout. A depth COUNTER was tried first and perturbed the very thing
+measured: its `+=` reuses the shared scratch node a computed argument (`argument - 1`) is bound to, so every callee read
+its argument as the counter's value (measured 2026-10-16: 4, 2, 3, 4, 5 ... on the way down).
