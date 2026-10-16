@@ -26,7 +26,7 @@ BLAST: OVERLAPS
 OWNER: Clod     (SEQ 298 R1, Tony; severity WRONG) -- RE-AIMED 2026-10-16 (SEQ 370 R3)
 
 jitSetFlagTemp -- inside a jitted body, `x :. noPrinT` sets nothing. It had two halves:
-  PERSISTENCE (CURED on branch jit-refuse-scope, SEQ 370, pending the buy): the emit-time refusal ("`:. tempField` --
+  PERSISTENCE (CURED, SEQ 370 + 372, bought 6715fa2): the emit-time refusal ("`:. tempField` --
     not a groupField") used to stand for the rest of the build and the run, so every later store in the body stored
     nothing. Now a statement whose emit refused runs on the interpreted road at RUN time and the build-time refusal ends
     at its statement: jitRefuseFlagT's b c d read 1 7 6, as interpreted.
