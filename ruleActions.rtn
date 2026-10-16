@@ -43,6 +43,9 @@ GroupItem   grup,
             //  statement that can actually refuse at RUN time, and the flag is
             //  cleared here so it cannot leak into the next statement.
             -% jitEmitRefusedCheck(); gJitStmtCanRefuse = false; %-
+            //  refusedAtEmit a statement whose emit refused runs on the interpreted road at RUN time, once -- a degrade
+            //  that already handed it over counts -- and the build-time refusal ends here, so the walk keeps emitting (SEQ 370 R1)
+            -% if ( ruler->refused ) { if ( !gJitStmtRTDone ) { jitEmitStmtRT(grup); gJitStmtRTDone = true; } ::clearRefusal(grup); } %-
         }
         /*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
             EMIT walk -- same era split as the branch check below, and the

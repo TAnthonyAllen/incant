@@ -6069,7 +6069,11 @@ kindRow "jitRefuseScopeT the refusal raised by name, once" "$(grep -c '^REFUSED 
 run1 jitRefuseFlagT "$T/jrf";   check "jitRefuseFlagT runs" 0 $?
 sentinel "jitRefuseFlagT sentinel" "$T/jrf" "JITREFUSEFLAG SENTINEL"
 kindRow "jitRefuseFlagT jitted" "$(grep -c '^=== jitRunAction: entering on rfBody' "$T/jrf")" "1"
-kindRow "jitRefuseFlagT JRS-F = RS-F: a b c d -- a's flag SET (BORN RED 2026-10-16)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $6, $8, $10, $12}')" "1 1 7 6"
+kindRow "jitRefuseFlagT JRS-F = RS-F: b c d -- the later statements land (BORN RED 2026-10-16)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $8, $10, $12}')" "1 7 6"
+#  JRS-F's `a`: KNOWN DEFECT, jitSetFlagTemp re-aimed (SEQ 370 R3). The refused `a :. noPrinT` now runs interpreted at
+#  RUN time, and there opSetFlag receives a NULL argument (measured: interpreted, before or after the build, it receives
+#  `noPrinT`), takes its leading-dot arm, and sets nothing. Moves to 1 when that is cured.
+kindRow "jitRefuseFlagT JRS-F a's flag  # intended: 1 (= RS-F), jitSetFlagTemp" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $6}')" "0"
 kindRow "jitRefuseFlagT REFUSED lines (jit-only, raises nothing)" "$(grep -c '^REFUSED' "$T/jrf")" "0"
 run1 jitRefuseUntakenT "$T/jru";   check "jitRefuseUntakenT runs" 0 $?
 sentinel "jitRefuseUntakenT sentinel" "$T/jru" "JITREFUSEUNTAKEN SENTINEL"
@@ -6097,7 +6101,10 @@ kindRow "jitOpEqFoldT JOF-2 s + t += x -> s t, BOTH WRITTEN  # intended: refused
 kindRow "jitOpEqFoldT JOF-3 r = a < b += 1 -> r  # intended: refused" "$(grep '^JOF-3 ' "$T/joef" | awk '{print $NF}')" "0"
 kindRow "jitOpEqFoldT JOF-4 r = a + b += 1 -> a r  # intended: refused, a 10" "$(grep '^JOF-4 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "10 15"
 kindRow "jitOpEqFoldT JOF-4 degrade count (the outer = gets a null)  # intended: 0" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/joef")" "1"
-kindRow "jitOpEqFoldT REFUSED lines (JOF-4's fold step)  # intended: 4" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/joef")" "1"
+#  RE-PINNED 2026-10-16 (SEQ 370 R1) 1 -> 0: JOF-4's fold-step refusal is jit-only (interpreted the step lands on the acRun
+#  copy and refuses nothing, opEqFoldT REFUSED 0), and a jit-only refusal now raises nothing -- the statement runs
+#  interpreted at run time. JOF-4's values (a 10 r 15) and its degrade (1) do not move.
+kindRow "jitOpEqFoldT REFUSED lines (= opEqFoldT's 0)  # intended: 4" "$(grep -c '^REFUSED' "$T/joef")" "0"
 
 #  ⚑ flagPlusT / jitFlagPlusT -- F-131 (SEQ 364, Tony, 2026-10-16): opPlusPlus stops reading fLAG. A flagged count ++s like
 #  any other count, and a flagged iterator steps. Born red on trunk: `if result.fLAG return 0;` sat in opPlusPlus twice --

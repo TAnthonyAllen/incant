@@ -2012,10 +2012,14 @@ extern int jitEmitSelfCall(GroupItem argument,GroupItem action)
     jitIfRT.  */
 extern int jitStmtRT(GroupItem statement)
 {
+GroupRules  ruler = groupRules;
+int         refusedHere = 0;
     clearRefusal(statement);
     if statement.isMethod   statement.gMethod(statement);
+    // endsTheAction a refusal raised by the interpreted run ends the action: the emitted call leaves the function on a 1 (SEQ 370 R1)
+    if ruler.refused    refusedHere = 1;
     clearRefusal(statement);
-    return 0;
+    return refusedHere;
 }
 
 extern void jitEmitStmtRT(GroupItem statement)
@@ -2032,9 +2036,23 @@ extern void jitEmitStmtRT(GroupItem statement)
     llvm::Value *fn = b->CreateIntToPtr(
         llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
     llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-    b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+    llvm::Value *rv = b->CreateCall(ty, fn, {stAddr}, "stmtRT");
     gJitEmitted    = true;
     gJitLastIsNode = false;
+    // refusalExit the interpreted run refused: leave the function as runAction's exit leaves the action -- an inlined
+    // callee through its own exit block, else the epilogue, which clears the arm (SEQ 370 R1)
+    llvm::Function   *rfn  = b->GetInsertBlock()->getParent();
+    llvm::BasicBlock *exit = nullptr;
+    if (!gJitInlining.empty()) {
+        if (!gJitInlineFrames.empty() && gJitInlineFrames.back().exitBB) {
+            JitInlineFrame &f = gJitInlineFrames.back();
+            if (!f.used) { rfn->insert(rfn->end(), f.exitBB); f.used = true; }
+            exit = f.exitBB; } }
+    else exit = gJitEpilogueBB;
+    if (!exit) return;
+    llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx, "stmtNotRefused", rfn);
+    b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
+    b->SetInsertPoint(cont);
     %-
 }
 
