@@ -23,18 +23,25 @@ stop();
 
 LANE:  jit
 BLAST: OVERLAPS
-OWNER: Clod     (SEQ 298 R1, Tony; severity WRONG)
+OWNER: Clod     (SEQ 298 R1, Tony; severity WRONG) -- RE-AIMED 2026-10-16 (SEQ 370 R3)
 
-jitSetFlagTemp -- inside a jitted body, `x :. noPrinT` REFUSES as "`:. tempField` -- not a groupField", and the
-refusal (ruler.refused, armed) then makes every later store in the body store nothing -- jitAccessorWriteRT and
-jitAssignNodeRT both honour the store ruling. So one `:.` silently cancels the rest of the body's writes. Found
-2026-10-05 writing incant/pop/jitDotAssignT, which therefore sets its `:.` in an interpreted action.
+jitSetFlagTemp -- inside a jitted body, `x :. noPrinT` sets nothing. It had two halves:
+  PERSISTENCE (CURED on branch jit-refuse-scope, SEQ 370, pending the buy): the emit-time refusal ("`:. tempField` --
+    not a groupField") used to stand for the rest of the build and the run, so every later store in the body stored
+    nothing. Now a statement whose emit refused runs on the interpreted road at RUN time and the build-time refusal ends
+    at its statement: jitRefuseFlagT's b c d read 1 7 6, as interpreted.
+  THE FLAG ITSELF (OPEN -- what this citizen is now about): that run-time interpreted run still sets nothing. Measured
+    with a trace in the clone: opSetFlag at run time receives a NULL argument (interpreted, before or after the build,
+    it receives `noPrinT`), takes its leading-dot arm (`!argument` -> lastREF) and writes nowhere useful. At EMIT time it
+    received tempField. So something the jitted run leaves in force makes the accumulator hand `:.` no right operand.
+    Pinned: incant/pop/jit/jitRefuseFlagT, "JRS-F a's flag  # intended: 1".
 
-Read, not measured: `:.` is operateMethod opSetFlag, and in a jitted walk its right operand arrives as the shared
-ruler->tempField (the node jitted dots and other emitters publish into), so opSetFlag looks up groupFields["tempField"],
-finds nothing, and refuses. opSetFlag has no `if jitting` arm.
+NEXT: OPEN -- what would generate a candidate: trace runAccAssign / runOPaccumOperand for `rfA :. noPrinT` inside
+jitStmtRT against the same statement run interpreted after the build (they differ only in what the jitted run has left
+in force: seeded jitData on the operand nodes, gJitSeeded not yet flushed, tempField's content, the emitted partial
+`opDot(null, noPrinT)` that runs first). Taken: jitRefuseFlagT JRS-F a reads 1. Not taken: 0.
 
-NEXT: BEST GUESS -- give opSetFlag a jitting arm that emits a run-time call (the jitAccessorWriteRT shape: setGroupField
-with 1 on the left operand, the flag number read at EMIT time from the right operand's tag, before it is lost to
-tempField); or refuse the `:.` at emit time with a jitDegrade by name so the body runs interpreted. Grade: mechanism
-read, symptom measured. Taken: both lines read 1. Not taken: the first reads 0 and the stderr carries the refusal.
+ATTEMPT LOG
+  2026-10-05 filed (SEQ 298 R1): the refusal, and every later store silenced.
+  2026-10-16 SEQ 370 (branch jit-refuse-scope): persistence cured -- b c d 1 7 6. The flag still 0: opSetFlag gets a
+    null argument at run time. Re-aimed at that (R3). Row: jitRefuseFlagT JRS-F a.
