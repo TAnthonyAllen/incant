@@ -3414,6 +3414,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  not change when it dies. jitRunAction still nulls gJitBuilder on the way
 	//  out so it never dangles at a destroyed frame.
 	llvm::IRBuilder<> B(C);
+	// computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
+	gJitComputedVal = nullptr;
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
 	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -4121,6 +4123,8 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 	}
 	target->jitData->setJitter(res);
 	gJitResult = res;
+	// computedVal the target now carries a computed value, not its field's -- an assigning operator on it refuses (SEQ 365 R0)
+	gJitComputedVal = res;
 	return target;
 	
 }
@@ -5206,6 +5210,8 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	res = v->getType()->isDoubleTy() ? b->CreateFNeg(v, "neg") : b->CreateNeg(v, "neg");
 	target->jitData->setJitter(res);
 	gJitResult = res;
+	// computedVal -a is a value, not a field (SEQ 365 R0)
+	gJitComputedVal = res;
 	return target;
 	}
 	if (v->getType()->isDoubleTy()) {
@@ -9686,18 +9692,23 @@ extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target)
 	
 }
 
-// refuseValueTarget an assigning operator whose target IS tempField -- a computed value, never a field -- refuses by name; 1 when it refused (Tony, SEQ 360 R1). Interpreted only: under jitting tempField is opDot's accessor carrier (jitEmitDot), so the identity would refuse x.name = v
+// refuseValueTarget an assigning operator whose target is a computed value, never a field, refuses by name; 1 when it refused (Tony, SEQ 360 R1). Interpreted: the target IS tempField. Jitted: tempField is opDot's accessor carrier (R1), so the test is the target's jitValue BEING the last computed value, gJitComputedVal (SEQ 365 R0)
 extern "C" int refuseValueTarget(GroupItem *op, GroupItem *target)
 {
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
-	if ( !op || !target || ruler->jitting || target != ruler->tempField ) return 0;
+	if ( !op || !target ) return 0;
+	if ( ruler->jitting ) {
+	if ( !target->jitData || !target->jitData->jitValue || target->jitData->jitValue != gJitComputedVal ) return 0; }
+	else if ( target != ruler->tempField ) return 0;
 	void *gop = (void*)op->groupBody->gOp, *gm = (void*)op->groupBody->gMethod;
 	if ( gop != (void*)&opAssign && gop != (void*)&opPlusEQ && gop != (void*)&opMinusEQ && gop != (void*)&opMultiplyEQ
 	&& gop != (void*)&opDivEQ && gm != (void*)&opPlusPlus && gm != (void*)&opMinusMinus ) return 0;
 	char why[128];
 	::snprintf(why,sizeof(why),"the left of %s is a value, not a field",op->groupBody->tag);
 	::refuse(op,why);
+	// emitScope under jitting the refusal's scope is the store it refuses -- the caller emits nothing for it; left set, ruler.refused silenced every later emitter in the build (SEQ 365: JVK-1 read 10, not 13)
+	if ( ruler->jitting )   ::clearRefusal(op);
 	return 1;
 	
 }
@@ -10115,6 +10126,9 @@ GroupItem 	*keep = 0;
 		// finished both sides are finished: the running value is a value, the right side is evaluated once here
 		if ( run->groupBody->flags.isVirtual )
 			run = ::copyOf(run);
+		// valueTarget a step's target is the running value; jitted, a computed one rides on its LEFT OPERAND, so an assigning step refuses rather than write it (SEQ 365 R0) -- interpreted it is the acRun copy and never refuses
+		if ( ::refuseValueTarget(field->get(i),run) )
+			return 0;
 		run = ::runOPdirect(field->get(i),run,runOPaccumOperand(field->get(i + 1)));
 		i = i + 2;
 		}
@@ -10249,7 +10263,11 @@ GroupItem 	*arg = 0;
 				op = ruler->opFields->get("negate");
 			if ( ::compare(op->groupBody->tag,"*") == 0 )
 				op = ruler->opFields->get("deref");
-			return ::runOPdirect(op,runOPaccumOperand(field->get(2)),0);
+			val = runOPaccumOperand(field->get(2));
+			// valueTarget ++ or -- on a computed value refuses by name on the jit road too (SEQ 365 R0)
+			if ( ::refuseValueTarget(op,val) )
+				return 0;
+			return ::runOPdirect(op,val,0);
 			}
 		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
 		}

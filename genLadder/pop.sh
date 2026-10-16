@@ -6028,14 +6028,24 @@ kindRow "valueTargetT R2-4 number a = -a, kind" "$(grep '^R2-4 ' "$T/vtt" | awk 
 #  never tempField, so R1's identity cannot see a computed target here: JVT-1 / 2 / 6 / 8 WRITE THE OPERAND and are
 #  pinned at that value as a KNOWN DEFECT (they move when the jit road learns to refuse; the discriminator is a ruling
 #  owed). Controls and R2's pins are real.
+#  RE-PINNED 2026-10-16 (SEQ 365 R0): the jit road refuses too. jitEmitBinary and jitEmitUnary's negate record the SSA
+#  value they compute (gJitComputedVal); refuseValueTarget refuses an assigning operator whose target's jitValue IS that
+#  value, at runAccAssign, the jit acU arm and each runAccFold step. JVT-1 13 -> 10, JVT-2 3 -> 10, JVT-6 -9 -> 10,
+#  JVT-8 11 -> 10, each refused by name at emit time (four REFUSED lines: += twice, = once, ++ once). JVT-8 is jitted
+#  `a + b += 1`: interpreted it lands on runAccFold's acRun copy and does not refuse (valueTargetT VT-8); jitted the
+#  running value IS operand a, so it falls under R0. H7: discriminator out -> the four rows back to 13 / 3 / -9 / 11.
 run1 jitValueTargetT "$T/jvt";   check "jitValueTargetT runs" 0 $?
 sentinel "jitValueTargetT sentinel" "$T/jvt" "JITVALUETARGET SENTINEL"
 kindRow "jitValueTargetT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on jvAct' "$T/jvt")" "1"
 kindRow "jitValueTargetT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jvt")" "0"
-kindRow "jitValueTargetT JVT-1 -a += 3 writes a (KNOWN DEFECT pin)" "$(grep '^JVT-1 ' "$T/jvt" | awk '{print $NF}')" "13"
-kindRow "jitValueTargetT JVT-2 -a = 3 writes a (KNOWN DEFECT pin)" "$(grep '^JVT-2 ' "$T/jvt" | awk '{print $NF}')" "3"
-kindRow "jitValueTargetT JVT-6 ++-a writes a (KNOWN DEFECT pin)" "$(grep '^JVT-6 ' "$T/jvt" | awk '{print $NF}')" "-9"
-kindRow "jitValueTargetT JVT-8 a + b += 1 writes a (KNOWN DEFECT pin)" "$(grep '^JVT-8 ' "$T/jvt" | awk '{print $NF}')" "11"
+kindRow "jitValueTargetT JVT-1 -a += 3 leaves a" "$(grep '^JVT-1 ' "$T/jvt" | awk '{print $NF}')" "10"
+kindRow "jitValueTargetT JVT-2 -a = 3 leaves a" "$(grep '^JVT-2 ' "$T/jvt" | awk '{print $NF}')" "10"
+kindRow "jitValueTargetT JVT-6 ++-a leaves a" "$(grep '^JVT-6 ' "$T/jvt" | awk '{print $NF}')" "10"
+kindRow "jitValueTargetT JVT-8 a + b += 1 leaves a" "$(grep '^JVT-8 ' "$T/jvt" | awk '{print $NF}')" "10"
+kindRow "jitValueTargetT refusals naming +=" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/jvt")" "2"
+kindRow "jitValueTargetT refusals naming =" "$(grep -c '^REFUSED = -- the left of = is a value, not a field' "$T/jvt")" "1"
+kindRow "jitValueTargetT refusals naming ++" "$(grep -c '^REFUSED ++ -- the left of ++ is a value, not a field' "$T/jvt")" "1"
+kindRow "jitValueTargetT REFUSED lines, the whole fixture (the controls add none)" "$(grep -c '^REFUSED' "$T/jvt")" "4"
 kindRow "jitValueTargetT JVK-1 a += 3" "$(grep '^JVK-1 ' "$T/jvt" | awk '{print $NF}')" "13"
 kindRow "jitValueTargetT JVK-2 a = -a" "$(grep '^JVK-2 ' "$T/jvt" | awk '{print $NF}')" "-10"
 kindRow "jitValueTargetT JR2-1 count a *= -1, kind" "$(grep '^JR2-1 ' "$T/jvt" | awk '{print $(NF-2), $NF}')" "-7 5"
