@@ -625,6 +625,42 @@ jitting it refuses`. A **temporary tap** in a clone (`refuse()` under jitting wa
 executor kind beneath it; reverted md5-identical, canary back to 341) gave the kinds a refusal HIDES -- a refusal fires at
 the outermost node and returns before its operands are touched, so the census alone sees only the outermost kind.
 
+#### ⚠⚠⚠ STROKE 4 CLOSES -- TokenXP AND UnaryXP ARE OUT OF THE GRAMMAR (SEQ 363, Clod, 2026-10-16)
+
+**What left the grammar** (SEQ 361 S4b, 25feaf0; merged 7563369): TokenXP's rule (`UnaryOPS? ANYorNum^ InvokeArg?`),
+UnaryXP's rule (`UnaryOPS ANYtoken`), InvokeArg's `UnaryXP;` alternative, and Token's `TokenXP;` alternative. Token takes
+`ANYorNum;` and `InvokeArg;` directly, before `Operators;`. aCTionTokenXP went first (S4a, SEQ 361 R0, 1aca892 / support
+60abffb). So `ExpressioN Token+` hands pass 1 a FLAT run of terms: a name, a literal, a quote, an operator entry, or a group.
+
+**Where the call / subscript reading lives now: pass 1 of interpretXPaccum, BY POSITION** (carrier (a), ruled in SEQ 361).
+aCTionParens / aCTionBraced HOLD their inner expression in a fresh InvokeArg member (a holder label is lost before pass 1;
+a label with a member survives, retagged Token, Braced's fLAG intact). Pass 1 asks each term `accGroupTerm`; a group with
+an operand directly before it (`accOperandBefore`) is a call (`acPostCall`) or, with fLAG, a subscript (`acPostSub`), and
+the holder goes on unchanged to handleCall / handleSubscript. Prefixes and dots arrive as Operators entries and pass 2
+decides by position, as it already did. Spacing is still not significant: `pf (pb)` is a call.
+
+**The standing refusal: kant has no parenthetical expressions** (standing since 2026-09-29; built as SEQ 361 R2). A group
+with no operand directly before it refuses by that name and the build goes on with the group's inner value as a harmless
+primary: the armed statement dispatches nothing, and the next statement runs. groupRefuseT pins it (five REFUSED lines;
+AB-1 `a.b(c)` reads `(pob.pm)(pb)` = 5).
+
+| stroke | what | commits |
+|---|---|---|
+| recon | read-only: no engine source reads either NAME; pure removal reaches pass 1 for 0 of 22 inputs; a flat grammar loses only call / subscript | SEQ 358, seal 150 |
+| S4a | aCTionTokenXP deleted (measured inert); canary 344 -> 343 | 1aca892, support 60abffb |
+| S4b | the grammar respell, carrier (a), pass 1 by position, the refusal; canary 343 -> 346 | 25feaf0, 2772136 (R0 movers), merge 7563369 |
+| R0 / S4c | parserCoverage re-pinned (COMPILES TokenXP / UnaryXP gone, ANYorNum / InvokeArg new; 63 rules, 47 compile, 14 leaves, 2 no body, unchanged); bear-traps #48 / #52 dated; DesignDocs aCTionTokenXP, handleCall, onePrintXPWalk, iterSource and ModifierTwoClasses dated or respelled; the dangling `aCTionTokenXP.arms` / `.leadingDotNumber` / `.unaryClass` keys removed from ruleActions.rtn comments | SEQ 363 |
+
+**ANYorNum and InvokeArg in parserCoverage:** both were rules before S4b (their grammar lines did not change), but neither
+was in the coverage population: the population is Grokking's members, and today both read as plain Grokking members with
+none of the four filters set. Before S4b they were named only as TERMS of TokenXP; now Token names them as alternatives.
+Containers named only as terms (Token, ExpressioN, PrintXP, ElsE, LoopRestrict, ScopeField) are not Grokking members
+today either, which fits. **Not measured directly:** the pre-S4b grammar does not load on today's binary, and a scratch
+control removing Token's two alternatives voided the same way (no grammar, 0 members).
+
+**Left:** the jit road's discriminator for a computed target (seal 151); F-131 (SEQ 364). Found in passing, not chased:
+unaryClassT UC-3 / UC-4 / UC-5 (`!ucH.listLengtH`, `-ucH.listLengtH`, `!*ucH.listLengtH`) print nothing; no row pins them.
+
 #### ⚠⚠ STROKE 4 RECON -- TokenXP AND UnaryXP OUT OF THE GRAMMAR (SEQ 358, Clod, 2026-10-14; read-only, nothing built)
 
 **Step 0.** `incant/fixits/silencedCompileSucceeds` (R1): its Token repro went quiet at **df82ed7** (merge expr-a, A1) --

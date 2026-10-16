@@ -3683,7 +3683,9 @@ define
                     an interposed alias rule       DEAD
 
                 Every FLAG lives; every REPETITION kills the language outright; and `@` and
-                an interposed rule die with them. ⚠ THE SHAPE THE DEAD SHARE IS THE SENTENCE
+                an interposed rule die with them. (HISTORY, 2026-10-16: TokenXP left the grammar in
+                stroke 4, SEQ 361; this census is the record of what was measured on its postfix slot.)
+                ⚠ THE SHAPE THE DEAD SHARE IS THE SENTENCE
                 ITSELF: each turns the term from a DIRECT SINGLE REFERENCE into something
                 carrying a CONTAINER -- a repetition list, an isTarget capture, an alias
                 node -- while a flag leaves the term exactly what it was and only says
@@ -4343,7 +4345,9 @@ define
                     the noLabel dash, and with ? or *. Only UnaryOPS? parses
                     both. That is not an invention: TokenXP already reads
                     UnaryOPS? ANYorNum^ InvokeArg?, so it is this grammar's own
-                    idiom for an optional unary before a term, and the star
+                    idiom for an optional unary before a term (HISTORY, 2026-10-16:
+                    TokenXP left the grammar in stroke 4, SEQ 361, so IterSource is
+                    now the grammar's only UnaryOPS? term), and the star
                     arrives as the same operator node the unary path uses --
                     which is what lets the deref go through opDeref, one
                     spelling, as the ruling asked.
@@ -4882,9 +4886,11 @@ define
                     wins) and generated a read of an unassigned pointer.
                     Copying the walk
                     means copying its declaration order.#);
-            aCTionTokenXP=(THE TokenXP RULE'S ACTION -- it returns a token or a
-                token expression, and it is where a prefix unary is paired with its
-                operand.#):
+            aCTionTokenXP=(⚠ HISTORY (2026-10-16): aCTionTokenXP was deleted in stroke 4 S4a (SEQ 361 R0) and
+                TokenXP left the grammar in S4b (SEQ 361); Token now takes ANYorNum and InvokeArg directly,
+                and pass 1 of interpretXPaccum pairs a prefix with its name by position. It was THE TokenXP
+                RULE'S ACTION -- it returned a token or a token expression, and it was where a prefix unary
+                was paired with its operand.#):
                 starDotRotation=(⚠ HISTORY (2026-10-14): the old expression road, deleted with the old builder (SEQ 355). THE STAR BINDS TIGHTER THAN A POSTFIX, and this is
                     where that is made true. `*a.b` means `(*a).b` and `*a[k]` means
                     `(*a)[k]`. Landed 2026-09-07; no grammar change, and opDot was
@@ -4976,8 +4982,9 @@ define
                     - `isPRINTING = false;`  aCTionPrinT sets it,
                     aCTionStringXP does not.
                     That asymmetry is PRE-EXISTING and load-bearing (see the
-                    isPRINTING note
-                    on aCTionTokenXP's guard); hoisting it would have
+                    isPRINTING note that sat
+                    on aCTionTokenXP's guard -- HISTORY: that action was deleted in stroke 4,
+                    SEQ 361, 2026-10-15); hoisting it would have
                     started clearing a
                     generating-path flag on the string path. It stays in the
                     callers.
@@ -4986,8 +4993,9 @@ define
                     this loop and has no equivalent on the other three.
                     - the closing sink call, obviously -- that IS the
                     difference.#);
-            handleCall=(THE CALL ARM of aCTionTokenXP -- it pairs a name with its
-                InvokeArg and appends both to the expression being built.#):
+            handleCall=(THE CALL ARM of pass 1 in interpretXPaccum -- it pairs a name with the
+                group that follows it and appends both to the expression being built. Until stroke 4
+                (SEQ 361, 2026-10-15) it was the call arm of aCTionTokenXP, now deleted.#):
                 emptyParens=(AN EMPTY PAIR OF PARENTHESES CARRIES NOTHING AND IS NOT AN
                     ARGUMENT, so no third operand is appended. Until 2026-09-15 the arm
                     fell back to the InvokeArg WRAPPER itself when the group was empty,

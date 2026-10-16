@@ -2916,7 +2916,7 @@ extern "C" GroupItem *guard(GroupItem *item)
 /*  handleCall -- the `(` arm. No operator: the falsy op is what tells runOP this is
     an invocation rather than an operation. ⚠ THE RECURSION STAMP LIVES HERE and
     nowhere else -- a body naming itself is how currentMETHOD learns it recurses.
-    ruleActions.aCTionTokenXP.arms  */
+    */
 extern "C" GroupItem *handleCall(GroupItem *xpress, GroupItem *ANYtoken, GroupItem *InvokeArg)
 {
 GroupItem 	*op = 0;
@@ -9656,7 +9656,7 @@ char *why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is n
     not a number and not an accessor: a leading `.` on a LITERAL number is refused by name, suggesting 0.5. A leading
     `.` on a field (`.x`, the accessor road through lastREF) is untouched. Before this the old road read `.5` as an
     accessor with no target and crashed in opDot; the new road printed nothing.
-    ⚠ A HAND, NOT A WITNESS -- no measure prefix.   ruleActions.aCTionTokenXP.leadingDotNumber  */
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix.  */
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10890,7 +10890,7 @@ GroupItem 	*grup = result;
     chain's RESULT. The class is a REGISTRATION (`accessClass` in incant/setup) and not
     a list here, so adding one is an edit to setup and never to this file.
     ⚠ A HAND, NOT A WITNESS -- no measure prefix, and it is asked for effect on control
-    flow.   ruleActions.aCTionTokenXP.unaryClass  */
+    flow.  */
 extern "C" int unaryIsAccess(GroupItem *unary)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;

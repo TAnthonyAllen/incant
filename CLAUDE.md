@@ -2201,6 +2201,10 @@ Hard-won lessons. Each one has cost real debugging time.
     The two-mechanisms text stays above as the record of what was measured on 2026-09-04.
     ⚠ **DATED 2026-10-14: BOTH HALVES ARE THE OLD ROAD'S RECORD.** aCTionTokenXP's arms and handleDot were deleted
     (the old builder deleted, SEQ 355, 2026-10-14); on the accumulator road a prefix binds its name first, so `*a.b` is `(*a).b` by pass 1, not by a rotation.
+    ⚠ **DATED 2026-10-16: STROKE 4 TOOK THE STRUCTURAL HALF'S GRAMMAR TOO.** TokenXP and UnaryXP left the grammar (SEQ 361
+    S4b); Token takes ANYorNum and InvokeArg directly, so neither "one TokenXP" nor a `.b` term exists. Both halves are
+    now one fact about pass 1 of interpretXPaccum, which reads the flat Token run BY POSITION: an access prefix binds to
+    its name, then the postfixes (`.`, call, subscript) apply in order. Neither mechanism above is live; R1 of 2026-10-06 stands.
 
 35. **A CHAINED-SUBSCRIPT READ IN PRINT POSITION IS UNRELIABLE — `opDot` UNWRAPS ONCE.** Second
     confirmed instance of the same single-unwrap poisoning (Tony named the first on 2026-08-22
@@ -2523,6 +2527,12 @@ Hard-won lessons. Each one has cost real debugging time.
     fixture `incant/pop/dotChainT` rows DC-2 and DC-4.
     ⚠ **DATED 2026-10-14:** `interpretXP` and its fold were deleted (the old builder deleted, SEQ 355, 2026-10-14); DC-2 / DC-4 now certify the
     accumulator road. The grammar's singular slots stand until stroke 4 (TokenXP / UnaryXP out of the grammar).
+    ⚠ **DATED 2026-10-16: THE GRAMMAR LINE THIS TRAP NAMES IS GONE.** `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` left the
+    grammar in stroke 4 (SEQ 361 S4b) with UnaryXP; `ExpressioN Token+` now hands pass 1 a flat run, so there is no
+    singular postfix slot and no singular prefix slot left to drop a second one. The postfix face is pinned cured by value
+    (dotChainT DC-2, DC-4). **The prefix face is NOT shown cured:** `incant/pop/unaryClassT` UC-5 (`!*ucH.listLengtH`) still
+    prints nothing on today's binary -- but so do UC-3 (`!ucH.listLengtH`) and UC-4 (`-ucH.listLengtH`), one prefix each,
+    so that silence is not evidence about two prefixes. Measured 2026-10-16, cause not chased.
     ⚠ **THE USEFUL COROLLARY, and it answers the question people will ask: the trailing `.C` is
     NOT a leading-dot spelling riding `lastREF`.** No `dot-LEADING` arm fires for it. So retiring
     the leading form does not owe `X[…].Y` a respell — that shape is a **dropped term**, and it is
