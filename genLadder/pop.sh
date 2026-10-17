@@ -6108,9 +6108,13 @@ kindRow "jitScCountT jitted calls = interpreted (BORN RED 2026-10-16)" "$(grep '
 run1 recurSaveT "$T/rcs";   check "recurSaveT runs" 0 $?
 sentinel "recurSaveT sentinel" "$T/rcs" "RECURSAVE SENTINEL"
 kindRow "recurSaveT RS-1 f(4), a local live across the call" "$(grep '^RS-1 ' "$T/rcs" | awk '{print $NF}')" "10"
-#  DISAGREE (interpreted vs the ruling): the argument read AFTER the recursive call is not restored per activation --
-#  every inner activation reads 0 (the innermost's), only the outermost (bound to the literal 4) reads 4, so g(4) = 4.
-kindRow "recurSaveT RS-2 g(4), the argument after the call  # intended: 10 -- DISAGREE, argument not restored" "$(grep '^RS-2 ' "$T/rcs" | awk '{print $NF}')" "4"
+#  SEQ 374 (Tony, R0/R1): the argument read after a recursive call reads the value THIS activation was handed, and a
+#  computed argument (`argument - 1`, `5 - 1`) is owned by the call that computed it -- no callee arithmetic lands on it.
+#  BORN RED 2026-10-17: the binding was restored per activation but pointed at ruler.tempField, the one scratch node every
+#  arithmetic operator answers in (RS-2 read 4, SC-1 104, SC-2 10).
+kindRow "recurSaveT RS-2 g(4), the argument after the call" "$(grep '^RS-2 ' "$T/rcs" | awk '{print $NF}')" "10"
+kindRow "recurSaveT SC-1 h(5 - 1), the argument after the callee's own arithmetic" "$(grep '^SC-1 ' "$T/rcs" | awk '{print $NF}')" "4"
+kindRow "recurSaveT SC-2 k(5 - 1), the argument after a counter's +=" "$(grep '^SC-2 ' "$T/rcs" | awk '{print $NF}')" "4"
 run1 jitRecurSaveT "$T/jrcs";   check "jitRecurSaveT runs" 0 $?
 sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
 #  DISAGREE: the jitted f(4) hands back a value of datA 14 that prints empty, where the interpreted road reads 10.

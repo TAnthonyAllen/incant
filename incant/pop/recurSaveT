@@ -8,6 +8,9 @@ register(RecurSave);
 define
     rs1=-9;
     rs2=-9;
+    rs3=-9;
+    rs4=-9;
+    rsCnt=0;
     rsF code={
         if argument < 0;    return -1;
         if argument == 0;   return 0;
@@ -23,14 +26,26 @@ define
         r = r + argument;
         return r;
         };
+    rsH code={
+        x = argument + 100;
+        return argument;
+        };
+    rsK code={
+        rsCnt += 10;
+        return argument;
+        };
     rsDrive code={
         rs1 = rsF(4);
         rs2 = rsG(4);
+        rs3 = rsH(5 - 1);
+        rs4 = rsK(5 - 1);
         };
     ;
 rsDrive();
 cerr "RS-1 f(4), a local live across the call -> " rs1:;
 cerr "RS-2 g(4), the argument read after the call -> " rs2:;
+cerr "SC-1 h(5 - 1), the argument after the callee's own arithmetic -> " rs3:;
+cerr "SC-2 k(5 - 1), the argument after a counter's += -> " rs4:;
 cerr "RS cap: a negative argument returns -1":;
 cerr "RECURSAVE SENTINEL":;
 stop();
@@ -42,3 +57,9 @@ g(4) = 10. R1: the cap writes nothing -- `if argument < 0; return -1;` stops a d
 pop.sh's POPCAP fails any other runaway BY NAME as a timeout. A depth COUNTER was tried first and perturbed the very thing
 measured: its `+=` reuses the shared scratch node a computed argument (`argument - 1`) is bound to, so every callee read
 its argument as the counter's value (measured 2026-10-16: 4, 2, 3, 4, 5 ... on the way down).
+
+SEQ 374 (Tony, R0/R1): the scratch node is ruler.tempField, ONE node for the whole process -- every arithmetic operator
+answers in it. runAction bound a computed argument to that node itself, so its save/restore kept the BINDING per activation
+and the VALUE was whatever the last arithmetic left there. SC-1 and SC-2 are that fact without recursion: the callee's own
+`argument + 100`, or a counter's `+=`, lands on the node its argument is bound to. Intended 4 both. Cure: a computed
+argument is copied at the bind, so the call that computed it owns it.
