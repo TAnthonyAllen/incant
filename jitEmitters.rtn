@@ -761,8 +761,8 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
     }
     // Compound (+= *= ...) is NOT a second branch here — it is the composition
     // done by the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
-    // which writes the result into target->jitData->jitValue, then a store-back
-    // of THAT value. Left to the gate by design.
+    // which returns the result on its OWN node (SEQ 377 R1), then a store-back
+    // of that node's value into target. Left to the gate by design.
     gJitResult = argument->jitData->jitValue;
     return target;
     %-
@@ -1137,11 +1137,16 @@ extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
         case jitMul:  res = fp ? b->CreateFMul(l,r,"mul") : b->CreateMul(l,r,"mul");  break;
         case jitSDiv: res = fp ? b->CreateFDiv(l,r,"div") : b->CreateSDiv(l,r,"div"); break;
     }
-    target->jitData->setJitter(res);
+    //  ⚠ THE RESULT IS ITS OWN NODE, NEVER THE OPERAND'S jitData (Tony, SEQ 376 R2 / SEQ 377 R1) -- an inlined callee's
+    //  `argument - 1` left its sub on the caller's operand node, and the next read of argument read it (jitArithOperandT)
+    GroupItem *binResult = new GroupItem((char*)"binResult");
+    binResult->jitData = new JitData();
+    binResult->jitData->setJitter(res);
+    gJitSeeded.push_back(binResult);
     gJitResult = res;
-    // computedVal the target now carries a computed value, not its field's -- an assigning operator on it refuses (SEQ 365 R0)
+    // computedVal the result node carries a computed value, not a field's -- an assigning operator on it refuses (SEQ 365 R0)
     gJitComputedVal = res;
-    return target;
+    return binResult;
     %-
 }
 
@@ -1192,9 +1197,15 @@ extern GroupItem jitEmitCompare(GroupItem argument,GroupItem target,int op)
             case jitGE: res = b->CreateICmpSGE(l,r,"cmp"); break;
         }
     }
-    target->jitData->setJitter(res);
+    //  ⚠ THE RESULT IS ITS OWN NODE, NEVER THE OPERAND'S jitData (Tony, SEQ 376 R2). An inlined callee's every `argument`
+    //  read follows to ONE node; a result left there was read by the next compare as its operand -- icmp i1 vs i32, the
+    //  build aborted (jitCmpOperandAT). A compare's value is computed, not the field, so it rides on a fresh node.
+    GroupItem *cmpResult = new GroupItem((char*)"cmpResult");
+    cmpResult->jitData = new JitData();
+    cmpResult->jitData->setJitter(res);
+    gJitSeeded.push_back(cmpResult);
     gJitResult = res;
-    return target;
+    return cmpResult;
     %-
 }
 
@@ -2230,11 +2241,15 @@ extern GroupItem jitEmitUnary(GroupItem target,int op)
     // is not mutated; the negated SSA value flows up as the result.
     if (op == jitNeg) {
         res = v->getType()->isDoubleTy() ? b->CreateFNeg(v, "neg") : b->CreateNeg(v, "neg");
-        target->jitData->setJitter(res);
+        //  ⚠ own node, never the operand's jitData (SEQ 377 R1) -- the same defect as jitEmitBinary's
+        GroupItem *negResult = new GroupItem((char*)"negResult");
+        negResult->jitData = new JitData();
+        negResult->jitData->setJitter(res);
+        gJitSeeded.push_back(negResult);
         gJitResult = res;
         // computedVal -a is a value, not a field (SEQ 365 R0)
         gJitComputedVal = res;
-        return target;
+        return negResult;
     }
     if (v->getType()->isDoubleTy()) {
         llvm::Value *one = llvm::ConstantFP::get(v->getType(), 1.0);

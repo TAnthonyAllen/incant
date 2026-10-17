@@ -283,8 +283,7 @@ GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
     if jitting {
-        -% jitEmitBinary(argument, target, jitSDiv);
-           return jitEmitAssign(target, target); %-
+        -% return jitEmitAssign(jitEmitBinary(argument, target, jitSDiv), target); %-
     }
 use target
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
@@ -603,8 +602,7 @@ GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
     if jitting {
-        -% jitEmitBinary(argument, target, jitSub);
-           return jitEmitAssign(target, target); %-
+        -% return jitEmitAssign(jitEmitBinary(argument, target, jitSub), target); %-
     }
 use target
     if groupList  result = remove(argument.tag);
@@ -697,8 +695,7 @@ GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
     if jitting {
-        -% jitEmitBinary(argument, target, jitMul);
-           return jitEmitAssign(target, target); %-
+        -% return jitEmitAssign(jitEmitBinary(argument, target, jitMul), target); %-
     }
 use target
     if data && argument.data {

@@ -6132,12 +6132,26 @@ kindRow "jitRecurSaveT JRS-1 f(4) kind  # intended: 10 (= RS-1) -- DISAGREE, an 
 kindRow "jitRecurSaveT RS-3 degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jrcs")" "0"
 kindRow "jitRecurSaveT RS-3 rsF built as its own function (one restart)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jrcs")" "1"
 kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
+#  SEQ 377 R0 (Tony): a depth guard (rsDepth, cap 50) -- the self-call bakes its argument; guard sentinel until the
+#  argument slot (SEQ 376 R1c). Once a compare's result stopped riding on the argument node (jit-compare-result) the folded
+#  `== 0` no longer stopped the recursion by accident. Interpreted, the same bodies run in the same process after the jitted
+#  half: depth 5, never tripped, f(4) = 10.
+_jg () { sed -n "s/^JRS guard tripped *\([0-9]*\) depth *\([0-9]*\) *\$/\1 \2/p" "$1"; }
+_ji () { sed -n "s/^JRS interpreted -> *\([^ ]*\) guard tripped *\([0-9]*\) depth *\([0-9]*\) *\$/\1 \2 \3/p" "$1"; }
+kindRow "jitRecurSaveT JRS-G jitted: the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c) -- tripped, depth" "$(_jg "$T/jrcs")" "1 51"
+kindRow "jitRecurSaveT JRS-I interpreted twin: f(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcs")" "10 0 5"
 run1 jitRecurSaveGT "$T/jrcg";   check "jitRecurSaveGT runs" 0 $?
 sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
-#  DISAGREE: rsG's IR fails the verifier (`add i32 %frame, i1 false` -- `r + argument` emits the argument as i1 false), so
-#  the build is refused and nothing runs: rs2 keeps its initial -9.
-kindRow "jitRecurSaveGT the build is refused (INVALID IR for jit_rsDrive and jit_rsG)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "2"
-kindRow "jitRecurSaveGT JRS-2 g(4), never run  # intended: 4 (= RS-2; the ruling says 10) -- DISAGREE" "$(grep '^JRS-2 ' "$T/jrcg" | awk '{print $NF}')" "-9"
+#  SEQ 377 R1 (registered mover): rsG's IR was INVALID (`add i32 %frame, i1 false` -- a compare's i1 written back onto the
+#  argument node). With computed results on their own nodes the IR verifies and adds the baked argument (`add i32 ..., 4`),
+#  no constant from a write-back.
+kindRow "jitRecurSaveGT the build verifies (no INVALID IR)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "0"
+kindRow "jitRecurSaveGT IR: r + argument adds the baked argument 4, not a written-back constant" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveGT)" 2>&1 | grep -c 'add i32 %unbox[0-9]*, 4$')" "1"
+#  SEQ 377 R0: the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c). g(4) prints empty
+#  (the call's value is read from the action node, seal 168 (c)).  # intended: 10 (= RS-2)
+kindRow "jitRecurSaveGT JRS-2 g(4)  # intended: 10 (= RS-2) -- the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:"
+kindRow "jitRecurSaveGT JRS-G jitted: guard tripped, depth" "$(_jg "$T/jrcg")" "1 51"
+kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcg")" "10 0 5"
 
 #  ⚑ jitCmpOperandT / jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): A COMPARE'S RESULT IS ITS OWN SSA VALUE, never its
 #  operand's jitData. Measured 2026-10-17: a plain field compared twice is fine (each occurrence is its own node); an
