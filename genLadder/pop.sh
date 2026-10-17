@@ -266,6 +266,16 @@ run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)"
 #  completeness marker is the LAST LINE OF ITS GOLDEN -- which only appears if
 #  the run reached the end. This is a presence check on one line, not the golden
 #  diff that ruling 3 deliberately declined.
+#  testRecursion SEQ 374 R3 (Tony): recurSaveT's four cases copied into unitTests (the fleet rows stay in recurSaveT) -- f(4) a
+#  local across the call, g(4) the argument after the call, h / k(5 - 1) callee arithmetic beside a computed argument.
+#  On the engine before the SEQ 374 cure it read 10 4 104 10.
+#  (inline, not kindRow: kindRow is defined further down and a call here would evaporate -- measured, stderr "command not found")
+_utr="$(sed -n 's/^testRecursion: should be 10 10 4 4. They are //p' "$T/base" | xargs)"
+if [ "$_utr" = "10 10 4 4" ]; then
+    echo "  ok    baselineTests testRecursion (unitTests' copy of recurSaveT) = [$_utr]"; green=$((green+1))
+else
+    echo "  FAIL  baselineTests testRecursion (unitTests' copy of recurSaveT) -- got [$_utr] want [10 10 4 4]"; fail=1
+fi
 if [ -s "$T/base" ] && tail -1 "$(ip baselineTests.golden)" | grep -qFf - "$T/base"; then
     echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))
 else
@@ -6108,9 +6118,13 @@ kindRow "jitScCountT jitted calls = interpreted (BORN RED 2026-10-16)" "$(grep '
 run1 recurSaveT "$T/rcs";   check "recurSaveT runs" 0 $?
 sentinel "recurSaveT sentinel" "$T/rcs" "RECURSAVE SENTINEL"
 kindRow "recurSaveT RS-1 f(4), a local live across the call" "$(grep '^RS-1 ' "$T/rcs" | awk '{print $NF}')" "10"
-#  DISAGREE (interpreted vs the ruling): the argument read AFTER the recursive call is not restored per activation --
-#  every inner activation reads 0 (the innermost's), only the outermost (bound to the literal 4) reads 4, so g(4) = 4.
-kindRow "recurSaveT RS-2 g(4), the argument after the call  # intended: 10 -- DISAGREE, argument not restored" "$(grep '^RS-2 ' "$T/rcs" | awk '{print $NF}')" "4"
+#  SEQ 374 (Tony, R0/R1): the argument read after a recursive call reads the value THIS activation was handed, and a
+#  computed argument (`argument - 1`, `5 - 1`) is owned by the call that computed it -- no callee arithmetic lands on it.
+#  BORN RED 2026-10-17: the binding was restored per activation but pointed at ruler.tempField, the one scratch node every
+#  arithmetic operator answers in (RS-2 read 4, SC-1 104, SC-2 10).
+kindRow "recurSaveT RS-2 g(4), the argument after the call" "$(grep '^RS-2 ' "$T/rcs" | awk '{print $NF}')" "10"
+kindRow "recurSaveT SC-1 h(5 - 1), the argument after the callee's own arithmetic" "$(grep '^SC-1 ' "$T/rcs" | awk '{print $NF}')" "4"
+kindRow "recurSaveT SC-2 k(5 - 1), the argument after a counter's +=" "$(grep '^SC-2 ' "$T/rcs" | awk '{print $NF}')" "4"
 run1 jitRecurSaveT "$T/jrcs";   check "jitRecurSaveT runs" 0 $?
 sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
 #  DISAGREE: the jitted f(4) hands back a value of datA 14 that prints empty, where the interpreted road reads 10.

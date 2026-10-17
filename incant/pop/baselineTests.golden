@@ -55,6 +55,7 @@ list tests the for statement:
 	nine 
 		we DONE 
 testGet: should set sumple width to 251. It is 251 
+testRecursion: should be 10 10 4 4. They are 10 10 4 4 
 sumple=What if it is a long string. height=200 width=251 x=100 y=100 down=* across=2
 	crossing height=50; 
 simple across styleTest height=212 width=250 x=100 y=100

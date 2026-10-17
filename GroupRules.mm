@@ -10226,6 +10226,13 @@ GroupItem 	*ruleArg = 0;
 		}
 	// bindOrder save before bind so the outer activation gets its slot back
 	::saveLocalFields(field);
+	// ownArgument a computed argument answers in ruler.tempField, the ONE scratch node every arithmetic operator writes -- the call that computed it owns a copy (Tony, SEQ 374 R0/R1)
+	if ( argument == ruler->tempField )
+		{
+		capture = new GroupItem(argument->groupBody->tag);
+		capture->setContent(argument);
+		argument = capture;
+		}
 	ruleArg->setGroup(argument);
 	// chanCount chanT's pair, SAME MUST EQUAL BINDS -- passthrough because the check is pointer identity, which == is not
 	
