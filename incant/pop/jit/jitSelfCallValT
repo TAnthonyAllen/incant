@@ -8,7 +8,7 @@ register(JitLadder);
 define
     vcDepth=0;
     vcTrip=0;
-    vcTop=-9;
+    vcTop=999;
     vcF code={
         vcDepth += 1;
         if vcDepth > 5;     vcTrip = 1;
@@ -24,7 +24,7 @@ define
     ;
 testing(vcDrive);
 cerr "VC jitted      top " vcTop " kind " vcTop.datA " tripped " vcTrip " depth " vcDepth:;
-vcDepth = 0; vcTrip = 0; vcTop = -9;
+vcDepth = 0; vcTrip = 0; vcTop = 999;
 vcDrive();
 cerr "VC interpreted top " vcTop " kind " vcTop.datA " tripped " vcTrip " depth " vcDepth:;
 cerr "JITSELFCALLVAL SENTINEL":;
@@ -35,4 +35,7 @@ action node's own count. Each level returns inner + 1. The argument is still bak
 `argument == 0` never ends it there: the depth guard (cap 5) returns 100 at depth 6, and the top reads 100 + 5 = 105,
 tripped 1, depth 6 -- sentinel plus depth, which only a READ call value can produce. The interpreted twin (same process,
 after the jitted half) bottoms out on its argument: vcF(3) = 100 + 3 = 103 at depth 4, never tripped -- the control.
-Before the cure the jitted call's value was loaded from the vcF node's own count.
+Before the cure the jitted call's value was loaded from the vcF node's own count (0).
+vcTop starts at 999, not -9 (corrected on jit-selfcall, 2026-10-17): `vcTop=-9;` in a define gives a TOKEN-kind field (datA
+14), and a jitted `=` stores the count without re-kinding it, where the interpreted `=` makes it a count -- so the jitted
+top printed its old text "-9;" whatever was stored. That is its own disagreement (recorded in seal 171), not this one.

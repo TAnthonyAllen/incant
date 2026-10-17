@@ -1133,9 +1133,9 @@ use field
     if !ruleArg     ruleArg = field += "argument";
     ruleArg.isArgument = true;
     if jitting {
-        if jitEmitSelfCall(argument, field) {
-            result = field;
-            goto exitRunAction; }
+        // selfCallValue an emitted self-call hands back its value node (%selfcall), never the action (SEQ 378 R0)
+        if result = jitEmitSelfCall(argument, field)
+            goto exitRunAction;
         // jitBind an INLINED callee is walked here at emit time, so the emit-time bind is this arm's; an emitted call binds in jitBindArgRT
         ruleArg.group = argument;
         jitInlinePush(field);

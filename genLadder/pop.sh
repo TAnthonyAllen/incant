@@ -6127,8 +6127,9 @@ kindRow "recurSaveT SC-1 h(5 - 1), the argument after the callee's own arithmeti
 kindRow "recurSaveT SC-2 k(5 - 1), the argument after a counter's +=" "$(grep '^SC-2 ' "$T/rcs" | awk '{print $NF}')" "4"
 run1 jitRecurSaveT "$T/jrcs";   check "jitRecurSaveT runs" 0 $?
 sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
-#  DISAGREE: the jitted f(4) hands back a value of datA 14 that prints empty, where the interpreted road reads 10.
-kindRow "jitRecurSaveT JRS-1 f(4) kind  # intended: 10 (= RS-1) -- DISAGREE, an empty kind-14 value" "$(grep '^JRS-1 ' "$T/jrcs" | awk '{print $NF}')" "14"
+#  SEQ 378 R2 (Tony): value read; argument still baked until the argument slot (SEQ 376 R1c). 193 = the guard's -7 + 50
+#  levels of `r + t`, t the baked 4. (The old "empty, kind 14" was rs1's own kind: a define's -9 is a TOKEN; rs1 starts at 999.)
+kindRow "jitRecurSaveT JRS-1 f(4) value:kind  # intended: 10 (= RS-1) -- value read; argument still baked until the argument slot (SEQ 376 R1c)" "$(sed -n 's/^JRS-1 .*\[ *\([^ ]*\) *\] kind *\([0-9]*\).*/\1:\2/p' "$T/jrcs")" "193:5"
 kindRow "jitRecurSaveT RS-3 degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jrcs")" "0"
 kindRow "jitRecurSaveT RS-3 rsF built as its own function (one restart)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jrcs")" "1"
 kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
@@ -6146,10 +6147,13 @@ sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
 #  argument node). With computed results on their own nodes the IR verifies and adds the baked argument (`add i32 ..., 4`),
 #  no constant from a write-back.
 kindRow "jitRecurSaveGT the build verifies (no INVALID IR)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "0"
-kindRow "jitRecurSaveGT IR: r + argument adds the baked argument 4, not a written-back constant" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveGT)" 2>&1 | grep -c 'add i32 %unbox[0-9]*, 4$')" "1"
+_rgir="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveGT)" 2>&1)"
+kindRow "jitRecurSaveGT IR: r + argument adds the baked argument 4, not a written-back constant" "$(echo "$_rgir" | grep -c 'add i32 %[a-z0-9]*, 4$')" "1"
+#  SEQ 378 R0: r is the call's value -- the add reads %selfcall (before: an unbox of rsG's own node).
+kindRow "jitRecurSaveGT IR: r = rsG(...) is the call's value (add i32 %selfcall, 4)" "$(echo "$_rgir" | grep -c 'add i32 %selfcall, 4$')" "1"
 #  SEQ 377 R0: the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c). g(4) prints empty
-#  (the call's value is read from the action node, seal 168 (c)).  # intended: 10 (= RS-2)
-kindRow "jitRecurSaveGT JRS-2 g(4)  # intended: 10 (= RS-2) -- the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:"
+#  -- until SEQ 378 the call's value was read from the action node (seal 168 (c)).  # intended: 10 (= RS-2)
+kindRow "jitRecurSaveGT JRS-2 g(4)  # intended: 10 (= RS-2) -- value read; argument still baked until the argument slot (SEQ 376 R1c)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:193"
 kindRow "jitRecurSaveGT JRS-G jitted: guard tripped, depth" "$(_jg "$T/jrcg")" "1 51"
 kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcg")" "10 0 5"
 
@@ -6190,7 +6194,8 @@ kindRow "jitArithOperandT AO-X jitted, the binary's returned node (own-node witn
 #  ⚑ jitSelfCallValT -- SEQ 378 R1 (Tony): a jitted self-call's value is %selfcall, never the action node's own count.
 #  Each level returns inner + 1; the argument is still baked (SEQ 376 R1c), so the guard (cap 5) ends it: jitted top =
 #  100 + 5 = 105, tripped at depth 6. Interpreted twin (same process, after): 103, never tripped, depth 4 -- the control.
-#  BORN RED 2026-10-17: jitted top empty, kind 14 (the vcF node's count was loaded).
+#  BORN RED 2026-10-17: jitted top empty, kind 14. vcTop then started at -9, a TOKEN-kind field the jitted `=` never re-kinds
+#  (seal 171); corrected to 999 on jit-selfcall, where the engine before the cure reads 0 -- the vcF node's own count.
 run1 jitSelfCallValT "$T/jvc";   check "jitSelfCallValT runs" 0 $?
 sentinel "jitSelfCallValT sentinel" "$T/jvc" "JITSELFCALLVAL SENTINEL"
 _vc () { sed -n "s/^VC $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jvc"; }
