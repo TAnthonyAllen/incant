@@ -4043,8 +4043,8 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	}
 	// Compound (+= *= ...) is NOT a second branch here — it is the composition
 	// done by the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
-	// which writes the result into target->jitData->jitValue, then a store-back
-	// of THAT value. Left to the gate by design.
+	// which returns the result on its OWN node (SEQ 377 R1), then a store-back
+	// of that node's value into target. Left to the gate by design.
 	gJitResult = argument->jitData->jitValue;
 	return target;
 	
@@ -4131,11 +4131,16 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 	case jitMul:  res = fp ? b->CreateFMul(l,r,"mul") : b->CreateMul(l,r,"mul");  break;
 	case jitSDiv: res = fp ? b->CreateFDiv(l,r,"div") : b->CreateSDiv(l,r,"div"); break;
 	}
-	target->jitData->setJitter(res);
+	//  ⚠ THE RESULT IS ITS OWN NODE, NEVER THE OPERAND'S jitData (Tony, SEQ 376 R2 / SEQ 377 R1) -- an inlined callee's
+	//  `argument - 1` left its sub on the caller's operand node, and the next read of argument read it (jitArithOperandT)
+	GroupItem *binResult = new GroupItem((char*)"binResult");
+	binResult->jitData = new JitData();
+	binResult->jitData->setJitter(res);
+	gJitSeeded.push_back(binResult);
 	gJitResult = res;
-	// computedVal the target now carries a computed value, not its field's -- an assigning operator on it refuses (SEQ 365 R0)
+	// computedVal the result node carries a computed value, not a field's -- an assigning operator on it refuses (SEQ 365 R0)
 	gJitComputedVal = res;
-	return target;
+	return binResult;
 	
 }
 
@@ -5240,11 +5245,15 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	// is not mutated; the negated SSA value flows up as the result.
 	if (op == jitNeg) {
 	res = v->getType()->isDoubleTy() ? b->CreateFNeg(v, "neg") : b->CreateNeg(v, "neg");
-	target->jitData->setJitter(res);
+	//  ⚠ own node, never the operand's jitData (SEQ 377 R1) -- the same defect as jitEmitBinary's
+	GroupItem *negResult = new GroupItem((char*)"negResult");
+	negResult->jitData = new JitData();
+	negResult->jitData->setJitter(res);
+	gJitSeeded.push_back(negResult);
 	gJitResult = res;
 	// computedVal -a is a value, not a field (SEQ 365 R0)
 	gJitComputedVal = res;
-	return target;
+	return negResult;
 	}
 	if (v->getType()->isDoubleTy()) {
 	llvm::Value *one = llvm::ConstantFP::get(v->getType(), 1.0);
@@ -7518,8 +7527,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return 0;
 	if ( ruler->jitting )
 		{
-		 jitEmitBinary(argument, target, jitSDiv);
-		return jitEmitAssign(target, target); 
+		 return jitEmitAssign(jitEmitBinary(argument, target, jitSDiv), target); 
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
@@ -8100,8 +8108,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return 0;
 	if ( ruler->jitting )
 		{
-		 jitEmitBinary(argument, target, jitSub);
-		return jitEmitAssign(target, target); 
+		 return jitEmitAssign(jitEmitBinary(argument, target, jitSub), target); 
 		}
 	if ( target->groupBody->groupList )
 		result = target->remove(argument->groupBody->tag);
@@ -8239,8 +8246,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return 0;
 	if ( ruler->jitting )
 		{
-		 jitEmitBinary(argument, target, jitMul);
-		return jitEmitAssign(target, target); 
+		 return jitEmitAssign(jitEmitBinary(argument, target, jitMul), target); 
 		}
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
 		{

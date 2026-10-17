@@ -8,7 +8,12 @@ register(JitLadder);
 define
     rs1=-9;
     rs2=-9;
+    rsDepth=0;
+    rsTrip=0;
     rsF code={
+        rsDepth += 1;
+        if rsDepth > 50;    rsTrip = 1;
+        if rsTrip == 1;     return -7;
         if argument < 0;    return -1;
         if argument == 0;   return 0;
         t = argument;
@@ -17,6 +22,9 @@ define
         return r;
         };
     rsG code={
+        rsDepth += 1;
+        if rsDepth > 50;    rsTrip = 1;
+        if rsTrip == 1;     return -7;
         if argument < 0;    return -1;
         if argument == 0;   return 0;
         r = rsG(argument - 1);
@@ -29,6 +37,10 @@ define
     ;
 testing(rsDrive);
 cerr "JRS-2 g(4), the argument read after the call -> " rs2:;
+cerr "JRS guard tripped " rsTrip " depth " rsDepth:;
+rsDepth = 0; rsTrip = 0;
+rsDrive();
+cerr "JRS interpreted ->" rs2 " guard tripped " rsTrip " depth " rsDepth:;
 cerr "JRS cap: a negative argument returns -1":;
 cerr "JITRECURSAVEG SENTINEL":;
 stop();
@@ -36,3 +48,10 @@ stop();
 jitRecurSaveGT -- SEQ 373: recurSaveT's RS-2 on the JIT road, split from jitRecurSaveT so its refused build cannot hide RS-1 (testing() -> jitRunAction; rsF / rsG are self-calling, so
 each is built as its own function and called through jitEmitSelfCall -- the IR witness in pop.sh counts the calls).
 Measure only: a row that disagrees with recurSaveT is pinned at today's value, # intended: the interpreted value.
+
+SEQ 377 R0 (Tony): a DEPTH GUARD on a declared global counter, bumped at every entry and capped at 50 -- the interpreted
+depth of f(4) / g(4) is 5. Past the cap the body sets rsTrip and returns -7, the named sentinel. Why: once a compare's
+and a binary's result stopped riding on the argument node (SEQ 376 R2, jit-compare-result), the folded `argument == 0`
+no longer read true by accident, and the self-call still bakes its argument (the literal 4) at every depth, so the
+recursion never bottoms out. The guard trips on the jit road until the argument slot lands (SEQ 376 R1c); on the
+interpreted road it reads 5 and never trips -- the twin run after the jitted half says so.
