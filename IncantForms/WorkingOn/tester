@@ -46,8 +46,9 @@ define
         and if it is returns the chain as target, otherwise returns just target
     *****************************************************************************/
     getTarget code={
-        $$argument;
         grup := argument.prioR;
+        $$argument;
+        $$grup;
         if *grup.instructTypE != 0;
             op = grup;
             grup        := *grup.prioR;
@@ -100,7 +101,6 @@ define
                 instructEntry := *grup;
                 if result.flaG; resultPark = result;
                 else        clear(resultPark);
-                $$grup;
                 target      := getTarget(*grup);
                 // should not have to run the following line but target returned from getTarget gets its fLAG cleared???
                 *target     :. flaG;
