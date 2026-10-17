@@ -266,6 +266,16 @@ run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)"
 #  completeness marker is the LAST LINE OF ITS GOLDEN -- which only appears if
 #  the run reached the end. This is a presence check on one line, not the golden
 #  diff that ruling 3 deliberately declined.
+#  testRecursion SEQ 374 R3 (Tony): recurSaveT's four cases copied into unitTests (the fleet rows stay in recurSaveT) -- f(4) a
+#  local across the call, g(4) the argument after the call, h / k(5 - 1) callee arithmetic beside a computed argument.
+#  On the engine before the SEQ 374 cure it read 10 4 104 10.
+#  (inline, not kindRow: kindRow is defined further down and a call here would evaporate -- measured, stderr "command not found")
+_utr="$(sed -n 's/^testRecursion: should be 10 10 4 4. They are //p' "$T/base" | xargs)"
+if [ "$_utr" = "10 10 4 4" ]; then
+    echo "  ok    baselineTests testRecursion (unitTests' copy of recurSaveT) = [$_utr]"; green=$((green+1))
+else
+    echo "  FAIL  baselineTests testRecursion (unitTests' copy of recurSaveT) -- got [$_utr] want [10 10 4 4]"; fail=1
+fi
 if [ -s "$T/base" ] && tail -1 "$(ip baselineTests.golden)" | grep -qFf - "$T/base"; then
     echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))
 else

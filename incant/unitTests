@@ -237,6 +237,45 @@ define
         };
 
     /***************************************************************************
+        Recursion -- copied from incant/pop/recurSaveT (SEQ 374 R3; the fleet rows stay
+        there). testRecurF keeps a local live across the recursive call; testRecurG reads
+        its ARGUMENT after the call, so each activation must keep the value it was handed;
+        testRecurH and testRecurK do arithmetic in the callee, which must not land on a
+        computed argument -- the call that computed `5 - 1` owns it. Expected 10 10 4 4.
+    ***************************************************************************/
+    testRecurCnt=0;
+    testRecurF code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        t = argument;
+        r = testRecurF(argument - 1);
+        r = r + t;
+        return r;
+        };
+    testRecurG code={
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        r = testRecurG(argument - 1);
+        r = r + argument;
+        return r;
+        };
+    testRecurH code={
+        x = argument + 100;
+        return argument;
+        };
+    testRecurK code={
+        testRecurCnt += 10;
+        return argument;
+        };
+    testRecursion code={
+        rf = testRecurF(4);
+        rg = testRecurG(4);
+        rh = testRecurH(5 - 1);
+        rk = testRecurK(5 - 1);
+        print "testRecursion: should be 10 10 4 4. They are" rf rg rh rk:;
+        };
+
+    /***************************************************************************
         Unit test runner — calls every verified action in sequence.
         Moved here from oneTest so the test harness just invokes testUnitTests().
     ***************************************************************************/
@@ -258,6 +297,7 @@ define
         list("righty 3.1 seven eight nine;");
         testInterpret();
         testGet();
+        testRecursion();
         printDefinition(sumple);
         printDefinition(simple);
         printDefinition(sample);
