@@ -70,7 +70,6 @@ define
         print "Starting getInstruction on" hold:;
         while grup.datA != 0;
             print "At start loop" grupTAG targetTAG opTAG resultTAG:;
-            $$grup;
             if *grup.instructTypE != 0;
                 /***************************************************************************
                     Set operator. Check for unary and handle if so.
@@ -101,6 +100,7 @@ define
                 instructEntry := *grup;
                 if result.flaG; resultPark = result;
                 else        clear(resultPark);
+                $$grup;
                 target      := getTarget(*grup);
                 // should not have to run the following line but target returned from getTarget gets its fLAG cleared???
                 *target     :. flaG;
