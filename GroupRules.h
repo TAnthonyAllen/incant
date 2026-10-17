@@ -241,7 +241,7 @@ extern "C" int jitEmitRefusedCheck();
 extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
 extern "C" int jitEmitReturn();
 extern "C" void jitEmitScOperandRT(GroupItem *operand);
-extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action);
+extern "C" GroupItem *jitEmitSelfCall(GroupItem *argument, GroupItem *action);
 extern "C" GroupItem *jitEmitShortCircuitSlots(GroupItem *op, GroupItem *target, GroupItem *arg, GroupItem *field);
 extern "C" void jitEmitStmtRT(GroupItem *statement);
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target);

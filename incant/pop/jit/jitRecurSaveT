@@ -6,8 +6,8 @@ search reset stack Grokking;
 search Generating UnitTests Utilities list;
 register(JitLadder);
 define
-    rs1=-9;
-    rs2=-9;
+    rs1=999;
+    rs2=999;
     rsDepth=0;
     rsTrip=0;
     rsF code={
@@ -56,3 +56,5 @@ and a binary's result stopped riding on the argument node (SEQ 376 R2, jit-compa
 no longer read true by accident, and the self-call still bakes its argument (the literal 4) at every depth, so the
 recursion never bottoms out. The guard trips on the jit road until the argument slot lands (SEQ 376 R1c); on the
 interpreted road it reads 5 and never trips -- the twin run after the jitted half says so.
+SEQ 378 (Tony, R0 / R2): the self-call's value is now read (%selfcall). rs1 / rs2 start at 999, not -9: a define's `-9` is a
+TOKEN-kind field, and a jitted `=` stores the count without re-kinding it -- the old "empty, kind 14" was rs1's own kind.

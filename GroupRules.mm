@@ -4912,13 +4912,14 @@ extern "C" void jitEmitScOperandRT(GroupItem *operand)
 
 /*******************************************************************************
     jitEmitSelfCall -- THE RECURSIVE CALL, emitted rather than inlined. Returns
-    1 when it emitted, 0 when it did not -- and 0 is the common, CORRECT
-    answer, because an ordinary call still inlines.
+    the call's VALUE NODE when it emitted -- a fresh node carrying %selfcall (SEQ
+    378 R0) -- and null when it did not, which is the common, CORRECT answer,
+    because an ordinary call still inlines.
 
     // inliningStopsHere  why a self-call cannot be inlined, and why the cached SSA state fires before non-termination does
     // selfCallSignature  what a no-argument self-call proves and what it does not
 *******************************************************************************/
-extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
+extern "C" GroupItem *jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 {
 	
 	// ⚠ COMPARED ON groupBody, NOT ON THE NODE POINTER, AND THAT IS THE SAME
@@ -5078,7 +5079,13 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	b->CreateCall(frameTy, restoreFn, {calleeAddr});
 	gJitResult  = v;
 	gJitEmitted = true;
-	return 1; }
+	//  ⚠ THE CALL'S VALUE IS %selfcall, ON ITS OWN NODE (Tony, SEQ 378 R0). runAction used to hand back the ACTION,
+	//  so the caller seeded the action node and loaded its own count -- a value nobody wrote (jitSelfCallValT).
+	GroupItem *callResult = new GroupItem((char*)"callResult");
+	callResult->jitData = new JitData();
+	callResult->jitData->setJitter(v);
+	gJitSeeded.push_back(callResult);
+	return callResult; }
 	
 }
 
@@ -10224,11 +10231,9 @@ GroupItem 	*ruleArg = 0;
 	ruleArg->groupBody->flags.isArgument = 1;
 	if ( ruler->jitting )
 		{
-		if ( ::jitEmitSelfCall(argument,field) )
-			{
-			result = field;
+		// selfCallValue an emitted self-call hands back its value node (%selfcall), never the action (SEQ 378 R0)
+		if ( result = ::jitEmitSelfCall(argument,field) )
 			goto exitRunAction;
-			}
 		// jitBind an INLINED callee is walked here at emit time, so the emit-time bind is this arm's; an emitted call binds in jitBindArgRT
 		ruleArg->setGroup(argument);
 		::jitInlinePush(field);
