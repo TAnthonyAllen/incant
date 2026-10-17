@@ -26,108 +26,121 @@ define
     qa=2;
     qb=3;
     qc=4;
+    /*****************************************************************************
+        Debugging routine to list out an instruction chain
+    *****************************************************************************/
     listChain code={
-        dumpContents(argument);
+        dumpField(argument);
         if listLengtH != 0;
             target  := argument[2];
             arg     := argument[3];
-            if *target.listLengtH != 0 && *target.flaG; listChain(*target);
-            if *arg.listLengtH != 0 && *arg.flaG; listChain(*arg);
+            lengtH = *target.listLengtH;
+            flagged = *target.flaG;
+            if *target.listLengtH && *target.flaG;  listChain(*target);
+            if *arg.listLengtH != 0 && *arg.flaG;   listChain(*arg);
         };
     instructEntry;
+    resultPark;
+    /*****************************************************************************
+        getTarget checks to see if target is leading edge of an instruction chain
+        and if it is returns the chain as target, otherwise returns just target
+    *****************************************************************************/
     getTarget code={
         $$argument;
         grup := argument.prioR;
-        $$grup;
+        if *grup.instructTypE != 0;
+            op = grup;
+            grup        := *grup.prioR;
+            target      = grup;
+            instruct    +% *op;
+            instruct    +% *target;
+            if resultPark.datA; instruct +% *resultPark;
+            else                instruct +% argument;
+            instruct    :. flaG;
+            instructEntry   = target;
+            print "getTarget";
+            dumpField(instruct);
+            return      instruct;
+        instructEntry   := argument;
+        return argument;
         };
     getInstruction code={
         grup = instructEntry;
         hold = *grup.taG;
         print "Starting getInstruction on" hold:;
         while grup.datA != 0;
-            if result == 0;
-                print "Setting initial result":;
-                result = grup;
-                resultTAG = *result.taG;
-            or *grup.instructTypE != 0;
-                op = grup;
-                hold = *op.taG;
-                print `"Handling operator" hold:;
+            print "At start loop" grupTAG targetTAG opTAG resultTAG:;
+            $$grup;
+            if *grup.instructTypE != 0;
                 /***************************************************************************
-                                unary handling - check for negate and deref
+                    Set operator. Check for unary and handle if so.
                 ***************************************************************************/
+                op = grup;
                 if priorEntry := *grup.prioR;
-                    if priorEntry.datA == 0;    cerr "Cannot start with an operator like" *grup.taG:;
+                    if priorEntry.datA == 0;    cerr "Cannot start an expression with an operator like" *grup.taG:;
                     if *priorEntry.isOperatoR;  convertUnary = true;
                 if convertUnary;
                     if *op.taG == "-";  op := Operators["negate"];
                     or *op.taG == "*";  op := Operators["deref"];
                     convertUnary = false;
                 if *op.isUnarY;
-                    print `"Saw unary" hold:;
                     unstruct    +% *op;
                     unstruct    +% *result;
                     unstruct    :. flaG;
                     result := unstruct;
                     clear(op);
+            or result == 0;
+                /***************************************************************************
+                    First time thru sets result (the right most field)
+                ***************************************************************************/
+                result = grup;
             else
-                print `"Setting target":;
+                /***************************************************************************
+                    Set target (left most field)
+                ***************************************************************************/
                 instructEntry := *grup;
-                if grup.datA;   grupTAG = *grup.taG;
-                if op.datA;     opTAG = *op.taG;
-                target = getTarget(*grup);
-                if target.datA == 0;
-                    target      = grup;
-                    targetTAG   = *target.taG;
-                print "line:" grupTAG opTAG targetTAG resultTAG:;
+                if result.flaG; resultPark = result;
+                else        clear(resultPark);
+                target      := getTarget(*grup);
+                // should not have to run the following line but target returned from getTarget gets its fLAG cleared???
+                *target     :. flaG;
+                /***************************************************************************
+                    If have all the parts build instruction
+                ***************************************************************************/
                 if op.datA && result.datA  && target.datA != 0;
-                    print `"About to create instruction":;
                     instruct    +% *op;
                     instruct    +% *target;
                     instruct    +% *result;
                     instruct    :. flaG;
-                    print `"Setting result = instruct":;
-                    result      := instruct;
+                    result      := copyOf(instruct);
+                    result      :. flaG;
+                    print "getInstruction";
+                    dumpField(instruct);
+                    clear(instruct);
                     clear(target);
                     clear(op);
-                    opTAG       = "no op";
-                    targetTAG   = "no target";
-                    resultTAG   = "instruct";
-                    dumpContents(instruct);
-                hold := getInstruction(trueResult);
-                print `"After setting target":;
-                wrapIterate = *hold;
-                target  = wrapIterate[1];
-                hold    = wrapIterate[2];
-                grup    := *hold;
-                clear(wrapIterate);
-            print `"Setting next field":;
-            grup := *grup.prioR;
-            if grup.datA == 0;
-                print `"No more next field":;
-                break;
-        if op.datA && result.datA  && target.datA != 0;
-            print `"About to create instruction":;
-            instruct    +% *op;
-            instruct    +% *target;
-            instruct    +% *result;
-            instruct    :. flaG;
-            print `"Setting result = instruct":;
-            result      := instruct;
-            clear(target);
-            clear(op);
-        wrapIterate +% result;
-        wrapIterate +% grup;
-        print "About to return from getInstruction":;
-        return wrapIterate;
+                    grup    = instructEntry;
+            if grup.datA;
+                grup    := *grup.prioR;
+                grupTAG = *grup.taG;
+            else        grupTAG = "no more fields in expression list";
+            if op.datA;     opTAG = *op.taG;
+            else            opTAG = "no operator";
+            if target.datA; targetTAG = *target.taG;
+            else            targetTAG = "no target";
+            resultTAG       = *result.taG;
+        print "We done":;
+        listChain(*result);
+        return result;
         };
     xpListTest isRule lizted=listEntries+ SemI- code={
         instructEntry := *lizted.lasT;
-        result := getInstruction(trueResult);
+        result = testOP(getInstruction(trueResult));
+        $$result;
         };
     ;
 
-xpListTest("invokeTEST call qa > 0 || falseResult;");
+xpListTest("invokeTEST call righty -= qa - qb + qc;");
 stop();
 xpListTest("invokeTEST call -righty -= qa - qb + qc;");
 
