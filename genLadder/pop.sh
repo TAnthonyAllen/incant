@@ -6163,6 +6163,16 @@ _cair="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitCmpOperandAT)" 2>&1)"
 kindRow "jitCmpOperandAT IR: the second compare reads an i32, not the first compare's i1 (BORN RED)" "$(echo "$_cair" | grep -c 'icmp eq i32 %')" "1"
 kindRow "jitCmpOperandAT IR: no i1 stored where the argument is read" "$(echo "$_cair" | grep -c 'store i1')" "0"
 
+#  ⚑ jitArithOperandT -- SEQ 377 R1 (Tony): SEQ 376 R2 covers jitEmitBinary and unary negate. BORN RED 2026-10-17: an
+#  inlined callee's `argument - 1` left its sub on the caller's operand node, so the next read of argument read 6; `-argument`
+#  likewise (jitted 6/6/-6/-6/-6). AO-X reads the binary's RETURNED node (R2's witness for the own-node half).
+run1 jitArithOperandT "$T/jao";   check "jitArithOperandT runs" 0 $?
+sentinel "jitArithOperandT sentinel" "$T/jao" "JITARITHOPERAND SENTINEL"
+_ao () { grep "^AO $1 " "$T/jao" | sed "s/^AO $1 *//" | tr -d ' '; }
+kindRow "jitArithOperandT AO interpreted" "$(_ao interpreted)" "6/7/-7/7/7"
+kindRow "jitArithOperandT AO jitted = interpreted (BORN RED)" "$(_ao jitted)" "6/7/-7/7/7"
+kindRow "jitArithOperandT AO-X jitted, the binary's returned node (own-node witness)" "$(_ao jitted | cut -d/ -f1)" "6"
+
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
 #  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the

@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    aoA;
+    aoX;
+    aoY;
+    aoN;
+    aoZ;
+    aoS;
+    aoCallee code={
+        aoX = argument - 1;
+        aoY = argument;
+        aoN = -argument;
+        aoZ = argument;
+        return argument;
+        };
+    aoDrive code={
+        aoA = 7;
+        aoS = aoCallee(aoA);
+        };
+    ;
+aoA = 3; aoX = 9; aoY = 9; aoN = 9; aoZ = 9; aoS = 9;
+testing(aoDrive);
+cerr "AO jitted      " aoX "/" aoY "/" aoN "/" aoZ "/" aoS:;
+aoA = 3; aoX = 9; aoY = 9; aoN = 9; aoZ = 9; aoS = 9;
+aoDrive();
+cerr "AO interpreted " aoX "/" aoY "/" aoN "/" aoZ "/" aoS:;
+cerr "JITARITHOPERAND SENTINEL":;
+stop();
+
+jitArithOperandT -- SEQ 377 R1 (Tony): SEQ 376 R2 covers jitEmitBinary and unary negate -- a computed result never lands
+on its operand's jitData. An inlined callee's every argument read follows to ONE node, the caller's operand (aoA, 7 at run
+time; the build saw 3). Before the cure `argument - 1` left its sub on that node, so the next read of argument read 6, and
+`-argument` left its neg there for the read after it. Intended: jitted = interpreted, 6/7/-7/7/7. aoX reads the binary's
+RETURNED node (the assignment stores what the op hands back), so it witnesses the own-node half (SEQ 377 R2): return the
+operand instead and aoX reads 7.
