@@ -6187,6 +6187,16 @@ kindRow "jitArithOperandT AO interpreted" "$(_ao interpreted)" "6/7/-7/7/7"
 kindRow "jitArithOperandT AO jitted = interpreted (BORN RED)" "$(_ao jitted)" "6/7/-7/7/7"
 kindRow "jitArithOperandT AO-X jitted, the binary's returned node (own-node witness)" "$(_ao jitted | cut -d/ -f1)" "6"
 
+#  ⚑ jitSelfCallValT -- SEQ 378 R1 (Tony): a jitted self-call's value is %selfcall, never the action node's own count.
+#  Each level returns inner + 1; the argument is still baked (SEQ 376 R1c), so the guard (cap 5) ends it: jitted top =
+#  100 + 5 = 105, tripped at depth 6. Interpreted twin (same process, after): 103, never tripped, depth 4 -- the control.
+#  BORN RED 2026-10-17: jitted top empty, kind 14 (the vcF node's count was loaded).
+run1 jitSelfCallValT "$T/jvc";   check "jitSelfCallValT runs" 0 $?
+sentinel "jitSelfCallValT sentinel" "$T/jvc" "JITSELFCALLVAL SENTINEL"
+_vc () { sed -n "s/^VC $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jvc"; }
+kindRow "jitSelfCallValT VC interpreted: top, kind, tripped, depth (the control)" "$(_vc interpreted)" "103 5 0 4"
+kindRow "jitSelfCallValT VC jitted: top = sentinel + depth, kind, tripped, depth (BORN RED)" "$(_vc jitted)" "105 5 1 6"
+
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
 #  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the

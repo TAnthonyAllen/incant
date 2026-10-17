@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    vcDepth=0;
+    vcTrip=0;
+    vcTop=-9;
+    vcF code={
+        vcDepth += 1;
+        if vcDepth > 5;     vcTrip = 1;
+        if vcTrip == 1;     return 100;
+        if argument == 0;   return 100;
+        r = vcF(argument - 1);
+        r = r + 1;
+        return r;
+        };
+    vcDrive code={
+        vcTop = vcF(3);
+        };
+    ;
+testing(vcDrive);
+cerr "VC jitted      top " vcTop " kind " vcTop.datA " tripped " vcTrip " depth " vcDepth:;
+vcDepth = 0; vcTrip = 0; vcTop = -9;
+vcDrive();
+cerr "VC interpreted top " vcTop " kind " vcTop.datA " tripped " vcTrip " depth " vcDepth:;
+cerr "JITSELFCALLVAL SENTINEL":;
+stop();
+
+jitSelfCallValT -- SEQ 378 R1 (Tony): a jitted self-call's value is the callee's return value (%selfcall), never the
+action node's own count. Each level returns inner + 1. The argument is still baked on the jit road (SEQ 376 R1c), so
+`argument == 0` never ends it there: the depth guard (cap 5) returns 100 at depth 6, and the top reads 100 + 5 = 105,
+tripped 1, depth 6 -- sentinel plus depth, which only a READ call value can produce. The interpreted twin (same process,
+after the jitted half) bottoms out on its argument: vcF(3) = 100 + 3 = 103 at depth 4, never tripped -- the control.
+Before the cure the jitted call's value was loaded from the vcF node's own count.
