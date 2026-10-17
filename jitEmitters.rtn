@@ -1192,9 +1192,15 @@ extern GroupItem jitEmitCompare(GroupItem argument,GroupItem target,int op)
             case jitGE: res = b->CreateICmpSGE(l,r,"cmp"); break;
         }
     }
-    target->jitData->setJitter(res);
+    //  ⚠ THE RESULT IS ITS OWN NODE, NEVER THE OPERAND'S jitData (Tony, SEQ 376 R2). An inlined callee's every `argument`
+    //  read follows to ONE node; a result left there was read by the next compare as its operand -- icmp i1 vs i32, the
+    //  build aborted (jitCmpOperandAT). A compare's value is computed, not the field, so it rides on a fresh node.
+    GroupItem *cmpResult = new GroupItem((char*)"cmpResult");
+    cmpResult->jitData = new JitData();
+    cmpResult->jitData->setJitter(res);
+    gJitSeeded.push_back(cmpResult);
     gJitResult = res;
-    return target;
+    return cmpResult;
     %-
 }
 
