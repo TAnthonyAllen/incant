@@ -6139,6 +6139,30 @@ sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
 kindRow "jitRecurSaveGT the build is refused (INVALID IR for jit_rsDrive and jit_rsG)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "2"
 kindRow "jitRecurSaveGT JRS-2 g(4), never run  # intended: 4 (= RS-2; the ruling says 10) -- DISAGREE" "$(grep '^JRS-2 ' "$T/jrcg" | awk '{print $NF}')" "-9"
 
+#  ⚑ jitCmpOperandT / jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): A COMPARE'S RESULT IS ITS OWN SSA VALUE, never its
+#  operand's jitData. Measured 2026-10-17: a plain field compared twice is fine (each occurrence is its own node); an
+#  inlined callee's `argument` is ONE node (the caller's operand), so the first compare's i1 rode on it and the second
+#  compare aborted the build (icmp i1 vs i32, exit 134). BORN RED: the AT rows. R0's measurement is CMI: an inlined
+#  callee's argument reads the caller's RUN-TIME value (7; the build saw 3). CMS is context, a disagreement that is not
+#  this stroke's: `cmB = cmA < 0` stores the i1 into cmB's count jitted (0), interpreted cmB is data-less (its tag).
+run1 jitCmpOperandT "$T/jcmp";   check "jitCmpOperandT runs" 0 $?
+sentinel "jitCmpOperandT sentinel" "$T/jcmp" "JITCMPOPERAND SENTINEL"
+_cm () { sed -n "s/^CM $1 *twice *\([^ ]*\) \/ \([^ ]*\) *store *\([^ ]*\) \/ \([^ ]*\) *inl *\([^ ]*\) \/ \([^ ]*\) *\$/\1 \2 \3 \4 \5 \6/p" "$T/jcmp"; }
+kindRow "jitCmpOperandT CMT a field compared twice, jitted = interpreted" "$(_cm jitted | cut -d' ' -f1-2)" "$(_cm interpreted | cut -d' ' -f1-2)"
+kindRow "jitCmpOperandT CMT interpreted (neither compare true)" "$(_cm interpreted | cut -d' ' -f1-2)" "5 5"
+kindRow "jitCmpOperandT CMI an inlined callee's argument reads the caller's run-time value (R0), jitted" "$(_cm jitted | cut -d' ' -f5-6)" "7 7"
+kindRow "jitCmpOperandT CMI interpreted" "$(_cm interpreted | cut -d' ' -f5-6)" "7 7"
+kindRow "jitCmpOperandT CMS jitted  # context: the i1 stored into cmB's count" "$(_cm jitted | cut -d' ' -f3-4)" "0 3"
+kindRow "jitCmpOperandT CMS interpreted  # context: cmB data-less, its tag" "$(_cm interpreted | cut -d' ' -f3-4)" "cmB 3"
+run1 jitCmpOperandAT "$T/jcma";   check "jitCmpOperandAT runs  (BORN RED 2026-10-17: exit 134, icmp i1 vs i32)" 0 $?
+sentinel "jitCmpOperandAT sentinel" "$T/jcma" "JITCMPOPERANDA SENTINEL"
+_ca () { grep "^CA $1 " "$T/jcma" | sed "s/^CA $1 *//" | tr -d ' '; }
+kindRow "jitCmpOperandAT CA interpreted" "$(_ca interpreted)" "5/5/7/7"
+kindRow "jitCmpOperandAT CA jitted = interpreted (BORN RED)" "$(_ca jitted)" "5/5/7/7"
+_cair="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitCmpOperandAT)" 2>&1)"
+kindRow "jitCmpOperandAT IR: the second compare reads an i32, not the first compare's i1 (BORN RED)" "$(echo "$_cair" | grep -c 'icmp eq i32 %')" "1"
+kindRow "jitCmpOperandAT IR: no i1 stored where the argument is read" "$(echo "$_cair" | grep -c 'store i1')" "0"
+
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
 #  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the

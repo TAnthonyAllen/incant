@@ -1,0 +1,53 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    cmA;
+    cmX;
+    cmY;
+    cmB;
+    cmC;
+    cmR;
+    cmS;
+    cmTwice code={
+        if cmA < 0;     cmX = 1;
+        if cmA == 0;    cmY = 1;
+        };
+    cmStore code={
+        cmB = cmA < 0;
+        cmC = cmA;
+        };
+    cmCallee code={
+        cmR = argument;
+        return argument;
+        };
+    cmInl code={
+        cmA = 7;
+        cmS = cmCallee(cmA);
+        };
+    cmDrive code={
+        cmTwice();
+        cmStore();
+        cmInl();
+        };
+    ;
+cmA = 3; cmX = 5; cmY = 5; cmB = 9; cmC = 9; cmR = 9; cmS = 9;
+testing(cmDrive);
+cerr "CM jitted      twice " cmX "/" cmY " store " cmB "/" cmC " inl " cmR "/" cmS:;
+cmA = 3; cmX = 5; cmY = 5; cmB = 9; cmC = 9; cmR = 9; cmS = 9;
+cmDrive();
+cerr "CM interpreted twice " cmX "/" cmY " store " cmB "/" cmC " inl " cmR "/" cmS:;
+cerr "JITCMPOPERAND SENTINEL":;
+stop();
+
+jitCmpOperandT -- SEQ 376 step 1 (Tony, R0 / R1 a / R2): does a compare's result land on its operand without recursion?
+cmA = 3, so neither compare in cmTwice is true and cmX / cmY stay 5 on both roads. A plain FIELD compared twice does not
+show it -- each occurrence of cmA is its own node, so each seeds its own load (measured 2026-10-17). cmStore stores a
+compare: jitted it stores the i1 into cmB's count (0), interpreted cmB is data-less and prints its tag -- a disagreement
+that is NOT the operand overwrite, pinned as context. cmInl is R0's measurement: an INLINED callee's argument reads the
+caller's RUN-TIME value -- cmA is set to 7 inside the jitted body, after the build saw 3, and cmR / cmS must read 7.
+The overwrite itself (an argument read twice) aborts the build, so it lives in its own process: jitCmpOperandAT.

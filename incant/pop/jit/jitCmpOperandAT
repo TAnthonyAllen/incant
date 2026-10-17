@@ -1,0 +1,39 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    caA;
+    caP;
+    caQ;
+    caR;
+    caS;
+    caCallee code={
+        if argument < 0;    caP = 1;
+        if argument == 0;   caQ = 1;
+        caR = argument;
+        return argument;
+        };
+    caDrive code={
+        caA = 7;
+        caS = caCallee(caA);
+        };
+    ;
+caA = 3; caP = 5; caQ = 5; caR = 9; caS = 9;
+testing(caDrive);
+cerr "CA jitted      " caP "/" caQ "/" caR "/" caS:;
+caA = 3; caP = 5; caQ = 5; caR = 9; caS = 9;
+caDrive();
+cerr "CA interpreted " caP "/" caQ "/" caR "/" caS:;
+cerr "JITCMPOPERANDA SENTINEL":;
+stop();
+
+jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): a compare's result is its own SSA value, never its operand's jitData. Every
+read of an inlined callee's argument follows to ONE node, the caller's operand. Before the cure the first compare
+(argument < 0) left its i1 on that node's jitData, the second compare read it, and LLVM aborted the build -- icmp with
+an i1 and an i32 operand, exit 134, nothing printed (measured 2026-10-17). Same mechanism as JRS-1 / rsG (seal 168),
+where the argument was a literal and the constants folded instead of asserting. Intended: jitted = interpreted,
+5/5/7/7 (caA is 7 at run time, neither compare true).
