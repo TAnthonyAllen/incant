@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    acDepth=0;
+    acTrip=0;
+    acTop=999;
+    acH code={
+        return argument + 100;
+        };
+    acF code={
+        acDepth += 1;
+        if acDepth > 50;    acTrip = 1;
+        if acTrip == 1;     return -7;
+        if argument == 0;   return 0;
+        h = acH(argument);
+        r = acF(argument - 1);
+        r = r + h;
+        return r;
+        };
+    acDrive code={
+        acTop = acF(3);
+        };
+    ;
+testing(acDrive);
+cerr "AC jitted      top " acTop " kind " acTop.datA " tripped " acTrip " depth " acDepth:;
+acDepth = 0; acTrip = 0; acTop = 999;
+acDrive();
+cerr "AC interpreted top " acTop " kind " acTop.datA " tripped " acTrip " depth " acDepth:;
+cerr "JITARGCHAIN SENTINEL":;
+stop();
+
+What This Fixture Asks (SEQ 380 R1, the chain rule)
+
+acF is self-recursive, so the jit builds it as its own function. acH is an ordinary callee, so the jit inlines it into
+jit_acF. acH's operand is acF's own argument. The chain rule: an inlined call whose operand is a separately built
+function's argument binds to that function's slot, so acH reads the value of THIS activation, not the node the
+emit-time binding happened to leave behind.
+
+acF(3) = acH(3) + acH(2) + acH(1) + 0 = 103 + 102 + 101 = 306, depth 4, the guard never tripped. That is the
+interpreted twin (same process, after the jitted half) and the intended jitted value.
+
+Before the slot (born red on trunk 2026-10-18): every argument read in jit_acF folds to the emit-time literal 3, so
+`argument == 0` never holds and the guard (cap 50) ends the recursion.
+
+H7 for the chain half: with the slot in place, bind the inlined callee to the emit-time node instead of the slot.
+acH then reads 3 at every depth while the recursion itself terminates: 103 + 103 + 103 = 309, not 306.

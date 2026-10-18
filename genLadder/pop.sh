@@ -6131,7 +6131,7 @@ run1 jitRecurSaveT "$T/jrcs";   check "jitRecurSaveT runs" 0 $?
 sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
 #  SEQ 378 R2 (Tony): value read; argument still baked until the argument slot (SEQ 376 R1c). 193 = the guard's -7 + 50
 #  levels of `r + t`, t the baked 4. (The old "empty, kind 14" was rs1's own kind: a define's -9 is a TOKEN; rs1 starts at 999.)
-kindRow "jitRecurSaveT JRS-1 f(4) value:kind  # intended: 10 (= RS-1) -- value read; argument still baked until the argument slot (SEQ 376 R1c)" "$(sed -n 's/^JRS-1 .*\[ *\([^ ]*\) *\] kind *\([0-9]*\).*/\1:\2/p' "$T/jrcs")" "193:5"
+kindRow "jitRecurSaveT JRS-1 f(4) value:kind = RS-1 (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(sed -n 's/^JRS-1 .*\[ *\([^ ]*\) *\] kind *\([0-9]*\).*/\1:\2/p' "$T/jrcs")" "10:5"
 kindRow "jitRecurSaveT RS-3 degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jrcs")" "0"
 kindRow "jitRecurSaveT RS-3 rsF built as its own function (one restart)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jrcs")" "1"
 kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
@@ -6141,7 +6141,7 @@ kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not 
 #  half: depth 5, never tripped, f(4) = 10.
 _jg () { sed -n "s/^JRS guard tripped *\([0-9]*\) depth *\([0-9]*\) *\$/\1 \2/p" "$1"; }
 _ji () { sed -n "s/^JRS interpreted -> *\([^ ]*\) guard tripped *\([0-9]*\) depth *\([0-9]*\) *\$/\1 \2 \3/p" "$1"; }
-kindRow "jitRecurSaveT JRS-G jitted: the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c) -- tripped, depth" "$(_jg "$T/jrcs")" "1 51"
+kindRow "jitRecurSaveT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_jg "$T/jrcs")" "0 5"
 kindRow "jitRecurSaveT JRS-I interpreted twin: f(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcs")" "10 0 5"
 run1 jitRecurSaveGT "$T/jrcg";   check "jitRecurSaveGT runs" 0 $?
 sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
@@ -6150,13 +6150,13 @@ sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
 #  no constant from a write-back.
 kindRow "jitRecurSaveGT the build verifies (no INVALID IR)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "0"
 _rgir="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveGT)" 2>&1)"
-kindRow "jitRecurSaveGT IR: r + argument adds the baked argument 4, not a written-back constant" "$(echo "$_rgir" | grep -c 'add i32 %[a-z0-9]*, 4$')" "1"
+kindRow "jitRecurSaveGT IR: argument - 1 is a live sub, not a folded constant (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(echo "$_rgir" | grep -c '= sub i32 %')" "1"
 #  SEQ 378 R0: r is the call's value -- the add reads %selfcall (before: an unbox of rsG's own node).
-kindRow "jitRecurSaveGT IR: r = rsG(...) is the call's value (add i32 %selfcall, 4)" "$(echo "$_rgir" | grep -c 'add i32 %selfcall, 4$')" "1"
+kindRow "jitRecurSaveGT IR: r + argument adds %selfcall to a run-time argument, not a baked 4 (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(echo "$_rgir" | grep -c 'add i32 %selfcall, %')" "1"
 #  SEQ 377 R0: the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c). g(4) prints empty
 #  -- until SEQ 378 the call's value was read from the action node (seal 168 (c)).  # intended: 10 (= RS-2)
-kindRow "jitRecurSaveGT JRS-2 g(4)  # intended: 10 (= RS-2) -- value read; argument still baked until the argument slot (SEQ 376 R1c)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:193"
-kindRow "jitRecurSaveGT JRS-G jitted: guard tripped, depth" "$(_jg "$T/jrcg")" "1 51"
+kindRow "jitRecurSaveGT JRS-2 g(4) = RS-2 (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:10"
+kindRow "jitRecurSaveGT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_jg "$T/jrcg")" "0 5"
 kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcg")" "10 0 5"
 
 #  ⚑ jitCmpOperandT / jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): A COMPARE'S RESULT IS ITS OWN SSA VALUE, never its
@@ -6202,7 +6202,18 @@ run1 jitSelfCallValT "$T/jvc";   check "jitSelfCallValT runs" 0 $?
 sentinel "jitSelfCallValT sentinel" "$T/jvc" "JITSELFCALLVAL SENTINEL"
 _vc () { sed -n "s/^VC $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jvc"; }
 kindRow "jitSelfCallValT VC interpreted: top, kind, tripped, depth (the control)" "$(_vc interpreted)" "103 5 0 4"
-kindRow "jitSelfCallValT VC jitted: top = sentinel + depth, kind, tripped, depth (BORN RED)" "$(_vc jitted)" "105 5 1 6"
+kindRow "jitSelfCallValT VC jitted = VC interpreted: top, kind, tripped, depth (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_vc jitted)" "103 5 0 4"
+
+#  ⚑ jitArgChainT -- SEQ 380 R1 (Tony): THE CHAIN RULE. acF is self-recursive (its own function); acH is inlined into it,
+#  and its operand is acF's own argument, so acH must read THIS activation's value: acF(3) = 103 + 102 + 101 = 306, depth 4.
+#  BORN RED 2026-10-18: every argument read folds to the emit-time literal 3 -- 5143 (-7 + 50 x 103), tripped at 51.
+run1 jitArgChainT "$T/jac";   check "jitArgChainT runs" 0 $?
+sentinel "jitArgChainT sentinel" "$T/jac" "JITARGCHAIN SENTINEL"
+_ac () { sed -n "s/^AC $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jac"; }
+kindRow "jitArgChainT AC interpreted: top, kind, tripped, depth (the control)" "$(_ac interpreted)" "306 5 0 4"
+kindRow "jitArgChainT AC jitted = AC interpreted (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_ac jitted)" "306 5 0 4"
+kindRow "jitArgChainT acF is its own function, acH is inlined (one restart, one callee)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jac")" "1"
+kindRow "jitArgChainT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jac")" "0"
 
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
