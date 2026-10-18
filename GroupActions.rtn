@@ -324,6 +324,10 @@ use input
 extern GroupItem followArgument(GroupItem operand)
 {
     -%
+    // argSlot under jitting, a separately built function's own argument is its frame slot, not the emit-time node (SEQ 380)
+    if ( GroupControl::groupController->groupRules->jitting ) {
+        GroupItem *slotRead = ::jitArgSlotRead(operand);
+        if ( slotRead ) return slotRead; }
     if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data) )
         return operand->getGroup();
     return operand;

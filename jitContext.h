@@ -374,6 +374,15 @@ struct JitFrameSlot {
 };
 inline std::vector<JitFrameSlot> gJitFrame;
 
+// THE ARGUMENT SLOT (SEQ 380, Tony 2026-10-18). A separately built function reads its OWN argument from an alloca
+// filled at entry from %field -- never the argument field's count, which shares storage with the binding pointer.
+// gJitArgBody is the built action's `argument` body (every occurrence in the body shares it); null = no slot this
+// function. gJitArgOrigin is the emit-time node the slot replaces. i32 only: a number-valued argument keeps the old road.
+class GroupBody;
+inline GroupBody   *gJitArgBody   = nullptr;
+inline llvm::Value *gJitArgSlot   = nullptr;
+inline GroupItem   *gJitArgOrigin = nullptr;
+
 // THE FUNCTION AND ACTION CURRENTLY BEING COMPILED. Needed so a SELF-CALL can be
 // emitted as a real `call` instead of being inlined by emit-on-walk.
 // ⚠ WHY A CALL IS MANDATORY HERE AND OPTIONAL EVERYWHERE ELSE: a non-recursive
