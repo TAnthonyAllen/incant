@@ -6096,12 +6096,12 @@ kindRow "refuseScopeT REFUSED lines (RS-A's only)" "$(grep -c '^REFUSED' "$T/rst
 run1 jitRefuseScopeT "$T/jrs";   check "jitRefuseScopeT runs" 0 $?
 sentinel "jitRefuseScopeT sentinel" "$T/jrs" "JITREFUSESCOPE SENTINEL"
 kindRow "jitRefuseScopeT jitted" "$(grep -c '^=== jitRunAction: entering on rsBody' "$T/jrs")" "1"
-kindRow "jitRefuseScopeT JRS-A = RS-A: n b c d (BORN RED 2026-10-16)" "$(grep '^JRS-A ' "$T/jrs" | awk '{print $6, $8, $10, $12}')" "10 0 1 5"
+kindRow "jitRefuseScopeT JRS-A = RS-A: n b c d (born red 2026-10-16, green since SEQ 372)" "$(grep '^JRS-A ' "$T/jrs" | awk '{print $6, $8, $10, $12}')" "10 0 1 5"
 kindRow "jitRefuseScopeT the refusal raised by name, once" "$(grep -c '^REFUSED += -- the left of += is a value, not a field' "$T/jrs")" "1"
 run1 jitRefuseFlagT "$T/jrf";   check "jitRefuseFlagT runs" 0 $?
 sentinel "jitRefuseFlagT sentinel" "$T/jrf" "JITREFUSEFLAG SENTINEL"
 kindRow "jitRefuseFlagT jitted" "$(grep -c '^=== jitRunAction: entering on rfBody' "$T/jrf")" "1"
-kindRow "jitRefuseFlagT JRS-F = RS-F: b c d -- the later statements land (BORN RED 2026-10-16)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $8, $10, $12}')" "1 7 6"
+kindRow "jitRefuseFlagT JRS-F = RS-F: b c d -- the later statements land (born red 2026-10-16, green since SEQ 372)" "$(grep '^JRS-F ' "$T/jrf" | awk '{print $8, $10, $12}')" "1 7 6"
 #  JRS-F's `a`: KNOWN DEFECT, jitSetFlagTemp re-aimed (SEQ 370 R3). The refused `a :. noPrinT` now runs interpreted at
 #  RUN time, and there opSetFlag receives a NULL argument (measured: interpreted, before or after the build, it receives
 #  `noPrinT`), takes its leading-dot arm, and sets nothing. Moves to 1 when that is cured.
@@ -6115,7 +6115,7 @@ run1 jitRefuseUntakenT "$T/jru";   check "jitRefuseUntakenT runs" 0 $?
 sentinel "jitRefuseUntakenT sentinel" "$T/jru" "JITREFUSEUNTAKEN SENTINEL"
 kindRow "jitRefuseUntakenT jitted" "$(grep -c '^=== jitRunAction: entering on ruBody' "$T/jru")" "1"
 kindRow "jitRefuseUntakenT JRS-U = RS-U: n b c d" "$(grep '^JRS-U ' "$T/jru" | awk '{print $6, $8, $10, $12}')" "10 1 7 6"
-kindRow "jitRefuseUntakenT REFUSED lines (an untaken branch refuses nothing) (BORN RED 2026-10-16)" "$(grep -c '^REFUSED' "$T/jru")" "0"
+kindRow "jitRefuseUntakenT REFUSED lines (an untaken branch refuses nothing) (born red 2026-10-16, green since SEQ 372)" "$(grep -c '^REFUSED' "$T/jru")" "0"
 
 #  ⚑ jitParseRefuseT / jitScCountT -- SEQ 372 (Tony, 2026-10-16), two repairs on jit-refuse-scope.
 #  jitParseRefuseT (R0, R1): pgAct's first parse happens inside testing()'s build (jitting set). Its pass-1 refusal
@@ -6124,8 +6124,8 @@ kindRow "jitRefuseUntakenT REFUSED lines (an untaken branch refuses nothing) (BO
 run1 jitParseRefuseT "$T/jpr";   check "jitParseRefuseT runs" 0 $?
 sentinel "jitParseRefuseT sentinel" "$T/jpr" "JITPARSEREFUSE SENTINEL"
 kindRow "jitParseRefuseT a c (= interpreted: 12 7)" "$(grep '^JPR ' "$T/jpr" | awk '{print $(NF-2), $NF}')" "12 7"
-kindRow "jitParseRefuseT the parse's refusal printed, once (BORN RED 2026-10-16)" "$(grep -c '^REFUSED Token -- kant has no parenthetical expressions' "$T/jpr")" "1"
-kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinned on a statement) (BORN RED 2026-10-16)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitParseRefuseT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "0"
+kindRow "jitParseRefuseT the parse's refusal printed, once (born red 2026-10-16, green since SEQ 372)" "$(grep -c '^REFUSED Token -- kant has no parenthetical expressions' "$T/jpr")" "1"
+kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinned on a statement) (born red 2026-10-16, green since SEQ 372)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitParseRefuseT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "0"
 #  jitScCountT (R2): each AND/OR operand the jit cannot emit runs interpreted at run time (jitScOperandRT); the statement is
 #  handed over ONCE. Born red on 02f2cec: jitted 4 calls, interpreted 2 -- the boundary handed the whole statement over too.
 run1 jitScCountT "$T/jsc";   check "jitScCountT runs" 0 $?
@@ -6151,7 +6151,7 @@ run1 jitRecurSaveT "$T/jrcs";   check "jitRecurSaveT runs" 0 $?
 sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
 #  SEQ 378 R2 (Tony): value read; argument still baked until the argument slot (SEQ 376 R1c). 193 = the guard's -7 + 50
 #  levels of `r + t`, t the baked 4. (The old "empty, kind 14" was rs1's own kind: a define's -9 is a TOKEN; rs1 starts at 999.)
-kindRow "jitRecurSaveT JRS-1 f(4) value:kind = RS-1 (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(sed -n 's/^JRS-1 .*\[ *\([^ ]*\) *\] kind *\([0-9]*\).*/\1:\2/p' "$T/jrcs")" "10:5"
+kindRow "jitRecurSaveT JRS-1 f(4) value:kind = RS-1 (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(sed -n 's/^JRS-1 .*\[ *\([^ ]*\) *\] kind *\([0-9]*\).*/\1:\2/p' "$T/jrcs")" "10:5"
 kindRow "jitRecurSaveT RS-3 degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jrcs")" "0"
 kindRow "jitRecurSaveT RS-3 rsF built as its own function (one restart)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jrcs")" "1"
 kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
@@ -6161,7 +6161,7 @@ kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not 
 #  half: depth 5, never tripped, f(4) = 10.
 _jg () { sed -n "s/^JRS guard tripped *\([0-9]*\) depth *\([0-9]*\) *\$/\1 \2/p" "$1"; }
 _ji () { sed -n "s/^JRS interpreted -> *\([^ ]*\) guard tripped *\([0-9]*\) depth *\([0-9]*\) *\$/\1 \2 \3/p" "$1"; }
-kindRow "jitRecurSaveT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_jg "$T/jrcs")" "0 5"
+kindRow "jitRecurSaveT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(_jg "$T/jrcs")" "0 5"
 kindRow "jitRecurSaveT JRS-I interpreted twin: f(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcs")" "10 0 5"
 run1 jitRecurSaveGT "$T/jrcg";   check "jitRecurSaveGT runs" 0 $?
 sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
@@ -6170,13 +6170,13 @@ sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
 #  no constant from a write-back.
 kindRow "jitRecurSaveGT the build verifies (no INVALID IR)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "0"
 _rgir="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveGT)" 2>&1)"
-kindRow "jitRecurSaveGT IR: argument - 1 is a live sub, not a folded constant (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(echo "$_rgir" | grep -c '= sub i32 %')" "1"
+kindRow "jitRecurSaveGT IR: argument - 1 is a live sub, not a folded constant (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(echo "$_rgir" | grep -c '= sub i32 %')" "1"
 #  SEQ 378 R0: r is the call's value -- the add reads %selfcall (before: an unbox of rsG's own node).
-kindRow "jitRecurSaveGT IR: r + argument adds %selfcall to a run-time argument, not a baked 4 (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(echo "$_rgir" | grep -c 'add i32 %selfcall, %')" "1"
+kindRow "jitRecurSaveGT IR: r + argument adds %selfcall to a run-time argument, not a baked 4 (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(echo "$_rgir" | grep -c 'add i32 %selfcall, %')" "1"
 #  SEQ 377 R0: the self-call bakes its argument; guard sentinel until the argument slot (SEQ 376 R1c). g(4) prints empty
 #  -- until SEQ 378 the call's value was read from the action node (seal 168 (c)).  # intended: 10 (= RS-2)
-kindRow "jitRecurSaveGT JRS-2 g(4) = RS-2 (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:10"
-kindRow "jitRecurSaveGT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_jg "$T/jrcg")" "0 5"
+kindRow "jitRecurSaveGT JRS-2 g(4) = RS-2 (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(grep -c '^JRS-2 ' "$T/jrcg"):$(grep '^JRS-2 ' "$T/jrcg" | sed 's/^JRS-2 g(4), the argument read after the call -> *//' | tr -d ' ')" "1:10"
+kindRow "jitRecurSaveGT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(_jg "$T/jrcg")" "0 5"
 kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcg")" "10 0 5"
 
 #  ⚑ jitCmpOperandT / jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): A COMPARE'S RESULT IS ITS OWN SSA VALUE, never its
@@ -6222,7 +6222,7 @@ run1 jitSelfCallValT "$T/jvc";   check "jitSelfCallValT runs" 0 $?
 sentinel "jitSelfCallValT sentinel" "$T/jvc" "JITSELFCALLVAL SENTINEL"
 _vc () { sed -n "s/^VC $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jvc"; }
 kindRow "jitSelfCallValT VC interpreted: top, kind, tripped, depth (the control)" "$(_vc interpreted)" "103 5 0 4"
-kindRow "jitSelfCallValT VC jitted = VC interpreted: top, kind, tripped, depth (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_vc jitted)" "103 5 0 4"
+kindRow "jitSelfCallValT VC jitted = VC interpreted: top, kind, tripped, depth (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(_vc jitted)" "103 5 0 4"
 
 #  ⚑ jitArgChainT -- SEQ 380 R1 (Tony): THE CHAIN RULE. acF is self-recursive (its own function); acH is inlined into it,
 #  and its operand is acF's own argument, so acH must read THIS activation's value: acF(3) = 103 + 102 + 101 = 306, depth 4.
@@ -6231,7 +6231,7 @@ run1 jitArgChainT "$T/jac";   check "jitArgChainT runs" 0 $?
 sentinel "jitArgChainT sentinel" "$T/jac" "JITARGCHAIN SENTINEL"
 _ac () { sed -n "s/^AC $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jac"; }
 kindRow "jitArgChainT AC interpreted: top, kind, tripped, depth (the control)" "$(_ac interpreted)" "306 5 0 4"
-kindRow "jitArgChainT AC jitted = AC interpreted (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_ac jitted)" "306 5 0 4"
+kindRow "jitArgChainT AC jitted = AC interpreted (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(_ac jitted)" "306 5 0 4"
 kindRow "jitArgChainT acF is its own function, acH is inlined (one restart, one callee)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jac")" "1"
 kindRow "jitArgChainT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jac")" "0"
 
@@ -6282,16 +6282,16 @@ run1 flagPlusT "$T/fpt";   check "flagPlusT runs" 0 $?
 sentinel "flagPlusT sentinel" "$T/fpt" "FLAGPLUS SENTINEL"
 kindRow "flagPlusT FP-0 control ++y" "$(grep '^FP-0 ' "$T/fpt" | awk '{print $NF}')" "6"
 kindRow "flagPlusT FP-F the flag is set" "$(grep '^FP-F ' "$T/fpt" | awk '{print $NF}')" "1"
-kindRow "flagPlusT FP-1 x :. flaG; ++x (BORN RED 2026-10-16)" "$(grep '^FP-1 ' "$T/fpt" | awk '{print $NF}')" "6"
+kindRow "flagPlusT FP-1 x :. flaG; ++x (born red 2026-10-16, green since SEQ 364)" "$(grep '^FP-1 ' "$T/fpt" | awk '{print $NF}')" "6"
 kindRow "flagPlusT FP-2 control unflagged walk" "$(grep '^FP-2 ' "$T/fpt" | awk '{print $NF}')" "3"
-kindRow "flagPlusT FP-3 flagged iterator walks (BORN RED 2026-10-16)" "$(grep '^FP-3 ' "$T/fpt" | awk '{print $NF}')" "3"
+kindRow "flagPlusT FP-3 flagged iterator walks (born red 2026-10-16, green since SEQ 364)" "$(grep '^FP-3 ' "$T/fpt" | awk '{print $NF}')" "3"
 run1 jitFlagPlusT "$T/jfp";   check "jitFlagPlusT runs" 0 $?
 sentinel "jitFlagPlusT sentinel" "$T/jfp" "JITFLAGPLUS SENTINEL"
 kindRow "jitFlagPlusT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on jfAct' "$T/jfp")" "1"
 kindRow "jitFlagPlusT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jfp")" "0"
 kindRow "jitFlagPlusT JFP-0 control ++y jitted" "$(grep '^JFP-0 ' "$T/jfp" | awk '{print $NF}')" "6"
 kindRow "jitFlagPlusT JFP-F the flag is set" "$(grep '^JFP-F ' "$T/jfp" | awk '{print $NF}')" "1"
-kindRow "jitFlagPlusT JFP-1 flagged ++x jitted (BORN RED 2026-10-16)" "$(grep '^JFP-1 ' "$T/jfp" | awk '{print $NF}')" "6"
+kindRow "jitFlagPlusT JFP-1 flagged ++x jitted (born red 2026-10-16, green since SEQ 364)" "$(grep '^JFP-1 ' "$T/jfp" | awk '{print $NF}')" "6"
 
 #  ⚑ pass1SeqT -- SEQ 361 R3 (Tony, 2026-10-15): STROKE 4's CERTIFICATE, pre-registered on trunk before S4b. SEQ 358's 21
 #  recon inputs verbatim, run under INCANT_ACCUM_TRACE=pa; each prints ACCUM SEQ (accTraceSeq: interpretXPaccum's FIRST pass,
@@ -6339,12 +6339,12 @@ kindRow "pass1SeqT PC-5 pl[1]" "$(grep '^PC-5 ' "$T/p1s" | awk '{print $NF}')" "
 #  no GR line, no AB-1, no sentinel. AB-1 is a.b(c) -- R3 named it a control, but pob.pm(pb) abandons today (TokenXP's one
 #  InvokeArg slot); pinned at its 2026-10-06 reading, (pob.pm)(pb) = 5.
 run1 groupRefuseT "$T/grf";   check "groupRefuseT runs" 0 $?
-sentinel "groupRefuseT sentinel (BORN RED: the file abandons today)" "$T/grf" "GROUPREFUSE SENTINEL"
+sentinel "groupRefuseT sentinel (born red 2026-10-15 -- the file abandoned; green since SEQ 362)" "$T/grf" "GROUPREFUSE SENTINEL"
 for _gr in 1 2 3 4 5; do
-    kindRow "groupRefuseT GR-$_gr the line before 'next ran' is the refusal (BORN RED)" "$(awk -v n="^GR-$_gr next ran" '$0 ~ n {print (index(prev,"REFUSED")==1 && index(prev,"kant has no parenthetical expressions")>0)} {prev=$0}' "$T/grf")" "1"
+    kindRow "groupRefuseT GR-$_gr the line before 'next ran' is the refusal (born red 2026-10-15, green since SEQ 362)" "$(awk -v n="^GR-$_gr next ran" '$0 ~ n {print (index(prev,"REFUSED")==1 && index(prev,"kant has no parenthetical expressions")>0)} {prev=$0}' "$T/grf")" "1"
 done
-kindRow "groupRefuseT REFUSED lines naming the rule (BORN RED)" "$(grep -c '^REFUSED.*kant has no parenthetical expressions' "$T/grf")" "5"
-kindRow "groupRefuseT AB-1 pob.pm(pb) = (pob.pm)(pb) (BORN RED)" "$(grep '^AB-1 ' "$T/grf" | awk '{print $NF}')" "5"
+kindRow "groupRefuseT REFUSED lines naming the rule (born red 2026-10-15, green since SEQ 362)" "$(grep -c '^REFUSED.*kant has no parenthetical expressions' "$T/grf")" "5"
+kindRow "groupRefuseT AB-1 pob.pm(pb) = (pob.pm)(pb) (born red 2026-10-15, green since SEQ 362)" "$(grep '^AB-1 ' "$T/grf" | awk '{print $NF}')" "5"
 
 #  ⚑ parseRT -- STROKE 1.1 SITE 2 (2026-10-04): driveStep's no-data arm, parseR, attaches into the caller's field
 #  with into as an ARGUMENT to parse()/attachLabel() -- the throwaway RuleStuff is gone. Nothing else in the fleet
