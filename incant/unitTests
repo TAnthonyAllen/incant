@@ -267,7 +267,34 @@ define
         testRecurCnt += 10;
         return argument;
         };
+    /***************************************************************************
+        The same four cases JITTED (SEQ 381 R1, after the argument slot): one driver per
+        case, each compiled by testing() BEFORE the interpreted calls below (bear-trap
+        #25). F and G are self-recursive, so each is built as its own function; H and K
+        are inlined into their driver. Expected 10 10 4 4, the interpreted values.
+    ***************************************************************************/
+    testRecurJf=999;
+    testRecurJg=999;
+    testRecurJh=999;
+    testRecurJk=999;
+    testRecurJF code={
+        testRecurJf = testRecurF(4);
+        };
+    testRecurJG code={
+        testRecurJg = testRecurG(4);
+        };
+    testRecurJH code={
+        testRecurJh = testRecurH(5 - 1);
+        };
+    testRecurJK code={
+        testRecurJk = testRecurK(5 - 1);
+        };
     testRecursion code={
+        testing(testRecurJF);
+        testing(testRecurJG);
+        testing(testRecurJH);
+        testing(testRecurJK);
+        print "testRecursion jitted: should be 10 10 4 4. They are" testRecurJf testRecurJg testRecurJh testRecurJk:;
         rf = testRecurF(4);
         rg = testRecurG(4);
         rh = testRecurH(5 - 1);

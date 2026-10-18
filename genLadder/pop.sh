@@ -276,6 +276,15 @@ if [ "$_utr" = "10 10 4 4" ]; then
 else
     echo "  FAIL  baselineTests testRecursion (unitTests' copy of recurSaveT) -- got [$_utr] want [10 10 4 4]"; fail=1
 fi
+#  testRecursion's JIT cases, SEQ 381 R1 (Tony; SEQ 375 R3): the same four, each through its own driver compiled by
+#  testing() before the interpreted calls. Pinned at today's jitted value; intended 10 10 4 4 (= the interpreted road).
+#  All four agree since the argument slot (SEQ 380); before it F and G recursed on the baked 4 until the stack died.
+_utj="$(sed -n 's/^testRecursion jitted: should be 10 10 4 4. They are //p' "$T/base" | xargs)"
+if [ "$_utj" = "10 10 4 4" ]; then
+    echo "  ok    baselineTests testRecursion JITTED = interpreted (intended 10 10 4 4) = [$_utj]"; green=$((green+1))
+else
+    echo "  FAIL  baselineTests testRecursion JITTED = interpreted -- got [$_utj] want [10 10 4 4]"; fail=1
+fi
 if [ -s "$T/base" ] && tail -1 "$(ip baselineTests.golden)" | grep -qFf - "$T/base"; then
     echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))
 else
@@ -309,8 +318,19 @@ else
 fi
 _bnfilt () { grep -v "^stop:\|^Search list\|^$\|rules should not have data and a list\|BASELINENEW SENTINEL"; }
 sed '1,/^setParse ended and that ends compileRules/d' "$T/baseN" > "$T/baseN.run"
-awk '/^sumple=/{exit} {print}' "$T/base"     | _bnfilt > "$T/bo.head"
-awk '/^sumple=/{exit} {print}' "$T/baseN.run" | _bnfilt > "$T/bn.head"
+#  jitRecurOwnRow SEQ 381 R1: testRecursion's JIT block -- from its first jitRunAction to the "testRecursion jitted:" line -- is
+#  cut from BOTH heads by name and asserted on its own row below. Measured 2026-10-18: on the new road testing() compiles each
+#  driver's GENERATED PARSE BODY (term calls, a short-circuit chain), not its code block, so the four read 999 (intended
+#  10 10 4 4) -- a new-road disagreement that predates the argument slot and is now visible. Every other head line still diffs.
+_bnjit () { awk '/^=== jitRunAction: entering on testRecurJF ===/{skip=1} !skip{print} /^testRecursion jitted:/{skip=0}'; }
+awk '/^sumple=/{exit} {print}' "$T/base"     | _bnjit | _bnfilt > "$T/bo.head"
+awk '/^sumple=/{exit} {print}' "$T/baseN.run" | _bnjit | _bnfilt > "$T/bn.head"
+_bnj="$(sed -n 's/^testRecursion jitted: should be 10 10 4 4. They are //p' "$T/baseN.run" | xargs)"
+if [ "$_bnj" = "999 999 999 999" ]; then
+    echo "  ok    baselineTestsNew testRecursion JITTED on the new road  # intended: 10 10 4 4 -- testing() compiles the parse body = [$_bnj]"; green=$((green+1))
+else
+    echo "  FAIL  baselineTestsNew testRecursion JITTED on the new road -- MOVED, got [$_bnj] pinned [999 999 999 999] (intended 10 10 4 4)"; fail=1
+fi
 awk '/^sumple=/{p=1} p'         "$T/base"     | _bnfilt > "$T/bo.tail"
 awk '/^sumple=/{p=1} p'         "$T/baseN.run" | _bnfilt > "$T/bn.tail"
 #  vacuity guard (H4): two empty heads agree; the head today is 56 lines
@@ -6214,6 +6234,16 @@ kindRow "jitArgChainT AC interpreted: top, kind, tripped, depth (the control)" "
 kindRow "jitArgChainT AC jitted = AC interpreted (BORN RED 2026-10-18, SEQ 380: the argument slot)" "$(_ac jitted)" "306 5 0 4"
 kindRow "jitArgChainT acF is its own function, acH is inlined (one restart, one callee)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jac")" "1"
 kindRow "jitArgChainT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jac")" "0"
+
+#  ⚑ jitArgNumberT -- SEQ 381 R2 (Tony): a NUMBER argument to a separately built function. The argument slot (SEQ 380) is
+#  i32 only, so nmF's reads follow the emit-time literal 3.5 and the guard ends the recursion. Pinned at today's value;
+#  intended = the interpreted twin, 10 5 0 5 (not 7.5: the interpreted road rounds -- see the fixture's dead region).
+run1 jitArgNumberT "$T/jan";   check "jitArgNumberT runs" 0 $?
+sentinel "jitArgNumberT sentinel" "$T/jan" "JITARGNUMBER SENTINEL"
+_nm () { sed -n "s/^NM $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jan"; }
+kindRow "jitArgNumberT NM interpreted: top, kind, tripped, depth (the control)" "$(_nm interpreted)" "10 5 0 5"
+kindRow "jitArgNumberT NM jitted  # intended: 10 5 0 5 (= interpreted) -- a number argument keeps the old road (SEQ 380 limit)" "$(_nm jitted)" "193 5 1 51"
+kindRow "jitArgNumberT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jan")" "0"
 
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic

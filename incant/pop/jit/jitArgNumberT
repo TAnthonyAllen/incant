@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    nmDepth=0;
+    nmTrip=0;
+    nmTop=999;
+    nmF code={
+        nmDepth += 1;
+        if nmDepth > 50;    nmTrip = 1;
+        if nmTrip == 1;     return -7;
+        if argument < 1;    return 0;
+        t = argument;
+        r = nmF(argument - 1);
+        r = r + t;
+        return r;
+        };
+    nmDrive code={
+        nmTop = nmF(3.5);
+        };
+    ;
+testing(nmDrive);
+cerr "NM jitted      top " nmTop " kind " nmTop.datA " tripped " nmTrip " depth " nmDepth:;
+nmDepth = 0; nmTrip = 0; nmTop = 999;
+nmDrive();
+cerr "NM interpreted top " nmTop " kind " nmTop.datA " tripped " nmTrip " depth " nmDepth:;
+cerr "JITARGNUMBER SENTINEL":;
+stop();
+
+What This Fixture Asks (SEQ 381 R2, a NUMBER argument to a separately built function)
+
+nmF is self-recursive, so the jit builds it as its own function, and its argument is a NUMBER (3.5). The argument
+slot (SEQ 380) is i32 only: a number-valued argument keeps the old road, where every argument read in jit_nmF follows
+the emit-time binding to the literal 3.5. Pinned at today's jitted value; no cure in this stroke.
+
+The intended jitted value is the INTERPRETED TWIN, measured 2026-10-18: 10, kind 5, never tripped, depth 5. Not the
+7.5 the arithmetic suggests, for two interpreted reasons measured on the way (context, not cured): `argument < 1`
+reads false at 0.5 (the number compares as if rounded against the count literal), so the recursion runs on to -0.5;
+and r is count-kind, so `r = r + t` rounds at every step (r reads 0, 1, 3, 6, then 10).
+Today the jit reads 193, tripped at 51: the slot is not taken, every read follows to the literal, the guard ends it.
