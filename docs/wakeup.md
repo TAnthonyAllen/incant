@@ -1,3 +1,65 @@
+# ⚠⚠⚠ SEALED 2026-10-18 (172) ON TRUNK -- SEQ 379: THE ARGUMENT SLOT, RECON AND PLAN. NOTHING BUILT; THE SHAPE IS TONY'S.
+#
+#   ## THE OPENER: Tony rules the shape (R2 below). Recommended: (1), the frame slot, fed through %field. No branch until then.
+#
+#   ## R0. (a) Tony's WIP committed 23020c2 (macros notions, tester, new scratch). (b) Instruct.rtn and GroupActions.rtn
+#   carry NO HUNKS: md5 = HEAD for both. GroupActions.rtn's mtime is Oct 17 17:55; GroupRules.mm/.h 17:39 (= HEAD too) and
+#   ~/bin/incant was relinked 17:39 -- a retok + build after the seal, then the .rtn saved back to HEAD's bytes (an Xcode
+#   save is the likely source; no Dropbox conflicted copy anywhere). Nothing to rule on; binary rebuilt from HEAD 10:18.
+#   (c) scratch, lldb at both $$targetEntry: the targetEntry with parent acU is a DIFFERENT NODE -- the expression's own
+#   term node (parent acU, grandparent acX), one per use site (getTarget 0x..0dc0, assessReturn 0x..6690). It SHARES the
+#   entry's body. TestStuff's entry (0x..5730) has parent TestStuff before (first runAction) and after (both markers);
+#   its body went data 0 -> 6 (isGROUP), gGroup = the copyOf node, so := reached the entry through the shared body. The
+#   proposed opRebind edit is not applied; the measurement says the entry's parent never changed.
+#
+#   ## R1 CENSUS (lldb on jitRecurSaveT, read-only; no tap, so nothing to revert). Every jitted argument read resolves at
+#   EMIT time. (i) self-call: jitEmitSelfCall's argument = the caller's emit-time operand -- the literal-4 node for
+#   rsDrive's rsF(4), a binResult node for rsF(argument - 1) (constant 3 in its jitData; its gCount is never written);
+#   bindArg and the call's %field both pass that node. (ii) inlined callee: runAction's jitting arm binds ruleArg at emit
+#   time; correct within one function (SSA). (iii) jitBindArgRT: 1 bind of the literal, 50 of binResult (count 0) -- and
+#   NO emitted code reads the binding at run time. (iv) readers under jitting: followArgument (runOPslots, runAccAssign,
+#   runOPaccum's call, runOPaccumOperand), jitEmitBareRead's unwrap, iterate's source unwrap, jitBodyField (run time,
+#   %field at the top), the gChanPend save/restore bracket, AND the frame prologue/epilogue: it allocas a slot for
+#   argument's gCount -- a union with gGroup, the binding pointer -- and stores it back at the epilogue (harmless today,
+#   same bits). Inside jit_rsF all four reads follow to the literal-4 node, so each folds to a constant; rsG's IR has no sub.
+#   Needed at run time: the call's computed value, per activation, read by the own-function body.
+#
+#   ## R2. (1) FRAME SLOT: own-function body reads argument from a slot the prologue fills from %field (a run-time helper,
+#   call-not-GEP); the self-call passes a fresh per-call node holding the i32 (keeps i32(ptr); a second i32 parameter is
+#   the alternative and is a gJitMethod layout change -- groups.ext, tokall, three callers). Costs: the 6 reader sites
+#   branch on "own function"; the slot must NOT be homed on gCount (epilogue would clobber the binding); a node-valued
+#   argument (iterate) reads %field itself. (2) RUN-TIME READ: every read becomes a call through the binding, every call
+#   binds at run time inlined included; the bound node must hold its value -- binResult needs a store, a frame-resident
+#   local needs a flush before the bind; inlined callees lose their SSA reads. INLINED CALLEES FORCE NEITHER SHAPE on
+#   themselves (their emit-time road is right: 4 rows agree) -- they make (1) two-armed, plus one chain rule: an inlined
+#   call whose operand is an own-function body's argument binds to that slot, not to the emit-time node. Neither shape
+#   changes an interpreted argument read; interpreted rows predicted unmoved (not measured). No STOP: the prologue slot
+#   is a reader of the binding's storage, in road (iv), named rather than stopped on.
+#
+#   ## R3 CERTIFICATE (pre-registered). JRS-1 10 kind 5, tripped 0 depth 5 (= RS twin). JRS-2 10, tripped 0 depth 5.
+#   jitSelfCallValT jitted = interpreted 103, depth 4, never tripped. rsG IR: a live sub; rows 6151 (add .., 4) and 6153
+#   (add %selfcall, 4) MOVE, registered. RS-3: degrade 0, 1 restart, 2 selfcalls, unmoved. Inlined-argument rows, today =
+#   intended, unmoved: argJitT AJ 8 / 22 / 14; jitArithOperandT AO 6/7/-7/7/7, AO-X 6; jitCmpOperandAT CA 5/5/7/7, IR icmp
+#   eq i32 1, store i1 0; jitCmpOperandT CMI 7 7 (context CMS 0 3). argRoundJ (mutual recursion, own function) 7/7/7 --
+#   weak, every caller passes 7. Stale BORN RED labels: pop.sh 6175/6179/6181/6191/6112.
+#   H7 per half: CALLEE -- own-function reads follow the emit-time binding, value passed: JRS-1 back to 193 / trips 51,
+#   no sub. CALLER -- slot read kept, self-call passes the emit-time node: JRS-1 wrong, trips. The chain rule has NO
+#   fixture (an own-function body handing argument to an inlined callee at varying depth) -- owed before its H7 means much.
+#   R4: rs1 / rs2 read kind 5 (999 is a count); the argument slot does not depend on seal 171's TOKEN-kind finding.
+#
+#   ## AN INSTRUMENT FINDING, NOT FIXED: genLadder/pop.sh is #!/bin/sh (bash 3.2, POSIX mode), where `VAR=x func` LEAKS
+#   VAR past the function. pop.sh:5310 (INCANT_PARSE_RETURN) and :6258 (INCANT_ACCUM_TRACE=pa) therefore arm both traces
+#   for every later fixture. groupRefuseT GR-1..5 (neighbour rows) go red on the interleaved ACCUM TREE lines: run as
+#   ./pop.sh 1482 green; run as `bash genLadder/pop.sh` 1487, row for row with seal 171's capture. Seal 171's count was a
+#   bash run. Cure (one line each, Tony's word): run those two in a subshell with export, or add `unset` after each.
+#
+#   ## CHECKS: no engine source changed · ~/bin/incant Oct 18 10:18 · pop.sh 1487 green under bash = seal 171 row for row
+#   (1482 under sh, the leak) · jitLadder PASSED · printPop PASSED · decodePop = capture · ddPop 5 / 1 · dirCheck PASSED
+#   53 / 57, tree bare · frontier = capture · canary 346 · exec bits clean · Groups, support, TOK clean and pushed.
+#
+#   ## Tony's fixit incantations waiting: 0·Clod's fixit incantations waiting: 7 (oldest: refireSkipsDegraded, since 2026-09-25)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-17 (171) ON TRUNK -- SEQ 378: jit-selfcall BOUGHT (Groups d1509be, support adfd082). A JITTED SELF-CALL'S VALUE IS %selfcall.
 #
 #   ## THE OPENER: SEQ 376 R1 (c), the argument slot -- recon and plan first. JRS-1 / JRS-2 read 193 until it lands.
