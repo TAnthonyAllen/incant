@@ -5307,7 +5307,9 @@ done
 #  shape (A) gives -- a call reads its OWN record: Modifier* matching nothing and TraiTdata (a members rule) own no label,
 #  so they return labelNO; "+?!"'s Modifier owns its label. BORN RED ON TRUNK (Tony, ruled accepted): trunk returns
 #  Modifier / TraiTdata there, labels ANOTHER call left on the stuff (the F-121 family). Green once 1.2f lands.
-INCANT_PARSE_RETURN=TraiTdata,Modifier run2 zeroWidthT "$T/zwr.o" "$T/zwr.e"; check "zeroWidthT PARSERETURN run" 0 $?
+#  envScoped a switch is EXPORTED INSIDE A SUBSHELL, never written `VAR=x func`: this file is #!/bin/sh (bash 3.2, POSIX
+#  mode), where a prefix assignment on a FUNCTION call outlives the call and arms the trace for every later fixture (SEQ 380 R0)
+( export INCANT_PARSE_RETURN=TraiTdata,Modifier; run2 zeroWidthT "$T/zwr.o" "$T/zwr.e" ); check "zeroWidthT PARSERETURN run" 0 $?
 _zwr=$(awk '/^--- OLD$|^--- OLD /{f=1} /^--- NEW/{f=0} f&&/^PARSERETURN/{sub(/^PARSERETURN rule=/,""); sub(/ label=/,"="); print}' "$T/zwr.e" | tr '\n' '|')
 if [ "$(echo "$_zwr" | tr '|' '\n' | grep -c .)" = 4 ]; then echo "  ok    zeroWidthT PARSERETURN anti-vacuity: 4 old-road returns witnessed"; green=$((green+1))
 else echo "  FAIL  zeroWidthT PARSERETURN anti-vacuity: want 4 returns in the OLD drives, got [$_zwr]"; fail=1; fi
@@ -6109,7 +6111,7 @@ kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinne
 run1 jitScCountT "$T/jsc";   check "jitScCountT runs" 0 $?
 sentinel "jitScCountT sentinel" "$T/jsc" "JITSCCOUNT SENTINEL"
 kindRow "jitScCountT interpreted calls a b" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')" "2 1 1"
-kindRow "jitScCountT jitted calls = interpreted (BORN RED 2026-10-16)" "$(grep '^JSC jitted ' "$T/jsc" | awk '{print $4, $6, $8}')" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')"
+kindRow "jitScCountT jitted calls = interpreted (born red 2026-10-16, green since SEQ 372)" "$(grep '^JSC jitted ' "$T/jsc" | awk '{print $4, $6, $8}')" "$(grep '^JSC interpreted ' "$T/jsc" | awk '{print $4, $6, $8}')"
 
 #  ⚑ recurSaveT / jitRecurSaveT / jitRecurSaveGT -- SEQ 373 (Tony, 2026-10-16): RECURSION'S SAVE/RESTORE, BOTH ROADS,
 #  MEASURE ONLY. Pinned at today's values; nothing fixed. RS-1 t = n; r = f(n-1); r = r + t (intended 10). RS-2
@@ -6172,13 +6174,13 @@ kindRow "jitCmpOperandT CMI an inlined callee's argument reads the caller's run-
 kindRow "jitCmpOperandT CMI interpreted" "$(_cm interpreted | cut -d' ' -f5-6)" "7 7"
 kindRow "jitCmpOperandT CMS jitted  # context: the i1 stored into cmB's count" "$(_cm jitted | cut -d' ' -f3-4)" "0 3"
 kindRow "jitCmpOperandT CMS interpreted  # context: cmB data-less, its tag" "$(_cm interpreted | cut -d' ' -f3-4)" "cmB 3"
-run1 jitCmpOperandAT "$T/jcma";   check "jitCmpOperandAT runs  (BORN RED 2026-10-17: exit 134, icmp i1 vs i32)" 0 $?
+run1 jitCmpOperandAT "$T/jcma";   check "jitCmpOperandAT runs  (born red 2026-10-17 exit 134, icmp i1 vs i32; green since SEQ 377)" 0 $?
 sentinel "jitCmpOperandAT sentinel" "$T/jcma" "JITCMPOPERANDA SENTINEL"
 _ca () { grep "^CA $1 " "$T/jcma" | sed "s/^CA $1 *//" | tr -d ' '; }
 kindRow "jitCmpOperandAT CA interpreted" "$(_ca interpreted)" "5/5/7/7"
-kindRow "jitCmpOperandAT CA jitted = interpreted (BORN RED)" "$(_ca jitted)" "5/5/7/7"
+kindRow "jitCmpOperandAT CA jitted = interpreted (born red 2026-10-17, green since SEQ 377)" "$(_ca jitted)" "5/5/7/7"
 _cair="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitCmpOperandAT)" 2>&1)"
-kindRow "jitCmpOperandAT IR: the second compare reads an i32, not the first compare's i1 (BORN RED)" "$(echo "$_cair" | grep -c 'icmp eq i32 %')" "1"
+kindRow "jitCmpOperandAT IR: the second compare reads an i32, not the first compare's i1 (born red 2026-10-17, green since SEQ 377)" "$(echo "$_cair" | grep -c 'icmp eq i32 %')" "1"
 kindRow "jitCmpOperandAT IR: no i1 stored where the argument is read" "$(echo "$_cair" | grep -c 'store i1')" "0"
 
 #  ⚑ jitArithOperandT -- SEQ 377 R1 (Tony): SEQ 376 R2 covers jitEmitBinary and unary negate. BORN RED 2026-10-17: an
@@ -6188,7 +6190,7 @@ run1 jitArithOperandT "$T/jao";   check "jitArithOperandT runs" 0 $?
 sentinel "jitArithOperandT sentinel" "$T/jao" "JITARITHOPERAND SENTINEL"
 _ao () { grep "^AO $1 " "$T/jao" | sed "s/^AO $1 *//" | tr -d ' '; }
 kindRow "jitArithOperandT AO interpreted" "$(_ao interpreted)" "6/7/-7/7/7"
-kindRow "jitArithOperandT AO jitted = interpreted (BORN RED)" "$(_ao jitted)" "6/7/-7/7/7"
+kindRow "jitArithOperandT AO jitted = interpreted (born red 2026-10-17, green since SEQ 377)" "$(_ao jitted)" "6/7/-7/7/7"
 kindRow "jitArithOperandT AO-X jitted, the binary's returned node (own-node witness)" "$(_ao jitted | cut -d/ -f1)" "6"
 
 #  ⚑ jitSelfCallValT -- SEQ 378 R1 (Tony): a jitted self-call's value is %selfcall, never the action node's own count.
@@ -6255,7 +6257,8 @@ kindRow "jitFlagPlusT JFP-1 flagged ++x jitted (BORN RED 2026-10-16)" "$(grep '^
 #  the pieces pass 2 reads by position). Compared by TAG -- a name's =value is run-time state, so it is stripped; a Token
 #  keeps its literal value; an operator keeps (op). After S4b all 21 identical, the six calls / subscripts (09 10 11 15 16
 #  21) included. H7 (S4b): Parens' label dropped -> those six red by value. PC-1..5 are controls by value.
-INCANT_ACCUM_TRACE=pa run1 pass1SeqT "$T/p1s";   check "pass1SeqT runs" 0 $?
+#  envScoped exported inside a subshell, so it ends with the call -- see zeroWidthT's PARSERETURN run (SEQ 380 R0)
+( export INCANT_ACCUM_TRACE=pa; run1 pass1SeqT "$T/p1s" );   check "pass1SeqT runs" 0 $?
 sentinel "pass1SeqT sentinel" "$T/p1s" "PASS1SEQ SENTINEL"
 _p1s () { awk -v m="^PS-$1 " '$0 ~ m {f=1; next} f && /^ACCUM SEQ/ {sub(/^ACCUM SEQ +/,""); o=""; for(i=1;i<=NF;i++){t=$i; if(t !~ /\(op\)$/ && t !~ /^Token=/) sub(/=.*/,"",t); o=o (o==""?"":" ") t}; print o; exit}' "$T/p1s"; }
 kindRow "pass1SeqT ACCUM SEQ lines (exactly the 21 pa statements)" "$(grep -c '^ACCUM SEQ' "$T/p1s")" "21"
