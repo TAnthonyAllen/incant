@@ -18,7 +18,7 @@
 #   falls out: the inlined callee is handed the slot-read node. No function-pointer type change. Canary 346 -> 349.
 #   Limit: a NUMBER-valued argument keeps the old road (i32 only; no fixture reaches one).
 #   CERTIFICATE: JRS-1 10 kind 5, JRS-2 10, both tripped 0 depth 5; VC 103 depth 4; AC 306 depth 4; rsG IR
-#   , ; degrade 0. pop.sh 1493 green; movers vs trunk = exactly the 8
+#   `sub i32 %argIn, 1`, `add i32 %selfcall, %argIn`; degrade 0. pop.sh 1493 green; movers vs trunk = exactly the 8
 #   registered (+ fixture-name count 251 vs 258, H3). Every interpreted row MEASURED unmoved, inlined rows unmoved.
 #   H7, one per half, fixtures alone under alarm: CALLEE (slot read off) JRS 193 / 193, tripped 51, VC 105, AC 5143,
 #   no sub. CALLER (box off) JRS 4 / 4 depth 2, VC 101, AC 103 (sub stays: the callee half's witness). CHAIN (inlined
