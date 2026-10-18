@@ -13,3 +13,28 @@ setParse does not have to worry about actionMethod
 /*******************************************************************************
 	Working on
 *******************************************************************************/
+
+/*******************************************************************************
+	Notions
+*******************************************************************************/
+What a do loop would look like as an expression if a do loop were writing itself as one
+    startLoop (the beginning of the loop in an xp list)
+    do list block (process as a list of statements, not a block)
+        these statements are methods to fire
+            continue -> startLoop
+            break -> endLoop
+            return -> this is a return from current method (how to handle?)
+        other statements just fire
+        while xp is a rule that write itself as
+            if xp ->startLoop
+            else -> endLoop
+    endLoop
+Not sure how to write if statement as an expression: maybe xp if A; where if is an operator xp is target and A is argument cobbled together to contain startLoop and endLoop
+A statement in an expression list is not a target or argument and does not produce a result but it must fire (as if it were a nested xp???) and the xp list carries on. If an xp list can contain statements then do loop is just list of statements to fire while running the xp chain
+An action is just a list of statements so an xp list can maybe run actions???
+    has to set currentMETHOD and maintain current method stak
+    an action has to have a startAction and endAction akin to startLoop and endLoop; maybe those should be local fields in currentMETHOD used by actions and loop rules, in which case the loop rules would have to set and reset those local fields
+How would testOP handle statements coming in; how does xp chain say run this statement and carry on???
+    A statement is a rule so xp chain says run this rule and leave its result on the chain
+    How does that work?
+        rule op takes rule as argument returns its label that gets stashed in its target that testOP then runs (it processes argument first then target)

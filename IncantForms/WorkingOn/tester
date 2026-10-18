@@ -40,37 +40,33 @@ define
             if *arg.listLengtH != 0 && *arg.flaG;   listChain(*arg);
         };
     instructEntry;
+    targetEntry;
     resultPark;
     /*****************************************************************************
         getTarget checks to see if target is leading edge of an instruction chain
         and if it is returns the chain as target, otherwise returns just target
     *****************************************************************************/
     getTarget code={
-        grup := argument.prioR;
-        $$argument;
-        $$grup;
+        grup = instructEntry;
         if *grup.instructTypE != 0;
             op = grup;
+            if *op.taG == "call"; return argument;
             grup        := *grup.prioR;
             target      = grup;
             instruct    +% *op;
             instruct    +% *target;
+            instruct    :. flaG;
             if resultPark.datA; instruct +% *resultPark;
             else                instruct +% argument;
-            instruct    :. flaG;
             instructEntry   = target;
-            print "getTarget";
-            dumpField(instruct);
-            return      instruct;
-        instructEntry   := argument;
-        return argument;
+            targetEntry     := copyOf(instruct);
+        else    targetEntry := argument;
+        return result;
         };
     getInstruction code={
         grup = instructEntry;
         hold = *grup.taG;
-        print "Starting getInstruction on" hold:;
         while grup.datA != 0;
-            print "At start loop" grupTAG targetTAG opTAG resultTAG:;
             if *grup.instructTypE != 0;
                 /***************************************************************************
                     Set operator. Check for unary and handle if so.
@@ -100,10 +96,12 @@ define
                 ***************************************************************************/
                 instructEntry := *grup;
                 if result.flaG; resultPark = result;
-                else        clear(resultPark);
-                target      := getTarget(*grup);
-                // should not have to run the following line but target returned from getTarget gets its fLAG cleared???
-                *target     :. flaG;
+                else    clear(resultPark);
+                getTarget(*grup);
+                target  = targetEntry;
+                // should not have to run the following line but what is returned from getTarget gets its flaG cleared???
+                if *target.taG == "instruct";
+                    *target :. flaG;
                 /***************************************************************************
                     If have all the parts build instruction
                 ***************************************************************************/
@@ -114,21 +112,11 @@ define
                     instruct    :. flaG;
                     result      := copyOf(instruct);
                     result      :. flaG;
-                    print "getInstruction";
-                    dumpField(instruct);
                     clear(instruct);
                     clear(target);
                     clear(op);
                     grup    = instructEntry;
-            if grup.datA;
-                grup    := *grup.prioR;
-                grupTAG = *grup.taG;
-            else        grupTAG = "no more fields in expression list";
-            if op.datA;     opTAG = *op.taG;
-            else            opTAG = "no operator";
-            if target.datA; targetTAG = *target.taG;
-            else            targetTAG = "no target";
-            resultTAG       = *result.taG;
+            if grup.datA;   grup    := *grup.prioR;
         print "We done":;
         listChain(*result);
         return result;
@@ -136,110 +124,28 @@ define
     xpListTest isRule lizted=listEntries+ SemI- code={
         instructEntry := *lizted.lasT;
         result = testOP(getInstruction(trueResult));
-        $$result;
         };
     ;
 
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
 stop();
-xpListTest("invokeTEST call -righty -= qa - qb + qc;");
-
-register(C1Tester);
-define
-    cv=5;
-    n=3;
-    lim=8;
-    qa=2;
-    qb=10;
-    ok=1;
-    done=0;
-    r=0;
-    blkBody code={ return argument * 2; };
-    fId code={ return argument; };
-    c1Run code={
-        blk := blkBody;
-        cerr "C1 begin":;
-        r = *blk(cv) + n * 2 > fId(qa + qb) - lim && ok || !done;
-        cerr "C1 r = " r:;
-        };
-    ;
-c1Run();
-cerr "C1 SENTINEL":;
-
-/***************************************************************************
-    C1 tester (Clod, 2026-10-07, SEQ 320) -- for the expr-accum branch
-
-    TO RUN IN XCODE
-      Both repos on expr-accum (Groups and support). No retok needed.
-      Scheme Groups, Run:
-        Arguments          IncantForms/WorkingOn/tester
-        Working directory  the Groups directory
-        Environment        INCANT_EXPR_ACCUM=1     the candidate (unset or 0: today's road)
-                           INCANT_ACCUM_TRACE=r    trace expressions whose first item is r
-      Breakpoints, each hit ONCE (c1Run's line is the only traced expression):
-        accTraceFlat   (GroupRules.mm:3473)  the FLAT list, before the split -- inspect flat
-        accBuilt       (GroupRules.mm:3483)  the TIER TREE, finished, not run -- inspect node
-      accBuild pops every item off flat, so flat is EMPTY by the time accBuilt stops.
-      In lldb:  expr (void)accTraceTree(node, 0)   prints the tree to the console
-                p node->groupBody->tag   then node->get(1), node->get(3) ...
-      The console also carries ACCUM FLAT and ACCUM TREE lines to compare against.
-
-    Expected tree: acA [r, =, acOr [acAnd [acK [acX, >, acX], &&, ok], ||, acU [!, done]]]
-    Expected value: blkBody(5) 10, + n 13, * 2 26; fId(12) - lim 4; 26 > 4 true;
-    && ok true; || !done is not evaluated; r reads 1.
-
-    blk is a HOLDER of an action with a code body: *blk is the action, so *blk(cv)
-    calls blkBody with 5. A star on a field that holds no group is null by ruling,
-    which is why blk is not itself the action.
-
-    THE RULED LINE, r = *blk(cv) + n * 2 > lim - fId(qa + qb) && ok || !done;
-    DOES NOT PARSE ON EITHER ROAD (measured 2026-10-07): - is a UnaryOPS member,
-    so InvokeArg's UnaryXP alternative absorbs - fId into lim's term, and the
-    call's (qa + qb) is then a SECOND postfix that TokenXP's single InvokeArg?
-    cannot take (bear-trap 52). c1Run flips the subtraction, fId(qa + qb) - lim.
-    The UnaryXP alternative leaves the grammar after the buy (expressionRecon,
-    C1 BOUGHT IN PRINCIPLE).
-***************************************************************************/
 
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
-
-parser(Start);
-testUnitTests();
-include("IncantForms/WorkingOn/parser");
-parser(Search);
-
-include("IncantForms/WorkingOn/checkSKIP");
-// Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
-registry(TestStuff);
-(TestStuff);
-define
-    skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
-    skipTester code={
-        print "Did the definition work?" skipInput:;
-        };
-    ;
-debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
-checkSKIP(skipInput);
-
-    testIterateInReverse isRule lizted=listEntries+ SemI- code={
-        print "list passed in:":;
-        result = 0;
-        iterate grup on *lizted;
-        while --grup;
-            if *grup.instructTypE != 0;
-                if *grup.isUnarY;       print `"unary op" taG:;
-                else                    print `"regular op" taG:;
-            or *grup.isLiteraL == 1;    print `"number" *grup:;
-            else                        print `"field" taG:;
-        };
+            grupTAG = *grup.taG;
+            if op.datA;     opTAG = *op.taG;
+            else            opTAG = "no operator";
+            if target.datA; targetTAG = *target.taG;
+            else            targetTAG = "no target";
+            resultTAG       = *result.taG;
+            print "At start loop" grupTAG targetTAG opTAG resultTAG:;
 
 /***************************************************************************
     Current Status
 ***************************************************************************/
 
-Need to test && and ||
+Need to test && and ||  Actually tested already; seems to work
 Harder expressions for xpListTest, each with a pinned trunk answer in exprPinT to compare against:
 - qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
 - xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
@@ -247,3 +153,4 @@ Harder expressions for xpListTest, each with a pinned trunk answer in exprPinT t
 - fId(qa + qb) * qc and qa + fNest(qb) + qc: calls with an expression inside or between, so A(B) has to become A call B mid-expression.
 - a < b < c: chained comparisons; expr-accum currently refuses this by name.
 - *block(code): a star on a call target.
+    For now assuming block(code) gets processed into the list as block call code

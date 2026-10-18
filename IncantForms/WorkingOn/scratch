@@ -1,0 +1,47 @@
+/*****************************************************************************
+	This is the tester incantation. It is a working file for testing new features
+    under development so it changes when there is a new feature in the works.
+*****************************************************************************/
+Start();
+include(utilities);
+include(unitTests);
+search reset stack Grokking;
+search Utilities UnitTests list;
+
+registry(cOMMANDs);
+registry(TestStuff);
+define
+    invokeTEST code={ print "invokeTEST:" taG "=" argument:; return argument; };
+    targetEntry;
+    /*****************************************************************************
+        getTarget checks to see if target is leading edge of an instruction chain
+        and if it is returns the chain as target, otherwise returns just target
+    *****************************************************************************/
+    getTarget code={
+        argument    :. flaG;
+        result  +% targetEntry;
+        result  +% argument;
+        result  :. flaG;
+        result  = 2;
+        targetEntry     := copyOf(result);
+        targetEntry2    := result;
+        $$targetEntry;
+        return  result;
+        };
+    assessReturn code={
+        result = getTarget(invokeTEST);
+        if result.flaG; print "result flaG is set":;
+        else            print "result flaG NOT set":;
+        if *targetEntry.flaG;   print "embedded copy of result flaG is set":;
+        else                    print "embedded copy of result flaG NOT set":;
+        if *targetEntry2.flaG;  print "embedded bare result flaG is set":;
+        else                    print "embedded bare result flaG NOT set":;
+        result  = *targetEntry;
+        if result.flaG; print "result flaG is set":;
+        else            print "result flaG NOT set":;
+        $$targetEntry;
+        };
+    ;
+
+assessReturn();
+stop();
