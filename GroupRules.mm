@@ -2651,6 +2651,10 @@ char 	*name = input->getText();
 extern "C" GroupItem *followArgument(GroupItem *operand)
 {
 	
+	// argSlot under jitting, a separately built function's own argument is its frame slot, not the emit-time node (SEQ 380)
+	if ( GroupControl::groupController->groupRules->jitting ) {
+	GroupItem *slotRead = ::jitArgSlotRead(operand);
+	if ( slotRead ) return slotRead; }
 	if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data) )
 	return operand->getGroup();
 	return operand;
@@ -3326,6 +3330,36 @@ extern "C" GroupItem *jitAccessorWriteRT(int value, GroupItem *product)
 	
 }
 
+/*  jitArgCountRT -- run time, a built function's entry: the value of the node it was handed (%field), following a
+    binding one level as followArgument does; 0 for nothing (SEQ 380).  */
+extern "C" int jitArgCountRT(GroupItem *field)
+{
+	
+	GroupItem *node = field;
+	if ( node && node->groupBody->flags.isArgument && isGROUP(node->groupBody->flags.data) )
+	node = node->getGroup();
+	return node ? node->getCount() : 0;
+	
+}
+
+/*  jitArgSlotRead -- an own-argument read in a separately built function: a fresh node whose value is a load of the
+    argument slot at THIS point, or null when the operand is not that function's argument (SEQ 380). A node per read,
+    so no result rides on a shared operand (SEQ 376). An inlined callee handed this node binds to it: the chain rule.  */
+extern "C" GroupItem *jitArgSlotRead(GroupItem *operand)
+{
+	
+	if (!gJitArgSlot || !gJitBuilder || !operand) return 0;
+	if (!operand->groupBody->flags.isArgument || operand->groupBody != gJitArgBody) return 0;
+	GroupItem *slotRead = new GroupItem((char*)"argSlot");
+	slotRead->jitData = new JitData();
+	slotRead->jitData->jitSlot = gJitArgSlot;
+	slotRead->jitData->jitType = llvm::Type::getInt32Ty(gJitBuilder->getContext());
+	slotRead->jitData->setJitter(gJitBuilder->CreateLoad(slotRead->jitData->jitType, gJitArgSlot, "arg"));
+	gJitSeeded.push_back(slotRead);
+	return slotRead;
+	
+}
+
 /*  the emitted `=` with a node on the right does what opAssign does: setContent,
     or clearData on a null -- a holder on the right carries its group across (Tony,
     2026-10-04; SEQ 295 R2). Edit the two together; incant/pop/assignRoadT pins them.
@@ -3388,6 +3422,17 @@ extern "C" GroupItem *jitBodyField(GroupItem *action)
 	if (!action) return nullptr;
 	GroupItem *a = action->get((char*)"argument");
 	return a ? a->getGroup() : nullptr;
+	
+}
+
+/*  jitBoxCountRT -- run time, a self-call site: a fresh node holding the call's computed value, one per call, so
+    the callee's slot and its run-time binding both read THIS call's argument (SEQ 380).  */
+extern "C" GroupItem *jitBoxCountRT(int value)
+{
+	
+	GroupItem *box = new GroupItem((char*)"argument");
+	box->setCount(value);
+	return box;
 	
 }
 
@@ -3582,6 +3627,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	while ((fld = action->next(fld))) {
 	GroupBody *fb = fld->groupBody;
 	if (!(fb->flags.isLocal || fb->flags.isArgument)) continue;
+	//  argSlotNotCount the argument is a BINDING: its count shares storage with gGroup, so it gets the slot below, never this one (SEQ 380)
+	if (fb->flags.isArgument) continue;
 	if (fb->flags.noPrint) continue;
 	if (fld->jitData) continue;          // already seeded this compile
 	llvm::Type *ty;
@@ -3597,6 +3644,23 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	JitFrameSlot fs; fs.home = addr; fs.slot = slot; fs.ty = ty;
 	gJitFrame.push_back(fs);
 	}
+	}
+	//  argSlot THE ARGUMENT SLOT (SEQ 380): filled at entry from %field, the per-call node the caller passed; every own-argument read loads it
+	{
+	GroupItem *af = action->get((char*)"argument");
+	GroupItem *bound = (af && af->groupBody->flags.isArgument && isGROUP(af->groupBody->flags.data)) ? af->getGroup() : nullptr;
+	int bd = bound ? bound->groupBody->flags.data : 0;
+	if (bound && !bound->groupBody->groupList && !isNUMBER(bd) && !isSTRING(bd)
+	&& (isCOUNT(bd) || bound->groupBody->flags.isLiteral || bound->jitData)) {
+	llvm::Type *ptrT = llvm::PointerType::getUnqual(C);
+	llvm::Value *slot = B.CreateAlloca(i32, nullptr, "argSlot");
+	llvm::Value *readFn = B.CreateIntToPtr(
+	llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)(void*)&jitArgCountRT), ptrT, "argReadFn");
+	llvm::FunctionType *readTy = llvm::FunctionType::get(i32, {ptrT}, false);
+	B.CreateStore(B.CreateCall(readTy, readFn, {fn->getArg(0)}, "argIn"), slot);
+	gJitArgBody   = af->groupBody;
+	gJitArgSlot   = slot;
+	gJitArgOrigin = bound; }
 	}
 	// =========================== end frame prologue ===========================
 	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
@@ -4073,8 +4137,12 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	//  THIRD time -- without this line a jitted `print argument` reads the
 	//  holder's storage and prints an address at degrade count 0, which is this
 	//  function's own 75102656 one road over   ArgBinding.ArgBindingSites
-	if ( token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
+	{
+	GroupItem *slotRead = jitArgSlotRead(token);
+	if (slotRead)   token = slotRead;
+	else if ( token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
 	token = token->getGroup();
+	}
 	if (!token) return 0;
 	//  ⚠ REFUSE ANYTHING THAT IS NOT A SCALAR READ, and this guard is not
 	//  defensive padding -- its absence is what printed 75102656. Handed a LIST
@@ -5035,7 +5103,23 @@ extern "C" GroupItem *jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Value *argAddr = argVal ? argVal : b->CreateIntToPtr(
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	//  boxedArgument THE CALL PASSES ITS COMPUTED VALUE (SEQ 380): a fresh node per call, made at run time from the
+	//  i32 in hand, so the callee's slot reads THIS call's value. A non-scalar argument still passes its node.
+	llvm::Value *boxed = nullptr;
+	if (!argVal && !argument->groupBody->groupList) {
+	int ad = argument->groupBody->flags.data;
+	if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad)) {
+	if (argument->groupBody->flags.isLiteral)   jitSeedLiteral(argument);
+	else if (isCOUNT(ad))                       jitSeedField(argument); }
+	llvm::Value *av = argument->jitData ? argument->jitData->getJitter() : nullptr;
+	if (av && av->getType()->isIntegerTy(1)) av = b->CreateZExt(av, i32, "argWide");
+	if (av && av->getType() == i32) {
+	llvm::Value *boxFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBoxCountRT), ptr, "boxFn");
+	llvm::FunctionType *boxTy = llvm::FunctionType::get(ptr, {i32}, false);
+	boxed = b->CreateCall(boxTy, boxFn, {av}, "argBox"); } }
+	llvm::Value *argAddr = argVal ? argVal : boxed ? boxed : b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
 	llvm::Value *fldAddr = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
@@ -5498,6 +5582,9 @@ extern "C" void jitFlushTransient()
 	gLoopExitBlocks.clear();
 	gLoopBodyBlocks.clear();
 	gJitInlining.clear();
+	gJitArgBody   = nullptr;
+	gJitArgSlot   = nullptr;
+	gJitArgOrigin = nullptr;
 	//  ⚠ THE EPILOGUE BLOCK BELONGS TO THE FUNCTION THAT IS BEING ABANDONED, so
 	//  it is transient in exactly the sense this flush exists for. On a DISCARD
 	//  it is a pointer into a block whose function was just erased -- worse than
