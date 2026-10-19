@@ -311,6 +311,8 @@ extern "C" int jitTermCallRT(GroupItem *op, GroupItem *target, GroupItem *arg);
 extern "C" GroupItem *jitTrace(GroupItem *field);
 extern "C" GroupItem *jitTraceRT(GroupItem *field);
 extern "C" int jitUnboxCount(GroupItem *node);
+extern "C" GroupItem *jitter(GroupItem *input);
+extern "C" int jitterReady(GroupItem *field);
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit);
 extern "C" int limitWriteGuard(GroupItem *target);
 extern "C" GroupItem *listenTo(GroupItem *input);

@@ -531,6 +531,21 @@ inline JitCacheSlot *jitCacheFind(GroupBody *b) {
     return nullptr;
 }
 
+// THE JITTER (SEQ 386). `jitter;` sets gJitter -- that command is its ONE writer -- and from then on runAction's
+// interpreted arm hands each call to jitterReady: a first call compiles into gJitCache, every later call fires the
+// cached function. A refused compile marks the body NOT JITTABLE for the rest of the run. One tally per body the
+// jitter met, printed at exit -- the witness the fixtures read. Keyed on GroupBody like the cache; the tag is copied
+// so the exit report needs no live node.
+inline int gJitter = 0;
+inline int (*gJitterFn)(GroupItem*) = nullptr;
+struct JitterTally { GroupBody *body; std::string tag; int built; int called; bool notJittable; };
+inline std::vector<JitterTally> gJitterTally;
+
+inline JitterTally *jitterTallyFind(GroupBody *b) {
+    for (JitterTally &t : gJitterTally) if (t.body == b) return &t;
+    return nullptr;
+}
+
 // DISCOVERED, NOT YET BUILT. An inlined callee found calling itself; the enclosing
 // function is about to be discarded and this is what the rebuild must build first.
 struct JitPending { GroupBody *body; GroupItem *action; };
