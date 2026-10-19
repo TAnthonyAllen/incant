@@ -1,0 +1,53 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitterT);
+define
+    jtAcc=0;
+    jtPre=0;
+    jtBadN=0;
+    jtRead=0;
+    jtAdd code={
+        jtAcc += argument;
+        };
+    jtPreA code={
+        jtPre += 1;
+        };
+    jtBad code={
+        jtZ = 0;
+        ++jtZ;
+        jtRead := jtZ;
+        jtBadN += 1;
+        };
+    ;
+testing(jtPreA);
+cerr "JT-0 compiled and fired by testing() before jitter: jtPre = [" jtPre "]":;
+jitter;
+jtAdd(2);
+jtAdd(3);
+jtAdd(4);
+cerr "JT-1 three calls after jitter: jtAcc = [" jtAcc "]":;
+jtBad();
+jtBad();
+cerr "JT-3 a body the JIT refuses, called twice: jtBadN = [" jtBadN "]":;
+jtPreA();
+jtPreA();
+cerr "JT-4 compiled by testing() before jitter, two more calls: jtPre = [" jtPre "]":;
+cerr "JITTER SENTINEL":;
+stop();
+
+jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND, first cut. After `jitter;` every action is compiled at
+its first call and every later call goes straight to the cache. Born red on trunk: `jitter;` is not a command there,
+so the parse abandons the file at it (no SENTINEL).
+
+pop.sh reads, beside each JT row, the same file run with the `jitter;` line removed (the interpreted twin), and a twin
+with parser(Start) after the last search line (the new road). The witness lines are printed by the jitter at exit
+(stderr, one per action it met): `=== jitter: <action> built <n> called <m> ===`, or `NOT JITTABLE` for a refused
+compile, which also announces once, by name, at the refusal.
+  JT-1  jtAdd, three calls: built 1, called 3, jtAcc = 9 = the twin.
+  JT-3  jtBad: its compile is refused (it is testPrecedence's tpZeroBump shape, which the verifier rejects); one
+        announcement, interpreted both times, jtBadN = 2.
+  JT-4  jtPreA was compiled by testing() before jitter: built 0 (reused from the cache), called 2, jtPre = 3.
