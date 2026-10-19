@@ -28,7 +28,7 @@ GroupItem   grup,
     while grup = input.next(grup) {
         prior = result;
         branchKind = 0;
-        -% if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; } %-
+        -% if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; ::jitStmtBegin(); } %-
         if grup.isMethod    result = grup.gMethod(grup);
         else                result = grup;
         /*  THE RESULT SLOT (Tony's ruling, 2026-07-31). Under jitting, every
@@ -38,14 +38,15 @@ GroupItem   grup,
             garbage from every action that simply ends. Storing per statement is
             what makes the compiled answer match the interpreted one.  */
         if jitting {
+            //  noBuildRun a statement that could not be emitted without running something at build -- or whose emit refused --
+            //  is rolled back and emitted as ONE run-time call; an operand already handed over alone counts (SEQ 384, SEQ 372 R2)
+            -% if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(grup); } %-
+            -% ::jitStmtEnd(grup); %-
             -% jitStoreResult(); %-
             //  A3 + the statement-local gate: the check is emitted only for a
             //  statement that can actually refuse at RUN time, and the flag is
             //  cleared here so it cannot leak into the next statement.
             -% jitEmitRefusedCheck(); gJitStmtCanRefuse = false; %-
-            //  refusedAtEmit a statement whose emit refused runs on the interpreted road at RUN time, once -- a degrade
-            //  that already handed it over counts -- and the build-time refusal ends here, so the walk keeps emitting (SEQ 370 R1)
-            -% if ( ruler->refused ) { if ( !gJitStmtRTDone ) { jitEmitStmtRT(grup); gJitStmtRTDone = true; } ::clearRefusal(grup); } %-
         }
         /*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
             EMIT walk -- same era split as the branch check below, and the
@@ -156,7 +157,10 @@ GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
-    if jitting  jitDegrade("cerr under jit -- no emitter, sink fires at emit time", input);
+    if jitting {
+        jitHandOver("cerr under jit -- no emitter, it runs at RUN time on the interpreted road", input);
+        if buffer   bufferSTAK += buffer;
+        return null; }
     if !buffer      buffer = new("cerr buffer");
     appendPrintXP(stuff,buffer);
     return opCerr(input,buffer);
@@ -203,7 +207,10 @@ GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
-    if jitting  jitDegrade("cout under jit -- no emitter, sink fires at emit time", input);
+    if jitting {
+        jitHandOver("cout under jit -- no emitter, it runs at RUN time on the interpreted road", input);
+        if buffer   bufferSTAK += buffer;
+        return null; }
     if !buffer      buffer = new("cout buffer");
     appendPrintXP(stuff,buffer);
     return opCout(input,buffer);
@@ -486,7 +493,9 @@ GroupItem   Looper  = input["Looper"],
 int         restrict;
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
-    if jitting  jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)", input);
+    if jitting {
+        jitHandOver("FOR under jit -- no emitter (iterate's disease, different keyword); it runs at RUN time", input);
+        return null; }
     if Looper.isGROUP       Looper = Looper.group;
     Looper.clear();
     if LoopRestrict {
@@ -833,6 +842,9 @@ GroupItem   action = currentMETHOD.group,
             scopeList:,
             grup;
 String      name;
+    if jitting {
+        jitHandOver("a scope statement -- it binds locals, so it runs at RUN time", input);
+        return; }
     while listItem = scopeList.next(listItem) {
         if listItem.isGROUP grup = listItem.group;
         else    grup = listItem;
@@ -863,7 +875,9 @@ GroupItem   base,
 int         setStakked;
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
-    if jitting  jitDegrade("search under jit -- no emitter, mutates the search stack at emit time", input);
+    if jitting {
+        jitHandOver("search under jit -- no emitter, it runs at RUN time", input);
+        return null; }
     while grup = input.next(grup)
         if tag eq "reset"  searchLIST.clearList();
         or tag eq "list"
@@ -944,7 +958,10 @@ GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
-    if jitting  jitDegrade("string expression under jit -- no emitter, builds at emit time", input);
+    if jitting {
+        jitHandOver("string expression under jit -- no emitter, its statement runs at RUN time", input);
+        if buffer   bufferSTAK += buffer;
+        return null; }
     if !buffer      buffer = new("print buffer");
     appendPrintXP(stuff,buffer);
     return opString(stuff,buffer);

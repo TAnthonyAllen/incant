@@ -1258,6 +1258,8 @@ extern GroupItem runOPdirect(GroupItem op,GroupItem target,GroupItem arg)
 {
 GroupRules  ruler = groupRules;
 GroupItem   result;
+    // handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
+    -% if ( ruler->jitting && gJitHandOver ) return 0; %-
     // storeRuling an armed statement dispatches nothing further -- interpreted only
     if ruler.refused
         if !jitting     return null;
@@ -1267,8 +1269,19 @@ GroupItem   result;
         op = pickKindOP(op,target,arg); }
     // seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
     if jitting && (op.isOperator || op.isUnary)     jitSeedOperands(target,arg);
+    // slotNeedsBoth an emitter slot reads both operands: a side the build cannot see goes to run time, never into the emitter (SEQ 384)
+    -%
+    if ( ruler->jitting && op->groupBody->gJitEmitter && !op->groupBody->flags.isUnary && (!target || !arg) ) {
+        ::jitHandOver((char*)"an operator with a side the build cannot see -- its statement runs at RUN time", op);
+        return 0; }
+    %-
     // slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
     -% if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); %-
+    // noBuildRun a dispatch that would RUN its interpreted body at build goes to run time instead (SEQ 384, Tony: compiling has no side effects)
+    if jitting && !jitOpEmits(op,target) {
+        if op.isOperator || op.isMethod     jitHandOver("an operator with no emitter -- its statement runs at RUN time",op);
+        else                                jitHandOver("a command call -- its statement runs at RUN time",target);
+        return null; }
     // dispatchSeat which node the name reached, and which arm the fork will take
     measureRuleDispatch(op,target,arg);
     // callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
