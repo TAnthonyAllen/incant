@@ -9,6 +9,10 @@
 #   ask): Clod's queue reads 7. TOK's Xcode project still names the old path (file reference, disabled scheme argument)
 #   -- left alone, Tony repoints it.
 #
+#   ## SAVED BEFORE SHUTDOWN (3bb2fe0): the forced-jit census tooling, jitLadder/jitterCensus/ -- taps (jit at first call;
+#   build-time execution count), census + classifiers, the SEQ 383 / 384 results. README says how; clone only.
+#   TOK 424c6f7: Tony's Xcode state (the fixits group and its refireSkipsDegraded reference removed) committed.
+#
 #   ## CHECKS: pop.sh 1522 · jitLadder PASSED · printPop PASSED · decodePop = capture · ddPop 5 / 1 · dirCheck PASSED
 #   53 / 57, tree bare · frontier = capture · canary 359 · exec bits clean · Groups, support, TOK clean and pushed.
 #
