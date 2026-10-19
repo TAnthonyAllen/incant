@@ -59,7 +59,7 @@ GroupItem 	*prior = 0;
 		{
 		prior = result;
 		ruler->branchKind = 0;
-		 if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; } 
+		 if ( GroupControl::groupController->groupRules->jitting ) { gJitStmt = grup; gJitStmtRTDone = false; ::jitStmtBegin(); } 
 		if ( isMethod(grup->groupBody->flags.instructType) )
 			result = grup->groupBody->gMethod(grup);
 		else	result = grup;
@@ -71,14 +71,15 @@ GroupItem 	*prior = 0;
 		what makes the compiled answer match the interpreted one.  */
 		if ( ruler->jitting )
 			{
+			//  noBuildRun a statement that could not be emitted without running something at build -- or whose emit refused --
+			//  is rolled back and emitted as ONE run-time call; an operand already handed over alone counts (SEQ 384, SEQ 372 R2)
+			 if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(grup); } 
+			 ::jitStmtEnd(grup); 
 			 jitStoreResult(); 
 			//  A3 + the statement-local gate: the check is emitted only for a
 			//  statement that can actually refuse at RUN time, and the flag is
 			//  cleared here so it cannot leak into the next statement.
 			 jitEmitRefusedCheck(); gJitStmtCanRefuse = false; 
-			//  refusedAtEmit a statement whose emit refused runs on the interpreted road at RUN time, once -- a degrade
-			//  that already handed it over counts -- and the build-time refusal ends here, so the walk keeps emitting (SEQ 370 R1)
-			 if ( ruler->refused ) { if ( !gJitStmtRTDone ) { jitEmitStmtRT(grup); gJitStmtRTDone = true; } ::clearRefusal(grup); } 
 			}
 		/*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
 		EMIT walk -- same era split as the branch check below, and the
@@ -223,7 +224,12 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
-		::jitDegrade("cerr under jit -- no emitter, sink fires at emit time",input);
+		{
+		jitHandOver("cerr under jit -- no emitter, it runs at RUN time on the interpreted road",input);
+		if ( buffer )
+			GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+		return 0;
+		}
 	if ( !buffer )
 		buffer = new Buffer("cerr buffer");
 	appendPrintXP(stuff,buffer);
@@ -280,7 +286,12 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
-		::jitDegrade("cout under jit -- no emitter, sink fires at emit time",input);
+		{
+		jitHandOver("cout under jit -- no emitter, it runs at RUN time on the interpreted road",input);
+		if ( buffer )
+			GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+		return 0;
+		}
 	if ( !buffer )
 		buffer = new Buffer("cout buffer");
 	appendPrintXP(stuff,buffer);
@@ -604,7 +615,10 @@ int 		restrict = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// degradeByDefault GroupRules.h's extern block to zero
 	if ( ruler->jitting )
-		::jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)",input);
+		{
+		jitHandOver("FOR under jit -- no emitter (iterate's disease, different keyword); it runs at RUN time",input);
+		return 0;
+		}
 	if ( isGROUP(Looper->groupBody->flags.data) )
 		Looper = Looper->getGroup();
 	Looper->clear();
@@ -1087,7 +1101,10 @@ int 		setStakked = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
-		::jitDegrade("search under jit -- no emitter, mutates the search stack at emit time",input);
+		{
+		jitHandOver("search under jit -- no emitter, it runs at RUN time",input);
+		return 0;
+		}
 	while ( grup = input->next(grup) )
 		if ( ::compare(grup->groupBody->tag,"reset") == 0 )
 			searchLIST->clearList();
@@ -1184,7 +1201,12 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
-		::jitDegrade("string expression under jit -- no emitter, builds at emit time",input);
+		{
+		jitHandOver("string expression under jit -- no emitter, its statement runs at RUN time",input);
+		if ( buffer )
+			GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+		return 0;
+		}
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
 	appendPrintXP(stuff,buffer);
@@ -3847,6 +3869,8 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	if ( !GroupControl::groupController->groupRules->jitting )
 		return 0;
 	
+	//  foldedIntoHandOver a degrade inside a statement already handed to run time is the same fallback, counted once (SEQ 384)
+	if ( gJitHandOver ) return gJitDegradeCount;
 	++gJitDegradeCount;
 	::fprintf(stderr,
 	"=== JIT DEGRADE #%d: %s -- not JIT-supported yet, running INTERPRETED: %s ===\n",
@@ -4068,7 +4092,7 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	// stmtRT an unseeded operand never leaves its statement emitting nothing: the WHOLE statement becomes one run-time call on the interpreted road, once per statement (SEQ 335 R2, jitIfRT's pattern)
 	if (!argument || !argument->jitData || !target || !target->jitData) {
 	jitDegrade("assign operand reached jitEmitAssign unseeded", target);
-	if (gJitStmt && !gJitStmtRTDone) { jitEmitStmtRT(gJitStmt); gJitStmtRTDone = true; }
+	gJitHandOver = true;
 	gJitResult = nullptr;
 	return target;
 	}
@@ -4504,12 +4528,12 @@ GroupItem 	*result = ExpressioN;
 		result = ExpressioN;
 		::jitEmitBareRead(ExpressioN);
 		}
+	// conditionHandedOver a condition that handed its statement to run time ends the emit here: the arms would be rolled back
+	 if ( gJitHandOver ) return new GroupItem((char*)"jitIfRT"); 
 	// wholeIfInterpreted a condition with no value degrades the WHOLE if to the interpreted road: one run-time call runs it through aCTionIF, and no arm is ever emitted without its condition (SEQ 331, Tony)
 	
 	if (!gJitResult) {
-	jitDegrade("IF condition produced no value -- the whole IF runs INTERPRETED", ExpressioN);
-	jitEmitIfRT(input);
-	gJitResult = nullptr;
+	::jitHandOver((char*)"IF condition produced no value -- the whole IF runs INTERPRETED", ExpressioN);
 	return new GroupItem((char*)"jitIfRT");
 	}
 	
@@ -5228,7 +5252,16 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	llvm::Value *fn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	//  currentValues the interpreted run reads and writes FIELDS: every frame slot goes to its field before the call and
+	//  comes back after it -- the reload BEFORE the refusal branch, so the epilogue cannot write a stale slot over what the
+	//  statement wrote (SEQ 384, seal 163's hazard)
+	for ( JitFrameSlot &f : gJitFrame ) {
+	llvm::Value *home = b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)f.home), ptr, "rtHome");
+	b->CreateStore(b->CreateLoad(f.ty, f.slot, "rtFlush"), home); }
 	llvm::Value *rv = b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+	for ( JitFrameSlot &f : gJitFrame ) {
+	llvm::Value *home = b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)f.home), ptr, "rtHome");
+	b->CreateStore(b->CreateLoad(f.ty, home, "rtReload"), f.slot); }
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
 	// refusalExit the interpreted run refused: leave the function as runAction's exit leaves the action -- an inlined
@@ -5585,6 +5618,8 @@ extern "C" void jitFlushTransient()
 	gJitArgBody   = nullptr;
 	gJitArgSlot   = nullptr;
 	gJitArgOrigin = nullptr;
+	gJitStmtMarks.clear();
+	gJitHandOver  = false;
 	//  ⚠ THE EPILOGUE BLOCK BELONGS TO THE FUNCTION THAT IS BEING ABANDONED, so
 	//  it is transient in exactly the sense this flush exists for. On a DISCARD
 	//  it is a pointer into a block whose function was just erased -- worse than
@@ -5607,6 +5642,21 @@ extern "C" void jitForceInclude()
 {
 llvm::IRBuilder<> 	*b = 0;
 	b = 0;
+}
+
+/*  jitHandOver -- the statement under emission runs at RUN time instead (SEQ 384). Announces through jitDegrade, once
+    per statement (a later degrade in the same statement folds into it), and marks the statement for jitStmtEnd.  */
+extern "C" int jitHandOver(char *what, GroupItem *node)
+{
+	if ( !GroupControl::groupController->groupRules->jitting )
+		return 0;
+	
+	if ( !gJitHandOver ) ::jitDegrade(what,node);
+	gJitHandOver      = true;
+	gJitStmtCanRefuse = false;
+	gJitResult        = nullptr;
+	return 1;
+	
 }
 
 /* jitIfBegin  the gIF condition-to-blocks seam. Reads the condition value the
@@ -5840,6 +5890,39 @@ extern "C" void jitLoopEnd()
 extern "C" int jitNodeInFlight()
 {
 	 return gJitResultNode ? 1 : 0; 
+}
+
+/*  jitOpEmits -- WILL THIS DISPATCH EMIT, OR EXECUTE? (SEQ 384, Tony: compiling has no side effects.) Asked under jitting
+    BEFORE runOPdirect dispatches, so a dispatch that would run its interpreted body at build is handed to run time instead.
+    An operator emits only if its function carries a jitting gate (the list below); a unary the same; a call emits for a
+    rule (the term call) or an action (inlined), and for a command only if the command is jit-aware. Anything not on the
+    list is handed over -- a new operator defaults to running at run time, never at build.  */
+extern "C" int jitOpEmits(GroupItem *op, GroupItem *target)
+{
+	
+	if ( !op ) return 1;
+	GroupBody *ob = op->groupBody;
+	if ( isOperator(ob->flags.instructType) ) {
+	void *g = (void*)ob->gOp;
+	static void *gated[] = { (void*)&opAssign, (void*)&opPlus, (void*)&opRem, (void*)&opMinus, (void*)&opMultiply,
+	(void*)&opDiv, (void*)&opEQ, (void*)&opNotEQ, (void*)&opGT, (void*)&opGE, (void*)&opLT, (void*)&opLE,
+	(void*)&opDot, (void*)&opPlusEQ, (void*)&opMinusEQ, (void*)&opMultiplyEQ, (void*)&opDivEQ };
+	for ( void *p : gated ) if ( p == g ) return 1;
+	return 0; }
+	if ( isMethod(ob->flags.instructType) ) {
+	void *m = (void*)ob->gMethod;
+	static void *gated[] = { (void*)&opPlusPlus, (void*)&opMinusMinus, (void*)&opUnaryMinus, (void*)&opDeref,
+	(void*)&opDot, (void*)&jitTrace };
+	for ( void *p : gated ) if ( p == m ) return 1;
+	return 0; }
+	if ( target ) {
+	GroupBody *tb = target->groupBody;
+	if ( ::callIsRule(target) )                 return 1;
+	if ( tb->flags.actionType )                 return 1;
+	if ( isMethod(tb->flags.instructType) )     return (void*)tb->gMethod == (void*)&jitTrace;
+	}
+	return 1;
+	
 }
 
 extern "C" GroupItem *jitOpFireRT(GroupItem *op, GroupItem *arg, GroupItem *target)
@@ -6536,6 +6619,8 @@ extern "C" int jitRunAction(GroupItem *action)
 	gJitFnMap.clear();
 	gJitNeedOwnFn.clear();
 	gJitBuiltFn = nullptr;
+	//  noDanglingBuilder the builder was jitBuildFunction's local and is gone; run-time code must not see it (seal 163, SEQ 384)
+	gJitBuilder = nullptr;
 	auto sym = jit->lookup(fnName);
 	if (!sym) { llvm::consumeError(sym.takeError());
 	printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
@@ -6906,6 +6991,75 @@ extern "C" int jitSlotTaken(GroupItem *op)
 	}
 	++gJitSlotCount;
 	return 1;
+	
+}
+
+/*  jitStmtBegin -- mark where a statement's emission starts: the insert block, its last instruction, and how many blocks
+    the function has. Saves the enclosing statement's hand-over flag and starts this one clear.  */
+extern "C" void jitStmtBegin()
+{
+	
+	JitStmtMark m;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if ( b && b->GetInsertBlock() && b->GetInsertBlock()->getParent() && b->GetInsertPoint() == b->GetInsertBlock()->end() ) {
+	m.bb      = b->GetInsertBlock();
+	m.last    = m.bb->empty() ? nullptr : &m.bb->back();
+	m.nBlocks = m.bb->getParent()->size(); }
+	m.outer = gJitHandOver;
+	gJitHandOver = false;
+	gJitStmtMarks.push_back(m);
+	
+}
+
+/*  jitStmtEnd -- a handed-over statement: ROLL BACK every instruction and block it emitted, so no emitted half runs and
+    then runs again inside the interpreted whole, then emit ONE run-time call for it (jitEmitStmtRT, which flushes the
+    frame before the call and reloads it after). Blocks an enclosing construct still holds -- if / loop / short-circuit
+    stacks, inline exits, the epilogue -- are kept. Restores the enclosing statement's flag.  */
+extern "C" void jitStmtEnd(GroupItem *statement)
+{
+	
+	if ( gJitStmtMarks.empty() ) return;
+	JitStmtMark m = gJitStmtMarks.back();
+	gJitStmtMarks.pop_back();
+	bool handed = gJitHandOver;
+	gJitHandOver = m.outer;
+	if ( !handed ) return;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if ( !b ) return;
+	if ( m.bb ) {
+	llvm::Function *fn = m.bb->getParent();
+	std::set<llvm::BasicBlock*> keep;
+	for ( auto *x : gIfEndBlocks )    keep.insert(x);
+	for ( auto *x : gIfElseBlocks )   keep.insert(x);
+	for ( auto *x : gLoopCondBlocks ) keep.insert(x);
+	for ( auto *x : gLoopExitBlocks ) keep.insert(x);
+	for ( auto *x : gLoopBodyBlocks ) keep.insert(x);
+	for ( auto *x : gScEndBlocks )    keep.insert(x);
+	for ( auto &f : gJitInlineFrames ) if ( f.exitBB ) keep.insert(f.exitBB);
+	if ( gJitEpilogueBB ) keep.insert(gJitEpilogueBB);
+	std::vector<llvm::BasicBlock*> dead;
+	size_t i = 0;
+	for ( auto &bbx : *fn ) { if ( i++ >= m.nBlocks && !keep.count(&bbx) ) dead.push_back(&bbx); }
+	std::vector<llvm::Instruction*> tail;
+	for ( auto it = m.last ? std::next(m.last->getIterator()) : m.bb->begin(); it != m.bb->end(); ++it ) tail.push_back(&*it);
+	std::set<llvm::Value*> gone;
+	for ( auto *ins : tail ) gone.insert(ins);
+	for ( auto *d : dead ) for ( auto &ins : *d ) gone.insert(&ins);
+	for ( GroupItem *g : gJitSeeded )
+	if ( g->jitData && (gone.count(g->jitData->jitValue) || gone.count(g->jitData->jitSlot)) ) g->jitData = nullptr;
+	auto clearIf = [&](llvm::Value *&v) { if ( v && gone.count(v) ) v = nullptr; };
+	clearIf(gJitResult); clearIf(gJitResultNode); clearIf(gJitPrintBuf);
+	clearIf(gJitDotSeededVal); clearIf(gJitDotProduct); clearIf(gJitComputedVal);
+	for ( auto *ins : tail ) ins->dropAllReferences();
+	for ( auto *d : dead ) d->dropAllReferences();
+	for ( auto *v : gone ) if ( !v->use_empty() ) v->replaceAllUsesWith(llvm::PoisonValue::get(v->getType()));
+	for ( auto it = tail.rbegin(); it != tail.rend(); ++it ) (*it)->eraseFromParent();
+	for ( auto *d : dead ) d->eraseFromParent();
+	b->SetInsertPoint(m.bb); }
+	gJitResult        = nullptr;
+	gJitLastIsNode    = false;
+	gJitStmtCanRefuse = false;
+	::jitEmitStmtRT(statement);
 	
 }
 
@@ -10495,6 +10649,14 @@ GroupItem 	*result = 0;
 		::jitSeedOperands(target,arg);
 	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
 	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
+	// noBuildRun a dispatch that would RUN its interpreted body at build goes to run time instead (SEQ 384, Tony: compiling has no side effects)
+	if ( ruler->jitting && !jitOpEmits(op,target) )
+		{
+		if ( isOperator(op->groupBody->flags.instructType) || isMethod(op->groupBody->flags.instructType) )
+			jitHandOver("an operator with no emitter -- its statement runs at RUN time",op);
+		else	jitHandOver("a command call -- its statement runs at RUN time",target);
+		return 0;
+		}
 	// dispatchSeat which node the name reached, and which arm the fork will take
 	::measureRuleDispatch(op,target,arg);
 	// callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
@@ -11442,6 +11604,12 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	clearRefusal(GroupItem*)
 	clearRefusal(GroupItem*)
+	jitHandOver(char*,GroupItem*)
+	jitHandOver(char*,GroupItem*)
+	jitHandOver(char*,GroupItem*)
+	jitHandOver(char*,GroupItem*)
+	jitHandOver(char*,GroupItem*)
+	jitHandOver(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measureKindArm(char*,GroupItem*)

@@ -562,6 +562,18 @@ inline bool gJitStmtCanRefuse = false;
 // call (jitStmtRT) instead of emitting nothing for it. gJitStmtRTDone keeps that call to one per statement.
 inline GroupItem *gJitStmt = nullptr;
 inline bool gJitStmtRTDone = false;
+// handOver THIS STATEMENT CANNOT BE EMITTED WITHOUT RUNNING SOMETHING AT BUILD (SEQ 384, Tony: compiling has no side
+// effects). Set by jitHandOver; at the statement's end aCTionBlocK rolls back what the statement emitted and emits one
+// run-time call (jitStmtEnd). A mark per statement under emission, nested blocks included; each mark saves the
+// enclosing statement's flag, so an inner statement can never consume its outer statement's hand-over.
+inline bool gJitHandOver = false;
+struct JitStmtMark {
+    llvm::BasicBlock  *bb      = nullptr;
+    llvm::Instruction *last    = nullptr;
+    size_t             nBlocks = 0;
+    bool               outer   = false;
+};
+inline std::vector<JitStmtMark> gJitStmtMarks;
 // ⚠ THE EMIT WALK IS ON (SEQ 372 R0). refuse() is silent only while this is set: a refusal raised in the emit walk is
 // announced by the statement's run-time interpreted run instead. Set by jitBuildFunction around jitExecBlock only;
 // processCode suspends it, so a parse's refusal prints as on trunk even when the parse happens mid-walk.
