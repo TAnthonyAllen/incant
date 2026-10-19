@@ -6242,8 +6242,20 @@ run1 jitArgNumberT "$T/jan";   check "jitArgNumberT runs" 0 $?
 sentinel "jitArgNumberT sentinel" "$T/jan" "JITARGNUMBER SENTINEL"
 _nm () { sed -n "s/^NM $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jan"; }
 kindRow "jitArgNumberT NM interpreted: top, kind, tripped, depth (the control)" "$(_nm interpreted)" "10 5 0 5"
-kindRow "jitArgNumberT NM jitted  # intended: 10 5 0 5 (= interpreted) -- a number argument keeps the old road (SEQ 380 limit)" "$(_nm jitted)" "193 5 1 51"
+kindRow "jitArgNumberT NM jitted  # intended: 10 5 0 5 (= interpreted) -- a number argument keeps the old road (SEQ 380 limit; parked, SEQ 382 R0)" "$(_nm jitted)" "193 5 1 51"
 kindRow "jitArgNumberT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jan")" "0"
+
+#  ⚑ halfLessT -- SEQ 382 R1 (Tony, 2026-10-19): INTERPRETED, `0.5 < 1` reads false (intended true), on BOTH parse roads.
+#  hlOld is parsed on the old road (called before parser(Start)), hlNew on the new road (first called after it); the
+#  generation-trace row says the second line really is the new road. Pinned at today's value, not cured -- fixit
+#  incant/fixits/halfLessFalse, owner Clod. Columns: 0.5<1 (the subject), 1<2 (true control), 1<0.5 (false control,
+#  paired with the true one), 1.5<2 (a second fractional left operand, also false today).
+run1 halfLessT "$T/hl";   check "halfLessT runs" 0 $?
+sentinel "halfLessT sentinel" "$T/hl" "HALFLESS SENTINEL"
+kindRow "halfLessT parser(Start) ran between the two lines (the second line is the new road)" "$(grep -c '^setParse ended and that ends compileRules' "$T/hl")" "1"
+_hl () { sed -n "s/^HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*\) *1\.5<2 *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/hl"; }
+kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl old)" "0 1 0 0"
+kindRow "halfLessT HL new road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl new)" "0 1 0 0"
 
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic

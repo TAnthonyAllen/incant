@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(HalfLess);
+define
+    hlA=0;
+    hlB=0;
+    hlC=0;
+    hlD=0;
+    hlOld code={
+        hlA = 0; hlB = 0; hlC = 0; hlD = 0;
+        if 0.5 < 1;     hlA = 1;
+        if 1 < 2;       hlB = 1;
+        if 1 < 0.5;     hlC = 1;
+        if 1.5 < 2;     hlD = 1;
+        };
+    hlNew code={
+        hlA = 0; hlB = 0; hlC = 0; hlD = 0;
+        if 0.5 < 1;     hlA = 1;
+        if 1 < 2;       hlB = 1;
+        if 1 < 0.5;     hlC = 1;
+        if 1.5 < 2;     hlD = 1;
+        };
+    ;
+hlOld();
+cerr "HL old  0.5<1 " hlA " 1<2 " hlB " 1<0.5 " hlC " 1.5<2 " hlD:;
+parser(Start);
+hlNew();
+cerr "HL new  0.5<1 " hlA " 1<2 " hlB " 1<0.5 " hlC " 1.5<2 " hlD:;
+cerr "HALFLESS SENTINEL":;
+stop();
+
+halfLessT -- SEQ 382 R1 (Tony, 2026-10-19). On the interpreted road `0.5 < 1` reads FALSE; intended TRUE.
+Found in SEQ 381 R2's context (jitArgNumberT's interpreted twin: nmF(3.5) recursed to -0.5 because
+`argument < 1` was false at 0.5). Pinned at today's value on BOTH parse roads, not cured.
+
+Two actions with one body. hlOld is called BEFORE parser(Start), so its body is parsed on the OLD road;
+hlNew is first called AFTER it, so its body is parsed on the NEW road (actions parse at first call).
+pop.sh asserts the generation trace is present, so the second line cannot quietly be the old road.
+
+Columns: 0.5<1 is the subject (intended 1). 1<2 is the true control, 1<0.5 the false control (paired with
+the true one so a zero cannot be a default), 1.5<2 a second fractional left operand.
+Fixit: incant/fixits/halfLessFalse (Clod's lane).

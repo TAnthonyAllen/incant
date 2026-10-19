@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(HalfLessFalse);
+define
+    hfA=0;
+    hfB=0;
+    hfRun code={
+        hfA = 0; hfB = 0;
+        if 0.5 < 1;     hfA = 1;
+        if 1 < 2;       hfB = 1;
+        };
+    ;
+cerr "ANCHOR halfLessFalse -- interpreted, 0.5 < 1 reads false; 1 < 2 is the true control":;
+hfRun();
+print "HLF interpreted 0.5 < 1 -> " hfA "  (want 1)":;
+print "HLF interpreted 1 < 2   -> " hfB "  (want 1, the control)":;
+fixHalfLessFalseHere = 0;
+cerr "SENTINEL halfLessFalse reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 382 R1, Tony; severity LATENT)
+
+halfLessFalse -- on the INTERPRETED road, `0.5 < 1` reads FALSE. Intended TRUE. Found as context in SEQ 381 R2:
+jitArgNumberT's interpreted twin nmF(3.5) recursed down to -0.5, because `argument < 1` was false at 0.5.
+Measured 2026-10-19 on both parse roads (old road, and an action first parsed after parser(Start)): the same on both.
+A second fractional left operand, `1.5 < 2`, is ALSO false; `1 < 2` is true and `1 < 0.5` false, so the
+integer case and the false control are right. Not chased past that.
+Pinned at today's values by incant/pop/halfLessT (HL rows in pop.sh), each labelled with its intended value.
+
+where: unknown -- the interpreted compare (opLT) or the number literal's kind when it is the LEFT operand.
+guess: none graded.
+
+NEXT: OPEN -- what would generate a candidate: the same compare with the fractional operand on the RIGHT (1 < 1.5),
+with a number FIELD on the left instead of a literal (x = 0.5; x < 1), and the left operand's kind (datA) at the
+compare; then read opLT's number arm. Taken: both HLF lines read 1. Not taken: the first reads 0.
+
+ATTEMPT LOG
+  2026-10-19 SEQ 382 R1 pinned at today's values: halfLessT HL old / new, 0.5<1 0, 1<2 1, 1<0.5 0, 1.5<2 0. Not cured.
