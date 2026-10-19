@@ -1,3 +1,60 @@
+# ⚠⚠⚠ SEALED 2026-10-19 (175) ON TRUNK -- SEQ 382: THE CURE FOR testing() ON THE NEW ROAD IS BUILT ON jit-parse-unjitted (ad158cd), NOT MERGED. READY TO BUY.
+#
+#   ## THE OPENER: Tony's summary (the pause he asked for), then the buy. At the buy: merge, bare tokall = branch,
+#   rebuild ~/bin/incant, fleet row for row with the clone's branch run (1505 green). No groups.ext change. Then the
+#   jitter command opens with its own recon (per action at first call, or from that point on).
+#
+#   ## R0: jitArgNumberT stays pinned 193 5 1 51, intended 10 5 0 5 beside it; label now says "parked, SEQ 382 R0".
+#   ## R1 (trunk 34781b0, born red): incant/pop/halfLessT -- one body twice: hlOld parsed on the old road, hlNew first
+#   called after parser(Start), with a row that the generation trace ran between them. BOTH roads: 0.5<1 0 (intended 1),
+#   1<2 1, 1<0.5 0, 1.5<2 0 (intended 1) -- so 1.5 < 2 is false too. Fixit incant/fixits/halfLessFalse, OWNER Clod,
+#   NEXT: OPEN. No cure.
+#
+#   ## R2 RECON. (a) THE SELECTOR IS NOT THE BODY. Both roads read the same body: jitExecBlock (jitEmitters.rtn:2420)
+#   and processAction (GroupActions.rtn:689/705) both take actionBlocK() = actionHolder()'s BlocK (GroupItem.twk:59,82);
+#   lldb on the 4 drivers: the BlocK is the action's own label, gMethod aCTionBlocK. THE DEFECT IS WHEN THE PARSE RUNS:
+#   jitBuildFunction sets ruler->jitting = 1 (jitEmitters.rtn:292) before processCode re-parses the action (:311), and
+#   runAction parses an inlined or callee action inside the emit walk (GroupActions.rtn:1132). On the new road that
+#   drive runs BlocK's GENERATED body, `leftCurly() && StatemenT() && rightCurly()`, and under jitting each term call is
+#   EMITTED (bt: processCode -> driveStep -> parseRule(BlocK) -> aCTionBrancH -> runAccAnd -> jitEmitShortCircuitSlots ->
+#   runOPslots -> jitEmitTermCall, target leftCurly). So all four drivers held the SAME IR -- three term calls, same
+#   addresses -- and an empty BlocK ("nextGroup: ERROR BlocK does not contain a list"). The old road's drive is the
+#   interpretive parser, which reaches no emitter. (b) A DRIVER HAS NO PARSE CARRIER: builtinParseR and builtinActoR are
+#   nil on all four (lldb). parser(Start) generated 122 names across 71 fleet twins + the repro; 0 of them are any of
+#   the 620 action names in the fixtures. The dispatch's premise did not hold; the count is 0. (c) An interpreted call
+#   of the driver alone runs its code (testRecurJF() -> 10, new road). AFTER testing() it reads 999 too -- the empty
+#   BlocK cached by the compile poisons the later interpreted call. jitRefire runs the compiled function and never
+#   parses. (d) 84 files mention testing(); 71 pop fixtures call it live (+ unitTests via baselineTestsNew; ctlStampT
+#   calls parser(CtOUT), not Start). Each was twinned in SCRATCH with parser(Start) after its last search line (no fleet
+#   twins added): today 67 of 71 disagree with their old-road run; with the cure 59 more agree, and 3 still disagree,
+#   each the same before the cure -- exprPinT EP O1 (r3 7 -> 1), jitParseRefuseT (pgAct parse fails on the new road),
+#   jitRefuseFlagT JRS-F a (0 -> 1). Context, not findings (no row fails). The other 9 diffs are capture artifacts
+#   (output before the inserted line, line numbers, stream interleave).
+#   No STOP: the cure changes when the parse runs, not what parser(Start) generates.
+#
+#   ## R2 CURE (branch af3f799 + ad158cd, clone): processCode saves ruler->jitting, zeroes it around driveStep, restores
+#   it -- beside the gJitEmitWalk bracket already there (slug parseNeverEmits). Canary 349, unchanged.
+#   CERTIFICATE: new road JF JG JH JK 10 10 4 4 = old road (row re-pinned "born red 2026-10-18, green since SEQ 382");
+#   baselineTests unmoved; BN-3's block keeps its own row, every other head line still diffs; IR witness jit_testRecurJF
+#   = argBox(4), bindArg, %selfcall = call @jit_testRecurF, store -- 0 termCall / short-circuit lines in any of the four (before: 12 term calls, 3 per driver);
+#   F and G built as own functions, degrade 0 x4. pop.sh 1505 green; movers vs trunk = that one row (+ H3: an address,
+#   fixture-name count). H7 under alarm, fixture alone: (a) bracket removed -> 999 999 999 999; (b) bracket only around
+#   jitBuildFunction's processCode -> STILL 999 x4 and the interpreted calls read 0 0 0 0, 6 termCalls in JH: the
+#   runAction half (callee parsed in the emit walk) is load-bearing, which is why the cure is in processCode. Restored
+#   from git, md5 = the cure, rebuilt, 10 10 4 4.
+#
+#   ## CHECKS (branch, clone): bare tokall = branch · pop.sh 1505, row for row after a clean rebuild · jitLadder PASSED,
+#   row for row with trunk · printPop PASSED · decodePop = capture · ddPop 5 / 1 · frontier = capture · build log 0 live
+#   paths · groupDirectives' two processCode entries are parked and anchor statements the cure does not touch (dirCheck
+#   needs groupDirectives, absent in the clone). TRUNK: no engine source changed · ~/bin/incant rebuilt Oct 19 10:19
+#   (it was 17:35 Oct 18, after seal 174) · pop.sh 1505 green (= the clone's pre-R1 run + the 5 HL rows) · jitLadder
+#   PASSED · printPop PASSED · decodePop = capture · ddPop 5 / 1 · dirCheck PASSED 53 / 57, tree bare · frontier =
+#   capture · canary 349 · exec bits clean · branch pushed (live, GitHub) · Groups, support, TOK clean and pushed.
+#   The clone's TOK is behind live by Tony's Xcode-state commit 239e319 (syntax colouring, scheme), not pulled.
+#
+#   ## Tony's fixit incantations waiting: 0·Clod's fixit incantations waiting: 8 (oldest: refireSkipsDegraded, since 2026-09-25)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-18 (174) ON TRUNK -- SEQ 381: jit-arg-slot BOUGHT (merge 08f8284). A SEPARATELY BUILT FUNCTION READS ITS OWN ARGUMENT FROM A FRAME SLOT.
 #
 #   ## THE OPENER: Tony's next ruling. Two things now visible and unruled (below): testing() on the NEW road compiles an
