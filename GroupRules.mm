@@ -7287,6 +7287,66 @@ extern "C" int jitUnboxCount(GroupItem *node)
 	
 }
 
+/*******************************************************************************
+    jitter -- THE jitter; COMMAND (SEQ 386). From this point in the run every
+    action is compiled at its first call and answers from the cache after.
+    Actions only; no off switch. It is gJitter's one writer. The exit report is
+    the witness: one line per body the jitter met.
+*******************************************************************************/
+extern "C" GroupItem *jitter(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	if ( !gJitter )
+	::atexit([]{
+	for ( JitterTally &t : gJitterTally ) {
+	if ( t.notJittable ) ::fprintf(stderr,"=== jitter: %s not jittable, called %d interpreted ===\n", t.tag.c_str(), t.called);
+	else                 ::fprintf(stderr,"=== jitter: %s built %d called %d ===\n", t.tag.c_str(), t.built, t.called); }
+	::fflush(stderr); });
+	gJitter = 1;
+	
+	return ruler->trueResult;
+}
+
+/*  jitterReady -- runAction's intercept asks it at every interpreted call once the jitter is on. 1: gJitterFn is the
+    action's compiled function, fire it. 0: run it interpreted. A first call compiles through jitRunAction, silenced --
+    the run's output is the program's, not the compiler's -- and is never retried once refused.   jitter.firstCall  */
+extern "C" int jitterReady(GroupItem *field)
+{
+	
+	GroupBody   *fb = field->groupBody;
+	JitterTally *t  = ::jitterTallyFind(fb);
+	if ( !t ) { gJitterTally.push_back({fb, std::string(fb->tag ? fb->tag : "anon"), 0, 0, false}); t = &gJitterTally.back(); }
+	if ( t->notJittable ) { t->called++; return 0; }
+	JitCacheSlot *c = ::jitCacheFind(fb);
+	if ( !c ) {
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	int (*saveFn)(GroupItem*) = gJitLastFn; GroupItem *saveAct = gJitLastAction;
+	fflush(stdout); fflush(stderr);
+	int so = dup(1), se = dup(2), dn = open("/dev/null", O_WRONLY);
+	const char *keep = ::getenv("INCANT_JITTER_ERR");
+	int de = keep ? open(keep, O_WRONLY | O_CREAT | O_APPEND, 0644) : dup(dn);
+	dup2(dn,1); dup2(de,2); close(de);
+	gJitCompileOnly = 1;
+	int rc = ::jitRunAction(field);
+	gJitCompileOnly = 0;
+	fflush(stdout); fflush(stderr);
+	dup2(so,1); dup2(se,2); close(so); close(se); close(dn);
+	gJitLastFn = saveFn; gJitLastAction = saveAct;
+	ruler->refused = 0;
+	c = ::jitCacheFind(fb);
+	if ( rc < 0 || !c ) {
+	t->notJittable = true; t->called++;
+	::fprintf(stderr,"=== jitter: %s NOT JITTABLE (compile returned %d) -- it runs interpreted from now on ===\n", t->tag.c_str(), rc);
+	::fflush(stderr);
+	return 0; }
+	t->built++; }
+	t->called++;
+	gJitterFn = c->fn;
+	return 1;
+	
+}
+
 // limitWriteCheck after the write: a bad maxLimit or repeatLimit is refused and the prior count put back (F-27)
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
 {
@@ -10602,7 +10662,11 @@ GroupItem 	*ruleArg = 0;
 	GroupControl::groupController->groupRules->chanBinds++;
 	if ( ruleArg->groupBody->gGroup == argument ) GroupControl::groupController->groupRules->chanSame++;
 	
-	result = ::processAction(field);
+	// jitterIntercept after jitter; a call fires its compiled function, compiled at the first call -- inside the bracket, so the frame is the interpreter's (SEQ 386)
+	
+	if ( gJitter && ::jitterReady(field) )  result = ::jitBoxCountRT(gJitterFn(::jitBodyField(field)));
+	else                                    result = ::processAction(field);
+	
 	if ( result )
 		{
 		capture = new GroupItem(result->groupBody->tag);
