@@ -322,14 +322,16 @@ sed '1,/^setParse ended and that ends compileRules/d' "$T/baseN" > "$T/baseN.run
 #  cut from BOTH heads by name and asserted on its own row below. Measured 2026-10-18: on the new road testing() compiles each
 #  driver's GENERATED PARSE BODY (term calls, a short-circuit chain), not its code block, so the four read 999 (intended
 #  10 10 4 4) -- a new-road disagreement that predates the argument slot and is now visible. Every other head line still diffs.
+#  jitRecurOwnRow CURED SEQ 382 R2: the selector was never the body -- processCode ran the drive with jitting ON, so BlocK's
+#  jitRecurOwnRow generated parse body was emitted instead of run. processCode now drives with jitting off; the row reads 10 10 4 4.
 _bnjit () { awk '/^=== jitRunAction: entering on testRecurJF ===/{skip=1} !skip{print} /^testRecursion jitted:/{skip=0}'; }
 awk '/^sumple=/{exit} {print}' "$T/base"     | _bnjit | _bnfilt > "$T/bo.head"
 awk '/^sumple=/{exit} {print}' "$T/baseN.run" | _bnjit | _bnfilt > "$T/bn.head"
 _bnj="$(sed -n 's/^testRecursion jitted: should be 10 10 4 4. They are //p' "$T/baseN.run" | xargs)"
-if [ "$_bnj" = "999 999 999 999" ]; then
-    echo "  ok    baselineTestsNew testRecursion JITTED on the new road  # intended: 10 10 4 4 -- testing() compiles the parse body = [$_bnj]"; green=$((green+1))
+if [ "$_bnj" = "10 10 4 4" ]; then
+    echo "  ok    baselineTestsNew testRecursion JITTED on the new road = the old road (born red 2026-10-18, green since SEQ 382) = [$_bnj]"; green=$((green+1))
 else
-    echo "  FAIL  baselineTestsNew testRecursion JITTED on the new road -- MOVED, got [$_bnj] pinned [999 999 999 999] (intended 10 10 4 4)"; fail=1
+    echo "  FAIL  baselineTestsNew testRecursion JITTED on the new road -- got [$_bnj] want [10 10 4 4] (999 = the parse ran under jitting, SEQ 382)"; fail=1
 fi
 awk '/^sumple=/{p=1} p'         "$T/base"     | _bnfilt > "$T/bo.tail"
 awk '/^sumple=/{p=1} p'         "$T/baseN.run" | _bnfilt > "$T/bn.tail"
