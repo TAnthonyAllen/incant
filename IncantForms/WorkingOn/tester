@@ -52,6 +52,7 @@ define
         and if it is returns the chain as target, otherwise returns just target
     *****************************************************************************/
     getTarget code={
+        //print "getTarget":;
         grup = instructEntry;
         if *grup.instructTypE != 0;
             op = grup;
@@ -63,6 +64,7 @@ define
             instruct    :. flaG;
             if resultPark.datA; instruct +% *resultPark;
             else                instruct +% argument;
+            //dumpField(instruct);
             instructEntry   = target;
             targetEntry     := copyOf(instruct);
         else    targetEntry := argument;
@@ -72,6 +74,7 @@ define
         grup = instructEntry;
         hold = *grup.taG;
         while grup.datA != 0;
+            grupTAG = *grup.taG;
             if *grup.instructTypE != 0;
                 /***************************************************************************
                     Set operator. Check for unary and handle if so.
@@ -96,6 +99,10 @@ define
                 ***************************************************************************/
                 result = grup;
             else
+                if op.datA;     opTAG = *op.taG;            else opTAG = "no operator";
+                if result.datA; resultTAG = *result.taG;    else resultTAG = "no result";
+                if target.data; targetTAG = *target.taG;    else targetTAG = "no target";
+                print "list:" grupTAG opTAG targetTAG resultTAG:;
                 /***************************************************************************
                     Set target (left most field)
                 ***************************************************************************/
@@ -110,11 +117,13 @@ define
                 /***************************************************************************
                     If have all the parts build instruction
                 ***************************************************************************/
+                //print "Build instruction":;
                 if op.datA && result.datA  && target.datA != 0;
                     instruct    +% *op;
                     instruct    +% *target;
                     instruct    +% *result;
                     instruct    :. flaG;
+                    //dumpField(instruct);
                     result      := copyOf(instruct);
                     result      :. flaG;
                     clear(instruct);
@@ -130,7 +139,25 @@ define
         instructEntry := *lizted.lasT;
         result = testOP(getInstruction(trueResult));
         };
+    compareXP code={
+        maximus=righty;
+        print "maximus set to:" maximus:;
+        whatsIt = qa - qb + qc;
+        print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
+        partB = qb + qc;
+        $$partB;
+        print "partB = qb + qc;" partB:;
+        whatsIt = qa - partB;
+        print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
+        whatsIt = maximus -= whatsIt;
+        print "After running whatsIt = maximus -= whatsIt; whatsIt:" whatsIt "maximus:" maximus:;
+        maximus=righty;
+        print "maximus reset to:" maximus:;
+        whatsIt = maximus -= qa - qb + qc;
+        print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
+        };
     ;
+compareXP();
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
 stop();
 maximus=righty;
@@ -143,9 +170,6 @@ print "maximus reset to:" maximus:;
 whatsIt = maximus -= qa - qb + qc;
 print "whatsIt:" whatsIt "maximus:" maximus:;
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
-stop();
-xpListTest("invokeTEST call righty -= qa - qb + qc;");
-InvokeTEST(whatsIt);
 stop();
 
 /***************************************************************************
