@@ -5263,7 +5263,11 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)statement), ptr, "stmtNode");
 	llvm::Value *fn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRT), ptr, "stmtFn");
-	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr, ptr}, false);
+	//  the statement's owner: an inlined callee's is the activation processAction made current; the function's own is its action
+	GroupItem *owner = gJitInlining.empty() ? gJitCurrentAction
+	: (GroupItem*)GroupControl::groupController->groupRules->currentMETHOD->groupBody->gGroup;
+	llvm::Value *ownAddr = b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)owner), ptr, "stmtOwner");
 	//  currentValues the interpreted run reads and writes FIELDS: every frame slot goes to its field before the call and
 	//  comes back after it -- the reload BEFORE the refusal branch, so the epilogue cannot write a stale slot over what the
 	//  statement wrote (SEQ 384, seal 163's hazard)
@@ -5280,7 +5284,7 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, f.ty}, false);
 	b->CreateCall(fty, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)helper), ptr, "rtFlushFn"),
 	{bodyOf(f), b->CreateLoad(f.ty, f.slot, "rtFlush")}); }
-	llvm::Value *rv = b->CreateCall(ty, fn, {stAddr}, "stmtRT");
+	llvm::Value *rv = b->CreateCall(ty, fn, {stAddr, ownAddr}, "stmtRT");
 	for ( JitFrameSlot &f : gJitFrame ) {
 	bool num = f.ty->isDoubleTy();
 	llvm::FunctionType *fty = llvm::FunctionType::get(f.ty, {ptr, f.ty}, false);
@@ -7127,13 +7131,18 @@ extern "C" void jitStmtEnd(GroupItem *statement)
 /*  jitStmtRT -- a statement the jit could not emit, run at RUN time on the interpreted road: its own method on its own
     node, with jitting off as it always is at run time. Its value is not used. A refusal's scope is the statement, as in
     jitIfRT.  */
-extern "C" int jitStmtRT(GroupItem *statement)
+extern "C" int jitStmtRT(GroupItem *statement, GroupItem *owner)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
 int 		refusedHere = 0;
+	// ownerIsCurrent the statement runs as its action's, so a local it mints or a scope it binds lands there (SEQ 384: dirT's scope statement read a null currentMETHOD)
+	if ( owner )
+		ruler->currentMETHOD->setGroup(owner);
 	::clearRefusal(statement);
 	if ( isMethod(statement->groupBody->flags.instructType) )
 		statement->groupBody->gMethod(statement);
+	ruler->currentMETHOD->setGroup(priorMETHOD);
 	// endsTheAction a refusal raised by the interpreted run ends the action: the emitted call leaves the function on a 1 (SEQ 370 R1)
 	if ( ruler->refused )
 		refusedHere = 1;
