@@ -1,3 +1,54 @@
+# ⚠⚠⚠ SEALED 2026-10-19 (177) ON TRUNK -- SEQ 384: COMPILING HAS NO SIDE EFFECTS -- BUILT ON jit-no-side-effects (b1964f2), NOT MERGED. READY TO BUY.
+#
+#   ## THE OPENER: Tony's summary (the pause he asked for), then the buy. At the buy: merge, bare tokall = branch,
+#   rebuild ~/bin/incant, fleet row for row with the clone's branch run (1522 green). No groups.ext change. TOK's project
+#   still lists incant/fixits/refireSkipsDegraded (a file reference and a disabled scheme argument); the branch moves it
+#   to incant/attic -- Tony's Xcode state, not touched. SEQ 385 (compile-once, the cache) waits for his word.
+#
+#   ## R0 (trunk 4b36094): the rulings recorded in docs/jit.md §0 and docs/jitterRecon.md -- no side effects at build,
+#   compile once (SEQ 385), actions first, `jitter;` alone, `if jitter;` unsupported.
+#   ## R1 CENSUS (docs/noSideEffects.md, on the branch). Build-time execution sites: the sinks (cerr / cout / string /
+#   FOR / search, ruleActions.rtn:159 206 947 489 866), runOPdirect's dispatch of any operator, unary or command with no
+#   emitter (GroupActions.rtn:1272-1274 -> opCall :582: `:=` `:.` `=[` `+%` `<-` `!`, stop(), testing(), dumpContents()),
+#   the IF-without-value road (jitIfRT itself runs at RUN time; the condition's evaluation ran its commands at build),
+#   and aCTionScopeXP (found by the forced census). jitDegrade's other callers run nothing. THE NUMBER: 15 statements
+#   executed during jitBuildFunction -- pop.sh 14 (6 in the new fixtures; `:=` x6, `:.` x2, `=[` in jitBlock*T,
+#   jitScCountT, jitRefuseFlagT), jitLadder 1 (jitJPd's cerr). Movers pre-registered in the branch's first commit.
+#   ## R1 FIXTURES (trunk bfffb47, born red): jitSinkFireT, jitIfNoValueT, jitStopT + jitStopIT, jitNestTestT -- each a
+#   jitted body against its interpreted twin. Trunk reads SFJ [0], dumps 2 1 1 1, SPJ 0, exit 139 (10 rows red).
+#
+#   ## R1 CURE (branch). A door, jitOpEmits, asked BEFORE runOPdirect dispatches: an operator / unary emits only if its
+#   function carries a jitting gate (a list), a call only for a rule, an action or jitTrace -- anything else, and a new
+#   operator by default, goes to run time. The sinks, the scope statement and the valueless IF hand over. jitHandOver
+#   announces through jitDegrade once per statement; aCTionBlocK ROLLS BACK the statement's emitted instructions and
+#   blocks and emits one run-time call (jitStmtRT, its refusal exit kept), which runs the statement as its owner's
+#   (currentMETHOD), with every frame slot flushed before and reloaded after -- through a kind check, because a slot is
+#   homed on gCount, which shares storage with gGroup (the raw flush overwrote kindJ1T's iterator; opFire's flush takes
+#   the same check). gJitBuilder is nulled before the fire. Canary 349 -> 359.
+#   CERTIFICATE: the born-red rows green, each = its twin · 0 statements executed at build (was 15) · pop.sh 1522 green,
+#   movers = the 8 born-red rows + H3 only, every pre-registered row unmoved as predicted · jitLadder row for row · H7
+#   (on the first cure commit, fixtures alone under alarm): sinks restored -> SFJ [0]; IF + commands restored -> dumps
+#   2 1 1 1, no SPJ line, exit 139; the tap counted each · refireSkipsDegraded retired by mapping to jitSinkFireT.
+#   FORCED-JIT CENSUS re-run, old / new road: agree 68/67 -> 102/97, DISAGREE 98/110 -> 83/95, exit in compile 8/6 ->
+#   0/0, crash in compile 7/5 -> 0/0, crash after 3/2 -> 2/1, hang 0/0 -> 1/1. Sink, IF, stop and nested-testing clusters
+#   gone; duplicate symbol stays (114 compiles, 49 files -- SEQ 385); the parse generator reported, not chased.
+#   NOT CHASED (no fleet row fails): starIdiomT HANGS -- the iterate reads `*idF` at BUILD while `idF := copyOf(..)` now
+#   runs at run time: an emitter that read a run-time value at build was right only while its setter ran at build too;
+#   foldAndT -- a jitted `x.datA != 0` reads true; 33 new verifier refusals, nearly all in testPrecedence (crashed
+#   before, so unmeasured): an unbox load reused across statements does not dominate. A NAMED LIMIT: a run-time call
+#   that turns a frame local non-scalar leaves the slot stale and the raw EPILOGUE writes it over the pointer -- a frame
+#   decision, beyond the call site; no fleet row reaches it, and runAction's restore covers it under the census.
+#
+#   ## CHECKS: branch (clone) -- bare tokall = branch, build log 0 live paths, no tap string in the binary, pop.sh 1522,
+#   jitLadder PASSED row for row, printPop PASSED, decodePop = capture, ddPop 5 / 1, frontier = capture; the one
+#   directive on a touched function (aCTionSearch `cout`, parked) keeps its anchor. TRUNK -- pop.sh 1514 green (the 10
+#   born-red rows red) · jitLadder PASSED · printPop PASSED · decodePop = capture · ddPop 5 / 1 · dirCheck PASSED 53 / 57,
+#   tree bare · frontier = capture · canary 349 · ~/bin/incant Oct 19 10:42 · exec bits clean · branch pushed (live,
+#   GitHub) · Groups, support, TOK clean and pushed.
+#
+#   ## Tony's fixit incantations waiting: 0·Clod's fixit incantations waiting: 8 (oldest: refireSkipsDegraded, since 2026-09-25)
+#   Generated by `genLadder/fixitNag.sh`, not typed. (7 once the branch is bought: it retires refireSkipsDegraded.)
+
 # ⚠⚠⚠ SEALED 2026-10-19 (176) ON TRUNK -- SEQ 383: jit-parse-unjitted BOUGHT (merge 425f5b0); THE JITTER RECON IS docs/jitterRecon.md. NOTHING BUILT.
 #
 #   ## THE OPENER: Tony reads docs/jitterRecon.md and rules the jitter's shape -- scope (actions, or parse bodies too),
