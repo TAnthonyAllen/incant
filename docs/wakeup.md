@@ -1,3 +1,61 @@
+# ⚠⚠⚠ SEALED 2026-10-19 (176) ON TRUNK -- SEQ 383: jit-parse-unjitted BOUGHT (merge 425f5b0); THE JITTER RECON IS docs/jitterRecon.md. NOTHING BUILT.
+#
+#   ## THE OPENER: Tony reads docs/jitterRecon.md and rules the jitter's shape -- scope (actions, or parse bodies too),
+#   spelling, and what each census cluster gets (an emitter, a refusal, or the interpreter). No ruling assumed.
+#
+#   ## R0, THE BUY: merge 425f5b0 · bare tokall = branch (tree clean, canary 349) · ~/bin/incant rebuilt Oct 19 10:42 ·
+#   pop.sh 1505 green, row for row with the clone's branch run but its tree-note lines · jitLadder row for row ·
+#   decodePop capture's binary line refreshed, no row moved · jit-parse-unjitted deleted (live, GitHub, clone).
+#
+#   ## R1, THE THREE NEW-ROAD DISAGREEMENTS (measured, nothing cured; twins in scratch).
+#   exprPinT EP O1 (r3 7 -> 1): `r3 = *block(src)` calls the BlocK rule. runAccAssign -> runOPaccum -> opCall
+#   (GroupActions.rtn:582) -> runRule (:1317). After parser(Start) BlocK has hasNewParse (lldb: 1), and runRule's
+#   one-bit line (:1322, ruling c') hands a generated root's caller trueResult, not the drive's value; the old road
+#   returns the BlocK's run value, 7. pz reads 7 on both, so the body runs either way. The new road is doing what (c')
+#   rules; the fixture's row was written on the old road.
+#   jitParseRefuseT (jitted a 0 c 1, want 12 7): pgAct's first statement raises pass 1's "kant has no parenthetical
+#   expressions" (ruleActions.rtn:1245), which arms ruler.refused and lets the build go on. On the old road the drive is
+#   the interpretive parser and never reads the flag. On the new road the drive runs StatemenT's generated body, whose
+#   next term call goes through opCall, and opCall's storeRuling (GroupActions.rtn:585-586) returns null on an armed
+#   refusal: lldb stops there with target SemI, under parseRule -> aCTionBlocK -> aCTionBrancH -> runAccAnd. The parse
+#   fails ("processCode: pgAct parse failed") and nothing is emitted. The interpreted twin fails the same way on the new
+#   road. Context: the OLD road's interpreted pgAct() also reads a 0 c 1 -- the row's "= interpreted: 12 7" holds for
+#   the jitted half only.
+#   jitRefuseFlagT JRS-F a (0 -> 1, and 1 is the intended value): the same IR on both roads. The refused `rfA :. noPrinT`
+#   runs at run time through jitStmtRT (jitEmitters.rtn:2121) -> aCTionXpress -> runAccAssign (GroupActions.rtn:1035,
+#   val = runOPaccumOperand(field[3])), whose right operand is an acDot with no left: opDot (Instruct.rtn:303) takes
+#   its leading-dot arm and reads lastREF. lldb at jitStmtRT: lastREF.group is nil on the old road, so opSetFlag gets a
+#   null argument ("missing operand"); it is Start on the new road -- left by the parser(Start) call -- and the flag
+#   lands. So the new road's 1 is lastREF's accident, not a cure; fixit jitSetFlagTemp's mechanism, one step nearer.
+#
+#   ## R2, THE JITTER RECON -- docs/jitterRecon.md, sections (a)-(f). The headlines:
+#   (a) one place turns jitting on (jitBuildFunction); four roads reach it (testing, jitRefire, jitFieldMethod,
+#   probeDrive); a normal run never reads a compiled function; testing() compiles an action once per process.
+#   (b) FORCED-JIT CENSUS, a tap in the clone (env-gated, reverted md5-identical): every incant/pop + pop/jit file,
+#   tap off twice / on once, split streams, 60 s cap. pop.sh tap on: 1505 -> 784 green. Per fixture, old / new road:
+#   agree 68 / 67, DISAGREE 98 / 110, exit in compile 8 / 6, crash in compile 7 / 5, crash after 3 / 2, hang 0 / 0.
+#   Clusters: A emit-time sinks (cerr 810, cout 372 degrades; 95 / 92 files); B IF condition no value (50 / 48 files);
+#   C duplicate symbol on a second compile, rc -3 (49 files each road) -- every function is compile-once per process;
+#   D the generator jitted (parser, walkRules verifier -5; generateParse crashes, 25 files); E stop() in a body runs at
+#   emit and ends the run (8 / 6); F a body calling testing() nests a compile and dies at CreateBr (2), or an emit-time
+#   null deref (2); G value disagreements with no degrade (22 / 16), not one mechanism.
+#   (c) refireSkipsDegraded: yes, it is A+B. kindSRT: no (the tap fires inside runAction's save/restore, which clears
+#   the local). i32 slot: not reached (jitArgNumberT's compiles hit C). halfLessFalse: yes, and the JIT is right
+#   (halfLessT jitted 1 1 0 1 = intended).
+#   (d) no invalidation anywhere; and a second `define` of an action does not replace its code even uncompiled
+#   (measured, mechanism not chased), so no redefine road exists to invalidate against.
+#   (e) parse bodies jit today only through probeDrive, one carrier per drive (probeDoorT: 6 rules agree).
+#   (f) all three spellings register as cOMMANDs entries with immediateAction; a bare command name fires
+#   (`jitRefire;`), and `if jitRefire;` FIRES it and reads false -- bear-trap #34 for `if jitter;`.
+#
+#   ## CHECKS (trunk, after the buy): pop.sh 1505 green · jitLadder PASSED, row for row · printPop PASSED · decodePop
+#   = capture (binary line refreshed) · ddPop 5 / 1 · dirCheck PASSED 53 / 57, tree bare · frontier = capture ·
+#   canary 349 · exec bits clean · clone: tap reverted, md5 = before, rebuilt, no INCANT_JIT_ALL string in the binary ·
+#   Groups, support, TOK clean and pushed.
+#
+#   ## Tony's fixit incantations waiting: 0·Clod's fixit incantations waiting: 8 (oldest: refireSkipsDegraded, since 2026-09-25)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-19 (175) ON TRUNK -- SEQ 382: THE CURE FOR testing() ON THE NEW ROAD IS BUILT ON jit-parse-unjitted (ad158cd), NOT MERGED. READY TO BUY.
 #
 #   ## THE OPENER: Tony's summary (the pause he asked for), then the buy. At the buy: merge, bare tokall = branch,
