@@ -6181,6 +6181,17 @@ kindRow "jitRecurSaveGT JRS-2 g(4) = RS-2 (born red 2026-10-18, green since SEQ 
 kindRow "jitRecurSaveGT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(_jg "$T/jrcg")" "0 5"
 kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcg")" "10 0 5"
 
+#  ⚑ jitStarIdiomT -- SEQ 385 R2 (Tony, 2026-10-19): starIdiomT's ROW 1 UNDER THE JIT, PINNED AT TODAY'S VALUE. IT HANGS,
+#  so it runs under its own 10 s alarm and the EXIT is pinned (142), never under run1 (POPCAP would cost 90 s and fail
+#  the suite, H5). THE CLASS: AN EMITTER READS AT BUILD A VALUE THAT A RUN-TIME SETTER WRITES -- `idF := copyOf(..)`
+#  hands over to run time, aCTionIterate resolves `*idF` at build and poisons, opPlusPlus reads isIterator at build and
+#  emits a plain increment, so `while ++w` never ends. # intended: exit 0, jitted walk = interpreted, 8 members.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitStarIdiomT)" > "$T/jsi" 2>&1; _jsix=$?
+kindRow "jitStarIdiomT jitted run's exit under a 10 s alarm -- 142, IT HANGS (# intended: 0)" "$_jsix" "142"
+kindRow "jitStarIdiomT JSI-1 jitted walk never reported -- the hang comes first (# intended: 1 line, 8 members = JSI-I)" "$(grep -c '^JSI-1 ' "$T/jsi")" "0"
+sed -e 's/^testing(jsDrive);$//' -e '/JSI-1/d' "$(ip jitStarIdiomT)" > "$T/jsi.src"
+kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the intended value)" "$("$B" "$T/jsi.src" 2>&1 | sed -n 's/^JSI-I .*\[ *\([0-9]*\) *\].*/\1/p')" "8"
+
 #  ⚑ jitCompileOnceT -- SEQ 385 R1 (Tony, 2026-10-19): COMPILE ONCE. A compiled action is reused, never rebuilt, so a
 #  later testing(), jitRefire or forced compile answers from the cache. BORN RED 2026-10-19 on trunk: coF's second compile
 #  (a callee of coDrive2) is refused by the JIT as a duplicate symbol, and a second testing(coDrive1) routes to

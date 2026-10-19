@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(Idiom);
+define
+    jsN=0;
+    jr1 code={
+        idF := copyOf(argument);
+        iterate w on *idF;
+        while ++w;
+            jsN += 1;
+        };
+    jsDrive code={
+        jr1(sample);
+        };
+    ;
+testing(jsDrive);
+cerr "JSI-1 jitted: members walked [" jsN "]":;
+jsN = 0;
+jsDrive();
+cerr "JSI-I interpreted twin: members walked [" jsN "]":;
+cerr "JSI SENTINEL":;
+stop();
+
+jitStarIdiomT -- SEQ 385 R2 (Tony, 2026-10-19): starIdiomT's ROW 1 under the JIT, PINNED AT TODAY'S VALUE. It HANGS, so
+pop.sh runs it under its own 10 s alarm and pins the exit (142) -- never under run1, whose POPCAP would cost 90 s and
+fail the suite (H5). Intended: exit 0, and the jitted walk = the interpreted twin, 8 members of sample.
+
+THE CLASS: an emitter reads AT BUILD a value that a run-time setter writes. `idF := copyOf(argument)` hands over to
+run time (SEQ 384), so at build idF holds nothing; aCTionIterate resolves `*idF` before its jitting gate
+(ruleActions.rtn:593-611), finds no source, poisons and returns -- jitEmitIterate is never emitted -- and opPlusPlus
+reads isIterator at build (Instruct.rtn:904), sees a plain field, and emits a plain increment. `while ++w` then never
+ends: a sample of the hung run sits in the compiled function's jitOpFireRT. No cure (R2 is census only); the census of
+the other sites is in docs/noSideEffects.md, SEQ 385 R2.
