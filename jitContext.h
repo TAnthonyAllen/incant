@@ -513,6 +513,24 @@ inline llvm::Function *jitFnMapFind(GroupBody *b) {
     return nullptr;
 }
 
+// THE COMPILED-FUNCTION CACHE (SEQ 385 R1, compile once). Every function the JIT has
+// accepted, for the life of the process: a later compile of the same body REUSES it --
+// a driver answers from here, a callee is DECLARED in the new module by its name and
+// the JIT links the call to the function already there. A rebuild could not succeed
+// anyway: names are jit_<tag> and the JIT keeps every symbol, so a second definition
+// is refused as a duplicate. NO INVALIDATION, measured rather than assumed: a second
+// `define` replaces neither an action's code nor its callee's, interpreted or compiled
+// (docs/jitterRecon.md (d), re-measured 2026-10-19). If redefinition ever lands, this
+// cache owes it an answer. Keyed on GroupBody, like the map above; written only by
+// jitRunAction, after the lookup succeeds.
+struct JitCacheSlot { GroupBody *body; std::string name; int (*fn)(GroupItem*); };
+inline std::vector<JitCacheSlot> gJitCache;
+
+inline JitCacheSlot *jitCacheFind(GroupBody *b) {
+    for (JitCacheSlot &s : gJitCache) if (s.body == b) return &s;
+    return nullptr;
+}
+
 // DISCOVERED, NOT YET BUILT. An inlined callee found calling itself; the enclosing
 // function is about to be discarded and this is what the rebuild must build first.
 struct JitPending { GroupBody *body; GroupItem *action; };
