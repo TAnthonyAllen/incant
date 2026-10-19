@@ -67,3 +67,72 @@ pass with the cure's own door logging (below) reported the same population.
 | every degrade-count row in pop.sh and jitLadder | as pinned | **unmoved by construction**: a hand-over announces through jitDegrade once per statement, exactly where the site announced before. Only a cascade inside an already handed-over statement is folded, and the census found no statement in the fleet with two |
 
 Anything else that moves is a finding, and the stroke stops on it.
+
+## Certificate (measured on the branch, clone, after the build)
+
+- **The four born-red fixtures are green**, each against its interpreted twin. SFJ `1 2` = SFI. IV dumps `1 1 1 1`.
+  SPJ `1 0` = SPI. NT `1 10` = the twin, and the line before the inner compile is the FIRE's `n 1`.
+- **Statements executed during jitBuildFunction: 0** (pop.sh 0, jitLadder 0; it was 15). Same tap as the census, plus
+  one refinement: a dispatch inside a statement that is already handed over is not counted, because it runs nothing.
+- **pop.sh 1522 green. Movers against trunk bfffb47 are exactly the 8 born-red rows**, plus H3's fixture-name count.
+  **jitLadder row for row.** Every other pre-registered row is unmoved, as predicted. printPop PASSED, decodePop =
+  capture, ddPop 5 / 1, frontier = capture, and bare tokall = branch.
+- **H7, one per site class**, each run on its fixture alone under an alarm, with the tap on:
+
+  | restored | fixture | result | tap |
+  |---|---|---|---|
+  | the cerr sink, announcing and then running | jitSinkFireT | SFJ `[0]` | 1 |
+  | the IF (old jitEmitIfRT road) with the door letting commands through | jitIfNoValueT | dumps `2 1 1 1` | 2 |
+  | the same build, the command class | jitStopT / jitNestTestT | no SPJ line (stop ran at build) / exit 139 | 1 / 1 |
+
+  All red. Restored from git, md5 = the cure, rebuilt.
+- **refireSkipsDegraded is retired by mapping** to jitSinkFireT (`incant/attic/refireSkipsDegraded` carries the map).
+
+## Forced-jit census, re-run (the SEQ 383 tap, re-applied in the clone and reverted md5-identical)
+
+| per fixture | SEQ 383 old / new | SEQ 384 old / new |
+|---|---|---|
+| agree | 68 / 67 | 102 / 97 |
+| DISAGREE | 98 / 110 | 83 / 95 |
+| exit during the compile (stop() at build) | 8 / 6 | **0 / 0** |
+| crash during the compile | 7 / 5 | **0 / 0** |
+| crash after compiling | 3 / 2 | 2 / 1 |
+| hang | 0 / 0 | 1 / 1 |
+
+(The population grew by the five new fixtures.) By cluster:
+- **The sink cluster (A) and the IF cluster (B) left.** A sink now announces as a hand-over and prints at run time.
+  The degrade line `IF condition produced no value` fell from 627 to 24, because a condition that is a command now
+  hands over at the door.
+- **The stop cluster (E) left**: 0 exits inside a compile.
+- **The nested-testing cluster (F-i) left**, and so did the emit-time null derefs (F-ii). That took two more door
+  rules, both found by this re-run: a unary on an operand the build cannot see, and an emitter slot with a side the
+  build cannot see.
+- **Duplicate symbol (C) stays**, as predicted for SEQ 385: 114 compiles, 49 files on each road.
+- **The parse generator (D) is reported, not chased.** parser / walkRules are verifier-refused in 38 files;
+  generateParse compiles in 38; parserTest still crashes at run.
+
+What the re-run found in the cure itself, every one fixed on the branch before this certificate:
+- **The raw flush overwrote pointers.** kindJ1T's iterator, and kindHolderT's holder through opFire's flush. Flush and
+  reload now go through a kind check.
+- **Emitters were handed nulls by a door.** A handed-over statement now dispatches nothing more.
+- **A scope statement had no jitting gate.** It now hands over.
+- **The run-time call had no owner.** dirT's scope statement read a null currentMETHOD. jitStmtRT now takes the owner.
+
+Remaining, NOT chased (the relevance gate holds -- no fleet row fails):
+- **starIdiomT hangs.** `idF := copyOf(argument)` now runs at run time, but the iterate on `*idF` that follows
+  reads its source at BUILD, so the jitted walk never ends. **This is the class this ruling exposes: an emitter that
+  reads a run-time value at build was right only while the statement that sets it ran at build too.**
+- **foldAndT** crashes at run. Its jitted `x.datA != 0` condition reads true where the interpreted road reads
+  false, so the arm runs and its own `+% *kop` hands opAddAttribute a null.
+- **33 more verifier refusals (rc -5), nearly all in testPrecedence**, which used to crash at compile and so was never
+  measured. The verifier says `Instruction does not dominate all uses` on an unbox load reused across statements. The
+  build refuses and the action runs interpreted.
+- The rest of DISAGREE is cluster G (value disagreements), not one mechanism. Samples: actionLocalT's declared
+  counter (1 for 3); argWriteT reads a group-carrying argument as a count (95848720 for 99); kindLiftT; and the
+  generator's trace where parser() is jitted.
+
+**A named limit, not met in general and not reached by any fleet row:** after a run-time call turns a frame local
+into a non-scalar (`x := y` handed over), the slot cannot hold the new value. The kind check keeps the slot's old
+value, and the frame EPILOGUE still stores raw, so at exit it writes that old value's bits over the field's pointer.
+The call site cannot cure this; it needs a frame decision (evict the slot, or home locals off the union). Inside
+runAction's save/restore bracket (the forced census) the restore covers it; `testing()` / `jitRefire` have no bracket.
