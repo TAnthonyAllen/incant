@@ -29,6 +29,10 @@ ip () {
 
 T=${TMPDIR:-/tmp}/genpop.$$
 mkdir -p "$T"
+#  helperLoud the fleet's OWN stderr is teed to a file the foot reads (SEQ 386 R0b): a helper called before its
+#  helperLoud definition prints "command not found" and its rows evaporate -- the count drops and nothing says so (H5's
+#  helperLoud copy-the-idiom-lose-the-helper class). /bin/sh is bash 3.2, so no command_not_found_handle; a FIFO instead.
+mkfifo "$T/.errfifo" && { tee "$T/.stderr" < "$T/.errfifo" >&2 & _popTee=$!; exec 3>&2 2> "$T/.errfifo"; }
 fail=0
 
 if [ ! -x "$B" ]; then
@@ -6861,6 +6865,16 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
+if [ -n "$_popTee" ]; then
+    exec 2>&3 3>&-
+    _w=0; while kill -0 $_popTee 2>/dev/null && [ $_w -lt 20 ]; do sleep 0.1; _w=$((_w+1)); done
+    _cnf=$(grep -c 'command not found' "$T/.stderr" 2>/dev/null)
+    if [ "${_cnf:-0}" != 0 ]; then
+        grep 'command not found' "$T/.stderr" | sed 's/^/  FAIL  /'
+        echo "  FAIL  the fleet's own output has $_cnf 'command not found' line(s) -- those rows did not run"; fail=1
+    fi
+fi
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
