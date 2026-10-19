@@ -5954,6 +5954,8 @@ extern "C" int jitOpEmits(GroupItem *op, GroupItem *target)
 	for ( void *p : gated ) if ( p == g ) return 1;
 	return 0; }
 	if ( isMethod(ob->flags.instructType) ) {
+	//  nothingToSee a unary on an operand the build cannot see (null) has nothing to emit from -- its gate would read it
+	if ( !target ) return 0;
 	void *m = (void*)ob->gMethod;
 	static void *gated[] = { (void*)&opPlusPlus, (void*)&opMinusMinus, (void*)&opUnaryMinus, (void*)&opDeref,
 	(void*)&opDot, (void*)&jitTrace };
