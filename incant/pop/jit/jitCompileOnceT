@@ -1,0 +1,62 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    co1=999;
+    co2=999;
+    coDepth=0;
+    coTrip=0;
+    coF code={
+        coDepth += 1;
+        if coDepth > 50;    coTrip = 1;
+        if coTrip == 1;     return -7;
+        if argument < 0;    return -1;
+        if argument == 0;   return 0;
+        t = argument;
+        r = coF(argument - 1);
+        r = r + t;
+        return r;
+        };
+    coDrive1 code={
+        co1 = coF(4);
+        };
+    coDrive2 code={
+        co2 = coF(3);
+        };
+    ;
+testing(coDrive1);
+cerr "CO-1 first compile: coDrive1 -> coF(4) = [" co1 "]":;
+coDepth = 0; coTrip = 0;
+testing(coDrive2);
+cerr "CO-2 coF compiled a second time (callee of coDrive2): coF(3) = [" co2 "]":;
+co1 = 999; coDepth = 0; coTrip = 0;
+testing(coDrive1);
+cerr "CO-3 coDrive1 compiled a second time: coF(4) = [" co1 "]":;
+co1 = 999; coDepth = 0; coTrip = 0;
+jitRefire();
+cerr "CO-4 jitRefire after the second compile: coF(4) = [" co1 "]":;
+co1 = 999; co2 = 999; coDepth = 0; coTrip = 0;
+coDrive1();
+coDrive2();
+cerr "CO-I interpreted twins: coF(4) = [" co1 "] coF(3) = [" co2 "]":;
+cerr "JITCOMPILEONCE SENTINEL":;
+stop();
+
+jitCompileOnceT -- SEQ 385 R1 (Tony, 2026-10-19): COMPILE ONCE. A compiled action is reused, never rebuilt, so a
+later testing(), jitRefire or forced compile answers from the cache. Born red on trunk.
+
+The jitted half runs first and the interpreted twins last (bear-trap #25). coF is self-calling, so testing(coDrive1)
+builds it as its own function, jit_coF, beside jit_coDrive1. Then:
+  CO-2  testing(coDrive2) needs coF's own function again. Trunk builds jit_coF a second time and the JIT refuses the
+        module ("duplicate definition of symbol"), so nothing runs and co2 stays 999. Cured: coDrive2's module calls
+        the jit_coF already in the JIT.
+  CO-3  testing(coDrive1) a second time. Trunk: the first parse consumed isCoded, so testing() routes to jitRunIfTest
+        and coDrive1 never runs (co1 stays 999). Cured: the cached function answers.
+  CO-4  jitRefire fires the last compiled function.
+The pop.sh rows also read the compile count and the REUSED lines: two compiles, never three, and the IR of the second
+module DECLARES jit_coF instead of defining it.
+Intended values are the interpreted twins: coF(4) = 10, coF(3) = 6.

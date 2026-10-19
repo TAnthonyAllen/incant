@@ -6181,6 +6181,23 @@ kindRow "jitRecurSaveGT JRS-2 g(4) = RS-2 (born red 2026-10-18, green since SEQ 
 kindRow "jitRecurSaveGT JRS-G jitted: tripped, depth -- the guard never trips, depth = JRS-I (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(_jg "$T/jrcg")" "0 5"
 kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guard never trips there" "$(_ji "$T/jrcg")" "10 0 5"
 
+#  ⚑ jitCompileOnceT -- SEQ 385 R1 (Tony, 2026-10-19): COMPILE ONCE. A compiled action is reused, never rebuilt, so a
+#  later testing(), jitRefire or forced compile answers from the cache. BORN RED 2026-10-19 on trunk: coF's second compile
+#  (a callee of coDrive2) is refused by the JIT as a duplicate symbol, and a second testing(coDrive1) routes to
+#  jitRunIfTest because the first parse consumed isCoded. Intended values are the interpreted twins (CO-I).
+_co () { sed -n "s/^$2 .*\[ *\([^] ]*\) *\].*/\1/p" "$1"; }
+run1 jitCompileOnceT "$T/jco";   check "jitCompileOnceT runs" 0 $?
+sentinel "jitCompileOnceT sentinel" "$T/jco" "JITCOMPILEONCE SENTINEL"
+kindRow "jitCompileOnceT CO-1 first compile: coF(4)" "$(_co "$T/jco" CO-1)" "10"
+kindRow "jitCompileOnceT CO-2 coF's second compile (callee of coDrive2): coF(3) = CO-I (born red 2026-10-19)" "$(_co "$T/jco" CO-2)" "6"
+kindRow "jitCompileOnceT CO-3 coDrive1's second testing(): coF(4) = CO-I (born red 2026-10-19)" "$(_co "$T/jco" CO-3)" "10"
+kindRow "jitCompileOnceT CO-4 jitRefire after the second compile: coF(4)" "$(_co "$T/jco" CO-4)" "10"
+kindRow "jitCompileOnceT CO-I interpreted twins: coF(4) coF(3)" "$(sed -n 's/^CO-I .*coF(4) = \[ *\([^] ]*\) *\] coF(3) = \[ *\([^] ]*\) *\].*/\1 \2/p' "$T/jco")" "10 6"
+kindRow "jitCompileOnceT no duplicate-symbol refusal (born red 2026-10-19)" "$(grep -c 'duplicate definition of symbol' "$T/jco")" "0"
+kindRow "jitCompileOnceT compile counts as printed: two modules built, the third testing() reuses (born red 2026-10-19)" "$(sed -n 's/^=== jitCompile count = \([0-9]*\) ===/\1/p' "$T/jco" | tr '\n' ' ' | sed 's/ $//')" "1 2 2"
+kindRow "jitCompileOnceT the reuse lines: coF as a callee, coDrive1 as a driver (born red 2026-10-19)" "$(grep -c '^=== jitRunAction: callee coF REUSED as jit_coF ===' "$T/jco") $(grep -c '^=== jitRunAction: coDrive1 REUSED as jit_coDrive1 ===' "$T/jco")" "1 1"
+kindRow "jitCompileOnceT IR: jit_coF defined once, declared once (born red 2026-10-19)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitCompileOnceT)" 2>&1 | grep -c '^define i32 @jit_coF(') $(INCANT_JIT_DUMP=1 "$B" "$(ip jitCompileOnceT)" 2>&1 | grep -c '^declare i32 @jit_coF(')" "1 1"
+
 #  ⚑ jitCmpOperandT / jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): A COMPARE'S RESULT IS ITS OWN SSA VALUE, never its
 #  operand's jitData. Measured 2026-10-17: a plain field compared twice is fine (each occurrence is its own node); an
 #  inlined callee's `argument` is ONE node (the caller's operand), so the first compare's i1 rode on it and the second
