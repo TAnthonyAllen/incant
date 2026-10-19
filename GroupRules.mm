@@ -1059,6 +1059,11 @@ GroupItem 	*lookin = 0;
 GroupItem 	*scopeList = input->getLabelGroup("scopeList");
 GroupItem 	*grup = 0;
 char 		*name = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		jitHandOver("a scope statement -- it binds locals, so it runs at RUN time",input);
+		return;
+		}
 	while ( listItem = scopeList->next(listItem) )
 		{
 		if ( isGROUP(listItem->groupBody->flags.data) )
@@ -10705,6 +10710,12 @@ GroupItem 	*result = 0;
 	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
 	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
 		::jitSeedOperands(target,arg);
+	// slotNeedsBoth an emitter slot reads both operands: a side the build cannot see goes to run time, never into the emitter (SEQ 384)
+	
+	if ( ruler->jitting && op->groupBody->gJitEmitter && !op->groupBody->flags.isUnary && (!target || !arg) ) {
+	::jitHandOver((char*)"an operator with a side the build cannot see -- its statement runs at RUN time", op);
+	return 0; }
+	
 	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
 	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
 	// noBuildRun a dispatch that would RUN its interpreted body at build goes to run time instead (SEQ 384, Tony: compiling has no side effects)
@@ -11662,6 +11673,7 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	clearRefusal(GroupItem*)
 	clearRefusal(GroupItem*)
+	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)

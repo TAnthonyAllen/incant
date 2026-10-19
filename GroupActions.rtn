@@ -1269,6 +1269,12 @@ GroupItem   result;
         op = pickKindOP(op,target,arg); }
     // seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
     if jitting && (op.isOperator || op.isUnary)     jitSeedOperands(target,arg);
+    // slotNeedsBoth an emitter slot reads both operands: a side the build cannot see goes to run time, never into the emitter (SEQ 384)
+    -%
+    if ( ruler->jitting && op->groupBody->gJitEmitter && !op->groupBody->flags.isUnary && (!target || !arg) ) {
+        ::jitHandOver((char*)"an operator with a side the build cannot see -- its statement runs at RUN time", op);
+        return 0; }
+    %-
     // slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
     -% if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); %-
     // noBuildRun a dispatch that would RUN its interpreted body at build goes to run time instead (SEQ 384, Tony: compiling has no side effects)

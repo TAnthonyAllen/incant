@@ -842,6 +842,9 @@ GroupItem   action = currentMETHOD.group,
             scopeList:,
             grup;
 String      name;
+    if jitting {
+        jitHandOver("a scope statement -- it binds locals, so it runs at RUN time", input);
+        return; }
     while listItem = scopeList.next(listItem) {
         if listItem.isGROUP grup = listItem.group;
         else    grup = listItem;
