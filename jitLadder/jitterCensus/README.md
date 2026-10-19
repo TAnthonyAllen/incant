@@ -35,3 +35,20 @@ Revert: `git checkout -- GroupActions.rtn ruleActions.rtn jitEmitters.rtn; tok G
 Classes per fixture: agree / DISAGREE / EXIT-during-compile / CRASH-at-compile / CRASH-at-run / HANG / untouched.
 Streams are split and addresses masked; the second tap-off run marks noisy fixtures. About a minute per road.
 `results/` holds the SEQ 383 and SEQ 384 classifications for diffing the next run against.
+
+## SEQ 386 additions
+
+- `tapRoads.py` -- **who calls processAction**, by the caller's symbol (`INCANT_ROADTAP=<file>`). R2 (a)'s measurement.
+- `tapSites.py` -- **the 13 build-time-read sites** (`INCANT_SITETAP=<file>`), one line per site visit during a build;
+  apply ON TOP of `tap383.py` (it needs builds to happen). Canary +1 while applied (its own extern). R2 (d).
+- `censusJitter.sh` -- **the census with no tap**: `jitter;` written into a scratch copy of each fixture (old road: after
+  the first top-level `Start();`, or after the first top-level `parser(` in `results/genlist2`'s files; new road: after
+  the inserted `parser(Start);`). The plain twin carries the do-nothing bare name `jitterOff;` on the same line and the
+  same basename (sibling directories, masked), so line numbers and file names in the output cannot differ -- the first
+  run without that read refusal messages' `[line N]` and drive traces' file names as disagreements. KNOWN ARTIFACTS
+  that remain (SEQ 386, measured): in a file with no `Start();` the plain twin's `jitterOff;` is a parse failure
+  (bailInc, baselineTests.golden); a drive trace that echoes the next statement's text differs by the name (paReachT);
+  and a fixture that already says `jitter;` (jitterT) jitters in both runs. Needs a binary with the
+  jitter (SEQ 386). `CLONE=... OUT=... GENLIST=results/genlist2 ./censusJitter.sh old|new > census.<road>.txt`, then
+  `./classifyJitter.sh census.<road>.txt` -- it reads hang and crash from the exit status FIRST, because a run that dies
+  never prints the jitter's exit tally.
