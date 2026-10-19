@@ -62,3 +62,33 @@ The two `builtinParseR` names compiled twice (probeDoorT, site1RoadsT) are disti
   lines, the IR's define/declare). H3: an address, the fixture-name count.
 - jitLadder: none.
 - The forced-jit census: cluster C (duplicate symbol, 49 fixtures, 114 compiles) leaves.
+
+## Certificate (clone, branch d5c5921)
+
+- **The fixture** (`incant/pop/jit/jitCompileOnceT`, born red on trunk f2eb312): CO-2 999 -> 6, CO-3 999 -> 10, CO-4 10,
+  CO-I 10 6. Compile counts `1 2 2`; `callee coF REUSED as jit_coF` and `coDrive1 REUSED as jit_coDrive1` once each; the
+  IR defines jit_coF once and DECLARES it once (coDrive2's module); no duplicate-symbol refusal.
+- **pop.sh** 1533 green, row for row with trunk but the 6 pre-registered rows and H3 (an address; the fixture-name count,
+  clone vs live). **jitLadder** PASSED, row for row with trunk.
+- **H7** (cure committed first, fixture alone under alarm): `jitCacheFind` made to miss always, rebuilt -- CO-2 999,
+  CO-3 999, `duplicate definition of symbol '_jit_coF'`, `jitRunIfTest on coDrive1`: red. Restored from git, md5 = the
+  cure, rebuilt, green.
+- **The forced-jit census** (the SEQ 383 tap, 237 / 232 fixtures, reverted md5-identical, no tap string in the rebuilt
+  binary), against SEQ 384's table, old / new road:
+
+| cluster | SEQ 384 | SEQ 385 |
+|---|---|---|
+| C duplicate symbol (rc -3) | 114 compiles, 49 files / the same | **0 / 0** -- and no `duplicate definition` text anywhere |
+| D the parse generator | parser / walkRules refused in 38 files, generateParse compiles in 38 | the same, 38 / 38 |
+| other verifier refusals (rc -5) | 33 more than SEQ 383, nearly all testPrecedence | 115 rc -5 per road in all: 76 of them parser / walkRules, the rest testPrecedence's actions (+2 testUnitTests on the new road); 1 rc -2 |
+| per fixture: agree | 102 / 97 | 102 / 97 |
+| DISAGREE | 83 / 95 | 84 / 96 |
+| crash after compiling | 2 / 1 | 2 / 1 (foldAndT; parserTest old road) |
+| hang | 1 / 1 | 1 / 1 (starIdiomT) |
+| exit / crash in the compile | 0 / 0 | 0 / 0 |
+
+  The 49 files of cluster C did not change class but one: their second compiles now REUSE and the tap fires the
+  compiled function instead of falling back to the interpreter (jitRecurSaveT: `compile rsDrive rc=0`, fired, agrees).
+  The one that moved, **jitArgNumberT agree -> DISAGREE**, is an honest value disagreement and is already pinned in the
+  fleet (193 5 1 51, intended 10 5 0 5): before the cure its tap compile was refused and it ran interpreted.
+  The +1 file in each total is jitCompileOnceT itself (agree).
