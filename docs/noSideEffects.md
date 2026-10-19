@@ -136,3 +136,41 @@ into a non-scalar (`x := y` handed over), the slot cannot hold the new value. Th
 value, and the frame EPILOGUE still stores raw, so at exit it writes that old value's bits over the field's pointer.
 The call site cannot cure this; it needs a frame decision (evict the slot, or home locals off the union). Inside
 runAction's save/restore bracket (the forced census) the restore covers it; `testing()` / `jitRefire` have no bracket.
+(SEQ 385 R3: filed as Clod's fixit `incant/fixits/epilogueWriteBack`, with a kant repro -- `testing()` then
+`dumpContents` exits 139, and the local's gGroup reads 0x0000000100000007 after `x = 7`: the low half is the slot.)
+
+## SEQ 385 R2 -- the class starIdiomT exposes, pinned and censused (trunk f2eb312, 2026-10-19). No cure.
+
+**The class: an emitter reads AT BUILD a value that a run-time setter writes, and decides its IR from it.** It was
+right only while the setter also ran at build. `incant/pop/jit/jitStarIdiomT` pins the worked example under a 10 s
+alarm: exit 142 (it hangs), intended 0 and 8 members (the interpreted twin). A sample of the hung run sits in the
+compiled function's `jitOpFireRT`, so the hang is at RUN time; what goes wrong is decided at build.
+
+`docs/jitDesign.md:20-27` (Premise 1) makes a field's kind fixed for the life of jitted code that observed it, so the
+kind reads below follow a contract on purpose. What SEQ 384 adds is the case the contract did not foresee: a field that
+is kindless, or holds no group, AT BUILD because its setter now runs only at run time.
+
+The sites. The population was every `jitting` site in Instruct.rtn, ruleActions.rtn and GroupActions.rtn (about 50),
+plus every emitter in jitEmitters.rtn they reach. Each gate judged out of class was named with a reason. Two rows were
+re-read by hand (opDeref, jitSeedField).
+
+| site | read at build | the IR decision | run-time setter |
+|---|---|---|---|
+| ruleActions.rtn:593-611 aCTionIterate (the worked example) | `opDeref(source)`, `isGROUP` / `isArgument`, `groupList` -- all before its gate at :612 | no source: poison and return, `jitEmitIterate` never emitted | `:=`, `<-`, a handed-over `copyOf` |
+| Instruct.rtn:904 opPlusPlus, :634 opMinusMinus | `isIterator` (written by aCTionIterate's build-time body) | iterator step (`jitEmitIterStep[Back]`) or a plain inc / dec | aCTionIterate at run time |
+| Instruct.rtn:253-259 opDeref | the gate emits and FALLS THROUGH to `result.isGROUP -> result.group` (:258), handing the build-time group up the walk | every consumer of `*x`: aCTionIterate's source, a dot's target | `:=`, `<-`, `=` of a holder |
+| Instruct.rtn:308 opDot -> jitEmitDot (jitEmitters.rtn:1533), via runOPslots (GroupActions.rtn:1309) | for `(*x).y`, the build-time `*x` above; jitEmitDot bakes the target's address | which node opDot runs on at run time; `.` has no `jitEmitter=`, so the null-side hand-over (GroupActions.rtn:1274) does not catch it | `:=` / `<-` on x |
+| GroupActions.rtn:328-333 followArgument (runOPslots :1305, runAccAssign :1040, runOPaccumOperand :1249) | when `jitArgSlotRead` returns null, the argument's build-time `getGroup()` | which node is seeded or baked for an `argument` operand | the caller's run-time bind (jitBindArgRT) |
+| jitEmitters.rtn:1271-1288 jitEmitBareRead | the same argument follow, then `groupList` | which node is loaded; a list degrades instead | the run-time bind; `+=` / `+%` giving a field a list |
+| jitEmitters.rtn:3931, 3942 jitSeedField | `isNUMBER(flags.data)` | home gNumber or gCount, load double or i32 -- every operand passes here | `=` on a kindless field, `:=`, `<-` |
+| jitEmitters.rtn:359 the frame prologue | each local's `isNUMBER(data)` | alloca double or i32, and its home | the first `=` at run time |
+| jitEmitters.rtn:374-376 the argument slot | the build-time argument's isGROUP, groupList, kind | whether an i32 argSlot exists at all | the caller's argument |
+| jitEmitters.rtn:926, 932 jitEmitAssign (also from opDivEQ / opMinusEQ / opMultiplyEQ) | the target's `flags.data` | cast helper or a typed store; double or i32 | an earlier `=` now run at run time |
+| Instruct.rtn:752 opPlus; jitEmitters.rtn:800 jitEmitAdd | `target.isSTRING \|\| isTOKEN` | a concat call or an integer add | `=` of a string to a kindless field |
+| jitEmitters.rtn:2178-2182 jitEmitSelfCall | the argument's groupList and kind | box an i32, or pass the node | `=` / `:=` on the argument field |
+| jitEmitters.rtn:3139 jitPrintList | a part's isSTRING / isTOKEN | a baked node through appendGroup, or an i32 load | `=` of text into the part |
+
+Downstream only (no read of their own; they inherit the seeded type): jitEmitBinary, jitEmitCompare, jitEmitUnary,
+jitStoreResult. **Unsure, not decided:** GroupActions.rtn:98 (`hasNewParse` chooses the term-call emit, and a run-time
+`parser()` can set it); GroupActions.rtn:1314 / :1045 (`isVirtual` -> a build-time `copyOf`, baked); jitEmitRem and
+jitEmitDot call through FIELD storage and flush no frame slot first (a different defect, not traced).

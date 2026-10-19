@@ -1,0 +1,60 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(EpilogueWriteBack);
+define
+    ewCtl code={
+        ewC = 1;
+        ewC = 2;
+        };
+    ewAct code={
+        ewL = 7;
+        ewL := copyOf(sample);
+        };
+    ;
+cerr "ANCHOR epilogueWriteBack -- control: a jitted local that stays a count, then its action dumped":;
+testing(ewCtl);
+dumpContents(ewCtl);
+cerr "EWB control dumped -- the frame epilogue wrote a count over a count":;
+cerr "EWB defect: ewL = 7, then the run-time call ewL := copyOf(sample), then the action dumped":;
+testing(ewAct);
+fixEpilogueWriteBackHere = 0;
+dumpContents(ewAct);
+cerr "SENTINEL epilogueWriteBack reached the foot":;
+stop();
+
+LANE:  jit
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 385 R3, Tony)
+
+epilogueWriteBack -- THE RAW FRAME EPILOGUE WRITES A STALE SLOT OVER A POINTER. A frame local gets an i32 slot homed on
+gCount (the prologue, jitEmitters.rtn:352-360 at trunk f2eb312), and gCount shares storage with gGroup. A statement
+handed to run time (here `ewL := copyOf(sample)`, through jitEmitStmtRT, :2297) can turn that local into a group. The
+flush before the call and the reload after it go through a kind check (jitReloadCountSlotRT keeps the old value when
+the field is no longer a count), so the slot still holds 7. At exit the epilogue (:461-466) stores every slot back RAW,
+and 7 lands on the low 32 bits of ewL's group pointer.
+
+MEASURED 2026-10-19, trunk binary, this shape in scratch:
+- today: the control dumps clean; the defect dies at dumpContents(ewAct), exit 139, no SENTINEL. lldb at the fault
+  (GroupItem::getText, the group arm, GroupItem.mm:1405): ewL's gGroup = 0x0000000100000007. With `ewL = 1` it reads
+  0x0000000100000001 -- the low half IS the slot's value.
+- the interpreted twin (ewAct() instead of testing(ewAct)) exits 0: the local is restored at exit and dumps "no data".
+- a jitted twin with no type change (ewL = 7; ewL = 2) exits 0.
+- under runAction's save/restore bracket (the forced-jit census) the restore covers it; testing() and jitRefire have no
+  bracket, so this fixit uses testing().
+No fleet row reaches it. Found as SEQ 384's named limit.
+
+Taken (cured): both "EWB" lines, then the SENTINEL; ewAct's dump shows ewL holding its copy of sample.
+Not taken: the run ends after "EWB defect", exit 139.
+
+NEXT: OPEN -- not a call-site fix (the call site already reloads through a kind check and cannot put a group into an
+i32 slot). It needs a frame decision. What would generate a candidate: list, for each frame slot, whether a run-time
+statement in the body can change its kind (a handed-over `:=`, `<-`, a command whose target is the local), and measure
+what an epilogue store through the same kind check (jitFlushCountSlotRT's) would leave in the field -- that is the
+smallest candidate, and it trades this crash for a dropped count. The other two shapes are evicting such a slot (the
+local stays on its field and is read through it) or homing locals off the union.
+
+ATTEMPT LOG
+  2026-10-19 SEQ 385 R3 filed: repro from kant built and run on trunk (139 at dumpContents; gGroup low half = the slot).
+  Controls: interpreted twin exit 0, no-type-change jitted twin exit 0. Not cured.
