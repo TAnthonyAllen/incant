@@ -102,7 +102,7 @@ cache (compiled by `testing()`) is reused, built 0. At exit one line per body me
 
 ## Certificate
 
-- **jitterT** (born red on trunk 0607559 / 5c48b0b -- values agree there, the 5 witness rows absent): JT-0 1, JT-1 9,
+- **jitterT** (born red on trunk 0607559 / 2a82f77 -- values agree there, the 5 witness rows absent): JT-0 1, JT-1 9,
   JT-3 2, JT-4 3 = the interpreted twin = the new-road twin. Witness: `jtAdd built 1 called 3`; `jtBad NOT JITTABLE`
   once and `jtBad not jittable, called 2 interpreted`; `jtPreA built 0 called 2` (testing()'s compile reused; one
   `entering on jtPreA` in the run); new road `jtAdd built 1 called 3`.
