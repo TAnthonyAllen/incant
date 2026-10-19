@@ -14,6 +14,7 @@ setParse does not have to worry about actionMethod
 	Working on
 *******************************************************************************/
 
+
 /*******************************************************************************
 	Notions
 *******************************************************************************/
@@ -35,6 +36,14 @@ An action is just a list of statements so an xp list can maybe run actions???
     has to set currentMETHOD and maintain current method stak
     an action has to have a startAction and endAction akin to startLoop and endLoop; maybe those should be local fields in currentMETHOD used by actions and loop rules, in which case the loop rules would have to set and reset those local fields
 How would testOP handle statements coming in; how does xp chain say run this statement and carry on???
-    A statement is a rule so xp chain says run this rule and leave its result on the chain
-    How does that work?
-        rule op takes rule as argument returns its label that gets stashed in its target that testOP then runs (it processes argument first then target)
+    A DO statement is a rule so xp chain says run this rule and leave its result on the chain
+    What would expression version of DO rule action look like? It should look like an instruction
+        instruction: if xp statement; when it runs statement fires then xp; then opif
+        opif passed in xp result assesses it and returns true or false as the instruction result
+        since DO rule loops, testOP should rerun itself if the instruction returns true or fall thru
+            fall thru implies that testOP runs instruction.next but we have to make sure next exists as a proper option
+How to attack?
+    write a dummy DO rule copy and stick it in an expression chain
+        the rule copy should run its action to build its instruction to go on the expression chain; for now just list the generated instruction
+        will need to use an xp rule copy too
+    To get away from feeding xpTestList a resolved string; need a way to convert A(B) to A call B and A[B] to A =[ B; and the gate on call in getTarget will have to extend to include =[

@@ -18,6 +18,11 @@ define
     ;
 registry(TestStuff);
 define
+    InvokeGet   leftBrace-="[" ExpressioN rightBrace-="]";
+    InvokeCall  leftParen-="(" ExpressioN? rightParen-=")" code={
+        if argument.datA;   print "Saw expression":;
+        else                print "No expression":;
+        };
     listEntries isRule
         ANYtoken;
         NumbeR;
@@ -126,8 +131,21 @@ define
         result = testOP(getInstruction(trueResult));
         };
     ;
-
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
+stop();
+maximus=righty;
+whatsIt = qa - qb + qc;
+print "whatsIt:" whatsIt:;
+whatsIt = maximus -= whatsIt;
+print "maximus:" maximus:;
+maximus=righty;
+print "maximus reset to:" maximus:;
+whatsIt = maximus -= qa - qb + qc;
+print "whatsIt:" whatsIt "maximus:" maximus:;
+xpListTest("invokeTEST call righty -= qa - qb + qc;");
+stop();
+xpListTest("invokeTEST call righty -= qa - qb + qc;");
+InvokeTEST(whatsIt);
 stop();
 
 /***************************************************************************
