@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    spN=0;
+    spBody code={
+        spN += 1;
+        cerr "SPI ran n " spN:;
+        stop();
+        };
+    ;
+cerr "SP interpreted":;
+spBody();
+cerr "SP AFTER -- must not print: stop() ended the run":;
+stop();
+
+jitStopIT -- jitStopT's interpreted twin (SEQ 384 R1). Its own process, because the body's stop() ends the run.

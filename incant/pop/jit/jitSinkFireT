@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    sfN=0;
+    sfNI=0;
+    sfBody code={
+        sfN += 1;
+        cerr "SFJ fired " sfN:;
+        };
+    sfBodyI code={
+        sfNI += 1;
+        cerr "SFI fired " sfNI:;
+        };
+    ;
+cerr "SF build":;
+testing(sfBody);
+cerr "SF after fire 1":;
+jitRefire();
+cerr "SF after fire 2":;
+sfBodyI();
+sfBodyI();
+cerr "JITSINKFIRE SENTINEL":;
+stop();
+
+jitSinkFireT -- SEQ 384 R1 (Tony, 2026-10-19): a cerr in a jitted body prints ONCE PER FIRE, at run time.
+refireSkipsDegraded's repro as a fleet row. Today the cerr has no emitter: it runs at BUILD time (printing the
+value sfN has then, 0) and never at a fire. Intended: the jitted lines read 1 2, = the interpreted twin's 1 2.

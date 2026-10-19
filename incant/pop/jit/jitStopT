@@ -1,0 +1,24 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    spN=0;
+    spBody code={
+        spN += 1;
+        cerr "SPJ ran n " spN:;
+        stop();
+        };
+    ;
+cerr "SP build":;
+testing(spBody);
+cerr "SP AFTER -- must not print: stop() ended the run":;
+stop();
+
+jitStopT -- SEQ 384 R1 (Tony, 2026-10-19): stop() in a jitted body ends the run AT RUN TIME, not at build.
+Today stop() and the cerr before it run at BUILD time: the run prints "SPJ ran n 0" and exits inside the compile.
+Intended: "SPJ ran n 1" (the fire's value) and then exit, = the interpreted twin jitStopIT. The body cannot fire
+twice -- its stop() ends the process -- so this file fires once. Its sentinel is the SPJ line itself.

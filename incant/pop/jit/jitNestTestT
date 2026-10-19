@@ -1,0 +1,43 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    ntN=0;
+    ntM=0;
+    ntNI=0;
+    ntMI=0;
+    ntInner code={
+        ntM += 10;
+        };
+    ntOuter code={
+        ntN += 1;
+        cerr "NT outer fire n " ntN:;
+        testing(ntInner);
+        };
+    ntInnerI code={
+        ntMI += 10;
+        };
+    ntOuterI code={
+        ntNI += 1;
+        testing(ntInnerI);
+        };
+    ;
+cerr "NT build":;
+testing(ntOuter);
+cerr "NT jitted after fire n " ntN " m " ntM:;
+ntOuterI();
+cerr "NT interpreted after call n " ntNI " m " ntMI:;
+cerr "JITNESTTEST SENTINEL":;
+stop();
+
+jitNestTestT -- SEQ 384 R1 (Tony, 2026-10-19): testing() inside a jitted body compiles AT RUN TIME, with no nested
+build. Today the inner testing() runs at BUILD time, inside the outer build, and the nested jitRunAction resets the
+builder the outer build is using (SEQ 383 census cluster F). Intended: the outer fire compiles and fires ntInner
+once, n 1 m 10, = the interpreted twin. Fired once: after a run-time testing() the last compiled function is the
+INNER one, so a jitRefire would fire ntInner, not ntOuter -- that is compile-once's business (SEQ 385), not this one.
+The outer body's cerr says WHEN the inner compile began: the line before "entering on ntInner" must be the
+FIRE's "NT outer fire n 1" (at build it would read n 0, and the inner compile would be a nested build).

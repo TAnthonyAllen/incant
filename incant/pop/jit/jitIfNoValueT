@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    ivN=0;
+    ivNI=0;
+    ivDump="IVDUMP";
+    ivBody code={
+        if dumpContents(ivDump);   ivN += 1;
+        };
+    ivBodyI code={
+        if dumpContents(ivDump);   ivNI += 1;
+        };
+    ;
+print "IV build":;
+testing(ivBody);
+print "IV after fire 1 n " ivN:;
+jitRefire();
+print "IV after fire 2 n " ivN:;
+ivBodyI();
+print "IV after int 1 n " ivNI:;
+ivBodyI();
+print "IV after int 2 n " ivNI:;
+cerr "JITIFNOVALUE SENTINEL":;
+stop();
+
+jitIfNoValueT -- SEQ 384 R1 (Tony, 2026-10-19): an IF whose condition has no value runs once per fire.
+The condition is a COMMAND call (dumpContents), which emits no value, so the whole IF is handed to run time
+(jitIfRT). But the condition was already EVALUATED at build to find that out -- so the dump prints once at build
+and once per fire. Count the ivDump lines in each segment: today 2 then 1 (the build's plus fire 1's, then fire 2's);
+intended 1 then 1, = the interpreted twin. ivN reads 1 then 2 either way.

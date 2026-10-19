@@ -6259,6 +6259,33 @@ _hl () { sed -n "s/^HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*
 kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl old)" "0 1 0 0"
 kindRow "halfLessT HL new road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl new)" "0 1 0 0"
 
+#  ⚑ SEQ 384 R1 (Tony, 2026-10-19): COMPILING HAS NO SIDE EFFECTS -- four fixtures, BORN RED on trunk, committed before
+#  the cure (branch jit-no-side-effects). Each jitted body against its interpreted twin; nothing may run at build time.
+#  jitSinkFireT -- a cerr in a jitted body prints once per FIRE (refireSkipsDegraded's repro). Today: once, at build, "0".
+run1 jitSinkFireT "$T/jsf";   check "jitSinkFireT runs" 0 $?
+sentinel "jitSinkFireT sentinel" "$T/jsf" "JITSINKFIRE SENTINEL"
+kindRow "jitSinkFireT SFI interpreted twin: the values each call printed (the control)" "$(sed -n 's/^SFI fired *\([0-9]*\) *$/\1/p' "$T/jsf" | xargs)" "1 2"
+kindRow "jitSinkFireT SFJ jitted, fired twice: the values each fire printed = SFI (born red 2026-10-19)" "$(sed -n 's/^SFJ fired *\([0-9]*\) *$/\1/p' "$T/jsf" | xargs)" "1 2"
+#  jitIfNoValueT -- an IF whose condition is a command (no value) runs once per fire. stdout only (the dump and the
+#  markers are both stdout, so their order is the run's). Each segment's dump count: build+fire 1, fire 2, int 1, int 2.
+run2 jitIfNoValueT "$T/jiv.o" "$T/jiv.e"; check "jitIfNoValueT runs" 0 $?
+sentinel "jitIfNoValueT sentinel" "$T/jiv.e" "JITIFNOVALUE SENTINEL"
+_ivseg () { awk '/^IV /{if (s) printf "%d ", c; s=1; c=0; next} /ivDump  /{c++} END{printf "%d\n", c}' "$T/jiv.o" | awk '{print $1, $2, $3, $4}'; }
+kindRow "jitIfNoValueT dumps per segment: jit fire 1, jit fire 2 | int 1, int 2 (born red 2026-10-19: today 2 1 1 1)" "$(_ivseg)" "1 1 1 1"
+kindRow "jitIfNoValueT the IF's arm ran once per fire and per call: n after each" "$(sed -n 's/^IV after .* n *\([0-9]*\) *$/\1/p' "$T/jiv.o" | xargs)" "1 2 1 2"
+#  jitStopT / jitStopIT -- stop() in a jitted body ends the run AT RUN TIME. Today it runs at build: "SPJ ran n 0".
+#  The SPJ / SPI line is each file's sentinel: stop() in the body ends the process, so nothing can follow it.
+run1 jitStopT "$T/jsp";   check "jitStopT runs" 0 $?
+run1 jitStopIT "$T/jspi"; check "jitStopIT runs" 0 $?
+kindRow "jitStopIT SPI interpreted: the body ran, then stop() ended the run (the control)" "$(sed -n 's/^SPI ran n *\([0-9]*\) *$/\1/p' "$T/jspi") $(grep -c '^SP AFTER' "$T/jspi")" "1 0"
+kindRow "jitStopT SPJ jitted: the FIRE ran the body, then stop() ended the run = SPI (born red 2026-10-19)" "$(sed -n 's/^SPJ ran n *\([0-9]*\) *$/\1/p' "$T/jsp") $(grep -c '^SP AFTER' "$T/jsp")" "1 0"
+#  jitNestTestT -- testing() inside a jitted body compiles AT RUN TIME, no nested build. Today: exit 139 (cluster F).
+run1 jitNestTestT "$T/jnt";   check "jitNestTestT runs (born red 2026-10-19: 139)" 0 $?
+sentinel "jitNestTestT sentinel" "$T/jnt" "JITNESTTEST SENTINEL"
+kindRow "jitNestTestT interpreted twin: n m (the control)" "$(sed -n 's/^NT interpreted after call n *\([0-9]*\) *m *\([0-9]*\) *$/\1 \2/p' "$T/jnt")" "1 10"
+kindRow "jitNestTestT jitted: n m = the twin (born red 2026-10-19)" "$(sed -n 's/^NT jitted after fire n *\([0-9]*\) *m *\([0-9]*\) *$/\1 \2/p' "$T/jnt")" "1 10"
+kindRow "jitNestTestT the line before the inner compile is the outer FIRE's (n 1), not its build's -- no nested build" "$(grep -B1 '^=== jitRunAction: entering on ntInner' "$T/jnt" | head -1 | sed -n 's/^NT outer fire n *\([0-9]*\) *$/\1/p')" "1"
+
 #  ⚑ opEqFoldT / jitOpEqFoldT -- SEQ 367 R0-R1 (Tony, 2026-10-16): THE op= FOLD ODDITIES, PINNED AT TODAY'S VALUES, NOT
 #  CURED (fixit incant/fixits/opEqFoldsMidRun, owner Clod, latent). A compound assignment folds MID-RUN as an arithmetic
 #  step instead of splitting at the assignment tier. Each row is green today and goes red only if something moves; the
