@@ -1258,6 +1258,8 @@ extern GroupItem runOPdirect(GroupItem op,GroupItem target,GroupItem arg)
 {
 GroupRules  ruler = groupRules;
 GroupItem   result;
+    // handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
+    -% if ( ruler->jitting && gJitHandOver ) return 0; %-
     // storeRuling an armed statement dispatches nothing further -- interpreted only
     if ruler.refused
         if !jitting     return null;

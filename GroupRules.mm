@@ -4765,7 +4765,11 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false);
 	b->CreateCall(fty, bake(num ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT, "opFireFlushFn"),
 	{bake((void*)g, "opFireFlushField"), v}); }
-	else b->CreateStore(v, bake(fs->home, "opFireHome")); };
+	//  kindChecked a raw store would overwrite a local that holds a GROUP at run time -- gCount shares gGroup's storage (SEQ 384)
+	else {
+	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false);
+	b->CreateCall(fty, bake(fs->ty->isDoubleTy() ? (void*)&jitFlushNumberSlotRT : (void*)&jitFlushCountSlotRT, "opFireFlushFn"),
+	{bake((char*)fs->home - offsetof(GroupBody, gCount), "opFireBody"), v}); } };
 	auto frameOf = [&](GroupItem *g) -> JitFrameSlot* {
 	JitFrameSlot *fs = jitFrameFind((void*)&(g->groupBody->gCount));
 	if (!fs)      fs = jitFrameFind((void*)&(g->groupBody->gNumber));
@@ -4813,8 +4817,11 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	//  the fire wrote the FIELD: a frame target's slot is reloaded from it, and
 	//  prints read the field (gJitFieldResident), as jitEmitAssign's node arm does.
 	if (target) {
-	if (JitFrameSlot *fs = frameOf(target))
-	b->CreateStore(b->CreateLoad(fs->ty, bake(fs->home, "opFireHomeR"), "opFireReload"), fs->slot);
+	if (JitFrameSlot *fs = frameOf(target)) {
+	llvm::FunctionType *rty = llvm::FunctionType::get(fs->ty, {ptr, fs->ty}, false);
+	llvm::Value *nv = b->CreateCall(rty, bake(fs->ty->isDoubleTy() ? (void*)&jitReloadNumberSlotRT : (void*)&jitReloadCountSlotRT, "opFireReloadFn"),
+	{bake((char*)fs->home - offsetof(GroupBody, gCount), "opFireBodyR"), b->CreateLoad(fs->ty, fs->slot, "opFireOld")}, "opFireReload");
+	b->CreateStore(nv, fs->slot); }
 	gJitFieldResident.insert((void*)target->groupBody);
 	}
 	gJitResultNode = res;
@@ -10680,6 +10687,8 @@ extern "C" GroupItem *runOPdirect(GroupItem *op, GroupItem *target, GroupItem *a
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
+	// handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
+	 if ( ruler->jitting && gJitHandOver ) return 0; 
 	// storeRuling an armed statement dispatches nothing further -- interpreted only
 	if ( ruler->refused )
 		if ( !ruler->jitting )
