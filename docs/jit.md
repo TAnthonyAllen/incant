@@ -85,6 +85,14 @@ grows. The candidate answer — **degrade to the oracle LOUDLY** — already exi
   `if jitter;` is unsupported (bear-trap #34: a truth test fires the command), and nothing is designed around it.
   The recon these answer: `docs/jitterRecon.md`.
 
+### ⚠⚠ RULED 2026-10-19 (Tony, SEQ 386 R1) -- the `jitter;` command, first cut
+- **`jitter;` turns on jit at first call from that point in the run onward.** Actions only. No off switch, no
+  `jitter(name)`, and `if jitter;` is unsupported.
+- **A compile that fails, refuses or is rejected by the verifier marks the action NOT JITTABLE**: it announces once, by
+  name, runs interpreted from then on, and is never retried.
+- **Top-level file statements stay interpreted.** Rule parse bodies stay on their own road (`probeDrive`).
+- **An action compiled before `jitter;`** (by `testing()`, say) **is reused from the cache, never rebuilt** (SEQ 385).
+
 ### Why textual IR gets MORE important under replacement, not less
 A JIT that **is** the interpreter must cover the **whole language**, and diff-against-golden is
 the only QA discipline that scales to that surface. A `.ll` file is a byte-exact target exactly
