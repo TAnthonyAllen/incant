@@ -89,3 +89,70 @@ S8, S9 hit nearly as many agreeing fixtures as disagreeing ones, so their column
 - pop.sh: the new `jitterT` rows (born red on trunk: `jitter;` is not a command there, so the file truncates at it).
   H3: an address, the fixture-name count. Nothing else -- no fixture counts or prints `cOMMANDs` (five register into it).
 - jitLadder: none.
+
+## The build (branch f1a3aa3)
+
+`jitter` (`incant/setup`, cOMMANDs, `immediateAction=jitter`) sets `gJitter`. runAction's interpreted arm, inside its
+save / bind / restore bracket, asks `jitterReady`: a first call compiles through `jitRunAction` (stdout silenced, stderr
+to `INCANT_JITTER_ERR` if set, else silenced) into SEQ 385's cache and fires; every later call fires the cached
+function (`jitBoxCountRT` of its i32, as the census tap did); a refused compile (any negative code, or nothing cached)
+is NOT JITTABLE -- announced once on stderr by name, interpreted from then on, never retried; a body already in the
+cache (compiled by `testing()`) is reused, built 0. At exit one line per body met: `built <n> called <m>`, or
+`not jittable, called <m> interpreted`. **No frame-model or signature change**; canary 359 -> 361; no groups.ext line.
+
+## Certificate
+
+- **jitterT** (born red on trunk 0607559 / 5c48b0b -- values agree there, the 5 witness rows absent): JT-0 1, JT-1 9,
+  JT-3 2, JT-4 3 = the interpreted twin = the new-road twin. Witness: `jtAdd built 1 called 3`; `jtBad NOT JITTABLE`
+  once and `jtBad not jittable, called 2 interpreted`; `jtPreA built 0 called 2` (testing()'s compile reused; one
+  `entering on jtPreA` in the run); new road `jtAdd built 1 called 3`.
+- **A normal run is untouched:** pop.sh 1549 branch / 1544 trunk, row for row but the 5 pre-registered witness rows
+  and H3; jitLadder row for row.
+- **H7** (cure committed, fixture alone under alarm): the intercept removed, so `jitter;` sets the switch and nothing
+  reads it -> all four witness lines absent, values still right. Restored, md5 = the cure, rebuilt, green.
+- **The jitter's refused row taught one thing worth keeping:** the second action to INLINE a helper is verifier-refused
+  (-5, "Instruction does not dominate all uses") although it compiles alone -- some build state crosses from one compile
+  into the next. testPrecedence's 33 refusals are this (tpAssignBare then tpAssignArg). Not chased.
+
+## The census, for real -- no tap (`jitLadder/jitterCensus/censusJitter.sh`)
+
+`jitter;` written into a scratch copy of each fixture, placed where SEQ 385's tap armed (old road: after `Start();`, or
+after the first top-level `parser(` in the 26 generator files; new road: after the inserted `parser(Start);`). Against
+SEQ 385's tap-driven table, cluster by cluster:
+
+| class | SEQ 385 tap, old / new | SEQ 386 jitter, old / new |
+|---|---|---|
+| agree | 102 / 97 | 102 / 97 |
+| DISAGREE | 84 / 96 | 85 / 102 |
+| crash | 2 / 1 (foldAndT; parserTest old) | 2 / 1 -- the same files |
+| hang | 1 / 1 (starIdiomT) | 1 / 1 -- the same |
+| untouched-agree | 48 / 37 | 46 / 33 |
+| untouched-DISAGREE | 0 / 0 | 3 / 0 |
+
+(+jitterT and jitStarIdiomT, new since SEQ 385.) **Every difference, by mechanism:**
+- **old, 3 untouched-agree -> untouched-DISAGREE -- the census's own control, not the JIT.** bailInc and
+  baselineTests.golden have no `Start();`, and there the plain twin's do-nothing `jitterOff;` is a parse failure
+  ("RunRulE: expected a method not jitterOff"); paReachT's drive trace echoes the next statement's source text.
+- **new, 5 untouched-agree -> DISAGREE (andProbe, bindSeamA, opPrefixT, orProbe, parseClass) -- the TAP never armed
+  there.** It armed when an action named `parser` returned; these files do not include utilities, so `parser(Start)`
+  resolves to nothing and the tap stayed off. The jitter arms by position and measures them for the first time:
+  value disagreements (andProbe's compiled body loses its `print +` arm markers; parseClass loses two PC / PA lines).
+- **jitterT DISAGREE** -- it says `jitter;` itself, so both runs jitter; the plain run's lines are not split out.
+- Bodies the jitter marked NOT JITTABLE: 71 in 24 files (old), 119 in 47 (new) -- parser / walkRules and testPrecedence
+  among them. Bodies reused from a `testing()` compile: 111 on each road.
+
+## The four structural items, ranked for the next SEQs
+
+1. **The parse generator** -- jitter before `parser()`: **26 / 26 generator files exit 139** (measured, real command;
+   the census keeps the generator interpreted by placement). The compiled generateParse takes its data exit for
+   data-less rules, files no `pendingParseR`, and walkRules regenerates until the stack overflows. The misread of
+   `datA != 0` is NOT isolated (R2 (b)). Highest blast, and the likeliest shared cause with item 3.
+2. **foldAndT's crash** (1 / 1) -- the same symptom by its own pin: a jitted `x.datA != 0` reads true, the arm runs, and
+   its `+% *kop` hands opAddAttribute a null. Do it WITH item 1: one reproducer of the misread probably settles both.
+3. **The starIdiom build-time-read class** (starIdiomT hang 1 / 1; jitStarIdiomT pins it). 13 sites censused (R2 (d));
+   S1 (aCTionIterate) and S5 (followArgument) are the only sites that hit their signature in disagreeing fixtures and
+   never in agreeing ones, so they are the measurable start.
+4. **The epilogue pointer clobber** (fixit epilogueWriteBack) -- **0 in the census by construction**: the jitter fires
+   inside runAction's save / restore bracket, whose restore covers it. Reachable only through `testing()` / `jitRefire`.
+
+The rest is the plain value disagreements: 85 / 102 fixtures, no one mechanism (cluster G).
