@@ -751,8 +751,11 @@ use field
     // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
     // compileOwner the drive's floor carries the owner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214, SEQ 299)
     // parseSpeaks a parse's refusal prints, even mid-walk, and ends with the parse -- never pinned on an emitted statement (SEQ 372 R0, R1)
+    // parseNeverEmits a parse RUNS, even inside a compile: on the new road the drive runs BlocK's generated body, and under jitting its terms were emitted into the action's function instead of parsing the code (SEQ 382 R2)
     -% bool walkSave = gJitEmitWalk; gJitEmitWalk = false; %-
+    -% int jitSave = GroupControl::groupController->groupRules->jitting; GroupControl::groupController->groupRules->jitting = 0; %-
     result = driveStep(code,blockRULE,codeReport,action);
+    -% GroupControl::groupController->groupRules->jitting = jitSave; %-
     -% gJitEmitWalk = walkSave; if ( walkSave ) ::clearRefusal(field); %-
 use field
     if result {
