@@ -6196,6 +6196,30 @@ kindRow "jitStarIdiomT JSI-1 jitted walk never reported -- the hang comes first 
 sed -e 's/^testing(jsDrive);$//' -e '/JSI-1/d' "$(ip jitStarIdiomT)" > "$T/jsi.src"
 kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the intended value)" "$("$B" "$T/jsi.src" 2>&1 | sed -n 's/^JSI-I .*\[ *\([0-9]*\) *\].*/\1/p')" "8"
 
+#  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
+#  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
+#  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),
+#  and a twin with parser(Start) after its last search (the new road). BORN RED 2026-10-19 on trunk: a bare `jitter;`
+#  is a name that does nothing there, so the values agree and the WITNESS rows (the jitter's exit lines) are absent.
+_jt () { sed -n "s/^$2 .*\[ *\([^] ]*\) *\].*/\1/p" "$1" | tr '\n' ' ' | sed 's/ $//'; }
+_jtv () { echo "$(_jt "$1" JT-0) $(_jt "$1" JT-1) $(_jt "$1" JT-3) $(_jt "$1" JT-4)"; }
+run1 jitterT "$T/jtr";   check "jitterT runs" 0 $?
+sentinel "jitterT sentinel" "$T/jtr" "JITTER SENTINEL"
+sed '/^jitter;$/d' "$(ip jitterT)" > "$T/jtI.src"; "$B" "$T/jtI.src" > "$T/jtI" 2>&1
+_jtln=$(awk '/^stop\(\);|^bail\(\);/{exit} /^search /{l=NR} END{print l}' "$(ip jitterT)")
+awk -v L=$_jtln '{print} NR==L{print "parser(Start);"}' "$(ip jitterT)" > "$T/jtN.src"; "$B" "$T/jtN.src" > "$T/jtN" 2>&1; _jtNx=$?
+kindRow "jitterT the interpreted twin: JT-0 JT-1 JT-3 JT-4 (the intended values)" "$(_jtv "$T/jtI")" "1 9 2 3"
+kindRow "jitterT JT-0..JT-4 jittered = the interpreted twin" "$(_jtv "$T/jtr")" "$(_jtv "$T/jtI")"
+kindRow "jitterT JT-1 witness: jtAdd built once, three compiled calls (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtr")" "1"
+kindRow "jitterT JT-3 witness: jtBad announced NOT JITTABLE once, by name (born red 2026-10-19)" "$(grep -c '^=== jitter: jtBad NOT JITTABLE' "$T/jtr")" "1"
+kindRow "jitterT JT-3 witness: jtBad never fired compiled, two interpreted calls (born red 2026-10-19)" "$(grep -c '^=== jitter: jtBad not jittable, called 2 interpreted ===' "$T/jtr")" "1"
+kindRow "jitterT JT-4 witness: jtPreA reused from testing()'s compile, built 0, called 2 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtPreA built 0 called 2 ===' "$T/jtr")" "1"
+kindRow "jitterT JT-4 one compile of jtPreA in the run, testing()'s (the jitter adds none)" "$(grep -c '^=== jitRunAction: entering on jtPreA ===' "$T/jtr")" "1"
+check "jitterT new road (parser(Start) twin) runs" 0 $_jtNx
+sentinel "jitterT new road sentinel" "$T/jtN" "JITTER SENTINEL"
+kindRow "jitterT new road: JT-0..JT-4 = the interpreted twin" "$(_jtv "$T/jtN")" "$(_jtv "$T/jtI")"
+kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtN")" "1"
+
 #  ⚑ jitCompileOnceT -- SEQ 385 R1 (Tony, 2026-10-19): COMPILE ONCE. A compiled action is reused, never rebuilt, so a
 #  later testing(), jitRefire or forced compile answers from the cache. BORN RED 2026-10-19 on trunk: coF's second compile
 #  (a callee of coDrive2) is refused by the JIT as a duplicate symbol, and a second testing(coDrive1) routes to
