@@ -561,12 +561,19 @@ use ruler
 	drives the multi-block CondBr proof without disturbing the action POPs.
 	(The earlier bcLIST-priming bytecode harness is in git history; restore it
 	here when bytecode-emit verification is the need again.)
+	COMPILE ONCE (SEQ 385 R1): an action the JIT already holds goes to
+	jitRunAction too, which answers from its cache -- the first parse consumed
+	isCoded, so without this a second testing(x) fell to jitRunIfTest.
 	NB: keep this body free of `//` comments — they bleed field-resolution into
 	the following extern (unWrap). Doc goes here, in the block.
 *******************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
 GroupRules  ruler = groupRules;
+    -%
+    if ( input && jitCacheFind(input->groupBody) )
+        return ::jitRunAction(input) ? ruler->trueResult : 0;
+    %-
     if input.isCoded    return jitRunAction(input) ? trueResult : null;
     return jitRunIfTest(input) ? trueResult : null;
 }

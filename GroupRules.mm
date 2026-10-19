@@ -6466,6 +6466,18 @@ extern "C" int jitRunAction(GroupItem *action)
 	
 	printf("=== jitRunAction: entering on %s ===\n", action->groupBody->tag);
 	fflush(stdout);
+	//  compileOnce a compiled body is REUSED, never rebuilt -- its JiT record and the JIT's symbol stay as built (SEQ 385 R1)
+	if (JitCacheSlot *cached = action ? jitCacheFind(action->groupBody) : nullptr) {
+	printf("=== jitRunAction: %s REUSED as %s ===\n", action->groupBody->tag, cached->name.c_str());
+	gJitLastFn     = cached->fn;
+	gJitLastAction = action;
+	int r = gJitCompileOnly ? 0 : cached->fn(jitBodyField(action));
+	printf("=== jitRunAction result = %d ===\n", r);
+	printf("=== jitDegrade count = %d ===\n", gJitDegradeCount);
+	printf("=== jitCompile count = %d ===\n", gJitCompileCount);
+	printf("=== jitSlot count = %d ===\n", gJitSlotCount);
+	printf("=== jitSlotUnaryRefused = %d ===\n", gJitSlotUnaryRefused); fflush(stdout);
+	return r; }
 	/*  ⚠ CLEARED ON ENTRY, WRITTEN AT THE FOOT, and the gap is the point: a
 	refused compile leaves NO record rather than the previous one's.
 	setText("") and not clear() -- a dataless field reads back as "JiT".  */
@@ -6527,6 +6539,16 @@ extern "C" int jitRunAction(GroupItem *action)
 	GroupBody *pb = gJitNeedOwnFn[i].body;
 	GroupItem *pa = gJitNeedOwnFn[i].action;
 	if (jitFnMapFind(pb)) continue;
+	//  compileOnce a callee the JIT already holds is DECLARED here, not rebuilt; the JIT links the call to it
+	if (JitCacheSlot *cached = jitCacheFind(pb)) {
+	llvm::Function *decl = llvm::Function::Create(
+	llvm::FunctionType::get(llvm::Type::getInt32Ty(*gJitCtx), {llvm::PointerType::getUnqual(*gJitCtx)}, false),
+	llvm::Function::ExternalLinkage, cached->name, gJitModule);
+	JitFnSlot s; s.body = pb; s.action = pa; s.fn = decl;
+	gJitFnMap.push_back(s);
+	printf("=== jitRunAction: callee %s REUSED as %s ===\n", pb->tag, cached->name.c_str());
+	fflush(stdout);
+	continue; }
 	gJitRestartNeeded = false;
 	int cr = jitBuildFunction(pa);
 	if (gJitRestartNeeded) { jitDiscardPartial(); restarted = true; break; }
@@ -6663,6 +6685,11 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  refuses (-1..-5) does not inflate the count -- the POP asserts exactly
 	//  one compile across two fires, and a refusal is not a compile.
 	gJitCompileCount++;
+	//  compileOnce what this module DEFINES, named now -- the Functions die with the move below
+	std::vector<std::pair<GroupBody*,std::string>> defined;
+	for (JitFnSlot &s : gJitFnMap)
+	if (!s.fn->isDeclaration()) defined.push_back({s.body, s.fn->getName().str()});
+	defined.push_back({action->groupBody, driverName});
 	
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
@@ -6692,6 +6719,11 @@ extern "C" int jitRunAction(GroupItem *action)
 	int (*fp)(GroupItem*) = sym->toPtr<int(*)(GroupItem*)>();
 	gJitLastFn     = fp;      // keep it: the ladder fires it again, uncompiled
 	gJitLastAction = action;  // and what it runs on is re-read at each refire
+	for (auto &d : defined) {
+	if (jitCacheFind(d.first)) continue;
+	auto ds = jit->lookup(d.second);
+	if (!ds) { llvm::consumeError(ds.takeError()); continue; }
+	gJitCache.push_back({d.first, d.second, ds->toPtr<int(*)(GroupItem*)>()}); }
 	int r = gJitCompileOnly ? 0 : fp(jitBodyField(action));
 	printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
 	//  Reported UNCONDITIONALLY and with its value, so a rung can assert it.
@@ -11217,12 +11249,19 @@ GroupItem 	*target = field->get(2);
 	drives the multi-block CondBr proof without disturbing the action POPs.
 	(The earlier bcLIST-priming bytecode harness is in git history; restore it
 	here when bytecode-emit verification is the need again.)
+	COMPILE ONCE (SEQ 385 R1): an action the JIT already holds goes to
+	jitRunAction too, which answers from its cache -- the first parse consumed
+	isCoded, so without this a second testing(x) fell to jitRunIfTest.
 	NB: keep this body free of `//` comments — they bleed field-resolution into
 	the following extern (unWrap). Doc goes here, in the block.
 *******************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	if ( input && jitCacheFind(input->groupBody) )
+	return ::jitRunAction(input) ? ruler->trueResult : 0;
+	
 	if ( isCoded(input->groupBody->flags.actionType) )
 		return ::jitRunAction(input) ? ruler->trueResult : 0;
 	return ::jitRunIfTest(input) ? ruler->trueResult : 0;
