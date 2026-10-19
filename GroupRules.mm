@@ -5255,13 +5255,27 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	//  currentValues the interpreted run reads and writes FIELDS: every frame slot goes to its field before the call and
 	//  comes back after it -- the reload BEFORE the refusal branch, so the epilogue cannot write a stale slot over what the
 	//  statement wrote (SEQ 384, seal 163's hazard)
+	//  ⚠ THROUGH A KIND CHECK, NEVER A RAW STORE: the slot is homed on gCount / gNumber, which share storage with gGroup,
+	//  so a raw flush of a local that holds a GROUP at run time overwrites the pointer (measured: kindJ1T's iterator,
+	//  under the forced-jit census). A slot this compile wrote with a scalar `=` is flushed WITH its kind, as opFire's is.
+	auto bodyOf = [&](JitFrameSlot &f) {
+	return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)((char*)f.home - offsetof(GroupBody, gCount))), ptr, "rtBody"); };
 	for ( JitFrameSlot &f : gJitFrame ) {
-	llvm::Value *home = b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)f.home), ptr, "rtHome");
-	b->CreateStore(b->CreateLoad(f.ty, f.slot, "rtFlush"), home); }
+	bool num = f.ty->isDoubleTy();
+	void *helper = gJitFrameAssigned.count(f.home)
+	? (num ? (void*)&jitFlushNumberSlotKindRT : (void*)&jitFlushCountSlotKindRT)
+	: (num ? (void*)&jitFlushNumberSlotRT     : (void*)&jitFlushCountSlotRT);
+	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, f.ty}, false);
+	b->CreateCall(fty, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)helper), ptr, "rtFlushFn"),
+	{bodyOf(f), b->CreateLoad(f.ty, f.slot, "rtFlush")}); }
 	llvm::Value *rv = b->CreateCall(ty, fn, {stAddr}, "stmtRT");
 	for ( JitFrameSlot &f : gJitFrame ) {
-	llvm::Value *home = b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)f.home), ptr, "rtHome");
-	b->CreateStore(b->CreateLoad(f.ty, home, "rtReload"), f.slot); }
+	bool num = f.ty->isDoubleTy();
+	llvm::FunctionType *fty = llvm::FunctionType::get(f.ty, {ptr, f.ty}, false);
+	void *helper = num ? (void*)&jitReloadNumberSlotRT : (void*)&jitReloadCountSlotRT;
+	llvm::Value *nv = b->CreateCall(fty, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)helper), ptr, "rtReloadFn"),
+	{bodyOf(f), b->CreateLoad(f.ty, f.slot, "rtOld")}, "rtReload");
+	b->CreateStore(nv, f.slot); }
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
 	// refusalExit the interpreted run refused: leave the function as runAction's exit leaves the action -- an inlined
@@ -5584,9 +5598,32 @@ extern "C" void jitFlushCountRT(GroupItem *field, int value)
 	 if (field) field->setCount(value); 
 }
 
+extern "C" void jitFlushCountSlotKindRT(GroupItem *body, int value)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; if ( isCOUNT(gb->flags.data) || !gb->flags.data ) { gb->gCount = value; gb->flags.data = 5; } 
+}
+
+/*  The run-time flush / reload around a handed-over statement (SEQ 384). Each is handed a frame slot's GroupBody -- typed
+    GroupItem here only because a tok extern needs a type; the passthrough treats it as the body -- and moves the value
+    ONLY while the field holds a scalar of the slot's kind. A field holding a group, a string or a list keeps it.  */
+extern "C" void jitFlushCountSlotRT(GroupItem *body, int value)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; if ( isCOUNT(gb->flags.data) ) gb->gCount = value; 
+}
+
 extern "C" void jitFlushNumberRT(GroupItem *field, double value)
 {
 	 if (field) field->setNumber(value); 
+}
+
+extern "C" void jitFlushNumberSlotKindRT(GroupItem *body, double value)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; if ( isNUMBER(gb->flags.data) || !gb->flags.data ) { gb->gNumber = value; gb->flags.data = 9; } 
+}
+
+extern "C" void jitFlushNumberSlotRT(GroupItem *body, double value)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; if ( isNUMBER(gb->flags.data) ) gb->gNumber = value; 
 }
 
 /*******************************************************************************
@@ -6368,6 +6405,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	printf("=== jitRefire result = %d ===\n", r); fflush(stdout);
 	
 	return ruler->trueResult;
+}
+
+extern "C" int jitReloadCountSlotRT(GroupItem *body, int old)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; return isCOUNT(gb->flags.data) ? gb->gCount : old; 
+}
+
+extern "C" double jitReloadNumberSlotRT(GroupItem *body, double old)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; return isNUMBER(gb->flags.data) ? gb->gNumber : old; 
 }
 
 /*  pairs with jitSaveFrameRT's unconditional push.   jitEmitters.jitSaveFrameRT  */
