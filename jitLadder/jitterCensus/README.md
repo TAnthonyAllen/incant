@@ -30,7 +30,7 @@ Revert: `git checkout -- GroupActions.rtn ruleActions.rtn jitEmitters.rtn; tok G
     cp results/genlist2 $OUT/                  # the old-road files that call parser() themselves
     ./censusGX.sh old > $OUT/census.oldgx.txt  # those re-run with the generator excluded
     ./classify.sh old > $OUT/cls.old; ./classify.sh new > $OUT/cls.new
-    sed ... classifyGX.sh old > $OUT/cls.oldgx; then merge: cls.old minus genlist2's names, plus cls.oldgx
+    ./classifyGX.sh old > $OUT/cls.oldgx       # then merge: cls.old minus genlist2's names, plus cls.oldgx
 
 Classes per fixture: agree / DISAGREE / EXIT-during-compile / CRASH-at-compile / CRASH-at-run / HANG / untouched.
 Streams are split and addresses masked; the second tap-off run marks noisy fixtures. About a minute per road.
