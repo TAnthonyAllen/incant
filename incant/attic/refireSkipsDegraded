@@ -93,3 +93,19 @@ NEXT: BEST GUESS -- graded, not recommended, not built (SEQ 193).
   construct, or a named refusal that stops the compile rather than degrading it.
   Until then, the degrade-zero rows in the fleet are the guard: every ladder rung asserts
   degrade 0, so no certified rung is exposed to this.
+
+RETIRED BY MAPPING, SEQ 384 R1 (Tony, 2026-10-19), on branch jit-no-side-effects. The cure: compiling has no side
+effects -- the cerr hands its statement to a run-time call, so it prints once per fire and never at build. Taken on the
+branch: RS SINK FIRED 1, then RS SINK FIRED 2 after the refire, rsN 1 then 2, degrade 1 (the hand-over's announcement).
+Every assertion and where it now lives:
+  RS SINK FIRED once per fire (the interpreted road's count)   -> jitSinkFireT "SFJ ... = SFI": the values each fire
+                                                                   printed, 1 2, against the interpreted twin's 1 2
+  Tony's phased discriminator: no sink line inside the COMPILE  -> the same row: a build-time print reads sfN's build
+    window (want 0 there, 1 in the refire window)                 value, 0, so any 0 in SFJ fails it (today's trunk: [0])
+  ANCHOR rsN 1 after fire 1, 2 after the refire                 -> the same row: SFJ prints sfN after its +=, so 1 2 is
+                                                                   also the compiled statement's count per fire
+  runs, reaches its foot                                        -> jitSinkFireT runs (exit 0) + sentinel rows
+  the shapes in the census above: search, and FOR re-run        -> not pinned by their own rows; both now hand over
+    by the refire                                                 (docs/noSideEffects.md) and the forced-jit census
+                                                                   re-run counts them
+The attic keeps the text; the register keeps nothing.
