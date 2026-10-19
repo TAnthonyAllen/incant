@@ -76,6 +76,15 @@ enumeration, so it is rulable now**, and every day it stays open the silent-fall
 grows. The candidate answer — **degrade to the oracle LOUDLY** — already exists in the tree
 (§2.3) and has since been lifted into a reusable primitive (§1.3).
 
+### ⚠⚠ RULED 2026-10-19 (Tony, SEQ 384 R0) -- Consequence 2 is answered, and the jitter's first cut is shaped
+- **Compiling has no side effects.** A statement the jit cannot emit becomes a RUN-TIME call that runs it on the
+  interpreted road. **Nothing executes at build time.** (A degrade still announces; it no longer runs anything.)
+- **Compile once.** A compiled action is reused and never rebuilt -- SEQ 385, not SEQ 384.
+- **Scope: actions only** for the first cut. Parse bodies (the `builtinParseR` carriers) are the next rung.
+- **Spelling: `jitter;` alone** -- jit at first call from then on. No off switch and no `jitter(name)` for now.
+  `if jitter;` is unsupported (bear-trap #34: a truth test fires the command), and nothing is designed around it.
+  The recon these answer: `docs/jitterRecon.md`.
+
 ### Why textual IR gets MORE important under replacement, not less
 A JIT that **is** the interpreter must cover the **whole language**, and diff-against-golden is
 the only QA discipline that scales to that surface. A `.ll` file is a byte-exact target exactly

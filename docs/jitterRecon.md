@@ -4,6 +4,13 @@ Read-only. Nothing built, no command registered. A set of options for Tony; no r
 Every number below was measured on 2026-10-19 against trunk 425f5b0 (jit-parse-unjitted bought), in the clone,
 with a tap that is now reverted (md5 of GroupActions.rtn / GroupRules.mm / GroupRules.h = before the tap).
 
+
+> ⚠⚠ **RULED 2026-10-19 (Tony, SEQ 384 R0), recorded in `docs/jit.md` §0 too.** Compiling has no side effects: a
+> statement the jit cannot emit becomes a run-time call that runs it interpreted, and nothing executes at build time.
+> Compile once: a compiled action is reused, never rebuilt (SEQ 385). Scope: actions only for the first cut; parse
+> bodies are the next rung. Spelling: `jitter;` alone, jit at first call from then on -- no off switch, no
+> `jitter(name)` for now; `if jitter;` is unsupported (bear-trap #34) and nothing is designed around it.
+
 ## (a) What exists today
 
 **One place turns jitting on: `jitBuildFunction`** (`jitEmitters.rtn:290`, off again at `:399`). Since SEQ 382,
