@@ -209,3 +209,25 @@ instead is wrong: `a.datA != b.datA` would read the right side's dot on both sid
 jitLadder row for row; foldAndT under `jitter;` exits 0 with the body skipped; then the generator census (26 files,
 jitter before parser()) re-run, with its outcome a measurement, not a promise.
 **H7:** the cure committed, the carry removed at :1065 -> DA-1, DA-2, DA-3 back to 1 1 0; restored md5 = the cure.
+
+### The cure's dispatch (2026-10-20) -- R0 census and R1 rows, on trunk
+
+**R0, the copy census** (`jitLadder/jitterCensus/tapCopies.py`, clone at trunk 796008b; tap reverted md5-identical, no tap
+string in the rebuilt binary). Population: every node copy made while `jitting` whose source carries JitData, on all three
+copy roads -- `setContent` (GroupItem.twk:1724), the copy constructor (GroupItem.twk:43, which zeroes jitData), and
+`copyOf` (Commands.rtn:106). A `*x = *y` GroupItem copy keeps the jitData pointer, so it cannot lose the value and is not
+in the population. Validated before the fleet (H16): jitterDatAT logs runAccCompare, a fold probe logs runAccFold too,
+and the interpreted twin logs nothing.
+
+| run | copies | site |
+|---|---|---|
+| pop.sh (1561 green in the tapped clone) | 4 | setContent from runAccCompare (GroupActions.rtn:1065), all jitterDatAT |
+| jitLadder (PASSED) | 0 | -- its fixtures carry no compiled accessor compare; the env reached the binary (bin line names the clone) |
+| 26 generator files, `jitter;` after Start() (26 / 26 exit 139, reproduced) | 598 | setContent from runAccCompare, all |
+| a fold probe (`kres.datA + 1`) | 1 + 1 | runAccCompare and runAccFold (GroupActions.rtn:1091) |
+
+**No site beyond :1065 / :1091.** runAccFold's is reached by no fleet fixture, so R1 gives it a row of its own (DA-F).
+runAction's copy-out (:1155) sits on the interpreted arm, past the `jitting` exit; 0 in every run.
+
+**R1:** jitterDatAT gains DA-F (`kres.datA + 0 != 0`, runAccFold's copy-out alone; intended 0, today 1) and DA-Y
+(`yy = kres.datA + 1`; intended 1, today 0 -- the dot's product stored for the sum; pinned, not cured). pop.sh 1563.

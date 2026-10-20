@@ -7,6 +7,7 @@ define
     kop=1;
     kres;
     zz=0;
+    yy=0;
     dA1 code={
         if kres.datA != 0;
             cerr "DA-1 ARM":;
@@ -22,6 +23,15 @@ define
             cerr "DA-3 ARM":;
         cerr "DA-3 end":;
         };
+    dAf code={
+        if kres.datA + 0 != 0;
+            cerr "DA-F ARM":;
+        cerr "DA-F end":;
+        };
+    dAy code={
+        yy = kres.datA + 1;
+        cerr "DA-Y yy [ " yy " ]":;
+        };
     dAc code={
         if kop.datA != 0;
             cerr "DA-C ARM":;
@@ -33,6 +43,8 @@ zz = 5 - 2;
 dA1();
 dA2(kres);
 dAc();
+dAf();
+dAy();
 zz = 3 - 3;
 dA3();
 kres = 5;
@@ -57,6 +69,10 @@ fresh acRun copy with no jit value, and jitSeedOperands bakes a load of that cop
         history: intended no ARM, today ARM. This is generateParse's data exit taken for a data-less rule.
   DA-C  kop.datA != 0, kop has data: ARM on both roads. The non-zero control; it cannot tell the two reads apart and
         is not meant to; it proves the arm can be reached.
+  DA-F  kres.datA + 0 != 0, the same history: the dot sits in a FOLD, so its copy-out is runAccFold's
+        (GroupActions.rtn:1091), not the compare's. Intended no ARM, today ARM.
+  DA-Y  yy = kres.datA + 1: intended 1 (the twin), today 0 whatever the history -- the jitted store writes the DOT's
+        product into yy, not the sum (gJitDotProduct answering a later step). Pinned, not cured (ruled, 2026-10-20).
   DA-3  kres.datA != 0, compiled with tempField 0, called twice: before `kres = 5;` no ARM on both roads (right by
         luck of the history), after it intended ARM, today none. The read is frozen at build.
 
