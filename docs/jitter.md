@@ -231,3 +231,16 @@ runAction's copy-out (:1155) sits on the interpreted arm, past the `jitting` exi
 
 **R1:** jitterDatAT gains DA-F (`kres.datA + 0 != 0`, runAccFold's copy-out alone; intended 0, today 1) and DA-Y
 (`yy = kres.datA + 1`; intended 1, today 0 -- the dot's product stored for the sum; pinned, not cured). pop.sh 1563.
+
+### The cure (branch jit-datA-carry) -- pre-registered movers, written before the build
+
+The ruling: the copy-out carries the compiled value onto the copy -- a FRESH JitData holding left's value, under
+jitting; not a shared pointer, not skipping the copy. At both R0 sites, GroupActions.rtn:1065 and :1091.
+- jitterDatAT DA-1 1 -> 0, DA-2 1 -> 0, DA-F 1 -> 0, DA-3 0 -> 1. Nothing else in jitterDatAT moves; DA-Y (0) is
+  not cured, and if it moves it is named.
+- canary 361 -> 362 (one helper extern). No groups.ext change (called inside GroupRules.mm's own include chain).
+- foldAndT under `jitter;` exits 0 with the body skipped (a probe, not a fleet row: foldAndT's rows run it plain).
+- pop.sh and jitLadder otherwise row for row with the branch-point run in the clone (1563 green; PASSED).
+- H7, the carry removed at :1065 alone: DA-1, DA-2, DA-3 back to 1 1 0, DA-F stays 0. A second H7 at :1091 alone:
+  DA-F back to 1, the others stay cured.
+- Measurement, not certificate: the 26-file generator census, `jitter;` after Start(). Today 26 / 26 exit 139.
