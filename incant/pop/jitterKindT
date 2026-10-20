@@ -1,0 +1,44 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+register(JitterKindT);
+define
+    jkBuf buffer;
+    jkBufI buffer;
+    jkX;
+    jkFill code={
+        reset(jkBuf);
+        printTO(jkBuf);
+        print "abc";
+        printTO(0);
+        };
+    jkCopy code={
+        jkX = jkBufI;
+        };
+    ;
+jitter;
+reset(jkBufI);
+printTO(jkBufI);
+print "xyz";
+printTO(0);
+jkFill();
+cerr "JK-1 buf [" jkBuf "]":;
+jkCopy();
+cerr "JK-2 x [" jkX "]":;
+cerr "JK-I bufI [" jkBufI "]":;
+cerr "JITTERKIND SENTINEL":;
+stop();
+
+What jitterKindT Is
+
+Docket item 3 (2026-10-20), R0: the two shapes generateParse builds CodE from, each in a body the jitter compiles,
+read back at top level (interpreted, so the reading is the same instrument in both runs). Born red on trunk 6f360e3.
+The interpreted twin is this file with the `jitter;` line deleted (genLadder/pop.sh does it).
+
+  JK-1  jkFill prints the literal "abc" into jkBuf. Read back: twin abc, jitted 3 -- jitPrintList emits the literal
+        as an i32 load (its count, the length) because it decided the part's kind at build.
+  JK-2  jkCopy assigns jkBufI (filled at top level, interpreted, with xyz) to jkX. Twin xyz, jitted a number that
+        changes run to run -- jitEmitAssign stores an i32 load of the buffer. The row pins its SHAPE (all digits),
+        never its value: an address-like number is H3 noise.
+  JK-I  jkBufI read back after the copy: xyz on both roads -- the source is untouched, so JK-2's fault is the copy.

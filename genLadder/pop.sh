@@ -6242,6 +6242,21 @@ kindRow "jitterDatAT DA-3 ran twice, both ends" "$(grep -c '^DA-3 end' "$T/jda")
 kindRow "jitterDatAT witness: dA3 built once, called twice (every row is compiled)" "$(grep -c '^=== jitter: dA3 built 1 called 2 ===' "$T/jda")" "1"
 kindRow "jitterDatAT witness: dA1 dA2 dAc dAf dAy each built once" "$(grep -c '^=== jitter: dA[12cfy] built 1 called 1 ===' "$T/jda")" "5"
 
+#  ⚑ jitterKindT -- docket item 3 (2026-10-20), R0: AN EMITTER'S CHOICE OF A VALUE'S KIND IS A RUN-TIME FACT. The two
+#  shapes generateParse builds CodE from, compiled by the jitter and read back at top level (interpreted on both roads):
+#  print "abc" into a buffer, and x = a buffer. PINNED AT TODAY'S VALUES, intended = the interpreted twin (the file with
+#  `jitter;` deleted), asserted by its own row. JK-2's jitted number moves run to run, so its row pins the SHAPE (H3).
+_jk () { sed -n "s/^$2 [a-zA-Z]* \[ *\(.*[^ ]\) *\].*/\1/p" "$1"; }
+run1 jitterKindT "$T/jkd";   check "jitterKindT runs" 0 $?
+sentinel "jitterKindT sentinel" "$T/jkd" "JITTERKIND SENTINEL"
+sed '/^jitter;$/d' "$(ip jitterKindT)" > "$T/jkdI.src"; "$B" "$T/jkdI.src" > "$T/jkdI" 2>&1; check "jitterKindT interpreted twin runs" 0 $?
+sentinel "jitterKindT interpreted twin sentinel" "$T/jkdI" "JITTERKIND SENTINEL"
+kindRow "jitterKindT the interpreted twin: JK-1 JK-2 JK-I (the intended values)" "$(_jk "$T/jkdI" JK-1) $(_jk "$T/jkdI" JK-2) $(_jk "$T/jkdI" JK-I)" "abc xyz xyz"
+kindRow "jitterKindT JK-1 print \"abc\" into a buffer, jitted: the literal printed as its count (born red 2026-10-20; intended abc = the twin)" "$(_jk "$T/jkd" JK-1)" "3"
+kindRow "jitterKindT JK-2 x = buf, jitted: an i32 load of the buffer, all digits (born red 2026-10-20; intended xyz = the twin)" "$(_jk "$T/jkd" JK-2 | grep -cx '[0-9][0-9]*')" "1"
+kindRow "jitterKindT JK-I the copied buffer is untouched = the twin" "$(_jk "$T/jkd" JK-I)" "xyz"
+kindRow "jitterKindT witness: jkFill and jkCopy each built once" "$(grep -c '^=== jitter: jk\(Fill\|Copy\) built 1 called 1 ===' "$T/jkd")" "2"
+
 #  ⚑ jitCompileOnceT -- SEQ 385 R1 (Tony, 2026-10-19): COMPILE ONCE. A compiled action is reused, never rebuilt, so a
 #  later testing(), jitRefire or forced compile answers from the cache. BORN RED 2026-10-19 on trunk: coF's second compile
 #  (a callee of coDrive2) is refused by the JIT as a duplicate symbol, and a second testing(coDrive1) routes to
