@@ -418,6 +418,18 @@ extern void jitSeedOperands(GroupItem target,GroupItem arg)
 }
 
 
+// jitCarryCopy a copy-out keeps the compiled value: a FRESH JitData holding the source's, never the shared pointer -- a later dot re-seeds tempField's (docket item 1)
+extern void jitCarryCopy(GroupItem keep,GroupItem source)
+{
+    -%
+    if ( !GroupControl::groupController->groupRules->jitting || !keep || !source || !source->jitData ) return;
+    keep->jitData = new JitData();
+    keep->jitData->setJitter(source->jitData->getJitter());
+    gJitSeeded.push_back(keep);
+    %-
+}
+
+
 // jitSlotTaken 1 when a jitting op carries an emitter slot to fire -- counted HERE so no shim can forget; a unary slot refuses out loud and runs interpreted
 extern int jitSlotTaken(GroupItem op)
 {
@@ -1065,6 +1077,7 @@ GroupItem   left, keep, right = null;
     if left == ruler.tempField {
         keep = new("acRun");
         keep.setContent(left);
+        jitCarryCopy(keep,left);
         left = keep; }
     // refuseNotSubstitute under jitting a side that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
     if !left
@@ -1091,6 +1104,7 @@ GroupItem   run, keep;
         if run == ruler.tempField {
             keep = new("acRun");
             keep.setContent(run);
+            jitCarryCopy(keep,run);
             run = keep; }
         // refuseNotSubstitute under jitting an operand that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
         if !run

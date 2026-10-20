@@ -3844,6 +3844,17 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	
 }
 
+// jitCarryCopy a copy-out keeps the compiled value: a FRESH JitData holding the source's, never the shared pointer -- a later dot re-seeds tempField's (docket item 1)
+extern "C" void jitCarryCopy(GroupItem *keep, GroupItem *source)
+{
+	
+	if ( !GroupControl::groupController->groupRules->jitting || !keep || !source || !source->jitData ) return;
+	keep->jitData = new JitData();
+	keep->jitData->setJitter(source->jitData->getJitter());
+	gJitSeeded.push_back(keep);
+	
+}
+
 // jitCastCountTextRT a jitted store of a count into a STRING target takes it as text (SEQ 347 R0)
 extern "C" void jitCastCountTextRT(GroupItem *field, int value)
 {
@@ -10541,6 +10552,7 @@ GroupItem 	*right = 0;
 		{
 		keep = new GroupItem("acRun");
 		keep->setContent(left);
+		::jitCarryCopy(keep,left);
 		left = keep;
 		}
 	// refuseNotSubstitute under jitting a side that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
@@ -10576,6 +10588,7 @@ GroupItem 	*keep = 0;
 			{
 			keep = new GroupItem("acRun");
 			keep->setContent(run);
+			::jitCarryCopy(keep,run);
 			run = keep;
 			}
 		// refuseNotSubstitute under jitting an operand that produced nothing refuses by name -- a falseResult in its place would be seeded as a constant
