@@ -1,0 +1,63 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+register(JitterDatAT);
+define
+    kop=1;
+    kres;
+    zz=0;
+    dA1 code={
+        if kres.datA != 0;
+            cerr "DA-1 ARM":;
+        cerr "DA-1 end":;
+        };
+    dA2 code={
+        if datA != 0;
+            cerr "DA-2 ARM":;
+        cerr "DA-2 end":;
+        };
+    dA3 code={
+        if kres.datA != 0;
+            cerr "DA-3 ARM":;
+        cerr "DA-3 end":;
+        };
+    dAc code={
+        if kop.datA != 0;
+            cerr "DA-C ARM":;
+        cerr "DA-C end":;
+        };
+    ;
+jitter;
+zz = 5 - 2;
+dA1();
+dA2(kres);
+dAc();
+zz = 3 - 3;
+dA3();
+kres = 5;
+dA3();
+cerr "JITTERDATA SENTINEL":;
+stop();
+
+What jitterDatAT Is
+
+Docket item 1 (SEQ 387), the datA misread, R0 reproducer. Born red 2026-10-20 on trunk.
+
+Each action is compiled by the jitter at its first call. Every condition is a field accessor compared against 0,
+written with its arm on its own indented line (the one-line form `if c; s;` is handed to run time whole and never
+compiles the compare, so it agrees by not being compiled). kres holds no data until the line `kres = 5;`.
+
+The top-level `zz = 5 - 2;` and `zz = 3 - 3;` run interpreted and leave tempField holding 3 and then 0. The compiled
+compare reads tempField as it stood AT BUILD (runAccCompare's copy-out, GroupActions.rtn:1065, hands the compare a
+fresh acRun copy with no jit value, and jitSeedOperands bakes a load of that copy's count), so:
+
+  DA-1  kres.datA != 0, compiled with tempField 3: intended no ARM (the twin), today ARM.
+  DA-2  the generator's bare spelling (IncantForms/WorkingOn/parser:18), datA != 0 on argument kres, the same
+        history: intended no ARM, today ARM. This is generateParse's data exit taken for a data-less rule.
+  DA-C  kop.datA != 0, kop has data: ARM on both roads. The non-zero control; it cannot tell the two reads apart and
+        is not meant to; it proves the arm can be reached.
+  DA-3  kres.datA != 0, compiled with tempField 0, called twice: before `kres = 5;` no ARM on both roads (right by
+        luck of the history), after it intended ARM, today none. The read is frozen at build.
+
+The interpreted twin is this file with the `jitter;` line deleted (genLadder/pop.sh does it).

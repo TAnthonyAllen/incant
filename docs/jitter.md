@@ -156,3 +156,56 @@ SEQ 385's tap-driven table, cluster by cluster:
    inside runAction's save / restore bracket, whose restore covers it. Reachable only through `testing()` / `jitRefire`.
 
 The rest is the plain value disagreements: 85 / 102 fixtures, no one mechanism (cluster G).
+
+## Docket item 1 -- the datA misread, named (2026-10-20, kant, trunk c975df9, read-only; no engine source changed)
+
+**R0, the reproducer:** `incant/pop/jitterDatAT`, pinned in pop.sh at today's values (12 rows; the intended values are
+the interpreted twin's, asserted by their own row). DA-1 and DA-2 take a data arm they should not; DA-3 never takes one it
+should; DA-C (kop has data) is the non-zero control.
+
+**R1 (a), the mechanism, from the IR (INCANT_JIT_DUMP=2 under testing()).** The compare is a run-time LOAD, but not of
+the dot's value. `jitEmitDot` computes `%dotVal` correctly and seeds it on `ruler->tempField` (Instruct.rtn:309,
+jitEmitters.rtn:1568). Then `runAccCompare`'s copy-out (GroupActions.rtn:1065-1068) sees `left == tempField` and replaces
+it with a fresh `acRun` built by `setContent`, which carries no jitData. `runOPdirect` -> `jitSeedOperands`
+(GroupActions.rtn:1275, :406) finds the copy unseeded and calls `jitSeedField`, which bakes a load of the copy's own
+count -- a copy of whatever tempField held AT BUILD. `%dotVal` is dead:
+
+    %dotVal = call i32 jitUnboxCount(%dotRes)
+    %unbox2 = load i32, ptr inttoptr (<acRun's count>)
+    %cmp    = icmp ne i32 %unbox2, 0
+
+`runAccFold`'s copy-out (GroupActions.rtn:1091-1094) is the same: `yy = kres.datA + 1` emits `add %unbox2, 1`.
+So it is not a constant folded at build, and not jitEmitDot's seeded value: it is a run-time read of a build-time
+snapshot. Docket item 3's class (a build-time read of a run-time value) by effect, but at a site the 13-site census did
+not search: the copy-out is not gated on `jitting`, and that census's population was the `jitting` sites.
+
+**R1 (b), history, measured both ways.** The answer follows the LAST INTERPRETED write to tempField before the compile:
+`zz = 5 - 2` before -> wrong, `zz = 3 - 3` (or `1 - 1`) before -> right, same action, same binary. One unrelated compile
+in between (by `jitter;` or `testing()`) moves nothing: compiled arithmetic does not write tempField at build. And the
+read is frozen: compiled at tempField 0, `kres = 5` afterwards, the compiled call still skips the arm (the twin takes it).
+This is why the R2 (b) scratch probes "agreed in every shape": their history left tempField at 0.
+
+**Why the one-line form agreed:** `if c;  s;` on one line is handed to run time whole (a `stmtRT` call; its IR holds no
+compare). Only an arm on its own indented line compiles the condition. Graded: measured in the IR, cause of the hand-over
+not traced.
+
+**Shared?** foldAndT: YES -- its crash follows the same history (tempField 0 before K1's compile -> exit 0, the body
+skipped; 3 -> exit 139). The generator: its exit is `if datA != 0;` with an indented arm (IncantForms/WorkingOn/parser:18),
+which DA-2 reproduces; that the 26 / 26 crash is ONLY this is a prediction, not measured. Item 3 (starIdiom): the same
+class, a different site. Item 2 (the second inline, -5): NOT shown -- the crossing state here is the interpreter's
+tempField, not anything a compile leaves behind.
+
+**Found on the way, context (no row red):** in `yy = kres.datA + 1;` the jitted store is `assignNode(%dotRes, yy)` --
+the assign writes the DOT's product into yy, not `%add`; yy reads 0 whatever the history (twin 1). The dot's
+`gJitDotSeeded` / `gJitDotProduct` channel (jitEmitters.rtn:1571-1573) answering for a step that came after it: one
+channel, two meanings. Not chased; unpinned.
+
+**Proposed cure (R2, not built):** the copy-out keeps the jit value. Under jitting, at both sites, give `keep` its OWN
+JitData carrying `left`'s value (`keep->jitData = new JitData(); keep->jitData->setJitter(left->jitData->getJitter());
+gJitSeeded.push_back(keep);`) -- a fresh JitData, never the shared pointer, because a second dot re-seeds tempField's
+(SEQ 376 R2's rule). One helper beside jitSeedOperands, called from :1065 and :1091. Dropping the copy-out under jitting
+instead is wrong: `a.datA != b.datA` would read the right side's dot on both sides.
+**Certificate:** jitterDatAT DA-1 1 -> 0, DA-2 1 -> 0, DA-3 0 -> 1 (pre-registered); pop.sh otherwise row for row,
+jitLadder row for row; foldAndT under `jitter;` exits 0 with the body skipped; then the generator census (26 files,
+jitter before parser()) re-run, with its outcome a measurement, not a promise.
+**H7:** the cure committed, the carry removed at :1065 -> DA-1, DA-2, DA-3 back to 1 1 0; restored md5 = the cure.

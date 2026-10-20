@@ -6220,6 +6220,25 @@ sentinel "jitterT new road sentinel" "$T/jtN" "JITTER SENTINEL"
 kindRow "jitterT new road: JT-0..JT-4 = the interpreted twin" "$(_jtv "$T/jtN")" "$(_jtv "$T/jtI")"
 kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtN")" "1"
 
+#  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
+#  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
+#  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its
+#  count. The top-level `zz = 5 - 2;` / `zz = 3 - 3;` set that history. PINNED AT TODAY'S VALUES; each label carries the
+#  intended value, which is the interpreted twin's (the file with `jitter;` deleted). A cure moves DA-1, DA-2, DA-3.
+_da () { grep -c "^$2 ARM" "$1"; }
+run1 jitterDatAT "$T/jda";   check "jitterDatAT runs" 0 $?
+sentinel "jitterDatAT sentinel" "$T/jda" "JITTERDATA SENTINEL"
+sed '/^jitter;$/d' "$(ip jitterDatAT)" > "$T/jdaI.src"; "$B" "$T/jdaI.src" > "$T/jdaI" 2>&1; check "jitterDatAT interpreted twin runs" 0 $?
+sentinel "jitterDatAT interpreted twin sentinel" "$T/jdaI" "JITTERDATA SENTINEL"
+kindRow "jitterDatAT the interpreted twin: DA-1 DA-2 DA-C DA-3 arms taken (the intended values)" "$(_da "$T/jdaI" DA-1) $(_da "$T/jdaI" DA-2) $(_da "$T/jdaI" DA-C) $(_da "$T/jdaI" DA-3)" "0 0 1 1"
+kindRow "jitterDatAT DA-C kop.datA != 0 jitted, kop has data: arm taken = the twin" "$(_da "$T/jda" DA-C)" "1"
+kindRow "jitterDatAT DA-1 kres.datA != 0 jitted, tempField 3 at build: arm taken (born red 2026-10-20; intended 0 = the twin)" "$(_da "$T/jda" DA-1)" "1"
+kindRow "jitterDatAT DA-2 bare datA != 0 on argument kres jitted (generateParse's data exit): arm taken (born red 2026-10-20; intended 0 = the twin)" "$(_da "$T/jda" DA-2)" "1"
+kindRow "jitterDatAT DA-3 compiled at tempField 0, called before and after kres = 5: arms taken (born red 2026-10-20; intended 1 = the twin)" "$(_da "$T/jda" DA-3)" "0"
+kindRow "jitterDatAT DA-3 ran twice, both ends" "$(grep -c '^DA-3 end' "$T/jda")" "2"
+kindRow "jitterDatAT witness: dA3 built once, called twice (every row is compiled)" "$(grep -c '^=== jitter: dA3 built 1 called 2 ===' "$T/jda")" "1"
+kindRow "jitterDatAT witness: dA1 dA2 dAc each built once" "$(grep -c '^=== jitter: dA[12c] built 1 called 1 ===' "$T/jda")" "3"
+
 #  ⚑ jitCompileOnceT -- SEQ 385 R1 (Tony, 2026-10-19): COMPILE ONCE. A compiled action is reused, never rebuilt, so a
 #  later testing(), jitRefire or forced compile answers from the cache. BORN RED 2026-10-19 on trunk: coF's second compile
 #  (a callee of coDrive2) is refused by the JIT as a duplicate symbol, and a second testing(coDrive1) routes to
