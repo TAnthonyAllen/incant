@@ -273,6 +273,7 @@ extern "C" int jitIfRT(GroupItem *input);
 extern "C" void jitInitOnce();
 extern "C" void jitInlinePop(GroupItem *resultNode);
 extern "C" void jitInlinePush(GroupItem *action);
+extern "C" int jitKindUncarried(GroupItem *x);
 extern "C" void jitLoopBegin();
 extern "C" void jitLoopBody();
 extern "C" void jitLoopEnd();

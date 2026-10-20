@@ -1075,8 +1075,10 @@ else echo "  FAIL  JS out = '$jso', want 3. 0 means the locals ALIAS."; fail=1; 
 
 #  DEGRADE RESTORED to 0 on both switches (SEQ 334 J6): the switch-on pins (1 at J1, 3 at J2 -- the acK IF run whole and
 #  interpreted, plus two acX assignments) retired when J6 put acK and acX on the jit road.
-if [ "$jsd" = "0" ]; then echo "  ok    JS degrade count 0"; green=$((green+1))
-else echo "  FAIL  JS degrade count = '$jsd', want 0"; fail=1; fi
+#  RE-PINNED 2026-10-20 (jit-kind-handover) 0 -> 2: the driver's `print "PREAMBLE":;` -- pinned WRONG in the fixture's prose
+#  because it printed its length -- now hands over to run time and prints PREAMBLE; the hand-over is a degrade, counted.
+if [ "$jsd" = "2" ]; then echo "  ok    JS degrade count 2 (the print hands over)"; green=$((green+1))
+else echo "  FAIL  JS degrade count = '$jsd', want 2"; fail=1; fi
 #  THE BRIEF'S OWN DISCRIMINATOR: two functions inside ONE compile leaves this at
 #  1. If it moved, the implementation NESTED jitRunAction instead of sequencing
 #  jitBuildFunction, and the sixteen globals are being re-entered.

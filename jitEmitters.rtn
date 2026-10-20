@@ -576,6 +576,18 @@ extern int jitOpEmits(GroupItem op,GroupItem target)
     %-
 }
 
+/*  jitKindUncarried -- 1 for an UNSEEDED operand whose kind at build is known and is not a count or a number (a string,
+    token, buffer, group, set ...). The jit carries counts and numbers only; such an operand's value is a run-time fact,
+    so its statement is handed over (docket item 3). A kindless operand is NOT caught here.  */
+extern int jitKindUncarried(GroupItem x)
+{
+    -%
+    if ( !x || x->jitData ) return 0;
+    int kd = x->groupBody->flags.data;
+    return ( kd && !isCOUNT(kd) && !isNUMBER(kd) ) ? 1 : 0;
+    %-
+}
+
 /*  jitHandOver -- the statement under emission runs at RUN time instead (SEQ 384). Announces through jitDegrade, once
     per statement (a later degrade in the same statement folds into it), and marks the statement for jitStmtEnd.  */
 extern int jitHandOver(String what,GroupItem node)
@@ -1287,6 +1299,9 @@ extern int jitEmitBareRead(GroupItem token)
     //  refusal is a red and a wrong constant is nothing.
     if (token->groupBody->groupList) {
         jitDegrade("bare read of a LIST -- parts must be classified by the caller", token);
+        return 0; }
+    if (::jitKindUncarried(token)) {
+        ::jitHandOver((char*)"a read of a value whose kind is not a count or a number -- its statement runs at RUN time", token);
         return 0; }
     //  Already seeded this compile? Then the value is in hand -- and re-seeding
     //  is bear-trap #9 (never re-seed an inner op-result).

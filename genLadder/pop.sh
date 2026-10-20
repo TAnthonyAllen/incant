@@ -6258,15 +6258,16 @@ kindRow "jitterDatAT witness: dA1 dA2 dAc dAf dAy each built once" "$(grep -c '^
 #  ⚑ jitterKindT -- docket item 3 (2026-10-20), R0: AN EMITTER'S CHOICE OF A VALUE'S KIND IS A RUN-TIME FACT. The two
 #  shapes generateParse builds CodE from, compiled by the jitter and read back at top level (interpreted on both roads):
 #  print "abc" into a buffer, and x = a buffer. PINNED AT TODAY'S VALUES, intended = the interpreted twin (the file with
-#  `jitter;` deleted), asserted by its own row. JK-2's jitted number moves run to run, so its row pins the SHAPE (H3).
+#  `jitter;` deleted), asserted by its own row. Born red; jit-kind-handover cured JK-1 and JK-2 (the jitted number JK-2
+#  stored moved run to run, so its born-red row pinned the shape, H3).
 _jk () { sed -n "s/^$2 [a-zA-Z]* \[ *\(.*[^ ]\) *\].*/\1/p" "$1"; }
 run1 jitterKindT "$T/jkd";   check "jitterKindT runs" 0 $?
 sentinel "jitterKindT sentinel" "$T/jkd" "JITTERKIND SENTINEL"
 sed '/^jitter;$/d' "$(ip jitterKindT)" > "$T/jkdI.src"; "$B" "$T/jkdI.src" > "$T/jkdI" 2>&1; check "jitterKindT interpreted twin runs" 0 $?
 sentinel "jitterKindT interpreted twin sentinel" "$T/jkdI" "JITTERKIND SENTINEL"
 kindRow "jitterKindT the interpreted twin: JK-1 JK-2 JK-I (the intended values)" "$(_jk "$T/jkdI" JK-1) $(_jk "$T/jkdI" JK-2) $(_jk "$T/jkdI" JK-I)" "abc xyz xyz"
-kindRow "jitterKindT JK-1 print \"abc\" into a buffer, jitted: the literal printed as its count (born red 2026-10-20; intended abc = the twin)" "$(_jk "$T/jkd" JK-1)" "3"
-kindRow "jitterKindT JK-2 x = buf, jitted: an i32 load of the buffer, all digits (born red 2026-10-20; intended xyz = the twin)" "$(_jk "$T/jkd" JK-2 | grep -cx '[0-9][0-9]*')" "1"
+kindRow "jitterKindT JK-1 print \"abc\" into a buffer, jitted = the twin (born red 2026-10-20, green since jit-kind-handover: the statement hands over)" "$(_jk "$T/jkd" JK-1)" "abc"
+kindRow "jitterKindT JK-2 x = buf, jitted = the twin (born red 2026-10-20, green since jit-kind-handover: the statement hands over)" "$(_jk "$T/jkd" JK-2)" "xyz"
 kindRow "jitterKindT JK-I the copied buffer is untouched = the twin" "$(_jk "$T/jkd" JK-I)" "xyz"
 kindRow "jitterKindT witness: jkFill and jkCopy each built once" "$(grep -c '^=== jitter: jk\(Fill\|Copy\) built 1 called 1 ===' "$T/jkd")" "2"
 
@@ -6408,10 +6409,12 @@ run1 jitOpEqFoldT "$T/joef";   check "jitOpEqFoldT runs" 0 $?
 sentinel "jitOpEqFoldT sentinel" "$T/joef" "JITOPEQFOLD SENTINEL"
 kindRow "jitOpEqFoldT jitted (not routed to jitRunIfTest)" "$(grep -c '^=== jitRunAction: entering on joAct' "$T/joef")" "1"
 kindRow "jitOpEqFoldT JOF-1 a < b += 1 -> a b  # intended: refused, 10 4" "$(grep '^JOF-1 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "10 5"
-kindRow "jitOpEqFoldT JOF-2 s + t += x -> s t, BOTH WRITTEN  # intended: refused, ab cd" "$(grep '^JOF-2 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "2x 1"
+kindRow "jitOpEqFoldT JOF-2 s + t += x -> s t = ab cd, its intended value (green since jit-kind-handover: a string operand hands the statement over)" "$(grep '^JOF-2 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "ab cd"
 kindRow "jitOpEqFoldT JOF-3 r = a < b += 1 -> r  # intended: refused" "$(grep '^JOF-3 ' "$T/joef" | awk '{print $NF}')" "0"
 kindRow "jitOpEqFoldT JOF-4 r = a + b += 1 -> a r  # intended: refused, a 10" "$(grep '^JOF-4 ' "$T/joef" | awk '{print $(NF-2), $NF}')" "10 15"
-kindRow "jitOpEqFoldT JOF-4 degrade count (the outer = gets a null)  # intended: 0" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/joef")" "1"
+#  RE-PINNED 2026-10-20 (jit-kind-handover) 1 -> 6: the five new are hand-overs of string operands -- JOF-2's `+` and four
+#  `joK = joS`-shaped string assigns -- each a correct fallback to run time (docket item 3). The outer `=`'s null still degrades once.
+kindRow "jitOpEqFoldT JOF-4 degrade count: the outer = gets a null (1) + five string hand-overs  # intended: 0 for the null" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/joef")" "6"
 #  RE-PINNED 2026-10-16 (SEQ 370 R1) 1 -> 0: JOF-4's fold-step refusal is jit-only (interpreted the step lands on the acRun
 #  copy and refuses nothing, opEqFoldT REFUSED 0), and a jit-only refusal now raises nothing -- the statement runs
 #  interpreted at run time. JOF-4's values (a 10 r 15) and its degrade (1) do not move.
