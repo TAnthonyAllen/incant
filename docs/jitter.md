@@ -314,3 +314,48 @@ otherwise nothing. CERTIFICATE: recorded, dirCheck's bare retok (every .h rewrit
 binary was recorded: GroupActions.rtn`; restored md5-identical -> silent. **A first version used `diff <(...)`, which is a
 syntax error under pop.sh's `/bin/sh`; it left the changed-list empty and the check SILENT -- caught on reading the run's
 stderr, rewritten with temp files.** Like the mtime check, it assumes a rebuild used the current tree.
+
+## The kindless-local census (2026-10-20, read-only, after the buy of jit-kind-handover, merge 9b526e1)
+
+Ruled: no ruling on kindless operands yet; Premise 1 stands until the number is in. Tooling:
+`jitLadder/jitterCensus/tapKindless.py` (four taps, clone only, reverted md5-identical, no tap string in the rebuilt
+binary) and `kindlessTable.py`; raw lines and the table in `jitLadder/jitterCensus/results/kindless.raw` / `.table`.
+
+**R0, the taps.** A: the frame prologue (jitEmitters.rtn, the locals walk at :359) -- every local it slots, with its
+kind AT BUILD and its body. B: aCTionBlocK after each INTERPRETED statement -- every local of the running action and its
+kind NOW (a kind held only inside one statement is not seen). C: runOPdirect's top under jitting -- each assign-tier op
+into a local kindless at build, with its right side's kind at build. D: aCTionIterate under jitting -- the cursor.
+C and D join to A on the BODY pointer (an inlined callee's local compiles under the caller's currentMETHOD, and an
+assign's target is a reference node). Validated before the fleet (H16) on probeFrameT: conjunct slotted 0, holds STRING,
+assigned `= "&&"`. Fleet: pop.sh (1572 green in the tapped clone), jitLadder (PASSED), the 26 generator files under
+`jitter;` and plain, every run tagged by a wrapper with its fixture name.
+
+**R1, the table.**
+
+| | rows (fixture x action x local) | distinct (action, local) | files |
+|---|---|---|---|
+| locals the prologue slots | 239 | 53 | 54 |
+| of which kindless at build | **239 -- every one** | 53 | 54 |
+| hold only count / number at run time | 81 | 23 | -- |
+| hold something else -- inferable at build | 153 | 26 | 34 |
+| hold something else -- NOT inferable | **0** | **0** | 0 |
+| never seen running interpreted | 5 | 4 | 4 (jitSelfFn sfLoc; kindJ1T, kindLiftT kjWalk g; kindSRT srE, srL) |
+
+The 26 non-scalar, by what they hold and how the build can know it: **25 GROUP** -- holders made by `:=` (generateParse
+codeCopy / bprCopy, the `v` `m` `c` `n` of exSay / lcSay / zwSay / roParse, BJ code / block / nm, scDriver scH), by `<-`
+(roParse roCp), or iterate cursors (generateParse and walkRules grup, displayForm grup, itWalk g, jdRun jdCur, jitJUi g,
+tcWalk tcR); **1 STRING** -- generateParse's `conjunct`, assigned from a string literal. Run-time kinds were found in the
+same fixture for 87 rows and in another fixture (a jitted fixture's interpreted twin is pop.sh's sed copy) for 147; no
+(action, local) holds different kinds in different files, so the join conflates nothing.
+
+**R2, three candidate rules, reach measured (no build):**
+- **(a) every kindless read hands over.** Reach: all 239 / 53 / 54 -- every local read in every compiled action, because
+  no local has a kind at build. The 23 scalar locals (counters, lengths) lose the jit with the rest.
+- **(b) infer a local's kind from its build-visible writer** (`:=` / `<-` -> holder, iterate -> cursor, `=` of a known
+  kind -> that kind) and give an inferably non-scalar local no scalar slot. Reach: 153 / 26 / 34; covers every
+  non-scalar local measured. Of the 26, ONE is a value kind read as a value (conjunct -- the generator's remaining
+  disagreement); the 25 GROUP holders are reached through `*`, iterate and `:=`, and whether any is ever read through
+  its i32 slot is NOT measured.
+- **(c) an action with an uninferable non-scalar local is NOT JITTABLE.** Reach today: 0 -- a net that costs the fleet
+  nothing and catches the case (b) cannot see.
+STOP for the ruling.

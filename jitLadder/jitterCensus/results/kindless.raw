@@ -1,0 +1,3747 @@
+HOLDS jsonTest testJSON field 0
+HOLDS jsonTest testJSON jtC 0
+HOLDS jsonTest jtMember jtN 0
+HOLDS jsonTest jtMember jtN 6
+HOLDS jsonTest testJSON jtC 6
+HOLDS jsonTest jtKids jtK 0
+HOLDS jsonTest jtKids jtK 6
+HOLDS baselineTests testUnitTests This 0
+HOLDS baselineTests accessTest across 0
+HOLDS baselineTests ifTest grup 0
+HOLDS baselineTests ifTest grup 6
+HOLDS baselineTests testOR Saw 0
+HOLDS baselineTests testIndentBlock One 0
+HOLDS baselineTests testIndentBlock Two 0
+HOLDS baselineTests testIndentBlock Three 0
+HOLDS baselineTests testIndentBlock Four 0
+HOLDS baselineTests stringTest what 5
+HOLDS baselineTests testInterpret Saw 0
+HOLDS baselineTests testInterpret grup 0
+HOLDS baselineTests testInterpret grup 6
+HOLDS baselineTests testInterpret grup 5
+HOLDS baselineTests testUnary grup 0
+HOLDS baselineTests testUnary grup 5
+HOLDS baselineTests testGet width 0
+ASSIGN baselineTests 0x105493e00 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN baselineTests 0x105493620 r = argKind=0 lit=0 jit=1 node=0
+SLOT baselineTests testRecurF t 0 0x105493e00
+SLOT baselineTests testRecurF r 0 0x105493620
+ASSIGN baselineTests 0x105493e00 t = argKind=0 lit=0 jit=1 node=0
+HOLDS baselineTests testRecursion rf 0
+HOLDS baselineTests testRecursion rg 0
+HOLDS baselineTests testRecursion rh 0
+HOLDS baselineTests testRecursion rk 0
+ASSIGN baselineTests 0x10554ce00 r = argKind=0 lit=0 jit=1 node=0
+SLOT baselineTests testRecurG r 0 0x10554ce00
+ASSIGN baselineTests 0x105f6dd90 x = argKind=0 lit=0 jit=1 node=0
+HOLDS baselineTests testRecurF t 0
+HOLDS baselineTests testRecurF r 0
+HOLDS baselineTests testRecurF t 5
+HOLDS baselineTests testRecurF r 5
+HOLDS baselineTests testRecursion rf 5
+HOLDS baselineTests testRecurG r 0
+HOLDS baselineTests testRecurG r 5
+HOLDS baselineTests testRecursion rg 5
+HOLDS baselineTests testRecurH x 5
+HOLDS baselineTests testRecursion rh 5
+HOLDS baselineTests testRecursion rk 5
+HOLDS baselineTests printDefinition grup 0
+HOLDS baselineTests printDefinition grup 6
+HOLDS baselineTestsNew generateParse conjunct 0
+HOLDS baselineTestsNew generateParse notFirstTimeThru 0
+HOLDS baselineTestsNew generateParse grup 0
+HOLDS baselineTestsNew generateParse codeCopy 0
+HOLDS baselineTestsNew generateParse bprCopy 0
+HOLDS baselineTestsNew generateParse conjunct 13
+HOLDS baselineTestsNew generateParse notFirstTimeThru 5
+HOLDS baselineTestsNew generateParse grup 6
+HOLDS baselineTestsNew generateParse codeCopy 6
+HOLDS baselineTestsNew generateParse bprCopy 6
+HOLDS baselineTestsNew walkRules length 0
+HOLDS baselineTestsNew walkRules grup 0
+HOLDS baselineTestsNew walkRules length 5
+HOLDS baselineTestsNew walkRules grup 6
+HOLDS baselineTestsNew testUnitTests This 0
+HOLDS baselineTestsNew accessTest across 0
+HOLDS baselineTestsNew ifTest grup 0
+HOLDS baselineTestsNew ifTest grup 6
+HOLDS baselineTestsNew testOR Saw 0
+HOLDS baselineTestsNew testIndentBlock One 0
+HOLDS baselineTestsNew testIndentBlock Two 0
+HOLDS baselineTestsNew testIndentBlock Three 0
+HOLDS baselineTestsNew testIndentBlock Four 0
+HOLDS baselineTestsNew stringTest what 5
+HOLDS baselineTestsNew testInterpret Saw 0
+HOLDS baselineTestsNew testInterpret grup 0
+HOLDS baselineTestsNew testInterpret grup 6
+HOLDS baselineTestsNew testInterpret grup 5
+HOLDS baselineTestsNew testUnary grup 0
+HOLDS baselineTestsNew testUnary grup 5
+HOLDS baselineTestsNew testGet width 0
+ASSIGN baselineTestsNew 0x103e86ee0 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN baselineTestsNew 0x103e860e0 r = argKind=0 lit=0 jit=1 node=0
+SLOT baselineTestsNew testRecurF t 0 0x103e86ee0
+SLOT baselineTestsNew testRecurF r 0 0x103e860e0
+ASSIGN baselineTestsNew 0x103e86ee0 t = argKind=0 lit=0 jit=1 node=0
+HOLDS baselineTestsNew testRecursion rf 0
+HOLDS baselineTestsNew testRecursion rg 0
+HOLDS baselineTestsNew testRecursion rh 0
+HOLDS baselineTestsNew testRecursion rk 0
+ASSIGN baselineTestsNew 0x103f3ca80 r = argKind=0 lit=0 jit=1 node=0
+SLOT baselineTestsNew testRecurG r 0 0x103f3ca80
+ASSIGN baselineTestsNew 0x108e0a9a0 x = argKind=0 lit=0 jit=1 node=0
+HOLDS baselineTestsNew testRecurF t 0
+HOLDS baselineTestsNew testRecurF r 0
+HOLDS baselineTestsNew testRecurF t 5
+HOLDS baselineTestsNew testRecurF r 5
+HOLDS baselineTestsNew testRecursion rf 5
+HOLDS baselineTestsNew testRecurG r 0
+HOLDS baselineTestsNew testRecurG r 5
+HOLDS baselineTestsNew testRecursion rg 5
+HOLDS baselineTestsNew testRecurH x 5
+HOLDS baselineTestsNew testRecursion rh 5
+HOLDS baselineTestsNew testRecursion rk 5
+HOLDS baselineTestsNew printDefinition grup 0
+HOLDS baselineTestsNew printDefinition grup 6
+HOLDS argWriteT awRun r1 5
+HOLDS argWriteT awRun r4 0
+HOLDS argWriteT awRun r4 5
+HOLDS argBindT abRun b1 5
+HOLDS noPrintFrameT npCtl npC1 0
+HOLDS noPrintFrameT npCtl npC2 0
+HOLDS noPrintFrameT npCtl npC1 13
+HOLDS noPrintFrameT npCtl npC2 13
+HOLDS noPrintFrameT npMint npM1 0
+HOLDS noPrintFrameT npMint npM2 0
+HOLDS noPrintFrameT npMint npM1 13
+HOLDS noPrintFrameT npMint npM2 13
+HOLDS argRoundT arA arMine 0
+HOLDS argRoundT arA arMine 5
+HOLDS leafLabelT llSay v 6
+HOLDS leafLabelT llSay m 0
+HOLDS leafLabelT llSay c 0
+HOLDS leafLabelT llSay rp 0
+HOLDS leafLabelT llSay m 6
+HOLDS leafLabelT llSay c 6
+HOLDS leafLabelT llSay rp 5
+HOLDS leafLabelT generateParse conjunct 0
+HOLDS leafLabelT generateParse notFirstTimeThru 0
+HOLDS leafLabelT generateParse grup 0
+HOLDS leafLabelT generateParse codeCopy 0
+HOLDS leafLabelT generateParse bprCopy 0
+HOLDS leafLabelT generateParse conjunct 13
+HOLDS leafLabelT generateParse notFirstTimeThru 5
+HOLDS leafLabelT generateParse grup 6
+HOLDS leafLabelT generateParse codeCopy 6
+HOLDS leafLabelT generateParse bprCopy 6
+HOLDS leafLabelT walkRules length 0
+HOLDS leafLabelT walkRules grup 0
+HOLDS leafLabelT walkRules length 5
+HOLDS leafLabelT walkRules grup 6
+HOLDS starDotNullT sdRun result 0
+HOLDS starDotNullT sdRun blk 0
+HOLDS starDotNullT sdRun sdEmpty 0
+HOLDS starDotNullT sdRun blk 6
+HOLDS compileInT ciCompile ciSrc 6
+HOLDS compileInT ciCompile owner 0
+HOLDS compileInT ciCompile source 0
+HOLDS compileInT ciCompile ciBlock 0
+HOLDS compileInT ciCompile result 0
+HOLDS compileInT ciCompile ciBlock 6
+HOLDS compileInT ciLanded ciBl 0
+HOLDS compileInT ciLanded ciNo 0
+HOLDS compileInT ciLanded ciBl 6
+HOLDS compileInT ciTarget ciLoc 5
+HOLDS compileInT ciAnswer ciSrc 6
+HOLDS compileInT ciAnswer owner 0
+HOLDS compileInT ciAnswer source 0
+HOLDS compileInT ciAnswer ciAns 0
+HOLDS compileInT ciAnswer ciAns 6
+HOLDS compileInT ciCompileBad ciSrc 6
+HOLDS compileInT ciCompileBad owner 0
+HOLDS compileInT ciCompileBad source 0
+HOLDS compileInT ciCompileBad result 0
+ASSIGN argRoundJ 0x1017821c0 arMine = argKind=5 lit=0 jit=0 node=0
+SLOT argRoundJ arA arMine 0 0x1017821c0
+HOLDS kant8T k3 k3loc 5
+HOLDS kant8T k1 k1loc 5
+HOLDS kant8T k4 k4loc 5
+HOLDS kant8T k5 k5loc 5
+HOLDS kant8T k6A k6cur 0
+HOLDS kant8T k6A k6seen 0
+HOLDS kant8T k6A k6seen 5
+HOLDS kant8T k6A k6cur 6
+HOLDS kant8T k6Actl k6cur2 0
+HOLDS kant8T k6Actl k6seen2 0
+HOLDS kant8T k6Actl k6seen2 5
+HOLDS kant8T k6Actl k6cur2 6
+HOLDS kant8T k6Re k6cur3 0
+HOLDS kant8T k6Re k6seen3 0
+HOLDS kant8T k6Re k6seen3 5
+HOLDS kant8T k6Re k6cur3 6
+HOLDS kant8T k6Rst k6cur4 0
+HOLDS kant8T k6Rst k6seenA 0
+HOLDS kant8T k6Rst k6seenB 0
+HOLDS kant8T k6Rst k6seenA 5
+HOLDS kant8T k6Rst k6cur4 6
+HOLDS kant8T k6Rst k6seenB 5
+HOLDS kant8T k6Awide k6cur5 0
+HOLDS kant8T k6Awide k6seen5 0
+HOLDS kant8T k6Awide k6seen5 5
+HOLDS kant8T k6Awide k6cur5 6
+HOLDS holderT htDirect htKid 6
+HOLDS holderT htDirect htU 0
+HOLDS holderT htDirect htU 6
+HOLDS holderT htRun htChild 0
+HOLDS holderT htRun htChild 6
+HOLDS holderT htProbe htP 6
+HOLDS nestT ntRun fixNestHere 0
+HOLDS nestT ntRun fixNestHere 5
+HOLDS pointerT ptRun ptNamed 0
+HOLDS pointerT ptRun ptAssigned 0
+HOLDS pointerT ptRun ptElem 0
+HOLDS pointerT ptRun ptFollowed 0
+HOLDS pointerT ptRun ptFlagRead 0
+HOLDS pointerT ptRun isCopY 0
+HOLDS pointerT ptRun ptCapName 0
+HOLDS pointerT ptRun nosuchFieldAtAll 0
+HOLDS pointerT ptRun ptNamed 6
+HOLDS pointerT ptRun ptAssigned 6
+HOLDS pointerT ptRun ptElem 6
+HOLDS pointerT ptRun ptFollowed 6
+HOLDS pointerT ptRun ptCapName 6
+HOLDS faceT faRun faFace 0
+HOLDS faceT faRun faR1 0
+HOLDS faceT faRun faR0 0
+HOLDS faceT faRun faFace2 0
+HOLDS faceT faRun faR2 0
+HOLDS faceT faRun faP1 0
+HOLDS faceT faRun faFace 6
+HOLDS faceT faRun faR1 5
+HOLDS faceT faRun faR0 5
+HOLDS faceT faRun faFace2 6
+HOLDS faceT faRun faR2 5
+HOLDS faceT faRun faP1 5
+HOLDS starFlagT sfRun sfFace 0
+HOLDS starFlagT sfRun sfPlain 0
+HOLDS starFlagT sfRun sfStar 0
+HOLDS starFlagT sfRun sfCtlP 0
+HOLDS starFlagT sfRun sfCtlS 0
+HOLDS starFlagT sfRun sfSrcP 0
+HOLDS starFlagT sfRun sfSrcS 0
+HOLDS starFlagT sfRun sfFace 6
+HOLDS starFlagT sfRun sfPlain 5
+HOLDS starFlagT sfRun sfStar 5
+HOLDS starFlagT sfRun sfCtlP 5
+HOLDS starFlagT sfRun sfSrcP 5
+HOLDS roundTripT rtRun fixRoundTripHere 5
+HOLDS parseClass pcWalk pcR 0
+HOLDS parseClass pcWalk pcR 6
+HOLDS parseClass pcTerms pcA 0
+HOLDS parseClass pcTerms pcM 0
+HOLDS parseClass pcTerms pcM 6
+HOLDS parseClass pcTerms pcA 6
+HOLDS anyOrNumT aonWalkRules length 5
+HOLDS anyOrNumT aonWalkRules grup 0
+HOLDS anyOrNumT aonGenerateParse conjunct 0
+HOLDS anyOrNumT aonGenerateParse notFirstTimeThru 0
+HOLDS anyOrNumT aonGenerateParse grup 0
+HOLDS anyOrNumT aonGenerateParse codeCopy 0
+HOLDS anyOrNumT aonGenerateParse conjunct 13
+HOLDS anyOrNumT aonGenerateParse notFirstTimeThru 5
+HOLDS anyOrNumT aonGenerateParse grup 6
+HOLDS anyOrNumT aonGenerateParse codeCopy 6
+HOLDS anyOrNumT aonWalkRules grup 6
+HOLDS anyOrNumT aonParser compiledHere 0
+HOLDS anyOrNumT aonParser parseAnswer 0
+HOLDS anyOrNumT aonParser compiledHere 5
+HOLDS connectiveT cdRun fixConnectiveHere 5
+HOLDS connectiveT cdCount cdA 5
+HOLDS connectiveT cdCount cdM 0
+HOLDS connectiveT cdCount cdAt 0
+HOLDS connectiveT cdCount cdMe 0
+HOLDS connectiveT cdCount cdM 5
+HOLDS connectiveT cdCount cdMe 6
+HOLDS connectiveT cdRead cdHa 5
+HOLDS connectiveT cdRead cdHt 0
+HOLDS connectiveT cdRead cdHt 5
+HOLDS traitFlagsT tfRun grup 0
+HOLDS traitFlagsT tfWalk tfCur 0
+HOLDS traitFlagsT tfProbe tfA 6
+HOLDS traitFlagsT tfProbe tfB 0
+HOLDS traitFlagsT tfProbe tfMix 0
+HOLDS traitFlagsT tfProbe tfB 6
+HOLDS traitFlagsT tfProbe tfMix 5
+HOLDS traitFlagsT tfWalk tfCur 6
+HOLDS chainTruthT generateParse conjunct 0
+HOLDS chainTruthT generateParse notFirstTimeThru 0
+HOLDS chainTruthT generateParse grup 0
+HOLDS chainTruthT generateParse codeCopy 0
+HOLDS chainTruthT generateParse bprCopy 0
+HOLDS chainTruthT generateParse conjunct 13
+HOLDS chainTruthT generateParse notFirstTimeThru 5
+HOLDS chainTruthT generateParse grup 6
+HOLDS chainTruthT generateParse codeCopy 6
+HOLDS chainTruthT generateParse bprCopy 6
+HOLDS chainTruthT walkRules length 0
+HOLDS chainTruthT walkRules grup 0
+HOLDS chainTruthT walkRules length 5
+HOLDS chainTruthT walkRules grup 6
+HOLDS searchNewParseT generateParse conjunct 0
+HOLDS searchNewParseT generateParse notFirstTimeThru 0
+HOLDS searchNewParseT generateParse grup 0
+HOLDS searchNewParseT generateParse codeCopy 0
+HOLDS searchNewParseT generateParse bprCopy 0
+HOLDS searchNewParseT generateParse conjunct 13
+HOLDS searchNewParseT generateParse notFirstTimeThru 5
+HOLDS searchNewParseT generateParse grup 6
+HOLDS searchNewParseT generateParse codeCopy 6
+HOLDS searchNewParseT generateParse bprCopy 6
+HOLDS searchNewParseT walkRules length 0
+HOLDS searchNewParseT walkRules grup 0
+HOLDS searchNewParseT walkRules length 5
+HOLDS searchNewParseT walkRules grup 6
+HOLDS iterT1 walk grup 0
+HOLDS iterT1 walk grup 6
+HOLDS iterT3 twice grup 0
+HOLDS iterT3 twice grup 6
+HOLDS iterT3 rebind grup 0
+HOLDS iterT3 rebind grup 6
+HOLDS iterT3 resetSame grup 0
+HOLDS iterT3 resetSame grup 6
+HOLDS iterT3 reIterate grup 0
+HOLDS iterT3 reIterate grup 6
+HOLDS iterT1m walkA grup 0
+HOLDS iterT1m walkB grup 0
+HOLDS iterT1m walkB grup 6
+HOLDS iterT1m walkA grup 6
+HOLDS trailingContinueT tkRun fixTrailingContinueHere 5
+HOLDS trailingContinueT tkForArm tkX 0
+HOLDS trailingContinueT tkForArm tkX 6
+HOLDS bindSeamA fireIt width 0
+HOLDS displayFormT displayForm length 5
+HOLDS displayFormT displayForm grup 0
+HOLDS displayFormT displayForm grup 6
+HOLDS actionLocalT alRun fixActionLocalHere 0
+HOLDS actionLocalT alRun alUndeclared 0
+HOLDS actionLocalT alRun fixActionLocalHere 5
+HOLDS actionLocalT alRun alUndeclared 5
+HOLDS actionLocalT alBumpUndeclared alUndeclared 5
+HOLDS starIdiomT r1 idF 0
+HOLDS starIdiomT r1 w 0
+HOLDS starIdiomT r1 idF 6
+HOLDS starIdiomT r1 w 6
+HOLDS starIdiomT r2 idN 0
+HOLDS starIdiomT r2 w 0
+HOLDS starIdiomT r3 idL 0
+HOLDS starIdiomT r3 w 0
+HOLDS starIdiomT r3 idL 6
+HOLDS starIdiomT r4 idC 0
+HOLDS memberLitT mlField mlLen 0
+HOLDS memberLitT mlField mlLen 6
+HOLDS memberLitT mlAfter mlLen 6
+HOLDS testPrecedence tpSeed tpKid 0
+HOLDS testPrecedence tpSeed tpInner 0
+HOLDS testPrecedence tpSeed tpKid 6
+HOLDS testPrecedence tpSeed tpInner 6
+HOLDS testPrecedence tpAssignBare assignBare 0
+HOLDS testPrecedence tpAssignBare assignBare 5
+HOLDS testPrecedence tpAssignArg tpK 6
+HOLDS testPrecedence tpAssignArg assignArg 0
+HOLDS testPrecedence tpAssignArg assignArg 5
+HOLDS testPrecedence tpAssignSub assignSub 0
+HOLDS testPrecedence tpAssignSub assignSub 5
+HOLDS testPrecedence tpAssignDot kid 0
+HOLDS testPrecedence tpAssignDot assignDot 0
+HOLDS testPrecedence tpAssignDot assignDot 5
+HOLDS testPrecedence tpAssignStar tpH 6
+HOLDS testPrecedence tpAssignStar assignStar 0
+HOLDS testPrecedence tpAssignStar assignStar 5
+HOLDS testPrecedence tpAssignStarsub tpH 6
+HOLDS testPrecedence tpAssignStarsub assignStarsub 0
+HOLDS testPrecedence tpAssignStarsub assignStarsub 5
+HOLDS testPrecedence tpPlusEQBare plusEQBare 0
+HOLDS testPrecedence tpPlusEQBare plusEQBare 5
+HOLDS testPrecedence tpPlusEQArg tpK 6
+HOLDS testPrecedence tpPlusEQArg plusEQArg 0
+HOLDS testPrecedence tpPlusEQArg plusEQArg 5
+HOLDS testPrecedence tpPlusEQSub plusEQSub 0
+HOLDS testPrecedence tpPlusEQSub plusEQSub 5
+HOLDS testPrecedence tpPlusEQDot kid 0
+HOLDS testPrecedence tpPlusEQDot plusEQDot 0
+HOLDS testPrecedence tpPlusEQDot plusEQDot 5
+HOLDS testPrecedence tpPlusEQStar tpH 0
+HOLDS testPrecedence tpPlusEQStar plusEQStar 0
+HOLDS testPrecedence tpPlusEQStar tpH 6
+HOLDS testPrecedence tpPlusEQStar plusEQStar 5
+HOLDS testPrecedence tpPlusEQStarsub tpH 0
+HOLDS testPrecedence tpPlusEQStarsub plusEQStarsub 0
+HOLDS testPrecedence tpPlusEQStarsub tpH 6
+HOLDS testPrecedence tpPlusEQStarsub plusEQStarsub 5
+HOLDS testPrecedence tpPlusPlusBare plusPlusBare 0
+HOLDS testPrecedence tpPlusPlusBare plusPlusBare 5
+HOLDS testPrecedence tpPlusPlusArg tpK 0
+HOLDS testPrecedence tpPlusPlusArg plusPlusArg 0
+HOLDS testPrecedence tpPlusPlusArg tpK 6
+HOLDS testPrecedence tpPlusPlusArg plusPlusArg 5
+HOLDS testPrecedence tpPlusPlusDot kid 0
+HOLDS testPrecedence tpPlusPlusDot plusPlusDot 0
+HOLDS testPrecedence tpPlusPlusDot plusPlusDot 5
+HOLDS testPrecedence tpMinusMinusBare minusMinusBare 0
+HOLDS testPrecedence tpMinusMinusBare minusMinusBare 5
+HOLDS testPrecedence tpMinusMinusArg tpK 0
+HOLDS testPrecedence tpMinusMinusArg minusMinusArg 0
+HOLDS testPrecedence tpMinusMinusArg tpK 6
+HOLDS testPrecedence tpMinusMinusArg minusMinusArg 5
+HOLDS testPrecedence tpMinusMinusDot kid 0
+HOLDS testPrecedence tpMinusMinusDot minusMinusDot 0
+HOLDS testPrecedence tpMinusMinusDot minusMinusDot 5
+HOLDS testPrecedence tpAddAttrBare addAttrBare 0
+HOLDS testPrecedence tpAddAttrBare addAttrBare 5
+HOLDS testPrecedence tpAddAttrArg addAttrArg 0
+HOLDS testPrecedence tpAddAttrArg addAttrArg 5
+HOLDS testPrecedence tpAddAttrStar tpH 0
+HOLDS testPrecedence tpAddAttrStar addAttrStar 0
+HOLDS testPrecedence tpAddAttrStar tpH 6
+HOLDS testPrecedence tpAddAttrStar addAttrStar 5
+HOLDS testPrecedence tpZeroBump tpZ 5
+HOLDS testPrecedence tpZeroBump zeroBump 0
+HOLDS testPrecedence tpZeroBump zeroBump 5
+HOLDS testPrecedence tpZeroStep tpZ 5
+HOLDS testPrecedence tpZeroStep zeroStep 0
+HOLDS testPrecedence tpZeroStep zeroStep 5
+HOLDS testPrecedence tpAbsentBump tpNever 0
+HOLDS testPrecedence tpAbsentStep tpNever 0
+HOLDS testPrecedence tpPlusPlusStar tpH 0
+HOLDS testPrecedence tpPlusPlusStar plusPlusStar 0
+HOLDS testPrecedence tpPlusPlusStar tpH 6
+HOLDS testPrecedence tpPlusPlusStar plusPlusStar 5
+HOLDS testPrecedence tpPlusPlusStarsub tpH 0
+HOLDS testPrecedence tpPlusPlusStarsub plusPlusStarsub 0
+HOLDS testPrecedence tpPlusPlusStarsub tpH 6
+HOLDS testPrecedence tpPlusPlusStarsub plusPlusStarsub 5
+HOLDS testPrecedence tpMinusMinusStar tpH 0
+HOLDS testPrecedence tpMinusMinusStar minusMinusStar 0
+HOLDS testPrecedence tpMinusMinusStar tpH 6
+HOLDS testPrecedence tpMinusMinusStar minusMinusStar 5
+HOLDS testPrecedence tpAddAttrSub tpInner 0
+HOLDS testPrecedence tpAddAttrSub addAttrSub 0
+HOLDS testPrecedence tpAddAttrSub tpInner 6
+HOLDS testPrecedence tpAddAttrSub addAttrSub 5
+HOLDS testPrecedence tpAddAttrDot bag 0
+HOLDS testPrecedence tpAddAttrDot tpInner 0
+HOLDS testPrecedence tpAddAttrDot addAttrDot 0
+HOLDS testPrecedence tpAddAttrDot tpInner 6
+HOLDS testPrecedence tpAddAttrDot addAttrDot 5
+HOLDS testPrecedence tpAddAttrStarsub tpH 0
+HOLDS testPrecedence tpAddAttrStarsub tpInner 0
+HOLDS testPrecedence tpAddAttrStarsub addAttrStarsub 0
+HOLDS testPrecedence tpAddAttrStarsub tpH 6
+HOLDS testPrecedence tpAddAttrStarsub tpInner 6
+HOLDS testPrecedence tpAddAttrStarsub addAttrStarsub 5
+HOLDS testPrecedence tpAddMemberSub tpInner 0
+HOLDS testPrecedence tpAddMemberSub addMemberSub 0
+HOLDS testPrecedence tpAddMemberSub tpInner 6
+HOLDS testPrecedence tpAddMemberSub addMemberSub 5
+HOLDS testPrecedence tpAddMemberDot bag 0
+HOLDS testPrecedence tpAddMemberDot tpInner 0
+HOLDS testPrecedence tpAddMemberDot addMemberDot 0
+HOLDS testPrecedence tpAddMemberDot tpInner 6
+HOLDS testPrecedence tpAddMemberDot addMemberDot 5
+HOLDS testPrecedence tpAddMemberStar tpH 0
+HOLDS testPrecedence tpAddMemberStar addMemberStar 0
+HOLDS testPrecedence tpAddMemberStar tpH 6
+HOLDS testPrecedence tpAddMemberStar addMemberStar 5
+HOLDS testPrecedence tpAddMemberStarsub tpH 0
+HOLDS testPrecedence tpAddMemberStarsub tpInner 0
+HOLDS testPrecedence tpAddMemberStarsub addMemberStarsub 0
+HOLDS testPrecedence tpAddMemberStarsub tpH 6
+HOLDS testPrecedence tpAddMemberStarsub tpInner 6
+HOLDS testPrecedence tpAddMemberStarsub addMemberStarsub 5
+HOLDS testPrecedence tpReport tpLen 0
+HOLDS testPrecedence tpReport tpCur 0
+HOLDS testPrecedence tpReport tpVal 0
+HOLDS testPrecedence tpReport tpLen 6
+HOLDS testPrecedence tpReport tpCur 6
+HOLDS testPrecedence tpReport tpVal 6
+HOLDS opRoadT orRun orNode 6
+HOLDS opRoadT orRun orLenA 0
+HOLDS opRoadT orRun orLenA 6
+HOLDS inArmsT iaRun iaSetPlain 5
+HOLDS inArmsT iaRun iaSetSpacey 0
+HOLDS inArmsT iaRun iaListTop 0
+HOLDS inArmsT iaRun iaListDeep 0
+HOLDS inArmsT iaRun ParserGates 0
+HOLDS inArmsT iaRun iaListMiss 0
+HOLDS inArmsT iaRun iaSetSpacey 5
+HOLDS inArmsT iaRun iaListTop 5
+HOLDS inArmsT iaRun iaListDeep 5
+HOLDS inArmsT iaRun iaListMiss 5
+HOLDS dirT replaceAt fromThis 0
+HOLDS dirT replaceAt toThis 0
+HOLDS dirT replaceAt fromThis 6
+HOLDS dirT replaceAt toThis 6
+HOLDS dirT insertAt fromThis 0
+HOLDS dirT insertAt toThis 0
+HOLDS dirT insertAt where 0
+HOLDS dirT insertAt line 0
+HOLDS dirT insertAt insMiss 0
+HOLDS dirT insertAt markOffset 0
+HOLDS dirT insertAt fromThis 6
+HOLDS dirT insertAt toThis 6
+HOLDS dirT insertAt where 6
+HOLDS dirT insertAt line 14
+HOLDS dirT insertAt insMiss 5
+HOLDS dirT insertAt markOffset 13
+HOLDS dirT deleteAt fromThis 0
+HOLDS dirT deleteAt fromThis 6
+HOLDS dotChainT dcSeed dcM 0
+HOLDS dotChainT dcSeed dcL 0
+HOLDS dotChainT dcSeed dcM 6
+HOLDS dotChainT dcSeed dcL 6
+HOLDS dotChainT dcR1 dcA 6
+HOLDS dotChainT dcR1 dcMid 0
+HOLDS dotChainT dcR2 dcB 6
+HOLDS dotChainT dcR2 dcMid 0
+HOLDS dotChainT dcR2 dcLeaf 0
+HOLDS dotChainT dcR3 dcC 6
+HOLDS dotChainT dcR4 dcD 6
+HOLDS dotChainT dcR4 dcLeaf 0
+HOLDS dotChainT dcR5 dcH 6
+HOLDS dotChainT dcR5 dcE 0
+HOLDS dotChainT dcR5 dcMid 0
+HOLDS dotChainT dcR5 dcE 6
+HOLDS dotChainT dcTouch dcT 6
+HOLDS dotChainT dcR7 dcG 0
+HOLDS dotChainT dcR7 dcT 0
+HOLDS dotChainT dcR8 dcI 0
+HOLDS dotChainT dcR8 dcNeverSet 0
+HOLDS dotChainT dcR9 dcJ 0
+HOLDS dotChainT dcR9 dcMid 0
+HOLDS dotChainT dcSeedCk dcQ1 6
+HOLDS dotChainT dcSeedCk dcQ2 0
+HOLDS dotChainT dcSeedCk dcQ3 0
+HOLDS dotChainT dcSeedCk dcQ2 6
+HOLDS dotChainT dcSeedCk dcQ3 6
+HOLDS dotChainT dcRA dcK 6
+HOLDS dotChainT dcRA dcMid 0
+HOLDS dotChainT dcRA dcLeaf 0
+HOLDS dotChainT dcRA dcTwig 0
+HOLDS dotChainT dcRB dcL2 6
+HOLDS dotChainT dcRB dcLeaf 0
+HOLDS dotChainT dcRB dcTwig 0
+HOLDS parserTest generateParse conjunct 0
+HOLDS parserTest generateParse notFirstTimeThru 0
+HOLDS parserTest generateParse grup 0
+HOLDS parserTest generateParse codeCopy 0
+HOLDS parserTest generateParse bprCopy 0
+HOLDS parserTest generateParse conjunct 13
+HOLDS parserTest generateParse notFirstTimeThru 5
+HOLDS parserTest generateParse grup 6
+HOLDS parserTest generateParse codeCopy 6
+HOLDS parserTest generateParse bprCopy 6
+HOLDS parserTest walkRules length 0
+HOLDS parserTest walkRules grup 0
+HOLDS parserTest walkRules length 5
+HOLDS parserTest walkRules grup 6
+HOLDS paReachT generateParse conjunct 0
+HOLDS paReachT generateParse notFirstTimeThru 0
+HOLDS paReachT generateParse grup 0
+HOLDS paReachT generateParse codeCopy 0
+HOLDS paReachT generateParse bprCopy 0
+HOLDS paReachT generateParse conjunct 13
+HOLDS paReachT generateParse notFirstTimeThru 5
+HOLDS paReachT generateParse grup 6
+HOLDS paReachT generateParse codeCopy 6
+HOLDS paReachT generateParse bprCopy 6
+HOLDS paReachT walkRules length 0
+HOLDS paReachT walkRules grup 0
+HOLDS paReachT walkRules length 5
+HOLDS paReachT walkRules grup 6
+HOLDS unNeg.twk generateParse conjunct 0
+HOLDS unNeg.twk generateParse notFirstTimeThru 0
+HOLDS unNeg.twk generateParse grup 0
+HOLDS unNeg.twk generateParse codeCopy 0
+HOLDS unNeg.twk generateParse bprCopy 0
+HOLDS unNeg.twk generateParse conjunct 13
+HOLDS unNeg.twk generateParse notFirstTimeThru 5
+HOLDS unNeg.twk generateParse grup 6
+HOLDS unNeg.twk generateParse codeCopy 6
+HOLDS unNeg.twk generateParse bprCopy 6
+HOLDS unNeg.twk walkRules length 0
+HOLDS unNeg.twk walkRules grup 0
+HOLDS unNeg.twk walkRules length 5
+HOLDS unNeg.twk walkRules grup 6
+HOLDS unDot.twk generateParse conjunct 0
+HOLDS unDot.twk generateParse notFirstTimeThru 0
+HOLDS unDot.twk generateParse grup 0
+HOLDS unDot.twk generateParse codeCopy 0
+HOLDS unDot.twk generateParse bprCopy 0
+HOLDS unDot.twk generateParse conjunct 13
+HOLDS unDot.twk generateParse notFirstTimeThru 5
+HOLDS unDot.twk generateParse grup 6
+HOLDS unDot.twk generateParse codeCopy 6
+HOLDS unDot.twk generateParse bprCopy 6
+HOLDS unDot.twk walkRules length 0
+HOLDS unDot.twk walkRules grup 0
+HOLDS unDot.twk walkRules length 5
+HOLDS unDot.twk walkRules grup 6
+HOLDS unSet.twk generateParse conjunct 0
+HOLDS unSet.twk generateParse notFirstTimeThru 0
+HOLDS unSet.twk generateParse grup 0
+HOLDS unSet.twk generateParse codeCopy 0
+HOLDS unSet.twk generateParse bprCopy 0
+HOLDS unSet.twk generateParse conjunct 13
+HOLDS unSet.twk generateParse notFirstTimeThru 5
+HOLDS unSet.twk generateParse grup 6
+HOLDS unSet.twk generateParse codeCopy 6
+HOLDS unSet.twk generateParse bprCopy 6
+HOLDS unSet.twk walkRules length 0
+HOLDS unSet.twk walkRules grup 0
+HOLDS unSet.twk walkRules length 5
+HOLDS unSet.twk walkRules grup 6
+HOLDS unAbc.twk generateParse conjunct 0
+HOLDS unAbc.twk generateParse notFirstTimeThru 0
+HOLDS unAbc.twk generateParse grup 0
+HOLDS unAbc.twk generateParse codeCopy 0
+HOLDS unAbc.twk generateParse bprCopy 0
+HOLDS unAbc.twk generateParse conjunct 13
+HOLDS unAbc.twk generateParse notFirstTimeThru 5
+HOLDS unAbc.twk generateParse grup 6
+HOLDS unAbc.twk generateParse codeCopy 6
+HOLDS unAbc.twk generateParse bprCopy 6
+HOLDS unAbc.twk walkRules length 0
+HOLDS unAbc.twk walkRules grup 0
+HOLDS unAbc.twk walkRules length 5
+HOLDS unAbc.twk walkRules grup 6
+HOLDS unPrDot.twk generateParse conjunct 0
+HOLDS unPrDot.twk generateParse notFirstTimeThru 0
+HOLDS unPrDot.twk generateParse grup 0
+HOLDS unPrDot.twk generateParse codeCopy 0
+HOLDS unPrDot.twk generateParse bprCopy 0
+HOLDS unPrDot.twk generateParse conjunct 13
+HOLDS unPrDot.twk generateParse notFirstTimeThru 5
+HOLDS unPrDot.twk generateParse grup 6
+HOLDS unPrDot.twk generateParse codeCopy 6
+HOLDS unPrDot.twk generateParse bprCopy 6
+HOLDS unPrDot.twk walkRules length 0
+HOLDS unPrDot.twk walkRules grup 0
+HOLDS unPrDot.twk walkRules length 5
+HOLDS unPrDot.twk walkRules grup 6
+HOLDS unPr05.twk generateParse conjunct 0
+HOLDS unPr05.twk generateParse notFirstTimeThru 0
+HOLDS unPr05.twk generateParse grup 0
+HOLDS unPr05.twk generateParse codeCopy 0
+HOLDS unPr05.twk generateParse bprCopy 0
+HOLDS unPr05.twk generateParse conjunct 13
+HOLDS unPr05.twk generateParse notFirstTimeThru 5
+HOLDS unPr05.twk generateParse grup 6
+HOLDS unPr05.twk generateParse codeCopy 6
+HOLDS unPr05.twk generateParse bprCopy 6
+HOLDS unPr05.twk walkRules length 0
+HOLDS unPr05.twk walkRules grup 0
+HOLDS unPr05.twk walkRules length 5
+HOLDS unPr05.twk walkRules grup 6
+HOLDS nnFmt.twk generateParse conjunct 0
+HOLDS nnFmt.twk generateParse notFirstTimeThru 0
+HOLDS nnFmt.twk generateParse grup 0
+HOLDS nnFmt.twk generateParse codeCopy 0
+HOLDS nnFmt.twk generateParse bprCopy 0
+HOLDS nnFmt.twk generateParse conjunct 13
+HOLDS nnFmt.twk generateParse notFirstTimeThru 5
+HOLDS nnFmt.twk generateParse grup 6
+HOLDS nnFmt.twk generateParse codeCopy 6
+HOLDS nnFmt.twk generateParse bprCopy 6
+HOLDS nnFmt.twk walkRules length 0
+HOLDS nnFmt.twk walkRules grup 0
+HOLDS nnFmt.twk walkRules length 5
+HOLDS nnFmt.twk walkRules grup 6
+HOLDS nnFmtN.twk generateParse conjunct 0
+HOLDS nnFmtN.twk generateParse notFirstTimeThru 0
+HOLDS nnFmtN.twk generateParse grup 0
+HOLDS nnFmtN.twk generateParse codeCopy 0
+HOLDS nnFmtN.twk generateParse bprCopy 0
+HOLDS nnFmtN.twk generateParse conjunct 13
+HOLDS nnFmtN.twk generateParse notFirstTimeThru 5
+HOLDS nnFmtN.twk generateParse grup 6
+HOLDS nnFmtN.twk generateParse codeCopy 6
+HOLDS nnFmtN.twk generateParse bprCopy 6
+HOLDS nnFmtN.twk walkRules length 0
+HOLDS nnFmtN.twk walkRules grup 0
+HOLDS nnFmtN.twk walkRules length 5
+HOLDS nnFmtN.twk walkRules grup 6
+HOLDS nnFmtS.twk generateParse conjunct 0
+HOLDS nnFmtS.twk generateParse notFirstTimeThru 0
+HOLDS nnFmtS.twk generateParse grup 0
+HOLDS nnFmtS.twk generateParse codeCopy 0
+HOLDS nnFmtS.twk generateParse bprCopy 0
+HOLDS nnFmtS.twk generateParse conjunct 13
+HOLDS nnFmtS.twk generateParse notFirstTimeThru 5
+HOLDS nnFmtS.twk generateParse grup 6
+HOLDS nnFmtS.twk generateParse codeCopy 6
+HOLDS nnFmtS.twk generateParse bprCopy 6
+HOLDS nnFmtS.twk walkRules length 0
+HOLDS nnFmtS.twk walkRules grup 0
+HOLDS nnFmtS.twk walkRules length 5
+HOLDS nnFmtS.twk walkRules grup 6
+HOLDS nnAbc.twk generateParse conjunct 0
+HOLDS nnAbc.twk generateParse notFirstTimeThru 0
+HOLDS nnAbc.twk generateParse grup 0
+HOLDS nnAbc.twk generateParse codeCopy 0
+HOLDS nnAbc.twk generateParse bprCopy 0
+HOLDS nnAbc.twk generateParse conjunct 13
+HOLDS nnAbc.twk generateParse notFirstTimeThru 5
+HOLDS nnAbc.twk generateParse grup 6
+HOLDS nnAbc.twk generateParse codeCopy 6
+HOLDS nnAbc.twk generateParse bprCopy 6
+HOLDS nnAbc.twk walkRules length 0
+HOLDS nnAbc.twk walkRules grup 0
+HOLDS nnAbc.twk walkRules length 5
+HOLDS nnAbc.twk walkRules grup 6
+HOLDS qnHi.twk generateParse conjunct 0
+HOLDS qnHi.twk generateParse notFirstTimeThru 0
+HOLDS qnHi.twk generateParse grup 0
+HOLDS qnHi.twk generateParse codeCopy 0
+HOLDS qnHi.twk generateParse bprCopy 0
+HOLDS qnHi.twk generateParse conjunct 13
+HOLDS qnHi.twk generateParse notFirstTimeThru 5
+HOLDS qnHi.twk generateParse grup 6
+HOLDS qnHi.twk generateParse codeCopy 6
+HOLDS qnHi.twk generateParse bprCopy 6
+HOLDS qnHi.twk walkRules length 0
+HOLDS qnHi.twk walkRules grup 0
+HOLDS qnHi.twk walkRules length 5
+HOLDS qnHi.twk walkRules grup 6
+HOLDS qnPr.twk generateParse conjunct 0
+HOLDS qnPr.twk generateParse notFirstTimeThru 0
+HOLDS qnPr.twk generateParse grup 0
+HOLDS qnPr.twk generateParse codeCopy 0
+HOLDS qnPr.twk generateParse bprCopy 0
+HOLDS qnPr.twk generateParse conjunct 13
+HOLDS qnPr.twk generateParse notFirstTimeThru 5
+HOLDS qnPr.twk generateParse grup 6
+HOLDS qnPr.twk generateParse codeCopy 6
+HOLDS qnPr.twk generateParse bprCopy 6
+HOLDS qnPr.twk walkRules length 0
+HOLDS qnPr.twk walkRules grup 0
+HOLDS qnPr.twk walkRules length 5
+HOLDS qnPr.twk walkRules grup 6
+HOLDS qnCe.twk generateParse conjunct 0
+HOLDS qnCe.twk generateParse notFirstTimeThru 0
+HOLDS qnCe.twk generateParse grup 0
+HOLDS qnCe.twk generateParse codeCopy 0
+HOLDS qnCe.twk generateParse bprCopy 0
+HOLDS qnCe.twk generateParse conjunct 13
+HOLDS qnCe.twk generateParse notFirstTimeThru 5
+HOLDS qnCe.twk generateParse grup 6
+HOLDS qnCe.twk generateParse codeCopy 6
+HOLDS qnCe.twk generateParse bprCopy 6
+HOLDS qnCe.twk walkRules length 0
+HOLDS qnCe.twk walkRules grup 0
+HOLDS qnCe.twk walkRules length 5
+HOLDS qnCe.twk walkRules grup 6
+HOLDS qnPs.twk generateParse conjunct 0
+HOLDS qnPs.twk generateParse notFirstTimeThru 0
+HOLDS qnPs.twk generateParse grup 0
+HOLDS qnPs.twk generateParse codeCopy 0
+HOLDS qnPs.twk generateParse bprCopy 0
+HOLDS qnPs.twk generateParse conjunct 13
+HOLDS qnPs.twk generateParse notFirstTimeThru 5
+HOLDS qnPs.twk generateParse grup 6
+HOLDS qnPs.twk generateParse codeCopy 6
+HOLDS qnPs.twk generateParse bprCopy 6
+HOLDS qnPs.twk walkRules length 0
+HOLDS qnPs.twk walkRules grup 0
+HOLDS qnPs.twk walkRules length 5
+HOLDS qnPs.twk walkRules grup 6
+HOLDS qnEq.twk generateParse conjunct 0
+HOLDS qnEq.twk generateParse notFirstTimeThru 0
+HOLDS qnEq.twk generateParse grup 0
+HOLDS qnEq.twk generateParse codeCopy 0
+HOLDS qnEq.twk generateParse bprCopy 0
+HOLDS qnEq.twk generateParse conjunct 13
+HOLDS qnEq.twk generateParse notFirstTimeThru 5
+HOLDS qnEq.twk generateParse grup 6
+HOLDS qnEq.twk generateParse codeCopy 6
+HOLDS qnEq.twk generateParse bprCopy 6
+HOLDS qnEq.twk walkRules length 0
+HOLDS qnEq.twk walkRules grup 0
+HOLDS qnEq.twk walkRules length 5
+HOLDS qnEq.twk walkRules grup 6
+HOLDS qnAbc.twk generateParse conjunct 0
+HOLDS qnAbc.twk generateParse notFirstTimeThru 0
+HOLDS qnAbc.twk generateParse grup 0
+HOLDS qnAbc.twk generateParse codeCopy 0
+HOLDS qnAbc.twk generateParse bprCopy 0
+HOLDS qnAbc.twk generateParse conjunct 13
+HOLDS qnAbc.twk generateParse notFirstTimeThru 5
+HOLDS qnAbc.twk generateParse grup 6
+HOLDS qnAbc.twk generateParse codeCopy 6
+HOLDS qnAbc.twk generateParse bprCopy 6
+HOLDS qnAbc.twk walkRules length 0
+HOLDS qnAbc.twk walkRules grup 0
+HOLDS qnAbc.twk walkRules length 5
+HOLDS qnAbc.twk walkRules grup 6
+HOLDS dfSub.twk generateParse conjunct 0
+HOLDS dfSub.twk generateParse notFirstTimeThru 0
+HOLDS dfSub.twk generateParse grup 0
+HOLDS dfSub.twk generateParse codeCopy 0
+HOLDS dfSub.twk generateParse bprCopy 0
+HOLDS dfSub.twk generateParse conjunct 13
+HOLDS dfSub.twk generateParse notFirstTimeThru 5
+HOLDS dfSub.twk generateParse grup 6
+HOLDS dfSub.twk generateParse codeCopy 6
+HOLDS dfSub.twk generateParse bprCopy 6
+HOLDS dfSub.twk walkRules length 0
+HOLDS dfSub.twk walkRules grup 0
+HOLDS dfSub.twk walkRules length 5
+HOLDS dfSub.twk walkRules grup 6
+HOLDS dfCall.twk generateParse conjunct 0
+HOLDS dfCall.twk generateParse notFirstTimeThru 0
+HOLDS dfCall.twk generateParse grup 0
+HOLDS dfCall.twk generateParse codeCopy 0
+HOLDS dfCall.twk generateParse bprCopy 0
+HOLDS dfCall.twk generateParse conjunct 13
+HOLDS dfCall.twk generateParse notFirstTimeThru 5
+HOLDS dfCall.twk generateParse grup 6
+HOLDS dfCall.twk generateParse codeCopy 6
+HOLDS dfCall.twk generateParse bprCopy 6
+HOLDS dfCall.twk walkRules length 0
+HOLDS dfCall.twk walkRules grup 0
+HOLDS dfCall.twk walkRules length 5
+HOLDS dfCall.twk walkRules grup 6
+HOLDS dfPrint.twk generateParse conjunct 0
+HOLDS dfPrint.twk generateParse notFirstTimeThru 0
+HOLDS dfPrint.twk generateParse grup 0
+HOLDS dfPrint.twk generateParse codeCopy 0
+HOLDS dfPrint.twk generateParse bprCopy 0
+HOLDS dfPrint.twk generateParse conjunct 13
+HOLDS dfPrint.twk generateParse notFirstTimeThru 5
+HOLDS dfPrint.twk generateParse grup 6
+HOLDS dfPrint.twk generateParse codeCopy 6
+HOLDS dfPrint.twk generateParse bprCopy 6
+HOLDS dfPrint.twk walkRules length 0
+HOLDS dfPrint.twk walkRules grup 0
+HOLDS dfPrint.twk walkRules length 5
+HOLDS dfPrint.twk walkRules grup 6
+HOLDS dfAbc.twk generateParse conjunct 0
+HOLDS dfAbc.twk generateParse notFirstTimeThru 0
+HOLDS dfAbc.twk generateParse grup 0
+HOLDS dfAbc.twk generateParse codeCopy 0
+HOLDS dfAbc.twk generateParse bprCopy 0
+HOLDS dfAbc.twk generateParse conjunct 13
+HOLDS dfAbc.twk generateParse notFirstTimeThru 5
+HOLDS dfAbc.twk generateParse grup 6
+HOLDS dfAbc.twk generateParse codeCopy 6
+HOLDS dfAbc.twk generateParse bprCopy 6
+HOLDS dfAbc.twk walkRules length 0
+HOLDS dfAbc.twk walkRules grup 0
+HOLDS dfAbc.twk walkRules length 5
+HOLDS dfAbc.twk walkRules grup 6
+HOLDS dfLeak.twk generateParse conjunct 0
+HOLDS dfLeak.twk generateParse notFirstTimeThru 0
+HOLDS dfLeak.twk generateParse grup 0
+HOLDS dfLeak.twk generateParse codeCopy 0
+HOLDS dfLeak.twk generateParse bprCopy 0
+HOLDS dfLeak.twk generateParse conjunct 13
+HOLDS dfLeak.twk generateParse notFirstTimeThru 5
+HOLDS dfLeak.twk generateParse grup 6
+HOLDS dfLeak.twk generateParse codeCopy 6
+HOLDS dfLeak.twk generateParse bprCopy 6
+HOLDS dfLeak.twk walkRules length 0
+HOLDS dfLeak.twk walkRules grup 0
+HOLDS dfLeak.twk walkRules length 5
+HOLDS dfLeak.twk walkRules grup 6
+HOLDS dfLeakW.twk generateParse conjunct 0
+HOLDS dfLeakW.twk generateParse notFirstTimeThru 0
+HOLDS dfLeakW.twk generateParse grup 0
+HOLDS dfLeakW.twk generateParse codeCopy 0
+HOLDS dfLeakW.twk generateParse bprCopy 0
+HOLDS dfLeakW.twk generateParse conjunct 13
+HOLDS dfLeakW.twk generateParse notFirstTimeThru 5
+HOLDS dfLeakW.twk generateParse grup 6
+HOLDS dfLeakW.twk generateParse codeCopy 6
+HOLDS dfLeakW.twk generateParse bprCopy 6
+HOLDS dfLeakW.twk walkRules length 0
+HOLDS dfLeakW.twk walkRules grup 0
+HOLDS dfLeakW.twk walkRules length 5
+HOLDS dfLeakW.twk walkRules grup 6
+HOLDS dfLeak1.twk generateParse conjunct 0
+HOLDS dfLeak1.twk generateParse notFirstTimeThru 0
+HOLDS dfLeak1.twk generateParse grup 0
+HOLDS dfLeak1.twk generateParse codeCopy 0
+HOLDS dfLeak1.twk generateParse bprCopy 0
+HOLDS dfLeak1.twk generateParse conjunct 13
+HOLDS dfLeak1.twk generateParse notFirstTimeThru 5
+HOLDS dfLeak1.twk generateParse grup 6
+HOLDS dfLeak1.twk generateParse codeCopy 6
+HOLDS dfLeak1.twk generateParse bprCopy 6
+HOLDS dfLeak1.twk walkRules length 0
+HOLDS dfLeak1.twk walkRules grup 0
+HOLDS dfLeak1.twk walkRules length 5
+HOLDS dfLeak1.twk walkRules grup 6
+HOLDS probeDoorT generateParse conjunct 0
+HOLDS probeDoorT generateParse notFirstTimeThru 0
+HOLDS probeDoorT generateParse grup 0
+HOLDS probeDoorT generateParse codeCopy 0
+HOLDS probeDoorT generateParse bprCopy 0
+HOLDS probeDoorT generateParse conjunct 13
+HOLDS probeDoorT generateParse notFirstTimeThru 5
+HOLDS probeDoorT generateParse grup 6
+HOLDS probeDoorT generateParse codeCopy 6
+HOLDS probeDoorT generateParse bprCopy 6
+HOLDS probeDoorT walkRules length 0
+HOLDS probeDoorT walkRules grup 0
+HOLDS probeDoorT walkRules length 5
+HOLDS probeDoorT walkRules grup 6
+HOLDS site1RoadsT generateParse conjunct 0
+HOLDS site1RoadsT generateParse notFirstTimeThru 0
+HOLDS site1RoadsT generateParse grup 0
+HOLDS site1RoadsT generateParse codeCopy 0
+HOLDS site1RoadsT generateParse bprCopy 0
+HOLDS site1RoadsT generateParse conjunct 13
+HOLDS site1RoadsT generateParse notFirstTimeThru 5
+HOLDS site1RoadsT generateParse grup 6
+HOLDS site1RoadsT generateParse codeCopy 6
+HOLDS site1RoadsT generateParse bprCopy 6
+HOLDS site1RoadsT walkRules length 0
+HOLDS site1RoadsT walkRules grup 0
+HOLDS site1RoadsT walkRules length 5
+HOLDS site1RoadsT walkRules grup 6
+HOLDS f122NatT generateParse conjunct 0
+HOLDS f122NatT generateParse notFirstTimeThru 0
+HOLDS f122NatT generateParse grup 0
+HOLDS f122NatT generateParse codeCopy 0
+HOLDS f122NatT generateParse bprCopy 0
+HOLDS f122NatT generateParse conjunct 13
+HOLDS f122NatT generateParse notFirstTimeThru 5
+HOLDS f122NatT generateParse grup 6
+HOLDS f122NatT generateParse codeCopy 6
+HOLDS f122NatT generateParse bprCopy 6
+HOLDS f122NatT walkRules length 0
+HOLDS f122NatT walkRules grup 0
+HOLDS f122NatT walkRules length 5
+HOLDS f122NatT walkRules grup 6
+HOLDS adoptT generateParse conjunct 0
+HOLDS adoptT generateParse notFirstTimeThru 0
+HOLDS adoptT generateParse grup 0
+HOLDS adoptT generateParse codeCopy 0
+HOLDS adoptT generateParse bprCopy 0
+HOLDS adoptT generateParse conjunct 13
+HOLDS adoptT generateParse notFirstTimeThru 5
+HOLDS adoptT generateParse grup 6
+HOLDS adoptT generateParse codeCopy 6
+HOLDS adoptT generateParse bprCopy 6
+HOLDS adoptT walkRules length 0
+HOLDS adoptT walkRules grup 0
+HOLDS adoptT walkRules length 5
+HOLDS adoptT walkRules grup 6
+HOLDS tokJitT generateParse conjunct 0
+HOLDS tokJitT generateParse notFirstTimeThru 0
+HOLDS tokJitT generateParse grup 0
+HOLDS tokJitT generateParse codeCopy 0
+HOLDS tokJitT generateParse bprCopy 0
+HOLDS tokJitT generateParse conjunct 13
+HOLDS tokJitT generateParse notFirstTimeThru 5
+HOLDS tokJitT generateParse grup 6
+HOLDS tokJitT generateParse codeCopy 6
+HOLDS tokJitT generateParse bprCopy 6
+HOLDS tokJitT walkRules length 0
+HOLDS tokJitT walkRules grup 0
+HOLDS tokJitT walkRules length 5
+HOLDS tokJitT walkRules grup 6
+HOLDS driveLeakT generateParse conjunct 0
+HOLDS driveLeakT generateParse notFirstTimeThru 0
+HOLDS driveLeakT generateParse grup 0
+HOLDS driveLeakT generateParse codeCopy 0
+HOLDS driveLeakT generateParse bprCopy 0
+HOLDS driveLeakT generateParse conjunct 13
+HOLDS driveLeakT generateParse notFirstTimeThru 5
+HOLDS driveLeakT generateParse grup 6
+HOLDS driveLeakT generateParse codeCopy 6
+HOLDS driveLeakT generateParse bprCopy 6
+HOLDS driveLeakT walkRules length 0
+HOLDS driveLeakT walkRules grup 0
+HOLDS driveLeakT walkRules length 5
+HOLDS driveLeakT walkRules grup 6
+HOLDS sweepT generateParse conjunct 0
+HOLDS sweepT generateParse notFirstTimeThru 0
+HOLDS sweepT generateParse grup 0
+HOLDS sweepT generateParse codeCopy 0
+HOLDS sweepT generateParse bprCopy 0
+HOLDS sweepT generateParse conjunct 13
+HOLDS sweepT generateParse notFirstTimeThru 5
+HOLDS sweepT generateParse grup 6
+HOLDS sweepT generateParse codeCopy 6
+HOLDS sweepT generateParse bprCopy 6
+HOLDS sweepT walkRules length 0
+HOLDS sweepT walkRules grup 0
+HOLDS sweepT walkRules length 5
+HOLDS sweepT walkRules grup 6
+HOLDS orc_old.twk orSay v 6
+HOLDS orc_old.twk orSay m 0
+HOLDS orc_old.twk orSay c 0
+HOLDS orc_old.twk orSay m 6
+HOLDS orc_old.twk orSay c 6
+HOLDS orc_old.twk orSay v 0
+HOLDS orc_do.twk orSay v 6
+HOLDS orc_do.twk orSay m 0
+HOLDS orc_do.twk orSay c 0
+HOLDS orc_do.twk orSay m 6
+HOLDS orc_do.twk orSay c 6
+HOLDS orc_do.twk generateParse conjunct 0
+HOLDS orc_do.twk generateParse notFirstTimeThru 0
+HOLDS orc_do.twk generateParse grup 0
+HOLDS orc_do.twk generateParse codeCopy 0
+HOLDS orc_do.twk generateParse bprCopy 0
+HOLDS orc_do.twk generateParse conjunct 13
+HOLDS orc_do.twk generateParse notFirstTimeThru 5
+HOLDS orc_do.twk generateParse grup 6
+HOLDS orc_do.twk generateParse codeCopy 6
+HOLDS orc_do.twk generateParse bprCopy 6
+HOLDS orc_do.twk walkRules length 0
+HOLDS orc_do.twk walkRules grup 0
+HOLDS orc_do.twk walkRules length 5
+HOLDS orc_do.twk walkRules grup 6
+HOLDS orc_do.twk orSay v 0
+HOLDS orc_se.twk orSay v 6
+HOLDS orc_se.twk orSay m 0
+HOLDS orc_se.twk orSay c 0
+HOLDS orc_se.twk orSay m 6
+HOLDS orc_se.twk orSay c 6
+HOLDS orc_se.twk generateParse conjunct 0
+HOLDS orc_se.twk generateParse notFirstTimeThru 0
+HOLDS orc_se.twk generateParse grup 0
+HOLDS orc_se.twk generateParse codeCopy 0
+HOLDS orc_se.twk generateParse bprCopy 0
+HOLDS orc_se.twk generateParse conjunct 13
+HOLDS orc_se.twk generateParse notFirstTimeThru 5
+HOLDS orc_se.twk generateParse grup 6
+HOLDS orc_se.twk generateParse codeCopy 6
+HOLDS orc_se.twk generateParse bprCopy 6
+HOLDS orc_se.twk walkRules length 0
+HOLDS orc_se.twk walkRules grup 0
+HOLDS orc_se.twk walkRules length 5
+HOLDS orc_se.twk walkRules grup 6
+HOLDS orc_se.twk orSay v 0
+HOLDS opLenT generateParse conjunct 0
+HOLDS opLenT generateParse notFirstTimeThru 0
+HOLDS opLenT generateParse grup 0
+HOLDS opLenT generateParse codeCopy 0
+HOLDS opLenT generateParse bprCopy 0
+HOLDS opLenT generateParse conjunct 13
+HOLDS opLenT generateParse notFirstTimeThru 5
+HOLDS opLenT generateParse grup 6
+HOLDS opLenT generateParse codeCopy 6
+HOLDS opLenT generateParse bprCopy 6
+HOLDS opLenT walkRules length 0
+HOLDS opLenT walkRules grup 0
+HOLDS opLenT walkRules length 5
+HOLDS opLenT walkRules grup 6
+HOLDS srElse.twk generateParse conjunct 0
+HOLDS srElse.twk generateParse notFirstTimeThru 0
+HOLDS srElse.twk generateParse grup 0
+HOLDS srElse.twk generateParse codeCopy 0
+HOLDS srElse.twk generateParse bprCopy 0
+HOLDS srElse.twk generateParse conjunct 13
+HOLDS srElse.twk generateParse notFirstTimeThru 5
+HOLDS srElse.twk generateParse grup 6
+HOLDS srElse.twk generateParse codeCopy 6
+HOLDS srElse.twk generateParse bprCopy 6
+HOLDS srElse.twk walkRules length 0
+HOLDS srElse.twk walkRules grup 0
+HOLDS srElse.twk walkRules length 5
+HOLDS srElse.twk walkRules grup 6
+HOLDS srIf.twk generateParse conjunct 0
+HOLDS srIf.twk generateParse notFirstTimeThru 0
+HOLDS srIf.twk generateParse grup 0
+HOLDS srIf.twk generateParse codeCopy 0
+HOLDS srIf.twk generateParse bprCopy 0
+HOLDS srIf.twk generateParse conjunct 13
+HOLDS srIf.twk generateParse notFirstTimeThru 5
+HOLDS srIf.twk generateParse grup 6
+HOLDS srIf.twk generateParse codeCopy 6
+HOLDS srIf.twk generateParse bprCopy 6
+HOLDS srIf.twk walkRules length 0
+HOLDS srIf.twk walkRules grup 0
+HOLDS srIf.twk walkRules length 5
+HOLDS srIf.twk walkRules grup 6
+HOLDS srPrint.twk generateParse conjunct 0
+HOLDS srPrint.twk generateParse notFirstTimeThru 0
+HOLDS srPrint.twk generateParse grup 0
+HOLDS srPrint.twk generateParse codeCopy 0
+HOLDS srPrint.twk generateParse bprCopy 0
+HOLDS srPrint.twk generateParse conjunct 13
+HOLDS srPrint.twk generateParse notFirstTimeThru 5
+HOLDS srPrint.twk generateParse grup 6
+HOLDS srPrint.twk generateParse codeCopy 6
+HOLDS srPrint.twk generateParse bprCopy 6
+HOLDS srPrint.twk walkRules length 0
+HOLDS srPrint.twk walkRules grup 0
+HOLDS srPrint.twk walkRules length 5
+HOLDS srPrint.twk walkRules grup 6
+HOLDS srDo.twk generateParse conjunct 0
+HOLDS srDo.twk generateParse notFirstTimeThru 0
+HOLDS srDo.twk generateParse grup 0
+HOLDS srDo.twk generateParse codeCopy 0
+HOLDS srDo.twk generateParse bprCopy 0
+HOLDS srDo.twk generateParse conjunct 13
+HOLDS srDo.twk generateParse notFirstTimeThru 5
+HOLDS srDo.twk generateParse grup 6
+HOLDS srDo.twk generateParse codeCopy 6
+HOLDS srDo.twk generateParse bprCopy 6
+HOLDS srDo.twk walkRules length 0
+HOLDS srDo.twk walkRules grup 0
+HOLDS srDo.twk walkRules length 5
+HOLDS srDo.twk walkRules grup 6
+HOLDS srSub.twk generateParse conjunct 0
+HOLDS srSub.twk generateParse notFirstTimeThru 0
+HOLDS srSub.twk generateParse grup 0
+HOLDS srSub.twk generateParse codeCopy 0
+HOLDS srSub.twk generateParse bprCopy 0
+HOLDS srSub.twk generateParse conjunct 13
+HOLDS srSub.twk generateParse notFirstTimeThru 5
+HOLDS srSub.twk generateParse grup 6
+HOLDS srSub.twk generateParse codeCopy 6
+HOLDS srSub.twk generateParse bprCopy 6
+HOLDS srSub.twk walkRules length 0
+HOLDS srSub.twk walkRules grup 0
+HOLDS srSub.twk walkRules length 5
+HOLDS srSub.twk walkRules grup 6
+HOLDS srDot.twk generateParse conjunct 0
+HOLDS srDot.twk generateParse notFirstTimeThru 0
+HOLDS srDot.twk generateParse grup 0
+HOLDS srDot.twk generateParse codeCopy 0
+HOLDS srDot.twk generateParse bprCopy 0
+HOLDS srDot.twk generateParse conjunct 13
+HOLDS srDot.twk generateParse notFirstTimeThru 5
+HOLDS srDot.twk generateParse grup 6
+HOLDS srDot.twk generateParse codeCopy 6
+HOLDS srDot.twk generateParse bprCopy 6
+HOLDS srDot.twk walkRules length 0
+HOLDS srDot.twk walkRules grup 0
+HOLDS srDot.twk walkRules length 5
+HOLDS srDot.twk walkRules grup 6
+HOLDS srOk.twk generateParse conjunct 0
+HOLDS srOk.twk generateParse notFirstTimeThru 0
+HOLDS srOk.twk generateParse grup 0
+HOLDS srOk.twk generateParse codeCopy 0
+HOLDS srOk.twk generateParse bprCopy 0
+HOLDS srOk.twk generateParse conjunct 13
+HOLDS srOk.twk generateParse notFirstTimeThru 5
+HOLDS srOk.twk generateParse grup 6
+HOLDS srOk.twk generateParse codeCopy 6
+HOLDS srOk.twk generateParse bprCopy 6
+HOLDS srOk.twk walkRules length 0
+HOLDS srOk.twk walkRules grup 0
+HOLDS srOk.twk walkRules length 5
+HOLDS srOk.twk walkRules grup 6
+HOLDS doWhileNameT generateParse conjunct 0
+HOLDS doWhileNameT generateParse notFirstTimeThru 0
+HOLDS doWhileNameT generateParse grup 0
+HOLDS doWhileNameT generateParse codeCopy 0
+HOLDS doWhileNameT generateParse bprCopy 0
+HOLDS doWhileNameT generateParse conjunct 13
+HOLDS doWhileNameT generateParse notFirstTimeThru 5
+HOLDS doWhileNameT generateParse grup 6
+HOLDS doWhileNameT generateParse codeCopy 6
+HOLDS doWhileNameT generateParse bprCopy 6
+HOLDS doWhileNameT walkRules length 0
+HOLDS doWhileNameT walkRules grup 0
+HOLDS doWhileNameT walkRules length 5
+HOLDS doWhileNameT walkRules grup 6
+HOLDS convDriveT cdSay v 6
+HOLDS convDriveT cdSay m 0
+HOLDS convDriveT cdSay c 0
+HOLDS convDriveT cdSay l 0
+HOLDS convDriveT cdSay k 0
+HOLDS convDriveT cdSay m 6
+HOLDS convDriveT cdSay c 6
+HOLDS convDriveT cdSay l 6
+HOLDS convDriveT cdSay k 6
+HOLDS convDriveT cdFail v 5
+HOLDS modSeamT generateParse conjunct 0
+HOLDS modSeamT generateParse notFirstTimeThru 0
+HOLDS modSeamT generateParse grup 0
+HOLDS modSeamT generateParse codeCopy 0
+HOLDS modSeamT generateParse bprCopy 0
+HOLDS modSeamT generateParse conjunct 13
+HOLDS modSeamT generateParse notFirstTimeThru 5
+HOLDS modSeamT generateParse grup 6
+HOLDS modSeamT generateParse codeCopy 6
+HOLDS modSeamT generateParse bprCopy 6
+HOLDS modSeamT walkRules length 0
+HOLDS modSeamT walkRules grup 0
+HOLDS modSeamT walkRules length 5
+HOLDS modSeamT walkRules grup 6
+HOLDS carrierT generateParse conjunct 0
+HOLDS carrierT generateParse notFirstTimeThru 0
+HOLDS carrierT generateParse grup 0
+HOLDS carrierT generateParse codeCopy 0
+HOLDS carrierT generateParse bprCopy 0
+HOLDS carrierT generateParse conjunct 13
+HOLDS carrierT generateParse notFirstTimeThru 5
+HOLDS carrierT generateParse grup 6
+HOLDS carrierT generateParse codeCopy 6
+HOLDS carrierT generateParse bprCopy 6
+HOLDS carrierT walkRules length 0
+HOLDS carrierT walkRules grup 0
+HOLDS carrierT walkRules length 5
+HOLDS carrierT walkRules grup 6
+HOLDS opPrefixT opRun opGE 0
+HOLDS opPrefixT opRun opLE 0
+HOLDS opPrefixT opRun opEQ 0
+HOLDS opPrefixT opRun opNE 0
+HOLDS opPrefixT opRun opLT 0
+HOLDS opPrefixT opRun opP 0
+HOLDS opPrefixT opRun opM 0
+HOLDS opPrefixT opRun opD 0
+HOLDS opPrefixT opRun opT 0
+HOLDS opPrefixT opRun opAP 0
+HOLDS opPrefixT opRun opAA 0
+HOLDS opPrefixT opRun opAM 0
+HOLDS opPrefixT opRun opOR 0
+HOLDS opPrefixT opRun opORF 0
+HOLDS opPrefixT opRun opAND 0
+HOLDS opPrefixT opRun opAND2 0
+HOLDS opPrefixT opRun opGA 0
+HOLDS opPrefixT opRun opGM 0
+HOLDS opPrefixT opRun opGT 0
+HOLDS opPrefixT opRun opGE 5
+HOLDS opPrefixT opRun opLE 5
+HOLDS opPrefixT opRun opEQ 5
+HOLDS opPrefixT opRun opNE 5
+HOLDS opPrefixT opRun opLT 5
+HOLDS opPrefixT opRun opP 5
+HOLDS opPrefixT opRun opM 5
+HOLDS opPrefixT opRun opD 5
+HOLDS opPrefixT opRun opT 5
+HOLDS opPrefixT opRun opAP 6
+HOLDS opPrefixT opRun opAA 6
+HOLDS opPrefixT opRun opAM 6
+HOLDS opPrefixT opRun opOR 5
+HOLDS opPrefixT opRun opORF 5
+HOLDS opPrefixT opRun opAND 5
+HOLDS opPrefixT opRun opAND2 5
+HOLDS dirHeadT insertAt fromThis 0
+HOLDS dirHeadT insertAt toThis 0
+HOLDS dirHeadT insertAt where 0
+HOLDS dirHeadT insertAt line 0
+HOLDS dirHeadT insertAt insMiss 0
+HOLDS dirHeadT insertAt markOffset 0
+HOLDS dirHeadT insertAt fromThis 6
+HOLDS dirHeadT insertAt toThis 6
+HOLDS dirHeadT insertAt where 6
+HOLDS dirHeadT insertAt line 14
+HOLDS dirHeadT insertAt insMiss 5
+HOLDS artifactSkipT asRun asAct 0
+HOLDS artifactSkipT asRun fixArtifactSkipHere 0
+HOLDS artifactSkipT asWalk asCur 0
+HOLDS artifactSkipT asProbe asR 6
+HOLDS artifactSkipT asProbe asN 0
+HOLDS artifactSkipT asProbe asN 6
+HOLDS artifactSkipT asWalk asCur 6
+HOLDS artifactSkipT asRun asAct 6
+HOLDS artifactSkipT asRun fixArtifactSkipHere 5
+HOLDS andProbe runAnd andOut 0
+HOLDS andProbe runAnd apLen 0
+HOLDS andProbe runAnd andOut 5
+HOLDS andProbe runAnd apLen 6
+HOLDS orProbe probeIt alpha1 6
+HOLDS orProbe probeIt beta1 6
+HOLDS orProbe probeIt beta1 0
+HOLDS dotNameT dnRun zzNoSuchMember 0
+HOLDS unaryClassT ucRun ucH 6
+HOLDS cursorReadT crWalk crCur 0
+HOLDS cursorReadT crWalk crCur 6
+HOLDS cursorReadTb crWalk crCur 0
+HOLDS cursorReadTb crWalk crCur 6
+HOLDS iterRefuseT rowR g 0
+HOLDS iterRefuseT rowW w 0
+HOLDS iterRefuseT rowW w 6
+HOLDS altShadowT poison dud 6
+HOLDS altShadowT rowC asCur 0
+HOLDS altShadowT rowC asCur 6
+HOLDS shadowCensus scMembers scCur 0
+HOLDS shadowCensus scMembers scTag 0
+HOLDS shadowCensus scMembers scIsG 0
+HOLDS shadowCensus scMembers isGROUP 0
+HOLDS shadowCensus scMembers scCur 6
+HOLDS shadowCensus scMembers scTag 6
+HOLDS shadowCensus scMembers scIsG 5
+HOLDS shadowCensus scAttrs scCur2 0
+HOLDS shadowCensus scAttrs scTag 0
+HOLDS shadowCensus scAttrs scIsG 0
+HOLDS shadowCensus scAttrs isGROUP 0
+HOLDS shadowCensus scAttrs scCur2 6
+HOLDS shadowCensus scAttrs scTag 6
+HOLDS shadowCensus scAttrs scIsG 5
+HOLDS driveDoorT iaSay v 6
+HOLDS driveDoorT iaSay m 0
+HOLDS driveDoorT iaSay m 6
+HOLDS driveDoorT generateParse conjunct 0
+HOLDS driveDoorT generateParse notFirstTimeThru 0
+HOLDS driveDoorT generateParse grup 0
+HOLDS driveDoorT generateParse codeCopy 0
+HOLDS driveDoorT generateParse bprCopy 0
+HOLDS driveDoorT generateParse conjunct 13
+HOLDS driveDoorT generateParse notFirstTimeThru 5
+HOLDS driveDoorT generateParse grup 6
+HOLDS driveDoorT generateParse codeCopy 6
+HOLDS driveDoorT generateParse bprCopy 6
+HOLDS driveDoorT walkRules length 0
+HOLDS driveDoorT walkRules grup 0
+HOLDS driveDoorT walkRules length 5
+HOLDS driveDoorT walkRules grup 6
+HOLDS driveDoorT iaGen v 6
+HOLDS driveDoorT iaGen m 0
+HOLDS driveDoorT iaGen rp 0
+HOLDS driveDoorT iaGen m 6
+HOLDS driveDoorT iaGen rp 5
+HOLDS treeRowT trSay v 6
+HOLDS treeRowT trSay m 0
+HOLDS treeRowT trSay c 0
+HOLDS treeRowT trSay rp 0
+HOLDS treeRowT trSay m 6
+HOLDS treeRowT trSay c 6
+HOLDS treeRowT trSay rp 5
+HOLDS treeRowT generateParse conjunct 0
+HOLDS treeRowT generateParse notFirstTimeThru 0
+HOLDS treeRowT generateParse grup 0
+HOLDS treeRowT generateParse codeCopy 0
+HOLDS treeRowT generateParse bprCopy 0
+HOLDS treeRowT generateParse conjunct 13
+HOLDS treeRowT generateParse notFirstTimeThru 5
+HOLDS treeRowT generateParse grup 6
+HOLDS treeRowT generateParse codeCopy 6
+HOLDS treeRowT generateParse bprCopy 6
+HOLDS treeRowT walkRules length 0
+HOLDS treeRowT walkRules grup 0
+HOLDS treeRowT walkRules length 5
+HOLDS treeRowT walkRules grup 6
+HOLDS shapeBodyT shSay v 6
+HOLDS shapeBodyT shSay m 0
+HOLDS shapeBodyT shSay c 0
+HOLDS shapeBodyT shSay rp 0
+HOLDS shapeBodyT shSay lt 0
+HOLDS shapeBodyT shSay m 6
+HOLDS shapeBodyT shSay c 6
+HOLDS shapeBodyT shSay rp 5
+HOLDS shapeBodyT shSay lt 6
+HOLDS shapeBodyT generateParse conjunct 0
+HOLDS shapeBodyT generateParse notFirstTimeThru 0
+HOLDS shapeBodyT generateParse grup 0
+HOLDS shapeBodyT generateParse codeCopy 0
+HOLDS shapeBodyT generateParse bprCopy 0
+HOLDS shapeBodyT generateParse conjunct 13
+HOLDS shapeBodyT generateParse notFirstTimeThru 5
+HOLDS shapeBodyT generateParse grup 6
+HOLDS shapeBodyT generateParse codeCopy 6
+HOLDS shapeBodyT generateParse bprCopy 6
+HOLDS shapeBodyT walkRules length 0
+HOLDS shapeBodyT walkRules grup 0
+HOLDS shapeBodyT walkRules length 5
+HOLDS shapeBodyT walkRules grup 6
+HOLDS zeroWidthT zwSay v 6
+HOLDS zeroWidthT zwSay m 0
+HOLDS zeroWidthT zwSay c 0
+HOLDS zeroWidthT zwSay n 0
+HOLDS zeroWidthT zwSay m 6
+HOLDS zeroWidthT zwSay c 6
+HOLDS zeroWidthT zwSay n 6
+HOLDS zeroWidthT generateParse conjunct 0
+HOLDS zeroWidthT generateParse notFirstTimeThru 0
+HOLDS zeroWidthT generateParse grup 0
+HOLDS zeroWidthT generateParse codeCopy 0
+HOLDS zeroWidthT generateParse bprCopy 0
+HOLDS zeroWidthT generateParse conjunct 13
+HOLDS zeroWidthT generateParse notFirstTimeThru 5
+HOLDS zeroWidthT generateParse grup 6
+HOLDS zeroWidthT generateParse codeCopy 6
+HOLDS zeroWidthT generateParse bprCopy 6
+HOLDS zeroWidthT walkRules length 0
+HOLDS zeroWidthT walkRules grup 0
+HOLDS zeroWidthT walkRules length 5
+HOLDS zeroWidthT walkRules grup 6
+HOLDS zeroWidthT zwSay v 6
+HOLDS zeroWidthT zwSay m 0
+HOLDS zeroWidthT zwSay c 0
+HOLDS zeroWidthT zwSay n 0
+HOLDS zeroWidthT zwSay m 6
+HOLDS zeroWidthT zwSay c 6
+HOLDS zeroWidthT zwSay n 6
+HOLDS zeroWidthT generateParse conjunct 0
+HOLDS zeroWidthT generateParse notFirstTimeThru 0
+HOLDS zeroWidthT generateParse grup 0
+HOLDS zeroWidthT generateParse codeCopy 0
+HOLDS zeroWidthT generateParse bprCopy 0
+HOLDS zeroWidthT generateParse conjunct 13
+HOLDS zeroWidthT generateParse notFirstTimeThru 5
+HOLDS zeroWidthT generateParse grup 6
+HOLDS zeroWidthT generateParse codeCopy 6
+HOLDS zeroWidthT generateParse bprCopy 6
+HOLDS zeroWidthT walkRules length 0
+HOLDS zeroWidthT walkRules grup 0
+HOLDS zeroWidthT walkRules length 5
+HOLDS zeroWidthT walkRules grup 6
+HOLDS ownerT generateParse conjunct 0
+HOLDS ownerT generateParse notFirstTimeThru 0
+HOLDS ownerT generateParse grup 0
+HOLDS ownerT generateParse codeCopy 0
+HOLDS ownerT generateParse bprCopy 0
+HOLDS ownerT generateParse conjunct 13
+HOLDS ownerT generateParse notFirstTimeThru 5
+HOLDS ownerT generateParse grup 6
+HOLDS ownerT generateParse codeCopy 6
+HOLDS ownerT generateParse bprCopy 6
+HOLDS ownerT walkRules length 0
+HOLDS ownerT walkRules grup 0
+HOLDS ownerT walkRules length 5
+HOLDS ownerT walkRules grup 6
+HOLDS ownerT owAct owZ 0
+HOLDS ownerT owAct owZ 5
+HOLDS definerT generateParse conjunct 0
+HOLDS definerT generateParse notFirstTimeThru 0
+HOLDS definerT generateParse grup 0
+HOLDS definerT generateParse codeCopy 0
+HOLDS definerT generateParse bprCopy 0
+HOLDS definerT generateParse conjunct 13
+HOLDS definerT generateParse notFirstTimeThru 5
+HOLDS definerT generateParse grup 6
+HOLDS definerT generateParse codeCopy 6
+HOLDS definerT generateParse bprCopy 6
+HOLDS definerT walkRules length 0
+HOLDS definerT walkRules grup 0
+HOLDS definerT walkRules length 5
+HOLDS definerT walkRules grup 6
+HOLDS failNotT fnSay v 6
+HOLDS failNotT fnSay m 0
+HOLDS failNotT fnSay m 6
+HOLDS driveCompileT exSay v 6
+HOLDS driveCompileT exSay m 0
+HOLDS driveCompileT exSay c 0
+HOLDS driveCompileT exSay m 6
+HOLDS driveCompileT exSay c 6
+HOLDS driveCompileT generateParse conjunct 0
+HOLDS driveCompileT generateParse notFirstTimeThru 0
+HOLDS driveCompileT generateParse grup 0
+HOLDS driveCompileT generateParse codeCopy 0
+HOLDS driveCompileT generateParse bprCopy 0
+HOLDS driveCompileT generateParse conjunct 13
+HOLDS driveCompileT generateParse notFirstTimeThru 5
+HOLDS driveCompileT generateParse grup 6
+HOLDS driveCompileT generateParse codeCopy 6
+HOLDS driveCompileT generateParse bprCopy 6
+HOLDS driveCompileT walkRules length 0
+HOLDS driveCompileT walkRules grup 0
+HOLDS driveCompileT walkRules length 5
+HOLDS driveCompileT walkRules grup 6
+HOLDS pop pcWalk pcCur 0
+HOLDS pop pcWalk pcCur 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d generateParse conjunct 13
+HOLDS d generateParse notFirstTimeThru 5
+HOLDS d generateParse grup 6
+HOLDS d generateParse codeCopy 6
+HOLDS d generateParse bprCopy 6
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d walkRules grup 6
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS d generateParse conjunct 0
+HOLDS d generateParse notFirstTimeThru 0
+HOLDS d generateParse grup 0
+HOLDS d generateParse codeCopy 0
+HOLDS d generateParse bprCopy 0
+HOLDS d walkRules length 0
+HOLDS d walkRules grup 0
+HOLDS d walkRules length 5
+HOLDS trigDO tdGenerateParse conjunct 0
+HOLDS trigDO tdGenerateParse notFirstTimeThru 0
+HOLDS trigDO tdGenerateParse grup 0
+HOLDS trigDO tdGenerateParse codeCopy 0
+HOLDS trigDO tdGenerateParse conjunct 13
+HOLDS trigDO tdGenerateParse notFirstTimeThru 5
+HOLDS trigDO tdGenerateParse grup 6
+HOLDS trigDO tdGenerateParse codeCopy 6
+HOLDS walkRefT wrRun wrCur 0
+HOLDS walkRefT wrRun wrCur 6
+HOLDS kindT kWalk kCur 0
+HOLDS kindT kWalk kCur 6
+HOLDS kindT kShow kShC 0
+HOLDS kindT kShow kShC 6
+HOLDS kindHolderT kRun kH 6
+SLOT kindJ1T kjWalk g 0 0x100c75b60
+ITER kindJ1T 0x100c75b60 g 0
+HOLDS kindJ1T kjShow h 0
+HOLDS kindJ1T kjShow h 6
+HOLDS kindJ1T kjWalkI g 0
+HOLDS kindJ1T kjWalkI g 6
+SLOT kindSRT srRun srL 0 0x105066310
+SLOT kindSRT srRun srE 0 0x10506be00
+ASSIGN kindSRT 0x105066310 srL = argKind=5 lit=0 jit=0 node=0
+ASSIGN kindSRT 0x105066310 srL += argKind=5 lit=1 jit=0 node=0
+ASSIGN kindSRT 0x10506be00 srE += argKind=5 lit=1 jit=0 node=0
+HOLDS kindSRT srRunI srLI 5
+HOLDS kindSRT srRunI srEI 0
+HOLDS kindSRT srRunI srEI 5
+HOLDS kindCellsT kcRun kcL 0
+HOLDS kindCellsT kcRun kcB 0
+HOLDS kindCellsT kcRun kcC 0
+HOLDS kindCellsT kcRun kcL 6
+HOLDS kindCellsT kcRun kcB 6
+HOLDS kindCellsT kcRun kcC 6
+SLOT kindLiftT kjWalk g 0 0x1010358c0
+ITER kindLiftT 0x1010358c0 g 0
+HOLDS kindLiftT klShow h 0
+HOLDS kindLiftT klOne hl 6
+HOLDS kindLiftT klShow h 6
+HOLDS kindLiftT kiWalk g 0
+HOLDS kindLiftT kiWalk g 6
+HOLDS omModT omOne r 6
+HOLDS omModT omOne x 0
+HOLDS omModT omOne x 6
+HOLDS omModT omTwo r 6
+HOLDS omModT omTwo x 0
+HOLDS omModT omTwo x 6
+HOLDS omModT omSay v 6
+HOLDS omModT omSay m 0
+HOLDS omModT omSay c 0
+HOLDS omModT omSay m 6
+HOLDS omModT omSay c 6
+HOLDS leafClassT lcSay v 6
+HOLDS leafClassT lcSay m 0
+HOLDS leafClassT lcSay c 0
+HOLDS leafClassT lcSay m 6
+HOLDS leafClassT lcSay c 6
+HOLDS leafClassT generateParse conjunct 0
+HOLDS leafClassT generateParse notFirstTimeThru 0
+HOLDS leafClassT generateParse grup 0
+HOLDS leafClassT generateParse codeCopy 0
+HOLDS leafClassT generateParse bprCopy 0
+HOLDS leafClassT generateParse conjunct 13
+HOLDS leafClassT generateParse notFirstTimeThru 5
+HOLDS leafClassT generateParse grup 6
+HOLDS leafClassT generateParse codeCopy 6
+HOLDS leafClassT generateParse bprCopy 6
+HOLDS leafClassT walkRules length 0
+HOLDS leafClassT walkRules grup 0
+HOLDS leafClassT walkRules length 5
+HOLDS leafClassT walkRules grup 6
+HOLDS leafClassT lcClass r 6
+HOLDS propGetT pgRow pgR 6
+HOLDS propGetT pgRow pgA 0
+HOLDS propGetT pgRow pgZ 0
+HOLDS propGetT pgRow pgT 0
+HOLDS propGetT pgRow pgA 6
+HOLDS propGetT pgRow pgT 6
+HOLDS propGetT pgWalk pgCur 0
+HOLDS propGetT pgWalk pgCur 6
+HOLDS propOpT poFile poKid 6
+HOLDS propOpT poFile poTerm 0
+HOLDS propOpT poFile poP 0
+HOLDS propOpT poFile poM 0
+HOLDS propOpT poFile poA 0
+HOLDS propOpT poFile poTerm 6
+HOLDS propOpT poFile poP 6
+HOLDS propOpT poFile poA 6
+HOLDS propOpT poWalk poCur 0
+HOLDS propOpT poWalk poCur 6
+HOLDS propOpT poCollide poCT 6
+HOLDS propOpT poCollide poCP 0
+HOLDS propOpT poCollide poSub 0
+HOLDS propOpT poCollide poGet 0
+HOLDS propOpT poCollide poCP 6
+HOLDS propOpT poCollide poSub 6
+HOLDS propOpT poCollide poGet 6
+HOLDS propOpT poStatement poS 6
+HOLDS propOpT poStatement poSt 0
+HOLDS propOpT poStatement poSp 0
+HOLDS propOpT poStatement poSa 0
+HOLDS propOpT poStatement poSt 6
+HOLDS propOpT poStatement poSa 6
+HOLDS ruleOfT roParse roCp 6
+HOLDS ruleOfT roParse v 0
+HOLDS ruleOfT roParse v 6
+HOLDS ruleOfT generateParse conjunct 0
+HOLDS ruleOfT generateParse notFirstTimeThru 0
+HOLDS ruleOfT generateParse grup 0
+HOLDS ruleOfT generateParse codeCopy 0
+HOLDS ruleOfT generateParse bprCopy 0
+HOLDS ruleOfT generateParse conjunct 13
+HOLDS ruleOfT generateParse notFirstTimeThru 5
+HOLDS ruleOfT generateParse grup 6
+HOLDS ruleOfT generateParse codeCopy 6
+HOLDS ruleOfT generateParse bprCopy 6
+HOLDS ruleOfT walkRules length 0
+HOLDS ruleOfT walkRules grup 0
+HOLDS ruleOfT walkRules length 5
+HOLDS ruleOfT walkRules grup 6
+HOLDS ruleOfT roSink roN 5
+HOLDS ruleTermT rtFace r 6
+HOLDS ruleTermT rtFace x 0
+HOLDS ruleTermT rtFace x 6
+HOLDS ruleTermT rtOwn r 6
+HOLDS ruleTermT rtTerm r 6
+HOLDS ruleTermT rtTerm x 0
+HOLDS ruleTermT rtTerm x 6
+HOLDS ruleTermT rtGrok r 6
+HOLDS actorOrderT aoWalk aoR 0
+HOLDS actorOrderT aoRule aoCur 0
+HOLDS actorOrderT aoRule aoCur 6
+HOLDS actorOrderT aoWalk aoR 6
+HOLDS termCountT tcWalk tcR 0
+HOLDS termCountT tcRule tcCur 0
+HOLDS termCountT tcRule tcCur 6
+HOLDS termCountT tcWalk tcR 6
+HOLDS termCountT generateParse conjunct 0
+HOLDS termCountT generateParse notFirstTimeThru 0
+HOLDS termCountT generateParse grup 0
+HOLDS termCountT generateParse codeCopy 0
+HOLDS termCountT generateParse bprCopy 0
+HOLDS termCountT generateParse conjunct 13
+HOLDS termCountT generateParse notFirstTimeThru 5
+HOLDS termCountT generateParse grup 6
+HOLDS termCountT generateParse codeCopy 6
+HOLDS termCountT generateParse bprCopy 6
+HOLDS termCountT walkRules length 0
+HOLDS termCountT walkRules grup 0
+HOLDS termCountT walkRules length 5
+HOLDS termCountT walkRules grup 6
+HOLDS ctlStampT generateParse conjunct 0
+HOLDS ctlStampT generateParse notFirstTimeThru 0
+HOLDS ctlStampT generateParse grup 0
+HOLDS ctlStampT generateParse codeCopy 0
+HOLDS ctlStampT generateParse bprCopy 0
+HOLDS ctlStampT generateParse conjunct 13
+HOLDS ctlStampT generateParse notFirstTimeThru 5
+HOLDS ctlStampT generateParse grup 6
+HOLDS ctlStampT generateParse codeCopy 6
+HOLDS ctlStampT generateParse bprCopy 6
+HOLDS ctlStampT walkRules length 0
+HOLDS ctlStampT walkRules grup 0
+HOLDS ctlStampT walkRules length 5
+HOLDS ctlStampT walkRules grup 6
+HOLDS ctlStampT ctRun ctGot 0
+HOLDS ctlStampT ctRun ctGot 6
+HOLDS ctlStampT ctGenLoop v 0
+HOLDS ctlStampT ctGenLoop v 6
+HOLDS probeFrameT generateParse conjunct 0
+HOLDS probeFrameT generateParse notFirstTimeThru 0
+HOLDS probeFrameT generateParse grup 0
+HOLDS probeFrameT generateParse codeCopy 0
+HOLDS probeFrameT generateParse bprCopy 0
+HOLDS probeFrameT generateParse conjunct 13
+HOLDS probeFrameT generateParse notFirstTimeThru 5
+HOLDS probeFrameT generateParse grup 6
+HOLDS probeFrameT generateParse codeCopy 6
+HOLDS probeFrameT generateParse bprCopy 6
+HOLDS probeFrameT walkRules length 0
+HOLDS probeFrameT walkRules grup 0
+HOLDS probeFrameT walkRules length 5
+HOLDS probeFrameT walkRules grup 6
+HOLDS flagRetiredT frSet fLAG 0
+HOLDS valueTargetT vk4 vtLocal 5
+SLOT jitScCountT scDriver scH 0 0x104d1b1c0
+ASSIGN jitScCountT 0x104d1b1c0 scH := argKind=0 lit=0 jit=0 node=0
+HOLDS jitScCountT scDriver scH 6
+HOLDS recurSaveT rsF t 0
+HOLDS recurSaveT rsF r 0
+HOLDS recurSaveT rsF t 5
+HOLDS recurSaveT rsF r 5
+HOLDS recurSaveT rsG r 0
+HOLDS recurSaveT rsG r 5
+HOLDS recurSaveT rsH x 5
+ASSIGN jitRecurSaveT 0x100eaaa80 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN jitRecurSaveT 0x100eaa2a0 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitRecurSaveT rsF t 0 0x100eaaa80
+SLOT jitRecurSaveT rsF r 0 0x100eaa2a0
+ASSIGN jitRecurSaveT 0x100eaaa80 t = argKind=0 lit=0 jit=1 node=0
+HOLDS jitRecurSaveT rsF t 0
+HOLDS jitRecurSaveT rsF r 0
+HOLDS jitRecurSaveT rsF t 5
+HOLDS jitRecurSaveT rsF r 5
+ASSIGN jitRecurSaveT 0x104b3aa80 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN jitRecurSaveT 0x104b3a2a0 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitRecurSaveT rsF t 0 0x104b3aa80
+SLOT jitRecurSaveT rsF r 0 0x104b3a2a0
+ASSIGN jitRecurSaveT 0x104b3aa80 t = argKind=0 lit=0 jit=1 node=0
+HOLDS jitRecurSaveT rsF t 0
+HOLDS jitRecurSaveT rsF r 0
+HOLDS jitRecurSaveT rsF t 5
+HOLDS jitRecurSaveT rsF r 5
+ASSIGN jitRecurSaveGT 0x104e9e9a0 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitRecurSaveGT rsG r 0 0x104e9e9a0
+HOLDS jitRecurSaveGT rsG r 0
+HOLDS jitRecurSaveGT rsG r 5
+ASSIGN jitRecurSaveGT 0x1055e69a0 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitRecurSaveGT rsG r 0 0x1055e69a0
+HOLDS jitRecurSaveGT rsG r 0
+HOLDS jitRecurSaveGT rsG r 5
+ASSIGN jitStarIdiomT 0x105a58690 idF := argKind=-1 lit=0 jit=0 node=0
+HOLDS jsi.src jr1 idF 6
+HOLDS jsi.src jr1 w 0
+HOLDS jsi.src jr1 w 6
+SLOT jitterT jtGood good 0 0x10054aee0
+ASSIGN jitterT 0x10054aee0 good = argKind=5 lit=1 jit=0 node=0
+SLOT jitterT jtBad zeroBump 0 0x100501bd0
+ASSIGN jitterT 0x100501bd0 zeroBump = argKind=5 lit=1 jit=0 node=0
+HOLDS jitterT jtBad zeroBump 0
+HOLDS jitterT jtBad zeroBump 5
+HOLDS jtI.src jtGood good 0
+HOLDS jtI.src jtGood good 5
+HOLDS jtI.src jtBad zeroBump 0
+HOLDS jtI.src jtBad zeroBump 5
+HOLDS jtN.src generateParse conjunct 0
+HOLDS jtN.src generateParse notFirstTimeThru 0
+HOLDS jtN.src generateParse grup 0
+HOLDS jtN.src generateParse codeCopy 0
+HOLDS jtN.src generateParse bprCopy 0
+HOLDS jtN.src generateParse conjunct 13
+HOLDS jtN.src generateParse notFirstTimeThru 5
+HOLDS jtN.src generateParse grup 6
+HOLDS jtN.src generateParse codeCopy 6
+HOLDS jtN.src generateParse bprCopy 6
+HOLDS jtN.src walkRules length 0
+HOLDS jtN.src walkRules grup 0
+HOLDS jtN.src walkRules length 5
+HOLDS jtN.src walkRules grup 6
+SLOT jtN.src jtGood good 0 0x10358ed20
+ASSIGN jtN.src 0x10358ed20 good = argKind=5 lit=1 jit=0 node=0
+SLOT jtN.src jtBad zeroBump 0 0x1035e95b0
+ASSIGN jtN.src 0x1035e95b0 zeroBump = argKind=5 lit=1 jit=0 node=0
+HOLDS jtN.src jtBad zeroBump 0
+HOLDS jtN.src jtBad zeroBump 5
+ASSIGN jitCompileOnceT 0x101e667e0 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN jitCompileOnceT 0x101e66000 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitCompileOnceT coF t 0 0x101e667e0
+SLOT jitCompileOnceT coF r 0 0x101e66000
+ASSIGN jitCompileOnceT 0x101e667e0 t = argKind=0 lit=0 jit=1 node=0
+HOLDS jitCompileOnceT coF t 0
+HOLDS jitCompileOnceT coF r 0
+HOLDS jitCompileOnceT coF t 5
+HOLDS jitCompileOnceT coF r 5
+ASSIGN jitCompileOnceT 0x1058ea7e0 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN jitCompileOnceT 0x1058ea000 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitCompileOnceT coF t 0 0x1058ea7e0
+SLOT jitCompileOnceT coF r 0 0x1058ea000
+ASSIGN jitCompileOnceT 0x1058ea7e0 t = argKind=0 lit=0 jit=1 node=0
+HOLDS jitCompileOnceT coF t 0
+HOLDS jitCompileOnceT coF r 0
+HOLDS jitCompileOnceT coF t 5
+HOLDS jitCompileOnceT coF r 5
+ASSIGN jitCompileOnceT 0x1050867e0 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN jitCompileOnceT 0x105086000 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitCompileOnceT coF t 0 0x1050867e0
+SLOT jitCompileOnceT coF r 0 0x105086000
+ASSIGN jitCompileOnceT 0x1050867e0 t = argKind=0 lit=0 jit=1 node=0
+HOLDS jitCompileOnceT coF t 0
+HOLDS jitCompileOnceT coF r 0
+HOLDS jitCompileOnceT coF t 5
+HOLDS jitCompileOnceT coF r 5
+ASSIGN jitSelfCallValT 0x1013a6150 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitSelfCallValT vcF r 0 0x1013a6150
+HOLDS jitSelfCallValT vcF r 0
+HOLDS jitSelfCallValT vcF r 5
+ASSIGN jitArgChainT 0x10534c9a0 h = argKind=0 lit=0 jit=1 node=0
+ASSIGN jitArgChainT 0x10534ebd0 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitArgChainT acF h 0 0x10534c9a0
+SLOT jitArgChainT acF r 0 0x10534ebd0
+HOLDS jitArgChainT acF h 0
+HOLDS jitArgChainT acF r 0
+HOLDS jitArgChainT acF h 5
+HOLDS jitArgChainT acF r 5
+ASSIGN jitArgNumberT 0x10334e150 t = argKind=9 lit=1 jit=1 node=0
+ASSIGN jitArgNumberT 0x103350930 r = argKind=0 lit=0 jit=1 node=0
+SLOT jitArgNumberT nmF t 0 0x10334e150
+SLOT jitArgNumberT nmF r 0 0x103350930
+HOLDS jitArgNumberT nmF t 0
+HOLDS jitArgNumberT nmF r 0
+HOLDS jitArgNumberT nmF t 9
+HOLDS jitArgNumberT nmF r 5
+HOLDS halfLessT generateParse conjunct 0
+HOLDS halfLessT generateParse notFirstTimeThru 0
+HOLDS halfLessT generateParse grup 0
+HOLDS halfLessT generateParse codeCopy 0
+HOLDS halfLessT generateParse bprCopy 0
+HOLDS halfLessT generateParse conjunct 13
+HOLDS halfLessT generateParse notFirstTimeThru 5
+HOLDS halfLessT generateParse grup 6
+HOLDS halfLessT generateParse codeCopy 6
+HOLDS halfLessT generateParse bprCopy 6
+HOLDS halfLessT walkRules length 0
+HOLDS halfLessT walkRules grup 0
+HOLDS halfLessT walkRules length 5
+HOLDS halfLessT walkRules grup 6
+HOLDS flagPlusT fpAct fpJ 0
+HOLDS flagPlusT fpAct fpI 0
+HOLDS flagPlusT fpAct fpJ 6
+HOLDS flagPlusT fpAct fpI 6
+HOLDS pass1SeqT pvBlock block 0
+HOLDS pass1SeqT pvBlock block 6
+HOLDS anyLeafT alSay v 6
+HOLDS anyLeafT alSay m 0
+HOLDS anyLeafT alSay c 0
+HOLDS anyLeafT alSay l 0
+HOLDS anyLeafT alSay m 6
+HOLDS anyLeafT alSay c 6
+HOLDS anyLeafT alSay l 6
+HOLDS failPointT fpSay v 6
+HOLDS failPointT fpSay m 0
+HOLDS failPointT fpSay s 0
+HOLDS failPointT fpSay m 6
+HOLDS failPointT fpSay s 6
+HOLDS failPointT generateParse conjunct 0
+HOLDS failPointT generateParse notFirstTimeThru 0
+HOLDS failPointT generateParse grup 0
+HOLDS failPointT generateParse codeCopy 0
+HOLDS failPointT generateParse bprCopy 0
+HOLDS failPointT generateParse conjunct 13
+HOLDS failPointT generateParse notFirstTimeThru 5
+HOLDS failPointT generateParse grup 6
+HOLDS failPointT generateParse codeCopy 6
+HOLDS failPointT generateParse bprCopy 6
+HOLDS failPointT walkRules length 0
+HOLDS failPointT walkRules grup 0
+HOLDS failPointT walkRules length 5
+HOLDS failPointT walkRules grup 6
+HOLDS hasActionT haProbe haH 6
+HOLDS exprPinT fdShow fdk 6
+HOLDS exprPinT U70 goodToGo 0
+HOLDS exprPinT U70 goodToGo 5
+HOLDS exprPinT U72 goodToGo 0
+HOLDS exprPinT U72 goodToGo 5
+HOLDS exprPinT U75 goodToGo 0
+HOLDS exprPinT U75 goodToGo 5
+HOLDS exprPinT U302a ur 0
+HOLDS exprPinT U302a ur 5
+HOLDS exprPinT U302b ur 0
+HOLDS exprPinT U302b ur 5
+HOLDS exprPinT U302c ur 0
+HOLDS exprPinT U302c ur 5
+HOLDS exprPinT B1 goodToGo 0
+HOLDS exprPinT B1 goodToGo 5
+HOLDS exprPinT B2 goodToGo 0
+HOLDS exprPinT B2 goodToGo 5
+HOLDS exprPinT B3 goodToGo 0
+HOLDS exprPinT B3 goodToGo 5
+HOLDS exprPinT S1 sr 0
+HOLDS exprPinT S1 sr 5
+HOLDS exprPinT S2 sr 0
+HOLDS exprPinT S2 sr 5
+HOLDS exprPinT S3 sr 0
+HOLDS exprPinT S3 sr 5
+HOLDS exprPinT fNest nr 5
+HOLDS exprPinT O1 src 0
+HOLDS exprPinT O1 block 0
+HOLDS exprPinT O1 r3 0
+HOLDS exprPinT O1 src 6
+HOLDS exprPinT O1 block 6
+HOLDS exprPinT O1 r3 5
+HOLDS exprPinT O3 nr 0
+HOLDS exprPinT O3b nr 5
+HOLDS exprPinT O4 ph 6
+HOLDS exprPinT O4 pMid 0
+HOLDS exprPinT H2 hw 6
+HOLDS exprPinT C5 c5L 6
+HOLDS exprPinT C5 c5C 0
+HOLDS exprPinT C5 c5n 0
+HOLDS exprPinT C5 c5C 6
+HOLDS exprPinT C5 c5n 6
+HOLDS exprPinT PA1 pn 0
+HOLDS exprPinT PA1 p1 0
+HOLDS exprPinT PA1 p2 0
+HOLDS exprPinT PA1 p3 0
+HOLDS exprPinT PA1 pn 5
+HOLDS exprPinT PA1 p1 5
+HOLDS exprPinT PA1 p2 5
+HOLDS exprPinT PA1 p3 5
+HOLDS exprPinT OR1 oh 6
+HOLDS exprPinT OR1 ur 0
+HOLDS exprPinT OR1 ur 5
+HOLDS exprPinT OR2 oh 6
+HOLDS exprPinT OR2 ur 0
+HOLDS exprPinT OR2 ur 5
+HOLDS exprPinT OR3 oh 6
+HOLDS exprPinT OR3 ur 0
+HOLDS exprPinT OR3 ur 5
+HOLDS lastRefT lrWalk lrCur 0
+HOLDS lastRefT lrWalk lrCur 6
+HOLDS loneOpT loSay v 0
+HOLDS loneOpT loSay m 0
+HOLDS opEntryT oeShow oeN 6
+HOLDS opEntryT oeShow oeS 0
+HOLDS opEntryT oeShow oeS 6
+HOLDS blockCallT BC0 rc 0
+HOLDS blockCallT BC0 rc 5
+HOLDS blockCallT BC1 src 0
+HOLDS blockCallT BC1 rc 0
+HOLDS blockCallT BC1 src 6
+HOLDS blockCallT BC1 rc 5
+HOLDS blockCallT BC2 src 0
+HOLDS blockCallT BC2 block 0
+HOLDS blockCallT BC2 rc 0
+HOLDS blockCallT BC2 src 6
+HOLDS blockCallT BC2 block 6
+HOLDS blockCallT BC2 rc 5
+HOLDS blockCallT BC3 src 0
+HOLDS blockCallT BC3 src 6
+HOLDS blockCallT BC4 block 0
+HOLDS blockCallT BC4 rc 0
+HOLDS blockCallT BC4 block 6
+HOLDS blockCallT BC4 rc 5
+SLOT jitBlockCallT BJ code 0 0x102f2d540
+ASSIGN jitBlockCallT 0x102f2d540 code := argKind=13 lit=0 jit=0 node=0
+HOLDS jitBlockCallT BJ code 6
+SLOT jitBlockNameT BJ code 0 0x100b3d540
+SLOT jitBlockNameT BJ nm 0 0x100b56d90
+ASSIGN jitBlockNameT 0x100b3d540 code := argKind=13 lit=0 jit=0 node=0
+ASSIGN jitBlockNameT 0x100b56d90 nm := argKind=0 lit=0 jit=0 node=0
+HOLDS jitBlockNameT BJ code 6
+HOLDS jitBlockNameT BJ nm 0
+HOLDS jitBlockNameT BJ nm 6
+SLOT jitBlockCtlT BJ code 0 0x100e61540
+SLOT jitBlockCtlT BJ block 0 0x100e7acb0
+ASSIGN jitBlockCtlT 0x100e61540 code := argKind=13 lit=0 jit=0 node=0
+ASSIGN jitBlockCtlT 0x100e7acb0 block := argKind=-1 lit=0 jit=0 node=0
+HOLDS jitBlockCtlT BJ code 6
+HOLDS jitBlockCtlT BJ block 6
+HOLDS jitBlockCtlT BJ block 0
+HOLDS opMixT T1 v 6
+HOLDS opMixT T1 rp 0
+HOLDS opMixT T1 rp 6
+HOLDS opMixT show k 6
+HOLDS opMixT show x 0
+HOLDS opMixT show x 6
+HOLDS opMixT T2 v 6
+HOLDS opMixT T2 rp 0
+HOLDS opMixT T2 rp 6
+HOLDS opMixT T3 v 6
+HOLDS opMixT T3 rp 0
+HOLDS opMixT T3 rp 6
+SLOT jitJF jitJF jfTmp 0 0x101c36d90
+ASSIGN jitJF 0x101c36d90 jfTmp = argKind=0 lit=0 jit=1 node=0
+HOLDS jitJF jitJF jfTmp 5
+SLOT jitJF jitJF jfTmp 0 0x101176d90
+ASSIGN jitJF 0x101176d90 jfTmp = argKind=0 lit=0 jit=1 node=0
+HOLDS jitJF jitJF jfTmp 5
+SLOT jitJRL jrLocal jrLoc 0 0x10527a850
+ASSIGN jitJRL 0x10527a850 jrLoc = argKind=5 lit=0 jit=0 node=0
+HOLDS jitJRL jrLocal jrLoc 5
+HOLDS jitJRL jrLocal jrLoc 0
+SLOT jitJRL jrLocal jrLoc 0 0x101db2850
+ASSIGN jitJRL 0x101db2850 jrLoc = argKind=5 lit=0 jit=0 node=0
+HOLDS jitJRL jrLocal jrLoc 5
+HOLDS jitJRL jrLocal jrLoc 0
+SLOT jitJUi jitJUi g 0 0x105a7eb60
+ITER jitJUi 0x105a7eb60 g 0
+HOLDS jitJUi jitJUi g 0
+HOLDS jitJUi jitJUi g 6
+HOLDS jitAttrPop listRules length 0
+HOLDS jitAttrPop listRules grup 0
+HOLDS jitAttrPop listRules length 5
+HOLDS jitAttrPop listRules grup 6
+SLOT jitIterTwice itWalk g 0 0x1039e28c0
+ITER jitIterTwice 0x1039e28c0 g 0
+HOLDS jitIterTwice itWalk g 0
+HOLDS jitIterTwice itWalk g 6
+ASSIGN jitDfProbe 0x104d8c770 length = argKind=0 lit=0 jit=1 node=1
+ITER jitDfProbe 0x104d8e070 grup 0
+SLOT jitDfProbe displayForm length 0 0x104d8c770
+SLOT jitDfProbe displayForm grup 0 0x104d8e070
+HOLDS jitDfProbe displayForm length 5
+HOLDS jitDfProbe displayForm grup 0
+HOLDS jitDfProbe displayForm grup 6
+ASSIGN jitSelfFn 0x1039bbd90 sfLoc = argKind=0 lit=0 jit=0 node=0
+SLOT jitSelfFn sf sfLoc 0 0x1039bbd90
+ASSIGN jitSelfFn 0x1030d7d90 sfLoc = argKind=0 lit=0 jit=0 node=0
+SLOT jitSelfFn sf sfLoc 0 0x1030d7d90
+SLOT jitJRt1 rtF rtLoc 0 0x1034692a0
+ASSIGN jitJRt1 0x1034692a0 rtLoc = argKind=0 lit=0 jit=1 node=0
+HOLDS jitJRt1 rtF rtLoc 5
+SLOT jitJRt3 k8 k8loc 0 0x101059690
+ASSIGN jitJRt3 0x101059690 k8loc = argKind=0 lit=0 jit=1 node=0
+HOLDS jitJRt3o k8 k8loc 5
+SLOT jitJD jdRun jdCur 0 0x101805230
+ITER jitJD 0x101805230 jdCur 0
+HOLDS jitJD jdRun jdCur 0
+HOLDS jitJD jdRun jdCur 6
+SLOT jitJD jdRun jdCur 0 0x103a85230
+ITER jitJD 0x103a85230 jdCur 0
+HOLDS jitJD jdRun jdCur 0
+HOLDS jitJD jdRun jdCur 6
+ASSIGN adoptT.gjit 0x103bb7310 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN adoptT.gjit 0x103bb7310 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN adoptT.gjit 0x103bbabd0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER adoptT.gjit 0x103bba540 grup 0
+ASSIGN adoptT.gjit 0x103bc5620 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN adoptT.gjit 0x103bc7070 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN adoptT.gjit 0x103b98770 length = argKind=0 lit=0 jit=1 node=1
+ITER adoptT.gjit 0x103b9a850 grup 0
+ASSIGN adoptT.gjit 0x103bb7310 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN adoptT.gjit 0x103bbabd0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT adoptT.gjit walkRules length 0 0x103b98770
+SLOT adoptT.gjit walkRules grup 0 0x103b9a850
+SLOT adoptT.gjit generateParse conjunct 0 0x103bb7310
+SLOT adoptT.gjit generateParse notFirstTimeThru 0 0x103bbabd0
+SLOT adoptT.gjit generateParse grup 0 0x103bba540
+SLOT adoptT.gjit generateParse codeCopy 0 0x103bc5620
+SLOT adoptT.gjit generateParse bprCopy 0 0x103bc7070
+HOLDS adoptT.gjit walkRules length 0
+HOLDS adoptT.gjit walkRules grup 0
+HOLDS adoptT.gjit walkRules length 5
+HOLDS adoptT.gjit walkRules grup 6
+HOLDS adoptT.gplain generateParse conjunct 0
+HOLDS adoptT.gplain generateParse notFirstTimeThru 0
+HOLDS adoptT.gplain generateParse grup 0
+HOLDS adoptT.gplain generateParse codeCopy 0
+HOLDS adoptT.gplain generateParse bprCopy 0
+HOLDS adoptT.gplain generateParse conjunct 13
+HOLDS adoptT.gplain generateParse notFirstTimeThru 5
+HOLDS adoptT.gplain generateParse grup 6
+HOLDS adoptT.gplain generateParse codeCopy 6
+HOLDS adoptT.gplain generateParse bprCopy 6
+HOLDS adoptT.gplain walkRules length 0
+HOLDS adoptT.gplain walkRules grup 0
+HOLDS adoptT.gplain walkRules length 5
+HOLDS adoptT.gplain walkRules grup 6
+ASSIGN baselineTestsNew.gjit 0x103d80070 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN baselineTestsNew.gjit 0x103d80070 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN baselineTestsNew.gjit 0x103d84930 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER baselineTestsNew.gjit 0x103d842a0 grup 0
+ASSIGN baselineTestsNew.gjit 0x103d8f380 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN baselineTestsNew.gjit 0x103d93d90 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN baselineTestsNew.gjit 0x103d62540 length = argKind=0 lit=0 jit=1 node=1
+ITER baselineTestsNew.gjit 0x103d64620 grup 0
+ASSIGN baselineTestsNew.gjit 0x103d80070 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN baselineTestsNew.gjit 0x103d84930 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT baselineTestsNew.gjit walkRules length 0 0x103d62540
+SLOT baselineTestsNew.gjit walkRules grup 0 0x103d64620
+SLOT baselineTestsNew.gjit generateParse conjunct 0 0x103d80070
+SLOT baselineTestsNew.gjit generateParse notFirstTimeThru 0 0x103d84930
+SLOT baselineTestsNew.gjit generateParse grup 0 0x103d842a0
+SLOT baselineTestsNew.gjit generateParse codeCopy 0 0x103d8f380
+SLOT baselineTestsNew.gjit generateParse bprCopy 0 0x103d93d90
+HOLDS baselineTestsNew.gjit walkRules length 0
+HOLDS baselineTestsNew.gjit walkRules grup 0
+HOLDS baselineTestsNew.gjit walkRules length 5
+HOLDS baselineTestsNew.gjit walkRules grup 6
+HOLDS baselineTestsNew.gplain generateParse conjunct 0
+HOLDS baselineTestsNew.gplain generateParse notFirstTimeThru 0
+HOLDS baselineTestsNew.gplain generateParse grup 0
+HOLDS baselineTestsNew.gplain generateParse codeCopy 0
+HOLDS baselineTestsNew.gplain generateParse bprCopy 0
+HOLDS baselineTestsNew.gplain generateParse conjunct 13
+HOLDS baselineTestsNew.gplain generateParse notFirstTimeThru 5
+HOLDS baselineTestsNew.gplain generateParse grup 6
+HOLDS baselineTestsNew.gplain generateParse codeCopy 6
+HOLDS baselineTestsNew.gplain generateParse bprCopy 6
+HOLDS baselineTestsNew.gplain walkRules length 0
+HOLDS baselineTestsNew.gplain walkRules grup 0
+HOLDS baselineTestsNew.gplain walkRules length 5
+HOLDS baselineTestsNew.gplain walkRules grup 6
+HOLDS baselineTestsNew.gplain testUnitTests This 0
+HOLDS baselineTestsNew.gplain accessTest across 0
+HOLDS baselineTestsNew.gplain ifTest grup 0
+HOLDS baselineTestsNew.gplain ifTest grup 6
+HOLDS baselineTestsNew.gplain testOR Saw 0
+HOLDS baselineTestsNew.gplain testIndentBlock One 0
+HOLDS baselineTestsNew.gplain testIndentBlock Two 0
+HOLDS baselineTestsNew.gplain testIndentBlock Three 0
+HOLDS baselineTestsNew.gplain testIndentBlock Four 0
+HOLDS baselineTestsNew.gplain stringTest what 5
+HOLDS baselineTestsNew.gplain testInterpret Saw 0
+HOLDS baselineTestsNew.gplain testInterpret grup 0
+HOLDS baselineTestsNew.gplain testInterpret grup 6
+HOLDS baselineTestsNew.gplain testInterpret grup 5
+HOLDS baselineTestsNew.gplain testUnary grup 0
+HOLDS baselineTestsNew.gplain testUnary grup 5
+HOLDS baselineTestsNew.gplain testGet width 0
+ASSIGN baselineTestsNew.gplain 0x103552ee0 t = argKind=5 lit=1 jit=1 node=0
+ASSIGN baselineTestsNew.gplain 0x1035520e0 r = argKind=0 lit=0 jit=1 node=0
+SLOT baselineTestsNew.gplain testRecurF t 0 0x103552ee0
+SLOT baselineTestsNew.gplain testRecurF r 0 0x1035520e0
+ASSIGN baselineTestsNew.gplain 0x103552ee0 t = argKind=0 lit=0 jit=1 node=0
+HOLDS baselineTestsNew.gplain testRecursion rf 0
+HOLDS baselineTestsNew.gplain testRecursion rg 0
+HOLDS baselineTestsNew.gplain testRecursion rh 0
+HOLDS baselineTestsNew.gplain testRecursion rk 0
+ASSIGN baselineTestsNew.gplain 0x103608a80 r = argKind=0 lit=0 jit=1 node=0
+SLOT baselineTestsNew.gplain testRecurG r 0 0x103608a80
+ASSIGN baselineTestsNew.gplain 0x10867a9a0 x = argKind=0 lit=0 jit=1 node=0
+HOLDS baselineTestsNew.gplain testRecurF t 0
+HOLDS baselineTestsNew.gplain testRecurF r 0
+HOLDS baselineTestsNew.gplain testRecurF t 5
+HOLDS baselineTestsNew.gplain testRecurF r 5
+HOLDS baselineTestsNew.gplain testRecursion rf 5
+HOLDS baselineTestsNew.gplain testRecurG r 0
+HOLDS baselineTestsNew.gplain testRecurG r 5
+HOLDS baselineTestsNew.gplain testRecursion rg 5
+HOLDS baselineTestsNew.gplain testRecurH x 5
+HOLDS baselineTestsNew.gplain testRecursion rh 5
+HOLDS baselineTestsNew.gplain testRecursion rk 5
+HOLDS baselineTestsNew.gplain printDefinition grup 0
+HOLDS baselineTestsNew.gplain printDefinition grup 6
+ASSIGN deferNatT.gjit 0x103ca65b0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN deferNatT.gjit 0x103ca65b0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN deferNatT.gjit 0x103caae70 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER deferNatT.gjit 0x103caa7e0 grup 0
+ASSIGN deferNatT.gjit 0x103cb58c0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN deferNatT.gjit 0x103cb7310 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN deferNatT.gjit 0x103c88a10 length = argKind=0 lit=0 jit=1 node=1
+ITER deferNatT.gjit 0x103c8aaf0 grup 0
+ASSIGN deferNatT.gjit 0x103ca65b0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN deferNatT.gjit 0x103caae70 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT deferNatT.gjit walkRules length 0 0x103c88a10
+SLOT deferNatT.gjit walkRules grup 0 0x103c8aaf0
+SLOT deferNatT.gjit generateParse conjunct 0 0x103ca65b0
+SLOT deferNatT.gjit generateParse notFirstTimeThru 0 0x103caae70
+SLOT deferNatT.gjit generateParse grup 0 0x103caa7e0
+SLOT deferNatT.gjit generateParse codeCopy 0 0x103cb58c0
+SLOT deferNatT.gjit generateParse bprCopy 0 0x103cb7310
+HOLDS deferNatT.gjit walkRules length 0
+HOLDS deferNatT.gjit walkRules grup 0
+HOLDS deferNatT.gjit walkRules length 5
+HOLDS deferNatT.gjit walkRules grup 6
+HOLDS deferNatT.gplain generateParse conjunct 0
+HOLDS deferNatT.gplain generateParse notFirstTimeThru 0
+HOLDS deferNatT.gplain generateParse grup 0
+HOLDS deferNatT.gplain generateParse codeCopy 0
+HOLDS deferNatT.gplain generateParse bprCopy 0
+HOLDS deferNatT.gplain generateParse conjunct 13
+HOLDS deferNatT.gplain generateParse notFirstTimeThru 5
+HOLDS deferNatT.gplain generateParse grup 6
+HOLDS deferNatT.gplain generateParse codeCopy 6
+HOLDS deferNatT.gplain generateParse bprCopy 6
+HOLDS deferNatT.gplain walkRules length 0
+HOLDS deferNatT.gplain walkRules grup 0
+HOLDS deferNatT.gplain walkRules length 5
+HOLDS deferNatT.gplain walkRules grup 6
+ASSIGN definerT.gjit 0x101dac620 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN definerT.gjit 0x101dac620 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN definerT.gjit 0x101db0ee0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER definerT.gjit 0x101db0850 grup 0
+ASSIGN definerT.gjit 0x101dbb930 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN definerT.gjit 0x101dbd380 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN definerT.gjit 0x101d8da80 length = argKind=0 lit=0 jit=1 node=1
+ITER definerT.gjit 0x101d90b60 grup 0
+ASSIGN definerT.gjit 0x101dac620 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN definerT.gjit 0x101db0ee0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT definerT.gjit walkRules length 0 0x101d8da80
+SLOT definerT.gjit walkRules grup 0 0x101d90b60
+SLOT definerT.gjit generateParse conjunct 0 0x101dac620
+SLOT definerT.gjit generateParse notFirstTimeThru 0 0x101db0ee0
+SLOT definerT.gjit generateParse grup 0 0x101db0850
+SLOT definerT.gjit generateParse codeCopy 0 0x101dbb930
+SLOT definerT.gjit generateParse bprCopy 0 0x101dbd380
+HOLDS definerT.gjit walkRules length 0
+HOLDS definerT.gjit walkRules grup 0
+HOLDS definerT.gjit walkRules length 5
+HOLDS definerT.gjit walkRules grup 6
+HOLDS definerT.gplain generateParse conjunct 0
+HOLDS definerT.gplain generateParse notFirstTimeThru 0
+HOLDS definerT.gplain generateParse grup 0
+HOLDS definerT.gplain generateParse codeCopy 0
+HOLDS definerT.gplain generateParse bprCopy 0
+HOLDS definerT.gplain generateParse conjunct 13
+HOLDS definerT.gplain generateParse notFirstTimeThru 5
+HOLDS definerT.gplain generateParse grup 6
+HOLDS definerT.gplain generateParse codeCopy 6
+HOLDS definerT.gplain generateParse bprCopy 6
+HOLDS definerT.gplain walkRules length 0
+HOLDS definerT.gplain walkRules grup 0
+HOLDS definerT.gplain walkRules length 5
+HOLDS definerT.gplain walkRules grup 6
+ASSIGN doWhileNameT.gjit 0x10355e850 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN doWhileNameT.gjit 0x10355e850 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN doWhileNameT.gjit 0x103560150 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER doWhileNameT.gjit 0x103562a80 grup 0
+ASSIGN doWhileNameT.gjit 0x10356cb60 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN doWhileNameT.gjit 0x10356e5b0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN doWhileNameT.gjit 0x10353fcb0 length = argKind=0 lit=0 jit=1 node=1
+ITER doWhileNameT.gjit 0x103542d90 grup 0
+ASSIGN doWhileNameT.gjit 0x10355e850 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN doWhileNameT.gjit 0x103560150 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT doWhileNameT.gjit walkRules length 0 0x10353fcb0
+SLOT doWhileNameT.gjit walkRules grup 0 0x103542d90
+SLOT doWhileNameT.gjit generateParse conjunct 0 0x10355e850
+SLOT doWhileNameT.gjit generateParse notFirstTimeThru 0 0x103560150
+SLOT doWhileNameT.gjit generateParse grup 0 0x103562a80
+SLOT doWhileNameT.gjit generateParse codeCopy 0 0x10356cb60
+SLOT doWhileNameT.gjit generateParse bprCopy 0 0x10356e5b0
+HOLDS doWhileNameT.gjit walkRules length 0
+HOLDS doWhileNameT.gjit walkRules grup 0
+HOLDS doWhileNameT.gjit walkRules length 5
+HOLDS doWhileNameT.gjit walkRules grup 6
+HOLDS doWhileNameT.gplain generateParse conjunct 0
+HOLDS doWhileNameT.gplain generateParse notFirstTimeThru 0
+HOLDS doWhileNameT.gplain generateParse grup 0
+HOLDS doWhileNameT.gplain generateParse codeCopy 0
+HOLDS doWhileNameT.gplain generateParse bprCopy 0
+HOLDS doWhileNameT.gplain generateParse conjunct 13
+HOLDS doWhileNameT.gplain generateParse notFirstTimeThru 5
+HOLDS doWhileNameT.gplain generateParse grup 6
+HOLDS doWhileNameT.gplain generateParse codeCopy 6
+HOLDS doWhileNameT.gplain generateParse bprCopy 6
+HOLDS doWhileNameT.gplain walkRules length 0
+HOLDS doWhileNameT.gplain walkRules grup 0
+HOLDS doWhileNameT.gplain walkRules length 5
+HOLDS doWhileNameT.gplain walkRules grup 6
+SLOT driveCompileT.gjit exSay v 0 0x1054033f0
+SLOT driveCompileT.gjit exSay m 0 0x105405690
+SLOT driveCompileT.gjit exSay c 0 0x105407700
+ASSIGN driveCompileT.gjit 0x1054033f0 v := argKind=0 lit=0 jit=0 node=0
+ASSIGN driveCompileT.gjit 0x105405690 m := argKind=-1 lit=0 jit=0 node=1
+ASSIGN driveCompileT.gjit 0x105407700 c := argKind=-1 lit=0 jit=0 node=1
+ASSIGN driveCompileT.gjit 0x10550b700 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN driveCompileT.gjit 0x10550b700 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN driveCompileT.gjit 0x10550d000 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER driveCompileT.gjit 0x10550f930 grup 0
+ASSIGN driveCompileT.gjit 0x105521a10 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN driveCompileT.gjit 0x105523460 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN driveCompileT.gjit 0x105438b60 length = argKind=0 lit=0 jit=1 node=1
+ITER driveCompileT.gjit 0x1054f4c40 grup 0
+ASSIGN driveCompileT.gjit 0x10550b700 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN driveCompileT.gjit 0x10550d000 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT driveCompileT.gjit walkRules length 0 0x105438b60
+SLOT driveCompileT.gjit walkRules grup 0 0x1054f4c40
+SLOT driveCompileT.gjit generateParse conjunct 0 0x10550b700
+SLOT driveCompileT.gjit generateParse notFirstTimeThru 0 0x10550d000
+SLOT driveCompileT.gjit generateParse grup 0 0x10550f930
+SLOT driveCompileT.gjit generateParse codeCopy 0 0x105521a10
+SLOT driveCompileT.gjit generateParse bprCopy 0 0x105523460
+HOLDS driveCompileT.gjit walkRules length 0
+HOLDS driveCompileT.gjit walkRules grup 0
+HOLDS driveCompileT.gjit walkRules length 5
+HOLDS driveCompileT.gjit walkRules grup 6
+HOLDS driveCompileT.gplain exSay v 6
+HOLDS driveCompileT.gplain exSay m 0
+HOLDS driveCompileT.gplain exSay c 0
+HOLDS driveCompileT.gplain exSay m 6
+HOLDS driveCompileT.gplain exSay c 6
+HOLDS driveCompileT.gplain generateParse conjunct 0
+HOLDS driveCompileT.gplain generateParse notFirstTimeThru 0
+HOLDS driveCompileT.gplain generateParse grup 0
+HOLDS driveCompileT.gplain generateParse codeCopy 0
+HOLDS driveCompileT.gplain generateParse bprCopy 0
+HOLDS driveCompileT.gplain generateParse conjunct 13
+HOLDS driveCompileT.gplain generateParse notFirstTimeThru 5
+HOLDS driveCompileT.gplain generateParse grup 6
+HOLDS driveCompileT.gplain generateParse codeCopy 6
+HOLDS driveCompileT.gplain generateParse bprCopy 6
+HOLDS driveCompileT.gplain walkRules length 0
+HOLDS driveCompileT.gplain walkRules grup 0
+HOLDS driveCompileT.gplain walkRules length 5
+HOLDS driveCompileT.gplain walkRules grup 6
+ASSIGN driveLeakT.gjit 0x10129fe70 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN driveLeakT.gjit 0x10129fe70 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN driveLeakT.gjit 0x1012a1770 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER driveLeakT.gjit 0x1012a10e0 grup 0
+ASSIGN driveLeakT.gjit 0x1012ac1c0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN driveLeakT.gjit 0x1012b0bd0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN driveLeakT.gjit 0x10127e310 length = argKind=0 lit=0 jit=1 node=1
+ITER driveLeakT.gjit 0x1012803f0 grup 0
+ASSIGN driveLeakT.gjit 0x10129fe70 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN driveLeakT.gjit 0x1012a1770 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT driveLeakT.gjit walkRules length 0 0x10127e310
+SLOT driveLeakT.gjit walkRules grup 0 0x1012803f0
+SLOT driveLeakT.gjit generateParse conjunct 0 0x10129fe70
+SLOT driveLeakT.gjit generateParse notFirstTimeThru 0 0x1012a1770
+SLOT driveLeakT.gjit generateParse grup 0 0x1012a10e0
+SLOT driveLeakT.gjit generateParse codeCopy 0 0x1012ac1c0
+SLOT driveLeakT.gjit generateParse bprCopy 0 0x1012b0bd0
+HOLDS driveLeakT.gjit walkRules length 0
+HOLDS driveLeakT.gjit walkRules grup 0
+HOLDS driveLeakT.gjit walkRules length 5
+HOLDS driveLeakT.gjit walkRules grup 6
+HOLDS driveLeakT.gplain generateParse conjunct 0
+HOLDS driveLeakT.gplain generateParse notFirstTimeThru 0
+HOLDS driveLeakT.gplain generateParse grup 0
+HOLDS driveLeakT.gplain generateParse codeCopy 0
+HOLDS driveLeakT.gplain generateParse bprCopy 0
+HOLDS driveLeakT.gplain generateParse conjunct 13
+HOLDS driveLeakT.gplain generateParse notFirstTimeThru 5
+HOLDS driveLeakT.gplain generateParse grup 6
+HOLDS driveLeakT.gplain generateParse codeCopy 6
+HOLDS driveLeakT.gplain generateParse bprCopy 6
+HOLDS driveLeakT.gplain walkRules length 0
+HOLDS driveLeakT.gplain walkRules grup 0
+HOLDS driveLeakT.gplain walkRules length 5
+HOLDS driveLeakT.gplain walkRules grup 6
+ASSIGN f122NatT.gjit 0x105462540 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN f122NatT.gjit 0x105462540 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN f122NatT.gjit 0x105466e00 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER f122NatT.gjit 0x105466770 grup 0
+ASSIGN f122NatT.gjit 0x105471850 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN f122NatT.gjit 0x1054732a0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN f122NatT.gjit 0x1054449a0 length = argKind=0 lit=0 jit=1 node=1
+ITER f122NatT.gjit 0x105446a80 grup 0
+ASSIGN f122NatT.gjit 0x105462540 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN f122NatT.gjit 0x105466e00 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT f122NatT.gjit walkRules length 0 0x1054449a0
+SLOT f122NatT.gjit walkRules grup 0 0x105446a80
+SLOT f122NatT.gjit generateParse conjunct 0 0x105462540
+SLOT f122NatT.gjit generateParse notFirstTimeThru 0 0x105466e00
+SLOT f122NatT.gjit generateParse grup 0 0x105466770
+SLOT f122NatT.gjit generateParse codeCopy 0 0x105471850
+SLOT f122NatT.gjit generateParse bprCopy 0 0x1054732a0
+HOLDS f122NatT.gjit walkRules length 0
+HOLDS f122NatT.gjit walkRules grup 0
+HOLDS f122NatT.gjit walkRules length 5
+HOLDS f122NatT.gjit walkRules grup 6
+HOLDS f122NatT.gplain generateParse conjunct 0
+HOLDS f122NatT.gplain generateParse notFirstTimeThru 0
+HOLDS f122NatT.gplain generateParse grup 0
+HOLDS f122NatT.gplain generateParse codeCopy 0
+HOLDS f122NatT.gplain generateParse bprCopy 0
+HOLDS f122NatT.gplain generateParse conjunct 13
+HOLDS f122NatT.gplain generateParse notFirstTimeThru 5
+HOLDS f122NatT.gplain generateParse grup 6
+HOLDS f122NatT.gplain generateParse codeCopy 6
+HOLDS f122NatT.gplain generateParse bprCopy 6
+HOLDS f122NatT.gplain walkRules length 0
+HOLDS f122NatT.gplain walkRules grup 0
+HOLDS f122NatT.gplain walkRules length 5
+HOLDS f122NatT.gplain walkRules grup 6
+ASSIGN halfLessT.gjit 0x103e0b230 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN halfLessT.gjit 0x103e0b230 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN halfLessT.gjit 0x103e10af0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER halfLessT.gjit 0x103e10460 grup 0
+ASSIGN halfLessT.gjit 0x103e1a540 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN halfLessT.gjit 0x103e1ff50 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN halfLessT.gjit 0x103dbd690 length = argKind=0 lit=0 jit=1 node=1
+ITER halfLessT.gjit 0x103dbf770 grup 0
+ASSIGN halfLessT.gjit 0x103e0b230 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN halfLessT.gjit 0x103e10af0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT halfLessT.gjit walkRules length 0 0x103dbd690
+SLOT halfLessT.gjit walkRules grup 0 0x103dbf770
+SLOT halfLessT.gjit generateParse conjunct 0 0x103e0b230
+SLOT halfLessT.gjit generateParse notFirstTimeThru 0 0x103e10af0
+SLOT halfLessT.gjit generateParse grup 0 0x103e10460
+SLOT halfLessT.gjit generateParse codeCopy 0 0x103e1a540
+SLOT halfLessT.gjit generateParse bprCopy 0 0x103e1ff50
+HOLDS halfLessT.gjit walkRules length 0
+HOLDS halfLessT.gjit walkRules grup 0
+HOLDS halfLessT.gjit walkRules length 5
+HOLDS halfLessT.gjit walkRules grup 6
+HOLDS halfLessT.gplain generateParse conjunct 0
+HOLDS halfLessT.gplain generateParse notFirstTimeThru 0
+HOLDS halfLessT.gplain generateParse grup 0
+HOLDS halfLessT.gplain generateParse codeCopy 0
+HOLDS halfLessT.gplain generateParse bprCopy 0
+HOLDS halfLessT.gplain generateParse conjunct 13
+HOLDS halfLessT.gplain generateParse notFirstTimeThru 5
+HOLDS halfLessT.gplain generateParse grup 6
+HOLDS halfLessT.gplain generateParse codeCopy 6
+HOLDS halfLessT.gplain generateParse bprCopy 6
+HOLDS halfLessT.gplain walkRules length 0
+HOLDS halfLessT.gplain walkRules grup 0
+HOLDS halfLessT.gplain walkRules length 5
+HOLDS halfLessT.gplain walkRules grup 6
+SLOT leafClassT.gjit lcSay v 0 0x1013d2cb0
+SLOT leafClassT.gjit lcSay m 0 0x1013d4f50
+SLOT leafClassT.gjit lcSay c 0 0x1013d4000
+ASSIGN leafClassT.gjit 0x1013d2cb0 v := argKind=0 lit=0 jit=0 node=0
+ASSIGN leafClassT.gjit 0x1013d4f50 m := argKind=-1 lit=0 jit=0 node=1
+ASSIGN leafClassT.gjit 0x1013d4000 c := argKind=-1 lit=0 jit=0 node=1
+ASSIGN leafClassT.gjit 0x1014e7310 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN leafClassT.gjit 0x1014e7310 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN leafClassT.gjit 0x1014eebd0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER leafClassT.gjit 0x1014ee540 grup 0
+ASSIGN leafClassT.gjit 0x1013f4620 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN leafClassT.gjit 0x1014d4070 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN leafClassT.gjit 0x1014cd770 length = argKind=0 lit=0 jit=1 node=1
+ITER leafClassT.gjit 0x101413850 grup 0
+ASSIGN leafClassT.gjit 0x1014e7310 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN leafClassT.gjit 0x1014eebd0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT leafClassT.gjit walkRules length 0 0x1014cd770
+SLOT leafClassT.gjit walkRules grup 0 0x101413850
+SLOT leafClassT.gjit generateParse conjunct 0 0x1014e7310
+SLOT leafClassT.gjit generateParse notFirstTimeThru 0 0x1014eebd0
+SLOT leafClassT.gjit generateParse grup 0 0x1014ee540
+SLOT leafClassT.gjit generateParse codeCopy 0 0x1013f4620
+SLOT leafClassT.gjit generateParse bprCopy 0 0x1014d4070
+HOLDS leafClassT.gjit walkRules length 0
+HOLDS leafClassT.gjit walkRules grup 0
+HOLDS leafClassT.gjit walkRules length 5
+HOLDS leafClassT.gjit walkRules grup 6
+HOLDS leafClassT.gplain lcSay v 6
+HOLDS leafClassT.gplain lcSay m 0
+HOLDS leafClassT.gplain lcSay c 0
+HOLDS leafClassT.gplain lcSay m 6
+HOLDS leafClassT.gplain lcSay c 6
+HOLDS leafClassT.gplain generateParse conjunct 0
+HOLDS leafClassT.gplain generateParse notFirstTimeThru 0
+HOLDS leafClassT.gplain generateParse grup 0
+HOLDS leafClassT.gplain generateParse codeCopy 0
+HOLDS leafClassT.gplain generateParse bprCopy 0
+HOLDS leafClassT.gplain generateParse conjunct 13
+HOLDS leafClassT.gplain generateParse notFirstTimeThru 5
+HOLDS leafClassT.gplain generateParse grup 6
+HOLDS leafClassT.gplain generateParse codeCopy 6
+HOLDS leafClassT.gplain generateParse bprCopy 6
+HOLDS leafClassT.gplain walkRules length 0
+HOLDS leafClassT.gplain walkRules grup 0
+HOLDS leafClassT.gplain walkRules length 5
+HOLDS leafClassT.gplain walkRules grup 6
+HOLDS leafClassT.gplain lcClass r 6
+ASSIGN nestNatT.gjit 0x104a098c0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN nestNatT.gjit 0x104a098c0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN nestNatT.gjit 0x104a0b1c0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER nestNatT.gjit 0x104a0daf0 grup 0
+ASSIGN nestNatT.gjit 0x104a18bd0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN nestNatT.gjit 0x104a1a620 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN nestNatT.gjit 0x1049ead20 length = argKind=0 lit=0 jit=1 node=1
+ITER nestNatT.gjit 0x1049ece00 grup 0
+ASSIGN nestNatT.gjit 0x104a098c0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN nestNatT.gjit 0x104a0b1c0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT nestNatT.gjit walkRules length 0 0x1049ead20
+SLOT nestNatT.gjit walkRules grup 0 0x1049ece00
+SLOT nestNatT.gjit generateParse conjunct 0 0x104a098c0
+SLOT nestNatT.gjit generateParse notFirstTimeThru 0 0x104a0b1c0
+SLOT nestNatT.gjit generateParse grup 0 0x104a0daf0
+SLOT nestNatT.gjit generateParse codeCopy 0 0x104a18bd0
+SLOT nestNatT.gjit generateParse bprCopy 0 0x104a1a620
+HOLDS nestNatT.gjit walkRules length 0
+HOLDS nestNatT.gjit walkRules grup 0
+HOLDS nestNatT.gjit walkRules length 5
+HOLDS nestNatT.gjit walkRules grup 6
+HOLDS nestNatT.gplain generateParse conjunct 0
+HOLDS nestNatT.gplain generateParse notFirstTimeThru 0
+HOLDS nestNatT.gplain generateParse grup 0
+HOLDS nestNatT.gplain generateParse codeCopy 0
+HOLDS nestNatT.gplain generateParse bprCopy 0
+HOLDS nestNatT.gplain generateParse conjunct 13
+HOLDS nestNatT.gplain generateParse notFirstTimeThru 5
+HOLDS nestNatT.gplain generateParse grup 6
+HOLDS nestNatT.gplain generateParse codeCopy 6
+HOLDS nestNatT.gplain generateParse bprCopy 6
+HOLDS nestNatT.gplain walkRules length 0
+HOLDS nestNatT.gplain walkRules grup 0
+HOLDS nestNatT.gplain walkRules length 5
+HOLDS nestNatT.gplain walkRules grup 6
+ASSIGN opLenT.gjit 0x101bee3f0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN opLenT.gjit 0x101bee3f0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN opLenT.gjit 0x101bf2cb0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER opLenT.gjit 0x101bf2620 grup 0
+ASSIGN opLenT.gjit 0x101bfd700 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN opLenT.gjit 0x101bff150 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN opLenT.gjit 0x101bd0850 length = argKind=0 lit=0 jit=1 node=1
+ITER opLenT.gjit 0x101bd2930 grup 0
+ASSIGN opLenT.gjit 0x101bee3f0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN opLenT.gjit 0x101bf2cb0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT opLenT.gjit walkRules length 0 0x101bd0850
+SLOT opLenT.gjit walkRules grup 0 0x101bd2930
+SLOT opLenT.gjit generateParse conjunct 0 0x101bee3f0
+SLOT opLenT.gjit generateParse notFirstTimeThru 0 0x101bf2cb0
+SLOT opLenT.gjit generateParse grup 0 0x101bf2620
+SLOT opLenT.gjit generateParse codeCopy 0 0x101bfd700
+SLOT opLenT.gjit generateParse bprCopy 0 0x101bff150
+HOLDS opLenT.gjit walkRules length 0
+HOLDS opLenT.gjit walkRules grup 0
+HOLDS opLenT.gjit walkRules length 5
+HOLDS opLenT.gjit walkRules grup 6
+HOLDS opLenT.gplain generateParse conjunct 0
+HOLDS opLenT.gplain generateParse notFirstTimeThru 0
+HOLDS opLenT.gplain generateParse grup 0
+HOLDS opLenT.gplain generateParse codeCopy 0
+HOLDS opLenT.gplain generateParse bprCopy 0
+HOLDS opLenT.gplain generateParse conjunct 13
+HOLDS opLenT.gplain generateParse notFirstTimeThru 5
+HOLDS opLenT.gplain generateParse grup 6
+HOLDS opLenT.gplain generateParse codeCopy 6
+HOLDS opLenT.gplain generateParse bprCopy 6
+HOLDS opLenT.gplain walkRules length 0
+HOLDS opLenT.gplain walkRules grup 0
+HOLDS opLenT.gplain walkRules length 5
+HOLDS opLenT.gplain walkRules grup 6
+ASSIGN ownerT.gjit 0x1012c6f50 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN ownerT.gjit 0x1012c6f50 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN ownerT.gjit 0x1012c8850 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER ownerT.gjit 0x1012c81c0 grup 0
+ASSIGN ownerT.gjit 0x1012d32a0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN ownerT.gjit 0x1012d7cb0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN ownerT.gjit 0x1012a53f0 length = argKind=0 lit=0 jit=1 node=1
+ITER ownerT.gjit 0x1012a74d0 grup 0
+ASSIGN ownerT.gjit 0x1012c6f50 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN ownerT.gjit 0x1012c8850 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT ownerT.gjit walkRules length 0 0x1012a53f0
+SLOT ownerT.gjit walkRules grup 0 0x1012a74d0
+SLOT ownerT.gjit generateParse conjunct 0 0x1012c6f50
+SLOT ownerT.gjit generateParse notFirstTimeThru 0 0x1012c8850
+SLOT ownerT.gjit generateParse grup 0 0x1012c81c0
+SLOT ownerT.gjit generateParse codeCopy 0 0x1012d32a0
+SLOT ownerT.gjit generateParse bprCopy 0 0x1012d7cb0
+HOLDS ownerT.gjit walkRules length 0
+HOLDS ownerT.gjit walkRules grup 0
+HOLDS ownerT.gjit walkRules length 5
+HOLDS ownerT.gjit walkRules grup 6
+HOLDS ownerT.gplain generateParse conjunct 0
+HOLDS ownerT.gplain generateParse notFirstTimeThru 0
+HOLDS ownerT.gplain generateParse grup 0
+HOLDS ownerT.gplain generateParse codeCopy 0
+HOLDS ownerT.gplain generateParse bprCopy 0
+HOLDS ownerT.gplain generateParse conjunct 13
+HOLDS ownerT.gplain generateParse notFirstTimeThru 5
+HOLDS ownerT.gplain generateParse grup 6
+HOLDS ownerT.gplain generateParse codeCopy 6
+HOLDS ownerT.gplain generateParse bprCopy 6
+HOLDS ownerT.gplain walkRules length 0
+HOLDS ownerT.gplain walkRules grup 0
+HOLDS ownerT.gplain walkRules length 5
+HOLDS ownerT.gplain walkRules grup 6
+HOLDS ownerT.gplain owAct owZ 0
+HOLDS ownerT.gplain owAct owZ 5
+ASSIGN paReachT.gjit 0x101813af0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN paReachT.gjit 0x101813af0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN paReachT.gjit 0x1018153f0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER paReachT.gjit 0x101817d20 grup 0
+ASSIGN paReachT.gjit 0x101822e00 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN paReachT.gjit 0x101824850 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN paReachT.gjit 0x1017f4f50 length = argKind=0 lit=0 jit=1 node=1
+ITER paReachT.gjit 0x1017f4070 grup 0
+ASSIGN paReachT.gjit 0x101813af0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN paReachT.gjit 0x1018153f0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT paReachT.gjit walkRules length 0 0x1017f4f50
+SLOT paReachT.gjit walkRules grup 0 0x1017f4070
+SLOT paReachT.gjit generateParse conjunct 0 0x101813af0
+SLOT paReachT.gjit generateParse notFirstTimeThru 0 0x1018153f0
+SLOT paReachT.gjit generateParse grup 0 0x101817d20
+SLOT paReachT.gjit generateParse codeCopy 0 0x101822e00
+SLOT paReachT.gjit generateParse bprCopy 0 0x101824850
+HOLDS paReachT.gjit walkRules length 0
+HOLDS paReachT.gjit walkRules grup 0
+HOLDS paReachT.gjit walkRules length 5
+HOLDS paReachT.gjit walkRules grup 6
+HOLDS paReachT.gplain generateParse conjunct 0
+HOLDS paReachT.gplain generateParse notFirstTimeThru 0
+HOLDS paReachT.gplain generateParse grup 0
+HOLDS paReachT.gplain generateParse codeCopy 0
+HOLDS paReachT.gplain generateParse bprCopy 0
+HOLDS paReachT.gplain generateParse conjunct 13
+HOLDS paReachT.gplain generateParse notFirstTimeThru 5
+HOLDS paReachT.gplain generateParse grup 6
+HOLDS paReachT.gplain generateParse codeCopy 6
+HOLDS paReachT.gplain generateParse bprCopy 6
+HOLDS paReachT.gplain walkRules length 0
+HOLDS paReachT.gplain walkRules grup 0
+HOLDS paReachT.gplain walkRules length 5
+HOLDS paReachT.gplain walkRules grup 6
+ASSIGN parserTest.gjit 0x100bd0d90 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN parserTest.gjit 0x100bd0d90 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN parserTest.gjit 0x100bd2690 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER parserTest.gjit 0x100bd2000 grup 0
+ASSIGN parserTest.gjit 0x100bdc0e0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN parserTest.gjit 0x100be1af0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN parserTest.gjit 0x100baf230 length = argKind=0 lit=0 jit=1 node=1
+ITER parserTest.gjit 0x100bb2310 grup 0
+ASSIGN parserTest.gjit 0x100bd0d90 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN parserTest.gjit 0x100bd2690 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT parserTest.gjit walkRules length 0 0x100baf230
+SLOT parserTest.gjit walkRules grup 0 0x100bb2310
+SLOT parserTest.gjit generateParse conjunct 0 0x100bd0d90
+SLOT parserTest.gjit generateParse notFirstTimeThru 0 0x100bd2690
+SLOT parserTest.gjit generateParse grup 0 0x100bd2000
+SLOT parserTest.gjit generateParse codeCopy 0 0x100bdc0e0
+SLOT parserTest.gjit generateParse bprCopy 0 0x100be1af0
+HOLDS parserTest.gjit walkRules length 0
+HOLDS parserTest.gjit walkRules grup 0
+HOLDS parserTest.gjit walkRules length 5
+HOLDS parserTest.gjit walkRules grup 6
+HOLDS parserTest.gplain generateParse conjunct 0
+HOLDS parserTest.gplain generateParse notFirstTimeThru 0
+HOLDS parserTest.gplain generateParse grup 0
+HOLDS parserTest.gplain generateParse codeCopy 0
+HOLDS parserTest.gplain generateParse bprCopy 0
+HOLDS parserTest.gplain generateParse conjunct 13
+HOLDS parserTest.gplain generateParse notFirstTimeThru 5
+HOLDS parserTest.gplain generateParse grup 6
+HOLDS parserTest.gplain generateParse codeCopy 6
+HOLDS parserTest.gplain generateParse bprCopy 6
+HOLDS parserTest.gplain walkRules length 0
+HOLDS parserTest.gplain walkRules grup 0
+HOLDS parserTest.gplain walkRules length 5
+HOLDS parserTest.gplain walkRules grup 6
+ASSIGN probeDoorT.gjit 0x10358be00 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN probeDoorT.gjit 0x10358be00 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN probeDoorT.gjit 0x10358d700 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER probeDoorT.gjit 0x10358d070 grup 0
+ASSIGN probeDoorT.gjit 0x103598150 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN probeDoorT.gjit 0x10359cb60 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN probeDoorT.gjit 0x10356a2a0 length = argKind=0 lit=0 jit=1 node=1
+ITER probeDoorT.gjit 0x10356c380 grup 0
+ASSIGN probeDoorT.gjit 0x10358be00 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN probeDoorT.gjit 0x10358d700 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT probeDoorT.gjit walkRules length 0 0x10356a2a0
+SLOT probeDoorT.gjit walkRules grup 0 0x10356c380
+SLOT probeDoorT.gjit generateParse conjunct 0 0x10358be00
+SLOT probeDoorT.gjit generateParse notFirstTimeThru 0 0x10358d700
+SLOT probeDoorT.gjit generateParse grup 0 0x10358d070
+SLOT probeDoorT.gjit generateParse codeCopy 0 0x103598150
+SLOT probeDoorT.gjit generateParse bprCopy 0 0x10359cb60
+HOLDS probeDoorT.gjit walkRules length 0
+HOLDS probeDoorT.gjit walkRules grup 0
+HOLDS probeDoorT.gjit walkRules length 5
+HOLDS probeDoorT.gjit walkRules grup 6
+HOLDS probeDoorT.gplain generateParse conjunct 0
+HOLDS probeDoorT.gplain generateParse notFirstTimeThru 0
+HOLDS probeDoorT.gplain generateParse grup 0
+HOLDS probeDoorT.gplain generateParse codeCopy 0
+HOLDS probeDoorT.gplain generateParse bprCopy 0
+HOLDS probeDoorT.gplain generateParse conjunct 13
+HOLDS probeDoorT.gplain generateParse notFirstTimeThru 5
+HOLDS probeDoorT.gplain generateParse grup 6
+HOLDS probeDoorT.gplain generateParse codeCopy 6
+HOLDS probeDoorT.gplain generateParse bprCopy 6
+HOLDS probeDoorT.gplain walkRules length 0
+HOLDS probeDoorT.gplain walkRules grup 0
+HOLDS probeDoorT.gplain walkRules length 5
+HOLDS probeDoorT.gplain walkRules grup 6
+ASSIGN probeFrameT.gjit 0x101247c40 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN probeFrameT.gjit 0x101247c40 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN probeFrameT.gjit 0x101249540 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER probeFrameT.gjit 0x10124be70 grup 0
+ASSIGN probeFrameT.gjit 0x101c15f50 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN probeFrameT.gjit 0x101c179a0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN probeFrameT.gjit 0x10123b0e0 length = argKind=0 lit=0 jit=1 node=1
+ITER probeFrameT.gjit 0x10123e1c0 grup 0
+ASSIGN probeFrameT.gjit 0x101247c40 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN probeFrameT.gjit 0x101249540 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT probeFrameT.gjit walkRules length 0 0x10123b0e0
+SLOT probeFrameT.gjit walkRules grup 0 0x10123e1c0
+SLOT probeFrameT.gjit generateParse conjunct 0 0x101247c40
+SLOT probeFrameT.gjit generateParse notFirstTimeThru 0 0x101249540
+SLOT probeFrameT.gjit generateParse grup 0 0x10124be70
+SLOT probeFrameT.gjit generateParse codeCopy 0 0x101c15f50
+SLOT probeFrameT.gjit generateParse bprCopy 0 0x101c179a0
+HOLDS probeFrameT.gjit walkRules length 0
+HOLDS probeFrameT.gjit walkRules grup 0
+HOLDS probeFrameT.gjit walkRules length 5
+HOLDS probeFrameT.gjit walkRules grup 6
+HOLDS probeFrameT.gplain generateParse conjunct 0
+HOLDS probeFrameT.gplain generateParse notFirstTimeThru 0
+HOLDS probeFrameT.gplain generateParse grup 0
+HOLDS probeFrameT.gplain generateParse codeCopy 0
+HOLDS probeFrameT.gplain generateParse bprCopy 0
+HOLDS probeFrameT.gplain generateParse conjunct 13
+HOLDS probeFrameT.gplain generateParse notFirstTimeThru 5
+HOLDS probeFrameT.gplain generateParse grup 6
+HOLDS probeFrameT.gplain generateParse codeCopy 6
+HOLDS probeFrameT.gplain generateParse bprCopy 6
+HOLDS probeFrameT.gplain walkRules length 0
+HOLDS probeFrameT.gplain walkRules grup 0
+HOLDS probeFrameT.gplain walkRules length 5
+HOLDS probeFrameT.gplain walkRules grup 6
+ASSIGN quoteNatT.gjit 0x104a8fe70 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN quoteNatT.gjit 0x104a8fe70 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN quoteNatT.gjit 0x104a91770 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER quoteNatT.gjit 0x104a910e0 grup 0
+ASSIGN quoteNatT.gjit 0x104a9b1c0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN quoteNatT.gjit 0x104aa0bd0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN quoteNatT.gjit 0x104a6e310 length = argKind=0 lit=0 jit=1 node=1
+ITER quoteNatT.gjit 0x104a703f0 grup 0
+ASSIGN quoteNatT.gjit 0x104a8fe70 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN quoteNatT.gjit 0x104a91770 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT quoteNatT.gjit walkRules length 0 0x104a6e310
+SLOT quoteNatT.gjit walkRules grup 0 0x104a703f0
+SLOT quoteNatT.gjit generateParse conjunct 0 0x104a8fe70
+SLOT quoteNatT.gjit generateParse notFirstTimeThru 0 0x104a91770
+SLOT quoteNatT.gjit generateParse grup 0 0x104a910e0
+SLOT quoteNatT.gjit generateParse codeCopy 0 0x104a9b1c0
+SLOT quoteNatT.gjit generateParse bprCopy 0 0x104aa0bd0
+HOLDS quoteNatT.gjit walkRules length 0
+HOLDS quoteNatT.gjit walkRules grup 0
+HOLDS quoteNatT.gjit walkRules length 5
+HOLDS quoteNatT.gjit walkRules grup 6
+HOLDS quoteNatT.gplain generateParse conjunct 0
+HOLDS quoteNatT.gplain generateParse notFirstTimeThru 0
+HOLDS quoteNatT.gplain generateParse grup 0
+HOLDS quoteNatT.gplain generateParse codeCopy 0
+HOLDS quoteNatT.gplain generateParse bprCopy 0
+HOLDS quoteNatT.gplain generateParse conjunct 13
+HOLDS quoteNatT.gplain generateParse notFirstTimeThru 5
+HOLDS quoteNatT.gplain generateParse grup 6
+HOLDS quoteNatT.gplain generateParse codeCopy 6
+HOLDS quoteNatT.gplain generateParse bprCopy 6
+HOLDS quoteNatT.gplain walkRules length 0
+HOLDS quoteNatT.gplain walkRules grup 0
+HOLDS quoteNatT.gplain walkRules length 5
+HOLDS quoteNatT.gplain walkRules grup 6
+SLOT ruleOfT.gjit roParse roCp 0 0x1004bd9a0
+SLOT ruleOfT.gjit roParse v 0 0x1004bd230
+ASSIGN ruleOfT.gjit 0x1004bd9a0 roCp <- argKind=5 lit=0 jit=0 node=0
+ASSIGN ruleOfT.gjit 0x1004bd230 v := argKind=0 lit=0 jit=0 node=0
+ASSIGN ruleOfT.gjit 0x101013ee0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN ruleOfT.gjit 0x101013ee0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN ruleOfT.gjit 0x1010157e0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER ruleOfT.gjit 0x101015150 grup 0
+ASSIGN ruleOfT.gjit 0x101020230 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN ruleOfT.gjit 0x101025c40 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN ruleOfT.gjit 0x100ff5380 length = argKind=0 lit=0 jit=1 node=1
+ITER ruleOfT.gjit 0x101008460 grup 0
+ASSIGN ruleOfT.gjit 0x101013ee0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN ruleOfT.gjit 0x1010157e0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT ruleOfT.gjit walkRules length 0 0x100ff5380
+SLOT ruleOfT.gjit walkRules grup 0 0x101008460
+SLOT ruleOfT.gjit generateParse conjunct 0 0x101013ee0
+SLOT ruleOfT.gjit generateParse notFirstTimeThru 0 0x1010157e0
+SLOT ruleOfT.gjit generateParse grup 0 0x101015150
+SLOT ruleOfT.gjit generateParse codeCopy 0 0x101020230
+SLOT ruleOfT.gjit generateParse bprCopy 0 0x101025c40
+HOLDS ruleOfT.gjit walkRules length 0
+HOLDS ruleOfT.gjit walkRules grup 0
+HOLDS ruleOfT.gjit walkRules length 5
+HOLDS ruleOfT.gjit walkRules grup 6
+HOLDS ruleOfT.gplain roParse roCp 6
+HOLDS ruleOfT.gplain roParse v 0
+HOLDS ruleOfT.gplain roParse v 6
+HOLDS ruleOfT.gplain generateParse conjunct 0
+HOLDS ruleOfT.gplain generateParse notFirstTimeThru 0
+HOLDS ruleOfT.gplain generateParse grup 0
+HOLDS ruleOfT.gplain generateParse codeCopy 0
+HOLDS ruleOfT.gplain generateParse bprCopy 0
+HOLDS ruleOfT.gplain generateParse conjunct 13
+HOLDS ruleOfT.gplain generateParse notFirstTimeThru 5
+HOLDS ruleOfT.gplain generateParse grup 6
+HOLDS ruleOfT.gplain generateParse codeCopy 6
+HOLDS ruleOfT.gplain generateParse bprCopy 6
+HOLDS ruleOfT.gplain walkRules length 0
+HOLDS ruleOfT.gplain walkRules grup 0
+HOLDS ruleOfT.gplain walkRules length 5
+HOLDS ruleOfT.gplain walkRules grup 6
+HOLDS ruleOfT.gplain roSink roN 5
+ASSIGN site1RoadsT.gjit 0x1056cc310 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN site1RoadsT.gjit 0x1056cc310 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN site1RoadsT.gjit 0x1056d0bd0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER site1RoadsT.gjit 0x1056d0540 grup 0
+ASSIGN site1RoadsT.gjit 0x1056da620 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN site1RoadsT.gjit 0x1056dd070 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN site1RoadsT.gjit 0x1056ad770 length = argKind=0 lit=0 jit=1 node=1
+ITER site1RoadsT.gjit 0x1056af850 grup 0
+ASSIGN site1RoadsT.gjit 0x1056cc310 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN site1RoadsT.gjit 0x1056d0bd0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT site1RoadsT.gjit walkRules length 0 0x1056ad770
+SLOT site1RoadsT.gjit walkRules grup 0 0x1056af850
+SLOT site1RoadsT.gjit generateParse conjunct 0 0x1056cc310
+SLOT site1RoadsT.gjit generateParse notFirstTimeThru 0 0x1056d0bd0
+SLOT site1RoadsT.gjit generateParse grup 0 0x1056d0540
+SLOT site1RoadsT.gjit generateParse codeCopy 0 0x1056da620
+SLOT site1RoadsT.gjit generateParse bprCopy 0 0x1056dd070
+HOLDS site1RoadsT.gjit walkRules length 0
+HOLDS site1RoadsT.gjit walkRules grup 0
+HOLDS site1RoadsT.gjit walkRules length 5
+HOLDS site1RoadsT.gjit walkRules grup 6
+HOLDS site1RoadsT.gplain generateParse conjunct 0
+HOLDS site1RoadsT.gplain generateParse notFirstTimeThru 0
+HOLDS site1RoadsT.gplain generateParse grup 0
+HOLDS site1RoadsT.gplain generateParse codeCopy 0
+HOLDS site1RoadsT.gplain generateParse bprCopy 0
+HOLDS site1RoadsT.gplain generateParse conjunct 13
+HOLDS site1RoadsT.gplain generateParse notFirstTimeThru 5
+HOLDS site1RoadsT.gplain generateParse grup 6
+HOLDS site1RoadsT.gplain generateParse codeCopy 6
+HOLDS site1RoadsT.gplain generateParse bprCopy 6
+HOLDS site1RoadsT.gplain walkRules length 0
+HOLDS site1RoadsT.gplain walkRules grup 0
+HOLDS site1RoadsT.gplain walkRules length 5
+HOLDS site1RoadsT.gplain walkRules grup 6
+ASSIGN stmtRejT.gjit 0x1052179a0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN stmtRejT.gjit 0x1052179a0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN stmtRejT.gjit 0x1052182a0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER stmtRejT.gjit 0x10521abd0 grup 0
+ASSIGN stmtRejT.gjit 0x105225cb0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN stmtRejT.gjit 0x105228700 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN stmtRejT.gjit 0x1051f8e00 length = argKind=0 lit=0 jit=1 node=1
+ITER stmtRejT.gjit 0x1051faee0 grup 0
+ASSIGN stmtRejT.gjit 0x1052179a0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN stmtRejT.gjit 0x1052182a0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT stmtRejT.gjit walkRules length 0 0x1051f8e00
+SLOT stmtRejT.gjit walkRules grup 0 0x1051faee0
+SLOT stmtRejT.gjit generateParse conjunct 0 0x1052179a0
+SLOT stmtRejT.gjit generateParse notFirstTimeThru 0 0x1052182a0
+SLOT stmtRejT.gjit generateParse grup 0 0x10521abd0
+SLOT stmtRejT.gjit generateParse codeCopy 0 0x105225cb0
+SLOT stmtRejT.gjit generateParse bprCopy 0 0x105228700
+HOLDS stmtRejT.gjit walkRules length 0
+HOLDS stmtRejT.gjit walkRules grup 0
+HOLDS stmtRejT.gjit walkRules length 5
+HOLDS stmtRejT.gjit walkRules grup 6
+HOLDS stmtRejT.gplain generateParse conjunct 0
+HOLDS stmtRejT.gplain generateParse notFirstTimeThru 0
+HOLDS stmtRejT.gplain generateParse grup 0
+HOLDS stmtRejT.gplain generateParse codeCopy 0
+HOLDS stmtRejT.gplain generateParse bprCopy 0
+HOLDS stmtRejT.gplain generateParse conjunct 13
+HOLDS stmtRejT.gplain generateParse notFirstTimeThru 5
+HOLDS stmtRejT.gplain generateParse grup 6
+HOLDS stmtRejT.gplain generateParse codeCopy 6
+HOLDS stmtRejT.gplain generateParse bprCopy 6
+HOLDS stmtRejT.gplain walkRules length 0
+HOLDS stmtRejT.gplain walkRules grup 0
+HOLDS stmtRejT.gplain walkRules length 5
+HOLDS stmtRejT.gplain walkRules grup 6
+ASSIGN sweepT.gjit 0x101dfdcb0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN sweepT.gjit 0x101dfdcb0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN sweepT.gjit 0x101dff5b0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER sweepT.gjit 0x101e01ee0 grup 0
+ASSIGN sweepT.gjit 0x101e0a000 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN sweepT.gjit 0x101e0ea10 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN sweepT.gjit 0x101ddc150 length = argKind=0 lit=0 jit=1 node=1
+ITER sweepT.gjit 0x101dde230 grup 0
+ASSIGN sweepT.gjit 0x101dfdcb0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN sweepT.gjit 0x101dff5b0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT sweepT.gjit walkRules length 0 0x101ddc150
+SLOT sweepT.gjit walkRules grup 0 0x101dde230
+SLOT sweepT.gjit generateParse conjunct 0 0x101dfdcb0
+SLOT sweepT.gjit generateParse notFirstTimeThru 0 0x101dff5b0
+SLOT sweepT.gjit generateParse grup 0 0x101e01ee0
+SLOT sweepT.gjit generateParse codeCopy 0 0x101e0a000
+SLOT sweepT.gjit generateParse bprCopy 0 0x101e0ea10
+HOLDS sweepT.gjit walkRules length 0
+HOLDS sweepT.gjit walkRules grup 0
+HOLDS sweepT.gjit walkRules length 5
+HOLDS sweepT.gjit walkRules grup 6
+HOLDS sweepT.gplain generateParse conjunct 0
+HOLDS sweepT.gplain generateParse notFirstTimeThru 0
+HOLDS sweepT.gplain generateParse grup 0
+HOLDS sweepT.gplain generateParse codeCopy 0
+HOLDS sweepT.gplain generateParse bprCopy 0
+HOLDS sweepT.gplain generateParse conjunct 13
+HOLDS sweepT.gplain generateParse notFirstTimeThru 5
+HOLDS sweepT.gplain generateParse grup 6
+HOLDS sweepT.gplain generateParse codeCopy 6
+HOLDS sweepT.gplain generateParse bprCopy 6
+HOLDS sweepT.gplain walkRules length 0
+HOLDS sweepT.gplain walkRules grup 0
+HOLDS sweepT.gplain walkRules length 5
+HOLDS sweepT.gplain walkRules grup 6
+SLOT termCountT.gjit tcWalk tcR 0 0x1007f3e70
+ITER termCountT.gjit 0x1007f3e70 tcR 0
+ITER termCountT.gjit 0x10080f770 tcCur 0
+ASSIGN termCountT.gjit 0x1011c7d20 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN termCountT.gjit 0x1011c7d20 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN termCountT.gjit 0x1011c9620 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER termCountT.gjit 0x1011cbf50 grup 0
+ASSIGN termCountT.gjit 0x1011d4070 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN termCountT.gjit 0x1011d8a80 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN termCountT.gjit 0x1011bc1c0 length = argKind=0 lit=0 jit=1 node=1
+ITER termCountT.gjit 0x1011b62a0 grup 0
+ASSIGN termCountT.gjit 0x1011c7d20 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN termCountT.gjit 0x1011c9620 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT termCountT.gjit walkRules length 0 0x1011bc1c0
+SLOT termCountT.gjit walkRules grup 0 0x1011b62a0
+SLOT termCountT.gjit generateParse conjunct 0 0x1011c7d20
+SLOT termCountT.gjit generateParse notFirstTimeThru 0 0x1011c9620
+SLOT termCountT.gjit generateParse grup 0 0x1011cbf50
+SLOT termCountT.gjit generateParse codeCopy 0 0x1011d4070
+SLOT termCountT.gjit generateParse bprCopy 0 0x1011d8a80
+HOLDS termCountT.gjit walkRules length 0
+HOLDS termCountT.gjit walkRules grup 0
+HOLDS termCountT.gjit walkRules length 5
+HOLDS termCountT.gjit walkRules grup 6
+HOLDS termCountT.gplain tcWalk tcR 0
+HOLDS termCountT.gplain tcRule tcCur 0
+HOLDS termCountT.gplain tcRule tcCur 6
+HOLDS termCountT.gplain tcWalk tcR 6
+HOLDS termCountT.gplain generateParse conjunct 0
+HOLDS termCountT.gplain generateParse notFirstTimeThru 0
+HOLDS termCountT.gplain generateParse grup 0
+HOLDS termCountT.gplain generateParse codeCopy 0
+HOLDS termCountT.gplain generateParse bprCopy 0
+HOLDS termCountT.gplain generateParse conjunct 13
+HOLDS termCountT.gplain generateParse notFirstTimeThru 5
+HOLDS termCountT.gplain generateParse grup 6
+HOLDS termCountT.gplain generateParse codeCopy 6
+HOLDS termCountT.gplain generateParse bprCopy 6
+HOLDS termCountT.gplain walkRules length 0
+HOLDS termCountT.gplain walkRules grup 0
+HOLDS termCountT.gplain walkRules length 5
+HOLDS termCountT.gplain walkRules grup 6
+ASSIGN tokJitT.gjit 0x10598c310 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN tokJitT.gjit 0x10598c310 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN tokJitT.gjit 0x105990bd0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER tokJitT.gjit 0x105990540 grup 0
+ASSIGN tokJitT.gjit 0x10599b620 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN tokJitT.gjit 0x10599d070 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN tokJitT.gjit 0x10596d770 length = argKind=0 lit=0 jit=1 node=1
+ITER tokJitT.gjit 0x105970850 grup 0
+ASSIGN tokJitT.gjit 0x10598c310 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN tokJitT.gjit 0x105990bd0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT tokJitT.gjit walkRules length 0 0x10596d770
+SLOT tokJitT.gjit walkRules grup 0 0x105970850
+SLOT tokJitT.gjit generateParse conjunct 0 0x10598c310
+SLOT tokJitT.gjit generateParse notFirstTimeThru 0 0x105990bd0
+SLOT tokJitT.gjit generateParse grup 0 0x105990540
+SLOT tokJitT.gjit generateParse codeCopy 0 0x10599b620
+SLOT tokJitT.gjit generateParse bprCopy 0 0x10599d070
+HOLDS tokJitT.gjit walkRules length 0
+HOLDS tokJitT.gjit walkRules grup 0
+HOLDS tokJitT.gjit walkRules length 5
+HOLDS tokJitT.gjit walkRules grup 6
+HOLDS tokJitT.gplain generateParse conjunct 0
+HOLDS tokJitT.gplain generateParse notFirstTimeThru 0
+HOLDS tokJitT.gplain generateParse grup 0
+HOLDS tokJitT.gplain generateParse codeCopy 0
+HOLDS tokJitT.gplain generateParse bprCopy 0
+HOLDS tokJitT.gplain generateParse conjunct 13
+HOLDS tokJitT.gplain generateParse notFirstTimeThru 5
+HOLDS tokJitT.gplain generateParse grup 6
+HOLDS tokJitT.gplain generateParse codeCopy 6
+HOLDS tokJitT.gplain generateParse bprCopy 6
+HOLDS tokJitT.gplain walkRules length 0
+HOLDS tokJitT.gplain walkRules grup 0
+HOLDS tokJitT.gplain walkRules length 5
+HOLDS tokJitT.gplain walkRules grup 6
+ASSIGN unaryNatT.gjit 0x105047f50 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN unaryNatT.gjit 0x105047f50 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN unaryNatT.gjit 0x105049850 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER unaryNatT.gjit 0x1050491c0 grup 0
+ASSIGN unaryNatT.gjit 0x1050532a0 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN unaryNatT.gjit 0x105058cb0 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN unaryNatT.gjit 0x1050263f0 length = argKind=0 lit=0 jit=1 node=1
+ITER unaryNatT.gjit 0x1050284d0 grup 0
+ASSIGN unaryNatT.gjit 0x105047f50 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN unaryNatT.gjit 0x105049850 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT unaryNatT.gjit walkRules length 0 0x1050263f0
+SLOT unaryNatT.gjit walkRules grup 0 0x1050284d0
+SLOT unaryNatT.gjit generateParse conjunct 0 0x105047f50
+SLOT unaryNatT.gjit generateParse notFirstTimeThru 0 0x105049850
+SLOT unaryNatT.gjit generateParse grup 0 0x1050491c0
+SLOT unaryNatT.gjit generateParse codeCopy 0 0x1050532a0
+SLOT unaryNatT.gjit generateParse bprCopy 0 0x105058cb0
+HOLDS unaryNatT.gjit walkRules length 0
+HOLDS unaryNatT.gjit walkRules grup 0
+HOLDS unaryNatT.gjit walkRules length 5
+HOLDS unaryNatT.gjit walkRules grup 6
+HOLDS unaryNatT.gplain generateParse conjunct 0
+HOLDS unaryNatT.gplain generateParse notFirstTimeThru 0
+HOLDS unaryNatT.gplain generateParse grup 0
+HOLDS unaryNatT.gplain generateParse codeCopy 0
+HOLDS unaryNatT.gplain generateParse bprCopy 0
+HOLDS unaryNatT.gplain generateParse conjunct 13
+HOLDS unaryNatT.gplain generateParse notFirstTimeThru 5
+HOLDS unaryNatT.gplain generateParse grup 6
+HOLDS unaryNatT.gplain generateParse codeCopy 6
+HOLDS unaryNatT.gplain generateParse bprCopy 6
+HOLDS unaryNatT.gplain walkRules length 0
+HOLDS unaryNatT.gplain walkRules grup 0
+HOLDS unaryNatT.gplain walkRules length 5
+HOLDS unaryNatT.gplain walkRules grup 6
+SLOT zeroWidthT.gjit zwSay v 0 0x104c0c770
+SLOT zeroWidthT.gjit zwSay m 0 0x104c0ea10
+SLOT zeroWidthT.gjit zwSay c 0 0x104c10a80
+SLOT zeroWidthT.gjit zwSay n 0 0x104c12cb0
+ASSIGN zeroWidthT.gjit 0x104c0c770 v := argKind=0 lit=0 jit=0 node=0
+ASSIGN zeroWidthT.gjit 0x104c0ea10 m := argKind=-1 lit=0 jit=0 node=1
+ASSIGN zeroWidthT.gjit 0x104c10a80 c := argKind=-1 lit=0 jit=0 node=1
+ASSIGN zeroWidthT.gjit 0x104c12cb0 n := argKind=-1 lit=0 jit=0 node=1
+ASSIGN zeroWidthT.gjit 0x10578b3f0 conjunct = argKind=13 lit=1 jit=0 node=1
+ASSIGN zeroWidthT.gjit 0x10578b3f0 conjunct = argKind=13 lit=1 jit=0 node=0
+ASSIGN zeroWidthT.gjit 0x10578fcb0 notFirstTimeThru = argKind=5 lit=1 jit=0 node=0
+ITER zeroWidthT.gjit 0x10578f620 grup 0
+ASSIGN zeroWidthT.gjit 0x105769700 codeCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN zeroWidthT.gjit 0x10576f150 bprCopy := argKind=-1 lit=0 jit=0 node=0
+ASSIGN zeroWidthT.gjit 0x105766850 length = argKind=0 lit=0 jit=1 node=1
+ITER zeroWidthT.gjit 0x10576b930 grup 0
+ASSIGN zeroWidthT.gjit 0x10578b3f0 conjunct = argKind=13 lit=1 jit=1 node=1
+ASSIGN zeroWidthT.gjit 0x10578fcb0 notFirstTimeThru = argKind=5 lit=1 jit=1 node=0
+SLOT zeroWidthT.gjit walkRules length 0 0x105766850
+SLOT zeroWidthT.gjit walkRules grup 0 0x10576b930
+SLOT zeroWidthT.gjit generateParse conjunct 0 0x10578b3f0
+SLOT zeroWidthT.gjit generateParse notFirstTimeThru 0 0x10578fcb0
+SLOT zeroWidthT.gjit generateParse grup 0 0x10578f620
+SLOT zeroWidthT.gjit generateParse codeCopy 0 0x105769700
+SLOT zeroWidthT.gjit generateParse bprCopy 0 0x10576f150
+HOLDS zeroWidthT.gjit walkRules length 0
+HOLDS zeroWidthT.gjit walkRules grup 0
+HOLDS zeroWidthT.gjit walkRules length 5
+HOLDS zeroWidthT.gjit walkRules grup 6
+HOLDS zeroWidthT.gplain zwSay v 6
+HOLDS zeroWidthT.gplain zwSay m 0
+HOLDS zeroWidthT.gplain zwSay c 0
+HOLDS zeroWidthT.gplain zwSay n 0
+HOLDS zeroWidthT.gplain zwSay m 6
+HOLDS zeroWidthT.gplain zwSay c 6
+HOLDS zeroWidthT.gplain zwSay n 6
+HOLDS zeroWidthT.gplain generateParse conjunct 0
+HOLDS zeroWidthT.gplain generateParse notFirstTimeThru 0
+HOLDS zeroWidthT.gplain generateParse grup 0
+HOLDS zeroWidthT.gplain generateParse codeCopy 0
+HOLDS zeroWidthT.gplain generateParse bprCopy 0
+HOLDS zeroWidthT.gplain generateParse conjunct 13
+HOLDS zeroWidthT.gplain generateParse notFirstTimeThru 5
+HOLDS zeroWidthT.gplain generateParse grup 6
+HOLDS zeroWidthT.gplain generateParse codeCopy 6
+HOLDS zeroWidthT.gplain generateParse bprCopy 6
+HOLDS zeroWidthT.gplain walkRules length 0
+HOLDS zeroWidthT.gplain walkRules grup 0
+HOLDS zeroWidthT.gplain walkRules length 5
+HOLDS zeroWidthT.gplain walkRules grup 6
