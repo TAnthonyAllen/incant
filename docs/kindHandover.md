@@ -32,3 +32,24 @@ it is Tony's to rule.
   every rule now filed with a real CodE whose conjuncts read `0` (`return a() 0 b()`). The conjunct is a KINDLESS local
   (`conjunct = "&&"` at run time), whose frame slot the prologue made i32 at build (:359). The two crashes are new-road
   parses through those malformed bodies (aCTionSetBrackets, aCTionTraiT reading a missing child) -- inferred, not proven.
+
+## Certificate (branch 164a1e1, clone; 2026-10-20)
+
+- jitterKindT JK-1 3 -> abc, JK-2 digits -> xyz; jitOpEqFoldT JOF-2 `2x 1` -> `ab cd`; JOF-4 degrade 1 -> 6; jitLadder JS
+  degrade 0 -> 2 -- exactly the pre-registered movers. pop.sh otherwise row for row with the branch point; jitLadder
+  otherwise row for row. Re-pinned with a sentence each: pop.sh 1572 green, FAIL set = the branch point; jitLadder PASSED.
+- Canary 363; the generated diff is insertions only (the helper, its prototype, its two askers).
+- H7 (cure committed first). The runOPdirect hand-over removed alone: JK-2 a number again (83169840), JOF-2 `2x 1`, JK-1
+  stays abc. The jitEmitBareRead hand-over removed alone: JK-1 3 again, JK-2 stays xyz, JOF-2 stays ab cd. Each restored
+  md5 = the cure; rebuilt.
+- One pop.sh run after the re-pin read trigDO exit 138 (SIGBUS) with its sentinel missing. Not reproduced: 16 direct runs
+  (8 on this binary, 8 on trunk's) and two further full pop.sh runs all exit 0 / 1572 green. Recorded, not chased.
+
+**Measurement -- the 26-file generator census, `jitter;` after Start():** 24 exit 0, 2 exit 139 (leafClassT,
+zeroWidthT; both exited 0 after item 1). All 26 disagree with the plain run, and all 26 carry generated bodies whose
+conjuncts read `0` -- `return leftBrace() 0 rightBrace();` for `&&`. CodE is no longer empty: the print road and the
+buffer assign are cured. What remains is ONE shape: `conjunct` is an undeclared local, kindless at build, given a string
+at run time (`conjunct = "&&";`, now handed over); the frame prologue made its slot i32 at build (jitEmitters.rtn:359),
+so `print _conjunct;` reads the slot, 0. The kindless class -- jitKindUncarried does not catch it, by design, pending a
+ruling. The two crashes are new-road parses through those bodies (aCTionSetBrackets and aCTionTraiT read a child a
+malformed body never attached) -- inferred from the generated text and the crash sites, not proven.
