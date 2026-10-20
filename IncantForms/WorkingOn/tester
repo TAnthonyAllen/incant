@@ -40,8 +40,8 @@ define
         if listLengtH != 0;
             arg     := argument[2];
             target  := argument[3];
-            if *arg.listLengtH != 0 && *arg.flaG;       listChain(*arg);
-            if *target.listLengtH != 0 && *target.flaG; listChain(*target);
+            if *arg.taG == "instruct";       listChain(*arg);
+            if *target.taG == "instruct";    listChain(*target);
         };
     /*****************************************************************************
         Build the instruction chain walking right to left. An instruction is
@@ -68,32 +68,34 @@ define
                 or *prev.instructTypE != 0;     kind = 3;
                 or *cur["assignTier"];          kind = 2;
                 if kind == 3;
+                    print "kind == 3 unary op?":;
                     op = cur;
                     if *op.taG == "-";  op := Operators["negate"];
                     or *op.taG == "*";  op := Operators["deref"];
                     instruct    +% *op;
                     instruct    +% *pending;
-                    instruct    :. flaG;
+                    dumpField(instruct);
                     pending     := copyOf(instruct);
-                    pending     :. flaG;
                     clear(instruct);
                 if kind == 2;
+                    print "kind == 2 assigning op":;
                     if haveRoot == 1;   *slot +% *pending;
                     if haveRoot == 0;   root := *pending;
+                    $$pending;
+                    $$root;
                     instruct    +% *cur;
                     instruct    +% *root;
-                    instruct    :. flaG;
+                    dumpField(instruct);
                     root        := copyOf(instruct);
-                    root        :. flaG;
                     clear(instruct);
                     slot        := *root;
                     haveRoot    = 1;
                 if kind == 1;
+                    print "kind == 1 non assigning op?":;
                     instruct    +% *cur;
                     instruct    +% *pending;
-                    instruct    :. flaG;
+                    dumpField(instruct);
                     node        := copyOf(instruct);
-                    node        :. flaG;
                     clear(instruct);
                     if haveRoot == 1;   *slot +% *node;
                     if haveRoot == 0;   root := *node;
@@ -124,6 +126,10 @@ define
         print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
         };
     ;
+
+xpListTest("invokeTEST call righty -= qa - qb + qc;");
+stop();
+
 compareXP();
 xpListTest("invokeTEST call qa + qb + qc;");
 xpListTest("invokeTEST call qa - qb + qc;");
