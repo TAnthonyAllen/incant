@@ -55,12 +55,25 @@ echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 #  ⚠ THE LESSON GENERALISES PAST THAT ONE FLAG: when a switch lives in SOURCE
 #  and its effect lives in a BUILD, reading the switch is not reading the
 #  system. Bear-trap #49.
-newest=$(ls -t *.rtn *.twk *.h 2>/dev/null | head -1)
-if [ -n "$newest" ] && [ "$newest" -nt "$(readlink "$B" 2>/dev/null || echo "$B")" ]; then
-    echo "  ⚠ STALE  $newest is NEWER than the binary -- REBUILD BEFORE BELIEVING ANY ROW BELOW."
-    echo "           Every number in this run is about a program that is not the source on disk."
+#  ⚠ CONTENT, NOT MTIMES (Tony, 2026-10-20). The mtime check cried wolf after every seal: dirCheck's closing bare retok
+#  rewrites every .h with identical bytes, so the headers were always "newer" than the binary. The record below holds the
+#  binary's md5 and the md5 of every source it checks. A new binary md5 means a rebuild happened: re-record, no warning.
+#  Same binary, any source changed: STALE, by name. Like the mtime check, it assumes a rebuild used the current tree.
+_rec=genLadder/.binRecord
+_binmd5=$(md5 -q "$(readlink "$B" 2>/dev/null || echo "$B")" 2>/dev/null)
+_cur=$(md5 -r *.rtn *.twk *.h 2>/dev/null | sort -k2)
+if [ ! -f "$_rec" ] || [ "$(head -1 "$_rec")" != "BIN $_binmd5" ]; then
+    { echo "BIN $_binmd5"; echo "$_cur"; } > "$_rec"
+    echo "  bin   new binary: $(echo "$_cur" | wc -l | tr -d ' ') sources recorded against it"
 else
-    echo "  bin   built no earlier than the newest source ($newest)"
+    #  no process substitution: pop.sh runs under sh, where `<(...)` is a syntax error that would leave this empty and SILENT
+    tail -n +2 "$_rec" > "$_rec.was"; echo "$_cur" > "$_rec.now"
+    _changed=$(diff "$_rec.was" "$_rec.now" | sed -n 's/^> [0-9a-f]* //p; s/^< [0-9a-f]* //p' | sort -u | tr '\n' ' ')
+    rm -f "$_rec.was" "$_rec.now"
+    if [ -n "$_changed" ]; then
+        echo "  ⚠ STALE  source changed since this binary was recorded: $_changed-- REBUILD BEFORE BELIEVING ANY ROW BELOW."
+        echo "           Every number in this run is about a program that is not the source on disk."
+    fi
 fi
 
 #  ===========================================================================

@@ -266,3 +266,51 @@ read at build. `print "abc":;` into a buffer compiles to `printVal(i32 <load>)`,
 (jitEmitters.rtn:3139) and jitEmitAssign (:926). generateParse builds CodE from exactly these two shapes
 (`print openBrace:;` / `print $taG "()";` into codeBuffer, then `CodE = codeBuffer;`). The -5 refusals of parser and
 walkRules are item 2's signature, not chased.
+
+## Docket item 3 -- a value's KIND read at build (2026-10-20)
+
+Ruled: an emitter's choice of a value's kind is a run-time fact; read at build, it is item 3's class. R0 is
+`incant/pop/jitterKindT` (born red on trunk 3d3d7f5). The cure and its certificate are on branch `jit-kind-handover`,
+in docs/kindHandover.md.
+
+### R1 census -- every emitter that picks a load, store or call by an operand's kind at build (trunk 3d3d7f5, read)
+
+Population: every read of `flags.data` / `isNUMBER` / `isCOUNT` / `isSTRING` / `isTOKEN` / `isGROUP` in jitEmitters.rtn
+(grep, then each hit read), plus aCTionPrinT's emit arm (ruleActions.rtn:722-770), which picks a road without reading a
+kind. The run-time helpers at jitEmitters.rtn:2269-2294 read kinds AT RUN TIME and are out of class. The 13-site census
+(docs/noSideEffects.md, SEQ 385 R2) covered the `jitting` sites in Instruct / ruleActions / GroupActions; those were not
+re-read except where they reach an emitter below.
+
+| site | the kind it assumes at build | the IR it decides | can a run-time setter change it? | in the 13? |
+|---|---|---|---|---|
+| jitSeedField :4024, :4035 | NUMBER -> double from gNumber; ANY other kind (string, token, buffer, group, kindless) -> i32 from gCount | the load | yes: `=`, `:=`, `<-` | yes (old :3931 / :3942) |
+| jitSeedLiteral :4065 | NUMBER -> ConstantFP; any other -> ConstantInt(getCount()) -- a STRING literal becomes its count | the constant | no (a literal) -- but the kind it ignores is the text | **no -- new** |
+| aCTionPrinT single-part arm, ruleActions.rtn:752 | a bare operand is a scalar: jitEmitBareRead -> jitSeedField -> printVal(i32) | the print call | yes | **no -- new** (JK-1: `print "abc";` printed 3; jitSelfFn's PREAMBLE row pinned the same) |
+| jitPrintList :3139 | literal / STRING / TOKEN -> the baked node through appendGroup; else a bare read as above | pointer vs value | yes, for the else arm | yes |
+| jitEmitAssign :926, :932 | the TARGET's kind: kindless or STRING -> a cast helper (jitFlush*RT); NUMBER -> double store; else i32 store | the store | yes | yes |
+| frame prologue :359 | each local: NUMBER -> double slot, else i32 slot (kindless -> i32) | alloca and home | yes: the first `=` at run time | yes |
+| argument slot :374-377 | the bound argument's kind: an i32 argSlot only for a scalar count | whether a slot exists | yes: the caller's argument | yes |
+| jitEmitAdd :800 (opPlus) | target STRING / TOKEN -> concat call, else integer add | call vs add | yes | yes |
+| jitEmitSelfCall :2179-2182 | the argument's kind: box an i32 or pass the node | the call's operand | yes | yes |
+| jitEmitBareRead :1271-1288 | the argument follow (isGROUP), then groupList -> degrade | which node is loaded | yes | yes |
+| :143, :706, :1274 | isArgument && isGROUP -> follow to the held node | which node | yes | yes (followArgument's row) |
+
+Downstream only (no read of their own; they take the seeded value's LLVM type): jitEmitBinary, jitEmitCompare,
+jitEmitUnary, jitStoreResult. **Overlap with the 13:** nine of the eleven rows; the two new are jitSeedLiteral and
+aCTionPrinT's single-part arm. **The generator's two shapes are jitSeedField reached two ways:** the single-part print
+(no constant arm) and `=`'s source (jitSeedOperands -> jitSeedField), JK-1 and JK-2.
+
+**The kindless gap, measured on the branch:** with string / token / buffer / group operands handed over, the generator
+still files `return a() 0 b();` -- `conjunct` is an undeclared local, kindless at build, given a string at run time; the
+prologue made its slot i32 (:359). A kindless operand's kind is unknown at build, and handing over every kindless read
+is a different blast (counters and locals across the fleet are kindless at build). Tony's to rule.
+
+### Rider -- pop.sh's STALE check compares content (Tony, 2026-10-20)
+
+`genLadder/.binRecord` (gitignored) holds the binary's md5 and the md5 of every top-level `.rtn` / `.twk` / `.h`. A new
+binary md5 re-records with a plain `bin` line; same binary with any source changed prints STALE naming the files;
+otherwise nothing. CERTIFICATE: recorded, dirCheck's bare retok (every .h rewritten, 11:05), pop.sh -> no STALE line,
+1572 green. H7: `// jitSeedOperands seed` -> `Seed` in GroupActions.rtn, no rebuild -> `STALE source changed since this
+binary was recorded: GroupActions.rtn`; restored md5-identical -> silent. **A first version used `diff <(...)`, which is a
+syntax error under pop.sh's `/bin/sh`; it left the changed-list empty and the check SILENT -- caught on reading the run's
+stderr, rewritten with temp files.** Like the mtime check, it assumes a rebuild used the current tree.

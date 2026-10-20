@@ -108,3 +108,6 @@ groupDirectives
 #  which is the 2026-09-16 ruling with its one remaining exception removed.
 #  ⚠ IncantForms/WorkingOn/parser STAYS TRACKED -- it is WIP with an end date (it
 #  waits on the flip), not a scratch pad. Do not add it here.
+
+# pop.sh STALE record: the binary md5 and its sources (Tony, 2026-10-20)
+genLadder/.binRecord*
