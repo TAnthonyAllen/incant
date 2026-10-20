@@ -32,3 +32,24 @@ lists harder expressions against it. Row A3 is `qa - qb + qc`.
 - **`L +% *hA *hB *hC`** refuses (`Operator * -- cannot apply to these operands`: the second `*` reads as multiply), and
   `L +% *hA ,*hB ,*hC` does not parse. This is why tester parks operands in instructEntry / targetEntry / resultPark.
   TODO.md (Housekeeping) carries it as a language ruling owed after the jitter docket.
+
+## Where it stands after the first tester session (2026-10-20, `558fdd1`)
+
+- **tester walks right to left and builds a left-to-right chain.** An instruction is now **op, argument, target**
+  (`testOP` swapped field[2]/field[3]; a unary applies to field[2]). The walk keeps the instruction whose target is
+  still empty (`slot`) and fills it when it reaches the left side. An `assignTier` operator (`call` carries the flag in
+  tester's own define) fills the slot and wraps the whole chain, so the assignment still comes out last.
+- **Seven rows agree with the interpreter** (tester values qa 2 qb 3 qc 4 rr 13 righty 13): `qa + qb + qc` 9,
+  `qa - qb + qc` 3, `qa - qb - qc` -5, `- qa + qb` 1, `qc - - qa` 6, `rr -= qa - qb + qc` 10, `righty -= ...` 10.
+- **Reading the flag:** on a `:=` holder it is `*cur["assignTier"]`; on the operator itself (e.g. an argument) it is
+  bare `op["assignTier"]`. The other spelling reads 0 in each case.
+
+## Next tester session -- Tony's queue (2026-10-20)
+
+1. `&&` / `||` and the comparison tiers. The slot is one level deep today; a looser-tier op arriving while the slot sits
+   inside a tighter one (`a < b + c && d`) needs the path from the root down to the slot.
+2. Two prefixes on one operand (`- - qa`): the unary arm wraps `pending` once; `qc - - qa` works only because the first
+   `-` is binary.
+3. Calls in the middle of an expression (`fId(qa + qb) * qc`, `qa + fNest(qb) + qc`): `call` wraps everything to its
+   right today, which is right only when nothing follows its argument.
+4. Two assignments in one expression (`a = b = c`, `wi = mx -= ...`): HPDL, unruled.
