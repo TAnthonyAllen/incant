@@ -4197,6 +4197,9 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	if (token->groupBody->groupList) {
 	jitDegrade("bare read of a LIST -- parts must be classified by the caller", token);
 	return 0; }
+	if (::jitKindUncarried(token)) {
+	::jitHandOver((char*)"a read of a value whose kind is not a count or a number -- its statement runs at RUN time", token);
+	return 0; }
 	//  Already seeded this compile? Then the value is in hand -- and re-seeding
 	//  is bear-trap #9 (never re-seed an inner op-result).
 	if (!token->jitData)    jitSeedField(token);
@@ -5882,6 +5885,18 @@ extern "C" void jitInlinePush(GroupItem *action)
 	if (gJitBuilder && gJitBuilder->GetInsertBlock())
 	f.exitBB = llvm::BasicBlock::Create(gJitBuilder->getContext(), "inlineExit");
 	gJitInlineFrames.push_back(f);
+	
+}
+
+/*  jitKindUncarried -- 1 for an UNSEEDED operand whose kind at build is known and is not a count or a number (a string,
+    token, buffer, group, set ...). The jit carries counts and numbers only; such an operand's value is a run-time fact,
+    so its statement is handed over (docket item 3). A kindless operand is NOT caught here.  */
+extern "C" int jitKindUncarried(GroupItem *x)
+{
+	
+	if ( !x || x->jitData ) return 0;
+	int kd = x->groupBody->flags.data;
+	return ( kd && !isCOUNT(kd) && !isNUMBER(kd) ) ? 1 : 0;
 	
 }
 
@@ -10826,6 +10841,13 @@ GroupItem 	*result = 0;
 		op = ::pickKindOP(op,target,arg);
 		}
 	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
+	// kindUncarried a binary operator that would consume a value whose kind the jit cannot carry hands its statement to run time; a dot only bakes its target's address, `=` stores its target through a run-time road, and a node in flight has its own run-time road (docket item 3)
+	
+	if ( ruler->jitting && !gJitLastIsNode && isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp != (void*)&opDot
+	&& ((op->groupBody->gOp != &opAssign && ::jitKindUncarried(target)) || ::jitKindUncarried(arg)) ) {
+	::jitHandOver((char*)"an operand whose kind is not a count or a number -- its statement runs at RUN time", op);
+	return 0; }
+	
 	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
 		::jitSeedOperands(target,arg);
 	// slotNeedsBoth an emitter slot reads both operands: a side the build cannot see goes to run time, never into the emitter (SEQ 384)

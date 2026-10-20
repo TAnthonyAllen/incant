@@ -1286,6 +1286,13 @@ GroupItem   result;
         if jitting      return jitEmitOpFire(op,arg,target);
         op = pickKindOP(op,target,arg); }
     // seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
+    // kindUncarried a binary operator that would consume a value whose kind the jit cannot carry hands its statement to run time; a dot only bakes its target's address, `=` stores its target through a run-time road, and a node in flight has its own run-time road (docket item 3)
+    -%
+    if ( ruler->jitting && !gJitLastIsNode && isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp != (void*)&opDot
+         && ((op->groupBody->gOp != &opAssign && ::jitKindUncarried(target)) || ::jitKindUncarried(arg)) ) {
+        ::jitHandOver((char*)"an operand whose kind is not a count or a number -- its statement runs at RUN time", op);
+        return 0; }
+    %-
     if jitting && (op.isOperator || op.isUnary)     jitSeedOperands(target,arg);
     // slotNeedsBoth an emitter slot reads both operands: a side the build cannot see goes to run time, never into the emitter (SEQ 384)
     -%
