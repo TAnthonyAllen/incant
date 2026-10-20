@@ -14,7 +14,7 @@ define
     ;
 registry(Operators);
 define
-    call    operateMethod=opCallTest;
+    call    operateMethod=opCallTest  assignTier;
     ;
 registry(TestStuff);
 define
