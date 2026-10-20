@@ -33,6 +33,13 @@ opSetFlag (Instruct.rtn) reaches `if !argument || !target` with one operand null
 Its leading-dot arm (`if !argument` -> lastREF) did not print "lastREF not set", so either the right operand arrived
 null with a lastREF whose group is null, or the left arrived null.
 
-NEXT: OPEN -- what generates a candidate: one tap at opSetFlag's entry printing both operands' tags (and lastREF's)
-for the top-level and the in-action statement side by side. Taken: both lines read 1 and setFlagTopT's two red rows
-go green. Not taken: the top-level line reads 0.
+MEASURED 2026-10-20 (lldb, tester's xpListTest): the RIGHT operand is the null one. The flag name is built as an
+acDot -- an accessor read of lastREF -- and runAccAssign evaluates it (runOPaccumOperand on field[3]). When lastREF's
+group is null the read is nil, opSetFlag swaps to its lastREF arm, gets null again, and prints "missing operand". When
+the read returns a node, the SET works only because that node's tag happens to be the flag's name. So it is not
+top-level as such: in an action, the FIRST `:. flaG` of a run failed the same way, and every later one worked.
+`x.flaG = 1` (the setGroupField write, no operand evaluated) set it every time. tester stopped using flaG (3e43f71f).
+
+NEXT: BEST GUESS -- `:.` must take its right operand as a NAME, never evaluate it: either the builder stops making it
+an acDot, or runAccAssign skips runOPaccumOperand for `:.`. Grade: mechanism measured, fix site not chosen. Taken: both
+lines here read 1 and setFlagTopT's two red rows go green. Not taken: the top-level line reads 0.
