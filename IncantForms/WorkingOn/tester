@@ -31,6 +31,7 @@ define
     qa=2;
     qb=3;
     qc=4;
+    rr=13;
     /*****************************************************************************
         Debugging routine to list out an instruction chain
     *****************************************************************************/
@@ -139,6 +140,87 @@ define
         instructEntry := *lizted.lasT;
         result = testOP(getInstruction(trueResult));
         };
+    /*****************************************************************************
+        Left to right chain from a right to left walk. buildChain walks from the
+        right and splits the list at assignTier operators (right fold, the assignment
+        comes out last); foldSeg folds each segment between them into a left chain,
+        reading forward from segStart, so qa - qb + qc becomes (qa - qb) + qc.
+    *****************************************************************************/
+    segStart;
+    foldOut;
+    foldSeg code={
+        item := *segStart;
+        haveOp = 0;
+        haveUnary = 0;
+        while item.datA != 0;
+            if *item["assignTier"]; break;
+            if *item.instructTypE != 0;
+                if x.datA == 0 || haveOp == 1;
+                    unOp = item;
+                    if *unOp.taG == "-";    unOp := Operators["negate"];
+                    or *unOp.taG == "*";    unOp := Operators["deref"];
+                    haveUnary = 1;
+                else
+                    binOp = item;
+                    haveOp = 1;
+            else
+                operand = item;
+                if haveUnary == 1;
+                    unstruct    +% *unOp;
+                    unstruct    +% *operand;
+                    unstruct    :. flaG;
+                    operand     := copyOf(unstruct);
+                    operand     :. flaG;
+                    clear(unstruct);
+                    haveUnary = 0;
+                if x.datA == 0; x = operand;
+                else
+                    instruct    +% *binOp;
+                    instruct    +% *x;
+                    instruct    +% *operand;
+                    instruct    :. flaG;
+                    x           := copyOf(instruct);
+                    x           :. flaG;
+                    clear(instruct);
+                    haveOp = 0;
+            item := *item.nexT;
+        foldOut := *x;
+        };
+    buildChain code={
+        cur := *instructEntry;
+        haveOp = 0;
+        while cur.datA != 0;
+            seeking = 1;
+            while seeking == 1;
+                prev := *cur.prioR;
+                if prev.datA == 0;          seeking = 0;
+                or *prev["assignTier"];     seeking = 0;
+                else                        cur := *cur.prioR;
+            segStart := *cur;
+            foldSeg(trueResult);
+            if haveOp == 1;
+                instruct    +% *pendOp;
+                instruct    +% *foldOut;
+                instruct    +% *chain;
+                instruct    :. flaG;
+                chain       := copyOf(instruct);
+                chain       :. flaG;
+                clear(instruct);
+            else    chain := *foldOut;
+            prev := *cur.prioR;
+            if prev.datA == 0;  cur := *cur.prioR;
+            else
+                pendOp  = prev;
+                haveOp  = 1;
+                cur     := *prev.prioR;
+        print "We done LR":;
+        listChain(*chain);
+        return chain;
+        };
+    xpListLR isRule lizted=listEntries+ SemI- code={
+        instructEntry := *lizted.lasT;
+        result = testOP(buildChain(trueResult));
+        };
     compareXP code={
         maximus=righty;
         print "maximus set to:" maximus:;
@@ -158,6 +240,12 @@ define
         };
     ;
 compareXP();
+xpListLR("invokeTEST call qa + qb + qc;");
+xpListLR("invokeTEST call qa - qb + qc;");
+xpListLR("invokeTEST call qa - qb - qc;");
+xpListLR("invokeTEST call - qa + qb;");
+xpListLR("invokeTEST call qc - - qa;");
+xpListLR("invokeTEST call rr -= qa - qb + qc;");
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
 stop();
 maximus=righty;
