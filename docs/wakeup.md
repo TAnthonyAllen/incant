@@ -1,7 +1,8 @@
 # ⚠⚠⚠ SEALED 2026-10-20 (186) ON TRUNK -- SHUTDOWN. jit-kind-handover BOUGHT (merge 9b526e1); THE KINDLESS-LOCAL CENSUS IS IN.
 #
 #   ## THE OPENER: Tony's ruling on the kindless candidates (docs/jitter.md, "The kindless-local census"). Next session is
-#   Tony's tester work (left to right; separate session, by Clay's suggestion) -- the docket waits on the ruling.
+#   Tony's tester work (left to right; separate session, by Clay's suggestion; context in docs/testerBrief.md) -- the
+#   docket waits on the ruling.
 #
 #   ## THE BUY (merge 9b526e1): bare tokall = branch (tree clean, canary 363) · ~/bin/incant rebuilt Oct 20 11:14 -- the
 #   content STALE check's re-record case fired live ("new binary: 35 sources recorded"), no warning · pop.sh 1572 row for
