@@ -6224,7 +6224,7 @@ kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)"
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its
 #  count. The top-level `zz = 5 - 2;` / `zz = 3 - 3;` set that history. PINNED AT TODAY'S VALUES; each label carries the
-#  intended value, which is the interpreted twin's (the file with `jitter;` deleted). A cure moves DA-1, DA-2, DA-F, DA-3;
+#  intended value, which is the interpreted twin's (the file with `jitter;` deleted). jit-datA-carry cured DA-1, DA-2, DA-F, DA-3;
 #  DA-Y (the dot's product stored for the sum) is pinned, not cured.
 _da () { grep -c "^$2 ARM" "$1"; }
 run1 jitterDatAT "$T/jda";   check "jitterDatAT runs" 0 $?
@@ -6233,11 +6233,11 @@ sed '/^jitter;$/d' "$(ip jitterDatAT)" > "$T/jdaI.src"; "$B" "$T/jdaI.src" > "$T
 sentinel "jitterDatAT interpreted twin sentinel" "$T/jdaI" "JITTERDATA SENTINEL"
 kindRow "jitterDatAT the interpreted twin: DA-1 DA-2 DA-C DA-F DA-3 arms taken, DA-Y yy (the intended values)" "$(_da "$T/jdaI" DA-1) $(_da "$T/jdaI" DA-2) $(_da "$T/jdaI" DA-C) $(_da "$T/jdaI" DA-F) $(_da "$T/jdaI" DA-3) $(_jt "$T/jdaI" 'DA-Y yy')" "0 0 1 0 1 1"
 kindRow "jitterDatAT DA-C kop.datA != 0 jitted, kop has data: arm taken = the twin" "$(_da "$T/jda" DA-C)" "1"
-kindRow "jitterDatAT DA-1 kres.datA != 0 jitted, tempField 3 at build: arm taken (born red 2026-10-20; intended 0 = the twin)" "$(_da "$T/jda" DA-1)" "1"
-kindRow "jitterDatAT DA-2 bare datA != 0 on argument kres jitted (generateParse's data exit): arm taken (born red 2026-10-20; intended 0 = the twin)" "$(_da "$T/jda" DA-2)" "1"
-kindRow "jitterDatAT DA-F kres.datA + 0 != 0 jitted (runAccFold's copy-out): arm taken (born red 2026-10-20; intended 0 = the twin)" "$(_da "$T/jda" DA-F)" "1"
+kindRow "jitterDatAT DA-1 kres.datA != 0 jitted, tempField 3 at build: arm not taken = the twin (born red 2026-10-20, green since jit-datA-carry)" "$(_da "$T/jda" DA-1)" "0"
+kindRow "jitterDatAT DA-2 bare datA != 0 on argument kres jitted (generateParse's data exit): arm not taken = the twin (born red 2026-10-20, green since jit-datA-carry)" "$(_da "$T/jda" DA-2)" "0"
+kindRow "jitterDatAT DA-F kres.datA + 0 != 0 jitted (runAccFold's copy-out): arm not taken = the twin (born red 2026-10-20, green since jit-datA-carry)" "$(_da "$T/jda" DA-F)" "0"
 kindRow "jitterDatAT DA-Y yy = kres.datA + 1 jitted: the dot's product stored, not the sum (born red 2026-10-20; intended 1 = the twin; pinned, not cured)" "$(_jt "$T/jda" 'DA-Y yy')" "0"
-kindRow "jitterDatAT DA-3 compiled at tempField 0, called before and after kres = 5: arms taken (born red 2026-10-20; intended 1 = the twin)" "$(_da "$T/jda" DA-3)" "0"
+kindRow "jitterDatAT DA-3 compiled at tempField 0, called before and after kres = 5: one arm taken, the second call = the twin (born red 2026-10-20, green since jit-datA-carry)" "$(_da "$T/jda" DA-3)" "1"
 kindRow "jitterDatAT DA-3 ran twice, both ends" "$(grep -c '^DA-3 end' "$T/jda")" "2"
 kindRow "jitterDatAT witness: dA3 built once, called twice (every row is compiled)" "$(grep -c '^=== jitter: dA3 built 1 called 2 ===' "$T/jda")" "1"
 kindRow "jitterDatAT witness: dA1 dA2 dAc dAf dAy each built once" "$(grep -c '^=== jitter: dA[12cfy] built 1 called 1 ===' "$T/jda")" "5"
