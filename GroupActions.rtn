@@ -1434,12 +1434,12 @@ extern GroupItem testOP(GroupItem field)
 {
 GroupItem   result,
             op = field[1],
-            argument = field[3];
+            argument = field[2];
     // noPrint is set instead of invoke because if invoke is set runOP runs the invoked field before it gets here
     if argument && fLAG  argument = testOP(argument);
-GroupItem   target = field[2];
-    if fLAG         target = testOP(target);
-    if op.isUnary   result = op.method(target);
+GroupItem   target = field[3];
+    if target && fLAG   target = testOP(target);
+    if op.isUnary   result = op.method(argument);
     else            result = op.operat(argument,target);
     return result;
 }

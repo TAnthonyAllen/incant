@@ -11323,15 +11323,15 @@ extern "C" GroupItem *testOP(GroupItem *field)
 {
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
-GroupItem 	*argument = field->get(3);
+GroupItem 	*argument = field->get(2);
 	// noPrint is set instead of invoke because if invoke is set runOP runs the invoked field before it gets here
 	if ( argument && argument->groupBody->flags.fLAG )
 		argument = ::testOP(argument);
-GroupItem 	*target = field->get(2);
-	if ( target->groupBody->flags.fLAG )
+GroupItem 	*target = field->get(3);
+	if ( target && target->groupBody->flags.fLAG )
 		target = ::testOP(target);
 	if ( op->groupBody->flags.isUnary )
-		result = op->groupBody->gMethod(target);
+		result = op->groupBody->gMethod(argument);
 	else	result = op->groupBody->gOp(argument,target);
 	return result;
 }

@@ -33,193 +33,78 @@ define
     qc=4;
     rr=13;
     /*****************************************************************************
-        Debugging routine to list out an instruction chain
+        Debugging routine to list out an instruction chain: op, argument, target
     *****************************************************************************/
     listChain code={
         dumpField(argument);
         if listLengtH != 0;
-            target  := argument[2];
-            arg     := argument[3];
-            lengtH = *target.listLengtH;
-            flagged = *target.flaG;
-            if *target.listLengtH && *target.flaG;  listChain(*target);
-            if *arg.listLengtH != 0 && *arg.flaG;   listChain(*arg);
+            arg     := argument[2];
+            target  := argument[3];
+            if *arg.listLengtH != 0 && *arg.flaG;       listChain(*arg);
+            if *target.listLengtH != 0 && *target.flaG; listChain(*target);
         };
-    instructEntry;
-    targetEntry;
-    resultPark;
     /*****************************************************************************
-        getTarget checks to see if target is leading edge of an instruction chain
-        and if it is returns the chain as target, otherwise returns just target
+        Build the instruction chain walking right to left. An instruction is
+        op, argument, target: the target (the left side) is the last slot, so an
+        instruction is built as soon as its op and right operand are known and its
+        target is filled in when the walk gets to it. slot is the instruction whose
+        target is still empty.
+            term            pending, waiting for its operator (or the start)
+            binary op       new instruction op, pending; it fills the slot, or is
+                            the root if there is none; it is the new slot
+            assignTier op   fills the slot with pending, then wraps the whole chain
+                            as its argument: the assignment comes out last
+            unary op        an op with no field or an op to its left: wraps pending
+        So qa - qb + qc builds (+ qc (- qb qa)), i.e. (qa - qb) + qc.
     *****************************************************************************/
-    getTarget code={
-        //print "getTarget":;
-        grup = instructEntry;
-        if *grup.instructTypE != 0;
-            op = grup;
-            if *op.taG == "call"; return argument;
-            grup        := *grup.prioR;
-            target      = grup;
-            instruct    +% *op;
-            instruct    +% *target;
-            instruct    :. flaG;
-            if resultPark.datA; instruct +% *resultPark;
-            else                instruct +% argument;
-            //dumpField(instruct);
-            instructEntry   = target;
-            targetEntry     := copyOf(instruct);
-        else    targetEntry := argument;
-        return result;
-        };
-    getInstruction code={
-        grup = instructEntry;
-        hold = *grup.taG;
-        while grup.datA != 0;
-            grupTAG = *grup.taG;
-            if *grup.instructTypE != 0;
-                /***************************************************************************
-                    Set operator. Check for unary and handle if so.
-                ***************************************************************************/
-                op = grup;
-                if priorEntry := *grup.prioR;
-                    if priorEntry.datA == 0;    cerr "Cannot start an expression with an operator like" *grup.taG:;
-                    if *priorEntry.isOperatoR;  convertUnary = true;
-                if convertUnary;
+    xpListTest isRule lizted=listEntries+ SemI- code={
+        cur := *lizted.lasT;
+        haveRoot = 0;
+        while cur.datA != 0;
+            if *cur.instructTypE != 0;
+                prev := *cur.prioR;
+                kind = 1;
+                if prev.datA == 0;              kind = 3;
+                or *prev.instructTypE != 0;     kind = 3;
+                or *cur["assignTier"];          kind = 2;
+                if kind == 3;
+                    op = cur;
                     if *op.taG == "-";  op := Operators["negate"];
                     or *op.taG == "*";  op := Operators["deref"];
-                    convertUnary = false;
-                if *op.isUnarY;
-                    unstruct    +% *op;
-                    unstruct    +% *result;
-                    unstruct    :. flaG;
-                    result := unstruct;
-                    clear(op);
-            or result == 0;
-                /***************************************************************************
-                    First time thru sets result (the right most field)
-                ***************************************************************************/
-                result = grup;
-            else
-                if op.datA;     opTAG = *op.taG;            else opTAG = "no operator";
-                if result.datA; resultTAG = *result.taG;    else resultTAG = "no result";
-                if target.data; targetTAG = *target.taG;    else targetTAG = "no target";
-                print "list:" grupTAG opTAG targetTAG resultTAG:;
-                /***************************************************************************
-                    Set target (left most field)
-                ***************************************************************************/
-                instructEntry := *grup;
-                if result.flaG; resultPark = result;
-                else    clear(resultPark);
-                getTarget(*grup);
-                target  = targetEntry;
-                // should not have to run the following line but what is returned from getTarget gets its flaG cleared???
-                if *target.taG == "instruct";
-                    *target :. flaG;
-                /***************************************************************************
-                    If have all the parts build instruction
-                ***************************************************************************/
-                //print "Build instruction":;
-                if op.datA && result.datA  && target.datA != 0;
                     instruct    +% *op;
-                    instruct    +% *target;
-                    instruct    +% *result;
+                    instruct    +% *pending;
                     instruct    :. flaG;
-                    //dumpField(instruct);
-                    result      := copyOf(instruct);
-                    result      :. flaG;
+                    pending     := copyOf(instruct);
+                    pending     :. flaG;
                     clear(instruct);
-                    clear(target);
-                    clear(op);
-                    grup    = instructEntry;
-            if grup.datA;   grup    := *grup.prioR;
-        print "We done":;
-        listChain(*result);
-        return result;
-        };
-    xpListTest isRule lizted=listEntries+ SemI- code={
-        instructEntry := *lizted.lasT;
-        result = testOP(getInstruction(trueResult));
-        };
-    /*****************************************************************************
-        Left to right chain from a right to left walk. buildChain walks from the
-        right and splits the list at assignTier operators (right fold, the assignment
-        comes out last); foldSeg folds each segment between them into a left chain,
-        reading forward from segStart, so qa - qb + qc becomes (qa - qb) + qc.
-    *****************************************************************************/
-    segStart;
-    foldOut;
-    foldSeg code={
-        item := *segStart;
-        haveOp = 0;
-        haveUnary = 0;
-        while item.datA != 0;
-            if *item["assignTier"]; break;
-            if *item.instructTypE != 0;
-                if x.datA == 0 || haveOp == 1;
-                    unOp = item;
-                    if *unOp.taG == "-";    unOp := Operators["negate"];
-                    or *unOp.taG == "*";    unOp := Operators["deref"];
-                    haveUnary = 1;
-                else
-                    binOp = item;
-                    haveOp = 1;
-            else
-                operand = item;
-                if haveUnary == 1;
-                    unstruct    +% *unOp;
-                    unstruct    +% *operand;
-                    unstruct    :. flaG;
-                    operand     := copyOf(unstruct);
-                    operand     :. flaG;
-                    clear(unstruct);
-                    haveUnary = 0;
-                if x.datA == 0; x = operand;
-                else
-                    instruct    +% *binOp;
-                    instruct    +% *x;
-                    instruct    +% *operand;
+                if kind == 2;
+                    if haveRoot == 1;   *slot +% *pending;
+                    if haveRoot == 0;   root := *pending;
+                    instruct    +% *cur;
+                    instruct    +% *root;
                     instruct    :. flaG;
-                    x           := copyOf(instruct);
-                    x           :. flaG;
+                    root        := copyOf(instruct);
+                    root        :. flaG;
                     clear(instruct);
-                    haveOp = 0;
-            item := *item.nexT;
-        foldOut := *x;
-        };
-    buildChain code={
-        cur := *instructEntry;
-        haveOp = 0;
-        while cur.datA != 0;
-            seeking = 1;
-            while seeking == 1;
-                prev := *cur.prioR;
-                if prev.datA == 0;          seeking = 0;
-                or *prev["assignTier"];     seeking = 0;
-                else                        cur := *cur.prioR;
-            segStart := *cur;
-            foldSeg(trueResult);
-            if haveOp == 1;
-                instruct    +% *pendOp;
-                instruct    +% *foldOut;
-                instruct    +% *chain;
-                instruct    :. flaG;
-                chain       := copyOf(instruct);
-                chain       :. flaG;
-                clear(instruct);
-            else    chain := *foldOut;
-            prev := *cur.prioR;
-            if prev.datA == 0;  cur := *cur.prioR;
-            else
-                pendOp  = prev;
-                haveOp  = 1;
-                cur     := *prev.prioR;
-        print "We done LR":;
-        listChain(*chain);
-        return chain;
-        };
-    xpListLR isRule lizted=listEntries+ SemI- code={
-        instructEntry := *lizted.lasT;
-        result = testOP(buildChain(trueResult));
+                    slot        := *root;
+                    haveRoot    = 1;
+                if kind == 1;
+                    instruct    +% *cur;
+                    instruct    +% *pending;
+                    instruct    :. flaG;
+                    node        := copyOf(instruct);
+                    node        :. flaG;
+                    clear(instruct);
+                    if haveRoot == 1;   *slot +% *node;
+                    if haveRoot == 0;   root := *node;
+                    slot        := *node;
+                    haveRoot    = 1;
+            else    pending := *cur;
+            cur := *cur.prioR;
+        if haveRoot == 1;   *slot +% *pending;
+        if haveRoot == 0;   root := *pending;
+        listChain(*root);
+        result = testOP(*root);
         };
     compareXP code={
         maximus=righty;
@@ -240,13 +125,14 @@ define
         };
     ;
 compareXP();
-xpListLR("invokeTEST call qa + qb + qc;");
-xpListLR("invokeTEST call qa - qb + qc;");
-xpListLR("invokeTEST call qa - qb - qc;");
-xpListLR("invokeTEST call - qa + qb;");
-xpListLR("invokeTEST call qc - - qa;");
-xpListLR("invokeTEST call rr -= qa - qb + qc;");
+xpListTest("invokeTEST call qa + qb + qc;");
+xpListTest("invokeTEST call qa - qb + qc;");
+xpListTest("invokeTEST call qa - qb - qc;");
+xpListTest("invokeTEST call - qa + qb;");
+xpListTest("invokeTEST call qc - - qa;");
+xpListTest("invokeTEST call rr -= qa - qb + qc;");
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
+print "SENTINEL tester end":;
 stop();
 maximus=righty;
 whatsIt = qa - qb + qc;
