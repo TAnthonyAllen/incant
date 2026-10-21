@@ -1,0 +1,36 @@
+FALSE	jitScCountT	jitEmitShortCircuitSlots	scDriver	AND/OR RIGHT operand produced no value -- it runs INTERPRETED
+FALSE	jitScCountT	jitEmitShortCircuitSlots	scDriver	AND/OR LEFT operand produced no value -- it runs INTERPRETED
+FALSE	jitScCountT	jitEmitShortCircuitSlots	scDriver	AND/OR RIGHT operand produced no value -- it runs INTERPRETED
+FALSE	jitScCountT	jitEmitShortCircuitSlots	scDriver	AND/OR LEFT operand produced no value -- it runs INTERPRETED
+FALSE	jitPrintInlineT	jitEmitBareRead	piCall	bare read of a LIST -- parts must be classified by the caller
+FALSE	jitPrintInlineT	jitPrintList	piCall	print operand part: not a constant and not a scalar read
+FALSE	jitPrintInlineT	jitEmitBareRead	piCall	bare read of a LIST -- parts must be classified by the caller
+FALSE	jitPrintInlineT	aCTionBrancH	piCall	return operand produced no value
+FALSE	jitPrintInlineT	jitEmitBareRead	piCtl	bare read of a LIST -- parts must be classified by the caller
+FALSE	jitPrintInlineT	aCTionBrancH	piCtl	return operand produced no value
+FALSE	jitXscRT	jitEmitShortCircuitSlots	xrDriver	AND/OR RIGHT operand produced no value -- it runs INTERPRETED
+FALSE	jitXscRT	jitEmitShortCircuitSlots	xrDriver	AND/OR LEFT operand produced no value -- it runs INTERPRETED
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testUnitTests	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testUnitTests	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	lefty	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	aCTionBrancH	lefty	return operand produced no value
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	testARG	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	testARG	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	printDefinition	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	printDefinition	print operand part: not a constant and not a scalar read
+FALSE	baselineTestsNew.gjit	jitEmitBareRead	printDefinition	bare read of a LIST -- parts must be classified by the caller
+FALSE	baselineTestsNew.gjit	jitPrintList	printDefinition	print operand part: not a constant and not a scalar read

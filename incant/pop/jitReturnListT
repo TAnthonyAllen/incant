@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitReturnListT);
+define
+    rlY=3 code={ rlY += 43; print "RL-0 callee prints, rlY = [" rlY "]":; return rlY; };
+    rlT code={ print "RL-1 the call's value [" rlY() "]":; };
+    rlOuter code={
+        print "RL outer before":;
+        rlT();
+        print "RL-2 outer after one":;
+        print "RL-2 outer after two":;
+        rlLoc;
+        };
+    ;
+jitter;
+rlOuter();
+print "RL-3 top after":;
+print "JITRETURNLIST SENTINEL":;
+stop();
+
+jitReturnListT -- SEQ 392 R1, a find pinned before it is chased (Tony's R3): lefty's shape under an INTERPRETED caller.
+rlY is a field carrying its code, and `return rlY;` is a bare read of a list. rlOuter is refused by the net (rlLoc has no
+writer) and runs interpreted; it calls rlT, which the jitter compiles, and rlT calls rlY, which the jitter compiles as its
+own function. On trunk 06fd1899 the run CRASHES (exit 139) after "RL outer before". The interpreted twin (this file with
+`jitter;` deleted): RL-1 = 46, both RL-2 lines, RL-3, the SENTINEL -- the intended values.
+On branch jit-list-handover (S6 hands over, SEQ 392) the same file exits 0 but rlOuter's block STOPS after rlT() -- no RL-2
+line -- and RL-1 reads 0: the handed-over `return rlY` runs interpreted and (inferred, not traced) leaks its branch signal
+out of the compiled call and delivers no value.

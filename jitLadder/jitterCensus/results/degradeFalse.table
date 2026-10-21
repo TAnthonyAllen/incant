@@ -1,0 +1,16 @@
+3055 handed	jitHandOver	a command call -- its statement runs at RUN time
+2429 handed	jitHandOver	an operator with no emitter -- its statement runs at RUN time
+2033 handed	jitHandOver	a read of a value whose kind is not a count or a number -- its stateme
+ 777 handed	jitHandOver	an operand whose kind is not a count or a number -- its statement runs
+ 392 handed	jitHandOver	cerr under jit -- no emitter, it runs at RUN time on the interpreted r
+ 364 handed	jitHandOver	cout under jit -- no emitter, it runs at RUN time on the interpreted r
+  28 handed	jitHandOver	FOR under jit -- no emitter (iterate's disease, different keyword); it
+  15 FALSE	jitEmitBareRead	bare read of a LIST -- parts must be classified by the caller
+  12 FALSE	jitPrintList	print operand part: not a constant and not a scalar read
+   9 handed	jitHandOver	IF condition produced no value -- the whole IF runs INTERPRETED
+   5 handed	jitEmitAssign	assign operand reached jitEmitAssign unseeded
+   3 FALSE	jitEmitShortCircuitSlots	AND/OR RIGHT operand produced no value -- it runs INTERPRETED
+   3 FALSE	jitEmitShortCircuitSlots	AND/OR LEFT operand produced no value -- it runs INTERPRETED
+   3 FALSE	aCTionBrancH	return operand produced no value
+   2 handed	jitHandOver	string expression under jit -- no emitter, its statement runs at RUN t
+   1 handed	jitHandOver	a scope statement -- it binds locals, so it runs at RUN time

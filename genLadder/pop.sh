@@ -6289,6 +6289,17 @@ for _fc in jitForCursorT:JITFORCURSOR jitForBodyT:JITFORBODY; do
 done
 kindRow "jitForCursorT FC-0 control: a frame local that stays a count dumps clean (epilogueWriteBack's control)" "$(grep -c '^FC-0 control dumped' "$T/jitForCursorT")" "1"
 
+#  ⚑ jitReturnListT -- SEQ 392 R1, a find pinned before it is chased (Tony, 2026-10-21): lefty's shape under an INTERPRETED
+#  caller -- rlOuter (refused by the net, interpreted) calls the compiled rlT, which calls the compiled rlY, whose `return rlY`
+#  is a bare read of a field carrying a list. PINNED AT TODAY'S VALUES under a 10 s alarm; intended = the interpreted twin.
+#  BORN RED 2026-10-21 (trunk: exit 139 after "RL outer before").
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitReturnListT)" > "$T/jrl" 2>&1; _jrlx=$?
+kindRow "jitReturnListT jitted run's exit -- 139 (born red 2026-10-21; intended 0 = the twin)" "$_jrlx" "139"
+kindRow "jitReturnListT RL-2 the interpreted caller's statements after the call (born red 2026-10-21; intended 2)" "$(grep -c '^RL-2 ' "$T/jrl")" "0"
+sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$B" "$T/jrlI.src" > "$T/jrlI" 2>&1; check "jitReturnListT interpreted twin runs" 0 $?
+sentinel "jitReturnListT interpreted twin sentinel" "$T/jrlI" "JITRETURNLIST SENTINEL"
+kindRow "jitReturnListT the interpreted twin: RL-1, RL-2 lines (the intended values)" "$(_jt "$T/jrlI" RL-1) $(grep -c '^RL-2 ' "$T/jrlI")" "46 2"
+
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its
