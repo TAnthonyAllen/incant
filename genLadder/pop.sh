@@ -6289,6 +6289,16 @@ for _fc in jitForCursorT:JITFORCURSOR jitForBodyT:JITFORBODY; do
 done
 kindRow "jitForCursorT FC-0 control: a frame local that stays a count dumps clean (epilogueWriteBack's control)" "$(grep -c '^FC-0 control dumped' "$T/jitForCursorT")" "1"
 
+#  ⚑ jitArgListT -- SEQ 392 R1 (Tony, 2026-10-21): testARG's shape. A compiled `print argument` whose argument carries a
+#  list at build: before the cure jitEmitBareRead's list arm degraded to NOTHING and the part was dropped. Intended = the
+#  interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21 on the branch point (three empty calls).
+run1 jitArgListT "$T/jal";   check "jitArgListT runs" 0 $?
+sentinel "jitArgListT sentinel" "$T/jal" "JITARGLIST SENTINEL"
+sed '/^jitter;$/d' "$(ip jitArgListT)" > "$T/jalI.src"; "$B" "$T/jalI.src" > "$T/jalI" 2>&1; check "jitArgListT interpreted twin runs" 0 $?
+sentinel "jitArgListT interpreted twin sentinel" "$T/jalI" "JITARGLIST SENTINEL"
+kindRow "jitArgListT the interpreted twin: three calls (the intended values)" "$(_jt "$T/jalI" AL)" "hasGroup 35 57"
+kindRow "jitArgListT jitted = the twin (born red 2026-10-21)" "$(_jt "$T/jal" AL)" "hasGroup 35 57"
+
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its
