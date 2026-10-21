@@ -522,3 +522,6 @@ runs compiled). All hold GROUP at run (testInterpret's also COUNT, from the `= 0
 the whole population. Constructed, both roads clobber on trunk: the re-aimed fixit (cursor; exit 139, gGroup
 0x0000000100000007) and a for-BODY road -- `ewL = 7; for ewOn in sample; ewL := copyOf(sample);` -- exit 139, gGroup
 0x0000000100000007, twin 0 (the cursor must be a declared field, or the net refuses the action on it first).
+
+**SEQ 390 R2 is on branch jit-for-cursor** (83f5da78 pre-registration, 071afb50 cure, 5b752e41 certificate), in
+docs/forCursor.md there. Not merged; the buy is Tony's.
