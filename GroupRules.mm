@@ -4213,8 +4213,9 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	//  job (jitPrintList does it for print items).
 	//  Refuse loudly -- the counter is asserted at zero by every rung, so a
 	//  refusal is a red and a wrong constant is nothing.
+	//  listHandsOver a read of a field carrying a list hands its statement to run time, as a value the jit cannot carry does (SEQ 392 R2)
 	if (token->groupBody->groupList) {
-	jitDegrade("bare read of a LIST -- parts must be classified by the caller", token);
+	::jitHandOver((char*)"a bare read of a field carrying a list -- its statement runs at RUN time", token);
 	return 0; }
 	if (::jitKindUncarried(token)) {
 	::jitHandOver((char*)"a read of a value whose kind is not a count or a number -- its statement runs at RUN time", token);
