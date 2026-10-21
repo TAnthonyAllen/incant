@@ -31,3 +31,32 @@ added (canary 365 stays); no groups.ext change.
 
 The degrade-only arm back: jitArgListT, PI-0, testARG, printDefinition and lefty return to their old values; restored
 md5 = the cure.
+
+## The certificate (branch: b7d376fe pre-registration, f299e40a cure; clone, 2026-10-21)
+
+Built bare in the clone. Canary **365, unchanged**; the generated diff is the one call (jitDegrade -> jitHandOver) and its
+comment. Branch-point binary: ~/bin/incant (the branch point's engine; the clone's own older builds predate SEQ 391).
+
+| pre-registered | measured |
+|---|---|
+| jitArgListT `[ ] [ ] [ ]` -> `hasGroup 35 57` | **as registered** |
+| PI-0 empty -> 46; PI-1 unmoved | **as registered** (PI-0's row re-pinned at 46 with its sentence; PI-1 still 0 lines) |
+| pop.sh otherwise row for row; jitLadder row for row | **1611 green, only those two rows moved; jitLadder identical** |
+| testARG and printDefinition print their argument | **true where they run** -- the W1 and W5 witnesses (printDefinition(sample) = the twin). In baselineTestsNew they are **never reached** (below) |
+| **lefty 0 -> 46** | **FALSIFIED: still 0.** The list read now hands over, and `return lefty` runs interpreted -- but the compiled function's value is its result slot, which the interpreted return does not write |
+| **baselineTestsNew's 40-line diff shrinks** | **FALSIFIED: 40 -> 94 lines.** The jitted run's stdout stops after printTest's line: testUnitTests (refused by the net, interpreted) **runs no statement after printTest()** -- simpleIF, testOR, testARG, ... printDefinition never run. Exit 0, its SENTINEL printed |
+| gen26 >= 14 / 26 | **14 / 26**; baselineTestsNew is the only file that moved (above) |
+| the 239-local classification unchanged | **unchanged** (84 / 155 / 0 / 0; `results/listHandover.raw` / `.table`) |
+
+**THE UNFORESEEN MECHANISM, pinned on trunk as incant/pop/jitReturnListT (717c72f3) -- lefty's shape under an INTERPRETED
+caller.** rlOuter (interpreted) calls the compiled rlT, which calls the compiled rlY, whose `return rlY` is a bare read of
+a field carrying a list. **Trunk: exit 139** after "RL outer before". **This branch: exit 0, but rlOuter's block stops
+after rlT() -- no RL-2 line -- and RL-1 is absent**; RL-3 (top level) prints. Twin: RL-1 46, both RL-2, RL-3. So S6's
+hand-over turns a crash into a SILENT TRUNCATION of the interpreted caller: once the `return` statement is handed to run
+time, its interpreted run (inferred, NOT traced) leaves the return's branch signal set past the compiled call -- the
+interpreted block above it then stops as though it had returned -- and delivers no value into the result slot. **A
+handed-over `return` is a statement SEQ 384's road does not carry yet.** This is the reason the branch should not be
+bought as it stands, and it is named for Tony rather than chased (R3).
+
+**H7 (cure committed first):** the degrade-only arm back -> jitArgListT empty on all three calls, PI-0 empty,
+printDefinition(sample)'s `wrap=` empty, jitReturnListT exit 139 -- every witness back; restored md5 = the cure.

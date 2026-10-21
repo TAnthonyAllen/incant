@@ -6257,7 +6257,7 @@ sentinel "jitPrintInlineT interpreted twin sentinel" "$T/jpiI" "JITPRINTINLINE S
 kindRow "jitPrintInlineT the interpreted twin: PI-0 PI-1 PI-2 (the intended values)" "$(_jt "$T/jpiI" PI-0) $(_jt "$T/jpiI" PI-1) $(_jt "$T/jpiI" PI-2)" "46 46 46"
 kindRow "jitPrintInlineT PI-2 control, a silent callee: = the twin" "$(_jt "$T/jpi" PI-2)" "46"
 kindRow "jitPrintInlineT PI-1 the caller's line: DROPPED WHOLE (born red 2026-10-21; intended 1 line = the twin)" "$(grep -c '^PI-1 ' "$T/jpi")" "0"
-kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying its code): EMPTY (born red 2026-10-21; intended 46 = the twin)" "$(_jt "$T/jpi" PI-0)" ""
+kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying its code) = the twin (born red 2026-10-21 empty; green since jit-list-handover: the list read hands over)" "$(_jt "$T/jpi" PI-0)" "46"
 kindRow "jitPrintInlineT witness: piCall built 1 called 1 (piL inlined, no build of its own)" "$(grep -c '^=== jitter: piCall built 1 called 1 ===' "$T/jpi") $(grep -c '^=== jitter: piL ' "$T/jpi")" "1 0"
 
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
