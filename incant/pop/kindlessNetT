@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(KindlessNetT);
+define
+    knOut=5;
+    knCtl code={
+        knC = 2;
+        knOut = knOut + knC;
+        };
+    knRead code={
+        print "KN-2 a local read and never written, printed: [" knLoc "]":;
+        };
+    ;
+jitter;
+knCtl();
+print "KN-1 a local written by = of a count, compiled: knOut = [" knOut "]":;
+knRead();
+print "KINDLESSNET SENTINEL":;
+stop();
+
+kindlessNetT -- SEQ 388 R2, the net (Tony, 2026-10-21): a kindless local with no writer the build can see is NOT
+JITTABLE -- the action is refused by name and runs interpreted. Nothing in the fleet reaches the net (SEQ 388 R1: every
+slotted local has a build-visible writer), so this fixture is the net's only reach.
+
+KN-1 is the control: knC is a kindless local written by `= 2`, a scalar writer, so knCtl compiles (built 1) and knOut
+reads 7 on both roads. KN-2 is the net: knLoc is an undeclared name in knRead's body -- a local -- read and never
+written. Interpreted, a data-less field prints its own tag (bear-trap 26), so the intended value is `knLoc`. Before the
+net the prologue slots knLoc i32 and the compiled print reads that slot as a count.
+The interpreted twin is this file with `jitter;` deleted (pop.sh builds it).
