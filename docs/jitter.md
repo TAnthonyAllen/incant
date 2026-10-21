@@ -420,3 +420,69 @@ kjWalk g GROUP -- each agrees.
 
 **R2 and R3 are on branch jit-kindless-infer** (eaedef71 pre-registration, 126f2659 cure, 80e4998d certificate), in
 docs/kindlessInfer.md there. Not merged; the buy is Tony's.
+
+## SEQ 389 -- the buy; epilogueWriteBack's reach; the 12 generator disagreements classified (2026-10-21)
+
+Ruled (Tony, 2026-10-21): R1 jit-kindless-infer BOUGHT. R2 the unknown-writer refusals (for cursor, `:argument` hoist,
+`++One`) stay refused -- one TODO docket line, the for cursor first; nothing built. R3 the no-writer refusals (Saw, This,
+what, across) are the net working as ruled. R4 epilogueWriteBack retires only by construction, with its sentence, or is
+re-aimed.
+
+**R0, the buy (merge e339214f).** No groups.ext change on the branch. Bare tokall = branch (tree clean, canary 364).
+~/bin/incant rebuilt Oct 21 10:08. pop.sh 1581 green and jitLadder PASSED, row for row with the clone's branch run but
+H3 (one address; fixture-name count 272 vs 265) and PIDs. dirCheck = capture; decodePop = capture but its binary line
+(refreshed). jit-kindless-infer deleted locally, on GitHub, and in the clone. TODO: "The kindless net's unknown writers".
+
+### R1 -- can a slotted local still become non-scalar at run time? (trunk e339214f; probes are scratch copies of the fixit
+### run on the trunk binary, no engine tap; each with `ewL = 7` beside the write under test)
+
+| road | can it write a non-scalar into a slotted local? | how known | probe |
+|---|---|---|---|
+| jitEmitStmtRT -- a handed-over statement (`ewL := copyOf(sample)`, the fixit's own shape) | **no** -- its assign still dispatches through runOPdirect's top, where jitNoteWriter sits above the hand-over return, so the holder is recorded and the local never slotted | **construction** | exit 0 |
+| a handed-over operand (jitKindUncarried at runOPdirect :1292, jitEmitBareRead) | **no** -- the hand-over is decided inside runOPdirect, after jitNoteWriter has run | **construction** | (the same) |
+| jitIfRT -- a one-line `if c;  ewL := copyOf(sample);` | **no** -- the governed `:=` is still recorded | **measurement** (mechanism not traced) | exit 0 |
+| `<-` (`ewL <- sample`) | **no** -- recorded as a holder | construction | exit 0 |
+| `=` from a node in flight (`ewL = copyOf(sample)`, jitAssignNodeRT) | **no** -- `=` copies content and never makes the target a group holder (ewL dumps `7 int`, length 8) | measurement | exit 0 |
+| **the `for` cursor** (`for ewL in sample;`) -- R2's class | **YES.** The whole FOR runs at run time ("FOR under jit -- no emitter"), its cursor write is never recorded, ewL keeps the slot `ewL = 7` earned, and the raw epilogue writes 7 over the group pointer | **measurement** | **exit 139**; lldb at GroupItem::getText (GroupItem.mm:1405): ewL gGroup = `0x0000000100000007`, `0x0000000100000001` with `ewL = 1`. Interpreted twin 0; without `ewL = 7` the net refuses ewAct and the run exits 0 |
+| the `:x a b` scope hoist (`:ewArg ewL;`) -- R2's class | **undetermined** -- the run dies EARLIER, in aCTionBlocK (GroupRules.mm:107, `result = 0x1`), with or without the scalar writer, so the epilogue is never reached. A separate jit defect, found, not chased | measurement | exit 139 elsewhere; interpreted twin 0 |
+| `++x` -- R2's class | **no** -- a unary step writes a count (on a cursor it is the iterate step, and iterate records the cursor) | construction | -- |
+
+**A road exists, so (b): the fixit is RE-AIMED, not retired.** `incant/fixits/epilogueWriteBack` now drives `ewL = 7;
+for ewL in sample;` -- exit 139 on trunk, gGroup `0x0000000100000007`, interpreted twin 0. NEXT: BEST GUESS -- teach
+jitNoteWriter the for cursor (the TODO line); promote = this file exits 0 with both EWB lines and the SENTINEL.
+**Found on the way:** a for body is itself an unseen writer -- an undeclared local written only inside it (`ewSeen = 1`)
+has no writer the build can see, so the net refuses the action (measured: that variant exits 0 for that reason). The
+fixit therefore writes a DECLARED field in its loop body, and says why.
+
+### R2 -- the 12 generator files still disagreeing (cure binary = trunk's engine; gen26.sh, `jitter;` after Start())
+
+Every file: parser and walkRules NOT JITTABLE -5 with the verifier's "does not dominate" (26 / 26, item 2's signature);
+both then run interpreted, and the 14 agreeing files carry the same refusals, so **item 2 accounts for no disagreement**.
+
+| file | first disagreeing line (plain / jitter) | compiled action | cause | class |
+|---|---|---|---|---|
+| opLenT, probeDoorT, site1RoadsT, sweepT, tokJitT | `=== jitDegrade count = 0 ===` / a count (and jitCompile / jitSlot counts) | -- | the jitter's own compiles move the global counters testing() prints | **counter only** (residual after the counter lines: 0) |
+| parserTest | `RULEDISPATCH parseRefused ... arm=operator` (stderr) | generateParse, compileRules | measure callouts that interpreted statements pass and compiled ones do not | **expected: interpreter witness trace** (residual: 0) |
+| paReachT | `CAPFIRE fireLabelMethod SemI` (stderr, traceParse) | generateParse, compileRules | the witness trace as above, plus generateParse's body-parse trace, which runs inside the jitter's silenced compile and lands in its compile log (residual after both: 3 input-divert MARKPT lines, the same parses) | **expected: witness trace + compile-log routing**; stdout agrees |
+| zeroWidthT | `BLOCKRESULT items=5 ... result=true` (stderr) | generateParse, compileRules, zwSay | as paReachT (residual 3 MARKPT lines); exit 0 (was 139 before SEQ 388) | **expected: witness trace + compile-log routing**; stdout agrees |
+| ruleOfT | `RULEOF nodes=1055` / `1056`, later `2079` / `2083` | roParse, generateParse, compileRules, roSink | the census agrees before any compile (1030), then reads +1 after one compile and +4 after four: each compiled action gains the `JiT` record jitRunAction mints (jitEmitters.rtn:3800), one node each (by count match, not tapped) | **other, named: an instrument counting the JiT record** -- expected by design |
+| halfLessT | `HL old  0.5<1  0 ... 1.5<2  0` / `0.5<1  1 ... 1.5<2  1` (both HL old and HL new) | the compares | the interpreted twin answers 0.5<1 false; the jitted compare answers it right | **halfLessFalse** (the plain road is the wrong one) |
+| termCountT | `TCC  NumbeR` / `REFUSED argument -- iterate: the source has no list [line 17]` | tcWalk (tcRule inlined) | tcRule's `iterate tcCur on argument` resolves its source AT BUILD -- aCTionIterate (S1) through the argument follow (S5) -- so every call refuses on the build-time holder instead of walking the rule's children | **build-time-read class** (S1 / S5, starIdiomT's family) |
+| baselineTestsNew | `testARG: Argument is: hasGroup` / `testARG: Argument is:` (empty, all three calls) | testARG | `print ... argument` compiles the argument item as a BAKED node chosen at build (jitPrintList's pointer-or-value arm via the argument follow), not the per-call `%field` -- probe + IR: `printTok(<constant>)` | **build-time-read class** (jitPrintList / the argument follow) |
+| baselineTestsNew | `printTest: ... It returns 46` / `It returns 0` | lefty (its own function), printTest | `return lefty` is a bare read of a field carrying a LIST (its code); jitEmitBareRead degrades at build ("bare read of a LIST", then "return operand produced no value") and the compiled return yields 0 | **build-time-read class** (jitEmitBareRead's list arm, a degrade that is not sound) |
+
+(baselineTestsNew's other differing lines are compile narration -- testRecurF / testRecurG "built" vs "REUSED", because the
+jitter compiled them before testing() asked -- expected by design.) **Expected-only files: opLenT, probeDoorT, site1RoadsT,
+sweepT, tokJitT (counters); parserTest, paReachT, zeroWidthT (trace); ruleOfT (the JiT record).** That is 9 of 12; the
+value disagreements are baselineTestsNew, termCountT (build-time read) and halfLessT (halfLessFalse).
+
+**Found on the way, not chased:** a print inside an inlined callee, called from inside a print line, drops the CALLER's
+line under the jitter (`pbL=3 code={ pbL += 43; print ...; return pbL; }` printed from `print "PB-1 [" pbL() "]":;` --
+the PB-1 line is missing; without the callee's print it is 46 = the twin).
+
+**Recommendation: the build-time-read class next -- docket item 3's remainder, starting at the ARGUMENT FOLLOW.** It is
+the only class left carrying wrong values in the generator files (3 mechanisms, 2 files), and two of the three go through
+the same site: the argument followed to its held node at build (testARG's print item, tcRule's iterate source; S5, with S1
+for the iterate). jitEmitBareRead's list degrade (lefty) is the third. Item 2 decides only whether parser / walkRules
+compile at all; it moves no value in these 26, so it is second. halfLessFalse is an interpreter defect (the jitted road is
+right) and is not a jit docket item.

@@ -4,20 +4,22 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(EpilogueWriteBack);
 define
+    ewSeen;
     ewCtl code={
         ewC = 1;
         ewC = 2;
         };
     ewAct code={
         ewL = 7;
-        ewL := copyOf(sample);
+        for ewL in sample;
+            ewSeen = 1;
         };
     ;
 cerr "ANCHOR epilogueWriteBack -- control: a jitted local that stays a count, then its action dumped":;
 testing(ewCtl);
 dumpContents(ewCtl);
 cerr "EWB control dumped -- the frame epilogue wrote a count over a count":;
-cerr "EWB defect: ewL = 7, then the run-time call ewL := copyOf(sample), then the action dumped":;
+cerr "EWB defect: ewL = 7, then for ewL in sample (a writer the build does not recognise), then the action dumped":;
 testing(ewAct);
 fixEpilogueWriteBackHere = 0;
 dumpContents(ewAct);
@@ -27,6 +29,18 @@ stop();
 LANE:  jit
 BLAST: OVERLAPS
 OWNER: Clod     (SEQ 385 R3, Tony)
+
+RE-AIMED 2026-10-21 (SEQ 389 R1). jit-kindless-infer (SEQ 388) closed the original shape BY CONSTRUCTION: `ewL :=
+copyOf(sample)` is a writer the build sees, and a writer that makes a non-scalar denies the slot (SEQ 388 R1), so ewL is
+never slotted and the epilogue has nothing to write (that shape: exit 0 on trunk e339214f). The defect is still reachable
+through a writer the recogniser does NOT know -- the `for` cursor (TODO, the kindless net's unknown writers): ewL keeps
+its slot because its only recognised writer is `ewL = 7`, the for loop makes it a group at run time, and the raw
+epilogue writes 7 over the pointer. MEASURED on trunk e339214f: exit 139 at dumpContents(ewAct); lldb at the fault
+(GroupItem::getText, GroupItem.mm:1405): ewL's gGroup = 0x0000000100000007, and 0x0000000100000001 with `ewL = 1`.
+Interpreted twin (ewAct() for testing(ewAct)): exit 0. Without `ewL = 7` the net refuses ewAct (no writer the build
+can see) and the run exits 0. ewSeen is DECLARED on purpose: the whole for statement runs at run time (degrade "FOR under
+jit -- no emitter"), so its body is never walked, and an undeclared local written only there is refused by the net --
+the run then exits 0 and the repro shows nothing (measured). The road census is in docs/jitter.md, "SEQ 389".
 
 epilogueWriteBack -- THE RAW FRAME EPILOGUE WRITES A STALE SLOT OVER A POINTER. A frame local gets an i32 slot homed on
 gCount (the prologue, jitEmitters.rtn:352-360 at trunk f2eb312), and gCount shares storage with gGroup. A statement
@@ -48,7 +62,12 @@ No fleet row reaches it. Found as SEQ 384's named limit.
 Taken (cured): both "EWB" lines, then the SENTINEL; ewAct's dump shows ewL holding its copy of sample.
 Not taken: the run ends after "EWB defect", exit 139.
 
-NEXT: OPEN -- not a call-site fix (the call site already reloads through a kind check and cannot put a group into an
+NEXT: BEST GUESS -- teach jitNoteWriter the `for` cursor as a holder writer (the TODO docket line, the for cursor named
+first): ewL is then denied the slot and this repro exits 0 by construction. Promote: that build, this file exits 0 with
+both EWB lines and the SENTINEL; kill: it still dies at dumpContents. Any other writer the recogniser does not know that
+can put a group into a slotted local is the same road (the `:x a b` hoist is undetermined: it dies earlier, see
+docs/jitter.md "SEQ 389"). The general shapes below still stand if a road is found that no recogniser can see.
+Earlier NEXT (2026-10-19), kept for its shapes: OPEN -- not a call-site fix (the call site already reloads through a kind check and cannot put a group into an
 i32 slot). It needs a frame decision. What would generate a candidate: list, for each frame slot, whether a run-time
 statement in the body can change its kind (a handed-over `:=`, `<-`, a command whose target is the local), and measure
 what an epilogue store through the same kind check (jitFlushCountSlotRT's) would leave in the field -- that is the
@@ -58,3 +77,5 @@ local stays on its field and is read through it) or homing locals off the union.
 ATTEMPT LOG
   2026-10-19 SEQ 385 R3 filed: repro from kant built and run on trunk (139 at dumpContents; gGroup low half = the slot).
   Controls: interpreted twin exit 0, no-type-change jitted twin exit 0. Not cured.
+  2026-10-21 SEQ 389 R1: the := shape closed by construction (SEQ 388 R1, exit 0); re-aimed at the for cursor -- 139 on
+  trunk e339214f, gGroup 0x0000000100000007 (0x...01 with ewL = 1); interpreted twin 0; no scalar writer -> net refuses, 0.
