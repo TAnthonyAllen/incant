@@ -6244,8 +6244,8 @@ sentinel "kindlessNetT interpreted twin sentinel" "$T/knI" "KINDLESSNET SENTINEL
 kindRow "kindlessNetT the interpreted twin: KN-1 KN-2 (the intended values)" "$(_jt "$T/knI" KN-1) $(_jt "$T/knI" KN-2)" "7 knLoc"
 kindRow "kindlessNetT KN-1 control: knC written by = 2, compiled = the twin" "$(_jt "$T/kn" KN-1)" "7"
 kindRow "kindlessNetT KN-1 witness: knCtl built 1 called 1" "$(grep -c '^=== jitter: knCtl built 1 called 1 ===' "$T/kn")" "1"
-kindRow "kindlessNetT KN-2 knLoc read and never written = the twin (born red 2026-10-21)" "$(_jt "$T/kn" KN-2)" "knLoc"
-kindRow "kindlessNetT KN-2 witness: knRead NOT JITTABLE by name, compile -8 (born red 2026-10-21)" "$(grep -c '^=== jitter: knRead NOT JITTABLE (compile returned -8)' "$T/kn")" "1"
+kindRow "kindlessNetT KN-2 knLoc read and never written = the twin (born red 2026-10-21, green since jit-kindless-infer)" "$(_jt "$T/kn" KN-2)" "knLoc"
+kindRow "kindlessNetT KN-2 witness: knRead NOT JITTABLE by name, compile -8 (born red 2026-10-21, green since jit-kindless-infer)" "$(grep -c '^=== jitter: knRead NOT JITTABLE (compile returned -8)' "$T/kn")" "1"
 
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out

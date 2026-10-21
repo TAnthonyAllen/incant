@@ -1,0 +1,93 @@
+pre-cure census: 239 locals (file x action x local), 53 distinct, 54 files
+  inferred-scalar        81   distinct  26   files  44
+  inferred-nonscalar    155   distinct  27   files  36
+  refused                 0   distinct   0   files   0
+  unobserved              0   distinct   0   files   0
+  WRONG                   0   distinct   0   files   0
+  UNSEEN                  3   distinct   3   files   1
+
+by (action, local):
+  BJ               block              inferred-nonscalarx1                     holds 6        recorded 6
+  BJ               code               inferred-nonscalarx3                     holds 6        recorded 6
+  BJ               nm                 inferred-nonscalarx1                     holds 6        recorded 6
+  acF              h                  inferred-scalarx1                        holds 5        recorded -
+  acF              r                  inferred-scalarx1                        holds 5        recorded -
+  arA              arMine             inferred-scalarx1                        holds 5        recorded -
+  coF              r                  inferred-scalarx1                        holds 5        recorded -
+  coF              t                  inferred-scalarx1                        holds 5        recorded -
+  displayForm      grup               inferred-nonscalarx1                     holds 6        recorded 6
+  displayForm      length             inferred-scalarx1                        holds 5        recorded -
+  exSay            c                  inferred-nonscalarx1                     holds 6        recorded 6
+  exSay            m                  inferred-nonscalarx1                     holds 6        recorded 6
+  exSay            v                  inferred-nonscalarx1                     holds 6        recorded 6
+  generateParse    bprCopy            inferred-nonscalarx26                    holds 6        recorded 6
+  generateParse    codeCopy           inferred-nonscalarx26                    holds 6        recorded 6
+  generateParse    conjunct           inferred-nonscalarx26                    holds 13       recorded 13
+  generateParse    grup               inferred-nonscalarx26                    holds 6        recorded 6
+  generateParse    notFirstTimeThru   inferred-scalarx26                       holds 5        recorded -
+  itWalk           g                  inferred-nonscalarx1                     holds 6        recorded 6
+  jdRun            jdCur              inferred-nonscalarx1                     holds 6        recorded 6
+  jitJF            jfTmp              inferred-scalarx1                        holds 5        recorded -
+  jitJUi           g                  inferred-nonscalarx1                     holds 6        recorded 6
+  jrLocal          jrLoc              inferred-scalarx1                        holds 5        recorded -
+  jtBad            zeroBump           inferred-scalarx2                        holds 5        recorded -
+  jtGood           good               inferred-scalarx2                        holds 5        recorded -
+  k8               k8loc              inferred-scalarx1                        holds 5        recorded -
+  kjWalk           g                  inferred-nonscalarx2                     holds 6        recorded 6
+  lcSay            c                  inferred-nonscalarx1                     holds 6        recorded 6
+  lcSay            m                  inferred-nonscalarx1                     holds 6        recorded 6
+  lcSay            v                  inferred-nonscalarx1                     holds 6        recorded 6
+  nmF              r                  inferred-scalarx1                        holds 5        recorded -
+  nmF              t                  inferred-scalarx1                        holds 9        recorded -
+  roParse          roCp               inferred-nonscalarx1                     holds 6        recorded 6
+  roParse          v                  inferred-nonscalarx1                     holds 6        recorded 6
+  rsF              r                  inferred-scalarx1                        holds 5        recorded -
+  rsF              t                  inferred-scalarx1                        holds 5        recorded -
+  rsG              r                  inferred-scalarx1                        holds 5        recorded -
+  rtF              rtLoc              inferred-scalarx1                        holds 5        recorded -
+  scDriver         scH                inferred-nonscalarx1                     holds 6        recorded 6
+  sf               sfLoc              inferred-scalarx1                        holds 5        recorded -
+  srRun            srE                inferred-scalarx1                        holds 5        recorded -
+  srRun            srL                inferred-scalarx1                        holds 5        recorded -
+  tcWalk           tcR                inferred-nonscalarx1                     holds 6        recorded 6
+  testRecurF       r                  UNSEENx1 inferred-scalarx2               holds 5        recorded -
+  testRecurF       t                  UNSEENx1 inferred-scalarx2               holds 5        recorded -
+  testRecurG       r                  UNSEENx1 inferred-scalarx2               holds 5        recorded -
+  vcF              r                  inferred-scalarx1                        holds 5        recorded -
+  walkRules        grup               inferred-nonscalarx26                    holds 6        recorded 6
+  walkRules        length             inferred-scalarx26                       holds 5        recorded -
+  zwSay            c                  inferred-nonscalarx1                     holds 6        recorded 6
+  zwSay            m                  inferred-nonscalarx1                     holds 6        recorded 6
+  zwSay            n                  inferred-nonscalarx1                     holds 6        recorded 6
+  zwSay            v                  inferred-nonscalarx1                     holds 6        recorded 6
+
+new in the post-cure run (slotted kindless or NOSLOT, not in the pre-cure census):
+   baselineTestsNew.gjit accessTest across
+   baselineTestsNew.gjit ifTest grup
+   baselineTestsNew.gjit printDefinition grup
+   baselineTestsNew.gjit stringTest what
+   baselineTestsNew.gjit testGet width
+   baselineTestsNew.gjit testIndentBlock Four
+   baselineTestsNew.gjit testIndentBlock One
+   baselineTestsNew.gjit testIndentBlock Three
+   baselineTestsNew.gjit testIndentBlock Two
+   baselineTestsNew.gjit testInterpret Saw
+   baselineTestsNew.gjit testInterpret grup
+   baselineTestsNew.gjit testOR Saw
+   baselineTestsNew.gjit testRecurF r
+   baselineTestsNew.gjit testRecurF t
+   baselineTestsNew.gjit testRecurG r
+   baselineTestsNew.gjit testRecursion rf
+   baselineTestsNew.gjit testRecursion rg
+   baselineTestsNew.gjit testRecursion rh
+   baselineTestsNew.gjit testRecursion rk
+   baselineTestsNew.gjit testUnary grup
+   baselineTestsNew.gjit testUnitTests This
+   baselineTestsNew.plain testRecurF r
+   baselineTestsNew.plain testRecurF t
+   baselineTestsNew.plain testRecurG r
+   kindlessNetT knCtl knC
+   kindlessNetT knRead knLoc
+   leafClassT.gjit lcClass r
+   ownerT.gjit owAct owZ
+   ruleOfT.gjit roSink roN
