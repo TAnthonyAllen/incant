@@ -6233,6 +6233,20 @@ sentinel "jitterT new road sentinel" "$T/jtN" "JITTER SENTINEL"
 kindRow "jitterT new road: JT-0..JT-4 = the interpreted twin" "$(_jtv "$T/jtN")" "$(_jtv "$T/jtI")"
 kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtN")" "1"
 
+#  ⚑ kindlessNetT -- SEQ 388 R2 (Tony, 2026-10-21): THE NET. A kindless local with no writer the build can see is NOT
+#  JITTABLE -- refused by name, interpreted after. Nothing in the fleet reaches it (SEQ 388 R1), so this fixture is its
+#  only reach. KN-1 is the control (a `= 2` writer compiles); KN-2's knLoc is read and never written. Intended = the
+#  interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21 on the branch point: KN-2 printed the slot, 0.
+run1 kindlessNetT "$T/kn";   check "kindlessNetT runs" 0 $?
+sentinel "kindlessNetT sentinel" "$T/kn" "KINDLESSNET SENTINEL"
+sed '/^jitter;$/d' "$(ip kindlessNetT)" > "$T/knI.src"; "$B" "$T/knI.src" > "$T/knI" 2>&1; check "kindlessNetT interpreted twin runs" 0 $?
+sentinel "kindlessNetT interpreted twin sentinel" "$T/knI" "KINDLESSNET SENTINEL"
+kindRow "kindlessNetT the interpreted twin: KN-1 KN-2 (the intended values)" "$(_jt "$T/knI" KN-1) $(_jt "$T/knI" KN-2)" "7 knLoc"
+kindRow "kindlessNetT KN-1 control: knC written by = 2, compiled = the twin" "$(_jt "$T/kn" KN-1)" "7"
+kindRow "kindlessNetT KN-1 witness: knCtl built 1 called 1" "$(grep -c '^=== jitter: knCtl built 1 called 1 ===' "$T/kn")" "1"
+kindRow "kindlessNetT KN-2 knLoc read and never written = the twin (born red 2026-10-21, green since jit-kindless-infer)" "$(_jt "$T/kn" KN-2)" "knLoc"
+kindRow "kindlessNetT KN-2 witness: knRead NOT JITTABLE by name, compile -8 (born red 2026-10-21, green since jit-kindless-infer)" "$(grep -c '^=== jitter: knRead NOT JITTABLE (compile returned -8)' "$T/kn")" "1"
+
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its

@@ -1,4 +1,5 @@
 #include <set>
+#include <map>
 // jitContext.h — Phase JIT codegen state (LLVM 22). Hand-written C++ — NOT tok-processed.
 // JitData mirrors OLDtawkDoNotTouch/Tokf/JitData.h (the proven pattern): a global
 // struct with fully-qualified llvm:: pointer fields + get/set methods. See
@@ -295,6 +296,16 @@ inline std::set<void*> gJitFieldResident;
 // the kind (setCount/setNumber) only for those -- a never-assigned local stays EMPTY,
 // so it still picks by the argument's kind, as it does interpreted.
 inline std::set<void*> gJitFrameAssigned;
+// THE KIND A KINDLESS LOCAL'S WRITER GIVES IT (SEQ 388 R1, Tony): written by jitNoteWriter during the emit walk, keyed on
+// the local's GroupBody; 5 = a scalar, anything else = that non-scalar kind (6 a holder or a cursor, 13 a string ...).
+// Cleared at jitRunAction's entry and NOT by jitFlushTransient -- it is what a restart starts over knowing.
+class GroupBody;
+inline std::map<GroupBody*, int> gJitLocalKind;
+inline int gJitKindRestarts = 0;
+inline bool jitLocalNonScalar(GroupBody *b) {
+    auto it = gJitLocalKind.find(b);
+    return it != gJitLocalKind.end() && it->second != 5;
+}
 
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
