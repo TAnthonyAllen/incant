@@ -638,6 +638,7 @@ projectBible.md "Phase Generate Tawk".
 
 ## 🗂️ Housekeeping
 
+- [ ] **The kindless net's unknown writers** (Tony, SEQ 389 R2, 2026-10-21): three writer kinds jitNoteWriter does not recognise, so a local written ONLY by them is refused by the net (NOT JITTABLE, -8) -- **the `for` cursor first** (`for grup in aGroup;`, ifTest / printDefinition), then the `:argument width height;` scope hoist (testGet), then a unary `++One` (testIndentBlock). Measured in baselineTestsNew under `jitter;` (docs/kindlessInfer.md). They stay refused until the line is taken up; nothing is built for them now.
 - [ ] **Comma as a list separator inside an expression** (A +% *B *C *D refused by the position rule; comma does not parse in +%). A language ruling, after the jitter docket (Tony, 2026-10-20). Measured 2026-10-20 (kant): `L +% *hA *hB *hC` refuses with `Operator * -- cannot apply to these operands` (the second `*` reads as multiply); `L +% *hA ,*hB ,*hC` fails to parse. It is why tester parks its operands in instructEntry / targetEntry / resultPark.
 - [ ] **`string` keyword is on the chopping block — gIF's label mint depends on it.** `gIF` mints unique bytecode labels with `string "bcLabel" labelIndex` (`incant/generate`), works today (2026-06-10). The bible flags wanting to *eliminate* the `string` keyword (declaration-context concat — `String x = "a" var "b";` lowering to `concat(...)` — is the target model). If/when `string` goes, that mint site must move to the no-keyword concat form. Future flag, not urgent.
 - [ ] plg.g `%%` assumption — document/fix
