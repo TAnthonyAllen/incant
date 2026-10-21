@@ -486,3 +486,39 @@ the same site: the argument followed to its held node at build (testARG's print 
 for the iterate). jitEmitBareRead's list degrade (lefty) is the third. Item 2 decides only whether parser / walkRules
 compile at all; it moves no value in these 26, so it is second. halfLessFalse is an interpreter defect (the jitted road is
 right) and is not a jit docket item.
+
+## SEQ 390 -- two finds pinned; the for cursor recognised (2026-10-21)
+
+Ruled (Tony, 2026-10-21): R1 the docket order -- the for cursor (this SEQ); the build-time-read class (the argument
+follow first, then lefty's list read, then the rest of the 13 sites); item 2; halfLessFalse. R2 SEQ 389 R2 amended: the
+for cursor is taught now (with a second writer it earns a slot and the epilogue clobbers it); the `:x` hoist and `++One`
+stay refused and docketed. R3 a new wrong-value or crash find is pinned before it is chased.
+
+**R0 (trunk bc7b23d4): two finds pinned at today's values, fixtures only.** `incant/pop/jitPrintInlineT` -- piCall
+compiled, piL inlined: the caller's PI-1 line is DROPPED WHOLE (no fragment of it), and the callee's own PI-0 print of piL
+(a field carrying its code) prints EMPTY (intended 46); PI-2, a callee that does not print, agrees. `incant/pop/jitHoistT`
+-- the smallest shape is one statement, `:hzArg hzL;`, in a jittered body: the BUILD crashes (jitterReady -> jitRunAction
+-> jitBuildFunction -> jitExecBlock -> aCTionBlocK at ruleActions.rtn:67, GroupRules.mm:107, `result = 0x1`), exit 139,
+nothing printed; twin exit 0. By inspection: aCTionScopeXP (ruleActions.rtn:837) is `extern void`. Fleet rows hold both
+(an exit under an alarm, as jitStarIdiomT), so no fixit. pop.sh 1581 -> 1595 (the 14 new rows), FAIL set unchanged.
+
+**R1 (a) -- where the build sees a for statement's writes.** aCTionFOR's jitting gate, ruleActions.rtn:496-498, hands
+the whole statement to run time and returns -- the body is never walked. Before it: the cursor is `input["Looper"]`
+(:485), a carrier whose group is the local; the body is `input["StatemenT"]` (:489). Nothing records either today (SEQ
+388's seats are runOPdirect:1278 and ruleActions.rtn:612; neither is reached for a FOR). **The body is already BUILT**
+(measured, a tree tap at the gate): StatemenT -> StatemenT -> ExpressioN, whose gGroup is the instruction -- for
+`ewL := copyOf(sample)` an `acA` node with children `ewL` (isLocal), `:=` (assign tier), `acC` (the value). So the gate
+can read the body's writers by a static scan of that tree, emitting and running nothing.
+
+(b) **The cursor's kind is a GROUP holder by construction**: the interpreted loop writes it only through `Looper.group =
+grup` (ruleActions.rtn:509). Measured (tapFor.py, clone, reverted md5-identical): every FORCUR observation is GROUP (8 of
+8); at build the cursor is kindless (none). No cursor whose kind differs. No STOP.
+
+(c) **Census** (tapKindless + tapInfer + tapFor; pop.sh 1595, jitLadder PASSED, gen26 14 / 26 in the tapped clone;
+`results/forCensus.raw` / `.table`). FOR statements inside compiled actions: **3 cursors, all in baselineTestsNew's
+jittered run** -- ifTest `grup` and printDefinition `grup` (cursor only; the net refuses both today), testInterpret
+`grup` (cursor + `grup = 0;` after the loop -- SLOTTED, the clobber shape; its action is refused on `Saw`, so it never
+runs compiled). All hold GROUP at run (testInterpret's also COUNT, from the `= 0`). **For-body writes into a local: 0** in
+the whole population. Constructed, both roads clobber on trunk: the re-aimed fixit (cursor; exit 139, gGroup
+0x0000000100000007) and a for-BODY road -- `ewL = 7; for ewOn in sample; ewL := copyOf(sample);` -- exit 139, gGroup
+0x0000000100000007, twin 0 (the cursor must be a declared field, or the net refuses the action on it first).

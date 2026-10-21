@@ -1,0 +1,9 @@
+(b) FOR CURSORS AT BUILD (FORGATE), joined to the build view and to the run-time kinds
+  ifTest             grup         files  1  build NET          kind at build none    cursor at run GROUP    holds GROUP
+  printDefinition    grup         files  1  build NET          kind at build none    cursor at run GROUP    holds GROUP
+  testInterpret      grup         files  1  build SLOT         kind at build none    cursor at run GROUP    holds COUNT/GROUP
+
+    every cursor kind at run (FORCUR, all files): {'GROUP': 8}
+    cursors holding anything but GROUP at run: none
+
+(c) LOCALS WRITTEN INSIDE A FOR BODY (FORBODY), by file -- build view in that file, run-time kinds
