@@ -417,3 +417,6 @@ kjWalk g GROUP -- each agrees.
 **Found for R2, measured, not predicted:** of the 26 generator disagreements, the connective alone explains **5**
 (deferNatT, definerT, nestNatT, quoteNatT, unaryNatT -- `&&` / `||` mapped to `0` in the plain run makes the two equal);
 21 have further differences, possibly downstream of the wrong parsers.
+
+**R2 and R3 are on branch jit-kindless-infer** (eaedef71 pre-registration, 126f2659 cure, 80e4998d certificate), in
+docs/kindlessInfer.md there. Not merged; the buy is Tony's.
