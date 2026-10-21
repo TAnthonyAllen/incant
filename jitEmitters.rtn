@@ -634,6 +634,47 @@ extern int jitNoteWriter(GroupItem op,GroupItem target,GroupItem arg)
     %-
 }
 
+/*  jitNoteFor -- a for statement's writers, recorded at aCTionFOR's jitting gate before the statement goes to run time
+    (SEQ 390 R2, Tony). The cursor (Looper, followed to the local) is a holder, as an iterate cursor is. The body is never
+    walked at build, but it is already BUILT, so its writes are read from the tree: an instruction whose children are a
+    local, an assign-tier op and a value. `:=` / `<-` make a holder; a value of known kind gives that kind; a value of no
+    known kind gives no scalar slot -- the body runs interpreted, so nothing the jit carries makes it a scalar. The scan
+    descends into instruction nodes and through an ExpressioN's group, never into a local, a rule or an action.  */
+extern int jitNoteFor(GroupItem input)
+{
+    -%
+    if ( !input ) return 0;
+    GroupItem *lp = input->get((char*)"Looper");
+    if ( lp ) ::jitNoteWriter(0, (isGROUP(lp->groupBody->flags.data) && lp->getGroup()) ? lp->getGroup() : lp, 0);
+    std::function<void(GroupItem*,int)> scan = [&](GroupItem *n, int d) {
+        if ( !n || d > 64 ) return;
+        GroupBody *b = n->groupBody;
+        if ( b->flags.isLocal || b->flags.isRule || b->flags.actionType ) return;
+        if ( n != input && n->get((char*)"Looper") && n->get((char*)"StatemenT") ) { ::jitNoteFor(n); return; }
+        if ( !b->flags.instructType ) {
+            if ( isGROUP(b->flags.data) && b->gGroup && b->tag && !::strcmp(b->tag, "ExpressioN") ) scan(b->gGroup, d+1);
+            return; }
+        if ( b->groupList ) {
+            GroupItem *t = n->get(1), *op = n->get(2), *v = n->get(3);
+            if ( t && op && ::opIsAssignTier(op) && t->groupBody->flags.isLocal && !t->groupBody->flags.isArgument
+                 && !t->groupBody->flags.noPrint && !t->groupBody->flags.data ) {
+                GroupBody *tb = t->groupBody;
+                int kind = 1;
+                if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
+                else if ( v && v->groupBody->flags.data ) kind = isCOUNT(v->groupBody->flags.data) || isNUMBER(v->groupBody->flags.data) ? 5 : v->groupBody->flags.data;
+                auto it = gJitLocalKind.find(tb);
+                if ( kind == 5 ) { if ( it == gJitLocalKind.end() ) gJitLocalKind[tb] = 5; }
+                else if ( it == gJitLocalKind.end() || it->second == 5 ) {
+                    gJitLocalKind[tb] = kind;
+                    if ( ::jitFrameFind((void*)&(tb->gCount)) || ::jitFrameFind((void*)&(tb->gNumber)) ) {
+                        gJitRestartNeeded = true;
+                        gJitKindRestarts++; } } }
+            for ( GroupItem *c = b->groupList->firstInList; c; c = c->nextInParent ) scan(c, d+1); } };
+    scan(input->get((char*)"StatemenT"), 0);
+    return 1;
+    %-
+}
+
 /*  jitHandOver -- the statement under emission runs at RUN time instead (SEQ 384). Announces through jitDegrade, once
     per statement (a later degrade in the same statement folds into it), and marks the statement for jitStmtEnd.  */
 extern int jitHandOver(String what,GroupItem node)

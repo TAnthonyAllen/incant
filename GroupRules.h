@@ -278,6 +278,7 @@ extern "C" void jitLoopBegin();
 extern "C" void jitLoopBody();
 extern "C" void jitLoopEnd();
 extern "C" int jitNodeInFlight();
+extern "C" int jitNoteFor(GroupItem *input);
 extern "C" int jitNoteWriter(GroupItem *op, GroupItem *target, GroupItem *arg);
 extern "C" int jitOpEmits(GroupItem *op, GroupItem *target);
 extern "C" GroupItem *jitOpFireRT(GroupItem *op, GroupItem *arg, GroupItem *target);

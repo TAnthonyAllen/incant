@@ -21,15 +21,14 @@ OT = 'klAct && klAct->groupBody->tag ? klAct->groupBody->tag : "?"'
 
 patch('jitContext.h', 'inline int gJitKindRestarts = 0;\n', 'inline int gJitKindRestarts = 0;\ninline int gKlForDepth = 0;\n')
 
-old = '''    if jitting {
-        jitHandOver("FOR under jit'''
-patch('ruleActions.rtn', old, '''    -%
+old = '''        jitHandOver("FOR under jit'''
+patch('ruleActions.rtn', old, '''        -%
     if ( GroupControl::groupController->groupRules->jitting && ::getenv("INCANT_KLTAP") && Looper ) {
         GroupItem *klC = isGROUP(Looper->groupBody->flags.data) && Looper->getGroup() ? Looper->getGroup() : Looper;
         ''' + OWN + '''
         ''' + emit('"FORGATE %s %s %s %p %d\\n"', OT + ', klC->groupBody->tag ? klC->groupBody->tag : "?", (void*)klC->groupBody, (int)klC->groupBody->flags.data') + '''
         }
-    %-
+        %-
 ''' + old)
 
 old = '''            lastREF.gGroup  = grup;

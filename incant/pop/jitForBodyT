@@ -1,0 +1,22 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(JitForBodyT);
+define
+    fcSeen;
+    fcAct code={
+        fcL = 7;
+        for fcSeen in sample;
+            fcL := copyOf(sample);
+        };
+    ;
+testing(fcAct);
+dumpContents(fcAct);
+print "JITFORBODY SENTINEL":;
+stop();
+jitForBodyT -- SEQ 390 R2 (Tony, 2026-10-21): A FOR BODY'S WRITES ARE WRITERS. fcL's recognised writer is `fcL = 7`; the
+for BODY makes it a holder (`fcL := copyOf(sample)`), but the body is never walked at build (the whole for runs at run
+time), so before the cure fcL keeps its i32 slot and the raw epilogue clobbers the pointer: exit 139, gGroup
+0x0000000100000007 (measured SEQ 390 R1). The cure reads the body's built instructions at aCTionFOR's gate. The cursor
+fcSeen is a DECLARED field, so the net does not refuse the action on it first. Interpreted twin: exit 0, the intent.

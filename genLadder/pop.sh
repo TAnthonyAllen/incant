@@ -6270,6 +6270,21 @@ sed '/^jitter;$/d' "$(ip jitHoistT)" > "$T/jhzI.src"; "$B" "$T/jhzI.src" > "$T/j
 sentinel "jitHoistT interpreted twin sentinel" "$T/jhzI" "JITHOIST SENTINEL"
 kindRow "jitHoistT the interpreted twin: HZ-1 printed (the intended value)" "$(grep -c '^HZ-1 ' "$T/jhzI")" "1"
 
+#  ⚑ jitForCursorT / jitForBodyT -- SEQ 390 R2 (Tony, 2026-10-21): A FOR STATEMENT'S CURSOR AND ITS BODY'S WRITES ARE
+#  WRITERS. Each road gives a frame local a scalar writer (= 7) and makes it a group at run time inside a for -- the cursor,
+#  or a := in the body. Before the cure the local keeps its i32 slot and the raw epilogue writes 7 over the pointer (exit
+#  139). Intended = the interpreted twin's exit 0. jitForCursorT carries incant/fixits/epilogueWriteBack (retired by
+#  mapping: its control -> FC-0, its defect -> the exit and sentinel rows). BORN RED 2026-10-21 on the branch point.
+for _fc in jitForCursorT:JITFORCURSOR jitForBodyT:JITFORBODY; do
+    _fn=${_fc%%:*}; _fs=${_fc##*:}
+    perl -e 'alarm 10; exec @ARGV' "$B" "$(ip $_fn)" > "$T/$_fn" 2>&1; _fx=$?
+    kindRow "$_fn jitted run's exit (born red 2026-10-21; intended 0 = the twin)" "$_fx" "0"
+    kindRow "$_fn jitted run reached its SENTINEL (born red 2026-10-21)" "$(grep -c "^$_fs SENTINEL" "$T/$_fn")" "1"
+    sed 's/^testing(fcAct);/fcAct();/' "$(ip $_fn)" > "$T/$_fn.I.src"; "$B" "$T/$_fn.I.src" > "$T/$_fn.I" 2>&1; check "$_fn interpreted twin runs" 0 $?
+    sentinel "$_fn interpreted twin sentinel" "$T/$_fn.I" "$_fs SENTINEL"
+done
+kindRow "jitForCursorT FC-0 control: a frame local that stays a count dumps clean (epilogueWriteBack's control)" "$(grep -c '^FC-0 control dumped' "$T/jitForCursorT")" "1"
+
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its
