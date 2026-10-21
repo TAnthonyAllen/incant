@@ -598,3 +598,60 @@ as a node; lefty's 0 needs lefty built as its own function, whose i32 result slo
    shape, a REFUSAL: a print whose part inlines a callee that prints is handed over. Not this class (it is build state
    within one compile), named so it is not lost. *Mover:* PI-1 0 -> 1 line. *H7:* the slot back -> the line dropped.
 Order proposed: 1 (four witnesses, one site), then 2 (needs its recon), then 3.
+
+## SEQ 392 -- S6 hands over (built); the inlined-callee argument (recon); shutdown (2026-10-21)
+
+Ruled (Tony, 2026-10-21): R1 the build-time-read class in three strokes, in order: S6, termCountT's argument, PI-1's print
+buffer. R2 S6's list arm hands its statement to run time through SEQ 384's machinery; a degrade that says "running
+INTERPRETED" must be true. R3 PI-1's cure is a stack mirroring the interpreted nested-print discipline, not a refusal
+(STOP if it changes the frame layout); not built this SEQ. R4 a TODO line for the 33-vs-29 aCTion externs (in). R5 this
+SEQ ends the session.
+
+**R0, the false-promise census** (tapDegrade.py, clone, reverted md5-identical; pop.sh 1606, jitLadder PASSED, gen26 14 / 26;
+`results/degradeFalse.raw` / `.table`). Of 9,131 counted degrades, **36 promise a run that never happens** (their
+outermost statement ends with no hand-over):
+
+| site (the degrade's caller) | message | calls | where |
+|---|---|---|---|
+| jitEmitBareRead (S6) | bare read of a LIST | 15 | lefty, testARG, printDefinition, testUnitTests (8; refused by the net anyway) in baselineTestsNew; piCall, piCtl in jitPrintInlineT |
+| jitPrintList | print operand part: not a constant and not a scalar read | 12 | the same statements -- S6's follow-on |
+| aCTionBrancH | return operand produced no value | 3 | lefty, piCall, piCtl -- S6's follow-on |
+| jitEmitShortCircuitSlots | AND/OR LEFT / RIGHT operand produced no value | 6 | jitScCountT, jitXscRT -- **NOT a false promise**: the operand runs as one run-time call (jitScOperandRT); JXD-4's values = the oracle on both fires. The tap knows statement-level hand-overs only -- a classification gap, named |
+
+**So S6 is the only site that breaks its promise, and no other site makes a fleet row wrong: no STOP.** The rest (9,095)
+were in statements handed to run time.
+
+**R1, S6 on branch jit-list-handover** (b7d376fe pre-registration, f299e40a cure, 7493608f certificate; docs/listHandover.md
+there): the print witnesses are cured (jitArgListT, PI-0, W1, printDefinition(sample)); **lefty and baselineTestsNew's
+predictions are FALSIFIED** by a mechanism the pre-registration did not foresee -- a handed-over `return`. Pinned on trunk as
+`incant/pop/jitReturnListT` (717c72f3): trunk exit 139; the branch exit 0 with the interpreted caller's block truncated and
+no value delivered.
+
+### R2 -- termCountT's unbound argument (trunk 717c72f3; one IR dump, one tap in the clone reverted md5-identical)
+
+(a) **Traced.** The 170 run-time refusals are aCTionIterate's no-list arm (ruleActions.rtn, `iterate: the source has no
+list`), reached from the handed-over statement's jitStmtRT run, reading tcRule's `argument` field with no group (data 0).
+**The field is never bound at run time.** runAction's jitting arm (GroupActions.rtn:1160, "jitBind an INLINED callee is
+walked here at emit time") binds the callee's argument AT EMIT ONLY -- `ruleArg.group = argument` -- and emits no run-time
+bind. For tcWalk's `tcRule(*tcR)` the argument is a run-time deref with no node at emit time (tap: `argument=NULL
+lastIsNode=1 resultNode=1`, twice), so the emit-time bind is to null, and **tcWalk's IR has 0 bindArg calls against 12
+stmtRT calls**. jitEmitSelfCall has this very case handled ("A RUN-TIME ARGUMENT IS BOUND TOO", jitEmitters.rtn:2259-2299:
+the published node bound through jitBindArgRT); the inline arm has no such line.
+
+(b) **The candidate is FALSIFIED as stated.** jitStmtRT does not run the statement as the caller: it sets
+`currentMETHOD.group = owner`, and jitEmitStmtRT bakes as owner the activation processAction made current at build -- for an
+inlined callee, the callee's. The statement runs as tcRule; tcRule's `argument` is what was never bound.
+**Found on the way:** generateParse inlines a callee with a run-time argument too (`argument=NULL`, 8 inlines in termCountT's
+run) -- the same missing bind, inside the generator.
+
+(c) **Proposed cure shape -- NOT BUILT; STOP for Tony's ruling.** The inline arm binds the callee's argument AT RUN TIME
+exactly as the self-call does: lift jitEmitSelfCall's argument block (the published node, a boxed count, or the baked
+operand, through jitBindArgRT) into one helper, and call it from both -- from runAction's jitting arm before
+jitInlinePush, so the inlined body's run-time statements read the call's own argument. The emit-time bind stays (the walk
+needs it). *Pre-registered movers:* termCountT agrees (its 170 refusals -> the twin's; gen26 14 -> 15 if nothing else
+differs there); any generator file whose generateParse inlines a callee with a run-time argument -- measured, named; pop.sh
+and jitLadder otherwise row for row. *H7, per half:* (1) the run-time bind removed -> termCountT's 170 refusals return;
+(2) the build half is left as it is -- at emit the argument is still null, so aCTionIterate's build-time refusal still hands
+the iterate to run time -- and is certified by its count staying at 10, so the cure cannot pass by silencing the build half.
+A recon line inside the stroke first: whether the inline bind needs jitSaveFrameRT / jitRestoreFrameRT's pending-channel
+bracket, as the self-call's does (jitBindArgRT writes gChanPend*).
