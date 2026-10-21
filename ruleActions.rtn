@@ -836,7 +836,7 @@ GroupItem   argument,
     the fields that follow. Fields then found update local fields. The
     respective local fields then point to the found fields.
 ***************************************************************************/
-extern void aCTionScopeXP(GroupItem input)
+extern GroupItem aCTionScopeXP(GroupItem input)
 {
 GroupItem   action = currentMETHOD.group,
             field,
@@ -847,7 +847,7 @@ GroupItem   action = currentMETHOD.group,
 String      name;
     if jitting {
         jitHandOver("a scope statement -- it binds locals, so it runs at RUN time", input);
-        return; }
+        return input; }
     while listItem = scopeList.next(listItem) {
         if listItem.isGROUP grup = listItem.group;
         else    grup = listItem;
@@ -865,6 +865,8 @@ String      name;
                 if listItem.isGROUP listItem.group = field;
                 grup.group = field; }
             else    grup.clear(); }}
+    // a rule action like every other: it returns its argument, having no result of its own (SEQ 391 R2)
+    return input;
 }
 
 /*******************************************************************************

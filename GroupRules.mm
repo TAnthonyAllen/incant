@@ -1053,7 +1053,7 @@ GroupItem 	*rule = input->get(1);
     the fields that follow. Fields then found update local fields. The
     respective local fields then point to the found fields.
 ***************************************************************************/
-extern "C" void aCTionScopeXP(GroupItem *input)
+extern "C" GroupItem *aCTionScopeXP(GroupItem *input)
 {
 GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD->getGroup();
 GroupItem 	*field = 0;
@@ -1065,7 +1065,7 @@ char 		*name = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		jitHandOver("a scope statement -- it binds locals, so it runs at RUN time",input);
-		return;
+		return input;
 		}
 	while ( listItem = scopeList->next(listItem) )
 		{
@@ -1095,6 +1095,8 @@ char 		*name = 0;
 			else	grup->clear();
 			}
 		}
+	// a rule action like every other: it returns its argument, having no result of its own (SEQ 391 R2)
+	return input;
 }
 
 /*******************************************************************************

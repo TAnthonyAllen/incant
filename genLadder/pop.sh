@@ -6261,14 +6261,18 @@ kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying it
 kindRow "jitPrintInlineT witness: piCall built 1 called 1 (piL inlined, no build of its own)" "$(grep -c '^=== jitter: piCall built 1 called 1 ===' "$T/jpi") $(grep -c '^=== jitter: piL ' "$T/jpi")" "1 0"
 
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
-#  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. PINNED AT TODAY'S VALUES under a 10 s alarm;
-#  intended = the interpreted twin (exit 0, HZ-1 printed). BORN RED 2026-10-21.
+#  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. Pinned at 139 under a 10 s alarm, BORN RED
+#  2026-10-21; RE-PINNED at the twin's values SEQ 391 R1: aCTionScopeXP was `extern void`, so the walk read a garbage
+#  register as the statement's result; it is now `extern GroupItem` and returns its argument. hzAct is then refused by the
+#  net on hzL (the hoist is an unknown writer, docketed, SEQ 389 R2) and runs interpreted.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitHoistT)" > "$T/jhz" 2>&1; _jhzx=$?
-kindRow "jitHoistT jitted run's exit -- 139, the build crashes (born red 2026-10-21; intended 0 = the twin)" "$_jhzx" "139"
-kindRow "jitHoistT jitted HZ-1 never printed (born red 2026-10-21; intended 1)" "$(grep -c '^HZ-1 ' "$T/jhz")" "0"
+kindRow "jitHoistT jitted run's exit = the twin (born red 2026-10-21, 139; green since SEQ 391)" "$_jhzx" "0"
+kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391)" "$(grep -c '^HZ-1 ' "$T/jhz")" "1"
 sed '/^jitter;$/d' "$(ip jitHoistT)" > "$T/jhzI.src"; "$B" "$T/jhzI.src" > "$T/jhzI" 2>&1; check "jitHoistT interpreted twin runs" 0 $?
 sentinel "jitHoistT interpreted twin sentinel" "$T/jhzI" "JITHOIST SENTINEL"
 kindRow "jitHoistT the interpreted twin: HZ-1 printed (the intended value)" "$(grep -c '^HZ-1 ' "$T/jhzI")" "1"
+kindRow "jitHoistT jitted output = the twin's, the jitter's own lines aside" "$(grep -v '^=== jitter' "$T/jhz" | grep -c '^HZ-1 \|^JITHOIST SENTINEL')" "$(grep -c '^HZ-1 \|^JITHOIST SENTINEL' "$T/jhzI")"
+kindRow "jitHoistT witness: hzAct refused by the net (the hoist is an unknown writer, SEQ 389 R2)" "$(grep -c '^=== jitter: hzAct NOT JITTABLE (compile returned -8)' "$T/jhz")" "1"
 
 #  ⚑ jitForCursorT / jitForBodyT -- SEQ 390 R2 (Tony, 2026-10-21): A FOR STATEMENT'S CURSOR AND ITS BODY'S WRITES ARE
 #  WRITERS. Each road gives a frame local a scalar writer (= 7) and makes it a group at run time inside a for -- the cursor,

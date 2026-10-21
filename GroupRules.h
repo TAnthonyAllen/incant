@@ -126,7 +126,7 @@ extern "C" GroupItem *aCTionParens(GroupItem *input);
 extern "C" GroupItem *aCTionPrinT(GroupItem *input);
 extern "C" GroupItem *aCTionQuotE(GroupItem *input);
 extern "C" GroupItem *aCTionRunRulE(GroupItem *input);
-extern "C" void aCTionScopeXP(GroupItem *input);
+extern "C" GroupItem *aCTionScopeXP(GroupItem *input);
 extern "C" GroupItem *aCTionSearch(GroupItem *input);
 extern "C" GroupItem *aCTionSetBrackets(GroupItem *group);
 extern "C" GroupItem *aCTionShortcuT(GroupItem *group);
