@@ -6247,6 +6247,29 @@ kindRow "kindlessNetT KN-1 witness: knCtl built 1 called 1" "$(grep -c '^=== jit
 kindRow "kindlessNetT KN-2 knLoc read and never written = the twin (born red 2026-10-21, green since jit-kindless-infer)" "$(_jt "$T/kn" KN-2)" "knLoc"
 kindRow "kindlessNetT KN-2 witness: knRead NOT JITTABLE by name, compile -8 (born red 2026-10-21, green since jit-kindless-infer)" "$(grep -c '^=== jitter: knRead NOT JITTABLE (compile returned -8)' "$T/kn")" "1"
 
+#  ⚑ jitPrintInlineT -- SEQ 390 R0 (a) (Tony, 2026-10-21): A PRINT INSIDE AN INLINED CALLEE, CALLED FROM WITHIN A PRINT
+#  LINE, DROPS THE CALLER'S LINE under the jitter (piCall compiled, piL inlined). PI-2 is the control (the callee does not
+#  print). PINNED AT TODAY'S VALUES, intended = the interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21.
+run1 jitPrintInlineT "$T/jpi";   check "jitPrintInlineT runs" 0 $?
+sentinel "jitPrintInlineT sentinel" "$T/jpi" "JITPRINTINLINE SENTINEL"
+sed '/^jitter;$/d' "$(ip jitPrintInlineT)" > "$T/jpiI.src"; "$B" "$T/jpiI.src" > "$T/jpiI" 2>&1; check "jitPrintInlineT interpreted twin runs" 0 $?
+sentinel "jitPrintInlineT interpreted twin sentinel" "$T/jpiI" "JITPRINTINLINE SENTINEL"
+kindRow "jitPrintInlineT the interpreted twin: PI-0 PI-1 PI-2 (the intended values)" "$(_jt "$T/jpiI" PI-0) $(_jt "$T/jpiI" PI-1) $(_jt "$T/jpiI" PI-2)" "46 46 46"
+kindRow "jitPrintInlineT PI-2 control, a silent callee: = the twin" "$(_jt "$T/jpi" PI-2)" "46"
+kindRow "jitPrintInlineT PI-1 the caller's line: DROPPED WHOLE (born red 2026-10-21; intended 1 line = the twin)" "$(grep -c '^PI-1 ' "$T/jpi")" "0"
+kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying its code): EMPTY (born red 2026-10-21; intended 46 = the twin)" "$(_jt "$T/jpi" PI-0)" ""
+kindRow "jitPrintInlineT witness: piCall built 1 called 1 (piL inlined, no build of its own)" "$(grep -c '^=== jitter: piCall built 1 called 1 ===' "$T/jpi") $(grep -c '^=== jitter: piL ' "$T/jpi")" "1 0"
+
+#  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
+#  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. PINNED AT TODAY'S VALUES under a 10 s alarm;
+#  intended = the interpreted twin (exit 0, HZ-1 printed). BORN RED 2026-10-21.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitHoistT)" > "$T/jhz" 2>&1; _jhzx=$?
+kindRow "jitHoistT jitted run's exit -- 139, the build crashes (born red 2026-10-21; intended 0 = the twin)" "$_jhzx" "139"
+kindRow "jitHoistT jitted HZ-1 never printed (born red 2026-10-21; intended 1)" "$(grep -c '^HZ-1 ' "$T/jhz")" "0"
+sed '/^jitter;$/d' "$(ip jitHoistT)" > "$T/jhzI.src"; "$B" "$T/jhzI.src" > "$T/jhzI" 2>&1; check "jitHoistT interpreted twin runs" 0 $?
+sentinel "jitHoistT interpreted twin sentinel" "$T/jhzI" "JITHOIST SENTINEL"
+kindRow "jitHoistT the interpreted twin: HZ-1 printed (the intended value)" "$(grep -c '^HZ-1 ' "$T/jhzI")" "1"
+
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its

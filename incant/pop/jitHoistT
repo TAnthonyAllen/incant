@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(JitHoistT);
+define
+    hzArg;
+    hzAct code={
+        :hzArg hzL;
+        };
+    ;
+jitter;
+hzAct();
+print "HZ-1 after the call":;
+print "JITHOIST SENTINEL":;
+stop();
+
+jitHoistT -- SEQ 390 R0 (b), a find of SEQ 389 R1 pinned before it is chased (Tony): A `:x a b` SCOPE HOIST IN A BODY
+THE JITTER COMPILES CRASHES THE BUILD. The smallest shape: hzAct's body is the one statement `:hzArg hzL;` (hzArg declared
+and empty). Under `jitter;` the first call compiles hzAct and dies inside the build -- jitterReady -> jitRunAction ->
+jitBuildFunction -> jitExecBlock -> aCTionBlocK at ruleActions.rtn:67 (GroupRules.mm:107), `if result && result.isGROUP`,
+with result = 0x1 (lldb, trunk dce9e078). Exit 139, and nothing printed: the jitter has stdout and stderr redirected while
+it compiles. The interpreted twin (this file with `jitter;` deleted) exits 0 and prints HZ-1 -- the intended value.
+By inspection, not traced: the hoist's rule action is aCTionScopeXP (ruleActions.rtn:837), declared `extern void`, and the
+walk takes a statement's return as a GroupItem -- bear-trap #33's shape.

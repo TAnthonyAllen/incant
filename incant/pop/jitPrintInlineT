@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitPrintInlineT);
+define
+    piL=3 code={ piL += 43; print "PI-0 callee prints, piL = [" piL "]":; return piL; };
+    piQ=3 code={ piQ += 43; return piQ; };
+    piCall code={ print "PI-1 caller's line, callee prints: [" piL() "]":; };
+    piCtl code={ print "PI-2 caller's line, callee silent: [" piQ() "]":; };
+    ;
+jitter;
+piCall();
+piCtl();
+print "JITPRINTINLINE SENTINEL":;
+stop();
+
+jitPrintInlineT -- SEQ 390 R0 (a), a find of SEQ 389 pinned before it is chased (Tony): A PRINT INSIDE AN INLINED CALLEE,
+CALLED FROM WITHIN A PRINT LINE, DROPS THE CALLER'S LINE under the jitter. piCall prints a line whose middle item is a call
+of piL, and piL prints a line of its own before it returns. PI-2 is the control: the same caller shape with a callee that
+does not print (piQ), which agrees with the interpreted twin. The interpreted twin is this file with `jitter;` deleted
+(pop.sh builds it); its PI-1 line is the intended value. Pinned at today's value: the jitted run prints PI-0 and NO PI-1
+line at all.
