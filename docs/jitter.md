@@ -525,3 +525,76 @@ the whole population. Constructed, both roads clobber on trunk: the re-aimed fix
 
 **SEQ 390 R2 is on branch jit-for-cursor** (83f5da78 pre-registration, 071afb50 cure, 5b752e41 certificate), in
 docs/forCursor.md there. Not merged; the buy is Tony's.
+
+## SEQ 391 -- jit-for-cursor bought; aCTionScopeXP returns a GroupItem; the build-time-read recon (2026-10-21)
+
+Ruled (Tony, 2026-10-21): R1 jit-for-cursor BOUGHT (merge ac4963c9, with the ruled sentence). R2 aCTionScopeXP is a rule
+action like every other -- extern GroupItem, returning its argument unless it computes a result. R3 the build-time-read
+class is recon first; a proposed cure STOPs for Tony's ruling.
+
+**R0, the buy.** No groups.ext change on the branch. Bare tokall = branch (canary 365); ~/bin/incant rebuilt Oct 21 10:49;
+pop.sh 1604 / jitLadder row for row with the clone's branch run but H3 (an address; fixture names 275 vs 269); dirCheck =
+capture; decodePop's binary line refreshed; branch deleted (live, GitHub, clone); fixit queue 7.
+
+**R1, aCTionScopeXP (trunk 595bd822, support cc9e163).** (a) Declared `void` in groups.ext:484 and defined `extern void`
+at ruleActions.rtn:839 -- both since the initial commits (Groups 9db8ca6f 2026-04-09, support 674d82d 2026-05-02; nothing
+older is in git). The definition returned nothing (a bare `return;` in its jitting arm, none at its foot). **It is the only
+one**: of 33 aCTion externs in the .rtn / .twk files and 29 in groups.ext, every other is GroupItem, and the grammar's and
+setup's named bindings add none. So no STOP. (b) Both declarations now `extern GroupItem`; the definition returns its
+ARGUMENT (`input`) -- it computes no result of its own -- from the jitting arm and at its foot. One stroke, full bare tokall:
+the generated diff is the GroupRules.h prototype, the signature and the two returns; no other .mm / .h moved. (c) jitHoistT
+exit 139 -> 0, its output = the twin's (HZ-1, the SENTINEL); hzAct is then refused by the net on hzL (the hoist is an
+unknown writer, SEQ 389 R2) and runs interpreted. pop.sh 1604 -> 1606: the two pinned rows re-pinned at the twin's values
+with their sentence, two rows added (output = twin; the refusal witness); everything else row for row; jitLadder identical;
+canary 365. (d) H7: both declarations void again, rebuilt -> jitHoistT exit 139, HZ-1 absent; restored md5 = the cure,
+rebuilt, exit 0. **A first H7 attempt was VOID** -- the support repo's file path was wrong (`git show` needs
+`./groups.ext` there), so only the .rtn went back, the build failed, and the run measured the old binary; it left two tok
+debris files (GroupStak.C, groups.C, written 10:53 by that tokall), which were removed. The H7 above is the re-take.
+
+### R2 -- the build-time-read witnesses (trunk 595bd822; probes in scratch, INCANT_PRINT_PROBE and the pre-mem2reg IR; one tap
+### in the clone at aCTionIterate's no-list refusal, reverted md5-identical)
+
+| witness | emitter, file:line | what it reads at build | what run time would give | through the argument follow? |
+|---|---|---|---|---|
+| **testARG** (`print ... argument`) | jitPrintList (jitEmitters.rtn:3234) -> jitEmitBareRead (:1273) | jitEmitBareRead follows `argument` to its BUILD-TIME node (the first call's `hasGroup`); that node carries a list, so it degrades "bare read of a LIST", and jitPrintList degrades the part and `continue`s -- **the item is emitted as nothing** (the degrade says "running INTERPRETED"; nothing is) | each call's own argument, through appendGroup (`hasGroup`, 35, 57) | **yes** -- jitEmitBareRead's own follow (noSideEffects.md's :1271-1288 row) |
+| **printDefinition** (newly compiled) | the same, on `print ~$taG "=" argument$;` | the recursive call's build-time argument (`wrap`, which has data AND a child) -> list -> part dropped (`wrap=`); members without a list print right | the member's text | **yes** |
+| **lefty** (`return lefty;`, lefty compiled as its own function) | jitEmitBareRead's list arm, then the return emitter | `lefty` carries a list (its code) -> "bare read of a LIST", then "return operand produced no value" -> the function returns its result slot, 0 | the field's value, 46 | no -- a global field read directly |
+| **jitPrintInlineT PI-0** (the callee's own `print ... piL`) | jitPrintList -> jitEmitBareRead's list arm | `piL` carries a list -> the part is dropped (degrades on piL, measured) | 46 | no |
+| **jitPrintInlineT PI-1** (the caller's line) | jitPrintOpen (:3342) / jitPrintClose (:3107) -- **gJitPrintBuf, ONE global slot** | not a read: the inlined callee's print opens `%printBuf1` over the caller's `%printBuf` and its close nulls the slot, so the caller's remaining items and its sink return early -- the IR has the caller's first token written into `%printBuf` and **no sink for it** | the caller's line | no |
+| **termCountT** (tcRule's `iterate tcCur on argument`, tcRule inlined into tcWalk) | aCTionIterate (ruleActions.rtn:593-611, S1) via the argument's follow (S5) | at BUILD the inlined callee's `argument` is unbound (data 0, no group) -> refused, the statement handed to run time (tap: 10 build refusals, inline depth 1 and 2). **And at RUN TIME the handed-over iterate reads the field `argument`, still unbound: 170 refusals, jitting 0** -- the inlined call binds the callee's argument nowhere the interpreted statement reads it (why: not traced) | the rule's children (TCC NumbeR ...); the twin refuses only on members with no list | **yes**, both halves |
+
+**jitPrintInlineT's two wrong values are TWO mechanisms.** PI-0 is lefty's (jitEmitBareRead's list arm, the part dropped);
+PI-1 is the single print-buffer slot -- build state crossing two prints in one compile, not a read at build. (Measured on
+the way: the PI-2 control's callee piQ also degrades its return, yet prints 46 -- an inlined call's value reaches the print
+as a node; lefty's 0 needs lefty built as its own function, whose i32 result slot is what comes back.)
+
+**Mapped to docs/noSideEffects.md's 13 sites:**
+
+| site | witness |
+|---|---|
+| S1 aCTionIterate's source | termCountT (build half) |
+| S5 followArgument | termCountT |
+| S6 jitEmitBareRead (the argument follow, then `groupList`) | testARG, printDefinition (through the follow); lefty, PI-0 (the list arm alone) |
+| S13 jitPrintList's part | carries S6's drop for testARG, printDefinition, PI-0 (its degrade-and-`continue`) |
+| S2 `++`/`--` isIterator, S3 opDeref's fall-through, S4 jitEmitDot's target, S7 jitSeedField kindless, S8 the frame prologue, S9 the argument slot, S10 jitEmitAssign kindless target, S11 jitEmitAdd, S12 jitEmitSelfCall's argument | **no witness here** (S8's kindless locals were SEQ 388's cure; S11 never fires) |
+| **no site** | **PI-1** (jitPrintOpen / jitPrintClose's single gJitPrintBuf); **termCountT's run half** (an inlined callee's handed-over statement reading an unbound `argument`) -- neither is a read at build |
+
+### The proposed cure shape -- NOT BUILT; STOP for Tony's ruling (R3)
+
+1. **S6, the list read: a HAND-OVER, not a degrade.** jitEmitBareRead's `groupList` arm calls jitHandOver (as its
+   kindUncarried arm already does) instead of jitDegrade, so the statement runs interpreted rather than emitting a print
+   with a hole or a return of 0. Covers testARG, printDefinition, lefty, PI-0. *Movers:* jitPrintInlineT PI-0 empty -> 46
+   (re-pinned); gen26 baselineTestsNew's testARG / printTest / printDefinition lines agree (whether the file agrees
+   whole is measured -- its compile narration differs by design); any row printing a degrade count where a list read
+   occurs, named (a hand-over announces once per statement, the degrade did twice per part). *H7:* the degrade back ->
+   PI-0 empty again.
+2. **The inlined callee's `argument` at run time: a RUN-TIME READ.** When jitEmitStmtRT runs a statement owned by an
+   inlined callee, the callee's `argument` field is bound to that call's run-time argument for the call, as the frame slots
+   are flushed and reloaded around it (restored after). Covers termCountT's run half; S1's build half then hands the
+   iterate over exactly as now. *Movers:* termCountT agrees (gen26 14 -> 15 if nothing else differs there), its 170
+   refusals -> the twin's. *H7:* the bind removed -> the 170 refusals return. ⚠ The mechanism of the missing bind is not
+   traced; a recon step (where an inlined call binds `argument` today) comes first inside the stroke.
+3. **PI-1, the print buffer: a STACK, not a slot** -- jitPrintOpen pushes, jitPrintClose sinks and pops -- or, the smaller
+   shape, a REFUSAL: a print whose part inlines a callee that prints is handed over. Not this class (it is build state
+   within one compile), named so it is not lost. *Mover:* PI-1 0 -> 1 line. *H7:* the slot back -> the line dropped.
+Order proposed: 1 (four witnesses, one site), then 2 (needs its recon), then 3.
