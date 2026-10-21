@@ -494,6 +494,8 @@ int         restrict;
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
     if jitting {
+        // forWriters the cursor and the body's writes are writers the build must see before the statement goes to run time (SEQ 390)
+        -% ::jitNoteFor(input); %-
         jitHandOver("FOR under jit -- no emitter (iterate's disease, different keyword); it runs at RUN time", input);
         return null; }
     if Looper.isGROUP       Looper = Looper.group;
