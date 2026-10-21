@@ -359,3 +359,61 @@ same fixture for 87 rows and in another fixture (a jitted fixture's interpreted 
 - **(c) an action with an uninferable non-scalar local is NOT JITTABLE.** Reach today: 0 -- a net that costs the fleet
   nothing and catches the case (b) cannot see.
 STOP for the ruling.
+
+## SEQ 388 -- the kindless gap, reach (b) + (c) (2026-10-21)
+
+Ruled (Tony, 2026-10-21): R1 a kindless-at-build local takes its kind from its build-visible writer, and a non-scalar
+never gets a scalar slot. R2 a kindless local with no inferable writer is NOT JITTABLE (refused by name, runs
+interpreted) -- a net, expected 0 today. R3 reach (a), handing over every kindless read, is not adopted.
+
+**R0 (trunk e6d01d07).** testOP and tester were already committed (3e43f71f, Tony's name); the one dirty file,
+IncantForms/WorkingOn/macros, committed. Bare tokall = HEAD byte for byte (canary 363); the generated diff since seal 186
+is testOP's hunk only (GroupRules.mm, 12 lines: argument = field[2], target = field[3], recursion on tag `instruct`, a
+null-guarded target, the unary applied to argument, a `testOP:` trace line). ~/bin/incant rebuilt Oct 21 09:40. pop.sh
+1572 and jitLadder PASSED, row for row with a seal-186 clone binary (53868dab) run against the same tree, but the bin
+line, one address (acceptStartT, H3) and PIDs. testOP has no fleet rows of its own; nothing moved.
+
+**R1, recon (clone at e6d01d07; tapKindless.py + a fifth tap, tapKindlessRead.py; reverted md5-identical, the
+untapped binary carries no tap string).** Tap E reads the emitter's own IR just before the verifier -- after every
+handed-over statement has been rolled back (jitStmtEnd), so it is what the compiled code reads -- and logs every load of
+a frame slot with its users. A `frame` load is jitSeedField's: the slot read AS A VALUE. rtFlush / rtOld / opFire* go
+through the kind-checked helpers; `epilog` is the raw store back to gCount (item 4). Validated (H16) on probeFrameT: the
+conjunct load feeds appendGroupValue, walkRules' length feeds icmp. Fleet: pop.sh (1572 in the tapped clone), jitLadder
+(PASSED), the 26 generator files `jitter;` after Start() and plain (`jitLadder/jitterCensus/gen26.sh`: 24 exit 0,
+leafClassT and zeroWidthT 139, 0 / 26 agree -- seal 185's numbers). Taps A-D reproduced the earlier census line for line
+(SLOT 250, ASSIGN 281, ITER 61, HOLDS 3155). Raw and table: `results/kread.raw` (bookkeeping loads trimmed),
+`results/kread.table`, `results/gen26.trunk.txt`.
+
+(a) **No GROUP holder is read as a value through its i32 slot.** Per local, value reads (`frame` loads) in compiled code:
+
+| GROUP holders, by writer | value reads | users |
+|---|---|---|
+| `:=` / `<-`: generateParse codeCopy, bprCopy; exSay, lcSay c m v; zwSay c m n v; roParse roCp, v; BJ code block nm; scDriver scH | **0** | -- |
+| iterate cursors: walkRules grup 208, generateParse grup 26, displayForm grup 3, itWalk g 3, kjWalk g 4, jdRun jdCur 2, tcWalk tcR 2, jitJUi g 1 | 249 | **none -- every one is a dead load** |
+
+The cursor loads are `++g`'s seed (jitSeedOperands on the unary; its isIterator arm then emits a pointer step through
+jitEmitIterStep and never touches the value; jitIterTwice's IR shows `%frame` with no use beside `%iterNext`). Every GROUP
+holder still gets an `epilog` raw store per compile -- item 4's hazard, unreached in the fleet by construction.
+
+(b) **Where the build sees each writer, and where the inference is asked.** The writers, all in the emit walk:
+`:=` (opSetGroup), `<-` (opRebind), `=` / compound of a known kind (`= "&&"`, a STRING literal) -- runOPdirect's top,
+GroupActions.rtn:1278, ABOVE the handedOverEmitsNothing return at :1280 (a writer in an already handed-over statement is
+seen only there; tap C sat there and saw all 281); the iterate cursor -- aCTionIterate's jitting gate, ruleActions.rtn:612.
+The inference is ASKED in two places: the frame prologue, jitEmitters.rtn:343-368 (whether the local gets a slot), and
+jitKindUncarried, jitEmitters.rtn:582 (whether a read hands over; asked by runOPdirect :1292 and jitEmitBareRead :1303).
+The prologue runs BEFORE the walk that sees the writers, so the fact must come from an earlier walk: the build loop's
+restart (gJitRestartNeeded, jitEmitters.rtn:3642 / :3658 -- "start over knowing one more thing") carries it.
+
+(c) **conjunct is the only non-scalar value read.** Its one `frame` load per compile feeds appendGroupValue (26 / 26
+generator files) -- the generator's `0`. No other of the 26 non-scalar locals has a value read with a user.
+
+**The STOP check -- writer against run-time kind, every row: no disagreement.** `:=` / `<-` / iterate -> GROUP and all 25
+hold GROUP (roCp `<- COUNT-source` and BJ code `:= STRING-source` included -- `:=` / `<-` make a holder whatever the
+source); `= STRING` -> conjunct holds STRING; every other writer is `=` / `+=` of a count, a number, or a value the jit
+carries, and those locals hold COUNT / NUMBER (nmF t NUMBER). The four never seen interpreted were run interpreted under
+the tap in copies of their fixtures: sfLoc COUNT (`= sfDepth`, a kindless global the jit seeds as i32), srE, srL COUNT,
+kjWalk g GROUP -- each agrees.
+
+**Found for R2, measured, not predicted:** of the 26 generator disagreements, the connective alone explains **5**
+(deferNatT, definerT, nestNatT, quoteNatT, unaryNatT -- `&&` / `||` mapped to `0` in the plain run makes the two equal);
+21 have further differences, possibly downstream of the wrong parsers.

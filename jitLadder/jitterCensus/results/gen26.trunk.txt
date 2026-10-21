@@ -1,0 +1,29 @@
+adoptT at=1 x0=0 x1=0 DISAGREE diff=1425
+baselineTestsNew at=1 x0=0 x1=0 DISAGREE diff=205
+deferNatT at=1 x0=0 x1=0 DISAGREE diff=100
+definerT at=1 x0=0 x1=0 DISAGREE diff=100
+doWhileNameT at=57 x0=0 x1=0 DISAGREE diff=1260
+driveCompileT at=1 x0=0 x1=0 DISAGREE diff=110
+driveLeakT at=1 x0=0 x1=0 DISAGREE diff=108
+f122NatT at=1 x0=0 x1=0 DISAGREE diff=114
+halfLessT at=1 x0=0 x1=0 DISAGREE diff=105
+jitLadder/jitterCensus/gen26.sh: line 10: 96019 Segmentation fault: 11  INCANT_KLFILE=$n.gjit INCANT_JITTER_ERR=$O/$n.cerr perl -e 'alarm 60; exec @ARGV' $B $O/jit/$n > $O/$n.o1 2> $O/$n.e1raw
+leafClassT at=1 x0=0 x1=139 DISAGREE diff=112
+nestNatT at=1 x0=0 x1=0 DISAGREE diff=100
+opLenT at=1 x0=0 x1=0 DISAGREE diff=174
+ownerT at=1 x0=0 x1=0 DISAGREE diff=176
+paReachT at=1 x0=0 x1=0 DISAGREE diff=13778
+parserTest at=38 x0=0 x1=0 DISAGREE diff=7062
+probeDoorT at=1 x0=0 x1=0 DISAGREE diff=222
+probeFrameT at=1 x0=0 x1=0 DISAGREE diff=104
+quoteNatT at=1 x0=0 x1=0 DISAGREE diff=100
+ruleOfT at=1 x0=0 x1=0 DISAGREE diff=105
+site1RoadsT at=1 x0=0 x1=0 DISAGREE diff=540
+stmtRejT at=1 x0=0 x1=0 DISAGREE diff=381
+sweepT at=1 x0=0 x1=0 DISAGREE diff=21244
+termCountT at=1 x0=0 x1=0 DISAGREE diff=813
+tokJitT at=1 x0=0 x1=0 DISAGREE diff=159
+unaryNatT at=1 x0=0 x1=0 DISAGREE diff=100
+jitLadder/jitterCensus/gen26.sh: line 10: 96310 Segmentation fault: 11  INCANT_KLFILE=$n.gjit INCANT_JITTER_ERR=$O/$n.cerr perl -e 'alarm 60; exec @ARGV' $B $O/jit/$n > $O/$n.o1 2> $O/$n.e1raw
+zeroWidthT at=1 x0=0 x1=139 DISAGREE diff=18149
+gen26: agree 0 / DISAGREE 26

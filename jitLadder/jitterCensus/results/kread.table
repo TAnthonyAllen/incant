@@ -1,0 +1,55 @@
+action           local            holds        files VALUE reads (frame) by use                         bookkeeping
+BJ               block            GROUP            1   0 0                                              epilogx1 rtFlushx3 rtOldx3
+BJ               code             GROUP            3   0 0                                              epilogx3 rtFlushx6 rtOldx6
+BJ               nm               GROUP            1   0 0                                              epilogx1 rtFlushx2 rtOldx2
+acF              h                COUNT            1   2 -x1 addx1                                      epilogx1
+acF              r                COUNT            1   4 -x2 addx1 storex1                              epilogx1
+arA              arMine           COUNT            1   3 -x1 call:appendGroupValuex2                    epilogx1
+coF              r                COUNT            1  12 -x6 addx3 storex3                              epilogx3
+coF              t                COUNT            1   6 -x3 addx3                                      epilogx3
+displayForm      grup             GROUP            1   3 -x3                                            epilogx1
+displayForm      length           COUNT            1   2 -x1 icmpx1                                     epilogx1
+exSay            c                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+exSay            m                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+exSay            v                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+generateParse    bprCopy          GROUP           26   0 0                                              epilogx26 rtFlushx572 rtOldx572
+generateParse    codeCopy         GROUP           26   0 0                                              epilogx26 rtFlushx572 rtOldx572
+generateParse    conjunct         STRING          26  26 call:appendGroupValuex26                       epilogx26 rtFlushx572 rtOldx572
+generateParse    grup             GROUP           26  26 -x26                                           epilogx26 rtFlushx572 rtOldx572
+generateParse    notFirstTimeThru COUNT           26  78 -x26 addx26 icmpx26                            epilogx26 rtFlushx572 rtOldx572
+itWalk           g                GROUP            1   3 -x3                                            epilogx1
+jdRun            jdCur            GROUP            1   2 -x2                                            epilogx2
+jitJF            jfTmp            COUNT            1   4 -x2 addx2                                      epilogx2
+jitJUi           g                GROUP            1   1 -x1                                            epilogx1
+jrLocal          jrLoc            COUNT            1   4 -x2 addx2                                      epilogx2
+jtBad            zeroBump         COUNT            2   2 icmpx2                                         epilogx2 rtFlushx10 rtOldx10
+jtGood           good             COUNT            2   2 -x2                                            epilogx2 rtFlushx16 rtOldx16
+k8               k8loc            COUNT            1   2 -x1 storex1                                    epilogx1
+kjWalk           g                GROUP            2   4 -x4                                            epilogx2
+lcSay            c                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+lcSay            m                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+lcSay            v                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+nmF              r                COUNT            1   4 -x2 addx1 storex1                              epilogx1
+nmF              t                NUMBER           1   2 -x1 addx1                                      epilogx1
+roParse          roCp             GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+roParse          v                GROUP            1   0 0                                              epilogx1 rtFlushx4 rtOldx4
+rsF              r                COUNT            1   8 -x4 addx2 storex2                              epilogx2
+rsF              t                COUNT            1   4 -x2 addx2                                      epilogx2
+rsG              r                COUNT            1   8 -x4 addx2 storex2                              epilogx2
+rtF              rtLoc            COUNT            1   2 -x1 storex1                                    epilogx1
+scDriver         scH              GROUP            1   0 0                                              epilogx1 rtFlushx1 rtOldx1
+sf               sfLoc            COUNT            1   4 -x2 store,store,storex2                        epilogx2
+srRun            srE              COUNT            1   1 store,store,storex1                            epilogx1 opFireFlushTx1 opFireOldx1
+srRun            srL              COUNT            1   2 -x1 store,storex1                              epilogx1 opFireFlushTx1 opFireOldx1
+tcWalk           tcR              GROUP            1   2 -x2                                            epilogx1 rtFlushx3 rtOldx3
+testRecurF       r                COUNT            2  12 -x6 addx3 storex3                              epilogx3
+testRecurF       t                COUNT            2   6 -x3 addx3                                      epilogx3
+testRecurG       r                COUNT            2  12 -x6 addx3 storex3                              epilogx3
+vcF              r                COUNT            1   4 -x2 addx1 storex1                              epilogx1
+walkRules        grup             GROUP           26 208 -x208                                          epilogx52 rtFlushx3640 rtOldx3640
+walkRules        length           COUNT           26 104 -x52 icmpx52                                   epilogx52 rtFlushx3640 rtOldx3640
+zwSay            c                GROUP            1   0 0                                              epilogx1 rtFlushx5 rtOldx5
+zwSay            m                GROUP            1   0 0                                              epilogx1 rtFlushx5 rtOldx5
+zwSay            n                GROUP            1   0 0                                              epilogx1 rtFlushx5 rtOldx5
+zwSay            v                GROUP            1   0 0                                              epilogx1 rtFlushx5 rtOldx5
+unjoined KREAD lines: 0
