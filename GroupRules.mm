@@ -796,6 +796,7 @@ GroupItem 	*source = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		// emitThenFallThru -- the only gate in the tree that does not return, and deliberately so.
+		 ::jitNoteWriter(0,iterator,0); 
 		::jitEmitIterate(input);
 		}
 	if ( iterator && source && source->groupBody->groupList )
@@ -3658,6 +3659,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	if (fb->flags.isArgument) continue;
 	if (fb->flags.noPrint) continue;
 	if (fld->jitData) continue;          // already seeded this compile
+	//  nonScalarNoSlot a local whose writer makes it a holder or a non-scalar kind gets no scalar slot (SEQ 388 R1)
+	if (::jitLocalNonScalar(fb)) continue;
 	llvm::Type *ty;
 	void       *addr;
 	if (isNUMBER(fb->flags.data)) { ty = llvm::Type::getDoubleTy(C); addr = &(fb->gNumber); }
@@ -3702,6 +3705,18 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	}
 	ruler->jitting = 0;
 	ruler->branchKind = emitBranchSave;
+	//  kindlessNet a slotted local still kindless with no writer the build saw is NOT JITTABLE (SEQ 388 R2, Tony)
+	if (!gJitRestartNeeded) for (JitFrameSlot &f : gJitFrame) {
+	GroupBody *lb = f.ty->isDoubleTy() ? (GroupBody*)((char*)f.home - offsetof(GroupBody, gNumber))
+	: (GroupBody*)((char*)f.home - offsetof(GroupBody, gCount));
+	if (lb->flags.data || gJitLocalKind.count(lb)) continue;
+	fprintf(stderr, "=== jitRunAction: NOT JITTABLE -- %s's local %s is kindless and has no writer the build can see ===\n",
+	action->groupBody->tag, lb->tag ? lb->tag : "?");
+	fflush(stderr);
+	gJitBuilder = nullptr;
+	gJitResult  = nullptr;
+	gJitResultSlot = nullptr;
+	return -8; }
 	
 	//  "DID ANYTHING EMIT" is now gJitEmitted, NOT a non-null gJitResult. The
 	//  result slot falsified the old test: a bracketing emitter commits its
@@ -5896,6 +5911,7 @@ extern "C" int jitKindUncarried(GroupItem *x)
 	
 	if ( !x || x->jitData ) return 0;
 	int kd = x->groupBody->flags.data;
+	if ( !kd && ::jitLocalNonScalar(x->groupBody) ) return 1;     // a kindless local its writer made non-scalar (SEQ 388)
 	return ( kd && !isCOUNT(kd) && !isNUMBER(kd) ) ? 1 : 0;
 	
 }
@@ -5969,6 +5985,37 @@ extern "C" void jitLoopEnd()
 extern "C" int jitNodeInFlight()
 {
 	 return gJitResultNode ? 1 : 0; 
+}
+
+/*  jitNoteWriter -- a kindless local takes its kind from its build-visible writer (SEQ 388 R1, Tony). Asked at runOPdirect's
+    top for every assign-tier op under jitting, and at aCTionIterate's jitting gate for the cursor (op null). `:=`, `<-` and
+    a cursor make a holder; `=` or a compound whose argument has a known non-scalar kind (a string literal, a local already
+    found non-scalar) gives that kind; any other argument is one the jit seeds or carries, so a scalar. `=` with no
+    argument in hand says nothing. A non-scalar outranks a scalar, and one found after the prologue slotted the local
+    restarts the build -- a non-scalar never gets a scalar slot.  */
+extern "C" int jitNoteWriter(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+	
+	if ( !target ) return 0;
+	GroupBody *tb = target->groupBody;
+	if ( !tb->flags.isLocal || tb->flags.isArgument || tb->flags.noPrint || tb->flags.data ) return 0;
+	int kind = 5;
+	if ( !op ) kind = 6;
+	else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
+	else if ( !arg ) return 0;
+	else if ( !arg->jitData ) {
+	int ad = arg->groupBody->flags.data;
+	if ( ad && !isCOUNT(ad) && !isNUMBER(ad) )             kind = ad;
+	else if ( !ad && ::jitLocalNonScalar(arg->groupBody) ) kind = gJitLocalKind[arg->groupBody]; }
+	auto it = gJitLocalKind.find(tb);
+	if ( kind == 5 ) { if ( it == gJitLocalKind.end() ) gJitLocalKind[tb] = 5; return 0; }
+	if ( it != gJitLocalKind.end() && it->second != 5 ) return 0;
+	gJitLocalKind[tb] = kind;
+	if ( ::jitFrameFind((void*)&(tb->gCount)) || ::jitFrameFind((void*)&(tb->gNumber)) ) {
+	gJitRestartNeeded = true;
+	gJitKindRestarts++; }
+	return 1;
+	
 }
 
 /*  jitOpEmits -- WILL THIS DISPATCH EMIT, OR EXECUTE? (SEQ 384, Tony: compiling has no side effects.) Asked under jitting
@@ -6538,6 +6585,8 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  a sequenced implementation and a nested one.
 	gJitFnMap.clear();
 	gJitNeedOwnFn.clear();
+	gJitLocalKind.clear();
+	gJitKindRestarts = 0;
 	int  restarts = 0;
 	int  built    = 0;
 	for (;;) {
@@ -6547,7 +6596,7 @@ extern "C" int jitRunAction(GroupItem *action)
 	//  means the monotone growth argument is false, and it is reported as a
 	//  RED (-7) rather than allowed to spin: a hang is not a wrong answer,
 	//  it is the absence of a run, and nobody parked that (rule H5).
-	if (restarts > (int)gJitNeedOwnFn.size()) {
+	if (restarts > (int)gJitNeedOwnFn.size() + gJitKindRestarts) {
 	fprintf(stderr,
 	"=== jitRunAction: RESTART BOUND BROKEN -- %d restarts, %zu pending ===\n",
 	restarts, gJitNeedOwnFn.size());
@@ -10827,6 +10876,8 @@ extern "C" GroupItem *runOPdirect(GroupItem *op, GroupItem *target, GroupItem *a
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
+	// kindlessWriter a kindless local's writer is recorded before anything else -- one in a handed-over statement counts (SEQ 388)
+	 if ( ruler->jitting && target && op && ::opIsAssignTier(op) ) ::jitNoteWriter(op,target,arg); 
 	// handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
 	 if ( ruler->jitting && gJitHandOver ) return 0; 
 	// storeRuling an armed statement dispatches nothing further -- interpreted only

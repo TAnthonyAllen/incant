@@ -611,6 +611,7 @@ GroupItem   source;
             return refuse(source,why); }}
     if jitting {
         // emitThenFallThru -- the only gate in the tree that does not return, and deliberately so.
+        -% ::jitNoteWriter(0,iterator,0); %-
         jitEmitIterate(input); }
     if iterator && source && groupList {
         // RESETiterator iterator gets a copy of the source groupList

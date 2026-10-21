@@ -1276,6 +1276,8 @@ extern GroupItem runOPdirect(GroupItem op,GroupItem target,GroupItem arg)
 {
 GroupRules  ruler = groupRules;
 GroupItem   result;
+    // kindlessWriter a kindless local's writer is recorded before anything else -- one in a handed-over statement counts (SEQ 388)
+    -% if ( ruler->jitting && target && op && ::opIsAssignTier(op) ) ::jitNoteWriter(op,target,arg); %-
     // handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
     -% if ( ruler->jitting && gJitHandOver ) return 0; %-
     // storeRuling an armed statement dispatches nothing further -- interpreted only
