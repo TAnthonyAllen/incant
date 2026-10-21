@@ -30,6 +30,12 @@ LANE:  jit
 BLAST: OVERLAPS
 OWNER: Clod     (SEQ 385 R3, Tony)
 
+RETIRED BY MAPPING 2026-10-21 (SEQ 390 R2, branch jit-for-cursor), by construction: "a writer that makes a non-scalar
+denies the slot (SEQ 388 R1)" -- with the for cursor and the for body's writes now writers (jitNoteFor, SEQ 390). Where its
+assertions live now (genLadder/pop.sh): the control (a count over a count, dumped clean) -> jitForCursorT FC-0; the defect
+(exit 139 at dumpContents, the cursor road) -> jitForCursorT's exit and SENTINEL rows; the original := road (closed by
+SEQ 388) is the shape jitForBodyT carries inside a for body -> its exit and SENTINEL rows.
+
 RE-AIMED 2026-10-21 (SEQ 389 R1). jit-kindless-infer (SEQ 388) closed the original shape BY CONSTRUCTION: `ewL :=
 copyOf(sample)` is a writer the build sees, and a writer that makes a non-scalar denies the slot (SEQ 388 R1), so ewL is
 never slotted and the epilogue has nothing to write (that shape: exit 0 on trunk e339214f). The defect is still reachable
@@ -79,3 +85,6 @@ ATTEMPT LOG
   Controls: interpreted twin exit 0, no-type-change jitted twin exit 0. Not cured.
   2026-10-21 SEQ 389 R1: the := shape closed by construction (SEQ 388 R1, exit 0); re-aimed at the for cursor -- 139 on
   trunk e339214f, gGroup 0x0000000100000007 (0x...01 with ewL = 1); interpreted twin 0; no scalar writer -> net refuses, 0.
+  2026-10-21 SEQ 390 R2 (branch 071afb50): jitNoteFor records the cursor and the body's writes -> jitForCursorT and
+  jitForBodyT exit 139 -> 0, SENTINEL 0 -> 1; H7 recognition removed -> 139 both. Certified by pop.sh rows "jitForCursorT
+  jitted run's exit" = [0] and "jitForCursorT jitted run reached its SENTINEL" = [1]. Retired by mapping.
