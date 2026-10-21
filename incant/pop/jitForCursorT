@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(JitForCursorT);
+define
+    fcSeen;
+    fcCtl code={
+        fcC = 1;
+        fcC = 2;
+        };
+    fcAct code={
+        fcL = 7;
+        for fcL in sample;
+            fcSeen = 1;
+        };
+    ;
+testing(fcCtl);
+dumpContents(fcCtl);
+print "FC-0 control dumped: a frame local that stays a count":;
+testing(fcAct);
+dumpContents(fcAct);
+print "JITFORCURSOR SENTINEL":;
+stop();
+jitForCursorT -- SEQ 390 R2 (Tony, 2026-10-21): THE FOR CURSOR IS A WRITER. Carried from incant/fixits/epilogueWriteBack
+(re-aimed SEQ 389 R1, retired by mapping into this file). fcL's one recognised writer is `fcL = 7`, so before the cure it
+keeps an i32 slot; the whole for statement runs at run time and makes fcL a group; the raw frame epilogue then writes 7
+over the low half of the pointer and dumpContents(fcAct) dies (exit 139, gGroup 0x0000000100000007). With the cursor
+recorded as a holder (a writer that makes a non-scalar denies the slot, SEQ 388 R1) fcL has no slot and the run ends at
+the SENTINEL. FC-0 is the fixit's control (a count over a count, dumped clean). fcSeen is DECLARED: an undeclared local
+written only in the for body would be refused by the net and the run would prove nothing. The interpreted twin
+(fcAct() for testing(fcAct)) exits 0 -- the intended exit.
