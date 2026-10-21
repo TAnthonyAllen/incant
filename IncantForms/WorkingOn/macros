@@ -46,5 +46,5 @@ How to attack?
     write a dummy DO rule copy and stick it in an expression chain
         the rule copy should run its action to build its instruction to go on the expression chain; for now just list the generated instruction
         will need to use an xp rule copy too
-    To get away from feeding xpTestList a resolved string; need a way to convert A(B) to A call B and A[B] to A =[ B; and the gate on call in getTarget will have to extend to include =[
-Can we add argument list handling to the xp chain process? I want to be able to bundle an argument list with no op in sight into a list. That will be inserting stuff into a complex algorithm (but I see no good way around that. We have a getTarget action in play; maybe add a getArgument action - good plan). It will not help simplify getInstruction and will not be able to until we can turn an action into a chain.
+    To get away from feeding xpTestList a resolved string; need a way to convert A(B) to A call B and A[B] to A =[ B;
+Can we add argument list handling to the xp chain process? I want to be able to bundle an argument list with no op in sight into a list. That will be inserting stuff into a complex algorithm (but I see no good way around that.
