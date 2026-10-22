@@ -6293,6 +6293,34 @@ sed '/^jitter;$/d' "$(ip jitReturnMidT)" > "$T/jrmI.src"; "$B" "$T/jrmI.src" > "
 sentinel "jitReturnMidT interpreted twin sentinel" "$T/jrmI" "JITRETURNMID SENTINEL"
 kindRow "jitReturnMidT the interpreted twin: RM-1 RM-2 (the intended values)" "$(_jt "$T/jrmI" RM-1) $(_jt "$T/jrmI" RM-2)" "46 0"
 
+#  ⚑ jitInlineBindT -- SEQ 396 B1: the inline arm's run-time argument bind (option (c)) and its push / pop-and-restore
+#  on every exit of the inlined region. Each section: an inlined callee with the caller's argument, a self-call, then the
+#  caller reads its own `argument` field at run time (a handed-over cerr). PINNED AT TODAY'S VALUES (trunk, seal 194),
+#  which are the twin's; these rows carry Stroke B's H7 (ii) and (iii), and the cure must leave them as they are.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitInlineBindT)" > "$T/jib" 2>&1; check "jitInlineBindT runs" 0 $?
+sentinel "jitInlineBindT sentinel" "$T/jib" "JITINLINEBIND SENTINEL"
+kindRow "jitInlineBindT IB-1 fall-through: the caller's argument after each self-call = the twin" "$(_jt "$T/jib" IB-1)" "0 1 2"
+kindRow "jitInlineBindT IB-2 callee ends on a refused statement: = the twin" "$(_jt "$T/jib" IB-2)" "0 1 2"
+kindRow "jitInlineBindT IB-2 refusals (one per call; names differ by road) = the twin's count" "$(grep -c 'iterate: the source has no list' "$T/jib")" "3"
+kindRow "jitInlineBindT IB-3 callee ends on a handed-over mid-body return: = the twin" "$(_jt "$T/jib" IB-3)" "0 1 2"
+kindRow "jitInlineBindT IB-4 nested inline: = the twin" "$(_jt "$T/jib" IB-4)" "0 1 2"
+kindRow "jitInlineBindT IB-5 the tail after the mid-body return never ran = the twin" "$(_jt "$T/jib" IB-5)" "0"
+kindRow "jitInlineBindT witness: ibF ibFr ibFm ibFn each built 1 called 1" "$(grep -c '^=== jitter: ibF[rmn]* built 1 called 1 ===' "$T/jib")" "4"
+sed '/^jitter;$/d' "$(ip jitInlineBindT)" > "$T/jibI.src"; "$B" "$T/jibI.src" > "$T/jibI" 2>&1; check "jitInlineBindT interpreted twin runs" 0 $?
+sentinel "jitInlineBindT interpreted twin sentinel" "$T/jibI" "JITINLINEBIND SENTINEL"
+kindRow "jitInlineBindT the interpreted twin: IB-1 IB-2 IB-3 IB-4, IB-5 (the intended values)" "$(_jt "$T/jibI" IB-1) / $(_jt "$T/jibI" IB-2) / $(_jt "$T/jibI" IB-3) / $(_jt "$T/jibI" IB-4) / $(_jt "$T/jibI" IB-5)" "0 1 2 / 0 1 2 / 0 1 2 / 0 1 2 / 0"
+
+#  ⚑ termCountT JITTED -- SEQ 396 B1: termCountT with `jitter;` after Start() (gen26's construction). tcWalk is compiled and
+#  inlines tcRule(*tcR) and, inside it, tcChild(*tcCur) -- each a RUN-TIME argument (a published node) that the inline arm
+#  bound at emit only, to null; tcRule's handed-over iterate then read an unbound `argument` (SEQ 392 R2). Intended = the
+#  plain run. BORN RED at SEQ 396's pre-registration (170 `REFUSED argument` lines; 170 TCR / TCC lines against 664).
+awk '/^Start\(\);/ && !d {print; print "jitter;"; d=1; next} {print}' "$(ip termCountT)" > "$T/tcJ.src"
+perl -e 'alarm 60; exec @ARGV' "$B" "$T/tcJ.src" > "$T/tcJ.o" 2> "$T/tcJ.e"; check "termCountT jitted runs" 0 $?
+sentinel "termCountT jitted sentinel" "$T/tcJ.o" "TERMCOUNT SENTINEL"
+kindRow "termCountT jitted: REFUSED argument lines -- an unbound inlined argument (born red SEQ 396: 170)" "$(grep -c '^REFUSED argument ' "$T/tcJ.e")" "0"
+kindRow "termCountT jitted: TCR / TCC lines = the plain run's (born red SEQ 396: 170)" "$(grep -c '^TCR\|^TCC' "$T/tcJ.e")" "$(grep -c '^TCR\|^TCC' "$T/tc.e")"
+kindRow "termCountT jitted: the refusals, by name, = the plain run's (born red SEQ 396)" "$(grep '^REFUSED' "$T/tcJ.e" | sort | md5 -q)" "$(grep '^REFUSED' "$T/tc.e" | sort | md5 -q)"
+
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
 #  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. Pinned at 139 under a 10 s alarm, BORN RED
 #  2026-10-21; RE-PINNED at the twin's values SEQ 391 R1: aCTionScopeXP was `extern void`, so the walk read a garbage

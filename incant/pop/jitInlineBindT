@@ -1,0 +1,62 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitInlineBindT);
+define
+    ibSeen=0;
+    ibMid=0;
+    ibL=3 code={ ibL += 1; };
+    ibX code={ ibSeen = argument; };
+    ibXr code={
+        iterate ibQ on argument;
+        ibSeen = 5;
+        };
+    ibXm code={
+        return ibL;
+        ibMid = 99;
+        };
+    ibXn code={ ibX(argument); };
+    ibF code={
+        ibX(argument);
+        if argument > 0;    ibF(argument - 1);
+        cerr "IB-1 fall-through, the caller's argument after the self-call [" argument "]":;
+        };
+    ibFr code={
+        ibXr(argument);
+        if argument > 0;    ibFr(argument - 1);
+        cerr "IB-2 refused statement, the caller's argument after the self-call [" argument "]":;
+        };
+    ibFm code={
+        ibXm(argument);
+        if argument > 0;    ibFm(argument - 1);
+        cerr "IB-3 mid-body return, the caller's argument after the self-call [" argument "]":;
+        };
+    ibFn code={
+        ibXn(argument);
+        if argument > 0;    ibFn(argument - 1);
+        cerr "IB-4 nested inline, the caller's argument after the self-call [" argument "]":;
+        };
+    ;
+jitter;
+ibF(2);
+ibFr(2);
+ibFm(2);
+ibFn(2);
+print "IB-5 the tail after the mid-body return never ran: ibMid [" ibMid "]":;
+print "IB-6 the last inlined write: ibSeen [" ibSeen "]":;
+print "JITINLINEBIND SENTINEL":;
+stop();
+
+jitInlineBindT -- SEQ 396 B1 (Tony): the inline arm's run-time argument bind and its channel bracket (option (c)). Each
+ibF* is its own compiled function (a self-call) that first calls an INLINED callee with its argument, then calls itself,
+then reads its own `argument` field at run time in a handed-over cerr. The interpreted road un-binds every call, so each
+section prints 0 1 2. Under the cure the inline arm binds at run time and pushes the pending entry; the pop at the
+region's join un-binds it. Remove the pop and the stack goes out of step: a self-call's restore pops the INLINED callee's
+entry instead of its own, and the caller reads the callee's argument. Sections: IB-1 the fall-through; IB-2 the callee
+ends on a refused statement (an iterate over a count); IB-3 the callee ends on a handed-over mid-body return (ibL carries
+code, so `return ibL` is a list read), IB-5 its tail never ran; IB-4 a nested inline (ibXn inlines ibX). Trunk at seal 194
+(no inline bind yet): every section 0 1 2 = the twin. The refusal NAMES differ between the roads (argSlot / Token,
+tempField); the counts are pinned, not the names.
