@@ -141,3 +141,18 @@ refusal (a local read, never written), with no bare-name statement. Probe on bot
 
 **H7 (on jitReturnMidT):** the return's exit branch removed (the value stored, then on to the next statement) -> RM-1 and
 RM-2 back to 99; restored md5 = the cure.
+
+## SEQ 394 -- the certificate (b8afc998 pre-registration; cure a1c24b08 unchanged; clone)
+
+| pre-registered | measured |
+|---|---|
+| jitReturnListT exit 0 both | **as registered** |
+| RL-2 0 -> 2, RL-4 0 -> 1 | **as registered** |
+| RL-1 parked as PI-1's, 0 lines both | **as registered** |
+| jitReturnMidT RM-1 99 -> 46, RM-2 99 -> 0 | **as registered**; twin 46 0 |
+| everything else row for row | **true**: pop.sh 1624 -> 1628, the four rows above and nothing else |
+| jitLadder identical; gen26 as SEQ 393 | the binaries are SEQ 393's (ddA0, ddA1), so SEQ 393's runs stand: jitLadder identical, gen26 14 / 26 |
+
+Canary 366. **H7** (cure committed first): the exit branch removed (`CreateBr(exit)` -> `CreateBr(cont)` in the
+stmtReturned block), rebuilt -> **jitReturnMidT RM-1 99, RM-2 99** -- red by value; restored md5 = the cure, bare retok =
+the committed .mm. The buy is Tony's.
