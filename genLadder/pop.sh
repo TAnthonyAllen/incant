@@ -6303,6 +6303,15 @@ sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$B" "$T/jrlI.src" > 
 sentinel "jitReturnListT interpreted twin sentinel" "$T/jrlI" "JITRETURNLIST SENTINEL"
 kindRow "jitReturnListT the interpreted twin: RL-1, RL-2 lines (the intended values)" "$(_jt "$T/jrlI" RL-1) $(grep -c '^RL-2 ' "$T/jrlI")" "46 2"
 
+#  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
+#  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE
+#  (139) under a 10 s alarm; intended = the interpreted twin (exit 0, XP after two). No cure yet (F-129 open).
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip xpLocT)" > "$T/xpl" 2>&1; _xplx=$?
+kindRow "xpLocT jitted run's exit -- F-129, pinned at today's 139 (intended 0 = the twin)" "$_xplx" "139"
+sed '/^jitter;$/d' "$(ip xpLocT)" > "$T/xplI.src"; "$B" "$T/xplI.src" > "$T/xplI" 2>&1; check "xpLocT interpreted twin runs" 0 $?
+sentinel "xpLocT interpreted twin sentinel" "$T/xplI" "XPLOCT SENTINEL"
+kindRow "xpLocT the interpreted twin: XP after two printed (the intended value)" "$(grep -c '^XP after two' "$T/xplI")" "1"
+
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out
 #  (GroupActions.rtn:1065) hands the compare an acRun copy with no jit value, and jitSeedOperands bakes a load of its

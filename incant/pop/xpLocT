@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(XpLocT);
+define
+    xT code={
+        print "XP before":;
+        print "XP after one":;
+        xLoc;
+        print "XP after two":;
+        };
+    ;
+jitter;
+xT();
+print "XP top after":;
+print "XPLOCT SENTINEL":;
+stop();
+
+xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress (a null
+ExpressioN label) on its SECOND run. Under `jitter;` ONE call is enough: xT's `xLoc;` is a local read with no writer, so
+the net refuses the compile (-8), and that refused compile's walk is the first run; the interpreted call is the second.
+Trunk 2026-10-22: exit 139, nothing printed (stdout is lost in the crash). The interpreted twin (this file with
+`jitter;` deleted) runs once clean: XP before, after one, after two, top after, the SENTINEL; called twice it exits 139,
+which is F-129 as first filed. The same body with `xLoc = 1;` compiles and runs clean. Found by SEQ 393 Stroke A:
+jitReturnListT's old refusal device was this statement.

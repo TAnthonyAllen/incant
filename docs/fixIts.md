@@ -540,6 +540,10 @@ obvious suspect and is unmeasured.
 **Evidence.** 2026-09-27, clone of trunk f228702 (also branch 442d0d4): the four bodies above, each called twice
 from top level -- `tsX;` 139, `tsY = 2;` 0, `tsX; tsY = 2;` 139, `cerr tsX:;` 0. lldb: EXC_BAD_ACCESS address 0x0,
 frame #0 aCTionXpress. Found running SEQ 214's H15 control.
+2026-10-22 (SEQ 394 R0), trunk 72416b70: the same crash with ONE call under `jitter;` -- the net refuses the body
+(-8, the bare name is a local with no writer) and that refused compile's walk is the first run. Same site, address 0x0;
+the twin called twice exits 139, once clean; `xLoc = 1;` instead compiles and runs. Fleet row: `incant/pop/xpLocT`,
+pinned at 139, intended beside.
 **Done when.** A bare-name statement in an action body runs on every call, and a fixture pins it (two calls, both
 run, same answer).
 **Owner.** Unassigned.
