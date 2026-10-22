@@ -39,23 +39,23 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS ensureGuard if before (armed, line 238 of groupDirectives) -> GroupItem.twk +1
   ok    INJECTS ensureGuard "if isCondition" before (armed, line 241 of groupDirectives) -> GroupItem.twk +7
   ok    INJECTS ensureGuard endSetGuard (parked, line 247 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS ensureGuard returnGuard before (armed, line 250 of groupDirectives) -> GroupItem.twk +8
-  ok    INJECTS fireLabelMethod ruleSTUFF (parked, line 257 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS getStuff if before (parked, line 260 of groupDirectives) -> GroupItem.twk +6
-  ok    INJECTS parse "callOK      = checkInput" before (armed, line 269 of groupDirectives) -> GroupItem.twk +8
-  ok    INJECTS parse ownPoint (armed, line 276 of groupDirectives) -> GroupItem.twk +18
-  ok    INJECTS parse debugHere (armed, line 289 of groupDirectives) -> GroupItem.twk +16
-  ok    INJECTS push if before (parked, line 302 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS push finishAdd (parked, line 305 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS remove if before (parked, line 308 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS setGroup starting (parked, line 311 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS setRuleStuff if before (parked, line 314 of groupDirectives) -> GroupItem.twk +2
-  ok    INJECTS bootstrapper pushInput (armed, line 327 of groupDirectives) -> GroupMain.twk +4
-  ok    INJECTS checkSkip stacked before (parked, line 338 of groupDirectives) -> GroupRules.twk +3
-  ok    INJECTS checkSkip "if stacked" before (parked, line 342 of groupDirectives) -> GroupRules.twk +3
-  ok    INJECTS pushInput sourceFILE before (parked, line 346 of groupDirectives) -> GroupRules.twk +1
-  ok    INJECTS popInput return before (parked, line 349 of groupDirectives) -> GroupRules.twk +4
-  ok    INJECTS getWhatFollows followed (parked, line 359 of groupDirectives) -> RuleStuff.twk +2
+  ok    INJECTS ensureGuard returnGuard before (armed, line 250 of groupDirectives) -> GroupItem.twk +16
+  ok    INJECTS fireLabelMethod ruleSTUFF (parked, line 262 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS getStuff if before (parked, line 265 of groupDirectives) -> GroupItem.twk +6
+  ok    INJECTS parse "callOK      = checkInput" before (armed, line 274 of groupDirectives) -> GroupItem.twk +8
+  ok    INJECTS parse ownPoint (armed, line 281 of groupDirectives) -> GroupItem.twk +18
+  ok    INJECTS parse debugHere (armed, line 294 of groupDirectives) -> GroupItem.twk +16
+  ok    INJECTS push if before (parked, line 307 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS push finishAdd (parked, line 310 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS remove if before (parked, line 313 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS setGroup starting (parked, line 316 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS setRuleStuff if before (parked, line 319 of groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS bootstrapper pushInput (armed, line 332 of groupDirectives) -> GroupMain.twk +4
+  ok    INJECTS checkSkip stacked before (parked, line 343 of groupDirectives) -> GroupRules.twk +3
+  ok    INJECTS checkSkip "if stacked" before (parked, line 347 of groupDirectives) -> GroupRules.twk +3
+  ok    INJECTS pushInput sourceFILE before (parked, line 351 of groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS popInput return before (parked, line 354 of groupDirectives) -> GroupRules.twk +4
+  ok    INJECTS getWhatFollows followed (parked, line 364 of groupDirectives) -> RuleStuff.twk +2
 DIRCHECK: 57 directives -- 53 inject, 4 dark (0 armed, 4 parked)
   ok    tree retokked bare and byte-identical to the bare snapshot
 DIRCHECK PASSED (53 of 57 inject; parked dark named above, not a failure)
