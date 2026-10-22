@@ -7894,9 +7894,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
+	// listHolderUnwraps a list entry that is a holder attaches its CONTENT, one level -- a dated exception to the star law (Tony, 2026-10-22, SEQ 399); the list arm only
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->next(grup) )
-			target->addAttribute(grup);
+			if ( isGROUP(grup->groupBody->flags.data) && grup->getGroup() )
+				target->addAttribute(grup->getGroup());
+			else	target->addAttribute(grup);
 	else	target->addAttribute(argument);
 	return target;
 }

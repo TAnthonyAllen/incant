@@ -115,9 +115,11 @@ GroupItem   grup;
 GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
+    // listHolderUnwraps a list entry that is a holder attaches its CONTENT, one level -- a dated exception to the star law (Tony, 2026-10-22, SEQ 399); the list arm only
     if argument.isLIST
         while grup = argument.next(grup)
-            target +% grup;
+            if grup.isGROUP && grup.group   target +% grup.group;
+            else                            target +% grup;
     else    target +% argument;
     return target;
 }
