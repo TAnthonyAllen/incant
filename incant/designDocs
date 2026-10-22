@@ -1724,6 +1724,12 @@ define
                 toBUFFER TEST IS THE FEATURE and the line that closes KANT-23, where a grafted cout
                 was swallowed by an armed diversion. Do not add the arm back; that restores the
                 defect exactly.#);
+            opAddAttribute=(the +% operator: add the argument, or each entry of a juxtaposed list, as an attribute of
+                the target.#):
+                listHolderUnwraps=(A DATED EXCEPTION TO THE STAR LAW (Tony, 2026-10-22, SEQ 399): in the LIST arm a
+                    holder entry attaches its CONTENT, one level, so `f +% a b c` does what three `f +% *a` lines do.
+                    A plain entry attaches as before; nothing outside the list arm unwraps. Census before it was built:
+                    the arm fired twice in the whole fleet, neither with a holder. Fleet: incant/pop/plusUnwrapT.#);
             opDeref=(the prefix unary *, routed by runOPaccum's acU arm (handleUnary until 2026-10-14) to the named `deref` op, so the binary *
                 slot (opMultiply, carrying operateMethod, interpretMethod and jitEmitter) stays
                 isolated -- the same two-slot separation prefix - has from opMinus. ⚠ Its old header

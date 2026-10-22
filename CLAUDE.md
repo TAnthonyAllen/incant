@@ -1897,6 +1897,7 @@ Hard-won lessons. Each one has cost real debugging time.
     **So the spelling is a category mismatch, not a liar** — and `isGrouP` (GroupFields 43,
     minted 2026-09-16) is the accessor that lets you ask which you are holding before you star
     it. The population the row reports is unchanged; only the blame moves.
+    ⚠⚠ **A DATED EXCEPTION TO THE STAR LAW (Tony, 2026-10-22, SEQ 399): `f +% a b c` UNWRAPS EACH HOLDER ENTRY ONE LEVEL** -- it attaches what `*a`, `*b`, `*c` would; a plain entry attaches as before. opAddAttribute's list arm ONLY (`Instruct.opAddAttribute.listHolderUnwraps`; fleet `incant/pop/plusUnwrapT`). The comma form is not the spelling.
 
     ⚠ **AND THE LEDGER'S HEADER NOW UNDERSTATES IT: PAYMENT 7 IS NOT A `.text` READ AT ALL.**
     The first six are one mechanism -- a data-less field echoing its tag. Payment 7 is a
