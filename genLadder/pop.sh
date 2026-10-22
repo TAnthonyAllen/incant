@@ -6339,6 +6339,22 @@ sentinel "plusUnwrapT jitted sentinel" "$T/puJ" "PLUSUNWRAP SENTINEL"
 kindRow "plusUnwrapT jitted: pb pm pe pn read as the interpreted run's" "$(_pu "$T/puJ" pb) / $(_pu "$T/puJ" pm) / $(_pu "$T/puJ" pe) / $(_pu "$T/puJ" pn)" "$(_pu "$T/pu" pb) / $(_pu "$T/pu" pm) / $(_pu "$T/pu" pe) / $(_pu "$T/pu" pn)"
 kindRow "plusUnwrapT jitted witness: puRun built 1 called 1 (the +% lines are compiled)" "$(grep -c '^=== jitter: puRun built 1 called 1 ===' "$T/puJ")" "1"
 
+#  ⚑ ruleThisT / ruleThisTopT -- SEQ 401 (Tony, 2026-10-22): `$$this;` in a RULE's code. A rule's code locals are minted
+#  into its CodE, so that CodE gets `this` (holding the CodE) and `tempField`; `dumpField(this)` then lists the locals by
+#  name, as an action's `this` lists the action's. BORN RED at SEQ 401's pre-registration on the rule rows (both bodies
+#  refused `$$` and failed to parse). The action rows and the top-level rows are today's values and must not move.
+_rtd () { sed -n "/^RT-DUMP $2/,/^RT-END $2/p" "$1" | grep -c "^	$3="; }
+run1 ruleThisT "$T/rt";   check "ruleThisT runs" 0 $?
+sentinel "ruleThisT sentinel" "$T/rt" "RULETHIS SENTINEL"
+kindRow "ruleThisT RT-1 the rule's code ran past \$\$this (born red SEQ 401: 0)" "$(grep -c '^RT-1 ' "$T/rt")" "1"
+kindRow "ruleThisT RT-2 tester's InvokeR shape ran past \$\$this (born red SEQ 401: 0)" "$(grep -c '^RT-2 ' "$T/rt")" "1"
+kindRow "ruleThisT no rule body refuses \$\$ or fails to parse (born red SEQ 401: 2 2)" "$(grep -c '^REFUSED \$\$ ' "$T/rt") $(grep -c 'parse failed' "$T/rt")" "0 0"
+kindRow "ruleThisT dumpField(this) in the rule lists rtFirst, rtSecond by name (born red SEQ 401: 0 0)" "$(_rtd "$T/rt" rule rtFirst) $(_rtd "$T/rt" rule rtSecond)" "1 1"
+kindRow "ruleThisT control: RT-3 the action ran past \$\$this" "$(grep -c '^RT-3 ' "$T/rt")" "1"
+kindRow "ruleThisT control: dumpField(this) in the action lists atFirst, atSecond" "$(_rtd "$T/rt" action atFirst) $(_rtd "$T/rt" action atSecond)" "1 1"
+"$B" "$(ip ruleThisTopT)" > "$T/rtt" 2>&1; check "ruleThisTopT runs (a top-level refusal abandons the file, still exit 0)" 0 $?
+kindRow "ruleThisTopT a top-level \$\$this stays refused, and what follows it is abandoned: REFUSED \$\$, RTT-0, RTT-1" "$(grep -c '^REFUSED \$\$ ' "$T/rtt") $(grep -c '^RTT-0 ' "$T/rtt") $(grep -c '^RTT-1 ' "$T/rtt")" "1 1 0"
+
 #  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
 #  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE
 #  (139) under a 10 s alarm; intended = the interpreted twin (exit 0, XP after two). No cure yet (F-129 open).

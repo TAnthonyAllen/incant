@@ -1,0 +1,18 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(RuleThisTopT);
+define
+    rttY=1;
+    ;
+print "RTT-0 before":;
+$$this;
+print "RTT-1 after -- never printed: the top-level $$this refuses and the rest of the file is abandoned":;
+stop();
+
+ruleThisTopT -- SEQ 401 (Tony): a top-level `$$this;` STAYS REFUSED -- there is no action to be `this`, so `this` is the
+keyword, aCTionANYtoken drops it, and `$$` is left with no operand. The refusal ABANDONS the rest of the file at exit 0, so
+this fixture has no sentinel by design: its rows assert the refusal and the absence of RTT-1, paired with RTT-0's presence.

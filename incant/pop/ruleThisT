@@ -1,0 +1,45 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(RuleThisT);
+define
+    rtRule isRule ANYtoken code={
+        rtFirst = 7;
+        rtSecond = 8;
+        $$this;
+        print "RT-1 the rule's code ran past $$this":;
+        print "RT-DUMP rule":;
+        dumpField(this);
+        print "RT-END rule":;
+        return ANYtoken;
+        };
+    rtInvoke isRule ANYtoken code={
+        $$this;
+        print "RT-2 tester's InvokeR shape ran past $$this":;
+        return ANYtoken;
+        };
+    rtAct code={
+        atFirst = 7;
+        atSecond = 8;
+        $$this;
+        print "RT-3 the action ran past $$this":;
+        print "RT-DUMP action":;
+        dumpField(this);
+        print "RT-END action":;
+        };
+    ;
+rtRule("hello");
+rtInvoke("hello");
+rtAct();
+print "RULETHIS SENTINEL":;
+stop();
+
+ruleThisT -- SEQ 397 / 400 / 401 (Tony, 2026-10-22): `$$this;` in a RULE's code. A rule's code locals are minted into
+its CodE (the one under builtinActoR), so SEQ 401 gives that CodE `this` -- holding the CodE -- and `tempField`, as an
+action's `this` holds the action. rtRule declares two locals and dumps `this`: the dump lists rtFirst and rtSecond by
+name. rtInvoke is tester's InvokeR shape. rtAct is the control: an action's `this` already lists its locals. Before SEQ
+401 both rule bodies refused `$$` (`this` resolved to the keyword) and `ERROR processCode: ... parse failed`, so neither
+ran. The top-level case lives in ruleThisTopT, because its refusal abandons the rest of its file.
