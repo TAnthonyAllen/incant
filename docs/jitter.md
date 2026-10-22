@@ -655,3 +655,40 @@ and jitLadder otherwise row for row. *H7, per half:* (1) the run-time bind remov
 the iterate to run time -- and is certified by its count staying at 10, so the cure cannot pass by silencing the build half.
 A recon line inside the stroke first: whether the inline bind needs jitSaveFrameRT / jitRestoreFrameRT's pending-channel
 bracket, as the self-call's does (jitBindArgRT writes gChanPend*).
+
+## SEQ 395 -- jit-list-handover bought; Stroke B's B0 STOPS (2026-10-22)
+
+Ruled (Tony, SEQ 395): R0 the buy; R1 Stroke B as SEQ 393 wrote it, B0 first; R2 F-129 pinned, not cured.
+
+**R0, the buy:** merge 1b94af00 (pop.sh's jitReturnListT block and the fixture from the branch, trunk's xpLocT beside);
+bare tokall = the merged tree (canary 366, +jitStmtRTValueRT; no groups.ext change); ~/bin/incant rebuilt; pop.sh 1632 =
+the clone's ddA1 run row for row but xpLocT's four rows and the fixture-name count; jitLadder identical; dirCheck =
+capture; the branch deleted (live, GitHub, clone).
+
+**B0, the pending-channel bracket -- the run-time bind WOULD cross it. STOP.** Read from the source, not inferred:
+- jitBindArgRT (jitEmitters.rtn, the bind both roads would share) records the callee `argument`'s PRE-BIND binding (body,
+  gGroup, data) in the pending slot gChanPend* before it binds. That slot is consumed only by jitSaveFrameRT (push) and
+  jitRestoreFrameRT (pop, and the old binding written back) -- the emitted self-call's bind -> save -> call -> restore,
+  runAction's interpreted saveLocalFields -> bind -> body -> restoreLocalFields in emitted form. The pending entry IS
+  how an emitted call un-binds its callee's argument afterwards.
+- runAction's inline arm (GroupActions.rtn, jitInlinePush / processAction / jitInlinePop) emits no frame pair. A
+  run-time jitBindArgRT there would (1) never restore the inlined callee's binding after the region -- the interpreted road
+  does -- and (2) leave the pending entry live: the next emitted self-call WITHOUT an argument pushes it in its
+  jitSaveFrameRT and its restore then rewrites the inlined callee's binding at that call's return; a next call WITH one
+  overwrites it. Either way the bind reaches into another call's bracket.
+
+**Options for Tony (none built):**
+- **(a)** the inline arm emits the full bracket around the inlined region -- bind, jitSaveFrameRT(callee), body,
+  jitRestoreFrameRT(callee) at the inline exit -- runAction's own order. Cost: saveLocalFields / restoreLocalFields on the
+  callee at run time for every such inline, which touches the callee's node-resident locals mid-function (the frame
+  slots' flush / reload is the open question).
+- **(b)** a bind for the inline arm that does NOT touch the pending slot: the argument stays bound after the region,
+  as the emit-time bind already leaves it. Divergence from the interpreted road (no un-bind), measurable only where a
+  later read of the callee's `argument` follows the inline.
+- **(c)** a channel-only pair around the inlined region: the bind records pending, a push at entry and a pop-and-restore
+  at the inline exit (the frame's exitBB join, which returns and refusals already reach) -- the binding is un-done as
+  the interpreted road does, and no locals are touched. Two small helpers. **Recommended**: it restores exactly what the
+  pending slot exists to restore, and nothing else.
+
+The SEQ 393 helper ("one helper for both") survives under (a) and (c): the argument block (published node / boxed count /
+baked operand) is lifted as ruled; what differs is the bracket each caller emits around it.
