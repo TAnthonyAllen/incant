@@ -853,11 +853,16 @@ GroupItem   action = currentMETHOD.group,
             listItem,
             lookin,
             scopeList:,
+            code,
             grup;
 String      name;
     if jitting {
         jitHandOver("a scope statement -- it binds locals, so it runs at RUN time", input);
         return input; }
+    // ruleScopeLocals a rule's code locals live in its CodE, never on the rule (SEQ 401)
+    if action.isRule {
+        code = action.actionBody();
+        if code action = code; }
     while listItem = scopeList.next(listItem) {
         if listItem.isGROUP grup = listItem.group;
         else    grup = listItem;
@@ -869,7 +874,7 @@ String      name;
             if !grup {
                 grup = new(name);
                 grup.isLocal = true;
-                action  +% grup; }
+                grup = action +% grup; }
             if field {
                 if field.groupBody == grup.groupBody    continue;
                 if listItem.isGROUP listItem.group = field;

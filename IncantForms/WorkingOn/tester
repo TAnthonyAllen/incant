@@ -24,7 +24,6 @@ define
         whatsIt = qa - qb + qc;
         print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
         partB = qb + qc;
-        $$partB;
         print "partB = qb + qc;" partB:;
         whatsIt = qa - partB;
         print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
@@ -37,10 +36,11 @@ define
         };
     xpListTest  isRule;
     InvokeD     isRule startBox=[([] xp?=xpListTest endParen-?=")" endBrace-?="]";
-    InvokeR     isRule ANYtoken InvokeD? code={
+    InvokeR     isRule ANYtoken InvokeD code={
         print "Running InvokeR":;
+        dumpContents(*this);
         $$InvokeD;
-        if InvokeD.listlengtH;
+        if *InvokeD.listLengtH;
             print "Saw InvokeD":;
             :InvokeD startBox xp;
             $$startBox;
@@ -56,6 +56,7 @@ define
         };
     listEntries isRule
         InvokeR;
+        ANYtoken;
         QuotE;
         NumbeR;
         Operators;
@@ -89,7 +90,7 @@ define
             unary op        an op with no field or an op to its left: wraps pending
         So qa - qb + qc builds (+ qc (- qb qa)), i.e. (qa - qb) + qc.
     *****************************************************************************/
-    xpListTest isRule lizted=listEntries+ SemI- code={
+    xpListTest isRule lizted=listEntries+ SemI?- code={
         cur := *lizted.lasT;
         haveRoot = 0;
         while cur.datA != 0;
@@ -135,15 +136,15 @@ define
         if haveRoot == 1;   *slot +% *pending;
         if haveRoot == 0;   root := *pending;
         print "We done":;
-        listChain(*root);
-        result  = testOP(*root);
-        $$result;
+        //listChain(*root);
+        //result  = testOP(*root);
+        //$$result;
         return  result;
         };
     ;
 
-debug xpListTest InvokeR InvokeD;
-xpListTest("invokeTEST(righty -= qa - qb + qc);");
+debug InvokeD InvokeR xpListTest;
+xpListTest("invokeTEST(qa + qb);");
 stop();
 
 compareXP();

@@ -1071,12 +1071,20 @@ GroupItem 	*field = 0;
 GroupItem 	*listItem = 0;
 GroupItem 	*lookin = 0;
 GroupItem 	*scopeList = input->getLabelGroup("scopeList");
+GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
 char 		*name = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		jitHandOver("a scope statement -- it binds locals, so it runs at RUN time",input);
 		return input;
+		}
+	// ruleScopeLocals a rule's code locals live in its CodE, never on the rule (SEQ 401)
+	if ( action->groupBody->flags.isRule )
+		{
+		code = action->actionBody();
+		if ( code )
+			action = code;
 		}
 	while ( listItem = scopeList->next(listItem) )
 		{
@@ -1093,7 +1101,7 @@ char 		*name = 0;
 				{
 				grup = new GroupItem(name);
 				grup->groupBody->flags.isLocal = 1;
-				action->addAttribute(grup);
+				grup = action->addAttribute(grup);
 				}
 			if ( field )
 				{
