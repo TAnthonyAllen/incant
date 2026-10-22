@@ -35,23 +35,22 @@ define
         print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
         };
     xpListTest  isRule;
-    InvokeD     isRule startBox=[([] xp?=xpListTest endParen-?=")" endBrace-?="]";
+    InvokeD     isRule startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
     InvokeR     isRule ANYtoken InvokeD code={
         print "Running InvokeR":;
         dumpContents(*this);
-        $$InvokeD;
         if *InvokeD.listLengtH;
             print "Saw InvokeD":;
-            :InvokeD startBox xp;
-            $$startBox;
+            :InvokeD startBox xpListTest;
+            $$xpListTest;
             if startBox == "(";     op := Operators["call"];
             else                    op := Operators["=["];
             $$op;
-                result  +% Operators["call"];
-                result  +% ANYtoken;
-                $$result;
-                dumpField(result);
-                return result;
+            result  +% Operators["call"];
+            result  +% ANYtoken;
+            $$result;
+            dumpField(result);
+            return result;
         return ANYtoken;
         };
     listEntries isRule
@@ -139,6 +138,7 @@ define
         //listChain(*root);
         //result  = testOP(*root);
         //$$result;
+        $$this;
         return  result;
         };
     ;

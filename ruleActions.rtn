@@ -349,6 +349,10 @@ use NewGroup
                 grup.group      = CodE;
                 grup            = CodE += "tempField";
                 grup.isLocal    = true;
+                grup.noPrint    = true;
+                // ruleArgument a rule's code reads the label it fired on as argument; processAction binds it per fire (Tony)
+                grup            = CodE += "argument";
+                grup.isLocal    = true;
                 grup.noPrint    = true; }
 use NewGroup
             if isMacro {

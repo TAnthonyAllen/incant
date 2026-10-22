@@ -707,6 +707,10 @@ GroupItem   label = field,
     // labelToLocals a rule's locals take the label's contents; isLabel fields are not cleared below
     if isRule {
         code = action.actionBody();
+        // ruleArgument the code's argument is the label this fire was handed, the isLabel node itself (Tony)
+        if grup = code["argument"] {
+            if label.isLabel    grup.group = label;
+            else                grup.clear(); }
         while result = code.nextAttribute(result) {
             if result.noPrint continue;
             // rulesOwnOnly clear only the rule's own locals and terms -- a global the body reads SHARES its body, so clearing it wiped the global (F-133)
