@@ -517,6 +517,17 @@ GroupItem 	*item = 0;
 		grup = NewGroup->addString("tempField");
 		grup->groupBody->flags.isLocal = 1;
 		grup->groupBody->flags.noPrint = 1;
+		// ruleCodeLocals a rule's code locals are minted into its CodE, so `this` (holding that CodE) and tempField go there too (Tony, SEQ 401)
+		if ( NewGroup->groupBody->flags.isRule )
+			{
+			grup = CodE->addString("this");
+			grup->groupBody->flags.isLocal = 1;
+			grup->groupBody->flags.noPrint = 1;
+			grup->setGroup(CodE);
+			grup = CodE->addString("tempField");
+			grup->groupBody->flags.isLocal = 1;
+			grup->groupBody->flags.noPrint = 1;
+			}
 		if ( NewGroup->groupBody->flags.isMacro )
 			{
 			CodE->groupBody->gText++;

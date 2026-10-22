@@ -341,6 +341,16 @@ use NewGroup
             grup            = NewGroup += "tempField";
             grup.isLocal    = true;
             grup.noPrint    = true;
+            // ruleCodeLocals a rule's code locals are minted into its CodE, so `this` (holding that CodE) and tempField go there too (Tony, SEQ 401)
+            if NewGroup.isRule {
+                grup            = CodE += "this";
+                grup.isLocal    = true;
+                grup.noPrint    = true;
+                grup.group      = CodE;
+                grup            = CodE += "tempField";
+                grup.isLocal    = true;
+                grup.noPrint    = true; }
+use NewGroup
             if isMacro {
                 CodE.gText++;
                 CodE.gCount     -= 2;
