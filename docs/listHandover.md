@@ -60,3 +60,37 @@ bought as it stands, and it is named for Tony rather than chased (R3).
 
 **H7 (cure committed first):** the degrade-only arm back -> jitArgListT empty on all three calls, PI-0 empty,
 printDefinition(sample)'s `wrap=` empty, jitReturnListT exit 139 -- every witness back; restored md5 = the cure.
+
+## SEQ 393 A -- the handed-over `return` (pre-registration, written before the build)
+
+Ruled (Tony, SEQ 393): R0 the branch is not bought as it stands; R1 a handed-over `return` behaves as it does
+interpreted -- it delivers its value as the action's result AND ends the compiled function.
+
+**The shape holds (measured, tap in jitStmtRT, reverted md5-identical).** jitReturnListT on this branch: after
+`statement.gMethod(statement)` for the handed-over `return rlY`, `ruler.branchKind` reads **3** and the call hands back
+the **rlY node, count 46**. So the control slot IS written on this road, and the value IS reachable at the call -- it is
+simply discarded ("Its value is not used"), and branchKind 3 is left set past the compiled call, which is what truncates
+the interpreted caller's block. The earlier "(inferred, NOT traced)" above is now traced.
+
+**The cure, as designed.** jitStmtRT keeps the statement's value. When the interpreted run left branchKind 3, it consumes
+the slot (branchKind 0 -- the compiled function is the action's frame, as processAction's is), parks the value for the
+emitted code, and returns **2** (0 = ran, 1 = refused, as SEQ 370). jitEmitStmtRT, after the reload: on 2 it loads the
+value's count (followed through a holder, as aCTionBlocK does) into the result slot and branches to the exit -- an inlined
+callee's exitBB, else the epilogue -- the same target selection its refusal exit and jitEmitReturn use. A bare `return;`
+(the keyword node) stores nothing, so the slot keeps the prior statement's value, as aCTionBlocK's `result = prior`.
+break / continue (branchKind 1 / 2) are NOT in this stroke and are left as they are. One extern added (the value read);
+no groups.ext change.
+
+**Pre-registered movers** (branch pre-cure binary, clone ddA0, 7493608f: pop.sh 1612 green, jitLadder PASSED,
+gen26 14 / 26):
+1. **jitReturnListT** (carried from trunk, rows born red here): exit 0 (stays 0), **RL-1 absent -> 46**, **RL-2 0 -> 2**
+   = the twin. Three red rows -> green.
+2. **gen26 baselineTestsNew**: printTest's **lefty `It returns 0` -> `It returns 46`**, and testUnitTests runs past
+   printTest() -- simpleIF, testOR, testARG (three calls), testIndentBlock, stringTest, list, testInterpret, testUnary,
+   testList, testGet, the testRecur* runs. **diff 94 -> 40 or fewer**, each remaining line named.
+3. gen26 agreement stays >= 14 / 26; any other file that moves is named.
+4. pop.sh otherwise row for row with the pre-cure run; jitLadder row for row. Anything else that moves is a finding,
+   reported and not re-pinned.
+
+**H7 (cure committed first):** the return's exit branch removed (the value stored, no branch) -> jitReturnListT red by
+value; restored md5 = the cure.

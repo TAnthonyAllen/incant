@@ -6260,6 +6260,20 @@ kindRow "jitPrintInlineT PI-1 the caller's line: DROPPED WHOLE (born red 2026-10
 kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying its code) = the twin (born red 2026-10-21 empty; green since jit-list-handover: the list read hands over)" "$(_jt "$T/jpi" PI-0)" "46"
 kindRow "jitPrintInlineT witness: piCall built 1 called 1 (piL inlined, no build of its own)" "$(grep -c '^=== jitter: piCall built 1 called 1 ===' "$T/jpi") $(grep -c '^=== jitter: piL ' "$T/jpi")" "1 0"
 
+#  ⚑ jitReturnListT -- SEQ 392 R1, a find pinned on trunk (717c72f3): lefty's shape under an INTERPRETED caller --
+#  rlOuter (refused by the net, interpreted) calls the compiled rlT, which calls the compiled rlY, whose `return rlY` is a
+#  bare read of a field carrying a list. Trunk: exit 139. This branch before SEQ 393: exit 0, RL-1 absent, RL-2 0 lines --
+#  the handed-over return leaked branchKind 3 out of the compiled call and delivered no value. SEQ 393 A (Tony, R1): a
+#  handed-over return delivers its value and ends the compiled function. BORN RED on this branch at SEQ 393's
+#  pre-registration; intended = the interpreted twin.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitReturnListT)" > "$T/jrl" 2>&1; _jrlx=$?
+kindRow "jitReturnListT jitted run's exit = the twin (trunk 139; branch 0, truncated)" "$_jrlx" "0"
+kindRow "jitReturnListT RL-1 the call's value through a handed-over return = the twin (born red SEQ 393: absent)" "$(_jt "$T/jrl" RL-1)" "46"
+kindRow "jitReturnListT RL-2 the interpreted caller's statements after the call = the twin (born red SEQ 393: 0)" "$(grep -c '^RL-2 ' "$T/jrl")" "2"
+sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$B" "$T/jrlI.src" > "$T/jrlI" 2>&1; check "jitReturnListT interpreted twin runs" 0 $?
+sentinel "jitReturnListT interpreted twin sentinel" "$T/jrlI" "JITRETURNLIST SENTINEL"
+kindRow "jitReturnListT the interpreted twin: RL-1, RL-2 lines (the intended values)" "$(_jt "$T/jrlI" RL-1) $(grep -c '^RL-2 ' "$T/jrlI")" "46 2"
+
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
 #  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. Pinned at 139 under a 10 s alarm, BORN RED
 #  2026-10-21; RE-PINNED at the twin's values SEQ 391 R1: aCTionScopeXP was `extern void`, so the walk read a garbage
