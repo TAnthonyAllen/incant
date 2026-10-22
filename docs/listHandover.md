@@ -119,3 +119,25 @@ shows; and the consumption of branchKind is the other half (removed -> rlSilentN
 **Open for Tony:** (1) the refused-action bare-local crash (`xpLoc`) -- a fleet row or a fixit, and whether
 jitReturnListT keeps rlLoc as its refusal device; (2) RL-1 re-registered as PI-1's; (3) a mid-body-return fixture for
 the H7.
+
+## SEQ 394 -- Stroke A finished (pre-registration, written before the certificate run)
+
+Ruled (Tony, SEQ 394): R0 the refused-action crash checked against F-129; R1 jitReturnListT's refusal respelled; R2 RL-1
+re-registered as PI-1's, parked; R3 a mid-body fixture carries the H7. Stroke B waits on the buy (R4).
+
+**R0 -- it IS F-129** (measured on trunk's ~/bin/incant): the same site (aCTionXpress, a null ExpressioN label, address
+0x0) and the same trigger, a bare-name statement on its SECOND run: the interpreted twin of `xpLoc` calling xT() twice
+exits 139. Under `jitter;` one call suffices because the net's refused compile walk is the first run; the same body with
+`xLoc = 1;` compiles and runs clean. xpLoc becomes F-129's fleet row on trunk (xpLocT), pinned at 139.
+
+**R1 -- a clean spelling exists.** rlOuter's `rlLoc;` becomes `print "RL-4 ... [" rlLoc "]":;` -- kindlessNetT's -8
+refusal (a local read, never written), with no bare-name statement. Probe on both binaries: rlOuter still NOT JITTABLE
+(-8) and interpreted; pre-cure exit 0, RL-2 0 (truncated); cure exit 0, both RL-2, RL-4.
+
+**Pre-registered movers** (pre-cure ddA0 = 128f13bc's engine, cure ddA1 = a1c24b08; the binaries are unchanged):
+1. jitReturnListT: exit 0 both; **RL-2 0 -> 2**, **RL-4 0 -> 1** (born red); RL-1 0 lines both, parked as PI-1's.
+2. jitReturnMidT (new): **RM-1 99 -> 46**, **RM-2 99 -> 0** (born red); twin 46 0.
+3. Everything else row for row; jitLadder identical; gen26 as SEQ 393 (14 / 26) -- the binaries are the same.
+
+**H7 (on jitReturnMidT):** the return's exit branch removed (the value stored, then on to the next statement) -> RM-1 and
+RM-2 back to 99; restored md5 = the cure.

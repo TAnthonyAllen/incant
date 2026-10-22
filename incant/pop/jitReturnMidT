@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitReturnMidT);
+define
+    rmAfter=0;
+    rmV=0;
+    rmY=3 code={ rmY += 43; return rmY; rmAfter = 99; };
+    rmT code={ rmV = rmY(); };
+    ;
+jitter;
+rmT();
+print "RM-1 the call's value [" rmV "]":;
+print "RM-2 the statement after the return [" rmAfter "]":;
+print "JITRETURNMID SENTINEL":;
+stop();
+
+jitReturnMidT -- SEQ 394 R3 (Tony): a handed-over return MID-BODY, with a statement after it whose effect would show.
+rmY is a field carrying its code, so `return rmY;` is a bare read of a list (S6) and is handed to run time; `rmAfter = 99;`
+follows it. rmT is compiled and takes the call's value into rmV. The interpreted twin (this file with `jitter;` deleted):
+RM-1 46, RM-2 0. On jit-list-handover before SEQ 393 A's cure: RM-1 99, RM-2 99 -- the return ran interpreted, the
+compiled function went on, rmAfter was written and its 99 became the function's value. This file carries Stroke A's H7.
