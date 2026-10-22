@@ -94,3 +94,28 @@ gen26 14 / 26):
 
 **H7 (cure committed first):** the return's exit branch removed (the value stored, no branch) -> jitReturnListT red by
 value; restored md5 = the cure.
+
+## SEQ 393 A -- measured, and STOPPED (2026-10-22; clone; pre-cure ddA0 = 128f13bc's engine, cure ddA1 = a1c24b08)
+
+Built bare; canary **365 -> 366** (jitStmtRTValueRT); the generated diff is the cure alone. pop.sh pre-cure 1616 green
+(with the carried rows), cure **1615**; jitLadder PASSED, identical; gen26 **14 / 26** both.
+
+| pre-registered | measured |
+|---|---|
+| jitReturnListT exit stays 0 | **MOVED 0 -> 139 -- the STOP.** Not the return: rlOuter now runs past rlT(), reaches its `rlLoc;` and crashes in aCTionXpress (a null ExpressioN label). That is a SEPARATE, PRE-EXISTING defect: an action the net refuses (-8) whose body has a bare local statement crashes when it runs interpreted -- probe `xpLoc` (below) exits 139 on ddA0, ddA1 AND trunk's ~/bin/incant; its interpreted twin is clean. jitReturnListT's own refusal device is that crasher, so trunk's 139 on this fixture is very likely this, not the return |
+| RL-2 0 -> 2 | **as designed, but unreadable in the row**: under a tty both RL-2 lines print; the 139 loses the buffered stdout, so the row still reads 0 |
+| RL-1 absent -> 46 | **FALSIFIED, and the pre-registration was wrong**: RL-1 is PI-1 (gJitPrintBuf one slot, R4), not the return -- rlY's own print runs inside rlT's print line. With that print removed, RL-1 = 46 on the cure; with it present, RL-1 drops on BOTH binaries (variant rlNoLoc, rlOuter compiled whole) |
+| lefty 0 -> 46 | **as registered** |
+| baselineTestsNew diff 94 -> 40 or fewer | **as registered: 28**; testUnitTests runs past printTest() (simpleIF ... testARG `hasGroup 35 57` ... testGet). All 28 are the testRecur* runs' witness lines: `REUSED` for `built` (the jitter built them first) and the cumulative jitDegrade / jitCompile / jitSlot counts; their `jitRunAction result` lines agree |
+| nothing else moves | **true**: pop.sh's only mover is jitReturnListT's exit; gen26's only mover is baselineTestsNew |
+
+**Variants (probes, not fleet):** `rlSilentNoLoc` (no RL-0 print, no rlLoc): pre-cure RL-1 46, RL-2 **0**; cure RL-1 46,
+RL-2 **2** = the twin -- the cure's own witness. `rlSilent` (no RL-0 print, rlLoc kept): pre-cure exit 0, RL-2 0; cure 139.
+
+**The registered H7 was NOT run: it cannot go red.** `return rlY;` is the callee's LAST statement, so removing the exit
+branch changes nothing (H17). A real control needs a handed-over return MID-BODY, with a statement after it whose effect
+shows; and the consumption of branchKind is the other half (removed -> rlSilentNoLoc's RL-2 back to 0).
+
+**Open for Tony:** (1) the refused-action bare-local crash (`xpLoc`) -- a fleet row or a fixit, and whether
+jitReturnListT keeps rlLoc as its refusal device; (2) RL-1 re-registered as PI-1's; (3) a mid-body-return fixture for
+the H7.
