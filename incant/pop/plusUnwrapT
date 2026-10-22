@@ -1,0 +1,57 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(PlusUnwrapT);
+define
+    nOp=1;
+    nTgt=2;
+    nArg=3;
+    nEmpty;
+    hOp;
+    hTgt;
+    hArg;
+    hDataless;
+    hNull;
+    pb;
+    pm;
+    pe;
+    pn;
+    puSetUp code={
+        hOp := nOp;
+        hTgt := nTgt;
+        hArg := nArg;
+        hDataless := nEmpty;
+        hNull := Grokking["zzzNoSuchRule"];
+        };
+    puRun code={
+        pb +% hOp hTgt hArg;
+        pm +% hOp nTgt nArg;
+        pe +% hDataless nArg;
+        pn +% hNull nArg;
+        print "PU-0 the line after the four +% ran":;
+        };
+    ;
+puSetUp();
+puRun();
+print "== pb":;
+dumpField(pb);
+print "== pm":;
+dumpField(pm);
+print "== pe":;
+dumpField(pe);
+print "== pn":;
+dumpField(pn);
+print "== end":;
+print "PLUSUNWRAP SENTINEL":;
+stop();
+
+plusUnwrapT -- SEQ 399 (Tony, 2026-10-22): A DATED EXCEPTION TO THE STAR LAW. opAddAttribute's list arm unwraps each
+list entry that is a holder, one level, before attaching it; a non-holder entry attaches as before. So `pb +% hOp hTgt
+hArg;` attaches the three holders' CONTENTS (nOp=1 nTgt=2 nArg=3) -- what three `+%` lines of `*h` attach. Rows:
+pb all holders; pm a mixed list (one holder, two plain fields); pe a holder of a DATA-LESS field (the empty holder that
+can exist) and a plain field; pn a field bound by `:=` to NOTHING -- which leaves it a plain field, not a holder
+(isGrouP 0, measured), so it attaches as itself on both sides of the exception. Before SEQ 399: pb hOp=nOp hTgt=nTgt
+hArg=nArg; pm hOp=nOp nTgt=2 nArg=3; pe hDataless=nEmpty nArg=3; pn hNull nArg=3.

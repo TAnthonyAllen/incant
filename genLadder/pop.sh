@@ -6322,6 +6322,23 @@ for _fc in jitForCursorT:JITFORCURSOR jitForBodyT:JITFORBODY; do
 done
 kindRow "jitForCursorT FC-0 control: a frame local that stays a count dumps clean (epilogueWriteBack's control)" "$(grep -c '^FC-0 control dumped' "$T/jitForCursorT")" "1"
 
+#  ⚑ plusUnwrapT -- SEQ 399 (Tony, 2026-10-22): A DATED EXCEPTION TO THE STAR LAW. opAddAttribute's list arm unwraps each
+#  holder entry one level before attaching it; a non-holder attaches as before. Read back by value (dumpField's entries).
+#  BORN RED at SEQ 399's pre-registration on the holder rows (pb, pm, pe); pn (a field `:=` to nothing is NOT a holder)
+#  and PU-0 are today's values on both sides. The jitted rows run the same file with `jitter;` and must read the same.
+_pu () { sed -n "/^== $2 /,/^== /p" "$1" | grep "^	" | tr -d '\t' | tr '\n' ' ' | sed 's/ $//'; }
+run1 plusUnwrapT "$T/pu";   check "plusUnwrapT runs" 0 $?
+sentinel "plusUnwrapT sentinel" "$T/pu" "PLUSUNWRAP SENTINEL"
+kindRow "plusUnwrapT PU-0 the statement after the four +% ran" "$(grep -c '^PU-0 ' "$T/pu")" "1"
+kindRow "plusUnwrapT pb +% hOp hTgt hArg: the holders' contents (born red SEQ 399: hOp=nOp hTgt=nTgt hArg=nArg)" "$(_pu "$T/pu" pb)" "nOp=1 nTgt=2 nArg=3"
+kindRow "plusUnwrapT pm +% hOp nTgt nArg: the holder unwrapped, the plain fields as before (born red SEQ 399: hOp=nOp ...)" "$(_pu "$T/pu" pm)" "nOp=1 nTgt=2 nArg=3"
+kindRow "plusUnwrapT pe +% hDataless nArg: a holder of a data-less field unwraps to it (born red SEQ 399: hDataless=nEmpty ...)" "$(_pu "$T/pu" pe)" "nEmpty nArg=3"
+kindRow "plusUnwrapT pn +% hNull nArg: hNull is := nothing, NOT a holder -- attaches as itself, both sides of the exception" "$(_pu "$T/pu" pn)" "hNull nArg=3"
+awk '/^puSetUp\(\);/ && !d {print "jitter;"; d=1} {print}' "$(ip plusUnwrapT)" > "$T/puJ.src"; "$B" "$T/puJ.src" > "$T/puJ" 2>&1; check "plusUnwrapT jitted runs" 0 $?
+sentinel "plusUnwrapT jitted sentinel" "$T/puJ" "PLUSUNWRAP SENTINEL"
+kindRow "plusUnwrapT jitted: pb pm pe pn read as the interpreted run's" "$(_pu "$T/puJ" pb) / $(_pu "$T/puJ" pm) / $(_pu "$T/puJ" pe) / $(_pu "$T/puJ" pn)" "$(_pu "$T/pu" pb) / $(_pu "$T/pu" pm) / $(_pu "$T/pu" pe) / $(_pu "$T/pu" pn)"
+kindRow "plusUnwrapT jitted witness: puRun built 1 called 1 (the +% lines are compiled)" "$(grep -c '^=== jitter: puRun built 1 called 1 ===' "$T/puJ")" "1"
+
 #  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
 #  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE
 #  (139) under a 10 s alarm; intended = the interpreted twin (exit 0, XP after two). No cure yet (F-129 open).
