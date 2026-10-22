@@ -1,0 +1,22 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitArgListT);
+define
+    alR=13;
+    alArg code={ print "AL argument [" argument "]":; };
+    ;
+jitter;
+alArg(hasGroup);
+alArg(alR += 22);
+alArg(alR += 22);
+print "JITARGLIST SENTINEL":;
+stop();
+
+jitArgListT -- SEQ 392 R1 (Tony, 2026-10-21): testARG's shape, pinned before it is cured. A compiled `print argument` whose
+argument carries a list at build: jitEmitBareRead follows the argument to its build-time node, finds a list, and before
+SEQ 392 degraded to NOTHING -- jitPrintList dropped the part, so every call printed `AL argument [ ]`, while the degrade
+said "running INTERPRETED". The interpreted twin (this file with `jitter;` deleted) prints hasGroup, 35, 57 -- intended.

@@ -310,6 +310,7 @@ extern "C" int jitSlotTaken(GroupItem *op);
 extern "C" void jitStmtBegin();
 extern "C" void jitStmtEnd(GroupItem *statement);
 extern "C" int jitStmtRT(GroupItem *statement, GroupItem *owner);
+extern "C" int jitStmtRTValueRT(int old);
 extern "C" void jitStoreResult();
 extern "C" int jitTermCallRT(GroupItem *op, GroupItem *target, GroupItem *arg);
 extern "C" GroupItem *jitTrace(GroupItem *field);

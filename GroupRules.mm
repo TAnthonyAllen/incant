@@ -4213,8 +4213,9 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	//  job (jitPrintList does it for print items).
 	//  Refuse loudly -- the counter is asserted at zero by every rung, so a
 	//  refusal is a red and a wrong constant is nothing.
+	//  listHandsOver a read of a field carrying a list hands its statement to run time, as a value the jit cannot carry does (SEQ 392 R2)
 	if (token->groupBody->groupList) {
-	jitDegrade("bare read of a LIST -- parts must be classified by the caller", token);
+	::jitHandOver((char*)"a bare read of a field carrying a list -- its statement runs at RUN time", token);
 	return 0; }
 	if (::jitKindUncarried(token)) {
 	::jitHandOver((char*)"a read of a value whose kind is not a count or a number -- its statement runs at RUN time", token);
@@ -5338,7 +5339,21 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	exit = f.exitBB; } }
 	else exit = gJitEpilogueBB;
 	if (!exit) return;
+	//  returnedExit the interpreted run RETURNED (2): its value goes to the result slot and the function leaves through the
+	//  same exit -- an inlined callee's own, else the epilogue -- as jitEmitReturn's store-then-branch (SEQ 393 A)
+	llvm::BasicBlock *ret  = llvm::BasicBlock::Create(ctx, "stmtReturned", rfn);
+	llvm::BasicBlock *chk  = llvm::BasicBlock::Create(ctx, "stmtNotReturned", rfn);
 	llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx, "stmtNotRefused", rfn);
+	b->CreateCondBr(b->CreateICmpEQ(rv, llvm::ConstantInt::get(i32, 2), "stmtReturn"), ret, chk);
+	b->SetInsertPoint(ret);
+	if (gJitResultSlot) {
+	llvm::FunctionType *vty = llvm::FunctionType::get(i32, {i32}, false);
+	llvm::Value *old = b->CreateLoad(i32, gJitResultSlot, "rtRetOld");
+	llvm::Value *nv  = b->CreateCall(vty, b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRTValueRT), ptr, "rtRetFn"), {old}, "rtRet");
+	b->CreateStore(nv, gJitResultSlot); }
+	b->CreateBr(exit);
+	b->SetInsertPoint(chk);
 	b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
 	b->SetInsertPoint(cont);
 	
@@ -7281,25 +7296,48 @@ extern "C" void jitStmtEnd(GroupItem *statement)
 }
 
 /*  jitStmtRT -- a statement the jit could not emit, run at RUN time on the interpreted road: its own method on its own
-    node, with jitting off as it always is at run time. Its value is not used. A refusal's scope is the statement, as in
-    jitIfRT.  */
+    node, with jitting off as it always is at run time. A refusal's scope is the statement, as in jitIfRT. Returns 0 ran,
+    1 refused, 2 RETURNED -- its value then waits in gJitStmtRTValue for the emitted code (SEQ 393 A).  */
 extern "C" int jitStmtRT(GroupItem *statement, GroupItem *owner)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
+GroupItem 	*stmtValue = 0;
 int 		refusedHere = 0;
 	// ownerIsCurrent the statement runs as its action's, so a local it mints or a scope it binds lands there (SEQ 384: dirT's scope statement read a null currentMETHOD)
 	if ( owner )
 		ruler->currentMETHOD->setGroup(owner);
 	::clearRefusal(statement);
 	if ( isMethod(statement->groupBody->flags.instructType) )
-		statement->groupBody->gMethod(statement);
+		stmtValue = statement->groupBody->gMethod(statement);
 	ruler->currentMETHOD->setGroup(priorMETHOD);
 	// endsTheAction a refusal raised by the interpreted run ends the action: the emitted call leaves the function on a 1 (SEQ 370 R1)
 	if ( ruler->refused )
 		refusedHere = 1;
 	::clearRefusal(statement);
+	// returnEndsTheFunction a return run here ends the COMPILED function, which is its action's frame: the slot is consumed, never left set for the caller's block (SEQ 393 A)
+	if ( !refusedHere && ruler->branchKind == 3 )
+		{
+		ruler->branchKind = 0;
+		if ( stmtValue && stmtValue->groupBody->registry == ruler->keyWords )
+			stmtValue = 0;
+		 gJitStmtRTValue = stmtValue; 
+		refusedHere = 2;
+		}
 	return refusedHere;
+}
+
+/*  jitStmtRTValueRT -- run time, after a handed-over statement RETURNED: the value it returned, as a count, followed
+    through a holder as aCTionBlocK follows it; `old` (the result slot) for a bare `return;` (SEQ 393 A).  */
+extern "C" int jitStmtRTValueRT(int old)
+{
+	
+	GroupItem *v = gJitStmtRTValue;
+	gJitStmtRTValue = nullptr;
+	if ( !v ) return old;
+	if ( isGROUP(v->groupBody->flags.data) && v->getGroup() ) v = v->getGroup();
+	return v->getCount();
+	
 }
 
 /*******************************************************************************

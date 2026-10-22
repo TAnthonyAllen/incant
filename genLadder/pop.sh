@@ -6260,8 +6260,38 @@ sentinel "jitPrintInlineT interpreted twin sentinel" "$T/jpiI" "JITPRINTINLINE S
 kindRow "jitPrintInlineT the interpreted twin: PI-0 PI-1 PI-2 (the intended values)" "$(_jt "$T/jpiI" PI-0) $(_jt "$T/jpiI" PI-1) $(_jt "$T/jpiI" PI-2)" "46 46 46"
 kindRow "jitPrintInlineT PI-2 control, a silent callee: = the twin" "$(_jt "$T/jpi" PI-2)" "46"
 kindRow "jitPrintInlineT PI-1 the caller's line: DROPPED WHOLE (born red 2026-10-21; intended 1 line = the twin)" "$(grep -c '^PI-1 ' "$T/jpi")" "0"
-kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying its code): EMPTY (born red 2026-10-21; intended 46 = the twin)" "$(_jt "$T/jpi" PI-0)" ""
+kindRow "jitPrintInlineT PI-0 the callee's own print of piL (a field carrying its code) = the twin (born red 2026-10-21 empty; green since jit-list-handover: the list read hands over)" "$(_jt "$T/jpi" PI-0)" "46"
 kindRow "jitPrintInlineT witness: piCall built 1 called 1 (piL inlined, no build of its own)" "$(grep -c '^=== jitter: piCall built 1 called 1 ===' "$T/jpi") $(grep -c '^=== jitter: piL ' "$T/jpi")" "1 0"
+
+#  ⚑ jitReturnListT -- SEQ 392 R1, a find pinned on trunk (717c72f3): lefty's shape under an INTERPRETED caller --
+#  rlOuter (refused by the net, interpreted) calls the compiled rlT, which calls the compiled rlY, whose `return rlY` is a
+#  bare read of a field carrying a list. SEQ 393 A (Tony, R1): a handed-over return delivers its value and ends the
+#  compiled function, so the caller's block runs on. RESPELLED SEQ 394 R1: the refusal device is a print reading the
+#  unwritten rlLoc (RL-4), no longer the bare statement `rlLoc;`, which is F-129 (exit 139 once the caller ran past the
+#  call). RL-1 is PI-1's (rlY's print inside rlT's print line) and is parked at today's value (SEQ 394 R2).
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitReturnListT)" > "$T/jrl" 2>&1; _jrlx=$?
+kindRow "jitReturnListT jitted run's exit = the twin" "$_jrlx" "0"
+sentinel "jitReturnListT sentinel" "$T/jrl" "JITRETURNLIST SENTINEL"
+kindRow "jitReturnListT RL-2 the interpreted caller's statements after the call = the twin (born red SEQ 394: 0, truncated)" "$(grep -c '^RL-2 ' "$T/jrl")" "2"
+kindRow "jitReturnListT RL-4 the caller's last statement ran = the twin (born red SEQ 394: 0, truncated)" "$(grep -c '^RL-4 ' "$T/jrl")" "1"
+kindRow "jitReturnListT RL-1 lines -- PI-1 (one-slot print buffer), parked: today 0, intended 1 line [ 46 ] = the twin" "$(grep -c '^RL-1 ' "$T/jrl")" "0"
+sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$B" "$T/jrlI.src" > "$T/jrlI" 2>&1; check "jitReturnListT interpreted twin runs" 0 $?
+sentinel "jitReturnListT interpreted twin sentinel" "$T/jrlI" "JITRETURNLIST SENTINEL"
+kindRow "jitReturnListT the interpreted twin: RL-1, RL-2 lines, RL-4 lines (the intended values)" "$(_jt "$T/jrlI" RL-1) $(grep -c '^RL-2 ' "$T/jrlI") $(grep -c '^RL-4 ' "$T/jrlI")" "46 2 1"
+
+#  ⚑ jitReturnMidT -- SEQ 394 R3: a handed-over return MID-BODY, with a statement after it whose effect shows. rmY is a
+#  field carrying its code, so `return rmY;` is S6's list read, handed to run time; `rmAfter = 99;` follows it. rmT
+#  (compiled) takes the call's value into rmV. Interpreted: rmV 46, rmAfter 0. Before SEQ 393 A the return ran at run time
+#  and the function went on -- rmAfter 99, and rmV the last statement's 99. Stroke A's H7 lives here: the return's exit
+#  branch removed -> RM-1 and RM-2 back to 99.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitReturnMidT)" > "$T/jrm" 2>&1; check "jitReturnMidT runs" 0 $?
+sentinel "jitReturnMidT sentinel" "$T/jrm" "JITRETURNMID SENTINEL"
+kindRow "jitReturnMidT RM-1 the call's value through a mid-body handed-over return = the twin (born red SEQ 394: 99)" "$(_jt "$T/jrm" RM-1)" "46"
+kindRow "jitReturnMidT RM-2 the statement after the return did not run = the twin (born red SEQ 394: 99)" "$(_jt "$T/jrm" RM-2)" "0"
+kindRow "jitReturnMidT witness: rmT built 1 called 1" "$(grep -c '^=== jitter: rmT built 1 called 1 ===' "$T/jrm")" "1"
+sed '/^jitter;$/d' "$(ip jitReturnMidT)" > "$T/jrmI.src"; "$B" "$T/jrmI.src" > "$T/jrmI" 2>&1; check "jitReturnMidT interpreted twin runs" 0 $?
+sentinel "jitReturnMidT interpreted twin sentinel" "$T/jrmI" "JITRETURNMID SENTINEL"
+kindRow "jitReturnMidT the interpreted twin: RM-1 RM-2 (the intended values)" "$(_jt "$T/jrmI" RM-1) $(_jt "$T/jrmI" RM-2)" "46 0"
 
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
 #  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. Pinned at 139 under a 10 s alarm, BORN RED
@@ -6292,17 +6322,6 @@ for _fc in jitForCursorT:JITFORCURSOR jitForBodyT:JITFORBODY; do
 done
 kindRow "jitForCursorT FC-0 control: a frame local that stays a count dumps clean (epilogueWriteBack's control)" "$(grep -c '^FC-0 control dumped' "$T/jitForCursorT")" "1"
 
-#  ⚑ jitReturnListT -- SEQ 392 R1, a find pinned before it is chased (Tony, 2026-10-21): lefty's shape under an INTERPRETED
-#  caller -- rlOuter (refused by the net, interpreted) calls the compiled rlT, which calls the compiled rlY, whose `return rlY`
-#  is a bare read of a field carrying a list. PINNED AT TODAY'S VALUES under a 10 s alarm; intended = the interpreted twin.
-#  BORN RED 2026-10-21 (trunk: exit 139 after "RL outer before").
-perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitReturnListT)" > "$T/jrl" 2>&1; _jrlx=$?
-kindRow "jitReturnListT jitted run's exit -- 139 (born red 2026-10-21; intended 0 = the twin)" "$_jrlx" "139"
-kindRow "jitReturnListT RL-2 the interpreted caller's statements after the call (born red 2026-10-21; intended 2)" "$(grep -c '^RL-2 ' "$T/jrl")" "0"
-sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$B" "$T/jrlI.src" > "$T/jrlI" 2>&1; check "jitReturnListT interpreted twin runs" 0 $?
-sentinel "jitReturnListT interpreted twin sentinel" "$T/jrlI" "JITRETURNLIST SENTINEL"
-kindRow "jitReturnListT the interpreted twin: RL-1, RL-2 lines (the intended values)" "$(_jt "$T/jrlI" RL-1) $(grep -c '^RL-2 ' "$T/jrlI")" "46 2"
-
 #  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
 #  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE
 #  (139) under a 10 s alarm; intended = the interpreted twin (exit 0, XP after two). No cure yet (F-129 open).
@@ -6311,6 +6330,16 @@ kindRow "xpLocT jitted run's exit -- F-129, pinned at today's 139 (intended 0 = 
 sed '/^jitter;$/d' "$(ip xpLocT)" > "$T/xplI.src"; "$B" "$T/xplI.src" > "$T/xplI" 2>&1; check "xpLocT interpreted twin runs" 0 $?
 sentinel "xpLocT interpreted twin sentinel" "$T/xplI" "XPLOCT SENTINEL"
 kindRow "xpLocT the interpreted twin: XP after two printed (the intended value)" "$(grep -c '^XP after two' "$T/xplI")" "1"
+
+#  ⚑ jitArgListT -- SEQ 392 R1 (Tony, 2026-10-21): testARG's shape. A compiled `print argument` whose argument carries a
+#  list at build: before the cure jitEmitBareRead's list arm degraded to NOTHING and the part was dropped. Intended = the
+#  interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21 on the branch point (three empty calls).
+run1 jitArgListT "$T/jal";   check "jitArgListT runs" 0 $?
+sentinel "jitArgListT sentinel" "$T/jal" "JITARGLIST SENTINEL"
+sed '/^jitter;$/d' "$(ip jitArgListT)" > "$T/jalI.src"; "$B" "$T/jalI.src" > "$T/jalI" 2>&1; check "jitArgListT interpreted twin runs" 0 $?
+sentinel "jitArgListT interpreted twin sentinel" "$T/jalI" "JITARGLIST SENTINEL"
+kindRow "jitArgListT the interpreted twin: three calls (the intended values)" "$(_jt "$T/jalI" AL)" "hasGroup 35 57"
+kindRow "jitArgListT jitted = the twin (born red 2026-10-21)" "$(_jt "$T/jal" AL)" "hasGroup 35 57"
 
 #  ⚑ jitterDatAT -- docket item 1 (SEQ 387), R0 (2026-10-20): THE datA MISREAD. A compiled `x.datA != 0` (or the bare
 #  `datA != 0` of generateParse's data exit) compares against tempField AS IT STOOD AT BUILD: runAccCompare's copy-out

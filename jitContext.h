@@ -606,6 +606,9 @@ inline bool gJitStmtCanRefuse = false;
 // call (jitStmtRT) instead of emitting nothing for it. gJitStmtRTDone keeps that call to one per statement.
 inline GroupItem *gJitStmt = nullptr;
 inline bool gJitStmtRTDone = false;
+// A handed-over statement that RETURNED (branchKind 3 at run time) parks its value here for the emitted code, which
+// reads it once into the result slot and leaves the function (SEQ 393 A). Null for a bare `return;`.
+inline GroupItem *gJitStmtRTValue = nullptr;
 // handOver THIS STATEMENT CANNOT BE EMITTED WITHOUT RUNNING SOMETHING AT BUILD (SEQ 384, Tony: compiling has no side
 // effects). Set by jitHandOver; at the statement's end aCTionBlocK rolls back what the statement emitted and emits one
 // run-time call (jitStmtEnd). A mark per statement under emission, nested blocks included; each mark saves the
