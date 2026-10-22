@@ -649,7 +649,8 @@ endSetGuard:
         if isEmpty()    guardSet    = 0;
         if guardSet {
             guardSet.name = tag " Guardset";
-            guarded         = true;
+            guardSet.setBuffer   += guardSet.toString();
+            guarded     = true;
             if isMember && parent.guardSet  parent.guardSet += guardSet; }}
     else unGuarded = true;
 returnGuard:
@@ -1747,15 +1748,15 @@ void setCount(int i)
                                 setDebug
 	Debug every component below this one.
 ***************************************************************************/
-void setDebug()
+void setDebug(GroupItem guardFlag)
 {
 GroupItem grup;
 int debugStatus = debugged;
     while grup = next(grup) {
         if grup.noPrint continue;
         if grup.debugged == debugStatus continue;
-        grup.debugged = !grup.debugged;
-        if grup.groupList grup.setDebug(); }
+        if guardFlag    grup.debugGuard = !grup.debugGuard;
+        grup.debugged = !grup.debugged; }
 }
 
 void setGroup(GroupItem g)

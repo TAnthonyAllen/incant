@@ -120,7 +120,7 @@ void setCharacter(char c);
 void setCharacterSet(PLGset *set);
 void setContent(GroupItem *item);
 void setCount(int i);
-void setDebug();
+void setDebug(GroupItem *guardFlag);
 void setGroup(GroupItem *g);
 void setItem(PLGitem *i);
 void setJitEmitter(void *m);

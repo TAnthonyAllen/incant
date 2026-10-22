@@ -238,7 +238,7 @@ GroupItem   rules:,
                 continue; }
             if GUARD    debugGuard = true;
             debugged    = !debugged;
-            if ALLRULES grup.setDebug(); }}
+            if ALLRULES grup.setDebug(GUARD); }}
     else    debugAllRules = !debugAllRules;
     return input;
 }

@@ -920,6 +920,7 @@ endSetGuard:
 		if ( groupBody->guardSet )
 			{
 			groupBody->guardSet->name = ::concat(2,groupBody->tag," Guardset");
+			groupBody->guardSet->setBuffer->appendString(groupBody->guardSet->toString(),0,0);
 			groupBody->flags.guarding = 1;
 			if ( isMember(options.affiliation) && parent->groupBody->guardSet )
 				parent->groupBody->guardSet->set(groupBody->guardSet);
@@ -2242,7 +2243,7 @@ void GroupItem::setCount(int i)
                                 setDebug
 	Debug every component below this one.
 ***************************************************************************/
-void GroupItem::setDebug()
+void GroupItem::setDebug(GroupItem *guardFlag)
 {
 GroupItem 	*grup = 0;
 int 		debugStatus = groupBody->flags.debugged;
@@ -2252,9 +2253,9 @@ int 		debugStatus = groupBody->flags.debugged;
 			continue;
 		if ( grup->groupBody->flags.debugged == debugStatus )
 			continue;
+		if ( guardFlag )
+			grup->groupBody->flags.debugGuard = !grup->groupBody->flags.debugGuard;
 		grup->groupBody->flags.debugged = !grup->groupBody->flags.debugged;
-		if ( grup->groupBody->groupList )
-			grup->setDebug();
 		}
 }
 

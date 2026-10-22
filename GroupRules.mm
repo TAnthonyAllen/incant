@@ -328,7 +328,7 @@ GroupItem 	*grup = 0;
 				grup->groupBody->flags.debugGuard = 1;
 			grup->groupBody->flags.debugged = !grup->groupBody->flags.debugged;
 			if ( ALLRULES )
-				grup->setDebug();
+				grup->setDebug(GUARD);
 			}
 		}
 	else	ruler->debugAllRules = !ruler->debugAllRules;
@@ -7967,14 +7967,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 // opCallTest test of the call op: run target's action, or its method, on the argument
-extern "C" GroupItem *opCallTest(GroupItem *argument, GroupItem *target)
+extern "C" GroupItem *opCallTest(GroupItem *target, GroupItem *argument)
 {
 GroupItem 	*result = 0;
 	if ( target->groupBody->flags.actionType )
 		result = ::runAction(argument,target);
 	else
 	if ( target->groupBody->gMethod )
-		result = target->groupBody->gMethod(argument);
+		if ( argument )
+			result = target->groupBody->gMethod(argument);
+		else	result = target->groupBody->gMethod(target);
 	else	::fprintf(stderr,"opCallTest: %shas no method\n",target->groupBody->tag);
 	return result;
 }
@@ -11419,16 +11421,16 @@ extern "C" GroupItem *testOP(GroupItem *field)
 {
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
-GroupItem 	*argument = field->get(2);
+GroupItem 	*argument = field->get(3);
 	::printf("testOP:%s\n",op->groupBody->tag);
 	if ( argument && ::compare(argument->groupBody->tag,"instruct") == 0 )
 		argument = ::testOP(argument);
-GroupItem 	*target = field->get(3);
+GroupItem 	*target = field->get(2);
 	if ( target && ::compare(target->groupBody->tag,"instruct") == 0 )
 		target = ::testOP(target);
 	if ( op->groupBody->flags.isUnary )
 		result = op->groupBody->gMethod(argument);
-	else	result = op->groupBody->gOp(argument,target);
+	else	result = op->groupBody->gOp(target,argument);
 	return result;
 }
 

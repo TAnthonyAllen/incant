@@ -200,11 +200,13 @@ use target
 
 
 // opCallTest test of the call op: run target's action, or its method, on the argument
-extern GroupItem opCallTest(GroupItem argument,GroupItem target)
+extern GroupItem opCallTest(GroupItem target,GroupItem argument)
 {
 GroupItem result;
     if target.actionType    result = runAction(argument,target);
-    or target.method        result = target.method(argument);
+    or target.method
+        if argument         result = target.method(argument);
+        else                result = target.method(target);
     else cerr "opCallTest: "    target.tag "has no method":;
     return result;
 }

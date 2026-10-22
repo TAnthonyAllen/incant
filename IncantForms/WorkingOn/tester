@@ -18,13 +18,45 @@ define
     ;
 registry(TestStuff);
 define
-    InvokeGet   leftBrace-="[" ExpressioN rightBrace-="]";
-    InvokeCall  leftParen-="(" ExpressioN? rightParen-=")" code={
-        if argument.datA;   print "Saw expression":;
-        else                print "No expression":;
+    compareXP code={
+        maximus=righty;
+        print "maximus set to:" maximus:;
+        whatsIt = qa - qb + qc;
+        print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
+        partB = qb + qc;
+        $$partB;
+        print "partB = qb + qc;" partB:;
+        whatsIt = qa - partB;
+        print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
+        whatsIt = maximus -= whatsIt;
+        print "After running whatsIt = maximus -= whatsIt; whatsIt:" whatsIt "maximus:" maximus:;
+        maximus=righty;
+        print "maximus reset to:" maximus:;
+        whatsIt = maximus -= qa - qb + qc;
+        print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
+        };
+    xpListTest  isRule;
+    InvokeD     isRule startBox=[([] xp?=xpListTest endParen-?=")" endBrace-?="]";
+    InvokeR     isRule ANYtoken InvokeD? code={
+        print "Running InvokeR":;
+        $$InvokeD;
+        if InvokeD.listlengtH;
+            print "Saw InvokeD":;
+            :InvokeD startBox xp;
+            $$startBox;
+            if startBox == "(";     op := Operators["call"];
+            else                    op := Operators["=["];
+            $$op;
+                result  +% Operators["call"];
+                result  +% ANYtoken;
+                $$result;
+                dumpField(result);
+                return result;
+        return ANYtoken;
         };
     listEntries isRule
-        ANYtoken;
+        InvokeR;
+        QuotE;
         NumbeR;
         Operators;
     invokeTEST code={ print "invokeTEST:" taG "=" argument:; return argument; };
@@ -81,53 +113,37 @@ define
                     print "kind == 2 assigning op":;
                     if haveRoot == 1;   *slot +% *pending;
                     if haveRoot == 0;   root := *pending;
-                    $$pending;
-                    $$root;
+                    arg         = root;
                     instruct    +% *cur;
-                    instruct    +% *root;
-                    dumpField(instruct);
                     root        := copyOf(instruct);
                     clear(instruct);
                     slot        := *root;
                     haveRoot    = 1;
                 if kind == 1;
                     print "kind == 1 non assigning op?":;
+                    arg         = pending;
                     instruct    +% *cur;
-                    instruct    +% *pending;
-                    dumpField(instruct);
                     node        := copyOf(instruct);
                     clear(instruct);
                     if haveRoot == 1;   *slot +% *node;
                     if haveRoot == 0;   root := *node;
                     slot        := *node;
                     haveRoot    = 1;
+                dumpField(instruct);
             else    pending := *cur;
             cur := *cur.prioR;
         if haveRoot == 1;   *slot +% *pending;
         if haveRoot == 0;   root := *pending;
+        print "We done":;
         listChain(*root);
-        result = testOP(*root);
-        };
-    compareXP code={
-        maximus=righty;
-        print "maximus set to:" maximus:;
-        whatsIt = qa - qb + qc;
-        print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
-        partB = qb + qc;
-        $$partB;
-        print "partB = qb + qc;" partB:;
-        whatsIt = qa - partB;
-        print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
-        whatsIt = maximus -= whatsIt;
-        print "After running whatsIt = maximus -= whatsIt; whatsIt:" whatsIt "maximus:" maximus:;
-        maximus=righty;
-        print "maximus reset to:" maximus:;
-        whatsIt = maximus -= qa - qb + qc;
-        print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
+        result  = testOP(*root);
+        $$result;
+        return  result;
         };
     ;
 
-xpListTest("invokeTEST call righty -= qa - qb + qc;");
+debug xpListTest InvokeR InvokeD;
+xpListTest("invokeTEST(righty -= qa - qb + qc);");
 stop();
 
 compareXP();
@@ -155,6 +171,7 @@ stop();
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
+debug GUARD ALL xpListTest listEntries;
             grupTAG = *grup.taG;
             if op.datA;     opTAG = *op.taG;
             else            opTAG = "no operator";

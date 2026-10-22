@@ -1964,16 +1964,19 @@ done
 #    IV-1  `outside` IS THE NEGATIVE CONTROL. dbgOut is not under dbgTop and must
 #          stay 0, or 1/1/1 is equally satisfied by marking every rule in sight.
 #    IV-2  the involution. Without the toggle this reads 1/1/1.
+#  ⚠ RE-PINNED 2026-10-22 (Tony): setDebug NO LONGER RECURSES -- it marks X's
+#  direct children only, by design (offline work, with the guardFlag argument).
+#  So IV-1 reads leaf= 0: mid= 1 proves the one level, leaf= 0 proves no descent.
 run1 debugToggleT "$T/dbt"; check "debugToggleT runs" 0 $?
 sentinel "debugToggleT sentinel (no truncation)" "$T/dbt" "DEBUGTOGGLET SENTINEL"
 for _iv in "IV-0 before      top= 0 mid= 0 leaf= 0 outside= 0" \
-           "IV-1 after one   top= 1 mid= 1 leaf= 1 outside= 0" \
+           "IV-1 after one   top= 1 mid= 1 leaf= 0 outside= 0" \
            "IV-2 after two   top= 0 mid= 0 leaf= 0 outside= 0"; do
     if grep -qF "$_iv" "$T/dbt"; then
         echo "  ok    debugToggleT ${_iv%% *} -- PINNED BY VALUE"; green=$((green+1))
     else
         echo "  FAIL  debugToggleT ${_iv%% *} MOVED. Wanted: $_iv"
-        echo "        mid or leaf at 0 in IV-1 is the walk stopping at depth 1;"
+        echo "        mid at 0 in IV-1 is the walk stopping at depth 1; leaf at 1 is the recursion back;"
         echo "        outside at 1 is it marking rules outside the subtree;"
         echo "        IV-2 at 1 is the toggle gone and debug ALL a one-way trip."
         grep -F "${_iv%% *}" "$T/dbt" | sed 's/^/          actual:   /'
