@@ -461,7 +461,11 @@ inline std::vector<GroupBody*> gJitInlining;
 struct JitInlineFrame {
     llvm::BasicBlock *exitBB = nullptr;
     bool              used   = false;
+    //  chanPushed the region's entry pushed the argument channel (a run-time bind was emitted); its join pops it (SEQ 396)
+    bool              chanPushed = false;
 };
+// The argument jitEmitArgBind just bound, as emitted -- the self-call passes it to its callee (SEQ 396).
+inline llvm::Value *gJitBoundArg = nullptr;
 inline std::vector<JitInlineFrame> gJitInlineFrames;
 
 inline GroupItem       *gJitCurrentAction = nullptr;

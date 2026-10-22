@@ -1160,6 +1160,8 @@ use field
         // jitBind an INLINED callee is walked here at emit time, so the emit-time bind is this arm's; an emitted call binds in jitBindArgRT
         ruleArg.group = argument;
         jitInlinePush(field);
+        // runtimeBind the call's argument is bound again AT RUN TIME, inside a channel push the region's join pops (SEQ 396)
+        jitEmitInlineEnter(argument,field);
         result = processAction(field);
         jitInlinePop(result);
         goto exitRunAction; }
