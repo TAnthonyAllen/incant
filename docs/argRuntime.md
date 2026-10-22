@@ -41,3 +41,34 @@ Recon: docs/jitter.md "SEQ 392" R2, "SEQ 395" B0.
 
 (i) the inline arm's run-time bind removed -> termCountT jitted red (170 back); (ii) the pop removed -> jitInlineBindT's
 sections red; (iii) the pop on the fall-through only -> IB-2 and IB-3 (the early exits) red, IB-1 green. Restored md5 = cure.
+
+## Measured, and STOPPED (2026-10-22; clone; pre-cure ~/bin/incant at seal 194, cure ddB1 = 0095f08b)
+
+Built bare; canary **366 -> 370** (jitEmitArgBind, jitChanPushRT, jitChanPopRT, jitEmitInlineEnter); jitSaveFrameRT /
+jitRestoreFrameRT now call the channel halves. pop.sh pre-cure 1646, cure 1645; jitLadder identical; gen26 14 / 26 both.
+
+| pre-registered | measured |
+|---|---|
+| termCountT jitted `REFUSED argument` 170 -> 0 | **as registered (0)** -- the inlined argument is bound at run time |
+| termCountT jitted TCR / TCC 170 -> 664; refusals by name = the plain run's | **FAILED -- THE STOP: the run RUNS AWAY** (exit 142 under the 60 s alarm, 13.4 M lines, `TCC  ANYorNum` forever). tcRule's handed-over `iterate tcCur on argument` now succeeds at run time, so the COMPILED `while ++tcCur` after it is reached for the first time -- and never ends. Before the cure the iterate refused and the refusal left the inlined region ahead of the loop |
+| gen26 termCountT agrees, 14 -> 15 | **no: x1 = 142**, DISAGREE; agreement 14 / 26 |
+| generateParse's 8 inlines: parser / walkRules still -5 | **as registered** (25 files; termCountT's copy is lost to the kill) |
+| jitInlineBindT unchanged | **as registered**: every row as today |
+| everything else row for row; jitLadder identical | **true** |
+
+**Minimal reproduction (probe itRT, not in the fleet):** `itRule code={ iterate itCur on argument; while ++itCur; itN = itN
++ 1; };` inlined into `itWalk`'s `while ++itR; itRule(*itR);` over Grokking. Trunk: 0 children (85 refusals, the unbound
+argument). Cure: runs away (142). Twin: 247. So the bind exposes a SECOND mechanism: a compiled `++cursor` loop over an
+iterate that was HANDED TO RUN TIME does not terminate -- the cursor the run-time iterate set up is not the one the
+compiled step advances (inferred, NOT traced).
+
+**H7, run on the bracket half (the runaway does not touch it), single fixture, alarm-bounded:**
+- (ii) the pop removed -> jitInlineBindT **IB-1..IB-4 all `0 0 1`** (the caller reads the inlined callee's binding --
+  B0's leak exactly); IB-5 0.
+- (iii) the pop on the fall-through only -> **IB-2 and IB-3 `0 0 1`** (the refusal exit and the handed-over return's
+  exit skip it), **IB-1 and IB-4 `0 1 2`**.
+- (i) the run-time bind removed is the pre-cure state (170 `REFUSED argument`), not rebuilt.
+Restored md5 = the cure; bare retok = the committed .mm.
+
+**Open for Tony:** the compiled `++cursor` loop over a handed-over iterate -- recon, a fleet row (itRT's shape, pinned),
+or a fixit; Stroke B's buy waits on it, since the cure turns termCountT's wrong answer into a hang.
