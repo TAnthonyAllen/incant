@@ -41,6 +41,8 @@ define
         dumpContents(*this);
         if *InvokeD.listLengtH;
             print "Saw InvokeD":;
+            dumpContents(*InvokeD);
+            $$InvokeD;
             :InvokeD startBox xpListTest;
             $$xpListTest;
             if startBox == "(";     op := Operators["call"];
@@ -138,8 +140,7 @@ define
         //listChain(*root);
         //result  = testOP(*root);
         //$$result;
-        $$this;
-        return  result;
+        return  *argument;
         };
     ;
 
