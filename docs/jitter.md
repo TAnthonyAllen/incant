@@ -826,3 +826,37 @@ Both are constructed, since R0's one silent case never runs:
   holder's LEFTOVER state (the first, interpreted run's node, set to 5). Built 1 called 1, no -5; **counted 0, twin 1. WRONG.**
   ⚠ Shape B needs leftover run-time state at build -- jitterT's JT-3 gets it from jtGood's run before jtBad compiles.
 pop.sh 1693 -> 1705 (12 green, 2 born red: SA-1 1 / 3, SB-1 0 / 1). JT-3 and testPrecedence stay pinned as today.
+
+## SEQ 406 -- an inlined callee's constant argument at run time (2026-10-23): R0 STOPPED
+
+Ruled (Tony): option 1 -- the cure, then (c) re-certified, then (a); nothing bought until all three are certified.
+
+### R0 -- dated and named (taps in the clone at trunk bb76f1e5, reverted md5-identical)
+
+**Stroke B caused it.** inlineConstArgT: seal 194's binary (ddA1, jit-list-handover's cure, before Stroke B's bind) reads
+`nine 9` = the twin; Stroke B's cure (ddB1, 0095f08b) and trunk read `argument 0`. Bought with Stroke B at SEQ 403; no
+fleet row covered a constant argument to an inlined callee.
+
+| question | measured |
+|---|---|
+| which statements read `argument` | both of apShow's: `apH := argument.taG` and the `cerr` -- both HANDED OVER (jitStmtRT, owner apShow) |
+| what binding they find at run time | **argument BOUND -- to a box**: tag `argument`, count 0 |
+| was a run-time bind emitted for this inline | **YES**: jitEmitInlineEnter -> jitEmitArgBind, BOXED -- the argument node `nine` (`nine=9`) is not a literal, has data 0 and count 0 at build and is seeded as a field load, so the bind calls jitBoxCountRT(that load) = jitBoxCountRT(0), a fresh node tagged `argument` (its fixed tag) |
+
+**STOP (R0's condition): the read is not of an UNBOUND argument -- it is of a WRONGLY bound one.** R1's cure as written
+("bind on every inline, constant or not") would not move it: this inline already binds; the bind is what is wrong. Before
+Stroke B the inline bound the `nine` node itself (emit-time only), and the handed-over statements read that node, which
+answers `nine` / 9 when interpreted.
+
+**Options for Tony (nothing built):**
+1. **Box only a computed value.** jitEmitArgBind boxes when the argument is a value the build computed (an emitted
+   expression, a count field that HAS data); a parse-time node with no data at build -- a named value like `nine=9` -- is
+   bound as itself (the baked `callArg` path it already has). Shared with jitEmitSelfCall, so the self-call's IR moves for
+   such arguments too: registered movers owed.
+2. **Box under the argument's own tag** (jitBoxCountRT named after the node). Fixes the name only; the value stays 0,
+   because the count it boxes was never set. Not sufficient.
+3. **Bind the node at run time for an inline, never a box** (the self-call keeps its box). Narrowest; it leaves an
+   inlined call with a computed argument passing the node, which is what SEQ 380's box exists to avoid (its value read
+   through a shared node) -- so (1) is the better split.
+Recommendation: (1), certified by inlineConstArgT and testPrecedence's census construction, with Stroke B's rows
+(jitInlineBindT, termCountT jitted, itRT, itBackRT, jitCursorLifeT) and jitRecur* unmoved.
