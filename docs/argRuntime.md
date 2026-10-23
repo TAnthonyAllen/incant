@@ -106,3 +106,22 @@ Named, not covered: `--cursor` (opMinusMinus) over a handed-over iterate has the
    generateParse's inlines still -5. Anything else that moves is a finding.
 
 **H7 (cure committed first):** opPlusPlus's jitHandedCursor read removed -> itRT back to 142. Restored md5 = cure.
+
+### SEQ 402 R2 measured (2026-10-23; clone; pre-cure ddB1 = 0095f08b + the itRT rows, cure dd402 = b228051f)
+
+Built bare; generated diff = the intended blocks only (no #42 re-aim); canary **370 -> 372** (jitCursorHandOver,
+jitHandedCursor). pop.sh pre-cure **1648**, cure **1654**; jitLadder **PASSED, identical**; gen26 **14 -> 15 / 26**.
+
+| pre-registered | measured |
+|---|---|
+| itRT exit 142 -> 0, IT-1 -> 247, REFUSED 2 -> 24 = the twin's by name | **as registered** -- all four rows green |
+| termCountT jitted runs to its end; TCR / TCC -> 664; refusals by name = the plain run's | runs (exit 0), sentinel, TCR / TCC **664**: as registered. The by-name row stayed red, and the cause is the ROW (B1's, mine): the jitted source has one more line (`jitter;`), so every `[line N]` is one higher. Same 48 names. Stripped of line numbers (the commit after the cure) it is green |
+| gen26 termCountT x1 142 -> 0, agrees; 14 -> 15 | **as registered** (diff 0) |
+| jitStarIdiomT may move -- report, don't re-pin | **MOVED: its hang is cured** -- exit 0, JSI-1 walks **8** = JSI-I, its `# intended`. Its two rows (pinned 142 / 0) read red; NOT re-pinned |
+| everything else row for row; jitLadder identical; parser / walkRules -5 | **true** (gen26's other 25 lines identical); acceptStartT's printed address moves (H3 noise) |
+
+**H7** (cure committed first, single fixture, alarm-bounded): opPlusPlus's jitHandedCursor read removed -> itRT **exit
+142**, IT-1 never printed; termCountT jitted **142** under a 20 s alarm. Restored from the commit: Instruct.rtn and
+GroupRules.mm md5 = the cure.
+
+Named, not covered: `--cursor` over a handed-over iterate (opMinusMinus reads isIterator at build the same way).
