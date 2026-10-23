@@ -618,7 +618,7 @@ inline GroupItem *gJitStmtRTValue = nullptr;
 // run-time call (jitStmtEnd). A mark per statement under emission, nested blocks included; each mark saves the
 // enclosing statement's flag, so an inner statement can never consume its outer statement's hand-over.
 inline bool gJitHandOver = false;
-// gJitRTCursors the cursors of iterates handed over at build (SEQ 402): their ++ is the iterator step. Cleared per compile.
+// gJitRTCursors the cursors of iterates handed over at build (SEQ 402): their ++ is the iterator step. Cleared per function build (SEQ 403).
 inline std::set<void*> gJitRTCursors;
 struct JitStmtMark {
     llvm::BasicBlock  *bb      = nullptr;

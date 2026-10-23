@@ -3509,6 +3509,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	llvm::IRBuilder<> B(C);
 	// computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
 	gJitComputedVal = nullptr;
+	// cursorRecord a handed-over cursor belongs to one function's build: the next function built in the same compile must not read it (SEQ 403)
+	gJitRTCursors.clear();
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
 	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -3932,7 +3934,7 @@ extern "C" void jitChanPushRT()
 /*  jitCursorHandOver / jitHandedCursor -- an iterate refused at build is handed over to run time (its statement becomes one
     jitStmtRT call), so its cursor is not flagged isIterator until the run, and opPlusPlus's build-time read would emit a count
     increment that never ends. aCTionIterate's poison arms record the cursor; opPlusPlus asks, and emits the iterator step,
-    called at run time (SEQ 402). The record is per compile: jitRunAction clears it at entry.  */
+    called at run time (SEQ 402). The record is per function build: jitBuildFunction clears it at its head (SEQ 403).  */
 extern "C" void jitCursorHandOver(GroupItem *iterator)
 {
 	 if ( iterator ) gJitRTCursors.insert((void*)iterator->groupBody); 
@@ -6712,7 +6714,6 @@ extern "C" int jitRunAction(GroupItem *action)
 	if (action) {
 	GroupItem *stale = action->get("JiT");
 	if (stale)  stale->setText(::strdup("")); }
-	gJitRTCursors.clear();
 	jitInitOnce();
 	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
 	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
