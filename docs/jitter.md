@@ -860,3 +860,17 @@ answers `nine` / 9 when interpreted.
    through a shared node) -- so (1) is the better split.
 Recommendation: (1), certified by inlineConstArgT and testPrecedence's census construction, with Stroke B's rows
 (jitInlineBindT, termCountT jitted, itRT, itBackRT, jitCursorLifeT) and jitRecur* unmoved.
+
+## SEQ 407 -- Stroke B's bind boxes only a computed result (jit-seed-scope); then (c), then (a)
+
+Ruled (Tony): option 1 -- box only a value the build computed, by identity; a named field binds as itself. The cure rides
+jit-seed-scope with (c) and (a), bought together.
+
+### R0 -- fixtures (trunk)
+
+inlineConstArgT unchanged (today `argument 0`, twin `nine 9`). **inlineFieldArgT** (new): fdX = 5, a handed-over statement
+sets it to 7 (`fdX = fdList["c"].listLengtH + 7`, an operand whose kind is not a count), then fdShow(fdX) inlined reads
+`argument` in two handed-over statements. Today **FD-1 `argument 7`** (the value right, the box's tag), twin `fdX 7`;
+FD-2 7 = the twin. Born red; pop.sh 1711 -> 1718 (7 green, 1 red).
+Found on the way, not pinned (its value is pointer bits): after `fdX := fdX` the box carries **54463616** -- the bind boxes
+a holder's gCount, which shares storage with gGroup. The same rule (box by data), so the identity predicate covers it.
