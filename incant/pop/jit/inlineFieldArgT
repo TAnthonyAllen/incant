@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(InlineFieldArg);
+define
+    fdX=0;
+    fdH;
+    fdList;
+    fdShow code={
+        fdH := argument.taG;
+        cerr "FD-1 name [" ,*fdH "] value [" argument "]":;
+        };
+    fdDrive code={
+        fdX = 5;
+        fdX = fdList["c"].listLengtH + 7;
+        fdShow(fdX);
+        };
+    ;
+fdList +% a b c d e f g;
+jitter;
+fdDrive();
+cerr "FD-2 fdX after the run [" fdX "]":;
+cerr "INLINEFIELDARG SENTINEL":;
+stop();
+
+inlineFieldArgT -- SEQ 407 R0 (2026-10-23): inlineConstArgT's sibling, A FIELD WITH DATA. fdDrive sets fdX = 5 (data at
+build), then changes it with a statement handed to run time (`fdX = fdList["c"].listLengtH + 7`, an operand whose kind is
+not a count), then inlines fdShow(fdX), whose two statements are handed over too and read `argument`. Today Stroke B's
+bind sees a count with data and BOXES its load (jitBoxCountRT(7), a fresh node tagged `argument`): FD-1 reads name
+`argument`, value 7 -- the value right, the name the box's. The interpreted twin (`jitter;` -> `jitterOff;`) reads fdX, 7.
+
+Intended: FD-1 = the twin; FD-2 (fdX after the run) = the twin's 7. The cure is SEQ 407 R1: the bind boxes only a computed
+result, by identity, and binds a named field as itself.

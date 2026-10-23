@@ -6284,6 +6284,31 @@ kindRow "seedScopeBT the interpreted twin: SB-1 counted (the intended value)" "$
 fdRow "seedScopeBT SB-1 jitted: the caller's *sbMark == 0 counted" "$(_ss "$T/seedScopeBT" SB-1)" "0" "1"
 kindRow "seedScopeBT witness: sbDrive built 1 called 1 (compiled, no -5: the reuse is silent)" "$(grep -c '^=== jitter: sbDrive built 1 called 1 ===' "$T/seedScopeBT")" "1"
 
+#  ⚑ inlineConstArgT -- SEQ 405 R2 (2026-10-23): AN INLINED CALLEE HANDED A CONSTANT ARGUMENT READS `argument` UNBOUND IN
+#  ITS HANDED-OVER STATEMENTS. BORN RED, silent (built 1 called 1): AP-1 reads `argument 0`. # intended: the twin's `nine 9`.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineConstArgT)" > "$T/ica" 2>&1; check "inlineConstArgT runs" 0 $?
+sentinel "inlineConstArgT sentinel" "$T/ica" "INLINECONSTARG SENTINEL"
+sed 's/^jitter;$/jitterOff;/' "$(ip inlineConstArgT)" > "$T/icaI.src"; "$B" "$T/icaI.src" > "$T/icaI" 2>&1; check "inlineConstArgT interpreted twin runs" 0 $?
+sentinel "inlineConstArgT interpreted twin sentinel" "$T/icaI" "INLINECONSTARG SENTINEL"
+_ica () { sed -n 's/^AP-1 name \[ *\([^ ]*\) *\] value \[ *\([^ ]*\) *\].*/\1 \2/p' "$1"; }
+kindRow "inlineConstArgT the interpreted twin: AP-1 name value (the intended values)" "$(_ica "$T/icaI")" "nine 9"
+fdRow "inlineConstArgT AP-1 jitted: the inlined callee's argument, name and value" "$(_ica "$T/ica")" "argument 0" "nine 9"
+kindRow "inlineConstArgT witness: apDrive built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: apDrive built 1 called 1 ===' "$T/ica")" "1"
+
+#  ⚑ inlineFieldArgT -- SEQ 407 R0 (2026-10-23): A FIELD WITH DATA AS AN INLINED CALLEE'S ARGUMENT. fdX = 5, changed by a
+#  handed-over statement to 7, then fdShow(fdX) inlined reads `argument` in handed-over statements. BORN RED: Stroke B's bind
+#  boxes the count -- FD-1 reads `argument 7` (the box's tag). # intended: the twin's `fdX 7`; FD-2 the twin's 7.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineFieldArgT)" > "$T/ifa" 2>&1; check "inlineFieldArgT runs" 0 $?
+sentinel "inlineFieldArgT sentinel" "$T/ifa" "INLINEFIELDARG SENTINEL"
+sed 's/^jitter;$/jitterOff;/' "$(ip inlineFieldArgT)" > "$T/ifaI.src"; "$B" "$T/ifaI.src" > "$T/ifaI" 2>&1; check "inlineFieldArgT interpreted twin runs" 0 $?
+sentinel "inlineFieldArgT interpreted twin sentinel" "$T/ifaI" "INLINEFIELDARG SENTINEL"
+_ifa () { sed -n 's/^FD-1 name \[ *\([^ ]*\) *\] value \[ *\([^ ]*\) *\].*/\1 \2/p' "$1"; }
+_ifb () { sed -n 's/^FD-2 .*\[ *\([^ ]*\) *\].*/\1/p' "$1"; }
+kindRow "inlineFieldArgT the interpreted twin: FD-1 name value, FD-2 (the intended values)" "$(_ifa "$T/ifaI") $(_ifb "$T/ifaI")" "fdX 7 7"
+fdRow "inlineFieldArgT FD-1 jitted: the inlined callee's argument, name and value" "$(_ifa "$T/ifa")" "argument 7" "fdX 7"
+kindRow "inlineFieldArgT FD-2 jitted: fdX after the run = the twin's" "$(_ifb "$T/ifa")" "7"
+kindRow "inlineFieldArgT witness: fdDrive built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: fdDrive built 1 called 1 ===' "$T/ifa")" "1"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),

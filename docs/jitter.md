@@ -869,3 +869,50 @@ testPrecedence's moved values are the constant-argument mechanism's, not (c)'s. 
 2. **Accept (c) on its own certificate** (seedScopeBT, jitterT, the fleet, jitLadder, gen26 all hold) and carry
    testPrecedence's census construction as a named mover owed to the constant-argument cure; then build (a).
 3. Hold the branch until 1 lands.
+## SEQ 406 -- an inlined callee's constant argument at run time (2026-10-23): R0 STOPPED
+
+Ruled (Tony): option 1 -- the cure, then (c) re-certified, then (a); nothing bought until all three are certified.
+
+### R0 -- dated and named (taps in the clone at trunk bb76f1e5, reverted md5-identical)
+
+**Stroke B caused it.** inlineConstArgT: seal 194's binary (ddA1, jit-list-handover's cure, before Stroke B's bind) reads
+`nine 9` = the twin; Stroke B's cure (ddB1, 0095f08b) and trunk read `argument 0`. Bought with Stroke B at SEQ 403; no
+fleet row covered a constant argument to an inlined callee.
+
+| question | measured |
+|---|---|
+| which statements read `argument` | both of apShow's: `apH := argument.taG` and the `cerr` -- both HANDED OVER (jitStmtRT, owner apShow) |
+| what binding they find at run time | **argument BOUND -- to a box**: tag `argument`, count 0 |
+| was a run-time bind emitted for this inline | **YES**: jitEmitInlineEnter -> jitEmitArgBind, BOXED -- the argument node `nine` (`nine=9`) is not a literal, has data 0 and count 0 at build and is seeded as a field load, so the bind calls jitBoxCountRT(that load) = jitBoxCountRT(0), a fresh node tagged `argument` (its fixed tag) |
+
+**STOP (R0's condition): the read is not of an UNBOUND argument -- it is of a WRONGLY bound one.** R1's cure as written
+("bind on every inline, constant or not") would not move it: this inline already binds; the bind is what is wrong. Before
+Stroke B the inline bound the `nine` node itself (emit-time only), and the handed-over statements read that node, which
+answers `nine` / 9 when interpreted.
+
+**Options for Tony (nothing built):**
+1. **Box only a computed value.** jitEmitArgBind boxes when the argument is a value the build computed (an emitted
+   expression, a count field that HAS data); a parse-time node with no data at build -- a named value like `nine=9` -- is
+   bound as itself (the baked `callArg` path it already has). Shared with jitEmitSelfCall, so the self-call's IR moves for
+   such arguments too: registered movers owed.
+2. **Box under the argument's own tag** (jitBoxCountRT named after the node). Fixes the name only; the value stays 0,
+   because the count it boxes was never set. Not sufficient.
+3. **Bind the node at run time for an inline, never a box** (the self-call keeps its box). Narrowest; it leaves an
+   inlined call with a computed argument passing the node, which is what SEQ 380's box exists to avoid (its value read
+   through a shared node) -- so (1) is the better split.
+Recommendation: (1), certified by inlineConstArgT and testPrecedence's census construction, with Stroke B's rows
+(jitInlineBindT, termCountT jitted, itRT, itBackRT, jitCursorLifeT) and jitRecur* unmoved.
+
+## SEQ 407 -- Stroke B's bind boxes only a computed result (jit-seed-scope); then (c), then (a)
+
+Ruled (Tony): option 1 -- box only a value the build computed, by identity; a named field binds as itself. The cure rides
+jit-seed-scope with (c) and (a), bought together.
+
+### R0 -- fixtures (trunk)
+
+inlineConstArgT unchanged (today `argument 0`, twin `nine 9`). **inlineFieldArgT** (new): fdX = 5, a handed-over statement
+sets it to 7 (`fdX = fdList["c"].listLengtH + 7`, an operand whose kind is not a count), then fdShow(fdX) inlined reads
+`argument` in two handed-over statements. Today **FD-1 `argument 7`** (the value right, the box's tag), twin `fdX 7`;
+FD-2 7 = the twin. Born red; pop.sh 1711 -> 1718 (7 green, 1 red).
+Found on the way, not pinned (its value is pointer bits): after `fdX := fdX` the box carries **54463616** -- the bind boxes
+a holder's gCount, which shares storage with gGroup. The same rule (box by data), so the identity predicate covers it.
