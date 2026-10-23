@@ -129,3 +129,41 @@ Not viable.
 **(c) as written** (getLabelGroup unwraps one level): **does not move RR-1 or RR-2** -- the return's read strips exactly one
 level already. It moves the 554 two-level ExpressioN reads above (pop.sh 520 across 21 fixtures, gen26 34), each of
 which would stop one holder short of its value. H7: none to state, because it cures nothing.
+
+## SEQ 412 -- option (a), built on rule-return-label (NOT MERGED)
+
+Dictated via Tony ("Fearless"), 2026-10-23. RULINGS: (Tony) option (a) -- when a block ends on a return inside a rule's
+code, it hands back the returned value as-is; the one-level unwrap at aCTionBlocK's foot is skipped there. An action's
+return is unchanged, and so is a block that ends any other way. Ruling c' (runRule answers true for a rule with a
+generated parse) is out of scope and untouched.
+
+### R1 -- the cure (902a28d6, cut from trunk at seal 210, 18d60e2b)
+
+ruleActions.rtn:68:
+`if result && result.isGROUP && (branchKind != 3 || !currentMETHOD.group || !currentMETHOD.group.isRule)  result = result.gGroup;`
+"Ended on a return" is the control channel (branchKind 3), not the value's shape; "inside a rule's code" is
+currentMETHOD.group.isRule -- processAction sets currentMETHOD.group to `action` and its isRule arm reads `action.isRule`.
+The null guard is for a block with no current method (a top-level return). A return in an `if` arm keeps its label
+through every enclosing block, because branchKind stays 3 until processAction consumes it. Generated diff, read line by
+line: GroupRules.mm aCTionBlocK, the inline comment and that one condition; GroupRules.h unchanged; canary 373; no
+groups.ext. DesignDocs stump: TokFiles -> ruleActions -> aCTionBlocK -> ruleReturnKeepsLabel.
+
+### R2 -- certificate
+
+- **Movers, all at their intended values:** RR-1 `xpListTest=instruct`, RR-2 `ret=xpListTest`, RR-2S
+  `xpListTest=instruct`, RR-2T exit 0 value 5. **RR-0 unmoved:** `v=rrLeaf w=rrLeaf`.
+- **pop.sh 1748 -> 1752**, row for row against seal 210's run but those four and H3 (acceptStartT's address; the
+  fixture-name count, clone 289 vs live 296). **jitLadder PASSED, identical.** **gen26 identical to trunk's binary,
+  file for file: 26 / 26 exit 0, 15 / 26 agree.** printPop PASSED; decodePop = capture but the binary line; ddPop 5 / 1,
+  its designDocs md5 moved (the stump); frontier = capture; no directive anchors on the respelled line.
+- **H7:** the skip removed (the line restored to its trunk spelling) -> RR-1 `instruct`, RR-2 `ret=instruct`, by value.
+  Restored from git, retokked: md5 of ruleActions.rtn, GroupRules.mm, GroupRules.h = the cure.
+- **tester:**
+  - its `+%` spelling (`xpListTest +% *target; return xpListTest;`) prints byte-identical output on trunk and branch,
+    exit 0 on both.
+  - `*argument := *target; return *argument;`: trunk exit 139, branch exit 0. InvokeR now receives the label;
+    tester's `*xpListTest.firsT` then reads the label's own attribute `lizted`, because InvokeR was written for the
+    `+%` shape.
+  - A bare `xpListTest := *target; return xpListTest;`: exit 139 on BOTH binaries, and InvokeR's `*xpListTest` reads
+    null on both. Inside the code, the bare name `xpListTest` is a CodE local and not the label, so this spelling never
+    puts the chain in the label. The cure neither causes this crash nor fixes it.
