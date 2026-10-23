@@ -472,6 +472,16 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **PARKED (Tony, 2026-10-23, SEQ 413): should a rule's own name inside its code mean its label?** Design question,
+  another day. Today, inside xpListTest's code the bare name `xpListTest` is a CodE local, not the label the rule fired
+  on; the label is reached as `*argument` (seal 199), so tester's working spelling is `*argument := *target; return
+  *argument;`. Tony finds `*argument` "not intuitive". docs/ruleReturn.md (SEQ 412's tester section) has the measurement.
+- [ ] **PARKED (SEQ 413): a bare `<ruleName> := ...` in a rule's code crashes (139) where it should refuse by name.**
+  tester with `xpListTest := *target; return xpListTest;` exits 139 on trunk before and after SEQ 412, and InvokeR's
+  `*xpListTest` reads null. Measured: it gets past the `:=` and the return; the crash comes after InvokeR's
+  `arg := *xpListTest.firsT;`, in the tester lines that use `arg`. Site not traced. Wanted: a refusal naming the rule and
+  the spelling, not a segfault.
+
 - [ ] **STATEMENT-SCOPED CLEARING OF JITTED REFUSALS (SEQ 366 R2, Tony, 2026-10-16) -- its own stroke, together with the
   jitSetFlagTemp fixit.** Today an emit-time refusal leaves `ruler.refused` set for the rest of the build, silencing every
   later emitter that tests it; refuseValueTarget clears its own at once (`::clearRefusal(op)`, SEQ 365) as a local stop-gap,
