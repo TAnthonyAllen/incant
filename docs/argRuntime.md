@@ -72,3 +72,37 @@ Restored md5 = the cure; bare retok = the committed .mm.
 
 **Open for Tony:** the compiled `++cursor` loop over a handed-over iterate -- recon, a fleet row (itRT's shape, pinned),
 or a fixit; Stroke B's buy waits on it, since the cure turns termCountT's wrong answer into a hang.
+
+## SEQ 402 -- the runaway: the handed-over iterate's ++ (2026-10-23; clone; cure binary ddB1 = 0095f08b)
+
+**R0 (trunk 466084ca / 7ae97eca, cherry-picked here):** itRT is a fleet row, born red under its own 10 s alarm (jitStarIdiomT's
+shape): IT-1 jitted, today 0 on trunk, intended the twin's 247; its REFUSED lines, today 85, intended the twin's 24 (the
+members with no list), by name. On this branch before the cure: exit 142, IT-1 never printed, 2 REFUSED lines.
+
+**R1, MEASURED (no STOP):** itRT's IR on the cure binary (INCANT_JIT_DUMP=2, INCANT_JITTER_ERR): the inlined iterate is
+ONE run-time call (`%stmtRT = jitStmtRT(...)`, the statement handed over), and `++itCur` (block `cond3`) is `load i32`,
+`add 1`, `store`, `icmp ne 0` on a baked address -- a COUNT increment that is never zero. The outer `++itR` emits
+`iterNext` (opPlusPlus called at run time). Tap on opPlusPlus's build-time read (clone, reverted md5-identical): `itR
+isIterator=1`, `itCur isIterator=0`, both build walks; in one run the baked address is itCur's body + 0x58, its count. So
+the emitted ++ is a count increment on the cursor the handed-over iterate sets up at run time: the iterate refuses at
+build (the argument has no list there), so it never flags its cursor, and opPlusPlus takes the count arm.
+
+**R2, the cure, as designed (written before the build):** aCTionIterate's three poison arms (the source is nothing, a
+pointer not a list, no list) record the cursor under jitting -- `jitCursorHandOver(iterator)` into gJitRTCursors (cleared
+at each compile's entry, jitRunAction). Those are the refusals that hand the iterate's statement over (aCTionBlocK ->
+jitStmtEnd). opPlusPlus's build-time read asks `jitHandedCursor(result)` ahead of its isIterator arm, and a recorded
+cursor emits jitEmitIterStep -- the iterator step called at run time, where the handed-over iterate has flagged the
+cursor and given it its list -- the same IR the outer `++itR` gets. New externs jitCursorHandOver, jitHandedCursor:
+canary 370 -> 372. No groups.ext change (same include chain, bear-trap #46).
+Named, not covered: `--cursor` (opMinusMinus) over a handed-over iterate has the same build-time read; not touched.
+
+**Pre-registered movers (pre-cure = ddB1, pop.sh with the itRT rows):**
+1. **itRT**: exit 142 -> 0; IT-1 -> 247; REFUSED lines 2 -> 24 and = the twin's by name.
+2. **termCountT jitted**: runs to its end (exit 0, sentinel); TCR / TCC -> 664 = the plain run's; the refusals by name =
+   the plain run's. gen26 termCountT x1 142 -> 0 and agrees: 14 -> 15 / 26.
+3. **jitStarIdiomT may move** (its hang is the same class: aCTionIterate poisons `*idF` at build, opPlusPlus then reads
+   isIterator 0). Reported, not re-pinned (SEQ 402).
+4. Everything else row for row (termCountT's runaway line count is alarm-timing noise, H3); jitLadder identical;
+   generateParse's inlines still -5. Anything else that moves is a finding.
+
+**H7 (cure committed first):** opPlusPlus's jitHandedCursor read removed -> itRT back to 142. Restored md5 = cure.
