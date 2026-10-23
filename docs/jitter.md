@@ -826,3 +826,16 @@ Both are constructed, since R0's one silent case never runs:
   holder's LEFTOVER state (the first, interpreted run's node, set to 5). Built 1 called 1, no -5; **counted 0, twin 1. WRONG.**
   ⚠ Shape B needs leftover run-time state at build -- jitterT's JT-3 gets it from jtGood's run before jtBad compiles.
 pop.sh 1693 -> 1705 (12 green, 2 born red: SA-1 1 / 3, SB-1 0 / 1). JT-3 and testPrecedence stay pinned as today.
+
+### R2 -- (c) on jit-seed-scope, pre-registered (written before the build)
+
+A `:=` or `<-` notes its target's body in runOPdirect, beside jitNoteWriter (gJitStmtHolderWrites, with the open
+statement's depth); jitStmtEnd records the notes of a HANDED-OVER statement in gJitRTHolders and passes a compiled
+statement's notes to its enclosing statement (which may still be handed over whole). opDeref, under jitting, hands its
+statement over when its holder is recorded, before jitEmitDeref and never following it at build. Both cleared at
+jitBuildFunction's head beside gJitRTCursors. No extern added (canary 372), no groups.ext change.
+Movers (pre-cure = trunk c77f20be's binary; pop.sh 1705): seedScopeBT SB-1 0 -> 1 (= its twin); jitterT's witness rows
+for JT-3 (jtBad NOT JITTABLE, jtBad not jittable called 2) -- jtBad and jtResult expected to build, every new value named
+against the twin; testPrecedence under the census construction: its 27 -5 refusals, each one that leaves named, its rows
+against the twin (today 5 of 35 differ, the *Arg rows); seedScopeAT unmoved (shape A is (a)'s). Everything else row for
+row; jitLadder identical; gen26 identical. H7: the opDeref check removed -> SB-1 back to 0.
