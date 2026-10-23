@@ -2985,6 +2985,11 @@ extern void jitInlinePop(GroupItem resultNode)
     if (!gJitInlineFrames.empty()) {
         JitInlineFrame f = gJitInlineFrames.back();
         gJitInlineFrames.pop_back();
+        //  regionSeeds a value seeded inside the region was made in its blocks, which do not dominate the code after the join
+        //  (an early exit skips them) and belong to ONE inlined copy: cleared here, so the next read re-seeds (SEQ 407 (a))
+        if (f.seededAt <= gJitSeeded.size()) {
+            for (size_t i = f.seededAt; i < gJitSeeded.size(); i++) gJitSeeded[i]->jitData = nullptr;
+            gJitSeeded.resize(f.seededAt); }
         llvm::IRBuilder<> *b = gJitBuilder;
         if (f.used && b && b->GetInsertBlock()) {
             //  The fall-through path still needs to reach the merge. A block
@@ -3142,6 +3147,7 @@ extern void jitInlinePush(GroupItem action)
     JitInlineFrame f;
     if (gJitBuilder && gJitBuilder->GetInsertBlock())
         f.exitBB = llvm::BasicBlock::Create(gJitBuilder->getContext(), "inlineExit");
+    f.seededAt = gJitSeeded.size();
     gJitInlineFrames.push_back(f);
     %-
 }

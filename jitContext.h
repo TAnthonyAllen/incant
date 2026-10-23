@@ -463,6 +463,8 @@ struct JitInlineFrame {
     bool              used   = false;
     //  chanPushed the region's entry pushed the argument channel (a run-time bind was emitted); its join pops it (SEQ 396)
     bool              chanPushed = false;
+    //  seededAt gJitSeeded's size at the region's entry: what is seeded after it is the region's, and is cleared at its join (SEQ 407 (a))
+    size_t            seededAt = 0;
 };
 // The argument jitEmitArgBind just bound, as emitted -- the self-call passes it to its callee (SEQ 396).
 inline llvm::Value *gJitBoundArg = nullptr;
