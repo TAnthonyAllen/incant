@@ -6263,6 +6263,27 @@ check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
 kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "247"
 
+#  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
+#  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
+#  of saN. B: the callee's `*sbMark = 0` seeds a load of the node the holder's LEFTOVER state points at (its writer was
+#  handed over); the caller's `if *sbMark == 0` reuses it. BORN RED at today's values: A saN 1, B counted 0; both built 1
+#  called 1 (no -5). # intended: the interpreted twins, A 3, B 1. Their own 10 s alarm each.
+_ss () { sed -n "s/^$2 .*\[ *\([0-9]*\) *\].*/\1/p" "$1"; }
+for _sf in seedScopeAT seedScopeBT; do
+    perl -e 'alarm 10; exec @ARGV' "$B" "$(ip $_sf)" > "$T/$_sf" 2>&1; check "$_sf runs" 0 $?
+    sed '/^jitter;$/d' "$(ip $_sf)" > "$T/$_sf.I.src"; "$B" "$T/$_sf.I.src" > "$T/$_sf.I" 2>&1; check "$_sf interpreted twin runs" 0 $?
+done
+sentinel "seedScopeAT sentinel" "$T/seedScopeAT" "SEEDSCOPEA SENTINEL"
+sentinel "seedScopeAT interpreted twin sentinel" "$T/seedScopeAT.I" "SEEDSCOPEA SENTINEL"
+sentinel "seedScopeBT sentinel" "$T/seedScopeBT" "SEEDSCOPEB SENTINEL"
+sentinel "seedScopeBT interpreted twin sentinel" "$T/seedScopeBT.I" "SEEDSCOPEB SENTINEL"
+kindRow "seedScopeAT the interpreted twin: SA-1 saN (the intended value)" "$(_ss "$T/seedScopeAT.I" SA-1)" "3"
+fdRow "seedScopeAT SA-1 jitted: saN after three inlined bumps" "$(_ss "$T/seedScopeAT" SA-1)" "1" "3"
+kindRow "seedScopeAT witness: saDrive built 1 called 1 (compiled, no -5: the reuse is silent)" "$(grep -c '^=== jitter: saDrive built 1 called 1 ===' "$T/seedScopeAT")" "1"
+kindRow "seedScopeBT the interpreted twin: SB-1 counted (the intended value)" "$(_ss "$T/seedScopeBT.I" SB-1)" "1"
+fdRow "seedScopeBT SB-1 jitted: the caller's *sbMark == 0 counted" "$(_ss "$T/seedScopeBT" SB-1)" "0" "1"
+kindRow "seedScopeBT witness: sbDrive built 1 called 1 (compiled, no -5: the reuse is silent)" "$(grep -c '^=== jitter: sbDrive built 1 called 1 ===' "$T/seedScopeBT")" "1"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),

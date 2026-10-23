@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(SeedScopeB);
+define
+    sbMark;
+    sbTrue=0;
+    sbSet code={
+        *sbMark = 0;
+        };
+    sbRes code={
+        sbMark := new(argument);
+        sbSet();
+        if *sbMark == 0;    sbTrue = sbTrue + 1;
+        };
+    sbDrive code={
+        sbRes(seven=7);
+        };
+    ;
+sbDrive();
+*sbMark = 5;
+sbTrue = 0;
+jitter;
+sbDrive();
+print "SB-1 the caller's *sbMark == 0 after the callee wrote it, counted [" sbTrue "]":;
+print "SEEDSCOPEB SENTINEL":;
+stop();
+
+seedScopeBT -- SEQ 405 R1 (2026-10-23): shape B, SILENT -- jitterT JT-3's shape with nothing branching between the
+callee's write and the caller's read. sbRes writes its holder with a statement handed to run time (`sbMark := new(argument)`,
+a command call), then inlines sbSet (`*sbMark = 0`), then reads `if *sbMark == 0`. At BUILD, `*sbMark` follows the
+holder's LEFTOVER run-time state -- the node the first, interpreted sbDrive() minted, set to 5 at top level -- so sbSet
+seeds a load of that old node and sbRes's compare reuses it (the R0 tap: READ shape=B, seeded sbSet, read in sbRes).
+sbSet has no early exit, so the load dominates the read and the verifier passes: sbDrive is built and run, the compare
+reads the old node's 5, and SB-1 counts 0 where the interpreted twin (`jitter;` removed) counts 1.
+
+Intended: SB-1 = the twin's 1. The cure is (c): a dereference of a holder written by a handed-over statement is handed over
+too (SEQ 405 R2). (a) alone is PREDICTED not to cure it (not measured) -- cleared at sbSet's exit, the caller would re-seed
+the same old node with a fresh load, still 5.

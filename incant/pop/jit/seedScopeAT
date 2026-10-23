@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(SeedScopeA);
+define
+    saN=0;
+    saBump code={
+        saN = saN + 1;
+        };
+    saDrive code={
+        saBump();
+        saBump();
+        saBump();
+        };
+    ;
+jitter;
+saDrive();
+print "SA-1 three inlined copies of saBump, each saN = saN + 1: saN [" saN "]":;
+print "SEEDSCOPEA SENTINEL":;
+stop();
+
+seedScopeAT -- SEQ 405 R1 (2026-10-23): shape A, SILENT. saDrive inlines saBump three times in a straight line, nothing
+branching between the copies. Each copy walks the SAME parse nodes, and a node's jitData outlives the copy that seeded it:
+copies 2 and 3 find copy 1's load of saN already on the node and reuse it instead of loading again (the R0 tap: READ
+shape=A, seeded saBump#1, read in saBump#2 and #3). The copies' blocks dominate each other, so the verifier passes:
+saDrive is built and run, and saN ends 1 where the interpreted twin (`jitter;` removed) ends 3.
+
+Intended: SA-1 = the twin's 3, saDrive still built 1 called 1. The cure is (a), the inlined region's exit clear (SEQ 405 R3).
+In R0's fleet census the shape appears once, in baselineTestsNew's testUnitTests (printDefinition's Token), in a build that
+verified and was then discarded for a restart -- it never ran.

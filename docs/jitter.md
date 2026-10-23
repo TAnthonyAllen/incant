@@ -788,3 +788,41 @@ and read inside one function build, between which jitFlushTransient already clea
 
 **Recommendation:** (c) first, as a build-time-read stroke under docket item 3, then (a) as a region-boundary stroke
 with its own certificate; Tony's ruling on whether (a)'s seat counts as local.
+
+## SEQ 405 -- seeded values outliving their source: (c), then (a), on jit-seed-scope
+
+Ruled (Tony): (a) counts as local -- a field on JitInlineFrame is emitter bookkeeping. Order (c) then (a), one branch,
+bought together; (a) is never bought alone. (b) is not taken.
+
+### R0 -- the silent-reuse census (clone at trunk a120cb81; tap reverted md5-identical)
+
+The tap gave each inlined region an instance id (pushed in jitInlinePush, popped in jitInlinePop), stamped every jitData
+write with the region active at the time (JitData::setJitter and its constructor), and at every value read of a seeded
+node -- argV, argV2, assignRes, bareRead, binL / binR, unary, callArg, carryCopy -- logged a read whose seeding region is
+no longer active. Shape A: an instance of the same callee is active (copy to copy). Shape B: the reader is in an ancestor of
+the seeding region (callee to caller). Other: neither. Each read is folded into the build that ends it: END rc 0 =
+silent, -5 = refused, -8 = the net, DISCARD = an attempt thrown away for a restart. The tap wrote to a file only; pop.sh
+read row for row under it (an address, the fixture-name count).
+
+| instrument | A refused | A discarded (rc -5) | A discarded (rc 0) | A net-8 | B refused | silent (ran) |
+|---|---|---|---|---|---|---|
+| pop.sh | 32 (tcJ.src: walkRules) | 32 (tcJ.src: parser, walkRules) | 0 | 0 | 4 (jitterT, jtN.src: jtBad, jtResult) | **0** |
+| jitLadder | 0 | 0 | 0 | 0 | 0 | **0** |
+| gen26 | 832 (26 files: walkRules) | 832 (parser, walkRules) | 2 (baselineTestsNew: testUnitTests) | 2 (the same, rebuilt) | 0 | **0** |
+
+The nodes: walkRules / parser -- generateParse's `Token` (argV, assignRes, binR), `notFirstTimeThru` (unary),
+`parseRefused` (binL), each read in a later inlined copy of generateParse; jitterT -- jtMintRow's `argument` read in
+jtResult (binL). **No read fits neither shape. No silent case ran in the fleet.** The one would-be-silent read: baselineTestsNew's
+testUnitTests, printDefinition's `Token` (shape A) in a build that verified and was discarded for a restart; the rebuild
+was refused by the net (-8), so it never ran. ⚠ So the fleet carries the shapes only where the verifier catches them.
+
+### R1 -- the silent fixtures (trunk, born red)
+
+Both are constructed, since R0's one silent case never runs:
+- **seedScopeAT (shape A):** saDrive inlines saBump (`saN = saN + 1`) three times in a straight line; copies 2 and 3 reuse
+  copy 1's load of saN. Built 1 called 1, no -5; **saN 1, twin 3. WRONG.**
+- **seedScopeBT (shape B, jitterT JT-3 with nothing branching):** sbRes writes its holder by a handed-over statement
+  (`sbMark := new(argument)`), inlines sbSet (`*sbMark = 0`), reads `if *sbMark == 0`. At build `*sbMark` follows the
+  holder's LEFTOVER state (the first, interpreted run's node, set to 5). Built 1 called 1, no -5; **counted 0, twin 1. WRONG.**
+  ⚠ Shape B needs leftover run-time state at build -- jitterT's JT-3 gets it from jtGood's run before jtBad compiles.
+pop.sh 1693 -> 1705 (12 green, 2 born red: SA-1 1 / 3, SB-1 0 / 1). JT-3 and testPrecedence stay pinned as today.
