@@ -6212,6 +6212,21 @@ kindRow "jitStarIdiomT JSI-1 jitted walk never reported -- the hang comes first 
 sed -e 's/^testing(jsDrive);$//' -e '/JSI-1/d' "$(ip jitStarIdiomT)" > "$T/jsi.src"
 kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the intended value)" "$("$B" "$T/jsi.src" 2>&1 | sed -n 's/^JSI-I .*\[ *\([0-9]*\) *\].*/\1/p')" "8"
 
+#  ⚑ itRT -- SEQ 402 R0 (2026-10-23): STROKE B'S RUNAWAY (seal 195), PINNED BORN RED AT TODAY'S VALUE. An inlined callee
+#  iterates its run-time argument (`iterate itCur on argument; while ++itCur;`) inside a compiled loop. On trunk the
+#  argument is unbound, so every iterate refuses and IT-1 reads 0; jit-arg-runtime binds it, and the compiled ++itCur then
+#  never ends (142). So it runs under its own 10 s alarm, jitStarIdiomT's shape, never under run1 (H5).
+#  # intended: exit 0, IT-1 = the interpreted twin's 247, no REFUSED line.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip itRT)" > "$T/itrt" 2>&1; _itrtx=$?
+sed '/^jitter;$/d' "$(ip itRT)" > "$T/itrtI.src"; "$B" "$T/itrtI.src" > "$T/itrtI" 2>&1; _itrtIx=$?
+_itv () { sed -n 's/^IT-1 children walked \[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "247"
+fdRow "itRT REFUSED lines in the jitted run" "$(grep -c '^REFUSED' "$T/itrt")" "85" "0"
+check "itRT interpreted twin runs" 0 $_itrtIx
+sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
+kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "247"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),
