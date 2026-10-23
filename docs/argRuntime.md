@@ -146,3 +146,15 @@ gJitComputedVal -- every function build, the driver's restart builds included, s
 and its ++ always sit in one build (an inlined callee is part of its caller's). Movers: jitCursorLifeT's two red rows ->
 green; everything else row for row. H7: the clear removed from jitBuildFunction (and not restored at jitRunAction) -> LB-2
 back to 5. Canary unchanged (372).
+
+**R1, MEASURED (cure dd403a = 5e92c41b):** jitCursorLifeT LB-2 **6** = the twin, jit_bRec's `++lc` is `add i32 ... 1` (no
+iterNext), jit_lDrive keeps both iterNext (lR, lc); itRT 247. pop.sh **1661 -> 1663**, exactly the two registered rows
+(plus acceptStartT's printed address, H3). Canary 372. **H7:** the clear removed (not restored at jitRunAction) -> LB-2
+**5** again. Restored from the commit: jitEmitters.rtn and GroupRules.mm md5 = the cure.
+
+**R2, `--`, pre-registered (born red at dd403a):** itBackRT -- itRT with `while --ibCur`. Today exit **142** (opMinusMinus
+reads isIterator 0 at build and emits jitDec, a count that goes 0, -1, -2 ... and never stops), IB-1 never printed, 2 REFUSED
+before the kill; the twin 247 with 24 REFUSED. pop.sh 1663 -> 1666 (3 green, 4 born red). The cure: opMinusMinus asks
+jitHandedCursor ahead of its isIterator arm and emits jitEmitIterStepBack. Movers: itBackRT's four rows -> green; itRT,
+termCountT jitted, jitStarIdiomT and jitCursorLifeT unmoved; jitLadder identical; canary 372 (no new extern). H7: the
+check removed -> itBackRT 142 again.

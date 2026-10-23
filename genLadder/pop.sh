@@ -6246,6 +6246,21 @@ fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" 
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
 
+#  ⚑ itBackRT -- SEQ 403 R2 (2026-10-23): itRT with `--`. The inlined callee walks its run-time argument backward (`iterate
+#  ibCur on argument; while --ibCur;`); the iterate is handed over, so at build opMinusMinus reads isIterator 0 and emits a
+#  count decrement that never reaches 0. BORN RED: exit 142 under its own 10 s alarm, IB-1 never printed, 2 REFUSED lines
+#  before the kill. # intended: exit 0, IB-1 = the twin's 247, its REFUSED lines = the twin's (24), by name.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip itBackRT)" > "$T/ibrt" 2>&1; _ibrtx=$?
+sed '/^jitter;$/d' "$(ip itBackRT)" > "$T/ibrtI.src"; "$B" "$T/ibrtI.src" > "$T/ibrtI" 2>&1; _ibrtIx=$?
+_ibv () { sed -n 's/^IB-1 children walked back \[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "247"
+fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
+fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
+check "itBackRT interpreted twin runs" 0 $_ibrtIx
+sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
+kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "247"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),
