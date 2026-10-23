@@ -3217,6 +3217,12 @@ Everything else: do the needful.
 **Clay** (Claude at claude.ai) — design, reasoning, architecture, HWF navigation.
 **Clod** (Claude Code) — execution, file edits, GitHub, build verification.
 
+⚠⚠ **EVERY REPORT TO TONY OPENS WITH ONE PLAIN-LANGUAGE LINE: WHAT BROKE, WHAT IS FIXED, WHAT IS PENDING. THE DETAIL
+FOLLOWS IT. Tony, standing, 2026-10-23.** Tony's seat exists to catch mistakes, and a report too dense to follow weakens
+that check -- he should never have to take a result on faith. The line is written for him, not for the record: no hashes,
+no fixture names he has to decode, no instrument jargon. Clay's half of the same rule: every Clay turn ends with the one
+decision it asks of Tony, in one sentence.
+
 ⚠⚠ **`IncantForms/WorkingOn/tester` IS TRACKED, IT COMMITS WITH ROUTINE WORK, AND CLOD MAY
 WRITE IN IT. Tony, 2026-09-22: "tester can be committed when you are committing."** This
 **reverses SEQ 105 R4 (2026-09-01)**, which gitignored it; the ignore entry is **removed**, not
