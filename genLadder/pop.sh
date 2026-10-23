@@ -6309,6 +6309,16 @@ fdRow "inlineFieldArgT FD-1 jitted: the inlined callee's argument, name and valu
 kindRow "inlineFieldArgT FD-2 jitted: fdX after the run = the twin's" "$(_ifb "$T/ifa")" "7"
 kindRow "inlineFieldArgT witness: fdDrive built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: fdDrive built 1 called 1 ===' "$T/ifa")" "1"
 
+#  ⚑ jitContinueRT -- SEQ 409 R2 (2026-10-23): A `continue` IN A HANDED-OVER STATEMENT IS DROPPED (jitStmtRT honours only
+#  `return`). BORN RED, silent: PC-1 3. # intended: the twin's 2.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitContinueRT)" > "$T/jcr" 2>&1; check "jitContinueRT runs" 0 $?
+sentinel "jitContinueRT sentinel" "$T/jcr" "JITCONTINUERT SENTINEL"
+sed 's/^jitter;$/jitterOff;/' "$(ip jitContinueRT)" > "$T/jcrI.src"; "$B" "$T/jcrI.src" > "$T/jcrI" 2>&1; check "jitContinueRT interpreted twin runs" 0 $?
+_jcr () { sed -n 's/^PC-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+kindRow "jitContinueRT the interpreted twin: PC-1 (the intended value)" "$(_jcr "$T/jcrI")" "2"
+fdRow "jitContinueRT PC-1 jitted: members walked past a handed-over continue" "$(_jcr "$T/jcr")" "3" "2"
+kindRow "jitContinueRT witness: pcWalk built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: pcWalk built 1 called 1 ===' "$T/jcr")" "1"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),
