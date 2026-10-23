@@ -627,6 +627,10 @@ inline std::set<void*> gJitRTCursors;
 // with the depth that wrote them; a statement that is not handed over passes its writes up. Both cleared per function build.
 inline std::set<void*> gJitRTHolders;
 inline std::vector<std::pair<size_t, void*>> gJitStmtHolderWrites;
+// gJitArgFollowNode / gJitArgFollowVal a rule-holding argument followed at build: the node followArgument returned, and the
+// value that holds the binding at RUN time (SEQ 409). Read by jitEmitArgBind alone; cleared per statement and per build.
+inline GroupItem   *gJitArgFollowNode = nullptr;
+inline llvm::Value *gJitArgFollowVal  = nullptr;
 struct JitStmtMark {
     llvm::BasicBlock  *bb      = nullptr;
     llvm::Instruction *last    = nullptr;

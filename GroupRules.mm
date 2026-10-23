@@ -2722,7 +2722,23 @@ extern "C" GroupItem *followArgument(GroupItem *operand)
 	// argSlot under jitting, a separately built function's own argument is its frame slot, not the emit-time node (SEQ 380)
 	if ( GroupControl::groupController->groupRules->jitting ) {
 	GroupItem *slotRead = ::jitArgSlotRead(operand);
-	if ( slotRead ) return slotRead; }
+	if ( slotRead ) return slotRead;
+	//  argFollowRT a rule-holding argument has no slot: its RUN-TIME binding is published beside the build-time node this
+	//  returns -- the function's own argument is %field, an inlined callee's is a run-time follow -- for jitEmitArgBind (SEQ 409)
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data)
+	&& b && b->GetInsertBlock() && !b->GetInsertBlock()->getTerminator() ) {
+	GroupItem *own = gJitCurrentAction ? gJitCurrentAction->get((char*)"argument") : nullptr;
+	llvm::Value *v = nullptr;
+	if ( operand == own && gJitCurrentFn ) v = gJitCurrentFn->getArg(0);
+	else {
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx); llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	v = b->CreateCall(llvm::FunctionType::get(ptr, {ptr}, false),
+	b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitArgFollowRT), ptr, "argFollowFn"),
+	{b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "argField")}, "argNow"); }
+	gJitArgFollowNode = operand->getGroup();
+	gJitArgFollowVal  = v; } }
 	if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data) )
 	return operand->getGroup();
 	return operand;
@@ -3410,6 +3426,12 @@ extern "C" int jitArgCountRT(GroupItem *field)
 	
 }
 
+/*  jitArgFollowRT -- run time, an inlined callee's rule-holding argument: what its binding holds NOW (SEQ 409).  */
+extern "C" GroupItem *jitArgFollowRT(GroupItem *field)
+{
+	 return ( field && isGROUP(field->groupBody->flags.data) ) ? field->getGroup() : nullptr; 
+}
+
 /*  jitArgSlotRead -- an own-argument read in a separately built function: a fresh node whose value is a load of the
     argument slot at THIS point, or null when the operand is not that function's argument (SEQ 380). A node per read,
     so no result rides on a shared operand (SEQ 376). An inlined callee handed this node binds to it: the chain rule.  */
@@ -3538,6 +3560,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
 	gJitRTHolders.clear();
 	gJitStmtHolderWrites.clear();
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
 	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -4118,7 +4141,11 @@ extern "C" int jitEmitArgBind(GroupItem *argument, GroupItem *action)
 	gJitBoundArg = nullptr;
 	if (!b || !action) return 0;
 	llvm::Value *argVal = nullptr;
-	if (!argument && gJitLastIsNode && gJitResultNode) {
+	//  argFollowRT a rule-holding argument followed at build binds its RUN-TIME binding, never the build-time node (SEQ 409)
+	if (argument && gJitArgFollowVal && argument == gJitArgFollowNode) {
+	argVal = gJitArgFollowVal;
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr; }
+	if (!argVal && !argument && gJitLastIsNode && gJitResultNode) {
 	argVal = gJitResultNode;
 	gJitLastIsNode = false; }
 	if (argument || argVal) {
@@ -7371,6 +7398,7 @@ extern "C" void jitStmtBegin()
 	m.nBlocks = m.bb->getParent()->size(); }
 	m.outer = gJitHandOver;
 	gJitHandOver = false;
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	gJitStmtMarks.push_back(m);
 	
 }
@@ -7382,6 +7410,7 @@ extern "C" void jitStmtBegin()
 extern "C" void jitStmtEnd(GroupItem *statement)
 {
 	
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	if ( gJitStmtMarks.empty() ) return;
 	size_t depth = gJitStmtMarks.size();
 	JitStmtMark m = gJitStmtMarks.back();

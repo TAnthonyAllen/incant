@@ -148,6 +148,13 @@ extern int jitArgCountRT(GroupItem field)
 }
 
 
+/*  jitArgFollowRT -- run time, an inlined callee's rule-holding argument: what its binding holds NOW (SEQ 409).  */
+extern GroupItem jitArgFollowRT(GroupItem field)
+{
+    -% return ( field && isGROUP(field->groupBody->flags.data) ) ? field->getGroup() : nullptr; %-
+}
+
+
 /*  jitBoxCountRT -- run time, a self-call site: a fresh node holding the call's computed value, one per call, so
     the callee's slot and its run-time binding both read THIS call's argument (SEQ 380).  */
 extern GroupItem jitBoxCountRT(int value)
@@ -193,6 +200,7 @@ extern int jitBuildFunction(GroupItem action)
     // holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
     gJitRTHolders.clear();
     gJitStmtHolderWrites.clear();
+    gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 
     llvm::Type *i32 = llvm::Type::getInt32Ty(C);
     //  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -708,6 +716,7 @@ extern void jitStmtBegin()
         m.nBlocks = m.bb->getParent()->size(); }
     m.outer = gJitHandOver;
     gJitHandOver = false;
+    gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
     gJitStmtMarks.push_back(m);
     %-
 }
@@ -719,6 +728,7 @@ extern void jitStmtBegin()
 extern void jitStmtEnd(GroupItem statement)
 {
     -%
+    gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
     if ( gJitStmtMarks.empty() ) return;
     size_t depth = gJitStmtMarks.size();
     JitStmtMark m = gJitStmtMarks.back();
@@ -3043,7 +3053,11 @@ extern int jitEmitArgBind(GroupItem argument,GroupItem action)
     gJitBoundArg = nullptr;
     if (!b || !action) return 0;
     llvm::Value *argVal = nullptr;
-    if (!argument && gJitLastIsNode && gJitResultNode) {
+    //  argFollowRT a rule-holding argument followed at build binds its RUN-TIME binding, never the build-time node (SEQ 409)
+    if (argument && gJitArgFollowVal && argument == gJitArgFollowNode) {
+        argVal = gJitArgFollowVal;
+        gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr; }
+    if (!argVal && !argument && gJitLastIsNode && gJitResultNode) {
         argVal = gJitResultNode;
         gJitLastIsNode = false; }
     if (argument || argVal) {
