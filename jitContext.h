@@ -1,4 +1,5 @@
 #include <set>
+#include <functional>
 #include <map>
 // jitContext.h — Phase JIT codegen state (LLVM 22). Hand-written C++ — NOT tok-processed.
 // JitData mirrors OLDtawkDoNotTouch/Tokf/JitData.h (the proven pattern): a global
@@ -465,6 +466,8 @@ struct JitInlineFrame {
     bool              chanPushed = false;
     //  seededAt gJitSeeded's size at the region's entry: what is seeded after it is the region's, and is cleared at its join (SEQ 407 (a))
     size_t            seededAt = 0;
+    //  loopDepth the loop stack's depth at the region's entry: a loop above it is the region's own (SEQ 410)
+    size_t            loopDepth = 0;
 };
 // The argument jitEmitArgBind just bound, as emitted -- the self-call passes it to its callee (SEQ 396).
 inline llvm::Value *gJitBoundArg = nullptr;
@@ -636,7 +639,11 @@ struct JitStmtMark {
     llvm::Instruction *last    = nullptr;
     size_t             nBlocks = 0;
     bool               outer   = false;
+    //  branches the continue (2) / break (1) this statement carries, for its hand-over (SEQ 410)
+    int                branches = 0;
 };
+// gJitStmtRTBranches the handed-over statement's continue / break marks, read by jitEmitStmtRT (SEQ 410)
+inline int gJitStmtRTBranches = 0;
 inline std::vector<JitStmtMark> gJitStmtMarks;
 // ⚠ THE EMIT WALK IS ON (SEQ 372 R0). refuse() is silent only while this is set: a refusal raised in the emit walk is
 // announced by the statement's run-time interpreted run instead. Set by jitBuildFunction around jitExecBlock only;
