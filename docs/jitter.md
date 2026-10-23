@@ -916,3 +916,30 @@ sets it to 7 (`fdX = fdList["c"].listLengtH + 7`, an operand whose kind is not a
 FD-2 7 = the twin. Born red; pop.sh 1711 -> 1718 (7 green, 1 red).
 Found on the way, not pinned (its value is pointer bits): after `fdX := fdX` the box carries **54463616** -- the bind boxes
 a holder's gCount, which shares storage with gGroup. The same rule (box by data), so the identity predicate covers it.
+
+### R1 -- the cure, pre-registered (jit-seed-scope, written before the build)
+
+JitData gains `computed`, set where the build MINTS a value -- binResult, cmpResult, callResult, negResult, the argument
+slot read (argSlot), the dot / rem / short-circuit / inline-return result channels, and jitSeedLiteral (a literal's
+constant is a value the build made: Clod's reading of the ruling, since a literal has no field to bind as itself).
+jitEmitArgBind boxes only an operand whose JitData is `computed`; anything else binds as ITSELF through its baked
+`callArg` path, and is no longer seeded just to be boxed. No extern (canary 372), no groups.ext.
+
+**IR movers, from a census tap on the branch's (c) binary (reverted; its pop.sh read 1717 = the branch, inert)** -- each
+site where today's rule boxes an operand that is NOT computed now binds the node: the seeded load and the jitBoxCountRT
+call leave that site's IR, and `callArg` (the node) replaces `argBox`:
+- **inline binds of a named field**: argJitT (ajSrc), jitArithOperandT (aoA), jitCmpOperandAT (caA x2), jitCmpOperandT
+  (cmA), argRoundJ (arSrc, arOther x2), inlineConstArgT (nine), inlineFieldArgT (fdX), jitterT / jtN.src (jtResult's
+  zeroBump, good), seedScopeBT (seven), jitSelfFn (sfArg x2), testPrecedence's census construction (tpTestResult's 52 row
+  slugs). The callee's run-time `argument` reads the field itself.
+- **self-call binds of a named field**: argRoundJ (arA(arSrc) x3), jitSelfFn (sf(sfArg) x4). The callee function's
+  prologue reads the field the binding names, not a box.
+- **Token arguments** (literals: rsF(4), coF(3), acF(3), vcF(3), testRecurF / G(4), bRec(1)): tapped as NOT computed only
+  because jitSeedLiteral did not mark them; marked now, they box exactly as today -- predicted NO move. If any Token site
+  moves, the literal reading is wrong and that is a STOP.
+
+**Value movers:** inlineConstArgT FD -> `nine 9`, inlineFieldArgT FD-1 -> `fdX 7` (both = the twin). Predicted unmoved by
+value: jitInlineBindT IB-1..5, termCountT jitted, itRT, itBackRT, jitCursorLifeT, jitRecur*, jitArgChainT, jitSelfCallValT,
+jitCompileOnceT, argRoundJ, jitSelfFn's rungs. ⚠ The self-call rows named above are the risk: a named field whose value
+lives in the caller's frame slot is bound as a node, and only a flush makes the field current. Everything else row for row;
+jitLadder identical; gen26 reported. **H7:** box always (today's rule) -> inlineConstArgT `argument 0` again.
