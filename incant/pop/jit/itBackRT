@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(ItBackRT);
+define
+    ibN=0;
+    ibRule code={
+        iterate ibCur on argument;
+        while --ibCur;
+            ibN = ibN + 1;
+        };
+    ibWalk code={
+        iterate ibR on Grokking;
+        while ++ibR;
+            ibRule(*ibR);
+        };
+    ;
+jitter;
+ibWalk();
+print "IB-1 children walked back [" ibN "]":;
+print "ITBACKRT SENTINEL":;
+stop();
+
+itBackRT -- SEQ 403 R2 (2026-10-23): itRT with `--`. itRule's inlined callee walks its run-time argument BACKWARD:
+`iterate ibCur on argument; while --ibCur;`. The iterate is handed over to run time, so at build ibCur is not flagged
+isIterator, and opMinusMinus emits a count decrement (0, -1, -2 ... never 0): a runaway, exit 142 under the alarm.
+
+The interpreted twin (`jitter;` removed) walks each member's children back: 247, with 24 REFUSED lines (the members with
+no list). Intended: exit 0, IB-1 = the twin's, its REFUSED lines = the twin's by name. SEQ 402's ++ cure, applied to --.

@@ -461,7 +461,11 @@ inline std::vector<GroupBody*> gJitInlining;
 struct JitInlineFrame {
     llvm::BasicBlock *exitBB = nullptr;
     bool              used   = false;
+    //  chanPushed the region's entry pushed the argument channel (a run-time bind was emitted); its join pops it (SEQ 396)
+    bool              chanPushed = false;
 };
+// The argument jitEmitArgBind just bound, as emitted -- the self-call passes it to its callee (SEQ 396).
+inline llvm::Value *gJitBoundArg = nullptr;
 inline std::vector<JitInlineFrame> gJitInlineFrames;
 
 inline GroupItem       *gJitCurrentAction = nullptr;
@@ -614,6 +618,8 @@ inline GroupItem *gJitStmtRTValue = nullptr;
 // run-time call (jitStmtEnd). A mark per statement under emission, nested blocks included; each mark saves the
 // enclosing statement's flag, so an inner statement can never consume its outer statement's hand-over.
 inline bool gJitHandOver = false;
+// gJitRTCursors the cursors of iterates handed over at build (SEQ 402): their ++ is the iterator step. Cleared per function build (SEQ 403).
+inline std::set<void*> gJitRTCursors;
 struct JitStmtMark {
     llvm::BasicBlock  *bb      = nullptr;
     llvm::Instruction *last    = nullptr;

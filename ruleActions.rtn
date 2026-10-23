@@ -617,6 +617,8 @@ GroupItem   source;
     if !source {
         // nullAfterStar    THE CONSUMER OF THE NULL REFUSES
         iterator.fLAG = 1;
+        // cursorHandOver a refusal at build hands the statement to run time, and its cursor's ++ with it (SEQ 402)
+        if jitting { -% ::jitCursorHandOver(iterator); %- }
         return      refuse(IterSource,"iterate: the source is nothing -- a star on a field that holds no group yields null"); }
     or isGROUP {
         // argumentBINDING
@@ -624,6 +626,7 @@ GroupItem   source;
         else {
             String why="iterate: it holds a pointer, not a list; write *" source.tag;
             iterator.fLAG = 1;
+            if jitting { -% ::jitCursorHandOver(iterator); %- }
             return refuse(source,why); }}
     if jitting {
         // emitThenFallThru -- the only gate in the tree that does not return, and deliberately so.
@@ -636,6 +639,7 @@ GroupItem   source;
     else {
         // refusedSource A REFUSED SOURCE IS ANNOUNCED AND POISONED -- the poison is only thing between a refused iterate and an unbounded loop
         iterator.fLAG       = true;
+        if jitting { -% ::jitCursorHandOver(iterator); %- }
         return      refuse(source,"iterate: the source has no list"); }
     // attributes and members filter overloaded on hasAttributes and hasMembers
     if attributes   iterator.hasAttributes = true;

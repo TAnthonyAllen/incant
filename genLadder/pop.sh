@@ -6207,8 +6207,10 @@ kindRow "jitRecurSaveGT JRS-I interpreted twin: g(4), tripped, depth -- the guar
 #  hands over to run time, aCTionIterate resolves `*idF` at build and poisons, opPlusPlus reads isIterator at build and
 #  emits a plain increment, so `while ++w` never ends. # intended: exit 0, jitted walk = interpreted, 8 members.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitStarIdiomT)" > "$T/jsi" 2>&1; _jsix=$?
-kindRow "jitStarIdiomT jitted run's exit under a 10 s alarm -- 142, IT HANGS (# intended: 0)" "$_jsix" "142"
-kindRow "jitStarIdiomT JSI-1 jitted walk never reported -- the hang comes first (# intended: 1 line, 8 members = JSI-I)" "$(grep -c '^JSI-1 ' "$T/jsi")" "0"
+#  RE-PINNED SEQ 403 R3 (Tony's ruling): exit 0, 8 members = the twin; the build-time isIterator read on a handed-over
+#  iterate's cursor, cured with Stroke B (SEQ 402).
+kindRow "jitStarIdiomT jitted run's exit under a 10 s alarm (re-pinned SEQ 403: was 142, it hung)" "$_jsix" "0"
+kindRow "jitStarIdiomT JSI-1 jitted: members walked = JSI-I's 8 (re-pinned SEQ 403)" "$(sed -n 's/^JSI-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jsi")" "8"
 sed -e 's/^testing(jsDrive);$//' -e '/JSI-1/d' "$(ip jitStarIdiomT)" > "$T/jsi.src"
 kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the intended value)" "$("$B" "$T/jsi.src" 2>&1 | sed -n 's/^JSI-I .*\[ *\([0-9]*\) *\].*/\1/p')" "8"
 
@@ -6228,6 +6230,38 @@ fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
 kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "247"
+
+#  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
+#  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
+#  plain count. BORN RED at SEQ 402's cure: the record lives for the whole compile, so bRec emits the iterator step (LB-2
+#  reads 5, jit_bRec carries an iterNext). # intended: LB-2 = the twin's 6, no iterNext in jit_bRec. lDrive's own loop
+#  keeps the iterator step for lc (iterNext x2: lR, lc). Its own 10 s alarm (a cursor gone wrong can run away, H5).
+INCANT_JIT_DUMP=1 INCANT_JITTER_ERR="$T/jcl.ir" perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitCursorLifeT)" > "$T/jcl" 2>&1; check "jitCursorLifeT runs" 0 $?
+sentinel "jitCursorLifeT sentinel" "$T/jcl" "JITCURSORLIFE SENTINEL"
+sed '/^jitter;$/d' "$(ip jitCursorLifeT)" > "$T/jclI.src"; "$B" "$T/jclI.src" > "$T/jclI" 2>&1; check "jitCursorLifeT interpreted twin runs" 0 $?
+sentinel "jitCursorLifeT interpreted twin sentinel" "$T/jclI" "JITCURSORLIFE SENTINEL"
+_jcl2 () { sed -n 's/^LB-2 B.s ++lc value \[ *\([^ ]*\) *\].*/\1/p' "$1"; }
+_jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f)==1{p=1;next} p&&/^}/{p=0} p&&/%iterNext[0-9]* = call/{n++} END{print n+0}' "$1"; }
+kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "247 6"
+kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "247"
+fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
+fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
+kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
+
+#  ⚑ itBackRT -- SEQ 403 R2 (2026-10-23): itRT with `--`. The inlined callee walks its run-time argument backward (`iterate
+#  ibCur on argument; while --ibCur;`); the iterate is handed over, so at build opMinusMinus reads isIterator 0 and emits a
+#  count decrement that never reaches 0. BORN RED: exit 142 under its own 10 s alarm, IB-1 never printed, 2 REFUSED lines
+#  before the kill. # intended: exit 0, IB-1 = the twin's 247, its REFUSED lines = the twin's (24), by name.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip itBackRT)" > "$T/ibrt" 2>&1; _ibrtx=$?
+sed '/^jitter;$/d' "$(ip itBackRT)" > "$T/ibrtI.src"; "$B" "$T/ibrtI.src" > "$T/ibrtI" 2>&1; _ibrtIx=$?
+_ibv () { sed -n 's/^IB-1 children walked back \[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "247"
+fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
+fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
+check "itBackRT interpreted twin runs" 0 $_ibrtIx
+sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
+kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "247"
 
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
@@ -6309,6 +6343,36 @@ kindRow "jitReturnMidT witness: rmT built 1 called 1" "$(grep -c '^=== jitter: r
 sed '/^jitter;$/d' "$(ip jitReturnMidT)" > "$T/jrmI.src"; "$B" "$T/jrmI.src" > "$T/jrmI" 2>&1; check "jitReturnMidT interpreted twin runs" 0 $?
 sentinel "jitReturnMidT interpreted twin sentinel" "$T/jrmI" "JITRETURNMID SENTINEL"
 kindRow "jitReturnMidT the interpreted twin: RM-1 RM-2 (the intended values)" "$(_jt "$T/jrmI" RM-1) $(_jt "$T/jrmI" RM-2)" "46 0"
+
+#  ⚑ jitInlineBindT -- SEQ 396 B1: the inline arm's run-time argument bind (option (c)) and its push / pop-and-restore
+#  on every exit of the inlined region. Each section: an inlined callee with the caller's argument, a self-call, then the
+#  caller reads its own `argument` field at run time (a handed-over cerr). PINNED AT TODAY'S VALUES (trunk, seal 194),
+#  which are the twin's; these rows carry Stroke B's H7 (ii) and (iii), and the cure must leave them as they are.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitInlineBindT)" > "$T/jib" 2>&1; check "jitInlineBindT runs" 0 $?
+sentinel "jitInlineBindT sentinel" "$T/jib" "JITINLINEBIND SENTINEL"
+kindRow "jitInlineBindT IB-1 fall-through: the caller's argument after each self-call = the twin" "$(_jt "$T/jib" IB-1)" "0 1 2"
+kindRow "jitInlineBindT IB-2 callee ends on a refused statement: = the twin" "$(_jt "$T/jib" IB-2)" "0 1 2"
+kindRow "jitInlineBindT IB-2 refusals (one per call; names differ by road) = the twin's count" "$(grep -c 'iterate: the source has no list' "$T/jib")" "3"
+kindRow "jitInlineBindT IB-3 callee ends on a handed-over mid-body return: = the twin" "$(_jt "$T/jib" IB-3)" "0 1 2"
+kindRow "jitInlineBindT IB-4 nested inline: = the twin" "$(_jt "$T/jib" IB-4)" "0 1 2"
+kindRow "jitInlineBindT IB-5 the tail after the mid-body return never ran = the twin" "$(_jt "$T/jib" IB-5)" "0"
+kindRow "jitInlineBindT witness: ibF ibFr ibFm ibFn each built 1 called 1" "$(grep -c '^=== jitter: ibF[rmn]* built 1 called 1 ===' "$T/jib")" "4"
+sed '/^jitter;$/d' "$(ip jitInlineBindT)" > "$T/jibI.src"; "$B" "$T/jibI.src" > "$T/jibI" 2>&1; check "jitInlineBindT interpreted twin runs" 0 $?
+sentinel "jitInlineBindT interpreted twin sentinel" "$T/jibI" "JITINLINEBIND SENTINEL"
+kindRow "jitInlineBindT the interpreted twin: IB-1 IB-2 IB-3 IB-4, IB-5 (the intended values)" "$(_jt "$T/jibI" IB-1) / $(_jt "$T/jibI" IB-2) / $(_jt "$T/jibI" IB-3) / $(_jt "$T/jibI" IB-4) / $(_jt "$T/jibI" IB-5)" "0 1 2 / 0 1 2 / 0 1 2 / 0 1 2 / 0"
+
+#  ⚑ termCountT JITTED -- SEQ 396 B1: termCountT with `jitter;` after Start() (gen26's construction). tcWalk is compiled and
+#  inlines tcRule(*tcR) and, inside it, tcChild(*tcCur) -- each a RUN-TIME argument (a published node) that the inline arm
+#  bound at emit only, to null; tcRule's handed-over iterate then read an unbound `argument` (SEQ 392 R2). Intended = the
+#  plain run. BORN RED at SEQ 396's pre-registration (170 `REFUSED argument` lines; 170 TCR / TCC lines against 664).
+awk '/^Start\(\);/ && !d {print; print "jitter;"; d=1; next} {print}' "$(ip termCountT)" > "$T/tcJ.src"
+perl -e 'alarm 60; exec @ARGV' "$B" "$T/tcJ.src" > "$T/tcJ.o" 2> "$T/tcJ.e"; check "termCountT jitted runs" 0 $?
+sentinel "termCountT jitted sentinel" "$T/tcJ.o" "TERMCOUNT SENTINEL"
+kindRow "termCountT jitted: REFUSED argument lines -- an unbound inlined argument (born red SEQ 396: 170)" "$(grep -c '^REFUSED argument ' "$T/tcJ.e")" "0"
+kindRow "termCountT jitted: TCR / TCC lines = the plain run's (born red SEQ 396: 170)" "$(grep -c '^TCR\|^TCC' "$T/tcJ.e")" "$(grep -c '^TCR\|^TCC' "$T/tc.e")"
+#  noLineNumbers the jitted source carries one more line (`jitter;`), so every [line N] is one higher: compare the names
+#  with the line numbers stripped. Until SEQ 402 this row compared them raw and could not go green (instrument defect).
+kindRow "termCountT jitted: the refusals, by name, = the plain run's (born red SEQ 396)" "$(grep '^REFUSED' "$T/tcJ.e" | sed 's/ \[line [0-9]*\]//' | sort | md5 -q)" "$(grep '^REFUSED' "$T/tc.e" | sed 's/ \[line [0-9]*\]//' | sort | md5 -q)"
 
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
 #  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. Pinned at 139 under a 10 s alarm, BORN RED

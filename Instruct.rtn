@@ -635,6 +635,10 @@ extern GroupItem opMinusMinus(GroupItem result)
 GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
+    // handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its -- is the iterator step back (SEQ 403)
+    if jitting {
+        -% if ( ::jitHandedCursor(result) ) return jitEmitIterStepBack(result); %-
+    }
     if isIterator {
         // an iterator is not unwrapped in runOP; -- cannot tell members from attributes, as GroupItem has no priorMember() or priorAttribute()
         // iterGate the jitting gate sits INSIDE the iterator arm and ABOVE its return, or the compiled walk has no loop (F-53)
@@ -905,6 +909,10 @@ GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
     measurePlusPlusWrite(result);
+    // handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its ++ is the iterator step (SEQ 402)
+    if jitting {
+        -% if ( ::jitHandedCursor(result) ) return jitEmitIterStep(result); %-
+    }
     if isIterator {
         // iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)
         if jitting {

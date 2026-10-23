@@ -796,6 +796,11 @@ GroupItem 	*source = 0;
 		{
 		// nullAfterStar    THE CONSUMER OF THE NULL REFUSES
 		iterator->groupBody->flags.fLAG = 1;
+		// cursorHandOver a refusal at build hands the statement to run time, and its cursor's ++ with it (SEQ 402)
+		if ( GroupControl::groupController->groupRules->jitting )
+			{
+			 ::jitCursorHandOver(iterator); 
+			}
 		return ::refuse(IterSource,"iterate: the source is nothing -- a star on a field that holds no group yields null");
 		}
 	else
@@ -807,6 +812,10 @@ GroupItem 	*source = 0;
 		else {
 			char 	*why = ::concat(2,"iterate: it holds a pointer, not a list; write *",source->groupBody->tag);
 			iterator->groupBody->flags.fLAG = 1;
+			if ( GroupControl::groupController->groupRules->jitting )
+				{
+				 ::jitCursorHandOver(iterator); 
+				}
 			return ::refuse(source,why);
 			}
 		}
@@ -825,6 +834,10 @@ GroupItem 	*source = 0;
 	else {
 		// refusedSource A REFUSED SOURCE IS ANNOUNCED AND POISONED -- the poison is only thing between a refused iterate and an unbounded loop
 		iterator->groupBody->flags.fLAG = 1;
+		if ( GroupControl::groupController->groupRules->jitting )
+			{
+			 ::jitCursorHandOver(iterator); 
+			}
 		return ::refuse(source,"iterate: the source has no list");
 		}
 	// attributes and members filter overloaded on hasAttributes and hasMembers
@@ -3519,6 +3532,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	llvm::IRBuilder<> B(C);
 	// computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
 	gJitComputedVal = nullptr;
+	// cursorRecord a handed-over cursor belongs to one function's build: the next function built in the same compile must not read it (SEQ 403)
+	gJitRTCursors.clear();
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
 	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -3909,6 +3924,45 @@ extern "C" void jitCastNumberTextRT(GroupItem *field, double value)
 	 if (field) { char *t = (char*)malloc(32); snprintf(t,32,"%g",value); field->setText(t); } 
 }
 
+extern "C" void jitChanPopRT()
+{
+	
+	if ( gChanStkTop > 0 ) {
+	gChanStkTop--;
+	if ( gChanStkBody[gChanStkTop] ) {
+	gChanStkBody[gChanStkTop]->gGroup     = gChanStkGroup[gChanStkTop];
+	gChanStkBody[gChanStkTop]->flags.data = gChanStkData[gChanStkTop];
+	}
+	}
+	
+}
+
+/*  jitChanPushRT / jitChanPopRT -- the argument channel's two halves: push the pending entry (or an empty one) and clear
+    it; pop, and write a non-empty entry's binding back. jitSaveFrameRT / jitRestoreFrameRT call them around a self-call;
+    an inlined region with a run-time bind calls them alone, at its entry and its join -- the binding only, no locals
+    (SEQ 396 R0). gChanStk is the stack, so regions nest (R2).  */
+extern "C" void jitChanPushRT()
+{
+	
+	if ( gChanStkTop < GCHAN_DEPTH ) {
+	gChanStkBody[gChanStkTop]  = gChanPendBody;
+	gChanStkGroup[gChanStkTop] = gChanPendGroup;
+	gChanStkData[gChanStkTop]  = gChanPendData;
+	gChanStkTop++;
+	}
+	gChanPendBody = 0; gChanPendGroup = 0; gChanPendData = 0;
+	
+}
+
+/*  jitCursorHandOver / jitHandedCursor -- an iterate refused at build is handed over to run time (its statement becomes one
+    jitStmtRT call), so its cursor is not flagged isIterator until the run, and opPlusPlus's build-time read would emit a count
+    increment that never ends. aCTionIterate's poison arms record the cursor; opPlusPlus asks, and emits the iterator step,
+    called at run time (SEQ 402). The record is per function build: jitBuildFunction clears it at its head (SEQ 403).  */
+extern "C" void jitCursorHandOver(GroupItem *iterator)
+{
+	 if ( iterator ) gJitRTCursors.insert((void*)iterator->groupBody); 
+}
+
 /*******************************************************************************
     jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30. It ANNOUNCES and
     RETURNS; the caller then does the interpreted thing.
@@ -4047,6 +4101,54 @@ extern "C" GroupItem *jitEmitAdd(GroupItem *argument, GroupItem *target)
 		 return jitEmitConcat(argument, target); 
 		}
 	 return jitEmitBinary(argument, target, jitAdd); 
+}
+
+/*  jitEmitArgBind -- THE ONE BIND, emitted at run time for a call's argument: the published run-time node, a boxed count,
+    or the baked operand, through jitBindArgRT. jitEmitSelfCall's argument block, lifted verbatim, so the self-call and
+    runAction's inline arm bind alike (SEQ 393 R2, SEQ 396 R0). Returns 1 and leaves the bound argument in gJitBoundArg
+    when it emitted a bind; 0 for a call with no argument. Its header and the run-time-argument note are jitEmitSelfCall's.  */
+extern "C" int jitEmitArgBind(GroupItem *argument, GroupItem *action)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	gJitBoundArg = nullptr;
+	if (!b || !action) return 0;
+	llvm::Value *argVal = nullptr;
+	if (!argument && gJitLastIsNode && gJitResultNode) {
+	argVal = gJitResultNode;
+	gJitLastIsNode = false; }
+	if (argument || argVal) {
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	//  boxedArgument THE CALL PASSES ITS COMPUTED VALUE (SEQ 380): a fresh node per call, made at run time from the
+	//  i32 in hand, so the callee's slot reads THIS call's value. A non-scalar argument still passes its node.
+	llvm::Value *boxed = nullptr;
+	if (!argVal && !argument->groupBody->groupList) {
+	int ad = argument->groupBody->flags.data;
+	if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad)) {
+	if (argument->groupBody->flags.isLiteral)   jitSeedLiteral(argument);
+	else if (isCOUNT(ad))                       jitSeedField(argument); }
+	llvm::Value *av = argument->jitData ? argument->jitData->getJitter() : nullptr;
+	if (av && av->getType()->isIntegerTy(1)) av = b->CreateZExt(av, i32, "argWide");
+	if (av && av->getType() == i32) {
+	llvm::Value *boxFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBoxCountRT), ptr, "boxFn");
+	llvm::FunctionType *boxTy = llvm::FunctionType::get(ptr, {i32}, false);
+	boxed = b->CreateCall(boxTy, boxFn, {av}, "argBox"); } }
+	llvm::Value *argAddr = argVal ? argVal : boxed ? boxed : b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
+	llvm::Value *fldAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
+	llvm::Value *bindFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
+	llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg");
+	gJitBoundArg = argAddr;
+	return 1; }
+	return 0;
+	
 }
 
 /*******************************************************************************
@@ -4655,6 +4757,25 @@ extern "C" void jitEmitIfRT(GroupItem *input)
 	
 }
 
+/*  jitEmitInlineEnter -- runAction's inline arm, after jitInlinePush: bind the callee's argument at RUN time (the emit-time
+    bind stays, the walk needs it) and push the channel, so the inlined body's run-time statements read THIS call's
+    argument and the region's join (jitInlinePop) un-binds it on every exit (SEQ 396). A call with no argument emits
+    nothing, so its IR is unchanged.  */
+extern "C" void jitEmitInlineEnter(GroupItem *argument, GroupItem *action)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !b->GetInsertBlock() || b->GetInsertBlock()->getTerminator() || gJitInlineFrames.empty()) return;
+	if (!::jitEmitArgBind(argument, action)) return;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::FunctionType *vTy = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {}, false);
+	b->CreateCall(vTy, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitChanPushRT), ptr, "chanPushFn"), {});
+	gJitInlineFrames.back().chanPushed = true;
+	
+}
+
 /*******************************************************************************
     jitEmitIterStep -- THE JITTED ITERATOR ADVANCE. Tony's ruling, 2026-08-04:
     the interpreter's measured behaviour is the intended semantics and THE
@@ -5187,40 +5308,10 @@ extern "C" GroupItem *jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	//  rung JC recursed until the stack died. Bind the published node instead;
 	//  jitBindArgRT does the same bind with it at run time. The flag is cleared
 	//  because this is the consumer.   jitEmitters.jitEmitSelfCall.runtimeArg
-	llvm::Value *argVal = nullptr;
+	//  oneBindHelper the argument block lives in jitEmitArgBind, shared with runAction's inline arm (SEQ 396 R0)
 	llvm::Value *selfArg = nullptr;
-	if (!argument && gJitLastIsNode && gJitResultNode) {
-	argVal = gJitResultNode;
-	gJitLastIsNode = false; }
-	if (argument || argVal) {
-	llvm::LLVMContext &ctx = b->getContext();
-	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
-	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
-	//  boxedArgument THE CALL PASSES ITS COMPUTED VALUE (SEQ 380): a fresh node per call, made at run time from the
-	//  i32 in hand, so the callee's slot reads THIS call's value. A non-scalar argument still passes its node.
-	llvm::Value *boxed = nullptr;
-	if (!argVal && !argument->groupBody->groupList) {
-	int ad = argument->groupBody->flags.data;
-	if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad)) {
-	if (argument->groupBody->flags.isLiteral)   jitSeedLiteral(argument);
-	else if (isCOUNT(ad))                       jitSeedField(argument); }
-	llvm::Value *av = argument->jitData ? argument->jitData->getJitter() : nullptr;
-	if (av && av->getType()->isIntegerTy(1)) av = b->CreateZExt(av, i32, "argWide");
-	if (av && av->getType() == i32) {
-	llvm::Value *boxFn = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBoxCountRT), ptr, "boxFn");
-	llvm::FunctionType *boxTy = llvm::FunctionType::get(ptr, {i32}, false);
-	boxed = b->CreateCall(boxTy, boxFn, {av}, "argBox"); } }
-	llvm::Value *argAddr = argVal ? argVal : boxed ? boxed : b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
-	llvm::Value *fldAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
-	llvm::Value *bindFn = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
-	llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
-	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg");
-	selfArg = argAddr; }
+	if (::jitEmitArgBind(argument, action))
+	selfArg = gJitBoundArg;
 	//  ⚠ THE FRAME BRACKET, in runAction's OWN ORDER: bind, save, body, restore.
 	//  (GroupActions.rtn -- the gate at :705-707, bind :708-711, save :713, body
 	//  :721, restore :725 as of 2026-08-05. The earlier :670/:677/:685/:689 in
@@ -5783,6 +5874,11 @@ extern "C" int jitHandOver(char *what, GroupItem *node)
 	
 }
 
+extern "C" int jitHandedCursor(GroupItem *field)
+{
+	 return ( field && gJitRTCursors.count((void*)field->groupBody) ) ? 1 : 0; 
+}
+
 /* jitIfBegin  the gIF condition-to-blocks seam. Reads the condition value the
    just-emitted ExpressioN left in gJitResult (an i1 from jitEmitCompare — the
    compare-operator design plugs in HERE, this only requires an i1), creates the
@@ -5922,7 +6018,15 @@ extern "C" void jitInlinePop(GroupItem *resultNode)
 	resultNode->jitData->setJitter(merged);
 	gJitSeeded.push_back(resultNode); } } }
 	else if (f.exitBB && !f.used)
-	delete f.exitBB; }
+	delete f.exitBB;
+	//  chanPopAtJoin every exit of the region -- the fall-through, a return, a handed-over return, a refusal -- has
+	//  reached this one point above (they all target exitBB), so the pop here runs on all of them (SEQ 396 R1)
+	if (f.chanPushed && b && b->GetInsertBlock() && !b->GetInsertBlock()->getTerminator()) {
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::FunctionType *vTy = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {}, false);
+	b->CreateCall(vTy, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitChanPopRT), ptr, "chanPopFn"), {}); } }
 	if (!gJitInlining.empty()) gJitInlining.pop_back();
 	
 }
@@ -6597,15 +6701,7 @@ extern "C" void jitRestoreFrameRT(GroupItem *field)
 	::restoreLocalFields(field);
 	/*  Pop, and restore only a non-empty entry -- an argument-less jitted call
 	pushed an empty one and has nothing to give back.   jitContext.gChan  */
-	
-	if ( gChanStkTop > 0 ) {
-	gChanStkTop--;
-	if ( gChanStkBody[gChanStkTop] ) {
-	gChanStkBody[gChanStkTop]->gGroup     = gChanStkGroup[gChanStkTop];
-	gChanStkBody[gChanStkTop]->flags.data = gChanStkData[gChanStkTop];
-	}
-	}
-	
+	::jitChanPopRT();
 }
 
 /*******************************************************************************
@@ -6978,15 +7074,7 @@ extern "C" void jitSaveFrameRT(GroupItem *field)
 {
 	/*  Push the channel bracket's pending entry -- or an EMPTY one -- so the push
 	is unconditional and pairs with jitRestoreFrameRT's pop.   jitContext.gChan  */
-	
-	if ( gChanStkTop < GCHAN_DEPTH ) {
-	gChanStkBody[gChanStkTop]  = gChanPendBody;
-	gChanStkGroup[gChanStkTop] = gChanPendGroup;
-	gChanStkData[gChanStkTop]  = gChanPendData;
-	gChanStkTop++;
-	}
-	gChanPendBody = 0; gChanPendGroup = 0; gChanPendData = 0;
-	
+	::jitChanPushRT();
 	::saveLocalFields(field);
 }
 
@@ -8750,6 +8838,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
+	// handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its -- is the iterator step back (SEQ 403)
+	if ( ruler->jitting )
+		{
+		 if ( ::jitHandedCursor(result) ) return jitEmitIterStepBack(result); 
+		}
 	if ( result->groupBody->flags.isIterator )
 		{
 		// an iterator is not unwrapped in runOP; -- cannot tell members from attributes, as GroupItem has no priorMember() or priorAttribute()
@@ -9092,6 +9185,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	measurePlusPlusWrite(result);
+	// handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its ++ is the iterator step (SEQ 402)
+	if ( ruler->jitting )
+		{
+		 if ( ::jitHandedCursor(result) ) return jitEmitIterStep(result); 
+		}
 	if ( result->groupBody->flags.isIterator )
 		{
 		// iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)
@@ -10838,6 +10936,8 @@ GroupItem 	*ruleArg = 0;
 		// jitBind an INLINED callee is walked here at emit time, so the emit-time bind is this arm's; an emitted call binds in jitBindArgRT
 		ruleArg->setGroup(argument);
 		::jitInlinePush(field);
+		// runtimeBind the call's argument is bound again AT RUN TIME, inside a channel push the region's join pops (SEQ 396)
+		jitEmitInlineEnter(argument,field);
 		result = ::processAction(field);
 		::jitInlinePop(result);
 		goto exitRunAction;

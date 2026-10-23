@@ -187,6 +187,8 @@ extern int jitBuildFunction(GroupItem action)
     llvm::IRBuilder<> B(C);
     // computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
     gJitComputedVal = nullptr;
+    // cursorRecord a handed-over cursor belongs to one function's build: the next function built in the same compile must not read it (SEQ 403)
+    gJitRTCursors.clear();
 
     llvm::Type *i32 = llvm::Type::getInt32Ty(C);
     //  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -1905,6 +1907,21 @@ extern GroupItem jitEmitIterStep(GroupItem result)
 }
 
 
+/*  jitCursorHandOver / jitHandedCursor -- an iterate refused at build is handed over to run time (its statement becomes one
+    jitStmtRT call), so its cursor is not flagged isIterator until the run, and opPlusPlus's build-time read would emit a count
+    increment that never ends. aCTionIterate's poison arms record the cursor; opPlusPlus asks, and emits the iterator step,
+    called at run time (SEQ 402). The record is per function build: jitBuildFunction clears it at its head (SEQ 403).  */
+extern void jitCursorHandOver(GroupItem iterator)
+{
+    -% if ( iterator ) gJitRTCursors.insert((void*)iterator->groupBody); %-
+}
+
+extern int jitHandedCursor(GroupItem field)
+{
+    -% return ( field && gJitRTCursors.count((void*)field->groupBody) ) ? 1 : 0; %-
+}
+
+
 /*******************************************************************************
     jitEmitIterStepBack -- THE JITTED ITERATOR RETREAT. F-53, Tony's ruling
     2026-09-04. jitEmitIterStep's twin, one token different: it bakes
@@ -2265,40 +2282,10 @@ extern GroupItem jitEmitSelfCall(GroupItem argument,GroupItem action)
     //  rung JC recursed until the stack died. Bind the published node instead;
     //  jitBindArgRT does the same bind with it at run time. The flag is cleared
     //  because this is the consumer.   jitEmitters.jitEmitSelfCall.runtimeArg
-    llvm::Value *argVal = nullptr;
+    //  oneBindHelper the argument block lives in jitEmitArgBind, shared with runAction's inline arm (SEQ 396 R0)
     llvm::Value *selfArg = nullptr;
-    if (!argument && gJitLastIsNode && gJitResultNode) {
-        argVal = gJitResultNode;
-        gJitLastIsNode = false; }
-    if (argument || argVal) {
-        llvm::LLVMContext &ctx = b->getContext();
-        llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
-        llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-        llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
-        //  boxedArgument THE CALL PASSES ITS COMPUTED VALUE (SEQ 380): a fresh node per call, made at run time from the
-        //  i32 in hand, so the callee's slot reads THIS call's value. A non-scalar argument still passes its node.
-        llvm::Value *boxed = nullptr;
-        if (!argVal && !argument->groupBody->groupList) {
-            int ad = argument->groupBody->flags.data;
-            if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad)) {
-                if (argument->groupBody->flags.isLiteral)   jitSeedLiteral(argument);
-                else if (isCOUNT(ad))                       jitSeedField(argument); }
-            llvm::Value *av = argument->jitData ? argument->jitData->getJitter() : nullptr;
-            if (av && av->getType()->isIntegerTy(1)) av = b->CreateZExt(av, i32, "argWide");
-            if (av && av->getType() == i32) {
-                llvm::Value *boxFn = b->CreateIntToPtr(
-                    llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBoxCountRT), ptr, "boxFn");
-                llvm::FunctionType *boxTy = llvm::FunctionType::get(ptr, {i32}, false);
-                boxed = b->CreateCall(boxTy, boxFn, {av}, "argBox"); } }
-        llvm::Value *argAddr = argVal ? argVal : boxed ? boxed : b->CreateIntToPtr(
-            llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
-        llvm::Value *fldAddr = b->CreateIntToPtr(
-            llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
-        llvm::Value *bindFn = b->CreateIntToPtr(
-            llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
-        llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
-        b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg");
-        selfArg = argAddr; }
+    if (::jitEmitArgBind(argument, action))
+        selfArg = gJitBoundArg;
     //  ⚠ THE FRAME BRACKET, in runAction's OWN ORDER: bind, save, body, restore.
     //  (GroupActions.rtn -- the gate at :705-707, bind :708-711, save :713, body
     //  :721, restore :725 as of 2026-08-05. The earlier :670/:677/:685/:689 in
@@ -3006,8 +2993,116 @@ extern void jitInlinePop(GroupItem resultNode)
                     resultNode->jitData->setJitter(merged);
                     gJitSeeded.push_back(resultNode); } } }
         else if (f.exitBB && !f.used)
-            delete f.exitBB; }
+            delete f.exitBB;
+        //  chanPopAtJoin every exit of the region -- the fall-through, a return, a handed-over return, a refusal -- has
+        //  reached this one point above (they all target exitBB), so the pop here runs on all of them (SEQ 396 R1)
+        if (f.chanPushed && b && b->GetInsertBlock() && !b->GetInsertBlock()->getTerminator()) {
+            llvm::LLVMContext &ctx = b->getContext();
+            llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+            llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+            llvm::FunctionType *vTy = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {}, false);
+            b->CreateCall(vTy, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitChanPopRT), ptr, "chanPopFn"), {}); } }
     if (!gJitInlining.empty()) gJitInlining.pop_back();
+    %-
+}
+
+
+/*  jitEmitArgBind -- THE ONE BIND, emitted at run time for a call's argument: the published run-time node, a boxed count,
+    or the baked operand, through jitBindArgRT. jitEmitSelfCall's argument block, lifted verbatim, so the self-call and
+    runAction's inline arm bind alike (SEQ 393 R2, SEQ 396 R0). Returns 1 and leaves the bound argument in gJitBoundArg
+    when it emitted a bind; 0 for a call with no argument. Its header and the run-time-argument note are jitEmitSelfCall's.  */
+extern int jitEmitArgBind(GroupItem argument,GroupItem action)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    gJitBoundArg = nullptr;
+    if (!b || !action) return 0;
+    llvm::Value *argVal = nullptr;
+    if (!argument && gJitLastIsNode && gJitResultNode) {
+        argVal = gJitResultNode;
+        gJitLastIsNode = false; }
+    if (argument || argVal) {
+        llvm::LLVMContext &ctx = b->getContext();
+        llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+        llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+        llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+        //  boxedArgument THE CALL PASSES ITS COMPUTED VALUE (SEQ 380): a fresh node per call, made at run time from the
+        //  i32 in hand, so the callee's slot reads THIS call's value. A non-scalar argument still passes its node.
+        llvm::Value *boxed = nullptr;
+        if (!argVal && !argument->groupBody->groupList) {
+            int ad = argument->groupBody->flags.data;
+            if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad)) {
+                if (argument->groupBody->flags.isLiteral)   jitSeedLiteral(argument);
+                else if (isCOUNT(ad))                       jitSeedField(argument); }
+            llvm::Value *av = argument->jitData ? argument->jitData->getJitter() : nullptr;
+            if (av && av->getType()->isIntegerTy(1)) av = b->CreateZExt(av, i32, "argWide");
+            if (av && av->getType() == i32) {
+                llvm::Value *boxFn = b->CreateIntToPtr(
+                    llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBoxCountRT), ptr, "boxFn");
+                llvm::FunctionType *boxTy = llvm::FunctionType::get(ptr, {i32}, false);
+                boxed = b->CreateCall(boxTy, boxFn, {av}, "argBox"); } }
+        llvm::Value *argAddr = argVal ? argVal : boxed ? boxed : b->CreateIntToPtr(
+            llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
+        llvm::Value *fldAddr = b->CreateIntToPtr(
+            llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
+        llvm::Value *bindFn = b->CreateIntToPtr(
+            llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
+        llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+        b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg");
+        gJitBoundArg = argAddr;
+        return 1; }
+    return 0;
+    %-
+}
+
+
+/*  jitChanPushRT / jitChanPopRT -- the argument channel's two halves: push the pending entry (or an empty one) and clear
+    it; pop, and write a non-empty entry's binding back. jitSaveFrameRT / jitRestoreFrameRT call them around a self-call;
+    an inlined region with a run-time bind calls them alone, at its entry and its join -- the binding only, no locals
+    (SEQ 396 R0). gChanStk is the stack, so regions nest (R2).  */
+extern void jitChanPushRT()
+{
+    -%
+    if ( gChanStkTop < GCHAN_DEPTH ) {
+        gChanStkBody[gChanStkTop]  = gChanPendBody;
+        gChanStkGroup[gChanStkTop] = gChanPendGroup;
+        gChanStkData[gChanStkTop]  = gChanPendData;
+        gChanStkTop++;
+        }
+    gChanPendBody = 0; gChanPendGroup = 0; gChanPendData = 0;
+    %-
+}
+
+extern void jitChanPopRT()
+{
+    -%
+    if ( gChanStkTop > 0 ) {
+        gChanStkTop--;
+        if ( gChanStkBody[gChanStkTop] ) {
+            gChanStkBody[gChanStkTop]->gGroup     = gChanStkGroup[gChanStkTop];
+            gChanStkBody[gChanStkTop]->flags.data = gChanStkData[gChanStkTop];
+            }
+        }
+    %-
+}
+
+
+/*  jitEmitInlineEnter -- runAction's inline arm, after jitInlinePush: bind the callee's argument at RUN time (the emit-time
+    bind stays, the walk needs it) and push the channel, so the inlined body's run-time statements read THIS call's
+    argument and the region's join (jitInlinePop) un-binds it on every exit (SEQ 396). A call with no argument emits
+    nothing, so its IR is unchanged.  */
+extern void jitEmitInlineEnter(GroupItem argument,GroupItem action)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b || !b->GetInsertBlock() || b->GetInsertBlock()->getTerminator() || gJitInlineFrames.empty()) return;
+    if (!::jitEmitArgBind(argument, action)) return;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    llvm::FunctionType *vTy = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {}, false);
+    b->CreateCall(vTy, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitChanPushRT), ptr, "chanPushFn"), {});
+    gJitInlineFrames.back().chanPushed = true;
     %-
 }
 
@@ -3652,15 +3747,7 @@ extern void jitRestoreFrameRT(GroupItem field)
     restoreLocalFields(field);
     /*  Pop, and restore only a non-empty entry -- an argument-less jitted call
         pushed an empty one and has nothing to give back.   jitContext.gChan  */
-    -%
-    if ( gChanStkTop > 0 ) {
-        gChanStkTop--;
-        if ( gChanStkBody[gChanStkTop] ) {
-            gChanStkBody[gChanStkTop]->gGroup     = gChanStkGroup[gChanStkTop];
-            gChanStkBody[gChanStkTop]->flags.data = gChanStkData[gChanStkTop];
-            }
-        }
-    %-
+    jitChanPopRT();
 }
 
 
@@ -4037,15 +4124,7 @@ extern void jitSaveFrameRT(GroupItem field)
 {
     /*  Push the channel bracket's pending entry -- or an EMPTY one -- so the push
         is unconditional and pairs with jitRestoreFrameRT's pop.   jitContext.gChan  */
-    -%
-    if ( gChanStkTop < GCHAN_DEPTH ) {
-        gChanStkBody[gChanStkTop]  = gChanPendBody;
-        gChanStkGroup[gChanStkTop] = gChanPendGroup;
-        gChanStkData[gChanStkTop]  = gChanPendData;
-        gChanStkTop++;
-        }
-    gChanPendBody = 0; gChanPendGroup = 0; gChanPendData = 0;
-    %-
+    jitChanPushRT();
     saveLocalFields(field);
 }
 
