@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(InlineConstArg);
+define
+    apH;
+    apShow code={
+        apH := argument.taG;
+        cerr "AP-1 name [" ,*apH "] value [" argument "]":;
+        };
+    apDrive code={
+        apShow(nine=9);
+        };
+    ;
+jitter;
+apDrive();
+cerr "INLINECONSTARG SENTINEL":;
+stop();
+
+inlineConstArgT -- SEQ 405 R2 (2026-10-23), a find pinned before it is chased: AN INLINED CALLEE HANDED A CONSTANT ARGUMENT
+READS `argument` UNBOUND AT RUN TIME. apDrive inlines apShow(nine=9); apShow's two statements are handed to run time (a
+`:=` of a tag, a print of a holder's deref), and at run time `argument` is the callee's own unbound field: AP-1 reads
+name `argument`, value 0. Built 1 called 1, no -5 -- silent. The interpreted twin (`jitter;` -> `jitterOff;`) reads nine, 9.
+Measured on trunk 653b142d's binary and on jit-seed-scope's (c) alike: (c) did not cause it. It is what testPrecedence's
+newly compiled bodies hit under (c) (`ROW argument WANT 0`). Stroke B binds an inlined callee's argument at run time only
+when the argument is a run-time value; a constant is bound at emit time only (inferred from Stroke B's design, NOT traced).
+
+Intended: AP-1 name nine, value 9 = the twin.
