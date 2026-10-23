@@ -1042,3 +1042,23 @@ against the plain road); seedScopeAT 3, parser / walkRules compiled, unmoved. IR
 call bind whose argument is a followed rule-holding argument (walkRules / parser in gen26 and tcJ.src; the R0 pop.sh reads
 that feed a call). Stroke B's rows and SEQ 407's unmoved; jitLadder identical. H7: the published value not consumed
 (today's bake) -> the runaway back.
+
+### R2 MEASURED (cure dd409c = 8bd4eca2; against (a)'s run, pop.sh 1718) -- THE FIRST MECHANISM CURED, A SECOND BEHIND IT: STOPPED
+
+- **walkRules' attaches land on the rule it was called with**, by value against the plain road (the ADD / GET tap,
+  reverted): ADD StatemenT, ADD BlocK, ADD WardeD ... where (a) alone added Start 74,658 times; the plain road's first
+  attaches are Start, StatemenT, BlocK, WardeD -- the same rules. seedScopeAT 3; parser / walkRules compile. Canary 373.
+- **pop.sh 1718 = (a)'s run** but one row: termCountT jitted exit **139 -> 142** (no longer a stack overflow: it runs to the
+  60 s alarm). Stroke B's rows and SEQ 407's unmoved; **jitLadder identical**. gen26 NOT run -- every file would meet the same
+  loop and the 60 s alarm (~26 min for a known 0 / 26).
+- **H7:** the published value not consumed -> exit 139, the attaches on Start again (SEQ 408's shape). Restored md5 = cure.
+- **THE SECOND MECHANISM (named, pinned on trunk 00913cc8 as jitContinueRT, NOT cured): a `continue` in a handed-over
+  statement is dropped.** walkRules' guard `if *grup["pendingParseR"]; continue;` reads has=1 for StatemenT (BlocK's
+  member) -- and StatemenT is generated again; the plain road skips to rightCurly. The guard's statement is handed over
+  (an operator with no emitter), and jitStmtRT honours only branchKind 3 (`return`, SEQ 393 A): a `continue` (2) or
+  `break` (1) is cleared and lost. jitContinueRT: a compiled loop with `if *pcCur["mark"]; continue;` reads 3, twin 2, on
+  trunk's binary too. **Proposed cure (not built):** jitStmtRT returns 3 for a continue and 4 for a break, clearing
+  branchKind; jitEmitStmtRT branches to the innermost loop's condition (gLoopCondBlocks.back()) or exit
+  (gLoopExitBlocks.back()) -- the loop of the function or inlined region the statement sits in (SEQ 396's named gap: a
+  continue in an inlined callee with no loop of its own must not reach the caller's loop). Certificate: jitContinueRT 2;
+  termCountT jitted exit 0, TCR / TCC 664; gen26's crashes gone.
