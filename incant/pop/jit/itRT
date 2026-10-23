@@ -33,4 +33,4 @@ has no list`) and IT-1 reads 0. The interpreted twin (this file with `jitter;` r
 children. On jit-arg-runtime (Stroke B, 0095f08b) the argument is bound at run time, the iterate succeeds, and the
 compiled ++itCur never ends: exit 142 under the alarm.
 
-Intended: exit 0, IT-1 = the twin's 247, no REFUSED line.
+Intended: exit 0, IT-1 = the twin's 247, and the twin's REFUSED lines (24: the members with no list), by name.
