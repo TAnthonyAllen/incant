@@ -6216,13 +6216,15 @@ kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the int
 #  iterates its run-time argument (`iterate itCur on argument; while ++itCur;`) inside a compiled loop. On trunk the
 #  argument is unbound, so every iterate refuses and IT-1 reads 0; jit-arg-runtime binds it, and the compiled ++itCur then
 #  never ends (142). So it runs under its own 10 s alarm, jitStarIdiomT's shape, never under run1 (H5).
-#  # intended: exit 0, IT-1 = the interpreted twin's 247, no REFUSED line.
+#  # intended: exit 0, IT-1 = the interpreted twin's 247, its REFUSED lines = the twin's (24 leaves with no list), by name.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip itRT)" > "$T/itrt" 2>&1; _itrtx=$?
 sed '/^jitter;$/d' "$(ip itRT)" > "$T/itrtI.src"; "$B" "$T/itrtI.src" > "$T/itrtI" 2>&1; _itrtIx=$?
 _itv () { sed -n 's/^IT-1 children walked \[ *\([0-9]*\) *\].*/\1/p' "$1"; }
 fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "247"
-fdRow "itRT REFUSED lines in the jitted run" "$(grep -c '^REFUSED' "$T/itrt")" "85" "0"
+_itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
+fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
+fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
 kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "247"
