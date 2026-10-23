@@ -13,10 +13,10 @@ setParse does not have to worry about actionMethod
 /*******************************************************************************
 	Working on
 *******************************************************************************/
-
+tester now looking like an ExpressioN altho it does not handle StringXP. Probably should make StringXP a statement not an expression. So how to handle statements when generating an instruction chain? DO is a rule that is a statement ...
 
 /*******************************************************************************
-	Notions
+	How to add a do loop into an instruction chain
 *******************************************************************************/
 What a do loop would look like as an expression if a do loop were writing itself as one
     startLoop (the beginning of the loop in an xp list)
@@ -30,7 +30,25 @@ What a do loop would look like as an expression if a do loop were writing itself
             if xp ->startLoop
             else -> endLoop
     endLoop
+How to attack?
+    write a dummy DO rule copy and stick it in an expression chain
+        the rule copy should run its action to build its instruction to go on the expression chain; for now just list the generated instruction
+        will need to use an xp rule copy too
+    To get away from feeding xpTestList a resolved string; need a way to convert A(B) to A call B and A[B] to A =[ B;
+        DONE via InvokeR
+Can we add argument list handling to the xp chain process? I want to be able to bundle an argument list with no op in sight into a list. That will be inserting stuff into a complex algorithm (but I see no good way around that.
+
+/*******************************************************************************
+	How to add an if statement into an instruction chain
+*******************************************************************************/
+To run an if rule the way I want it to run, ExpressioN will have to be replaced by xpListTest and xpListTest has to handle statements; once it can handle statements, it should be able to handle parsing an action be it rule action or regular action. For xpListTest to replace ExpressioN, it will have to handle A(B); where A can be a method, an action, or a rule.
+if tests the result and chooses to run target or argument based on test result; this can happen in opif but where does opif find result to test? Do we have a 2 part parse? if rule runs; finds its labels; All those labels are already parsed when the rule action (to be written) fires. The rules that generate those labels return their labels as an instruction chain (basically an instruction that is the beginning of a chain). Problem is every rule action needs to be processed to return itself as a chain.
 Not sure how to write if statement as an expression: maybe xp if A; where if is an operator xp is target and A is argument cobbled together to contain startLoop and endLoop.
+
+/*******************************************************************************
+	Processing statements into an instruction chain
+*******************************************************************************/
+Mayybe add StatemenT as a listEntries option.
 A statement in an expression list is not a target or argument and does not produce a result but it must fire (as if it were a nested xp???) and the xp list carries on. If an xp list can contain statements then do loop is just list of statements to fire while running the xp chain
 An action is just a list of statements so an xp list can maybe run actions???
     has to set currentMETHOD and maintain current method stak
@@ -42,15 +60,6 @@ How would testOP handle statements coming in; how does xp chain say run this sta
         opif passed in xp result assesses it and returns true or false as the instruction result
         since DO rule loops, testOP should rerun itself if the instruction returns true or fall thru
             fall thru implies that testOP runs instruction.next but we have to make sure next exists as a proper option
-How to attack?
-    write a dummy DO rule copy and stick it in an expression chain
-        the rule copy should run its action to build its instruction to go on the expression chain; for now just list the generated instruction
-        will need to use an xp rule copy too
-    To get away from feeding xpTestList a resolved string; need a way to convert A(B) to A call B and A[B] to A =[ B;
-Can we add argument list handling to the xp chain process? I want to be able to bundle an argument list with no op in sight into a list. That will be inserting stuff into a complex algorithm (but I see no good way around that.
-
-xp produces a result
-if tests the result and chooses to run target or argument based on test result; this can happen in opif but where does opif find result to test? Do we have a 2 part parse? if rule runs; finds its labels; All those labels are already parsed when the rule action (to be written) fires. The rules that generate those labels return their labels as an instruction chain (basically an instruction that is the beginning of a chain). Problem is every rule action needs to be processed to return itself as a chain.
 How to handle statements that do not return anything for an expression to process; statements need to run in order; if an expression entry is a rule it needs to run and somehow trigger the next statement.
     The rule parse can fail -> bail
     The rule parse succeeds but its returned label is a chain result that needs to fire
@@ -58,5 +67,3 @@ How to handle statements that do not return anything for an expression to proces
         If a rule reads its input from the instruction stream? Assume parser(rule) already set the rule parse
             the rule runs runRule -> parse -> return result just like when calling a non-rule action/method
             we can probably test this using old parse to make sure the chain sequence works with rules, in which case rules return a result that fits into the current chain presumably as a value. Next step would be to change rule actions to return a chain that has not yet been run
-To run an if rule the way I want it to run, ExpressioN will have to be replaced by xpList and xpList has to handle statements; once xpList can handle statements, it should be able to handle parsing an action be it rule action or regular action. For xpList to replace ExpressioN, xpList will have to handle Parens and Braces which will have to return an instruction with call or get as operator; and resolving those requires glomming them with the field target that neither provides. InvokeArg will have to be revised like maybe:
-

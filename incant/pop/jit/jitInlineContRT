@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitInlineContRT);
+define
+    icN=0;
+    icAfter=0;
+    icList;
+    icSkip code={
+        if argument["mark"];    continue;
+        icAfter = icAfter + 1;
+        };
+    icWalk code={
+        iterate icCur on icList;
+        while ++icCur;
+            icSkip(*icCur);
+            icN = icN + 1;
+        };
+    ;
+icList +% a b c;
+icList["b"] +% mark;
+jitter;
+icWalk();
+cerr "IC-1 the caller's count after a callee's handed-over continue: icN = [" icN "]":;
+cerr "IC-2 the callee's statements after its continue: icAfter = [" icAfter "]":;
+cerr "JITINLINECONTRT SENTINEL":;
+stop();
+
+jitInlineContRT -- SEQ 410 R0 (2026-10-23): a handed-over `continue` in an INLINED callee with no loop of its own. icSkip is
+inlined into icWalk's compiled loop. MEASURED ON THE TWIN FIRST: the interpreter treats a continue in a loopless action as
+the END OF THAT ACTION -- IC-2 2 (the marked member skips icAfter) -- and the caller's loop is untouched: IC-1 3. Compiled
+today the continue is dropped: IC-2 3. Intended: the twin's IC-1 3, IC-2 2.

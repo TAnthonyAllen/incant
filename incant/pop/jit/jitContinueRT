@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitContinueRT);
+define
+    pcN=0;
+    pcList;
+    pcWalk code={
+        iterate pcCur on pcList;
+        while ++pcCur;
+            if *pcCur["mark"];  continue;
+            pcN = pcN + 1;
+        };
+    ;
+pcList +% a b c;
+pcList["b"] +% mark;
+jitter;
+pcWalk();
+cerr "PC-1 members walked past a handed-over continue: pcN = [" pcN "]":;
+cerr "JITCONTINUERT SENTINEL":;
+stop();
+
+jitContinueRT -- SEQ 409 R2 (2026-10-23), a find pinned before it is chased: A HANDED-OVER `continue` IS DROPPED. pcWalk is
+compiled; its loop body's `if *pcCur["mark"]; continue;` is handed to run time (an operator with no emitter), and jitStmtRT
+honours only a `return` (branchKind 3, SEQ 393 A) -- a `continue` (2) or a `break` (1) run there is cleared and lost, so the
+compiled loop falls through to `pcN = pcN + 1` for the marked member too. PC-1 reads 3 where the interpreted twin
+(`jitter;` -> `jitterOff;`) reads 2; built 1 called 1, silent. On trunk's binary and on jit-seed-scope-a alike. It is the
+second mechanism behind the compiled generator's runaway: walkRules' `if *grup["pendingParseR"]; continue;` is this shape.
+
+Intended: PC-1 = the twin's 2.
