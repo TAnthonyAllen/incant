@@ -781,6 +781,11 @@ GroupItem 	*source = 0;
 		{
 		// nullAfterStar    THE CONSUMER OF THE NULL REFUSES
 		iterator->groupBody->flags.fLAG = 1;
+		// cursorHandOver a refusal at build hands the statement to run time, and its cursor's ++ with it (SEQ 402)
+		if ( GroupControl::groupController->groupRules->jitting )
+			{
+			 ::jitCursorHandOver(iterator); 
+			}
 		return ::refuse(IterSource,"iterate: the source is nothing -- a star on a field that holds no group yields null");
 		}
 	else
@@ -792,6 +797,10 @@ GroupItem 	*source = 0;
 		else {
 			char 	*why = ::concat(2,"iterate: it holds a pointer, not a list; write *",source->groupBody->tag);
 			iterator->groupBody->flags.fLAG = 1;
+			if ( GroupControl::groupController->groupRules->jitting )
+				{
+				 ::jitCursorHandOver(iterator); 
+				}
 			return ::refuse(source,why);
 			}
 		}
@@ -810,6 +819,10 @@ GroupItem 	*source = 0;
 	else {
 		// refusedSource A REFUSED SOURCE IS ANNOUNCED AND POISONED -- the poison is only thing between a refused iterate and an unbounded loop
 		iterator->groupBody->flags.fLAG = 1;
+		if ( GroupControl::groupController->groupRules->jitting )
+			{
+			 ::jitCursorHandOver(iterator); 
+			}
 		return ::refuse(source,"iterate: the source has no list");
 		}
 	// attributes and members filter overloaded on hasAttributes and hasMembers
@@ -3916,6 +3929,15 @@ extern "C" void jitChanPushRT()
 	
 }
 
+/*  jitCursorHandOver / jitHandedCursor -- an iterate refused at build is handed over to run time (its statement becomes one
+    jitStmtRT call), so its cursor is not flagged isIterator until the run, and opPlusPlus's build-time read would emit a count
+    increment that never ends. aCTionIterate's poison arms record the cursor; opPlusPlus asks, and emits the iterator step,
+    called at run time (SEQ 402). The record is per compile: jitRunAction clears it at entry.  */
+extern "C" void jitCursorHandOver(GroupItem *iterator)
+{
+	 if ( iterator ) gJitRTCursors.insert((void*)iterator->groupBody); 
+}
+
 /*******************************************************************************
     jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30. It ANNOUNCES and
     RETURNS; the caller then does the interpreted thing.
@@ -5827,6 +5849,11 @@ extern "C" int jitHandOver(char *what, GroupItem *node)
 	
 }
 
+extern "C" int jitHandedCursor(GroupItem *field)
+{
+	 return ( field && gJitRTCursors.count((void*)field->groupBody) ) ? 1 : 0; 
+}
+
 /* jitIfBegin  the gIF condition-to-blocks seam. Reads the condition value the
    just-emitted ExpressioN left in gJitResult (an i1 from jitEmitCompare — the
    compare-operator design plugs in HERE, this only requires an i1), creates the
@@ -6685,6 +6712,7 @@ extern "C" int jitRunAction(GroupItem *action)
 	if (action) {
 	GroupItem *stale = action->get("JiT");
 	if (stale)  stale->setText(::strdup("")); }
+	gJitRTCursors.clear();
 	jitInitOnce();
 	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
 	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
@@ -9125,6 +9153,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	measurePlusPlusWrite(result);
+	// handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its ++ is the iterator step (SEQ 402)
+	if ( ruler->jitting )
+		{
+		 if ( ::jitHandedCursor(result) ) return jitEmitIterStep(result); 
+		}
 	if ( result->groupBody->flags.isIterator )
 		{
 		// iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)

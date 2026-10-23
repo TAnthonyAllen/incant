@@ -903,6 +903,10 @@ GroupRules  ruler = groupRules;
     // storeRuling an armed statement stores nothing
     if ruler.refused    return null;
     measurePlusPlusWrite(result);
+    // handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its ++ is the iterator step (SEQ 402)
+    if jitting {
+        -% if ( ::jitHandedCursor(result) ) return jitEmitIterStep(result); %-
+    }
     if isIterator {
         // iterGate the jitting gate sits INSIDE the iterator arm, or the compiled walk visits nothing (Tony, 2026-08-04)
         if jitting {
