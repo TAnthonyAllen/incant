@@ -979,3 +979,44 @@ No extern, no groups.ext. Movers: **seedScopeAT SA-1 1 -> 3** (= the twin); **pa
 26 / 78), gen26's agree count reported (today 15 / 26); testPrecedence's tpTestResult -5 expected to leave; seedScopeBT,
 inlineConstArgT, inlineFieldArgT, itRT, itBackRT, termCountT jitted, jitCursorLifeT unmoved; every other row unmoved or
 named; jitLadder identical or named. **H7:** the clear removed -> walkRules / parser -5 back, seedScopeAT 1.
+
+## SEQ 408 -- the buy of R1 + (c); (a) re-cut; the runaway's mechanism (2026-10-23)
+
+Proposed by Clay as "if you agree"; Tony sent it Fearless, and Clod agreed (no RULINGS block).
+
+### R0 -- the buy
+
+Merge ac7fa3ee: jit-seed-scope through 96ee0d2b (R1 and (c); docs through SEQ 407 R3's pre-registration). Clean merge;
+bare tokall = the merged .mm / .h; canary 372; groups.ext unchanged; ~/bin/incant rebuilt. jitterT's two JT-3 witness rows
+re-pinned with their sentence (jtBad builds: built 1 called 2; JT-3 2 = the twin). pop.sh **1721** = the branch's R1 run
+row for row but the re-pins, acceptStartT's address and the fixture-name count; jitLadder identical; printPop PASSED;
+decodePop = capture but the binary line (refreshed); ddPop 5 / 1; dirCheck PASSED = capture; frontier = capture.
+**(a) re-cut** onto jit-seed-scope-a (78e5ace3 the cure, 867eba05 its R3 record, on trunk ac7fa3ee); its jitContext.h,
+jitEmitters.rtn and GroupRules.mm are byte-identical to SEQ 407's (a) cure (dd407a), so its measurements stand.
+jit-seed-scope deleted (live, GitHub, clone).
+
+### R1 -- the runaway, named (taps on the (a) binary in the clone, reverted md5-identical)
+
+**THE PASS-THROUGH ARGUMENT IS FOLLOWED AT BUILD.** termCountT jitted: generateParse is inlined into walkRules (its own
+function, self-calling) as `generateParse(argument)`; its last statement `argument +< *bprCopy` is handed over and runs at
+run time. A tap on opAddProperty / opGet for `pendingParseR`: **every ADD (74,658) lands on `Start`, the same node**, while
+walkRules' guard `*grup["pendingParseR"]` asks StatemenT, SemI, BlocK, leftCurly -- each `has=0`, forever. The census tap
+(SEQ 407) shows the bind: `generateParse(argument)` in walkRules and `walkRules(argument)` in parser bind a BAKED node --
+Start, DO, StatemenT or Search, the root the build saw (argVal 0, boxed 0, the `callArg` path).
+**The site: followArgument (GroupActions.rtn:324).** Under jitting a function's own argument gets a run-time read only
+when it has a count slot (jitArgSlotRead); a group-holding argument (a rule) has none, so `:331-332` return
+`operand->getGroup()` -- the BUILD-TIME binding -- and that node is baked into every activation's bind. **This is S5 of
+docket item 3's 13-site census** (SEQ 386 R2 (d): "S1 (aCTionIterate) and S5 (followArgument) are the measurable start").
+Not R1's and not (a)'s: the same bind before R1 (never boxed, not a count) and before Stroke B (emit-time only, to the same
+node); it never ran because parser / walkRules were refused (-5) until (a).
+
+**Proposed cure (not built):** under jitting, followArgument on an isArgument operand that holds a GROUP (no count slot)
+does not follow at build: it emits a run-time follow of the CURRENT activation's binding -- `jitArgFollowRT(<the argument
+field>)`, returning the field's gGroup at run time -- and publishes it as the node in flight (gJitResultNode /
+gJitLastIsNode), the channel jitEmitArgBind's argVal path already consumes, so the callee binds the live rule. The
+argument field is the function's own (self-call: its fn's field) or the inlined callee's (bound at run time by Stroke B's
+push). One helper, one extern (canary +1), no groups.ext. **Its certificate:** termCountT jitted on (a) back to exit 0 and
+TCR / TCC 664; gen26's 25 crashes gone and its agree count reported; the fleet's other argument-follow consumers (jitArg*,
+jitRecur*, iterate's handed-over cursors) unmoved; H7 the follow at build restored -> the runaway back.
+⚠ It touches every compiled read of a group-holding argument, not only pass-throughs -- a census of followArgument's
+group arm under jitting is owed before the build.
