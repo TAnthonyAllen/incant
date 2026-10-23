@@ -1,0 +1,50 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitCursorLife);
+define
+    lc=0;
+    ln=0;
+    lbOut=0;
+    lRule code={
+        iterate lc on argument;
+        while ++lc;
+            ln = ln + 1;
+        };
+    bRec code={
+        if argument > 0;
+            lc = 5;
+            lbOut = ++lc;
+            bRec(argument - 1);
+        };
+    lDrive code={
+        bRec(1);
+        iterate lR on Grokking;
+        while ++lR;
+            lRule(*lR);
+        };
+    ;
+jitter;
+lDrive();
+print "LB-1 A's walk [" ln "]":;
+print "LB-2 B's ++lc value [" lbOut "] lc [" lc "]":;
+print "JITCURSORLIFE SENTINEL":;
+stop();
+
+jitCursorLifeT -- SEQ 403 R0 (2026-10-23): the lifetime of the handed-over-cursor record (SEQ 402's gJitRTCursors). One
+compile, two functions: lDrive inlines bRec(1), whose self-call gives bRec its OWN function, built after lDrive's first
+walk (a restart); lDrive's inlined lRule hands its iterate over (lc's source is a run-time argument) and records lc.
+bRec's `++lc` is on a plain count -- nothing has run when it is built -- so it must emit a count increment.
+
+Today (SEQ 402's cure): the record lives for the whole compile (cleared at jitRunAction's entry only), so bRec's build
+reads lc as a handed-over cursor and emits the iterator step: LB-2 reads 5 (the value before the increment); jit_bRec's
+IR carries one iterNext. The interpreted twin (`jitter;` removed) reads 6.
+
+Intended: LB-2 = the twin's 6; no iterNext in jit_bRec; lDrive's own loop still steps lc as an iterator (iterNext x2 in
+jit_lDrive: lR and lc), LB-1 = the twin's 247.
+
+The dispatched shape (two separate compiles, B's `++c` after `c = 5`) cannot discriminate: after A's run c is a real
+iterator on BOTH roads -- `c = 5` leaves it holding the walk's last member -- so B's iterator step is the language's.

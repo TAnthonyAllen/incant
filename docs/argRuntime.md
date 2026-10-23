@@ -125,3 +125,24 @@ jitHandedCursor). pop.sh pre-cure **1648**, cure **1654**; jitLadder **PASSED, i
 GroupRules.mm md5 = the cure.
 
 Named, not covered: `--cursor` over a handed-over iterate (opMinusMinus reads isIterator at build the same way).
+
+## SEQ 403 -- closing Stroke B: the cursor record's lifetime, then `--`
+
+**R0, MEASURED -- A LEAK (clone, cure dd402 = b228051f).** gJitRTCursors is cleared at ONE site, jitEmitters.rtn:3785,
+jitRunAction's entry: once per COMPILE. A compile builds several functions (the callees that need their own function,
+then the driver, across restarts), and they share it. Two probes:
+- **(a) the dispatched shape, two separate compiles** (A hands over `iterate c on argument`; B, compiled later, does
+  `c = 5; ... ++c`): B's IR carries iterNext -- but it CANNOT discriminate. After A's run c is a real iterator on BOTH roads
+  (`c = 5` leaves it holding the walk's last member; the twin prints DEFINing), so B's iterator step is the language's own
+  isIterator read, not the record.
+- **(b) one compile, two functions -- jitCursorLifeT, the fixture now:** lDrive inlines bRec(1), whose self-call gives bRec
+  its own function, built after lDrive's walk recorded lc. Nothing has run, lc is a plain count, and bRec's IR carries an
+  **iterNext**; LB-2 jitted **5**, the twin **6**. The record outlives the function build that wrote it.
+Born red on the branch (pop.sh 1654 -> 1661: 7 new green, 2 red -- LB-2 5 / 6, jit_bRec iterNext 1 / 0); jit_lDrive's
+iterNext x2 (lR, lc) is green and is R1's "A still steps its cursor".
+
+**R1, the reset, as designed:** the clear moves from jitRunAction's entry to jitBuildFunction's head, beside
+gJitComputedVal -- every function build, the driver's restart builds included, starts with an empty record; the iterate
+and its ++ always sit in one build (an inlined callee is part of its caller's). Movers: jitCursorLifeT's two red rows ->
+green; everything else row for row. H7: the clear removed from jitBuildFunction (and not restored at jitRunAction) -> LB-2
+back to 5. Canary unchanged (372).

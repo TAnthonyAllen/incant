@@ -6229,6 +6229,23 @@ check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
 kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "247"
 
+#  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
+#  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
+#  plain count. BORN RED at SEQ 402's cure: the record lives for the whole compile, so bRec emits the iterator step (LB-2
+#  reads 5, jit_bRec carries an iterNext). # intended: LB-2 = the twin's 6, no iterNext in jit_bRec. lDrive's own loop
+#  keeps the iterator step for lc (iterNext x2: lR, lc). Its own 10 s alarm (a cursor gone wrong can run away, H5).
+INCANT_JIT_DUMP=1 INCANT_JITTER_ERR="$T/jcl.ir" perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitCursorLifeT)" > "$T/jcl" 2>&1; check "jitCursorLifeT runs" 0 $?
+sentinel "jitCursorLifeT sentinel" "$T/jcl" "JITCURSORLIFE SENTINEL"
+sed '/^jitter;$/d' "$(ip jitCursorLifeT)" > "$T/jclI.src"; "$B" "$T/jclI.src" > "$T/jclI" 2>&1; check "jitCursorLifeT interpreted twin runs" 0 $?
+sentinel "jitCursorLifeT interpreted twin sentinel" "$T/jclI" "JITCURSORLIFE SENTINEL"
+_jcl2 () { sed -n 's/^LB-2 B.s ++lc value \[ *\([^ ]*\) *\].*/\1/p' "$1"; }
+_jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f)==1{p=1;next} p&&/^}/{p=0} p&&/%iterNext[0-9]* = call/{n++} END{print n+0}' "$1"; }
+kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "247 6"
+kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "247"
+fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
+fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
+kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),
