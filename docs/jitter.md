@@ -1114,3 +1114,19 @@ ENDS THAT ACTION and leaves the caller's loop alone** -- IC-1 / IK-1 3 (the call
 marked member skips the callee's next statement). Compiled today both are dropped: IC-2 / IK-2 3. So the cure can match it
 with a jump inside the current function -- the inlined region's own exit. (A first spelling `*argument["mark"]` dereferenced
 the member itself and never fired on either road; respelled before pinning.) pop.sh 1726 -> 1739 (13 green, 3 born red).
+
+### R1 -- the cure, pre-registered (jit-seed-scope-a, written before the build)
+
+jitStmtRT reports a continue as **3** and a break as **4** (branchKind cleared), beside return's 2. aCTionBrancH, under
+jitting, marks the open statement (JitStmtMark.branches: 2 continue, 1 break); a compiled statement passes its marks to the
+statement enclosing it, a handed-over one hands them to jitEmitStmtRT. **Only a statement that carries a continue or break
+gets new IR** -- its not-returned branch becomes a switch: 0 -> on, 3 -> the innermost loop's condition, 4 -> its exit, else
+the refusal exit; every other handed-over statement's IR is unchanged. "The innermost loop of the function or inlined region
+the statement sits in": JitInlineFrame records the loop stack's depth at its entry; a region with no loop of its own above
+that floor sends both to the region's exit -- what the twin does (the callee ends, the caller's loop goes on). At function
+level with no loop, the epilogue. No signature change, no groups.ext; no extern (canary 373).
+Movers: jitContinueRT PC-1 3 -> 2; jitBreakRT PB-1 3 -> 1; jitInlineContRT IC-2 3 -> 2; jitInlineBreakRT IK-2 3 -> 2 (IC-1,
+IK-1 stay 3); termCountT jitted exit 142 -> 0, TCR / TCC 332 -> 664, refusals by name = the plain run's; gen26 run in full,
+agree count, crashes and alarms reported. walkRules' attaches still the plain road's; seedScopeAT 3; parser / walkRules
+compile. Stroke B's rows, SEQ 407's, SEQ 409's unmoved; jitLadder identical. H7 (continue): jitStmtRT's 3 removed ->
+jitContinueRT 3. H7 (break): its 4 removed -> jitBreakRT 3.
