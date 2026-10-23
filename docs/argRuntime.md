@@ -158,3 +158,9 @@ before the kill; the twin 247 with 24 REFUSED. pop.sh 1663 -> 1666 (3 green, 4 b
 jitHandedCursor ahead of its isIterator arm and emits jitEmitIterStepBack. Movers: itBackRT's four rows -> green; itRT,
 termCountT jitted, jitStarIdiomT and jitCursorLifeT unmoved; jitLadder identical; canary 372 (no new extern). H7: the
 check removed -> itBackRT 142 again.
+
+**R2, MEASURED (cure dd403b = aa51c889):** itBackRT exit **0**, IB-1 **247**, 24 REFUSED = the twin's by name. pop.sh
+**1666 -> 1670**: itBackRT's four rows and nothing else (acceptStartT's address, H3); itRT, termCountT jitted and
+jitStarIdiomT's rows byte-identical to SEQ 402's cure run; jitLadder **identical**; gen26 **identical** (15 / 26); canary
+**372**. **H7:** the `--` check removed -> itBackRT **142**, IB-1 never printed. Restored from the commit: Instruct.rtn and
+GroupRules.mm md5 = the cure. Stroke B closes here; the buy follows on trunk (SEQ 403 R3).
