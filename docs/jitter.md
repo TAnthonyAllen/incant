@@ -943,3 +943,39 @@ value: jitInlineBindT IB-1..5, termCountT jitted, itRT, itBackRT, jitCursorLifeT
 jitCompileOnceT, argRoundJ, jitSelfFn's rungs. ⚠ The self-call rows named above are the risk: a named field whose value
 lives in the caller's frame slot is bound as a node, and only a flush makes the field current. Everything else row for row;
 jitLadder identical; gen26 reported. **H7:** box always (today's rule) -> inlineConstArgT `argument 0` again.
+
+### R1 MEASURED (cure dd407c = 10849899; pre-cure = the branch's (c) binary under the inert census tap, pop.sh 1717)
+
+inlineConstArgT AP-1 **nine 9**, inlineFieldArgT FD-1 **fdX 7** = the twins. pop.sh **1717 -> 1719**: those two rows and
+nothing else (acceptStartT's address, H3). Every IR mover registered above; **no Token (literal) site moved by value**, so
+the literal reading holds. Stroke B's rows, jitRecur*, jitArgChainT, jitSelfCallValT, jitCompileOnceT, argRoundJ unmoved;
+**jitLadder identical** (jitSelfFn's self-call rungs included); **gen26 identical, 15 / 26**. Canary 372. **H7:** box always
+-> inlineConstArgT `argument 0`, inlineFieldArgT `argument 7`. Restored: jitEmitters.rtn, GroupRules.mm md5 = the cure.
+
+### R2 -- (c) re-certified on top of R1 (testPrecedence, the census construction, against the `jitterOff;` twin)
+
+- **Rows, by content: 35 = the twin's 35.** ⚠ An earlier count of 29 was the INSTRUMENT: runSection2's `print "Running"
+  taG:` writes stdout with no newline, so under jit six ROW lines (cerr) land after it on one line and a `^ROW` grep missed
+  them. Read by content, all 35 print.
+- **Four rows differ -- assignArg, plusEQArg, plusPlusArg, minusMinusArg read GOT 7** (twin 9, 8, 8, 6). **PRE-EXISTING,
+  older than Stroke B:** seal 194's binary (ddA1) and Stroke B's (ddB1) read the same four 7s. Mechanism inferred, NOT
+  traced: an inlined callee's write through its argument (`tpAssignArgDo: argument = 9`, called with `*tpK`) does not
+  reach the caller's field.
+- **REFUSED lines = the twin's**, by name (tpNever's two).
+- **`Running <taG>` lines differ** (jitted `tpBag`, `plusPlusStar` ...; twin `tpPlusPlusSub` ...). PRE-EXISTING: trunk before
+  (c) also differs (`tpBag tpBag ...`). Mechanism: a bare `taG` reads lastREF, the one "referenced last" holder; the compiled
+  runSection2 sees a different last reference. (c) moves WHICH wrong tag it prints, not whether.
+- **Compile refusals:** -5 27 -> **1** (tpTestResult, compiled alone: a stale `unbox` in `icmp eq .., 1`, R1-of-404's shape);
+  net -8 **9**, each naming a kindless local with no visible writer -- kid (tpAssignDot, tpPlusEQDot, tpPlusPlusDot,
+  tpMinusMinusDot), bag (tpAddAttrDot, tpAddMemberDot), tpNever (tpAbsentBump, tpAbsentStep), tpCur (tpReport): the net
+  working as designed on bodies -5 used to mask.
+**No new mechanism.** tpTestResult's remaining -5 is registered as an (a) mover below.
+
+### R3 -- (a), pre-registered (written before the build)
+
+JitInlineFrame gains `seededAt` (gJitSeeded's size at jitInlinePush); jitInlinePop, on every exit's join, nulls the jitData
+of every node seeded since, before the region's merged result is hung on its result node, and drops them from gJitSeeded.
+No extern, no groups.ext. Movers: **seedScopeAT SA-1 1 -> 3** (= the twin); **parser and walkRules: no -5 in gen26** (today
+26 / 78), gen26's agree count reported (today 15 / 26); testPrecedence's tpTestResult -5 expected to leave; seedScopeBT,
+inlineConstArgT, inlineFieldArgT, itRT, itBackRT, termCountT jitted, jitCursorLifeT unmoved; every other row unmoved or
+named; jitLadder identical or named. **H7:** the clear removed -> walkRules / parser -5 back, seedScopeAT 1.
