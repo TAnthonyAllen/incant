@@ -8,7 +8,7 @@
 #   ## R0 (trunk 33e19239): jitBreakRT (PB-1 3, twin 1); jitInlineContRT / jitInlineBreakRT -- THE TWIN, measured first: a
 #   continue or break in a loopless action ENDS THAT ACTION and leaves the caller's loop alone (IC / IK 3 2); compiled today
 #   both dropped (3 3). pop.sh 1726 -> 1739, 3 born red.
-#   ## R1/R2 (branch fb101534 pre-registration, 72f30bcb cure, 2c... respelling, aaeefae4 certified): jitStmtRT returns 3
+#   ## R1/R2 (branch fb101534 pre-registration, 72f30bcb cure, ee39e830 respelling, aaeefae4 certified): jitStmtRT returns 3
 #   (continue) / 4 (break); a statement carrying one -- found in its own tree, since a handed-over if's arm is never walked --
 #   switches to the innermost loop of its function or inlined region (JitInlineFrame.loopDepth), else the region's exit.
 #   Only such statements get new IR. All four R0 fixtures = twins; termCountT jitted exit 0, TCR / TCC 664, refusals = plain;
