@@ -23,16 +23,14 @@ define
     InvokeR     isRule ANYtoken InvokeD code={
         print "Running InvokeR":;
         if *InvokeD.listLengtH;
-            print "Saw InvokeD":;
             :InvokeD startBox xpListTest;
-            $$xpListTest;
+            arg := *xpListTest.firsT;
             if startBox == "(";     op := Operators["call"];
             else                    op := Operators["=["];
             result  +% Operators["call"];
             result  +% ANYtoken;
-            result  +% xpListTest;
+            result  +% *arg;
             dumpField(result);
-            $$result;
             return result;
         return ANYtoken;
         };
@@ -90,9 +88,9 @@ define
                     dumpField(*target);
             cur := *cur.nexT;
         print "We done":;
-        // Here we need to return an isLabel field named xpListTest that contains the chain it built
-        xpListTest = target;
-        listChain(*xpListTest);
+        // Here we return an isLabel field named xpListTest that contains the chain it built stashed in an attribute
+        xpListTest +% *target;
+        listChain(*target);
         return  xpListTest;
         };
     ;
