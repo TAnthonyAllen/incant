@@ -827,6 +827,48 @@ Both are constructed, since R0's one silent case never runs:
   ⚠ Shape B needs leftover run-time state at build -- jitterT's JT-3 gets it from jtGood's run before jtBad compiles.
 pop.sh 1693 -> 1705 (12 green, 2 born red: SA-1 1 / 3, SB-1 0 / 1). JT-3 and testPrecedence stay pinned as today.
 
+### R2 -- (c) on jit-seed-scope, pre-registered (written before the build)
+
+A `:=` or `<-` notes its target's body in runOPdirect, beside jitNoteWriter (gJitStmtHolderWrites, with the open
+statement's depth); jitStmtEnd records the notes of a HANDED-OVER statement in gJitRTHolders and passes a compiled
+statement's notes to its enclosing statement (which may still be handed over whole). opDeref, under jitting, hands its
+statement over when its holder is recorded, before jitEmitDeref and never following it at build. Both cleared at
+jitBuildFunction's head beside gJitRTCursors. No extern added (canary 372), no groups.ext change.
+Movers (pre-cure = trunk c77f20be's binary; pop.sh 1705): seedScopeBT SB-1 0 -> 1 (= its twin); jitterT's witness rows
+for JT-3 (jtBad NOT JITTABLE, jtBad not jittable called 2) -- jtBad and jtResult expected to build, every new value named
+against the twin; testPrecedence under the census construction: its 27 -5 refusals, each one that leaves named, its rows
+against the twin (today 5 of 35 differ, the *Arg rows); seedScopeAT unmoved (shape A is (a)'s). Everything else row for
+row; jitLadder identical; gen26 identical. H7: the opDeref check removed -> SB-1 back to 0.
+
+### R2 MEASURED (clone; pre-cure = trunk c77f20be's binary, cure dd405c = c92cbeed) -- (c) holds; ITS CERTIFICATE FAILS ON testPrecedence; R3 NOT BUILT
+
+Built bare; canary **372** (no extern). The generated diff is the four blocks only.
+- **seedScopeBT SB-1 0 -> 1 = the twin**, sbDrive still built 1 called 1.
+- **jitterT JT-3:** jtBad now **built 1 called 2**; JT-3 2 = the twin; jtResult no longer compiled alone (its -5 is gone);
+  jtMintRow's witness line `called 2` -> `called 3` (its call from jtBad's handed-over statements now reaches the jitter).
+  pop.sh's two JT-3 witness rows (pinned NOT JITTABLE) go red, as registered.
+- **pop.sh 1705 -> 1704**: SB-1 green, the two JT-3 witness rows red, and nothing else (acceptStartT's address and the
+  fixture-name count, H3). **jitLadder identical. gen26 identical, 15 / 26.**
+- **H7:** the opDeref check removed -> SB-1 **0** again. Restored from the commit: Instruct.rtn, GroupRules.mm md5 = the cure.
+- **testPrecedence (the census construction, `jitter;` after Start(), against the `jitterOff;` twin) -- THE FAILURE.** Its -5
+  refusals drop **27 -> 1** (tpTestResult); 9 bodies are now refused by the net instead (-8: tpAssignDot, tpPlusEQDot,
+  tpPlusPlusDot, tpMinusMinusDot, tpAddAttrDot, tpAddMemberDot, tpAbsentBump, tpAbsentStep, tpReport). The newly compiled
+  bodies do NOT equal the twin: **21 of its rows differ (5 before), 29 rows printed against the twin's 35**, and 21 of the 29
+  read `ROW argument WANT 0 GOT n`.
+
+**THE CAUSE IS A SECOND, PRE-EXISTING MECHANISM, and it is pinned on trunk (inlineConstArgT, 2bf88b57):** an inlined callee
+handed a CONSTANT argument reads `argument` unbound in its handed-over statements -- `apShow(nine=9)` reads `argument 0`,
+the twin `nine 9`, built 1 called 1, silent. **On trunk's own binary as well**, so (c) did not cause it; (c) only lets
+testPrecedence's bodies compile far enough to reach it (tpTestResult(assignBare=9) is exactly that shape). Inferred, NOT
+traced: Stroke B binds an inlined callee's argument at run time only for a run-time argument; a constant is bound at emit.
+
+**STOPPED before R3**, because R2's certificate ("every value that moves, each equal to its twin") cannot be met by (c):
+testPrecedence's moved values are the constant-argument mechanism's, not (c)'s. Options for Tony:
+1. **Cure the constant-argument bind first** (a run-time bind for a constant argument too -- Stroke B's jitEmitArgBind
+   already handles "a boxed count, or the baked operand"; the gap is which inlines emit it), then re-certify (c), then (a).
+2. **Accept (c) on its own certificate** (seedScopeBT, jitterT, the fleet, jitLadder, gen26 all hold) and carry
+   testPrecedence's census construction as a named mover owed to the constant-argument cure; then build (a).
+3. Hold the branch until 1 lands.
 ## SEQ 406 -- an inlined callee's constant argument at run time (2026-10-23): R0 STOPPED
 
 Ruled (Tony): option 1 -- the cure, then (c) re-certified, then (a); nothing bought until all three are certified.
@@ -874,3 +916,66 @@ sets it to 7 (`fdX = fdList["c"].listLengtH + 7`, an operand whose kind is not a
 FD-2 7 = the twin. Born red; pop.sh 1711 -> 1718 (7 green, 1 red).
 Found on the way, not pinned (its value is pointer bits): after `fdX := fdX` the box carries **54463616** -- the bind boxes
 a holder's gCount, which shares storage with gGroup. The same rule (box by data), so the identity predicate covers it.
+
+### R1 -- the cure, pre-registered (jit-seed-scope, written before the build)
+
+JitData gains `computed`, set where the build MINTS a value -- binResult, cmpResult, callResult, negResult, the argument
+slot read (argSlot), the dot / rem / short-circuit / inline-return result channels, and jitSeedLiteral (a literal's
+constant is a value the build made: Clod's reading of the ruling, since a literal has no field to bind as itself).
+jitEmitArgBind boxes only an operand whose JitData is `computed`; anything else binds as ITSELF through its baked
+`callArg` path, and is no longer seeded just to be boxed. No extern (canary 372), no groups.ext.
+
+**IR movers, from a census tap on the branch's (c) binary (reverted; its pop.sh read 1717 = the branch, inert)** -- each
+site where today's rule boxes an operand that is NOT computed now binds the node: the seeded load and the jitBoxCountRT
+call leave that site's IR, and `callArg` (the node) replaces `argBox`:
+- **inline binds of a named field**: argJitT (ajSrc), jitArithOperandT (aoA), jitCmpOperandAT (caA x2), jitCmpOperandT
+  (cmA), argRoundJ (arSrc, arOther x2), inlineConstArgT (nine), inlineFieldArgT (fdX), jitterT / jtN.src (jtResult's
+  zeroBump, good), seedScopeBT (seven), jitSelfFn (sfArg x2), testPrecedence's census construction (tpTestResult's 52 row
+  slugs). The callee's run-time `argument` reads the field itself.
+- **self-call binds of a named field**: argRoundJ (arA(arSrc) x3), jitSelfFn (sf(sfArg) x4). The callee function's
+  prologue reads the field the binding names, not a box.
+- **Token arguments** (literals: rsF(4), coF(3), acF(3), vcF(3), testRecurF / G(4), bRec(1)): tapped as NOT computed only
+  because jitSeedLiteral did not mark them; marked now, they box exactly as today -- predicted NO move. If any Token site
+  moves, the literal reading is wrong and that is a STOP.
+
+**Value movers:** inlineConstArgT FD -> `nine 9`, inlineFieldArgT FD-1 -> `fdX 7` (both = the twin). Predicted unmoved by
+value: jitInlineBindT IB-1..5, termCountT jitted, itRT, itBackRT, jitCursorLifeT, jitRecur*, jitArgChainT, jitSelfCallValT,
+jitCompileOnceT, argRoundJ, jitSelfFn's rungs. ⚠ The self-call rows named above are the risk: a named field whose value
+lives in the caller's frame slot is bound as a node, and only a flush makes the field current. Everything else row for row;
+jitLadder identical; gen26 reported. **H7:** box always (today's rule) -> inlineConstArgT `argument 0` again.
+
+### R1 MEASURED (cure dd407c = 10849899; pre-cure = the branch's (c) binary under the inert census tap, pop.sh 1717)
+
+inlineConstArgT AP-1 **nine 9**, inlineFieldArgT FD-1 **fdX 7** = the twins. pop.sh **1717 -> 1719**: those two rows and
+nothing else (acceptStartT's address, H3). Every IR mover registered above; **no Token (literal) site moved by value**, so
+the literal reading holds. Stroke B's rows, jitRecur*, jitArgChainT, jitSelfCallValT, jitCompileOnceT, argRoundJ unmoved;
+**jitLadder identical** (jitSelfFn's self-call rungs included); **gen26 identical, 15 / 26**. Canary 372. **H7:** box always
+-> inlineConstArgT `argument 0`, inlineFieldArgT `argument 7`. Restored: jitEmitters.rtn, GroupRules.mm md5 = the cure.
+
+### R2 -- (c) re-certified on top of R1 (testPrecedence, the census construction, against the `jitterOff;` twin)
+
+- **Rows, by content: 35 = the twin's 35.** ⚠ An earlier count of 29 was the INSTRUMENT: runSection2's `print "Running"
+  taG:` writes stdout with no newline, so under jit six ROW lines (cerr) land after it on one line and a `^ROW` grep missed
+  them. Read by content, all 35 print.
+- **Four rows differ -- assignArg, plusEQArg, plusPlusArg, minusMinusArg read GOT 7** (twin 9, 8, 8, 6). **PRE-EXISTING,
+  older than Stroke B:** seal 194's binary (ddA1) and Stroke B's (ddB1) read the same four 7s. Mechanism inferred, NOT
+  traced: an inlined callee's write through its argument (`tpAssignArgDo: argument = 9`, called with `*tpK`) does not
+  reach the caller's field.
+- **REFUSED lines = the twin's**, by name (tpNever's two).
+- **`Running <taG>` lines differ** (jitted `tpBag`, `plusPlusStar` ...; twin `tpPlusPlusSub` ...). PRE-EXISTING: trunk before
+  (c) also differs (`tpBag tpBag ...`). Mechanism: a bare `taG` reads lastREF, the one "referenced last" holder; the compiled
+  runSection2 sees a different last reference. (c) moves WHICH wrong tag it prints, not whether.
+- **Compile refusals:** -5 27 -> **1** (tpTestResult, compiled alone: a stale `unbox` in `icmp eq .., 1`, R1-of-404's shape);
+  net -8 **9**, each naming a kindless local with no visible writer -- kid (tpAssignDot, tpPlusEQDot, tpPlusPlusDot,
+  tpMinusMinusDot), bag (tpAddAttrDot, tpAddMemberDot), tpNever (tpAbsentBump, tpAbsentStep), tpCur (tpReport): the net
+  working as designed on bodies -5 used to mask.
+**No new mechanism.** tpTestResult's remaining -5 is registered as an (a) mover below.
+
+### R3 -- (a), pre-registered (written before the build)
+
+JitInlineFrame gains `seededAt` (gJitSeeded's size at jitInlinePush); jitInlinePop, on every exit's join, nulls the jitData
+of every node seeded since, before the region's merged result is hung on its result node, and drops them from gJitSeeded.
+No extern, no groups.ext. Movers: **seedScopeAT SA-1 1 -> 3** (= the twin); **parser and walkRules: no -5 in gen26** (today
+26 / 78), gen26's agree count reported (today 15 / 26); testPrecedence's tpTestResult -5 expected to leave; seedScopeBT,
+inlineConstArgT, inlineFieldArgT, itRT, itBackRT, termCountT jitted, jitCursorLifeT unmoved; every other row unmoved or
+named; jitLadder identical or named. **H7:** the clear removed -> walkRules / parser -5 back, seedScopeAT 1.

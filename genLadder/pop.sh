@@ -6324,8 +6324,11 @@ awk -v L=$_jtln '{print} NR==L{print "parser(Start);"}' "$(ip jitterT)" > "$T/jt
 kindRow "jitterT the interpreted twin: JT-0 JT-1 JT-3 JT-4 (the intended values)" "$(_jtv "$T/jtI")" "1 9 2 3"
 kindRow "jitterT JT-0..JT-4 jittered = the interpreted twin" "$(_jtv "$T/jtr")" "$(_jtv "$T/jtI")"
 kindRow "jitterT JT-1 witness: jtAdd built once, three compiled calls (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtr")" "1"
-kindRow "jitterT JT-3 witness: jtBad announced NOT JITTABLE once, by name (born red 2026-10-19)" "$(grep -c '^=== jitter: jtBad NOT JITTABLE' "$T/jtr")" "1"
-kindRow "jitterT JT-3 witness: jtBad never fired compiled, two interpreted calls (born red 2026-10-19)" "$(grep -c '^=== jitter: jtBad not jittable, called 2 interpreted ===' "$T/jtr")" "1"
+#  RE-PINNED SEQ 408 R0 (the buy of R1 + (c)): jtBad was refused (-5) only because its inlined jtResult reused a load of
+#  jtMintRow's argument node, which `*jtSlot` resolved to at build after `jtSlot`'s writer was handed over (SEQ 404 shape B).
+#  (c) hands that dereference over, so jtBad now builds and fires compiled twice; JT-3 stays 2 = the twin.
+kindRow "jitterT JT-3 witness: jtBad never announced NOT JITTABLE (re-pinned SEQ 408: (c) builds it)" "$(grep -c '^=== jitter: jtBad NOT JITTABLE' "$T/jtr")" "0"
+kindRow "jitterT JT-3 witness: jtBad built 1 called 2 (re-pinned SEQ 408: was not jittable, called 2 interpreted)" "$(grep -c '^=== jitter: jtBad built 1 called 2 ===' "$T/jtr")" "1"
 kindRow "jitterT JT-4 witness: jtPreA reused from testing()'s compile, built 0, called 2 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtPreA built 0 called 2 ===' "$T/jtr")" "1"
 kindRow "jitterT JT-4 one compile of jtPreA in the run, testing()'s (the jitter adds none)" "$(grep -c '^=== jitRunAction: entering on jtPreA ===' "$T/jtr")" "1"
 check "jitterT new road (parser(Start) twin) runs" 0 $_jtNx

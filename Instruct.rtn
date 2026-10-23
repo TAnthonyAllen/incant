@@ -255,6 +255,8 @@ GroupItem   field,
 extern GroupItem opDeref(GroupItem result)
 {
     if jitting {
+        // holderHandOver a holder written by a handed-over statement is known only at run time: its dereference is handed over too, never followed at build (SEQ 405)
+        -% if ( result && gJitRTHolders.count((void*)result->groupBody) ) { ::jitHandOver((char*)"a dereference of a holder written at run time -- its statement runs at RUN time", result); return 0; } %-
         -% if (!::jitEmitDeref(result))
                ::jitDegrade("unary * under jit -- emitter refused",result); %-
     }

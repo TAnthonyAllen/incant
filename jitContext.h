@@ -620,6 +620,11 @@ inline GroupItem *gJitStmtRTValue = nullptr;
 inline bool gJitHandOver = false;
 // gJitRTCursors the cursors of iterates handed over at build (SEQ 402): their ++ is the iterator step. Cleared per function build (SEQ 403).
 inline std::set<void*> gJitRTCursors;
+// gJitRTHolders the holders a statement handed to run time writes (:=, <-): their value is known only at run time, so a
+// dereference of one is handed over too (SEQ 405). gJitStmtHolderWrites holds the writes of the statements still open,
+// with the depth that wrote them; a statement that is not handed over passes its writes up. Both cleared per function build.
+inline std::set<void*> gJitRTHolders;
+inline std::vector<std::pair<size_t, void*>> gJitStmtHolderWrites;
 struct JitStmtMark {
     llvm::BasicBlock  *bb      = nullptr;
     llvm::Instruction *last    = nullptr;
@@ -672,8 +677,10 @@ public:
     llvm::Value *jitValue;   // current SSA value (load/store traffic)
     llvm::Type  *jitType;    // LLVM type for this field (set at gate check)
     llvm::Value *getJitter()              { return jitValue; }
+    //  computed THIS value is one the build computed -- a minted result node's, never a named field's (SEQ 407)
+    bool         computed;
     void         setJitter(llvm::Value *v){ jitValue = v; }
-    JitData() : jitSlot(0), jitValue(0), jitType(0) {}
+    JitData() : jitSlot(0), jitValue(0), jitType(0), computed(false) {}
 };
 
 // Per-action emission context. C++-internal — never appears in a tok-extern
