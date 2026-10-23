@@ -692,3 +692,99 @@ capture; the branch deleted (live, GitHub, clone).
 
 The SEQ 393 helper ("one helper for both") survives under (a) and (c): the argument block (published node / boxed count /
 baked operand) is lifted as ruled; what differs is the bracket each caller emits around it.
+
+## SEQ 404 -- docket item 2, build state crossing between builds (2026-10-23; recon, nothing built)
+
+Ruled: none. R3's locality rule is the dispatch's: a clear at a build or compile boundary, no frame-model, signature or
+groups.ext change.
+
+### R0 -- the census (docs/jitBuildState.md; read-only, trunk 61fb455c)
+
+Every jitContext.h global (79 lines), every `static` in the .rtn files, every ruler slot the emitters write, the callee
+map, every jitData writer. **Per function build** (jitBuildFunction's head, J:175): gJitComputedVal and gJitRTCursors
+(J:189-191), the builder / current function / result slot reassigned (J:265-278), then jitFlushTransient (J:299; body
+J:2825) -- every gJitSeeded node's jitData nulled, the frame, arg slot, if / loop stacks, statement marks, gJitResult,
+gJitResultNode, gJitPrintBuf, gJitEpilogueBB. **Per compile** (jitRunAction): gJitFnMap, gJitNeedOwnFn, gJitLocalKind
+(J:3812-3815, J:4011-4016). **Holding an IR value and NOT cleared per build:** the dot triplet (H:272-274), gJitInlineFrames,
+gScSlots / gScEndBlocks, gJitBoundArg; reassigned-not-nulled: gJitResultSlot, gJitBuilder, gJitCurrentFn, gJitBuiltFn.
+Non-IR survivors: gJitLastIsNode, gJitStmtCanRefuse, gJitFieldResident. jitContext.h:313's comment says gJitSeeded resets
+"at the top of jitRunAction"; the code does it per function build.
+
+### R1 -- the witnesses (trunk 61fb455c's binary; taps in the clone, reverted md5-identical)
+
+**One family, two shapes, and none of it crosses a build.** Every verifier refusal measured is "Instruction does not
+dominate all uses" -- 416 messages in gen26's 26 files (parser 26 refusals, walkRules 78), 46 in testPrecedence (27
+bodies refused), 2 in jitterT (jtBad, then jtResult compiled alone). LLVM reports a value from ANOTHER function as
+"Referring to an instruction in another function", never as "does not dominate", so every one of them is a value made
+and read inside ONE function. And seeded jitData is already cleared per function build: jitFlushTransient
+(jitEmitters.rtn:2825) nulls every gJitSeeded node and is called at jitBuildFunction's head (:299) and on a discard
+(:829). **The docket's premise -- build state crossing between builds -- is not what these witnesses show.**
+
+**The mechanism: a node's jitData outlives the INLINED REGION that seeded it.** jitSeedField (:4229) hangs a fresh load on
+the node; jitEmitUnary (:2666) writes its `inc` back into the same node's jitData; jitSeedOperands
+(GroupActions.rtn:406) skips any operand that already carries jitData. Nothing clears a node's jitData at an inlined
+region's exit (jitInlinePop, jitEmitters.rtn:2963), and the region's early exits (refusal, handed-over return) mean its
+blocks do not dominate the code after the join. Taps (SEED / REUSE / INC with node, tag, value name, owning action):
+
+| shape | witness | the stale value | made in | read in |
+|---|---|---|---|---|
+| **A1: copy to copy, a load** | parser, walkRules (gen26, every file) | `%unbox`, the load of **parseRefused** (node 0x103afac30) | generateParse's 1st inlined copy | its 2nd and 3rd copies' `parseRefused == 1` |
+| **A2: copy to copy, an increment** | parser, walkRules | `%inc` -> `%inc581` -> `%inc1002` on **notFirstTimeThru** (node 0x103b0e6e0) | each copy's `++notFirstTimeThru` | the next copy's `++` builds on it |
+| **B: callee region to caller** | jitterT JT-3 (jtBad; then jtResult alone); testPrecedence's 27 | `%unbox31`, the load of **jtMintRow's argument** node (0x1014b6500); in testPrecedence the slug-tagged argument of tpMintRow | jtMintRow / tpMintRow's `*jtMark = 0` | jtResult / tpTestResult's `*jtSlot = 1` and `if *jtSlot == 1` |
+
+A is one source occurrence emitted N times (generateParse is inlined three times into walkRules): copy k+1 finds copy
+k's jitData on the same parse node. B is different underneath: at BUILD, `*jtMark` and `*jtSlot` both resolve to
+jtMintRow's argument node, because `jtMark := new(argument)` is handed over and points nowhere real yet -- so the
+caller's `*jtSlot` reads the CALLEE's node. That is docket item 3's class (a build-time read of a run-time value), and
+the dominance failure is only what makes it visible.
+
+⚠ **The -5 is the lucky case in both shapes.** Where the seeding block does dominate the read (no early exit between
+them), the same reuse verifies and runs: A reads copy k's parseRefused / notFirstTimeThru instead of loading copy k+1's,
+and B compares the callee's argument instead of the slot. jtGood does not reach the compare (every statement in its
+region is handed over), which is why it compiles.
+
+### R2 -- the plan
+
+**No census row that carries state across builds has a witness.** Every refusal measured is R1's mechanism -- jitData on
+a node outliving an inlined REGION, inside one function -- and jitData is already flushed per function build. So, by the
+relevance gate, the cross-build rows are CONTEXT, not cured:
+
+| row (docs/jitBuildState.md) | carries across builds? | witness among the 464 messages? | disposition |
+|---|---|---|---|
+| gJitDotSeeded / gJitDotSeededVal / gJitDotProduct (jitContext.h:272-274) | yes -- cleared only when an `=` consumes it (J:927) or a rolled-back statement drops it (J:749) | **none** (no message involves a dot call); its re-match at J:924 needs a freed Value's address reused | context; its seat would be jitBuildFunction's head, beside gJitComputedVal (SEQ 365's same address-reuse hazard) |
+| gJitInlineFrames (exitBB) | never cleared; jitFlushTransient clears its twin gJitInlining (J:2840) | none | context; safe while push / pop balance |
+| gScSlots / gScEndBlocks | never cleared | none | context; safe while jitScBegin / jitScEnd balance |
+| gJitLastIsNode, gJitStmtCanRefuse (bools) | survive a build | none measured | context |
+| gJitResultSlot, gJitBuilder, gJitCurrentFn, gJitBuiltFn | reassigned per build, not nulled after a good one | none; no reader before reassignment found | context |
+
+**The witnessed mechanism's seat is the inlined region's exit, not a build or compile boundary.** Pre-registered for
+whichever option Tony rules (nothing built):
+- parser and walkRules: no -5 in any of the 26 gen26 files (today parser 26, walkRules 78).
+- testPrecedence: its 27 refused bodies (46 messages, all shape B) compile -- **only with option (c)**; a reset alone
+  must leave them refused or it has made them silently wrong (below).
+- jitterT JT-3: jtBad and jtResult built (today NOT JITTABLE, -5) with JT-3 still 2 -- again only with (c).
+- gen26: today agree 15 / 26; a new count is a prediction to be measured, not written here.
+- every other row unmoved or named.
+H7 per cure: (a) the region-exit clear removed -> walkRules' -5 back; (c) the deref hand-over removed -> JT-3's -5 back.
+
+### R3 -- STOPPED before building: neither cure is local
+
+Local was defined as a clear at a build or compile boundary. R1's mechanism has no such seat: every stale value is made
+and read inside one function build, between which jitFlushTransient already clears everything that matters. The options:
+
+- **(a) A region-exit clear, for shape A.** jitInlinePush records gJitSeeded's size in its JitInlineFrame; jitInlinePop,
+  after the join, nulls jitData on the nodes seeded since (the inline result node excepted), so the next copy re-seeds.
+  Touches a C++ struct in jitContext.h (JitInlineFrame gains a field) -- no GroupBody layout, no groups.ext, no
+  signature. **Not local by the definition**: a region boundary, not a build boundary.
+- **(b) A per-statement clear of reused seeds.** Broader than (a); it changes what bear-trap #9's "already seeded" guard
+  means across statements, and every rung reads through that guard. Not recommended.
+- **(c) For shape B, the build-time deref.** `*jtSlot` / `*tpSlot` resolve AT BUILD to the callee's argument node because
+  their holder's writer (`jtMark := new(argument)`) was handed over. The cure is docket item 3's: a deref whose holder
+  was last written by a handed-over statement is itself handed over (or refused), never resolved at build.
+  ⚠ **Order matters: (a) alone turns shape B from a refusal into a silent wrong value.** Cleared at the region exit,
+  the callee's argument node is re-seeded in the caller with a fresh, dominating load -- of the WRONG node -- and it
+  verifies. The -5 is currently the only thing between testPrecedence / jitterT and that answer. So (c) lands before
+  or with (a), or (a) is scoped so B still refuses.
+
+**Recommendation:** (c) first, as a build-time-read stroke under docket item 3, then (a) as a region-boundary stroke
+with its own certificate; Tony's ruling on whether (a)'s seat counts as local.
