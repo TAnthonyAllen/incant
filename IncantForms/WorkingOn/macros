@@ -51,7 +51,7 @@ Not sure how to write if statement as an expression: maybe xp if A; where if is 
 Maybe add StatemenT as a listEntries option. Make statement label both op and target, treat the op as unary and wrap in an instruct (unary process does that)???
     Most StatemenTs are deferred so labels are deferred in effect but where does the rule action happen and how does it happen?
     How to attack: write a dummy StatemenT rule replacement containing a couple of dummy statements, really simple ones w/simple actions to practice on.
-    Probably need a dummy StatemenT would be a version of xpListTest
+    Probably need a dummy StatemenT version of xpListTest??? Still end up stuck on how to add a list of statements to an instruction chain.
 A statement in an expression list is not a target or argument and does not produce a result but it must fire (as if it were a nested xp???) and the xp list carries on. If an xp list can contain statements then do loop is just list of statements to fire while running the xp chain
 An action is just a list of statements so an xp list can maybe run actions???
     has to set currentMETHOD and maintain current method stak
