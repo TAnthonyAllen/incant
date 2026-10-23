@@ -327,7 +327,23 @@ extern GroupItem followArgument(GroupItem operand)
     // argSlot under jitting, a separately built function's own argument is its frame slot, not the emit-time node (SEQ 380)
     if ( GroupControl::groupController->groupRules->jitting ) {
         GroupItem *slotRead = ::jitArgSlotRead(operand);
-        if ( slotRead ) return slotRead; }
+        if ( slotRead ) return slotRead;
+        //  argFollowRT a rule-holding argument has no slot: its RUN-TIME binding is published beside the build-time node this
+        //  returns -- the function's own argument is %field, an inlined callee's is a run-time follow -- for jitEmitArgBind (SEQ 409)
+        llvm::IRBuilder<> *b = gJitBuilder;
+        if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data)
+             && b && b->GetInsertBlock() && !b->GetInsertBlock()->getTerminator() ) {
+            GroupItem *own = gJitCurrentAction ? gJitCurrentAction->get((char*)"argument") : nullptr;
+            llvm::Value *v = nullptr;
+            if ( operand == own && gJitCurrentFn ) v = gJitCurrentFn->getArg(0);
+            else {
+                llvm::LLVMContext &ctx = b->getContext();
+                llvm::Type *ptr = llvm::PointerType::getUnqual(ctx); llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+                v = b->CreateCall(llvm::FunctionType::get(ptr, {ptr}, false),
+                        b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitArgFollowRT), ptr, "argFollowFn"),
+                        {b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "argField")}, "argNow"); }
+            gJitArgFollowNode = operand->getGroup();
+            gJitArgFollowVal  = v; } }
     if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data) )
         return operand->getGroup();
     return operand;

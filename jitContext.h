@@ -1,4 +1,5 @@
 #include <set>
+#include <functional>
 #include <map>
 // jitContext.h — Phase JIT codegen state (LLVM 22). Hand-written C++ — NOT tok-processed.
 // JitData mirrors OLDtawkDoNotTouch/Tokf/JitData.h (the proven pattern): a global
@@ -463,6 +464,10 @@ struct JitInlineFrame {
     bool              used   = false;
     //  chanPushed the region's entry pushed the argument channel (a run-time bind was emitted); its join pops it (SEQ 396)
     bool              chanPushed = false;
+    //  seededAt gJitSeeded's size at the region's entry: what is seeded after it is the region's, and is cleared at its join (SEQ 407 (a))
+    size_t            seededAt = 0;
+    //  loopDepth the loop stack's depth at the region's entry: a loop above it is the region's own (SEQ 410)
+    size_t            loopDepth = 0;
 };
 // The argument jitEmitArgBind just bound, as emitted -- the self-call passes it to its callee (SEQ 396).
 inline llvm::Value *gJitBoundArg = nullptr;
@@ -625,12 +630,20 @@ inline std::set<void*> gJitRTCursors;
 // with the depth that wrote them; a statement that is not handed over passes its writes up. Both cleared per function build.
 inline std::set<void*> gJitRTHolders;
 inline std::vector<std::pair<size_t, void*>> gJitStmtHolderWrites;
+// gJitArgFollowNode / gJitArgFollowVal a rule-holding argument followed at build: the node followArgument returned, and the
+// value that holds the binding at RUN time (SEQ 409). Read by jitEmitArgBind alone; cleared per statement and per build.
+inline GroupItem   *gJitArgFollowNode = nullptr;
+inline llvm::Value *gJitArgFollowVal  = nullptr;
 struct JitStmtMark {
     llvm::BasicBlock  *bb      = nullptr;
     llvm::Instruction *last    = nullptr;
     size_t             nBlocks = 0;
     bool               outer   = false;
+    //  branches the continue (2) / break (1) this statement carries, for its hand-over (SEQ 410)
+    int                branches = 0;
 };
+// gJitStmtRTBranches the handed-over statement's continue / break marks, read by jitEmitStmtRT (SEQ 410)
+inline int gJitStmtRTBranches = 0;
 inline std::vector<JitStmtMark> gJitStmtMarks;
 // ⚠ THE EMIT WALK IS ON (SEQ 372 R0). refuse() is silent only while this is set: a refusal raised in the emit walk is
 // announced by the statement's run-time interpreted run instead. Set by jitBuildFunction around jitExecBlock only;

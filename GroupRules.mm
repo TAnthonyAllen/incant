@@ -188,6 +188,8 @@ GroupItem 	*arg = ExpressioN;
 	// returnEmitNow
 	if ( ruler->jitting )
 		{
+		// loopControlMark the open statement carries a continue or a break, for its hand-over (SEQ 410)
+		 if ( !gJitStmtMarks.empty() && BrancheS ) { const char *bk = BrancheS->groupBody->tag; gJitStmtMarks.back().branches |= (bk && bk[0] == 'c' ? 2 : bk && bk[0] == 'b' ? 1 : 0); } 
 		if ( *BrancheS->groupBody->tag == 'c' )
 			::jitEmitContinue();
 		else
@@ -2722,7 +2724,23 @@ extern "C" GroupItem *followArgument(GroupItem *operand)
 	// argSlot under jitting, a separately built function's own argument is its frame slot, not the emit-time node (SEQ 380)
 	if ( GroupControl::groupController->groupRules->jitting ) {
 	GroupItem *slotRead = ::jitArgSlotRead(operand);
-	if ( slotRead ) return slotRead; }
+	if ( slotRead ) return slotRead;
+	//  argFollowRT a rule-holding argument has no slot: its RUN-TIME binding is published beside the build-time node this
+	//  returns -- the function's own argument is %field, an inlined callee's is a run-time follow -- for jitEmitArgBind (SEQ 409)
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data)
+	&& b && b->GetInsertBlock() && !b->GetInsertBlock()->getTerminator() ) {
+	GroupItem *own = gJitCurrentAction ? gJitCurrentAction->get((char*)"argument") : nullptr;
+	llvm::Value *v = nullptr;
+	if ( operand == own && gJitCurrentFn ) v = gJitCurrentFn->getArg(0);
+	else {
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx); llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	v = b->CreateCall(llvm::FunctionType::get(ptr, {ptr}, false),
+	b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitArgFollowRT), ptr, "argFollowFn"),
+	{b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "argField")}, "argNow"); }
+	gJitArgFollowNode = operand->getGroup();
+	gJitArgFollowVal  = v; } }
 	if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data) )
 	return operand->getGroup();
 	return operand;
@@ -3410,6 +3428,12 @@ extern "C" int jitArgCountRT(GroupItem *field)
 	
 }
 
+/*  jitArgFollowRT -- run time, an inlined callee's rule-holding argument: what its binding holds NOW (SEQ 409).  */
+extern "C" GroupItem *jitArgFollowRT(GroupItem *field)
+{
+	 return ( field && isGROUP(field->groupBody->flags.data) ) ? field->getGroup() : nullptr; 
+}
+
 /*  jitArgSlotRead -- an own-argument read in a separately built function: a fresh node whose value is a load of the
     argument slot at THIS point, or null when the operand is not that function's argument (SEQ 380). A node per read,
     so no result rides on a shared operand (SEQ 376). An inlined callee handed this node binds to it: the chain rule.  */
@@ -3538,6 +3562,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
 	gJitRTHolders.clear();
 	gJitStmtHolderWrites.clear();
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
 	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -4118,7 +4143,11 @@ extern "C" int jitEmitArgBind(GroupItem *argument, GroupItem *action)
 	gJitBoundArg = nullptr;
 	if (!b || !action) return 0;
 	llvm::Value *argVal = nullptr;
-	if (!argument && gJitLastIsNode && gJitResultNode) {
+	//  argFollowRT a rule-holding argument followed at build binds its RUN-TIME binding, never the build-time node (SEQ 409)
+	if (argument && gJitArgFollowVal && argument == gJitArgFollowNode) {
+	argVal = gJitArgFollowVal;
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr; }
+	if (!argVal && !argument && gJitLastIsNode && gJitResultNode) {
 	argVal = gJitResultNode;
 	gJitLastIsNode = false; }
 	if (argument || argVal) {
@@ -5478,7 +5507,19 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	b->CreateStore(nv, gJitResultSlot); }
 	b->CreateBr(exit);
 	b->SetInsertPoint(chk);
-	b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
+	//  loopTargets a statement carrying a continue / break (and ONLY one) switches: 3 -> the innermost loop's condition,
+	//  4 -> its exit -- the loop of THIS function or inlined region; a region with no loop of its own ends there, as the
+	//  interpreter ends a loopless action (SEQ 410)
+	if (gJitStmtRTBranches) {
+	size_t floor = (!gJitInlining.empty() && !gJitInlineFrames.empty()) ? gJitInlineFrames.back().loopDepth : 0;
+	llvm::BasicBlock *contBB = exit, *brkBB = exit;
+	if (gLoopCondBlocks.size() > floor && !gLoopExitBlocks.empty()) { contBB = gLoopCondBlocks.back(); brkBB = gLoopExitBlocks.back(); }
+	llvm::IntegerType *it32 = llvm::Type::getInt32Ty(ctx);
+	llvm::SwitchInst *sw = b->CreateSwitch(rv, exit, 3);
+	sw->addCase(llvm::ConstantInt::get(it32, 0), cont);
+	if (gJitStmtRTBranches & 2) sw->addCase(llvm::ConstantInt::get(it32, 3), contBB);
+	if (gJitStmtRTBranches & 1) sw->addCase(llvm::ConstantInt::get(it32, 4), brkBB); }
+	else b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
 	b->SetInsertPoint(cont);
 	
 }
@@ -6002,6 +6043,11 @@ extern "C" void jitInlinePop(GroupItem *resultNode)
 	if (!gJitInlineFrames.empty()) {
 	JitInlineFrame f = gJitInlineFrames.back();
 	gJitInlineFrames.pop_back();
+	//  regionSeeds a value seeded inside the region was made in its blocks, which do not dominate the code after the join
+	//  (an early exit skips them) and belong to ONE inlined copy: cleared here, so the next read re-seeds (SEQ 407 (a))
+	if (f.seededAt <= gJitSeeded.size()) {
+	for (size_t i = f.seededAt; i < gJitSeeded.size(); i++) gJitSeeded[i]->jitData = nullptr;
+	gJitSeeded.resize(f.seededAt); }
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if (f.used && b && b->GetInsertBlock()) {
 	//  The fall-through path still needs to reach the merge. A block
@@ -6057,6 +6103,8 @@ extern "C" void jitInlinePush(GroupItem *action)
 	JitInlineFrame f;
 	if (gJitBuilder && gJitBuilder->GetInsertBlock())
 	f.exitBB = llvm::BasicBlock::Create(gJitBuilder->getContext(), "inlineExit");
+	f.seededAt = gJitSeeded.size();
+	f.loopDepth = gLoopCondBlocks.size();
 	gJitInlineFrames.push_back(f);
 	
 }
@@ -7365,6 +7413,7 @@ extern "C" void jitStmtBegin()
 	m.nBlocks = m.bb->getParent()->size(); }
 	m.outer = gJitHandOver;
 	gJitHandOver = false;
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	gJitStmtMarks.push_back(m);
 	
 }
@@ -7376,6 +7425,7 @@ extern "C" void jitStmtBegin()
 extern "C" void jitStmtEnd(GroupItem *statement)
 {
 	
+	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	if ( gJitStmtMarks.empty() ) return;
 	size_t depth = gJitStmtMarks.size();
 	JitStmtMark m = gJitStmtMarks.back();
@@ -7390,7 +7440,8 @@ extern "C" void jitStmtEnd(GroupItem *statement)
 	if ( it->first == 0 ) { it = gJitStmtHolderWrites.erase(it); continue; } }
 	++it; }
 	gJitHandOver = m.outer;
-	if ( !handed ) return;
+	//  loopControlUp a compiled statement's continue / break marks belong to the statement enclosing it (SEQ 410)
+	if ( !handed ) { if ( !gJitStmtMarks.empty() ) gJitStmtMarks.back().branches |= m.branches; return; }
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if ( !b ) return;
 	if ( m.bb ) {
@@ -7426,7 +7477,27 @@ extern "C" void jitStmtEnd(GroupItem *statement)
 	gJitResult        = nullptr;
 	gJitLastIsNode    = false;
 	gJitStmtCanRefuse = false;
+	//  loopControlScan the build does not walk the arm of a statement it hands over, so its continue / break is found in the
+	//  statement's own tree: a keyword node tagged continue or break, through labels (SEQ 410)
+	{
+	GroupRules *rl = GroupControl::groupController->groupRules;
+	std::set<GroupItem*> seen;
+	std::function<int(GroupItem*,int)> scan = [&](GroupItem *g, int d) -> int {
+	if ( !g || d > 64 || !seen.insert(g).second ) return 0;
+	int r = 0;
+	const char *t = g->groupBody->tag;
+	if ( t && g->groupBody->registry == rl->keyWords ) {
+	if ( !strcmp(t, "continue") ) r |= 2;
+	else if ( !strcmp(t, "break") ) r |= 1; }
+	if ( g->groupBody->flags.isLabel && isGROUP(g->groupBody->flags.data) ) r |= scan(g->getGroup(), d + 1);
+	for ( GroupItem *c = g->groupBody->groupList ? g->groupBody->groupList->firstInList : nullptr; c; c = c->nextInParent )
+	r |= scan(c, d + 1);
+	return r; };
+	m.branches |= scan(statement, 0);
+	}
+	gJitStmtRTBranches = m.branches;
 	::jitEmitStmtRT(statement);
+	gJitStmtRTBranches = 0;
 	
 }
 
@@ -7458,6 +7529,17 @@ int 		refusedHere = 0;
 			stmtValue = 0;
 		 gJitStmtRTValue = stmtValue; 
 		refusedHere = 2;
+		}
+	// loopControl a continue or a break run here leaves the statement for its loop: 3 continue, 4 break (SEQ 410)
+	if ( !refusedHere && ruler->branchKind == 2 )
+		{
+		ruler->branchKind = 0;
+		refusedHere = 3;
+		}
+	if ( !refusedHere && ruler->branchKind == 1 )
+		{
+		ruler->branchKind = 0;
+		refusedHere = 4;
 		}
 	return refusedHere;
 }

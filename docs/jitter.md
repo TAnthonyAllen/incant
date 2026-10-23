@@ -980,6 +980,88 @@ No extern, no groups.ext. Movers: **seedScopeAT SA-1 1 -> 3** (= the twin); **pa
 inlineConstArgT, inlineFieldArgT, itRT, itBackRT, termCountT jitted, jitCursorLifeT unmoved; every other row unmoved or
 named; jitLadder identical or named. **H7:** the clear removed -> walkRules / parser -5 back, seedScopeAT 1.
 
+### R3 MEASURED (cure dd407a = 019d56d2; against R1's run) -- (a) WORKS AND ITS CERTIFICATE FAILS TWICE: STOPPED
+
+- **As registered:** seedScopeAT SA-1 **1 -> 3** = the twin; **parser and walkRules compile, no -5 in any gen26 file**
+  (today parser 26, walkRules 78); seedScopeBT, inlineConstArgT, inlineFieldArgT, itRT, itBackRT, jitCursorLifeT unmoved;
+  **jitLadder identical**; canary 372.
+- **FAILURE 1 -- THE COMPILED GENERATOR RUNS AWAY, and termCountT jitted is Stroke B's row.** With parser / walkRules no
+  longer refused, **25 of 26 gen26 files exit 139 (agree 15 -> 0)**, and **termCountT jitted exits 139** (TCR / TCC 664 -> 332,
+  refusals by name moved). lldb on termCountT's: EXC_BAD_ACCESS at a stack-guard address -- a stack overflow -- with
+  `Generating parse code for StatemenT` / `leftCurly` repeating to the end. **NOT NEW: SEQ 386's structural item 1** (the
+  compiled generateParse takes its data exit for data-less rules, files no pendingParseR, walkRules regenerates until the
+  stack overflows) -- until now the verifier's -5 on parser / walkRules was the only thing keeping it from running.
+- **FAILURE 2 -- A NEW MECHANISM.** testPrecedence's tpTestResult -5 did NOT leave (registered to). Its stale value is
+  `%unbox13`, made in the **`then` arm** of `if *tpRead == argument; *tpSlot = 1;` and read after **`endif`** by
+  `if *tpSlot == 1` -- an if-arm to its join, inside one function and one region. Neither (a) (a region boundary) nor (c)
+  (a handed-over holder: tpSlot's writer was not recorded here -- not chased) covers it. STOPPED per R2's rule.
+- Rows: 35 = the twin by content, the four pre-existing *Arg rows as in R2. pop.sh 1719 -> **1716**: SA-1 green; termCountT
+  jitted's runs, sentinel, TCR / TCC and refusals red.
+- **H7:** the clear removed -> seedScopeAT **1**, parser **-5**, walkRules **-5** (x3), termCountT jitted exit **0**.
+  Restored: jitContext.h, jitEmitters.rtn, GroupRules.mm md5 = the cure.
+
+**Options for Tony (nothing bought; the branch holds R1, (c), (a)):**
+1. **Docket item 1 first** -- the compiled generator's data exit for data-less rules (docs/jitter.md "Docket item 1") -- on this
+   branch, then re-run (a)'s certificate. (a) cannot be bought while the generator's runaway is masked only by -5.
+2. **The if-arm shape**: recon -- why (c) did not record tpSlot's writer, and whether the seat is the if's join (a block
+   boundary, which is (b)'s family, ruled not taken) or the holder record.
+3. **Buy R1 and (c) without (a)** -- contrary to SEQ 407's ruling (all three together); listed only because R1 and (c) are each
+   certified on their own.
+
+## SEQ 409 -- run-time reads of a rule-holding argument (jit-seed-scope-a, with (a); bought together)
+
+### R0 -- the census (the (a) binary; tap reverted md5-identical; its pop.sh read 1718 = (a)'s, inert)
+
+The tap logged every compiled read through followArgument's node arm (an isArgument operand holding a group, no count
+slot) at BUILD -- the action, own function or inlined callee, the build-time binding -- and emitted a run-time call at the
+read that logged the binding it found (each change, up to six per read). A read with no run-time line was rolled back
+(its statement handed over), discarded, or never ran: "not compiled". WRONG = some run-time binding differs from the build's.
+
+| instrument | own WRONG | own agree | inline WRONG | inline agree | not compiled |
+|---|---|---|---|---|---|
+| pop.sh | 4 (walkRules 1 -- termCountT jitted; nmF 3) | 1 (parser) | 9 (caDrive>caCallee 3, testRecurJH>testRecurH 2, ibF>ibX, ibFn>ibX, ibFn>ibXn, acF>acH) | 6 | 73 |
+| jitLadder | 0 | 0 | 0 | 0 | 1 |
+| gen26 | 28 (walkRules 26, parser 2) | 25 (parser) | 1 (parser>compileRules) | 0 | 420 |
+
+walkRules' own read: built `Start`, at run time StatemenT, BlocK, SemI ... -- the runaway's bind. Every WRONG read is own or
+inline (no STOP). ⚠ The pop.sh WRONGs outside walkRules sit in fixtures whose VALUES are green: their bindings differ, but
+nothing they feed bakes the node. The consumer that bakes it is jitEmitArgBind's `callArg` path.
+
+### R1 / R2 -- the shape and the build, pre-registered (written before the build)
+
+followArgument's node arm, under jitting, publishes the run-time binding on its own channel (gJitArgFollowNode /
+gJitArgFollowVal) beside the build-time node it still returns: an OWN read -- the operand is the function's own
+`argument` field -- publishes `%field` (fn->getArg(0): jitBodyField, the binding at entry, or the self-call's argument node);
+an INLINED callee's argument field publishes `jitArgFollowRT(field)` (its gGroup at run time; Stroke B binds it at run
+time). jitEmitArgBind, handed exactly that node, binds the published value (its argVal road) instead of baking it. The
+channel is cleared at each statement's begin and end and at jitBuildFunction's head. Canary 372 -> 373 (jitArgFollowRT).
+No signature change, no groups.ext.
+Movers: termCountT jitted exit 139 -> 0, TCR / TCC 332 -> 664, refusals by name = the plain run's (its four rows green);
+gen26's 25 crashes gone and its agree count reported; walkRules' attaches land on the rule it was called with (by value,
+against the plain road); seedScopeAT 3, parser / walkRules compiled, unmoved. IR movers, predicted unmoved by value: every
+call bind whose argument is a followed rule-holding argument (walkRules / parser in gen26 and tcJ.src; the R0 pop.sh reads
+that feed a call). Stroke B's rows and SEQ 407's unmoved; jitLadder identical. H7: the published value not consumed
+(today's bake) -> the runaway back.
+
+### R2 MEASURED (cure dd409c = 8bd4eca2; against (a)'s run, pop.sh 1718) -- THE FIRST MECHANISM CURED, A SECOND BEHIND IT: STOPPED
+
+- **walkRules' attaches land on the rule it was called with**, by value against the plain road (the ADD / GET tap,
+  reverted): ADD StatemenT, ADD BlocK, ADD WardeD ... where (a) alone added Start 74,658 times; the plain road's first
+  attaches are Start, StatemenT, BlocK, WardeD -- the same rules. seedScopeAT 3; parser / walkRules compile. Canary 373.
+- **pop.sh 1718 = (a)'s run** but one row: termCountT jitted exit **139 -> 142** (no longer a stack overflow: it runs to the
+  60 s alarm). Stroke B's rows and SEQ 407's unmoved; **jitLadder identical**. gen26 NOT run -- every file would meet the same
+  loop and the 60 s alarm (~26 min for a known 0 / 26).
+- **H7:** the published value not consumed -> exit 139, the attaches on Start again (SEQ 408's shape). Restored md5 = cure.
+- **THE SECOND MECHANISM (named, pinned on trunk 00913cc8 as jitContinueRT, NOT cured): a `continue` in a handed-over
+  statement is dropped.** walkRules' guard `if *grup["pendingParseR"]; continue;` reads has=1 for StatemenT (BlocK's
+  member) -- and StatemenT is generated again; the plain road skips to rightCurly. The guard's statement is handed over
+  (an operator with no emitter), and jitStmtRT honours only branchKind 3 (`return`, SEQ 393 A): a `continue` (2) or
+  `break` (1) is cleared and lost. jitContinueRT: a compiled loop with `if *pcCur["mark"]; continue;` reads 3, twin 2, on
+  trunk's binary too. **Proposed cure (not built):** jitStmtRT returns 3 for a continue and 4 for a break, clearing
+  branchKind; jitEmitStmtRT branches to the innermost loop's condition (gLoopCondBlocks.back()) or exit
+  (gLoopExitBlocks.back()) -- the loop of the function or inlined region the statement sits in (SEQ 396's named gap: a
+  continue in an inlined callee with no loop of its own must not reach the caller's loop). Certificate: jitContinueRT 2;
+  termCountT jitted exit 0, TCR / TCC 664; gen26's crashes gone.
 ## SEQ 408 -- the buy of R1 + (c); (a) re-cut; the runaway's mechanism (2026-10-23)
 
 Proposed by Clay as "if you agree"; Tony sent it Fearless, and Clod agreed (no RULINGS block).
@@ -1032,3 +1114,41 @@ ENDS THAT ACTION and leaves the caller's loop alone** -- IC-1 / IK-1 3 (the call
 marked member skips the callee's next statement). Compiled today both are dropped: IC-2 / IK-2 3. So the cure can match it
 with a jump inside the current function -- the inlined region's own exit. (A first spelling `*argument["mark"]` dereferenced
 the member itself and never fired on either road; respelled before pinning.) pop.sh 1726 -> 1739 (13 green, 3 born red).
+
+### R1 -- the cure, pre-registered (jit-seed-scope-a, written before the build)
+
+jitStmtRT reports a continue as **3** and a break as **4** (branchKind cleared), beside return's 2. aCTionBrancH, under
+jitting, marks the open statement (JitStmtMark.branches: 2 continue, 1 break); a compiled statement passes its marks to the
+statement enclosing it, a handed-over one hands them to jitEmitStmtRT. **Only a statement that carries a continue or break
+gets new IR** -- its not-returned branch becomes a switch: 0 -> on, 3 -> the innermost loop's condition, 4 -> its exit, else
+the refusal exit; every other handed-over statement's IR is unchanged. "The innermost loop of the function or inlined region
+the statement sits in": JitInlineFrame records the loop stack's depth at its entry; a region with no loop of its own above
+that floor sends both to the region's exit -- what the twin does (the callee ends, the caller's loop goes on). At function
+level with no loop, the epilogue. No signature change, no groups.ext; no extern (canary 373).
+Movers: jitContinueRT PC-1 3 -> 2; jitBreakRT PB-1 3 -> 1; jitInlineContRT IC-2 3 -> 2; jitInlineBreakRT IK-2 3 -> 2 (IC-1,
+IK-1 stay 3); termCountT jitted exit 142 -> 0, TCR / TCC 332 -> 664, refusals by name = the plain run's; gen26 run in full,
+agree count, crashes and alarms reported. walkRules' attaches still the plain road's; seedScopeAT 3; parser / walkRules
+compile. Stroke B's rows, SEQ 407's, SEQ 409's unmoved; jitLadder identical. H7 (continue): jitStmtRT's 3 removed ->
+jitContinueRT 3. H7 (break): its 4 removed -> jitBreakRT 3.
+
+### R2 -- CERTIFIED (cure dd410 = 72f30bcb + the mark's respelling; against trunk's run with the R0 rows, pop.sh 1739)
+
+- **Every R0 fixture = its twin:** jitContinueRT PC-1 **2**, jitBreakRT PB-1 **1**, jitInlineContRT **3 2**, jitInlineBreakRT
+  **3 2**. The IR carries the switch -- continue `i32 3 -> %cond`, break `i32 4 -> %loopexit`.
+  ⚠ The first build had the mark only in aCTionBrancH, and a handed-over `if`'s arm is never walked at build -- so no
+  switch was emitted, a 3 fell to the refusal exit, continue acted as break (PC-1 1) and jitBreakRT read 1 for the WRONG
+  reason. The mark now also comes from the statement's own tree (a keyword node tagged continue / break, through labels).
+- **termCountT jitted exit 0, TCR / TCC 664**, refusals by name = the plain run's. **walkRules' generation order = the plain
+  road's, rule for rule (157):** Start, StatemenT, SemI, BlocK, leftCurly, rightCurly, WardeD, DEBUG ...
+- **gen26 in full: 26 / 26 exit 0 jitted and plain, no crash, no alarm; agree 15 / 26** (as before (a)); parser built in all
+  26, **no INVALID IR anywhere**. Four already-disagreeing files changed their diff size (paReachT, parserTest, ruleOfT,
+  zeroWidthT) -- the compiled generator now runs where it was refused.
+- **pop.sh 1744 = trunk's 1739 + the registered five** (seedScopeAT 3, the four fixtures); Stroke B's, SEQ 407's, SEQ 409's
+  rows unmoved. The A5 row (aCTionBrancH's content-test arms) moved to 3 on the first build because the mark's passthrough
+  spelled `*BrancheS->groupBody->tag == `, the row's census text -- respelled through a local, the row reads 2 again.
+  **jitLadder identical.** Canary 373.
+- **H7 (continue unhandled)** -> jitContinueRT 3, jitInlineContRT 3 3 (the break fixtures unmoved). **H7 (break unhandled)** ->
+  jitBreakRT 3, jitInlineBreakRT 3 3 (the continue fixtures unmoved). Each restored md5 = the cure.
+- Found, not fixed: A5's FAIL message carries backticks the shell executes (`or BrancheS.tag {`), so a failing A5 also
+  prints two `command not found` lines and trips the fleet's own-output check.
+- **R3:** gen26 shows no runaway and no crash. tpTestResult's if-arm-to-join -5 stays open.
