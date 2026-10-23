@@ -1,0 +1,34 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitInlineBreakRT);
+define
+    ibkN=0;
+    ibkAfter=0;
+    ibkList;
+    ibkStop code={
+        if argument["mark"];    break;
+        ibkAfter = ibkAfter + 1;
+        };
+    ibkWalk code={
+        iterate ibkCur on ibkList;
+        while ++ibkCur;
+            ibkStop(*ibkCur);
+            ibkN = ibkN + 1;
+        };
+    ;
+ibkList +% a b c;
+ibkList["b"] +% mark;
+jitter;
+ibkWalk();
+cerr "IK-1 the caller's count after a callee's handed-over break: ibkN = [" ibkN "]":;
+cerr "IK-2 the callee's statements after its break: ibkAfter = [" ibkAfter "]":;
+cerr "JITINLINEBREAKRT SENTINEL":;
+stop();
+
+jitInlineBreakRT -- SEQ 410 R0 (2026-10-23): jitInlineContRT with `break`. MEASURED ON THE TWIN FIRST: a break in a loopless
+action ends that action (IK-2 2) and does not break the caller's loop (IK-1 3). Compiled today it is dropped: IK-2 3.
+Intended: the twin's IK-1 3, IK-2 2.

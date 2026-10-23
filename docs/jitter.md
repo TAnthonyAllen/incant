@@ -1020,3 +1020,15 @@ TCR / TCC 664; gen26's 25 crashes gone and its agree count reported; the fleet's
 jitRecur*, iterate's handed-over cursors) unmoved; H7 the follow at build restored -> the runaway back.
 ⚠ It touches every compiled read of a group-holding argument, not only pass-throughs -- a census of followArgument's
 group arm under jitting is owed before the build.
+
+## SEQ 410 -- control out of a handed-over statement: continue and break (jit-seed-scope-a; bought with (a) and SEQ 409)
+
+### R0 -- fixtures (trunk), and what the twin does
+
+jitContinueRT unchanged (PC-1 3, twin 2). **jitBreakRT**: a handed-over `if *pbCur["mark"]; break;` in a compiled loop --
+PB-1 3, twin 1. **jitInlineContRT / jitInlineBreakRT**: a loopless inlined callee's handed-over `if argument["mark"];
+continue;` (`break;`) inside a compiled caller's loop. **THE TWIN, measured first: a continue or break in a loopless action
+ENDS THAT ACTION and leaves the caller's loop alone** -- IC-1 / IK-1 3 (the caller counts all three), IC-2 / IK-2 2 (the
+marked member skips the callee's next statement). Compiled today both are dropped: IC-2 / IK-2 3. So the cure can match it
+with a jump inside the current function -- the inlined region's own exit. (A first spelling `*argument["mark"]` dereferenced
+the member itself and never fired on either road; respelled before pinning.) pop.sh 1726 -> 1739 (13 green, 3 born red).

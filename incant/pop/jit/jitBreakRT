@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitBreakRT);
+define
+    pbN=0;
+    pbList;
+    pbWalk code={
+        iterate pbCur on pbList;
+        while ++pbCur;
+            if *pbCur["mark"];  break;
+            pbN = pbN + 1;
+        };
+    ;
+pbList +% a b c;
+pbList["b"] +% mark;
+jitter;
+pbWalk();
+cerr "PB-1 members walked before a handed-over break: pbN = [" pbN "]":;
+cerr "JITBREAKRT SENTINEL":;
+stop();
+
+jitBreakRT -- SEQ 410 R0 (2026-10-23): jitContinueRT's twin for `break`. pbWalk is compiled; `if *pbCur["mark"]; break;` is
+handed to run time and jitStmtRT honours only a return, so the break is lost and the loop counts all three members.
+PB-1 reads 3; the interpreted twin (`jitter;` -> `jitterOff;`) stops at the marked member: 1. Intended: the twin's 1.

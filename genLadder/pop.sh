@@ -6319,6 +6319,26 @@ kindRow "jitContinueRT the interpreted twin: PC-1 (the intended value)" "$(_jcr 
 fdRow "jitContinueRT PC-1 jitted: members walked past a handed-over continue" "$(_jcr "$T/jcr")" "3" "2"
 kindRow "jitContinueRT witness: pcWalk built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: pcWalk built 1 called 1 ===' "$T/jcr")" "1"
 
+#  ⚑ jitBreakRT / jitInlineContRT / jitInlineBreakRT -- SEQ 410 R0 (2026-10-23): CONTROL OUT OF A HANDED-OVER STATEMENT.
+#  jitStmtRT honours only `return`; a `break` in a compiled loop, and a `continue` / `break` in an inlined loopless callee
+#  (which the interpreter treats as the END OF THAT CALLEE, the caller's loop untouched) are dropped. BORN RED at today's
+#  values; each its own 10 s alarm. # intended: the interpreted twins -- PB-1 1; IC-1 3 IC-2 2; IK-1 3 IK-2 2.
+_rt () { sed -n "s/^$2 .*\[ *\([0-9]*\) *\].*/\1/p" "$1"; }
+for _rf in jitBreakRT jitInlineContRT jitInlineBreakRT; do
+    perl -e 'alarm 10; exec @ARGV' "$B" "$(ip $_rf)" > "$T/$_rf" 2>&1; check "$_rf runs" 0 $?
+    sed 's/^jitter;$/jitterOff;/' "$(ip $_rf)" > "$T/$_rf.I.src"; "$B" "$T/$_rf.I.src" > "$T/$_rf.I" 2>&1; check "$_rf interpreted twin runs" 0 $?
+done
+sentinel "jitBreakRT sentinel" "$T/jitBreakRT" "JITBREAKRT SENTINEL"
+sentinel "jitInlineContRT sentinel" "$T/jitInlineContRT" "JITINLINECONTRT SENTINEL"
+sentinel "jitInlineBreakRT sentinel" "$T/jitInlineBreakRT" "JITINLINEBREAKRT SENTINEL"
+kindRow "jitBreakRT the interpreted twin: PB-1 (the intended value)" "$(_rt "$T/jitBreakRT.I" PB-1)" "1"
+fdRow "jitBreakRT PB-1 jitted: members walked before a handed-over break" "$(_rt "$T/jitBreakRT" PB-1)" "3" "1"
+kindRow "jitInlineContRT the interpreted twin: IC-1 IC-2 (the intended values)" "$(_rt "$T/jitInlineContRT.I" IC-1) $(_rt "$T/jitInlineContRT.I" IC-2)" "3 2"
+fdRow "jitInlineContRT IC-1 IC-2 jitted: the caller's count, the callee's statements after its continue" "$(_rt "$T/jitInlineContRT" IC-1) $(_rt "$T/jitInlineContRT" IC-2)" "3 3" "3 2"
+kindRow "jitInlineBreakRT the interpreted twin: IK-1 IK-2 (the intended values)" "$(_rt "$T/jitInlineBreakRT.I" IK-1) $(_rt "$T/jitInlineBreakRT.I" IK-2)" "3 2"
+fdRow "jitInlineBreakRT IK-1 IK-2 jitted: the caller's count, the callee's statements after its break" "$(_rt "$T/jitInlineBreakRT" IK-1) $(_rt "$T/jitInlineBreakRT" IK-2)" "3 3" "3 2"
+kindRow "jitBreakRT / jitInlineContRT / jitInlineBreakRT witness: each driver built 1 called 1 (silent)" "$(grep -c '^=== jitter: \(pbWalk\|icWalk\|ibkWalk\) built 1 called 1 ===' "$T/jitBreakRT" "$T/jitInlineContRT" "$T/jitInlineBreakRT" | awk -F: '{s+=$2} END{print s}')" "3"
+
 #  ⚑ jitterT -- SEQ 386 R3 (Tony, 2026-10-19): THE jitter; COMMAND. After `jitter;` an action compiles at its first call
 #  and every later call answers from the cache; a refused compile is NOT JITTABLE, announced once, interpreted from then
 #  on. Each JT value is read three ways: the jittered run, the same file with `jitter;` removed (the interpreted twin),
