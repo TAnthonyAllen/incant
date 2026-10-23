@@ -677,8 +677,10 @@ public:
     llvm::Value *jitValue;   // current SSA value (load/store traffic)
     llvm::Type  *jitType;    // LLVM type for this field (set at gate check)
     llvm::Value *getJitter()              { return jitValue; }
+    //  computed THIS value is one the build computed -- a minted result node's, never a named field's (SEQ 407)
+    bool         computed;
     void         setJitter(llvm::Value *v){ jitValue = v; }
-    JitData() : jitSlot(0), jitValue(0), jitType(0) {}
+    JitData() : jitSlot(0), jitValue(0), jitType(0), computed(false) {}
 };
 
 // Per-action emission context. C++-internal — never appears in a tok-extern

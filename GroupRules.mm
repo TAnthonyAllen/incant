@@ -3423,6 +3423,7 @@ extern "C" GroupItem *jitArgSlotRead(GroupItem *operand)
 	slotRead->jitData->jitSlot = gJitArgSlot;
 	slotRead->jitData->jitType = llvm::Type::getInt32Ty(gJitBuilder->getContext());
 	slotRead->jitData->setJitter(gJitBuilder->CreateLoad(slotRead->jitData->jitType, gJitArgSlot, "arg"));
+	slotRead->jitData->computed = true;
 	gJitSeeded.push_back(slotRead);
 	return slotRead;
 	
@@ -4130,10 +4131,11 @@ extern "C" int jitEmitArgBind(GroupItem *argument, GroupItem *action)
 	llvm::Value *boxed = nullptr;
 	if (!argVal && !argument->groupBody->groupList) {
 	int ad = argument->groupBody->flags.data;
-	if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad)) {
-	if (argument->groupBody->flags.isLiteral)   jitSeedLiteral(argument);
-	else if (isCOUNT(ad))                       jitSeedField(argument); }
-	llvm::Value *av = argument->jitData ? argument->jitData->getJitter() : nullptr;
+	if (!argument->jitData && !isNUMBER(ad) && !isSTRING(ad) && !isGROUP(ad) && argument->groupBody->flags.isLiteral)
+	jitSeedLiteral(argument);
+	//  boxComputedOnly a value the build computed is boxed; a named field binds as ITSELF -- its name and its run-time
+	//  value, never a box of a build-time load (SEQ 407, Tony: by identity, not by name or data)
+	llvm::Value *av = (argument->jitData && argument->jitData->computed) ? argument->jitData->getJitter() : nullptr;
 	if (av && av->getType()->isIntegerTy(1)) av = b->CreateZExt(av, i32, "argWide");
 	if (av && av->getType() == i32) {
 	llvm::Value *boxFn = b->CreateIntToPtr(
@@ -4395,6 +4397,7 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 	GroupItem *binResult = new GroupItem((char*)"binResult");
 	binResult->jitData = new JitData();
 	binResult->jitData->setJitter(res);
+	binResult->jitData->computed = true;
 	gJitSeeded.push_back(binResult);
 	gJitResult = res;
 	// computedVal the result node carries a computed value, not a field's -- an assigning operator on it refuses (SEQ 365 R0)
@@ -4455,6 +4458,7 @@ extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int
 	GroupItem *cmpResult = new GroupItem((char*)"cmpResult");
 	cmpResult->jitData = new JitData();
 	cmpResult->jitData->setJitter(res);
+	cmpResult->jitData->computed = true;
 	gJitSeeded.push_back(cmpResult);
 	gJitResult = res;
 	return cmpResult;
@@ -4620,6 +4624,7 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
 	resultNode->jitData->setJitter(val);
+	resultNode->jitData->computed = true;
 	gJitSeeded.push_back(resultNode); }
 	//  dotSeeded which node this dot seeded and with what, so a `=` onto it writes the field (SEQ 297)
 	gJitDotSeeded    = resultNode;
@@ -5094,6 +5099,7 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
 	resultNode->jitData->setJitter(val);
+	resultNode->jitData->computed = true;
 	gJitSeeded.push_back(resultNode);
 	}
 	gJitResult = val;
@@ -5355,6 +5361,7 @@ extern "C" GroupItem *jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	GroupItem *callResult = new GroupItem((char*)"callResult");
 	callResult->jitData = new JitData();
 	callResult->jitData->setJitter(v);
+	callResult->jitData->computed = true;
 	gJitSeeded.push_back(callResult);
 	return callResult; }
 	
@@ -5568,6 +5575,7 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	GroupItem *negResult = new GroupItem((char*)"negResult");
 	negResult->jitData = new JitData();
 	negResult->jitData->setJitter(res);
+	negResult->jitData->computed = true;
 	gJitSeeded.push_back(negResult);
 	gJitResult = res;
 	// computedVal -a is a value, not a field (SEQ 365 R0)
@@ -6019,6 +6027,7 @@ extern "C" void jitInlinePop(GroupItem *resultNode)
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
 	resultNode->jitData->setJitter(merged);
+	resultNode->jitData->computed = true;
 	gJitSeeded.push_back(resultNode); } } }
 	else if (f.exitBB && !f.used)
 	delete f.exitBB;
@@ -7162,6 +7171,7 @@ extern "C" void jitScEnd(GroupItem *resultNode)
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
 	resultNode->jitData->setJitter(out);
+	resultNode->jitData->computed = true;
 	gJitSeeded.push_back(resultNode);
 	}
 	gJitResult = out;
@@ -7251,6 +7261,8 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 	else
 	d->setJitter(llvm::ConstantInt::get(
 	llvm::Type::getInt32Ty(ctx), (long)token->getCount(), false));
+	//  literalComputed the build makes a literal's value itself -- a constant -- so it counts as computed (SEQ 407)
+	d->computed = true;
 	token->jitData = d;
 	gJitSeeded.push_back(token);
 	return token;
