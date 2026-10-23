@@ -75,7 +75,7 @@ or a fixit; Stroke B's buy waits on it, since the cure turns termCountT's wrong 
 
 ## SEQ 402 -- the runaway: the handed-over iterate's ++ (2026-10-23; clone; cure binary ddB1 = 0095f08b)
 
-**R0 (trunk 466084ca / 7ae97eca, cherry-picked here):** itRT is a fleet row, born red under its own 10 s alarm (jitStarIdiomT's
+**R0 (trunk e0a45132 / d3548391; cherry-picked here as 466084ca / 7ae97eca):** itRT is a fleet row, born red under its own 10 s alarm (jitStarIdiomT's
 shape): IT-1 jitted, today 0 on trunk, intended the twin's 247; its REFUSED lines, today 85, intended the twin's 24 (the
 members with no list), by name. On this branch before the cure: exit 142, IT-1 never printed, 2 REFUSED lines.
 
