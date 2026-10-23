@@ -8812,6 +8812,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
+	// handedCursor a cursor whose iterate was handed over at build is not flagged until run time: its -- is the iterator step back (SEQ 403)
+	if ( ruler->jitting )
+		{
+		 if ( ::jitHandedCursor(result) ) return jitEmitIterStepBack(result); 
+		}
 	if ( result->groupBody->flags.isIterator )
 		{
 		// an iterator is not unwrapped in runOP; -- cannot tell members from attributes, as GroupItem has no priorMember() or priorAttribute()
