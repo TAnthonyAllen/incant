@@ -1007,3 +1007,38 @@ named; jitLadder identical or named. **H7:** the clear removed -> walkRules / pa
    boundary, which is (b)'s family, ruled not taken) or the holder record.
 3. **Buy R1 and (c) without (a)** -- contrary to SEQ 407's ruling (all three together); listed only because R1 and (c) are each
    certified on their own.
+
+## SEQ 409 -- run-time reads of a rule-holding argument (jit-seed-scope-a, with (a); bought together)
+
+### R0 -- the census (the (a) binary; tap reverted md5-identical; its pop.sh read 1718 = (a)'s, inert)
+
+The tap logged every compiled read through followArgument's node arm (an isArgument operand holding a group, no count
+slot) at BUILD -- the action, own function or inlined callee, the build-time binding -- and emitted a run-time call at the
+read that logged the binding it found (each change, up to six per read). A read with no run-time line was rolled back
+(its statement handed over), discarded, or never ran: "not compiled". WRONG = some run-time binding differs from the build's.
+
+| instrument | own WRONG | own agree | inline WRONG | inline agree | not compiled |
+|---|---|---|---|---|---|
+| pop.sh | 4 (walkRules 1 -- termCountT jitted; nmF 3) | 1 (parser) | 9 (caDrive>caCallee 3, testRecurJH>testRecurH 2, ibF>ibX, ibFn>ibX, ibFn>ibXn, acF>acH) | 6 | 73 |
+| jitLadder | 0 | 0 | 0 | 0 | 1 |
+| gen26 | 28 (walkRules 26, parser 2) | 25 (parser) | 1 (parser>compileRules) | 0 | 420 |
+
+walkRules' own read: built `Start`, at run time StatemenT, BlocK, SemI ... -- the runaway's bind. Every WRONG read is own or
+inline (no STOP). ⚠ The pop.sh WRONGs outside walkRules sit in fixtures whose VALUES are green: their bindings differ, but
+nothing they feed bakes the node. The consumer that bakes it is jitEmitArgBind's `callArg` path.
+
+### R1 / R2 -- the shape and the build, pre-registered (written before the build)
+
+followArgument's node arm, under jitting, publishes the run-time binding on its own channel (gJitArgFollowNode /
+gJitArgFollowVal) beside the build-time node it still returns: an OWN read -- the operand is the function's own
+`argument` field -- publishes `%field` (fn->getArg(0): jitBodyField, the binding at entry, or the self-call's argument node);
+an INLINED callee's argument field publishes `jitArgFollowRT(field)` (its gGroup at run time; Stroke B binds it at run
+time). jitEmitArgBind, handed exactly that node, binds the published value (its argVal road) instead of baking it. The
+channel is cleared at each statement's begin and end and at jitBuildFunction's head. Canary 372 -> 373 (jitArgFollowRT).
+No signature change, no groups.ext.
+Movers: termCountT jitted exit 139 -> 0, TCR / TCC 332 -> 664, refusals by name = the plain run's (its four rows green);
+gen26's 25 crashes gone and its agree count reported; walkRules' attaches land on the rule it was called with (by value,
+against the plain road); seedScopeAT 3, parser / walkRules compiled, unmoved. IR movers, predicted unmoved by value: every
+call bind whose argument is a followed rule-holding argument (walkRules / parser in gen26 and tcJ.src; the R0 pop.sh reads
+that feed a call). Stroke B's rows and SEQ 407's unmoved; jitLadder identical. H7: the published value not consumed
+(today's bake) -> the runaway back.
