@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(ItRT);
+define
+    itN=0;
+    itRule code={
+        iterate itCur on argument;
+        while ++itCur;
+            itN = itN + 1;
+        };
+    itWalk code={
+        iterate itR on Grokking;
+        while ++itR;
+            itRule(*itR);
+        };
+    ;
+jitter;
+itWalk();
+print "IT-1 children walked [" itN "]":;
+print "ITRT SENTINEL":;
+stop();
+
+itRT -- SEQ 402 R0 (2026-10-23): Stroke B's runaway (seal 195), pinned. itRule is inlined into itWalk's compiled loop and
+iterates its own argument: `iterate itCur on argument; while ++itCur;`. The argument is a run-time value, so the iterate
+is handed over to run time, and the `++itCur` after it is compiled.
+
+Today on trunk the inlined argument is unbound, every iterate refuses (85 lines `REFUSED argument -- iterate: the source
+has no list`) and IT-1 reads 0. The interpreted twin (this file with `jitter;` removed) reads 247: Grokking's members'
+children. On jit-arg-runtime (Stroke B, 0095f08b) the argument is bound at run time, the iterate succeeds, and the
+compiled ++itCur never ends: exit 142 under the alarm.
+
+Intended: exit 0, IT-1 = the twin's 247, no REFUSED line.
