@@ -104,7 +104,8 @@ GroupItem 	*prior = 0;
 			}
 		}
 	 gJitStmt = outerJitStmt; gJitStmtRTDone = outerJitStmtRTDone; 
-	if ( result && isGROUP(result->groupBody->flags.data) )
+	// ruleReturnKeepsLabel a return inside a rule's code hands back its value as-is -- the label it returns is the rule's answer, so it is never unwrapped (SEQ 412)
+	if ( result && isGROUP(result->groupBody->flags.data) && (ruler->branchKind != 3 || !ruler->currentMETHOD->getGroup() || !ruler->currentMETHOD->getGroup()->groupBody->flags.isRule) )
 		result = result->groupBody->gGroup;
 	/*  ⚠ A BLOCK THAT RAN TO THE END AND YIELDED NOTHING SUCCEEDED AND HAS NO VALUE --
 	which is labelNO, not null. NULL means FAILED (GroupControl.twk:158), and

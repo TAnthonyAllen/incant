@@ -4382,6 +4382,13 @@ define
                     first
                     because the two want opposite fixes.#);
             aCTionBlocK=(the BlocK rule action -- the statement-list walk both engines run.#):
+                ruleReturnKeepsLabel=(A RETURN IN A RULE'S CODE KEEPS ITS LABEL. The block foot unwraps its value one
+                    holder level; a rule's code returns the label it fired on, holding what the code built, and
+                    unwrapping it handed the caller the contents instead (both roads: fired on a label, and called
+                    from the command line). So the unwrap is skipped when the block ended on a return
+                    (branchKind 3, the control channel, not the value's shape) inside a rule's code (the
+                    current method is a rule -- the fact processAction's isRule arm reads). An action's return,
+                    and a block ending any other way, unwrap as before. Tony, SEQ 412; docs/ruleReturn.md.#);
                 bareReturnValue=(A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not
                     the keyword's tag.
                     Tony's ratification, 2026-07-31: bare return means STOP,
