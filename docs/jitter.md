@@ -1130,3 +1130,25 @@ IK-1 stay 3); termCountT jitted exit 142 -> 0, TCR / TCC 332 -> 664, refusals by
 agree count, crashes and alarms reported. walkRules' attaches still the plain road's; seedScopeAT 3; parser / walkRules
 compile. Stroke B's rows, SEQ 407's, SEQ 409's unmoved; jitLadder identical. H7 (continue): jitStmtRT's 3 removed ->
 jitContinueRT 3. H7 (break): its 4 removed -> jitBreakRT 3.
+
+### R2 -- CERTIFIED (cure dd410 = 72f30bcb + the mark's respelling; against trunk's run with the R0 rows, pop.sh 1739)
+
+- **Every R0 fixture = its twin:** jitContinueRT PC-1 **2**, jitBreakRT PB-1 **1**, jitInlineContRT **3 2**, jitInlineBreakRT
+  **3 2**. The IR carries the switch -- continue `i32 3 -> %cond`, break `i32 4 -> %loopexit`.
+  ⚠ The first build had the mark only in aCTionBrancH, and a handed-over `if`'s arm is never walked at build -- so no
+  switch was emitted, a 3 fell to the refusal exit, continue acted as break (PC-1 1) and jitBreakRT read 1 for the WRONG
+  reason. The mark now also comes from the statement's own tree (a keyword node tagged continue / break, through labels).
+- **termCountT jitted exit 0, TCR / TCC 664**, refusals by name = the plain run's. **walkRules' generation order = the plain
+  road's, rule for rule (157):** Start, StatemenT, SemI, BlocK, leftCurly, rightCurly, WardeD, DEBUG ...
+- **gen26 in full: 26 / 26 exit 0 jitted and plain, no crash, no alarm; agree 15 / 26** (as before (a)); parser built in all
+  26, **no INVALID IR anywhere**. Four already-disagreeing files changed their diff size (paReachT, parserTest, ruleOfT,
+  zeroWidthT) -- the compiled generator now runs where it was refused.
+- **pop.sh 1744 = trunk's 1739 + the registered five** (seedScopeAT 3, the four fixtures); Stroke B's, SEQ 407's, SEQ 409's
+  rows unmoved. The A5 row (aCTionBrancH's content-test arms) moved to 3 on the first build because the mark's passthrough
+  spelled `*BrancheS->groupBody->tag == `, the row's census text -- respelled through a local, the row reads 2 again.
+  **jitLadder identical.** Canary 373.
+- **H7 (continue unhandled)** -> jitContinueRT 3, jitInlineContRT 3 3 (the break fixtures unmoved). **H7 (break unhandled)** ->
+  jitBreakRT 3, jitInlineBreakRT 3 3 (the continue fixtures unmoved). Each restored md5 = the cure.
+- Found, not fixed: A5's FAIL message carries backticks the shell executes (`or BrancheS.tag {`), so a failing A5 also
+  prints two `command not found` lines and trips the fleet's own-output check.
+- **R3:** gen26 shows no runaway and no crash. tpTestResult's if-arm-to-join -5 stays open.
