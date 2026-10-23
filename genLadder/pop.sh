@@ -6336,7 +6336,9 @@ perl -e 'alarm 60; exec @ARGV' "$B" "$T/tcJ.src" > "$T/tcJ.o" 2> "$T/tcJ.e"; che
 sentinel "termCountT jitted sentinel" "$T/tcJ.o" "TERMCOUNT SENTINEL"
 kindRow "termCountT jitted: REFUSED argument lines -- an unbound inlined argument (born red SEQ 396: 170)" "$(grep -c '^REFUSED argument ' "$T/tcJ.e")" "0"
 kindRow "termCountT jitted: TCR / TCC lines = the plain run's (born red SEQ 396: 170)" "$(grep -c '^TCR\|^TCC' "$T/tcJ.e")" "$(grep -c '^TCR\|^TCC' "$T/tc.e")"
-kindRow "termCountT jitted: the refusals, by name, = the plain run's (born red SEQ 396)" "$(grep '^REFUSED' "$T/tcJ.e" | sort | md5 -q)" "$(grep '^REFUSED' "$T/tc.e" | sort | md5 -q)"
+#  noLineNumbers the jitted source carries one more line (`jitter;`), so every [line N] is one higher: compare the names
+#  with the line numbers stripped. Until SEQ 402 this row compared them raw and could not go green (instrument defect).
+kindRow "termCountT jitted: the refusals, by name, = the plain run's (born red SEQ 396)" "$(grep '^REFUSED' "$T/tcJ.e" | sed 's/ \[line [0-9]*\]//' | sort | md5 -q)" "$(grep '^REFUSED' "$T/tc.e" | sed 's/ \[line [0-9]*\]//' | sort | md5 -q)"
 
 #  ⚑ jitHoistT -- SEQ 390 R0 (b) (Tony, 2026-10-21): A `:x a b` SCOPE HOIST CRASHES THE JITTER'S BUILD -- aCTionBlocK
 #  (ruleActions.rtn:67) reads result = 0x1 inside jitBuildFunction's walk. Pinned at 139 under a 10 s alarm, BORN RED
