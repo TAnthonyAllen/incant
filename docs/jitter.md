@@ -979,3 +979,31 @@ No extern, no groups.ext. Movers: **seedScopeAT SA-1 1 -> 3** (= the twin); **pa
 26 / 78), gen26's agree count reported (today 15 / 26); testPrecedence's tpTestResult -5 expected to leave; seedScopeBT,
 inlineConstArgT, inlineFieldArgT, itRT, itBackRT, termCountT jitted, jitCursorLifeT unmoved; every other row unmoved or
 named; jitLadder identical or named. **H7:** the clear removed -> walkRules / parser -5 back, seedScopeAT 1.
+
+### R3 MEASURED (cure dd407a = 019d56d2; against R1's run) -- (a) WORKS AND ITS CERTIFICATE FAILS TWICE: STOPPED
+
+- **As registered:** seedScopeAT SA-1 **1 -> 3** = the twin; **parser and walkRules compile, no -5 in any gen26 file**
+  (today parser 26, walkRules 78); seedScopeBT, inlineConstArgT, inlineFieldArgT, itRT, itBackRT, jitCursorLifeT unmoved;
+  **jitLadder identical**; canary 372.
+- **FAILURE 1 -- THE COMPILED GENERATOR RUNS AWAY, and termCountT jitted is Stroke B's row.** With parser / walkRules no
+  longer refused, **25 of 26 gen26 files exit 139 (agree 15 -> 0)**, and **termCountT jitted exits 139** (TCR / TCC 664 -> 332,
+  refusals by name moved). lldb on termCountT's: EXC_BAD_ACCESS at a stack-guard address -- a stack overflow -- with
+  `Generating parse code for StatemenT` / `leftCurly` repeating to the end. **NOT NEW: SEQ 386's structural item 1** (the
+  compiled generateParse takes its data exit for data-less rules, files no pendingParseR, walkRules regenerates until the
+  stack overflows) -- until now the verifier's -5 on parser / walkRules was the only thing keeping it from running.
+- **FAILURE 2 -- A NEW MECHANISM.** testPrecedence's tpTestResult -5 did NOT leave (registered to). Its stale value is
+  `%unbox13`, made in the **`then` arm** of `if *tpRead == argument; *tpSlot = 1;` and read after **`endif`** by
+  `if *tpSlot == 1` -- an if-arm to its join, inside one function and one region. Neither (a) (a region boundary) nor (c)
+  (a handed-over holder: tpSlot's writer was not recorded here -- not chased) covers it. STOPPED per R2's rule.
+- Rows: 35 = the twin by content, the four pre-existing *Arg rows as in R2. pop.sh 1719 -> **1716**: SA-1 green; termCountT
+  jitted's runs, sentinel, TCR / TCC and refusals red.
+- **H7:** the clear removed -> seedScopeAT **1**, parser **-5**, walkRules **-5** (x3), termCountT jitted exit **0**.
+  Restored: jitContext.h, jitEmitters.rtn, GroupRules.mm md5 = the cure.
+
+**Options for Tony (nothing bought; the branch holds R1, (c), (a)):**
+1. **Docket item 1 first** -- the compiled generator's data exit for data-less rules (docs/jitter.md "Docket item 1") -- on this
+   branch, then re-run (a)'s certificate. (a) cannot be bought while the generator's runaway is masked only by -5.
+2. **The if-arm shape**: recon -- why (c) did not record tpSlot's writer, and whether the seat is the if's join (a block
+   boundary, which is (b)'s family, ruled not taken) or the holder record.
+3. **Buy R1 and (c) without (a)** -- contrary to SEQ 407's ruling (all three together); listed only because R1 and (c) are each
+   certified on their own.
