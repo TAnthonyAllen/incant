@@ -3534,6 +3534,9 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	gJitComputedVal = nullptr;
 	// cursorRecord a handed-over cursor belongs to one function's build: the next function built in the same compile must not read it (SEQ 403)
 	gJitRTCursors.clear();
+	// holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
+	gJitRTHolders.clear();
+	gJitStmtHolderWrites.clear();
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
 	//  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -7362,9 +7365,18 @@ extern "C" void jitStmtEnd(GroupItem *statement)
 {
 	
 	if ( gJitStmtMarks.empty() ) return;
+	size_t depth = gJitStmtMarks.size();
 	JitStmtMark m = gJitStmtMarks.back();
 	gJitStmtMarks.pop_back();
 	bool handed = gJitHandOver;
+	//  holderWrites a handed-over statement's holder writes are recorded; a statement that runs compiled passes them to its
+	//  enclosing statement, which may still be handed over whole (SEQ 405)
+	for ( auto it = gJitStmtHolderWrites.begin(); it != gJitStmtHolderWrites.end(); ) {
+	if ( it->first >= depth ) {
+	if ( handed ) { gJitRTHolders.insert(it->second); it = gJitStmtHolderWrites.erase(it); continue; }
+	it->first = depth - 1;
+	if ( it->first == 0 ) { it = gJitStmtHolderWrites.erase(it); continue; } }
+	++it; }
 	gJitHandOver = m.outer;
 	if ( !handed ) return;
 	llvm::IRBuilder<> *b = gJitBuilder;
@@ -8175,6 +8187,8 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
+		// holderHandOver a holder written by a handed-over statement is known only at run time: its dereference is handed over too, never followed at build (SEQ 405)
+		 if ( result && gJitRTHolders.count((void*)result->groupBody) ) { ::jitHandOver((char*)"a dereference of a holder written at run time -- its statement runs at RUN time", result); return 0; } 
 		 if (!::jitEmitDeref(result))
 		::jitDegrade("unary * under jit -- emitter refused",result); 
 		}
@@ -11096,6 +11110,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 	// kindlessWriter a kindless local's writer is recorded before anything else -- one in a handed-over statement counts (SEQ 388)
 	 if ( ruler->jitting && target && op && ::opIsAssignTier(op) ) ::jitNoteWriter(op,target,arg); 
+	// holderWrite a := or <- notes the holder it writes, for its statement's hand-over to record (SEQ 405)
+	 if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); 
 	// handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
 	 if ( ruler->jitting && gJitHandOver ) return 0; 
 	// storeRuling an armed statement dispatches nothing further -- interpreted only

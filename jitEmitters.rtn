@@ -189,6 +189,9 @@ extern int jitBuildFunction(GroupItem action)
     gJitComputedVal = nullptr;
     // cursorRecord a handed-over cursor belongs to one function's build: the next function built in the same compile must not read it (SEQ 403)
     gJitRTCursors.clear();
+    // holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
+    gJitRTHolders.clear();
+    gJitStmtHolderWrites.clear();
 
     llvm::Type *i32 = llvm::Type::getInt32Ty(C);
     //  ⚠⚠ S2 (AMENDED, Tony 2026-08-05): THE NAME DERIVES FROM ACTION IDENTITY,
@@ -716,9 +719,18 @@ extern void jitStmtEnd(GroupItem statement)
 {
     -%
     if ( gJitStmtMarks.empty() ) return;
+    size_t depth = gJitStmtMarks.size();
     JitStmtMark m = gJitStmtMarks.back();
     gJitStmtMarks.pop_back();
     bool handed = gJitHandOver;
+    //  holderWrites a handed-over statement's holder writes are recorded; a statement that runs compiled passes them to its
+    //  enclosing statement, which may still be handed over whole (SEQ 405)
+    for ( auto it = gJitStmtHolderWrites.begin(); it != gJitStmtHolderWrites.end(); ) {
+        if ( it->first >= depth ) {
+            if ( handed ) { gJitRTHolders.insert(it->second); it = gJitStmtHolderWrites.erase(it); continue; }
+            it->first = depth - 1;
+            if ( it->first == 0 ) { it = gJitStmtHolderWrites.erase(it); continue; } }
+        ++it; }
     gJitHandOver = m.outer;
     if ( !handed ) return;
     llvm::IRBuilder<> *b = gJitBuilder;
