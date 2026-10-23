@@ -189,7 +189,7 @@ GroupItem 	*arg = ExpressioN;
 	if ( ruler->jitting )
 		{
 		// loopControlMark the open statement carries a continue or a break, for its hand-over (SEQ 410)
-		 if ( !gJitStmtMarks.empty() && BrancheS ) gJitStmtMarks.back().branches |= (*BrancheS->groupBody->tag == 'c' ? 2 : *BrancheS->groupBody->tag == 'b' ? 1 : 0); 
+		 if ( !gJitStmtMarks.empty() && BrancheS ) { const char *bk = BrancheS->groupBody->tag; gJitStmtMarks.back().branches |= (bk && bk[0] == 'c' ? 2 : bk && bk[0] == 'b' ? 1 : 0); } 
 		if ( *BrancheS->groupBody->tag == 'c' )
 			::jitEmitContinue();
 		else
