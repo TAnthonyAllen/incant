@@ -1,0 +1,70 @@
+Start();
+include(utilities);
+include(unitTests);
+search reset stack Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest  assignTier;
+    ;
+registry(RuleReturnOpT);
+define
+    xpListTest  isRule;
+    InvokeD     isRule startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
+    InvokeR     isRule ANYtoken InvokeD code={
+        if *InvokeD.listLengtH;
+            print "RR-1 BEGIN":;
+            dumpField(*InvokeD);
+            print "RR-1 END":;
+            return ANYtoken;
+        return ANYtoken;
+        };
+    listEntries isRule
+        InvokeR;
+        ANYtoken;
+        QuotE;
+        NumbeR;
+        Operators;
+    invokeTEST code={ return argument; };
+    qa=2;
+    qb=3;
+    qc=4;
+    xpListTest isRule lizted=listEntries+ SemI?- code={
+        cur := *lizted.firsT;
+        while cur.datA != 0;
+            if *cur.instructTypE != 0;
+                op = cur;
+            else
+                if target.datA == 0;    target = cur;
+                else                    arg = cur;
+                if op.datA != 0 && target.datA != 0;
+                    if arg.datA != 0;
+                        instruct    +% op target arg;
+                        target      := copyOf(instruct);
+                    clear(instruct);
+                    clear(arg);
+                    clear(op);
+            cur := *cur.nexT;
+        *argument := *target;
+        return *argument;
+        };
+    rrOp code={
+        ret := xpListTest("qa - qb + qc;");
+        tv := testOP(**ret);
+        print "RR-2T value" tv:;
+        };
+    ;
+rrOp();
+print "RULERETURNOP SENTINEL":;
+stop();
+
+ruleReturnOpT -- SEQ 411 RR-2's testOP half, split from ruleReturnT because TODAY IT CRASHES. rrOp calls the rule from
+the command line, then runs testOP on what the returned label holds, as tester does with testOP(*xpListTest): here
+`ret := xpListTest(...)` makes ret a holder of the return, so the label is *ret and the chain it holds is **ret.
+Intended: the chain is instruct, testOP runs it and hands back 5 -- the value testOP(*ret) gives today, when *ret IS the
+chain (qa - qb + qc as testOP folds it). Today: **ret is null (the label was unwrapped to the chain on the way out of
+the code, so *ret is the chain and ** of it is nothing), testOP is handed null, and the run dies, exit 139, no output.

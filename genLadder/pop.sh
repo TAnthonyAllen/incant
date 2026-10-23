@@ -6515,6 +6515,22 @@ kindRow "ruleThisT control: dumpField(this) in the action lists atFirst, atSecon
 "$B" "$(ip ruleThisTopT)" > "$T/rtt" 2>&1; check "ruleThisTopT runs (a top-level refusal abandons the file, still exit 0)" 0 $?
 kindRow "ruleThisTopT a top-level \$\$this stays refused, and what follows it is abandoned: REFUSED \$\$, RTT-0, RTT-1" "$(grep -c '^REFUSED \$\$ ' "$T/rtt") $(grep -c '^RTT-0 ' "$T/rtt") $(grep -c '^RTT-1 ' "$T/rtt")" "1 1 0"
 
+#  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
+#  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
+#  `return *argument;`. Road i (fired on a label, InvokeD's attribute) and road ii (called from the command line) both
+#  hand back the chain today: aCTionBlocK's foot unwraps the returned label one level. BORN RED on RR-1, RR-2, RR-2S and
+#  ruleReturnOpT (today 139: testOP is handed null). RR-IN and RR-0 are today's values and must not move.
+_rrb () { sed -n "/^$2 BEGIN/,/^$2 END/p" "$1" | sed -e '1d' -e '$d' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | awk 'NF'; }
+run1 ruleReturnT "$T/rr";   check "ruleReturnT runs" 0 $?
+sentinel "ruleReturnT sentinel" "$T/rr" "RULERETURN SENTINEL"
+kindRow "ruleReturnT RR-IN inside the code, before the return, the label holds the chain" "$(_rrb "$T/rr" RR-IN | head -1)" "xpListTest=instruct"
+fdRow "ruleReturnT RR-1 road i: InvokeD's held entry is the label holding the chain" "$(_rrb "$T/rr" RR-1 | sed -n 3p)" "instruct" "xpListTest=instruct"
+fdRow "ruleReturnT RR-2 road ii: the command-line call's return is the label" "$(_rrb "$T/rr" RR-2 | head -1)" "ret=instruct" "ret=xpListTest"
+fdRow "ruleReturnT RR-2S road ii: * of the return is the label holding the chain" "$(_rrb "$T/rr" RR-2S | head -1)" "instruct" "xpListTest=instruct"
+kindRow "ruleReturnT RR-0 control: an action's return of a holder, and of a field (must not move)" "$(_rrb "$T/rr" RR-0 | head -1) $(_rrb "$T/rr" RR-0P | head -1)" "v=rrLeaf w=rrLeaf"
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip ruleReturnOpT)" > "$T/rro" 2>&1; _rrx=$?
+fdRow "ruleReturnOpT RR-2T road ii: testOP(**ret) runs the chain -- exit, value" "$_rrx $(awk '$1=="RR-2T" && $2=="value" {print $3; exit}' "$T/rro")" "139 " "0 5"
+
 #  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
 #  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE
 #  (139) under a 10 s alarm; intended = the interpreted twin (exit 0, XP after two). No cure yet (F-129 open).

@@ -1,0 +1,106 @@
+Start();
+include(utilities);
+include(unitTests);
+search reset stack Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest  assignTier;
+    ;
+registry(RuleReturnT);
+define
+    xpListTest  isRule;
+    InvokeD     isRule startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
+    InvokeR     isRule ANYtoken InvokeD code={
+        if *InvokeD.listLengtH;
+            print "RR-1 BEGIN":;
+            dumpField(*InvokeD);
+            print "RR-1 END":;
+            return ANYtoken;
+        return ANYtoken;
+        };
+    listEntries isRule
+        InvokeR;
+        ANYtoken;
+        QuotE;
+        NumbeR;
+        Operators;
+    invokeTEST code={ return argument; };
+    qa=2;
+    qb=3;
+    qc=4;
+    xpListTest isRule lizted=listEntries+ SemI?- code={
+        cur := *lizted.firsT;
+        while cur.datA != 0;
+            if *cur.instructTypE != 0;
+                op = cur;
+            else
+                if target.datA == 0;    target = cur;
+                else                    arg = cur;
+                if op.datA != 0 && target.datA != 0;
+                    if arg.datA != 0;
+                        instruct    +% op target arg;
+                        target      := copyOf(instruct);
+                    clear(instruct);
+                    clear(arg);
+                    clear(op);
+            cur := *cur.nexT;
+        *argument := *target;
+        print "RR-IN BEGIN":;
+        dumpField(*argument);
+        print "RR-IN END":;
+        return *argument;
+        };
+    rrDrive code={
+        ret := xpListTest("qa - qb + qc;");
+        print "RR-2 BEGIN":;
+        dumpField(ret);
+        print "RR-2 END":;
+        print "RR-2S BEGIN":;
+        dumpField(*ret);
+        print "RR-2S END":;
+        };
+    rrLeaf=5;
+    rrAct code={
+        rrH := rrLeaf;
+        return rrH;
+        };
+    rrPlain code={
+        return rrLeaf;
+        };
+    rrCtl code={
+        v := rrAct();
+        print "RR-0 BEGIN":;
+        dumpField(v);
+        print "RR-0 END":;
+        w := rrPlain();
+        print "RR-0P BEGIN":;
+        dumpField(w);
+        print "RR-0P END":;
+        };
+    ;
+xpListTest("invokeTEST(qa - qb + qc)");
+rrDrive();
+rrCtl();
+print "RULERETURN SENTINEL":;
+stop();
+
+ruleReturnT -- SEQ 411 (Tony, 2026-10-23): a rule's code returns its LABEL, not the label's contents. The rule
+xpListTest is tester's shape; its code makes the label it fired on HOLD the chain it built (`*argument := *target;`) and
+ends `return *argument;`. RR-IN shows the label inside the code, before the return: xpListTest=instruct.
+
+RR-1 (road i, fired on a label): InvokeD's held entry. Intended: the label, `xpListTest=instruct`. Today: `instruct` --
+the label is gone and InvokeD holds the chain itself.
+RR-2 (road ii, called from the command line, xpListTest("...") in rrDrive): `ret := xpListTest(...)`, so ret holds the
+call's return. Intended: ret=xpListTest, and *ret is the label holding instruct (xpListTest=instruct). Today:
+ret=instruct, and *ret is the chain. testOP on the chain is ruleReturnOpT, because today it crashes.
+RR-0 (control, must not move): an action's `return rrH;` where rrH holds rrLeaf hands back rrLeaf today (v=rrLeaf), and
+`return rrLeaf;` the same (w=rrLeaf). Action returns are unchanged by the ruling.
+
+WHERE THE LABEL GOES (SEQ 411 R1, measured): not aCTionBrancH -- its getLabelGroup("ExpressioN") strips one level, the
+ExpressioN label to its evaluator, and the return's value is the label, intact. aCTionBlocK's foot,
+`if result && result.isGROUP result = result.gGroup;`, then unwraps the label one level to the chain, on both roads.
