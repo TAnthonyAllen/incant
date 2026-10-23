@@ -18,40 +18,21 @@ define
     ;
 registry(TestStuff);
 define
-    compareXP code={
-        maximus=righty;
-        print "maximus set to:" maximus:;
-        whatsIt = qa - qb + qc;
-        print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
-        partB = qb + qc;
-        print "partB = qb + qc;" partB:;
-        whatsIt = qa - partB;
-        print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
-        whatsIt = maximus -= whatsIt;
-        print "After running whatsIt = maximus -= whatsIt; whatsIt:" whatsIt "maximus:" maximus:;
-        maximus=righty;
-        print "maximus reset to:" maximus:;
-        whatsIt = maximus -= qa - qb + qc;
-        print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
-        };
     xpListTest  isRule;
     InvokeD     isRule startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
     InvokeR     isRule ANYtoken InvokeD code={
         print "Running InvokeR":;
-        dumpContents(*this);
         if *InvokeD.listLengtH;
             print "Saw InvokeD":;
-            dumpContents(*InvokeD);
-            $$InvokeD;
             :InvokeD startBox xpListTest;
             $$xpListTest;
             if startBox == "(";     op := Operators["call"];
             else                    op := Operators["=["];
-            $$op;
             result  +% Operators["call"];
             result  +% ANYtoken;
-            $$result;
+            result  +% xpListTest;
             dumpField(result);
+            $$result;
             return result;
         return ANYtoken;
         };
@@ -65,7 +46,6 @@ define
     qa=2;
     qb=3;
     qc=4;
-    rr=13;
     /*****************************************************************************
         Debugging routine to list out an instruction chain: op, argument, target
     *****************************************************************************/
@@ -78,83 +58,56 @@ define
             if *target.taG == "instruct";    listChain(*target);
         };
     /*****************************************************************************
-        Build the instruction chain walking right to left. An instruction is
-        op, argument, target: the target (the left side) is the last slot, so an
-        instruction is built as soon as its op and right operand are known and its
-        target is filled in when the walk gets to it. slot is the instruction whose
-        target is still empty.
-            term            pending, waiting for its operator (or the start)
-            binary op       new instruction op, pending; it fills the slot, or is
-                            the root if there is none; it is the new slot
-            assignTier op   fills the slot with pending, then wraps the whole chain
-                            as its argument: the assignment comes out last
-            unary op        an op with no field or an op to its left: wraps pending
-        So qa - qb + qc builds (+ qc (- qb qa)), i.e. (qa - qb) + qc.
+        Build the instruction chain walking left to right. Note; operators that
+        assign are handled like any other operator. The algorithm is tight as I
+        can make it.
     *****************************************************************************/
     xpListTest isRule lizted=listEntries+ SemI?- code={
-        cur := *lizted.lasT;
+        print "Running xpListTest":;
+        cur := *lizted.firsT;
         haveRoot = 0;
         while cur.datA != 0;
             if *cur.instructTypE != 0;
-                prev := *cur.prioR;
-                kind = 1;
-                if prev.datA == 0;              kind = 3;
-                or *prev.instructTypE != 0;     kind = 3;
-                or *cur["assignTier"];          kind = 2;
-                if kind == 3;
-                    print "kind == 3 unary op?":;
-                    op = cur;
-                    if *op.taG == "-";  op := Operators["negate"];
-                    or *op.taG == "*";  op := Operators["deref"];
-                    instruct    +% *op;
-                    instruct    +% *pending;
-                    dumpField(instruct);
-                    pending     := copyOf(instruct);
+                if target.datA == 0;            kind = 3;
+                or *target.instructTypE != 0;   kind = 3;
+                op = cur;
+            else
+                if target.datA == 0;    target = cur;
+                else                    arg = cur;
+                if op.datA != 0 && target.datA != 0;
+                    if kind == 3;
+                        print "kind == 3 unary op?":;
+                        if *op.taG == "-";  op := Operators["negate"];
+                        or *op.taG == "*";  op := Operators["deref"];
+                        instruct    +% op target;
+                        target     := copyOf(instruct);
+                    if arg.datA != 0;
+                        instruct    +% op target arg;
+                        target      := copyOf(instruct);
                     clear(instruct);
-                if kind == 2;
-                    print "kind == 2 assigning op":;
-                    if haveRoot == 1;   *slot +% *pending;
-                    if haveRoot == 0;   root := *pending;
-                    arg         = root;
-                    instruct    +% *cur;
-                    root        := copyOf(instruct);
-                    clear(instruct);
-                    slot        := *root;
-                    haveRoot    = 1;
-                if kind == 1;
-                    print "kind == 1 non assigning op?":;
-                    arg         = pending;
-                    instruct    +% *cur;
-                    node        := copyOf(instruct);
-                    clear(instruct);
-                    if haveRoot == 1;   *slot +% *node;
-                    if haveRoot == 0;   root := *node;
-                    slot        := *node;
-                    haveRoot    = 1;
-                dumpField(instruct);
-            else    pending := *cur;
-            cur := *cur.prioR;
-        if haveRoot == 1;   *slot +% *pending;
-        if haveRoot == 0;   root := *pending;
+                    clear(arg);
+                    clear(op);
+                    dumpField(*target);
+            cur := *cur.nexT;
         print "We done":;
-        //listChain(*root);
-        //result  = testOP(*root);
-        //$$result;
-        return  *argument;
+        // Here we need to return an isLabel field named xpListTest that contains the chain it built
+        xpListTest = target;
+        listChain(*xpListTest);
+        return  xpListTest;
         };
     ;
 
-debug InvokeD InvokeR xpListTest;
-xpListTest("invokeTEST(qa + qb);");
+xpListTest("invokeTEST(righty -= qa - qb + qc)");
 stop();
 
+debug InvokeD InvokeR xpListTest;
 compareXP();
 xpListTest("invokeTEST call qa + qb + qc;");
 xpListTest("invokeTEST call qa - qb + qc;");
 xpListTest("invokeTEST call qa - qb - qc;");
 xpListTest("invokeTEST call - qa + qb;");
 xpListTest("invokeTEST call qc - - qa;");
-xpListTest("invokeTEST call rr -= qa - qb + qc;");
+xpListTest("invokeTEST call 13 -= qa - qb + qc;");
 xpListTest("invokeTEST call righty -= qa - qb + qc;");
 print "SENTINEL tester end":;
 stop();
@@ -174,13 +127,30 @@ stop();
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
 debug GUARD ALL xpListTest listEntries;
-            grupTAG = *grup.taG;
+    // the following prints a debugging list of instruction parts
+            curTAG = *cur.taG;
             if op.datA;     opTAG = *op.taG;
             else            opTAG = "no operator";
             if target.datA; targetTAG = *target.taG;
             else            targetTAG = "no target";
             resultTAG       = *result.taG;
-            print "At start loop" grupTAG targetTAG opTAG resultTAG:;
+            print "Instruction parts" curTAG targetTAG opTAG resultTAG:;
+    compareXP code={
+        maximus=righty;
+        print "maximus set to:" maximus:;
+        whatsIt = qa - qb + qc;
+        print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
+        partB = qb + qc;
+        print "partB = qb + qc;" partB:;
+        whatsIt = qa - partB;
+        print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
+        whatsIt = maximus -= whatsIt;
+        print "After running whatsIt = maximus -= whatsIt; whatsIt:" whatsIt "maximus:" maximus:;
+        maximus=righty;
+        print "maximus reset to:" maximus:;
+        whatsIt = maximus -= qa - qb + qc;
+        print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
+        };
 
 /***************************************************************************
     Current Status
