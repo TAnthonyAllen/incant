@@ -33,3 +33,19 @@ and jitArgNumberT, nothing else.
 The halfLessT row's `1<0.5` compare changes sign (0 -> 1) but `<` reads false either way, so it does not move.
 jitArgNumberT's jitted row (193 5 1 51) does not move; its label's "intended: 10 5 0 5" becomes 9 5 0 4, the
 interpreted twin it names.
+
+## Cure and certificate (689458ff)
+
+Every mover above moved to its registered value and nothing else moved: pop.sh 1757, jitLadder identical, printPop
+PASSED, decodePop = capture but the binary line, ddPop 5 / 1 (designDocs md5 line only), dirCheck PASSED, frontier =
+capture, canary 373, bare tokall moved GroupItem.mm only. gen26 16 / 26 (`results/gen26.seq417.txt`).
+
+**H7, one variable at a time** (each rebuilt, numCompareT run alone):
+
+| restored alone | NC interpreted | what went red |
+|---|---|---|
+| none (the cure) | 1 1 0 0 0 1 1 1 0 1 | -- |
+| the number arm's `(int)(a - b)` | 0 0 1 1 1 0 1 1 0 1 | columns 1-6; halfLessT back to 0 1 0 0 |
+| the count arm's getCount read of a number | 1 1 0 0 0 1 1 0 1 1 | columns 8-9 (1<1.4, 1>=1.4); column 7 (1<1.5) stays 1, right by the rounding (R1) |
+
+Restored from the commit; md5 = the cure.
