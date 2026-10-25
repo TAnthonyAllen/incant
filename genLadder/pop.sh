@@ -6665,25 +6665,29 @@ kindRow "jitArgChainT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9
 
 #  ⚑ jitArgNumberT -- SEQ 381 R2 (Tony): a NUMBER argument to a separately built function. The argument slot (SEQ 380) is
 #  i32 only, so nmF's reads follow the emit-time literal 3.5 and the guard ends the recursion. Pinned at today's value;
-#  intended = the interpreted twin, 10 5 0 5 (not 7.5: the interpreted road rounds -- see the fixture's dead region).
+#  intended = the interpreted twin, 9 5 0 4 since SEQ 417 (was 10 5 0 5; not 7.5: r is count-kind and rounds -- see the fixture's dead region).
 run1 jitArgNumberT "$T/jan";   check "jitArgNumberT runs" 0 $?
 sentinel "jitArgNumberT sentinel" "$T/jan" "JITARGNUMBER SENTINEL"
 _nm () { sed -n "s/^NM $1 *top *\([^ ]*\) *kind *\([0-9]*\) *tripped *\([0-9]*\) *depth *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/jan"; }
-kindRow "jitArgNumberT NM interpreted: top, kind, tripped, depth (the control)" "$(_nm interpreted)" "10 5 0 5"
-kindRow "jitArgNumberT NM jitted  # intended: 10 5 0 5 (= interpreted) -- a number argument keeps the old road (SEQ 380 limit; parked, SEQ 382 R0)" "$(_nm jitted)" "193 5 1 51"
+#  NM interpreted re-pinned 10 5 0 5 -> 9 5 0 4 (SEQ 417): nmF(0.5) now meets argument < 1, so the recursion stops at
+#  depth 4; r is count-kind and rounds at each step: 0, 2 (0+1.5), 5 (2+2.5), 9 (5+3.5).
+kindRow "jitArgNumberT NM interpreted: top, kind, tripped, depth (the control)" "$(_nm interpreted)" "9 5 0 4"
+kindRow "jitArgNumberT NM jitted  # intended: 9 5 0 4 (= interpreted) -- a number argument keeps the old road (SEQ 380 limit; parked, SEQ 382 R0)" "$(_nm jitted)" "193 5 1 51"
 kindRow "jitArgNumberT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jan")" "0"
 
 #  ⚑ halfLessT -- SEQ 382 R1 (Tony, 2026-10-19): INTERPRETED, `0.5 < 1` reads false (intended true), on BOTH parse roads.
 #  hlOld is parsed on the old road (called before parser(Start)), hlNew on the new road (first called after it); the
-#  generation-trace row says the second line really is the new road. Pinned at today's value, not cured -- fixit
-#  incant/fixits/halfLessFalse, owner Clod. Columns: 0.5<1 (the subject), 1<2 (true control), 1<0.5 (false control,
+#  generation-trace row says the second line really is the new road. Cured SEQ 417 (compareValues) -- fixit
+#  halfLessFalse (owner Clod; retired by mapping onto these rows, SEQ 417). Columns: 0.5<1 (the subject), 1<2 (true control), 1<0.5 (false control,
 #  paired with the true one), 1.5<2 (a second fractional left operand, also false today).
 run1 halfLessT "$T/hl";   check "halfLessT runs" 0 $?
 sentinel "halfLessT sentinel" "$T/hl" "HALFLESS SENTINEL"
 kindRow "halfLessT parser(Start) ran between the two lines (the second line is the new road)" "$(grep -c '^setParse ended and that ends compileRules' "$T/hl")" "1"
 _hl () { sed -n "s/^HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*\) *1\.5<2 *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/hl"; }
-kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl old)" "0 1 0 0"
-kindRow "halfLessT HL new road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl new)" "0 1 0 0"
+#  HL rows re-pinned 0 1 0 0 -> 1 1 0 1 (SEQ 417): 0.5 < 1 and 1.5 < 2 now compare the values -- compareValues' number arm
+#  was (int)(a - b). The intended value since 2026-10-19; halfLessFalse retires by mapping onto these two rows.
+kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2" "$(_hl old)" "1 1 0 1"
+kindRow "halfLessT HL new road: 0.5<1, 1<2, 1<0.5, 1.5<2" "$(_hl new)" "1 1 0 1"
 
 #  ⚑ numCompareT -- SEQ 417 R0 (Tony, 2026-10-25): A NUMBER COMPARE COMPARES THE VALUES. Ten compares (<, >, ==, <=, >=, !=
 #  on numbers less than 1 apart; 1<1.5, 1<1.4, 1>=1.4 with the count on the left; 1<2 as the control), jitted then

@@ -1276,6 +1276,11 @@ define
                     migration runs. THE ORACLE IS SAMPLED BEFORE THE WRITE BELOW -- once
                     this function supplies the product, a sample taken after would compare
                     the function to itself and read MATCH forever.#);
+            compareValues=(the interpreted compare behind all six compare operators.#):
+                numberCompare=(A NUMBER AGAINST A NUMBER, COUNT OR STRING COMPARES THE VALUES, as doubles,
+                    in all three arms. Never (int)(a - b), which read numbers less than 1 apart as equal,
+                    and never a getCount read of a right-hand number, which rounds it. SEQ 417;
+                    docs/numberCompare.md.#);
             definingRule=(RETIRED 2026-09-30 (stroke 4.4a): the method is deleted and instanceRule() answers
                 instead -- the registered original for a copy of one, else the node. Kept as the record.
 

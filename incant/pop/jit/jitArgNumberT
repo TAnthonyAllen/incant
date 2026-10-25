@@ -42,3 +42,6 @@ The intended jitted value is the INTERPRETED TWIN, measured 2026-10-18: 10, kind
 reads false at 0.5 (the number compares as if rounded against the count literal), so the recursion runs on to -0.5;
 and r is count-kind, so `r = r + t` rounds at every step (r reads 0, 1, 3, 6, then 10).
 Today the jit reads 193, tripped at 51: the slot is not taken, every read follows to the literal, the guard ends it.
+
+SEQ 417 (2026-10-25): the interpreted compare is cured -- `argument < 1` now reads true at 0.5, so the interpreted twin
+stops at depth 4 and reads 9, kind 5, never tripped, depth 4 (r rounds 0, 2, 5, 9). That is the intended jitted value now.

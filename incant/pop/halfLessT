@@ -43,4 +43,4 @@ pop.sh asserts the generation trace is present, so the second line cannot quietl
 
 Columns: 0.5<1 is the subject (intended 1). 1<2 is the true control, 1<0.5 the false control (paired with
 the true one so a zero cannot be a default), 1.5<2 a second fractional left operand.
-Fixit: incant/fixits/halfLessFalse (Clod's lane).
+Fixit: halfLessFalse, retired by mapping 2026-10-25 (SEQ 417) -- incant/attic/halfLessFalse.

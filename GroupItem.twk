@@ -2118,6 +2118,8 @@ int result;
 int compareValues(GroupItem group1,GroupItem group2)
 {
 int result = -1;
+int numeric = 0;
+double diff = 0;
 use group1
     if group1 && !group2    result = 1;
     or group2 && !group1    result = -1;
@@ -2128,19 +2130,38 @@ use group1
             case isITEM:        result = item.compare(group2.item);
             case isNUMBER:
                 if group2.isCOUNT || group2.isNUMBER || group2.isSTRING
-                                result = (int)(gNumber - group2.number);
+                    {
+                    numeric = 1;
+                    diff = gNumber - group2.number;
+                    }
             case isBUFFER:
             case isSTRING:
             case isTOKEN:
-                if group2.isCOUNT || group2.isNUMBER
-                                result = count - group2.count;
+                if group2.isNUMBER
+                    {
+                    numeric = 1;
+                    diff = count - group2.number;
+                    }
+                or group2.isCOUNT   result = count - group2.count;
                 else            result = compare(text,group2.text);
             case isCOUNT:
-                if group2.isCOUNT || group2.isNUMBER || group2.isSTRING
+                if group2.isNUMBER
+                    {
+                    numeric = 1;
+                    diff = count - group2.number;
+                    }
+                or group2.isCOUNT || group2.isSTRING
                                 result = count - group2.count;
             default:            result = compare(text,group2.text);
             }
     or group2.data              result = -1;
     else result = compare(text,group2.text);
+    // numberCompare a number against a number compares the values -- never (int)(a - b), never a rounded count
+    if numeric
+        {
+        if diff < 0     result = -1;
+        or diff > 0     result = 1;
+        else            result = 0;
+        }
     return result;
 }

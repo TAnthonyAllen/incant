@@ -96,6 +96,8 @@ int 	result = 0;
 int compareValues(GroupItem *group1, GroupItem *group2)
 {
 int 	result = -1;
+int 	numeric = 0;
+double 	diff = 0;
 	if ( group1 && !group2 )
 		result = 1;
 	else
@@ -113,17 +115,32 @@ int 	result = -1;
 				break;
 			case 9:
 				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) || isSTRING(group2->groupBody->flags.data) )
-					result = (int)(group1->groupBody->gNumber - group2->getNumber());
+					{
+					numeric = 1;
+					diff = group1->groupBody->gNumber - group2->getNumber();
+					}
 				break;
 			case 4:
 			case 13:
 			case 14:
-				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) )
+				if ( isNUMBER(group2->groupBody->flags.data) )
+					{
+					numeric = 1;
+					diff = group1->getCount() - group2->getNumber();
+					}
+				else
+				if ( isCOUNT(group2->groupBody->flags.data) )
 					result = group1->getCount() - group2->getCount();
 				else	result = ::compare(group1->getText(),group2->getText());
 				break;
 			case 5:
-				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) || isSTRING(group2->groupBody->flags.data) )
+				if ( isNUMBER(group2->groupBody->flags.data) )
+					{
+					numeric = 1;
+					diff = group1->getCount() - group2->getNumber();
+					}
+				else
+				if ( isCOUNT(group2->groupBody->flags.data) || isSTRING(group2->groupBody->flags.data) )
 					result = group1->getCount() - group2->getCount();
 				break;
 			default:
@@ -133,6 +150,16 @@ int 	result = -1;
 	if ( group2->groupBody->flags.data )
 		result = -1;
 	else	result = ::compare(group1->getText(),group2->getText());
+	// numberCompare a number against a number compares the values -- never (int)(a - b), never a rounded count
+	if ( numeric )
+		{
+		if ( diff < 0 )
+			result = -1;
+		else
+		if ( diff > 0 )
+			result = 1;
+		else	result = 0;
+		}
 	return result;
 }
 
