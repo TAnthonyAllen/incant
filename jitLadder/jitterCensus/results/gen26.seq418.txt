@@ -1,0 +1,27 @@
+adoptT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 1856/1856 W3 0/0
+baselineTestsNew at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 14/14 W2 0/0 W3 0/0
+deferNatT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 505/505 W3 0/0
+definerT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+doWhileNameT at=57 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 2065/2065 W3 0/0
+driveCompileT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+driveLeakT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+f122NatT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+halfLessT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+leafClassT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+nestNatT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 505/505 W3 0/0
+opLenT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 3/3 W2 0/0 W3 0/0
+ownerT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+paReachT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 35307/23754 W3 0/0
+parserTest at=38 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 27455/23558 W3 0/0
+probeDoorT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 18/18 W2 0/0 W3 0/0
+probeFrameT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+quoteNatT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 505/505 W3 0/0
+ruleOfT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 54/54
+site1RoadsT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 24/24 W2 0/0 W3 0/0
+stmtRejT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 688/688 W3 0/0
+sweepT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 141/141 W2 0/0 W3 0/0
+termCountT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 0/0 W3 0/0
+tokJitT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 3/3 W2 0/0 W3 0/0
+unaryNatT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 655/655 W3 0/0
+zeroWidthT at=1 x0=0 x1=0 agree diff=0 masked plain/jit W1 0/0 W2 38515/26958 W3 0/0
+gen26: agree 26 / DISAGREE 0

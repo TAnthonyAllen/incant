@@ -82,3 +82,29 @@ difference. A build-time read of a run-time value: none.
 | V1 compareValues truncation | 1 (halfLessT) | 16 / 26 | engine: compare doubles without the (int) cast |
 
 10 of the 11 are instrument text. The one value defect is on the plain road.
+
+## SEQ 418 (2026-10-25): gen26 masks its own instrument text -- 26 / 26
+
+gen26.sh now runs every captured stream through `nmask`: three named, exact patterns, one per class above, each with
+a line count per road in gen26's output. W1 keeps the counter and callee lines and masks only the number
+(degrade / compile / slot) or the word (built / REUSED). W2 deletes lines by exact leading token: RULEDISPATCH PPWRITE
+DEFERABOVE OLDFIREFLAG fireLabelMethod CAPFIRE BLOCKRESULT attachLabel fireLabel LABELKIDS ACTFIRE DOTOPERANDS
+ATTACHREPEAT MARKPT MARKARM FRAMEPROBE, `CAPTURE ORACLE-ABSENT` and `runRule DOOR`. Every one is printed only by a
+parseTrace-gated or measure.twk callout. Not masked: a CAPTURE DIVERGE verdict, or a `runRule:` refusal. W3 masks
+`nodes=` on RULEOF nodes lines and `terms=` on RULEOF XREG lines. The census's other fields stay compared.
+
+**Known blind spot (W3):** a node-count change on ruleOfT's jitted road is no longer visible to gen26. pop.sh's
+ruleOfT rows still read the plain road's counts.
+
+Result (`results/gen26.seq418.txt`): **agree 26 / 26.** zeroWidthT's reordering lay entirely inside W2's lines.
+No order difference remains once they are masked.
+
+**H7.**
+- A value changed on the jitted side only is reported with every mask in place:
+  - halfLessT's `hlB = 7`: DISAGREE, diff 4.
+  - `cerr "H7VAL" 1 / 2` before `stop()` in zeroWidthT, paReachT, ruleOfT and sweepT (the most heavily masked files):
+    each DISAGREE, diff 2.
+- Each mask removed alone puts its files back, with SEQ 416's diff sizes:
+  - no W1: the six W1 files (28, 6, 36, 48, 282, 6).
+  - no W2: paReachT 11913, parserTest 3897, zeroWidthT 12843.
+  - no W3: ruleOfT 6.
