@@ -70,3 +70,13 @@ How to handle statements that do not return anything for an expression to proces
         If a rule reads its input from the instruction stream? Assume parser(rule) already set the rule parse
             the rule runs runRule -> parse -> return result just like when calling a non-rule action/method
             we can probably test this using old parse to make sure the chain sequence works with rules, in which case rules return a result that fits into the current chain presumably as a value. Next step would be to change rule actions to return a chain that has not yet been run
+
+/*******************************************************************************
+	Handling || and && in an instruction chain
+*******************************************************************************/
+ga > qb || qb > qc || whatsIt = "We good"
+A || B || C translates to
+    || A B -> target; arg and op get cleared
+    || target C -> target -> the final target is the start of the chain while the C in it is the end of the chain
+
+Would be nice if you could run a chain as a conversation in kant;

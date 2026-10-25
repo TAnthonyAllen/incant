@@ -202,7 +202,7 @@ use target
 
 
 // opCallTest test of the call op: run target's action, or its method, on the argument
-extern GroupItem opCallTest(GroupItem target,GroupItem argument)
+extern GroupItem opCallTest(GroupItem argument,GroupItem target)
 {
 GroupItem result;
     if target.actionType    result = runAction(argument,target);

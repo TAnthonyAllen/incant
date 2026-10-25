@@ -21,19 +21,14 @@ define
     xpListTest  isRule;
     InvokeD     isRule startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
     InvokeR     isRule ANYtoken InvokeD code={
-        print "Running InvokeR":;
         if *InvokeD.listLengtH;
-            $$InvokeD;
             :InvokeD startBox xpListTest;
-            $$xpListTest;
-            arg := *xpListTest;
-            $$arg;
+            arg     = *xpListTest;
             if startBox == "(";     op := Operators["call"];
             else                    op := Operators["=["];
             result  +% Operators["call"];
-            result  +% ANYtoken;
+            result  +% unWrap(ANYtoken);
             result  +% *arg;
-            dumpField(result);
             return result;
         return ANYtoken;
         };
@@ -51,58 +46,114 @@ define
         Debugging routine to list out an instruction chain: op, argument, target
     *****************************************************************************/
     listChain code={
-        dumpField(argument);
         if listLengtH != 0;
-            arg     := argument[2];
-            target  := argument[3];
-            if *arg.taG == "instruct";       listChain(*arg);
-            if *target.taG == "instruct";    listChain(*target);
+            op      := argument[1];
+            target  := argument[2];
+            arg     := argument[3];
+            print *op.taG;
+            if *target.taG == "instruct";
+                print ,:+~ "target is:";
+                listChain(*target);
+                print ,-;
+            else    print *target.taG;
+            if *arg.taG == "instruct";
+                print ,:+~ "argument is:";
+                listChain(*arg);
+                print ,-;
+            else    print *arg.taG;
         };
     /*****************************************************************************
         Build the instruction chain walking left to right. Note; operators that
         assign are handled like any other operator. The algorithm is tight as I
-        can make it.
+        can make it. It does not handle lists yet; not sure how to deal with
+        unattached fields in a chain with no operator in sight. Current doctrine
+        that may change: we do not make lists willy nilly in an expression
+        xpListTest returns a label named xpListTest; it contains the chain it built
+        stashed in its group
     *****************************************************************************/
     xpListTest isRule lizted=listEntries+ SemI?- code={
-        print "Running xpListTest":;
         cur := *lizted.firsT;
-        haveRoot = 0;
         while cur.datA != 0;
             if *cur.instructTypE != 0;
-                if target.datA == 0;            kind = 3;
-                or *target.instructTypE != 0;   kind = 3;
-                op = cur;
+                op      = cur;
+                kind    = 1;
+                if target.datA == 0 && assign.datA == 0;        kind = 3;
+                or *target.instructTypE != 0;                   kind = 3;
+                if *cur["assignTier"] || *cur["shortCircuit"];  kind = 2;
             else
                 if target.datA == 0;    target = cur;
-                else                    arg = cur;
+                else    arg = cur;
                 if op.datA != 0 && target.datA != 0;
                     if kind == 3;
-                        print "kind == 3 unary op?":;
                         if *op.taG == "-";  op := Operators["negate"];
                         or *op.taG == "*";  op := Operators["deref"];
                         instruct    +% op target;
-                        target     := copyOf(instruct);
-                    if arg.datA != 0;
-                        instruct    +% op target arg;
                         target      := copyOf(instruct);
+                    if arg.datA != 0;
+                        curTAG  = *cur.taG;
+                        if op.datA;     opTAG = *op.taG;
+                        else            opTAG = "no operator";
+                        if arg.datA;    argTAG = *arg.taG;
+                        else            argTAG = "no argument";
+                        if target.datA; targetTAG = *target.taG;
+                        else            targetTAG = "no target";
+                        print "Build instruction with:" kind curTAG opTAG targetTAG argTAG:;
+                        if kind == 1;
+                            instruct    +% op target arg;
+                            target      := copyOf(instruct);
+                        or kind == 2;
+                            if assign.datA != 0;
+                                print "Has assign":;
+                                instruct +% op target arg;
+                                *assign     +% copyOf(instruct);
+                                arg         = copyOf(assign);
+                                instruction = copyOf(assign);
+                                clear(assign);
+                            else
+                                print "Get assign":;
+                                instruct +% op target;
+                                instruct    = kind;
+                                assign      := copyOf(instruct);
+                            target = arg;
                     clear(instruct);
                     clear(arg);
                     clear(op);
-                    dumpField(*target);
             cur := *cur.nexT;
+        print "Check for final assign":;
+        if assign.datA != 0;
+            print "Assign":;
+            listChain(*assign);
+            print :"Last target":;
+            listChain(*target);
+            *assign +% *target;
+            print :"Assign after adding target":;
+            listChain(*assign);
+            print :;
+            target = assign;
+            print :"After setting target to assign":;
+            listChain(*target);
+            print :;
+            instruction = 0;
+        or instruction != 0;    target = instruction;
+        clear(*argument);
+        argument = target;
         print "We done":;
-        // Here we return an isLabel field named xpListTest that contains the chain it built stashed in an attribute
         listChain(*target);
-        *argument := *target;
+        print :;
+        $$target;
         return  *argument;
         };
     ;
 
-xpListTest("invokeTEST(righty -= qa - qb + qc)");
+whatsIt = xpListTest("ga > qb || righty = 42 || qb > qc");
+print "About to list whatsIt":;
+listChain(whatsIt);
+print :"End result is:" testOP(whatsIt):;
 stop();
 
 debug InvokeD InvokeR xpListTest;
 compareXP();
+xpListTest("ga > qb || qb > qc || righty = 42")
 xpListTest("invokeTEST call qa + qb + qc;");
 xpListTest("invokeTEST call qa - qb + qc;");
 xpListTest("invokeTEST call qa - qb - qc;");
@@ -129,13 +180,14 @@ stop();
 ***************************************************************************/
 debug GUARD ALL xpListTest listEntries;
     // the following prints a debugging list of instruction parts
-            curTAG = *cur.taG;
-            if op.datA;     opTAG = *op.taG;
-            else            opTAG = "no operator";
-            if target.datA; targetTAG = *target.taG;
-            else            targetTAG = "no target";
-            resultTAG       = *result.taG;
-            print "Instruction parts" curTAG targetTAG opTAG resultTAG:;
+                        curTAG  = *cur.taG;
+                        if op.datA;     opTAG = *op.taG;
+                        else            opTAG = "no operator";
+                        if arg.datA;    argTAG = *arg.taG;
+                        else            argTAG = "no argument";
+                        if target.datA; targetTAG = *target.taG;
+                        else            targetTAG = "no target";
+                        print "Build instruction with:" kind curTAG opTAG targetTAG argTAG:;
     compareXP code={
         maximus=righty;
         print "maximus set to:" maximus:;

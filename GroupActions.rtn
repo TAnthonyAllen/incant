@@ -1461,12 +1461,11 @@ extern GroupItem testOP(GroupItem field)
 GroupItem   result,
             op = field[1],
             argument = field[3];
-    cout "testOP:" op.tag:;
     if argument && argument.tag eq "instruct"   argument = testOP(argument);
 GroupItem   target = field[2];
     if target && target.tag eq "instruct"       target = testOP(target);
     if op.isUnary   result = op.method(argument);
-    else            result = op.operat(target,argument);
+    else            result = op.operat(argument,target);
     return result;
 }
 

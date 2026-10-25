@@ -8226,7 +8226,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 // opCallTest test of the call op: run target's action, or its method, on the argument
-extern "C" GroupItem *opCallTest(GroupItem *target, GroupItem *argument)
+extern "C" GroupItem *opCallTest(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 	if ( target->groupBody->flags.actionType )
@@ -11704,7 +11704,6 @@ extern "C" GroupItem *testOP(GroupItem *field)
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*argument = field->get(3);
-	::printf("testOP:%s\n",op->groupBody->tag);
 	if ( argument && ::compare(argument->groupBody->tag,"instruct") == 0 )
 		argument = ::testOP(argument);
 GroupItem 	*target = field->get(2);
@@ -11712,7 +11711,7 @@ GroupItem 	*target = field->get(2);
 		target = ::testOP(target);
 	if ( op->groupBody->flags.isUnary )
 		result = op->groupBody->gMethod(argument);
-	else	result = op->groupBody->gOp(target,argument);
+	else	result = op->groupBody->gOp(argument,target);
 	return result;
 }
 
