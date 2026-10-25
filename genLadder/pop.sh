@@ -6529,7 +6529,9 @@ fdRow "ruleReturnT RR-2 road ii: the command-line call's return is the label" "$
 fdRow "ruleReturnT RR-2S road ii: * of the return is the label holding the chain" "$(_rrb "$T/rr" RR-2S | head -1)" "instruct" "xpListTest=instruct"
 kindRow "ruleReturnT RR-0 control: an action's return of a holder, and of a field (must not move)" "$(_rrb "$T/rr" RR-0 | head -1) $(_rrb "$T/rr" RR-0P | head -1)" "v=rrLeaf w=rrLeaf"
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip ruleReturnOpT)" > "$T/rro" 2>&1; _rrx=$?
-fdRow "ruleReturnOpT RR-2T road ii: testOP(**ret) runs the chain -- exit, value" "$_rrx $(awk '$1=="RR-2T" && $2=="value" {print $3; exit}' "$T/rro")" "139 " "0 5"
+#  RR-2T re-pinned 0 5 -> 0 3 (SEQ 414 R3): 2 - 3 + 4 folds left to 3; the 5 pinned at SEQ 411 R0 was testOP's swapped
+#  operands, cured by Tony's testOP / opCallTest order fix (2026-10-24).
+fdRow "ruleReturnOpT RR-2T road ii: testOP(**ret) runs the chain -- exit, value" "$_rrx $(awk '$1=="RR-2T" && $2=="value" {print $3; exit}' "$T/rro")" "139 " "0 3"
 
 #  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
 #  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE
