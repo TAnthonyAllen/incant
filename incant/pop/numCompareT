@@ -1,0 +1,71 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(NumCompare);
+define
+    nc1=0;
+    nc2=0;
+    nc3=0;
+    nc4=0;
+    nc5=0;
+    nc6=0;
+    nc7=0;
+    nc8=0;
+    nc9=0;
+    nc10=0;
+    ncJ code={
+        nc1 = 0; nc2 = 0; nc3 = 0; nc4 = 0; nc5 = 0; nc6 = 0; nc7 = 0; nc8 = 0; nc9 = 0; nc10 = 0;
+        if 0.5 < 1;     nc1 = 1;
+        if 2.5 > 2;     nc2 = 1;
+        if 0.5 == 1;    nc3 = 1;
+        if 1.4 <= 1;    nc4 = 1;
+        if 0.6 >= 1;    nc5 = 1;
+        if 0.5 != 1;    nc6 = 1;
+        if 1 < 1.5;     nc7 = 1;
+        if 1 < 1.4;     nc8 = 1;
+        if 1 >= 1.4;    nc9 = 1;
+        if 1 < 2;       nc10 = 1;
+        };
+    ncI code={
+        nc1 = 0; nc2 = 0; nc3 = 0; nc4 = 0; nc5 = 0; nc6 = 0; nc7 = 0; nc8 = 0; nc9 = 0; nc10 = 0;
+        if 0.5 < 1;     nc1 = 1;
+        if 2.5 > 2;     nc2 = 1;
+        if 0.5 == 1;    nc3 = 1;
+        if 1.4 <= 1;    nc4 = 1;
+        if 0.6 >= 1;    nc5 = 1;
+        if 0.5 != 1;    nc6 = 1;
+        if 1 < 1.5;     nc7 = 1;
+        if 1 < 1.4;     nc8 = 1;
+        if 1 >= 1.4;    nc9 = 1;
+        if 1 < 2;       nc10 = 1;
+        };
+    ;
+testing(ncJ);
+cerr "NC jitted" nc1 nc2 nc3 nc4 nc5 nc6 nc7 nc8 nc9 nc10:;
+ncI();
+cerr "NC interpreted" nc1 nc2 nc3 nc4 nc5 nc6 nc7 nc8 nc9 nc10:;
+cerr "NUMCOMPARE SENTINEL":;
+stop();
+
+numCompareT -- SEQ 417 (Tony, 2026-10-25): A NUMBER COMPARE COMPARES THE VALUES.
+
+Ten compares, run once jitted (testing, first, per bear-trap #25) and once interpreted. Columns, with the truth:
+  1  0.5 < 1      1      number left, count right -- compareValues' number arm
+  2  2.5 > 2      1      number arm
+  3  0.5 == 1     0      number arm
+  4  1.4 <= 1     0      number arm
+  5  0.6 >= 1     0      number arm
+  6  0.5 != 1     1      number arm
+  7  1 < 1.5      1      count left, number right -- the count arm; right before the cure by rounding (1.5 -> 2)
+  8  1 < 1.4      1      count arm; wrong before the cure (1.4 -> 1, so 1 - 1 = 0)
+  9  1 >= 1.4     0      count arm; wrong before the cure
+ 10  1 < 2        1      count against count -- the control, never touched
+Truth row: 1 1 0 0 0 1 1 1 0 1. The jitted road compares doubles and reads it from the start.
+
+The interpreted road before the cure read 0 0 1 1 1 0 1 0 1 1: GroupItem.twk compareValues' number arm was
+(int)(a - b), so two numbers less than 1 apart compared EQUAL; its count arm (and the text/token arm) read a number
+on the right through getCount, which rounds it half up. The cure compares a number against a number, count or
+string through getNumber, as doubles, in all three arms.

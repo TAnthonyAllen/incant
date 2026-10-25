@@ -6685,6 +6685,17 @@ _hl () { sed -n "s/^HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*
 kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl old)" "0 1 0 0"
 kindRow "halfLessT HL new road: 0.5<1, 1<2, 1<0.5, 1.5<2  # intended: 1 1 0 1 (born red 2026-10-19)" "$(_hl new)" "0 1 0 0"
 
+#  ⚑ numCompareT -- SEQ 417 R0 (Tony, 2026-10-25): A NUMBER COMPARE COMPARES THE VALUES. Ten compares (<, >, ==, <=, >=, !=
+#  on numbers less than 1 apart; 1<1.5, 1<1.4, 1>=1.4 with the count on the left; 1<2 as the control), jitted then
+#  interpreted. The jitted road compares doubles and reads the truth. BORN RED on the interpreted half: compareValues'
+#  number arm was (int)(a - b), and its count arm read a right-hand number through getCount's half-up round.
+run1 numCompareT "$T/nct";   check "numCompareT runs" 0 $?
+sentinel "numCompareT sentinel" "$T/nct" "NUMCOMPARE SENTINEL"
+_nct () { sed -n "s/^NC $1 *//p" "$T/nct" | sed 's/ *$//'; }
+kindRow "numCompareT NC jitted: 0.5<1 2.5>2 0.5==1 1.4<=1 0.6>=1 0.5!=1 1<1.5 1<1.4 1>=1.4 1<2" "$(_nct jitted)" "1 1 0 0 0 1 1 1 0 1"
+fdRow "numCompareT NC interpreted = the jitted truth" "$(_nct interpreted)" "0 0 1 1 1 0 1 0 1 1" "1 1 0 0 0 1 1 1 0 1"
+kindRow "numCompareT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/nct")" "0"
+
 #  ⚑ SEQ 384 R1 (Tony, 2026-10-19): COMPILING HAS NO SIDE EFFECTS -- four fixtures, BORN RED on trunk, committed before
 #  the cure (branch jit-no-side-effects, green since). Each jitted body against its interpreted twin; nothing runs at build time.
 #  jitSinkFireT -- a cerr in a jitted body prints once per FIRE (refireSkipsDegraded's repro). Today: once, at build, "0".
