@@ -4376,7 +4376,7 @@ if grep -qF "if !aFalse; -> TRUE" "$T/apr"; then
 else
     echo "  FAIL  andProbe AP-5b if !aFalse; MOVED -- it was graduated to TRUE on 2026-09-10"
     echo "        when opNOT stopped asking !contents() and started asking !truthOf."
-    echo "        Reading `false` again means opNOT went back to the presence question."; fail=1
+    echo "        Reading \`false\` again means opNOT went back to the presence question."; fail=1
 fi
 #  AP-5c -- AP-5b's NON-ZERO SIBLING (H4: a row that wants TRUE from `!` is paired with one that wants false).
 #  Carried from stash@{1}'s testNot (bytecode-era unary WIP, `if !righty;` with righty 13 -> else) before the
@@ -4611,7 +4611,7 @@ if [ "$_orfail" = 0 ]; then
     echo "  ok    orProbe: the || truth table holds (T|F, F|F, F|T) -- PINNED BY VALUE"; green=$((green+1))
 else
     echo "  FAIL  orProbe: the || TRUTH TABLE moved. This is the row that a short-circuit"
-    echo "        change breaks first -- `true || false` reading false is the measured"
+    echo "        change breaks first -- \`true || false\` reading false is the measured"
     echo "        signature of the tier-3 binding being given to the symbol form."
     grep -E '\-> ' "$T/orp.o" | sed 's/^/          actual:   /'; fail=1
 fi
@@ -4639,7 +4639,7 @@ else
     grep "^SC-" "$T/sq.e" | sed 's/^/          actual:   /'
     echo "          Each row is paired: the 0 rows are the SKIP, the 1 rows are their"
     echo "          non-zero siblings. SC-7 going to 1 means \`||\` stopped short-circuiting --"
-    echo "          check that `shortCircuit` and `isOR` are still on '\''||'\'' in "$(ip setup)";"
+    echo "          check that \`shortCircuit\` and \`isOR\` are still on '||' in "$(ip setup)";"
     echo "          BOTH are needed, one for the tier-3 binding and one for the skip direction."; fail=1
 fi
 
@@ -4711,7 +4711,7 @@ else
     grep "^UC-" "$T/uc.e" | sed 's/^/          actual:   /'
     echo "          expected: UC-0 = 3, UC-1 = 3, UC-2 = 0."
     echo "          UC-1 falling to 0 means the star stopped binding to the primary -- check that"
-    echo "          `accessClass` is still on '\''*'\'' in "$(ip setup)"; the predicate is presence-based"
+    echo "          \`accessClass\` is still on '*' in "$(ip setup)"; the predicate is presence-based"
     echo "          and a missing registration silently demotes the star to value class."; fail=1
 fi
 
@@ -4747,7 +4747,7 @@ else
     echo "  FAIL  cursorRead A moved -- the two spellings no longer read what they read on 2026-09-10:"
     grep "^CR-A" "$T/cra.e" | sed 's/^/          actual:   /'
     echo "          expected: CR-A 1 bare= crAlpha explicit= crCur   (and walked = 2)"
-    echo "          If `explicit` now reads the member, the .-is-binary ruling's escape"
+    echo "          If \`explicit\` now reads the member, the .-is-binary ruling's escape"
     echo "          hatch has started working and this row is a RE-PIN owed a sentence."; fail=1
 fi
 run2 cursorReadTb "$T/crb.o" "$T/crb.e"; check "cursorReadTb runs" 0 $?
@@ -4783,9 +4783,9 @@ if [ "$arms" = "2" ]; then
     echo "  ok    aCTionBrancH: $arms jit arms discriminate by content -- PINNED BY VALUE"; green=$((green+1))
 else
     echo "  FAIL  aCTionBrancH content-test arms = $arms, want 2."
-    echo "        One arm has gone back to a bare presence test on the tag. `or BrancheS.tag {`"
+    echo "        One arm has gone back to a bare presence test on the tag. \`or BrancheS.tag {\`"
     echo "        is true for EVERY tag, so break walks into the return emitter and the"
-    echo "        jitDegrade below becomes unreachable. Spell it `BrancheS.tag == 'r'`;"
+    echo "        jitDegrade below becomes unreachable. Spell it \`BrancheS.tag == 'r'\`;"
     echo "        tok renders that as a first-character compare, same as the 'c' arm."; fail=1
 fi
 
@@ -4884,7 +4884,7 @@ if grep -q "ITERREFUSET SENTINEL" "$T/irf" && ! grep -q "^R ok" "$T/irf"; then
 elif ! grep -q "ITERREFUSET SENTINEL" "$T/irf"; then
     echo "  FAIL  iterRefuseT truncated -- the absence of R ok below asserts nothing"; fail=1
 else
-    echo "  FAIL  iterRefuseT row R -- `R ok` STILL PRINTS, so the statement after"
+    echo "  FAIL  iterRefuseT row R -- \`R ok\` STILL PRINTS, so the statement after"
     echo "        a refused loop still runs. The refusal did not arm, or"
     echo "        aCTionBlocK is not checking the arm."; fail=1
 fi

@@ -65,6 +65,6 @@ stop();
 ruleReturnOpT -- SEQ 411 RR-2's testOP half, split from ruleReturnT because TODAY IT CRASHES. rrOp calls the rule from
 the command line, then runs testOP on what the returned label holds, as tester does with testOP(*xpListTest): here
 `ret := xpListTest(...)` makes ret a holder of the return, so the label is *ret and the chain it holds is **ret.
-Intended: the chain is instruct, testOP runs it and hands back 5 -- the value testOP(*ret) gives today, when *ret IS the
+Intended: the chain is instruct, testOP runs it and hands back 3 (2 - 3 + 4 folds left; seal 214's R3) -- the value testOP(*ret) gives today, when *ret IS the
 chain (qa - qb + qc as testOP folds it). Today: **ret is null (the label was unwrapped to the chain on the way out of
 the code, so *ret is the chain and ** of it is nothing), testOP is handed null, and the run dies, exit 139, no output.
