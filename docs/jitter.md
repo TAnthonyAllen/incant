@@ -1338,3 +1338,50 @@ wrong value outranks the -5, so the join clear alone would make things worse. Re
 as its own stroke -- the star's run-time node is consumed only where a node is wanted (a star target writes INTO the
 followed node; a star in a condition does not survive its statement) -- certified by SN-1, SN-2, IS-C1, IS-S; **then** the
 join clear (if, if / else, loop exit), certified by IS-1, IS-C2, IS-C3 and tpTestResult compiling with values = twin.
+
+## SEQ 423 -- M2: a compiled *h hands back its own node (2026-10-26)
+
+Ruled (forwarded): R-A M2 before the if-join clear (held); R-B SEQ 377's rule extends to *h -- a compiled dereference's
+run-time result rides on its own fresh node, returned to its consumer, never read by a later statement from a shared slot;
+a *h target writes into what h points at; R-C build only if local to the deref emit and its consumers, STOP at the frame
+model or Stroke B's bind; R-D the buy is Tony's, branch pushed, not merged.
+
+### R0 -- exposure census (temporary tap on trunk, reverted md5-identical, rebuilt)
+
+The tap logged every compiled *x, every producer of the shared node slot (deref, dot, concat), and every reader of it,
+classed by the reading assignment's operands: **rhs** (its argument IS the producer's node -- correct), **target** (its
+target is the deref's build-time follow -- SN-1), **FOREIGN** (neither -- the slot read by an assignment it does not
+belong to); and by fate: runs, handed over (rolled back, never runs), or function refused. H16: on ifSeedT it marks every
+wrong row RUNS and every -5 row REFUSED-FN, and a known-good `x = *h` probe reads rhs.
+
+| where | target / FOREIGN that RUN | why the rows stayed green |
+|---|---|---|
+| pop.sh: ifSeedT | all its wrong rows | they are the born-red rows |
+| pop.sh: jitterDatAT dAy | 1 dot FOREIGN | **DA-Y IS THE SAME MECHANISM** (the node arm, the dot as producer) -- pinned red already |
+| pop.sh: jitterT jtBad (and its parser(Start) twin) | 1 deref FOREIGN -- inlined jtResult's `if *jtSlot == 1; jtTrue = jtTrue + 1;` | **nothing read jtTrue**: jitted 0, twin 2. Pinned now as JTT (born red) |
+| pop.sh: termCountT jitted; gen26: all 26 files | 3 + 3 dot FOREIGN in parser / walkRules | **all HANDED** -- the statements are rolled back, the IR never runs |
+| jitLadder | none | -- |
+
+Legitimate reads (rhs, the call bind consuming its own argument's deref, print, a `*h += 1` fire) are the rest.
+
+### R1 -- the cure, PRE-REGISTERED (written before the build; branch m2-deref-node)
+
+**Producer.** jitEmitDeref mints a fresh node `derefResult` per dereference: JitData gains `jitNode` (the run-time node,
+jitDerefRT's result); `jitValue` is its count (jitUnboxCount), `computed` set. opDeref, under jitting, returns that node in
+place of the build-time follow. The deref no longer publishes gJitResultNode / gJitLastIsNode. It hands its run-time node
+to the call bind through SEQ 409's existing statement-scoped pair (gJitArgFollowNode = the fresh node, gJitArgFollowVal =
+the run-time node), so **jitEmitArgBind is not edited** (R-C).
+**Consumers, each by identity (the operand's own jitData->jitNode), never the shared slot:** jitEmitAssign -- a derefResult
+TARGET writes into its run-time node (a scalar boxed and stored by jitAssignNodeRT, opAssign's cast store; a node source by
+jitAssignNodeRT), a derefResult ARGUMENT is the node source; the node arm (and the dot-target arm) take the shared slot
+only when the argument IS the producer's node (the dot's resultNode, concat's returned operand) -- **this is the half that
+cures DA-Y**. jitEmitOpFire, jitEmitUnary, print and jitEmitDot take a derefResult's jitNode where they now take the slot
+or bake the operand. Compares and arithmetic read jitValue (no change to them).
+**Movers, to their twins:** ifSeedT SN-1 mark 1, SN-2 snA 1, IS-C1 isIn 1, IS-S 1 1 1; jitterDatAT DA-Y yy 1; jitterT JTT
+jtTrue 2. **Predicted beyond the dispatch's list, and why:** ifSeedT IS-1 / IS-C2 / IS-C3 and testPrecedence's tpTestResult
+were refused -5 because the arm's load of the SHARED build-time follow was reused after the join; with a fresh node per
+dereference nothing is shared, so they are predicted to COMPILE with values = the twin (witness rows -5 -> built). If any of
+them still -5s, that is also accepted (the join clear is not built); any other outcome is a STOP.
+**Unmoved:** everything else in pop.sh but H3; jitLadder identical; gen26 26 / 26 with its mask counts unmoved.
+**H7 halves:** (1) the target write removed (a derefResult target falls to the old node arm) -> SN-1 / IS-S back; (2) the
+own-node result removed (opDeref returns the build-time follow again) -> SN-2 / IS-C1 / JTT back.
