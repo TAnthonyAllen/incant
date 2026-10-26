@@ -1462,9 +1462,12 @@ extern GroupItem testOP(GroupItem field)
 GroupItem   result,
             op = field[1],
             argument = field[3];
-    if argument && argument.tag eq "instruct"   argument = testOP(argument);
+    // notInstruct a field with no op to run is handed back as it is
+    if !op  return field;
+    // ownMethod an instruct is known by its METHOD being testOP, not by its tag: run it; any other operand goes as it is (SEQ 428)
+    -% if ( argument && (void*)argument->groupBody->gMethod == (void*)&testOP ) argument = ::testOP(argument); %-
 GroupItem   target = field[2];
-    if target && target.tag eq "instruct"       target = testOP(target);
+    -% if ( target && (void*)target->groupBody->gMethod == (void*)&testOP ) target = ::testOP(target); %-
     // unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
     if op.isUnary && argument   result = op.method(argument);
     or op.isUnary               result = op.method(target);
