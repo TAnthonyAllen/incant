@@ -1259,3 +1259,24 @@ stops the build. Two facts for the ruling:
 2. The opFire site writes into the argSlot NODE at run time (jitOpFireRT runs the operator against the baked target), so
    its write-through would be: after the fire, store the node's value into the slot and the binding -- the same pair as the
    other two, done after a run-time call rather than from an SSA value.
+
+## SEQ 421 -- the write-through, built and BOUGHT (2026-10-26; merge d84fc89a)
+
+Ruled (forwarded): R-A after any write to a compiled function's own argument, its slot, its node and the bound caller field
+agree; R-B the three measured sites -- the cast arm (`=`), jitEmitOpFire (`+=`), the unary store (++ / --); R-C a fourth
+site STOPs (the census found none).
+
+**The cure (branch arg-write-through, 12a8540a):** one run-time helper, `jitArgSyncRT(node, %field)` -- follows %field one
+level as jitArgCountRT reads it, copies the argSlot node's value to the bound field, returns it for the slot. Cast arm:
+the cast call writes the node, then the slot takes jitArgSyncRT's value. += fire: the node is PRIMED from the slot first
+(it was empty, so += took the argument's 1 -- jitted AW-2 read 1 + nothing written back) and synced after. Unary: the node
+takes the result (jitFlushCountRT), then jitArgSyncRT. Canary 373 -> **374**; no groups.ext line (called in-chain, as
+jitEmitIterStep).
+
+**Certificate:** pop.sh 1774 -> **1780**, row for row but the six registered movers (inlineArgWriteT AW-1..4 9 8 8 6,
+argSlotWriteT SW-1 srX 1, SW-4 cfOut 14) and H3 (bin / tree lines, acceptStartT's address, xpLocT's standing segfault PID).
+testPrecedence's census construction: its four *Arg rows -> 9 8 8 6 and their PENDING lines go; nothing else.
+**jitLadder identical** (but the binary line). **gen26 26 / 26, mask counts unmoved** (byte-identical output).
+**H7 per site**, each built alone, each red by value on its own rows only: cast arm removed -> AW-1 7, SW-4 4; += removed
+-> AW-2 7; unary removed -> AW-3 7, AW-4 7, SW-1 0. Restored from the commit: jitEmitters.rtn, GroupRules.mm / .h md5 =
+the cure. Bought: merged d84fc89a, bare tokall = the branch, branch deleted.

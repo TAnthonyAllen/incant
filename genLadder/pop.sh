@@ -6312,6 +6312,7 @@ kindRow "inlineFieldArgT witness: fdDrive built 1 called 1 (compiled, no -5: sil
 #  ⚑ inlineArgWriteT -- SEQ 419 R0 (2026-10-26): AN INLINED CALLEE'S WRITE THROUGH A STARRED ARGUMENT DOES NOT REACH THE CALLER'S
 #  FIELD (testPrecedence's four *Arg rows, minimal). BORN RED, silent: AW-1..AW-4 read 7. # intended: the twin's 9 8 8 6.
 #  Controls agree today: AW-C (callee writes a local only), AW-5 / AW-6 (a plain field argument).
+#  CURED SEQ 421 (d84fc89a): the write-through at the cast arm, the += fire and the unary store -- AW-1..4 = the twin.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineArgWriteT)" > "$T/iawt" 2>&1; check "inlineArgWriteT runs" 0 $?
 sentinel "inlineArgWriteT sentinel" "$T/iawt" "INLINEARGWRITE SENTINEL"
 sed 's/^jitter;$/jitterOff;/' "$(ip inlineArgWriteT)" > "$T/iawtI.src"; "$B" "$T/iawtI.src" > "$T/iawtI" 2>&1; check "inlineArgWriteT interpreted twin runs" 0 $?
@@ -6331,6 +6332,7 @@ kindRow "inlineArgWriteT witness: awAssign built 1 called 1 (compiled, no -5: si
 #  is the SEQ 380 slot). Born at today's values, each beside its interpreted twin. Two disagree today: SW-1 srX 0 (twin 1,
 #  the outer activation's ++argument never reaches srX) and SW-4 cfOut 4 (twin 14, `argument = argument + 10` writes the
 #  argSlot NODE, so the next read of argument loads the stale slot). # intended: the twins.
+#  CURED SEQ 421 (d84fc89a): SW-1 srX 1, SW-4 cfOut 14 = the twins.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip argSlotWriteT)" > "$T/aswt" 2>&1; check "argSlotWriteT runs" 0 $?
 sentinel "argSlotWriteT sentinel" "$T/aswt" "ARGSLOTWRITE SENTINEL"
 sed 's/^jitter;$/jitterOff;/' "$(ip argSlotWriteT)" > "$T/aswtI.src"; "$B" "$T/aswtI.src" > "$T/aswtI" 2>&1; check "argSlotWriteT interpreted twin runs" 0 $?
