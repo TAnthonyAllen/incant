@@ -44,6 +44,7 @@ define
                 if op.datA != 0 && target.datA != 0;
                     if arg.datA != 0;
                         instruct    +% op target arg;
+                        instruct.methoD = "testOP";
                         target      := copyOf(instruct);
                     clear(instruct);
                     clear(arg);

@@ -11803,11 +11803,13 @@ extern "C" GroupItem *testOP(GroupItem *field)
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*argument = field->get(3);
-	if ( argument && ::compare(argument->groupBody->tag,"instruct") == 0 )
-		argument = ::testOP(argument);
+	// notInstruct a field with no op to run is handed back as it is
+	if ( !op )
+		return field;
+	// ownMethod an instruct is known by its METHOD being testOP, not by its tag: run it; any other operand goes as it is (SEQ 428)
+	 if ( argument && (void*)argument->groupBody->gMethod == (void*)&testOP ) argument = ::testOP(argument); 
 GroupItem 	*target = field->get(2);
-	if ( target && ::compare(target->groupBody->tag,"instruct") == 0 )
-		target = ::testOP(target);
+	 if ( target && (void*)target->groupBody->gMethod == (void*)&testOP ) target = ::testOP(target); 
 	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
 	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);
