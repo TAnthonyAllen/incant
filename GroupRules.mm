@@ -11808,8 +11808,12 @@ GroupItem 	*argument = field->get(3);
 GroupItem 	*target = field->get(2);
 	if ( target && ::compare(target->groupBody->tag,"instruct") == 0 )
 		target = ::testOP(target);
-	if ( op->groupBody->flags.isUnary )
+	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
+	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);
+	else
+	if ( op->groupBody->flags.isUnary )
+		result = op->groupBody->gMethod(target);
 	else	result = op->groupBody->gOp(argument,target);
 	return result;
 }
