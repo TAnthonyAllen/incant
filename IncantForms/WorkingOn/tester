@@ -24,7 +24,7 @@ define
         if *InvokeD.listLengtH;
             :InvokeD startBox xpListTest;
             arg     = *xpListTest;
-            if startBox == "(";     op := Operators["call"];
+            if *startBox == "(";    op := Operators["call"];
             else                    op := Operators["=["];
             result  +% Operators["call"];
             result  +% unWrap(ANYtoken);
