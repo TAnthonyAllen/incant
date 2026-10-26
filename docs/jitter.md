@@ -1385,3 +1385,31 @@ them still -5s, that is also accepted (the join clear is not built); any other o
 **Unmoved:** everything else in pop.sh but H3; jitLadder identical; gen26 26 / 26 with its mask counts unmoved.
 **H7 halves:** (1) the target write removed (a derefResult target falls to the old node arm) -> SN-1 / IS-S back; (2) the
 own-node result removed (opDeref returns the build-time follow again) -> SN-2 / IS-C1 / JTT back.
+
+### R1 MEASURED (branch m2-deref-node, pushed, NOT merged: f1755f19 cure, 0a513d2d part 2, ecc407bb re-pins)
+
+**Part 1 as pre-registered** (fresh derefResult with JitData.jitNode; opDeref returns it -- via gJitDerefNode, so
+jitEmitDeref keeps `int` and groups.ext is untouched; the shared slot stamped with gJitNodeOwner and taken by an assignment
+only by owner; `*h = v` through jitAssignNodeRT into the run-time node; opFire / ++ / -- / the dot take a deref operand's
+jitNode; the call bind through SEQ 409's follow pair, jitEmitArgBind untouched). Every registered mover moved, and
+**gen26 went 26 -> 0 / 26**: the compiled generator printed `2` for `&&` / `||`. Measured with a probe on trunk and branch
+(`conj = "&&"`: trunk && / part 1 2): an unowned slot now stayed set past its statement, and runOPdirect's kind gate
+(`!gJitLastIsNode`, GroupActions.rtn:1317) read it as "a node in flight", so a string-literal assignment was no longer handed
+to run time and compiled as a count. The same failure R-B names, through a reader the census did not list (it counted the
+slot's assignment / print / fire / bind readers, not the gate that reads the flag alone).
+**Part 2:** the gate trusts a node in flight only when an operand IS gJitNodeOwner. Probe && &&.
+
+**Certificate (part 1 + 2):**
+- pop.sh 1793 -> **1796**, row for row but the registered movers and H3: ifSeedT IS-1 witness built, IS-C1 1, IS-S 1 1 1,
+  SN-1 1, SN-2 1; jitterT JTT 2; jitterDatAT DA-Y 1; and the PREDICTED IS-C2 / IS-C3 witnesses built (values = twin).
+  Re-pinned on the branch with their sentences (ecc407bb): DA-Y 1, IS-C2 / IS-C3 built.
+- testPrecedence's census construction: tpTestResult **built 1 called 6** (predicted), every ROW line unchanged, its
+  tally 34 -> **5 of 35 = the twin's**.
+- **jitLadder identical. gen26 26 / 26, byte-identical to trunk's output (mask counts unmoved). Canary 374** (no extern).
+- **H7, three single-mechanism removals** (the cure has three, not the dispatch's two halves), each rebuilt alone, each red
+  by value: (A) target write removed -> SN-1 0, IS-1 / IS-C2 / IS-C3 write nothing (0 0), IS-S isSt 0 mark 0, IS-C1 0;
+  (B) own node removed (opDeref returns the build-time follow) -> IS-1 / IS-C2 / IS-C3 back to -5, IS-C1 0, IS-S isSt 0,
+  JTT 0; (C) owner gating removed -> SN-2 0, DA-Y 0, JTT 1, IS-S isPre 0, IS-C3 isLo 2. Restored from the commit:
+  jitEmitters.rtn, jitContext.h, Instruct.rtn, GroupActions.rtn, GroupRules.mm / .h md5 = the cure.
+**The buy is Tony's (R-D).** The if-join clear stays held (R-A); after this buy, ifSeedT has no -5 left to cure, so the
+join clear's own population is to be re-censused before it is built.
