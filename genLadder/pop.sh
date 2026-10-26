@@ -6346,6 +6346,30 @@ fdRow "argSlotWriteT SW-4 jitted: cfOut after argument = argument + 10 on a comp
 kindRow "argSlotWriteT SW-4 jitted: cfN unmoved = the twin's" "$(_asw "$T/aswt" SW-4 cfN)" "5"
 kindRow "argSlotWriteT witness: srF / lfF / cfF built alone" "$(grep -cE '^=== jitter: (srF built 1 called 1|lfF built 1 called 2|cfF built 1 called 1) ===' "$T/aswt")" "3"
 
+#  ⚑ ifSeedT -- SEQ 422 R0 (2026-10-26): DOCKET (a), A VALUE SEEDED IN AN IF'S THEN-ARM AND READ AFTER ITS ENDIF (tpTestResult's
+#  shape), in a compiled action. Witnesses: isAfter / isBoth / isLoop refused -5 today (interpreted, values = twin); intended
+#  compiled. Silent wrong values, born red: IS-C1 (read inside the arm), IS-S (a read before the if), SN-1 (`*h = 1` writes
+#  nothing), SN-2 (a star in a condition leaks its node into the arm's assignment). # intended: the twin on every row.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip ifSeedT)" > "$T/ist" 2>&1; check "ifSeedT runs" 0 $?
+sentinel "ifSeedT sentinel" "$T/ist" "IFSEED SENTINEL"
+sed 's/^jitter;$/jitterOff;/' "$(ip ifSeedT)" > "$T/istI.src"; "$B" "$T/istI.src" > "$T/istI" 2>&1; check "ifSeedT interpreted twin runs" 0 $?
+sentinel "ifSeedT interpreted twin sentinel" "$T/istI" "IFSEED SENTINEL"
+_isv () { sed -n "s/^$2 .*$3 \[ *\([0-9]*\) *\].*/\1/p" "$1"; }
+_isj () { if grep -q "^=== jitter: $2 NOT JITTABLE (compile returned -5)" "$1"; then echo "-5"; elif grep -q "^=== jitter: $2 built 1 called 1 ===" "$1"; then echo "built"; else echo "other"; fi; }
+kindRow "ifSeedT the interpreted twin: IS-1 isOut, C1 isIn, C2 isBo, C3 isLo, S isPre isSt mark, SN-1 mark, SN-2 snA" "$(_isv "$T/istI" IS-1 isOut) $(_isv "$T/istI" IS-C1 isIn) $(_isv "$T/istI" IS-C2 isBo) $(_isv "$T/istI" IS-C3 isLo) $(_isv "$T/istI" IS-S isPre) $(_isv "$T/istI" IS-S isSt) $(_isv "$T/istI" IS-S mark) $(_isv "$T/istI" SN-1 mark) $(_isv "$T/istI" SN-2 snA)" "1 1 1 1 1 1 1 1 1"
+fdRow "ifSeedT IS-1 witness: isAfter's compile (seed in the arm, read after the endif)" "$(_isj "$T/ist" isAfter)" "-5" "built"
+kindRow "ifSeedT IS-1 jitted values = the twin (isOut mark)" "$(_isv "$T/ist" IS-1 isOut) $(_isv "$T/ist" IS-1 mark)" "1 1"
+kindRow "ifSeedT IS-C1 witness: isInside compiles (the read inside the arm)" "$(_isj "$T/ist" isInside)" "built"
+fdRow "ifSeedT IS-C1 jitted: isIn after a read inside the arm" "$(_isv "$T/ist" IS-C1 isIn)" "0" "1"
+kindRow "ifSeedT IS-C2 witness: isBoth (if / else, both arms seed) refused -5 today" "$(_isj "$T/ist" isBoth)" "-5"
+kindRow "ifSeedT IS-C2 jitted values = the twin (isBo mark)" "$(_isv "$T/ist" IS-C2 isBo) $(_isv "$T/ist" IS-C2 mark)" "1 1"
+kindRow "ifSeedT IS-C3 witness: isLoop (seed in a while body, read after) refused -5 today" "$(_isj "$T/ist" isLoop)" "-5"
+kindRow "ifSeedT IS-C3 jitted values = the twin (isLo mark)" "$(_isv "$T/ist" IS-C3 isLo) $(_isv "$T/ist" IS-C3 mark)" "1 2"
+kindRow "ifSeedT IS-S witness: isStale compiles (a read before the if dominates)" "$(_isj "$T/ist" isStale)" "built"
+fdRow "ifSeedT IS-S jitted: isPre isSt mark" "$(_isv "$T/ist" IS-S isPre) $(_isv "$T/ist" IS-S isSt) $(_isv "$T/ist" IS-S mark)" "0 0 0" "1 1 1"
+fdRow "ifSeedT SN-1 jitted: *h = 1, mark after" "$(_isv "$T/ist" SN-1 mark)" "0" "1"
+fdRow "ifSeedT SN-2 jitted: if *h == 0; snA = snA + 1" "$(_isv "$T/ist" SN-2 snA)" "0" "1"
+
 #  ⚑ jitContinueRT -- SEQ 409 R2 (2026-10-23): A `continue` IN A HANDED-OVER STATEMENT IS DROPPED (jitStmtRT honours only
 #  `return`). BORN RED, silent: PC-1 3. # intended: the twin's 2.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitContinueRT)" > "$T/jcr" 2>&1; check "jitContinueRT runs" 0 $?

@@ -1,0 +1,87 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(IfSeedT);
+define
+    isH; isH2; isH3; isH4; isH5; isH6; isH7; isC=1; snA=0; isOut=0; isIn=0; isBo=0; isLo=0; isN=0; isPre=0; isSt=0;
+    isAfter code={
+        if isC == 1;    *isH = 1;
+        if *isH == 1;   isOut = isOut + 1;
+        };
+    isInside code={
+        if isC == 1;
+            *isH2 = 1;
+            if *isH2 == 1;  isIn = isIn + 1;
+        };
+    isBoth code={
+        if isC == 1;    *isH3 = 1;
+        else            *isH3 = 2;
+        if *isH3 == 1;  isBo = isBo + 1;
+        };
+    isLoop code={
+        isN = 0;
+        while isN < 2;
+            *isH4 = isN + 1;
+            isN = isN + 1;
+        if *isH4 == 2;  isLo = isLo + 1;
+        };
+    isStale code={
+        if *isH5 == 0;  isPre = isPre + 1;
+        if isC == 1;    *isH5 = 1;
+        if *isH5 == 1;  isSt = isSt + 1;
+        };
+    snWrite code={
+        *isH6 = 1;
+        };
+    snCond code={
+        if *isH7 == 0;  snA = snA + 1;
+        };
+    ;
+isH := new("mark");
+*isH = 0;
+isH2 := new("mark2");
+*isH2 = 0;
+isH3 := new("mark3");
+*isH3 = 0;
+isH4 := new("mark4");
+*isH4 = 0;
+isH5 := new("mark5");
+*isH5 = 0;
+isH6 := new("mark6");
+*isH6 = 0;
+isH7 := new("mark7");
+*isH7 = 0;
+jitter;
+isAfter();
+cerr "IS-1 after endif: isOut [" isOut "] mark [" ,*isH "]":;
+isInside();
+cerr "IS-C1 inside the arm: isIn [" isIn "]":;
+isBoth();
+cerr "IS-C2 both arms: isBo [" isBo "] mark [" ,*isH3 "]":;
+isLoop();
+cerr "IS-C3 after the loop: isLo [" isLo "] mark [" ,*isH4 "]":;
+isStale();
+cerr "IS-S read before the if: isPre [" isPre "] isSt [" isSt "] mark [" ,*isH5 "]":;
+snWrite();
+cerr "SN-1 a star target: mark [" ,*isH6 "]":;
+snCond();
+cerr "SN-2 a star in a condition: snA [" snA "] mark [" ,*isH7 "]":;
+cerr "IFSEED SENTINEL":;
+stop();
+
+ifSeedT -- SEQ 422 R0 (2026-10-26): docket item (a), a value seeded in an if's then-arm and read after its endif, in a
+compiled action (tpTestResult's shape: `if c; *h = 1;` then `if *h == 1; ...`). Each holder is minted at top level, so no
+dereference is handed over to run time.
+
+IS-1 isAfter -- today NOT JITTABLE, compile -5 (the post-join read reuses the arm's load, which does not dominate it);
+interpreted, so its values = the twin. Intended: compiled, built 1, values = the twin.
+IS-C1 isInside, the read INSIDE the arm -- compiles, and reads isIn 0 against the twin's 1.
+IS-C2 isBoth, if / else seeding both arms -- today -5 as well.
+IS-C3 isLoop, a seed in a while body read after the loop -- today -5 as well.
+IS-S isStale, a read BEFORE the if (its load dominates the post-join read) -- compiles, verifies, and runs WRONG: 0 0 0
+against the twin's 1 1 1.
+SN-1 / SN-2 the star alone: `*h = 1` writes nothing (the star's node is consumed as the assignment's RIGHT side), and a
+star in a condition leaks its node into the arm's `snA = snA + 1`. Both compile, both wrong, silent.

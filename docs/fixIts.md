@@ -163,6 +163,9 @@ ATTEMPT LOG
     `WARN dark` and says so at its foot; its exit rule is unchanged (it already failed only on an armed dark).
   Not a citizen in incant/fixits: the repro is a shell instrument run N times, and incant has no `system` command
     (cut, deepClean) -- an incantation could not run it, so fixitNag would count it MISFILED.
+  2026-10-26 seal 221's checklist (trunk d84fc89a): ONE pass read 52 of 57 inject (53 is the capture); output NOT kept, so
+    which directive went dark is unknown. Two reruns on the same tree read 53 = docs/sealCaptures/dirCheck.txt byte for
+    byte. Measured only (SEQ 422 R-C).
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure

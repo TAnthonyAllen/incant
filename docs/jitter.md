@@ -1280,3 +1280,61 @@ testPrecedence's census construction: its four *Arg rows -> 9 8 8 6 and their PE
 **H7 per site**, each built alone, each red by value on its own rows only: cast arm removed -> AW-1 7, SW-4 4; += removed
 -> AW-2 7; unary removed -> AW-3 7, AW-4 7, SW-1 0. Restored from the commit: jitEmitters.rtn, GroupRules.mm / .h md5 =
 the cure. Bought: merged d84fc89a, bare tokall = the branch, branch deleted.
+
+## SEQ 422 -- docket item (a): a value seeded in an if-arm, read after the endif (2026-10-26): R0 pinned, R1 named, R2 NOT BUILT
+
+Ruled (forwarded): R-A recon first, build only if the cure is local to the if's emit (its join); R-B the buy is Tony's;
+R-C F-141's attempt log gains the 52-of-57 line (done).
+
+### R0 -- ifSeedT (trunk), and the -5 census
+
+ifSeedT (incant/pop/jit), holders minted at top level so no dereference is handed over; each row beside its interpreted twin:
+
+| row | shape | jitted today | twin |
+|---|---|---|---|
+| IS-1 | `if c; *h = 1;` then `if *h == 1; out = out + 1;` | **-5**, interpreted: 1 / 1 | 1 / 1 |
+| IS-C1 | the read INSIDE the arm (nested if) | compiles, **isIn 0** | 1 |
+| IS-C2 | if / else, both arms seed | **-5**, interpreted: 1 / 1 | 1 / 1 |
+| IS-C3 | seed in a while body, read after | **-5**, interpreted: 1 / 2 | 1 / 2 |
+| IS-S | a read BEFORE the if (dominates), write in the arm, read after | compiles, **0 0 0** | 1 1 1 |
+| SN-1 | `*h = 1` alone | compiles, **mark 0** | 1 |
+| SN-2 | `if *h == 0; a = a + 1;` alone | compiles, **a 0** | 1 |
+
+pop.sh 1780 -> 1792 (12 green, 5 born red).
+
+**Census of -5 (a wrapper binary that logs every `INVALID IR` / `NOT JITTABLE (compile returned -N)` line with its fixture;
+H11 positive control: it logs the known -8s of kindlessNetT, jitHoistT, jitReturnListT, xpLocT inside pop.sh, and all three
+of ifSeed's -5s run alone):** pop.sh **0**, jitLadder **0**, gen26 **0**. Outside them: testPrecedence's census construction
+-- **tpTestResult -5** (if-arm: `%unbox13`), the rest of its refusals the known -8s. By shape: if-arm 2 (tpTestResult, IS-1),
+if / else 1 (IS-C2), loop body 1 (IS-C3), other 0. (The wrapper's stderr tee reorders output: pop.sh reads 1777 under it,
+an instrument effect.)
+
+### R1 -- two mechanisms, not one (IR dumps, INCANT_JIT_DUMP=2; no source tap)
+
+**M1, the -5.** Under jitting, opDeref emits the run-time follow AND returns the BUILD-TIME follow (Instruct.rtn:264). That
+node is seeded as a field by jitSeedOperands -> jitSeedField (GroupActions.rtn:424-431, jitEmitters.rtn:4350): a load
+(`%unbox2`) in the then-arm block, kept on the node's jitData. After the endif the same node is an operand again;
+jitSeedOperands skips any operand that already carries jitData (GroupActions.rtn:428), so the post-join compare reads
+`%unbox2`, which the arm does not dominate -> verifier -5. jitIfEnd (jitEmitters.rtn:3032) clears nothing at the join;
+jitInlinePop does (:3078-3080, SEQ 407's (a), `seededAt`). The same at an if / else join and at a loop exit.
+
+**M2, the wrong values -- the star's node on the wrong consumer.** jitEmitDeref publishes its run-time node on
+gJitResultNode / gJitLastIsNode (jitEmitters.rtn:1661-1662). jitEmitAssign's node arm (jitEmitters.rtn:1010) takes that
+channel as the assignment's RIGHT side. So `*h = 1` emits `jitAssignNodeRT(derefRes, <the literal 1>)` -- the mark's content
+is written INTO the literal and the mark is never written (SN-1); and a star in a condition leaves the channel set, so the
+arm's `a = a + 1` emits `jitAssignNodeRT(derefRes, a)` -- `a` takes the mark's content (SN-2). One channel, two meanings.
+
+**The key question -- does any shape verify and run with a stale value? YES.** IS-S (a read before the if seeds the load in
+the entry block, which dominates the post-join read) and SN-1 / p4 (`*h = 1; if *h == 1` in one block) compile, verify and
+run WRONG, silently. In those runs M1's cached load (read before the write) and M2 act together; which of the two alone gives
+the wrong value cannot be separated until M2 is cured.
+
+### R2 -- NOT BUILT
+
+The -5 cure IS local to the if's emit: jitIfEnd clears the jitData of every node seeded since the if began, as jitInlinePop
+does. But **it would turn IS-1 / IS-C2 / IS-C3 and tpTestResult from a refused compile (interpreted, correct values) into
+compiled code that runs M2** -- `*h = 1` writing into a literal, the post-join assignment taking the mark's content. A
+wrong value outranks the -5, so the join clear alone would make things worse. Recommendation for the ruling: **M2 first**,
+as its own stroke -- the star's run-time node is consumed only where a node is wanted (a star target writes INTO the
+followed node; a star in a condition does not survive its statement) -- certified by SN-1, SN-2, IS-C1, IS-S; **then** the
+join clear (if, if / else, loop exit), certified by IS-1, IS-C2, IS-C3 and tpTestResult compiling with values = twin.
