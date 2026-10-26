@@ -3454,6 +3454,22 @@ extern "C" GroupItem *jitArgSlotRead(GroupItem *operand)
 	
 }
 
+/*  jitArgSyncRT -- run time, after a write to a built function's OWN argument: the argSlot node holds the new value; copy it
+    to the field the argument is bound to (%field, followed one level as jitArgCountRT reads it) and return it for the slot,
+    so slot, node and bound field agree -- the interpreted write is immediate (SEQ 421).  */
+extern "C" int jitArgSyncRT(GroupItem *node, GroupItem *field)
+{
+	
+	if ( !node ) return 0;
+	GroupItem *bound = field;
+	if ( bound && bound->groupBody->flags.isArgument && isGROUP(bound->groupBody->flags.data) ) bound = bound->getGroup();
+	if ( bound && bound != node ) {
+	if ( isNUMBER(node->groupBody->flags.data) ) bound->setNumber(node->getNumber());
+	else                                         bound->setCount(node->getCount()); }
+	return node->getCount();
+	
+}
+
 /*  the emitted `=` with a node on the right does what opAssign does: setContent,
     or clearData on a null -- a holder on the right carries its group across (Tony,
     2026-10-04; SEQ 295 R2). Edit the two together; incant/pop/assignRoadT pins them.
@@ -4310,6 +4326,11 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	: (vNum ? (void*)&jitCastNumberTextRT : (void*)&jitCastCountTextRT);
 	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(cctx), {pT, v->getType()}, false);
 	b->CreateCall(fty, bake64(fn, "castFn"), {bake64((void*)target, "castField"), v});
+	//  argWriteThrough a write to the function's OWN argument: slot, node and bound field agree (SEQ 421)
+	if (gJitArgSlot && gJitCurrentFn && target->jitData->jitSlot == gJitArgSlot) {
+	llvm::FunctionType *sty = llvm::FunctionType::get(iT, {pT, pT}, false);
+	b->CreateStore(b->CreateCall(sty, bake64((void*)&jitArgSyncRT, "argSyncFn"),
+	{bake64((void*)target, "argNode"), gJitCurrentFn->getArg(0)}, "argSync"), gJitArgSlot); }
 	} else {
 	llvm::Type *slotT = tfs ? tfs->ty : (isNUMBER(tbk->flags.data) ? dT : iT);
 	if (slotT->isDoubleTy() && !vNum)       v = b->CreateSIToFP(v, dT, "castNum");
@@ -5004,6 +5025,10 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	else {
 	if (JitFrameSlot *fs = frameOf(target)) flush(target, fs, "opFireFlushT");
 	tgtV = bake((void*)target, "opFireTgt");
+	//  argWriteThrough the function's OWN argument: the node takes the slot's value before the operator reads it (SEQ 421)
+	if (gJitArgSlot && target->jitData && target->jitData->jitSlot == gJitArgSlot)
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, i32}, false), bake((void*)&jitFlushCountRT, "argNodeFn"),
+	{tgtV, b->CreateLoad(i32, gJitArgSlot, "argPrime")});
 	}
 	//  ARGUMENT -- its VALUE is the point.
 	if (!arg) {
@@ -5034,6 +5059,10 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
 	llvm::Value *res = b->CreateCall(ty, bake((void*)&jitOpFireRT, "opFireFn"),
 	{bake((void*)op, "opFireOp"), argV, tgtV}, "opFire");
+	//  argWriteThrough after the fire, slot, node and bound field agree (SEQ 421)
+	if (target && gJitArgSlot && gJitCurrentFn && target->jitData && target->jitData->jitSlot == gJitArgSlot)
+	b->CreateStore(b->CreateCall(llvm::FunctionType::get(i32, {ptr, ptr}, false), bake((void*)&jitArgSyncRT, "argSyncFn"),
+	{tgtV, gJitCurrentFn->getArg(0)}, "argSync"), gJitArgSlot);
 	gJitStmtCanRefuse = true;
 	//  the fire wrote the FIELD: a frame target's slot is reloaded from it, and
 	//  prints read the field (gJitFieldResident), as jitEmitAssign's node arm does.
@@ -5633,6 +5662,15 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	}
 	target->jitData->setJitter(res);
 	if (target->jitData->jitSlot)   b->CreateStore(res, target->jitData->jitSlot);
+	//  argWriteThrough ++ / -- on the function's OWN argument: the node and the bound field take the slot's value (SEQ 421)
+	if (gJitArgSlot && gJitCurrentFn && target->jitData->jitSlot == gJitArgSlot && res->getType()->isIntegerTy(32)) {
+	llvm::LLVMContext &uctx = b->getContext();
+	llvm::Type *uP = llvm::PointerType::getUnqual(uctx), *u64 = llvm::Type::getInt64Ty(uctx), *u32 = llvm::Type::getInt32Ty(uctx);
+	auto ubake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(u64, (uint64_t)p), uP, nm); };
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(uctx), {uP, u32}, false), ubake((void*)&jitFlushCountRT, "argNodeFn"),
+	{ubake((void*)target, "argNode"), res});
+	b->CreateCall(llvm::FunctionType::get(u32, {uP, uP}, false), ubake((void*)&jitArgSyncRT, "argSyncFn"),
+	{ubake((void*)target, "argNode"), gJitCurrentFn->getArg(0)}, "argSync"); }
 	gJitResult = res;
 	return target;
 	

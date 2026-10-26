@@ -203,6 +203,7 @@ extern "C" GroupItem *jitAccessorWriteRT(int value, GroupItem *product);
 extern "C" int jitArgCountRT(GroupItem *field);
 extern "C" GroupItem *jitArgFollowRT(GroupItem *field);
 extern "C" GroupItem *jitArgSlotRead(GroupItem *operand);
+extern "C" int jitArgSyncRT(GroupItem *node, GroupItem *field);
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target);
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field);
 extern "C" GroupItem *jitBodyField(GroupItem *action);
