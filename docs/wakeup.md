@@ -4,6 +4,13 @@
 #   fNest firing at parse time, bear-trap #34); (2) `+` refuses a null TARGET by name -- engine, own branch, TC-10 crash ->
 #   named refusal; (3) the tier split (SEQ 427 R-B): assign, logic, compare, arithmetic; (4) the op-method split recon
 #   (SEQ 426's opener, below in seal 224). TODO.md carries both lines.
+#   ⚠⚠ OPENER RE-RULED (SEQ 430, appended to seal 227; replaces SEQ 429 R-B): THE PLAN OF RECORD is "Kant in kant: the
+#   plan", IncantForms/WorkingOn/macros -- READ IT BEFORE THE FIRST STROKE. Binding: expressions stay chains, statements
+#   become lists (seq instruct, argument a list); build and run never mix; breaks are signals (branchKind), never targets;
+#   every instruct hands back its own node. ORDER: (1) TC-9's masker (a check on build/run on live code); (2) the tier
+#   split (rung 2): assign, logic, compare, arithmetic; (3) rung 1 -- two prints in a seq, opSeq behind testOP, the new
+#   grammar's first rule, checked against the old grammar; (4) `+` refuses a null target (engine, own branch, fills a gap);
+#   (5) the op-method split recon, after rung 1. TODO.md carries the plan and the order.
 #
 #   ## CHECKS (trunk): merged, bare tokall changed nothing, rebuilt · canary 374 · pop.sh 1835 = the branch run but
 #   ruleReturnOpT RR-2T green (its fixture fix), H3 · jitLadder PASSED, identical · Groups, support, TOK clean and pushed ·

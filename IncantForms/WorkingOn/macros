@@ -89,8 +89,78 @@ What wud a revised IF rule action look like; it wud be fired as an if statement 
             };
 
 Issue: return has to wrap the returned field in a label with a method that runs field() if it has a method or returns field if it does not
+field has to be recognized as a rule but its parser cannot parse an intruction chain -> can we turn a rule into an instruction chain? maybe just its action
 
 /*******************************************************************************
-	How to handle a rule in an instruction chain
+	Kant in kant: the plan
 *******************************************************************************/
-field has to be recognized as a rule but its parser cannot parse an intruction chain -> can we turn a rule into an instruction chain? maybe just its action
+Goal: jitted turtles all the way down. rule() fires its parse; the parse fires
+its action; the action BUILDS an instruct and returns it as its label. Running
+the label runs the program. Proof that kant is a language that writes itself.
+
+/*******************************************************************************
+	Two phases, never mixed
+*******************************************************************************/
+Build time: a rule action fires during the parse and builds an instruct. It
+evaluates nothing (bear-trap #34: building must never fire).
+Run time: the instruct runs. testOP is every instruct's method: if a field has
+a method, run it; if not, hand it back as is. A plain value is a valid chain end.
+
+/*******************************************************************************
+	The shapes
+*******************************************************************************/
+Expression chain   op target argument, a tree (xpListTest builds these today).
+seq instruct       op = seq, argument = a LIST of statement instructs.
+                   testOP walks the list in order. An action body is a seq.
+if instruct        condition chain, then chain, else chain. opIf runs the
+                   condition and picks one.
+loop instruct      body (a seq) and condition. Reruns while the condition holds.
+Every instruct hands back its result on its own node, never a shared slot.
+
+/*******************************************************************************
+	Branches: signals, not targets
+*******************************************************************************/
+break, continue, return raise a signal (branchKind). Nobody computes a target.
+The nearest loop instruct reads break and continue after each statement;
+the action's own seq reads return.
+
+/*******************************************************************************
+	Frames
+*******************************************************************************/
+processAction keeps its bracket: each activation's locals saved and restored.
+Only its body walk changes, to "run the chain". The one engine change the
+plan needs, beside the new ops (opSeq, opIf, the loop op).
+
+/*******************************************************************************
+	The new grammar
+*******************************************************************************/
+A new incantation beside grammar; reached by swapping Grokking in the search
+list. Code parsed after the swap uses it. Setup, the bootstrap and anything
+already compiled stay on Grokking. No change to existing code or interpreter.
+Every new rule action is kant and returns an instruct.
+
+/*******************************************************************************
+	The ladder: one rung at a time, each checked against the old grammar
+*******************************************************************************/
+Every rung runs the same incantation under both grammars and compares output.
+    1  two prints in a seq             statements in a chain
+    2  ExpressioN (xpListTest renamed) expressions in the new grammar
+    3  IF                              build an if instruct; then / else
+    4  a loop (while or DO)            seq + branch signals: break, continue
+    5  an action, called and self-called    the frame bracket
+    6  the jitter walks the chain      later
+
+/*******************************************************************************
+	Jitting
+*******************************************************************************/
+The list is how the program is held, not how it runs. Interpreted: testOP walks
+the list. Jitted: the jitter walks it once at compile time and emits straight-
+line code; seq flattens, if becomes a branch, a loop a back-edge, break a jump.
+
+/*******************************************************************************
+	Open questions
+*******************************************************************************/
+- What xpListTest is renamed to.
+- Where a compiled action's seq lives (replacing the BlocK entry, as you said).
+- Argument lists with no operator in sight.
+- Whether PrinT is the right first statement or something with no output.
