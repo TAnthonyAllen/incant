@@ -257,8 +257,9 @@ extern GroupItem opDeref(GroupItem result)
     if jitting {
         // holderHandOver a holder written by a handed-over statement is known only at run time: its dereference is handed over too, never followed at build (SEQ 405)
         -% if ( result && gJitRTHolders.count((void*)result->groupBody) ) { ::jitHandOver((char*)"a dereference of a holder written at run time -- its statement runs at RUN time", result); return 0; } %-
-        -% if (!::jitEmitDeref(result))
-               ::jitDegrade("unary * under jit -- emitter refused",result); %-
+        // ownNode the compiled dereference hands back its own fresh node, never the build-time follow (SEQ 423)
+        -% if (::jitEmitDeref(result) && gJitDerefNode) return gJitDerefNode;
+           ::jitDegrade("unary * under jit -- emitter refused",result); %-
     }
     // starRuling *x on a field holding no group yields NULL and does not refuse; the consumer of the null refuses, in its own name (Tony, 2026-09-05)
     if result.isGROUP   return result.group;
