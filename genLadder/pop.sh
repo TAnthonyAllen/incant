@@ -6327,6 +6327,23 @@ kindRow "inlineArgWriteT AW-C control: callee writes a local only, jitted = twin
 kindRow "inlineArgWriteT AW-5 / AW-6 control: a plain field argument, jitted = twin" "$(_iaw "$T/iawt" AW-5) $(_iaw "$T/iawt" AW-6) / $(_iaw "$T/iawtI" AW-5) $(_iaw "$T/iawtI" AW-6)" "9 8 / 9 8"
 kindRow "inlineArgWriteT witness: awAssign built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: awAssign built 1 called 1 ===' "$T/iawt")" "1"
 
+#  ⚑ argSlotWriteT -- SEQ 420 R0 (2026-10-26): CONTROLS FOR THE ARGUMENT WRITE-THROUGH, each callee built ALONE (its argument
+#  is the SEQ 380 slot). Born at today's values, each beside its interpreted twin. Two disagree today: SW-1 srX 0 (twin 1,
+#  the outer activation's ++argument never reaches srX) and SW-4 cfOut 4 (twin 14, `argument = argument + 10` writes the
+#  argSlot NODE, so the next read of argument loads the stale slot). # intended: the twins.
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip argSlotWriteT)" > "$T/aswt" 2>&1; check "argSlotWriteT runs" 0 $?
+sentinel "argSlotWriteT sentinel" "$T/aswt" "ARGSLOTWRITE SENTINEL"
+sed 's/^jitter;$/jitterOff;/' "$(ip argSlotWriteT)" > "$T/aswtI.src"; "$B" "$T/aswtI.src" > "$T/aswtI" 2>&1; check "argSlotWriteT interpreted twin runs" 0 $?
+sentinel "argSlotWriteT interpreted twin sentinel" "$T/aswtI" "ARGSLOTWRITE SENTINEL"
+_asw () { sed -n "s/^$2 .*$3 \[ *\([0-9]*\) *\].*/\1/p" "$1"; }
+kindRow "argSlotWriteT the interpreted twin: SW-1 srX srSum, SW-2 SW-3 lfOut, SW-4 cfOut cfN (the intended values)" "$(_asw "$T/aswtI" SW-1 srX) $(_asw "$T/aswtI" SW-1 srSum) $(_asw "$T/aswtI" SW-2 lfOut) $(_asw "$T/aswtI" SW-3 lfOut) $(_asw "$T/aswtI" SW-4 cfOut) $(_asw "$T/aswtI" SW-4 cfN)" "1 10 5 5 14 5"
+fdRow "argSlotWriteT SW-1 jitted: srX after a self-recursive ++argument" "$(_asw "$T/aswt" SW-1 srX)" "0" "1"
+kindRow "argSlotWriteT SW-1 jitted: srSum = the twin's" "$(_asw "$T/aswt" SW-1 srSum)" "10"
+kindRow "argSlotWriteT SW-2 / SW-3 jitted: a literal argument written, two calls = the twin's" "$(_asw "$T/aswt" SW-2 lfOut) $(_asw "$T/aswt" SW-3 lfOut)" "5 5"
+fdRow "argSlotWriteT SW-4 jitted: cfOut after argument = argument + 10 on a computed argument" "$(_asw "$T/aswt" SW-4 cfOut)" "4" "14"
+kindRow "argSlotWriteT SW-4 jitted: cfN unmoved = the twin's" "$(_asw "$T/aswt" SW-4 cfN)" "5"
+kindRow "argSlotWriteT witness: srF / lfF / cfF built alone" "$(grep -cE '^=== jitter: (srF built 1 called 1|lfF built 1 called 2|cfF built 1 called 1) ===' "$T/aswt")" "3"
+
 #  ⚑ jitContinueRT -- SEQ 409 R2 (2026-10-23): A `continue` IN A HANDED-OVER STATEMENT IS DROPPED (jitStmtRT honours only
 #  `return`). BORN RED, silent: PC-1 3. # intended: the twin's 2.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitContinueRT)" > "$T/jcr" 2>&1; check "jitContinueRT runs" 0 $?

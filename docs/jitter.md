@@ -1210,3 +1210,52 @@ Either changes what the frame model does with the argument slot, so neither is l
 reads the bound field (or calls something that does) sees the new value; (1) would leave it stale until the exit. (1) is
 the narrower IR. Either way a self-call's boxed argument (SEQ 380) gets written into its own box, which nothing reads
 afterwards -- a mover census is owed before the build.
+
+## SEQ 420 -- SEQ 419's cure, write-through (2026-10-26): R0 measured and pinned; R1 STOPPED by R-B -- a third write site
+
+Ruled (forwarded): R-A option (2), a store to a compiled function's own argument writes its slot AND the bound field, at
+jitEmitters.rtn:1081 (assignments) and :2736 (++ / --); R-B this frame-model change for those two sites only -- a third
+write site is a STOP; R-C the twin's value is intended.
+
+### R0 -- the census (a temporary tap on trunk, an env-gated file write at every write arm; reverted, md5 = trunk)
+
+The tap fired when a write's target was the function's own argument-slot node (`jitData->jitSlot == gJitArgSlot`), at
+each arm that can write it: jitEmitAssign's node arm (jitAssignNodeRT), its cast arm (:1071-1074), its slot store (:1081),
+jitEmitUnary's store (:2736), and jitEmitOpFire (:1328). H16: on inlineArgWriteT it fired once per spelling and never on
+AW-5 / AW-6 (inlined, plain field).
+
+| spelling | arm that writes the argument | site |
+|---|---|---|
+| `argument = 9` | **the CAST arm** -- jitFlushCountRT into the argSlot NODE (data 0, no frame slot); **:1081's store never fires** | jitEmitters.rtn:1071-1074 |
+| `argument += 1` | **jitEmitOpFire** -- `+=` is an operator with members, fired at run time against the argSlot node | **jitEmitters.rtn:1261 / :1328 -- THE THIRD SITE** |
+| `++argument` / `--argument` | the unary store | jitEmitters.rtn:2736 |
+
+**Population (the whole checklist under the tap):** pop.sh -- inlineArgWriteT's four (awAssignDo cast, awPlusEQDo opFire,
+awPlusPlusDo / awMinusMinusDo unary); testPrecedence's census construction -- its four *ArgDo, the same arms; **jitLadder
+0; gen26 0** (26 / 26 under the tap). No other writer.
+
+**Pre-registered movers (for whichever cure is ruled):** inlineArgWriteT AW-1..4 7 -> 9 8 8 6; testPrecedence's census
+construction assignArg / plusEQArg / plusPlusArg / minusMinusArg 7 -> 9 8 8 6; argSlotWriteT SW-1 srX 0 -> 1 and SW-4
+cfOut 4 -> 14 (below). Nothing else.
+
+**Controls, argSlotWriteT (trunk), each callee built ALONE, each beside its twin:**
+
+| row | jitted today | twin | |
+|---|---|---|---|
+| SW-1 self-recursive `++argument`: srX / srSum | 0 / 10 | 1 / 10 | **srX DISAGREES** -- the outer activation's write never reaches srX |
+| SW-2 / SW-3 literal `lfF(4)`, twice | 5 / 5 | 5 / 5 | agree |
+| SW-4 computed `cfF(cfN - 1)`, `argument = argument + 10`: cfOut / cfN | 4 / 5 | 14 / 5 | **cfOut DISAGREES** |
+
+SW-4 is a second face of the same defect, inside one function: the cast arm writes the argSlot NODE, the alloca keeps 4,
+and `cfOut = argument` loads the alloca. Option (2) as ruled -- write the slot AND the bound field -- cures it at the cast
+arm, because the slot then holds the new value. pop.sh 1765 -> 1774 (9 green, 2 born red).
+
+### R1 -- NOT BUILT
+
+`+=` writes the argument through **jitEmitOpFire** (jitEmitters.rtn:1261, the fire at :1328), a third write site, so R-B
+stops the build. Two facts for the ruling:
+1. The ruled ":1081 (assignments)" is the right BLOCK but the wrong ARM: the arm that fires for an argument is the cast arm
+   at :1071-1074, inside the same block. Clod reads the ruling as naming the block; say if not.
+2. The opFire site writes into the argSlot NODE at run time (jitOpFireRT runs the operator against the baked target), so
+   its write-through would be: after the fire, store the node's value into the slot and the binding -- the same pair as the
+   other two, done after a run-time call rather than from an SSA value.

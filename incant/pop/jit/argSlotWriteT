@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(ArgSlotWrite);
+define
+    srX=0; srSum=0; lfOut=0; cfN=5; cfOut=0;
+    srF code={
+        if argument < 3;    srF(argument + 1);
+        ++argument;
+        srSum = srSum + argument;
+        };
+    lfF code={
+        ++argument;
+        lfOut = argument;
+        };
+    cfF code={
+        argument = argument + 10;
+        cfOut = argument;
+        };
+    ;
+jitter;
+srF(srX);
+cerr "SW-1 recursion: srX [" srX "] srSum [" srSum "]":;
+lfF(4);
+cerr "SW-2 literal first: lfOut [" lfOut "]":;
+lfF(4);
+cerr "SW-3 literal second: lfOut [" lfOut "]":;
+cfF(cfN - 1);
+cerr "SW-4 computed: cfOut [" cfOut "] cfN [" cfN "]":;
+cerr "ARGSLOTWRITE SENTINEL":;
+stop();
+
+argSlotWriteT -- SEQ 420 R0 (2026-10-26): controls for the argument write-through cure, each a callee the jitter builds
+ALONE (called from top level or by itself), so its own argument is the SEQ 380 argument slot.
+SW-1 a self-recursive function that writes its argument (++argument) in every activation: the per-activation binding.
+SW-2 / SW-3 a literal argument, lfF(4), written by the callee -- called twice, so a write that reaches the literal's node
+shows on the second call.
+SW-4 a computed argument, cfF(cfN - 1), written by the callee: cfN must not move.
+Each row is read against the interpreted twin (`jitter;` -> `jitterOff;`).
