@@ -689,11 +689,14 @@ public:
     llvm::Value *jitSlot;    // the alloca for this field (set in prologue)
     llvm::Value *jitValue;   // current SSA value (load/store traffic)
     llvm::Type  *jitType;    // LLVM type for this field (set at gate check)
+    //  jitNode a dereference's RUN-TIME node, on the fresh node that carries it -- its consumers write into it or read it
+    //  by this, never from the shared slot (SEQ 423)
+    llvm::Value *jitNode;
     llvm::Value *getJitter()              { return jitValue; }
     //  computed THIS value is one the build computed -- a minted result node's, never a named field's (SEQ 407)
     bool         computed;
     void         setJitter(llvm::Value *v){ jitValue = v; }
-    JitData() : jitSlot(0), jitValue(0), jitType(0), computed(false) {}
+    JitData() : jitSlot(0), jitValue(0), jitType(0), jitNode(0), computed(false) {}
 };
 
 // Per-action emission context. C++-internal — never appears in a tok-extern
@@ -777,5 +780,12 @@ static int        gChanStkTop = 0;
 // The gChanPend/gChanStk family above is untouched and has the same hazard.
 
 // THE COMPILE OWNER (SEQ 214) moved to GroupRules (gCompileOwner, declared in groups.ext) 2026-10-04 so tok can see it.
+
+//  gJitNodeOwner the node a producer of gJitResultNode handed back -- an assignment takes the shared slot only when its
+//  argument IS this node, so no other statement's assignment can read it (SEQ 423, R-B)
+inline GroupItem *gJitNodeOwner = nullptr;
+//  gJitDerefNode the fresh node jitEmitDeref just minted, read by opDeref on the next line -- jitEmitDeref keeps its int
+//  signature so groups.ext is untouched on the branch (SEQ 423)
+inline GroupItem *gJitDerefNode = nullptr;
 
 #endif // JITCONTEXT_H

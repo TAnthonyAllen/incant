@@ -4232,12 +4232,15 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	llvm::Type *dptr = llvm::PointerType::getUnqual(dctx);
 	llvm::Type *di32 = llvm::Type::getInt32Ty(dctx);
 	llvm::Type *di64 = llvm::Type::getInt64Ty(dctx);
-	if (gJitLastIsNode && gJitResultNode && gJitResultNode != product) {
+	//  byOwner the shared slot is this assignment's only when its argument is the producer's node (SEQ 423)
+	llvm::Value *srcNode = (argument && argument->jitData && argument->jitData->jitNode) ? argument->jitData->jitNode
+	: (gJitLastIsNode && gJitResultNode && gJitResultNode != product && argument == gJitNodeOwner) ? gJitResultNode : nullptr;
+	if (srcNode) {
 	gJitLastIsNode = false;
 	llvm::Value *fn = db->CreateIntToPtr(
 	llvm::ConstantInt::get(di64, (uint64_t)(void*)&jitAccessorNodeRT), dptr, "accNodeFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(dptr, {dptr, dptr}, false);
-	db->CreateCall(ty, fn, {gJitResultNode, product}, "accNode");
+	db->CreateCall(ty, fn, {srcNode, product}, "accNode");
 	return target; }
 	gJitLastIsNode = false;
 	if (!argument || !argument->jitData || !argument->jitData->jitValue) {
@@ -4260,7 +4263,34 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	// 5560000 where the interpreted road read LEAF. jitAssignNodeRT does what
 	// opAssign does -- setContent, so a holder carries its group across (SEQ 295).
 	// The flag is cleared here because this is the consumer.
-	if (gJitLastIsNode && gJitResultNode && target) {
+	//  derefTarget `*h = v` writes INTO what h points at -- its run-time node -- through opAssign's own cast store (SEQ 423)
+	if (target && target->jitData && target->jitData->jitNode) {
+	llvm::IRBuilder<> *tb = gJitBuilder;
+	llvm::LLVMContext &tctx = tb->getContext();
+	llvm::Type *tptr = llvm::PointerType::getUnqual(tctx);
+	llvm::Type *ti32 = llvm::Type::getInt32Ty(tctx);
+	llvm::Type *ti64 = llvm::Type::getInt64Ty(tctx);
+	auto tbake = [&](void *p, const char *nm) { return tb->CreateIntToPtr(llvm::ConstantInt::get(ti64, (uint64_t)p), tptr, nm); };
+	llvm::Value *src = (argument && argument->jitData && argument->jitData->jitNode) ? argument->jitData->jitNode
+	: (gJitLastIsNode && gJitResultNode && argument && argument == gJitNodeOwner && argument != target) ? gJitResultNode : nullptr;
+	if (!src) {
+	llvm::Value *v = (argument && argument->jitData) ? argument->jitData->jitValue : nullptr;
+	if (v && v->getType()->isIntegerTy(1)) v = tb->CreateZExt(v, ti32, "derefTgtWide");
+	if (!v || v->getType() != ti32) {
+	jitDegrade("`*h = v` with a right operand that is not a count or a node", target);
+	gJitHandOver = true;
+	gJitResult = nullptr;
+	return target; }
+	src = tb->CreateCall(llvm::FunctionType::get(tptr, {ti32}, false), tbake((void*)&jitBoxCountRT, "derefTgtBoxFn"), {v}, "derefTgtBox"); }
+	gJitLastIsNode = false;
+	tb->CreateCall(llvm::FunctionType::get(tptr, {tptr, tptr}, false), tbake((void*)&jitAssignNodeRT, "derefTgtFn"),
+	{src, target->jitData->jitNode}, "derefTgtWrite");
+	return target;
+	}
+	//  byOwner a node source is the argument's own run-time node, or the shared slot only when the argument IS its producer's node (SEQ 423)
+	llvm::Value *nodeSrc = (argument && argument->jitData && argument->jitData->jitNode) ? argument->jitData->jitNode
+	: (gJitLastIsNode && gJitResultNode && argument && argument == gJitNodeOwner) ? gJitResultNode : nullptr;
+	if (nodeSrc && target) {
 	gJitLastIsNode = false;
 	llvm::IRBuilder<> *nb = gJitBuilder;
 	llvm::LLVMContext &nctx = nb->getContext();
@@ -4271,7 +4301,7 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	llvm::Value *fn = nb->CreateIntToPtr(
 	llvm::ConstantInt::get(ni64, (uint64_t)(void*)&jitAssignNodeRT), nptr, "assignNodeFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(nptr, {nptr, nptr}, false);
-	nb->CreateCall(ty, fn, {gJitResultNode, tgtAddr}, "assignNode");
+	nb->CreateCall(ty, fn, {nodeSrc, tgtAddr}, "assignNode");
 	gJitFieldResident.insert((void*)target->groupBody);
 	//  ⚠ A FRAME LOCAL'S READS LOAD ITS SLOT, NOT ITS FIELD. The helper wrote
 	//  the FIELD; the slot still held the prologue's value, so every later
@@ -4530,6 +4560,7 @@ extern "C" GroupItem *jitEmitConcat(GroupItem *argument, GroupItem *target)
 	llvm::Value *res = b->CreateCall(opTy, bake((void*)&opPlus, "concatFn"), {bake((void*)argument, "concatArg"), bake((void*)target, "concatTgt")}, "concatRes");
 	gJitResultNode = res;
 	gJitLastIsNode = true;
+	gJitNodeOwner  = target;
 	gJitEmitted    = true;
 	return target;
 	
@@ -4609,6 +4640,7 @@ GroupItem 	*result = 0;
 extern "C" int jitEmitDeref(GroupItem *operand)
 {
 	
+	gJitDerefNode = nullptr;
 	if (!gJitBuilder || !operand) return 0;
 	llvm::IRBuilder<> *b = gJitBuilder;
 	llvm::LLVMContext &ctx = b->getContext();
@@ -4620,9 +4652,25 @@ extern "C" int jitEmitDeref(GroupItem *operand)
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitDerefRT), ptr, "derefFn");
 	llvm::FunctionType *derefTy = llvm::FunctionType::get(ptr, {ptr}, false);
 	llvm::Value *res = b->CreateCall(derefTy, derefFn, {argAddr}, "derefRes");
+	//  ownNode the run-time node rides on a FRESH node, handed back to the consumer (SEQ 423, SEQ 377's rule)
+	llvm::Value *unboxFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitUnboxCount), ptr, "derefUnboxFn");
+	llvm::Value *val = b->CreateCall(llvm::FunctionType::get(llvm::Type::getInt32Ty(ctx), {ptr}, false), unboxFn, {res}, "derefVal");
+	GroupItem *derefNode = new GroupItem((char*)"derefResult");
+	derefNode->jitData = new JitData();
+	derefNode->jitData->jitNode = res;
+	derefNode->jitData->jitType = llvm::Type::getInt32Ty(ctx);
+	derefNode->jitData->setJitter(val);
+	derefNode->jitData->computed = true;
+	gJitSeeded.push_back(derefNode);
+	//  print takes the node through the shared slot, cleared per item; an assignment only by owner
 	gJitResultNode = res;
 	gJitLastIsNode = true;
+	gJitNodeOwner  = derefNode;
+	//  bindByFollow a call handed this node binds its run-time node through SEQ 409's pair -- jitEmitArgBind is untouched
+	gJitArgFollowNode = derefNode; gJitArgFollowVal = res;
 	gJitEmitted    = true;
+	gJitDerefNode  = derefNode;
 	return 1;
 	
 }
@@ -4648,10 +4696,11 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
 	
-	llvm::Value *argAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "dotArg");
-	llvm::Value *tgtAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "dotTgt");
+	//  derefOperand a dereference's operand is its run-time node (SEQ 423)
+	llvm::Value *argAddr = (argument && argument->jitData && argument->jitData->jitNode) ? argument->jitData->jitNode
+	: b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "dotArg");
+	llvm::Value *tgtAddr = (target && target->jitData && target->jitData->jitNode) ? target->jitData->jitNode
+	: b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "dotTgt");
 	llvm::Value *callee = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opDot), ptr, "dotFn");
 	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
@@ -4671,6 +4720,7 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	//  one scalar row printed. The scalar stays published for consumers that
 	//  want a count; print does not consult it.
 	gJitLastIsNode = true;
+	gJitNodeOwner  = resultNode;
 	
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
@@ -5024,7 +5074,8 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	}
 	else {
 	if (JitFrameSlot *fs = frameOf(target)) flush(target, fs, "opFireFlushT");
-	tgtV = bake((void*)target, "opFireTgt");
+	//  derefOperand a dereference's operand is its run-time node (SEQ 423)
+	tgtV = (target->jitData && target->jitData->jitNode) ? target->jitData->jitNode : bake((void*)target, "opFireTgt");
 	//  argWriteThrough the function's OWN argument: the node takes the slot's value before the operator reads it (SEQ 421)
 	if (gJitArgSlot && target->jitData && target->jitData->jitSlot == gJitArgSlot)
 	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, i32}, false), bake((void*)&jitFlushCountRT, "argNodeFn"),
@@ -5034,6 +5085,7 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	if (!arg) {
 	if (!nodeTaken && gJitLastIsNode && gJitResultNode) { argV = gJitResultNode; nodeTaken = true; }
 	}
+	else if (arg->jitData && arg->jitData->jitNode) argV = arg->jitData->jitNode;
 	else if (arg->groupBody->flags.isLiteral || !arg->jitData || !arg->jitData->jitValue) {
 	if (JitFrameSlot *fs = frameOf(arg)) flush(arg, fs, "opFireFlushA");
 	argV = bake((void*)arg, "opFireArg");
@@ -5662,6 +5714,13 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	}
 	target->jitData->setJitter(res);
 	if (target->jitData->jitSlot)   b->CreateStore(res, target->jitData->jitSlot);
+	//  derefTarget ++ / -- on `*h` writes into what h points at (SEQ 423)
+	if (target->jitData->jitNode && res->getType()->isIntegerTy(32)) {
+	llvm::LLVMContext &uctx = b->getContext();
+	llvm::Type *uP = llvm::PointerType::getUnqual(uctx);
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(uctx), {uP, res->getType()}, false),
+	b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(uctx), (uint64_t)(void*)&jitFlushCountRT), uP, "derefIncFn"),
+	{target->jitData->jitNode, res}); }
 	//  argWriteThrough ++ / -- on the function's OWN argument: the node and the bound field take the slot's value (SEQ 421)
 	if (gJitArgSlot && gJitCurrentFn && target->jitData->jitSlot == gJitArgSlot && res->getType()->isIntegerTy(32)) {
 	llvm::LLVMContext &uctx = b->getContext();
@@ -8322,7 +8381,8 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 		{
 		// holderHandOver a holder written by a handed-over statement is known only at run time: its dereference is handed over too, never followed at build (SEQ 405)
 		 if ( result && gJitRTHolders.count((void*)result->groupBody) ) { ::jitHandOver((char*)"a dereference of a holder written at run time -- its statement runs at RUN time", result); return 0; } 
-		 if (!::jitEmitDeref(result))
+		// ownNode the compiled dereference hands back its own fresh node, never the build-time follow (SEQ 423)
+		 if (::jitEmitDeref(result) && gJitDerefNode) return gJitDerefNode;
 		::jitDegrade("unary * under jit -- emitter refused",result); 
 		}
 	// starRuling *x on a field holding no group yields NULL and does not refuse; the consumer of the null refuses, in its own name (Tony, 2026-09-05)
