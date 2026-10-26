@@ -2,6 +2,13 @@
 #
 #   ## THE OPENER: Tony's pick -- the docket is empty. Filed, not built: the if-join clear (TODO.md Pending, its shape: a
 #   value cached in an arm, read after the join), for if a non-deref -5 returns.
+#   ⚠⚠ OPENER RULED (SEQ 426, appended to seal 224): THE OP-METHOD SPLIT -- finish the jitEmitter slot migration
+#   (docs/jitSlotMigration.md). Mode and kind stay on separate channels: the jit side is the `jitEmitter=` attribute, NEVER a
+#   member (a member makes hasMembers true and routes the op to jitEmitOpFire; bear-trap #56). Order: (1) the `iterate ... on
+#   *x` check -- aCTionIterate's direct opDeref call (ruleActions.rtn:618) under jitting returns the fresh deref node since
+#   SEQ 423; (2) opDiv as the proving case -- grep for direct callers, then delete its dead in-body gate; H7: remove its
+#   `jitEmitter=` line and `/` hands over; (3) the other nine slotted operators' dead gates, one per commit. Rule actions keep
+#   their gates. The unary slot (bear-trap #46) is a design item for after the binary operators, not part of the opener.
 #
 #   ## TODAY (seals 219-224): (b) an argument write in a function the jitter builds alone reaches the caller (SEQ 421,
 #   d84fc89a); (a) traced to two mechanisms, and M2 cured -- a compiled *h hands back its own node, the shared slot is taken
