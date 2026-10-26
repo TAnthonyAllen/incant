@@ -6309,6 +6309,24 @@ fdRow "inlineFieldArgT FD-1 jitted: the inlined callee's argument, name and valu
 kindRow "inlineFieldArgT FD-2 jitted: fdX after the run = the twin's" "$(_ifb "$T/ifa")" "7"
 kindRow "inlineFieldArgT witness: fdDrive built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: fdDrive built 1 called 1 ===' "$T/ifa")" "1"
 
+#  ⚑ inlineArgWriteT -- SEQ 419 R0 (2026-10-26): AN INLINED CALLEE'S WRITE THROUGH A STARRED ARGUMENT DOES NOT REACH THE CALLER'S
+#  FIELD (testPrecedence's four *Arg rows, minimal). BORN RED, silent: AW-1..AW-4 read 7. # intended: the twin's 9 8 8 6.
+#  Controls agree today: AW-C (callee writes a local only), AW-5 / AW-6 (a plain field argument).
+perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineArgWriteT)" > "$T/iawt" 2>&1; check "inlineArgWriteT runs" 0 $?
+sentinel "inlineArgWriteT sentinel" "$T/iawt" "INLINEARGWRITE SENTINEL"
+sed 's/^jitter;$/jitterOff;/' "$(ip inlineArgWriteT)" > "$T/iawtI.src"; "$B" "$T/iawtI.src" > "$T/iawtI" 2>&1; check "inlineArgWriteT interpreted twin runs" 0 $?
+sentinel "inlineArgWriteT interpreted twin sentinel" "$T/iawtI" "INLINEARGWRITE SENTINEL"
+_iaw () { sed -n "s/^$2 .*\[ *\([0-9]*\) *\].*/\1/p" "$1"; }
+_iawc () { sed -n 's/^AW-C .*kid \[ *\([0-9]*\) *\] local \[ *\([0-9]*\) *\].*/\1 \2/p' "$1"; }
+kindRow "inlineArgWriteT the interpreted twin: AW-1..AW-4 (the intended values)" "$(_iaw "$T/iawtI" AW-1) $(_iaw "$T/iawtI" AW-2) $(_iaw "$T/iawtI" AW-3) $(_iaw "$T/iawtI" AW-4)" "9 8 8 6"
+fdRow "inlineArgWriteT AW-1 jitted: argument = 9 through *awK, kid after" "$(_iaw "$T/iawt" AW-1)" "7" "9"
+fdRow "inlineArgWriteT AW-2 jitted: argument += 1 through *awK, kid after" "$(_iaw "$T/iawt" AW-2)" "7" "8"
+fdRow "inlineArgWriteT AW-3 jitted: ++argument through *awK, kid after" "$(_iaw "$T/iawt" AW-3)" "7" "8"
+fdRow "inlineArgWriteT AW-4 jitted: --argument through *awK, kid after" "$(_iaw "$T/iawt" AW-4)" "7" "6"
+kindRow "inlineArgWriteT AW-C control: callee writes a local only, jitted = twin (kid local)" "$(_iawc "$T/iawt") / $(_iawc "$T/iawtI")" "7 4 / 7 4"
+kindRow "inlineArgWriteT AW-5 / AW-6 control: a plain field argument, jitted = twin" "$(_iaw "$T/iawt" AW-5) $(_iaw "$T/iawt" AW-6) / $(_iaw "$T/iawtI" AW-5) $(_iaw "$T/iawtI" AW-6)" "9 8 / 9 8"
+kindRow "inlineArgWriteT witness: awAssign built 1 called 1 (compiled, no -5: silent)" "$(grep -c '^=== jitter: awAssign built 1 called 1 ===' "$T/iawt")" "1"
+
 #  ⚑ jitContinueRT -- SEQ 409 R2 (2026-10-23): A `continue` IN A HANDED-OVER STATEMENT IS DROPPED (jitStmtRT honours only
 #  `return`). BORN RED, silent: PC-1 3. # intended: the twin's 2.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitContinueRT)" > "$T/jcr" 2>&1; check "jitContinueRT runs" 0 $?

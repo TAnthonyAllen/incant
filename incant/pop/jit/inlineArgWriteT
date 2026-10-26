@@ -1,0 +1,96 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(ArgWrite);
+define
+    awBag; awK; awRead; awLoc=0; awX=0;
+    awSeed code={
+        clear(awBag);
+        awKid := new("kid");
+        *awKid = 7;
+        awBag +% *awKid;
+        };
+    awAssignDo code={
+        argument = 9;
+        };
+    awPlusEQDo code={
+        argument += 1;
+        };
+    awPlusPlusDo code={
+        ++argument;
+        };
+    awMinusMinusDo code={
+        --argument;
+        };
+    awLocalDo code={
+        awLoc = 4;
+        };
+    awAssign code={
+        awSeed();
+        awK := awBag["kid"];
+        awAssignDo(*awK);
+        awRead := awBag["kid"];
+        cerr "AW-1 assign [" ,*awRead "]":;
+        };
+    awPlusEQ code={
+        awSeed();
+        awK := awBag["kid"];
+        awPlusEQDo(*awK);
+        awRead := awBag["kid"];
+        cerr "AW-2 plusEQ [" ,*awRead "]":;
+        };
+    awPlusPlus code={
+        awSeed();
+        awK := awBag["kid"];
+        awPlusPlusDo(*awK);
+        awRead := awBag["kid"];
+        cerr "AW-3 plusPlus [" ,*awRead "]":;
+        };
+    awMinusMinus code={
+        awSeed();
+        awK := awBag["kid"];
+        awMinusMinusDo(*awK);
+        awRead := awBag["kid"];
+        cerr "AW-4 minusMinus [" ,*awRead "]":;
+        };
+    awLocal code={
+        awSeed();
+        awK := awBag["kid"];
+        awLocalDo(*awK);
+        awRead := awBag["kid"];
+        cerr "AW-C control kid [" ,*awRead "] local [" awLoc "]":;
+        };
+    awField code={
+        awX = 7;
+        awAssignDo(awX);
+        cerr "AW-5 field assign [" awX "]":;
+        };
+    awFieldPP code={
+        awX = 7;
+        awPlusPlusDo(awX);
+        cerr "AW-6 field plusPlus [" awX "]":;
+        };
+    ;
+jitter;
+awAssign();
+awPlusEQ();
+awPlusPlus();
+awMinusMinus();
+awLocal();
+awField();
+awFieldPP();
+cerr "INLINEARGWRITE SENTINEL":;
+stop();
+
+inlineArgWriteT -- SEQ 419 R0 (2026-10-26): docket item (b), testPrecedence's four *Arg rows in minimal form. A compiled caller
+hands an inlined callee `*awK` (a holder of awBag["kid"], kid = 7); the callee writes through `argument` with each spelling
+testPrecedence's *Arg rows use: `argument = 9`, `argument += 1`, `++argument`, `--argument`. The caller then reads kid.
+
+Today, jitted: AW-1..AW-4 all read 7 -- the write does not reach kid. The interpreted twin (`jitter;` -> `jitterOff;`)
+reads 9, 8, 8, 6, which is the intended value (R-C). Silent: every body built 1 called 1.
+
+Controls, which agree today: AW-C, the callee writes a local only (kid 7, local 4). AW-5 and AW-6 hand the callee a PLAIN
+field (`awAssignDo(awX)`, `awPlusPlusDo(awX)`) and the write lands (9, 8) -- so the defect needs the starred argument.
