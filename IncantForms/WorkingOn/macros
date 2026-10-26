@@ -18,7 +18,7 @@ tester now looking like an ExpressioN altho it does not handle StringXP. Probabl
 /*******************************************************************************
 	How to add a do loop into an instruction chain
 *******************************************************************************/
-What a do loop would look like as an expression if a do loop were writing itself as one
+What a do loop wud look like as an expression if a do loop were writing itself as one
     startLoop (the beginning of the loop in an xp list)
     do list block (process as a list of statements, not a block)
         these statements are methods to fire
@@ -39,13 +39,6 @@ How to attack?
 Can we add argument list handling to the xp chain process? I want to be able to bundle an argument list with no op in sight into a list. That will be inserting stuff into a complex algorithm (but I see no good way around that.
 
 /*******************************************************************************
-	How to add an if statement into an instruction chain
-*******************************************************************************/
-To run an if rule the way I want it to run, ExpressioN will have to be replaced by xpListTest and xpListTest has to handle statements; once it can handle statements, it should be able to handle parsing an action be it rule action or regular action. For xpListTest to replace ExpressioN, it will have to handle A(B); where A can be a method, an action, or a rule.
-if tests the result and chooses to run target or argument based on test result; this can happen in opif but where does opif find result to test? Do we have a 2 part parse? if rule runs; finds its labels; All those labels are already parsed when the rule action (to be written) fires. The rules that generate those labels return their labels as an instruction chain (basically an instruction that is the beginning of a chain). Problem is every rule action needs to be processed to return itself as a chain.
-Not sure how to write if statement as an expression: maybe xp if A; where if is an operator xp is target and A is argument cobbled together to contain startLoop and endLoop.
-
-/*******************************************************************************
 	Processing statements into an instruction chain
 *******************************************************************************/
 Maybe add StatemenT as a listEntries option. Make statement label both op and target, treat the op as unary and wrap in an instruct (unary process does that)???
@@ -55,28 +48,49 @@ Maybe add StatemenT as a listEntries option. Make statement label both op and ta
 A statement in an expression list is not a target or argument and does not produce a result but it must fire (as if it were a nested xp???) and the xp list carries on. If an xp list can contain statements then do loop is just list of statements to fire while running the xp chain
 An action is just a list of statements so an xp list can maybe run actions???
     has to set currentMETHOD and maintain current method stak
-    an action has to have a startAction and endAction akin to startLoop and endLoop; maybe those should be local fields in currentMETHOD used by actions and loop rules, in which case the loop rules would have to set and reset those local fields
-How would testOP handle statements coming in; how does xp chain say run this statement and carry on???
+    an action has to have a startAction and endAction akin to startLoop and endLoop; maybe those should be local fields in currentMETHOD used by actions and loop rules, in which case the loop rules wud have to set and reset those local fields
+How wud testOP handle statements coming in; how does xp chain say run this statement and carry on???
     A DO statement is a rule so xp chain says run this rule and leave its result on the chain
-    What would expression version of DO rule action look like? It should look like an instruction
+    What wud expression version of DO rule action look like? It should look like an instruction
         instruction: if xp statement; when it runs statement fires then xp; then opif
         opif passed in xp result assesses it and returns true or false as the instruction result
         since DO rule loops, testOP should rerun itself if the instruction returns true or fall thru
             fall thru implies that testOP runs instruction.next but we have to make sure next exists as a proper option
 How to handle statements that do not return anything for an expression to process; statements need to run in order; if an expression entry is a rule it needs to run and somehow trigger the next statement.
     The rule parse can fail -> bail
-    The rule parse succeeds but its returned label is a chain result that needs to fire
+    The rule parse succeeds but its returned label is a chain result that needs to fire. How to fashion a rule return as a chain item and where does that happen? At run time it just runs; so the return -> chain is a statement (that is, a rule) that wraps return field in an instruction (a chain item)???
     Then how to get to the next chain entry after the rule?
         If a rule reads its input from the instruction stream? Assume parser(rule) already set the rule parse
             the rule runs runRule -> parse -> return result just like when calling a non-rule action/method
-            we can probably test this using old parse to make sure the chain sequence works with rules, in which case rules return a result that fits into the current chain presumably as a value. Next step would be to change rule actions to return a chain that has not yet been run
+            we can probably test this using old parse to make sure the chain sequence works with rules, in which case rules return a result that fits into the current chain presumably as a value. Next step wud be to change rule actions to return a chain that has not yet been ru
 
 /*******************************************************************************
-	Handling || and && in an instruction chain
+	Handling || and && in an instruction chain DONE
 *******************************************************************************/
 ga > qb || qb > qc || whatsIt = "We good"
 A || B || C translates to
     || A B -> target; arg and op get cleared
     || target C -> target -> the final target is the start of the chain while the C in it is the end of the chain
 
-Would be nice if you could run a chain as a conversation in kant;
+/*******************************************************************************
+	How to add an if statement into an instruction chain
+*******************************************************************************/
+To run an if rule the way I want it to run, xpListTest has to handle statements; once it can do that, it should be able to handle parsing an action, be it rule action or regular action. xpListTest will have to handle A(B); where A can be a method, an action, or a rule (Done).
+if tests the result and chooses to run target or argument based on test result; this can happen in opif but where does opif find result to test? Do we have a 2 part parse? if rule runs; finds its labels; All those labels are already parsed when the rule action (to be written) fires. The rules that generate those labels return their labels as an instruction chain (basically an instruction that is the beginning of a chain). Problem is every rule action needs to be processed to return itself as a chain.
+Not sure how to write if statement as an expression: maybe xp if A; where if is an operator xp is target and A is argument cobbled together to contain startLoop and endLoop.
+Alternatively add labels and a goto operator as possible entries on the xpList. Issue here is a label wud be hard to find buried in an instruction chain. Maybe labels could be noPrint locals created by a make label operator and stashed in currentMETHOD. currentMETHOD is set to contain CodE if the action is a rule action in processCode(). Note: a label look up happens while the expression is getting parsed. Once parsed into an instruction chain, the label is already found and the chain just refers to it like a normal field (the goto op knows better). The make label operator wud be : defined as unary, so :field wud make field a label. typically users wud not need to make a label, the rules like IF or DO that need them wud make the labels they need and write them into the instruction chain (that wud happen in the rule action when it gets parsed). This implies/requires revision of rule actions, but we plan to work on that as part of the tester exercise.
+What wud a revised IF rule action look like; it wud be fired as an if statement so xparse aka xpListTest will have to recognize and handle rules.
+
+        if ExpressioN SemI- StatemenT ElsE? code={
+            // ExpressioN StatemenT and ElsE are labels; all labels are instructions that know how to run themselves and return a field
+            xp := ExpressioN();
+            if truthOf(*xp);    return StatemenT();
+            or ElsE             return ElsE();
+            };
+
+Issue: return has to wrap the returned field in a label with a method that runs field() if it has a method or returns field if it does not
+
+/*******************************************************************************
+	How to handle a rule in an instruction chain
+*******************************************************************************/
+field has to be recognized as a rule but its parser cannot parse an intruction chain -> can we turn a rule into an instruction chain? maybe just its action
