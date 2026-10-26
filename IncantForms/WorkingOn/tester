@@ -26,10 +26,11 @@ define
             arg     = *xpListTest;
             if *startBox == "(";    op := Operators["call"];
             else                    op := Operators["=["];
-            result  +% *op;
-            result  +% unWrap(ANYtoken);
-            result  +% *arg;
-            return result;
+            instruct    +% *op;
+            instruct    +% unWrap(ANYtoken);
+            instruct    +% *arg;
+            // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- xpListTest binds it on arrival
+            return instruct;
         return ANYtoken;
         };
     listEntries isRule
@@ -88,10 +89,14 @@ define
                     if *pre.taG == "-";     pre := Operators["negate"];
                     or *pre.taG == "*";     pre := Operators["deref"];
                     instruct    +% pre cur;
+                    // an instruct is known by its method: testOP runs it (SEQ 428)
+                    instruct.methoD = "testOP";
                     opnd        := copyOf(instruct);
                     clear(instruct);
                     clear(pre);
                 else    opnd = cur;
+                // InvokeR's call arrives as an instruct without its method; it gets it here, never at InvokeR's return
+                if *cur.taG == "instruct";  *cur.methoD = "testOP";
                 if target.datA == 0;    target = opnd;
                 else    arg = opnd;
                 if op.datA != 0 && target.datA != 0;
@@ -106,11 +111,13 @@ define
                         print "Build instruction with:" kind curTAG opTAG targetTAG argTAG:;
                         if kind == 1;
                             instruct    +% op target arg;
+                            instruct.methoD = "testOP";
                             target      := copyOf(instruct);
                         or kind == 2;
                             if assign.datA != 0;
                                 print "Has assign":;
                                 instruct +% op target arg;
+                                instruct.methoD = "testOP";
                                 *assign     +% copyOf(instruct);
                                 arg         = copyOf(assign);
                                 clear(assign);
@@ -118,6 +125,7 @@ define
                                 print "Get assign":;
                                 instruct +% op target;
                                 instruct    = kind;
+                                instruct.methoD = "testOP";
                                 assign      := copyOf(instruct);
                             target = arg;
                     clear(instruct);
