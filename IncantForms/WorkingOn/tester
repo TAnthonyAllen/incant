@@ -128,8 +128,8 @@ define
             print "Assign at end":;
             *assign +% *target;
             target = assign;
-        clear(*argument);
-        argument = target;
+        // the chain goes INTO this rule's label, so a caller (InvokeD, or a command line) gets the label back
+        *argument := *target;
         print "We done":;
         return  *argument;
         };
