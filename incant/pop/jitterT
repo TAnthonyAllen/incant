@@ -56,6 +56,7 @@ cerr "JT-3 a body the JIT refuses, called twice: jtBadN = [" jtBadN "]":;
 jtPreA();
 jtPreA();
 cerr "JT-4 compiled by testing() before jitter, two more calls: jtPre = [" jtPre "]":;
+cerr "JTT jtResult inlined in jtBad: jtTrue = [" jtTrue "]":;
 cerr "JITTER SENTINEL":;
 stop();
 
@@ -73,3 +74,5 @@ compile, which also announces once, by name, at the refusal.
         action compiles alone (testPrecedence's tpAssignBare / tpAssignArg pair, cut down). One announcement,
         interpreted both times, jtBadN = 2. (jtResult, then called interpreted, is refused the same way.)
   JT-4  jtPreA was compiled by testing() before jitter: built 0 (reused from the cache), called 2, jtPre = 3.
+  JTT  (SEQ 423 R0) jtTrue after the run -- no JT row read it. jtBad inlines jtResult, whose `if *jtSlot == 1; jtTrue =
+       jtTrue + 1;` takes a star's run-time node from the shared slot as its right side (M2): jitted 0, the twin 2.

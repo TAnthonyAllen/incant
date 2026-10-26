@@ -6422,6 +6422,9 @@ kindRow "jitterT JT-3 witness: jtBad never announced NOT JITTABLE (re-pinned SEQ
 kindRow "jitterT JT-3 witness: jtBad built 1 called 2 (re-pinned SEQ 408: was not jittable, called 2 interpreted)" "$(grep -c '^=== jitter: jtBad built 1 called 2 ===' "$T/jtr")" "1"
 kindRow "jitterT JT-4 witness: jtPreA reused from testing()'s compile, built 0, called 2 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtPreA built 0 called 2 ===' "$T/jtr")" "1"
 kindRow "jitterT JT-4 one compile of jtPreA in the run, testing()'s (the jitter adds none)" "$(grep -c '^=== jitRunAction: entering on jtPreA ===' "$T/jtr")" "1"
+_jtt () { sed -n 's/^JTT .*\[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+kindRow "jitterT JTT the interpreted twin: jtTrue (SEQ 423 R0)" "$(_jtt "$T/jtI")" "2"
+fdRow "jitterT JTT jitted: jtTrue after jtBad's inlined jtResult (M2, the star's node on a foreign assignment)" "$(_jtt "$T/jtr")" "0" "2"
 check "jitterT new road (parser(Start) twin) runs" 0 $_jtNx
 sentinel "jitterT new road sentinel" "$T/jtN" "JITTER SENTINEL"
 kindRow "jitterT new road: JT-0..JT-4 = the interpreted twin" "$(_jtv "$T/jtN")" "$(_jtv "$T/jtI")"
