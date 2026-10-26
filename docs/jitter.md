@@ -1413,3 +1413,12 @@ slot's assignment / print / fire / bind readers, not the gate that reads the fla
   jitEmitters.rtn, jitContext.h, Instruct.rtn, GroupActions.rtn, GroupRules.mm / .h md5 = the cure.
 **The buy is Tony's (R-D).** The if-join clear stays held (R-A); after this buy, ifSeedT has no -5 left to cure, so the
 join clear's own population is to be re-censused before it is built.
+
+## SEQ 424 -- m2-deref-node BOUGHT (merge 3cf2d5d8); the -5 re-census; docket item (a) CLOSED (2026-10-26)
+
+Bought: merged, bare tokall changed nothing, ~/bin/incant rebuilt; pop.sh 1799 = the branch's certificate run row for row
+but its three re-pins (DA-Y 1, IS-C2 / IS-C3 built), jitLadder identical; branch deleted.
+**-5 re-census** (SEQ 422's logging wrapper; positive control: the known -8s, logged by name): pop.sh **0** (-8: hzAct, knRead,
+rlOuter, xT), jitLadder **0** (no refusals at all), gen26 **0** (-8: accessTest, stringTest, testGet, testIndentBlock,
+testInterpret, testOR, testUnitTests), testPrecedence compiled **0** (-8: its nine kindless-local bodies). **No -5 remains.**
+Docket item (a) closes; the if-join clear is filed in TODO.md (Pending) with its shape, in case a non-deref -5 returns.
