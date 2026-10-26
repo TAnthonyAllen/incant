@@ -73,22 +73,28 @@ define
     *****************************************************************************/
     xpListTest isRule lizted=listEntries+ SemI?- code={
         cur := *lizted.firsT;
+        prevOp = 1;
         while cur.datA != 0;
             if *cur.instructTypE != 0;
-                op      = cur;
-                kind    = 1;
-                if target.datA == 0 && assign.datA == 0;        kind = 3;
-                or *target.instructTypE != 0;                   kind = 3;
-                if *cur["assignTier"] || *cur["shortCircuit"];  kind = 2;
+                if prevOp == 1;     pre = cur;
+                else
+                    op      = cur;
+                    kind    = 1;
+                    if *cur["assignTier"] || *cur["shortCircuit"];  kind = 2;
+                prevOp = 1;
             else
-                if target.datA == 0;    target = cur;
-                else    arg = cur;
+                prevOp = 0;
+                if pre.datA != 0;
+                    if *pre.taG == "-";     pre := Operators["negate"];
+                    or *pre.taG == "*";     pre := Operators["deref"];
+                    instruct    +% pre cur;
+                    opnd        := copyOf(instruct);
+                    clear(instruct);
+                    clear(pre);
+                else    opnd = cur;
+                if target.datA == 0;    target = opnd;
+                else    arg = opnd;
                 if op.datA != 0 && target.datA != 0;
-                    if kind == 3;
-                        if *op.taG == "-";  op := Operators["negate"];
-                        or *op.taG == "*";  op := Operators["deref"];
-                        instruct    +% op target;
-                        target      := copyOf(instruct);
                     if arg.datA != 0;
                         curTAG  = *cur.taG;
                         if op.datA;     opTAG = *op.taG;
@@ -194,6 +200,13 @@ debug GUARD ALL xpListTest listEntries;
 ***************************************************************************/
 
 Need to test && and ||  Actually tested already; seems to work
+Prefix operators (Clod, 2026-10-26): prevOp marks "the previous entry was an operator, or there was none"; an operator
+arriving then is a PENDING PREFIX (pre) that wraps the next operand (negate / deref), so it never overwrites the pending
+binary op. qc - - qa, - qa + qb, qa - - qb + qc, * qa + qb, righty = - qa + qb now build right. Running a unary through
+testOP needs branch testop-unary-slot (testOP read slot 3; the unary operand is in slot 2) -- until it is bought,
+testOP on a chain with a prefix exits 139. The old `or *target.instructTypE != 0; kind = 3;` rule is gone with kind 3.
+Still open: compare tier and assign-vs-|| tier (righty = 42 || qb > qc builds (righty = (42 || qb)) > qc); InvokeR attaches
+Operators["call"] whatever op it picked; a null reaching +% / + crashes in the engine instead of refusing.
 Harder expressions for xpListTest, each with a pinned trunk answer in exprPinT to compare against:
 - qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
 - xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
