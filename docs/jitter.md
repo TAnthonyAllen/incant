@@ -1152,3 +1152,61 @@ jitContinueRT 3. H7 (break): its 4 removed -> jitBreakRT 3.
 - Found, not fixed: A5's FAIL message carries backticks the shell executes (`or BrancheS.tag {`), so a failing A5 also
   prints two `command not found` lines and trips the fleet's own-output check.
 - **R3:** gen26 shows no runaway and no crash. tpTestResult's if-arm-to-join -5 stays open.
+
+## SEQ 419 -- docket item (b): a callee's write through its argument (2026-10-26): R0 pinned, R1 named, R2 STOPPED by R-B
+
+Ruled (forwarded): R-A (b) before (a); R-B recon first, build only if the cure is local to the inline bind / write path, STOP
+if it reaches the frame model or Stroke B's bind shape; R-C the intended value is the interpreted twin's on every row.
+
+### R0 -- inlineArgWriteT, born red (trunk f76b5fe2)
+
+testPrecedence's four *Arg rows in minimal form: awBag["kid"] = 7, `awK := awBag["kid"]`, then `awXDo(*awK)` where the
+callee writes `argument` by each spelling the *Arg rows use. pop.sh 1757 -> 1765 (8 green, 4 born red).
+
+| row | spelling | jitted | twin |
+|---|---|---|---|
+| AW-1 | `argument = 9` | 7 | 9 |
+| AW-2 | `argument += 1` | 7 | 8 |
+| AW-3 | `++argument` | 7 | 8 |
+| AW-4 | `--argument` | 7 | 6 |
+| AW-C | control: the callee writes a local only | kid 7, local 4 | kid 7, local 4 |
+| AW-5 / AW-6 | control: a PLAIN field argument (`awAssignDo(awX)`, `awPlusPlusDo(awX)`) | 9, 8 | 9, 8 |
+
+Silent: every body built 1 called 1. The defect needs the starred argument. (The name argWriteT was taken: the existing
+interpreted pre-flip instrument in incant/pop.)
+
+### R1 -- the mechanism (lldb on the installed binary; no source tap, so nothing to revert)
+
+**IT IS NOT THE INLINE PATH. None of the three dispatched candidates as worded; closest to the third (a frame-slot write).**
+1. The caller's statement `awAssignDo(*awK)` is HANDED OVER to run time: awK is written by `:=` in the same body, so it is
+   in gJitRTHolders, and opDeref under jitting hands its statement over (Instruct.rtn:259, SEQ 405's (c)).
+2. At run time the interpreter's runAction calls awAssignDo, and the jitter intercept BUILDS IT AS ITS OWN FUNCTION
+   (GroupActions.rtn:1203; `awAssignDo built 1 called 1`) with %field = its body field, bound to the real kid.
+3. That function's prologue fills an **argument slot** -- `CreateAlloca(i32, "argSlot")` (jitEmitters.rtn:395) from
+   jitArgCountRT(%field), SEQ 380. Every own-argument read goes through jitArgSlotRead, whose node carries
+   `jitSlot = gJitArgSlot` (jitEmitters.rtn:128).
+4. **THE WRITE LANDS IN THE ALLOCA.** `argument = 9` stores to `target->jitData->jitSlot` (jitEmitters.rtn:1081, the assign
+   cast store); `++` / `--` store at jitEmitters.rtn:2736. The epilogue writes back gJitFrame's local slots only; the
+   argument slot is not in gJitFrame and has no writeback, so the bound kid never sees the write and the caller reads 7.
+
+**H16 (the tap at both ends):** the bad end (AW-1) -- handOver `a dereference of a holder written at run time` on awK,
+then `build "awAssignDo"`, then argSlotRead `argument`. The known-good end (AW-5, plain field) -- no hand-over, NO build of
+awAssignDo: runAction's inline arm, jitEmitArgBind arg `awX` (bound as itself, SEQ 407), jitBindArgRT arg `awX` at run
+time; kid = 9. The tap separates them.
+**testPrecedence (census construction, `jitter;` after Start()):** the same -- tpK's deref handed over, then `build
+tpAssignArgDo / tpPlusEQArgDo / tpPlusPlusArgDo / tpMinusMinusArgDo`; GOT 7 7 7 7 against the twin's 9 8 8 6. addAttrArg
+passes tpBag plain, is inlined, and agrees (2 = 2).
+
+### R2 -- NOT BUILT: R-B's stop
+
+The cure has to make a separately built function's write to its own argument reach the binding. Both shapes touch the
+argument slot that SEQ 380 put in the jitted frame:
+1. **Epilogue writeback**: at the frame epilogue, when the argument slot was stored to, write it through the binding
+   (`jitArgCountRT`'s follow, one level) -- the slot joins the frame's writeback as the locals' slots do.
+2. **Store-through at the two slot-store sites** (:1081, :2736): when the target is the argSlot node, also call a run-time
+   setter on %field's binding, like a global's immediate store-through.
+Either changes what the frame model does with the argument slot, so neither is local to the inline bind / write path.
+**Ruling owed.** Clod's lean: (2), because the interpreted write is IMMEDIATE -- a callee that writes `argument` and then
+reads the bound field (or calls something that does) sees the new value; (1) would leave it stale until the exit. (1) is
+the narrower IR. Either way a self-call's boxed argument (SEQ 380) gets written into its own box, which nothing reads
+afterwards -- a mover census is owed before the build.
