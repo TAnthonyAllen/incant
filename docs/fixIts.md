@@ -166,6 +166,9 @@ ATTEMPT LOG
   2026-10-26 seal 221's checklist (trunk d84fc89a): ONE pass read 52 of 57 inject (53 is the capture); output NOT kept, so
     which directive went dark is unknown. Two reruns on the same tree read 53 = docs/sealCaptures/dirCheck.txt byte for
     byte. Measured only (SEQ 422 R-C).
+  2026-10-26 seal 223's checklist (trunk 98b359dd): 52 of 57 again, OUTPUT KEPT this time -- the one extra dark is the
+    PARKED `push if before` (groupDirectives line 307, GroupItem.twk; "injected NOTHING"), which the capture reads as +2.
+    The immediate rerun on the same tree read 53 = capture. A new member of the sometimes-dark set; measured only.
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
