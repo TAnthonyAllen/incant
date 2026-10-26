@@ -1465,8 +1465,10 @@ GroupItem   result,
     if argument && argument.tag eq "instruct"   argument = testOP(argument);
 GroupItem   target = field[2];
     if target && target.tag eq "instruct"       target = testOP(target);
-    if op.isUnary   result = op.method(argument);
-    else            result = op.operat(argument,target);
+    // unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
+    if op.isUnary && argument   result = op.method(argument);
+    or op.isUnary               result = op.method(target);
+    else                        result = op.operat(argument,target);
     return result;
 }
 
