@@ -1269,7 +1269,7 @@ site STOPs (the census found none).
 **The cure (branch arg-write-through, 12a8540a):** one run-time helper, `jitArgSyncRT(node, %field)` -- follows %field one
 level as jitArgCountRT reads it, copies the argSlot node's value to the bound field, returns it for the slot. Cast arm:
 the cast call writes the node, then the slot takes jitArgSyncRT's value. += fire: the node is PRIMED from the slot first
-(it was empty, so += took the argument's 1 -- jitted AW-2 read 1 + nothing written back) and synced after. Unary: the node
+(it was empty, so += gave the node the argument's 1, and the bound field never saw a write) and synced after. Unary: the node
 takes the result (jitFlushCountRT), then jitArgSyncRT. Canary 373 -> **374**; no groups.ext line (called in-chain, as
 jitEmitIterStep).
 
