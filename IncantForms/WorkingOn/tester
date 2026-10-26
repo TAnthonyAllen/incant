@@ -26,7 +26,7 @@ define
             arg     = *xpListTest;
             if *startBox == "(";    op := Operators["call"];
             else                    op := Operators["=["];
-            result  +% Operators["call"];
+            result  +% *op;
             result  +% unWrap(ANYtoken);
             result  +% *arg;
             return result;
