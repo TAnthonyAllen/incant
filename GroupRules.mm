@@ -11321,7 +11321,8 @@ GroupItem 	*result = 0;
 	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
 	// kindUncarried a binary operator that would consume a value whose kind the jit cannot carry hands its statement to run time; a dot only bakes its target's address, `=` stores its target through a run-time road, and a node in flight has its own run-time road (docket item 3)
 	
-	if ( ruler->jitting && !gJitLastIsNode && isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp != (void*)&opDot
+	//  byOwner a node in flight is THIS op's only when an operand is its producer's node -- a slot left by another statement says nothing here (SEQ 423)
+	if ( ruler->jitting && !(gJitLastIsNode && ((arg && arg == gJitNodeOwner) || (target && target == gJitNodeOwner))) && isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp != (void*)&opDot
 	&& ((op->groupBody->gOp != &opAssign && ::jitKindUncarried(target)) || ::jitKindUncarried(arg)) ) {
 	::jitHandOver((char*)"an operand whose kind is not a count or a number -- its statement runs at RUN time", op);
 	return 0; }
