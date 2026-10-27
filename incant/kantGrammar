@@ -40,13 +40,13 @@ define
         SHORTCUt;
         PRINTFIELd  EXPRESSIOn FORMAt?;
     ITERSOURCe      UnaryOPS? ANYtoken;
-    INVOKEd         startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
+    INVOKEd         startBox=[([] EXPRESSIOn endParen-?=")" endBrace-?="]";
     INVOKEr         ANYtoken INVOKEd;
     ANYORNUm
         NumbeR;
         ANYtoken;
     TOKEn
-        InvokeR;
+        INVOKEr;
         ANYtoken;
         QuotE;
         NumbeR;
@@ -91,14 +91,14 @@ define
     *****************************************************************************/
     INVOKEr code={
         if *INVOKEd.listLengtH;
-            :INVOKEd startBox xpListTest;
-            arg     = *xpListTest;
+            :INVOKEd startBox EXPRESSIOn;
+            arg     = *EXPRESSIOn;
             if *startBox == "(";    op := Operators["call"];
             else                    op := Operators["=["];
             instruct    +% *op;
             instruct    +% unWrap(ANYtoken);
             instruct    +% *arg;
-            // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- xpListTest binds it on arrival
+            // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- EXPRESSIOn binds it on arrival
             return instruct;
         return ANYtoken;
         };
@@ -128,7 +128,7 @@ define
                     clear(instruct);
                     clear(pre);
                 else    opnd = cur;
-                // InvokeR's call arrives as an instruct without its method; it gets it here, never at InvokeR's return
+                // INVOKEr's call arrives as an instruct without its method; it gets it here, never at INVOKEr's return
                 if *cur.taG == "instruct";  *cur.methoD = "testOP";
                 if target.datA == 0;    target = opnd;
                 else    arg = opnd;
@@ -189,7 +189,7 @@ define
             *asgP +% *target;
             target = asgP;
             if asgO.datA != 0;  target = asgO;
-        // the chain goes INTO this rule's label, so a caller (InvokeD, or a command line) gets the label back
+        // the chain goes INTO this rule's label, so a caller (INVOKEd, or a command line) gets the label back
         *argument := *target;
         print "We done":;
         return  *argument;

@@ -6370,7 +6370,7 @@ fdRow "ifSeedT IS-S jitted: isPre isSt mark" "$(_isv "$T/ist" IS-S isPre) $(_isv
 fdRow "ifSeedT SN-1 jitted: *h = 1, mark after" "$(_isv "$T/ist" SN-1 mark)" "0" "1"
 fdRow "ifSeedT SN-2 jitted: if *h == 0; snA = snA + 1" "$(_isv "$T/ist" SN-2 snA)" "0" "1"
 
-#  ⚑ testerChainT -- SEQ 427 R0 (2026-10-26): TONY'S LIVE tester, its chain (xpListTest + testOP) against kant's own value
+#  ⚑ testerChainT -- SEQ 427 R0 (2026-10-26): TONY'S LIVE tester, its chain (kantGrammar's EXPRESSIOn action, xpListTest until SEQ 440, + testOP) against kant's own value
 #  per expression. One process per row, each its own 20 s alarm. Row input = tester through its define block + the fixture's
 #  prelude + the row (see the fixture's prose). Born at today's values: TC-3 / TC-8 / TC-9 / TC-10 crash (exit 139);
 #  TC-3c and TC-4b mis-group (the compare and logic tiers). # intended: every chain = its kant value, exit 0.
@@ -6384,9 +6384,9 @@ while IFS='|' read -r _id _kv _ct _ex _in; do
     _row=$(grep "^$_id|" "$_tcF"); _md=$(echo "$_row" | cut -d'|' -f2); _xp=$(echo "$_row" | cut -d'|' -f3-)
     { head -n "$_tcN" "$_tcS"; sed '/^stop();/,$d' "$_tcF"
       case $_md in
-      v) printf 'kv = %s;\ncerr "%s kant [" kv "]":;\nwhatsIt = xpListTest("%s");\ncerr "%s chain [" testOP(whatsIt) "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
-      t) printf 'kt = 0;\nif %s;    kt = 1;\ncerr "%s kant [" kt "]":;\nwhatsIt = xpListTest("%s");\nct = 0;\nif testOP(whatsIt);    ct = 1;\ncerr "%s chain [" ct "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
-      s) printf '%s;\ncerr "%s kant [" righty "]":;\nrighty = 0;\nwhatsIt = xpListTest("%s");\ntestOP(whatsIt);\ncerr "%s chain [" righty "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
+      v) printf 'kv = %s;\ncerr "%s kant [" kv "]":;\nwhatsIt = EXPRESSIOn("%s");\ncerr "%s chain [" testOP(whatsIt) "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
+      t) printf 'kt = 0;\nif %s;    kt = 1;\ncerr "%s kant [" kt "]":;\nwhatsIt = EXPRESSIOn("%s");\nct = 0;\nif testOP(whatsIt);    ct = 1;\ncerr "%s chain [" ct "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
+      s) printf '%s;\ncerr "%s kant [" righty "]":;\nrighty = 0;\nwhatsIt = EXPRESSIOn("%s");\ntestOP(whatsIt);\ncerr "%s chain [" righty "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
       esac
       printf 'cerr :;\ncerr "TESTERCHAIN SENTINEL":;\nstop();\n'; } > "$T/tc.$_id.k"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/tc.$_id.k" > "$T/tc.$_id" 2>&1; _x=$?

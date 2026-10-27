@@ -15,7 +15,7 @@ its define block (the last line `    ;` before the first `stop();`), then everyt
 row. One process per row, so a crash costs only its own row. COUPLED to tester's shape: if tester's define stops ending in
 a `    ;` line before its first `stop();`, pop.sh's assembly breaks and says so.
 
-Each row prints kant's value first (the statement run on the interpreted road), then the chain's (xpListTest builds it,
+Each row prints kant's value first (the statement run on the interpreted road), then the chain's (EXPRESSIOn builds it -- xpListTest until SEQ 440 --
 testOP runs it). Modes: v = the expression's value; t = its truth (`if EX; kt = 1;` -- a false compare read as a value
 prints the tag kv, bear-trap 26); s = a statement, righty read afterwards.
 Measured on the way: kant's `||` yields a TRUTH, so `righty = 42 || qb > qc` leaves righty 1, not 42. TC-4 agrees today
