@@ -52,9 +52,20 @@ define
     ;
 
 whatsIt = EXPRESSIOn("invokeTEST call ga > qb || righty = 42 || qb > qc");
+print "SENTINEL after the direct EXPRESSIOn call":;
 testOP(whatsIt);
 print "Dump of the generated instruction chain":;
 listChain(whatsIt);
+// Clod, SEQ 440 R2: bracketed lines run INVOKEd / INVOKEr. HEAD (xpListTest) read the same in this order: 5, 9, 20, 4 (alone, qa[qb] + qc reads 0, refused)
+whatsIt = EXPRESSIOn("invokeTEST(qa + qb)");
+cerr "B1 chain [" testOP(whatsIt) "]":;
+whatsIt = EXPRESSIOn("qa + invokeTEST(qb) + qc");
+cerr "B2 chain [" testOP(whatsIt) "]":;
+whatsIt = EXPRESSIOn("invokeTEST(qa + qb) * qc");
+cerr "B3 chain [" testOP(whatsIt) "]":;
+whatsIt = EXPRESSIOn("qa[qb] + qc");
+cerr "B4 chain [" testOP(whatsIt) "]":;
+print "SENTINEL tester driver end":;
 stop();
 
 debug InvokeD InvokeR xpListTest;

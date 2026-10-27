@@ -276,6 +276,11 @@ Rung A read-back (SEQ 439, 2026-10-27; R0 tell() unchanged, R1 parse / fire /
    label's tag through the search list, runs that rule's code action with the
    label as its argument, and hands back what the action returns. No parse, no
    input. The fallback (action stashes, direct call) not taken (R2).
+   ⚠ PARKED (SEQ 440, Tony 2026-10-27): fire(label) is not built. The direct
+   call does the read-back -- Tony's tester now runs EXPRESSIOn("...") straight
+   from kantGrammar (INVOKEd / INVOKEr / EXPRESSIOn's action there), and a print
+   after the call prints (SEQ 440 R3). fire returns only if a rung needs
+   parse-then-fire later.
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
