@@ -8394,14 +8394,19 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 // opDiv the / operator: always a DOUBLE, even when exact -- 10 / 4 is 2.5
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 {
+int 	wrote = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitSDiv); 
 		}
 	// alwaysDouble division never changes meaning by operand type, and an exact quotient stays a double so the jit knows the result type at emit time
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
+		{
 		GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+		wrote = 1;
+		}
+	// ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (F-144, SEQ 432)
+	if ( !wrote )
 		{
 		return ::refuse(target,"Operator / -- not supported for these operands");
 		}
@@ -8962,6 +8967,7 @@ extern "C" GroupItem *opMatch(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		wrote = 0;
 	if ( ruler->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitSub); 
@@ -8977,12 +8983,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 			ruler->tempField->setNumber(target->getNumber() - argument->getNumber());
 		else	ruler->tempField->setCount(target->groupBody->gCount - argument->getCount());
+		wrote = 1;
 		}
 	else
 	if ( (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && argument->getCount() > 0 )
 		if ( target->groupBody->gCount > argument->getCount() )
+			{
 			ruler->tempField->setText(::headToCount(target->getText(),target->groupBody->gCount - argument->getCount()));
-	if ( !ruler->tempField->groupBody->flags.data )
+			wrote = 1;
+			}
+	// ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+	if ( !wrote )
 		{
 		return ::refuse(target,"Operator - -- cannot apply to these operands");
 		}
@@ -9109,6 +9120,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 // opMultiply the * multiply operator: a double operand promotes the result
 extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 {
+int 	wrote = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitBinary(argument, target, jitMul); 
@@ -9121,11 +9133,18 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 		}
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			{
 			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
+			wrote = 1;
+			}
 		else
 		if ( isCOUNT(target->groupBody->flags.data) )
+			{
 			GroupControl::groupController->groupRules->tempField->setCount(target->getCount() * argument->getCount());
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+			wrote = 1;
+			}
+	// ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+	if ( !wrote )
 		{
 		return ::refuse(target,"Operator * -- cannot apply to these operands");
 		}
@@ -9210,6 +9229,7 @@ extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target)
 // opPlus the + operator: numbers add (a double operand promotes the result); a string advances by the argument's count
 extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 {
+int 	wrote = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		// concatJit a STRING or TOKEN left is a run-time concatenation, published as a node (SEQ 347 R3)
@@ -9224,20 +9244,35 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		{
 		return ::refuse(target,"Operator + -- an operand that is nothing");
 		}
+	// nullTarget a target that is nothing refuses by name too, before any read of it (SEQ 432 R1; testerChainT TC-10 was a crash)
+	if ( !target )
+		{
+		return ::refuse(target,"Operator + -- a target that is nothing");
+		}
 	// concatLeft a STRING or TOKEN on the left concatenates the right side's text (SEQ 347 R3)
 	if ( target->groupBody->flags.data && (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && argument->groupBody->flags.data )
+		{
 		GroupControl::groupController->groupRules->tempField->setText(::concatText(target->getText(),argument->getText()));
+		wrote = 1;
+		}
 	else
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data)) )
 		{
 		// binaryPromotes a binary op has no count slot to narrow into, so a double operand promotes the result; count OP count stays a count
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
+			{
 			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() + argument->getNumber());
+			wrote = 1;
+			}
 		else
 		if ( isCOUNT(target->groupBody->flags.data) )
+			{
 			GroupControl::groupController->groupRules->tempField->setCount(target->groupBody->gCount + argument->getCount());
+			wrote = 1;
+			}
 		}
-	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
+	// ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+	if ( !wrote )
 		{
 		return ::refuse(target,"Operator + -- cannot apply to these operands");
 		}
@@ -9629,16 +9664,24 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		wrote = 0;
 	if ( ruler->jitting )
 		{
 		 return jitEmitUnary(result, jitNeg); 
 		}
 	if ( isCOUNT(result->groupBody->flags.data) )
+		{
 		ruler->tempField->setCount(0 - result->groupBody->gCount);
+		wrote = 1;
+		}
 	else
 	if ( isNUMBER(result->groupBody->flags.data) )
+		{
 		ruler->tempField->setNumber((double)0 - result->groupBody->gNumber);
-	if ( !ruler->tempField->groupBody->flags.data )
+		wrote = 1;
+		}
+	// ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+	if ( !wrote )
 		{
 		return ::refuse(result,"Operator unary - -- cannot apply");
 		}
