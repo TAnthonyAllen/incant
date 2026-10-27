@@ -217,6 +217,22 @@ kantGrammar (SEQ 436, 2026-10-27): incant/kantGrammar, registry KantGrammar.
     load (incant/probes/kantGrammarLoad). H7: Start in place of STARt reports
     COLLISION Start in Grokking, exit 1. Case-only near-matches (If ~ IF, if)
     are by design under R0.
+Rung 1, step 1 (SEQ 437, 2026-10-27): STOPPED -- the positive control is not
+    green. Each parse driven by tell(), one process each, kantGrammar loaded,
+    under R1 (KantGrammar alone) and the control (KantGrammar then Grokking).
+    The two configurations read IDENTICALLY in every row, so nothing here is
+    caused by Grokking being out: the copies do not parse even with it in.
+    ANYORNUm qa 0 of 2 (the old ANYorNum 2 of 2, same process); TOKEn qa loops
+    to the 100000 repetition limit (old Token 2 of 2); EXPRESSIOn qa + 1 0 of 6
+    (old 6 of 6); PRINt is not found at all (known 0) -- KantGrammar registers
+    only its 20 top-level rules, Grokking registers its nested ones by name too.
+    What does work, both ways: BRANCHEs break / continue / return, ITERSOURCe *qa.
+    Also measured: after the swap, top-level text still parses on the OLD
+    grammar -- the running Start was bound when Grokking loaded -- so the swap
+    changes name lookups, not the driver; rung 1 has to hand its source to a
+    KantGrammar rule by name. Likely gap (not measured): what the bootstrapper
+    does to Grokking after setup's include(grammar), its last statement, is not
+    done to a grammar included later. Shared names not graded (control void).
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
