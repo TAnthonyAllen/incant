@@ -233,6 +233,32 @@ Rung 1, step 1 (SEQ 437, 2026-10-27): STOPPED -- the positive control is not
     KantGrammar rule by name. Likely gap (not measured): what the bootstrapper
     does to Grokking after setup's include(grammar), its last statement, is not
     done to a grammar included later. Shared names not graded (control void).
+Rulings for rung A (Tony, SEQ 438, 2026-10-27):
+R0 bottom-up: EXPRESSIOn, then STATEMENt (only XPRESs on its list), then If, each
+   tested by rule("text"); the search-list swap is dropped for now.
+R1 an action reads its component labels, builds an instruct in tester's layout
+   (op [1], target [2], argument [3], method testOP) and returns it; nothing runs
+   inside an action. ChaiN is reserved for a compiled action's seq, later.
+R2 read-back is via tell()'s reply (the root label holding the root's instruct),
+   measured, not assumed.
+R3 If's else-arm goes in a list in the argument slot [then, else]; the consumer
+   wraps seqs.
+R4 opSeq and opIf: C++ first, then kant; each scaffold gets a dated TODO line,
+   "retires when the kant action of the same name passes the same rows", retired
+   by mapping, groups.ext line included.
+Rung A (SEQ 438, 2026-10-27): STOPPED at R2 -- the read-back via tell()'s reply
+   does not reach the instruct, because UNDER tell() THE ACTION DOES NOT RUN.
+   Measured in scratch (kantGrammar untouched): with EXPRESSIOn Token+ (the old
+   Token, shared) the parse takes 6 of 6, known 1, and the reply is a copy of the
+   raw EXPRESSIOn label -- its members qa, + and the number (tagged Token, 1), or
+   with the action fitted, one lizted holding those three. A marker at the
+   action's entry does NOT print under tell() and DOES under a direct
+   EXPRESSIOn("qa + 1"). tell is aCTionTell (GroupActions.rtn:2), which drives the
+   target through driveStep (:215) and copies the parked label as the reply.
+   Also measured: the direct call's action hands back false, and the rest of the
+   file was then swallowed by a runaway Token repetition -- not chased.
+   Including kantGrammar after tester's define block DID load (SEQ 436's miss is
+   not general).
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
