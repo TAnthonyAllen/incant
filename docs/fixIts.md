@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-144 — staleTempField: an arithmetic operator's "cannot apply" guard asks the SHARED tempField whether THIS call wrote, so it hands back the previous computation's value
+### F-144 — ✅ CLOSED 2026-10-27 (merged 4f0937ca, SEQ 433) — staleTempField: an arithmetic operator's "cannot apply" guard asks the SHARED tempField whether THIS call wrote, so it hands back the previous computation's value
 
 **What.** When no arm of `opPlus` writes (an operand it cannot add, e.g. an unrun instruct), its guard
 `if !tempField.data` reads the shared `ruler.tempField`, which still holds the LAST interpreted computation's
@@ -109,7 +109,7 @@ computation) -> 0 with `REFUSED instruct -- Operator + -- cannot apply to these 
 reads 0 with no refusal: opMultiply's count arm wrote, so the stale guard was not reached.
 **Done when.** A `+` whose arms write nothing refuses by name whatever ran before it, pinned by a row that runs a
 computation first and then hands `+` an unrun instruct (TC-9's H7 red by value is the natural H7 for it).
-**Owner.** Clod (SEQ 432 R0: (A) ruled -- each operator decides by its own write; (B) not taken). Closes on the buy.
+**Owner.** Clod (SEQ 432 R0: (A) ruled -- each operator decides by its own write; (B) not taken). Closed on the buy.
 ```
 ATTEMPT LOG
   2026-10-27 filed (SEQ 431) from TC-9's masker hunt; measured only, nothing changed. The parse-time suspect
@@ -122,7 +122,9 @@ ATTEMPT LOG
     -> ST-1..ST-5 green (9, one refusal), SC unmoved; TC-10 139 -> named refusal; TC-3 moved too (same refusal).
     H7 own-write -> tempField read: ST-1..5 back to 77, no refusal. H7 testOP's run removed: TC-9 refuses by name
     (was the leaked 10). md5 = fix after each.
-  POP: staleTempT ST-1..ST-5 sr / refusals = [9 1] (branch op-own-write, a935b75d; not merged)
+  2026-10-27 BOUGHT (SEQ 433 R0): merged 4f0937ca; bare tokall changed nothing; rebuilt; pop.sh 1859 and jitLadder
+    = the branch certificate run row for row; canary 374. Branch deleted (live, GitHub; no clone existed).
+  POP: staleTempT ST-1..ST-5 sr / refusals = [9 1]
 ```
 
 ### F-143 — labelHolder: a rule's label reaches its code as a HOLDER, so bare `iterate x on lab` refuses and `$$lab` shows a label inside a label

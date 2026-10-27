@@ -176,9 +176,9 @@ R3  IF's shape (for later, NOT built now): one instruct in its parent's seq,
 Starting point: kantGrammar, a copy of grammar with rules renamed per R0, its
 collision grep and its list of shared rules (TODO.md; after the tier split,
 ahead of rung 1).
-Order (SEQ 432, 2026-10-27): buy op-own-write (operators decide by their own
-write; + refuses a null target), the tier split, kantGrammar, rung 1, then the
-op-method split recon.
+Order (SEQ 433, 2026-10-27; op-own-write bought): the tier split, kantGrammar,
+rung 1, TC-8 (* refuses an operand it cannot use), then the op-method split
+recon.
 
 /*******************************************************************************
 	Open questions
