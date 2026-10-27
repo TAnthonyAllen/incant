@@ -6418,6 +6418,8 @@ TC-12|1|0|0 1
 TC-13|0|0|0 1
 TC-14|1|1|0 1
 TC-15|1|1|0 1
+TC-16|5|2|0 1
+TC-17|1|0|0 1
 TCROWS
 #  ⚠ SEQ 432 (2026-10-27): + refuses a null TARGET by name (R1). TC-10 stopped crashing: its chain hands + a null (qa[qb]
 #  misses) and now reads the refusal -- 0, where kant reads 4 (kant's own road does not refuse it; not ruled). TC-3 moved

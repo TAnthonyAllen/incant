@@ -80,8 +80,11 @@ define
                 if prevOp == 1;     pre = cur;
                 else
                     op      = cur;
+                    // tiers (SEQ 434): 1 arithmetic folds at once; 2 compare, 3 logic, 4 assign each wait in their own pending slot
                     kind    = 1;
-                    if *cur["assignTier"] || *cur["shortCircuit"];  kind = 2;
+                    if *cur["compareTier"];     kind = 2;
+                    if *cur["shortCircuit"];    kind = 3;
+                    if *cur["assignTier"];      kind = 4;
                 prevOp = 1;
             else
                 prevOp = 0;
@@ -113,29 +116,49 @@ define
                             instruct    +% op target arg;
                             instruct.methoD = "testOP";
                             target      := copyOf(instruct);
-                        or kind == 2;
-                            if assign.datA != 0;
-                                print "Has assign":;
-                                instruct +% op target arg;
-                                instruct.methoD = "testOP";
-                                *assign     +% copyOf(instruct);
-                                arg         = copyOf(assign);
-                                clear(assign);
-                            else
-                                print "Get assign":;
-                                instruct +% op target;
-                                instruct    = kind;
-                                instruct.methoD = "testOP";
-                                assign      := copyOf(instruct);
+                        else
+                            // a looser operator first closes every tighter slot into the target; an equal one closes its own, so a tier reads left to right; assign never closes assign
+                            if kind >= 2;
+                                if cmpP.datA != 0;
+                                    *cmpP   +% *target;
+                                    target  = cmpP;
+                                    clear(cmpP);
+                            if kind >= 3;
+                                if logP.datA != 0;
+                                    *logP   +% *target;
+                                    target  = logP;
+                                    clear(logP);
+                            print "Pend tier" kind:;
+                            instruct +% op target;
+                            instruct    = kind;
+                            instruct.methoD = "testOP";
+                            if kind == 2;   cmpP := copyOf(instruct);
+                            if kind == 3;   logP := copyOf(instruct);
+                            // a second assign nests: it becomes the pending one's argument, completed at the end; asgO keeps the outermost
+                            if kind == 4;
+                                if asgP.datA != 0;
+                                    newA    := copyOf(instruct);
+                                    *asgP   +% *newA;
+                                    if asgO.datA == 0;  asgO = asgP;
+                                    asgP    = newA;
+                                else    asgP := copyOf(instruct);
                             target = arg;
                     clear(instruct);
                     clear(arg);
                     clear(op);
             cur := *cur.nexT;
-        if assign.datA != 0;
+        // the end closes the slots tightest first
+        if cmpP.datA != 0;
+            *cmpP +% *target;
+            target = cmpP;
+        if logP.datA != 0;
+            *logP +% *target;
+            target = logP;
+        if asgP.datA != 0;
             print "Assign at end":;
-            *assign +% *target;
-            target = assign;
+            *asgP +% *target;
+            target = asgP;
+            if asgO.datA != 0;  target = asgO;
         // the chain goes INTO this rule's label, so a caller (InvokeD, or a command line) gets the label back
         *argument := *target;
         print "We done":;
@@ -213,8 +236,12 @@ arriving then is a PENDING PREFIX (pre) that wraps the next operand (negate / de
 binary op. qc - - qa, - qa + qb, qa - - qb + qc, * qa + qb, righty = - qa + qb now build right. Running a unary through
 testOP needs branch testop-unary-slot (testOP read slot 3; the unary operand is in slot 2) -- until it is bought,
 testOP on a chain with a prefix exits 139. The old `or *target.instructTypE != 0; kind = 3;` rule is gone with kind 3.
-Still open: compare tier and assign-vs-|| tier (righty = 42 || qb > qc builds (righty = (42 || qb)) > qc); InvokeR attaches
-Operators["call"] whatever op it picked; a null reaching +% / + crashes in the engine instead of refusing.
+Tiers (Clod, SEQ 434, 2026-10-27): arithmetic folds at once; compare (compareTier), logic (shortCircuit) and assign
+(assignTier) each wait in their own pending slot (cmpP, logP, asgP). A looser operator first closes every tighter slot
+into the target, an equal one closes its own (so a tier reads left to right, as kant does: qc > qa || qa > qc && qb > qc
+is 0), and assign never closes assign. The end closes the slots tightest first. qa > qb + qc, righty = 0 || qb > qc and
+qa > qc && qb > qc || qc > qa now build as kant reads them (testerChainT TC-3c, TC-4b, TC-11, TC-12). Still open: a
+third assign is untested (a second nests through asgO, measured); + on a null target now refuses by name (op-own-write).
 Harder expressions for xpListTest, each with a pinned trunk answer in exprPinT to compare against:
 - qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
 - xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
