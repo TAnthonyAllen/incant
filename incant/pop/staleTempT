@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+register(StaleTempT);
+define
+    qa=2;
+    sab="ab";
+    sr;
+    sx;
+    gg;
+    ;
+search Generating UnitTests Utilities StaleTempT list;
+stop();
+
+staleTempT -- SEQ 432 (2026-10-27): F-144, an arithmetic operator that cannot use its operand hands back the SHARED
+tempField -- the previous computation's value -- instead of its named refusal. Measured in kant (plain statements).
+
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then a define with
+one action R = `sr = 9; <pre> sr = <expr>;`, then R(), a value line and a sentinel. One process per row, because the
+control needs a process in which no computation has run before it: tempField is never cleared, so a control placed after
+any stale row would read that row's leak.
+
+Each row reads sr after the statement, and counts the REFUSED lines (H4: presence with a value, never absence).
+gg is declared and holds no data, so no arm of + - * / can use it; sab is a STRING, which unary - cannot negate.
+Stale rows: pre = `sx = 70 + 7;` leaves 77 in tempField. Today sr reads 77 and nothing refuses; intended sr keeps 9 and
+the operator refuses by name. Controls: pre = `sx = 77;` computes nothing -- they refuse today and must refuse after.
+
+ROWS (id | pre | expression)
+ST-1|sx = 70 + 7;|qa + gg
+ST-2|sx = 70 + 7;|qa - gg
+ST-3|sx = 70 + 7;|qa * gg
+ST-4|sx = 70 + 7;|qa / gg
+ST-5|sx = 70 + 7;|- sab
+SC-1|sx = 77;|qa + gg
+SC-2|sx = 77;|qa - gg
+SC-3|sx = 77;|qa * gg
+SC-4|sx = 77;|qa / gg
+SC-5|sx = 77;|- sab

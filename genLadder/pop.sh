@@ -6412,6 +6412,41 @@ TC-10|4||139 0
 TCROWS
 fi
 
+#  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED
+#  tempField to decide whether it produced a value, so after a computation it hands back that computation's value (77)
+#  instead of refusing. Measured in kant, one process per row (the control needs a process where nothing has computed).
+#  BORN RED: ST-1..ST-5 read 77 with no refusal. # intended: sr keeps 9, one REFUSED line. SC-1..SC-5 are the controls:
+#  they refuse today and must refuse after.
+_stF=$(ip staleTempT)
+if [ -f "$_stF" ]; then
+_stv () { sed -n "s/^$2 \[ *\([^ ]*\) *\].*/\1/p" "$1"; }
+#  id | sr today | refusals today
+while IFS='|' read -r _id _sv _rc; do
+    _row=$(grep "^$_id|" "$_stF"); _pre=$(echo "$_row" | cut -d'|' -f2); _xp=$(echo "$_row" | cut -d'|' -f3)
+    { sed '/^stop();/,$d' "$_stF"
+      printf 'register(StaleTempRow);\ndefine\n    R code={ sr = 9; %s sr = %s; };\n    ;\nsearch StaleTempRow Generating UnitTests Utilities StaleTempT list;\nR();\ncerr "%s [" sr "]":;\ncerr "STALETEMP SENTINEL":;\nstop();\n' "$_pre" "$_xp" "$_id"; } > "$T/st.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/st.$_id.k" > "$T/st.$_id" 2>&1; _x=$?
+    _sn=$(grep -c '^STALETEMP SENTINEL' "$T/st.$_id"); _rf=$(grep -c '^REFUSED ' "$T/st.$_id")
+    kindRow "staleTempT $_id exit / sentinel: $_pre $_xp" "$_x $_sn" "0 1"
+    if [ "${_id%%-*}" = "SC" ]; then
+        kindRow "staleTempT $_id control sr / refusals: $_pre $_xp" "$(_stv "$T/st.$_id" $_id) $_rf" "$_sv $_rc"
+    else
+        fdRow "staleTempT $_id sr / refusals: $_pre $_xp" "$(_stv "$T/st.$_id" $_id) $_rf" "$_sv $_rc" "9 1"
+    fi
+done <<'STROWS'
+ST-1|77|0
+ST-2|77|0
+ST-3|77|0
+ST-4|77|0
+ST-5|77|0
+SC-1|9|1
+SC-2|9|1
+SC-3|9|1
+SC-4|9|1
+SC-5|9|1
+STROWS
+fi
+
 #  ⚑ jitContinueRT -- SEQ 409 R2 (2026-10-23): A `continue` IN A HANDED-OVER STATEMENT IS DROPPED (jitStmtRT honours only
 #  `return`). BORN RED, silent: PC-1 3. # intended: the twin's 2.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitContinueRT)" > "$T/jcr" 2>&1; check "jitContinueRT runs" 0 $?
