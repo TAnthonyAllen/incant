@@ -1,4 +1,4 @@
-# ⚠⚠⚠ SEALED 2026-10-27 (236) ON TRUNK -- PAUSE. SEQ 439 RUNG A's READ-BACK STOPPED AT R2: NO KANT SPELLING FIRES A RULE'S ACTION ON A LABEL.
+# ⚠⚠⚠ SEALED 2026-10-27 (236) ON TRUNK -- SHUTDOWN (Tony, 12:17; kitchen clean). SEQ 439 RUNG A's READ-BACK STOPPED AT R2: NO KANT SPELLING FIRES A RULE'S ACTION ON A LABEL.
 #
 #   ## THE OPENER: Tony's word on the smallest addition. One plain line: tell() parses EXPRESSIOn fine, but nothing in
 #   kant today can then run EXPRESSIOn's action on the label tell() hands back -- so step 2 of the read-back has no
