@@ -21,6 +21,10 @@ prints the tag kv, bear-trap 26); s = a statement, righty read afterwards.
 Measured on the way: kant's `||` yields a TRUTH, so `righty = 42 || qb > qc` leaves righty 1, not 42. TC-4 agrees today
 by coincidence; TC-4b (`righty = 0 || ...`) is the row that tells the tier apart. TC-3b agrees by coincidence too
 (`(qc > qa) + 1` is still truthy); it is the true sibling, and TC-3c is the discriminator.
+TC-11..TC-15 (SEQ 434, pre-registering the tier split): kant's logic tier reads LEFT TO RIGHT as one tier -- TC-13
+`qc > qa || qa > qc && qb > qc` is 0 in kant, where && binding tighter than || would give 1. TC-11 (logic left to right)
+and TC-12 (a compare's right side carrying arithmetic, under ||) disagree today; TC-13, TC-14 (assign over logic over
+compare) and TC-15 (arithmetic on a compare's LEFT) agree today and must still agree after.
 
 ROWS
 TC-1|v|qa * qb + qc
@@ -37,3 +41,8 @@ TC-7|v|qc - - qa
 TC-8|v|fId(qa + qb) * qc
 TC-9|v|qa + fNest(qb) + qc
 TC-10|v|qa[qb] + qc
+TC-11|t|qa > qc && qb > qc || qc > qa
+TC-12|t|qa > qb + qc || qc > qa
+TC-13|t|qc > qa || qa > qc && qb > qc
+TC-14|s|righty = qc > qa && qb > qa
+TC-15|t|qa + qb > qc

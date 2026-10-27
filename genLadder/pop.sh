@@ -6379,8 +6379,8 @@ if [ ! -f "$_tcS" ]; then echo "  FAIL  testerChainT: $_tcS MISSING"; fail=1; el
 _tcN=$(awk '/^stop\(\);/{exit} /^    ;$/{n=NR} END{print n}' "$_tcS")
 if [ -z "$_tcN" ]; then echo "  FAIL  testerChainT: tester's define block end not found (the fixture is coupled to its shape)"; fail=1; fi
 _tcv () { sed -n "s/^$2 $3 \[ *\([^ ]*\) *\].*/\1/p" "$1"; }
-#  id | kant | chain today | exit today
-while IFS='|' read -r _id _kv _ct _ex; do
+#  id | kant | chain today | exit today [| intended, where it is not kant's value -- TC-10, SEQ 434]
+while IFS='|' read -r _id _kv _ct _ex _in; do
     _row=$(grep "^$_id|" "$_tcF"); _md=$(echo "$_row" | cut -d'|' -f2); _xp=$(echo "$_row" | cut -d'|' -f3-)
     { head -n "$_tcN" "$_tcS"; sed '/^stop();/,$d' "$_tcF"
       case $_md in
@@ -6391,9 +6391,13 @@ while IFS='|' read -r _id _kv _ct _ex; do
       printf 'cerr :;\ncerr "TESTERCHAIN SENTINEL":;\nstop();\n'; } > "$T/tc.$_id.k"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/tc.$_id.k" > "$T/tc.$_id" 2>&1; _x=$?
     _sn=$(grep -c '^TESTERCHAIN SENTINEL' "$T/tc.$_id")
-    kindRow "testerChainT $_id kant: $_xp" "$(_tcv "$T/tc.$_id" $_id kant)" "$_kv"
+    if [ -n "$_in" ]; then
+        fdRow "testerChainT $_id kant: $_xp" "$(_tcv "$T/tc.$_id" $_id kant)" "$_kv" "$_in"
+    else
+        kindRow "testerChainT $_id kant: $_xp" "$(_tcv "$T/tc.$_id" $_id kant)" "$_kv"
+    fi
     fdRow "testerChainT $_id exit / sentinel: $_xp" "$_x $_sn" "$_ex" "0 1"
-    fdRow "testerChainT $_id chain: $_xp" "$(_tcv "$T/tc.$_id" $_id chain)" "$_ct" "$_kv"
+    fdRow "testerChainT $_id chain: $_xp" "$(_tcv "$T/tc.$_id" $_id chain)" "$_ct" "${_in:-$_kv}"
 done <<'TCROWS'
 TC-1|10|10|0 1
 TC-2|3|3|0 1
@@ -6408,7 +6412,12 @@ TC-6|1|1|0 1
 TC-7|6|6|0 1
 TC-8|20||139 0
 TC-9|10||139 0
-TC-10|4|0|0 1
+TC-10|4|0|0 1|0
+TC-11|1|0|0 1
+TC-12|1|0|0 1
+TC-13|0|0|0 1
+TC-14|1|1|0 1
+TC-15|1|1|0 1
 TCROWS
 #  ⚠ SEQ 432 (2026-10-27): + refuses a null TARGET by name (R1). TC-10 stopped crashing: its chain hands + a null (qa[qb]
 #  misses) and now reads the refusal -- 0, where kant reads 4 (kant's own road does not refuse it; not ruled). TC-3 moved
@@ -6417,9 +6426,16 @@ TCROWS
 #  TC-3's is pinned RED ON PURPOSE (# intended: 0 refusals, once the tier split groups qa > (qb + qc)).
 #  The `cerr :;` before the sentinel: a chain value that is null prints without its line end, so the sentinel landed on
 #  the chain's line and the line-start grep missed it (TC-10 read exit 0, sentinel 0 with the sentinel printed).
+#  ⚠ RE-PINNED SEQ 434 (Tony, 2026-10-27, R0 / R1): a subscript of a field with no list REFUSES BY NAME, so qa[qb] + qc
+#  refuses -- TC-10's intended is the refusal on BOTH roads, read as 0 (kv keeps its preset 0; a null chain value prints 0),
+#  with the refusal row below as the presence assertion. The chain meets it today (by +'s null-target refusal; the
+#  subscript itself does not yet refuse in its own name). Kant's own road reads 4, silently: a defect, pinned born red on
+#  the kant row, its cure queued in TODO.md after TC-8.
 _tcr () { grep -c "^REFUSED (none) -- Operator + -- a target that is nothing" "$1"; }
 kindRow "testerChainT TC-10 refuses + on a null target by name" "$(_tcr "$T/tc.TC-10")" "1"
 fdRow "testerChainT TC-3 refusals: green by the null-target refusal, not by the tier" "$(_tcr "$T/tc.TC-3")" "1" "0"
+#  TC-12 (SEQ 434): the same mis-grouping under || -- (qa > qb) + qc hands + a null today. # intended: 0 after the tier split
+fdRow "testerChainT TC-12 refusals: the null-target refusal of a mis-grouped compare" "$(_tcr "$T/tc.TC-12")" "1" "0"
 fi
 
 #  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED
