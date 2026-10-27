@@ -281,6 +281,24 @@ Rung A read-back (SEQ 439, 2026-10-27; R0 tell() unchanged, R1 parse / fire /
    from kantGrammar (INVOKEd / INVOKEr / EXPRESSIOn's action there), and a print
    after the call prints (SEQ 440 R3). fire returns only if a rung needs
    parse-then-fire later.
+PRINt census (SEQ 441, 2026-10-27; read-only, taps in scratch): a PRINt instruct
+   can be BUILT from what exists (kant, as EXPRESSIOn's action builds); it cannot
+   be RUN -- no method prints a value handed to it. Smallest missing piece: one
+   unary op an instruct carries, (GroupItem items) -> pop a buffer, per item run
+   it if it is an instruct (testOP), appendGroup(item, its FORMAt, buffer), then
+   opPrint(item, buffer). Rung 1 needs stdout (opPrint, honouring printTO) only;
+   cerr / cout are siblings (opCerr, opCout) for later.
+   aCTionPrinT (ruleActions.rtn:738): jitting arm BUILD only (emits jitPrintBegin,
+   per item jitPrintList / jitEmitBareRead + jitPrintNode / jitPrintItem, then a
+   call to opPrint); interpreted arm RUN only (appendPrintXP runs each item's
+   method and formats it, opPrint flushes) -- it builds nothing that outlives it.
+   PRINt under kantGrammar has NO action: setActions dlsyms aCTionPRINt, which
+   does not exist. Reached three ways, measured: KantGrammar["PRINt"] (found only
+   because of the `KantGrammar isRule;` line -- toggled both ways), WARDEd("..."),
+   STATEMENt / STARt("print 77:; print 88:;") (both parse, EXPRESSIOn's action
+   fires per print, nothing prints). jitting's one writer is jitBuildFunction,
+   reached only through testing(), jitter(), jitFieldMethod, probeDrive -- none on
+   rung 1's road.
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
