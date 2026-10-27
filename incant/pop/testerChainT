@@ -25,6 +25,10 @@ TC-11..TC-15 (SEQ 434, pre-registering the tier split): kant's logic tier reads 
 `qc > qa || qa > qc && qb > qc` is 0 in kant, where && binding tighter than || would give 1. TC-11 (logic left to right)
 and TC-12 (a compare's right side carrying arithmetic, under ||) disagree today; TC-13, TC-14 (assign over logic over
 compare) and TC-15 (arithmetic on a compare's LEFT) agree today and must still agree after.
+TC-16 and TC-17 were REGISTERED AFTER THE BUILD (tier-split branch), their old values measured on the pre-split tester:
+TC-16 a chained assign (old 2, kant 5; the split's nesting), TC-17 T || F && T (old 0, kant 1). TC-17 is the H7 row for
+"an equal tier closes its own slot": TC-11 and TC-13 stay green with that close removed, because the half it loses does
+not change their answer (H17).
 
 ROWS
 TC-1|v|qa * qb + qc
@@ -46,3 +50,5 @@ TC-12|t|qa > qb + qc || qc > qa
 TC-13|t|qc > qa || qa > qc && qb > qc
 TC-14|s|righty = qc > qa && qb > qa
 TC-15|t|qa + qb > qc
+TC-16|s|righty = kv = qa + qb
+TC-17|t|qc > qa || qa > qc && qb > qa
