@@ -299,6 +299,10 @@ PRINt census (SEQ 441, 2026-10-27; read-only, taps in scratch): a PRINt instruct
    fires per print, nothing prints). jitting's one writer is jitBuildFunction,
    reached only through testing(), jitter(), jitFieldMethod, probeDrive -- none on
    rung 1's road.
+Rung 1's build (Tony, ruled 2026-10-27, "keep it simple"): opPrintList as above,
+   stdout and whatever appendGroup gives, no cerr / cout / printTO variants; PRINt's
+   kant action only builds one instruct (op opPrintList, argument the list);
+   aCTionPrinT untouched. Certificate: prints what old PrinT("print 77:;") prints.
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 

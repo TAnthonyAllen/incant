@@ -1,8 +1,11 @@
-# ⚠⚠⚠ SEALED 2026-10-27 (238) ON TRUNK -- SHUTDOWN (Tony, 16:22; kitchen clean). TONY ASSESSES THE PRINt CENSUS (SEQ 441, read-only, nothing built).
+# ⚠⚠⚠ SEALED 2026-10-27 (238) ON TRUNK -- SHUTDOWN (Tony, 16:22; kitchen clean). THE OPENER: RUNG 1's BUILD -- opPrintList + PRINt's kant action.
 #
-#   ## THE OPENER: Tony's assessment. One plain line: a PRINt instruct can be BUILT from what exists, but nothing can
-#   RUN it -- no method prints a value it is handed; the smallest missing piece is one unary op (pop a buffer, append
-#   each item, running an instruct item first, then opPrint). Plan block "PRINt census" carries the detail.
+#   ## THE OPENER (ruled, Tony 2026-10-27, "keep it simple"): build rung 1. (a) opPrintList -- a unary op: pop a buffer,
+#   for each item run it first if it is an instruct (testOP), append it with appendGroup, flush through opPrint. Covers
+#   stdout and whatever appendGroup already gives; NO cerr / cout / printTO variants. (b) PRINt's kant action in
+#   kantGrammar ONLY BUILDS: one instruct, op opPrintList, argument the list. aCTionPrinT untouched.
+#   CERTIFICATE: the new road prints what the old PrinT("print 77:;") prints (77). Plan "PRINt census" has the map.
+#   Census line (SEQ 441): a PRINt instruct could be built from what existed, not run -- this build is that piece.
 #
 #   ## TODAY (scratch taps, 20 s alarm, sources md5-identical after): aCTionPrinT's jit arm builds only, its interpreted
 #   arm runs only. PRINt under kantGrammar has NO action (dlsym aCTionPRINt, absent). PRINt IS found by name now --
