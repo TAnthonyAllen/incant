@@ -259,6 +259,23 @@ Rung A (SEQ 438, 2026-10-27): STOPPED at R2 -- the read-back via tell()'s reply
    file was then swallowed by a runaway Token repetition -- not chased.
    Including kantGrammar after tester's define block DID load (SEQ 436's miss is
    not general).
+Rung A read-back (SEQ 439, 2026-10-27; R0 tell() unchanged, R1 parse / fire /
+   run as three steps): STOPPED at R2 -- NO KANT SPELLING TODAY FIRES A RULE'S
+   ACTION ON A LABEL. Measured in scratch, each under a 20 s alarm, the fitted
+   action carrying an entry marker; tell("EXPRESSIOn qa + 1") 6 of 6 first:
+     EXPRESSIOn(label)  -- the action runs, but as a fresh PARSE: it then reads
+                           past into the file (runaway Token repetition), alarm
+     naming the label as a statement (lab;, and one level deeper) -- no fire
+     truth-testing it (if *rp;, if **lb;) -- answers true, no fire
+   The reply is two levels down (reply -> the EXPRESSIOn label -> lizted), and
+   that label is a SPECIMEN: canonOf says it is its own canon with no rStuff
+   (copyOf carries none, Ruling D), so it has no link back to its rule. The rule
+   KantGrammar["EXPRESSIOn"] has its rStuff.
+   Smallest addition (not built): a command fire(label) -- C++, wired as an
+   immediateAction (with its groups.ext line) -- that finds the rule by the
+   label's tag through the search list, runs that rule's code action with the
+   label as its argument, and hands back what the action returns. No parse, no
+   input. The fallback (action stashes, direct call) not taken (R2).
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
