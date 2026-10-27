@@ -187,8 +187,37 @@ R5  (SEQ 435 R1, 2026-10-27) Chained assign is accepted: a = b = c assigns
 Starting point: kantGrammar, a copy of grammar with rules renamed per R0, its
 collision grep and its list of shared rules (TODO.md; after the tier split,
 ahead of rung 1).
-Order (SEQ 435, 2026-10-27; op-own-write and tier-split bought): kantGrammar,
-rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
+kantGrammar (SEQ 436, 2026-10-27): incant/kantGrammar, registry KantGrammar.
+    Source: incant/grammar, the only file Grokking reaches -- at run time
+    Grokking's 85 members are incant/grammar's rules (nested ones registered
+    flat) plus the C++ bootstrap seeds (GroupMain); nothing else feeds it.
+    Copied: the live define region; inner comments and the parked HeX left out.
+    Renamed (39): EXPRESSIOn STATEMENt ELSe SHORTCUt ANYSTRINg BLOCk BRANCHEs
+    PRECISIOn FORMAt PRINTXp PRINTFIELd ITERSOURCe INVOKEARg BRACEd PARENs
+    ANYORNUm TOKEn STRINGXp SCOPEFIELd LOOPEr LOOPRESTRICt BASICELSe ELSEIf
+    WARDEd DEBUg DEf Do If FOr WHILe PRINt CERr COUt SEARCh BRANCh SCOPEXp
+    XPRESs ITERATe STARt.
+    SHARED, each a known choice -- referenced, never redefined:
+        TOKENize (cOMMANDs), DEFINing, PRINTing, ANYtoken (R1 / SEQ 436 R2);
+        followedBy (a leaf every keyword rule uses);
+        the C++ bootstrap seeds NamE, NumbeR, QuotE, SemI, GrouP, define,
+        counter (no file to copy them from);
+        Operators and its UnaryOPS bin (a registry, not a rule).
+    COPIED WITH THEIR SPELLINGS UNCHANGED (a bin member or literal leaf IS its
+    spelling): break, continue, return (BRANCHEs; also in Keywords);
+    loopOnAttributes, loopOnMembers (LOOPRESTRICt). These re-mint Grokking's
+    names in KantGrammar -- a known choice, Tony's to rule.
+    Term labels (stuff, pound, leftCurly, the keyword terms if, while ...) are
+    not rules and keep their names. Actions are as copied: a rule whose C++
+    action is found by name (aCTion + its name) finds none under its new name.
+    Collision check (genLadder/kantGrammarNames.sh, against the RUNNING
+    registries: 14 registries, 497 members, kantGrammar not loaded): controls
+    TOKENize found (cOMMANDs), if found (Keywords), If not found; 40 new names
+    (the 39 + KantGrammar), 0 collisions; every renamed rule registered by the
+    load (incant/probes/kantGrammarLoad). H7: Start in place of STARt reports
+    COLLISION Start in Grokking, exit 1. Case-only near-matches (If ~ IF, if)
+    are by design under R0.
+Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
 /*******************************************************************************

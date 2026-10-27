@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(KgNames);
+define
+    kgN=0;
+    kgReg code={
+        iterate kgM on argument;
+        while ++kgM;
+            kgOne(*kgM);
+        };
+    kgOne code={ cerr "KGM " taG:; };
+    kgWalk code={
+        iterate kgR on registries;
+        while ++kgR;
+            kgHead(*kgR);
+        };
+    kgHead code={
+        cerr "KGR " taG:;
+        kgReg(argument);
+        };
+    ;
+kgWalk();
+cerr "KG SENTINEL":;
+stop();
+
+kantGrammarNames -- SEQ 436 R3 (2026-10-27). Run by genLadder/kantGrammarNames.sh, not alone.
+It walks every registry the runtime keeps (the `registries` registry), printing KGR <registry> then KGM <member> for
+each member. kantGrammar is NOT loaded here, so the dump is the world the new names must not collide with. Its sibling
+incant/probes/kantGrammarLoad loads the file and lists what it registered.

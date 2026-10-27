@@ -1,0 +1,86 @@
+/*****************************************************************************
+    kantGrammar -- the new grammar's starting file (SEQ 436, 2026-10-27).
+
+    A copy of the live region of incant/grammar (the Grokking define), with
+    every rule it defines renamed UPPERCASe: uppercase, the last letter
+    lowercase. Nothing loads this file yet. Rung 1 reaches it by swapping
+    Grokking in the search list for KantGrammar, and is where the actions
+    change; here they are as copied. Note that a rule whose C++ action is
+    found by its name pattern (aCTion plus the rule name) finds none under
+    its new name; explicit ruleMethod and parseAction attributes are kept.
+
+    Shared, referenced by name and never redefined here, so the old
+    definitions answer: TOKENize, DEFINing, PRINTing, ANYtoken, followedBy,
+    the bootstrap rules NamE, NumbeR, QuotE, SemI, GrouP, define and counter,
+    the Operators registry and its UnaryOPS bin. Copied with their spellings
+    unchanged, because a bin member or a literal leaf is its spelling: break,
+    continue and return in BRANCHEs; loopOnAttributes and loopOnMembers in
+    LOOPRESTRICt. Term labels (stuff, pound, leftCurly and the keyword terms
+    such as if and while) are not rules and keep their names.
+    The list of shared names, with the collision report, is in the plan of
+    record, IncantForms/WorkingOn/macros.
+*****************************************************************************/
+registry(KantGrammar);
+define
+    EXPRESSIOn guard="^,;{}[]`";
+    STATEMENt guard=[{A-Za-z0-9+-;(];
+    ELSe;
+
+    SHORTCUt=[-+~`$_:,]+;
+    ANYSTRINg=[^ \n\r\t;]+;
+    BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"- defer;
+    BRANCHEs bin
+        break;
+        continue;
+        return;
+    PRECISIOn       dot='.' precision=counter*;
+    FORMAt          pound="#" flags=[-# 0+']* formatWIDTH?=NumbeR PRECISIOn? formatTYPE=[a-zA-Z] TOKENize;
+    PRINTXp
+        SHORTCUt;
+        PRINTFIELd  EXPRESSIOn FORMAt?;
+    ITERSOURCe      UnaryOPS? ANYtoken;
+    INVOKEARg
+        BRACEd      leftBrace-="[" EXPRESSIOn rightBrace-="]";
+        PARENs      leftParen-="(" EXPRESSIOn? rightParen-=")";
+    ANYORNUm
+        NumbeR;
+        ANYtoken;
+    TOKEn
+        QuotE;
+        NumbeR;
+        STRINGXp    pound-="#" stuff=PRINTXp+ defer;
+        ANYORNUm;
+        INVOKEARg;
+        Operators;
+    EXPRESSIOn      TOKEn+;
+    SCOPEFIELd
+        ANYtoken;
+        NumbeR;
+    LOOPEr=ANYtoken;
+    LOOPRESTRICt
+        loopOnAttributes="attributes";
+        loopOnMembers="members";
+    ELSe
+        BASICELSe   else- followedBy STATEMENt@ defer;
+        ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF defer;
+    WARDEd
+        DEBUg       debug- followedBy rules?=NamE+ SemI-;
+        DEf         def-="define" followedBy define^;
+        Do          do- followedBy STATEMENt while- EXPRESSIOn SemI- defer;
+        If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe? defer;
+        FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt defer;
+        WHILe       while- followedBy EXPRESSIOn SemI-? STATEMENt defer;
+        PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
+        CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
+        COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
+        SEARCh      search- followedBy GrouP+ SemI-;
+        BRANCh      BRANCHEs EXPRESSIOn? SemI- defer;
+        SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- defer;
+    XPRESs          EXPRESSIOn SemI- defer;
+    STATEMENt
+        SemI;
+        BLOCk;
+        WARDEd;
+        ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe defer;
+        XPRESs;
+    STARt STATEMENt-+;;
