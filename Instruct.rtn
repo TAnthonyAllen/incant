@@ -270,13 +270,16 @@ extern GroupItem opDeref(GroupItem result)
 // opDiv the / operator: always a DOUBLE, even when exact -- 10 / 4 is 2.5
 extern GroupItem opDiv(GroupItem argument,GroupItem target)
 {
+int     wrote = 0;
     if jitting {
         -% return jitEmitBinary(argument, target, jitSDiv); %-
     }
     // alwaysDouble division never changes meaning by operand type, and an exact quotient stays a double so the jit knows the result type at emit time
-    if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN
+    if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN {
         tempField.number = number / argument.number;
-    if !tempField.data {
+        wrote = 1; }
+    // ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (F-144, SEQ 432)
+    if !wrote {
         return refuse(target,"Operator / -- not supported for these operands"); }
     return tempField;
 }
@@ -583,6 +586,7 @@ extern GroupItem opMatch(GroupItem argument,GroupItem target)
 extern GroupItem opMinus(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
+int         wrote = 0;
     if jitting {
         -% return jitEmitBinary(argument, target, jitSub); %-
     }
@@ -592,10 +596,13 @@ GroupRules  ruler = groupRules;
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
         // binaryPromotes a double operand promotes the result; count OP count stays a count (see opPlus)
         if isNUMBER || argument.isNUMBER    tempField.number = number - argument.number;
-        else                                tempField.count  = gCount - argument.count; }
+        else                                tempField.count  = gCount - argument.count;
+        wrote = 1; }
     or (isSTRING || isTOKEN) && argument.count > 0
-        if gCount > argument.count  tempField.text = headToCount(text,gCount - argument.count);
-    if !tempField.data {
+        if gCount > argument.count  {   tempField.text = headToCount(text,gCount - argument.count);
+                                        wrote = 1; }
+    // ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+    if !wrote {
         return refuse(target,"Operator - -- cannot apply to these operands"); }
     return tempField;
 }
@@ -682,6 +689,7 @@ GroupRules  ruler = groupRules;
 // opMultiply the * multiply operator: a double operand promotes the result
 extern GroupItem opMultiply(GroupItem argument,GroupItem target)
 {
+int     wrote = 0;
     if jitting {
         -% return jitEmitBinary(argument, target, jitMul); %-
     }
@@ -690,9 +698,12 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
     if !argument {
         return refuse(target,"Operator * -- an operand that is nothing"); }
     if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN
-        if isNUMBER || argument.isNUMBER    tempField.number = number * argument.number;
-        or isCOUNT                          tempField.count  = count * argument.count;
-    if !tempField.data {
+        if isNUMBER || argument.isNUMBER    {   tempField.number = number * argument.number;
+                                                wrote = 1; }
+        or isCOUNT                          {   tempField.count  = count * argument.count;
+                                                wrote = 1; }
+    // ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+    if !wrote {
         return refuse(target,"Operator * -- cannot apply to these operands"); }
     return tempField;
 }
@@ -758,6 +769,7 @@ extern GroupItem opOR(GroupItem argument,GroupItem target)
 // opPlus the + operator: numbers add (a double operand promotes the result); a string advances by the argument's count
 extern GroupItem opPlus(GroupItem argument,GroupItem target)
 {
+int     wrote = 0;
     if jitting {
         // concatJit a STRING or TOKEN left is a run-time concatenation, published as a node (SEQ 347 R3)
         if target.isSTRING || target.isTOKEN {
@@ -768,14 +780,21 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
     // f41 a refused operand arrives as null -- refuse it by name, beside the wrong-type case each operator already names
     if !argument {
         return refuse(target,"Operator + -- an operand that is nothing"); }
+    // nullTarget a target that is nothing refuses by name too, before any read of it (SEQ 432 R1; testerChainT TC-10 was a crash)
+    if !target {
+        return refuse(target,"Operator + -- a target that is nothing"); }
     // concatLeft a STRING or TOKEN on the left concatenates the right side's text (SEQ 347 R3)
-    if data && (isSTRING || isTOKEN) && argument.data
+    if data && (isSTRING || isTOKEN) && argument.data {
         tempField.text = concatText(text,argument.text);
+        wrote = 1; }
     or data && (argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN) {
         // binaryPromotes a binary op has no count slot to narrow into, so a double operand promotes the result; count OP count stays a count
-        if isNUMBER || argument.isNUMBER    tempField.number = number + argument.number;
-        or isCOUNT                          tempField.count  = gCount + argument.count; }
-    if !tempField.data {
+        if isNUMBER || argument.isNUMBER    {   tempField.number = number + argument.number;
+                                                wrote = 1; }
+        or isCOUNT                          {   tempField.count  = gCount + argument.count;
+                                                wrote = 1; } }
+    // ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+    if !wrote {
         return refuse(target,"Operator + -- cannot apply to these operands"); }
     return tempField;
 }
@@ -1113,12 +1132,16 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
 extern GroupItem opUnaryMinus(GroupItem result)
 {
 GroupRules  ruler = groupRules;
+int         wrote = 0;
     if jitting {
         -% return jitEmitUnary(result, jitNeg); %-
     }
-    if isCOUNT   tempField.count  = 0 - gCount;
-    or isNUMBER  tempField.number = 0 - gNumber;
-    if !tempField.data {
+    if isCOUNT   {  tempField.count  = 0 - gCount;
+                    wrote = 1; }
+    or isNUMBER  {  tempField.number = 0 - gNumber;
+                    wrote = 1; }
+    // ownWrite the operator decides it produced a value by its own write THIS call, never by the shared tempField, which holds the last computation's (see opDiv)
+    if !wrote {
         return refuse(result,"Operator unary - -- cannot apply"); }
     return tempField;
 }

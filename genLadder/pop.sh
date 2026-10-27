@@ -6388,7 +6388,7 @@ while IFS='|' read -r _id _kv _ct _ex; do
       t) printf 'kt = 0;\nif %s;    kt = 1;\ncerr "%s kant [" kt "]":;\nwhatsIt = xpListTest("%s");\nct = 0;\nif testOP(whatsIt);    ct = 1;\ncerr "%s chain [" ct "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
       s) printf '%s;\ncerr "%s kant [" righty "]":;\nrighty = 0;\nwhatsIt = xpListTest("%s");\ntestOP(whatsIt);\ncerr "%s chain [" righty "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
       esac
-      printf 'cerr "TESTERCHAIN SENTINEL":;\nstop();\n'; } > "$T/tc.$_id.k"
+      printf 'cerr :;\ncerr "TESTERCHAIN SENTINEL":;\nstop();\n'; } > "$T/tc.$_id.k"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/tc.$_id.k" > "$T/tc.$_id" 2>&1; _x=$?
     _sn=$(grep -c '^TESTERCHAIN SENTINEL' "$T/tc.$_id")
     kindRow "testerChainT $_id kant: $_xp" "$(_tcv "$T/tc.$_id" $_id kant)" "$_kv"
@@ -6397,7 +6397,7 @@ while IFS='|' read -r _id _kv _ct _ex; do
 done <<'TCROWS'
 TC-1|10|10|0 1
 TC-2|3|3|0 1
-TC-3|0||139 0
+TC-3|0|0|0 1
 TC-3b|1|1|0 1
 TC-3c|0|1|0 1
 TC-4|1|1|0 1
@@ -6408,8 +6408,18 @@ TC-6|1|1|0 1
 TC-7|6|6|0 1
 TC-8|20||139 0
 TC-9|10||139 0
-TC-10|4||139 0
+TC-10|4|0|0 1
 TCROWS
+#  ⚠ SEQ 432 (2026-10-27): + refuses a null TARGET by name (R1). TC-10 stopped crashing: its chain hands + a null (qa[qb]
+#  misses) and now reads the refusal -- 0, where kant reads 4 (kant's own road does not refuse it; not ruled). TC-3 moved
+#  too, unregistered: its chain is mis-grouped (qa > qb) + qc, the false compare is a null target, and its 0 now agrees
+#  with kant's 0 BY THE REFUSAL, not by the tier. The refusal rows below say which: TC-10's is the intended answer;
+#  TC-3's is pinned RED ON PURPOSE (# intended: 0 refusals, once the tier split groups qa > (qb + qc)).
+#  The `cerr :;` before the sentinel: a chain value that is null prints without its line end, so the sentinel landed on
+#  the chain's line and the line-start grep missed it (TC-10 read exit 0, sentinel 0 with the sentinel printed).
+_tcr () { grep -c "^REFUSED (none) -- Operator + -- a target that is nothing" "$1"; }
+kindRow "testerChainT TC-10 refuses + on a null target by name" "$(_tcr "$T/tc.TC-10")" "1"
+fdRow "testerChainT TC-3 refusals: green by the null-target refusal, not by the tier" "$(_tcr "$T/tc.TC-3")" "1" "0"
 fi
 
 #  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED
