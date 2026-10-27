@@ -92,6 +92,30 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-144 — staleTempField: an arithmetic operator's "cannot apply" guard asks the SHARED tempField whether THIS call wrote, so it hands back the previous computation's value
+
+**What.** When no arm of `opPlus` writes (an operand it cannot add, e.g. an unrun instruct), its guard
+`if !tempField.data` reads the shared `ruler.tempField`, which still holds the LAST interpreted computation's
+value -- so it returns that value instead of its named refusal. **Severity: wrong answer at exit 0, silent** --
+and it masked TC-9's H7 (SEQ 431). One channel, two meanings: "the value in flight" and "this call wrote".
+**Where.** `Instruct.rtn` -- opPlus (:778), and the same guard shape in opDiv (:279), opMinus (:598), opMultiply
+(:695), opUnaryMinus (:1121). Measured on opPlus only (**road: interpreted**, reached from testOP's
+`op.operat(argument,target)`, GroupActions.rtn testOP). The other four share the text, not a measurement.
+The kant road (a plain kant statement handing `+` a group) is NOT measured: two probes truncated before the row.
+**Evidence.** 2026-10-27, trunk 06638791, TC-9's input with testOP's two run lines removed (H7, reverted, md5 =
+trunk, rebuilt): fNest never runs and the chain still reads 10 -- the kant line's own result. Varying only the
+kant line: `kv = 70 + 7` -> chain 77; `kv = qa + qc` -> 6; `kv = fNest(70)` -> 71; a literal `kv = 77` (no
+computation) -> 0 with `REFUSED instruct -- Operator + -- cannot apply to these operands`. TC-8 under the same H7
+reads 0 with no refusal: opMultiply's count arm wrote, so the stale guard was not reached.
+**Done when.** A `+` whose arms write nothing refuses by name whatever ran before it, pinned by a row that runs a
+computation first and then hands `+` an unrun instruct (TC-9's H7 red by value is the natural H7 for it).
+**Owner.** Unassigned -- ruling owed (SEQ 431): engine cure on its own branch, or a testOP-local clear.
+```
+ATTEMPT LOG
+  2026-10-27 filed (SEQ 431) from TC-9's masker hunt; measured only, nothing changed. The parse-time suspect
+    (fNest firing during the build, bear-trap #34) is FALSE on live code: traced, fNest runs only at chain time.
+```
+
 ### F-143 — labelHolder: a rule's label reaches its code as a HOLDER, so bare `iterate x on lab` refuses and `$$lab` shows a label inside a label
 
 **What.** In a rule's `code={ }`, the name of a labelled term (`lizted` in `lizted=entries+`) is not the label; it is

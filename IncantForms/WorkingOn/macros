@@ -144,7 +144,7 @@ Every new rule action is kant and returns an instruct.
 *******************************************************************************/
 Every rung runs the same incantation under both grammars and compares output.
     1  two prints in a seq             statements in a chain
-    2  ExpressioN (xpListTest renamed) expressions in the new grammar
+    2  EXPRESSIOn (xpListTest, R0)    expressions in the new grammar
     3  IF                              build an if instruct; then / else
     4  a loop (while or DO)            seq + branch signals: break, continue
     5  an action, called and self-called    the frame bracket
@@ -158,9 +158,29 @@ the list. Jitted: the jitter walks it once at compile time and emits straight-
 line code; seq flattens, if becomes a branch, a loop a back-edge, break a jump.
 
 /*******************************************************************************
+	Rulings for the new grammar (Tony, SEQ 431, 2026-10-27)
+*******************************************************************************/
+R0  New-grammar rules are spelled UPPERCASe: uppercase, last letter lowercase
+    (EXPRESSIOn, STATEMENt, PRINt, If, Do). Replaces rung 2's "xpListTest
+    renamed ExpressioN": rung 2 is EXPRESSIOn.
+R1  TOKENize, DEFINing and PRINTing stay as they are, shared with the old
+    grammar. They already have the shape, so no new rule reuses their exact
+    spellings.
+R2  Arguments with no operator are carried as a list first. No new link field
+    (nextInParent) unless a list is shown not to do the job.
+R3  IF's shape (for later, NOT built now): one instruct in its parent's seq,
+    three operands -- the condition (an expression chain), the then-arm (a seq
+    instruct), the else-arm (a seq instruct, or none). Its method runs the
+    condition, runs one arm, and hands back its own node. Drafted on paper
+    after rung 1 is green.
+Starting point: kantGrammar, a copy of grammar with rules renamed per R0, its
+collision grep and its list of shared rules (TODO.md; after the tier split,
+ahead of rung 1).
+
+/*******************************************************************************
 	Open questions
 *******************************************************************************/
-- What xpListTest is renamed to.
+- ~~What xpListTest is renamed to.~~ EXPRESSIOn (R0).
 - Where a compiled action's seq lives (replacing the BlocK entry, as you said).
-- Argument lists with no operator in sight.
+- Argument lists with no operator in sight: a list first (R2).
 - Whether PrinT is the right first statement or something with no output.
