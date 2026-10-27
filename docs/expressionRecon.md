@@ -64,6 +64,9 @@ clod-to-clay SEQ 222.
 shortcut (`,*x`, `:*x`, any non-operator shortcut, multi-character included); the 10 fixtures' respell belongs to the
 careful build (R2). `return falseResult;` reading truthy is banked as Clod's fixit `falseResultTruthy` (R3). `a = b = c`
 stays HPDL (R4).
+⚠⚠ **SUPERSEDED 2026-10-27 (Tony, SEQ 435 R1): CHAINED ASSIGN IS ACCEPTED -- `a = b = c` is no longer parked.** It
+assigns right to left, as kant's road already does (`righty = kv = qa + qb` leaves both 5, measured), and testerChainT
+TC-16 pins it on the chain. This replaces the 2026-10-06 park (SEQ 310 R4 / SEQ 312 R4) above, which stands as the record.
 
 **M1 -- exprPinT, switch on** (qa=2 qb=10 qc=3):
 

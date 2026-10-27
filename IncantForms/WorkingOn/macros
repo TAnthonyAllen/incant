@@ -173,12 +173,23 @@ R3  IF's shape (for later, NOT built now): one instruct in its parent's seq,
     instruct), the else-arm (a seq instruct, or none). Its method runs the
     condition, runs one arm, and hands back its own node. Drafted on paper
     after rung 1 is green.
+R4  (SEQ 435 R2, 2026-10-27) The expression tiers, as built in tester's
+    xpListTest (tier-split, merged 920d1a81): arithmetic folds at once;
+    compare, logic and assign each wait in their own slot; a looser operator
+    closes every tighter slot into the target first; the same tier closes its
+    own, so a tier reads left to right (kant: qc > qa || qa > qc && qb > qc is
+    0 -- && does not bind tighter than ||); assign never closes assign -- a
+    second assign nests, right to left. The end closes the slots tightest
+    first. testerChainT pins it, row for row against kant's value. This is
+    SEQ 427 R-B's tier rule, which until now lived only as a summary.
+R5  (SEQ 435 R1, 2026-10-27) Chained assign is accepted: a = b = c assigns
+    right to left, as kant's road does (TC-16). Replaces the 2026-10-06 park.
 Starting point: kantGrammar, a copy of grammar with rules renamed per R0, its
 collision grep and its list of shared rules (TODO.md; after the tier split,
 ahead of rung 1).
-Order (SEQ 433, 2026-10-27; op-own-write bought): the tier split, kantGrammar,
-rung 1, TC-8 (* refuses an operand it cannot use), then the op-method split
-recon.
+Order (SEQ 435, 2026-10-27; op-own-write and tier-split bought): kantGrammar,
+rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
+(qa[qb] + qc), then the op-method split recon.
 
 /*******************************************************************************
 	Open questions
