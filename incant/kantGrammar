@@ -22,6 +22,7 @@
 *****************************************************************************/
 registry(KantGrammar);
 define
+    KantGrammar isRule;
     EXPRESSIOn guard="^,;{}[]`";
     STATEMENt guard=[{A-Za-z0-9+-;(];
     ELSe;
@@ -39,20 +40,19 @@ define
         SHORTCUt;
         PRINTFIELd  EXPRESSIOn FORMAt?;
     ITERSOURCe      UnaryOPS? ANYtoken;
-    INVOKEARg
-        BRACEd      leftBrace-="[" EXPRESSIOn rightBrace-="]";
-        PARENs      leftParen-="(" EXPRESSIOn? rightParen-=")";
+    INVOKEd         startBox=[([] xpListTest endParen-?=")" endBrace-?="]";
+    INVOKEr         ANYtoken INVOKEd;
     ANYORNUm
         NumbeR;
         ANYtoken;
     TOKEn
+        InvokeR;
+        ANYtoken;
         QuotE;
         NumbeR;
-        STRINGXp    pound-="#" stuff=PRINTXp+ defer;
-        ANYORNUm;
-        INVOKEARg;
         Operators;
-    EXPRESSIOn      TOKEn+;
+        STRINGXp    pound-="#" stuff=PRINTXp+ defer;
+    EXPRESSIOn      lizted=TOKEn+ SemI?-;
     SCOPEFIELd
         ANYtoken;
         NumbeR;
@@ -83,4 +83,115 @@ define
         WARDEd;
         ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe defer;
         XPRESs;
-    STARt STATEMENt-+;;
+    STARt STATEMENt-+;
+    /*****************************************************************************
+        kantGrammar actions. The actions for the rules defined above are added
+        here as definition extensions. Doing it this way allows a quick view of
+        each rule above without action code getting in the way.
+    *****************************************************************************/
+    INVOKEr code={
+        if *INVOKEd.listLengtH;
+            :INVOKEd startBox xpListTest;
+            arg     = *xpListTest;
+            if *startBox == "(";    op := Operators["call"];
+            else                    op := Operators["=["];
+            instruct    +% *op;
+            instruct    +% unWrap(ANYtoken);
+            instruct    +% *arg;
+            // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- xpListTest binds it on arrival
+            return instruct;
+        return ANYtoken;
+        };
+    EXPRESSIOn code={
+        cur := *lizted.firsT;
+        prevOp = 1;
+        while cur.datA != 0;
+            if *cur.instructTypE != 0;
+                if prevOp == 1;     pre = cur;
+                else
+                    op      = cur;
+                    // tiers (SEQ 434): 1 arithmetic folds at once; 2 compare, 3 logic, 4 assign each wait in their own pending slot
+                    kind    = 1;
+                    if *cur["compareTier"];     kind = 2;
+                    if *cur["shortCircuit"];    kind = 3;
+                    if *cur["assignTier"];      kind = 4;
+                prevOp = 1;
+            else
+                prevOp = 0;
+                if pre.datA != 0;
+                    if *pre.taG == "-";     pre := Operators["negate"];
+                    or *pre.taG == "*";     pre := Operators["deref"];
+                    instruct    +% pre cur;
+                    // an instruct is known by its method: testOP runs it (SEQ 428)
+                    instruct.methoD = "testOP";
+                    opnd        := copyOf(instruct);
+                    clear(instruct);
+                    clear(pre);
+                else    opnd = cur;
+                // InvokeR's call arrives as an instruct without its method; it gets it here, never at InvokeR's return
+                if *cur.taG == "instruct";  *cur.methoD = "testOP";
+                if target.datA == 0;    target = opnd;
+                else    arg = opnd;
+                if op.datA != 0 && target.datA != 0;
+                    if arg.datA != 0;
+                        curTAG  = *cur.taG;
+                        if op.datA;     opTAG = *op.taG;
+                        else            opTAG = "no operator";
+                        if arg.datA;    argTAG = *arg.taG;
+                        else            argTAG = "no argument";
+                        if target.datA; targetTAG = *target.taG;
+                        else            targetTAG = "no target";
+                        print "Build instruction with:" kind curTAG opTAG targetTAG argTAG:;
+                        if kind == 1;
+                            instruct    +% op target arg;
+                            instruct.methoD = "testOP";
+                            target      := copyOf(instruct);
+                        else
+                            // a looser operator first closes every tighter slot into the target; an equal one closes its own, so a tier reads left to right; assign never closes assign
+                            if kind >= 2;
+                                if cmpP.datA != 0;
+                                    *cmpP   +% *target;
+                                    target  = cmpP;
+                                    clear(cmpP);
+                            if kind >= 3;
+                                if logP.datA != 0;
+                                    *logP   +% *target;
+                                    target  = logP;
+                                    clear(logP);
+                            print "Pend tier" kind:;
+                            instruct +% op target;
+                            instruct    = kind;
+                            instruct.methoD = "testOP";
+                            if kind == 2;   cmpP := copyOf(instruct);
+                            if kind == 3;   logP := copyOf(instruct);
+                            // a second assign nests: it becomes the pending one's argument, completed at the end; asgO keeps the outermost
+                            if kind == 4;
+                                if asgP.datA != 0;
+                                    newA    := copyOf(instruct);
+                                    *asgP   +% *newA;
+                                    if asgO.datA == 0;  asgO = asgP;
+                                    asgP    = newA;
+                                else    asgP := copyOf(instruct);
+                            target = arg;
+                    clear(instruct);
+                    clear(arg);
+                    clear(op);
+            cur := *cur.nexT;
+        // the end closes the slots tightest first
+        if cmpP.datA != 0;
+            *cmpP +% *target;
+            target = cmpP;
+        if logP.datA != 0;
+            *logP +% *target;
+            target = logP;
+        if asgP.datA != 0;
+            print "Assign at end":;
+            *asgP +% *target;
+            target = asgP;
+            if asgO.datA != 0;  target = asgO;
+        // the chain goes INTO this rule's label, so a caller (InvokeD, or a command line) gets the label back
+        *argument := *target;
+        print "We done":;
+        return  *argument;
+        };
+    ;
