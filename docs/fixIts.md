@@ -109,11 +109,20 @@ computation) -> 0 with `REFUSED instruct -- Operator + -- cannot apply to these 
 reads 0 with no refusal: opMultiply's count arm wrote, so the stale guard was not reached.
 **Done when.** A `+` whose arms write nothing refuses by name whatever ran before it, pinned by a row that runs a
 computation first and then hands `+` an unrun instruct (TC-9's H7 red by value is the natural H7 for it).
-**Owner.** Unassigned -- ruling owed (SEQ 431): engine cure on its own branch, or a testOP-local clear.
+**Owner.** Clod (SEQ 432 R0: (A) ruled -- each operator decides by its own write; (B) not taken). Closes on the buy.
 ```
 ATTEMPT LOG
   2026-10-27 filed (SEQ 431) from TC-9's masker hunt; measured only, nothing changed. The parse-time suspect
     (fNest firing during the build, bear-trap #34) is FALSE on live code: traced, fNest runs only at chain time.
+  2026-10-27 SEQ 432: the kant road DOES reach every stale check -- `qa + gg`, `qa - gg`, `qa * gg`, `qa / gg`,
+    `- sab` after `sx = 70 + 7` read 77 silently; after `sx = 77` they refuse. No operator is "no road".
+    Pinned on trunk, born red: incant/pop/staleTempT ST-1..ST-5, controls SC-1..SC-5 (d57e5a32).
+  2026-10-27 built on op-own-write (ccd71b04): a local `wrote` in each of the five, set in the arm that writes;
+    opPlus also refuses a null target (R1). Generated diff: those five functions only; canary 374.
+    -> ST-1..ST-5 green (9, one refusal), SC unmoved; TC-10 139 -> named refusal; TC-3 moved too (same refusal).
+    H7 own-write -> tempField read: ST-1..5 back to 77, no refusal. H7 testOP's run removed: TC-9 refuses by name
+    (was the leaked 10). md5 = fix after each.
+  POP: staleTempT ST-1..ST-5 sr / refusals = [9 1] (branch op-own-write, a935b75d; not merged)
 ```
 
 ### F-143 — labelHolder: a rule's label reaches its code as a HOLDER, so bare `iterate x on lab` refuses and `$$lab` shows a label inside a label
