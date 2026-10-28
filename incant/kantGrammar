@@ -112,7 +112,10 @@ define
             else                printItems +% *cur;
             cur := *cur.nexT;
         op := Operators["printList"];
-        instruct    +% op printItems;
+        // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
+        itemsMint   := copyOf(printItems);
+        instruct    +% *op;
+        instruct    +% *itemsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         *argument   := *target;
