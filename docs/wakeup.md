@@ -1,3 +1,58 @@
+# ⚠⚠⚠ SEALED 2026-10-28 (248) ON TRUNK -- STOP (SEQ 450 R3 step 1, measure only). print-reshape BOUGHT AND MERGED; R2 DONE; WAITING FOR TONY'S WORD ON STEP 2.
+#
+#   ## THE OPENER: Tony's word on R3 step 2, with three choices the measurement surfaced (below). One plain line:
+#   formats now print in the new grammar (merged); dropping `#` from the old road's string expression works once
+#   `string` is spelled as a labelled keyword, and moves only rows that a respell or a re-pin brings back.
+#
+#   ## R1 (c51602db): print-reshape merged, bare tokall = the branch's .mm, rebuilt; pop.sh 1982 = the branch
+#   certificate row for row; branch deleted locally and on GitHub. R2 (90de276a): the "had never worked" wording
+#   respelled in printFormatT, GroupActions.rtn, kantGrammar, docs/hashStrings.md; seal 247 gains a correction note.
+#
+#   ## R3 STEP 1 (measure only, a scratch git worktree; nothing in Tony's files changed):
+#   * `string` does NOT lead a string expression on today's old road (`pf1 = string "row" qa;` -> pf1 echoes its tag).
+#     History: f0109779 (2026-07-31, "`#` is the string-expression opener") REPLACED `StringXP string followedBy
+#     PRINTing- ...` with `"#"-`, and 18d53c71 the same day took `string;` out of Keywords. So # was not an alternative.
+#     From f0109779 on, a `#` after an expression is a StringXP -- the structural candidate for when formats broke
+#     (not measured, so R2's "date not measured" stands).
+#   * The scratch therefore restores a lead. Three spellings, one variable each:
+#     - `string- ...`: every new-road drive fails (57 rows) -- genParse names a term's method after its label, the
+#       unlabelled literal emits `string()`, and compiling that refuses "kant has no parenthetical expressions".
+#       Adding `string;` back to Keywords (Tony's guess) does not change it.
+#     - `lead-="string" stuff=PrintXP+`: drives fine, BUT `stringy = 4` reads `y` -- the literal matches a prefix.
+#     - `lead-="string" followedBy stuff=PrintXP+ defer;` -- THE ONE TO USE: `string "row" qa` -> `row 2`,
+#       `stringy` intact. Movers (# strings NOT yet respelled): testUnitTests' body fails at unitTests:310, so
+#       baselineTests testRecursion (2 rows), baselineTestsNew testRecursion + BN-3 go red; printPop red
+#       (printFamily, printFamilyNew truncate at their # strings); followedBy adds one grammar node: itRT / itBackRT /
+#       jitCursorLifeT 249 -> 250 (6 rows), termCountT 668 -> 670 (green). Green count drift: (b) tripwire 2809 -> 2752,
+#       loopVerdict 297 -> 232, probeDoorT IF / WhilE terms +1, tokJitT iterate terms +2. jitLadder, formsPop,
+#       completePop, decodePop, frontier, tester unmoved.
+#   * THE 22 # STRINGS, by name, under the change: utilities 6 -- all in bigifyLayout, which nothing in the tree calls,
+#     so nothing moves; unitTests:310 (testUnitTests) -- the 4 red rows above; generate 8 -- reference only, never
+#     loaded; printFamily :105 :107 :109 :125 and printFamilyNew :204 :206 -- printPop red; baselineTests:31 is NOT a
+#     use, it is the header comment QUOTING the history (`string` was, `#` is) -- respelling it would falsify it.
+#   * formatTest TODAY: prints `formatTest: <tab>` then REFUSED -- `%12s` is not a format spelling: `%` is the remainder
+#     operator ("Formatted" % 12); the refusal silences the rest of the line. `#12s` does not help today either
+#     (`Formatted 12 s`: a StringXP).
+#   * STEP-2 PREVIEW (scratch, $scratch/step2preview.patch): FormaT flags?=[...]+, Precision dot=[.], the 14 code uses
+#     respelled `string`, formatTest as `"Formatted" #12s` -> `formatTest: <tab>is    Formatted maybe`; testRecursion
+#     rows back green; printPop / jitLadder / formsPop / completePop / decodePop / frontier / tester = base; movers left:
+#     the four grammar-node counters (250) and the green drift above.
+#   * THREE CHOICES FOR TONY: (1) Precision `precision?=counter+` moves nothing else but `#.3f` (no width) fails to
+#     match on the old road; `[0-9]+` matches it but leaves the bootstrap rule `counter` unused -- bare-master 22 -> 23
+#     loose, parserCoverage 63 -> 64 rules. Cause of the counter+ difference not measured. (2) THE ROADS BIND A FORMAT
+#     IN OPPOSITE DIRECTIONS: the old road's PrintField is `ExpressioN FormaT?`, so `print qa #5d qb` formats qa
+#     (`    2 3`) and a leading `print #5d qa` does not parse; the new road formats what follows (`2     3`).
+#     formatTest's line is old-road shaped. (3) baselineTests:31 stays as history, or is respelled.
+#
+#   ## CHECKS (trunk, post-merge): canary 381 · pop.sh 1982 = branch certificate · jitLadder PASSED row for row ·
+#   printPop PASSED identical · decodePop = capture (binary line) · ddPop 5 / 1 · dirCheck PASSED 106 of 114 = capture
+#   on rerun (first run 104, F-141, two at once, logged) · frontier = capture · exec bits clean · groups.ext untouched ·
+#   Groups, support, TOK clean and pushed · no incant process.
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-28 (247) ON TRUNK -- PAUSE BEFORE THE BUY. SEQ 449: THE PRINTXp RESHAPE BUILT ON BRANCH print-reshape -- PUSHED, NOT MERGED.
 #
 #   ## THE OPENER: Tony buys or not: print-reshape (2573d47a build, e4e2dc76 H7 note). One plain line: in the new

@@ -218,6 +218,8 @@ ATTEMPT LOG
   2026-10-28 seal 246, dirCheck now over Directives/* (114 directives, SEQ 448 R2): first run of the session 106 of 114,
     the seal run 105 (`runRule if`, parked, line 223 of Directives/GroupRules), rerun 106 = capture. Same tree, no .twk
     touched between. dirCheck.flicker-2026-10-28c.txt. Measured only.
+  2026-10-28 seal 248: first run 104 of 114 -- TWO parked dark at once (`ensureGuard endSetGuard`, `ensureGuard returnGuard
+    before`, Directives/GroupItem lines 31 / 34), rerun 106 = capture. dirCheck.flicker-2026-10-28d.txt. Measured only.
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
