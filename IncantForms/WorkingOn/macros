@@ -311,6 +311,10 @@ Rung 1's build (Tony, ruled 2026-10-27, "keep it simple"): opPrintList as above,
    chased: `print qa qb:;` reaches PRINt as ONE item (EXPRESSIOn's TOKEn+ takes both).
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
+TC-8 CLOSED (SEQ 446 R1, Tony 2026-10-28): green on trunk; its H7 exposure is a class -- an unrun instruct passes
+   as COUNT 0 (+ - / * alike under testOP's H7) -- docketed in TODO.md with the table. Nothing built for *.
+Next (SEQ 446 R2): the seq half of rung 1 -- a STATEMENt list built as one seq instruct, opSeq runs it. Recon and plan
+   first; nothing built until Tony rules on the plan.
 
 /*******************************************************************************
 	Open questions
