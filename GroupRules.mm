@@ -10195,7 +10195,7 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 	else
 	if ( isGROUP(field->groupBody->flags.data) )
 		field = field->getGroup();
-	// formatApplied tok's print never used `format`, so no format ever applied on either road; a format handed in (only opPrintList hands one, SEQ 449) goes through printFormatted
+	// formatApplied tok's print ignores `format`, so no format applies on either road in today's tree (they worked once, Tony; the break is not dated); a format handed in (only opPrintList hands one, SEQ 449) goes through printFormatted
 	if ( format && printFormatted(field,format,buffer) )
 		{
 		if ( GroupControl::groupController->groupRules->useDefaultSpace )

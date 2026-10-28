@@ -34,7 +34,7 @@ every later item of that type, to the end of its print statement. Another format
 of other types keep their own format. The defaults (%d, %.1f, %s) come back at the next print.
 
 THE OLD ROAD IS NOT THE ORACLE HERE. On both roads, before SEQ 449 R1, a `#` after an expression was taken as a STRINGXp:
-the old road prints `print qa #5d:;` as `2 5 d`. A format after an expression never applied there, so these rows pin
+the old road prints `print qa #5d:;` as `2 5 d`. A format after an expression does not apply there in today's tree, so these rows pin
 the INTENDED value (Tony, SEQ 449 R4), and no -o row exists.
 
 BORN RED on trunk (S0), each row's today measured on e0f8e0c0: a print that starts with a format builds no items at
@@ -65,12 +65,13 @@ PF-8 a format lasts to the end of ITS statement: the next print reads the defaul
 GREEN ON BRANCH print-reshape (SEQ 449 R4). Three things stood between FORMAt and a printed format, each measured:
 1. FORMAt never matched a plain `#d`: a set term that matches ZERO characters (`flags=[-# 0+']*`) fails the rule. It
    matched `#0d` and not `#d`. Cure: `flags?=[-# 0+']+` (optional, one or more). The old grammar's FormaT has the same
-   spelling; it was never reached there (a `#` after an expression was a StringXP).
+   spelling; it is not reached there in today's tree (a `#` after an expression is a StringXP).
 2. PRECISIOn's `dot='.'` crashed every format at parse (exit 139, PLGset::set on a null set in ensureGuard): the quoted
    '.' resolves to the `.` OPERATOR field, whose guard is null. Cure: `dot=[.]`, digits `precision?=[0-9]+`. Same
    latent crash in the old grammar's Precision.
-3. printField never applied a format on EITHER road: tok's `print(buffer) gCount` generates appendInt(gCount,0,0) and
-   ignores `format`. printFormatted now applies one when it is handed in (only opPrintList hands one); with none,
+3. printField applies no format on EITHER road in today's tree: tok's `print(buffer) gCount` generates
+   appendInt(gCount,0,0) and ignores `format`. CORRECTED (Tony, SEQ 450 R2): formats worked once; grammar changes broke
+   them; the date is not measured -- this file first said they had never worked. printFormatted now applies one when it is handed in (only opPrintList hands one); with none,
    printField is byte for byte as before, so the old road is unmoved (printPop identical).
 H7, one variable each, rebuilt each time, restored by md5 (2573d47a): the format arm out of printField -> PF-2..PF-8
 print the defaults (2, 2 3, 2.5, ab); the slots made to persist across calls (static) -> PF-8 reads `    2 |    2 |`,

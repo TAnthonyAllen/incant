@@ -6,7 +6,8 @@ that decision has its population. **No respelling was done or is owed.** The old
 `StringXP` in Token) is untouched, so every use below still parses as before.
 
 **The fact that forced it, measured 2026-10-28 (seal 246):** after an expression, `#` is a STRINGXp on BOTH roads.
-The old road prints `print qa #5d:;` as `2 5 d`; a format after an expression never applied there either. So the
+The old road prints `print qa #5d:;` as `2 5 d`; a format after an expression does not apply there either in today's
+tree (formats worked once, Tony; grammar changes broke them; the date is not measured -- SEQ 450 R2). So the
 new road's format rows pin the INTENDED value, not the old road's (R4).
 
 **Population searched, and why it would contain the answer.** Every file under incant/, IncantForms/, XML/,
