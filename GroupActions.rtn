@@ -675,12 +675,17 @@ extern GroupItem pickKindOP(GroupItem op,GroupItem target,GroupItem arg)
 }
 
 
-// printField print the field passed in to the buffer passed in, in its data type's default format
+// printField print the field passed in to the buffer passed in, in its data type's default format, or in the format handed in
 extern void printField(GroupItem field,String format,Buffer buffer)
 {
     if isMethod     field = method(field);
     if !field       field = falseResult;
     or isGROUP      field = group;
+    // formatApplied tok's print never used `format`, so no format ever applied on either road; a format handed in (only opPrintList hands one, SEQ 449) goes through printFormatted
+    if format && printFormatted(field,format,buffer) {
+        if useDefaultSpace  append(' ');
+        return; }
+    use field
     switch(data) {
         case isCOUNT:
             if !format  format = "%d";
@@ -697,6 +702,28 @@ extern void printField(GroupItem field,String format,Buffer buffer)
             if !format  format = "%s";
             print text; }
     if useDefaultSpace  append(' ');
+}
+
+
+// printFormatted print the field in the format handed in (a %-format, its LAST letter its type); 0, printing nothing, when the letter does not fit the field's data type
+extern int printFormatted(GroupItem field,String format,Buffer buffer)
+{
+    -%
+    size_t pfLen = format ? ::strlen(format) : 0;
+    if ( !pfLen ) return 0;
+    char pfType = format[pfLen - 1];
+    char pfOut[256];
+    unsigned int pfData = field->groupBody->flags.data;
+    if ( isCOUNT(pfData) && ::strchr("diuxXoc", pfType) )
+        ::snprintf(pfOut, sizeof pfOut, format, field->groupBody->gCount);
+    else if ( isNUMBER(pfData) && ::strchr("feEgG", pfType) )
+        ::snprintf(pfOut, sizeof pfOut, format, field->groupBody->gNumber);
+    else if ( (isSTRING(pfData) || isTOKEN(pfData)) && pfType == 's' )
+        ::snprintf(pfOut, sizeof pfOut, format, field->getText() ? field->getText() : "");
+    else return 0;
+    buffer->appendString(pfOut,0,0);
+    %-
+    return 1;
 }
 
 

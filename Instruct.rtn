@@ -1002,14 +1002,57 @@ String      printText   = string();
 extern GroupItem opPrintList(GroupItem items)
 {
 GroupItem   grup,
-            value;
+            value,
+            fmtCount,
+            fmtNumber,
+            fmtString;
 Buffer      buffer = bufferSTAK.pop();
+int         kind;
     if !buffer      buffer = new("print buffer");
     while grup = items.next(grup) {
+        // formatItem a format (it carries formatTYPE) prints nothing: it sets its type's slot, and the slots are this call's locals, so a format ends with its statement (Tony, SEQ 449 R4)
+        if grup["formatTYPE"] {
+            kind = printFormatKind(grup);
+            if kind == 1    fmtCount = grup;
+            if kind == 2    fmtNumber = grup;
+            if kind == 3    fmtString = grup;
+            continue; }
         value = grup;
         -% if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); %-
-        appendGroup(value,0,buffer); }
+        appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer); }
     return opPrint(items,buffer);
+}
+
+
+// printFormatKind which type a format item sets, from its LAST letter (TOKENize keeps the whole match, `#8.2f`): 1 count, 2 number, 3 string or token, 0 none
+extern int printFormatKind(GroupItem format)
+{
+String      letter;
+    letter = format.text;
+    if !letter  return 0;
+    -%
+    size_t pfkLen = ::strlen(letter);
+    if ( !pfkLen ) return 0;
+    char pfkType = letter[pfkLen - 1];
+    if ( ::strchr("diuxXoc", pfkType) ) return 1;
+    if ( ::strchr("feEgG", pfkType) )   return 2;
+    if ( pfkType == 's' )               return 3;
+    %-
+    return 0;
+}
+
+
+// implicitFormat the slot for this value's type, or none: a shortcut or a list keeps the defaults (appendGroup hands one format to every member)
+extern GroupItem implicitFormat(GroupItem value,GroupItem fmtCount,GroupItem fmtNumber,GroupItem fmtString)
+{
+GroupItem   probe;
+    if !value || value.isShortcut || value.isLIST   return null;
+    probe = value;
+    if probe.isGROUP && probe.gGroup    probe = probe.gGroup;
+    if probe.isCOUNT                    return fmtCount;
+    if probe.isNUMBER                   return fmtNumber;
+    if probe.isSTRING || probe.isTOKEN  return fmtString;
+    return null;
 }
 
 

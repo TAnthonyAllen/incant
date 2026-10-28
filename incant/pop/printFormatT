@@ -61,3 +61,14 @@ PF-5 a number format on a number: `    2.50 `.
 PF-6 a second count format replaces the first: `    2   3 `.
 PF-7 a string format: `    ab `.
 PF-8 a format lasts to the end of ITS statement: the next print reads the default, `    2 ` then `2 `.
+
+GREEN ON BRANCH print-reshape (SEQ 449 R4). Three things stood between FORMAt and a printed format, each measured:
+1. FORMAt never matched a plain `#d`: a set term that matches ZERO characters (`flags=[-# 0+']*`) fails the rule. It
+   matched `#0d` and not `#d`. Cure: `flags?=[-# 0+']+` (optional, one or more). The old grammar's FormaT has the same
+   spelling; it was never reached there (a `#` after an expression was a StringXP).
+2. PRECISIOn's `dot='.'` crashed every format at parse (exit 139, PLGset::set on a null set in ensureGuard): the quoted
+   '.' resolves to the `.` OPERATOR field, whose guard is null. Cure: `dot=[.]`, digits `precision?=[0-9]+`. Same
+   latent crash in the old grammar's Precision.
+3. printField never applied a format on EITHER road: tok's `print(buffer) gCount` generates appendInt(gCount,0,0) and
+   ignores `format`. printFormatted now applies one when it is handed in (only opPrintList hands one); with none,
+   printField is byte for byte as before, so the old road is unmoved (printPop identical).

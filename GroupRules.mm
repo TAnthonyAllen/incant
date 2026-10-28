@@ -3077,6 +3077,24 @@ extern "C" int hasRepeatClass(char *modifier)
 	return 0;
 }
 
+// implicitFormat the slot for this value's type, or none: a shortcut or a list keeps the defaults (appendGroup hands one format to every member)
+extern "C" GroupItem *implicitFormat(GroupItem *value, GroupItem *fmtCount, GroupItem *fmtNumber, GroupItem *fmtString)
+{
+GroupItem 	*probe = 0;
+	if ( !value || value->groupBody->flags.isShortcut || isLIST(value->groupBody->flags.binType) )
+		return 0;
+	probe = value;
+	if ( isGROUP(probe->groupBody->flags.data) && probe->groupBody->gGroup )
+		probe = probe->groupBody->gGroup;
+	if ( isCOUNT(probe->groupBody->flags.data) )
+		return fmtCount;
+	if ( isNUMBER(probe->groupBody->flags.data) )
+		return fmtNumber;
+	if ( isSTRING(probe->groupBody->flags.data) || isTOKEN(probe->groupBody->flags.data) )
+		return fmtString;
+	return 0;
+}
+
 /*  interpretXPaccum -- ExpressioN's actor, the one expression road (SEQ 311; the old road
     retired 2026-10-13). The grammar hands it a FLAT list of Token terms (TokenXP and UnaryXP
     left the grammar, SEQ 361): a name, a literal, an operator entry, or a GROUP -- a Parens /
@@ -9527,14 +9545,30 @@ extern "C" GroupItem *opPrintList(GroupItem *items)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*value = 0;
+GroupItem 	*fmtCount = 0;
+GroupItem 	*fmtNumber = 0;
+GroupItem 	*fmtString = 0;
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+int 		kind = 0;
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
 	while ( grup = items->next(grup) )
 		{
+		// formatItem a format (it carries formatTYPE) prints nothing: it sets its type's slot, and the slots are this call's locals, so a format ends with its statement (Tony, SEQ 449 R4)
+		if ( grup->get("formatTYPE") )
+			{
+			kind = printFormatKind(grup);
+			if ( kind == 1 )
+				fmtCount = grup;
+			if ( kind == 2 )
+				fmtNumber = grup;
+			if ( kind == 3 )
+				fmtString = grup;
+			continue;
+			}
 		value = grup;
 		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
-		::appendGroup(value,0,buffer);
+		::appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer);
 		}
 	return ::opPrint(items,buffer);
 }
@@ -10151,7 +10185,7 @@ extern "C" GroupItem *plusEQshapeRefusal(char *kind, GroupItem *argument, GroupI
 	
 }
 
-// printField print the field passed in to the buffer passed in, in its data type's default format
+// printField print the field passed in to the buffer passed in, in its data type's default format, or in the format handed in
 extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 {
 	if ( isMethod(field->groupBody->flags.instructType) )
@@ -10161,6 +10195,13 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 	else
 	if ( isGROUP(field->groupBody->flags.data) )
 		field = field->getGroup();
+	// formatApplied tok's print never used `format`, so no format ever applied on either road; a format handed in (only opPrintList hands one, SEQ 449) goes through printFormatted
+	if ( format && printFormatted(field,format,buffer) )
+		{
+		if ( GroupControl::groupController->groupRules->useDefaultSpace )
+			buffer->appendChar(' ',0,0);
+		return;
+		}
 	switch (field->groupBody->flags.data)
 		{
 		case 5:
@@ -10187,6 +10228,45 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 		}
 	if ( GroupControl::groupController->groupRules->useDefaultSpace )
 		buffer->appendChar(' ',0,0);
+}
+
+// printFormatKind which type a format item sets, from its LAST letter (TOKENize keeps the whole match, `#8.2f`): 1 count, 2 number, 3 string or token, 0 none
+extern "C" int printFormatKind(GroupItem *format)
+{
+char 	*letter = 0;
+	letter = format->getText();
+	if ( !letter )
+		return 0;
+	
+	size_t pfkLen = ::strlen(letter);
+	if ( !pfkLen ) return 0;
+	char pfkType = letter[pfkLen - 1];
+	if ( ::strchr("diuxXoc", pfkType) ) return 1;
+	if ( ::strchr("feEgG", pfkType) )   return 2;
+	if ( pfkType == 's' )               return 3;
+	
+	return 0;
+}
+
+// printFormatted print the field in the format handed in (a %-format, its LAST letter its type); 0, printing nothing, when the letter does not fit the field's data type
+extern "C" int printFormatted(GroupItem *field, char *format, Buffer *buffer)
+{
+	
+	size_t pfLen = format ? ::strlen(format) : 0;
+	if ( !pfLen ) return 0;
+	char pfType = format[pfLen - 1];
+	char pfOut[256];
+	unsigned int pfData = field->groupBody->flags.data;
+	if ( isCOUNT(pfData) && ::strchr("diuxXoc", pfType) )
+	::snprintf(pfOut, sizeof pfOut, format, field->groupBody->gCount);
+	else if ( isNUMBER(pfData) && ::strchr("feEgG", pfType) )
+	::snprintf(pfOut, sizeof pfOut, format, field->groupBody->gNumber);
+	else if ( (isSTRING(pfData) || isTOKEN(pfData)) && pfType == 's' )
+	::snprintf(pfOut, sizeof pfOut, format, field->getText() ? field->getText() : "");
+	else return 0;
+	buffer->appendString(pfOut,0,0);
+	
+	return 1;
 }
 
 /*******************************************************************************

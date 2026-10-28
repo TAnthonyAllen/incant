@@ -6531,6 +6531,8 @@ fi
 #  was a STRINGXp on both roads (`print qa #5d:;` -> `2 5 d`), so the rows pin INTENDED values (Tony, R4). One process per
 #  row; a row's stdout less the noise lines, newlines as `|`, is compared. BORN RED on trunk: a print that starts with a
 #  format prints nothing; `qa #5d qb` prints `2 5`. # intended: the fixture's dead region, row by row.
+#  GREEN on print-reshape: PRINTXp FORMAt; SHORTCUt; EXPRESSIOn;, opPrintList keeps one format slot per type as its own
+#  locals (so a format ends with its statement), printFormatted applies it. H7 in the fixture's dead region.
 _pfF=$(ip printFormatT)
 if [ -f "$_pfF" ]; then
 for _id in $(sed -n 's/^\(PF-[0-9]*\)|.*/\1/p' "$_pfF"); do
