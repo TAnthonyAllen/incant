@@ -9612,6 +9612,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
+// opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
+extern "C" GroupItem *opSeq(GroupItem *items)
+{
+GroupItem 	*grup = 0;
+	while ( grup = items->next(grup) )
+		{
+		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) ::testOP(grup); 
+		}
+	return items;
+}
+
 // opSetFlag the :. operator, the inverse of opDot: SET the groupField flag the argument names on target -- it never toggles; explicit operands sidestep processFlags' command detection
 extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 {
