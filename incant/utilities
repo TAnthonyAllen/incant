@@ -369,7 +369,7 @@ define
                 The big band, bigRows tall: left-strip columns, the enlarged
                 cell, then right-strip columns, left to right.
             ***************************************************************/
-                bandName = #$"band" r;
+                bandName = string $"band" r;
                 band <- argument :+ new(bandName);
                 across = 1;
                 band +% across;
@@ -379,7 +379,7 @@ define
                 c = 0;
                 while c < columns;
                     if c == bOC;
-                        bigName = #"big" r;
+                        bigName = string "big" r;
                         big <- band :+ new(bigName);
                         big :. mergeON;
                         big +% bigItem;
@@ -392,7 +392,7 @@ define
                         big +% copyOf(col);
                         c += bigColumns;
                     else
-                        colName = #"strip" c;
+                        colName = string "strip" c;
                         column <- band :+ new(colName);
                         width = colPct;
                         width :. isPercenT;
@@ -400,7 +400,7 @@ define
                         rr = 0;
                         while rr < bigRows;
                             cellRow = bOR + rr;
-                            cellName = #"c" cellRow "x" c;
+                            cellName = string "c" cellRow "x" c;
                             cell <- column :+ new(cellName);
                             cell :. mergeON;
                             cell +% regularItem;
@@ -415,7 +415,7 @@ define
             /***************************************************************
                 A full-width regular row.
             ***************************************************************/
-                rowName = #"row" r;
+                rowName = string "row" r;
                 rowBlock <- argument :+ new(rowName);
                 across = 1;
                 rowBlock +% across;
@@ -424,7 +424,7 @@ define
                 rowBlock +% copyOf(height);
                 c = 0;
                 while c < columns;
-                    cellName = #"c" r "x" c$;
+                    cellName = string "c" r "x" c$;
                     cell <- rowBlock :+ new(cellName);
                     cell :. mergeON;
                     cell +% regularItem;

@@ -124,7 +124,7 @@ define
     commaStuff="44,two,  forty three,six,6.7,ninety one";
     delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
     feeling='having a few doubts ends here';
-    formatTest code={ print "formatTest:" `is "Formatted"%12s maybe:; };
+    formatTest code={ print "formatTest:" `is "Formatted" #12s maybe:; };
     ifTest code={
         print "ifTest test:":;
         for grup in aGroup;
@@ -307,7 +307,7 @@ define
         Moved here from oneTest so the test harness just invokes testUnitTests().
     ***************************************************************************/
     testUnitTests code={
-        whatsIt = #"is what" 'I am talking about';
+        whatsIt = string "is what" 'I am talking about';
         print ``This whatsIt:;
         accessTest(simple);
         anotherTest();
@@ -320,6 +320,7 @@ define
         testARG(righty += 22);
         testIndentBlock();
         stringTest();
+        formatTest();
         xpTest();
         list("righty 3.1 seven eight nine;");
         testInterpret();

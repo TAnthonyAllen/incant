@@ -302,6 +302,15 @@ if [ "$_utj" = "10 10 4 4" ]; then
 else
     echo "  FAIL  baselineTests testRecursion JITTED = interpreted -- got [$_utj] want [10 10 4 4]"; fail=1
 fi
+#  formatTestRow SEQ 452 R1 (string-lead): formatTest is in testUnitTests; on the old road a format applies to the expression
+#  BEFORE it, so `"Formatted" #12s` right-justifies Formatted in 12. H7 (measured, single fixture, restored by md5): StringXP led
+#  by `#` again -> `is Formatted 12 s maybe` (the #12s read as a string expression).
+_uft="$(sed -n 's/.*formatTest: \t\(.*\)/\1/p' "$T/base")"
+if [ "$_uft" = "is    Formatted maybe " ]; then
+    echo "  ok    baselineTests formatTest (old road: the format applies to the expression before it) = [$_uft]"; green=$((green+1))
+else
+    echo "  FAIL  baselineTests formatTest -- got [$_uft] want [is    Formatted maybe ]"; fail=1
+fi
 if [ -s "$T/base" ] && tail -1 "$(ip baselineTests.golden)" | grep -qFf - "$T/base"; then
     echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))
 else
@@ -354,7 +363,17 @@ awk '/^sumple=/{p=1} p'         "$T/base"     | _bnfilt > "$T/bo.tail"
 awk '/^sumple=/{p=1} p'         "$T/baseN.run" | _bnfilt > "$T/bn.tail"
 #  vacuity guard (H4): two empty heads agree; the head today is 56 lines
 if [ "$(wc -l < "$T/bo.head")" -ge 40 ] && [ -s "$T/bo.tail" ]; then
-    diffcheck "baselineTestsNew BN-3 everything before printDefinitions agrees with the old road" "$T/bo.head" "$T/bn.head"
+    #  BN-3 PINNED RED 2026-10-28 (Tony, SEQ 452 R2): a format with no flags does not parse under parser(Start); the generated
+    #  parser's optional-term handling never lets the flags term miss; pre-existing, exposed when # stopped leading strings.
+    #  So formatTest's body fails on the new road and its line is missing. "formatTest-missing" = equal once that one line is
+    #  taken out of the old road's head; anything else reads "differ". Docketed (SEQ 452 R3): BN-3 green, with its own H7.
+    perl -0pe 's/formatTest: \tis    Formatted maybe \n//' "$T/bo.head" > "$T/bo.headNoFmt"
+    if cmp -s "$T/bo.head" "$T/bn.head"; then _bn3=same
+    elif cmp -s "$T/bo.headNoFmt" "$T/bn.head"; then _bn3=formatTest-missing
+    else _bn3=differ; diff "$T/bo.head" "$T/bn.head" | head -10 | sed 's/^/          /'; fi
+    if [ "$_bn3" = same ]; then echo "  ok    baselineTestsNew BN-3 everything before printDefinitions agrees with the old road = [same]"; green=$((green+1))
+    elif [ "$_bn3" = formatTest-missing ]; then echo "  FAIL  baselineTestsNew BN-3 everything before printDefinitions agrees with the old road born red (SEQ 452 R2): today [formatTest-missing], intended [same]"; fail=1
+    else echo "  FAIL  baselineTestsNew BN-3 MOVED: reads [$_bn3], pinned today [formatTest-missing], intended [same]"; fail=1; fi
 else
     echo "  FAIL  baselineTestsNew BN-3 VACUOUS -- the old-road head is $(wc -l < "$T/bo.head") lines (want >= 40) or its tail is empty"; fail=1
 fi
@@ -2233,9 +2252,12 @@ done
 #  twice, as a registry entry and as a Keywords member: 4 + 18 = 22. The audit's term tests read
 #  isRuleTerm(), so a rule's references to them (IF [1] if, ...) are rule terms and are NOT counted.
 #  Missing rules (6: ColoN, EquaL, break, continue, return, SearchList/Grokking) is unchanged.
-AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 22 loose"
+#  RE-PINNED 2026-10-28 (SEQ 452 R1, string-lead): loose 22 -> 23 -- `counter`. Precision now spells its digits [0-9]+,
+#  so the bootstrap digit set `counter` lost its only grammar reference; counter+ could not be used because unitTests:87's
+#  `counter=0;` captures it (Clod's fixit defineCapture), measured in the counter probe. counter stays in Grokking.
+AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 23 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 22)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 23)"; green=$((green+1))
 else
     echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -3174,6 +3196,10 @@ for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e; do
     _twt=$((_twt + $(grep -c "DEFERABOVE.*inDrive=1" "$_f")))
 done
 echo "  ..    (b) tripwire: fires inside a drive = $_twt"
+#  greenDrift SEQ 452 R1 (string-lead, 2026-10-28), recorded and not pinned (each row asserts > 0 or prints its count): this
+#  count 2809 -> 2752, loopVerdict's 297 -> 232, probeDoorT IF / WhilE terms 66 / 67 -> 67 / 68, tokJitT iterate terms 46 -> 48,
+#  termCountT's jitted lines 668 -> 670 (= its plain run, green). They moved with StringXP's lead going from `#` to the
+#  labelled word `string` (they move with or without followedBy, measured); the per-row mechanism is not measured.
 if [ "$_twt" -gt 0 ]; then echo "  ok    (b) tripwire anti-vacuity: $_twt fires inside drives witnessed"; green=$((green+1))
 else echo "  FAIL  (b) tripwire anti-vacuity: no fire inside a drive was witnessed"; fail=1; fi
 #  THE CERTIFICATE VALUE: ShortcuT, an old-road rule with an action, fired inside the `print ... :;` drive,
@@ -6226,13 +6252,15 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "249"
+#  250 RE-PINNED 2026-10-28 (SEQ 452 R1, string-lead): 249 -> 250 on this row and its five siblings (itRT twin, jitCursorLifeT,
+#  itBackRT) -- the walk counts grammar children, and StringXP's `followedBy` term (so `stringy` stays a name) is one more.
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "250"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "249"
+kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "250"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -6248,8 +6276,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "249 6"
-kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "249"
+kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "250 6"
+kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "250"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -6265,12 +6293,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "249"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "250"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "249"
+kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "250"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load

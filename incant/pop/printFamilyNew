@@ -201,9 +201,9 @@ print "PN ==== 6. string, OMITTED FORM ====":;
     (`n = $"a" _ "b";`) does not parse and ABANDONS THE REST OF THE FILE at
     exit 0 (CLAIM GRAM-8). Putting it here would silently delete the
     sentinel. It is recorded in CLAIM GRAM-12 instead.                      */
-n1 = #"PN-O-one";
+n1 = string "PN-O-one";
 print "spelled-1 [" n1 "]":;
-n2 = #"PN-O" "two";
+n2 = string "PN-O" "two";
 print "spelled-2 [" n2 "]":;
 n3 = "PN-O-one";
 print "omitted-1 [" n3 "]":;

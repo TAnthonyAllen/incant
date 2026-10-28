@@ -22,7 +22,8 @@ testIndentBlock:
 		Two 
 	Three 
 Four 
-stringTest: 	59 added 2 to righty is what I am talking about  xpTest: 	HooHaa 4 5 Gomer is a goober is what I am talking about  
+stringTest: 	59 added 2 to righty is what I am talking about  formatTest: 	is    Formatted maybe 
+xpTest: 	HooHaa 4 5 Gomer is a goober is what I am talking about  
 list tests the for statement: 
 	righty 
 	3.1 
