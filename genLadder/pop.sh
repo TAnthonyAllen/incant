@@ -6440,6 +6440,43 @@ fdRow "testerChainT TC-3 refusals: green by the null-target refusal, not by the 
 fdRow "testerChainT TC-12 refusals: the null-target refusal of a mis-grouped compare" "$(_tcr "$T/tc.TC-12")" "1" "0"
 fi
 
+#  ⚑ instructTargetT -- SEQ 442 R1 (2026-10-28): kantGrammar's EXPRESSIOn takes everything left of = as the target (Tony,
+#  R1), so `qa > qb || righty = 42` assigns INTO the instruct's result -- the shared true node (righty non-zero) or false
+#  node (righty 0) -- and a later compare reads 42. The three-part line hands true to both sides: setContent's self-assign.
+#  One process per row (a written sentinel must not reach the next row). BORN RED: IT-2 true / IT-4 false read 42, no
+#  refusal, IT-3 carries the setContent line. # intended: an instruct target refused by name at build, sentinels = IT-0.
+#  OR- rows: the OLD road (Grokking only) on the same lines, pinned at their measured values, not ruled -- it binds = to
+#  righty alone (right to left), so righty reads 42 and both sentinels hold.
+_itF=$(ip instructTargetT)
+if [ -f "$_itF" ]; then
+_itv () { sed -n "s/^$2 \[ *\([^ ]*\) *\].*/\1/p" "$T/it.$1"; }
+_itr () { grep -c '^REFUSED = -- the left of = is an instruct, not a field' "$T/it.$1"; }
+_its () { grep -c '^setContent: tried to set group to itself' "$T/it.$1"; }
+for _id in $(sed -n 's/^\([IO][TR]-[0-9]*\)|.*/\1/p' "$_itF"); do
+    _rd=$(grep "^$_id|" "$_itF" | cut -d'|' -f2); _bd=$(grep "^$_id|" "$_itF" | cut -d'|' -f3-)
+    { if [ "$_rd" = old ]; then sed -e '/^stop();/,$d' -e '/include(kantGrammar)/d' -e 's/KantGrammar //' "$_itF"
+      else sed '/^stop();/,$d' "$_itF"; fi
+      printf '%s\ncerr :;\ncerr "ITT SENTINEL":;\nstop();\n' "$_bd"; } > "$T/it.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/it.$_id.k" > "$T/it.$_id" 2>&1; _x=$?
+    kindRow "instructTargetT $_id exit / sentinel" "$_x $(grep -c '^ITT SENTINEL' "$T/it.$_id")" "0 1"
+done
+kindRow "instructTargetT IT-0 control: true / false read" "$(_itv IT-0 'IT-0 true') $(_itv IT-0 'IT-0 false')" "1 0"
+kindRow "instructTargetT IT-1 control: righty = 42 || qb > qc, righty / refusals" "$(_itv IT-1 'IT-1 righty') $(_itr IT-1)" "1 0"
+fdRow "instructTargetT IT-2 qa > qb || righty = 42: refusals" "$(_itr IT-2)" "0" "1"
+fdRow "instructTargetT IT-2 a later qc > qa reads (the true sentinel)" "$(_itv IT-2 'IT-2 true')" "42" "1"
+kindRow "instructTargetT IT-2 righty untouched" "$(_itv IT-2 'IT-2 righty')" "7"
+fdRow "instructTargetT IT-3 three-part line: refusals" "$(_itr IT-3)" "0" "1"
+fdRow "instructTargetT IT-3 setContent self-assign lines" "$(_its IT-3)" "1" "0"
+kindRow "instructTargetT IT-3 righty / a later qc > qa" "$(_itv IT-3 'IT-3 righty') $(_itv IT-3 'IT-3 true')" "7 1"
+fdRow "instructTargetT IT-4 righty 0: refusals" "$(_itr IT-4)" "0" "1"
+fdRow "instructTargetT IT-4 a later qa > qc reads (the false sentinel)" "$(_itv IT-4 'IT-4 false')" "42" "0"
+kindRow "instructTargetT IT-4 righty untouched" "$(_itv IT-4 'IT-4 righty')" "0"
+kindRow "instructTargetT OR-1 old road: righty" "$(_itv OR-1 'OR-1 righty')" "1"
+kindRow "instructTargetT OR-2 old road: righty / true" "$(_itv OR-2 'OR-2 righty') $(_itv OR-2 'OR-2 true')" "42 1"
+kindRow "instructTargetT OR-3 old road: righty / true / setContent lines" "$(_itv OR-3 'OR-3 righty') $(_itv OR-3 'OR-3 true') $(_its OR-3)" "42 1 0"
+kindRow "instructTargetT OR-4 old road, righty 0: righty / false" "$(_itv OR-4 'OR-4 righty') $(_itv OR-4 'OR-4 false')" "42 0"
+fi
+
 #  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED
 #  tempField to decide whether it produced a value, so after a computation it hands back that computation's value (77)
 #  instead of refusing. Measured in kant, one process per row (the control needs a process where nothing has computed).

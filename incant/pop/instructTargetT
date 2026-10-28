@@ -1,0 +1,50 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(InstructTargetT);
+define
+    qa=2; qb=3; qc=4; kv=0;
+    ;
+search InstructTargetT Utilities UnitTests list;
+righty = 7;
+stop();
+
+instructTargetT -- SEQ 442 R1 (2026-10-28): an assign whose target is an instruct.
+
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then the row's
+statements, then a sentinel. One process per row, so a row that writes into a truth sentinel cannot reach the next.
+Old-road rows (OR-) drop the two kantGrammar lines (its include and KantGrammar in the search line), so they run on
+Grokking alone.
+
+kantGrammar's EXPRESSIOn splits the = tier as built: everything left of = is the target (Tony, SEQ 442 R1). So in
+`qa > qb || righty = 42` the target is the instruct `qa > qb || righty`, not righty. testOP runs it, it hands back the
+shared true node (righty non-zero; the prelude sets 7, tester's righty is 13) or the shared FALSE node (righty 0, IT-4),
+and opAssign writes 42 INTO THAT SENTINEL -- a later `qc > qa` (or `qa > qc`) then reads 42. In the three-part line both sides
+hand back true, and setContent refuses the self-assign ("tried to set group to itself true").
+Born red at SEQ 442 R1: IT-2's true and IT-4's false read 42, IT-2 and IT-3 carry no refusal, IT-3 carries the setContent line.
+Intended: an instruct target is refused by name at build ("the left of = is an instruct, not a field", seal 151's
+family), nothing is written, each sentinel reads what IT-0 reads (the uncorrupted control). IT-1 is the control: its target is plain righty, and it must keep
+righty = 1 with no refusal (kant's || yields a truth, so 42 || ... leaves 1).
+Tony's original line read `ga > qb`; ga (undeclared) and qa measured the same, so the rows use qa.
+
+ROWS
+IT-0|new|whatsIt = EXPRESSIOn("qc > qa"); cerr "IT-0 true [" testOP(whatsIt) "]":; whatsIt = EXPRESSIOn("qa > qc"); cerr "IT-0 false [" testOP(whatsIt) "]":;
+IT-1|new|whatsIt = EXPRESSIOn("righty = 42 || qb > qc"); testOP(whatsIt); cerr "IT-1 righty [" righty "]":;
+IT-2|new|whatsIt = EXPRESSIOn("qa > qb || righty = 42"); testOP(whatsIt); cerr "IT-2 righty [" righty "]":; whatsIt = EXPRESSIOn("qc > qa"); cerr "IT-2 true [" testOP(whatsIt) "]":;
+IT-3|new|whatsIt = EXPRESSIOn("qa > qb || righty = 42 || qb > qc"); testOP(whatsIt); cerr "IT-3 righty [" righty "]":; whatsIt = EXPRESSIOn("qc > qa"); cerr "IT-3 true [" testOP(whatsIt) "]":;
+IT-4|new|righty = 0; whatsIt = EXPRESSIOn("qa > qb || righty = 42"); testOP(whatsIt); cerr "IT-4 righty [" righty "]":; whatsIt = EXPRESSIOn("qa > qc"); cerr "IT-4 false [" testOP(whatsIt) "]":;
+OR-1|old|righty = 42 || qb > qc; cerr "OR-1 righty [" righty "]":;
+OR-2|old|qa > qb || righty = 42; cerr "OR-2 righty [" righty "]":; kv = qc > qa; cerr "OR-2 true [" kv "]":;
+OR-3|old|qa > qb || righty = 42 || qb > qc; cerr "OR-3 righty [" righty "]":; kv = qc > qa; cerr "OR-3 true [" kv "]":;
+OR-4|old|righty = 0; qa > qb || righty = 42; cerr "OR-4 righty [" righty "]":; kv = 0; if qa > qc; kv = 1; cerr "OR-4 false [" kv "]":;
