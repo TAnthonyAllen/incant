@@ -215,6 +215,9 @@ ATTEMPT LOG
     differently ("tok found ... injected NOTHING" for "method not found"), rerun 2 = capture byte for byte; trunk 01dc6329
     read 52 (`checkSkip stacked before`, line 343, GroupRules.twk), rerun = capture. Three seals today, a different
     directive each time -- the flicker is now one per seal or so, not rare. Measured only.
+  2026-10-28 seal 246, dirCheck now over Directives/* (114 directives, SEQ 448 R2): first run of the session 106 of 114,
+    the seal run 105 (`runRule if`, parked, line 223 of Directives/GroupRules), rerun 106 = capture. Same tree, no .twk
+    touched between. dirCheck.flicker-2026-10-28c.txt. Measured only.
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
