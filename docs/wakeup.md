@@ -4,6 +4,8 @@
 #   grammar's FormaT spell the flags term, then trace; certificate BN-3 green with its own H7. One plain line: on the
 #   old road `string` now leads a string expression and formats print; one known gap is pinned red -- under the
 #   generated parser a format with no flags still fails to parse.
+#   ORDER AFTER THE PAUSE (Tony, after this seal; TODO.md): optional flags -> defineCapture -> R6 jitter recon for the new
+#   grammar (read only) -> R7 the quoted-print row -> IF. Docketed only; nothing run or built.
 #
 #   ## TODAY: string-lead merged (bc8c70cd re-pins, c900a701 H7 note): incant/grammar's StringXP `lead-="string"
 #   followedBy`, FormaT flags?=[...]+, Precision dot=[.] [0-9]+; 21 # strings respelled `string` (utilities 6, unitTests 1,
