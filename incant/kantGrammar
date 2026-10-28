@@ -51,7 +51,8 @@ define
         QuotE;
         NumbeR;
         Operators;
-        STRINGXp    pound-="#" stuff=PRINTXp+ defer;
+    // stringParked STRINGXp is out of TOKEn and parked (Tony, SEQ 449 R1, R2): after an expression it took a following `#5d` as a string, so no format ever reached FORMAt
+    STRINGXp        pound-="#" stuff=PRINTXp+ defer;
     EXPRESSIOn      lizted=TOKEn+;
     SCOPEFIELd
         ANYtoken;
