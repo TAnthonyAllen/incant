@@ -204,6 +204,11 @@ ATTEMPT LOG
   2026-10-26 seal 223's checklist (trunk 98b359dd): 52 of 57 again, OUTPUT KEPT this time -- the one extra dark is the
     PARKED `push if before` (groupDirectives line 307, GroupItem.twk; "injected NOTHING"), which the capture reads as +2.
     The immediate rerun on the same tree read 53 = capture. A new member of the sometimes-dark set; measured only.
+  2026-10-28 seal 242's checklist (trunk 0fc18ad9 + TODO.md only): 51 of 57, and for the FIRST time an ARMED directive
+    read dark -- `ensureGuard "if isCondition" before` (groupDirectives line 241, GroupItem.twk; capture +7) -- so
+    dirCheck FAILED (exit 1); with it the parked `setGroup starting` (line 316, GroupItem.twk; capture +2). Output KEPT:
+    docs/sealCaptures/dirCheck.flicker-2026-10-28.txt. Two reruns on the same tree read 53 = capture, exit 0. The
+    severity line above ("no armed directive has ever read dark") is dated by this entry. Measured only (SEQ 444 R2).
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
