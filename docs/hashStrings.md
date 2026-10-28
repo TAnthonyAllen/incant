@@ -55,3 +55,11 @@ read by eye: 22 are `#` strings, the rest are not.
 - **Hex colours in form attributes, about 60** -- `fill=#d1d1d1`, `<red=#ef2b2d/>` in IncantForms/{Controls,HTML,Tests,
   Windows} and their XML/ twins. A form attribute value; whether STRINGXp or the forms machinery reads it is NOT measured.
 - **Prose** -- `# TODO: review`, `# intended:` in comments and dead regions.
+
+## Formats bind in opposite directions on the two roads (Tony, SEQ 451 R1 -- recorded, no sync work now)
+
+- **Old road** (incant/grammar): `PrintField  ExpressioN FormaT?` -- a format applies to the EXPRESSION BEFORE IT.
+  `print qa #5d qb:;` formats qa (`    2 3`); a print that starts with a format does not parse. formatTest is written
+  this way (`"Formatted" #12s`).
+- **New road** (kantGrammar, SEQ 449): a format is an item of its own and sets ITS TYPE's format for the items that
+  follow, to the end of the print statement. `print qa #5d qb:;` formats qb (`2     3`).

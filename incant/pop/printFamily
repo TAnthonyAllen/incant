@@ -102,11 +102,11 @@ print "PF ==== 2. string / UNARMED ====":;
     for the crash and the controlled comparison that settled it. The point of the change is that a string expression and a print
     now share ONE vocabulary, shortcuts included, instead of ExpressioN
     needing a shortcut vocabulary of its own.                              */
-vDef = #"PF-S-U-def" 1 2 3;
+vDef = string "PF-S-U-def" 1 2 3;
 print "[" vDef "]":;
-vDollar = #$"PF-S-U-dol" "joined"$;
+vDollar = string $"PF-S-U-dol" "joined"$;
 print "[" vDollar "]":;
-vUnder = #$"PF-S-U-und" _ "spaced"$;
+vUnder = string $"PF-S-U-und" _ "spaced"$;
 print "[" vUnder "]":;
 
 print "PF ==== 3. ARMING DIVERSION ====":;
@@ -122,7 +122,7 @@ print $"PF-P-A-und" _ "spaced"$:;
 /*  keyword `#` x diversion ARMED.
     A `#` expression has no stream, so a diversion must not touch it. The
     value is built here, INSIDE the armed window, and read back OUTSIDE it. */
-vArmed = #$"PF-S-A-und" _ "spaced"$;
+vArmed = string $"PF-S-A-und" _ "spaced"$;
 
 printTO(null);
 print "PF ==== 4. DIVERSION RELEASED ====":;
