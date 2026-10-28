@@ -34,11 +34,14 @@ define
         break;
         continue;
         return;
-    PRECISIOn       dot='.' precision=counter*;
-    FORMAt          pound="#" flags=[-# 0+']* formatWIDTH?=NumbeR PRECISIOn? formatTYPE=[a-zA-Z] TOKENize;
+    // dotIsASet a quoted '.' resolves to the . operator, whose guard is null, and the guard copy crashed (measured SEQ 449); digits one-or-more, as flags
+    PRECISIOn       dot=[.] precision?=[0-9]+;
+    // flagsOneOrMore a set term that matches zero characters fails the rule, so flags is optional one-or-more, never zero-or-more (measured SEQ 449)
+    FORMAt          pound="#" flags?=[-# 0+']+ formatWIDTH?=NumbeR PRECISIOn? formatTYPE=[a-zA-Z] TOKENize;
     PRINTXp
+        FORMAt;
         SHORTCUt;
-        PRINTFIELd  EXPRESSIOn FORMAt?;
+        EXPRESSIOn;
     ITERSOURCe      UnaryOPS? ANYtoken;
     INVOKEd         startBox=[([] EXPRESSIOn endParen-?=")" endBrace-?="]";
     INVOKEr         ANYtoken INVOKEd;
@@ -121,11 +124,9 @@ define
     // PRINt only builds (rung 1, Tony 2026-10-27): one instruct, op printList, its operand the list of print items; testOP runs it
     PRINt code={
         cur := *stuff.firsT;
+        // threeKinds an item is an EXPRESSIOn's value, a shortcut (SHORTCUt's action marked it) or a format (it carries formatTYPE); opPrintList tells them apart
         while cur.datA != 0;
-            item := *cur.firsT;
-            // a print item is its EXPRESSIOn's value; a shortcut has no EXPRESSIOn, and SHORTCUt's action marked it, so appendGroup runs its characters
-            if item.datA != 0;  printItems +% **item;
-            else                printItems +% *cur;
+            printItems +% *cur;
             cur := *cur.nexT;
         op := Operators["printList"];
         // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
