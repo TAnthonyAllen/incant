@@ -108,6 +108,7 @@ define
     negate  unary ruleMethod=opUnaryMinus;
     deref   unary ruleMethod=opDeref;
     printList   unary ruleMethod=opPrintList;
+    seq     unary ruleMethod=opSeq;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

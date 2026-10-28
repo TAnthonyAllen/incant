@@ -1013,6 +1013,16 @@ Buffer      buffer = bufferSTAK.pop();
 }
 
 
+// opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
+extern GroupItem opSeq(GroupItem items)
+{
+GroupItem   grup;
+    while grup = items.next(grup) {
+        -% if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) ::testOP(grup); %- }
+    return items;
+}
+
+
 // opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
 extern GroupItem opRebind(GroupItem argument,GroupItem target)
 {

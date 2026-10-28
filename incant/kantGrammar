@@ -102,6 +102,21 @@ define
             return instruct;
         return ANYtoken;
         };
+    // STARt only builds (SEQ 446): one seq instruct, op seq, its operand a mint of the list of statement instructs; testOP runs it
+    STARt code={
+        cur := *argument.firsT;
+        while cur.datA != 0;
+            stmts +% *cur;
+            cur := *cur.nexT;
+        op := Operators["seq"];
+        stmtsMint   := copyOf(stmts);
+        instruct    +% *op;
+        instruct    +% *stmtsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
     // PRINt only builds (rung 1, Tony 2026-10-27): one instruct, op printList, its operand the list of print items; testOP runs it
     PRINt code={
         cur := *stuff.firsT;
@@ -112,7 +127,10 @@ define
             else                printItems +% *cur;
             cur := *cur.nexT;
         op := Operators["printList"];
-        instruct    +% op printItems;
+        // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
+        itemsMint   := copyOf(printItems);
+        instruct    +% *op;
+        instruct    +% *itemsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         *argument   := *target;
