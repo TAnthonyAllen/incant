@@ -9514,6 +9514,23 @@ char 		*printText = buffer->string();
 	return ruler->trueResult;
 }
 
+// opPrintList the print instruct's unary op (rung 1, Tony 2026-10-27): each item, an instruct run first, goes through appendGroup; opPrint flushes to stdout, or to printTO's divert
+extern "C" GroupItem *opPrintList(GroupItem *items)
+{
+GroupItem 	*grup = 0;
+GroupItem 	*value = 0;
+Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	if ( !buffer )
+		buffer = new Buffer("print buffer");
+	while ( grup = items->next(grup) )
+		{
+		value = grup;
+		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
+		::appendGroup(value,0,buffer);
+		}
+	return ::opPrint(items,buffer);
+}
+
 // opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
 extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target)
 {

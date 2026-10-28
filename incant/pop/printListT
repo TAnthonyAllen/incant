@@ -1,0 +1,41 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(PrintListT);
+define
+    qa=2; qb=3; qc=4; kv=0;
+    ;
+search PrintListT Utilities UnitTests list;
+righty = 7;
+stop();
+
+printListT -- SEQ 442 R4, rung 1 (2026-10-28): the new road's print against the old.
+
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then the row's
+statements, then a sentinel on stderr. One process per row. The row's STDOUT, less the run's own noise lines (stop:,
+Search list:, We done), is what is compared.
+
+The new road: kantGrammar's PRINt action only BUILDS -- one instruct, op printList (opPrintList, a unary op), its
+operand the list of print items (each item's EXPRESSIOn value; a shortcut item as SHORTCUt's action marked it). testOP
+runs it: opPrintList runs an instruct item first, appends every item with appendGroup, and opPrint flushes. The old
+road is PrinT (aCTionPrinT), untouched.
+Certificate (Tony, 2026-10-27): the new road prints what PrinT("print 77:;") prints. PL-0 is the control that the
+print happens when testOP runs and not at build: the build alone prints nothing. PL-2 carries an instruct item.
+
+ROWS
+PL-0|whatsIt = PRINt("print 77:;");
+PL-1|whatsIt = PRINt("print 77:;"); testOP(whatsIt);
+PL-1o|PrinT("print 77:;");
+PL-2|whatsIt = PRINt("print qa + qb:;"); testOP(whatsIt);
+PL-2o|PrinT("print qa + qb:;");

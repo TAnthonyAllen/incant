@@ -390,6 +390,7 @@ extern "C" GroupItem *opPlusEQstruct(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opPlusPlus(GroupItem *result);
 extern "C" GroupItem *opPointer(GroupItem *field);
 extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer);
+extern "C" GroupItem *opPrintList(GroupItem *items);
 extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target);

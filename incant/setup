@@ -107,6 +107,7 @@ define
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
     deref   unary ruleMethod=opDeref;
+    printList   unary ruleMethod=opPrintList;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

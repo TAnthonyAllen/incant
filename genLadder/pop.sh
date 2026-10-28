@@ -6479,6 +6479,24 @@ kindRow "instructTargetT OR-3 old road: righty / true / setContent lines" "$(_it
 kindRow "instructTargetT OR-4 old road, righty 0: righty / false" "$(_itv OR-4 'OR-4 righty') $(_itv OR-4 'OR-4 false')" "42 0"
 fi
 
+#  ⚑ printListT -- SEQ 442 R4, rung 1 (2026-10-28): kantGrammar's PRINt BUILDS one instruct (op printList = opPrintList,
+#  operand the item list) and testOP runs it; the old road is PrinT. Certificate (Tony, 2026-10-27): the new road prints
+#  what PrinT("print 77:;") prints, byte for byte. PL-0: the build alone prints nothing. One process per row; a row's
+#  stdout less the run's noise lines is what is compared.
+_plF=$(ip printListT)
+if [ -f "$_plF" ]; then
+for _id in $(sed -n 's/^\(PL-[0-9o]*\)|.*/\1/p' "$_plF"); do
+    { sed '/^stop();/,$d' "$_plF"; grep "^$_id|" "$_plF" | cut -d'|' -f2-; printf 'cerr "PLT SENTINEL":;\nstop();\n'; } > "$T/pl.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/pl.$_id.k" > "$T/pl.$_id" 2> "$T/pl.$_id.e"; _x=$?
+    kindRow "printListT $_id exit / sentinel" "$_x $(grep -c '^PLT SENTINEL' "$T/pl.$_id.e")" "0 1"
+    grep -v '^stop: \|^Search list: \|^We done\|^ *$' "$T/pl.$_id" > "$T/pl.$_id.o"
+done
+kindRow "printListT PL-0 the build alone prints nothing (bytes)" "$(wc -c < "$T/pl.PL-0.o" | tr -d ' ')" "0"
+kindRow "printListT PL-1o the old road prints 77" "$(cat "$T/pl.PL-1o.o")" "77 "
+kindRow "printListT PL-1 new = old, print 77:;" "$(cmp -s "$T/pl.PL-1.o" "$T/pl.PL-1o.o" && echo same || echo differ) $(cat "$T/pl.PL-1.o")" "same 77 "
+kindRow "printListT PL-2 new = old, print qa + qb:; (an instruct item)" "$(cmp -s "$T/pl.PL-2.o" "$T/pl.PL-2o.o" && echo same || echo differ) $(cat "$T/pl.PL-2.o")" "same 5 "
+fi
+
 #  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED
 #  tempField to decide whether it produced a value, so after a computation it hands back that computation's value (77)
 #  instead of refusing. Measured in kant, one process per row (the control needs a process where nothing has computed).

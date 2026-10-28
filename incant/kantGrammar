@@ -27,7 +27,7 @@ define
     STATEMENt guard=[{A-Za-z0-9+-;(];
     ELSe;
 
-    SHORTCUt=[-+~`$_:,]+;
+    SHORTCUt=[-+~`$_:,]+ ruleMethod=aCTionShortcuT;
     ANYSTRINg=[^ \n\r\t;]+;
     BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"- defer;
     BRANCHEs bin
@@ -101,6 +101,22 @@ define
             // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- EXPRESSIOn binds it on arrival
             return instruct;
         return ANYtoken;
+        };
+    // PRINt only builds (rung 1, Tony 2026-10-27): one instruct, op printList, its operand the list of print items; testOP runs it
+    PRINt code={
+        cur := *stuff.firsT;
+        while cur.datA != 0;
+            item := *cur.firsT;
+            // a print item is its EXPRESSIOn's value; a shortcut has no EXPRESSIOn, and SHORTCUt's action marked it, so appendGroup runs its characters
+            if item.datA != 0;  printItems +% **item;
+            else                printItems +% *cur;
+            cur := *cur.nexT;
+        op := Operators["printList"];
+        instruct    +% op printItems;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
         };
     EXPRESSIOn code={
         cur := *lizted.firsT;
