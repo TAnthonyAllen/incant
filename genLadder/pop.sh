@@ -6447,6 +6447,8 @@ fi
 #  refusal, IT-3 carries the setContent line. # intended: an instruct target refused by name at build, sentinels = IT-0.
 #  OR- rows: the OLD road (Grokking only) on the same lines, pinned at their measured values, not ruled -- it binds = to
 #  righty alone (right to left), so righty reads 42 and both sentinels hold.
+#  ⚠ CURED SEQ 442 R2: EXPRESSIOn's assign tier refuses an instruct target by name (incant/kantGrammar, instructTarget);
+#  H7, the refusal removed: IT-2 true and IT-4 false read 42 again.
 _itF=$(ip instructTargetT)
 if [ -f "$_itF" ]; then
 _itv () { sed -n "s/^$2 \[ *\([^ ]*\) *\].*/\1/p" "$T/it.$1"; }

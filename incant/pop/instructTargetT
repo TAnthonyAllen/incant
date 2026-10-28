@@ -36,6 +36,8 @@ Born red at SEQ 442 R1: IT-2's true and IT-4's false read 42, IT-2 and IT-3 carr
 Intended: an instruct target is refused by name at build ("the left of = is an instruct, not a field", seal 151's
 family), nothing is written, each sentinel reads what IT-0 reads (the uncorrupted control). IT-1 is the control: its target is plain righty, and it must keep
 righty = 1 with no refusal (kant's || yields a truth, so 42 || ... leaves 1).
+CURED SEQ 442 R2: the refusal sits in EXPRESSIOn's assign tier (kantGrammar, instructTarget). Under R1 as written it also
+refuses `qa[qb] = 3` and `- qa = 3` (both arrive as instructs; the old road accepts them) -- reported, not pinned.
 Tony's original line read `ga > qb`; ga (undeclared) and qa measured the same, so the rows use qa.
 
 ROWS

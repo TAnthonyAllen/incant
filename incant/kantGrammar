@@ -150,6 +150,13 @@ define
                                     *logP   +% *target;
                                     target  = logP;
                                     clear(logP);
+                            // instructTarget everything left of = is the target, so a target that is an instruct is refused by name at build (Tony, SEQ 442 R1)
+                            if kind == 4;
+                                if *target.taG == "instruct";
+                                    asgOp := *op.taG;
+                                    cerr "REFUSED" asgOp "-- the left of" asgOp "is an instruct, not a field":;
+                                    clear(*argument);
+                                    return *argument;
                             instruct +% op target;
                             instruct    = kind;
                             instruct.methoD = "testOP";
