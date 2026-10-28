@@ -6551,9 +6551,14 @@ kindRow "seqT SQ-1o / SQ-3o / SQ-4o the old road" "$(_sqv SQ-1o) $(_sqv SQ-3o) $
 fdRow "seqT SQ-1 STARt(print 77, print 88) built then run = the old road" "$(_sqc SQ-1) $(_sqv SQ-1)" "differ " "same 77 |88 |"
 fdRow "seqT SQ-2 two PRINt builds, the first run prints 77" "$(_sqv SQ-2)" "88 |" "77 |"
 fdRow "seqT SQ-3 an instruct operand inside a seq (fId(qa + qb) * qc) = the old road" "$(_sqc SQ-3) $(_sqv SQ-3)" "differ " "same 77 |20 |"
-#  ⚠ SQ-4 RE-PINNED SEQ 446 S3 (2026-10-28): today 'differ ' (a crash) -> 'differ 77 |' -- the seq runs now and STARt still
-#  drops everything from the expression statement on. It stays red by ruling (R3) until the XPRESs collapse is fixed.
-fdRow "seqT SQ-4 an expression statement inside STARt = the old road (NOT this stroke)" "$(_sqc SQ-4) $(_sqv SQ-4)" "differ 77 |" "same 77 |88 |"
+#  SQ-4 GREEN, SEQ 448 (2026-10-28): EXPRESSIOn ends before the `;` (its SemI?- removed), so XPRESs parses and STARt keeps
+#  every statement. SQ-5 is the row that says the statement RAN (SQ-4's `qa + qb` has no effect): XPRESs's action hands up
+#  the instruct and stamps testOP on it, which a chain closed by `target = slot` had lost. SQ-6: the build alone runs nothing.
+#  H7 (one variable each, single fixture): the stamp line out -> SQ-5 reads 0, SQ-4 holds; SemI?- back -> SQ-4 / SQ-5 red.
+kindRow "seqT SQ-4 an expression statement inside STARt = the old road" "$(_sqc SQ-4) $(_sqv SQ-4)" "same 77 |88 |"
+kindRow "seqT SQ-5o the old road: kv = 5 then print kv" "$(_sqv SQ-5o)" "5 |"
+kindRow "seqT SQ-5 an assign statement inside STARt runs = the old road" "$(_sqc SQ-5) $(_sqv SQ-5)" "same 5 |"
+kindRow "seqT SQ-6 the build alone runs nothing: kv after STARt builds kv = 5" "$(_sqv SQ-6)" "0 |"
 fi
 
 #  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED

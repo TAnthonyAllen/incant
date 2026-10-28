@@ -52,7 +52,7 @@ define
         NumbeR;
         Operators;
         STRINGXp    pound-="#" stuff=PRINTXp+ defer;
-    EXPRESSIOn      lizted=TOKEn+ SemI?-;
+    EXPRESSIOn      lizted=TOKEn+;
     SCOPEFIELd
         ANYtoken;
         NumbeR;
@@ -134,6 +134,15 @@ define
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         *argument   := *target;
+        return  *argument;
+        };
+    // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
+    XPRESs code={
+        :argument EXPRESSIOn;
+        xi := **EXPRESSIOn;
+        // stampMethod a chain closed by `target = slot` (assign, compare, logic) lost testOP to setContent, and opSeq runs only an item that carries it
+        if *xi.taG == "instruct";   *xi.methoD = "testOP";
+        *argument := *xi;
         return  *argument;
         };
     EXPRESSIOn code={

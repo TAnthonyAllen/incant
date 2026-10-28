@@ -40,8 +40,15 @@ SQ-1 STARt("print 77:; print 88:;") built then run = the old road's two prints, 
 SQ-2 two PRINt builds, then the first run, prints 77. BORN RED: PRINt's action attached its LOCAL printItems, so every
      PRINt instruct shared one list and the first printed the second's 88 (bear-trap 50).
 SQ-3 the unrun-instruct class inside a seq: `print fId(qa + qb) * qc` prints 20 -- testOP runs the call first, never 0.
-SQ-4 STARt with an expression statement keeps every statement. BORN RED and STAYS RED this stroke (SEQ 446 R3): XPRESs
-     fails (EXPRESSIOn's SemI?- takes the `;` XPRESs requires), so STARt drops everything from it on. The next stroke.
+SQ-4 STARt with an expression statement keeps every statement. Born red (SEQ 446 R3): XPRESs failed (EXPRESSIOn's
+     SemI?- took the `;` XPRESs requires), so STARt dropped everything from it on. GREEN SEQ 448 (SQ-4 stroke): EXPRESSIOn
+     ends before the `;` (every caller takes its own, as the old grammar's ExpressioN does). SQ-4 alone cannot tell a
+     statement that RAN from one dropped quietly -- `qa + qb` has no effect -- so SQ-5 carries a side effect.
+SQ-5 an assign statement inside STARt runs: kv = 5 then print kv prints 5, as the old road. Measured on the way (SEQ 448):
+     with the parse fixed it printed 0 -- an XPRESs statement reached opSeq as its label, and a chain closed by
+     `target = slot` (assign, compare, logic) had lost testOP to setContent, and opSeq runs only an item carrying testOP,
+     silently. XPRESs's action now hands up the instruct and stamps testOP on it.
+SQ-6 the build alone runs nothing: kv stays 0 after STARt builds kv = 5.
 
 ROWS
 SQ-0|sa = STARt("print 77:; print 88:;");
@@ -52,3 +59,6 @@ SQ-3|sa = STARt("print 77:; print fId(qa + qb) * qc:;"); @@ testOP(sa);
 SQ-3o|print 77:; @@ print fId(qa + qb) * qc:;
 SQ-4|sa = STARt("print 77:; qa + qb; print 88:;"); @@ testOP(sa);
 SQ-4o|print 77:; @@ qa + qb; @@ print 88:;
+SQ-5|sa = STARt("kv = 5; print kv:;"); @@ testOP(sa);
+SQ-5o|kv = 5; @@ print kv:;
+SQ-6|sa = STARt("kv = 5; print kv:;"); @@ print kv:;
