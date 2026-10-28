@@ -53,6 +53,7 @@
   COMPILES  Xpress
   LEAF      break
   LEAF      continue
+  LEAF      counter
   LEAF      followedBy
   LEAF      leftCurly
   LEAF      loopOnAttributes
@@ -61,4 +62,4 @@
   LEAF      numberSet
   LEAF      return
   LEAF      rightCurly
-PARSER COVERAGE -- 63 rules: 47 generate a body, 47 of them compile; 14 leaves; 0 crashed
+PARSER COVERAGE -- 64 rules: 47 generate a body, 47 of them compile; 15 leaves; 0 crashed
