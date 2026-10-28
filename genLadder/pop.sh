@@ -6525,6 +6525,33 @@ kindRow "printListT PL-1 new = old, print 77:;" "$(cmp -s "$T/pl.PL-1.o" "$T/pl.
 kindRow "printListT PL-2 new = old, print qa + qb:; (an instruct item)" "$(cmp -s "$T/pl.PL-2.o" "$T/pl.PL-2o.o" && echo same || echo differ) $(cat "$T/pl.PL-2.o")" "same 5 "
 fi
 
+#  ⚑ printFormatT -- SEQ 449 R4 S0 (2026-10-28): the PRINTXp reshape (FORMAt; SHORTCUt; EXPRESSIOn;). A format item sets
+#  the implicit format for its letter's type -- d i u x X o c a count, f e E g G a number, s a string or token -- for the
+#  later items of that type, to the end of its print statement. The old road is NOT the oracle: a `#` after an expression
+#  was a STRINGXp on both roads (`print qa #5d:;` -> `2 5 d`), so the rows pin INTENDED values (Tony, R4). One process per
+#  row; a row's stdout less the noise lines, newlines as `|`, is compared. BORN RED on trunk: a print that starts with a
+#  format prints nothing; `qa #5d qb` prints `2 5`. # intended: the fixture's dead region, row by row.
+_pfF=$(ip printFormatT)
+if [ -f "$_pfF" ]; then
+for _id in $(sed -n 's/^\(PF-[0-9]*\)|.*/\1/p' "$_pfF"); do
+    { sed '/^stop();/,$d' "$_pfF"; grep "^$_id|" "$_pfF" | cut -d'|' -f2- | sed 's/ @@ /\
+/g'; printf 'cerr "PFT SENTINEL":;\nstop();\n'; } > "$T/pf.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/pf.$_id.k" > "$T/pf.$_id" 2> "$T/pf.$_id.e"; _x=$?
+    kindRow "printFormatT $_id exit / sentinel" "$_x $(grep -c '^PFT SENTINEL' "$T/pf.$_id.e")" "0 1"
+    grep -v '^stop: \|^Search list: \|^We done\|^Assign at end\|^ *$' "$T/pf.$_id" > "$T/pf.$_id.o"
+done
+_pfv () { tr '\n' '|' < "$T/pf.$1.o"; }
+kindRow "printFormatT PF-0 the build alone prints nothing (bytes)" "$(wc -c < "$T/pf.PF-0.o" | tr -d ' ')" "0"
+kindRow "printFormatT PF-1 control, no format: print qa" "$(_pfv PF-1)" "2 |"
+fdRow "printFormatT PF-2 a format first: print #5d qa" "$(_pfv PF-2)" "" "    2 |"
+fdRow "printFormatT PF-3 a format after an expression applies to what follows: print qa #5d qb" "$(_pfv PF-3)" "2 5 |" "2     3 |"
+fdRow "printFormatT PF-4 a number format leaves a count alone: print #8.2f qa" "$(_pfv PF-4)" "" "2 |"
+fdRow "printFormatT PF-5 a number format on a number: print #8.2f qn" "$(_pfv PF-5)" "" "    2.50 |"
+fdRow "printFormatT PF-6 a second count format replaces the first: print #5d qa #3d qb" "$(_pfv PF-6)" "" "    2   3 |"
+fdRow "printFormatT PF-7 a string format: print #6s qs" "$(_pfv PF-7)" "" "    ab |"
+fdRow "printFormatT PF-8 the format ends with its statement: print #5d qa, then print qa" "$(_pfv PF-8)" "2 |" "    2 |2 |"
+fi
+
 #  ⚑ seqT -- SEQ 446 S0 (2026-10-28): the seq half of rung 1 -- STARt builds one seq instruct (op seq, its operand the
 #  list of statement instructs), testOP runs it. One process per row; a row's stdout less the noise lines is compared, an
 #  -o row is the old road on the same statements. BORN RED on trunk: SQ-1 / SQ-3 / SQ-4 crash (139: testOP handed

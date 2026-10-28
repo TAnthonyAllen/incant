@@ -1,0 +1,63 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(PrintFormatT);
+define
+    qa=2; qb=3; qc=4; qn=2.5; qs="ab";
+    pf1; pf2;
+    ;
+search PrintFormatT Utilities UnitTests list;
+righty = 7;
+stop();
+
+printFormatT -- SEQ 449 R4 (2026-10-28): the PRINTXp reshape -- PRINTXp is FORMAt; SHORTCUt; EXPRESSIOn;, and a format
+is an item of its own.
+
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then the row's
+statements (` @@ ` splits lines), then a sentinel on stderr. One process per row; the row's STDOUT, less the run's noise
+lines, newlines read as `|`, is what is compared.
+
+THE RULE (Tony, SEQ 449 R4; the design in his offline note of 2026-10-28): a format item sets the implicit format for
+ITS data type -- the type its letter names (d i u x X o c: a count; f e E g G: a number; s: a string or token) -- for
+every later item of that type, to the end of its print statement. Another format for the same type replaces it. Items
+of other types keep their own format. The defaults (%d, %.1f, %s) come back at the next print.
+
+THE OLD ROAD IS NOT THE ORACLE HERE. On both roads, before SEQ 449 R1, a `#` after an expression was taken as a STRINGXp:
+the old road prints `print qa #5d:;` as `2 5 d`. A format after an expression never applied there, so these rows pin
+the INTENDED value (Tony, SEQ 449 R4), and no -o row exists.
+
+BORN RED on trunk (S0), each row's today measured on e0f8e0c0: a print that starts with a format builds no items at
+all and prints nothing; `qa #5d qb` prints `2 5` (FORMAt is only tried after an EXPRESSIOn under PRINTFIELd, and its
+`5` survives as a print item).
+
+ROWS
+PF-0|pf1 = PRINt("print #5d qa:;");
+PF-1|pf1 = PRINt("print qa:;"); @@ testOP(pf1);
+PF-2|pf1 = PRINt("print #5d qa:;"); @@ testOP(pf1);
+PF-3|pf1 = PRINt("print qa #5d qb:;"); @@ testOP(pf1);
+PF-4|pf1 = PRINt("print #8.2f qa:;"); @@ testOP(pf1);
+PF-5|pf1 = PRINt("print #8.2f qn:;"); @@ testOP(pf1);
+PF-6|pf1 = PRINt("print #5d qa #3d qb:;"); @@ testOP(pf1);
+PF-7|pf1 = PRINt("print #6s qs:;"); @@ testOP(pf1);
+PF-8|pf1 = PRINt("print #5d qa:;"); @@ pf2 = PRINt("print qa:;"); @@ testOP(pf1); @@ testOP(pf2);
+
+PF-0 the build alone prints nothing.
+PF-1 the control: no format, `2 `.
+PF-2 a format first: `    2 ` (%5d, then the default space).
+PF-3 a format after an expression applies to what FOLLOWS it: `2     3 `.
+PF-4 a number format leaves a count alone: `2 `.
+PF-5 a number format on a number: `    2.50 `.
+PF-6 a second count format replaces the first: `    2   3 `.
+PF-7 a string format: `    ab `.
+PF-8 a format lasts to the end of ITS statement: the next print reads the default, `    2 ` then `2 `.
