@@ -303,6 +303,12 @@ Rung 1's build (Tony, ruled 2026-10-27, "keep it simple"): opPrintList as above,
    stdout and whatever appendGroup gives, no cerr / cout / printTO variants; PRINt's
    kant action only builds one instruct (op opPrintList, argument the list);
    aCTionPrinT untouched. Certificate: prints what old PrinT("print 77:;") prints.
+   BUILT SEQ 442 R4 (2026-10-28): opPrintList in Instruct.rtn, registered `printList unary` in incant/setup's
+   Operators; PRINt's action in kantGrammar builds `instruct +% op printItems` (each item its EXPRESSIOn's value, a
+   shortcut item as is) and binds testOP. SHORTCUt names aCTionShortcuT, because isShortcut has no kant write case.
+   Fleet: printListT -- PL-1 prints "77 " byte for byte as PrinT, PL-0 the build alone prints nothing, PL-2 an
+   instruct item (qa + qb) prints 5 on both roads. Not carried: formats (appendGroup gets no FORMAt); context, not
+   chased: `print qa qb:;` reaches PRINt as ONE item (EXPRESSIOn's TOKEn+ takes both).
 Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
 (qa[qb] + qc), then the op-method split recon.
 
