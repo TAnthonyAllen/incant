@@ -68,59 +68,10 @@ cerr "B4 chain [" testOP(whatsIt) "]":;
 print "SENTINEL tester driver end":;
 stop();
 
-debug InvokeD InvokeR xpListTest;
-compareXP();
-xpListTest("ga > qb || qb > qc || righty = 42")
-xpListTest("invokeTEST call qa + qb + qc;");
-xpListTest("invokeTEST call qa - qb + qc;");
-xpListTest("invokeTEST call qa - qb - qc;");
-xpListTest("invokeTEST call - qa + qb;");
-xpListTest("invokeTEST call qc - - qa;");
-xpListTest("invokeTEST call 13 -= qa - qb + qc;");
-xpListTest("invokeTEST call righty -= qa - qb + qc;");
-print "SENTINEL tester end":;
-stop();
-maximus=righty;
-whatsIt = qa - qb + qc;
-print "whatsIt:" whatsIt:;
-whatsIt = maximus -= whatsIt;
-print "maximus:" maximus:;
-maximus=righty;
-print "maximus reset to:" maximus:;
-whatsIt = maximus -= qa - qb + qc;
-print "whatsIt:" whatsIt "maximus:" maximus:;
-xpListTest("invokeTEST call righty -= qa - qb + qc;");
-stop();
-
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
-debug GUARD ALL xpListTest listEntries;
-    // the following prints a debugging list of instruction parts
-                        curTAG  = *cur.taG;
-                        if op.datA;     opTAG = *op.taG;
-                        else            opTAG = "no operator";
-                        if arg.datA;    argTAG = *arg.taG;
-                        else            argTAG = "no argument";
-                        if target.datA; targetTAG = *target.taG;
-                        else            targetTAG = "no target";
-                        print "Build instruction with:" kind curTAG opTAG targetTAG argTAG:;
-    compareXP code={
-        maximus=righty;
-        print "maximus set to:" maximus:;
-        whatsIt = qa - qb + qc;
-        print "After running whatsIt = qa - qb + qc; whatsIt:" whatsIt:;
-        partB = qb + qc;
-        print "partB = qb + qc;" partB:;
-        whatsIt = qa - partB;
-        print "After running whatsIt = qa - partB; whatsIt:" whatsIt "partB:" partB:;
-        whatsIt = maximus -= whatsIt;
-        print "After running whatsIt = maximus -= whatsIt; whatsIt:" whatsIt "maximus:" maximus:;
-        maximus=righty;
-        print "maximus reset to:" maximus:;
-        whatsIt = maximus -= qa - qb + qc;
-        print "After running whatsIt = maximus -= qa - qb + qc; whatsIt:" whatsIt "maximus:" maximus:;
-        };
+
 
 /***************************************************************************
     Current Status
