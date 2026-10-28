@@ -3223,6 +3223,15 @@ that check -- he should never have to take a result on faith. The line is writte
 no fixture names he has to decode, no instrument jargon. Clay's half of the same rule: every Clay turn ends with the one
 decision it asks of Tony, in one sentence.
 
+⚠⚠ **THE FILES ARE OUR FILES. Tony, standing, 2026-10-28 (SEQ 451 R2).** Three classes:
+- **`IncantForms/WorkingOn/tester` and `incant/kantGrammar`: Clod changes them at will.** They are works in progress, so a
+  change that breaks something is expected and carries no blame; Tony reviews them as he works. Commit them as usual.
+- **`IncantForms/WorkingOn/macros` and `IncantForms/WorkingOn/incant++`: Clod does not change them.** They record Tony's
+  thinking as it evolves; Tony changes them.
+- **Everything else of Tony's (utilities, unitTests, printFamily and the rest): changed as a stroke needs, named in the
+  report.**
+This widens the tester paragraph below (Clod adds a scaffold, leaves his lines alone) to tester as a whole.
+
 ⚠⚠ **`IncantForms/WorkingOn/tester` IS TRACKED, IT COMMITS WITH ROUTINE WORK, AND CLOD MAY
 WRITE IN IT. Tony, 2026-09-22: "tester can be committed when you are committing."** This
 **reverses SEQ 105 R4 (2026-09-01)**, which gitignored it; the ignore entry is **removed**, not
