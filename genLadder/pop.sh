@@ -303,7 +303,8 @@ else
     echo "  FAIL  baselineTests testRecursion JITTED = interpreted -- got [$_utj] want [10 10 4 4]"; fail=1
 fi
 #  formatTestRow SEQ 452 R1 (string-lead): formatTest is in testUnitTests; on the old road a format applies to the expression
-#  BEFORE it, so `"Formatted" #12s` right-justifies Formatted in 12. H7: StringXP led by `#` again -> `Formatted 12 s maybe`.
+#  BEFORE it, so `"Formatted" #12s` right-justifies Formatted in 12. H7 (measured, single fixture, restored by md5): StringXP led
+#  by `#` again -> `is Formatted 12 s maybe` (the #12s read as a string expression).
 _uft="$(sed -n 's/.*formatTest: \t\(.*\)/\1/p' "$T/base")"
 if [ "$_uft" = "is    Formatted maybe " ]; then
     echo "  ok    baselineTests formatTest (old road: the format applies to the expression before it) = [$_uft]"; green=$((green+1))
