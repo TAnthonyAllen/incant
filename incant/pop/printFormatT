@@ -72,3 +72,6 @@ GREEN ON BRANCH print-reshape (SEQ 449 R4). Three things stood between FORMAt an
 3. printField never applied a format on EITHER road: tok's `print(buffer) gCount` generates appendInt(gCount,0,0) and
    ignores `format`. printFormatted now applies one when it is handed in (only opPrintList hands one); with none,
    printField is byte for byte as before, so the old road is unmoved (printPop identical).
+H7, one variable each, rebuilt each time, restored by md5 (2573d47a): the format arm out of printField -> PF-2..PF-8
+print the defaults (2, 2 3, 2.5, ab); the slots made to persist across calls (static) -> PF-8 reads `    2 |    2 |`,
+the format leaking into the next print, every other row unmoved.
