@@ -1,0 +1,54 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest  assignTier;
+    ;
+registry(SeqT);
+define
+    qa=2; qb=3; qc=4; kv=0;
+    sa; w1; w2;
+    fId code={ return argument; };
+    ;
+search SeqT Utilities UnitTests list;
+righty = 7;
+stop();
+
+seqT -- SEQ 446 (2026-10-28): the seq half of rung 1. A STARt list is built as one seq instruct (op seq = opSeq, its
+operand the list of statement instructs) and testOP runs it.
+
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then the row's
+statements (separated by " @@ " in the row, one per line in the input), then a sentinel on stderr. One process per row.
+A row's STDOUT, less the run's noise lines (stop:, Search list:, We done, Assign at end), is what is compared; an -o row
+is the old road on the same statements, the oracle.
+Names are declared in the prelude: a fresh top-level name does not take a copy (`sa = STARt(...)` left sa empty).
+
+SQ-0 the build alone prints nothing (the control paired with SQ-1).
+SQ-1 STARt("print 77:; print 88:;") built then run = the old road's two prints, byte for byte.
+SQ-2 two PRINt builds, then the first run, prints 77. BORN RED: PRINt's action attached its LOCAL printItems, so every
+     PRINt instruct shared one list and the first printed the second's 88 (bear-trap 50).
+SQ-3 the unrun-instruct class inside a seq: `print fId(qa + qb) * qc` prints 20 -- testOP runs the call first, never 0.
+SQ-4 STARt with an expression statement keeps every statement. BORN RED and STAYS RED this stroke (SEQ 446 R3): XPRESs
+     fails (EXPRESSIOn's SemI?- takes the `;` XPRESs requires), so STARt drops everything from it on. The next stroke.
+
+ROWS
+SQ-0|sa = STARt("print 77:; print 88:;");
+SQ-1|sa = STARt("print 77:; print 88:;"); @@ testOP(sa);
+SQ-1o|print 77:; @@ print 88:;
+SQ-2|w1 = PRINt("print 77:;"); @@ w2 = PRINt("print 88:;"); @@ testOP(w1);
+SQ-3|sa = STARt("print 77:; print fId(qa + qb) * qc:;"); @@ testOP(sa);
+SQ-3o|print 77:; @@ print fId(qa + qb) * qc:;
+SQ-4|sa = STARt("print 77:; qa + qb; print 88:;"); @@ testOP(sa);
+SQ-4o|print 77:; @@ qa + qb; @@ print 88:;

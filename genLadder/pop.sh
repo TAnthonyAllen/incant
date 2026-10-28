@@ -6522,6 +6522,35 @@ kindRow "printListT PL-1 new = old, print 77:;" "$(cmp -s "$T/pl.PL-1.o" "$T/pl.
 kindRow "printListT PL-2 new = old, print qa + qb:; (an instruct item)" "$(cmp -s "$T/pl.PL-2.o" "$T/pl.PL-2o.o" && echo same || echo differ) $(cat "$T/pl.PL-2.o")" "same 5 "
 fi
 
+#  ⚑ seqT -- SEQ 446 S0 (2026-10-28): the seq half of rung 1 -- STARt builds one seq instruct (op seq, its operand the
+#  list of statement instructs), testOP runs it. One process per row; a row's stdout less the noise lines is compared, an
+#  -o row is the old road on the same statements. BORN RED on trunk: SQ-1 / SQ-3 / SQ-4 crash (139: testOP handed
+#  STARt's bare label), SQ-2 reads 88 (PRINt's shared local list, bear-trap 50). # intended: SQ-1 / SQ-3 = their -o row
+#  byte for byte, SQ-2 77, SQ-0 nothing. SQ-4 (an expression statement in STARt) is NOT in this stroke: it stays red
+#  until the XPRESs collapse is fixed (SEQ 446 R3).
+_sqF=$(ip seqT)
+if [ -f "$_sqF" ]; then
+for _id in $(sed -n 's/^\(SQ-[0-9o]*\)|.*/\1/p' "$_sqF"); do
+    { sed '/^stop();/,$d' "$_sqF"; grep "^$_id|" "$_sqF" | cut -d'|' -f2- | sed 's/ @@ /\
+/g'; printf 'cerr "SEQT SENTINEL":;\nstop();\n'; } > "$T/sq.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/sq.$_id.k" > "$T/sq.$_id" 2> "$T/sq.$_id.e"; _x=$?
+    _sqe="$_x $(grep -c '^SEQT SENTINEL' "$T/sq.$_id.e")"
+    case $_id in
+    SQ-1|SQ-3|SQ-4) fdRow "seqT $_id exit / sentinel" "$_sqe" "139 0" "0 1" ;;
+    *)              kindRow "seqT $_id exit / sentinel" "$_sqe" "0 1" ;;
+    esac
+    grep -v '^stop: \|^Search list: \|^We done\|^Assign at end\|^ *$' "$T/sq.$_id" > "$T/sq.$_id.o"
+done
+_sqv () { tr '\n' '|' < "$T/sq.$1.o"; }
+_sqc () { cmp -s "$T/sq.$1.o" "$T/sq.$1o.o" && echo same || echo differ; }
+kindRow "seqT SQ-0 the build alone prints nothing (bytes)" "$(wc -c < "$T/sq.SQ-0.o" | tr -d ' ')" "0"
+kindRow "seqT SQ-1o / SQ-3o / SQ-4o the old road" "$(_sqv SQ-1o) $(_sqv SQ-3o) $(_sqv SQ-4o)" "77 |88 | 77 |20 | 77 |88 |"
+fdRow "seqT SQ-1 STARt(print 77, print 88) built then run = the old road" "$(_sqc SQ-1) $(_sqv SQ-1)" "differ " "same 77 |88 |"
+fdRow "seqT SQ-2 two PRINt builds, the first run prints 77" "$(_sqv SQ-2)" "88 |" "77 |"
+fdRow "seqT SQ-3 an instruct operand inside a seq (fId(qa + qb) * qc) = the old road" "$(_sqc SQ-3) $(_sqv SQ-3)" "differ " "same 77 |20 |"
+fdRow "seqT SQ-4 an expression statement inside STARt = the old road (NOT this stroke)" "$(_sqc SQ-4) $(_sqv SQ-4)" "differ " "same 77 |88 |"
+fi
+
 #  ⚑ staleTempT -- SEQ 432 (2026-10-27): F-144. An arithmetic operator that cannot use its operand reads the SHARED
 #  tempField to decide whether it produced a value, so after a computation it hands back that computation's value (77)
 #  instead of refusing. Measured in kant, one process per row (the control needs a process where nothing has computed).
