@@ -12,9 +12,16 @@ registry(cOMMANDs);
 define
     testOP  immediateAction;
     ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest  assignTier;
+    ;
 registry(InstructTargetT);
 define
-    qa=2; qb=3; qc=4; kv=0;
+    qa=2; qb=3; qc=4; kv=0; zf=0;
+    tbl k1=1 k2=2;
+    hh;
+    fw code={ return qb; };
     ;
 search InstructTargetT Utilities UnitTests list;
 righty = 7;
@@ -46,7 +53,23 @@ IT-1|new|whatsIt = EXPRESSIOn("righty = 42 || qb > qc"); testOP(whatsIt); cerr "
 IT-2|new|whatsIt = EXPRESSIOn("qa > qb || righty = 42"); testOP(whatsIt); cerr "IT-2 righty [" righty "]":; whatsIt = EXPRESSIOn("qc > qa"); cerr "IT-2 true [" testOP(whatsIt) "]":;
 IT-3|new|whatsIt = EXPRESSIOn("qa > qb || righty = 42 || qb > qc"); testOP(whatsIt); cerr "IT-3 righty [" righty "]":; whatsIt = EXPRESSIOn("qc > qa"); cerr "IT-3 true [" testOP(whatsIt) "]":;
 IT-4|new|righty = 0; whatsIt = EXPRESSIOn("qa > qb || righty = 42"); testOP(whatsIt); cerr "IT-4 righty [" righty "]":; whatsIt = EXPRESSIOn("qa > qc"); cerr "IT-4 false [" testOP(whatsIt) "]":;
+IT-5|new|whatsIt = EXPRESSIOn("tbl[1] = 9"); testOP(whatsIt); cerr "IT-5 value [" tbl["k1"] "]":;
+IT-6|new|hh := qb; whatsIt = EXPRESSIOn("* hh = 9"); testOP(whatsIt); cerr "IT-6 value [" qb "]":;
+IT-7|new|whatsIt = EXPRESSIOn("- qa = 3"); testOP(whatsIt); cerr "IT-7 value [" qa "]":;
+IT-8|new|whatsIt = EXPRESSIOn("qa.noPrinT = 1"); testOP(whatsIt); if qa.noPrinT; zf = 1; cerr "IT-8 value [" zf "]":;
+IT-9|new|whatsIt = EXPRESSIOn("tbl =% k1 = 9"); testOP(whatsIt); cerr "IT-9 value [" tbl["k1"] "]":;
+IT-10|new|whatsIt = EXPRESSIOn("tbl =% zz = 9"); testOP(whatsIt); cerr "IT-10 value [" qa "]":;
+IT-11|new|whatsIt = EXPRESSIOn("fw(qa) = 9"); testOP(whatsIt); cerr "IT-11 value [" qb qa "]":;
+IT-12|new|whatsIt = EXPRESSIOn("! qa = 9"); testOP(whatsIt); cerr "IT-12 value [" qa "]":;
 OR-1|old|righty = 42 || qb > qc; cerr "OR-1 righty [" righty "]":;
 OR-2|old|qa > qb || righty = 42; cerr "OR-2 righty [" righty "]":; kv = qc > qa; cerr "OR-2 true [" kv "]":;
 OR-3|old|qa > qb || righty = 42 || qb > qc; cerr "OR-3 righty [" righty "]":; kv = qc > qa; cerr "OR-3 true [" kv "]":;
 OR-4|old|righty = 0; qa > qb || righty = 42; cerr "OR-4 righty [" righty "]":; kv = 0; if qa > qc; kv = 1; cerr "OR-4 false [" kv "]":;
+OR-5|old|tbl[1] = 9; cerr "OR-5 value [" tbl["k1"] "]":;
+OR-6|old|hh := qb; *hh = 9; cerr "OR-6 value [" qb "]":;
+OR-7|old|- qa = 3; cerr "OR-7 value [" qa "]":;
+OR-8|old|qa.noPrinT = 1; if qa.noPrinT; zf = 1; cerr "OR-8 value [" zf "]":;
+OR-9|old|tbl =% k1 = 9; cerr "OR-9 value [" tbl["k1"] "]":;
+OR-10|old|tbl =% zz = 9; cerr "OR-10 value [" qa "]":;
+OR-11|old|fw(qa) = 9; cerr "OR-11 value [" qb qa "]":;
+OR-12|old|! qa = 9; cerr "OR-12 value [" qa "]":;

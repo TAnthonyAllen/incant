@@ -6464,9 +6464,11 @@ for _id in $(sed -n 's/^\([IO][TR]-[0-9]*\)|.*/\1/p' "$_itF"); do
     _rd=$(grep "^$_id|" "$_itF" | cut -d'|' -f2); _bd=$(grep "^$_id|" "$_itF" | cut -d'|' -f3-)
     { if [ "$_rd" = old ]; then sed -e '/^stop();/,$d' -e '/include(kantGrammar)/d' -e 's/KantGrammar //' "$_itF"
       else sed '/^stop();/,$d' "$_itF"; fi
-      printf '%s\ncerr :;\ncerr "ITT SENTINEL":;\nstop();\n' "$_bd"; } > "$T/it.$_id.k"
+      printf '%s\ncerr :;\ncerr "ITT SENTINEL":;\nstop();\n' "$(printf '%s' "$_bd" | sed 's/; /;\
+/g')"; } > "$T/it.$_id.k"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/it.$_id.k" > "$T/it.$_id" 2>&1; _x=$?
-    kindRow "instructTargetT $_id exit / sentinel" "$_x $(grep -c '^ITT SENTINEL' "$T/it.$_id")" "0 1"
+    _ie="0 1"; [ "$_id" = OR-12 ] && _ie="139 0"
+    kindRow "instructTargetT $_id exit / sentinel" "$_x $(grep -c '^ITT SENTINEL' "$T/it.$_id")" "$_ie"
 done
 kindRow "instructTargetT IT-0 control: true / false read" "$(_itv IT-0 'IT-0 true') $(_itv IT-0 'IT-0 false')" "1 0"
 kindRow "instructTargetT IT-1 control: righty = 42 || qb > qc, righty / refusals" "$(_itv IT-1 'IT-1 righty') $(_itr IT-1)" "1 0"
@@ -6483,6 +6485,23 @@ kindRow "instructTargetT OR-1 old road: righty" "$(_itv OR-1 'OR-1 righty')" "1"
 kindRow "instructTargetT OR-2 old road: righty / true" "$(_itv OR-2 'OR-2 righty') $(_itv OR-2 'OR-2 true')" "42 1"
 kindRow "instructTargetT OR-3 old road: righty / true / setContent lines" "$(_itv OR-3 'OR-3 righty') $(_itv OR-3 'OR-3 true') $(_its OR-3)" "42 1 0"
 kindRow "instructTargetT OR-4 old road, righty 0: righty / false" "$(_itv OR-4 'OR-4 righty') $(_itv OR-4 'OR-4 false')" "42 0"
+#  SEQ 443 (Tony, R1 / R2 / R1'): the target allow-list is =[ deref . =% =/ =< -- every other top op refused by name; a
+#  by-name lookup target that misses refuses by name. BORN RED at SEQ 442's refuse-every-instruct: IT-5 / 6 / 8 / 9 refuse
+#  and write nothing, IT-10 refuses as an instruct, not as a miss. # intended: the old road's values (OR-5 / 6 / 8 / 9).
+#  IT-7 (- qa), IT-11 (call), IT-12 (!) stay refused. OR- rows pinned at measured values, not ruled: OR-10 the miss is
+#  silent, OR-11 the call writes nothing silently, OR-12 crashes 139 (context, not chased).
+_itm () { grep -c '^REFUSED =% -- the left of = looks up zz, and finds none' "$T/it.$1"; }
+fdRow "instructTargetT IT-5 tbl[1] = 9: refusals / value" "$(_itr IT-5) $(_itv IT-5 'IT-5 value')" "1 1" "0 9"
+fdRow "instructTargetT IT-6 hh := qb; * hh = 9 (through the holder): refusals / qb" "$(_itr IT-6) $(_itv IT-6 'IT-6 value')" "1 3" "0 9"
+kindRow "instructTargetT IT-7 - qa = 3 stays refused: refusals / qa" "$(_itr IT-7) $(_itv IT-7 'IT-7 value')" "1 2"
+fdRow "instructTargetT IT-8 qa.noPrinT = 1: refusals / flag" "$(_itr IT-8) $(_itv IT-8 'IT-8 value')" "1 0" "0 1"
+fdRow "instructTargetT IT-9 tbl =% k1 = 9 (a lookup hit): refusals / value" "$(_itr IT-9) $(_itv IT-9 'IT-9 value')" "1 1" "0 9"
+fdRow "instructTargetT IT-10 tbl =% zz = 9 (a miss): instruct refusals / miss refusals / qa" "$(_itr IT-10) $(_itm IT-10) $(_itv IT-10 'IT-10 value')" "1 0 2" "0 1 2"
+kindRow "instructTargetT IT-11 fw(qa) = 9 stays refused: refusals / qb qa" "$(_itr IT-11) $(sed -n 's/^IT-11 value \[ *\(.*[^ ]\) *\].*/\1/p' "$T/it.IT-11")" "1 3 2"
+kindRow "instructTargetT IT-12 ! qa = 9 stays refused: refusals / qa" "$(_itr IT-12) $(_itv IT-12 'IT-12 value')" "1 2"
+kindRow "instructTargetT OR-5..9 old road: tbl[1] / *hh / - qa / qa.noPrinT / =% k1" "$(_itv OR-5 'OR-5 value') $(_itv OR-6 'OR-6 value') $(_itv OR-7 'OR-7 value') $(_itv OR-8 'OR-8 value') $(_itv OR-9 'OR-9 value')" "9 9 2 1 9"
+kindRow "instructTargetT OR-7 old road refuses - qa = 3 as a value" "$(grep -c '^REFUSED = -- the left of = is a value, not a field' "$T/it.OR-7")" "1"
+kindRow "instructTargetT OR-10 / OR-11 old road: the miss and the call, silent (REFUSED lines, values)" "$(grep -c '^REFUSED' "$T/it.OR-10") $(grep -c '^REFUSED' "$T/it.OR-11") $(_itv OR-10 'OR-10 value') $(sed -n 's/^OR-11 value \[ *\(.*[^ ]\) *\].*/\1/p' "$T/it.OR-11")" "0 0 2 3 2"
 fi
 
 #  ⚑ printListT -- SEQ 442 R4, rung 1 (2026-10-28): kantGrammar's PRINt BUILDS one instruct (op printList = opPrintList,
