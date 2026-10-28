@@ -220,6 +220,8 @@ ATTEMPT LOG
     touched between. dirCheck.flicker-2026-10-28c.txt. Measured only.
   2026-10-28 seal 248: first run 104 of 114 -- TWO parked dark at once (`ensureGuard endSetGuard`, `ensureGuard returnGuard
     before`, Directives/GroupItem lines 31 / 34), rerun 106 = capture. dirCheck.flicker-2026-10-28d.txt. Measured only.
+  2026-10-28 seal 250: first run 104 again, two parked dark (`pushInput sourceFILE before`, groupDirectives line 351;
+    `remove if before`, Directives/GroupItem line 97), rerun 106 = capture. dirCheck.flicker-2026-10-28e.txt. Measured only.
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure

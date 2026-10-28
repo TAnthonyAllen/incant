@@ -1,0 +1,119 @@
+tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
+  ok    INJECTS aCTionDefinE "if Attributes" before (armed, line 14 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS aCTionNamE if before (parked, line 22 of Directives/groupDirectives) -> GroupRules.twk +2
+  ok    INJECTS aCTionRunRulE if within (parked, line 25 of Directives/groupDirectives) -> GroupRules.twk +2
+  ok    INJECTS aCTionSearch cout (parked, line 28 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS compile if before (parked, line 31 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS compile endCompile (parked, line 50 of Directives/groupDirectives) -> GroupRules.twk +3
+  ok    INJECTS copyOf starting (parked, line 54 of Directives/groupDirectives) -> GroupRules.twk +2
+  WARN dark  generateCode generating (parked, line 57 of Directives/groupDirectives) -- method not found in any candidate file
+  ok    INJECTS guard GroupItem (parked, line 62 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS guard clearData (parked, line 65 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS loadInputFromFile if before (parked, line 68 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS opDebug return before (parked, line 74 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS opDot product (parked, line 77 of Directives/groupDirectives) -> GroupRules.twk +2
+  ok    INJECTS exitFromParse "exitLab = cLab" (parked, line 86 of Directives/groupDirectives) -> GroupRules.twk +19
+  ok    INJECTS exitFromParse atRuleMark (parked, line 100 of Directives/groupDirectives) -> GroupRules.twk +15
+  ok    INJECTS parseAction starting (parked, line 112 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS parseCondition starting (parked, line 119 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS parseContainer starting (parked, line 126 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS parseRule measureLabelMint (parked, line 133 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS parseSet starting (parked, line 140 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS parseString starting (parked, line 147 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS parseUpTo starting (parked, line 154 of Directives/groupDirectives) -> GroupRules.twk +8
+  ok    INJECTS printToBuffer toBUFFER (parked, line 174 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS printToBuffer debugHere (parked, line 177 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS processAction code (parked, line 180 of Directives/groupDirectives) -> GroupRules.twk +2
+  WARN dark  processCode processingCode (parked, line 183 of Directives/groupDirectives) -- tok found processCode in GroupRules.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS processCode result (parked, line 188 of Directives/groupDirectives) -> GroupRules.twk +2
+  ok    INJECTS rEGISTER currentRegistry (parked, line 191 of Directives/groupDirectives) -> GroupRules.twk +2
+  ok    INJECTS runAction if before (parked, line 195 of Directives/groupDirectives) -> GroupRules.twk +2
+  WARN dark  runOP starting (parked, line 199 of Directives/groupDirectives) -- tok found runOP in GroupRules.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS runRule if (parked, line 202 of Directives/groupDirectives) -> GroupRules.twk +2
+  ok    INJECTS restoreLocalFields starting (parked, line 205 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS saveLocalFields ending (parked, line 208 of Directives/groupDirectives) -> GroupRules.twk +1
+  ok    INJECTS setParse starting (parked, line 214 of Directives/groupDirectives) -> GroupRules.twk +2
+  WARN dark  addGroup starting (parked, line 223 of Directives/groupDirectives) -- tok found addGroup in GroupItem.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS addGroup altered (parked, line 226 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS addGroup ending (parked, line 229 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS ensureGuard if before (parked, line 238 of Directives/groupDirectives) -> GroupItem.twk +1
+  ok    INJECTS ensureGuard "if isCondition" before (parked, line 241 of Directives/groupDirectives) -> GroupItem.twk +7
+  ok    INJECTS ensureGuard endSetGuard (parked, line 247 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS ensureGuard returnGuard before (parked, line 250 of Directives/groupDirectives) -> GroupItem.twk +16
+  ok    INJECTS fireLabelMethod ruleSTUFF (parked, line 262 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS getStuff if before (parked, line 265 of Directives/groupDirectives) -> GroupItem.twk +6
+  ok    INJECTS parse "callOK      = checkInput" before (armed, line 274 of Directives/groupDirectives) -> GroupItem.twk +8
+  ok    INJECTS parse ownPoint (armed, line 281 of Directives/groupDirectives) -> GroupItem.twk +18
+  ok    INJECTS parse debugHere (armed, line 294 of Directives/groupDirectives) -> GroupItem.twk +16
+  ok    INJECTS push if before (parked, line 307 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS push finishAdd (parked, line 310 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS remove if before (parked, line 313 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS setGroup starting (parked, line 316 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS setRuleStuff if before (parked, line 319 of Directives/groupDirectives) -> GroupItem.twk +2
+  ok    INJECTS bootstrapper pushInput (armed, line 332 of Directives/groupDirectives) -> GroupMain.twk +4
+  ok    INJECTS checkSkip stacked before (parked, line 343 of Directives/groupDirectives) -> GroupRules.twk +3
+  ok    INJECTS checkSkip "if stacked" before (parked, line 347 of Directives/groupDirectives) -> GroupRules.twk +3
+  WARN dark  pushInput sourceFILE before (parked, line 351 of Directives/groupDirectives) -- tok found pushInput in GroupRules.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS popInput return before (parked, line 354 of Directives/groupDirectives) -> GroupRules.twk +4
+  ok    INJECTS getWhatFollows followed (parked, line 364 of Directives/groupDirectives) -> RuleStuff.twk +2
+  WARN dark  addGroup starting (parked, line 7 of Directives/GroupItem) -- tok found addGroup in GroupItem.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS addGroup altered (parked, line 10 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS addGroup ending (parked, line 13 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS ensureGuard if before (parked, line 22 of Directives/GroupItem) -> GroupItem.twk +1
+  ok    INJECTS ensureGuard "if isCondition" before (parked, line 25 of Directives/GroupItem) -> GroupItem.twk +7
+  ok    INJECTS ensureGuard endSetGuard (parked, line 31 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS ensureGuard returnGuard before (parked, line 34 of Directives/GroupItem) -> GroupItem.twk +16
+  ok    INJECTS fireLabelMethod ruleSTUFF (parked, line 46 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS getStuff if before (parked, line 49 of Directives/GroupItem) -> GroupItem.twk +6
+  ok    INJECTS parse "callOK      = checkInput" before (armed, line 58 of Directives/GroupItem) -> GroupItem.twk +8
+  ok    INJECTS parse ownPoint (armed, line 65 of Directives/GroupItem) -> GroupItem.twk +18
+  ok    INJECTS parse debugHere (armed, line 78 of Directives/GroupItem) -> GroupItem.twk +16
+  ok    INJECTS push if before (parked, line 91 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS push finishAdd (parked, line 94 of Directives/GroupItem) -> GroupItem.twk +2
+  WARN dark  remove if before (parked, line 97 of Directives/GroupItem) -- tok found remove in GroupItem.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS setGroup starting (parked, line 100 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS setRuleStuff if before (parked, line 103 of Directives/GroupItem) -> GroupItem.twk +2
+  ok    INJECTS bootstrapper pushInput (armed, line 8 of Directives/GroupMain) -> GroupMain.twk +4
+  ok    INJECTS checkSkip stacked before (parked, line 6 of Directives/GroupRules) -> GroupRules.twk +3
+  ok    INJECTS checkSkip "if stacked" before (parked, line 10 of Directives/GroupRules) -> GroupRules.twk +3
+  ok    INJECTS pushInput sourceFILE before (parked, line 14 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS popInput return before (parked, line 17 of Directives/GroupRules) -> GroupRules.twk +4
+  ok    INJECTS aCTionDefinE "if Attributes" before (armed, line 35 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS aCTionNamE if before (parked, line 43 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS aCTionRunRulE if within (parked, line 46 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS aCTionSearch cout (parked, line 49 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS compile if before (parked, line 52 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS compile endCompile (parked, line 71 of Directives/GroupRules) -> GroupRules.twk +3
+  ok    INJECTS copyOf starting (parked, line 75 of Directives/GroupRules) -> GroupRules.twk +2
+  WARN dark  generateCode generating (parked, line 78 of Directives/GroupRules) -- method not found in any candidate file
+  ok    INJECTS guard GroupItem (parked, line 83 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS guard clearData (parked, line 86 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS loadInputFromFile if before (parked, line 89 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS opDebug return before (parked, line 95 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS opDot product (parked, line 98 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS exitFromParse "exitLab = cLab" (parked, line 107 of Directives/GroupRules) -> GroupRules.twk +19
+  ok    INJECTS exitFromParse atRuleMark (parked, line 121 of Directives/GroupRules) -> GroupRules.twk +15
+  ok    INJECTS parseAction starting (parked, line 133 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS parseCondition starting (parked, line 140 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS parseContainer starting (parked, line 147 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS parseRule measureLabelMint (parked, line 154 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS parseSet starting (parked, line 161 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS parseString starting (parked, line 168 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS parseUpTo starting (parked, line 175 of Directives/GroupRules) -> GroupRules.twk +8
+  ok    INJECTS printToBuffer toBUFFER (parked, line 195 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS printToBuffer debugHere (parked, line 198 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS processAction code (parked, line 201 of Directives/GroupRules) -> GroupRules.twk +2
+  WARN dark  processCode processingCode (parked, line 204 of Directives/GroupRules) -- tok found processCode in GroupRules.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS processCode result (parked, line 209 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS rEGISTER currentRegistry (parked, line 212 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS runAction if before (parked, line 216 of Directives/GroupRules) -> GroupRules.twk +2
+  WARN dark  runOP starting (parked, line 220 of Directives/GroupRules) -- tok found runOP in GroupRules.twk but injected NOTHING -- the anchor matches no statement
+  ok    INJECTS runRule if (parked, line 223 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS restoreLocalFields starting (parked, line 226 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS saveLocalFields ending (parked, line 229 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS setParse starting (parked, line 235 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS getWhatFollows followed (parked, line 7 of Directives/RuleStuff) -> RuleStuff.twk +2
+DIRCHECK: 114 directives -- 104 inject, 10 dark (0 armed, 10 parked)
+  ok    tree retokked bare and byte-identical to the bare snapshot
+DIRCHECK PASSED (104 of 114 inject; parked dark named above, not a failure)
+DIRCHECK SENTINEL -- reached the foot
