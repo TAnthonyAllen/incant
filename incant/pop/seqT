@@ -45,9 +45,9 @@ SQ-4 STARt with an expression statement keeps every statement. Born red (SEQ 446
      ends before the `;` (every caller takes its own, as the old grammar's ExpressioN does). SQ-4 alone cannot tell a
      statement that RAN from one dropped quietly -- `qa + qb` has no effect -- so SQ-5 carries a side effect.
 SQ-5 an assign statement inside STARt runs: kv = 5 then print kv prints 5, as the old road. Measured on the way (SEQ 448):
-     with the parse fixed it printed 0 -- an XPRESs statement reached opSeq as its label, and a chain closed by
-     `target = slot` (assign, compare, logic) had lost testOP to setContent, and opSeq runs only an item carrying testOP,
-     silently. XPRESs's action now hands up the instruct and stamps testOP on it.
+     with the parse fixed it printed 0 -- XPRESs had no action, so the statement reached opSeq as a label, and opSeq runs
+     only an instruct and skips the rest, silently. XPRESs's action hands up **EXPRESSIOn, the instruct (one star hands
+     the label: H7, SQ-5 reads 0). A testOP stamp was tried first and is NOT load-bearing (H7: out, SQ-5 still 5).
 SQ-6 the build alone runs nothing: kv stays 0 after STARt builds kv = 5.
 
 ROWS

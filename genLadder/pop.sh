@@ -6553,8 +6553,9 @@ fdRow "seqT SQ-2 two PRINt builds, the first run prints 77" "$(_sqv SQ-2)" "88 |
 fdRow "seqT SQ-3 an instruct operand inside a seq (fId(qa + qb) * qc) = the old road" "$(_sqc SQ-3) $(_sqv SQ-3)" "differ " "same 77 |20 |"
 #  SQ-4 GREEN, SEQ 448 (2026-10-28): EXPRESSIOn ends before the `;` (its SemI?- removed), so XPRESs parses and STARt keeps
 #  every statement. SQ-5 is the row that says the statement RAN (SQ-4's `qa + qb` has no effect): XPRESs's action hands up
-#  the instruct and stamps testOP on it, which a chain closed by `target = slot` had lost. SQ-6: the build alone runs nothing.
-#  H7 (one variable each, single fixture): the stamp line out -> SQ-5 reads 0, SQ-4 holds; SemI?- back -> SQ-4 / SQ-5 red.
+#  **EXPRESSIOn, the instruct, not the label opSeq would skip. SQ-6: the build alone runs nothing.
+#  H7 (one variable each, single fixture): one star (*EXPRESSIOn) -> SQ-5 reads 0, SQ-4 holds; SemI?- back -> SQ-4 77 alone,
+#  SQ-5 prints nothing.
 kindRow "seqT SQ-4 an expression statement inside STARt = the old road" "$(_sqc SQ-4) $(_sqv SQ-4)" "same 77 |88 |"
 kindRow "seqT SQ-5o the old road: kv = 5 then print kv" "$(_sqv SQ-5o)" "5 |"
 kindRow "seqT SQ-5 an assign statement inside STARt runs = the old road" "$(_sqc SQ-5) $(_sqv SQ-5)" "same 5 |"
