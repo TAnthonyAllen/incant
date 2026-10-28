@@ -19,7 +19,10 @@ cd "$(dirname "$0")/.." || exit 2
 TOKBIN=$(command -v tok)
 if [ -z "$TOKBIN" ]; then echo "FAIL dirCheck: no tok on PATH"; exit 1; fi
 echo "tok: $TOKBIN  $(stat -f '%z bytes  %Sm' "$TOKBIN")"
-DIRFILES="groupDirectives"
+#  every file in Directives/ (Tony, SEQ 448 R2, 2026-10-28): groupDirectives plus the per-class files; duplicates
+#  between them are expected until groupDirectives is pruned to a parking list
+DIRFILES=$(ls Directives/* 2>/dev/null)
+if [ -z "$DIRFILES" ]; then echo "FAIL dirCheck: no directive files in Directives/"; exit 1; fi
 for f in $DIRFILES; do
     if [ ! -f "$f" ]; then echo "FAIL dirCheck: directive file MISSING: $f"; exit 1; fi
 done

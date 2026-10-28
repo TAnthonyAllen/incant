@@ -90,6 +90,8 @@ genLadder/smoke.fleet.base
 #  need one. The DEFAULT BUILD IS BARE and never names it.
 IncantForms/WorkingOn/incant++
 groupDirectives
+#  Directives/ -- Tony's per-class directive files plus groupDirectives (moved there 2026-10-28); ignored (SEQ 448 R3)
+Directives/
 #  ⚠⚠ tester IS TRACKED AGAIN -- Tony, 2026-09-22: "tester can be committed when you
 #  are committing." The entry is REMOVED rather than left here commented, because an
 #  ignore line and a rule that the file commits cannot both be true, and a stale
