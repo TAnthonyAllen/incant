@@ -315,6 +315,11 @@ TC-8 CLOSED (SEQ 446 R1, Tony 2026-10-28): green on trunk; its H7 exposure is a 
    as COUNT 0 (+ - / * alike under testOP's H7) -- docketed in TODO.md with the table. Nothing built for *.
 Next (SEQ 446 R2): the seq half of rung 1 -- a STATEMENt list built as one seq instruct, opSeq runs it. Recon and plan
    first; nothing built until Tony rules on the plan.
+SEQ 446 BUILT on branch seq-stroke (pushed, NOT MERGED -- Tony's buy): S1 PRINt attaches a mint of its item list (its
+   local was shared by every PRINt, bear-trap 50); S2 opSeq (Instruct.rtn), `seq unary` in setup, items through testOP,
+   hands back its argument list (R2); S3 STARt's action builds `seq` over a mint of its statement instructs. seqT on
+   trunk pins it born red (01dc6329). Next wall (R3): the XPRESs collapse -- STARt drops everything from an expression
+   statement on (SQ-4), the next stroke.
 
 /*******************************************************************************
 	Open questions

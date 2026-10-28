@@ -209,6 +209,12 @@ ATTEMPT LOG
     dirCheck FAILED (exit 1); with it the parked `setGroup starting` (line 316, GroupItem.twk; capture +2). Output KEPT:
     docs/sealCaptures/dirCheck.flicker-2026-10-28.txt. Two reruns on the same tree read 53 = capture, exit 0. The
     severity line above ("no armed directive has ever read dark") is dated by this entry. Measured only (SEQ 444 R2).
+  2026-10-28 seal 244 (SEQ 446), two more first-pass flickers, both PARKED, both clean on rerun, output kept in
+    docs/sealCaptures/dirCheck.flicker-2026-10-28b.txt: seq-stroke c7c6078f read 52 (`ensureGuard endSetGuard`, line 247,
+    GroupItem.twk -- untouched by the branch), its rerun 1 read 53 with `generateCode generating`'s dark REASON worded
+    differently ("tok found ... injected NOTHING" for "method not found"), rerun 2 = capture byte for byte; trunk 01dc6329
+    read 52 (`checkSkip stacked before`, line 343, GroupRules.twk), rerun = capture. Three seals today, a different
+    directive each time -- the flicker is now one per seal or so, not rare. Measured only.
 ```
 
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
