@@ -166,13 +166,24 @@ define
                                     *logP   +% *target;
                                     target  = logP;
                                     clear(logP);
-                            // instructTarget everything left of = is the target, so a target that is an instruct is refused by name at build (Tony, SEQ 442 R1)
+                            // instructTarget everything left of = is the target: an instruct target whose top op is not on the field allow-list is refused by name at build (Tony, SEQ 442 R1, SEQ 443 R1')
                             if kind == 4;
                                 if *target.taG == "instruct";
-                                    asgOp := *op.taG;
-                                    cerr "REFUSED" asgOp "-- the left of" asgOp "is an instruct, not a field":;
-                                    clear(*argument);
-                                    return *argument;
+                                    tTop := *target[1];
+                                    tTopT := *tTop.taG;
+                                    // fieldOps subscript, star, dot and the three by-name lookups hand back a field; every other top op, current or future, is refused
+                                    tOk = 0;
+                                    if *tTop.taG == "=[";       tOk = 1;
+                                    if *tTop.taG == "deref";    tOk = 1;
+                                    if *tTop.taG == ".";        tOk = 1;
+                                    if *tTop.taG == "=%";       tOk = 1;
+                                    if *tTop.taG == "=/";       tOk = 1;
+                                    if *tTop.taG == "=<";       tOk = 1;
+                                    if tOk == 0;
+                                        asgOp := *op.taG;
+                                        cerr "REFUSED" asgOp "-- the left of" asgOp "is an instruct, not a field: its op is" tTopT:;
+                                        clear(*argument);
+                                        return *argument;
                             instruct +% op target;
                             instruct    = kind;
                             instruct.methoD = "testOP";

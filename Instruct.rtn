@@ -464,7 +464,7 @@ use target
 // opGetAttribute the =% operator: target's attribute named by the argument's text
 extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
 {
-String strung = argument.text;
+String strung = lookupName(argument);
     return getAttribute(strung);
 }
 
@@ -472,7 +472,7 @@ String strung = argument.text;
 // opGetMember the =/ operator: target's member named by the argument's text
 extern GroupItem opGetMember(GroupItem argument,GroupItem target)
 {
-String strung = argument.text;
+String strung = lookupName(argument);
     return getMember(strung);
 }
 
@@ -480,7 +480,7 @@ String strung = argument.text;
 // opGetProperty the =< operator: reads target's property list only, so a term of the same name cannot answer (SEQ 224)
 extern GroupItem opGetProperty(GroupItem argument,GroupItem target)
 {
-String strung = argument.text;
+String strung = lookupName(argument);
     return getProperty(strung);
 }
 

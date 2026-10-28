@@ -7987,6 +7987,14 @@ GroupItem 	*hit = 0;
 	return 0;
 }
 
+// lookupName the name a by-name lookup (=% =/ =<) reads: a string or token argument gives its text, anything else its tag -- the new road hands the name as a field with data (SEQ 443)
+extern "C" char *lookupName(GroupItem *argument)
+{
+	if ( isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
+		return argument->getText();
+	return argument->groupBody->tag;
+}
+
 /*******************************************************************************
     A loop's condition, for DO and WhilE. A method-bearing condition is called
     exactly as before; a bare value -- `while 0;` -- has no method and is tested
@@ -8788,21 +8796,21 @@ char 		*txt = 0;
 // opGetAttribute the =% operator: target's attribute named by the argument's text
 extern "C" GroupItem *opGetAttribute(GroupItem *argument, GroupItem *target)
 {
-char 	*strung = argument->getText();
+char 	*strung = ::lookupName(argument);
 	return target->getAttribute(strung);
 }
 
 // opGetMember the =/ operator: target's member named by the argument's text
 extern "C" GroupItem *opGetMember(GroupItem *argument, GroupItem *target)
 {
-char 	*strung = argument->getText();
+char 	*strung = ::lookupName(argument);
 	return target->getMember(strung);
 }
 
 // opGetProperty the =< operator: reads target's property list only, so a term of the same name cannot answer (SEQ 224)
 extern "C" GroupItem *opGetProperty(GroupItem *argument, GroupItem *target)
 {
-char 	*strung = argument->getText();
+char 	*strung = ::lookupName(argument);
 	return target->getProperty(strung);
 }
 
@@ -10699,6 +10707,23 @@ char 		*why = ::concat(4,"`.",token->getText(),"` is not a number -- a number ne
 	return 1;
 }
 
+// refuseLookupMiss a by-name lookup on the left of an assign that finds nothing refuses by name; 1 when it refused (Tony, SEQ 443 R1')
+extern "C" int refuseLookupMiss(GroupItem *op, GroupItem *lookup)
+{
+	
+	if ( !op || !lookup || !op->getAttribute((char*)"assignTier") ) return 0;
+	GroupItem *lop = lookup->get(1);
+	if ( !lop ) return 0;
+	void *g = (void*)lop->groupBody->gOp;
+	if ( g != (void*)&opGetAttribute && g != (void*)&opGetMember && g != (void*)&opGetProperty ) return 0;
+	GroupItem *nm = lookup->get(3);
+	char why[192];
+	::snprintf(why,sizeof(why),"the left of %s looks up %s, and finds none",op->groupBody->tag,nm ? ::lookupName(nm) : "nothing");
+	::refuse(lop,why);
+	return 1;
+	
+}
+
 // refuseUnknownOperator an operator registered in Operators with no operateMethod refuses by name; a rule, action or value reaching the foot is untouched
 extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target)
 {
@@ -11869,7 +11894,11 @@ GroupItem 	*argument = field->get(3);
 	// ownMethod an instruct is known by its METHOD being testOP, not by its tag: run it; any other operand goes as it is (SEQ 428)
 	 if ( argument && (void*)argument->groupBody->gMethod == (void*)&testOP ) argument = ::testOP(argument); 
 GroupItem 	*target = field->get(2);
-	 if ( target && (void*)target->groupBody->gMethod == (void*)&testOP ) target = ::testOP(target); 
+GroupItem 	*lookup = 0;
+	 if ( target && (void*)target->groupBody->gMethod == (void*)&testOP ) { lookup = target; target = ::testOP(target); } 
+	// lookupMiss a by-name lookup on the left of an assign that finds nothing refuses by name, and the assign never sees the null (SEQ 443 R1')
+	if ( !target && ::refuseLookupMiss(op,lookup) )
+		return 0;
 	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
 	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);
