@@ -135,3 +135,8 @@ onto whatever node the definition finally owns (om-r2-ownname already carries th
                     cursorReadTb's taG and KantGrammar's loopOn*; STOPPED on three unregistered movers (ruleOfT RO-4 drops
                     UnitTests/counter, DO-10 reads its id kind 5 not the pinned 0, cursorRead B shadowing) -- seal 255. Not merged.
                     traitDataCapture and membersFlagCapture untouched by A (Shape B's docket, SEQ 457 R4).
+2026-10-29 SEQ 458  movers settled: RO-4 re-pinned 16 (counter is UnitTests' own node), DO-10 intended 5 (taG's own id), cursorReadTb's
+                    field respelled crTag (its define was a capture); H7 red by value (counter 5, stop / compile carry prose).
+2026-10-29 SEQ 459  Shape A BOUGHT, merged 19b87c7b: pop.sh 2013 = the branch row for row. counterCapture and docsOnCommands now print
+                    their taken signatures (the set; the commands' own tags). The fixit stays OPEN for Shape B: membersFlagCapture,
+                    traitDataCapture, the bare-name-with-content cases (SEQ 457 R3).
