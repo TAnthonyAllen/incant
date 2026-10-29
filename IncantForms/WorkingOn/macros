@@ -103,6 +103,12 @@ the label runs the program. Proof that kant is a language that writes itself.
 *******************************************************************************/
 Build time: a rule action fires during the parse and builds an instruct. It
 evaluates nothing (bear-trap #34: building must never fire).
+The one exception: code that DECIDES the parse (accept or reject a match) runs
+at parse time, because the parse cannot wait for it.
+Until kant can write a rejection (open question 1), a rule's parse decision
+may live on its own small rule beneath it, in C++. The worked example:
+    SHORTCUTs=[-+~`$_:,]+ ruleMethod=shortcutTest;   decides (rejects ++ -- $$)
+    SHORTCUt  shortcut=SHORTCUTs;                    builds (kant action)
 Run time: the instruct runs. testOP is every instruct's method: if a field has
 a method, run it; if not, hand it back as is. A plain value is a valid chain end.
 
@@ -111,11 +117,19 @@ a method, run it; if not, hand it back as is. A plain value is a valid chain end
 *******************************************************************************/
 Expression chain   op target argument, a tree (xpListTest builds these today).
 seq instruct       op = seq, argument = a LIST of statement instructs.
-                   testOP walks the list in order. An action body is a seq.
+                   opSeq walks the list in order. An action body is a seq.
+                   Built.
+print instruct     op = printList, argument = the list of items. A shortcut
+                   item is its own instruct, op = printShortcut. Built.
 if instruct        condition chain, then chain, else chain. opIf runs the
                    condition and picks one.
 loop instruct      body (a seq) and condition. Reruns while the condition holds.
-Every instruct hands back its result on its own node, never a shared slot.
+Every value-producing instruct hands back its result on its own node, never a
+shared slot. Today's exceptions, each on purpose until IF's recon rules on them:
+    opPrintList ends in opPrint and hands back trueResult (the shared sentinel);
+    opSeq hands back its argument list;
+    opPrintShortcut hands back null, so the print loop skips it as an item.
+IF's recon decides what an if instruct hands back, and whether a seq does too.
 
 /*******************************************************************************
 	Branches: signals, not targets
@@ -134,18 +148,36 @@ plan needs, beside the new ops (opSeq, opIf, the loop op).
 /*******************************************************************************
 	The new grammar
 *******************************************************************************/
-A new incantation beside grammar; reached by swapping Grokking in the search
-list. Code parsed after the swap uses it. Setup, the bootstrap and anything
-already compiled stay on Grokking. No change to existing code or interpreter.
-Every new rule action is kant and returns an instruct.
+A new incantation beside grammar (kantGrammar). How it is reached today: a file
+registers it in fILEs and includes it (printFormatT's prelude is the pattern),
+and a new rule runs by being called by name, rule("text") (R6). Swapping
+Grokking out of the search list changes name lookups, not the driver (seal 234),
+so that swap is dropped for now.
+Setup, the bootstrap and anything already compiled stay on Grokking. No change
+to existing code or interpreter.
+Every new rule action is kant and returns an instruct, except a parse decision
+(see Two phases).
+Rules for every new rule:
+    - No meaning carried in C++ flags. If an item means something, that meaning
+      is an instruct, an op or an attribute, never a bit the engine remembers.
+    - Resolve operands at run time, never at build.
+    - A built instruct holds copies (copyOf), never the action's own locals: a
+      local is per-call scratch, so an instruct that kept one would read the
+      last call's value (bear-trap 50; PRINt's itemsMint, SHORTCUt's scText).
+    - A parse decision cannot share a rule with the build: ruleMethod= on a
+      rule displaces its code={} (measured, SEQ 462). The decider goes on its
+      own small rule beneath, as SHORTCUTs.
 
 /*******************************************************************************
 	The ladder: one rung at a time, each checked against the old grammar
 *******************************************************************************/
 Every rung runs the same incantation under both grammars and compares output.
-    1  two prints in a seq             statements in a chain
-    2  EXPRESSIOn (xpListTest, R0)    expressions in the new grammar
+    1  two prints in a seq             statements in a chain        DONE
+    2  EXPRESSIOn (xpListTest, R0)    expressions in the new grammar  DONE
+       PRINt finished alongside: formats and shortcuts DONE; left: adjacent
+       expressions (open question 4) and the quoted-print row (R7)
     3  IF                              build an if instruct; then / else
+                                       NEXT once PRINt's two leftovers land
     4  a loop (while or DO)            seq + branch signals: break, continue
     5  an action, called and self-called    the frame bracket
     6  the jitter walks the chain      later
@@ -156,171 +188,63 @@ Every rung runs the same incantation under both grammars and compares output.
 The list is how the program is held, not how it runs. Interpreted: testOP walks
 the list. Jitted: the jitter walks it once at compile time and emits straight-
 line code; seq flattens, if becomes a branch, a loop a back-edge, break a jump.
-
-/*******************************************************************************
-	Rulings for the new grammar (Tony, SEQ 431, 2026-10-27)
-*******************************************************************************/
-R0  New-grammar rules are spelled UPPERCASe: uppercase, last letter lowercase
-    (EXPRESSIOn, STATEMENt, PRINt, If, Do). Replaces rung 2's "xpListTest
-    renamed ExpressioN": rung 2 is EXPRESSIOn.
-R1  TOKENize, DEFINing and PRINTing stay as they are, shared with the old
-    grammar. They already have the shape, so no new rule reuses their exact
-    spellings.
-R2  Arguments with no operator are carried as a list first. No new link field
-    (nextInParent) unless a list is shown not to do the job.
-R3  IF's shape (for later, NOT built now): one instruct in its parent's seq,
-    three operands -- the condition (an expression chain), the then-arm (a seq
-    instruct), the else-arm (a seq instruct, or none). Its method runs the
-    condition, runs one arm, and hands back its own node. Drafted on paper
-    after rung 1 is green.
-R4  (SEQ 435 R2, 2026-10-27) The expression tiers, as built in tester's
-    xpListTest (tier-split, merged 920d1a81): arithmetic folds at once;
-    compare, logic and assign each wait in their own slot; a looser operator
-    closes every tighter slot into the target first; the same tier closes its
-    own, so a tier reads left to right (kant: qc > qa || qa > qc && qb > qc is
-    0 -- && does not bind tighter than ||); assign never closes assign -- a
-    second assign nests, right to left. The end closes the slots tightest
-    first. testerChainT pins it, row for row against kant's value. This is
-    SEQ 427 R-B's tier rule, which until now lived only as a summary.
-R5  (SEQ 435 R1, 2026-10-27) Chained assign is accepted: a = b = c assigns
-    right to left, as kant's road does (TC-16). Replaces the 2026-10-06 park.
-Starting point: kantGrammar, a copy of grammar with rules renamed per R0, its
-collision grep and its list of shared rules (TODO.md; after the tier split,
-ahead of rung 1).
-kantGrammar (SEQ 436, 2026-10-27): incant/kantGrammar, registry KantGrammar.
-    Source: incant/grammar, the only file Grokking reaches -- at run time
-    Grokking's 85 members are incant/grammar's rules (nested ones registered
-    flat) plus the C++ bootstrap seeds (GroupMain); nothing else feeds it.
-    Copied: the live define region; inner comments and the parked HeX left out.
-    Renamed (39): EXPRESSIOn STATEMENt ELSe SHORTCUt ANYSTRINg BLOCk BRANCHEs
-    PRECISIOn FORMAt PRINTXp PRINTFIELd ITERSOURCe INVOKEARg BRACEd PARENs
-    ANYORNUm TOKEn STRINGXp SCOPEFIELd LOOPEr LOOPRESTRICt BASICELSe ELSEIf
-    WARDEd DEBUg DEf Do If FOr WHILe PRINt CERr COUt SEARCh BRANCh SCOPEXp
-    XPRESs ITERATe STARt.
-    SHARED, each a known choice -- referenced, never redefined:
-        TOKENize (cOMMANDs), DEFINing, PRINTing, ANYtoken (R1 / SEQ 436 R2);
-        followedBy (a leaf every keyword rule uses);
-        the C++ bootstrap seeds NamE, NumbeR, QuotE, SemI, GrouP, define,
-        counter (no file to copy them from);
-        Operators and its UnaryOPS bin (a registry, not a rule).
-    COPIED WITH THEIR SPELLINGS UNCHANGED (a bin member or literal leaf IS its
-    spelling): break, continue, return (BRANCHEs; also in Keywords);
-    loopOnAttributes, loopOnMembers (LOOPRESTRICt). These re-mint Grokking's
-    names in KantGrammar -- a known choice, Tony's to rule.
-    Term labels (stuff, pound, leftCurly, the keyword terms if, while ...) are
-    not rules and keep their names. Actions are as copied: a rule whose C++
-    action is found by name (aCTion + its name) finds none under its new name.
-    Collision check (genLadder/kantGrammarNames.sh, against the RUNNING
-    registries: 14 registries, 497 members, kantGrammar not loaded): controls
-    TOKENize found (cOMMANDs), if found (Keywords), If not found; 40 new names
-    (the 39 + KantGrammar), 0 collisions; every renamed rule registered by the
-    load (incant/probes/kantGrammarLoad). H7: Start in place of STARt reports
-    COLLISION Start in Grokking, exit 1. Case-only near-matches (If ~ IF, if)
-    are by design under R0.
-Rung 1, step 1 (SEQ 437, 2026-10-27): STOPPED -- the positive control is not
-    green. Each parse driven by tell(), one process each, kantGrammar loaded,
-    under R1 (KantGrammar alone) and the control (KantGrammar then Grokking).
-    The two configurations read IDENTICALLY in every row, so nothing here is
-    caused by Grokking being out: the copies do not parse even with it in.
-    ANYORNUm qa 0 of 2 (the old ANYorNum 2 of 2, same process); TOKEn qa loops
-    to the 100000 repetition limit (old Token 2 of 2); EXPRESSIOn qa + 1 0 of 6
-    (old 6 of 6); PRINt is not found at all (known 0) -- KantGrammar registers
-    only its 20 top-level rules, Grokking registers its nested ones by name too.
-    What does work, both ways: BRANCHEs break / continue / return, ITERSOURCe *qa.
-    Also measured: after the swap, top-level text still parses on the OLD
-    grammar -- the running Start was bound when Grokking loaded -- so the swap
-    changes name lookups, not the driver; rung 1 has to hand its source to a
-    KantGrammar rule by name. Likely gap (not measured): what the bootstrapper
-    does to Grokking after setup's include(grammar), its last statement, is not
-    done to a grammar included later. Shared names not graded (control void).
-Rulings for rung A (Tony, SEQ 438, 2026-10-27):
-R0 bottom-up: EXPRESSIOn, then STATEMENt (only XPRESs on its list), then If, each
-   tested by rule("text"); the search-list swap is dropped for now.
-R1 an action reads its component labels, builds an instruct in tester's layout
-   (op [1], target [2], argument [3], method testOP) and returns it; nothing runs
-   inside an action. ChaiN is reserved for a compiled action's seq, later.
-R2 read-back is via tell()'s reply (the root label holding the root's instruct),
-   measured, not assumed.
-R3 If's else-arm goes in a list in the argument slot [then, else]; the consumer
-   wraps seqs.
-R4 opSeq and opIf: C++ first, then kant; each scaffold gets a dated TODO line,
-   "retires when the kant action of the same name passes the same rows", retired
-   by mapping, groups.ext line included.
-Rung A (SEQ 438, 2026-10-27): STOPPED at R2 -- the read-back via tell()'s reply
-   does not reach the instruct, because UNDER tell() THE ACTION DOES NOT RUN.
-   Measured in scratch (kantGrammar untouched): with EXPRESSIOn Token+ (the old
-   Token, shared) the parse takes 6 of 6, known 1, and the reply is a copy of the
-   raw EXPRESSIOn label -- its members qa, + and the number (tagged Token, 1), or
-   with the action fitted, one lizted holding those three. A marker at the
-   action's entry does NOT print under tell() and DOES under a direct
-   EXPRESSIOn("qa + 1"). tell is aCTionTell (GroupActions.rtn:2), which drives the
-   target through driveStep (:215) and copies the parked label as the reply.
-   Also measured: the direct call's action hands back false, and the rest of the
-   file was then swallowed by a runaway Token repetition -- not chased.
-   Including kantGrammar after tester's define block DID load (SEQ 436's miss is
-   not general).
-Rung A read-back (SEQ 439, 2026-10-27; R0 tell() unchanged, R1 parse / fire /
-   run as three steps): STOPPED at R2 -- NO KANT SPELLING TODAY FIRES A RULE'S
-   ACTION ON A LABEL. Measured in scratch, each under a 20 s alarm, the fitted
-   action carrying an entry marker; tell("EXPRESSIOn qa + 1") 6 of 6 first:
-     EXPRESSIOn(label)  -- the action runs, but as a fresh PARSE: it then reads
-                           past into the file (runaway Token repetition), alarm
-     naming the label as a statement (lab;, and one level deeper) -- no fire
-     truth-testing it (if *rp;, if **lb;) -- answers true, no fire
-   The reply is two levels down (reply -> the EXPRESSIOn label -> lizted), and
-   that label is a SPECIMEN: canonOf says it is its own canon with no rStuff
-   (copyOf carries none, Ruling D), so it has no link back to its rule. The rule
-   KantGrammar["EXPRESSIOn"] has its rStuff.
-   Smallest addition (not built): a command fire(label) -- C++, wired as an
-   immediateAction (with its groups.ext line) -- that finds the rule by the
-   label's tag through the search list, runs that rule's code action with the
-   label as its argument, and hands back what the action returns. No parse, no
-   input. The fallback (action stashes, direct call) not taken (R2).
-   ⚠ PARKED (SEQ 440, Tony 2026-10-27): fire(label) is not built. The direct
-   call does the read-back -- Tony's tester now runs EXPRESSIOn("...") straight
-   from kantGrammar (INVOKEd / INVOKEr / EXPRESSIOn's action there), and a print
-   after the call prints (SEQ 440 R3). fire returns only if a rung needs
-   parse-then-fire later.
-PRINt census (SEQ 441, 2026-10-27; read-only, taps in scratch): a PRINt instruct
-   can be BUILT from what exists (kant, as EXPRESSIOn's action builds); it cannot
-   be RUN -- no method prints a value handed to it. Smallest missing piece: one
-   unary op an instruct carries, (GroupItem items) -> pop a buffer, per item run
-   it if it is an instruct (testOP), appendGroup(item, its FORMAt, buffer), then
-   opPrint(item, buffer). Rung 1 needs stdout (opPrint, honouring printTO) only;
-   cerr / cout are siblings (opCerr, opCout) for later.
-   aCTionPrinT (ruleActions.rtn:738): jitting arm BUILD only (emits jitPrintBegin,
-   per item jitPrintList / jitEmitBareRead + jitPrintNode / jitPrintItem, then a
-   call to opPrint); interpreted arm RUN only (appendPrintXP runs each item's
-   method and formats it, opPrint flushes) -- it builds nothing that outlives it.
-   PRINt under kantGrammar has NO action: setActions dlsyms aCTionPRINt, which
-   does not exist. Reached three ways, measured: KantGrammar["PRINt"] (found only
-   because of the `KantGrammar isRule;` line -- toggled both ways), WARDEd("..."),
-   STATEMENt / STARt("print 77:; print 88:;") (both parse, EXPRESSIOn's action
-   fires per print, nothing prints). jitting's one writer is jitBuildFunction,
-   reached only through testing(), jitter(), jitFieldMethod, probeDrive -- none on
-   rung 1's road.
-Rung 1's build (Tony, ruled 2026-10-27, "keep it simple"): opPrintList as above,
-   stdout and whatever appendGroup gives, no cerr / cout / printTO variants; PRINt's
-   kant action only builds one instruct (op opPrintList, argument the list);
-   aCTionPrinT untouched. Certificate: prints what old PrinT("print 77:;") prints.
-   BUILT SEQ 442 R4 (2026-10-28): opPrintList in Instruct.rtn, registered `printList unary` in incant/setup's
-   Operators; PRINt's action in kantGrammar builds `instruct +% op printItems` (each item its EXPRESSIOn's value, a
-   shortcut item as is) and binds testOP. SHORTCUt names aCTionShortcuT, because isShortcut has no kant write case.
-   Fleet: printListT -- PL-1 prints "77 " byte for byte as PrinT, PL-0 the build alone prints nothing, PL-2 an
-   instruct item (qa + qb) prints 5 on both roads. Not carried: formats (appendGroup gets no FORMAt); context, not
-   chased: `print qa qb:;` reaches PRINt as ONE item (EXPRESSIOn's TOKEn+ takes both).
-Order (SEQ 436, 2026-10-27; kantGrammar written): rung 1, TC-8 (* refuses an operand it cannot use), kant's subscript refusal
-(qa[qb] + qc), then the op-method split recon.
-TC-8 CLOSED (SEQ 446 R1, Tony 2026-10-28): green on trunk; its H7 exposure is a class -- an unrun instruct passes
-   as COUNT 0 (+ - / * alike under testOP's H7) -- docketed in TODO.md with the table. Nothing built for *.
-Next (SEQ 446 R2): the seq half of rung 1 -- a STATEMENt list built as one seq instruct, opSeq runs it. Recon and plan
-   first; nothing built until Tony rules on the plan.
-SEQ 446 BUILT on branch seq-stroke (pushed, NOT MERGED -- Tony's buy): S1 PRINt attaches a mint of its item list (its
-   local was shared by every PRINt, bear-trap 50); S2 opSeq (Instruct.rtn), `seq unary` in setup, items through testOP,
-   hands back its argument list (R2); S3 STARt's action builds `seq` over a mint of its statement instructs. seqT on
-   trunk pins it born red (01dc6329). Next wall (R3): the XPRESs collapse -- STARt drops everything from an expression
-   statement on (SQ-4), the next stroke.
+First step, before any emitter: a recon of the new ops under jitter;, measured
+against the rules for new rules. Today the new ops hand over to run time.
+A split rule (decide below, build above) adds one label level; check it there.
 
 /*******************************************************************************
 	Open questions
 *******************************************************************************/
+1  A kant spelling for a rule action that rejects a match. Today only a null
+   from a C++ action fails a match; no kant spelling produces one. When it
+   lands, SHORTCUTs' test moves into kant.
+2  Two-part rule actions on one rule: a parse action (decides, may reject) and
+   a runtime action (builds). One rule cannot carry ruleMethod= and code={}
+   today. First read what parseAction / parseCondition already do.
+   Read 2026-10-29: parseAction (Generate.rtn) runs a rule's C++ actor
+   (builtinActoR) AS its parse, and a null from it fails the term -- a
+   parse-time decide/reject slot, but C++ only and generated-parser only.
+   parseCondition consumes nothing and matches on its min alone. Both carry
+   "UNPINNED, no road reaches it": neither is tested, and neither lets a kant
+   action reject (that is question 1). A row comes before anything leans on them.
+3  Is a rule's decision always separable from its build? Watch IF's condition
+   and keyword checks.
+4  Adjacent expressions: where EXPRESSIOn stops so each print item is its own.
+   print qa qb:; prints 2 on the new road, 2 3 on the old.
+/*******************************************************************************
+	Standing rulings for the new grammar (refreshed 2026-10-29)
+*******************************************************************************/
+R0  New-grammar rules are spelled UPPERCASe: uppercase, last letter lowercase
+    (EXPRESSIOn, STATEMENt, PRINt, If, Do).                     (SEQ 431)
+R1  TOKENize, DEFINing and PRINTing stay as they are, shared with the old
+    grammar; no new rule reuses their exact spellings.          (SEQ 431)
+R2  Arguments with no operator are carried as a list first. No new link field
+    (nextInParent) unless a list is shown not to do the job.    (SEQ 431)
+R3  IF's shape: one instruct in its parent's seq. Its method runs the
+    condition, runs one arm, and hands back its own node.       (SEQ 431)
+    ? Operand layout to settle at IF's recon: three operands (condition, then,
+      else) per SEQ 431, or the condition plus [then, else] as a list in the
+      argument slot per SEQ 438 R3.
+R4  Expression tiers (tester's xpListTest, tier-split 920d1a81): arithmetic
+    folds at once; compare, logic and assign each wait in their own slot; a
+    looser operator closes every tighter slot first; the same tier closes its
+    own, so a tier reads left to right; assign never closes assign -- a second
+    assign nests, right to left. The end closes tightest first. testerChainT
+    pins it.                                                    (SEQ 435 R2)
+R5  Chained assign is accepted: a = b = c assigns right to left (TC-16).
+                                                                (SEQ 435 R1)
+R6  Bottom-up: each new rule is tested by calling it by name, rule("text").
+    The search-list swap is dropped for now.                    (SEQ 438 R0)
+R7  An action reads its component labels, builds an instruct in tester's
+    layout (op [1], target [2], argument [3], method testOP) and returns it.
+    Nothing runs inside an action.                              (SEQ 438 R1)
+R8  New ops are C++ first, then kant. Each scaffold carries a dated TODO line,
+    "retires when the kant action of the same name passes the same rows",
+    retired by mapping, groups.ext line included. opSeq, opPrintList and
+    opPrintShortcut are such scaffolds; shortcutTest is the C++ parse decider
+    that retires into kant with open question 1.               (SEQ 438 R4)
+Shared with the old grammar, referenced never redefined: TOKENize, DEFINing,
+    PRINTing, ANYtoken, followedBy; the C++ bootstrap seeds NamE, NumbeR,
+    QuotE, SemI, GrouP, define, counter; Operators and its UnaryOPS bin.
+Parked: fire(label), a command that fires a rule's action on a label with no
+    parse. Returns only if a rung needs parse-then-fire.        (SEQ 440)

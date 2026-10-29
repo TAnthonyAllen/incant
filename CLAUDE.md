@@ -3226,8 +3226,9 @@ decision it asks of Tony, in one sentence.
 ⚠⚠ **THE FILES ARE OUR FILES. Tony, standing, 2026-10-28 (SEQ 451 R2).** Three classes:
 - **`IncantForms/WorkingOn/tester` and `incant/kantGrammar`: Clod changes them at will.** They are works in progress, so a
   change that breaks something is expected and carries no blame; Tony reviews them as he works. Commit them as usual.
-- **`IncantForms/WorkingOn/macros` and `IncantForms/WorkingOn/incant++`: Clod does not change them.** They record Tony's
-  thinking as it evolves; Tony changes them.
+- **`IncantForms/WorkingOn/incant++`: Clod does not change it.** It records Tony's thinking as it evolves; Tony changes it.
+- **`IncantForms/WorkingOn/macros`: Clod changes it too (Tony, 2026-10-29: "you can change macros and probably better you do
+  it than me").** It is the shared plan Tony and Clay revise; Clod keeps it current and commits it, saying what changed.
 - **Everything else of Tony's (utilities, unitTests, printFamily and the rest): changed as a stroke needs, named in the
   report.**
 This widens the tester paragraph below (Clod adds a scaffold, leaves his lines alone) to tester as a whole.
