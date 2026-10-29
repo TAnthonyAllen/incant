@@ -1828,10 +1828,7 @@ GroupItem 	*flagDef = 0;
 // appendGroup print the field passed in to the buffer passed in, or run its print shortcuts
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer)
 {
-char 		*atText = 0;
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*format = 0;
-int 		indenting = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*field = 0;
 	field = input;
@@ -1853,37 +1850,8 @@ GroupItem 	*field = 0;
 				::printField(grup,format,buffer);
 		else	::printField(field,format,buffer);
 	else {
-		// shortcuts the field text is a string of print shortcuts, each processed in turn
-		for ( atText = field->getText(); *atText; atText++ )
-			switch (*atText)
-				{
-				case '~':
-					indenting++;
-					break;
-				case '$':
-					ruler->useDefaultSpace = !ruler->useDefaultSpace;
-					break;
-				case '_':
-					buffer->appendChar(' ',0,0);
-					break;
-				case ':':
-					buffer->appendChar('\n',0,0);
-					break;
-				case '+':
-					ruler->inDENT->groupBody->gCount++;
-					break;
-				case '-':
-					if ( ruler->inDENT->groupBody->gCount > 0 )
-						ruler->inDENT->groupBody->gCount--;
-					break;
-				case '`':
-					buffer->appendChar('\t',0,0);
-					break;
-				case ',':
-					grup = 0;
-				}
-		if ( indenting && ruler->inDENT->groupBody->gCount > 0 )
-			buffer->tabRight(ruler->inDENT->groupBody->gCount);
+		// shortcuts the field text is a string of print shortcuts, run by the one switch (SEQ 461)
+		runShortcuts(field->getText(),buffer);
 		}
 	return field;
 }
@@ -3409,6 +3377,16 @@ extern "C" int isCallable(GroupItem *target)
 	if ( isMethod(target->groupBody->flags.instructType) )
 		return 1;
 	return 0;
+}
+
+// isShortcutInstruct an instruct whose op runs opPrintShortcut -- known by the op's method, never its name
+extern "C" int isShortcutInstruct(GroupItem *value)
+{
+	
+	if ( !value || (void*)value->groupBody->gMethod != (void*)&testOP )   return 0;
+	GroupItem *op = value->get(1);
+	return op && (void*)op->groupBody->gMethod == (void*)&opPrintShortcut;
+	
 }
 
 extern "C" GroupItem *jitAccessorNodeRT(GroupItem *source, GroupItem *product)
@@ -9571,10 +9549,23 @@ int 		kind = 0;
 			continue;
 			}
 		value = grup;
+		// shortcutHandover a printShortcut instruct writes into THIS print's buffer, so the buffer goes on the pool for its op to take (SEQ 461)
+		if ( isShortcutInstruct(value) )
+			GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
 		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
 		::appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer);
 		}
 	return ::opPrint(items,buffer);
+}
+
+// opPrintShortcut the printShortcut instruct's unary op: its operand's text runs on the buffer opPrintList handed over; it prints no item of its own (SEQ 461)
+extern "C" GroupItem *opPrintShortcut(GroupItem *shortcut)
+{
+Buffer 	*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+	if ( !buffer )
+		return 0;
+	::runShortcuts(shortcut->getText(),buffer);
+	return 0;
 }
 
 // opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
@@ -11597,6 +11588,41 @@ GroupItem 	*result = ::driveStep(field,rule,0,0);
 	if ( rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult )
 		return ruler->trueResult;
 	return result;
+}
+
+// runShortcuts THE ONE SHORTCUT SWITCH: each character runs its print effect on buffer; `,` does nothing -- appendGroup's old road and printShortcut both call it (SEQ 461)
+extern "C" void runShortcuts(char *shortcuts, Buffer *buffer)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*atText = 0;
+int 		indenting = 0;
+	for ( atText = shortcuts; *atText; atText++ )
+		switch (*atText)
+			{
+			case '~':
+				indenting++;
+				break;
+			case '$':
+				ruler->useDefaultSpace = !ruler->useDefaultSpace;
+				break;
+			case '_':
+				buffer->appendChar(' ',0,0);
+				break;
+			case ':':
+				buffer->appendChar('\n',0,0);
+				break;
+			case '+':
+				ruler->inDENT->groupBody->gCount++;
+				break;
+			case '-':
+				if ( ruler->inDENT->groupBody->gCount > 0 )
+					ruler->inDENT->groupBody->gCount--;
+				break;
+			case '`':
+				buffer->appendChar('\t',0,0);
+			}
+	if ( indenting && ruler->inDENT->groupBody->gCount > 0 )
+		buffer->tabRight(ruler->inDENT->groupBody->gCount);
 }
 
 // saveLocalFields save an action's argument and locals before a nested call, so each activation starts from its own state
