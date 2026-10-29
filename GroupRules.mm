@@ -1343,6 +1343,8 @@ GroupItem 	*trait = input->get(1);
 	input->clearList();
 	if ( isGROUP(trait->groupBody->flags.data) )
 		trait = trait->getGroup();
+	// ownValueOwnNode a definition's own name found in another registry, arriving with a value, gets its own node -- never the original's (SEQ 457)
+	 if ( ::traitOwnsValue(trait,TraiTdata) )  trait = new GroupItem(trait->groupBody->tag); 
 	if ( Modifier )
 		{
 		trait->options.affiliation = 1;
@@ -12051,6 +12053,20 @@ extern "C" GroupItem *traceParse(GroupItem *argument)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->parseTrace = 1;
 	return ruler->trueResult;
+}
+
+// traitOwnsValue the trait is the definition's OWN name (its activation's parent is NewGroup, never Attributes), it resolved to an entry of another registry, and a value arrives with it -- recon objectModelRecon section 27 (SEQ 457)
+extern "C" int traitOwnsValue(GroupItem *trait, GroupItem *value)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	ParseActivation *a = ruler->gParseActive;
+	GroupItem *home = trait ? trait->parent : 0;
+	if ( !value || !home || home == ruler->currentRegistry )    return 0;
+	if ( home != ruler->registries && home->parent != ruler->registries )   return 0;
+	if ( !a || !a->prev || a->prev->isFloor || !a->prev->instance )   return 0;
+	return ::compare(a->prev->instance->groupBody->tag,"NewGroup") == 0;
+	
 }
 
 extern "C" GroupItem *treeOf(GroupItem *argument)
