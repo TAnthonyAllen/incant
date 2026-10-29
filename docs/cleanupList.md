@@ -6,6 +6,16 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
+### A set with a modifier after its brackets is stored as a GROUP (data 6) -- HELD for the in-depth cleanup (SEQ 455 R4)
+- **What/where:** `aCTionTraiTdata` (designDocs `scannerKeepsDatA`): `[a-z]+`, `[a-z]*`, `[a-z]?` make the term a group
+  holding an anonymous DatA set (data 3) whose rStuff carries the repeat; `[a-z]` stays a plain set. The generator reads
+  it since SEQ 454 (`Generate.rtn` setParseWalk `case isGROUP` -> parseSet, parseSet reads the held set).
+- **Why it looks deletable:** an old-road kludge (Tony, SEQ 455 R4) -- the repeat should ride on the term itself.
+- **Retire when:** a set can carry its own repeat on the term. NOT before the in-depth cleanup (ruled).
+- **Confirm at cut time:** the SEQ 454 census (wakeup seal 252) re-run; parseSet's `held` read and the isGROUP arm go
+  with it; optFlagsT and leafLabelT's LlWord row stay green.
+- **Seen:** 2026-10-29.
+
 ### aCTionIterate's fLAG poison -- no reader left (seen 2026-10-16, SEQ 365 rider a)
 - **What/where:** `ruleActions.rtn` aCTionIterate -- `iterator.fLAG = 1;` in the null-source and pointer arms (:591, :598),
   `iterator.fLAG = true;` in the refusedSource arm (:609), and the clear `iterator.fLAG = false;` on success (:606).

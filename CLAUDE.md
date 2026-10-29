@@ -2969,8 +2969,8 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> **`printPop.sh`** · `incant/frontier` (run once) · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
-> retokked bare) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> **`printPop.sh`** · `incant/frontier` (run once) · **`genLadder/dirCheck.sh` AT SHUTDOWN SEALS ONLY** (every directive still
+> injects; then the tree is retokked bare -- SEQ 455 R2; any other seal carries the stroke's anchor line instead) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
 > ⚠⚠ **EVERY SCRIPT THE CHECKLIST RUNS IS EXECUTABLE IN GIT, CHECKED WITH ONE COMMAND (Tony, standing, SEQ 285
@@ -3316,8 +3316,10 @@ twelve directive bodies still read `rule.debugged`. tok parses a directive body 
 (`Tokf/Directive.twk:42`), so the name failed to resolve and **every parse-debugging directive was silently dropped**:
 `parseDirective: failed for <method> <anchor>` on stdout, exit 0, extern canary unmoved.
 
-⚠⚠ **A STATEMENT RESPELL CAN SILENTLY ORPHAN A DIRECTIVE ANCHOR -- EVERY SEAL RUNS `genLadder/dirCheck.sh`. Tony,
-standing, 2026-10-05 (SEQ 304 R1).** tok matches a directive's anchor as a PREFIX of a statement's source text, and a
+⚠⚠ **A STATEMENT RESPELL CAN SILENTLY ORPHAN A DIRECTIVE ANCHOR -- `genLadder/dirCheck.sh` RUNS AT SHUTDOWN SEALS; EVERY
+STROKE REPORT CARRIES AN ANCHOR LINE. Tony, 2026-10-29 (SEQ 455 R2), replacing SEQ 304 R1's every-seal rule of 2026-10-05.**
+The line reads *"functions touched that carry directive anchors: ..."* or *"none"*, found by grepping `Directives/` for each
+touched function's name, and **a touched anchor is re-aimed in the stroke that touched it.** The rest stands as SEQ 304 R1 wrote it: tok matches a directive's anchor as a PREFIX of a statement's source text, and a
 miss injects nothing at exit 0 with no word; a statement moved into a `-% %-` passthrough can never be an anchor. Paid
 for: three anchors went dark with strokes 1.2c/1.2d (`parse fireLabelMethod`, `parse "if !checkInput"`, `exitFromParse
 fireLabelMethod`) and were found only by SEQ 303's verify step. **The script runs each directive ALONE** -- armed in a
