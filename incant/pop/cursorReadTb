@@ -9,7 +9,10 @@
     working form in favour of a broken one is a ruling that goes dark.
 
     ARM A, no collision. Bare wins and the explicit form does not.
-    ARM B, a field literally named taG declared in the enclosing define block.
+    ARM B, a field declared in the enclosing define block. ~~A field literally named
+    taG~~ -- RESPELLED crTag (Tony, SEQ 458 R2, 2026-10-29): on trunk that define was a
+    CAPTURE (it wrote ENCLOSING into GroupFields' taG accessor entry), and this arm's
+    subject is the bare accessor read, so its field may not borrow an accessor's name.
 
     Both arms are needed: A alone cannot show the shadowing, and B alone cannot
     show that the bare form is the one that works when nothing shadows it.
@@ -23,7 +26,7 @@ register(CursorRead);
 define
     crBag   crAlpha crBeta;
     crN;
-    taG="ENCLOSING";
+    crTag="ENCLOSING";
     crWalk code={
         iterate crCur on *argument;
         while ++crCur;

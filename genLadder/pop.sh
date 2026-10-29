@@ -434,7 +434,9 @@ fdRow "defineOwnT DO-7 KantGrammar's loopOnAttributes has its own body" "$(_dos 
 _ofeq "defineOwnT DO-8 KantGrammar's loopOnMembers has Grokking's value" "$(_dov 'DO-8 loopOnMembers values')" "members and members"
 fdRow "defineOwnT DO-8 KantGrammar's loopOnMembers has its own body" "$(_dos DO-8 KantGrammar)" "same" "own"
 _ofeq "defineOwnT DO-9 a bare reference (KantGrammar's ANYORNUm NumbeR) shares Grokking's NumbeR body" "$(_dos DO-9 'KantGrammar ANYORNUm NumbeR')" "same"
-fdRow "defineOwnT DO-10 GroupFields' taG accessor carries no data" "$(_dov 'DO-10 GroupFields taG')" "13" "0"
+#  RE-PINNED 2026-10-29 (Tony, SEQ 458 R1): GroupFields' taG is taG=1; (setup:250), so its own data is a count. The pinned 0 was a
+#  pre-registration slip.
+fdRow "defineOwnT DO-10 GroupFields' taG accessor keeps its own count (its id)" "$(_dov 'DO-10 GroupFields taG')" "13" "5"
 _ofeq "defineOwnT DO-11 DoTagT's own taG reads ENCLOSING" "$(_dov 'DO-11 DoTagT taG')" "ENCLOSING"
 
 
@@ -4840,12 +4842,15 @@ else
 fi
 run2 cursorReadTb "$T/crb.o" "$T/crb.e"; check "cursorReadTb runs" 0 $?
 sentinel "cursorReadTb sentinel (no truncation)" "$T/crb.o" "CURSORREADB SENTINEL"
-if grep -q "CR-B 1 bare= 0 explicit= 1" "$T/crb.e" && grep -q "CR-B walked =  2 " "$T/crb.e"; then
-    echo "  ok    cursorRead B: a declared same-named field SHADOWS both spellings -- PINNED BY VALUE"; green=$((green+1))
+#  RE-PINNED 2026-10-29 (Tony, SEQ 458 R2): the fixture's field taG="ENCLOSING" is respelled crTag. On trunk that define was
+#  a capture -- it wrote ENCLOSING into GroupFields' taG accessor entry -- and the arm's subject is the bare accessor read. With
+#  no field borrowing the name, the bare read takes each member's tag and the explicit crCur.taG the cursor's own, as arm A.
+if grep -q "CR-B 1 bare= crAlpha explicit= crCur" "$T/crb.e" && grep -q "CR-B 2 bare= crBeta explicit= crCur" "$T/crb.e" && grep -q "CR-B walked =  2 " "$T/crb.e"; then
+    echo "  ok    cursorRead B: a declared field that borrows no accessor name leaves the bare read on the member -- PINNED BY VALUE"; green=$((green+1))
 else
-    echo "  FAIL  cursorRead B moved -- the shadowing changed:"
+    echo "  FAIL  cursorRead B moved:"
     grep "^CR-B" "$T/crb.e" | sed 's/^/          actual:   /'
-    echo "          expected: CR-B 1 bare= 0 explicit= 1   (and walked = 2)"; fail=1
+    echo "          expected: CR-B 1 bare= crAlpha explicit= crCur, CR-B 2 bare= crBeta explicit= crCur   (and walked = 2)"; fail=1
 fi
 
 #  ---------------------------------------------------------------------------
