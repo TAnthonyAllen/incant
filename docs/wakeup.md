@@ -1,3 +1,57 @@
+# ⚠⚠⚠ SEALED 2026-10-29 (251) ON TRUNK -- STOP (SEQ 453, the dispatch's own STOP clause). THE OPTIONAL-FLAGS CAUSE IS GENERAL, NOT FormaT'S. NOTHING BUILT.
+#
+#   ## THE OPENER: Tony's word on the cure's SCOPE. One plain line: a format with no flags fails under the generated
+#   parser because any set term written with a repeat after its brackets (`[...]+`, `*`, `?`) is stored as a group, and the
+#   generator installs no parse method for a group; the term then runs the old parse, which answers a miss with failure and
+#   never reads the term's `?`. Two terms under parser(Start) are hit (FormaT's flags, Precision's precision); one more is
+#   latent (tell's message). Nothing is fixed yet; the cure needs a ruling on where it goes.
+#
+#   ## STEP 1 (read only): the two spellings are identical but for the rule names --
+#     incant/kantGrammar:40   FORMAt          pound="#" flags?=[-# 0+']+ formatWIDTH?=NumbeR PRECISIOn? formatTYPE=[a-zA-Z] TOKENize;
+#     incant/grammar:122      FormaT          pound="#" flags?=[-# 0+']+ formatWIDTH?=NumbeR Precision? formatTYPE=[a-zA-Z] TOKENize;
+#   (and kantGrammar:38 PRECISIOn / grammar:121 Precision, `dot=[.] precision?=[0-9]+`, likewise). printFormatT never calls
+#   parser(), so FORMAt works there on the interpreted walk. The difference is the ROAD, not the spelling.
+#   ## STEP 2 (read only; probes in the scratchpad, lldb on the live binary, no repo file touched):
+#   * Generated body (baselineTestsNew stdout): `FormaT = CodE { return pound() && flags() && formatWIDTH() && Precision() &&
+#     formatTYPE(); }`. flags, pound, dot, precision, formatTYPE carry data, so they get no body; formatWIDTH (`return
+#     NumbeR();`) and Precision (`return dot() && precision();`) do.
+#   * traceParse() + measureParseClass over parser(Start): flags method=none, precision method=none; dot, formatTYPE =
+#     parseSet; formatWIDTH, Precision = parseRule. 124 faces, 4 none: flags, precision, ShortcuT, dtext.
+#   * Data kinds (bare reads in an iterate walk): flags 6 (isGROUP), precision 6, formatTYPE 3 (isSET), dot 3. One variable at
+#     a time on scratch rules: `a=[0-9]+` 6, `d=[0-9]*` 6, `h=[0-9]?` 6, `GpS=[0-9]+;` (a rule that is only a set) 6;
+#     `c?=[0-9]` 3, `i=[0-9]` 3. So a modifier AFTER the brackets makes the term a GROUP; `?=` on the label does not.
+#     Exceptions: the bootstrap's numberSet / power / decimals and grammar:55 NotA are isSET (NotA sits inside DatA's own
+#     block, before DatA closes -- that ordering as the cause is NOT measured). ANYstring (grammar:114, near-identical set) is 6.
+#   * setParseWalk (Generate.rtn:474) `case isGROUP: field.parseMethod = null;` -- no method, no hasNewParse.
+#   * lldb, driveStep conditioned on rule tag flags, under parser(Start) on formatTest: opCall -> runRule -> driveStep with
+#     the mark at `12s maybe:; }`; with no hasNewParse driveStep takes the old-road arm `rule->parse(...)`
+#     (GroupRules.mm:2510), which returns `labelNO`; runAccAnd reads it false and the && chain fails. formatWIDTH instead runs
+#     parseRule -> exitFromParse, whose minZeroIsSatisfied (Generate.rtn:105) turns a min-0 miss into trueResult. Nothing on
+#     the old-road arm reads min.
+#   * NOT re-measured: the seal-249 spellings flags?=FormatFlags / flags=FormatFlags? (a named set rule is also isGROUP, but
+#     why flags itself then never reached exitFromParse is not shown here).
+#   ## THE STOP: the cause is the generator's handling of a repeated set term (isGROUP -> no method), so it reaches every such
+#   term. CENSUS (every `[..]` + modifier in incant/grammar, kantGrammar, setup, utilities, unitTests, the parser, tester and
+#   every incant/pop fixture): BITES under parser(Start) -- optional, no method: grammar:122 flags, grammar:121 precision.
+#   REACHED, no method, mandatory, works on the old road: grammar:112 ShortcuT, grammar:50 dtext (`dtext^=delimiter}`, an
+#   upTo, not a set). LATENT -- optional, not under Start: utilities:11 tell `message?=[^\n]+` (and compileInT:69's copy),
+#   if parser() ever reaches it. Mandatory repeated sets elsewhere (HeX value, ANYstring, leafLabelT LlWord) run the old road
+#   and match -- leafLabelT's header already records (2026-10-05) that inline sets do not take the new-road leaf path.
+#   Two cure shapes, neither built: (a) setParseWalk installs parseSet (or a new arm) for a group that holds a set, so the
+#   term reaches exitFromParse; (b) the old-road arm in driveStep honours a min-0 term's miss as success. (a) moves every
+#   repeated set term onto the new road (parseClass.target and the PARSECLASS counts would move); (b) touches only optional
+#   terms. Tony's ruling.
+#
+#   ## CHECKS (trunk, unchanged since seal 250): canary 381 · pop.sh 1982 green (= seal 250's count; BN-3 still the pinned red;
+#   STALE line named GroupActions.rtn -- its only change since the record is 90de276a's one comment line, binary md5
+#   unmoved, so not stale) · jitLadder PASSED · printPop PASSED · decodePop = capture (binary line) · ddPop 5 / 1 · dirCheck
+#   PASSED 106 of 114 = capture, first run, tree bare · frontier = capture · exec bits clean · groups.ext untouched · Groups,
+#   support, TOK clean and pushed · no incant process.
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-28 (250) ON TRUNK -- PAUSE. SEQ 452: string-lead LANDED (deee0743). THE NEXT STROKE IS DOCKETED: THE GENERATED PARSER'S OPTIONAL-FLAGS DEFECT (BN-3).
 #
 #   ## THE OPENER: the optional-flags stroke (TODO.md, SEQ 452 R3) -- first compare how kantGrammar's FORMAt and the old

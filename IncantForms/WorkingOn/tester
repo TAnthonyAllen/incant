@@ -51,6 +51,8 @@ define
     qc=4;
     ;
 
+whatsIt = PRINt("print 77:;");
+testOP(whatsIt);
 whatsIt = EXPRESSIOn("invokeTEST call ga > qb || righty = 42 || qb > qc");
 print "SENTINEL after the direct EXPRESSIOn call":;
 testOP(whatsIt);
@@ -66,8 +68,6 @@ cerr "B3 chain [" testOP(whatsIt) "]":;
 whatsIt = EXPRESSIOn("qa[qb] + qc");
 cerr "B4 chain [" testOP(whatsIt) "]":;
 // Clod, SEQ 448 R5: the new road's print -- PRINt builds one instruct, testOP runs it (prints 77)
-whatsIt = PRINt("print 77:;");
-testOP(whatsIt);
 print "SENTINEL tester driver end":;
 stop();
 

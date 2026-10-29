@@ -324,7 +324,3 @@ SEQ 446 BUILT on branch seq-stroke (pushed, NOT MERGED -- Tony's buy): S1 PRINt 
 /*******************************************************************************
 	Open questions
 *******************************************************************************/
-- ~~What xpListTest is renamed to.~~ EXPRESSIOn (R0).
-- Where a compiled action's seq lives (replacing the BlocK entry, as you said).
-- Argument lists with no operator in sight: a list first (R2).
-- Whether PrinT is the right first statement or something with no output.
