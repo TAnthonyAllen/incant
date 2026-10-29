@@ -381,6 +381,38 @@ fi
 diffcheck "baselineTestsNew BN-4 printDefinitions agrees with the old road" "$T/bo.tail" "$T/bn.tail"
 
 #  ============================================================================
+#  ⚑ optFlagsT -- SEQ 454 R1 (Tony, 2026-10-29): BN-3's certificate, PRE-REGISTERED ON TRUNK. One action per format, run
+#  on the old road (the fixture as it is) and on the new road (the same file with parser(Start) after its search line,
+#  baselineTestsNew's shape), one process each. A row compares the new road's OF-n line with the old road's. BORN RED on
+#  trunk: the flagless formats (OF-1..OF-5: #12s #s #.3f #8.2f #5d) fail to parse under parser(Start) and print nothing,
+#  because a repeated set term ([..]+) is a group and setParseWalk installs no method for a group (SEQ 453). The flagged
+#  formats (OF-6..OF-8: #-12s #-s #012d) agree today and must stay. Cure: SEQ 454 option (a), branch optional-flags.
+_ofF=$(ip optFlagsT)
+run2 optFlagsT "$T/of.o" "$T/of.e"; check "optFlagsT runs (old road)" 0 $?
+sentinel "optFlagsT old road reached its end (OPTFLAGS SENTINEL)" "$T/of.e" "OPTFLAGS SENTINEL"
+sed 's/^search OptFlagsT Generating UnitTests Utilities list;$/&\
+parser(Start);/' "$_ofF" > "$T/ofNew.k"
+perl -e 'alarm 60; exec @ARGV' "$B" "$T/ofNew.k" > "$T/ofn.o" 2> "$T/ofn.e"; check "optFlagsT runs (new road)" 0 $?
+sentinel "optFlagsT new road reached its end (OPTFLAGS SENTINEL)" "$T/ofn.e" "OPTFLAGS SENTINEL"
+#  H7-shaped guard: a new-road run whose parser(Start) did not happen would compare the old road with itself
+#  kindRow is defined far below (pop.sh:5614), so these rows compare inline -- a call to it here would evaporate (copy the idiom, lose the helper)
+_ofeq () { if [ "$2" = "$3" ]; then echo "  ok    $1 = [$3]"; green=$((green+1)); else echo "  FAIL  $1 -- got [$2] want [$3]"; fail=1; fi; }
+_ofeq "optFlagsT new road ran parser(Start)" "$(grep -c '^setParse ended and that ends compileRules' "$T/ofn.o")" "1"
+_ofl () { grep "OF-$2 \[" "$1" | head -1; }
+for _n in 1 2 3 4 5 6 7 8; do
+    _ofo=$(_ofl "$T/of.o" $_n); _ofv=$(_ofl "$T/ofn.o" $_n)
+    #  vacuity guard (H4): the oracle line must be there, or a missing new-road line would agree with nothing
+    if [ -z "$_ofo" ]; then echo "  FAIL  optFlagsT OF-$_n VACUOUS -- the old road printed no OF-$_n line"; fail=1; continue; fi
+    case $_n in
+        1|2|3|4|5) fdRow "optFlagsT OF-$_n a flagless format parses under parser(Start), as the old road prints it" "$_ofv" "" "$_ofo" ;;
+        *)         _ofeq "optFlagsT OF-$_n a flagged format under parser(Start) = the old road" "$_ofv" "$_ofo" ;;
+    esac
+done
+#  formatTest on the new road, read by value (BN-3 reads it only as a whole-head agreement)
+fdRow "baselineTestsNew formatTest on the new road" "$(grep '^formatTest: ' "$T/baseN.run" | head -1)" "" "$(printf 'formatTest: \tis    Formatted maybe ')"
+
+
+#  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
 #  Added 2026-08-30 with the bind-by-body build plan (docs/wrapperPlan.md §4).
 #

@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+registry(OptFlagsT);
+define
+    ofa=2; ofn=2.5; ofs="ab";
+    of1 code={ print "OF-1 [" ofs #12s "]":; };
+    of2 code={ print "OF-2 [" ofs #s "]":; };
+    of3 code={ print "OF-3 [" ofn #.3f "]":; };
+    of4 code={ print "OF-4 [" ofn #8.2f "]":; };
+    of5 code={ print "OF-5 [" ofa #5d "]":; };
+    of6 code={ print "OF-6 [" ofs #-12s "]":; };
+    of7 code={ print "OF-7 [" ofs #-s "]":; };
+    of8 code={ print "OF-8 [" ofa #012d "]":; };
+    ;
+search OptFlagsT Generating UnitTests Utilities list;
+of1(); of2(); of3(); of4(); of5(); of6(); of7(); of8();
+cerr "OPTFLAGS SENTINEL":;
+stop();
+
+optFlagsT -- SEQ 454 R1 (Tony, 2026-10-29): BN-3's certificate, pre-registered on trunk before the cure.
+
+One action per format. pop.sh runs this file twice, one process each: as it is (the old road -- no parser() call, so every
+action body is parsed by the interpreted rule walk), and with parser(Start) inserted after the search line (the new road
+-- every action body is parsed by the generated parser at its first call, baselineTestsNew's shape). A row compares the
+new road's OF-n line with the old road's. The old road is the oracle for PARSING here; what the formats print on either
+road is not under test (the old road pads `OF-1 [` too, which is its own business).
+
+  OF-1 #12s   OF-2 #s   OF-3 #.3f   OF-4 #8.2f   OF-5 #5d    no flags   -- born red: the action fails to parse
+  OF-6 #-12s  OF-7 #-s  OF-8 #012d                           flags      -- agree today, and must stay
+
+THE DEFECT (SEQ 453, measured): a set term with a repeat after its brackets (`flags?=[-# 0+']+`) is stored as a group
+holding the set (aCTionTraiTdata.scannerKeepsDatA: the repeat lives on the held DatA), and setParseWalk's
+`case isGROUP: field.parseMethod = null;` installs no method. The term then runs driveStep's old-road arm, whose miss
+returns labelNO and never reads the term's `?`, so the && chain fails. A flagged format matches, so it never misses.
+THE CURE (SEQ 454 option a): the group gets the method its set would get, and the miss reaches exitFromParse.
