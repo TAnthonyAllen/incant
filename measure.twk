@@ -634,6 +634,16 @@ extern GroupItem measureParentProbe(GroupItem field)
     return field;
 }
 
+// measureShortcutFire witness: the old road's shortcut action fired on this text -- parseTrace-gated; shortcutOpT counts it inside PRINt's drive (SEQ 461)
+extern GroupItem measureShortcutFire(GroupItem field)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field )
+        ::fprintf(stderr,"  SHORTCUTFIRE text=%s\n",field->getText() ? field->getText() : "(none)");
+    %-
+    return null;
+}
+
 // measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
 extern GroupItem measureParseClass(GroupItem field)
 {

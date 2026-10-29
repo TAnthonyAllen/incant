@@ -947,6 +947,8 @@ use group
 *******************************************************************************/
 extern GroupItem aCTionShortcuT(GroupItem group)
 {
+    // shortcutWitness the cut row counts this inside PRINt's drive (shortcutOpT, SEQ 461)
+    measureShortcutFire(group);
     if gCount == 2 && opFields[text]    return null;
     isShortcut = true;
     return group;

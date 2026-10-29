@@ -439,6 +439,37 @@ _ofeq "defineOwnT DO-9 a bare reference (KantGrammar's ANYORNUm NumbeR) shares G
 fdRow "defineOwnT DO-10 GroupFields' taG accessor keeps its own count (its id)" "$(_dov 'DO-10 GroupFields taG')" "13" "5"
 _ofeq "defineOwnT DO-11 DoTagT's own taG reads ENCLOSING" "$(_dov 'DO-11 DoTagT taG')" "ENCLOSING"
 
+#  ============================================================================
+#  ⚑ shortcutOpT -- SEQ 461 (Tony, 2026-10-29): SHORTCUt's own build-only action (Shape S), PRE-REGISTERED ON TRUNK. Per row,
+#  the old road and the new grammar's PRINt, one process each (+ and - move a global indent); stdout less noise, | and ^I. Every
+#  row agrees today and must stay agreed. SC-10 = two tabs (anti-vacuity). The cut row counts measureShortcutFire inside a
+#  second PRINt's drive: 2 today (_ and :), 0 once SHORTCUt no longer borrows aCTionShortcuT.
+_scF=$(ip shortcutOpT)
+_scv () { grep -v '^stop: \|^Search list: \|^We done\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_scF" ]; then
+sed '/^stop();/,$d' "$_scF" > "$T/sc.pre"
+grep '^SC-[0-9]*|' "$_scF" | while IFS='|' read -r _id _st; do
+    { cat "$T/sc.pre"; printf '%s\ncerr "SC SENTINEL":;\nstop();\n' "$_st"; } > "$T/sc.$_id.ok"
+    { cat "$T/sc.pre"; printf 'pf1 = PRINt("%s");\ntestOP(pf1);\ncerr "SC SENTINEL":;\nstop();\n' "$_st"; } > "$T/sc.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/sc.$_id.ok" > "$T/sc.$_id.o" 2> "$T/sc.$_id.oe"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/sc.$_id.nk" > "$T/sc.$_id.n" 2> "$T/sc.$_id.ne"
+    _sco=$(_scv "$T/sc.$_id.o"); _scn=$(_scv "$T/sc.$_id.n")
+    _sce="$(grep -c '^SC SENTINEL' "$T/sc.$_id.oe") $(grep -c '^SC SENTINEL' "$T/sc.$_id.ne")"
+    if [ "$_sce" != "1 1" ]; then echo "  FAIL  shortcutOpT $_id sentinels old/new = $_sce (want 1 1): $_st"
+    elif [ -z "$_sco" ]; then echo "  FAIL  shortcutOpT $_id VACUOUS -- the old road printed nothing: $_st"
+    elif [ "$_sco" = "$_scn" ]; then echo "  ok    shortcutOpT $_id new road = old road: $_st = [$_sco]"
+    else echo "  FAIL  shortcutOpT $_id new road [$_scn] != old road [$_sco]: $_st"; fi
+done > "$T/sc.rows"
+cat "$T/sc.rows"
+green=$((green + $(grep -c '^  ok ' "$T/sc.rows"))); [ "$(grep -c '^  FAIL ' "$T/sc.rows")" -gt 0 ] && fail=1
+_ofeq "shortcutOpT rows ran (18 of 18)" "$(grep -c '^  \(ok\|FAIL\) ' "$T/sc.rows")" "18"
+_ofeq "shortcutOpT SC-10 anti-vacuity: print + + ~ qa:; reads two tabs" "$(_scv "$T/sc.SC-10.n")" "^I^I2 |"
+{ cat "$T/sc.pre"; printf 'traceParse();\npf0 = PRINt("print qa:;");\ncerr "SCMARK":;\npf1 = PRINt("print qa _ qb:;");\ncerr "SCEND";\ncerr "":;\ntestOP(pf1);\ncerr "SC SENTINEL":;\nstop();\n'; } > "$T/sc.cut.k"
+perl -e 'alarm 60; exec @ARGV' "$B" "$T/sc.cut.k" > "$T/sc.cut.o" 2> "$T/sc.cut.e"
+_ofeq "shortcutOpT cut probe reached its end and printed" "$(grep -c '^SC SENTINEL' "$T/sc.cut.e") $(_scv "$T/sc.cut.o")" "1 2  3 |"
+fdRow "shortcutOpT cut: parse-time aCTionShortcuT calls inside PRINt's drive" "$(awk '/^SCMARK/{f=1} /SCEND/{f=0} f && /SHORTCUTFIRE/' "$T/sc.cut.e" | wc -l | tr -d ' ')" "2" "0"
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

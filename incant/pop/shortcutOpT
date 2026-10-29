@@ -1,0 +1,51 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(PrintFormatT);
+define
+    qa=2; qb=3; qc=4; qn=2.5; qs="ab";
+    pf1; pf2;
+    ;
+search PrintFormatT Utilities UnitTests list;
+righty = 7;
+stop();
+
+shortcutOpT -- SEQ 461 (Tony, 2026-10-29): SHORTCUt's own build-only action (Shape S, docs/shortcutRecon.md), pre-registered
+on trunk. Not run alone: pop.sh builds two inputs per row from everything above this stop() -- the OLD road (the statement as
+it is) and the NEW grammar (`pf1 = PRINt("<statement>"); testOP(pf1);`) -- one process each, because + and - move a global
+indent that outlives a print. A row compares the two stdouts, less noise lines, newlines as |, tabs as ^I.
+Every row agrees today and must stay agreed (a regression certificate). SC-10 is the anti-vacuity row: two tabs, which an op
+that did nothing would fail. SC-15..SC-18 are the ++ / -- / $$ refusal (a two-character operator is not a shortcut).
+THE CUT ROW (pop.sh): with traceParse() on, measureShortcutFire's lines inside a second PRINt's drive -- 2 today (_ and :),
+0 once SHORTCUt no longer borrows aCTionShortcuT. A first PRINt call outside the window absorbs the action bodies' first compile.
+Context, not a row: `print :+ qa:;` disagrees today (old road prints nothing, the new road truncates the file).
+
+SC-1|print qa ~ qb:;
+SC-2|print qa $ qb:;
+SC-3|print qa _ qb:;
+SC-4|print qa : qb:;
+SC-5|print + qa:;
+SC-6|print - qa:;
+SC-7|print qa ` qb:;
+SC-8|print qa , qb:;
+SC-9|print + ~ qa:;
+SC-10|print + + ~ qa:;
+SC-11|print + - ~ qa:;
+SC-12|print qa $ qb $ qc:;
+SC-13|print qa __ qb:;
+SC-14|print qa _: qb:;
+SC-15|print ++ qa:;
+SC-16|print -- qa:;
+SC-17|print $$ qa:;
+SC-18|print qa ++:;

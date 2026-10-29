@@ -759,6 +759,16 @@ extern "C" GroupItem *measureRuleDoor(GroupItem *field, GroupItem *rule)
 	return field;
 }
 
+// measureShortcutFire witness: the old road's shortcut action fired on this text -- parseTrace-gated; shortcutOpT counts it inside PRINt's drive (SEQ 461)
+extern "C" GroupItem *measureShortcutFire(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field )
+	::fprintf(stderr,"  SHORTCUTFIRE text=%s\n",field->getText() ? field->getText() : "(none)");
+	
+	return 0;
+}
+
 /*  WHO ASKED THE PARSE TO STOP, and by which verb. parseTrace gated. stopParsingInput
     serves both `stop` and `bail`, and the two are told apart by the node handed in --
     so this prints that node's TAG, which is the discriminator itself, and NOT a

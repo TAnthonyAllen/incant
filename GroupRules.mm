@@ -1204,6 +1204,8 @@ PLGset 		*set = new PLGset(stuff);
 *******************************************************************************/
 extern "C" GroupItem *aCTionShortcuT(GroupItem *group)
 {
+	// shortcutWitness the cut row counts this inside PRINt's drive (shortcutOpT, SEQ 461)
+	::measureShortcutFire(group);
 	if ( group->groupBody->gCount == 2 && GroupControl::groupController->groupRules->opFields->get(group->getText()) )
 		return 0;
 	group->groupBody->flags.isShortcut = 1;
