@@ -408,8 +408,8 @@ for _n in 1 2 3 4 5 6 7 8; do
         *)         _ofeq "optFlagsT OF-$_n a flagged format under parser(Start) = the old road" "$_ofv" "$_ofo" ;;
     esac
 done
-#  formatTest on the new road, read by value (BN-3 reads it only as a whole-head agreement)
-fdRow "baselineTestsNew formatTest on the new road" "$(grep '^formatTest: ' "$T/baseN.run" | head -1)" "" "$(printf 'formatTest: \tis    Formatted maybe ')"
+#  formatTest on the new road, read by value (BN-3 reads it only as a whole-head agreement) -- unanchored: it prints on stringTest's line, on both roads
+fdRow "baselineTestsNew formatTest on the new road" "$(grep -o 'formatTest: .*' "$T/baseN.run" | head -1)" "" "$(printf 'formatTest: \tis    Formatted maybe ')"
 
 
 #  ============================================================================
