@@ -1,0 +1,96 @@
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(DefOwnT);
+define
+    doRead code={
+        doG := Grokking["counter"];
+        doU := UnitTests["counter"];
+        dv1 := *doG.datA;
+        cerr "DO-1 Grokking counter datA= " dv1:;
+        dv2 := *doU.datA;
+        dv3 := *doU;
+        cerr "DO-2 UnitTests counter datA= " dv2 " value= " dv3:;
+        doS := cOMMANDs["stop"];
+        doK := cOMMANDs["compile"];
+        dv4 := *doS.datA;
+        cerr "DO-3 cOMMANDs stop datA= " dv4:;
+        dv5 := *doK.datA;
+        cerr "DO-4 cOMMANDs compile datA= " dv5:;
+        doT := DesignDocs["TokFiles"];
+        doC := *doT["Commands"];
+        doP := *doC["stop"];
+        doQ := *doC["compile"];
+        dv6 := *doP;
+        cerr "DO-5 DesignDocs stop= " dv6:;
+        dv7 := *doQ;
+        cerr "DO-6 DesignDocs compile= " dv7:;
+        doGL := Grokking["LoopRestrict"];
+        doKL := KantGrammar["LOOPRESTRICt"];
+        doGA := *doGL["loopOnAttributes"];
+        doKA := *doKL["loopOnAttributes"];
+        doGM := *doGL["loopOnMembers"];
+        doKM := *doKL["loopOnMembers"];
+        dv8 := *doGA;
+        dv9 := *doKA;
+        cerr "DO-7 loopOnAttributes values= " dv8 " and " dv9:;
+        cerr "DO-7 Grokking":; addrOf(*doGA);
+        cerr "DO-7 KantGrammar":; addrOf(*doKA);
+        dv10 := *doGM;
+        dv11 := *doKM;
+        cerr "DO-8 loopOnMembers values= " dv10 " and " dv11:;
+        cerr "DO-8 Grokking":; addrOf(*doGM);
+        cerr "DO-8 KantGrammar":; addrOf(*doKM);
+        doGN := Grokking["NumbeR"];
+        doKO := KantGrammar["ANYORNUm"];
+        doKN := *doKO["NumbeR"];
+        cerr "DO-9 Grokking NumbeR":; addrOf(*doGN);
+        cerr "DO-9 KantGrammar ANYORNUm NumbeR":; addrOf(*doKN);
+        };
+    doTag code={
+        doF := GroupFields["taG"];
+        doO := DoTagT["taG"];
+        dv12 := *doF.datA;
+        cerr "DO-10 GroupFields taG datA= " dv12:;
+        dv13 := *doO;
+        cerr "DO-11 DoTagT taG= " dv13:;
+        };
+    ;
+search DefOwnT GroupFields UnitTests Utilities list;
+doRead();
+register(DoTagT);
+define
+    taG="ENCLOSING";
+    ;
+search DefOwnT GroupFields UnitTests Utilities list;
+doTag();
+cerr "DEFINEOWN SENTINEL":;
+stop();
+
+defineOwnT -- SEQ 457 R0 (Tony, 2026-10-29): defineCapture Shape A's certificate, pre-registered on trunk.
+
+Shape A: in aCTionTraiT, under NewGroup only, a definition's own name that resolved outside the current registry and arrives
+WITH A VALUE gets a fresh node, and the value is written there. A bare name keeps its reference; attribute traits keep writing
+through. Recon: docs/objectModelRecon.md section 27.
+
+  DO-1  Grokking's counter (bootstrap digit set, data 3) -- today unitTests' counter=0 writes into it (data 5)
+  DO-2  UnitTests' counter -- its own 0, a count (data 5), on both
+  DO-3/4  cOMMANDs stop / compile -- today they carry DesignDocs' prose (data 13); intended no data (0)
+  DO-5/6  DesignDocs' stop / compile entries keep their prose, on both
+  DO-7/8  KantGrammar's LOOPRESTRICt loopOnAttributes / loopOnMembers -- same value as Grokking's on both; today the SAME BODY
+          (the define wrote into Grokking's), intended their own body
+  DO-9  KantGrammar's ANYORNUm member NumbeR is a bare reference to Grokking's NumbeR -- the same body on both
+  DO-10 GroupFields' taG accessor -- today DoTagT's taG="ENCLOSING" writes into it (cursorReadTb's shape); intended no data
+  DO-11 DoTagT's own taG reads ENCLOSING (a lookup by subscript, not the accessor), on both
+
+Rows read values and data kinds by value, and identity by addrOf's BODY column (H13: "is this the same thing, reached through
+another face" is a body question). The taG define comes last because a registry field named taG shadows the accessor for that
+registry's own reads (recon 19f).

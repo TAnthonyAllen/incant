@@ -411,6 +411,32 @@ done
 #  formatTest on the new road, read by value (BN-3 reads it only as a whole-head agreement) -- unanchored: it prints on stringTest's line, on both roads
 fdRow "baselineTestsNew formatTest on the new road" "$(grep -o 'formatTest: .*' "$T/baseN.run" | head -1)" "" "$(printf 'formatTest: \tis    Formatted maybe ')"
 
+#  ============================================================================
+#  ⚑ defineOwnT -- SEQ 457 R0 (Tony, 2026-10-29): defineCapture Shape A's certificate, PRE-REGISTERED ON TRUNK. A definition's
+#  own name that resolves outside its registry and arrives WITH A VALUE gets its own node (aCTionTraiT, under NewGroup only).
+#  BORN RED on trunk: DO-1 Grokking's counter reads data 5 (unitTests' counter=0 wrote into it), DO-3/4 the stop / compile
+#  commands carry DesignDocs' prose (13), DO-7/8 KantGrammar's loopOn* share Grokking's body, DO-10 GroupFields' taG accessor
+#  holds DoTagT's ENCLOSING (13). Agree today and must stay: DO-2, DO-5/6, the DO-7/8 values, DO-9 (a bare reference shares its
+#  body), DO-11. Identity is addrOf's BODY column (H13). The intended references ride on existing rows (fleet row for row).
+run2 defineOwnT "$T/dow.o" "$T/dow.e"; check "defineOwnT runs" 0 $?
+sentinel "defineOwnT reached its end (DEFINEOWN SENTINEL)" "$T/dow.e" "DEFINEOWN SENTINEL"
+_dov () { grep "^$1" "$T/dow.e" | head -1 | sed 's/.*= *//' | xargs; }
+_dob () { awk -v a="$1 $2" 'index($0,a)==1 {f=1; next} f && /^ADDROF/ {sub(/.*body=#/,""); sub(/ .*/,""); print; exit}' "$T/dow.e"; }
+_dos () { if [ -n "$(_dob $1 Grokking)" ] && [ "$(_dob $1 Grokking)" = "$(_dob $1 "$2")" ]; then echo same; elif [ -n "$(_dob $1 "$2")" ]; then echo own; else echo missing; fi; }
+fdRow "defineOwnT DO-1 Grokking's counter keeps its digit set (data kind)" "$(_dov 'DO-1 Grokking counter')" "5" "3"
+_ofeq "defineOwnT DO-2 UnitTests' counter is its own 0 (data kind, value)" "$(grep '^DO-2 ' "$T/dow.e" | sed 's/.*datA= *//; s/ value= */ /' | xargs)" "5 0"
+fdRow "defineOwnT DO-3 cOMMANDs stop carries no data" "$(_dov 'DO-3 cOMMANDs stop')" "13" "0"
+fdRow "defineOwnT DO-4 cOMMANDs compile carries no data" "$(_dov 'DO-4 cOMMANDs compile')" "13" "0"
+_ofeq "defineOwnT DO-5 DesignDocs' stop keeps its prose" "$(_dov 'DO-5 DesignDocs stop')" "Immediate method for the stop command."
+_ofeq "defineOwnT DO-6 DesignDocs' compile keeps its prose" "$(_dov 'DO-6 DesignDocs compile')" "compiles a rule parse generated in the parser incantation."
+_ofeq "defineOwnT DO-7 KantGrammar's loopOnAttributes has Grokking's value" "$(_dov 'DO-7 loopOnAttributes values')" "attributes and attributes"
+fdRow "defineOwnT DO-7 KantGrammar's loopOnAttributes has its own body" "$(_dos DO-7 KantGrammar)" "same" "own"
+_ofeq "defineOwnT DO-8 KantGrammar's loopOnMembers has Grokking's value" "$(_dov 'DO-8 loopOnMembers values')" "members and members"
+fdRow "defineOwnT DO-8 KantGrammar's loopOnMembers has its own body" "$(_dos DO-8 KantGrammar)" "same" "own"
+_ofeq "defineOwnT DO-9 a bare reference (KantGrammar's ANYORNUm NumbeR) shares Grokking's NumbeR body" "$(_dos DO-9 'KantGrammar ANYORNUm NumbeR')" "same"
+fdRow "defineOwnT DO-10 GroupFields' taG accessor carries no data" "$(_dov 'DO-10 GroupFields taG')" "13" "0"
+_ofeq "defineOwnT DO-11 DoTagT's own taG reads ENCLOSING" "$(_dov 'DO-11 DoTagT taG')" "ENCLOSING"
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
