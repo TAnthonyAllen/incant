@@ -1206,7 +1206,8 @@ extern "C" GroupItem *aCTionShortcuT(GroupItem *group)
 {
 	// shortcutWitness the cut row counts this inside PRINt's drive (shortcutOpT, SEQ 461)
 	::measureShortcutFire(group);
-	if ( group->groupBody->gCount == 2 && GroupControl::groupController->groupRules->opFields->get(group->getText()) )
+	// oneTest the two-character-operator check is shortcutTest's, the one copy (SEQ 463)
+	if ( !shortcutTest(group) )
 		return 0;
 	group->groupBody->flags.isShortcut = 1;
 	return group;
