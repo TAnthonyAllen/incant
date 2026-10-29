@@ -1018,6 +1018,20 @@ GroupRules  ruler = groupRules;
     return 1;
 }
 
+// traitOwnsValue the trait is the definition's OWN name (its activation's parent is NewGroup, never Attributes), it resolved to an entry of another registry, and a value arrives with it -- recon objectModelRecon section 27 (SEQ 457)
+extern int traitOwnsValue(GroupItem trait, GroupItem value)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    ParseActivation *a = ruler->gParseActive;
+    GroupItem *home = trait ? trait->parent : 0;
+    if ( !value || !home || home == ruler->currentRegistry )    return 0;
+    if ( home != ruler->registries && home->parent != ruler->registries )   return 0;
+    if ( !a || !a->prev || a->prev->isFloor || !a->prev->instance )   return 0;
+    return ::compare(a->prev->instance->groupBody->tag,"NewGroup") == 0;
+    %-
+}
+
 /*******************************************************************************
 	Immediate method for the TraiT rule that defines an attribute. It can be
         TraiTdata="="       DatA Modifier?;
@@ -1035,6 +1049,8 @@ GroupItem   upFlags,
     ***************************************************************************/
     input.clearList();
     if isGROUP      trait = group;
+    // ownValueOwnNode a definition's own name found in another registry, arriving with a value, gets its own node -- never the original's (SEQ 457)
+    -% if ( ::traitOwnsValue(trait,TraiTdata) )  trait = new GroupItem(trait->groupBody->tag); %-
     if Modifier {
         isAttribute = true;
         if rStuff   trait = new(trait);

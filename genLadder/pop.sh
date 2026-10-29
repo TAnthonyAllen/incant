@@ -6010,7 +6010,8 @@ _roc=$(grep -m1 '^RULEOF nodes' "$T/ro.e" | sed 's/.* copies=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-2 copies at rest > 300 (anti-vacuity for RO-1)" "$([ "${_roc:-0}" -gt 300 ] && echo yes || echo "no ($_roc)")" "yes"
 _rol=$(grep '^RULEOF nodes' "$T/ro.e" | tail -1 | sed 's/.* labels=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-3 labels in the walk after parser(Start) > 100 (anti-vacuity: labels were censused)" "$([ "${_rol:-0}" -gt 100 ] && echo yes || echo "no ($_rol)")" "yes"
-kindRow "ruleOfT RO-4 the 17 cross-registry copies, by name" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ UnitTests/counter Utilities/parser "
+#  RE-PINNED 2026-10-29 (Tony, SEQ 458 R0): 17 -> 16, UnitTests/counter dropped -- UnitTests' counter is its own node since define-own (Shape A).
+kindRow "ruleOfT RO-4 the 16 cross-registry copies, by name" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ Utilities/parser "
 #  RO-5 (stroke 4.2, SEQ 228): isCopy is DELETED -- the zero-reader census. Every *.twk/*.rtn line naming isCopy, less
 #  comment lines and the three measure prints whose pinned `isCopy=%d` label now reports ruleOf (pointerT L5a/L5b), must
 #  read 0. RO-6 is its non-zero sibling: the code lines that name ruleOf (the copy constructor's write, the four switched

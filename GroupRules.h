@@ -478,6 +478,7 @@ extern "C" GroupItem *stopParsingInput(GroupItem *input);
 extern "C" GroupItem *testOP(GroupItem *field);
 extern "C" GroupItem *testing(GroupItem *input);
 extern "C" GroupItem *traceParse(GroupItem *argument);
+extern "C" int traitOwnsValue(GroupItem *trait, GroupItem *value);
 extern "C" GroupItem *treeOf(GroupItem *argument);
 extern "C" int truthOf(GroupItem *field);
 extern "C" void unMark(GroupItem *bufField);
