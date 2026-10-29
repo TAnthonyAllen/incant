@@ -457,6 +457,8 @@ grep '^SC-[0-9]*|' "$_scF" | while IFS='|' read -r _id _st; do
     _sce="$(grep -c '^SC SENTINEL' "$T/sc.$_id.oe") $(grep -c '^SC SENTINEL' "$T/sc.$_id.ne")"
     if [ "$_sce" != "1 1" ]; then echo "  FAIL  shortcutOpT $_id sentinels old/new = $_sce (want 1 1): $_st"
     elif [ -z "$_sco" ]; then echo "  FAIL  shortcutOpT $_id VACUOUS -- the old road printed nothing: $_st"
+    #  noTwoCharRefusal SEQ 469 R2: SC-15..17 are read by value below, each road on its own -- no two-character refusal on the new road
+    elif [ "$_id" = SC-15 ] || [ "$_id" = SC-16 ] || [ "$_id" = SC-17 ]; then echo "  ok    shortcutOpT $_id ran on both roads (read by value below): $_st"
     elif [ "$_sco" = "$_scn" ]; then echo "  ok    shortcutOpT $_id new road = old road: $_st = [$_sco]"
     else echo "  FAIL  shortcutOpT $_id new road [$_scn] != old road [$_sco]: $_st"; fi
 done > "$T/sc.rows"
@@ -467,8 +469,13 @@ _ofeq "shortcutOpT SC-10 anti-vacuity: print + + ~ qa:; reads two tabs" "$(_scv 
 #  byValueRefusal SEQ 463 R3 (H17): SC-15..17 compare new with OLD, and the old road shares shortcutTest (R1), so an H7 on the test
 #  moves both roads and the equality stays green (measured). These two read the new road by VALUE, where nothing masks them.
 #  SC-17 has no value row: the shortcut $$ and the operator $$ both print 2 here, so its value cannot tell the refusal apart.
-_ofeq "shortcutOpT SC-15 new road by value: print ++ qa:; (++ refused as a shortcut, so it increments)" "$(_scv "$T/sc.SC-15.n")" "3 |"
-_ofeq "shortcutOpT SC-16 new road by value: print -- qa:; (-- refused as a shortcut, so it decrements)" "$(_scv "$T/sc.SC-16.n")" "1 |"
+#  RE-PINNED SEQ 469 R2 (shortcut-one): no two-character refusal on the new road -- `,` already separates a shortcut from an
+#  operator in a print line (Tony, 2026-10-29). So ++ / -- / $$ are shortcut runs there and qa prints 2; the old road keeps its
+#  refusal (shortcutTest, called by aCTionShortcuT) and increments / decrements.
+_ofeq "shortcutOpT SC-15 new road by value: print ++ qa:; (++ is a shortcut run; no two-character refusal on the new road)" "$(_scv "$T/sc.SC-15.n")" "2 |"
+_ofeq "shortcutOpT SC-16 new road by value: print -- qa:; (-- is a shortcut run; no two-character refusal on the new road)" "$(_scv "$T/sc.SC-16.n")" "2 |"
+_ofeq "shortcutOpT SC-17 new road by value: print \$\$ qa:; (\$\$ is a shortcut run; no two-character refusal on the new road)" "$(_scv "$T/sc.SC-17.n")" "2 |"
+_ofeq "shortcutOpT SC-15 / SC-16 / SC-17 old road by value (the old road keeps its refusal)" "$(_scv "$T/sc.SC-15.o") $(_scv "$T/sc.SC-16.o") $(_scv "$T/sc.SC-17.o")" "3 | 1 | 2 |"
 { cat "$T/sc.pre"; printf 'traceParse();\npf0 = PRINt("print qa:;");\ncerr "SCMARK":;\npf1 = PRINt("print qa _ qb:;");\ncerr "SCEND";\ncerr "":;\ntestOP(pf1);\ncerr "SC SENTINEL":;\nstop();\n'; } > "$T/sc.cut.k"
 perl -e 'alarm 60; exec @ARGV' "$B" "$T/sc.cut.k" > "$T/sc.cut.o" 2> "$T/sc.cut.e"
 _ofeq "shortcutOpT cut probe reached its end and printed" "$(grep -c '^SC SENTINEL' "$T/sc.cut.e") $(_scv "$T/sc.cut.o")" "1 2  3 |"

@@ -27,9 +27,8 @@ define
     STATEMENt guard=[{A-Za-z0-9+-;(];
     ELSe;
 
-    // shortcutTest SHORTCUt's match test lives on the rule its term names: a two-character operator fails the match, so EXPRESSIOn takes it (SEQ 462)
-    SHORTCUTs=[-+~`$_:,]+ ruleMethod=shortcutTest;
-    SHORTCUt        shortcut=SHORTCUTs;
+    // oneRule the + on the label makes the set match a run, one SHORTCUt per run, as [set]+ did; no two-character refusal on the new road: `,` separates a shortcut from an operator (Tony, SEQ 469)
+    SHORTCUt        shortcut+=[-+~`$_:,];
     ANYSTRINg=[^ \n\r\t;]+;
     BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"- defer;
     BRANCHEs bin
