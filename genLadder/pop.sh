@@ -754,19 +754,23 @@ if [ "$_n" = "1" ]; then echo "  ok    compileFloorT CF-2 printed once (no body 
 else echo "  FAIL  compileFloorT CF-2 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
 
 #  ⚠ leafLabelT -- A NEW-ROAD LEAF'S LABEL BY VALUE: its tag and the span it covers (SEQ 302 R1; 1.2f leans on it).
-#  The labelled literals lp kw rp are new-road parseString leaves; LlWord (a set field) runs the old road and is the
-#  control. H7 (leaves hand the exit no label), this fixture alone under an alarm: lp, kw, rp vanish from the new-road
-#  tree, LlWord stays -- a wrong value, not a crash.
+#  The labelled literals lp kw rp are new-road parseString leaves; LlWord (a repeated set) is a new-road parseSet leaf
+#  since SEQ 454 and is a SUBJECT row of its own (SEQ 455 R1). THE CONTROL IS THE OLD-ROAD RUN of the same fixture (no
+#  generated method yet). H7 (leaves hand the exit no label), this fixture alone under an alarm: lp, kw, rp AND LlWord
+#  vanish from the new-road tree, the old-road row does not move -- a wrong value, not a crash.
 run1 leafLabelT "$T/llt"; check "leafLabelT runs" 0 $?
 sentinel "leafLabelT sentinel (no truncation)" "$T/llt" "LEAFLABEL SENTINEL"
 _lo=$(awk '/^--- OLD ROAD/{f=1} /^--- NEW ROAD/{f=0} f&&/^SPAN/' "$T/llt" | tr '\n' '|')
 _ln=$(awk '/^--- NEW ROAD/{f=1} f&&/^SPAN/' "$T/llt" | tr '\n' '|')
+_lnw=$(awk '/^--- NEW ROAD/{f=1} f&&/^SPAN 2 LlWord /' "$T/llt" | tr '\n' '|')
 _lw1="SPAN 1 LlOUT (none)|SPAN 2 lp [(]|SPAN 2 kw [let]|SPAN 2 LlWord [abc]|SPAN 2 rp [)]|"
 _lw2="SPAN 1 LlOUT (none)|SPAN 2 lp [(]|SPAN 2 kw [let]|SPAN 2 LlWord [xyzw]|SPAN 2 rp [)]|"
 if [ "$_lo" = "$_lw1" ]; then echo "  ok    leafLabelT old road: lp [(] kw [let] LlWord [abc] rp [)]"; green=$((green+1))
 else echo "  FAIL  leafLabelT old road read [$_lo], want [$_lw1]"; fail=1; fi
 if [ "$_ln" = "$_lw1$_lw2" ]; then echo "  ok    leafLabelT new road: the literal leaves lp kw rp carry their tags and spans -- BY VALUE"; green=$((green+1))
 else echo "  FAIL  leafLabelT new road read [$_ln], want [$_lw1$_lw2]"; fail=1; fi
+if [ "$_lnw" = "SPAN 2 LlWord [abc]|SPAN 2 LlWord [xyzw]|" ]; then echo "  ok    leafLabelT new road: LlWord, a repeated-set parseSet leaf, carries its tag and span -- BY VALUE (SEQ 455 R1)"; green=$((green+1))
+else echo "  FAIL  leafLabelT new road LlWord read [$_lnw], want [SPAN 2 LlWord [abc]|SPAN 2 LlWord [xyzw]|]"; fail=1; fi
 
 #  ⚠ starDotNullT -- `*x.y` WITH x HOLDING NOTHING REFUSES BY NAME (SEQ 301 R0, fixit starDotNull). Born red on trunk:
 #  exit 139, zero output (opDot's non-groupField arm read target[tag] through null). H7 (guard removed), this fixture

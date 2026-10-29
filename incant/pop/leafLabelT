@@ -36,9 +36,10 @@ leafLabelT -- A NEW-ROAD LEAF'S LABEL, READ BACK BY VALUE (SEQ 302 R1; 1.2f lean
 LlOUT's terms lp="(", kw="let" and rp=")" are LABELLED LITERALS: parser() installs them as new-road parseString leaves,
 which since 1.2c keep their label in a local and hand it to exitFromParse, where it attaches under LlOUT's label.
 labelSpans prints the reply tree with each node's tag and the span it covers, so the row reads each leaf's TAG and
-TEXT by value -- lp [(], kw [let], rp [)]. LlWord is a set FIELD; it runs the old road inside the new-road body
-(driveStep's old-road attach), so it is the control: present under the H7 as well as without it. The old road runs
-first (parser() is one-way) as the comparison.
+TEXT by value -- lp [(], kw [let], rp [)]. LlWord is a repeated-set FIELD; until SEQ 454 it ran the old road inside the
+new-road body (driveStep's old-road attach) and was the control. Since SEQ 454 it is a new-road parseSet leaf and a
+SUBJECT row (SEQ 455 R1): LlWord [abc] and [xyzw], by value. THE CONTROL IS THE OLD-ROAD RUN, which comes first
+(parser() is one-way): under the H7 the old-road row does not move, while lp, kw, rp and LlWord vanish from the new road.
 
 ⚠ WHY LITERALS, measured 2026-10-05: a labelled inline SET (wd=[a-z]+) and a set field both kept their labels when the
 leaves handed the exit no label -- they do not take the new-road leaf path -- so a set-only fixture certified nothing.
