@@ -1640,3 +1640,62 @@ ParseActivation local, so bear-trap #58 would capture them. A full bare-tokall d
    read. **The callBracket retires whole here.**
 7. **1.2g getStuff's copy and `inProcess` retire.** Once parse() keeps no per-call state on the stuff, re-entry needs no
    copy. Certificate: mints 67,751 -> 0, the fleet row for row.
+
+## 27. defineCapture recon: what aCTionTraiT can see when it writes, and the population today (SEQ 456, 2026-10-29, read-only) -- STOP, Tony rules the shape
+
+**Measured with a temporary build, reverted** (GroupRules.mm hand-tapped, env-gated to a file so no fleet output can move; md5
+restored, rebuilt; pop.sh 1998 = seal 253 row for row, tapped and untapped). Population: every process of pop.sh, jitLadder,
+decodePop, ddPop, printPop and frontier (dirCheck re-runs the same fixtures), 160,885 tap lines. Taps: **TT** at aCTionTraiT
+before its writes (the resolved node, its home, whether a value `TraiTdata` arrived, the activation chain); **DF** at
+aCTionDefinE entry (home, Attributes?, MemberS?); **MF** at the MEMBERs flag; **TD** at aCTionTraiTdata's promoting arm (Modifier,
+value with no rStuff). TT/DF/MF logged only when the name resolved outside currentRegistry; TD everywhere. A name whose home is a
+parse label (`GrouP` under NewGroup / TraiT: a quoted literal's label) is not a registry field and is left out.
+
+### 27a. R1: aCTionTraiT knows whose trait it is -- the activation chain says so
+
+Every TT line's enclosing activation is one of two: **`TraiT<NewGroup<DefinE`** (the definition's OWN name; 45,822) or
+**`TraiT<Attributes<DefinE`** (an attribute trait; 69,240). A member definition adds `<MemberS<DefinE` after it. This is new since
+recon 19: the old road pushes activations since stroke 5.5a, so the question is answerable at the write, with no spelled list.
+**What arrives with the trait:** the value (`TraiTdata`) and the Modifier -- visible at TraiT. **What arrives after it:**
+Attributes and MemberS, seen only by aCTionDefinE (the MEMBERs flag runs in between, before aCTionDefinE).
+
+⚠ **ATTRIBUTE TRAITS MUST KEEP WRITING THROUGH.** A valued attribute resolves to the COMMAND's own entry and aCTionTraiT writes the
+value into it: `operateMethod=` (21,215 writes into cOMMANDs/operateMethod), `ruleMethod=` 5,522, `jitEmitter=` 4,920,
+`parseAction=` 492, `file=` 420 (cOMMANDs), `code=` 487 (Keywords/code). That is how a command used as an attribute receives its
+argument -- aCTionDefinE then calls it and it reads that text. Only KantGrammar's `leftCurly=` / `rightCurly=` are a capture here,
+writing the same text into Grokking's.
+
+### 27b. Own names that resolve outside the definition (TraiT<NewGroup), classified
+
+| case | file | value at TraiT | after | original | class |
+|---|---|---|---|---|---|
+| `UnitTests/counter=0` | unitTests:87 | count | -- | Grokking counter (bootstrap seed, set) | **accidental** (F-O40) |
+| `DesignDocs` x13: stop compile canonOf addrOf chanReport compileIn jitEmitter parseAction parseClassify probeNode showBody, lastREF | designDocs | prose | stop compile parseAction: members | cOMMANDs (lastREF: pROPERTIEs) | **accidental** (F-O41) |
+| `CursorRead/taG="ENCLOSING"` | pop/cursorReadTb:26 | string | -- | GroupFields taG | **accidental** (fixture-only, 19f) |
+| `KantGrammar/loopOnAttributes`, `loopOnMembers` | kantGrammar | string, same text | -- | Grokking's | **accidental, benign** (same value) |
+| `Decoder/canonOf`, `TOKENize` | decoder:270,285 | -- | members (definition=, source=) | cOMMANDs | **accidental** (members on a command) |
+| `McCap/maximus` + member | fixits/defineCapture | -- | members | UnitTests' plain field | **accidental** (membersFlagCapture; MF fires) |
+| `Utilities/parser` | utilities | -- | attrs (code=) | fILEs/parser | **accidental** (F-O33; fresh breaks include(parser)) |
+| `CompileInT/WardeD` + members | pop/compileInT:68 | -- | members | Grokking WardeD (a RULE) | **intended -- extends the rule** (CI-H) |
+| `KantGrammar/KantGrammar isRule` | kantGrammar:25 | -- | attrs | the registry itself | **intended** (registry) |
+| `Modifiers/'+' '*' '?' repeatClass` | setup:202-204 | -- | attrs | Operators entries | **intended reference**; the attribute lands on the shared body (inert, 18d) |
+| Grokking break continue return Operators; Keywords define new; pROPERTIEs UnaryOPS - -- ! . @ * ++ $$; Modifiers' other 7; Utilities JSONtoken GrouP NumbeR; KantGrammar's shared ANYtoken NumbeR QuotE SemI Operators break continue return; RuleReturn*T's references | grammar, setup, kantGrammar, utilities, fixtures | -- | -- | various | **intended** -- every one BARE (no value, attrs, members) |
+
+**Value capture (TD):** **0 across the fleet.** Its only instance is the fixit's own `tdV=maximus+` (UnitTests' plain maximus
+promoted to isRule).
+
+### 27c. What tells intended from accidental, measured
+
+1. **A value at the trait** (`x=...` on the definition's own name): every case is accidental. Visible at aCTionTraiT.
+2. **Bare, nothing after**: every case is intended -- the eleven content references of recon 19 included, all still bare.
+3. **Bare, content AFTER the trait** (attrs / members): mixed, and the shape alone cannot decide -- `WardeD`+members extends a rule
+   on purpose, `canonOf`+members captures a command. **In every measured case the split is what the ORIGINAL is:** a rule (or the
+   registry itself) is extended; a command or a plain field is captured. Grade: fits all 7 cases, not yet tested against a build.
+
+### 27d. om-r2-ownname against trunk
+
+The branch (974c304, 0332caa; one hunk at aCTionDefinE's top) still applies textually -- the `if isGROUP NewGroup = group;` it
+follows is unchanged. Its **currentDefine repair** stays part of any shape that mints at or after NewGroup. Its **site** stays
+wrong for value captures (counter still reads 0 at TraiT time, measured today). What moved underneath it: the activation chain
+(stroke 5.5a) makes the TraiT-time test possible; aCTionDefinE gained `noSatellite` (F-O32), ruleOf copies (stroke 4), CodE on the
+property list; resolveName gained the compile-owner path. Its env knob and `ruler->registries` test are measurement scaffolding.
