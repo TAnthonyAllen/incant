@@ -475,6 +475,57 @@ _ofeq "shortcutOpT cut probe reached its end and printed" "$(grep -c '^SC SENTIN
 fdRow "shortcutOpT cut: parse-time aCTionShortcuT calls inside PRINt's drive" "$(awk '/^SCMARK/{f=1} /SCEND/{f=0} f && /SHORTCUTFIRE/' "$T/sc.cut.e" | wc -l | tr -d ' ')" "2" "0"
 fi
 
+#  ============================================================================
+#  ⚑ adjacentT -- SEQ 468 (Tony, 2026-10-29): adjacent operands on the new road, Option C, PRE-REGISTERED ON TRUNK. Per row
+#  the old road and the new road, one process each (P rows through PRINt + testOP, E rows through EXPRESSIOn + testOP), then
+#  a readback, `AJ NEXT` (the next statement ran) and a sentinel. Old road: one ExpressioN takes both names and C++ makes the
+#  value an isLIST list (SEQ 465). New road: EXPRESSIOn hands a run up as an ADJACENt list, PRINt walks it; any operator
+#  meeting it refuses by name -- each refusal row is parked until list operators are ruled (SEQ 467).
+_ajF=$(ip adjacentT)
+_ajv () { grep -v '^stop: \|^Search list: \|^We done\|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+_ajr () { grep -c '^REFUSED .* -- a list of adjacent operands is not built on the new road yet *$' "$1"; }
+_ajk () { sed -n 's/^AJ val  *\([^ ]*\) *$/\1/p' "$1" | head -1; }
+_ajx () { grep -c '^AJ NEXT' "$1"; }
+if [ -f "$_ajF" ]; then
+sed '/^stop();/,$d' "$_ajF" > "$T/aj.pre"
+grep '^AJ-[0-9A-Za-z]*|' "$_ajF" > "$T/aj.list"
+while IFS='|' read -r _id _kd _st _rb; do
+    if [ "$_kd" = P ]; then _ao="$_st"; _an=$(printf 'aj1 = PRINt("%s");\ntestOP(aj1);' "$_st")
+    else _ao="$_st;"; _an=$(printf 'aj1 = EXPRESSIOn("%s");\ntestOP(aj1);' "$_st"); fi
+    { cat "$T/aj.pre"; printf '%s\n%s\ncerr "AJ NEXT":;\ncerr "AJ SENTINEL":;\nstop();\n' "$_ao" "$_rb"; } > "$T/aj.$_id.ok"
+    { cat "$T/aj.pre"; printf '%s\n%s\ncerr "AJ NEXT":;\ncerr "AJ SENTINEL":;\nstop();\n' "$_an" "$_rb"; } > "$T/aj.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/aj.$_id.ok" > "$T/aj.$_id.o" 2> "$T/aj.$_id.oe"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/aj.$_id.nk" > "$T/aj.$_id.n" 2> "$T/aj.$_id.ne"
+    _ofeq "adjacentT $_id sentinels old/new" "$(grep -c '^AJ SENTINEL' "$T/aj.$_id.oe") $(grep -c '^AJ SENTINEL' "$T/aj.$_id.ne")" "1 1"
+done < "$T/aj.list"
+_ofeq "adjacentT rows ran (12 of 12)" "$(ls "$T"/aj.AJ-*.ne 2>/dev/null | wc -l | tr -d ' ')" "12"
+#  vacuity guard (H4): every print row's old road printed something
+for _id in AJ-0 AJ-0b AJ-1 AJ-2 AJ-3 AJ-4; do [ -z "$(_ajv "$T/aj.$_id.o")" ] && { echo "  FAIL  adjacentT $_id VACUOUS -- the old road printed nothing"; fail=1; }; done
+_ofeq "adjacentT AJ-0 control, a single operand: new road = old road" "$(_ajv "$T/aj.AJ-0.n")" "$(_ajv "$T/aj.AJ-0.o")"
+_ofeq "adjacentT AJ-0b control, an operator: new road = old road" "$(_ajv "$T/aj.AJ-0b.n")" "$(_ajv "$T/aj.AJ-0b.o")"
+fdRow "adjacentT AJ-1 print qa qb:; -- the new road prints each adjacent operand, as the old road" "$(_ajv "$T/aj.AJ-1.n")" "2 |" "$(_ajv "$T/aj.AJ-1.o")"
+fdRow "adjacentT AJ-2 print qa qb qc:; -- the new road, three adjacent operands" "$(_ajv "$T/aj.AJ-2.n")" "2 |" "$(_ajv "$T/aj.AJ-2.o")"
+#  AJ-3: `-` in a print is a SHORTCUt on both roads (an outdent), never a prefix, so the run is qa qb -- both roads by value
+_ofeq "adjacentT AJ-3 print - qa qb:; old road by value (- is a shortcut)" "$(_ajv "$T/aj.AJ-3.o")" "2 3 |"
+fdRow "adjacentT AJ-3 print - qa qb:; new road by value (- is a shortcut)" "$(_ajv "$T/aj.AJ-3.n")" "2 |" "2 3 |"
+#  AJ-4: `!` is not a shortcut, so it reaches EXPRESSIOn as a prefix: the arm adds the prefix-WRAPPED operand (R3) -- 0 3, not 2 3
+fdRow "adjacentT AJ-4 print ! qa qb:; -- the prefix stays on its operand inside a run (R3)" "$(_ajv "$T/aj.AJ-4.n")" "" "$(_ajv "$T/aj.AJ-4.o")"
+#  the refusal rows, new road: REFUSED by name, the target unchanged, the next statement ran -- parked until list operators are ruled (SEQ 467)
+for _rw in "AJ-R1|holdB +% qa qb qc|0 1 1|1 0 1" "AJ-R2|mwJux +% mwA mwB mwC|0 1 1|1 0 1" "AJ-R3|xm -= qa qb|0 8 1|1 10 1" "AJ-R6|fj(qa qb)|0 1 1|1 0 1"; do
+    IFS='|' read -r _id _st _td _in <<< "$_rw"
+    fdRow "adjacentT $_id $_st refuses, target unchanged, next runs (refused / value / next) -- parked until list operators are ruled (SEQ 467)" "$(_ajr "$T/aj.$_id.ne") $(_ajk "$T/aj.$_id.ne") $(_ajx "$T/aj.$_id.ne")" "$_td" "$_in"
+done
+fdRow "adjacentT AJ-R4 print qa + qb qc:; refuses, prints nothing, next runs (refused / stdout / next) -- parked until list operators are ruled (SEQ 467)" "$(_ajr "$T/aj.AJ-R4.ne") [$(_ajv "$T/aj.AJ-R4.n")] $(_ajx "$T/aj.AJ-R4.ne")" "0 [5 |] 1" "1 [] 1"
+fdRow "adjacentT AJ-R5 print qa qb + qc:; refuses, prints nothing, next runs (refused / stdout / next) -- parked until list operators are ruled (SEQ 467)" "$(_ajr "$T/aj.AJ-R5.ne") [$(_ajv "$T/aj.AJ-R5.n")] $(_ajx "$T/aj.AJ-R5.ne")" "0 [6 |] 1" "1 [] 1"
+#  the old road on the same rows, by value: the non-zero siblings of the refusal rows' zeros (H4), and PA1 / LJ's shape unmoved
+_ofeq "adjacentT AJ-R1 old road: holdB +% qa qb qc attaches three" "$(_ajk "$T/aj.AJ-R1.oe")" "3"
+_ofeq "adjacentT AJ-R2 old road: mwJux +% mwA mwB mwC attaches three" "$(_ajk "$T/aj.AJ-R2.oe")" "3"
+_ofeq "adjacentT AJ-R3 old road: xm -= qa qb subtracts both" "$(_ajk "$T/aj.AJ-R3.oe")" "5"
+_ofeq "adjacentT AJ-R6 old road: fj(qa qb) runs" "$(_ajk "$T/aj.AJ-R6.oe")" "1"
+_ofeq "adjacentT AJ-R4 / AJ-R5 old road: + over a list refuses (its own refusal), next runs" "$(grep -c '^REFUSED .*Operator + -- cannot apply' "$T/aj.AJ-R4.oe") $(grep -c '^REFUSED .*Operator + -- cannot apply' "$T/aj.AJ-R5.oe") $(_ajx "$T/aj.AJ-R4.oe") $(_ajx "$T/aj.AJ-R5.oe")" "1 1 1 1"
+else echo "  FAIL  adjacentT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

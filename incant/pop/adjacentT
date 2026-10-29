@@ -1,0 +1,58 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest  assignTier;
+    ;
+registry(AdjacentT);
+define
+    qa=2; qb=3; qc=4; xm=10; fjSeen=0;
+    holdB; mwJux; mwA=1; mwB=2; mwC=3;
+    aj1;
+    fj code={ fjSeen = 1; return argument; };
+    ;
+search AdjacentT Utilities UnitTests list;
+righty = 7;
+stop();
+
+adjacentT -- SEQ 468 (Tony, 2026-10-29): adjacent operands on the new road (Option C).
+
+This file is not run alone. pop.sh builds two inputs per row, one process each: everything above this file's `stop();`,
+then the row on the OLD road (the statement itself), or on the NEW road (a print row through PRINt and testOP; an
+expression row through EXPRESSIOn and testOP), then a readback, then `AJ NEXT` (the next statement runs) and a sentinel.
+
+On the old road `print qa qb:;` prints 2 3: one ExpressioN takes both names, interpretXPaccum makes the value a C++ list
+(isLIST) and appendGroup walks it (SEQ 465). The new road carries no meaning in C++ flags, so the list is known by its
+TAG, ADJACENt: EXPRESSIOn's arm hands a run of adjacent operands up as an ADJACENt list, and PRINt's walk adds its members
+as separate print items. A list meeting ANY operator, on either side, call and subscript included, refuses by name in
+EXPRESSIOn's kant action -- parked until list operators are ruled (SEQ 467), not forbidden.
+
+ROWS -- id | kind | statement | readback (E rows). P = a print statement, E = an expression.
+AJ-0 controls a single operand, AJ-0b an ordinary operator. AJ-3: in a print `-` is a SHORTCUt, on both roads, so it never
+reaches EXPRESSIOn as a prefix; AJ-4 asks the prefix question with `!`, which is not a shortcut (R3: the arm adds the
+prefix-wrapped operand).
+
+AJ-0|P|print qa:;
+AJ-0b|P|print qa + qb:;
+AJ-1|P|print qa qb:;
+AJ-2|P|print qa qb qc:;
+AJ-3|P|print - qa qb:;
+AJ-4|P|print ! qa qb:;
+AJ-R1|E|holdB +% qa qb qc|cerr "AJ val " holdB.listLengtH:;
+AJ-R2|E|mwJux +% mwA mwB mwC|cerr "AJ val " mwJux.listLengtH:;
+AJ-R3|E|xm -= qa qb|cerr "AJ val " xm:;
+AJ-R4|P|print qa + qb qc:;
+AJ-R5|P|print qa qb + qc:;
+AJ-R6|E|fj(qa qb)|cerr "AJ val " fjSeen:;
