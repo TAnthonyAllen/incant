@@ -108,6 +108,7 @@ define
     negate  unary ruleMethod=opUnaryMinus;
     deref   unary ruleMethod=opDeref;
     printList   unary ruleMethod=opPrintList;
+    printShortcut   unary ruleMethod=opPrintShortcut;
     seq     unary ruleMethod=opSeq;
     '?';
     '>>';

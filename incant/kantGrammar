@@ -27,7 +27,9 @@ define
     STATEMENt guard=[{A-Za-z0-9+-;(];
     ELSe;
 
-    SHORTCUt=[-+~`$_:,]+ ruleMethod=aCTionShortcuT;
+    // shortcutTest SHORTCUt's match test lives on the rule its term names: a two-character operator fails the match, so EXPRESSIOn takes it (SEQ 462)
+    SHORTCUTs=[-+~`$_:,]+ ruleMethod=shortcutTest;
+    SHORTCUt        shortcut=SHORTCUTs;
     ANYSTRINg=[^ \n\r\t;]+;
     BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"- defer;
     BRANCHEs bin
@@ -116,6 +118,18 @@ define
         stmtsMint   := copyOf(stmts);
         instruct    +% *op;
         instruct    +% *stmtsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // SHORTCUt only builds (Shape S, Tony SEQ 461): one instruct, op printShortcut, its operand a copy of the matched text; opPrintList runs it
+    SHORTCUt code={
+        :argument shortcut;
+        scText      := copyOf(*shortcut);
+        op := Operators["printShortcut"];
+        instruct    +% *op;
+        instruct    +% *scText;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         *argument   := *target;

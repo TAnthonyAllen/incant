@@ -1018,9 +1018,32 @@ int         kind;
             if kind == 3    fmtString = grup;
             continue; }
         value = grup;
+        // shortcutHandover a printShortcut instruct writes into THIS print's buffer, so the buffer goes on the pool for its op to take (SEQ 461)
+        if isShortcutInstruct(value)    bufferSTAK += buffer;
         -% if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); %-
         appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer); }
     return opPrint(items,buffer);
+}
+
+
+// opPrintShortcut the printShortcut instruct's unary op: its operand's text runs on the buffer opPrintList handed over; it prints no item of its own (SEQ 461)
+extern GroupItem opPrintShortcut(GroupItem shortcut)
+{
+Buffer      buffer = bufferSTAK.pop();
+    if !buffer  return null;
+    runShortcuts(shortcut.text,buffer);
+    return null;
+}
+
+
+// isShortcutInstruct an instruct whose op runs opPrintShortcut -- known by the op's method, never its name
+extern int isShortcutInstruct(GroupItem value)
+{
+    -%
+    if ( !value || (void*)value->groupBody->gMethod != (void*)&testOP )   return 0;
+    GroupItem *op = value->get(1);
+    return op && (void*)op->groupBody->gMethod == (void*)&opPrintShortcut;
+    %-
 }
 
 

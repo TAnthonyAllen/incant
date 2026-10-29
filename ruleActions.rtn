@@ -949,8 +949,16 @@ extern GroupItem aCTionShortcuT(GroupItem group)
 {
     // shortcutWitness the cut row counts this inside PRINt's drive (shortcutOpT, SEQ 461)
     measureShortcutFire(group);
-    if gCount == 2 && opFields[text]    return null;
+    // oneTest the two-character-operator check is shortcutTest's, the one copy (SEQ 463)
+    if !shortcutTest(group)     return null;
     isShortcut = true;
+    return group;
+}
+
+// shortcutTest the new grammar's SHORTCUt match test: a two-character operator is not a shortcut, so it fails the match (null); no mark -- SHORTCUt's kant action builds printShortcut (SEQ 462)
+extern GroupItem shortcutTest(GroupItem group)
+{
+    if gCount == 2 && opFields[text]    return null;
     return group;
 }
 
