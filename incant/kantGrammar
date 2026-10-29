@@ -140,7 +140,19 @@ define
         cur := *stuff.firsT;
         // threeKinds an item is an EXPRESSIOn's value, a shortcut (SHORTCUt's action marked it) or a format (it carries formatTYPE); opPrintList tells them apart
         while cur.datA != 0;
-            printItems +% *cur;
+            // refusedItem an item whose EXPRESSIOn refused (it cleared its label) arrives as an empty PRINTXp: it prints nothing, as a refusing C++ operator's NULL prints nothing (SEQ 468)
+            skipIt = 0;
+            if *cur.taG == "PRINTXp";
+                if *cur.listLengtH == 0;    skipIt = 1;
+            // adjacentWalk an ADJACENt item is a run of adjacent operands (EXPRESSIOn's arm): each member is its own print item, known by the tag, never a C++ flag (SEQ 468)
+            isAdj = 0;
+            if *cur.taG == "ADJACENt";  isAdj = 1;
+            if isAdj == 1;
+                m := *cur.firsT;
+                while m.datA != 0;
+                    printItems +% *m;
+                    m := *m.nexT;
+            if skipIt == 0 && isAdj == 0;   printItems +% *cur;
             cur := *cur.nexT;
         op := Operators["printList"];
         // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
@@ -176,6 +188,7 @@ define
                 prevOp = 1;
             else
                 prevOp = 0;
+                wrapped = 0;
                 if pre.datA != 0;
                     if *pre.taG == "-";     pre := Operators["negate"];
                     or *pre.taG == "*";     pre := Operators["deref"];
@@ -185,9 +198,45 @@ define
                     opnd        := copyOf(instruct);
                     clear(instruct);
                     clear(pre);
+                    wrapped = 1;
                 else    opnd = cur;
                 // INVOKEr's call arrives as an instruct without its method; it gets it here, never at INVOKEr's return
                 if *cur.taG == "instruct";  *cur.methoD = "testOP";
+                // callRefused a call or subscript whose argument is a run (INVOKEd's EXPRESSIOn handed up an ADJACENt list) refuses by name, as an operator does (SEQ 468 R0)
+                if *cur.taG == "instruct";
+                    cArg := *cur[3];
+                    if *cArg.taG == "ADJACENt";
+                        cOp := *cur[1];
+                        adjOp := *cOp.taG;
+                        cerr "REFUSED" adjOp "-- a list of adjacent operands is not built on the new road yet":;
+                        clear(*argument);
+                        return *argument;
+                // adjacentRun an operand followed by an operand, no op between, joins a run; the run ends at an operator or the end and becomes ONE operand, an ADJACENt list (SEQ 468)
+                nx := *cur.nexT;
+                nxOpnd = 0;
+                if nx.datA != 0;
+                    if *nx.instructTypE == 0;   nxOpnd = 1;
+                // wrappedJoins a prefixed operand joins as its prefix instruct, so - qa inside a run keeps its - (SEQ 468 R3)
+                if nxOpnd == 1;
+                    if wrapped == 1;    ADJACENt +% *opnd;
+                    else                ADJACENt +% *cur;
+                    cur := *nx;
+                    continue;
+                if ADJACENt.listLengtH != 0;
+                    if wrapped == 1;    ADJACENt +% *opnd;
+                    else                ADJACENt +% *cur;
+                    opnd := copyOf(ADJACENt);
+                    clear(ADJACENt);
+                    // adjacentRefused a list meeting ANY operator, either side, refuses by name: list operators are parked, not forbidden (SEQ 467, SEQ 468 R0)
+                    adjRef = 0;
+                    if op.datA != 0;    adjRef = 1;
+                    if nx.datA != 0;    adjRef = 2;
+                    if adjRef == 1;     adjOp := *op.taG;
+                    if adjRef == 2;     adjOp := *nx.taG;
+                    if adjRef != 0;
+                        cerr "REFUSED" adjOp "-- a list of adjacent operands is not built on the new road yet":;
+                        clear(*argument);
+                        return *argument;
                 if target.datA == 0;    target = opnd;
                 else    arg = opnd;
                 if op.datA != 0 && target.datA != 0;
