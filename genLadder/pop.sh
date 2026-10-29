@@ -464,6 +464,11 @@ cat "$T/sc.rows"
 green=$((green + $(grep -c '^  ok ' "$T/sc.rows"))); [ "$(grep -c '^  FAIL ' "$T/sc.rows")" -gt 0 ] && fail=1
 _ofeq "shortcutOpT rows ran (18 of 18)" "$(grep -c '^  \(ok\|FAIL\) ' "$T/sc.rows")" "18"
 _ofeq "shortcutOpT SC-10 anti-vacuity: print + + ~ qa:; reads two tabs" "$(_scv "$T/sc.SC-10.n")" "^I^I2 |"
+#  byValueRefusal SEQ 463 R3 (H17): SC-15..17 compare new with OLD, and the old road shares shortcutTest (R1), so an H7 on the test
+#  moves both roads and the equality stays green (measured). These two read the new road by VALUE, where nothing masks them.
+#  SC-17 has no value row: the shortcut $$ and the operator $$ both print 2 here, so its value cannot tell the refusal apart.
+_ofeq "shortcutOpT SC-15 new road by value: print ++ qa:; (++ refused as a shortcut, so it increments)" "$(_scv "$T/sc.SC-15.n")" "3 |"
+_ofeq "shortcutOpT SC-16 new road by value: print -- qa:; (-- refused as a shortcut, so it decrements)" "$(_scv "$T/sc.SC-16.n")" "1 |"
 { cat "$T/sc.pre"; printf 'traceParse();\npf0 = PRINt("print qa:;");\ncerr "SCMARK":;\npf1 = PRINt("print qa _ qb:;");\ncerr "SCEND";\ncerr "":;\ntestOP(pf1);\ncerr "SC SENTINEL":;\nstop();\n'; } > "$T/sc.cut.k"
 perl -e 'alarm 60; exec @ARGV' "$B" "$T/sc.cut.k" > "$T/sc.cut.o" 2> "$T/sc.cut.e"
 _ofeq "shortcutOpT cut probe reached its end and printed" "$(grep -c '^SC SENTINEL' "$T/sc.cut.e") $(_scv "$T/sc.cut.o")" "1 2  3 |"
