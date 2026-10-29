@@ -343,7 +343,8 @@ use ruleStuff
 // parseSet match a run of characters from this rule's character set
 extern GroupItem parseSet(GroupItem field)
 {
-GroupItem   leafLab;
+GroupItem   leafLab,
+            held;
 String      leafAt;
 int         leafOK;
 use field
@@ -352,18 +353,28 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
 int         counter;
 int         more;
+int         setMin;
+int         setMax;
+    // heldSet a repeated set is a group holding its DatA, and the repeat is the held set's -- read it there, as a plain set's is read from its own rStuff (SEQ 454)
+    held    = field;
+    if field.isGROUP && field.gGroup    held = field.gGroup;
+    set     = held.characterSet;
+    setMin  = held.rStuff.min;
+    setMax  = held.rStuff.max;
+use field
+use ruleStuff
     // leafLocals the verdict, start and label live in locals and go to the exit as arguments -- nothing on rStuff (SEQ 301, 1.2c)
     leafAt  = ruleStuff.inputAt();
     if leafAt && *leafAt && ruleStuff.checkGuard(field) {
         leafLab = ruleStuff.mintLabel(field);
 use ruleStuff
         while set.contains(*atRuleMark) {
-            if counter >= max { more = true; break; }
+            if counter >= setMax { more = true; break; }
             counter++;
             atRuleMark++;
             if !*atRuleMark break; }
-        if more && max > 1  reportMaxLimit(field);
-        or counter && counter >= min {
+        if more && setMax > 1  reportMaxLimit(field);
+        or counter && counter >= setMin {
             if leafLab  leafLab.setToken(leafAt,counter);
             leafOK  = true; }}
     // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
@@ -472,6 +483,7 @@ RuleStuff   ruleStuff = rStuff;
         case isCHAR:        field.parseMethod = parseCharacter;
         case isSET:         field.parseMethod = parseSet;
         case isGROUP:       field.parseMethod = null;
+                            if field.gGroup && field.gGroup.isSET   field.parseMethod = parseSet;
         default:            field.parseMethod = parseString; }
     or method               field.parseMethod = parseAction;
     else                    field.parseMethod = parseString;

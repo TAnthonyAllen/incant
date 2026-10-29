@@ -10060,6 +10060,7 @@ checkSuccess:
 extern "C" GroupItem *parseSet(GroupItem *field)
 {
 GroupItem 	*leafLab = 0;
+GroupItem 	*held = 0;
 char 		*leafAt = 0;
 int 		leafOK = 0;
 PLGset 		*set = field->getCharacterSet();
@@ -10067,6 +10068,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
+int 		setMin = 0;
+int 		setMax = 0;
+	// heldSet a repeated set is a group holding its DatA, and the repeat is the held set's -- read it there, as a plain set's is read from its own rStuff (SEQ 454)
+	held = field;
+	if ( isGROUP(field->groupBody->flags.data) && field->groupBody->gGroup )
+		held = field->groupBody->gGroup;
+	set = held->getCharacterSet();
+	setMin = held->getRStuff()->min;
+	setMax = held->getRStuff()->max;
 	// leafLocals the verdict, start and label live in locals and go to the exit as arguments -- nothing on rStuff (SEQ 301, 1.2c)
 	leafAt = ruleStuff->inputAt();
 	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
@@ -10074,7 +10084,7 @@ int 		more = 0;
 		leafLab = ruleStuff->mintLabel(field);
 		while ( set->contains(*ruler->atRuleMark) )
 			{
-			if ( counter >= ruleStuff->max )
+			if ( counter >= setMax )
 				{
 				more = 1;
 				break;
@@ -10084,10 +10094,10 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 )
+		if ( more && setMax > 1 )
 			::reportMaxLimit(field);
 		else
-		if ( counter && counter >= ruleStuff->min )
+		if ( counter && counter >= setMin )
 			{
 			if ( leafLab )
 				leafLab->setToken(leafAt,counter);
@@ -11836,6 +11846,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				break;
 			case 6:
 				field->groupBody->gParseMethod = 0;
+				if ( field->groupBody->gGroup && isSET(field->groupBody->gGroup->groupBody->flags.data) )
+					field->groupBody->gParseMethod = ::parseSet;
 				break;
 			default:
 				field->groupBody->gParseMethod = ::parseString;
