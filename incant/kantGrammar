@@ -258,7 +258,6 @@ define
             if asgO.datA != 0;  target = asgO;
         // the chain goes INTO this rule's label, so a caller (INVOKEd, or a command line) gets the label back
         *argument := *target;
-        print "We done":;
         return  *argument;
         };
     ;

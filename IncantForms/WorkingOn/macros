@@ -44,7 +44,7 @@ Can we add argument list handling to the xp chain process? I want to be able to 
 Maybe add StatemenT as a listEntries option. Make statement label both op and target, treat the op as unary and wrap in an instruct (unary process does that)???
     Most StatemenTs are deferred so labels are deferred in effect but where does the rule action happen and how does it happen?
     How to attack: write a dummy StatemenT rule replacement containing a couple of dummy statements, really simple ones w/simple actions to practice on.
-    Probably need a dummy StatemenT version of xpListTest??? Still end up stuck on how to add a list of statements to an instruction chain.
+    Probably need a dummy StatemenT version of EXPRESSIOn??? Still end up stuck on how to add a list of statements to an instruction chain.
 A statement in an expression list is not a target or argument and does not produce a result but it must fire (as if it were a nested xp???) and the xp list carries on. If an xp list can contain statements then do loop is just list of statements to fire while running the xp chain
 An action is just a list of statements so an xp list can maybe run actions???
     has to set currentMETHOD and maintain current method stak
@@ -75,11 +75,11 @@ A || B || C translates to
 /*******************************************************************************
 	How to add an if statement into an instruction chain
 *******************************************************************************/
-To run an if rule the way I want it to run, xpListTest has to handle statements; once it can do that, it should be able to handle parsing an action, be it rule action or regular action. xpListTest will have to handle A(B); where A can be a method, an action, or a rule (Done).
+To run an if rule the way I want it to run, EXPRESSIOn has to handle statements; once it can do that, it should be able to handle parsing an action, be it rule action or regular action. EXPRESSIOn will have to handle A(B); where A can be a method, an action, or a rule (Done).
 if tests the result and chooses to run target or argument based on test result; this can happen in opif but where does opif find result to test? Do we have a 2 part parse? if rule runs; finds its labels; All those labels are already parsed when the rule action (to be written) fires. The rules that generate those labels return their labels as an instruction chain (basically an instruction that is the beginning of a chain). Problem is every rule action needs to be processed to return itself as a chain.
 Not sure how to write if statement as an expression: maybe xp if A; where if is an operator xp is target and A is argument cobbled together to contain startLoop and endLoop.
 Alternatively add labels and a goto operator as possible entries on the xpList. Issue here is a label wud be hard to find buried in an instruction chain. Maybe labels could be noPrint locals created by a make label operator and stashed in currentMETHOD. currentMETHOD is set to contain CodE if the action is a rule action in processCode(). Note: a label look up happens while the expression is getting parsed. Once parsed into an instruction chain, the label is already found and the chain just refers to it like a normal field (the goto op knows better). The make label operator wud be : defined as unary, so :field wud make field a label. typically users wud not need to make a label, the rules like IF or DO that need them wud make the labels they need and write them into the instruction chain (that wud happen in the rule action when it gets parsed). This implies/requires revision of rule actions, but we plan to work on that as part of the tester exercise.
-What wud a revised IF rule action look like; it wud be fired as an if statement so xparse aka xpListTest will have to recognize and handle rules.
+What wud a revised IF rule action look like; it wud be fired as an if statement so xparse aka EXPRESSIOn will have to recognize and handle rules.
 
         if ExpressioN SemI- StatemenT ElsE? code={
             // ExpressioN StatemenT and ElsE are labels; all labels are instructions that know how to run themselves and return a field
@@ -115,7 +115,7 @@ a method, run it; if not, hand it back as is. A plain value is a valid chain end
 /*******************************************************************************
 	The shapes
 *******************************************************************************/
-Expression chain   op target argument, a tree (xpListTest builds these today).
+Expression chain   op target argument, a tree (EXPRESSIOn builds these today).
 seq instruct       op = seq, argument = a LIST of statement instructs.
                    opSeq walks the list in order. An action body is a seq.
                    Built.
@@ -173,7 +173,7 @@ Rules for every new rule:
 *******************************************************************************/
 Every rung runs the same incantation under both grammars and compares output.
     1  two prints in a seq             statements in a chain        DONE
-    2  EXPRESSIOn (xpListTest, R0)    expressions in the new grammar  DONE
+    2  EXPRESSIOn (EXPRESSIOn, R0)    expressions in the new grammar  DONE
        PRINt finished alongside: formats and shortcuts DONE; left: adjacent
        expressions (open question 4) and the quoted-print row (R7)
     3  IF                              build an if instruct; then / else
@@ -225,7 +225,7 @@ R3  IF's shape: one instruct in its parent's seq. Its method runs the
     ? Operand layout to settle at IF's recon: three operands (condition, then,
       else) per SEQ 431, or the condition plus [then, else] as a list in the
       argument slot per SEQ 438 R3.
-R4  Expression tiers (tester's xpListTest, tier-split 920d1a81): arithmetic
+R4  Expression tiers (tester's EXPRESSIOn, tier-split 920d1a81): arithmetic
     folds at once; compare, logic and assign each wait in their own slot; a
     looser operator closes every tighter slot first; the same tier closes its
     own, so a tier reads left to right; assign never closes assign -- a second

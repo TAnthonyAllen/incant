@@ -51,8 +51,9 @@ define
     qc=4;
     ;
 
-whatsIt = PRINt("print 77:;");
+whatsIt = PRINt("print ,+~+77 - qa:;");
 testOP(whatsIt);
+stop();
 whatsIt = EXPRESSIOn("invokeTEST call ga > qb || righty = 42 || qb > qc");
 print "SENTINEL after the direct EXPRESSIOn call":;
 testOP(whatsIt);
