@@ -106,9 +106,18 @@ evaluates nothing (bear-trap #34: building must never fire).
 The one exception: code that DECIDES the parse (accept or reject a match) runs
 at parse time, because the parse cannot wait for it.
 Until kant can write a rejection (open question 1), a rule's parse decision
-may live on its own small rule beneath it, in C++. The worked example:
+may live on its own small rule beneath it, in C++ -- the two-step. The worked
+example, as it stood until SEQ 469:
     SHORTCUTs=[-+~`$_:,]+ ruleMethod=shortcutTest;   decides (rejects ++ -- $$)
     SHORTCUt  shortcut=SHORTCUTs;                    builds (kant action)
+SEQ 469 dropped the decision on the new road instead of moving it: `,` already
+separates a shortcut from an operator in a print line (Tony), so ++ is two
+shortcuts there. SHORTCUt is one rule again, with no C++:
+    SHORTCUt  shortcut+=[-+~`$_:,];                  builds (kant action)
+The + on the label reads as [set]+ (one label per run, traced) and is inert:
+no row tells it from shortcut=[...], since shortcuts printed one by one print
+what the run prints. The old road keeps its refusal (shortcutTest stays for
+aCTionShortcuT). The two-step pattern stands for the next real decider.
 Run time: the instruct runs. testOP is every instruct's method: if a field has
 a method, run it; if not, hand it back as is. A plain value is a valid chain end.
 
@@ -166,7 +175,11 @@ Rules for every new rule:
       last call's value (bear-trap 50; PRINt's itemsMint, SHORTCUt's scText).
     - A parse decision cannot share a rule with the build: ruleMethod= on a
       rule displaces its code={} (measured, SEQ 462). The decider goes on its
-      own small rule beneath, as SHORTCUTs.
+      own small rule beneath (the two-step; SHORTCUTs was the example until
+      SEQ 469 dropped its decision).
+    - A list is known by its TAG, never by isLIST / isLisT. Adjacent operands
+      (qa qb) are one operand, a list tagged ADJACENt that EXPRESSIOn's action
+      hands up; PRINt adds its members as separate items (SEQ 467 / 468).
 
 /*******************************************************************************
 	The ladder: one rung at a time, each checked against the old grammar
@@ -174,10 +187,10 @@ Rules for every new rule:
 Every rung runs the same incantation under both grammars and compares output.
     1  two prints in a seq             statements in a chain        DONE
     2  EXPRESSIOn (EXPRESSIOn, R0)    expressions in the new grammar  DONE
-       PRINt finished alongside: formats and shortcuts DONE; left: adjacent
-       expressions (open question 4) and the quoted-print row (R7)
+       PRINt finished alongside: formats, shortcuts and adjacent
+       expressions DONE (SEQ 468 / 469); left: the quoted-print row (R7)
     3  IF                              build an if instruct; then / else
-                                       NEXT once PRINt's two leftovers land
+                                       NEXT once R7 lands
     4  a loop (while or DO)            seq + branch signals: break, continue
     5  an action, called and self-called    the frame bracket
     6  the jitter walks the chain      later
@@ -196,8 +209,9 @@ A split rule (decide below, build above) adds one label level; check it there.
 	Open questions
 *******************************************************************************/
 1  A kant spelling for a rule action that rejects a match. Today only a null
-   from a C++ action fails a match; no kant spelling produces one. When it
-   lands, SHORTCUTs' test moves into kant.
+   from a C++ action fails a match; no kant spelling produces one. SHORTCUt
+   no longer needs it (SEQ 469 dropped its decision); the question stands for
+   the next rule that must decide.
 2  Two-part rule actions on one rule: a parse action (decides, may reject) and
    a runtime action (builds). One rule cannot carry ruleMethod= and code={}
    today. First read what parseAction / parseCondition already do.
@@ -209,8 +223,20 @@ A split rule (decide below, build above) adds one label level; check it there.
    action reject (that is question 1). A row comes before anything leans on them.
 3  Is a rule's decision always separable from its build? Watch IF's condition
    and keyword checks.
-4  Adjacent expressions: where EXPRESSIOn stops so each print item is its own.
-   print qa qb:; prints 2 on the new road, 2 3 on the old.
+4  Adjacent expressions -- SETTLED SEQ 468. EXPRESSIOn does not stop: like the
+   old road, adjacent operands are ONE list value, but known by the tag
+   ADJACENt (the old road's split is C++: interpretXPaccum's isLIST, SEQ 465).
+   print qa qb:; prints 2 3 on both roads. An ADJACENt list meeting ANY
+   operator (call and subscript included) refuses by name, "not built on the
+   new road yet". What remains is question 5.
+5  List-taking operators (Tony wants more than +%; which ones not yet named),
+   PARKED with two shapes (SEQ 467): (A) one C++ helper isListArg (isLIST, or
+   the tag ADJACENt) called by each of today's twelve list arms -- one call per
+   new operator, but a kantGrammar tag spelled in C++; (B) EXPRESSIOn spreads
+   the list at build, one instruct per member, for any op whose Operators
+   entry carries takesList -- no C++, one attribute per new operator, but the
+   value becomes the seq's, +%'s holder unwrap has no list to act on, and the
+   spread sits in the slot code SEQ 448 R6 wants simplified.
 /*******************************************************************************
 	Standing rulings for the new grammar (refreshed 2026-10-29)
 *******************************************************************************/
@@ -241,8 +267,8 @@ R7  An action reads its component labels, builds an instruct in tester's
 R8  New ops are C++ first, then kant. Each scaffold carries a dated TODO line,
     "retires when the kant action of the same name passes the same rows",
     retired by mapping, groups.ext line included. opSeq, opPrintList and
-    opPrintShortcut are such scaffolds; shortcutTest is the C++ parse decider
-    that retires into kant with open question 1.               (SEQ 438 R4)
+    opPrintShortcut are such scaffolds. shortcutTest was the new grammar's C++
+    parse decider; since SEQ 469 only the old road calls it.   (SEQ 438 R4)
 Shared with the old grammar, referenced never redefined: TOKENize, DEFINing,
     PRINTing, ANYtoken, followedBy; the C++ bootstrap seeds NamE, NumbeR,
     QuotE, SemI, GrouP, define, counter; Operators and its UnaryOPS bin.
