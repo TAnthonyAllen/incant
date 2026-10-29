@@ -1,3 +1,71 @@
+# ⚠⚠⚠ SEALED 2026-10-29 (252) ON TRUNK -- PAUSE BEFORE THE BUY. SEQ 454: BN-3's CURE (option a) BUILT ON BRANCH optional-flags -- PUSHED, NOT MERGED.
+#
+#   ## THE OPENER: Tony buys or not: optional-flags (2d926981). One plain line: under the generated parser a format with
+#   no flags (#12s, #5d, #.3f) failed to parse; on the branch a set written with a repeat after its brackets now gets the
+#   same parse method as a plain set, so those formats parse and BN-3 is green. Pending at the buy: leafLabelT's control
+#   (LlWord now runs the new road, its row unmoved) wants a new pin or a replacement control.
+#
+#   ## STEP 0 CENSUS (trunk, read only). Population: every tracked text file under incant/, IncantForms/, genLadder/ and
+#   jitLadder/ (461 + jitLadder), grepped for `[..]` followed by + * ? or -, every hit read by name; loaders checked, and
+#   IncantForms/BackupXML, NotGUI, Notions and WorkingOn/checkSKIP are loaded by nothing. Reach: traceParse() +
+#   measureParseClass under parser(Start / DO / StatemenT / ExpressioN / Search / list / ANYorNum), one process each.
+#   | file:line | term | shape | opt/req | reached by | road today |
+#   | grammar:122 | flags?=[-# 0+']+ | set in a labelled term | optional | Start DO StatemenT ExpressioN | old (none) -- BITES |
+#   | grammar:121 | precision?=[0-9]+ | set in a labelled term | optional | Start DO StatemenT ExpressioN | old (none) -- BITES |
+#   | grammar:112 | ShortcuT=[-+~`$_:,]+ | bare set rule | required | Start DO StatemenT ExpressioN | old (none), matches |
+#   | grammar:114 | ANYstring=[^ \n\r\t;]+ | bare set rule | required | none of the roots | old |
+#   | grammar:110 | HeX value-=[0-9a-fA-F]+ | labelled | required | none | old |
+#   | kantGrammar:30,31,38,40 | SHORTCUt ANYSTRINg precision flags | as grammar's | as grammar's | none (KantGrammar) | old |
+#   | utilities:11 | tell target=[..]+ / message?=[^\n]+ | labelled | req / opt | none | old (latent if parser() reaches it) |
+#   | compileInT:69 | TellST target / message | labelled | req / opt | none (no parser call) | old |
+#   | leafLabelT:19 | LlWord=[a-z]+ | bare set rule | required | parser(LlOUT) | old (none), the control |
+#   | jitLadder/station2 pairs, pairs.sweep, pool | `aa isRule tt=[a-z]+;` | input text, defined at drive time | -- | no walk | old |
+#   Not in the class: grammar:55 NotA and the C++ seeds numberSet / power / decimals are isSET (data 3) with parseSet already.
+#   ONE METHOD FITS (no STOP): lldb on flags, precision, ShortcuT -- each is data 6 with its own min/max (? gives 0/1) and
+#   gGroup holds an anonymous DatA of data 3 (isSET) whose rStuff carries the repeat (1/100) -- designDocs
+#   aCTionTraiTdata.scannerKeepsDatA / modifierRidesUp. dtext (`dtext^=delimiter}`) is a group holding a LITERAL
+#   (delimiter, data 13), not a set, so it is outside the class and does NOT move (registered as a mover; it is not one).
+#
+#   ## STEP 1 (trunk, 4e49a6d2 + fix 8f6db280): incant/pop/optFlagsT, one action per format, old road and parser(Start), one
+#   process each; rows OF-1..OF-5 born red, OF-6..OF-8 agree; a formatTest-by-value row on the new road (born red). Two
+#   instrument slips, both caught by the instruments: kindRow is defined below the block (pop.sh's own "command not found"
+#   check named all four; inline _ofeq instead), and formatTest prints on stringTest's line (the row was anchored, could
+#   never go green; unanchored on trunk). Trunk: 1982 -> 1990 green, the six born reds, nothing else.
+#   ## STEP 2 (branch optional-flags, 2d926981): Generate.rtn setParseWalk `case isGROUP:` keeps null and adds
+#   `if field.gGroup && field.gGroup.isSET   field.parseMethod = parseSet;`; parseSet reads set, min and max from `held`
+#   (the group's gGroup, else the field itself). THE REPEAT IS HONOURED BY THE METHOD, as a plain set's is: parseSet already
+#   loops to its own rStuff's max, and for a group that rStuff is the held set's (the repeat rides on the data, ruled
+#   2026-09-10); the term's own ? stays on the term and is read by exitFromParse. Full bare tokall: GroupRules.mm only, and
+#   every moved line is the edit (held decl, setMin/setMax, the held read, three min/max -> setMin/setMax, the case line).
+#   Canary 381. Generated parseSet for a plain set reads the same rStuff (getRStuff() == rStuff).
+#   ## CERTIFICATE, branch against trunk row for row (addresses masked): BN-3 green (= same) · formatTest new road = `formatTest:
+#   <tab>is    Formatted maybe ` (old road row unchanged) · OF-1..OF-5 green, each = the old road's line · OF-6..OF-8
+#   unchanged · registered movers: tripwire 2752 -> 2747 (every lost in-drive fire is rule=DatA, 88 -> 81 over its trace files,
+#   measured branch vs H7 build -- the held set the moved groups fired on the old road); class counts under parser(Start)
+#   none 4 -> 1, parseSet 13 -> 16 (ShortcuT, flags, precision; dtext stays none); parseClass.target UNMOVED -- its output
+#   is byte-identical (34 rows), its fixture reaches none of the three (red as before); leafLabelT green, LlWord now
+#   parseSet on the new road -- the control role is gone, values unchanged, Tony's ruling at the buy. Nothing else moved
+#   (sweepT and the old-road oracle columns included). pop.sh 1997 green.
+#   CONTEXT (branch, scratch worktree, not certificate): with FormatFlags=[-# 0+']+ as a rule, `flags?=FormatFlags` and
+#   `flags=FormatFlags?` both still fail OF-1..OF-5 on the new road: flags is then a group holding the RULE FormatFlags (method
+#   none; FormatFlags never walked) -- a group holding a rule reference, outside this class. `flags=FormatFlags?` also moves
+#   the old road (OF-1 reads `ab 12 s`, OF-3 missing).
+#   ## H7 (branch, the `if ... parseSet` line removed, retok bare, rebuilt; fixtures alone under alarm 60): OF-1..OF-5 print
+#   nothing, OF-6..OF-8 unchanged, baselineTestsNew's formatTest missing (BN-3 formatTest-missing). The whole fleet on the H7
+#   build = trunk row for row (1990, tripwire 2752). Restored from git, md5 = branch for Generate.rtn and GroupRules.mm, rebuilt.
+#   ## A SLIP, LOGGED: switching to trunk I typed `git checkout main`; main is a stale 2026-10-02 branch, not the trunk. Checked
+#   at once: main tracks no path the trunk ignores (comm/check-ignore empty), Directives/groupDirectives and incant++ intact;
+#   returned to jit-unified-emit-wip, Generate.rtn md5 = trunk. Nothing lost.
+#
+#   ## CHECKS (trunk, rebuilt at trunk truth): canary 381 · pop.sh 1990 = the step-1 run row for row · jitLadder PASSED ·
+#   printPop PASSED · decodePop = capture (binary line) · ddPop 5 / 1 · dirCheck PASSED 106 of 114 = capture, tree bare (on the
+#   branch too: parseSet's parked directive still injects) · frontier = capture · exec bits clean · groups.ext untouched ·
+#   Groups (trunk + branch optional-flags), support, TOK clean and pushed · no incant process.
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-29 (251) ON TRUNK -- STOP (SEQ 453, the dispatch's own STOP clause). THE OPTIONAL-FLAGS CAUSE IS GENERAL, NOT FormaT'S. NOTHING BUILT.
 #
 #   ## THE OPENER: Tony's word on the cure's SCOPE. One plain line: a format with no flags fails under the generated
