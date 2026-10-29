@@ -508,8 +508,13 @@ fdRow "adjacentT AJ-2 print qa qb qc:; -- the new road, three adjacent operands"
 #  AJ-3: `-` in a print is a SHORTCUt on both roads (an outdent), never a prefix, so the run is qa qb -- both roads by value
 _ofeq "adjacentT AJ-3 print - qa qb:; old road by value (- is a shortcut)" "$(_ajv "$T/aj.AJ-3.o")" "2 3 |"
 fdRow "adjacentT AJ-3 print - qa qb:; new road by value (- is a shortcut)" "$(_ajv "$T/aj.AJ-3.n")" "2 |" "2 3 |"
-#  AJ-4: `!` is not a shortcut, so it reaches EXPRESSIOn as a prefix: the arm adds the prefix-WRAPPED operand (R3) -- 0 3, not 2 3
-fdRow "adjacentT AJ-4 print ! qa qb:; -- the prefix stays on its operand inside a run (R3)" "$(_ajv "$T/aj.AJ-4.n")" "" "$(_ajv "$T/aj.AJ-4.o")"
+#  AJ-4: `!` is not a shortcut, so it reaches EXPRESSIOn as a prefix: the arm adds the prefix-WRAPPED operand (R3).
+#  RE-PINNED SEQ 468 (branch adjacent-list): the new road reads 3, the old road 0 3 -- NOT pinned to the old road, Tony rules.
+#  `!qa` is false and a false prints NOTHING on its own on both roads (`print ! qa:;` prints nothing, measured), so 3 is !qa
+#  printing nothing and then qb; the old road prints the false as 0 inside its C++ list. The H7 (the arm adds the raw operand)
+#  reads 2 3, so 3 is the prefix kept.
+fdRow "adjacentT AJ-4 print ! qa qb:; -- the prefix stays on its operand inside a run (R3)" "$(_ajv "$T/aj.AJ-4.n")" "" "3 |"
+_ofeq "adjacentT AJ-4 print ! qa qb:; old road by value (its false prints 0 inside the C++ list)" "$(_ajv "$T/aj.AJ-4.o")" "0 3 |"
 #  the refusal rows, new road: REFUSED by name, the target unchanged, the next statement ran -- parked until list operators are ruled (SEQ 467)
 for _rw in "AJ-R1|holdB +% qa qb qc|0 1 1|1 0 1" "AJ-R2|mwJux +% mwA mwB mwC|0 1 1|1 0 1" "AJ-R3|xm -= qa qb|0 8 1|1 10 1" "AJ-R6|fj(qa qb)|0 1 1|1 0 1"; do
     IFS='|' read -r _id _st _td _in <<< "$_rw"
