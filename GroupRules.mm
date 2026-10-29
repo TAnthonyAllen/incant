@@ -11958,6 +11958,14 @@ extern "C" void setTargetFlag(RuleStuff *stuff, GroupItem *field)
 	
 }
 
+// shortcutTest the new grammar's SHORTCUt match test: a two-character operator is not a shortcut, so it fails the match (null); no mark -- SHORTCUt's kant action builds printShortcut (SEQ 462)
+extern "C" GroupItem *shortcutTest(GroupItem *group)
+{
+	if ( group->groupBody->gCount == 2 && GroupControl::groupController->groupRules->opFields->get(group->getText()) )
+		return 0;
+	return group;
+}
+
 /*******************************************************************************
     // treeNotLanguage  §2.4's acceptance test has to be a TREE test: an ALT attaches to the enclosing label, and getting it wrong gives the right LANGUAGE over the WRONG TREE, which every mark-and-win check reads green
 *******************************************************************************/

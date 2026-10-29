@@ -476,6 +476,7 @@ extern "C" GroupItem *setParse(GroupItem *field);
 extern "C" GroupItem *setParseWalk(GroupItem *field);
 extern "C" GroupItem *setRuleAction(GroupItem *block);
 extern "C" void setTargetFlag(RuleStuff *stuff, GroupItem *field);
+extern "C" GroupItem *shortcutTest(GroupItem *group);
 extern "C" int showTree(GroupItem *node, char *pad);
 extern "C" GroupItem *stopParsingInput(GroupItem *input);
 extern "C" GroupItem *testOP(GroupItem *field);
