@@ -509,7 +509,8 @@ fdRow "adjacentT AJ-2 print qa qb qc:; -- the new road, three adjacent operands"
 _ofeq "adjacentT AJ-3 print - qa qb:; old road by value (- is a shortcut)" "$(_ajv "$T/aj.AJ-3.o")" "2 3 |"
 fdRow "adjacentT AJ-3 print - qa qb:; new road by value (- is a shortcut)" "$(_ajv "$T/aj.AJ-3.n")" "2 |" "2 3 |"
 #  AJ-4: `!` is not a shortcut, so it reaches EXPRESSIOn as a prefix: the arm adds the prefix-WRAPPED operand (R3).
-#  RE-PINNED SEQ 468 (branch adjacent-list): the new road reads 3, the old road 0 3 -- NOT pinned to the old road, Tony rules.
+#  RE-PINNED SEQ 468, RULED SEQ 469 R0: each adjacent item prints as it would alone; a lone false prints nothing on both roads
+#  (Tony, 2026-10-29). The new road reads 3, the old road 0 3.
 #  `!qa` is false and a false prints NOTHING on its own on both roads (`print ! qa:;` prints nothing, measured), so 3 is !qa
 #  printing nothing and then qb; the old road prints the false as 0 inside its C++ list. The H7 (the arm adds the raw operand)
 #  reads 2 3, so 3 is the prefix kept.
