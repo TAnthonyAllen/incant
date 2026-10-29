@@ -128,3 +128,10 @@ NEXT: OPEN -- what would generate a fix: a measure callout on the MEMBERs arm pr
 currentRegistry, run under the R2 branch's knob, to see every definition where the two differ; the fix then moves the flag
 onto whatever node the definition finally owns (om-r2-ownname already carries the currentDefine repair for the mint case).
 
+
+============================== ATTEMPT LOG ==============================
+2026-10-29 SEQ 457  Shape A (aCTionTraiT: own name under NewGroup, resolved to another registry, with a value -> its own node),
+                    branch define-own 2a698c79 -> counterCapture and docsOnCommands cured (defineOwnT DO-1, DO-3/4 green), plus
+                    cursorReadTb's taG and KantGrammar's loopOn*; STOPPED on three unregistered movers (ruleOfT RO-4 drops
+                    UnitTests/counter, DO-10 reads its id kind 5 not the pinned 0, cursorRead B shadowing) -- seal 255. Not merged.
+                    traitDataCapture and membersFlagCapture untouched by A (Shape B's docket, SEQ 457 R4).
