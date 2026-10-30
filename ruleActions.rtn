@@ -597,6 +597,26 @@ GroupItem   result = ExpressioN;
     return input;
 }
 
+// iterateSetup makes a cursor an iterator over a source's list -- the one setup both roads call: aCTionIterate (old road) and opIterate (new road, SEQ 485 R0); 0 when the source has no list, and the cursor is poisoned
+extern int iterateSetup(GroupItem iterator,GroupItem source,int attributes,int members)
+{
+    if iterator && source && source.groupList {
+        // RESETiterator iterator gets a copy of the source groupList
+        iterator.groupList  = source.groupList;
+        iterator.fLAG       = false; }
+    else {
+        // refusedSource A REFUSED SOURCE IS POISONED -- the poison is only thing between a refused iterate and an unbounded loop; the caller announces it
+        iterator.fLAG       = true;
+        return 0; }
+    // attributes and members filter overloaded on hasAttributes and hasMembers
+    if attributes   iterator.hasAttributes = true;
+    else            iterator.hasAttributes = false;
+    if members      iterator.hasMembers = true;
+    else            iterator.hasMembers = false;
+    iterator.isIterator     = true;
+    return 1;
+}
+
 /*******************************************************************************
 	The rule action for the Iterate rule
         Iterate     iterate- ANYtoken on- ANYtoken attributes? members? defer;
@@ -608,6 +628,8 @@ GroupItem   attributes:,
             IterSource:;
 GroupItem   iterator = unWrap(input[1]);
 GroupItem   source;
+int         attrOn,
+            memOn;
     // You cannot get here without an iterator, the rule stipulates it
     if IterSource {
         // SOURCE REACHED BY LABEL, NEVER BY POSITION
@@ -635,21 +657,12 @@ GroupItem   source;
         // emitThenFallThru -- the only gate in the tree that does not return, and deliberately so.
         -% ::jitNoteWriter(0,iterator,0); %-
         jitEmitIterate(input); }
-    if iterator && source && groupList {
-        // RESETiterator iterator gets a copy of the source groupList
-        iterator.groupList  = groupList;
-        iterator.fLAG       = false; }
-    else {
-        // refusedSource A REFUSED SOURCE IS ANNOUNCED AND POISONED -- the poison is only thing between a refused iterate and an unbounded loop
-        iterator.fLAG       = true;
+    // setupShared the setup is iterateSetup, one function both roads call (SEQ 485 R0); a refused source is announced here
+    if attributes   attrOn = 1;
+    if members      memOn = 1;
+    if !iterateSetup(iterator,source,attrOn,memOn) {
         if jitting { -% ::jitCursorHandOver(iterator); %- }
         return      refuse(source,"iterate: the source has no list"); }
-    // attributes and members filter overloaded on hasAttributes and hasMembers
-    if attributes   iterator.hasAttributes = true;
-    else            iterator.hasAttributes = false;
-    if members      iterator.hasMembers = true;
-    else            iterator.hasMembers = false;
-    iterator.isIterator     = true;
     return  iterator;
 }
 

@@ -782,6 +782,8 @@ GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*IterSource = input->getLabelGroup("IterSource");
 GroupItem 	*iterator = ::unWrap(input->get(1));
 GroupItem 	*source = 0;
+int 		attrOn = 0;
+int 		memOn = 0;
 	// You cannot get here without an iterator, the rule stipulates it
 	if ( IterSource )
 		{
@@ -828,29 +830,19 @@ GroupItem 	*source = 0;
 		 ::jitNoteWriter(0,iterator,0); 
 		::jitEmitIterate(input);
 		}
-	if ( iterator && source && source->groupBody->groupList )
+	// setupShared the setup is iterateSetup, one function both roads call (SEQ 485 R0); a refused source is announced here
+	if ( attributes )
+		attrOn = 1;
+	if ( members )
+		memOn = 1;
+	if ( !::iterateSetup(iterator,source,attrOn,memOn) )
 		{
-		// RESETiterator iterator gets a copy of the source groupList
-		iterator->groupBody->groupList = source->groupBody->groupList;
-		iterator->groupBody->flags.fLAG = 0;
-		}
-	else {
-		// refusedSource A REFUSED SOURCE IS ANNOUNCED AND POISONED -- the poison is only thing between a refused iterate and an unbounded loop
-		iterator->groupBody->flags.fLAG = 1;
 		if ( GroupControl::groupController->groupRules->jitting )
 			{
 			 ::jitCursorHandOver(iterator); 
 			}
 		return ::refuse(source,"iterate: the source has no list");
 		}
-	// attributes and members filter overloaded on hasAttributes and hasMembers
-	if ( attributes )
-		iterator->groupBody->flags.hasAttributes = 1;
-	else	iterator->groupBody->flags.hasAttributes = 0;
-	if ( members )
-		iterator->groupBody->flags.hasMembers = 1;
-	else	iterator->groupBody->flags.hasMembers = 0;
-	iterator->groupBody->flags.isIterator = 1;
 	return iterator;
 }
 
@@ -3388,6 +3380,31 @@ extern "C" int isShortcutInstruct(GroupItem *value)
 	GroupItem *op = value->get(1);
 	return op && (void*)op->groupBody->gMethod == (void*)&opPrintShortcut;
 	
+}
+
+// iterateSetup makes a cursor an iterator over a source's list -- the one setup both roads call: aCTionIterate (old road) and opIterate (new road, SEQ 485 R0); 0 when the source has no list, and the cursor is poisoned
+extern "C" int iterateSetup(GroupItem *iterator, GroupItem *source, int attributes, int members)
+{
+	if ( iterator && source && source->groupBody->groupList )
+		{
+		// RESETiterator iterator gets a copy of the source groupList
+		iterator->groupBody->groupList = source->groupBody->groupList;
+		iterator->groupBody->flags.fLAG = 0;
+		}
+	else {
+		// refusedSource A REFUSED SOURCE IS POISONED -- the poison is only thing between a refused iterate and an unbounded loop; the caller announces it
+		iterator->groupBody->flags.fLAG = 1;
+		return 0;
+		}
+	// attributes and members filter overloaded on hasAttributes and hasMembers
+	if ( attributes )
+		iterator->groupBody->flags.hasAttributes = 1;
+	else	iterator->groupBody->flags.hasAttributes = 0;
+	if ( members )
+		iterator->groupBody->flags.hasMembers = 1;
+	else	iterator->groupBody->flags.hasMembers = 0;
+	iterator->groupBody->flags.isIterator = 1;
+	return 1;
 }
 
 extern "C" GroupItem *jitAccessorNodeRT(GroupItem *source, GroupItem *product)

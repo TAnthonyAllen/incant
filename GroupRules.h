@@ -200,6 +200,7 @@ extern "C" GroupItem *interpretXPaccumU(GroupItem *op, GroupItem *operand);
 extern "C" GroupItem *interpretXPaccumWrap(GroupItem *operand, GroupItem *rest);
 extern "C" int isCallable(GroupItem *target);
 extern "C" int isShortcutInstruct(GroupItem *value);
+extern "C" int iterateSetup(GroupItem *iterator, GroupItem *source, int attributes, int members);
 extern "C" GroupItem *jitAccessorNodeRT(GroupItem *source, GroupItem *product);
 extern "C" GroupItem *jitAccessorWriteRT(int value, GroupItem *product);
 extern "C" int jitArgCountRT(GroupItem *field);
