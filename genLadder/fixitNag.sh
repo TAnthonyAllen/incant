@@ -99,7 +99,8 @@ for f in "$D"/*; do
     nm=$(basename "$f")
     out=$(perl -e 'alarm 60; exec @ARGV' "$B" "$f" 2>/dev/null)
     st=$?
-    if [ -z "$out" ]; then
+    #  crashLosesStdout a citizen that dies (139) loses its block-buffered stdout, so an empty stdout is prose only at exit 0 -- carrierNode's case; a non-zero exit RAN (SEQ 489)
+    if [ -z "$out" ] && [ "$st" = 0 ]; then
         misfiled="$misfiled $nm"
     else
         runnable=$((runnable+1))

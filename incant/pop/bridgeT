@@ -1,0 +1,60 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(BridgeT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    ;
+search BridgeT Utilities UnitTests;
+stop();
+
+bridgeT -- SEQ 489 (Clay, 2026-10-30): the bridge for a C++-only statement on the new road, PRE-REGISTERED ON TRUNK.
+Two timings are tried on two branches, neither merged: bridge-run (the statement's C++ method runs at run time, in its
+place) and bridge-parse (it fires at parse, as the old road's non-deferred rules do). Same rows on both.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this
+file's `stop();`, then the row on the OLD road (the statement itself) or on the NEW road (STARt called by name on the
+same text, then testOP on what it handed back), then `BR NEXT` and a sentinel on stderr. Each row is read as
+`stdout | R<lines starting REFUSED> x<exit>`, with any `Search list:` line read as S. The preamble's search lines carry
+no `list`, so every S comes from a row.
+
+THE OLD ROAD IS ALREADY MIXED (measured 2026-10-30): Search, DEBUG and DEF carry no defer, so they fire at parse; CerR,
+CouT and ScopeXP are deferred and fire in place. So the old road is the control by value, not the intended value: it
+prints S in an untaken arm (BR-7), prints S once for a three-pass loop (BR-8), and dies with exit 139 for search in a
+taken arm or an else arm (BR-9, BR-10) and for a top-level `:qa;` (BR-4).
+
+TODAY ON TRUNK (measured): the kant statement rules carry new names (SEARCh, DEBUg, CERr, ...), so the `aCTion`+name
+lookup binds no C++ method; STARt's seq skips them with no word (BR-1, BR-5, BR-6), and If refuses an arm that handed up
+no instruct (BR-7, BR-9, BR-10). DEf already fires at parse on the new road -- its define child is a C++ rule that runs
+as it parses -- so BR-3 reads `9 |9 |` where the old road reads `2 |9 |`.
+
+CERr and COUt are the no-silence rows: bound straight to aCTionCerR / aCTionCouT they print `5 0` -- the old print walk
+cannot read a kant print item -- so the bridge refuses them by name until they move into PRINt.
+DEBUg and a top-level SCOPEXp have no witness at this seat (debug toggles a trace flag; a top-level scope has no method to
+bind into), so BR-2 and BR-4 assert only that the run reaches its end and nothing refuses.
+
+ROWS -- id | old-road statement | new-road STARt text
+BR-1|print 1:; search list; print 2:;|print 1:; search list; print 2:;
+BR-2|print 1:; debug; print 2:; debug;|print 1:; debug; print 2:; debug;
+BR-3|print qa:; define qa=9; ; print qa:;|print qa:; define qa=9; ; print qa:;
+BR-4|print 1:; :qa; print 2:;|print 1:; :qa; print 2:;
+BR-5|print 1:; cerr 5:; print 2:;|print 1:; cerr 5:; print 2:;
+BR-6|print 1:; cout 5:; print 2:;|print 1:; cout 5:; print 2:;
+BR-7|if qa > qb; search list;|if qa > qb; search list;
+BR-8|while wc < 3; { wc = wc + 1; search list; }|while wc < 3; { wc = wc + 1; search list; }
+BR-9|if qa < qb; search list;|if qa < qb; search list;
+BR-10|if qa > qb; print 7:; else search list;|if qa > qb; print 7:; else search list;

@@ -828,6 +828,53 @@ fdRow "iterT IR-P new road: ++ on a never-assigned field refuses, next runs (ref
 else echo "  FAIL  iterT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ bridgeT -- SEQ 489 (Clay, 2026-10-30): a C++-only statement on the new road, PRE-REGISTERED ON TRUNK, born red. Per row
+#  the old road and the new road, one process each under an alarm, each read as `stdout | R<REFUSED lines> x<exit>` with a
+#  `Search list:` line read as S. The old road is the control BY VALUE, not the intended value: it is already mixed (Search
+#  fires at parse, so S in an untaken arm and once for a 3-pass loop; search in a taken or else arm, and a top-level scope,
+#  die 139). Two branches try the two timings (bridge-run, bridge-parse); neither is merged (Tony buys).
+_brF=$(ip bridgeT)
+_brv () { _o=$(grep -v '^stop: \|^Assign at end\|^ *$' "$1" | sed 's/^Search list: .*/S/' | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_brF" ]; then
+sed '/^stop();/,$d' "$_brF" > "$T/br.pre"
+grep '^BR-[0-9]*|' "$_brF" > "$T/br.list"
+while IFS='|' read -r _id _io _in; do
+    { cat "$T/br.pre"; printf '%s\ncerr "BR NEXT":;\ncerr "BR SENTINEL":;\nstop();\n' "$_io"; } > "$T/br.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/br.$_id.ok" > "$T/br.$_id.o" 2> "$T/br.$_id.oe"; echo $? > "$T/br.$_id.ox"
+    { cat "$T/br.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\ncerr "BR NEXT":;\ncerr "BR SENTINEL":;\nstop();\n' "$_in"; } > "$T/br.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/br.$_id.nk" > "$T/br.$_id.n" 2> "$T/br.$_id.ne"; echo $? > "$T/br.$_id.nx"
+    _ofeq "bridgeT $_id new road sentinel" "$(grep -c '^BR SENTINEL' "$T/br.$_id.ne")" "1"
+done < "$T/br.list"
+_ofeq "bridgeT rows ran (10 of 10)" "$(ls "$T"/br.BR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "10"
+_brO () { _ofeq "bridgeT $1 old road (control, by value): $2" "$(_brv "$T/br.$1.o" "$T/br.$1.oe" "$T/br.$1.ox")" "$3"; }
+_brO BR-1 "search between two prints" "1 |S|2 | R0 x0"
+_brO BR-2 "debug between two prints" "1 |2 | R0 x0"
+_brO BR-3 "define between two prints of qa" "2 |9 | R0 x0"
+_brO BR-4 "a top-level scope dies" " R0 x139"
+_brO BR-5 "cerr between two prints (5 on stderr)" "1 |2 | R0 x0"
+_brO BR-6 "cout between two prints" "1 |5 |2 | R0 x0"
+_brO BR-7 "search in an untaken arm fires at parse" "S| R0 x0"
+_brO BR-8 "search in a 3-pass loop fires once, at parse" "S| R0 x0"
+_brO BR-9 "search in a taken arm dies" " R0 x139"
+_brO BR-10 "search in an else arm dies" " R0 x139"
+_ofeq "bridgeT BR-5 old road: cerr's 5 on stderr" "$(grep -c '^5 *$' "$T/br.BR-5.oe")" "1"
+_brN () { fdRow "bridgeT $1 new road: $2" "$(_brv "$T/br.$1.n" "$T/br.$1.ne" "$T/br.$1.nx")" "$3" "$4"; }
+_brN BR-1 "the search lands between 1 and 2" "1 |2 | R0 x0" "1 |S|2 | R0 x0"
+_brN BR-2 "debug runs, nothing refuses (no witness at this seat)" "1 |2 | R0 x0" "1 |2 | R0 x0"
+_brN BR-3 "define lands between the two prints" "9 |9 | R0 x0" "2 |9 | R0 x0"
+_brN BR-4 "a top-level scope: the run ends, nothing refuses (no witness)" "1 |2 | R0 x0" "1 |2 | R0 x0"
+_brN BR-5 "cerr is not silent: it refuses by name" "1 |2 | R0 x0" "1 |2 | R1 x0"
+_brN BR-6 "cout is not silent: it refuses by name" "1 |2 | R0 x0" "1 |2 | R1 x0"
+_brN BR-7 "search in an untaken arm fires nothing" " R1 x0" " R0 x0"
+_brN BR-8 "search in a 3-pass loop fires 3 times" " R0 x0" "S|S|S| R0 x0"
+_brN BR-9 "search in a taken arm fires once" " R1 x0" "S| R0 x0"
+_brN BR-10 "search in an else arm fires once" " R1 x0" "S| R0 x0"
+fdRow "bridgeT BR-5 new road: the refusal names CERr" "$(grep -c '^REFUSED CERr' "$T/br.BR-5.ne")" "0" "1"
+fdRow "bridgeT BR-6 new road: the refusal names COUt" "$(grep -c '^REFUSED COUt' "$T/br.BR-6.ne")" "0" "1"
+else echo "  FAIL  bridgeT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
