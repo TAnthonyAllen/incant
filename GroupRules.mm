@@ -8847,6 +8847,25 @@ GroupItem 	*result = 0;
 	return result;
 }
 
+// opIf the if instruct's unary op (SEQ 473): its operand list holds the condition, the then-statement and, if present, the else-statement; the condition runs through testOP, then one arm does, or none -- an unrun if hands back nothing; retires when a kant action of the same name passes the same rows (ifT)
+extern "C" GroupItem *opIf(GroupItem *arms)
+{
+GroupItem 	*cond = arms->get(1);
+GroupItem 	*thenArm = arms->get(2);
+GroupItem 	*elseArm = arms->get(3);
+GroupItem 	*arm = 0;
+GroupItem 	*result = 0;
+	 if ( cond && (void*)cond->groupBody->gMethod == (void*)&testOP ) cond = ::testOP(cond); 
+	if ( ::truthOf(cond) )
+		arm = thenArm;
+	else	arm = elseArm;
+	if ( !arm )
+		return 0;
+	result = arm;
+	 if ( (void*)arm->groupBody->gMethod == (void*)&testOP ) result = ::testOP(arm); 
+	return result;
+}
+
 /*  opIsAssignTier, opIsCompareTier -- THE OTHER TWO TIERS, AS DATA (SEQ 316, D3). The
     `assignTier` and `compareTier` flags on the operator in incant/setup; shortCircuit above
     is the logic tier, and an operator with none of the three folds as arithmetic. They
@@ -12030,9 +12049,17 @@ extern "C" GroupItem *testOP(GroupItem *field)
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*argument = field->get(3);
+int 		noMethod = 0;
 	// notInstruct a field with no op to run is handed back as it is
 	if ( !op )
 		return field;
+	// notAnInstruct an op with no method to call refuses by name (R-2), never calls null: a raw label handed up as a statement takes its first child as the op (SEQ 473 R3)
+	 noMethod = op->groupBody->flags.isUnary ? !op->groupBody->gMethod : !op->groupBody->gOp; 
+	if ( noMethod )
+		{
+		::fprintf(stderr,"REFUSED %s -- not an instruct\n",field->groupBody->tag);
+		return 0;
+		}
 	// ownMethod an instruct is known by its METHOD being testOP, not by its tag: run it; any other operand goes as it is (SEQ 428)
 	 if ( argument && (void*)argument->groupBody->gMethod == (void*)&testOP ) argument = ::testOP(argument); 
 GroupItem 	*target = field->get(2);

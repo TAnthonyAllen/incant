@@ -1522,8 +1522,14 @@ extern GroupItem testOP(GroupItem field)
 GroupItem   result,
             op = field[1],
             argument = field[3];
+int         noMethod;
     // notInstruct a field with no op to run is handed back as it is
     if !op  return field;
+    // notAnInstruct an op with no method to call refuses by name (R-2), never calls null: a raw label handed up as a statement takes its first child as the op (SEQ 473 R3)
+    -% noMethod = op->groupBody->flags.isUnary ? !op->groupBody->gMethod : !op->groupBody->gOp; %-
+    if noMethod {
+        cerr "REFUSED " field.tag " -- not an instruct":;
+        return null; }
     // ownMethod an instruct is known by its METHOD being testOP, not by its tag: run it; any other operand goes as it is (SEQ 428)
     -% if ( argument && (void*)argument->groupBody->gMethod == (void*)&testOP ) argument = ::testOP(argument); %-
 GroupItem   target = field[2],

@@ -110,6 +110,7 @@ define
     printList   unary ruleMethod=opPrintList;
     printShortcut   unary ruleMethod=opPrintShortcut;
     seq     unary ruleMethod=opSeq;
+    ifThen  unary ruleMethod=opIf;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

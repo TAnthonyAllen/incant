@@ -575,7 +575,7 @@ _ifF=$(ip ifT)
 _ifv () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | cat -t | tr '\n' '|'; }
 if [ -f "$_ifF" ]; then
 sed '/^stop();/,$d' "$_ifF" > "$T/if.pre"
-grep '^IF-[0-9]*|' "$_ifF" > "$T/if.list"
+grep '^IF-[0-9A-Z]*|' "$_ifF" > "$T/if.list"
 while IFS='|' read -r _id _io _in; do
     if [ -n "$_io" ]; then
         { cat "$T/if.pre"; printf '%s\ncerr "IF NEXT":;\ncerr "IF SENTINEL":;\nstop();\n' "$_io"; } > "$T/if.$_id.ok"
@@ -586,7 +586,7 @@ while IFS='|' read -r _id _io _in; do
     { cat "$T/if.pre"; printf '%s\n%s\ncerr "IF NEXT":;\ncerr "IF SENTINEL":;\nstop();\n' "$_in" "$_run"; } > "$T/if.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/if.$_id.nk" > "$T/if.$_id.n" 2> "$T/if.$_id.ne"; echo $? > "$T/if.$_id.nx"
 done < "$T/if.list"
-_ofeq "ifT rows ran (5 of 5)" "$(ls "$T"/if.IF-*.ne 2>/dev/null | wc -l | tr -d ' ')" "5"
+_ofeq "ifT rows ran (6 of 6)" "$(ls "$T"/if.IF-*.ne 2>/dev/null | wc -l | tr -d ' ')" "6"
 _ofeq "ifT IF-1 old road (control): if qa < qb; print 77:;" "$(_ifv "$T/if.IF-1.o")" "77 |"
 _ofeq "ifT IF-2 old road (control): if qa > qb; print 77:; prints nothing" "$(_ifv "$T/if.IF-2.o")" ""
 _ofeq "ifT IF-3 old road (control): the else arm prints 88" "$(_ifv "$T/if.IF-3.o")" "88 |"
@@ -599,6 +599,8 @@ fdRow "ifT IF-1 new road: if qa < qb; print 77:;" "$(_ifv "$T/if.IF-1.n")" "" "7
 _ofeq "ifT IF-2 new road: if qa > qb; print 77:; prints nothing (paired with its exit row)" "$(_ifv "$T/if.IF-2.n")" ""
 fdRow "ifT IF-3 new road: the else arm prints 88" "$(_ifv "$T/if.IF-3.n")" "" "88 |"
 fdRow "ifT IF-4 new road: an if inside STARt, between two prints" "$(_ifv "$T/if.IF-4.n")" "1 |3 |" "1 |2 |3 |"
+#  IF-R (SEQ 473 R3): testOP handed a raw label refuses by name instead of calling null; the next statement runs, the run exits 0
+_ofeq "ifT IF-R testOP on a raw label refuses by name, next runs, exit 0 (refused / next / exit)" "$(grep -c '^REFUSED it1 -- not an instruct$' "$T/if.IF-R.ne") $(grep -c '^IF NEXT' "$T/if.IF-R.ne") $(cat "$T/if.IF-R.nx")" "1 1 0"
 else echo "  FAIL  ifT MISSING"; fail=1
 fi
 

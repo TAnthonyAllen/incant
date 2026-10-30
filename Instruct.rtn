@@ -1089,6 +1089,24 @@ GroupItem   grup;
 }
 
 
+// opIf the if instruct's unary op (SEQ 473): its operand list holds the condition, the then-statement and, if present, the else-statement; the condition runs through testOP, then one arm does, or none -- an unrun if hands back nothing; retires when a kant action of the same name passes the same rows (ifT)
+extern GroupItem opIf(GroupItem arms)
+{
+GroupItem   cond = arms[1],
+            thenArm = arms[2],
+            elseArm = arms[3],
+            arm,
+            result;
+    -% if ( cond && (void*)cond->groupBody->gMethod == (void*)&testOP ) cond = ::testOP(cond); %-
+    if truthOf(cond)    arm = thenArm;
+    else                arm = elseArm;
+    if !arm             return null;
+    result = arm;
+    -% if ( (void*)arm->groupBody->gMethod == (void*)&testOP ) result = ::testOP(arm); %-
+    return result;
+}
+
+
 // opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
 extern GroupItem opRebind(GroupItem argument,GroupItem target)
 {
