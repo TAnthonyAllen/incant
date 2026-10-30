@@ -1,0 +1,37 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(QuoteT);
+define
+    qa=2;
+    qt1;
+    ;
+search QuoteT Utilities UnitTests list;
+stop();
+
+quoteT -- SEQ 471 R7 (Tony, 2026-10-30): a quoted string in a new-road print. A test, not a build.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this file's
+`stop();`, then the row on the OLD road (the print statement itself) or on the NEW road (the same statement through PRINt
+and testOP), then `QT NEXT` and a sentinel. Each new-road row is read by value against its intended value, with the old
+road's print beside it as the control.
+
+Expected to work, and measured to: QuotE is in TOKEn, TOKEn is in EXPRESSIOn, EXPRESSIOn is in PRINTXp. Measured with lldb
+(2026-10-30) at aCTionQuotE conditioned on the inner body: the new road reaches it as PRINt / stuff / PRINTXp / EXPRESSIOn
+/ lizted / TOKEn / QuotE, for both quote characters.
+
+ROWS -- id | old-road statement | new-road statement
+Q-1|print "this for example":;|qt1 = PRINt('print "this for example":;');
+Q-2|print 'this for example':;|qt1 = PRINt("print 'this for example':;");
+Q-3|print "qa is",qa:;|qt1 = PRINt('print "qa is",qa:;');

@@ -539,6 +539,34 @@ _ofeq "adjacentT AJ-R4 / AJ-R5 old road: + over a list refuses (its own refusal)
 else echo "  FAIL  adjacentT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ quoteT -- SEQ 471 R7 (Tony, 2026-10-30): a quoted string in a new-road print, both quote characters, and a quoted item
+#  beside an expression. A test, not a build. Per row the old road and the new road, one process each under an alarm, read
+#  by value against the intended value; the old road is the control. lldb (2026-10-30): the new road reaches QuotE through
+#  PRINt / PRINTXp / EXPRESSIOn / TOKEn.
+_qtF=$(ip quoteT)
+_qtv () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_qtF" ]; then
+sed '/^stop();/,$d' "$_qtF" > "$T/qt.pre"
+grep '^Q-[0-9]*|' "$_qtF" > "$T/qt.list"
+while IFS='|' read -r _id _qo _qn; do
+    { cat "$T/qt.pre"; printf '%s\ncerr "QT NEXT":;\ncerr "QT SENTINEL":;\nstop();\n' "$_qo"; } > "$T/qt.$_id.ok"
+    { cat "$T/qt.pre"; printf '%s\ntestOP(qt1);\ncerr "QT NEXT":;\ncerr "QT SENTINEL":;\nstop();\n' "$_qn"; } > "$T/qt.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/qt.$_id.ok" > "$T/qt.$_id.o" 2> "$T/qt.$_id.oe"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/qt.$_id.nk" > "$T/qt.$_id.n" 2> "$T/qt.$_id.ne"
+    _ofeq "quoteT $_id sentinels old/new" "$(grep -c '^QT SENTINEL' "$T/qt.$_id.oe") $(grep -c '^QT SENTINEL' "$T/qt.$_id.ne")" "1 1"
+done < "$T/qt.list"
+_ofeq "quoteT rows ran (3 of 3)" "$(ls "$T"/qt.Q-*.ne 2>/dev/null | wc -l | tr -d ' ')" "3"
+_ofeq "quoteT Q-1 old road (control): print \"this for example\":;" "$(_qtv "$T/qt.Q-1.o")" "this for example |"
+_ofeq "quoteT Q-1 new road: PRINt('print \"this for example\":;') prints the quote as one piece" "$(_qtv "$T/qt.Q-1.n")" "this for example |"
+_ofeq "quoteT Q-2 old road (control): print 'this for example':;" "$(_qtv "$T/qt.Q-2.o")" "this for example |"
+_ofeq "quoteT Q-2 new road: PRINt(\"print 'this for example':;\") prints the quote as one piece" "$(_qtv "$T/qt.Q-2.n")" "this for example |"
+_ofeq "quoteT Q-3 old road (control): print \"qa is\",qa:;" "$(_qtv "$T/qt.Q-3.o")" "qa is 2 |"
+_ofeq "quoteT Q-3 new road: a quoted item beside an expression, comma-separated" "$(_qtv "$T/qt.Q-3.n")" "qa is 2 |"
+_ofeq "quoteT next statement ran, every row old/new" "$(cat "$T"/qt.Q-*.oe "$T"/qt.Q-*.ne | grep -c '^QT NEXT')" "6"
+else echo "  FAIL  quoteT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
