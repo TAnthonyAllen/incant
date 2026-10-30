@@ -65,16 +65,17 @@ define
     LOOPRESTRICt
         loopOnAttributes="attributes";
         loopOnMembers="members";
+    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
     ELSe
-        BASICELSe   else- followedBy STATEMENt@ defer;
+        BASICELSe   else- followedBy STATEMENt@;
         ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF defer;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
-        Do          do- followedBy STATEMENt while- EXPRESSIOn SemI- defer;
-        If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe? defer;
-        FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt defer;
-        WHILe       while- followedBy EXPRESSIOn SemI-? STATEMENt defer;
+        Do          do- followedBy STATEMENt while- EXPRESSIOn SemI-;
+        If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
+        FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
+        WHILe       while- followedBy EXPRESSIOn SemI-? STATEMENt;
         PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
         CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
         COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
@@ -158,6 +159,27 @@ define
         itemsMint   := copyOf(printItems);
         instruct    +% *op;
         instruct    +% *itemsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // If only builds (SEQ 473): one instruct, op ifThen, its operand a mint of the arm list -- the condition, the then-statement, the else-statement if present; opIf runs it
+    If code={
+        :argument EXPRESSIOn STATEMENt ELSe;
+        // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
+        cond    := **EXPRESSIOn;
+        thenS   := **STATEMENt;
+        ifArms  +% *cond;
+        ifArms  +% *thenS;
+        eLen    := *ELSe.listLengtH;
+        if eLen != 0;
+            elseS   := **ELSe;
+            ifArms  +% *elseS;
+        op := Operators["ifThen"];
+        armsMint    := copyOf(ifArms);
+        instruct    +% *op;
+        instruct    +% *armsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         *argument   := *target;
