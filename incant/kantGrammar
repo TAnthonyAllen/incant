@@ -120,6 +120,8 @@ define
         instruct    +% *stmtsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
+        // instructCleared the copy is the instruct; the local is emptied, or the next STARt built in the process starts from this one's pieces (SEQ 478 R0)
+        clear(instruct);
         *argument   := *target;
         return  *argument;
         };
@@ -225,6 +227,8 @@ define
         instruct    +% *stmtsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
+        // instructCleared as STARt's: the next block starts empty (SEQ 478 R0)
+        clear(instruct);
         *argument   := *target;
         return  *argument;
         };
