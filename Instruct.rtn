@@ -1118,6 +1118,30 @@ GroupItem   cond = arms[1],
 }
 
 
+// opDo the doLoop instruct's unary op (SEQ 480 R1): its operand list holds the statement and the condition; each pass runs the statement, then reads the signal -- break clears and ends, continue clears and goes to the condition, any other stays set and ends -- then runs the condition through testOP, false ends it; hands back nothing; its own op, one loop shape; retires when a kant action of the same name passes the same rows (doT)
+extern GroupItem opDo(GroupItem arms)
+{
+GroupItem   body = arms[1],
+            cond = arms[2];
+    if !cond || !body   return null;
+    -%
+    GroupRules *doRuler = GroupControl::groupController->groupRules;
+    for (;;) {
+        doRuler->branchKind = 0;
+        if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+        int doKind = doRuler->branchKind;
+        if ( doKind == 1 ) { doRuler->branchKind = 0; break; }
+        if ( doKind == 2 ) doRuler->branchKind = 0;
+        else if ( doKind ) break;
+        GroupItem *test = cond;
+        if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
+        if ( !::truthOf(test) ) break;
+    }
+    %-
+    return null;
+}
+
+
 // opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; retires when a kant action of the same name passes the same rows (branchT)
 extern GroupItem opBranch(GroupItem keyword)
 {

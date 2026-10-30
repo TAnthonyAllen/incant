@@ -358,6 +358,7 @@ extern "C" GroupItem *opDebug(GroupItem *result);
 extern "C" GroupItem *opDeref(GroupItem *result);
 extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opDivEQ(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opDo(GroupItem *arms);
 extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target);

@@ -8467,6 +8467,30 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
+// opDo the doLoop instruct's unary op (SEQ 480 R1): its operand list holds the statement and the condition; each pass runs the statement, then reads the signal -- break clears and ends, continue clears and goes to the condition, any other stays set and ends -- then runs the condition through testOP, false ends it; hands back nothing; its own op, one loop shape; retires when a kant action of the same name passes the same rows (doT)
+extern "C" GroupItem *opDo(GroupItem *arms)
+{
+GroupItem 	*body = arms->get(1);
+GroupItem 	*cond = arms->get(2);
+	if ( !cond || !body )
+		return 0;
+	
+	GroupRules *doRuler = GroupControl::groupController->groupRules;
+	for (;;) {
+	doRuler->branchKind = 0;
+	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+	int doKind = doRuler->branchKind;
+	if ( doKind == 1 ) { doRuler->branchKind = 0; break; }
+	if ( doKind == 2 ) doRuler->branchKind = 0;
+	else if ( doKind ) break;
+	GroupItem *test = cond;
+	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
+	if ( !::truthOf(test) ) break;
+	}
+	
+	return 0;
+}
+
 // opDot the . operator: the field a dot expression names -- a groupField accessor read off target, or target's component of that tag; local fields are ignored
 extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target)
 {

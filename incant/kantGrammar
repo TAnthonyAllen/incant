@@ -198,6 +198,29 @@ define
         *argument   := *target;
         return  *argument;
         };
+    // Do only builds (SEQ 480 R0): one instruct, op doLoop, its operand a mint of [statement, condition]; opDo runs the statement first, then tests
+    Do code={
+        :argument STATEMENt EXPRESSIOn;
+        body    := **STATEMENt;
+        cond    := **EXPRESSIOn;
+        // bodyRefused a statement that handed up no instruct refuses by name, as WHILe's (SEQ 476 R6)
+        bodyM   := *body.methoD;
+        if bodyM == 0;
+            cerr "REFUSED Do -- its statement handed up no instruct":;
+            clear(*argument);
+            return *argument;
+        doArms  +% *body;
+        doArms  +% *cond;
+        op := Operators["doLoop"];
+        armsMint    := copyOf(doArms);
+        instruct    +% *op;
+        instruct    +% *armsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
     // WHILe only builds (SEQ 478 R1): one instruct, op whileLoop, its operand a mint of [condition, statement]; opWhile runs the loop and catches break and continue
     WHILe code={
         :argument EXPRESSIOn STATEMENt;
