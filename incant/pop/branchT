@@ -50,6 +50,10 @@ die with exit 139 in the parse (If attaches a null arm); TG-1 dies with exit 139
 IF-7 (added SEQ 476, H17): with BRANCh and BLOCk building, IF-5 and IF-6 no longer reach R6's refusal, so its control could
 not go red on them. An arm that hands up nothing today is a refused return; If must refuse by name and the next statement run.
 
+SL-1, SL-2 (SEQ 478 R0, the STARt leak): two STARts built in one process each run right; two sibling blocks in one STARt
+each run right. Today the second of each reads `nextGroup: ERROR seq does not contain a list`: its instruct still holds the
+first one's pieces (measured: STARt's `instruct` is length 2 at its second entry; `stmts` is 0).
+
 ROWS -- id | old-road statement | new-road statement (testOP follows it) | after the call (optional, old road)
 BR-1|{ print 1:; break; print 2:; }|it1 = STARt("print 1:; break; print 2:;");|
 BR-2|{ print 1:; break; print 2:; } print 3:;|it1 = STARt("print 1:; break; print 2:;");|print 3:;
@@ -60,3 +64,5 @@ IF-5|if qa < qb; { print 1:; print 2:; }|it1 = If("if qa < qb; { print 1:; print
 IF-6|if qa < qb; break; print 5:;|it1 = If("if qa < qb; break;");|print 5:;
 TG-1||tgA.methoD = "testOP"; it1 +% tgA;|
 IF-7||it1 = If("if qa < qb; return;");|print 5:;
+SL-1|{ print 1:; } { print 5:; }|it1 = STARt("print 1:;"); it2 = STARt("print 5:;");|testOP(it2);
+SL-2|{ print 1:; } { print 5:; }|it1 = STARt("{ print 1:; } { print 5:; }");|

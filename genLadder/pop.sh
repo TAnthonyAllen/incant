@@ -671,11 +671,12 @@ while IFS='|' read -r _id _bo _bn _ba; do
     { cat "$T/bt.pre"; printf '%s\ntestOP(it1);\n%s\ncerr "BT NEXT":;\ncerr "BT SENTINEL":;\nstop();\n' "$_bn" "$_ba"; } > "$T/bt.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/bt.$_id.nk" > "$T/bt.$_id.n" 2> "$T/bt.$_id.ne"; echo $? > "$T/bt.$_id.nx"
 done < "$T/bt.list"
-_ofeq "branchT rows ran (9 of 9)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "9"
+_ofeq "branchT rows ran (11 of 11)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "11"
 _ofeq "branchT BR-1 old road (control): a block stops at break" "$(_btv "$T/bt.BR-1.o")" "1 |"
 _ofeq "branchT BR-2 old road (control): the statement after a stopped block runs" "$(_btv "$T/bt.BR-2.o")" "1 |3 |"
 _ofeq "branchT BR-C old road (control): a block stops at continue" "$(_btv "$T/bt.BR-C.o")" "1 |"
 _ofeq "branchT BL-1 old road (control): a block" "$(_btv "$T/bt.BL-1.o")" "1 |2 |"
+_ofeq "branchT SL-1 / SL-2 old road (control): two sibling blocks" "$(_btv "$T/bt.SL-1.o") $(_btv "$T/bt.SL-2.o")" "1 |5 | 1 |5 |"
 _ofeq "branchT IF-5 old road (control): an if whose arm is a block" "$(_btv "$T/bt.IF-5.o")" "1 |2 |"
 _ofeq "branchT IF-6 old road (control): if ...; break; at the top is ignored, the next statement runs" "$(_btv "$T/bt.IF-6.o")" "5 |"
 for _id in BR-1 BR-2 BR-C BR-R BL-1 IF-5 IF-6 TG-1 IF-7; do
@@ -692,6 +693,9 @@ fdRow "branchT IF-6 new road: if ...; break; at the top, the next statement runs
 fdRow "branchT TG-1 testOP on a raw label whose first child carries a method refuses by name" "$(grep -c '^REFUSED it1 -- not an instruct$' "$T/bt.TG-1.ne")" "0" "1"
 #  IF-7 (SEQ 476, H17): an arm that hands up nothing (a refused return) -- If refuses by name, the next statement runs (R6)
 _ofeq "branchT IF-7 if ...; return; -- If refuses its empty arm by name, next runs (refusals / stdout)" "$(grep -c '^REFUSED return -- not built on the new road yet *$' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct *$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "1 1 [5 |]"
+#  SL-1, SL-2 (SEQ 478 R0): the STARt leak -- a second STARt, and a second sibling block, each run right; no seq error
+fdRow "branchT SL-1 two STARts built in one process each run (stdout / seq errors)" "$(_btv "$T/bt.SL-1.n") $(grep -c 'seq does not contain a list' "$T/bt.SL-1.ne")" "1 | 1" "1 |5 | 0"
+fdRow "branchT SL-2 two sibling blocks in one STARt each run (stdout / seq errors)" "$(_btv "$T/bt.SL-2.n") $(grep -c 'seq does not contain a list' "$T/bt.SL-2.ne")" "1 | 1" "1 |5 | 0"
 else echo "  FAIL  branchT MISSING"; fail=1
 fi
 
