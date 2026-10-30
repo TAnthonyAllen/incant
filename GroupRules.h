@@ -405,6 +405,7 @@ extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opRunRule(GroupItem *label);
 extern "C" GroupItem *opSeq(GroupItem *items);
 extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target);

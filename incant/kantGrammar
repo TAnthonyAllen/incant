@@ -331,6 +331,54 @@ define
         *argument   := *target;
         return  *argument;
         };
+    // bridgeRun a C++-only statement runs its C++ rule method at RUN, in its place (SEQ 489, bridge-run): one instruct, op runRule, its operand a mint of the statement's label bound to that method; opRunRule runs it
+    SEARCh code={
+        lMint       := copyOf(*argument);
+        *lMint.methoD = "aCTionSearch";
+        op := Operators["runRule"];
+        instruct    +% *op;
+        instruct    +% *lMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    DEBUg code={
+        lMint       := copyOf(*argument);
+        *lMint.methoD = "aCTionDEBUG";
+        op := Operators["runRule"];
+        instruct    +% *op;
+        instruct    +% *lMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    SCOPEXp code={
+        lMint       := copyOf(*argument);
+        *lMint.methoD = "aCTionScopeXP";
+        op := Operators["runRule"];
+        instruct    +% *op;
+        instruct    +% *lMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // printBridgeRefused CERr and COUt are not bridged: their C++ walks the old road's print items and reads a new-road item wrong (`cout 5:;` printed `5 0`, SEQ 489), so each refuses by name until it moves into PRINt
+    CERr code={
+        cerr "REFUSED CERr -- its C++ reads the old road's print items; it waits for PRINt":;
+        clear(*argument);
+        return *argument;
+        };
+    COUt code={
+        cerr "REFUSED COUt -- its C++ reads the old road's print items; it waits for PRINt":;
+        clear(*argument);
+        return *argument;
+        };
     // BLOCk only builds (SEQ 476 R1): one seq instruct, as STARt's, its operand a mint of the list of statement instructs
     BLOCk code={
         cur := *argument.firsT;
