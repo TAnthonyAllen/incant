@@ -1,0 +1,58 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IterT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    fe;
+    fn=5;
+    ic;
+    ;
+search IterT Utilities UnitTests list;
+cerr "ANCHOR newRoadCommandCall -- a command call built on the new road has no call op unless the file registers one; it exits 139":;
+it1 = EXPRESSIOn("addrOf(fa)");
+testOP(it1);
+cerr "NEWROAD CALL SENTINEL -- reached only once the call runs":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 485 R3, Tony; severity CRASH)
+
+newRoadCommandCall -- a command call on the new road exits 139. EXPRESSIOn("addrOf(fa)") (and STARt("addrOf(fa);")) builds an
+instruct whose op is Operators["call"], which INVOKEr's `(` names -- and `call` is registered only by tester and by fixtures
+that add it themselves (adjacentT's prelude: `call operateMethod=opCallTest assignTier;`). Without it the op slot is empty and
+the run dies. MEASURED 2026-10-30: this file exits 139 with nothing after the ANCHOR; the same file with that one Operators
+entry added prints `ADDROF fa ...` and runs on, exit 0.
+
+where: kantGrammar INVOKEr (`op := Operators["call"]`), and setup's Operators, which has no `call` entry.
+guess: register `call` in setup's Operators (opCallTest is the tester's; whether it is the op the new road wants is the question),
+or have INVOKEr refuse by name when Operators["call"] is missing.
+
+NEXT: BEST GUESS -- (1) register `call operateMethod=opCallTest assignTier;` in setup; promote if this file then reads its
+SENTINEL and the fleet is unmoved but for the registry counters (+1); kill if opCallTest does not run a command the way the old
+road's call does. (2) Independently: a missing op should refuse by name, not crash. Where the run dies is NOT traced -- testOP's
+guard (SEQ 476 R5) did not stop it, and why is the first thing to read.
+
+ATTEMPT LOG
+  2026-10-30 SEQ 484 found: EXPRESSIOn("addrOf(fa)") exit 139, STARt("addrOf(fa);") exit 139.
+  2026-10-30 SEQ 485 measured: with `call` registered in the file's own Operators, exit 0 and addrOf runs. Not built.
