@@ -9793,6 +9793,30 @@ int 		wrote = 0;
 	return ruler->tempField;
 }
 
+// opWhile the whileLoop instruct's unary op (SEQ 478 R1): its operand list holds the condition and the statement; each pass runs the condition through testOP and ends on false, runs the statement, then reads the signal -- break clears and ends, continue clears and loops, any other stays set and ends the loop; hands back nothing; retires when a kant action of the same name passes the same rows (whileT)
+extern "C" GroupItem *opWhile(GroupItem *arms)
+{
+GroupItem 	*cond = arms->get(1);
+GroupItem 	*body = arms->get(2);
+	if ( !cond || !body )
+		return 0;
+	
+	GroupRules *whileRuler = GroupControl::groupController->groupRules;
+	for (;;) {
+	GroupItem *test = cond;
+	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
+	if ( !::truthOf(test) ) break;
+	whileRuler->branchKind = 0;
+	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+	int whileKind = whileRuler->branchKind;
+	if ( whileKind == 1 ) { whileRuler->branchKind = 0; break; }
+	if ( whileKind == 2 ) { whileRuler->branchKind = 0; continue; }
+	if ( whileKind ) break;
+	}
+	
+	return 0;
+}
+
 // parkInRecord a label handed up to a parent whose RECORD is live goes there; with no such record it is dropped -- nothing reads it (1.2f, SEQ 306 R1)
 extern "C" int parkInRecord(RuleStuff *s, GroupItem *lab)
 {

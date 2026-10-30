@@ -198,6 +198,29 @@ define
         *argument   := *target;
         return  *argument;
         };
+    // WHILe only builds (SEQ 478 R1): one instruct, op whileLoop, its operand a mint of [condition, statement]; opWhile runs the loop and catches break and continue
+    WHILe code={
+        :argument EXPRESSIOn STATEMENt;
+        cond    := **EXPRESSIOn;
+        body    := **STATEMENt;
+        // bodyRefused a statement that handed up no instruct refuses by name, as If's arms (SEQ 476 R6)
+        bodyM   := *body.methoD;
+        if bodyM == 0;
+            cerr "REFUSED WHILe -- its statement handed up no instruct":;
+            clear(*argument);
+            return *argument;
+        whileArms   +% *cond;
+        whileArms   +% *body;
+        op := Operators["whileLoop"];
+        armsMint    := copyOf(whileArms);
+        instruct    +% *op;
+        instruct    +% *armsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal. return waits on action bodies (rung 5)
     BRANCh code={
         :argument BRANCHEs;
