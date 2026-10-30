@@ -1,0 +1,55 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ccInc File='incant/pop/cmdCallInc';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(CmdCallT);
+define
+    qa=2;
+    fa=1;
+    cx=5;
+    cc;
+    it1;
+    ccTxt="zz";
+    ccRule  "zz";
+    ccRule code={
+        print 9:;
+        };
+    ccAct code={
+        print 8:;
+        };
+    ;
+search CmdCallT Utilities UnitTests;
+stop();
+
+cmdCallT -- SEQ 492 (Clay, 2026-10-30): command and action calls on the new road, PRE-REGISTERED ON TRUNK, born red. Its rows map
+the fixit incantation newRoadCommandCall.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this file's
+`stop();`, then the row's text on the OLD road (the statement itself) or on the NEW road (STARt called by name on the same text,
+then testOP on what it handed back), then a sentinel on stderr. Each row is read as `stdout | R<lines starting REFUSED> x<exit>`.
+The old road is the control. cmdCallInc is CC-1's include file; it prints INCLUDED when it is read.
+
+TODAY ON TRUNK (measured 2026-10-30): every row that passes an argument dies with exit 139 on the new road. INVOKEr's `(` builds an
+instruct whose op is Operators["call"], and setup's Operators has no `call` (only tester and three fixtures register one, with
+opCallTest). CC-6, `ccAct();` with EMPTY parentheses, does not crash: INVOKEr builds a call only when its argument list is not
+empty, so the action is never called -- nothing prints, exit 0.
+
+ROWS -- id | statement (the same text on both roads)
+CC-1|include(ccInc); print 5:;
+CC-2|cc = copyOf(qa); print cc:;
+CC-3|addrOf(fa); print 5:;
+CC-4|clear(cx); print cx:;
+CC-5|cc = ccRule(ccTxt); print cc:;
+CC-6|ccAct(); print 5:;
+CC-7|ccAct(qa); print 5:;

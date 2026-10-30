@@ -912,6 +912,44 @@ _eiN EI-8 "an or arm holding a block and a break, in a loop" "1 |9 |3 | R0 x0"
 else echo "  FAIL  elseIfT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ cmdCallT -- SEQ 492 (Clay, 2026-10-30): command and action calls on the new road, PRE-REGISTERED ON TRUNK, born red; maps the
+#  fixit newRoadCommandCall. Per row the old road and the new road, one process each under an alarm, each read as
+#  `stdout | R<REFUSED lines> x<exit>`. Today every call with an argument dies 139 (setup's Operators has no `call`); CC-6's empty
+#  `()` builds no call at all and prints nothing. The old road is the control.
+_ccF=$(ip cmdCallT)
+_ccv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_ccF" ]; then
+sed '/^stop();/,$d' "$_ccF" > "$T/cc.pre"
+grep '^CC-[0-9]*|' "$_ccF" > "$T/cc.list"
+while IFS='|' read -r _id _it; do
+    { cat "$T/cc.pre"; printf '%s\ncerr "CC SENTINEL":;\nstop();\n' "$_it"; } > "$T/cc.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/cc.$_id.ok" > "$T/cc.$_id.o" 2> "$T/cc.$_id.oe"; echo $? > "$T/cc.$_id.ox"
+    { cat "$T/cc.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\ncerr "CC SENTINEL":;\nstop();\n' "$_it"; } > "$T/cc.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/cc.$_id.nk" > "$T/cc.$_id.n" 2> "$T/cc.$_id.ne"; echo $? > "$T/cc.$_id.nx"
+done < "$T/cc.list"
+_ofeq "cmdCallT rows ran (7 of 7)" "$(ls "$T"/cc.CC-*.ne 2>/dev/null | wc -l | tr -d ' ')" "7"
+_ccO () { _ofeq "cmdCallT $1 old road (control): $2" "$(_ccv "$T/cc.$1.o" "$T/cc.$1.oe" "$T/cc.$1.ox") $(grep -c '^CC SENTINEL' "$T/cc.$1.oe")" "$3 1"; }
+_ccN () { fdRow "cmdCallT $1 new road: $2 (value / sentinel)" "$(_ccv "$T/cc.$1.n" "$T/cc.$1.ne" "$T/cc.$1.nx") $(grep -c '^CC SENTINEL' "$T/cc.$1.ne")" "$3" "$4 1"; }
+_ccO CC-1 "include, then a print" "INCLUDED |5 | R0 x0"
+_ccO CC-2 "copyOf" "2 | R0 x0"
+_ccO CC-3 "addrOf, then a print" "5 | R0 x0"
+_ccO CC-4 "clear" "cx | R0 x0"
+_ccO CC-5 "a rule call: its action runs, its value is truthy" "9 |1 | R0 x0"
+_ccO CC-6 "an action call, empty ()" "8 |5 | R0 x0"
+_ccO CC-7 "an action call with an argument" "8 |5 | R0 x0"
+_ofeq "cmdCallT CC-3 old road: addrOf's line on stderr" "$(grep -c '^ADDROF fa ' "$T/cc.CC-3.oe")" "1"
+_ccN CC-1 "include, then a print" " R0 x139 0" "INCLUDED |5 | R0 x0"
+_ccN CC-2 "copyOf" " R0 x139 0" "2 | R0 x0"
+_ccN CC-3 "addrOf, then a print" " R0 x139 0" "5 | R0 x0"
+_ccN CC-4 "clear" " R0 x139 0" "cx | R0 x0"
+_ccN CC-5 "a rule call: its action runs, its value is truthy" " R0 x139 0" "9 |1 | R0 x0"
+_ccN CC-6 "an action call, empty ()" " R0 x0 1" "8 |5 | R0 x0"
+_ccN CC-7 "an action call with an argument" " R0 x139 0" "8 |5 | R0 x0"
+fdRow "cmdCallT CC-3 new road: addrOf's line on stderr" "$(grep -c '^ADDROF fa ' "$T/cc.CC-3.ne")" "0" "1"
+else echo "  FAIL  cmdCallT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
