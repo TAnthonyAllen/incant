@@ -407,6 +407,7 @@ extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opUnaryMinus(GroupItem *result);
+extern "C" GroupItem *opWhile(GroupItem *arms);
 extern "C" int parkInRecord(RuleStuff *s, GroupItem *lab);
 extern "C" GroupItem *parseAction(GroupItem *field);
 extern "C" GroupItem *parseCharacter(GroupItem *field);

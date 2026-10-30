@@ -1094,6 +1094,30 @@ GroupItem   grup;
 }
 
 
+// opWhile the whileLoop instruct's unary op (SEQ 478 R1): its operand list holds the condition and the statement; each pass runs the condition through testOP and ends on false, runs the statement, then reads the signal -- break clears and ends, continue clears and loops, any other stays set and ends the loop; hands back nothing; retires when a kant action of the same name passes the same rows (whileT)
+extern GroupItem opWhile(GroupItem arms)
+{
+GroupItem   cond = arms[1],
+            body = arms[2];
+    if !cond || !body   return null;
+    -%
+    GroupRules *whileRuler = GroupControl::groupController->groupRules;
+    for (;;) {
+        GroupItem *test = cond;
+        if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
+        if ( !::truthOf(test) ) break;
+        whileRuler->branchKind = 0;
+        if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+        int whileKind = whileRuler->branchKind;
+        if ( whileKind == 1 ) { whileRuler->branchKind = 0; break; }
+        if ( whileKind == 2 ) { whileRuler->branchKind = 0; continue; }
+        if ( whileKind ) break;
+    }
+    %-
+    return null;
+}
+
+
 // opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; retires when a kant action of the same name passes the same rows (branchT)
 extern GroupItem opBranch(GroupItem keyword)
 {

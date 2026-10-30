@@ -112,6 +112,7 @@ define
     seq     unary ruleMethod=opSeq;
     ifThen  unary ruleMethod=opIf;
     branchSignal    unary ruleMethod=opBranch;
+    whileLoop       unary ruleMethod=opWhile;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;
