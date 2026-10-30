@@ -56,3 +56,7 @@ guard (SEQ 476 R5) did not stop it, and why is the first thing to read.
 ATTEMPT LOG
   2026-10-30 SEQ 484 found: EXPRESSIOn("addrOf(fa)") exit 139, STARt("addrOf(fa);") exit 139.
   2026-10-30 SEQ 485 measured: with `call` registered in the file's own Operators, exit 0 and addrOf runs. Not built.
+  2026-10-30 SEQ 492 R2 RETIRED BY MAPPING (branch command-call): `call operateMethod=opCallTest assignTier;` registered in setup.
+    This file's assertion (EXPRESSIOn("addrOf(fa)") runs and the next statement runs, exit 0) -> incant/pop/cmdCallT CC-3: addrOf
+    then a print on the new road reads `5 |`, exit 0, sentinel 1, and addrOf's ADDROF line is on stderr (its own row). STARt("addrOf(fa);")
+    -> the same row (cmdCallT drives STARt). The other commands this file named (copyOf, clear, include) -> CC-1, CC-2, CC-4.

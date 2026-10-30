@@ -45,6 +45,14 @@ instruct whose op is Operators["call"], and setup's Operators has no `call` (onl
 opCallTest). CC-6, `ccAct();` with EMPTY parentheses, does not crash: INVOKEr builds a call only when its argument list is not
 empty, so the action is never called -- nothing prints, exit 0.
 
+SEQ 492 R2 (branch command-call): setup registers `call operateMethod=opCallTest assignTier;` (testOP joined setup's commands too,
+Tony's word, and both left tester). CC-2..5 and CC-7 read the old road's values. CC-1 runs but prints `5 |INCLUDED`: the include
+pushes its file onto the input, which the new road reads only after the built STARt has run. CC-6 (empty ()) still builds no call.
+opCall is the old road's full executor, but its parameters are (target, arg) and an operator is called (argument, target): bound
+as is, every row refused, naming its argument as the thing it could not call. opCallTest takes the operator order; it runs a
+rule's ACTION (runAction) and does not parse through runRule as opCall does -- CC-5 agrees with the old road because its rule
+has an action.
+
 ROWS -- id | statement (the same text on both roads)
 CC-1|include(ccInc); print 5:;
 CC-2|cc = copyOf(qa); print cc:;

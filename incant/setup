@@ -81,6 +81,7 @@ define
     stop=stopParsingInput immediateAction;
     showBody immediateAction;
     testing immediateAction;
+    testOP immediateAction;
     TOKENize immediateAction=processFlags noPrint;
     traceParse immediateAction;
     dupTermRefusal immediateAction;
@@ -116,6 +117,7 @@ define
     doLoop          unary ruleMethod=opDo;
     forLoop         unary ruleMethod=opFor;
     iterateOn       unary ruleMethod=opIterate;
+    call            operateMethod=opCallTest  assignTier;
     runRule         unary ruleMethod=opRunRule;
     '?';
     '>>';

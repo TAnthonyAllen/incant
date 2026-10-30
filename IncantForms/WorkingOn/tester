@@ -13,14 +13,6 @@ include(kantGrammar);
 search reset stack KantGrammar Grokking;
 search Utilities UnitTests list;
 
-registry(cOMMANDs);
-define
-    testOP  immediateAction;
-    ;
-registry(Operators);
-define
-    call    operateMethod=opCallTest  assignTier;
-    ;
 registry(TestStuff);
 define
     /*****************************************************************************
