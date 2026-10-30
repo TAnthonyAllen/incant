@@ -115,6 +115,7 @@ define
     whileLoop       unary ruleMethod=opWhile;
     doLoop          unary ruleMethod=opDo;
     forLoop         unary ruleMethod=opFor;
+    iterateOn       unary ruleMethod=opIterate;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

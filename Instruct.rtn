@@ -313,7 +313,8 @@ use target
 extern GroupItem opDot(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
-GroupItem   product;
+GroupItem   product,
+            minted;
     // accessorGate ONE gate for the whole accessor family; remove it and a jitted `if noPrinT` branches on whatever was last in flight
     if jitting {
         -% return jitEmitDot(argument, target, ruler->tempField); %-
@@ -336,6 +337,7 @@ use argument
         else {
             if !target  return 0;
             product = new(tag);
+            minted  = product;
             // accessorMark the ONE meaning of isAccessorProduct: this node is opDot's copy of a groupField, so `=` on it writes the field through setGroupField (SEQ 295 R3); a node-returning case replaces product and the mark goes with it
             product.isAccessorProduct = true;
 use argument
@@ -399,7 +401,8 @@ use argument
                 case 413:   if target.isMethod  product.count = 1;
                 default:    product.text    = "access to " tag " not supported yet"; }
             // nullIsLawful seven accessors answer null for 'nothing there' -- guard the read, as the next line does (nullAccessorDeref, born fb9e4de)
-            if product && !product.data product.count  = 0;
+            // mintedOnly only the node opDot minted takes the 0: a navigation case hands back a REAL node (nexT, firsT, parenT ...), and writing a count into it gave every never-assigned field a walk passed a value -- new-road ++ then counted where the old road refuses (SEQ 485 R2)
+            if product && product == minted && !product.data   product.count  = 0;
             if product && !product.parent   product.parent = target; }}
     return product;
 }
@@ -1175,6 +1178,25 @@ int         backward;
         if ( forKind ) break;
     }
     %-
+    return null;
+}
+
+
+// opIterate the iterateOn instruct's unary op (SEQ 486 R2): its operand list holds the cursor, the source and the attributes / members counts; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does; WHILe and ++ / -- do the walking; hands back nothing; retires when a kant action of the same name passes the same rows (iterT)
+extern GroupItem opIterate(GroupItem arms)
+{
+GroupItem   cursor = arms[1],
+            source = arms[2],
+            aMark = arms[3],
+            mMark = arms[4];
+int         attributes,
+            members;
+    if !cursor || !source   return null;
+    if aMark && aMark.gCount    attributes = 1;
+    if mMark && mMark.gCount    members = 1;
+    -% if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); %-
+    if !iterateSetup(cursor,source,attributes,members)
+        return refuse(source,"iterate: the source has no list");
     return null;
 }
 

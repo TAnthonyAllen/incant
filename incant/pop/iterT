@@ -45,6 +45,10 @@ TODAY on the new road: ITERATe has no action (and is still defer), STARt skips i
 ...) where the old road refuses -- so `while ++ic` never ends: every IR-1..5 runs to the alarm (exit 142). The new-road runs
 are bounded at 5 s for that reason.
 
+IR-P (SEQ 486 R1): ++ on a never-assigned field refuses on the new road as on the old, and the next statement runs. It
+counted before SEQ 486: building any new-road expression naming the field wrote a 0 count into it (opDot's 0 for a data-less
+product landed on the real node a .nexT walk returned); opDot now gives that 0 only to a product it mints.
+
 ROWS -- id | old-road statement | new-road statement (testOP follows it, except IR-0) | after the call (optional, old road)
 IR-0||it1 = ITERATe("iterate ic on fsrc;");|
 IR-1|iterate ic on fsrc; while ++ic; print *ic:;|it1 = STARt("iterate ic on fsrc; while ++ic; print *ic:;");|
@@ -52,3 +56,4 @@ IR-2|iterate ic on fsrc; while --ic; print *ic:;|it1 = STARt("iterate ic on fsrc
 IR-3|iterate ic on fe; while ++ic; print *ic:;|it1 = STARt("iterate ic on fe; while ++ic; print *ic:;");|
 IR-4|iterate ic on fsrc; while ++ic; { print *ic:; if *ic == 2; break; }|it1 = STARt("iterate ic on fsrc; while ++ic; { print *ic:; if *ic == 2; break; }");|
 IR-5|iterate ic on fsrc; while ++ic; print *ic:; print 7:; print *ic:;|it1 = STARt("iterate ic on fsrc; while ++ic; print *ic:;");|print 7:; print *ic:;
+IR-P|++ic; print ic:;|it1 = EXPRESSIOn("++ic");|print ic:;
