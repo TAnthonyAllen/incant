@@ -198,6 +198,40 @@ define
         *argument   := *target;
         return  *argument;
         };
+    // FOr only builds (SEQ 482 R0): one instruct, op forLoop, its operand a mint of [cursor, source, statement] and the reverse mark when `<-` is present; opFor binds the cursor to each member when the loop RUNS
+    FOr code={
+        :argument LOOPEr EXPRESSIOn LOOPRESTRICt STATEMENt reversE;
+        // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1)
+        if LOOPRESTRICt.datA != 0;
+            cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
+            clear(*argument);
+            return *argument;
+        cursor  := **LOOPEr;
+        source  := **EXPRESSIOn;
+        body    := **STATEMENt;
+        // bodyRefused a statement that handed up no instruct refuses by name, as WHILe's (SEQ 476 R6)
+        bodyM   := *body.methoD;
+        if bodyM == 0;
+            cerr "REFUSED FOr -- its statement handed up no instruct":;
+            clear(*argument);
+            return *argument;
+        forArms +% *cursor;
+        forArms +% *source;
+        forArms +% *body;
+        // reverseMark `<-` rides as a fourth operand; its presence is the meaning
+        if reversE.datA != 0;
+            revMark := copyOf(*reversE);
+            forArms +% *revMark;
+        op := Operators["forLoop"];
+        armsMint    := copyOf(forArms);
+        instruct    +% *op;
+        instruct    +% *armsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
     // Do only builds (SEQ 480 R0): one instruct, op doLoop, its operand a mint of [statement, condition]; opDo runs the statement first, then tests
     Do code={
         :argument STATEMENt EXPRESSIOn;
