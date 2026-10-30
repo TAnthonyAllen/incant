@@ -875,6 +875,43 @@ fdRow "bridgeT BR-6 new road: the refusal names COUt" "$(grep -c '^REFUSED COUt'
 else echo "  FAIL  bridgeT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ elseIfT -- SEQ 491 (Clay, 2026-10-30): ELSEIf (`or`) on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old
+#  road and the new road, one process each under an alarm, each read as `stdout | R<REFUSED lines> x<exit>`. Today every new-road
+#  row dies 139 while the If is built (ELSEIf binds the old road's aCTionIF). The old road is the control.
+_eiF=$(ip elseIfT)
+_eiv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_eiF" ]; then
+sed '/^stop();/,$d' "$_eiF" > "$T/ei.pre"
+grep '^EI-[0-9]*|' "$_eiF" > "$T/ei.list"
+while IFS='|' read -r _id _it; do
+    { cat "$T/ei.pre"; printf '%s\ncerr "EI SENTINEL":;\nstop();\n' "$_it"; } > "$T/ei.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ei.$_id.ok" > "$T/ei.$_id.o" 2> "$T/ei.$_id.oe"; echo $? > "$T/ei.$_id.ox"
+    { cat "$T/ei.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\ncerr "EI SENTINEL":;\nstop();\n' "$_it"; } > "$T/ei.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ei.$_id.nk" > "$T/ei.$_id.n" 2> "$T/ei.$_id.ne"; echo $? > "$T/ei.$_id.nx"
+done < "$T/ei.list"
+_ofeq "elseIfT rows ran (8 of 8)" "$(ls "$T"/ei.EI-*.ne 2>/dev/null | wc -l | tr -d ' ')" "8"
+_eiO () { _ofeq "elseIfT $1 old road (control): $2" "$(_eiv "$T/ei.$1.o" "$T/ei.$1.oe" "$T/ei.$1.ox") $(grep -c '^EI SENTINEL' "$T/ei.$1.oe")" "$3 1"; }
+_eiN () { fdRow "elseIfT $1 new road: $2 (value / sentinel)" "$(_eiv "$T/ei.$1.n" "$T/ei.$1.ne" "$T/ei.$1.nx") $(grep -c '^EI SENTINEL' "$T/ei.$1.ne")" " R0 x139 0" "$3 1"; }
+_eiO EI-1 "if true, or -- the then arm" "1 | R0 x0"
+_eiO EI-2 "if false, or true -- the or arm" "2 | R0 x0"
+_eiO EI-3 "neither -- nothing" " R0 x0"
+_eiO EI-4 "with else, the then arm" "1 | R0 x0"
+_eiO EI-5 "with else, the or arm" "2 | R0 x0"
+_eiO EI-6 "with else, the else arm" "3 | R0 x0"
+_eiO EI-7 "two or arms, the second" "3 | R0 x0"
+_eiO EI-8 "an or arm holding a block and a break, in a loop" "1 |9 |3 | R0 x0"
+_eiN EI-1 "if true, or -- the then arm" "1 | R0 x0"
+_eiN EI-2 "if false, or true -- the or arm" "2 | R0 x0"
+_eiN EI-3 "neither -- nothing" " R0 x0"
+_eiN EI-4 "with else, the then arm" "1 | R0 x0"
+_eiN EI-5 "with else, the or arm" "2 | R0 x0"
+_eiN EI-6 "with else, the else arm" "3 | R0 x0"
+_eiN EI-7 "two or arms, the second" "3 | R0 x0"
+_eiN EI-8 "an or arm holding a block and a break, in a loop" "1 |9 |3 | R0 x0"
+else echo "  FAIL  elseIfT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

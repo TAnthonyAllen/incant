@@ -1,0 +1,46 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ElseIfT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    ;
+search ElseIfT Utilities UnitTests;
+stop();
+
+elseIfT -- SEQ 491 (Clay, 2026-10-30): ELSEIf (`or`) on the new road, PRE-REGISTERED ON TRUNK, born red.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this
+file's `stop();`, then the row's text on the OLD road (the statement itself) or on the NEW road (STARt called by name on
+the same text, then testOP on what it handed back), then a sentinel on stderr. Each row is read as
+`stdout | R<lines starting REFUSED> x<exit>`. The old road is the control.
+
+TODAY ON TRUNK (measured 2026-10-30): every row dies with exit 139 on the new road, while the If is being BUILT. ELSEIf binds
+the old road's C++ aCTionIF (`ruleMethod=aCTionIF`), which fires as the `or` arm parses and reads old-road labels.
+
+SEQ 491 R1 (branch elseif-build): ELSEIf gets its own kant action building the same ifThen instruct as If (condition, then,
+else if present), so opIf runs it and nothing joins Operators; If's else slot takes that instruct.
+
+ROWS -- id | statement (the same text on both roads)
+EI-1|if qa < qb; print 1:; or qa > qb; print 2:;
+EI-2|if qa > qb; print 1:; or qa < qb; print 2:;
+EI-3|if qa > qb; print 1:; or qa == qb; print 2:;
+EI-4|if qa < qb; print 1:; or qa > qb; print 2:; else print 3:;
+EI-5|if qa > qb; print 1:; or qa < qb; print 2:; else print 3:;
+EI-6|if qa > qb; print 1:; or qa == qb; print 2:; else print 3:;
+EI-7|if qa > qb; print 1:; or qa == qb; print 2:; or qa < qb; print 3:; else print 4:;
+EI-8|while wc < 5; { wc = wc + 1; if wc == 1; print 1:; or wc == 3; { print 3:; break; } else print 9:; }
