@@ -604,6 +604,51 @@ _ofeq "ifT IF-R testOP on a raw label refuses by name, next runs, exit 0 (refuse
 else echo "  FAIL  ifT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ whileT -- SEQ 475 (Tony, 2026-10-30): WHILe on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and
+#  the new road, one process each under an alarm, read by value; the new road also by exit status and sentinel. Today WH-3 and
+#  WH-4 die with exit 139 in the parse: break (BRANCh) and a block (BLOCk) hand up no instruct, and If's action attaches a null.
+_whF=$(ip whileT)
+_whv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_whF" ]; then
+sed '/^stop();/,$d' "$_whF" > "$T/wh.pre"
+grep '^WH-[0-9A-Z]*|' "$_whF" > "$T/wh.list"
+while IFS='|' read -r _id _wo _wn _wa; do
+    if [ -n "$_wo" ]; then
+        { cat "$T/wh.pre"; printf '%s\ncerr "WH NEXT":;\ncerr "WH SENTINEL":;\nstop();\n' "$_wo"; } > "$T/wh.$_id.ok"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/wh.$_id.ok" > "$T/wh.$_id.o" 2> "$T/wh.$_id.oe"
+        _ofeq "whileT $_id old road sentinel" "$(grep -c '^WH SENTINEL' "$T/wh.$_id.oe")" "1"
+    fi
+    _run="testOP(it1);"; [ "$_id" = WH-0 ] && _run=""
+    #  the 4th field is an OLD-road statement run after the call (WH-8: the print after the call)
+    { cat "$T/wh.pre"; printf '%s\n%s\n%s\ncerr "WH NEXT":;\ncerr "WH SENTINEL":;\nstop();\n' "$_wn" "$_run" "$_wa"; } > "$T/wh.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/wh.$_id.nk" > "$T/wh.$_id.n" 2> "$T/wh.$_id.ne"; echo $? > "$T/wh.$_id.nx"
+done < "$T/wh.list"
+_ofeq "whileT rows ran (9 of 9)" "$(ls "$T"/wh.WH-*.ne 2>/dev/null | wc -l | tr -d ' ')" "9"
+_ofeq "whileT WH-1 old road (control): count to 3, printing each" "$(_whv "$T/wh.WH-1.o")" "1 |2 |3 |"
+_ofeq "whileT WH-2 old road (control): condition false at the start prints nothing" "$(_whv "$T/wh.WH-2.o")" ""
+_ofeq "whileT WH-3 old road (control): break when the count reaches 2" "$(_whv "$T/wh.WH-3.o")" "1 |2 |"
+_ofeq "whileT WH-4 old road (control): continue past the print at 2" "$(_whv "$T/wh.WH-4.o")" "1 |3 |"
+_ofeq "whileT WH-5 old road (control): a while between two prints" "$(_whv "$T/wh.WH-5.o")" "7 |1 |2 |8 |"
+_ofeq "whileT WH-6 old road (control): nested, the inner breaks at 2, the outer runs every pass" "$(_whv "$T/wh.WH-6.o")" "1 |2 |9 |1 |2 |9 |"
+_ofeq "whileT WH-7 old road (control): no leak, the print after a breaking loop runs" "$(_whv "$T/wh.WH-7.o")" "1 |2 |8 |"
+_ofeq "whileT WH-8 old road (control): return through a loop ends the action at 2, the print after the call runs" "$(_whv "$T/wh.WH-8.o")" "1 |2 |8 |"
+_ofeq "whileT WH-0 new road: the WHILe built alone, not run, prints nothing and the file runs on (stdout / exit / sentinel)" "[$(_whv "$T/wh.WH-0.n")] $(cat "$T/wh.WH-0.nx") $(grep -c '^WH SENTINEL' "$T/wh.WH-0.ne")" "[] 0 1"
+for _id in WH-1 WH-2 WH-3 WH-4 WH-5 WH-6 WH-7 WH-8; do
+    _tw="0 1"; case $_id in WH-3|WH-4|WH-6|WH-7|WH-8) _tw="139 0";; esac
+    fdRow "whileT $_id new road runs to its end (exit / sentinel)" "$(cat "$T/wh.$_id.nx") $(grep -c '^WH SENTINEL' "$T/wh.$_id.ne")" "$_tw" "0 1"
+done
+fdRow "whileT WH-1 new road: count to 3, printing each" "$(_whv "$T/wh.WH-1.n")" "" "1 |2 |3 |"
+_ofeq "whileT WH-2 new road: condition false at the start prints nothing (paired with its exit row)" "$(_whv "$T/wh.WH-2.n")" ""
+fdRow "whileT WH-3 new road: break when the count reaches 2" "$(_whv "$T/wh.WH-3.n")" "" "1 |2 |"
+fdRow "whileT WH-4 new road: continue past the print at 2" "$(_whv "$T/wh.WH-4.n")" "" "1 |3 |"
+fdRow "whileT WH-5 new road: a while inside STARt, between two prints" "$(_whv "$T/wh.WH-5.n")" "7 |8 |" "7 |1 |2 |8 |"
+fdRow "whileT WH-6 new road: nested, the inner breaks at 2, the outer runs every pass" "$(_whv "$T/wh.WH-6.n")" "" "1 |2 |9 |1 |2 |9 |"
+fdRow "whileT WH-7 new road: no leak, the print after a breaking loop in the same STARt runs" "$(_whv "$T/wh.WH-7.n")" "" "1 |2 |8 |"
+fdRow "whileT WH-8 new road: return through a loop ends the STARt at 2, the old-road print after the call runs" "$(_whv "$T/wh.WH-8.n")" "" "1 |2 |8 |"
+else echo "  FAIL  whileT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

@@ -1,0 +1,60 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(WhT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    wr code={
+        while wc < 3;
+            wc = wc + 1;
+            print wc:;
+            if wc == 2;     return wc;
+        print 99:;
+        };
+    ;
+search WhT Utilities UnitTests list;
+stop();
+
+whileT -- SEQ 475 (Tony, 2026-10-30): WHILe on the new road, PRE-REGISTERED ON TRUNK before the build.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this file's
+`stop();`, then the row on the OLD road (the statement itself) or on the NEW road (the rule called by name, then testOP on
+what it handed back, except WH-0, which builds and does not run), then `WH NEXT` and a sentinel. Read by value, the old
+road's print as the control. wc is declared, so every row starts from 0 in its own process. EXPRESSIOn's `Assign at end`
+debug line is filtered from the value.
+
+TODAY (2026-10-30, measured): WHILe has no action, so testOP refuses its label (WH-1, WH-2). A multi-statement body is a
+BLOCk, which has no action and is defer; break and continue are BRANCh, which has no action and is defer -- so neither hands
+up an instruct, and If's action (SEQ 473) attaches a null for an arm that is a break or a block: WH-3 and WH-4 die with exit
+139 in the parse. WH-5's STARt seq skips the WHILe and prints 7 8.
+
+RIDER (SEQ 475): WH-6 nested loops, the inner breaks at 2 and the outer runs every pass; WH-7 no leak, a print after a
+breaking loop in the same seq runs; WH-8 return through a loop -- on the new road an action body is not built yet (rung 5),
+so the action is a STARt, its testOP the call, and the 4th field is an OLD-road statement run after the call: the print after
+the call must run (branchKind must not leak into the old road's block). The old-road control is the real action wr.
+
+ROWS -- id | old-road statement | new-road statement (testOP follows it, except WH-0) | after the call (optional)
+WH-0||it1 = WHILe("while wc < 3; { wc = wc + 1; print wc:; }");
+WH-1|while wc < 3; { wc = wc + 1; print wc:; }|it1 = WHILe("while wc < 3; { wc = wc + 1; print wc:; }");
+WH-2|while wc > 5; { wc = wc + 1; print wc:; }|it1 = WHILe("while wc > 5; { wc = wc + 1; print wc:; }");
+WH-3|while wc < 3; { wc = wc + 1; print wc:; if wc == 2; break; }|it1 = WHILe("while wc < 3; { wc = wc + 1; print wc:; if wc == 2; break; }");
+WH-4|while wc < 3; { wc = wc + 1; if wc == 2; continue; print wc:; }|it1 = WHILe("while wc < 3; { wc = wc + 1; if wc == 2; continue; print wc:; }");
+WH-5|print 7:; while wc < 2; { wc = wc + 1; print wc:; } print 8:;|it1 = STARt("print 7:; while wc < 2; { wc = wc + 1; print wc:; } print 8:;");
+WH-6|while wo < 2; { wo = wo + 1; wc = 0; while wc < 3; { wc = wc + 1; print wc:; if wc == 2; break; } print 9:; }|it1 = WHILe("while wo < 2; { wo = wo + 1; wc = 0; while wc < 3; { wc = wc + 1; print wc:; if wc == 2; break; } print 9:; }");
+WH-7|while wc < 3; { wc = wc + 1; print wc:; if wc == 2; break; } print 8:;|it1 = STARt("while wc < 3; { wc = wc + 1; print wc:; if wc == 2; break; } print 8:;");
+WH-8|wr(); print 8:;|it1 = STARt("while wc < 3; { wc = wc + 1; print wc:; if wc == 2; return wc; } print 99:;");|print 8:;
