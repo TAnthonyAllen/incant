@@ -1,0 +1,54 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(BranchT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    it2;
+    tgA;
+    ;
+search BranchT Utilities UnitTests list;
+stop();
+
+branchT -- SEQ 476 (Tony, 2026-10-30): break, continue and blocks on the new road, and two crash fixes. PRE-REGISTERED ON
+TRUNK before the build.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this file's
+`stop();`, then the row on the OLD road (the statement itself) or on the NEW road (the rule called by name, then testOP on
+what it handed back, then the optional 4th field, OLD-road statements run after the call), then `BT NEXT` and a sentinel.
+
+R4, MEASURED (2026-10-30): the old road never refuses a stray break or continue. A block `{ }` stops at the break and so
+does an action body; the next statement runs (1 3). Bare top-level statements ignore it (`print 1:; break; print 2:;`
+prints 1 2). STARt is a seq, and macros says an action body is a seq, so the intended value is the block's: STARt stops at the
+break, nothing refuses, and the next top-level statement runs (BR-2). A second STARt is NOT used as the later seq: today a
+second STARt built in one process carries the first one's instruct entries (seq stmts seq stmts) and opSeq is handed `seq`
+as its list -- pre-existing, outside this stroke (TODO). opSeq clears branchKind before each statement, as aCTionBlocK
+does, so a stale signal cannot cut a later seq short.
+
+TG-1: a raw label whose first child carries a method by name (processAction) -- testOP must refuse it by name, not call it.
+
+TODAY: BR-1 prints 1 2 (BRANCh builds nothing, STARt skips it); BL-1 prints nothing (BLOCk builds nothing); IF-5 and IF-6
+die with exit 139 in the parse (If attaches a null arm); TG-1 dies with exit 139 in processAction.
+
+ROWS -- id | old-road statement | new-road statement (testOP follows it) | after the call (optional, old road)
+BR-1|{ print 1:; break; print 2:; }|it1 = STARt("print 1:; break; print 2:;");|
+BR-2|{ print 1:; break; print 2:; } print 3:;|it1 = STARt("print 1:; break; print 2:;");|print 3:;
+BR-C|{ print 1:; continue; print 2:; }|it1 = STARt("print 1:; continue; print 2:;");|
+BR-R||it1 = STARt("print 1:; return; print 2:;");|
+BL-1|{ print 1:; print 2:; }|it1 = STARt("{ print 1:; print 2:; }");|
+IF-5|if qa < qb; { print 1:; print 2:; }|it1 = If("if qa < qb; { print 1:; print 2:; }");|
+IF-6|if qa < qb; break; print 5:;|it1 = If("if qa < qb; break;");|print 5:;
+TG-1||tgA.methoD = "processAction"; it1 +% tgA;|

@@ -649,6 +649,47 @@ fdRow "whileT WH-8 new road: return through a loop ends the STARt at 2, the old-
 else echo "  FAIL  whileT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ branchT -- SEQ 476 (Tony, 2026-10-30): break, continue and blocks on the new road; If's null arm and testOP's guard.
+#  PRE-REGISTERED ON TRUNK, born red. Per row the old road and the new road, one process each under an alarm, read by value;
+#  the new road also by exit, next and refusals. R4 measured: the old road never refuses a stray break -- a block or an action
+#  body stops at it and the next statement runs, so STARt (a seq) is pinned to the block's value.
+_btF=$(ip branchT)
+_btv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_btF" ]; then
+sed '/^stop();/,$d' "$_btF" > "$T/bt.pre"
+grep '^[A-Z][A-Z]-[0-9A-Z]*|' "$_btF" > "$T/bt.list"
+while IFS='|' read -r _id _bo _bn _ba; do
+    if [ -n "$_bo" ]; then
+        { cat "$T/bt.pre"; printf '%s\ncerr "BT NEXT":;\ncerr "BT SENTINEL":;\nstop();\n' "$_bo"; } > "$T/bt.$_id.ok"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/bt.$_id.ok" > "$T/bt.$_id.o" 2> "$T/bt.$_id.oe"
+        _ofeq "branchT $_id old road sentinel" "$(grep -c '^BT SENTINEL' "$T/bt.$_id.oe")" "1"
+    fi
+    { cat "$T/bt.pre"; printf '%s\ntestOP(it1);\n%s\ncerr "BT NEXT":;\ncerr "BT SENTINEL":;\nstop();\n' "$_bn" "$_ba"; } > "$T/bt.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/bt.$_id.nk" > "$T/bt.$_id.n" 2> "$T/bt.$_id.ne"; echo $? > "$T/bt.$_id.nx"
+done < "$T/bt.list"
+_ofeq "branchT rows ran (8 of 8)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "8"
+_ofeq "branchT BR-1 old road (control): a block stops at break" "$(_btv "$T/bt.BR-1.o")" "1 |"
+_ofeq "branchT BR-2 old road (control): the statement after a stopped block runs" "$(_btv "$T/bt.BR-2.o")" "1 |3 |"
+_ofeq "branchT BR-C old road (control): a block stops at continue" "$(_btv "$T/bt.BR-C.o")" "1 |"
+_ofeq "branchT BL-1 old road (control): a block" "$(_btv "$T/bt.BL-1.o")" "1 |2 |"
+_ofeq "branchT IF-5 old road (control): an if whose arm is a block" "$(_btv "$T/bt.IF-5.o")" "1 |2 |"
+_ofeq "branchT IF-6 old road (control): if ...; break; at the top is ignored, the next statement runs" "$(_btv "$T/bt.IF-6.o")" "5 |"
+for _id in BR-1 BR-2 BR-C BR-R BL-1 IF-5 IF-6 TG-1; do
+    _tw="0 1"; case $_id in IF-5|IF-6|TG-1) _tw="139 0";; esac
+    fdRow "branchT $_id new road runs to its end (exit / next)" "$(cat "$T/bt.$_id.nx") $(grep -c '^BT NEXT' "$T/bt.$_id.ne")" "$_tw" "0 1"
+done
+fdRow "branchT BR-1 new road: STARt stops at break, nothing refuses" "$(_btv "$T/bt.BR-1.n") $(grep -c '^REFUSED' "$T/bt.BR-1.ne")" "1 |2 | 0" "1 | 0"
+fdRow "branchT BR-2 new road: the top-level statement after the STARt runs (no leak)" "$(_btv "$T/bt.BR-2.n")" "1 |2 |3 |" "1 |3 |"
+fdRow "branchT BR-C new road: STARt stops at continue, nothing refuses" "$(_btv "$T/bt.BR-C.n") $(grep -c '^REFUSED' "$T/bt.BR-C.ne")" "1 |2 | 0" "1 | 0"
+fdRow "branchT BR-R new road: return refuses by name at build, the rest of the seq runs" "$(_btv "$T/bt.BR-R.n") $(grep -c '^REFUSED return -- not built on the new road yet$' "$T/bt.BR-R.ne")" "1 |2 | 0" "1 |2 | 1"
+fdRow "branchT BL-1 new road: a block builds a seq" "$(_btv "$T/bt.BL-1.n")" "" "1 |2 |"
+fdRow "branchT IF-5 new road: an if whose arm is a block" "$(_btv "$T/bt.IF-5.n")" "" "1 |2 |"
+fdRow "branchT IF-6 new road: if ...; break; at the top, the next statement runs" "$(_btv "$T/bt.IF-6.n")" "" "5 |"
+fdRow "branchT TG-1 testOP on a raw label whose first child carries a method refuses by name" "$(grep -c '^REFUSED it1 -- not an instruct$' "$T/bt.TG-1.ne")" "0" "1"
+else echo "  FAIL  branchT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
