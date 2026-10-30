@@ -46,6 +46,8 @@ MEASURED ON THE OLD ROAD (2026-10-30), and taken as intended:
   `nextGroup: ERROR <source> does not contain a list`, the next statement runs. Nothing refuses.
 TODAY: FOr has no action, so testOP refuses its label; FR-6's WHILe skips the inner FOr and prints 9 9; FR-7 prints 7.
 
+FR-R (SEQ 482 R1): attributes / members (LOOPRESTRICt) is not built on the new road: FOr refuses it by name.
+
 ROWS -- id | old-road statement | new-road statement (testOP follows it, except FR-0) | after the call (optional, old road)
 FR-0||it1 = FOr("for lp in fsrc; print *lp:;");|
 FR-1|for lp in fsrc; print *lp:;|it1 = FOr("for lp in fsrc; print *lp:;");|
@@ -56,3 +58,4 @@ FR-5|for lp in <- fsrc; print *lp:;|it1 = FOr("for lp in <- fsrc; print *lp:;");
 FR-6|while wo < 2; { wo = wo + 1; for lp in fsrc; { print *lp:; if *lp == 2; break; } print 9:; }|it1 = WHILe("while wo < 2; { wo = wo + 1; for lp in fsrc; { print *lp:; if *lp == 2; break; } print 9:; }");|
 FR-7|for lp in fsrc; print *lp:; print 7:; print *lp:;|it1 = FOr("for lp in fsrc; print *lp:;");|print 7:; print *lp:;
 FR-8|for lp in fn; print *lp:;|it1 = FOr("for lp in fn; print *lp:;");|
+FR-R|for lp in fsrc; members print *lp:;|it1 = FOr("for lp in fsrc; members print *lp:;");|

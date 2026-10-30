@@ -114,6 +114,7 @@ define
     branchSignal    unary ruleMethod=opBranch;
     whileLoop       unary ruleMethod=opWhile;
     doLoop          unary ruleMethod=opDo;
+    forLoop         unary ruleMethod=opFor;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;
