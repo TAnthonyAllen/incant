@@ -56,7 +56,7 @@ define
         NumbeR;
         Operators;
     // stringParked STRINGXp is out of TOKEn and parked (Tony, SEQ 449 R1, R2): after an expression it took a following `#5d` as a string, so a format there could not reach FORMAt
-    STRINGXp        pound-="#" stuff=PRINTXp+ defer;
+    STRINGXp        pound-="#" stuff=PRINTXp+ ;
     EXPRESSIOn      lizted=TOKEn+;
     SCOPEFIELd
         ANYtoken;
@@ -65,10 +65,10 @@ define
     LOOPRESTRICt
         loopOnAttributes="attributes";
         loopOnMembers="members";
-    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
+    // noDefer the new road only builds, so no child waits for its parent:  is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
     ELSe
         BASICELSe   else- followedBy STATEMENt@;
-        ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF defer;
+        ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF ;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
@@ -76,13 +76,13 @@ define
         If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
         FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         WHILe       while- followedBy EXPRESSIOn SemI-? STATEMENt;
-        PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
-        CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
-        COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
+        PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
+        CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
+        COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
         SEARCh      search- followedBy GrouP+ SemI-;
         BRANCh      BRANCHEs EXPRESSIOn? SemI-;
-        SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- defer;
-    XPRESs          EXPRESSIOn SemI- defer;
+        SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- ;
+    XPRESs          EXPRESSIOn SemI- ;
     STATEMENt
         SemI;
         BLOCk;

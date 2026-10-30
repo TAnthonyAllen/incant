@@ -57,7 +57,6 @@ whatsIt = PRINt("print #5.2f,+~+77 - qa / 3,qb/5:;");
 testOP(whatsIt);
 whatsIt = PRINt("print #4.2f,+~+77 - qa / 3,qb/5:;");
 testOP(whatsIt);
-stop();
 whatsIt = EXPRESSIOn("invokeTEST call ga > qb || righty = 42 || qb > qc");
 print "SENTINEL after the direct EXPRESSIOn call":;
 testOP(whatsIt);

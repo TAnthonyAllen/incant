@@ -76,11 +76,9 @@ define
         all subsequent defines will be added to it (until the end of define).
         
         The first few rules are forward definitions filled in later below
-        Note: followedBy, defined in the pROPERTIEs registry is used as an
-        attribute to avoid matching on a substring. It succeeds if the next
-        character following a match is in its set. Being virtual, you can
-        change its set when entering it as an attribute; for instance,
-            followedBy=[a set definition].
+        Note: followedBy, is used as an attribute to avoid matching on a
+        substring. It succeeds if the next character following a match is
+        in its set.
     *************************************************************************/
     ExpressioN guard="^,;{}[]`";
     StatemenT guard=[{A-Za-z0-9+-;(];
