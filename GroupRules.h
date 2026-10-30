@@ -349,6 +349,7 @@ extern "C" GroupItem *opAddMember(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddPointer(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddProperty(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opBranch(GroupItem *keyword);
 extern "C" GroupItem *opCall(GroupItem *target, GroupItem *arg);
 extern "C" GroupItem *opCallTest(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opCerr(GroupItem *target, Buffer *buffer);

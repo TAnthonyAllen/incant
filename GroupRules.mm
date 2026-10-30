@@ -8303,6 +8303,20 @@ int 		priorLimit = ::limitWriteGuard(target);
 	return target;
 }
 
+// opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; retires when a kant action of the same name passes the same rows (branchT)
+extern "C" GroupItem *opBranch(GroupItem *keyword)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !keyword )
+		return 0;
+	if ( *keyword->groupBody->tag == 'b' )
+		ruler->branchKind = 1;
+	else
+	if ( *keyword->groupBody->tag == 'c' )
+		ruler->branchKind = 2;
+	return 0;
+}
+
 // opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
 extern "C" GroupItem *opCall(GroupItem *target, GroupItem *arg)
 {
@@ -9664,10 +9678,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 // opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
 extern "C" GroupItem *opSeq(GroupItem *items)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*grup = 0;
 	while ( grup = items->next(grup) )
 		{
+		// clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
+		ruler->branchKind = 0;
 		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) ::testOP(grup); 
+		// stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
+		if ( ruler->branchKind )
+			break;
 		}
 	return items;
 }
@@ -12049,13 +12069,11 @@ extern "C" GroupItem *testOP(GroupItem *field)
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*argument = field->get(3);
-int 		noMethod = 0;
 	// notInstruct a field with no op to run is handed back as it is
 	if ( !op )
 		return field;
-	// notAnInstruct an op with no method to call refuses by name (R-2), never calls null: a raw label handed up as a statement takes its first child as the op (SEQ 473 R3)
-	 noMethod = op->groupBody->flags.isUnary ? !op->groupBody->gMethod : !op->groupBody->gOp; 
-	if ( noMethod )
+	// notAnOperator an op that is not an Operators entry refuses by name (R-2): method and operator share one slot, so "has a method" cannot tell an op from a label carrying an action (SEQ 476 R5)
+	if ( op->groupBody->registry != GroupControl::groupController->groupRules->opFields )
 		{
 		::fprintf(stderr,"REFUSED %s -- not an instruct\n",field->groupBody->tag);
 		return 0;

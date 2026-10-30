@@ -38,10 +38,17 @@ second STARt built in one process carries the first one's instruct entries (seq 
 as its list -- pre-existing, outside this stroke (TODO). opSeq clears branchKind before each statement, as aCTionBlocK
 does, so a stale signal cannot cut a later seq short.
 
-TG-1: a raw label whose first child carries a method by name (processAction) -- testOP must refuse it by name, not call it.
+TG-1: a raw label whose first child carries a method (testOP, set by name on tgA before it is attached) -- testOP must refuse it
+by name, not call it as an operator. The method is testOP because the setting statement's value is RUN at the top level, and
+testOP on a childless node hands it back; called as an OPERATOR with null operands it dereferences null. (The pre-registered
+patient set processAction, and that statement itself fired processAction -- its exit 139 was the patient, not testOP: corrected
+SEQ 476 before the build was certified.)
 
 TODAY: BR-1 prints 1 2 (BRANCh builds nothing, STARt skips it); BL-1 prints nothing (BLOCk builds nothing); IF-5 and IF-6
 die with exit 139 in the parse (If attaches a null arm); TG-1 dies with exit 139 in processAction.
+
+IF-7 (added SEQ 476, H17): with BRANCh and BLOCk building, IF-5 and IF-6 no longer reach R6's refusal, so its control could
+not go red on them. An arm that hands up nothing today is a refused return; If must refuse by name and the next statement run.
 
 ROWS -- id | old-road statement | new-road statement (testOP follows it) | after the call (optional, old road)
 BR-1|{ print 1:; break; print 2:; }|it1 = STARt("print 1:; break; print 2:;");|
@@ -51,4 +58,5 @@ BR-R||it1 = STARt("print 1:; return; print 2:;");|
 BL-1|{ print 1:; print 2:; }|it1 = STARt("{ print 1:; print 2:; }");|
 IF-5|if qa < qb; { print 1:; print 2:; }|it1 = If("if qa < qb; { print 1:; print 2:; }");|
 IF-6|if qa < qb; break; print 5:;|it1 = If("if qa < qb; break;");|print 5:;
-TG-1||tgA.methoD = "processAction"; it1 +% tgA;|
+TG-1||tgA.methoD = "testOP"; it1 +% tgA;|
+IF-7||it1 = If("if qa < qb; return;");|print 5:;
