@@ -65,7 +65,7 @@ define
     LOOPRESTRICt
         loopOnAttributes="attributes";
         loopOnMembers="members";
-    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
+    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
     ELSe
         BASICELSe   else- followedBy STATEMENt@;
         ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF defer;
@@ -87,7 +87,7 @@ define
         SemI;
         BLOCk;
         WARDEd;
-        ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe defer;
+        ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe;
         XPRESs;
     STARt STATEMENt-+;
     /*****************************************************************************
@@ -195,6 +195,42 @@ define
         instruct    +% *armsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
+    ITERATe code={
+        :argument ANYtoken attributes members ITERSOURCe;
+        cursor  := **ANYtoken;
+        // filterSlots the filters ride as two counts in fixed places, so opIterate reads them by position
+        aOn = 0;
+        if attributes.datA != 0;    aOn = 1;
+        mOn = 0;
+        if members.datA != 0;       mOn = 1;
+        :ITERSOURCe ANYtoken;
+        source  := **ANYtoken;
+        // childRefused a cursor or source that handed up nothing refuses by name
+        if cursor.datA == 0;
+            cerr "REFUSED ITERATe -- its cursor handed up nothing":;
+            clear(*argument);
+            return *argument;
+        if source.datA == 0;
+            cerr "REFUSED ITERATe -- its source handed up nothing":;
+            clear(*argument);
+            return *argument;
+        iterArms    +% *cursor;
+        iterArms    +% *source;
+        aMint       := copyOf(aOn);
+        mMint       := copyOf(mOn);
+        iterArms    +% *aMint;
+        iterArms    +% *mMint;
+        op := Operators["iterateOn"];
+        armsMint    := copyOf(iterArms);
+        instruct    +% *op;
+        instruct    +% *armsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
         *argument   := *target;
         return  *argument;
         };

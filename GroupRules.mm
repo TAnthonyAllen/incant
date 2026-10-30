@@ -9009,6 +9009,27 @@ extern "C" int opIsShortCircuit(GroupItem *op)
 	return 0;
 }
 
+// opIterate the iterateOn instruct's unary op (SEQ 486 R2): its operand list holds the cursor, the source and the attributes / members counts; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does; WHILe and ++ / -- do the walking; hands back nothing; retires when a kant action of the same name passes the same rows (iterT)
+extern "C" GroupItem *opIterate(GroupItem *arms)
+{
+GroupItem 	*cursor = arms->get(1);
+GroupItem 	*source = arms->get(2);
+GroupItem 	*aMark = arms->get(3);
+GroupItem 	*mMark = arms->get(4);
+int 		attributes = 0;
+int 		members = 0;
+	if ( !cursor || !source )
+		return 0;
+	if ( aMark && aMark->groupBody->gCount )
+		attributes = 1;
+	if ( mMark && mMark->groupBody->gCount )
+		members = 1;
+	 if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); 
+	if ( !::iterateSetup(cursor,source,attributes,members) )
+		return ::refuse(source,"iterate: the source has no list");
+	return 0;
+}
+
 // opLE the <= operator, on opEQ's shape
 extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 {

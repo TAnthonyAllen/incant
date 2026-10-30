@@ -1182,6 +1182,25 @@ int         backward;
 }
 
 
+// opIterate the iterateOn instruct's unary op (SEQ 486 R2): its operand list holds the cursor, the source and the attributes / members counts; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does; WHILe and ++ / -- do the walking; hands back nothing; retires when a kant action of the same name passes the same rows (iterT)
+extern GroupItem opIterate(GroupItem arms)
+{
+GroupItem   cursor = arms[1],
+            source = arms[2],
+            aMark = arms[3],
+            mMark = arms[4];
+int         attributes,
+            members;
+    if !cursor || !source   return null;
+    if aMark && aMark.gCount    attributes = 1;
+    if mMark && mMark.gCount    members = 1;
+    -% if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); %-
+    if !iterateSetup(cursor,source,attributes,members)
+        return refuse(source,"iterate: the source has no list");
+    return null;
+}
+
+
 // opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; retires when a kant action of the same name passes the same rows (branchT)
 extern GroupItem opBranch(GroupItem keyword)
 {

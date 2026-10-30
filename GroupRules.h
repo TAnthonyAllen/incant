@@ -375,6 +375,7 @@ extern "C" int opIsAssignTier(GroupItem *op);
 extern "C" int opIsCompareTier(GroupItem *op);
 extern "C" int opIsOR(GroupItem *op);
 extern "C" int opIsShortCircuit(GroupItem *op);
+extern "C" GroupItem *opIterate(GroupItem *arms);
 extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opLastREF(GroupItem *result);
