@@ -130,15 +130,25 @@ seq instruct       op = seq, argument = a LIST of statement instructs.
                    Built.
 print instruct     op = printList, argument = the list of items. A shortcut
                    item is its own instruct, op = printShortcut. Built.
-if instruct        condition chain, then chain, else chain. opIf runs the
-                   condition and picks one.
-loop instruct      body (a seq) and condition. Reruns while the condition holds.
+if instruct        op = ifThen, argument = [condition, then, else?]. opIf runs
+                   the condition and one arm, or none. Built (SEQ 473).
+loop instructs     whileLoop [condition, statement], doLoop [statement,
+                   condition], forLoop [cursor, source, statement, <-?]; each op
+                   catches break and continue. Built (SEQ 478 / 480 / 482).
+iterate instruct   op = iterateOn, argument = [cursor, source, attributes 0/1,
+                   members 0/1]; opIterate calls iterateSetup, the setup both
+                   roads share. WHILe and ++ / -- do the walking. Built (486).
+branch instruct    op = branchSignal, argument = the keyword. opBranch sets
+                   the signal (break 1, continue 2). return refuses by name
+                   until action bodies exist (rung 5). Built (SEQ 476).
+block instruct     a { } builds a seq, as STARt does. Built (SEQ 476).
 Every value-producing instruct hands back its result on its own node, never a
-shared slot. Today's exceptions, each on purpose until IF's recon rules on them:
+shared slot. Today's exceptions, each on purpose:
     opPrintList ends in opPrint and hands back trueResult (the shared sentinel);
     opSeq hands back its argument list;
-    opPrintShortcut hands back null, so the print loop skips it as an item.
-IF's recon decides what an if instruct hands back, and whether a seq does too.
+    opPrintShortcut hands back null, so the print loop skips it as an item;
+    opIf hands back the arm's result, or nothing when no arm ran (R3, the
+    yield ruling); the loop ops, opBranch and opIterate hand back nothing.
 
 /*******************************************************************************
 	Branches: signals, not targets
@@ -146,13 +156,21 @@ IF's recon decides what an if instruct hands back, and whether a seq does too.
 break, continue, return raise a signal (branchKind). Nobody computes a target.
 The nearest loop instruct reads break and continue after each statement;
 the action's own seq reads return.
+DESIGN RULE, "the landing finds itself" (Tony, 2026-10-30): each op declares
+which signals it catches -- break and continue are caught by the nearest loop,
+return by the nearest action boundary. A branch knows nothing of where it lands.
+IF and seq pass signals through: a seq stops its list when a signal is set and
+leaves it set (it clears before each statement, as the old road's block does);
+an if runs one arm and hands the signal on. A stray break with no loop ends its
+seq and the next statement runs (SEQ 477 R0).
 
 /*******************************************************************************
 	Frames
 *******************************************************************************/
 processAction keeps its bracket: each activation's locals saved and restored.
 Only its body walk changes, to "run the chain". The one engine change the
-plan needs, beside the new ops (opSeq, opIf, the loop op).
+plan needs, beside the new ops (opSeq, opIf, opWhile, opDo, opFor, opBranch,
+opIterate -- all built). This is rung 5, and return waits on it (whileT WH-8).
 
 /*******************************************************************************
 	The new grammar
@@ -189,10 +207,17 @@ Every rung runs the same incantation under both grammars and compares output.
     2  EXPRESSIOn (EXPRESSIOn, R0)    expressions in the new grammar  DONE
        PRINt finished alongside: formats, shortcuts and adjacent
        expressions DONE (SEQ 468 / 469); left: the quoted-print row (R7)
-    3  IF                              build an if instruct; then / else
-                                       NEXT once R7 lands
-    4  a loop (while or DO)            seq + branch signals: break, continue
-    5  an action, called and self-called    the frame bracket
+    3  IF                              build an if instruct; then / else  DONE
+    4  the loops: WHILe, Do, FOr,      seq + branch signals: break,       DONE
+       iterate; break / continue;      continue; blocks build a seq
+       blocks
+       STATE 2026-10-30: all built and bought. The shape -- a kant action
+       that only BUILDS, plus a small C++ op that runs -- held for every one.
+       defer is off the new road's control rules (If, BASICELSe, Do, WHILe,
+       FOr, BRANCh, BLOCk, ITERATe); ELSEIf keeps it while it binds the old
+       road's aCTionIF. NEXT is rung 5.
+    5  an action, called and self-called    the frame bracket      NEXT
+                                       (return lands here; WH-8 waits)
     6  the jitter walks the chain      later
 
 /*******************************************************************************
@@ -221,8 +246,10 @@ A split rule (decide below, build above) adds one label level; check it there.
    parseCondition consumes nothing and matches on its min alone. Both carry
    "UNPINNED, no road reaches it": neither is tested, and neither lets a kant
    action reject (that is question 1). A row comes before anything leans on them.
-3  Is a rule's decision always separable from its build? Watch IF's condition
-   and keyword checks.
+3  Is a rule's decision always separable from its build? Watched through IF,
+   the loops, break / continue, blocks and iterate (SEQ 473-486): none needed a
+   parse decision -- each action only builds and refuses by name when a child
+   hands up nothing. Still open in general (ELSEIf, action bodies).
 4  Adjacent expressions -- SETTLED SEQ 468. EXPRESSIOn does not stop: like the
    old road, adjacent operands are ONE list value, but known by the tag
    ADJACENt (the old road's split is C++: interpretXPaccum's isLIST, SEQ 465).
@@ -236,7 +263,14 @@ A split rule (decide below, build above) adds one label level; check it there.
    the list at build, one instruct per member, for any op whose Operators
    entry carries takesList -- no C++, one attribute per new operator, but the
    value becomes the seq's, +%'s holder unwrap has no list to act on, and the
-   spread sits in the slot code SEQ 448 R6 wants simplified.
+   spread sits in the slot code SEQ 448 R6 wants simplified. Tony, 2026-10-30:
+   leave the REFUSED on an adjacent run in place (print items separate with ,).
+6  Build order vs branch targets (2026-10-30). Children build first, so a
+   break cannot name its loop -- the loop does not exist yet when the break is
+   built. Only the loop could bind its breaks, by walking its own body at build
+   (a build-time walk that NO HUNT would have to allow). Today the signal finds
+   its landing at run time and nothing binds. Open until new-road loops jit,
+   where a break wants a jump target.
 /*******************************************************************************
 	Standing rulings for the new grammar (refreshed 2026-10-29)
 *******************************************************************************/
@@ -247,10 +281,10 @@ R1  TOKENize, DEFINing and PRINTing stay as they are, shared with the old
 R2  Arguments with no operator are carried as a list first. No new link field
     (nextInParent) unless a list is shown not to do the job.    (SEQ 431)
 R3  IF's shape: one instruct in its parent's seq. Its method runs the
-    condition, runs one arm, and hands back its own node.       (SEQ 431)
-    ? Operand layout to settle at IF's recon: three operands (condition, then,
-      else) per SEQ 431, or the condition plus [then, else] as a list in the
-      argument slot per SEQ 438 R3.
+    condition, runs one arm, and hands back the arm's result, or nothing when
+    no arm ran.                                                 (SEQ 431, 473)
+    Operand layout SETTLED (SEQ 472 R2): op ifThen, the argument a list
+    [condition, then, else?]. The loops follow it.
 R4  Expression tiers (tester's EXPRESSIOn, tier-split 920d1a81): arithmetic
     folds at once; compare, logic and assign each wait in their own slot; a
     looser operator closes every tighter slot first; the same tier closes its
