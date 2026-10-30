@@ -1,0 +1,41 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IfT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    ;
+search IfT Utilities UnitTests list;
+stop();
+
+ifT -- SEQ 472 (Tony, 2026-10-30): IF on the new road, PRE-REGISTERED ON TRUNK before the build.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this file's
+`stop();`, then the row on the OLD road (the statement itself) or on the NEW road (the rule called by name, then testOP on
+what it handed back, except IF-0, which builds and does not run), then `IF NEXT` and a sentinel. Read by value, with the
+old road's print as the control.
+
+TODAY (2026-10-30, measured): If has no action, and it is `defer`, so its STATEMENt child is PRINt's label with PRINt's
+action parked on it (deferredAbove), not an instruct. testOP on the If label takes its first child, the EXPRESSIOn label, as
+the op and calls a null operat: IF-1, IF-2 and IF-3 die with exit 139. IF-4's STARt seq skips the If (not an instruct) and
+prints 1 3.
+
+ROWS -- id | old-road statement | new-road statement (testOP follows it, except IF-0)
+IF-0||it1 = If("if qa < qb; print 77:;");
+IF-1|if qa < qb; print 77:;|it1 = If("if qa < qb; print 77:;");
+IF-2|if qa > qb; print 77:;|it1 = If("if qa > qb; print 77:;");
+IF-3|if qa > qb; print 77:; else print 88:;|it1 = If("if qa > qb; print 77:; else print 88:;");
+IF-4|print 1:; if qa < qb; print 2:; print 3:;|it1 = STARt("print 1:; if qa < qb; print 2:; print 3:;");
