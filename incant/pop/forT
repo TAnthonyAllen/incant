@@ -1,0 +1,58 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ForT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    fe;
+    fn=5;
+    lp;
+    ;
+search ForT Utilities UnitTests list;
+fsrc +% fa fb fc;
+stop();
+
+forT -- SEQ 482 (Tony, 2026-10-30): FOr on the new road, PRE-REGISTERED ON TRUNK before the build.
+
+FOr walks a field's members, binding the cursor to each in turn when the loop runs (never at build), and runs the statement
+each time; break and continue land as in WHILe. This file is not run alone: pop.sh builds two inputs per row, one process each
+under an alarm -- everything above this file's `stop();` (fsrc is given its three members fa fb fc by the last line), then the
+row on the OLD road or on the NEW road (the rule by name, testOP on what it handed back, except FR-0, then the optional 4th
+field, old-road statements after the call), then `FR NEXT` and a sentinel.
+
+MEASURED ON THE OLD ROAD (2026-10-30), and taken as intended:
+- The cursor must be DECLARED. Undeclared, the old road prints the tag `lp` per member and `*lp` prints nothing. lp is declared.
+- FR-7: after the loop the cursor holds the LAST member (`print *lp` reads 3).
+- FR-2 / FR-8: an empty source and a source with no list behave alike -- nothing prints, stderr reads
+  `nextGroup: ERROR <source> does not contain a list`, the next statement runs. Nothing refuses.
+TODAY: FOr has no action, so testOP refuses its label; FR-6's WHILe skips the inner FOr and prints 9 9; FR-7 prints 7.
+
+ROWS -- id | old-road statement | new-road statement (testOP follows it, except FR-0) | after the call (optional, old road)
+FR-0||it1 = FOr("for lp in fsrc; print *lp:;");|
+FR-1|for lp in fsrc; print *lp:;|it1 = FOr("for lp in fsrc; print *lp:;");|
+FR-2|for lp in fe; print *lp:;|it1 = FOr("for lp in fe; print *lp:;");|
+FR-3|for lp in fsrc; { print *lp:; if *lp == 2; break; }|it1 = FOr("for lp in fsrc; { print *lp:; if *lp == 2; break; }");|
+FR-4|for lp in fsrc; { if *lp == 2; continue; print *lp:; }|it1 = FOr("for lp in fsrc; { if *lp == 2; continue; print *lp:; }");|
+FR-5|for lp in <- fsrc; print *lp:;|it1 = FOr("for lp in <- fsrc; print *lp:;");|
+FR-6|while wo < 2; { wo = wo + 1; for lp in fsrc; { print *lp:; if *lp == 2; break; } print 9:; }|it1 = WHILe("while wo < 2; { wo = wo + 1; for lp in fsrc; { print *lp:; if *lp == 2; break; } print 9:; }");|
+FR-7|for lp in fsrc; print *lp:; print 7:; print *lp:;|it1 = FOr("for lp in fsrc; print *lp:;");|print 7:; print *lp:;
+FR-8|for lp in fn; print *lp:;|it1 = FOr("for lp in fn; print *lp:;");|

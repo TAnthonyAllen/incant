@@ -741,6 +741,49 @@ _ofeq "doT DO-7 new road: continue on the last pass goes to the test, which ends
 else echo "  FAIL  doT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ forT -- SEQ 482 (Tony, 2026-10-30): FOr on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the new
+#  road, one process each under an alarm, read by value; the new road also by exit status and sentinel. FR-2 / FR-8 also count the
+#  old road's `does not contain a list` line and any REFUSED, since nothing prints either way.
+_frF=$(ip forT)
+_frv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_frF" ]; then
+sed '/^stop();/,$d' "$_frF" > "$T/fr.pre"
+grep '^FR-[0-9]*|' "$_frF" > "$T/fr.list"
+while IFS='|' read -r _id _fo _fn _fa; do
+    if [ -n "$_fo" ]; then
+        { cat "$T/fr.pre"; printf '%s\ncerr "FR NEXT":;\ncerr "FR SENTINEL":;\nstop();\n' "$_fo"; } > "$T/fr.$_id.ok"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/fr.$_id.ok" > "$T/fr.$_id.o" 2> "$T/fr.$_id.oe"
+        _ofeq "forT $_id old road sentinel" "$(grep -c '^FR SENTINEL' "$T/fr.$_id.oe")" "1"
+    fi
+    _run="testOP(it1);"; [ "$_id" = FR-0 ] && _run=""
+    { cat "$T/fr.pre"; printf '%s\n%s\n%s\ncerr "FR NEXT":;\ncerr "FR SENTINEL":;\nstop();\n' "$_fn" "$_run" "$_fa"; } > "$T/fr.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/fr.$_id.nk" > "$T/fr.$_id.n" 2> "$T/fr.$_id.ne"; echo $? > "$T/fr.$_id.nx"
+done < "$T/fr.list"
+_ofeq "forT rows ran (9 of 9)" "$(ls "$T"/fr.FR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "9"
+_ofeq "forT FR-1 old road (control): walk three members in order" "$(_frv "$T/fr.FR-1.o")" "1 |2 |3 |"
+_ofeq "forT FR-2 old road (control): an empty source prints nothing, says so, nothing refuses (stdout / no-list line / refused)" "[$(_frv "$T/fr.FR-2.o")] $(grep -c 'does not contain a list' "$T/fr.FR-2.oe") $(grep -c '^REFUSED' "$T/fr.FR-2.oe")" "[] 1 0"
+_ofeq "forT FR-3 old road (control): break at the second member" "$(_frv "$T/fr.FR-3.o")" "1 |2 |"
+_ofeq "forT FR-4 old road (control): continue past the second member" "$(_frv "$T/fr.FR-4.o")" "1 |3 |"
+_ofeq "forT FR-5 old road (control): reverse, last first" "$(_frv "$T/fr.FR-5.o")" "3 |2 |1 |"
+_ofeq "forT FR-6 old road (control): a FOr nested in a WHILe, the inner break ends only the inner loop" "$(_frv "$T/fr.FR-6.o")" "1 |2 |9 |1 |2 |9 |"
+_ofeq "forT FR-7 old road (control): after the loop the cursor holds the last member" "$(_frv "$T/fr.FR-7.o")" "1 |2 |3 |7 |3 |"
+_ofeq "forT FR-8 old road (control): a source with no list prints nothing, says so, nothing refuses (stdout / no-list line / refused)" "[$(_frv "$T/fr.FR-8.o")] $(grep -c 'does not contain a list' "$T/fr.FR-8.oe") $(grep -c '^REFUSED' "$T/fr.FR-8.oe")" "[] 1 0"
+_ofeq "forT FR-0 new road: the FOr built alone, not run, prints nothing and the file runs on (stdout / exit / sentinel)" "[$(_frv "$T/fr.FR-0.n")] $(cat "$T/fr.FR-0.nx") $(grep -c '^FR SENTINEL' "$T/fr.FR-0.ne")" "[] 0 1"
+for _id in FR-1 FR-2 FR-3 FR-4 FR-5 FR-6 FR-7 FR-8; do
+    _ofeq "forT $_id new road runs to its end (exit / sentinel)" "$(cat "$T/fr.$_id.nx") $(grep -c '^FR SENTINEL' "$T/fr.$_id.ne")" "0 1"
+done
+fdRow "forT FR-1 new road: walk three members in order" "$(_frv "$T/fr.FR-1.n")" "" "1 |2 |3 |"
+fdRow "forT FR-2 new road: an empty source -- as the old road (stdout / no-list line / refused)" "[$(_frv "$T/fr.FR-2.n")] $(grep -c 'does not contain a list' "$T/fr.FR-2.ne") $(grep -c '^REFUSED' "$T/fr.FR-2.ne")" "[] 0 1" "[] 1 0"
+fdRow "forT FR-3 new road: break at the second member" "$(_frv "$T/fr.FR-3.n")" "" "1 |2 |"
+fdRow "forT FR-4 new road: continue past the second member" "$(_frv "$T/fr.FR-4.n")" "" "1 |3 |"
+fdRow "forT FR-5 new road: reverse, last first" "$(_frv "$T/fr.FR-5.n")" "" "3 |2 |1 |"
+fdRow "forT FR-6 new road: a FOr nested in a WHILe, the inner break ends only the inner loop" "$(_frv "$T/fr.FR-6.n")" "9 |9 |" "1 |2 |9 |1 |2 |9 |"
+fdRow "forT FR-7 new road: after the loop the cursor holds the last member" "$(_frv "$T/fr.FR-7.n")" "7 |" "1 |2 |3 |7 |3 |"
+fdRow "forT FR-8 new road: a source with no list -- as the old road (stdout / no-list line / refused)" "[$(_frv "$T/fr.FR-8.n")] $(grep -c 'does not contain a list' "$T/fr.FR-8.ne") $(grep -c '^REFUSED' "$T/fr.FR-8.ne")" "[] 0 1" "[] 1 0"
+else echo "  FAIL  forT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
