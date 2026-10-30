@@ -701,6 +701,44 @@ fdRow "branchT SL-2 two sibling blocks in one STARt each run (stdout / seq error
 else echo "  FAIL  branchT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ doT -- SEQ 480 (Tony, 2026-10-30): Do on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the new
+#  road, one process each under an alarm, read by value; the new road also by exit status and sentinel.
+_doF=$(ip doT)
+_dov () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_doF" ]; then
+sed '/^stop();/,$d' "$_doF" > "$T/do.pre"
+grep '^DO-[0-9]*|' "$_doF" > "$T/do.list"
+while IFS='|' read -r _id _do _dn _da; do
+    if [ -n "$_do" ]; then
+        { cat "$T/do.pre"; printf '%s\ncerr "DO NEXT":;\ncerr "DO SENTINEL":;\nstop();\n' "$_do"; } > "$T/do.$_id.ok"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/do.$_id.ok" > "$T/do.$_id.o" 2> "$T/do.$_id.oe"
+        _ofeq "doT $_id old road sentinel" "$(grep -c '^DO SENTINEL' "$T/do.$_id.oe")" "1"
+    fi
+    _run="testOP(it1);"; [ "$_id" = DO-0 ] && _run=""
+    { cat "$T/do.pre"; printf '%s\n%s\n%s\ncerr "DO NEXT":;\ncerr "DO SENTINEL":;\nstop();\n' "$_dn" "$_run" "$_da"; } > "$T/do.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/do.$_id.nk" > "$T/do.$_id.n" 2> "$T/do.$_id.ne"; echo $? > "$T/do.$_id.nx"
+done < "$T/do.list"
+_ofeq "doT rows ran (7 of 7)" "$(ls "$T"/do.DO-*.ne 2>/dev/null | wc -l | tr -d ' ')" "7"
+_ofeq "doT DO-1 old road (control): count to 3, printing each" "$(_dov "$T/do.DO-1.o")" "1 |2 |3 |"
+_ofeq "doT DO-2 old road (control): condition false from the start, the body once" "$(_dov "$T/do.DO-2.o")" "1 |"
+_ofeq "doT DO-3 old road (control): break when the count reaches 2" "$(_dov "$T/do.DO-3.o")" "1 |2 |"
+_ofeq "doT DO-4 old road (control): continue past the print at 2, and it ends" "$(_dov "$T/do.DO-4.o")" "1 |3 |"
+_ofeq "doT DO-5 old road (control): a Do nested in a WHILe, the inner break ends only the inner loop" "$(_dov "$T/do.DO-5.o")" "1 |2 |9 |1 |2 |9 |"
+_ofeq "doT DO-6 old road (control): the statement after a Do that broke runs" "$(_dov "$T/do.DO-6.o")" "1 |2 |8 |"
+_ofeq "doT DO-0 new road: the Do built alone, not run, prints nothing and the file runs on (stdout / exit / sentinel)" "[$(_dov "$T/do.DO-0.n")] $(cat "$T/do.DO-0.nx") $(grep -c '^DO SENTINEL' "$T/do.DO-0.ne")" "[] 0 1"
+for _id in DO-1 DO-2 DO-3 DO-4 DO-5 DO-6; do
+    _ofeq "doT $_id new road runs to its end (exit / sentinel)" "$(cat "$T/do.$_id.nx") $(grep -c '^DO SENTINEL' "$T/do.$_id.ne")" "0 1"
+done
+fdRow "doT DO-1 new road: count to 3, printing each" "$(_dov "$T/do.DO-1.n")" "" "1 |2 |3 |"
+fdRow "doT DO-2 new road: condition false from the start, the body once" "$(_dov "$T/do.DO-2.n")" "" "1 |"
+fdRow "doT DO-3 new road: break when the count reaches 2" "$(_dov "$T/do.DO-3.n")" "" "1 |2 |"
+fdRow "doT DO-4 new road: continue past the print at 2, and it ends" "$(_dov "$T/do.DO-4.n")" "" "1 |3 |"
+fdRow "doT DO-5 new road: a Do nested in a WHILe, the inner break ends only the inner loop" "$(_dov "$T/do.DO-5.n")" "9 |9 |" "1 |2 |9 |1 |2 |9 |"
+fdRow "doT DO-6 new road: the statement after a Do that broke runs (no leak)" "$(_dov "$T/do.DO-6.n")" "8 |" "1 |2 |8 |"
+else echo "  FAIL  doT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

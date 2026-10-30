@@ -1,0 +1,44 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(DoT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    ;
+search DoT Utilities UnitTests list;
+stop();
+
+doT -- SEQ 480 (Tony, 2026-10-30): Do on the new road, PRE-REGISTERED ON TRUNK before the build.
+
+Do is WHILe with the test after the statement, so its body always runs at least once; break and continue land as in WHILe.
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this file's
+`stop();`, then the row on the OLD road (the statement itself) or on the NEW road (the rule called by name, then testOP on
+what it handed back, except DO-0, which builds and does not run), then `DO NEXT` and a sentinel. Read by value, the old
+road's print as the control. wc and wo are declared, so every row starts from 0 in its own process.
+
+TODAY (2026-10-30, measured): Do has no action, so testOP refuses its label (DO-1..4 print nothing); DO-5's WHILe skips the
+unbuilt inner Do and prints 9 9; DO-6's STARt skips it and prints 8.
+
+ROWS -- id | old-road statement | new-road statement (testOP follows it, except DO-0) | after the call (optional, old road)
+DO-0||it1 = Do("do { wc = wc + 1; print wc:; } while wc < 3;");|
+DO-1|do { wc = wc + 1; print wc:; } while wc < 3;|it1 = Do("do { wc = wc + 1; print wc:; } while wc < 3;");|
+DO-2|do { wc = wc + 1; print wc:; } while wc > 5;|it1 = Do("do { wc = wc + 1; print wc:; } while wc > 5;");|
+DO-3|do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3;|it1 = Do("do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3;");|
+DO-4|do { wc = wc + 1; if wc == 2; continue; print wc:; } while wc < 3;|it1 = Do("do { wc = wc + 1; if wc == 2; continue; print wc:; } while wc < 3;");|
+DO-5|while wo < 2; { wo = wo + 1; wc = 0; do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 9:; }|it1 = WHILe("while wo < 2; { wo = wo + 1; wc = 0; do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 9:; }");|
+DO-6|do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 8:;|it1 = STARt("do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 8:;");|
