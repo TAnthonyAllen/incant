@@ -30,7 +30,8 @@ the same text, then testOP on what it handed back), then a sentinel on stderr. E
 `stdout | R<lines starting REFUSED> x<exit>`. The old road is the control.
 
 TODAY ON TRUNK (measured 2026-10-30): every row dies with exit 139 on the new road, while the If is being BUILT. ELSEIf binds
-the old road's C++ aCTionIF (`ruleMethod=aCTionIF`), which fires as the `or` arm parses and reads old-road labels.
+the old road's C++ aCTionIF (`ruleMethod=aCTionIF`) -- but that is NOT shown to be the cause: SEQ 491's H7, with neither
+aCTionIF nor a kant action on ELSEIf, dies 139 the same way. Cause not isolated.
 
 SEQ 491 R1 (branch elseif-build): ELSEIf gets its own kant action building the same ifThen instruct as If (condition, then,
 else if present), so opIf runs it and nothing joins Operators; If's else slot takes that instruct.

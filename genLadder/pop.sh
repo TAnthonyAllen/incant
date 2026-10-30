@@ -878,7 +878,7 @@ fi
 #  ============================================================================
 #  ⚑ elseIfT -- SEQ 491 (Clay, 2026-10-30): ELSEIf (`or`) on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old
 #  road and the new road, one process each under an alarm, each read as `stdout | R<REFUSED lines> x<exit>`. Today every new-road
-#  row dies 139 while the If is built (ELSEIf binds the old road's aCTionIF). The old road is the control.
+#  row dies 139 while the If is built (cause not isolated: with no aCTionIF and no action it still dies -- SEQ 491 H7). The old road is the control.
 _eiF=$(ip elseIfT)
 _eiv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
 if [ -f "$_eiF" ]; then
