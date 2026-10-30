@@ -787,6 +787,43 @@ _ofeq "forT FR-R new road: attributes / members refuses by name, nothing prints,
 else echo "  FAIL  forT MISSING"; fail=1
 fi
 
+#  ============================================================================
+#  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
+#  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today
+#  `while ++ic` on a cursor that is not an iterator counts forever (++ on a never-assigned field counts on the new road).
+_irF=$(ip iterT)
+_irv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+if [ -f "$_irF" ]; then
+sed '/^stop();/,$d' "$_irF" > "$T/ir.pre"
+grep '^IR-[0-9]*|' "$_irF" > "$T/ir.list"
+while IFS='|' read -r _id _io _in _ia; do
+    if [ -n "$_io" ]; then
+        { cat "$T/ir.pre"; printf '%s\ncerr "IR NEXT":;\ncerr "IR SENTINEL":;\nstop();\n' "$_io"; } > "$T/ir.$_id.ok"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/ir.$_id.ok" > "$T/ir.$_id.o" 2> "$T/ir.$_id.oe"
+        _ofeq "iterT $_id old road sentinel" "$(grep -c '^IR SENTINEL' "$T/ir.$_id.oe")" "1"
+    fi
+    _run="testOP(it1);"; [ "$_id" = IR-0 ] && _run=""
+    { cat "$T/ir.pre"; printf '%s\n%s\n%s\ncerr "IR NEXT":;\ncerr "IR SENTINEL":;\nstop();\n' "$_in" "$_run" "$_ia"; } > "$T/ir.$_id.nk"
+    perl -e 'alarm 5; exec @ARGV' "$B" "$T/ir.$_id.nk" > "$T/ir.$_id.n" 2> "$T/ir.$_id.ne"; echo $? > "$T/ir.$_id.nx"
+done < "$T/ir.list"
+_ofeq "iterT rows ran (6 of 6)" "$(ls "$T"/ir.IR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "6"
+_ofeq "iterT IR-1 old road (control): ++ walks three in order" "$(_irv "$T/ir.IR-1.o")" "1 |2 |3 |"
+_ofeq "iterT IR-2 old road (control): -- walks last first" "$(_irv "$T/ir.IR-2.o")" "3 |2 |1 |"
+_ofeq "iterT IR-3 old road (control): an empty source prints nothing (stdout / refusals)" "[$(_irv "$T/ir.IR-3.o")] $(grep -c '^REFUSED' "$T/ir.IR-3.oe")" "[] 2"
+_ofeq "iterT IR-4 old road (control): break at the second member" "$(_irv "$T/ir.IR-4.o")" "1 |2 |"
+_ofeq "iterT IR-5 old road (control): after the loop *ic prints nothing" "$(_irv "$T/ir.IR-5.o")" "1 |2 |3 |7 |"
+_ofeq "iterT IR-0 new road: the iterate built alone, not run, prints nothing and the file runs on (stdout / exit / sentinel)" "[$(_irv "$T/ir.IR-0.n")] $(cat "$T/ir.IR-0.nx") $(grep -c '^IR SENTINEL' "$T/ir.IR-0.ne")" "[] 0 1"
+for _id in IR-1 IR-2 IR-3 IR-4 IR-5; do
+    fdRow "iterT $_id new road runs to its end (exit / sentinel)" "$(cat "$T/ir.$_id.nx") $(grep -c '^IR SENTINEL' "$T/ir.$_id.ne")" "142 0" "0 1"
+done
+fdRow "iterT IR-1 new road: ++ walks three in order" "$(_irv "$T/ir.IR-1.n")" "" "1 |2 |3 |"
+fdRow "iterT IR-2 new road: -- walks last first" "$(_irv "$T/ir.IR-2.n")" "" "3 |2 |1 |"
+_ofeq "iterT IR-3 new road: an empty source prints nothing (paired with its exit row)" "$(_irv "$T/ir.IR-3.n")" ""
+fdRow "iterT IR-4 new road: break at the second member" "$(_irv "$T/ir.IR-4.n")" "" "1 |2 |"
+fdRow "iterT IR-5 new road: after the loop *ic prints nothing" "$(_irv "$T/ir.IR-5.n")" "" "1 |2 |3 |7 |"
+else echo "  FAIL  iterT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

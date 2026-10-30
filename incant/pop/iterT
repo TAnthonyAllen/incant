@@ -1,0 +1,54 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IterT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    fe;
+    fn=5;
+    ic;
+    ;
+search IterT Utilities UnitTests list;
+fsrc +% fa fb fc;
+stop();
+
+iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK. Rows prefixed IR- (itRT owns IT-).
+
+iterate only sets up a cursor over a source; WHILe and ++ / -- do the looping and stepping. This file is not run alone:
+pop.sh builds two inputs per row, one process each under an alarm -- everything above this file's `stop();` (fsrc gets fa fb fc
+by its last line), then the row on the OLD road or on the NEW road (STARt by name, then testOP, except IR-0, then the optional
+4th field, old-road statements after the call), then `IR NEXT` and a sentinel. The cursor ic is DECLARED: measured 2026-10-30,
+the declared cursor walks all three on the old road (bear-trap 38's one-member walk did not show at the top level).
+
+MEASURED ON THE OLD ROAD, taken as intended: ++ walks 1 2 3, -- walks 3 2 1; an empty source prints nothing (two refusals: the
+source has no list, ++ has no value to bump); break at 2 reads 1 2; after the loop `print *ic` prints nothing.
+TODAY on the new road: ITERATe has no action (and is still defer), STARt skips it, and ++ on a never-assigned ic COUNTS (1, 2,
+...) where the old road refuses -- so `while ++ic` never ends: every IR-1..5 runs to the alarm (exit 142). The new-road runs
+are bounded at 5 s for that reason.
+
+ROWS -- id | old-road statement | new-road statement (testOP follows it, except IR-0) | after the call (optional, old road)
+IR-0||it1 = ITERATe("iterate ic on fsrc;");|
+IR-1|iterate ic on fsrc; while ++ic; print *ic:;|it1 = STARt("iterate ic on fsrc; while ++ic; print *ic:;");|
+IR-2|iterate ic on fsrc; while --ic; print *ic:;|it1 = STARt("iterate ic on fsrc; while --ic; print *ic:;");|
+IR-3|iterate ic on fe; while ++ic; print *ic:;|it1 = STARt("iterate ic on fe; while ++ic; print *ic:;");|
+IR-4|iterate ic on fsrc; while ++ic; { print *ic:; if *ic == 2; break; }|it1 = STARt("iterate ic on fsrc; while ++ic; { print *ic:; if *ic == 2; break; }");|
+IR-5|iterate ic on fsrc; while ++ic; print *ic:; print 7:; print *ic:;|it1 = STARt("iterate ic on fsrc; while ++ic; print *ic:;");|print 7:; print *ic:;
