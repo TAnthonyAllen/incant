@@ -795,7 +795,7 @@ _irF=$(ip iterT)
 _irv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
 if [ -f "$_irF" ]; then
 sed '/^stop();/,$d' "$_irF" > "$T/ir.pre"
-grep '^IR-[0-9]*|' "$_irF" > "$T/ir.list"
+grep '^IR-[0-9A-Z]*|' "$_irF" > "$T/ir.list"
 while IFS='|' read -r _id _io _in _ia; do
     if [ -n "$_io" ]; then
         { cat "$T/ir.pre"; printf '%s\ncerr "IR NEXT":;\ncerr "IR SENTINEL":;\nstop();\n' "$_io"; } > "$T/ir.$_id.ok"
@@ -806,7 +806,7 @@ while IFS='|' read -r _id _io _in _ia; do
     { cat "$T/ir.pre"; printf '%s\n%s\n%s\ncerr "IR NEXT":;\ncerr "IR SENTINEL":;\nstop();\n' "$_in" "$_run" "$_ia"; } > "$T/ir.$_id.nk"
     perl -e 'alarm 5; exec @ARGV' "$B" "$T/ir.$_id.nk" > "$T/ir.$_id.n" 2> "$T/ir.$_id.ne"; echo $? > "$T/ir.$_id.nx"
 done < "$T/ir.list"
-_ofeq "iterT rows ran (6 of 6)" "$(ls "$T"/ir.IR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "6"
+_ofeq "iterT rows ran (7 of 7)" "$(ls "$T"/ir.IR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "7"
 _ofeq "iterT IR-1 old road (control): ++ walks three in order" "$(_irv "$T/ir.IR-1.o")" "1 |2 |3 |"
 _ofeq "iterT IR-2 old road (control): -- walks last first" "$(_irv "$T/ir.IR-2.o")" "3 |2 |1 |"
 _ofeq "iterT IR-3 old road (control): an empty source prints nothing (stdout / refusals)" "[$(_irv "$T/ir.IR-3.o")] $(grep -c '^REFUSED' "$T/ir.IR-3.oe")" "[] 2"
@@ -820,7 +820,11 @@ fdRow "iterT IR-1 new road: ++ walks three in order" "$(_irv "$T/ir.IR-1.n")" ""
 fdRow "iterT IR-2 new road: -- walks last first" "$(_irv "$T/ir.IR-2.n")" "" "3 |2 |1 |"
 _ofeq "iterT IR-3 new road: an empty source prints nothing (paired with its exit row)" "$(_irv "$T/ir.IR-3.n")" ""
 fdRow "iterT IR-4 new road: break at the second member" "$(_irv "$T/ir.IR-4.n")" "" "1 |2 |"
-fdRow "iterT IR-5 new road: after the loop *ic prints nothing" "$(_irv "$T/ir.IR-5.n")" "" "1 |2 |3 |7 |"
+#  IR-5 RE-PINNED (SEQ 486 R0): [] -> 7 -- ++ on the not-yet-iterator ic now refuses, so the while ends at once instead of running away; the 7 after it prints
+fdRow "iterT IR-5 new road: after the loop *ic prints nothing" "$(_irv "$T/ir.IR-5.n")" "7 |" "1 |2 |3 |7 |"
+#  IR-P (SEQ 486 R1): ++ on a never-assigned field refuses by name on both roads, the next statement runs, the field stays unassigned (its tag)
+_ofeq "iterT IR-P old road (control): ++ on a never-assigned field refuses (refused / stdout)" "$(grep -c '^REFUSED ic -- Operator ++ -- this field has no value to bump' "$T/ir.IR-P.oe") [$(_irv "$T/ir.IR-P.o")]" "1 [ic |]"
+fdRow "iterT IR-P new road: ++ on a never-assigned field refuses, next runs (refused / stdout / next)" "$(grep -c '^REFUSED ic -- Operator ++ -- this field has no value to bump' "$T/ir.IR-P.ne") [$(_irv "$T/ir.IR-P.n")] $(grep -c '^IR NEXT' "$T/ir.IR-P.ne")" "0 [1 |] 1" "1 [ic |] 1"
 else echo "  FAIL  iterT MISSING"; fail=1
 fi
 
@@ -1888,6 +1892,8 @@ done
 #  READABLE" -- 0 satisfies both honestly where the echo only appeared to. Tony's
 #  opDot change supplies the value, bareIfTruth makes `if` read it. Re-pinned onto
 #  what the rows already claimed, not onto whatever the run happened to print.
+#  ⚠⚠ F4 RE-PINNED 2026-10-30 (Tony, SEQ 486 R0), 0 -> faP1 (its tag echo): a parent read hands back the real parent; opDot
+#  no longer writes 0 into a field it did not mint (SEQ 486). The 0 pinned on 2026-09-08 was that write.
 #  ⚠⚠ WHY F2 AND F3 ARE RED, AND WHY THAT IS THE FIXTURE WORKING. Diagnosed by
 #  incant/fixits/faceFlagsNoCross, retired to incant/attic/faceFlagsNoCross
 #  2026-09-15 with its verdict intact. The face is a COPY OF A COPY: `+%`
@@ -1917,7 +1923,7 @@ for _arm in "ADDROF faSrc field=#1 body=#2" \
             "faceT F2 flags FORWARD  = 1" \
             "faceT F0 anti-vacuity   = 0" \
             "faceT F3 flags REVERSE  = 1" \
-            "faceT F4 parent read    = 0"; do
+            "faceT F4 parent read    = faP1"; do
     if grep -qF "$_arm" "$T/face"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else

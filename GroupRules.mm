@@ -8513,6 +8513,7 @@ extern "C" GroupItem *opDot(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*product = 0;
+GroupItem 	*minted = 0;
 	// accessorGate ONE gate for the whole accessor family; remove it and a jitted `if noPrinT` branches on whatever was last in flight
 	if ( ruler->jitting )
 		{
@@ -8542,6 +8543,7 @@ GroupItem 	*product = 0;
 			if ( !target )
 				return 0;
 			product = new GroupItem(argument->groupBody->tag);
+			minted = product;
 			// accessorMark the ONE meaning of isAccessorProduct: this node is opDot's copy of a groupField, so `=` on it writes the field through setGroupField (SEQ 295 R3); a node-returning case replaces product and the mark goes with it
 			product->groupBody->flags.isAccessorProduct = 1;
 			switch (argument->groupBody->gCount)
@@ -8730,7 +8732,8 @@ GroupItem 	*product = 0;
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
 				}
 			// nullIsLawful seven accessors answer null for 'nothing there' -- guard the read, as the next line does (nullAccessorDeref, born fb9e4de)
-			if ( product && !product->groupBody->flags.data )
+			// mintedOnly only the node opDot minted takes the 0: a navigation case hands back a REAL node (nexT, firsT, parenT ...), and writing a count into it gave every never-assigned field a walk passed a value -- new-road ++ then counted where the old road refuses (SEQ 485 R2)
+			if ( product && product == minted && !product->groupBody->flags.data )
 				product->setCount(0);
 			if ( product && !product->parent )
 				product->parent = target;
