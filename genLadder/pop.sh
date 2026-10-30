@@ -782,7 +782,7 @@ fdRow "forT FR-6 new road: a FOr nested in a WHILe, the inner break ends only th
 fdRow "forT FR-7 new road: after the loop the cursor holds the last member" "$(_frv "$T/fr.FR-7.n")" "7 |" "1 |2 |3 |7 |3 |"
 fdRow "forT FR-8 new road: a source with no list -- as the old road (stdout / no-list line / refused)" "[$(_frv "$T/fr.FR-8.n")] $(grep -c 'does not contain a list' "$T/fr.FR-8.ne") $(grep -c '^REFUSED' "$T/fr.FR-8.ne")" "[] 0 1" "[] 1 0"
 #  FR-R (SEQ 482 R1): attributes / members refuses by name on the new road, the next statement runs; the old road walks all three
-_ofeq "forT FR-R old road (control): members walks all three" "$(_frv "$T/fr.FR-R.o")" "1 |2 |3 |"
+_ofeq "forT FR-R old road (control): attributes walks all three (+% attached them as attributes)" "$(_frv "$T/fr.FR-R.o")" "1 |2 |3 |"
 _ofeq "forT FR-R new road: attributes / members refuses by name, nothing prints, next runs (refused / stdout / next)" "$(grep -c '^REFUSED FOr attributes / members -- not built on the new road yet *$' "$T/fr.FR-R.ne") [$(_frv "$T/fr.FR-R.n")] $(grep -c '^FR NEXT' "$T/fr.FR-R.ne")" "1 [] 1"
 else echo "  FAIL  forT MISSING"; fail=1
 fi
