@@ -111,6 +111,7 @@ define
     printShortcut   unary ruleMethod=opPrintShortcut;
     seq     unary ruleMethod=opSeq;
     ifThen  unary ruleMethod=opIf;
+    branchSignal    unary ruleMethod=opBranch;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

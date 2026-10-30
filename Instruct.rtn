@@ -1082,10 +1082,26 @@ GroupItem   probe;
 // opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
 extern GroupItem opSeq(GroupItem items)
 {
+GroupRules  ruler = groupRules;
 GroupItem   grup;
     while grup = items.next(grup) {
-        -% if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) ::testOP(grup); %- }
+        // clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
+        ruler.branchKind = 0;
+        -% if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) ::testOP(grup); %-
+        // stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
+        if ruler.branchKind     break; }
     return items;
+}
+
+
+// opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; retires when a kant action of the same name passes the same rows (branchT)
+extern GroupItem opBranch(GroupItem keyword)
+{
+GroupRules  ruler = groupRules;
+    if !keyword     return null;
+    if *keyword.tag == 'b'      ruler.branchKind = 1;
+    or *keyword.tag == 'c'      ruler.branchKind = 2;
+    return null;
 }
 
 

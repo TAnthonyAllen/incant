@@ -30,7 +30,7 @@ define
     // oneRule the + on the label makes the set match a run, one SHORTCUt per run, as [set]+ did; no two-character refusal on the new road: `,` separates a shortcut from an operator (Tony, SEQ 469)
     SHORTCUt        shortcut+=[-+~`$_:,];
     ANYSTRINg=[^ \n\r\t;]+;
-    BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"- defer;
+    BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"-;
     BRANCHEs bin
         break;
         continue;
@@ -65,7 +65,7 @@ define
     LOOPRESTRICt
         loopOnAttributes="attributes";
         loopOnMembers="members";
-    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
+    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2); ELSEIf keeps it while it binds the old road's aCTionIF, which runs (R1)
     ELSe
         BASICELSe   else- followedBy STATEMENt@;
         ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF defer;
@@ -80,7 +80,7 @@ define
         CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
         COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- defer;
         SEARCh      search- followedBy GrouP+ SemI-;
-        BRANCh      BRANCHEs EXPRESSIOn? SemI- defer;
+        BRANCh      BRANCHEs EXPRESSIOn? SemI-;
         SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- defer;
     XPRESs          EXPRESSIOn SemI- defer;
     STATEMENt
@@ -170,16 +170,59 @@ define
         // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
         cond    := **EXPRESSIOn;
         thenS   := **STATEMENt;
+        // armRefused an arm that handed up no instruct refuses by name, never attaches a null (SEQ 476 R6)
+        thenM   := *thenS.methoD;
+        if thenM == 0;
+            cerr "REFUSED If -- its then arm handed up no instruct":;
+            clear(*argument);
+            return *argument;
         ifArms  +% *cond;
         ifArms  +% *thenS;
         eLen    := *ELSe.listLengtH;
         if eLen != 0;
             elseS   := **ELSe;
+            elseM   := *elseS.methoD;
+            if elseM == 0;
+                cerr "REFUSED If -- its else arm handed up no instruct":;
+                clear(*argument);
+                return *argument;
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
         instruct    +% *op;
         instruct    +% *armsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal. return waits on action bodies (rung 5)
+    BRANCh code={
+        :argument BRANCHEs;
+        kw := **BRANCHEs;
+        if *kw.taG == "return";
+            cerr "REFUSED return -- not built on the new road yet":;
+            clear(*argument);
+            return *argument;
+        op := Operators["branchSignal"];
+        kwMint      := copyOf(*kw);
+        instruct    +% *op;
+        instruct    +% *kwMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // BLOCk only builds (SEQ 476 R1): one seq instruct, as STARt's, its operand a mint of the list of statement instructs
+    BLOCk code={
+        cur := *argument.firsT;
+        while cur.datA != 0;
+            blockStmts +% *cur;
+            cur := *cur.nexT;
+        op := Operators["seq"];
+        stmtsMint   := copyOf(blockStmts);
+        instruct    +% *op;
+        instruct    +% *stmtsMint;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         *argument   := *target;

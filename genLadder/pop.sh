@@ -635,7 +635,8 @@ _ofeq "whileT WH-7 old road (control): no leak, the print after a breaking loop 
 _ofeq "whileT WH-8 old road (control): return through a loop ends the action at 2, the print after the call runs" "$(_whv "$T/wh.WH-8.o")" "1 |2 |8 |"
 _ofeq "whileT WH-0 new road: the WHILe built alone, not run, prints nothing and the file runs on (stdout / exit / sentinel)" "[$(_whv "$T/wh.WH-0.n")] $(cat "$T/wh.WH-0.nx") $(grep -c '^WH SENTINEL' "$T/wh.WH-0.ne")" "[] 0 1"
 for _id in WH-1 WH-2 WH-3 WH-4 WH-5 WH-6 WH-7 WH-8; do
-    _tw="0 1"; case $_id in WH-3|WH-4|WH-6|WH-7|WH-8) _tw="139 0";; esac
+    #  exit rows: WH-3, 4, 6, 7, 8 died with exit 139 until SEQ 476 (If attached a null for a break or block arm); green since
+    _tw="0 1"
     fdRow "whileT $_id new road runs to its end (exit / sentinel)" "$(cat "$T/wh.$_id.nx") $(grep -c '^WH SENTINEL' "$T/wh.$_id.ne")" "$_tw" "0 1"
 done
 fdRow "whileT WH-1 new road: count to 3, printing each" "$(_whv "$T/wh.WH-1.n")" "" "1 |2 |3 |"
@@ -644,8 +645,10 @@ fdRow "whileT WH-3 new road: break when the count reaches 2" "$(_whv "$T/wh.WH-3
 fdRow "whileT WH-4 new road: continue past the print at 2" "$(_whv "$T/wh.WH-4.n")" "" "1 |3 |"
 fdRow "whileT WH-5 new road: a while inside STARt, between two prints" "$(_whv "$T/wh.WH-5.n")" "7 |8 |" "7 |1 |2 |8 |"
 fdRow "whileT WH-6 new road: nested, the inner breaks at 2, the outer runs every pass" "$(_whv "$T/wh.WH-6.n")" "" "1 |2 |9 |1 |2 |9 |"
-fdRow "whileT WH-7 new road: no leak, the print after a breaking loop in the same STARt runs" "$(_whv "$T/wh.WH-7.n")" "" "1 |2 |8 |"
-fdRow "whileT WH-8 new road: return through a loop ends the STARt at 2, the old-road print after the call runs" "$(_whv "$T/wh.WH-8.n")" "" "1 |2 |8 |"
+#  WH-7 RE-PINNED (SEQ 476): [] -> 8 -- the parse no longer dies; STARt skips the unbuilt WHILe and prints the 8 after it
+fdRow "whileT WH-7 new road: no leak, the print after a breaking loop in the same STARt runs" "$(_whv "$T/wh.WH-7.n")" "8 |" "1 |2 |8 |"
+#  WH-8 RE-PINNED (Tony, SEQ 476 R0): [] -> 99 8 -- return waits on action bodies (rung 5): it refuses by name at build, STARt skips the unbuilt WHILe
+fdRow "whileT WH-8 new road: return through a loop ends the STARt at 2, the old-road print after the call runs" "$(_whv "$T/wh.WH-8.n")" "99 |8 |" "1 |2 |8 |"
 else echo "  FAIL  whileT MISSING"; fail=1
 fi
 
@@ -668,14 +671,14 @@ while IFS='|' read -r _id _bo _bn _ba; do
     { cat "$T/bt.pre"; printf '%s\ntestOP(it1);\n%s\ncerr "BT NEXT":;\ncerr "BT SENTINEL":;\nstop();\n' "$_bn" "$_ba"; } > "$T/bt.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/bt.$_id.nk" > "$T/bt.$_id.n" 2> "$T/bt.$_id.ne"; echo $? > "$T/bt.$_id.nx"
 done < "$T/bt.list"
-_ofeq "branchT rows ran (8 of 8)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "8"
+_ofeq "branchT rows ran (9 of 9)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "9"
 _ofeq "branchT BR-1 old road (control): a block stops at break" "$(_btv "$T/bt.BR-1.o")" "1 |"
 _ofeq "branchT BR-2 old road (control): the statement after a stopped block runs" "$(_btv "$T/bt.BR-2.o")" "1 |3 |"
 _ofeq "branchT BR-C old road (control): a block stops at continue" "$(_btv "$T/bt.BR-C.o")" "1 |"
 _ofeq "branchT BL-1 old road (control): a block" "$(_btv "$T/bt.BL-1.o")" "1 |2 |"
 _ofeq "branchT IF-5 old road (control): an if whose arm is a block" "$(_btv "$T/bt.IF-5.o")" "1 |2 |"
 _ofeq "branchT IF-6 old road (control): if ...; break; at the top is ignored, the next statement runs" "$(_btv "$T/bt.IF-6.o")" "5 |"
-for _id in BR-1 BR-2 BR-C BR-R BL-1 IF-5 IF-6 TG-1; do
+for _id in BR-1 BR-2 BR-C BR-R BL-1 IF-5 IF-6 TG-1 IF-7; do
     _tw="0 1"; case $_id in IF-5|IF-6|TG-1) _tw="139 0";; esac
     fdRow "branchT $_id new road runs to its end (exit / next)" "$(cat "$T/bt.$_id.nx") $(grep -c '^BT NEXT' "$T/bt.$_id.ne")" "$_tw" "0 1"
 done
@@ -687,6 +690,8 @@ fdRow "branchT BL-1 new road: a block builds a seq" "$(_btv "$T/bt.BL-1.n")" "" 
 fdRow "branchT IF-5 new road: an if whose arm is a block" "$(_btv "$T/bt.IF-5.n")" "" "1 |2 |"
 fdRow "branchT IF-6 new road: if ...; break; at the top, the next statement runs" "$(_btv "$T/bt.IF-6.n")" "" "5 |"
 fdRow "branchT TG-1 testOP on a raw label whose first child carries a method refuses by name" "$(grep -c '^REFUSED it1 -- not an instruct$' "$T/bt.TG-1.ne")" "0" "1"
+#  IF-7 (SEQ 476, H17): an arm that hands up nothing (a refused return) -- If refuses by name, the next statement runs (R6)
+_ofeq "branchT IF-7 if ...; return; -- If refuses its empty arm by name, next runs (refusals / stdout)" "$(grep -c '^REFUSED return -- not built on the new road yet$' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "1 1 [5 |]"
 else echo "  FAIL  branchT MISSING"; fail=1
 fi
 
@@ -6577,13 +6582,14 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  (Shape S): a code action fires on a labelled term, and the parse test lives on its own rule.
 #  252 RE-PINNED 2026-10-30 (Tony, SEQ 474 R0): 251 -> 252 on this row and its five siblings -- ifThen is registered in Operators
 #  (SEQ 473) (control: the ifThen line removed from incant/setup, every one read 251 again on the same binary).
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "252"
+#  253 RE-PINNED 2026-10-30 (Tony, SEQ 476 R7): 252 -> 253 on this row and its five siblings -- branchSignal is registered in Operators (SEQ 476).
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "253"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "252"
+kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "253"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -6599,8 +6605,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "252 6"
-kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "252"
+kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "253 6"
+kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "253"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -6616,12 +6622,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "252"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "253"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "252"
+kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "253"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -7751,7 +7757,8 @@ sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 54 -> 55, the seq entry (control: removed, 54 again).
 #  RE-PINNED 2026-10-29 (Tony, SEQ 463 R2): 55 -> 56 -- printShortcut is registered (Shape S).
 #  RE-PINNED 2026-10-30 (Tony, SEQ 474 R0): 56 -> 57 -- ifThen is registered in Operators (SEQ 473) (control: removed, 56 again).
-kindRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "57"
+#  RE-PINNED 2026-10-30 (Tony, SEQ 476 R7): 57 -> 58 -- branchSignal is registered in Operators (SEQ 476).
+kindRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "58"
 kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
 kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
