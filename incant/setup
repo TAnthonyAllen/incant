@@ -113,6 +113,7 @@ define
     ifThen  unary ruleMethod=opIf;
     branchSignal    unary ruleMethod=opBranch;
     whileLoop       unary ruleMethod=opWhile;
+    doLoop          unary ruleMethod=opDo;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

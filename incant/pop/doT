@@ -34,6 +34,9 @@ road's print as the control. wc and wo are declared, so every row starts from 0 
 TODAY (2026-10-30, measured): Do has no action, so testOP refuses its label (DO-1..4 print nothing); DO-5's WHILe skips the
 unbuilt inner Do and prints 9 9; DO-6's STARt skips it and prints 8.
 
+DO-7 (added SEQ 480, H7): DO-4's continue fires mid-loop, so a continue that skipped the condition still reads 1 3 there --
+the next pass tests normally. DO-7 continues on the LAST pass (wc 3), where skipping the test runs the body once more.
+
 ROWS -- id | old-road statement | new-road statement (testOP follows it, except DO-0) | after the call (optional, old road)
 DO-0||it1 = Do("do { wc = wc + 1; print wc:; } while wc < 3;");|
 DO-1|do { wc = wc + 1; print wc:; } while wc < 3;|it1 = Do("do { wc = wc + 1; print wc:; } while wc < 3;");|
@@ -42,3 +45,4 @@ DO-3|do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3;|it1 = Do("d
 DO-4|do { wc = wc + 1; if wc == 2; continue; print wc:; } while wc < 3;|it1 = Do("do { wc = wc + 1; if wc == 2; continue; print wc:; } while wc < 3;");|
 DO-5|while wo < 2; { wo = wo + 1; wc = 0; do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 9:; }|it1 = WHILe("while wo < 2; { wo = wo + 1; wc = 0; do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 9:; }");|
 DO-6|do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 8:;|it1 = STARt("do { wc = wc + 1; print wc:; if wc == 2; break; } while wc < 3; print 8:;");|
+DO-7|do { wc = wc + 1; if wc == 3; continue; print wc:; } while wc < 3;|it1 = Do("do { wc = wc + 1; if wc == 3; continue; print wc:; } while wc < 3;");|
