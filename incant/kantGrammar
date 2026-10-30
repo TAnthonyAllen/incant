@@ -65,10 +65,10 @@ define
     LOOPRESTRICt
         loopOnAttributes="attributes";
         loopOnMembers="members";
-    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2), and off ELSEIf, PRINt, CERr, COUt, SCOPEXp, XPRESs and STRINGXp (Tony, offline 2026-10-30; fleet unmoved, ELSEIf still binds aCTionIF)
+    // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2), and off ELSEIf, PRINt, CERr, COUt, SCOPEXp, XPRESs and STRINGXp (Tony, offline 2026-10-30; fleet unmoved); ELSEIf builds its own instruct (SEQ 491)
     ELSe
         BASICELSe   else- followedBy STATEMENt@;
-        ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe? ruleMethod=aCTionIF ;
+        ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe?;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
@@ -186,6 +186,38 @@ define
             elseM   := *elseS.methoD;
             if elseM == 0;
                 cerr "REFUSED If -- its else arm handed up no instruct":;
+                clear(*argument);
+                return *argument;
+            ifArms  +% *elseS;
+        op := Operators["ifThen"];
+        armsMint    := copyOf(ifArms);
+        instruct    +% *op;
+        instruct    +% *armsMint;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        *argument   := *target;
+        return  *argument;
+        };
+    // ELSEIf only builds (SEQ 491): an or arm is an if in If's else slot -- the same ifThen instruct as If (condition, then, else if present), so opIf runs it and If's else slot takes it
+    ELSEIf code={
+        :argument EXPRESSIOn STATEMENt ELSe;
+        // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
+        cond    := **EXPRESSIOn;
+        thenS   := **STATEMENt;
+        // armRefused an arm that handed up no instruct refuses by name, never attaches a null (SEQ 476 R6)
+        thenM   := *thenS.methoD;
+        if thenM == 0;
+            cerr "REFUSED ELSEIf -- its then arm handed up no instruct":;
+            clear(*argument);
+            return *argument;
+        ifArms  +% *cond;
+        ifArms  +% *thenS;
+        eLen    := *ELSe.listLengtH;
+        if eLen != 0;
+            elseS   := **ELSe;
+            elseM   := *elseS.methoD;
+            if elseM == 0;
+                cerr "REFUSED ELSEIf -- its else arm handed up no instruct":;
                 clear(*argument);
                 return *argument;
             ifArms  +% *elseS;
