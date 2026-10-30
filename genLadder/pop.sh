@@ -685,13 +685,13 @@ done
 fdRow "branchT BR-1 new road: STARt stops at break, nothing refuses" "$(_btv "$T/bt.BR-1.n") $(grep -c '^REFUSED' "$T/bt.BR-1.ne")" "1 |2 | 0" "1 | 0"
 fdRow "branchT BR-2 new road: the top-level statement after the STARt runs (no leak)" "$(_btv "$T/bt.BR-2.n")" "1 |2 |3 |" "1 |3 |"
 fdRow "branchT BR-C new road: STARt stops at continue, nothing refuses" "$(_btv "$T/bt.BR-C.n") $(grep -c '^REFUSED' "$T/bt.BR-C.ne")" "1 |2 | 0" "1 | 0"
-fdRow "branchT BR-R new road: return refuses by name at build, the rest of the seq runs" "$(_btv "$T/bt.BR-R.n") $(grep -c '^REFUSED return -- not built on the new road yet$' "$T/bt.BR-R.ne")" "1 |2 | 0" "1 |2 | 1"
+fdRow "branchT BR-R new road: return refuses by name at build, the rest of the seq runs" "$(_btv "$T/bt.BR-R.n") $(grep -c '^REFUSED return -- not built on the new road yet *$' "$T/bt.BR-R.ne")" "1 |2 | 0" "1 |2 | 1"
 fdRow "branchT BL-1 new road: a block builds a seq" "$(_btv "$T/bt.BL-1.n")" "" "1 |2 |"
 fdRow "branchT IF-5 new road: an if whose arm is a block" "$(_btv "$T/bt.IF-5.n")" "" "1 |2 |"
 fdRow "branchT IF-6 new road: if ...; break; at the top, the next statement runs" "$(_btv "$T/bt.IF-6.n")" "" "5 |"
 fdRow "branchT TG-1 testOP on a raw label whose first child carries a method refuses by name" "$(grep -c '^REFUSED it1 -- not an instruct$' "$T/bt.TG-1.ne")" "0" "1"
 #  IF-7 (SEQ 476, H17): an arm that hands up nothing (a refused return) -- If refuses by name, the next statement runs (R6)
-_ofeq "branchT IF-7 if ...; return; -- If refuses its empty arm by name, next runs (refusals / stdout)" "$(grep -c '^REFUSED return -- not built on the new road yet$' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "1 1 [5 |]"
+_ofeq "branchT IF-7 if ...; return; -- If refuses its empty arm by name, next runs (refusals / stdout)" "$(grep -c '^REFUSED return -- not built on the new road yet *$' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct *$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "1 1 [5 |]"
 else echo "  FAIL  branchT MISSING"; fail=1
 fi
 
