@@ -116,6 +116,7 @@ define
     doLoop          unary ruleMethod=opDo;
     forLoop         unary ruleMethod=opFor;
     iterateOn       unary ruleMethod=opIterate;
+    runRule         unary ruleMethod=opRunRule;
     '?';
     '>>';
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;

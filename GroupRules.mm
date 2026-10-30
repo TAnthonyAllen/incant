@@ -9778,6 +9778,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
+// opRunRule the runRule instruct's unary op (SEQ 489, bridge-run): its operand is a mint of a C++-only statement's label, bound by its kant action to that statement's C++ rule method; at RUN the method runs on the mint, in the statement's place; a mint with no method refuses by name
+extern "C" GroupItem *opRunRule(GroupItem *label)
+{
+	if ( !label )
+		return 0;
+	if ( !label->groupBody->gMethod )
+		return ::refuse(label,"runRule: the statement carries no C++ method to run");
+	return label->groupBody->gMethod(label);
+}
+
 // opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
 extern "C" GroupItem *opSeq(GroupItem *items)
 {
