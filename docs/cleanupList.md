@@ -6,6 +6,20 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
+### MacPorts on the M6 -- uninstall whole if nothing uses it (Tony, 2026-10-31)
+- **What/where:** MacPorts at `/opt/local`; the hidden `macports` user it builds under, which the M4 -> M6 transition added;
+  and its PATH line in `~/.zprofile:3` (`/opt/local/bin:/opt/local/sbin` prepended -- position 3 and 4 of the login PATH,
+  ahead of the system dirs and of `/opt/homebrew/bin`; seal 299's census).
+- **Why it looks deletable:** ARM Homebrew at `/opt/homebrew` now carries the third-party tools (LLVM, gh). Tony would like
+  the `macports` user gone if MacPorts is not in use.
+- **Confirm (measure first, touch nothing until then):** what in `/opt/local` the build, the fleet and Tony's own scripts
+  actually use -- TOK's search paths and link flags (build log), every command the seven checklist scripts and `~/bin`
+  scripts (`bs fz gz pz rz tz`) resolve to `/opt/local/bin` in a fresh login shell, and `~/.zshrc` / Tawk functions.
+- **The ruling it carries:** if NOTHING uses it, uninstall MacPorts whole -- the `macports` user, `/opt/local`, and the
+  `~/.zprofile` PATH line go together. If SOMETHING uses it, keep it all: the user is MacPorts' safety feature (it builds
+  ports unprivileged), so it does not go on its own.
+- **Seen:** 2026-10-31.
+
 ### A set with a modifier after its brackets is stored as a GROUP (data 6) -- HELD for the in-depth cleanup (SEQ 455 R4)
 - **What/where:** `aCTionTraiTdata` (designDocs `scannerKeepsDatA`): `[a-z]+`, `[a-z]*`, `[a-z]?` make the term a group
   holding an anonymous DatA set (data 3) whose rStuff carries the repeat; `[a-z]` stays a plain set. The generator reads
