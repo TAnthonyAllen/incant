@@ -109,6 +109,8 @@ define
     negate  unary ruleMethod=opUnaryMinus;
     deref   unary ruleMethod=opDeref;
     printList   unary ruleMethod=opPrintList;
+    cerrList    unary ruleMethod=opCerrList;
+    coutList    unary ruleMethod=opCoutList;
     printShortcut   unary ruleMethod=opPrintShortcut;
     seq     unary ruleMethod=opSeq;
     ifThen  unary ruleMethod=opIf;

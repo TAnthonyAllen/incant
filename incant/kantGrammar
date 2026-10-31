@@ -37,6 +37,34 @@ define
         *miDest := *target;
         clear(argument);
         };
+    // makePrint builds one print instruct from a field carrying three entries -- the print items, the sink's op, the caller's label -- the walk PRINt, CERr and COUt share: only the op differs, and the op is the sink (SEQ 496)
+    makePrint code={
+        mpStuff := argument[1];
+        mpOp    := argument[2];
+        mpDest  := argument[3];
+        cur := *mpStuff.firsT;
+        // threeKinds an item is an EXPRESSIOn's value, a shortcut (SHORTCUt's action marked it) or a format (it carries formatTYPE); the sink's op tells them apart
+        while cur.datA != 0;
+            // refusedItem an item whose EXPRESSIOn refused (it cleared its label) arrives as an empty PRINTXp: it prints nothing, as a refusing C++ operator's NULL prints nothing (SEQ 468)
+            skipIt = 0;
+            if *cur.taG == "PRINTXp";
+                if *cur.listLengtH == 0;    skipIt = 1;
+            // adjacentWalk an ADJACENt item is a run of adjacent operands (EXPRESSIOn's arm): each member is its own print item, known by the tag, never a C++ flag (SEQ 468)
+            isAdj = 0;
+            if *cur.taG == "ADJACENt";  isAdj = 1;
+            if isAdj == 1;
+                m := *cur.firsT;
+                while m.datA != 0;
+                    printItems +% *m;
+                    m := *m.nexT;
+            if skipIt == 0 && isAdj == 0;   printItems +% *cur;
+            cur := *cur.nexT;
+        // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
+        itemsMint   := copyOf(printItems);
+        miArgs      +% mpOp itemsMint mpDest;
+        makeInstruct(miArgs);
+        clear(argument);
+        };
     ;
 registry(KantGrammar);
 define
@@ -151,30 +179,11 @@ define
         makeInstruct(miArgs);
         return  *argument;
         };
-    // PRINt only builds (rung 1, Tony 2026-10-27): one instruct, op printList, its operand the list of print items; testOP runs it
+    // PRINt only builds (rung 1, Tony 2026-10-27): its sink is printList, stdout or printTO's divert; makePrint builds it
     PRINt code={
-        cur := *stuff.firsT;
-        // threeKinds an item is an EXPRESSIOn's value, a shortcut (SHORTCUt's action marked it) or a format (it carries formatTYPE); opPrintList tells them apart
-        while cur.datA != 0;
-            // refusedItem an item whose EXPRESSIOn refused (it cleared its label) arrives as an empty PRINTXp: it prints nothing, as a refusing C++ operator's NULL prints nothing (SEQ 468)
-            skipIt = 0;
-            if *cur.taG == "PRINTXp";
-                if *cur.listLengtH == 0;    skipIt = 1;
-            // adjacentWalk an ADJACENt item is a run of adjacent operands (EXPRESSIOn's arm): each member is its own print item, known by the tag, never a C++ flag (SEQ 468)
-            isAdj = 0;
-            if *cur.taG == "ADJACENt";  isAdj = 1;
-            if isAdj == 1;
-                m := *cur.firsT;
-                while m.datA != 0;
-                    printItems +% *m;
-                    m := *m.nexT;
-            if skipIt == 0 && isAdj == 0;   printItems +% *cur;
-            cur := *cur.nexT;
         op := Operators["printList"];
-        // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
-        itemsMint   := copyOf(printItems);
-        miArgs      +% op itemsMint argument;
-        makeInstruct(miArgs);
+        mpArgs      +% stuff op argument;
+        makePrint(mpArgs);
         return  *argument;
         };
     // If only builds (SEQ 473): one instruct, op ifThen, its operand a mint of the arm list -- the condition, the then-statement, the else-statement if present; opIf runs it
@@ -374,16 +383,19 @@ define
         makeInstruct(miArgs);
         return  *argument;
         };
-    // printBridgeRefused CERr and COUt are not bridged: their C++ walks the old road's print items and reads a new-road item wrong (`cout 5:;` printed `5 0`, SEQ 489), so each refuses by name until it moves into PRINt
+    // CERr builds as PRINt does (SEQ 496): its sink is cerrList, stderr
     CERr code={
-        cerr "REFUSED CERr -- its C++ reads the old road's print items; it waits for PRINt":;
-        clear(*argument);
-        return *argument;
+        op := Operators["cerrList"];
+        mpArgs      +% stuff op argument;
+        makePrint(mpArgs);
+        return  *argument;
         };
+    // COUt builds as PRINt does (SEQ 496): its sink is coutList, stdout and never printTO's divert (KANT-23)
     COUt code={
-        cerr "REFUSED COUt -- its C++ reads the old road's print items; it waits for PRINt":;
-        clear(*argument);
-        return *argument;
+        op := Operators["coutList"];
+        mpArgs      +% stuff op argument;
+        makePrint(mpArgs);
+        return  *argument;
         };
     // BLOCk only builds (SEQ 476 R1): one seq instruct, as STARt's, its operand a mint of the list of statement instructs
     BLOCk code={
