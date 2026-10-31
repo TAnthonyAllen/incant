@@ -1,0 +1,55 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(PrintSinkT);
+define
+    qa=2;
+    qb=3;
+    psBuf buffer;
+    it1;
+    ;
+search PrintSinkT Utilities UnitTests;
+stop();
+
+printSinkT -- SEQ 496 (Tony's standing order, 2026-10-31): CERr and COUt into PRINt. PRE-REGISTERED ON TRUNK before the
+build, born red.
+
+One print mechanism, three sinks. PRINt, CERr and COUt build the same instruct from the same print items; only the op
+differs, and the op is the sink: print flushes to stdout or to printTO's divert, cerr to stderr, cout to stdout and
+NEVER to a divert (KANT-23: that missing test is the feature).
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this
+file's `stop();`, then the row on the OLD road (the statements themselves) or on the NEW road (`it1 = FILe("<row>");`,
+the new top level, which runs as it builds), then a sentinel. Read by value: stdout, the stderr lines that are not the
+harness's own, the REFUSED count, the exit status. The old road is the control, and every new-road row wants the old
+road's value but one: PS-4, where the new road's own print rule decides (below).
+
+TODAY (measured): CERr and COUt refuse by name on the new road ("waits for PRINt"), so every row prints nothing from them.
+
+PS-1  cerr alone: 5 on stderr, nothing on stdout.
+PS-2  cout alone: 5 on stdout.
+PS-3  cerr between two prints: the prints on stdout, the 5 on stderr.
+PS-4  a format and an expression through cerr: the same items print takes, and the NEW ROAD'S print rule -- a format
+      applies to what follows (Tony, SEQ 449) -- so 2 then 3 in a width of 5: `2     3`. The old road puts the format
+      on qa (`    2 3`), for cerr, cout and print alike; that is its control value, and it is not the target.
+PS-5  a shortcut through cout.
+PS-6  THE SINK ROW: print diverted by printTO, cout between. cout ignores the divert, so its 2 reaches stdout first and
+      the diverted 1 prints after printTO(0). A cout that followed the divert would put both in the buffer.
+
+PS-1|cerr 5:;
+PS-2|cout 5:;
+PS-3|print 1:; cerr 5:; print 2:;
+PS-4|cerr qa #5d qb:;
+PS-5|cout qa _ qb:;
+PS-6|printTO(psBuf); print 1:; cout 2:; printTO(0); print psBuf:;

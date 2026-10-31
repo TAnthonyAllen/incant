@@ -986,6 +986,40 @@ fdRow "topLevelT TL-4 the refusal names return" "$(grep -c '^REFUSED return' "$T
 else echo "  FAIL  topLevelT MISSING"; fail=1
 fi
 
+#  ⚑ printSinkT -- SEQ 496 (Tony's standing order, 2026-10-31): CERr and COUt into PRINt -- one print mechanism, three
+#  sinks (print: stdout or printTO's divert; cerr: stderr; cout: stdout, never a divert, KANT-23). PRE-REGISTERED ON TRUNK,
+#  born red: CERr and COUt refuse by name on the new road. Per row two processes: the OLD road (the control) and the NEW
+#  road through FILe. Value: stdout | E: the stderr lines not the harness's own | refusals | exit | sentinel.
+_psF=$(ip printSinkT)
+_psv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); _e=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$\|^PS SENTINEL\|^REFUSED' "$2" | cat -t | tr '\n' '|'); echo "$_o E:$_e R$(grep -c '^REFUSED' "$2") x$(cat "$3") s$(grep -c '^PS SENTINEL' "$2")"; }
+if [ -f "$_psF" ]; then
+sed '/^stop();/,$d' "$_psF" > "$T/ps.pre"
+grep '^PS-[0-9]*|' "$_psF" > "$T/ps.list"
+while IFS='|' read -r _id _it; do
+    { cat "$T/ps.pre"; printf '%s\ncerr "PS SENTINEL":;\nstop();\n' "$_it"; } > "$T/ps.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ps.$_id.ok" > "$T/ps.$_id.o" 2> "$T/ps.$_id.oe"; echo $? > "$T/ps.$_id.ox"
+    { cat "$T/ps.pre"; printf 'it1 = FILe("%s");\ncerr "PS SENTINEL":;\nstop();\n' "$_it"; } > "$T/ps.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ps.$_id.nk" > "$T/ps.$_id.n" 2> "$T/ps.$_id.ne"; echo $? > "$T/ps.$_id.nx"
+done < "$T/ps.list"
+_ofeq "printSinkT rows ran (6 of 6)" "$(ls "$T"/ps.PS-*.ne 2>/dev/null | wc -l | tr -d ' ')" "6"
+_psO () { _ofeq "printSinkT $1 old road (control): $2" "$(_psv "$T/ps.$1.o" "$T/ps.$1.oe" "$T/ps.$1.ox")" "$3"; }
+_psN () { fdRow "printSinkT $1 new road: $2" "$(_psv "$T/ps.$1.n" "$T/ps.$1.ne" "$T/ps.$1.nx")" "$3" "$4"; }
+_psO PS-1 "cerr alone" " E:5 | R0 x0 s1"
+_psO PS-2 "cout alone" "5 | E: R0 x0 s1"
+_psO PS-3 "cerr between two prints" "1 |2 | E:5 | R0 x0 s1"
+_psO PS-4 "a format through cerr (the old road puts it on qa)" " E:    2 3 | R0 x0 s1"
+_psO PS-5 "a shortcut through cout" "2  3 | E: R0 x0 s1"
+_psO PS-6 "cout ignores printTO's divert" "2 |1 | E: R0 x0 s1"
+_psN PS-1 "cerr alone: 5 on stderr" " E: R1 x0 s1" " E:5 | R0 x0 s1"
+_psN PS-2 "cout alone: 5 on stdout" " E: R1 x0 s1" "5 | E: R0 x0 s1"
+_psN PS-3 "cerr between two prints" "1 |2 | E: R1 x0 s1" "1 |2 | E:5 | R0 x0 s1"
+#  PS-4 wants the NEW road's print rule (a format applies to what follows, SEQ 449), not the old road's value
+_psN PS-4 "a format through cerr applies to what follows" " E: R1 x0 s1" " E:2     3 | R0 x0 s1"
+_psN PS-5 "a shortcut through cout" " E: R1 x0 s1" "2  3 | E: R0 x0 s1"
+_psN PS-6 "cout ignores printTO's divert" "1 | E: R1 x0 s1" "2 |1 | E: R0 x0 s1"
+else echo "  FAIL  printSinkT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
