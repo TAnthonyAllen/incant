@@ -20,6 +20,24 @@
     The list of shared names, with the collision report, is in the plan of
     record, IncantForms/WorkingOn/macros.
 *****************************************************************************/
+// makeInstruct lives in Utilities, which every reader of this file searches: a name defined in KantGrammar is not reachable as an action (SEQ 494, measured)
+registry(Utilities);
+define
+    // makeInstruct builds one instruct from a field carrying three entries -- the op, its operand, the caller's label -- binds testOP and hands it back INTO the label; it clears its pieces, so the next build starts empty (SEQ 478 R0). Each rule keeps its own missing-part check (Tony, SEQ 494 R1)
+    // intoTheLabel a returned value loses its method: runAction copies the result with setContent (bear-trap 2), so the instruct is written into the caller's label instead (SEQ 494, measured)
+    makeInstruct code={
+        miOp    := argument[1];
+        miOpnd  := argument[2];
+        miDest  := argument[3];
+        instruct    +% *miOp;
+        instruct    +% *miOpnd;
+        instruct.methoD = "testOP";
+        target      := copyOf(instruct);
+        clear(instruct);
+        *miDest := *target;
+        clear(argument);
+        };
+    ;
 registry(KantGrammar);
 define
     KantGrammar isRule;
@@ -116,13 +134,8 @@ define
             cur := *cur.nexT;
         op := Operators["seq"];
         stmtsMint   := copyOf(stmts);
-        instruct    +% *op;
-        instruct    +% *stmtsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        // instructCleared the copy is the instruct; the local is emptied, or the next STARt built in the process starts from this one's pieces (SEQ 478 R0)
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op stmtsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // SHORTCUt only builds (Shape S, Tony SEQ 461): one instruct, op printShortcut, its operand a copy of the matched text; opPrintList runs it
@@ -130,11 +143,8 @@ define
         :argument shortcut;
         scText      := copyOf(*shortcut);
         op := Operators["printShortcut"];
-        instruct    +% *op;
-        instruct    +% *scText;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        *argument   := *target;
+        miArgs      +% op scText argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // PRINt only builds (rung 1, Tony 2026-10-27): one instruct, op printList, its operand the list of print items; testOP runs it
@@ -159,11 +169,8 @@ define
         op := Operators["printList"];
         // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
         itemsMint   := copyOf(printItems);
-        instruct    +% *op;
-        instruct    +% *itemsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        *argument   := *target;
+        miArgs      +% op itemsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // If only builds (SEQ 473): one instruct, op ifThen, its operand a mint of the arm list -- the condition, the then-statement, the else-statement if present; opIf runs it
@@ -191,11 +198,8 @@ define
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
-        instruct    +% *op;
-        instruct    +% *armsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        *argument   := *target;
+        miArgs      +% op armsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // ELSEIf only builds (SEQ 491): an or arm is an if in If's else slot -- the same ifThen instruct as If (condition, then, else if present), so opIf runs it and If's else slot takes it
@@ -223,11 +227,8 @@ define
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
-        instruct    +% *op;
-        instruct    +% *armsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        *argument   := *target;
+        miArgs      +% op armsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
@@ -258,12 +259,8 @@ define
         iterArms    +% *mMint;
         op := Operators["iterateOn"];
         armsMint    := copyOf(iterArms);
-        instruct    +% *op;
-        instruct    +% *armsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op armsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // FOr only builds (SEQ 482 R0): one instruct, op forLoop, its operand a mint of [cursor, source, statement] and the reverse mark when `<-` is present; opFor binds the cursor to each member when the loop RUNS
@@ -292,12 +289,8 @@ define
             forArms +% *revMark;
         op := Operators["forLoop"];
         armsMint    := copyOf(forArms);
-        instruct    +% *op;
-        instruct    +% *armsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op armsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // Do only builds (SEQ 480 R0): one instruct, op doLoop, its operand a mint of [statement, condition]; opDo runs the statement first, then tests
@@ -315,12 +308,8 @@ define
         doArms  +% *cond;
         op := Operators["doLoop"];
         armsMint    := copyOf(doArms);
-        instruct    +% *op;
-        instruct    +% *armsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op armsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // WHILe only builds (SEQ 478 R1): one instruct, op whileLoop, its operand a mint of [condition, statement]; opWhile runs the loop and catches break and continue
@@ -338,12 +327,8 @@ define
         whileArms   +% *body;
         op := Operators["whileLoop"];
         armsMint    := copyOf(whileArms);
-        instruct    +% *op;
-        instruct    +% *armsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op armsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal. return waits on action bodies (rung 5)
@@ -356,11 +341,8 @@ define
             return *argument;
         op := Operators["branchSignal"];
         kwMint      := copyOf(*kw);
-        instruct    +% *op;
-        instruct    +% *kwMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        *argument   := *target;
+        miArgs      +% op kwMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // bridgeRun a C++-only statement runs its C++ rule method at RUN, in its place (SEQ 489, bridge-run): one instruct, op runRule, its operand a mint of the statement's label bound to that method; opRunRule runs it
@@ -368,36 +350,24 @@ define
         lMint       := copyOf(*argument);
         *lMint.methoD = "aCTionSearch";
         op := Operators["runRule"];
-        instruct    +% *op;
-        instruct    +% *lMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op lMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     DEBUg code={
         lMint       := copyOf(*argument);
         *lMint.methoD = "aCTionDEBUG";
         op := Operators["runRule"];
-        instruct    +% *op;
-        instruct    +% *lMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op lMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     SCOPEXp code={
         lMint       := copyOf(*argument);
         *lMint.methoD = "aCTionScopeXP";
         op := Operators["runRule"];
-        instruct    +% *op;
-        instruct    +% *lMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op lMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // printBridgeRefused CERr and COUt are not bridged: their C++ walks the old road's print items and reads a new-road item wrong (`cout 5:;` printed `5 0`, SEQ 489), so each refuses by name until it moves into PRINt
@@ -419,13 +389,8 @@ define
             cur := *cur.nexT;
         op := Operators["seq"];
         stmtsMint   := copyOf(blockStmts);
-        instruct    +% *op;
-        instruct    +% *stmtsMint;
-        instruct.methoD = "testOP";
-        target      := copyOf(instruct);
-        // instructCleared as STARt's: the next block starts empty (SEQ 478 R0)
-        clear(instruct);
-        *argument   := *target;
+        miArgs      +% op stmtsMint argument;
+        makeInstruct(miArgs);
         return  *argument;
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
