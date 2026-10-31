@@ -11552,6 +11552,12 @@ GroupItem 	*ruleArg = 0;
 		{
 		capture = new GroupItem(result->groupBody->tag);
 		capture->setContent(result);
+		// carryMethod the copy carries the result's method binding, which setContent drops (bear-trap 2), so a returned instruct keeps testOP; nothing else about the copy changes (Tony, SEQ 497)
+		if ( result->groupBody->gMethod )
+			{
+			capture->setMethod(result->groupBody->gMethod);
+			capture->groupBody->flags.instructType = 1;
+			}
 		result = capture;
 		}
 	::restoreLocalFields(field);
