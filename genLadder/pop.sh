@@ -842,7 +842,9 @@ grep '^BR-[0-9]*|' "$_brF" > "$T/br.list"
 while IFS='|' read -r _id _io _in; do
     { cat "$T/br.pre"; printf '%s\ncerr "BR NEXT":;\ncerr "BR SENTINEL":;\nstop();\n' "$_io"; } > "$T/br.$_id.ok"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/br.$_id.ok" > "$T/br.$_id.o" 2> "$T/br.$_id.oe"; echo $? > "$T/br.$_id.ox"
-    { cat "$T/br.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\ncerr "BR NEXT":;\ncerr "BR SENTINEL":;\nstop();\n' "$_in"; } > "$T/br.$_id.nk"
+    #  topLevelDriver BR-3 is a top-level question, so it is driven through FILe, the new top level, which runs as it builds -- no testOP (SEQ 495)
+    _ent=STARt; _run='testOP(it1);'; [ "$_id" = BR-3 ] && { _ent=FILe; _run=''; }
+    { cat "$T/br.pre"; printf 'it1 = %s("%s");\n%s\ncerr "BR NEXT":;\ncerr "BR SENTINEL":;\nstop();\n' "$_ent" "$_in" "$_run"; } > "$T/br.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/br.$_id.nk" > "$T/br.$_id.n" 2> "$T/br.$_id.ne"; echo $? > "$T/br.$_id.nx"
     _ofeq "bridgeT $_id new road sentinel" "$(grep -c '^BR SENTINEL' "$T/br.$_id.ne")" "1"
 done < "$T/br.list"
@@ -862,7 +864,8 @@ _ofeq "bridgeT BR-5 old road: cerr's 5 on stderr" "$(grep -c '^5 *$' "$T/br.BR-5
 _brN () { fdRow "bridgeT $1 new road: $2" "$(_brv "$T/br.$1.n" "$T/br.$1.ne" "$T/br.$1.nx")" "$3" "$4"; }
 _brN BR-1 "the search lands between 1 and 2" "1 |2 | R0 x0" "1 |S|2 | R0 x0"
 _brN BR-2 "debug runs, nothing refuses (no witness at this seat)" "1 |2 | R0 x0" "1 |2 | R0 x0"
-_brN BR-3 "define lands between the two prints" "9 |9 | R0 x0" "2 |9 | R0 x0"
+#  BR-3 driven through FILe (SEQ 495): one statement at a time, so the define lands between the prints
+_brN BR-3 "define lands between the two prints (through FILe)" "9 |9 | R0 x0" "2 |9 | R0 x0"
 _brN BR-4 "a top-level scope: the run ends, nothing refuses (no witness)" "1 |2 | R0 x0" "1 |2 | R0 x0"
 _brN BR-5 "cerr is not silent: it refuses by name" "1 |2 | R0 x0" "1 |2 | R1 x0"
 _brN BR-6 "cout is not silent: it refuses by name" "1 |2 | R0 x0" "1 |2 | R1 x0"
@@ -925,7 +928,9 @@ grep '^CC-[0-9]*|' "$_ccF" > "$T/cc.list"
 while IFS='|' read -r _id _it; do
     { cat "$T/cc.pre"; printf '%s\ncerr "CC SENTINEL":;\nstop();\n' "$_it"; } > "$T/cc.$_id.ok"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/cc.$_id.ok" > "$T/cc.$_id.o" 2> "$T/cc.$_id.oe"; echo $? > "$T/cc.$_id.ox"
-    { cat "$T/cc.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\ncerr "CC SENTINEL":;\nstop();\n' "$_it"; } > "$T/cc.$_id.nk"
+    #  topLevelDriver CC-1 is a top-level question (when is the include read), so it is driven through FILe -- no testOP (SEQ 495)
+    _ent=STARt; _run='testOP(it1);'; [ "$_id" = CC-1 ] && { _ent=FILe; _run=''; }
+    { cat "$T/cc.pre"; printf 'it1 = %s("%s");\n%s\ncerr "CC SENTINEL":;\nstop();\n' "$_ent" "$_it" "$_run"; } > "$T/cc.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/cc.$_id.nk" > "$T/cc.$_id.n" 2> "$T/cc.$_id.ne"; echo $? > "$T/cc.$_id.nx"
 done < "$T/cc.list"
 _ofeq "cmdCallT rows ran (7 of 7)" "$(ls "$T"/cc.CC-*.ne 2>/dev/null | wc -l | tr -d ' ')" "7"
@@ -940,7 +945,8 @@ _ccO CC-6 "an action call, empty ()" "8 |5 | R0 x0"
 _ccO CC-7 "an action call with an argument" "8 |5 | R0 x0"
 _ofeq "cmdCallT CC-3 old road: addrOf's line on stderr" "$(grep -c '^ADDROF fa ' "$T/cc.CC-3.oe")" "1"
 #  CC-1 today RE-PINNED (SEQ 492 R2): the call now runs, but the include is read AFTER the whole STARt has run -- it pushes its file onto the input, which the new road reads only once the built block is done (the top-level granularity question, BR-3's family)
-_ccN CC-1 "include, then a print" "5 |INCLUDED | R0 x0 1" "INCLUDED |5 | R0 x0"
+#  CC-1 driven through FILe (SEQ 495): the include runs when its statement is built, so its file is read before the print
+_ccN CC-1 "include, then a print (through FILe)" "5 |INCLUDED | R0 x0 1" "INCLUDED |5 | R0 x0"
 _ccN CC-2 "copyOf" " R0 x139 0" "2 | R0 x0"
 _ccN CC-3 "addrOf, then a print" " R0 x139 0" "5 | R0 x0"
 _ccN CC-4 "clear" " R0 x139 0" "cx | R0 x0"
