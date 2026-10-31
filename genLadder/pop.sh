@@ -951,6 +951,35 @@ fdRow "cmdCallT CC-3 new road: addrOf's line on stderr" "$(grep -c '^ADDROF fa '
 else echo "  FAIL  cmdCallT MISSING"; fail=1
 fi
 
+#  ⚑ topLevelT -- SEQ 495 (Tony, 2026-10-31): the new road's top level runs one statement at a time. FILe / TOPSTATEMENt
+#  are the new top-level rules (STARt stays build-only, SEQ 446); a top-level break, continue or return refuses by name
+#  and leaves no signal set. PRE-REGISTERED ON TRUNK, born red: FILe does not exist yet, so every row prints nothing.
+#  Per row one process: the prelude, `it1 = FILe("<row>");` (FILe RUNS as it builds -- no testOP), a sentinel.
+_tlF=$(ip topLevelT)
+_tlv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_tlF" ]; then
+sed '/^stop();/,$d' "$_tlF" > "$T/tl.pre"
+grep '^TL-[0-9]*|' "$_tlF" > "$T/tl.list"
+while IFS='|' read -r _id _it; do
+    { cat "$T/tl.pre"; printf 'it1 = FILe("%s");\ncerr "TL NEXT":;\ncerr "TL SENTINEL":;\nstop();\n' "$_it"; } > "$T/tl.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/tl.$_id.nk" > "$T/tl.$_id.n" 2> "$T/tl.$_id.ne"; echo $? > "$T/tl.$_id.nx"
+done < "$T/tl.list"
+_ofeq "topLevelT rows ran (7 of 7)" "$(ls "$T"/tl.TL-*.ne 2>/dev/null | wc -l | tr -d ' ')" "7"
+_tlN () { fdRow "topLevelT $1 FILe: $2 (value / sentinel)" "$(_tlv "$T/tl.$1.n" "$T/tl.$1.ne" "$T/tl.$1.nx") $(grep -c '^TL SENTINEL' "$T/tl.$1.ne")" "$3" "$4 1"; }
+_tlN TL-1 "two prints run in order" " R0 x0 1" "1 |2 | R0 x0"
+_tlN TL-2 "a top-level break refuses by name, both prints run" " R0 x0 1" "1 |2 | R1 x0"
+_tlN TL-3 "a top-level continue refuses by name, both prints run" " R0 x0 1" "1 |2 | R1 x0"
+_tlN TL-4 "a top-level return refuses by name, both prints run" " R0 x0 1" "1 |2 | R1 x0"
+_tlN TL-5 "a break inside a top-level block ends that block only" " R0 x0 1" "1 |3 | R0 x0"
+_tlN TL-6 "a define lands between two prints" " R0 x0 1" "2 |9 | R0 x0"
+#  TL-7 CONTEXT, NOT RULED: a break inside a top-level if is not a top-level statement, so nothing refuses; pinned as it reads
+_tlN TL-7 "CONTEXT (not ruled): a break inside a top-level if runs, nothing refuses" " R0 x0 1" "2 | R0 x0"
+fdRow "topLevelT TL-2 the refusal names break" "$(grep -c '^REFUSED break' "$T/tl.TL-2.ne")" "0" "1"
+fdRow "topLevelT TL-3 the refusal names continue" "$(grep -c '^REFUSED continue' "$T/tl.TL-3.ne")" "0" "1"
+fdRow "topLevelT TL-4 the refusal names return" "$(grep -c '^REFUSED return' "$T/tl.TL-4.ne")" "0" "1"
+else echo "  FAIL  topLevelT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

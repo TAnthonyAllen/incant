@@ -1,0 +1,56 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(TopLevelT);
+define
+    qa=2;
+    qb=3;
+    wc=0;
+    it1;
+    ;
+search TopLevelT Utilities UnitTests;
+stop();
+
+topLevelT -- SEQ 495 (Tony, 2026-10-31): the new road's top level runs one statement at a time. PRE-REGISTERED ON
+TRUNK before the build, born red.
+
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then
+`it1 = FILe("<row>");` -- FILe is the new top-level rule, and it RUNS each statement as soon as it is built, so no
+testOP follows -- then `TL NEXT` and a sentinel. Read by value: stdout, the REFUSED count, the exit status.
+
+The rulings (Tony, SEQ 495): FILe / TOPSTATEMENt are the new top level; STARt stays build-only (SEQ 446). A top-level
+break, continue or return REFUSES BY NAME and leaves no signal set, so the next statement runs.
+
+TL-1  two prints run in order: the control.
+TL-2  a top-level break refuses by name; the prints on both sides run.
+TL-3  a top-level continue, the same.
+TL-4  a top-level return refuses by name (BRANCh refuses return on the new road today; at the top level it must refuse
+      whatever return becomes in rung 5).
+TL-5  a break INSIDE a top-level block ends that block only (SEQ 477): inside a block everything is built first, then
+      run, so the block's seq stops at the break and the print after the block runs. Not a top-level break.
+      (No row asserts "no signal left set" by value: every new-road reader of the signal -- opSeq, opWhile, opDo, opFor
+      -- clears it before it reads, Instruct.rtn:1092 / 1112 / 1133 / 1173, so a stale one has no reader to show it.
+      The refusal is the guarantee: the break never runs.)
+TL-6  a print, then a define, then a print: the define lands between them (BR-3's question, asked of FILe).
+TL-7  CONTEXT, NOT RULED: a break inside a top-level if. It is not a top-level statement, so nothing refuses; it runs,
+      sets the signal, and the next statement runs. Pinned as it reads so a change is seen; Tony rules whether it
+      should refuse.
+
+TL-1|print 1:; print 2:;
+TL-2|print 1:; break; print 2:;
+TL-3|print 1:; continue; print 2:;
+TL-4|print 1:; return; print 2:;
+TL-5|{ print 1:; break; print 2:; } print 3:;
+TL-6|print qa:; define qa=9; ; print qa:;
+TL-7|if qa < qb; break; print 2:;
