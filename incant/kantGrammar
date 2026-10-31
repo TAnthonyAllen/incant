@@ -108,6 +108,10 @@ define
         ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe;
         XPRESs;
     STARt STATEMENt-+;
+    // fileTop the new road's top level runs one statement at a time: TOPSTATEMENt runs each as it is built; STARt stays build-only (Tony, SEQ 495)
+    TOPSTATEMENt    STATEMENt;
+    // plusNotMinus FILe takes `+`, not STARt's `-+`: with the noLabel `-` the child's action never fires (measured SEQ 495)
+    FILe            TOPSTATEMENt+;
     /*****************************************************************************
         kantGrammar actions. The actions for the rules defined above are added
         here as definition extensions. Doing it this way allows a quick view of
@@ -392,6 +396,22 @@ define
         miArgs      +% op stmtsMint argument;
         makeInstruct(miArgs);
         return  *argument;
+        };
+    // TOPSTATEMENt runs its statement as soon as it is built (SEQ 495), so a define or an include lands between its neighbours
+    TOPSTATEMENt code={
+        :argument STATEMENt;
+        ts := **STATEMENt;
+        topRun = 1;
+        // topBranch a break or continue at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set; return refuses in BRANCh today, and must refuse here whatever it becomes in rung 5 (Tony, SEQ 495)
+        tsL := *ts.listLengtH;
+        if tsL != 0;
+            tsOp := *ts[1];
+            if *tsOp.taG == "branchSignal";
+                kw := *ts[2];
+                kwT := *kw.taG;
+                cerr "REFUSED" kwT "-- at the top level there is no loop or block to end":;
+                topRun = 0;
+        if topRun == 1;     testOP(*ts);
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
     XPRESs code={
