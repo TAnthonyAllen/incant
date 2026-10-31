@@ -49,8 +49,8 @@
 #   ## Functions touched that carry directive anchors (today): runAction (one parked anchor on `if`, untouched); opPrintList
 #   (none). dirCheck PASSED.
 #
-#   ## CHECKS (trunk, merged, rebuilt): as the baseline above · groups.ext untouched · no incant process · BeforeSave NOT refreshed:
-#   Clod's `bs` was blocked by the permission check, so it still holds 2026-10-27's state -- Tony runs `bs` before the move.
+#   ## CHECKS (trunk, merged, rebuilt): as the baseline above · groups.ext untouched · no incant process · BeforeSave refreshed by Tony
+#   (Clod's `bs` was blocked by the permission check; Tony ran it after the seal, 2026-10-31).
 #
 #   ## Tony's fixit incantations waiting: 0
 #   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
