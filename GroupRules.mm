@@ -8389,6 +8389,13 @@ char 	*printText = buffer->string();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+// opCerrList the cerr instruct's unary op (SEQ 496): the shared walk, then opCerr writes to stderr
+extern "C" GroupItem *opCerrList(GroupItem *items)
+{
+Buffer 	*buffer = ::printWalk(items);
+	return ::opCerr(items,buffer);
+}
+
 // opCout the cout rule's operator method, the explicit stdout sink: it never consults toBUFFER, and that missing test IS the feature (KANT-23)
 extern "C" GroupItem *opCout(GroupItem *target, Buffer *buffer)
 {
@@ -8399,6 +8406,13 @@ char 	*printText = buffer->string();
 	buffer->reset();
 	GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+// opCoutList the cout instruct's unary op (SEQ 496): the shared walk, then opCout writes to stdout and never to printTO's divert (KANT-23)
+extern "C" GroupItem *opCoutList(GroupItem *items)
+{
+Buffer 	*buffer = ::printWalk(items);
+	return ::opCout(items,buffer);
 }
 
 // opDebug the $$ debug marker: an Xcode inspection point that unwraps a group and hands it back
@@ -9659,39 +9673,10 @@ char 		*printText = buffer->string();
 	return ruler->trueResult;
 }
 
-// opPrintList the print instruct's unary op (rung 1, Tony 2026-10-27): each item, an instruct run first, goes through appendGroup; opPrint flushes to stdout, or to printTO's divert
+// opPrintList the print instruct's unary op (rung 1, Tony 2026-10-27): the shared walk, then opPrint flushes to stdout, or to printTO's divert
 extern "C" GroupItem *opPrintList(GroupItem *items)
 {
-GroupItem 	*grup = 0;
-GroupItem 	*value = 0;
-GroupItem 	*fmtCount = 0;
-GroupItem 	*fmtNumber = 0;
-GroupItem 	*fmtString = 0;
-Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
-int 		kind = 0;
-	if ( !buffer )
-		buffer = new Buffer("print buffer");
-	while ( grup = items->next(grup) )
-		{
-		// formatItem a format (it carries formatTYPE) prints nothing: it sets its type's slot, and the slots are this call's locals, so a format ends with its statement (Tony, SEQ 449 R4)
-		if ( grup->get("formatTYPE") )
-			{
-			kind = printFormatKind(grup);
-			if ( kind == 1 )
-				fmtCount = grup;
-			if ( kind == 2 )
-				fmtNumber = grup;
-			if ( kind == 3 )
-				fmtString = grup;
-			continue;
-			}
-		value = grup;
-		// shortcutHandover a printShortcut instruct writes into THIS print's buffer, so the buffer goes on the pool for its op to take (SEQ 461)
-		if ( isShortcutInstruct(value) )
-			GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
-		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
-		::appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer);
-		}
+Buffer 	*buffer = ::printWalk(items);
 	return ::opPrint(items,buffer);
 }
 
@@ -10472,6 +10457,42 @@ debugHere:
 		}
 	else	::fprintf(stderr,"printToBuffer: ignored\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+// printWalk the print walk all three sinks share (SEQ 496): each item, an instruct run first, goes through appendGroup into a buffer the caller's sink flushes; a format sets its type's slot and prints nothing
+extern "C" Buffer *printWalk(GroupItem *items)
+{
+GroupItem 	*grup = 0;
+GroupItem 	*value = 0;
+GroupItem 	*fmtCount = 0;
+GroupItem 	*fmtNumber = 0;
+GroupItem 	*fmtString = 0;
+Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+int 		kind = 0;
+	if ( !buffer )
+		buffer = new Buffer("print buffer");
+	while ( grup = items->next(grup) )
+		{
+		// formatItem a format (it carries formatTYPE) prints nothing: it sets its type's slot, and the slots are this call's locals, so a format ends with its statement (Tony, SEQ 449 R4)
+		if ( grup->get("formatTYPE") )
+			{
+			kind = printFormatKind(grup);
+			if ( kind == 1 )
+				fmtCount = grup;
+			if ( kind == 2 )
+				fmtNumber = grup;
+			if ( kind == 3 )
+				fmtString = grup;
+			continue;
+			}
+		value = grup;
+		// shortcutHandover a printShortcut instruct writes into THIS print's buffer, so the buffer goes on the pool for its op to take (SEQ 461)
+		if ( isShortcutInstruct(value) )
+			GroupControl::groupController->groupRules->bufferSTAK->push(buffer);
+		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
+		::appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer);
+		}
+	return buffer;
 }
 
 /*******************************************************************************

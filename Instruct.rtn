@@ -1001,8 +1001,8 @@ String      printText   = string();
 }
 
 
-// opPrintList the print instruct's unary op (rung 1, Tony 2026-10-27): each item, an instruct run first, goes through appendGroup; opPrint flushes to stdout, or to printTO's divert
-extern GroupItem opPrintList(GroupItem items)
+// printWalk the print walk all three sinks share (SEQ 496): each item, an instruct run first, goes through appendGroup into a buffer the caller's sink flushes; a format sets its type's slot and prints nothing
+extern Buffer printWalk(GroupItem items)
 {
 GroupItem   grup,
             value,
@@ -1025,7 +1025,31 @@ int         kind;
         if isShortcutInstruct(value)    bufferSTAK += buffer;
         -% if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); %-
         appendGroup(value,implicitFormat(value,fmtCount,fmtNumber,fmtString),buffer); }
+    return buffer;
+}
+
+
+// opPrintList the print instruct's unary op (rung 1, Tony 2026-10-27): the shared walk, then opPrint flushes to stdout, or to printTO's divert
+extern GroupItem opPrintList(GroupItem items)
+{
+Buffer      buffer = printWalk(items);
     return opPrint(items,buffer);
+}
+
+
+// opCerrList the cerr instruct's unary op (SEQ 496): the shared walk, then opCerr writes to stderr
+extern GroupItem opCerrList(GroupItem items)
+{
+Buffer      buffer = printWalk(items);
+    return opCerr(items,buffer);
+}
+
+
+// opCoutList the cout instruct's unary op (SEQ 496): the shared walk, then opCout writes to stdout and never to printTO's divert (KANT-23)
+extern GroupItem opCoutList(GroupItem items)
+{
+Buffer      buffer = printWalk(items);
+    return opCout(items,buffer);
 }
 
 
