@@ -1246,6 +1246,10 @@ use field
     if result {
         capture = new(result.tag);
         capture.setContent(result);
+        // carryMethod the copy carries the result's method binding, which setContent drops (bear-trap 2), so a returned instruct keeps testOP; nothing else about the copy changes (Tony, SEQ 497)
+        if result.method {
+            capture.method      = result.method;
+            capture.isMethod    = true; }
         result  = capture; }
     restoreLocalFields(field);
 exitRunAction:
