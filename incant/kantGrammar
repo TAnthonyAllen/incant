@@ -23,25 +23,23 @@
 // makeInstruct lives in Utilities, which every reader of this file searches: a name defined in KantGrammar is not reachable as an action (SEQ 494, measured)
 registry(Utilities);
 define
-    // makeInstruct builds one instruct from a field carrying three entries -- the op, its operand, the caller's label -- binds testOP and hands it back INTO the label; it clears its pieces, so the next build starts empty (SEQ 478 R0). Each rule keeps its own missing-part check (Tony, SEQ 494 R1)
-    // intoTheLabel a returned value loses its method: runAction copies the result with setContent (bear-trap 2), so the instruct is written into the caller's label instead (SEQ 494, measured)
+    // makeInstruct builds one instruct from a field carrying two entries, the op and its operand, binds testOP and returns it; it clears its pieces, so the next build starts empty (SEQ 478 R0). Each rule keeps its own missing-part check (Tony, SEQ 494 R1)
+    // plainReturn the return copy carries the method binding, so the instruct comes back still bound to testOP (Tony, SEQ 497)
     makeInstruct code={
         miOp    := argument[1];
         miOpnd  := argument[2];
-        miDest  := argument[3];
         instruct    +% *miOp;
         instruct    +% *miOpnd;
         instruct.methoD = "testOP";
         target      := copyOf(instruct);
         clear(instruct);
-        *miDest := *target;
         clear(argument);
+        return  *target;
         };
-    // makePrint builds one print instruct from a field carrying three entries -- the print items, the sink's op, the caller's label -- the walk PRINt, CERr and COUt share: only the op differs, and the op is the sink (SEQ 496)
+    // makePrint builds one print instruct from a field carrying two entries -- the print items and the sink's op -- and returns it: the walk PRINt, CERr and COUt share; only the op differs, and the op is the sink (SEQ 496)
     makePrint code={
         mpStuff := argument[1];
         mpOp    := argument[2];
-        mpDest  := argument[3];
         cur := *mpStuff.firsT;
         // threeKinds an item is an EXPRESSIOn's value, a shortcut (SHORTCUt's action marked it) or a format (it carries formatTYPE); the sink's op tells them apart
         while cur.datA != 0;
@@ -61,9 +59,10 @@ define
             cur := *cur.nexT;
         // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
         itemsMint   := copyOf(printItems);
-        miArgs      +% mpOp itemsMint mpDest;
-        makeInstruct(miArgs);
+        miArgs      +% mpOp itemsMint;
+        built       := makeInstruct(miArgs);
         clear(argument);
+        return  *built;
         };
     ;
 registry(KantGrammar);
@@ -166,8 +165,9 @@ define
             cur := *cur.nexT;
         op := Operators["seq"];
         stmtsMint   := copyOf(stmts);
-        miArgs      +% op stmtsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op stmtsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // SHORTCUt only builds (Shape S, Tony SEQ 461): one instruct, op printShortcut, its operand a copy of the matched text; opPrintList runs it
@@ -175,15 +175,17 @@ define
         :argument shortcut;
         scText      := copyOf(*shortcut);
         op := Operators["printShortcut"];
-        miArgs      +% op scText argument;
-        makeInstruct(miArgs);
+        miArgs      +% op scText;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // PRINt only builds (rung 1, Tony 2026-10-27): its sink is printList, stdout or printTO's divert; makePrint builds it
     PRINt code={
         op := Operators["printList"];
-        mpArgs      +% stuff op argument;
-        makePrint(mpArgs);
+        mpArgs      +% stuff op;
+        built       := makePrint(mpArgs);
+        *argument   := *built;
         return  *argument;
         };
     // If only builds (SEQ 473): one instruct, op ifThen, its operand a mint of the arm list -- the condition, the then-statement, the else-statement if present; opIf runs it
@@ -211,8 +213,9 @@ define
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
-        miArgs      +% op armsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // ELSEIf only builds (SEQ 491): an or arm is an if in If's else slot -- the same ifThen instruct as If (condition, then, else if present), so opIf runs it and If's else slot takes it
@@ -240,8 +243,9 @@ define
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
-        miArgs      +% op armsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
@@ -272,8 +276,9 @@ define
         iterArms    +% *mMint;
         op := Operators["iterateOn"];
         armsMint    := copyOf(iterArms);
-        miArgs      +% op armsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // FOr only builds (SEQ 482 R0): one instruct, op forLoop, its operand a mint of [cursor, source, statement] and the reverse mark when `<-` is present; opFor binds the cursor to each member when the loop RUNS
@@ -302,8 +307,9 @@ define
             forArms +% *revMark;
         op := Operators["forLoop"];
         armsMint    := copyOf(forArms);
-        miArgs      +% op armsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // Do only builds (SEQ 480 R0): one instruct, op doLoop, its operand a mint of [statement, condition]; opDo runs the statement first, then tests
@@ -321,8 +327,9 @@ define
         doArms  +% *cond;
         op := Operators["doLoop"];
         armsMint    := copyOf(doArms);
-        miArgs      +% op armsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // WHILe only builds (SEQ 478 R1): one instruct, op whileLoop, its operand a mint of [condition, statement]; opWhile runs the loop and catches break and continue
@@ -340,8 +347,9 @@ define
         whileArms   +% *body;
         op := Operators["whileLoop"];
         armsMint    := copyOf(whileArms);
-        miArgs      +% op armsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal. return waits on action bodies (rung 5)
@@ -354,8 +362,9 @@ define
             return *argument;
         op := Operators["branchSignal"];
         kwMint      := copyOf(*kw);
-        miArgs      +% op kwMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op kwMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // bridgeRun a C++-only statement runs its C++ rule method at RUN, in its place (SEQ 489, bridge-run): one instruct, op runRule, its operand a mint of the statement's label bound to that method; opRunRule runs it
@@ -363,38 +372,43 @@ define
         lMint       := copyOf(*argument);
         *lMint.methoD = "aCTionSearch";
         op := Operators["runRule"];
-        miArgs      +% op lMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op lMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     DEBUg code={
         lMint       := copyOf(*argument);
         *lMint.methoD = "aCTionDEBUG";
         op := Operators["runRule"];
-        miArgs      +% op lMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op lMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     SCOPEXp code={
         lMint       := copyOf(*argument);
         *lMint.methoD = "aCTionScopeXP";
         op := Operators["runRule"];
-        miArgs      +% op lMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op lMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // CERr builds as PRINt does (SEQ 496): its sink is cerrList, stderr
     CERr code={
         op := Operators["cerrList"];
-        mpArgs      +% stuff op argument;
-        makePrint(mpArgs);
+        mpArgs      +% stuff op;
+        built       := makePrint(mpArgs);
+        *argument   := *built;
         return  *argument;
         };
     // COUt builds as PRINt does (SEQ 496): its sink is coutList, stdout and never printTO's divert (KANT-23)
     COUt code={
         op := Operators["coutList"];
-        mpArgs      +% stuff op argument;
-        makePrint(mpArgs);
+        mpArgs      +% stuff op;
+        built       := makePrint(mpArgs);
+        *argument   := *built;
         return  *argument;
         };
     // BLOCk only builds (SEQ 476 R1): one seq instruct, as STARt's, its operand a mint of the list of statement instructs
@@ -405,8 +419,9 @@ define
             cur := *cur.nexT;
         op := Operators["seq"];
         stmtsMint   := copyOf(blockStmts);
-        miArgs      +% op stmtsMint argument;
-        makeInstruct(miArgs);
+        miArgs      +% op stmtsMint;
+        built       := makeInstruct(miArgs);
+        *argument   := *built;
         return  *argument;
         };
     // TOPSTATEMENt runs its statement as soon as it is built (SEQ 495), so a define or an include lands between its neighbours
