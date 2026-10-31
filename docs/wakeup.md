@@ -1,3 +1,60 @@
+# ⚠⚠⚠ SEALED 2026-10-31 (297) ON TRUNK -- SHUTDOWN, AND THE M4 -> M6 MIGRATION BASELINE. return-method BOUGHT AND MERGED (3f89c575). RUNG 5 PARKED UNTIL AFTER THE MIGRATION.
+#
+#   ## THE OPENER ON THE M6: reproduce every number in MIGRATION BASELINE below before ANY new work. A number that differs is a
+#   migration finding first and a code finding never, until the build is shown to be the same program (H1, bear-trap 49).
+#   Then: rung 5's ruling -- where the new road's names live (TODO, SEQ 498).
+#   ## TODAY (2026-10-31): makeInstruct (SEQ 494) · FILe / TOPSTATEMENt, the top level one statement at a time (495) · CERr and
+#   COUt into PRINt, three sinks (496) · the return copy carries the method, makeInstruct returns plainly (497) -- all bought.
+#   ## RUNG 5 RECON (SEQ 498), STOPPED by Tony's rule (it touches the frame model): on the new road an undeclared name inside an
+#   action is minted NOWHERE -- `lvNew = 7; print lvNew:;` built in an action prints `lvNew` (orphan nodes), where the old road
+#   mints it into the action as a local (aCTionNamE), the very set the frame bracket saves. Control validated. TODO carries it.
+#
+#   ## MIGRATION BASELINE -- measured 2026-10-31 on the M4, trunk at this seal's commit, binary rebuilt from trunk source
+#     binary   ~/bin/incant -> ~/Library/Developer/Xcode/DerivedData/TOK-dunathwfzpvwdxcoubekdzzjoxid/Build/Products/Debug/Groups
+#              1,821,040 bytes, md5 42854e8a2526cc4f5e76cd4cb2c39be8 (a new machine's build will differ in bytes; the rows must not)
+#     canary   grep -c '^extern' GroupRules.h = 397
+#     pop.sh        exit 1 (standing): "POP FAILED -- 2351 green / 1 parked-WIP"; 2351 ok rows, 55 FAIL rows (all standing)
+#     jitLadder     exit 0: PASSED, 219 ok / 0 FAIL, rungs J1 .. JD + J-R + JM1 JM2
+#     printPop      exit 0: PASSED, 9 ok / 0 FAIL
+#     decodePop     exit 0: PASSED, 22 ok / 0 FAIL, 82 terms = docs/sealCaptures/decodePop.txt but its binary line (refreshed)
+#     ddPop         exit 1 (standing): 5 green / 1 red (trim gate violations 32)
+#     frontier      exit 0: stations 1-6 PASS = docs/sealCaptures/frontier.txt byte for byte
+#     dirCheck      exit 0: PASSED, 106 of 114 inject, parked dark named = docs/sealCaptures/dirCheck.txt; tree retokked bare,
+#                   byte-identical
+#     fixitNag      Tony 0 · Clod 6 (oldest defineCapture, 2026-10-02)
+#     exec bits     the seven checklist scripts all 100755
+#     repos         Groups (this commit) · support 9ae504c · TOK eabebd4 · Parse 1e4c738 · Tokf e37cced -- all clean, pushed
+#   ## TOOLS ON THE M4 (macOS 27.0.1 build 26A434, Apple M4, arm64)
+#     Xcode 27.0 (27A266a), /Applications/Xcode.app · Apple clang 21.0.0 (clang-2100.3.34.2), arm64-apple-darwin27.0.0
+#     LLVM 22.1.7 (Homebrew llvm 22.1.7_1, ARM Homebrew /opt/homebrew, Homebrew 6.0.2): TOK links /opt/homebrew/opt/llvm/lib
+#       libLLVM.dylib and includes /opt/homebrew/opt/llvm/include -- the only non-system dylib the binary loads (otool -L)
+#     BDWGC: Groups/lib/libgc.a, libgccpp.a, libgctba.a (arm64, TRACKED in Groups; -L Groups/lib) + Groups/include/gc*
+#       ⚠ /usr/local also holds an x86_64 bdw-gc 8.2.8 (an Intel Homebrew, /usr/local/bin/brew, whose ruby fails "Bad CPU type")
+#       and TOK searches /usr/local/include: the build uses Groups/ for gc, but do not let the new machine's /usr/local shadow it
+#     MacPorts at /opt/local (on PATH via ~/.zprofile) · git 2.54.0 · python3 3.9.6 (system) · perl 5.34.1 (alarm wrappers) ·
+#     /bin/sh = bash 3.2.57 (pop.sh runs under it) · zsh 5.9
+#   ## WHAT LIVES OUTSIDE GIT AND MUST BE CARRIED (or the build or the fleet stops)
+#     ~/bin is NOT in Dropbox: tok (arm64, Nov 10 2024, md5 935e69a8a53323e15797bf720eb1916a -- the ONLY copy of the code
+#       generator), plg -> ~/data/InProcess/Parse/build/Debug/plg, the incant symlink (re-point it after the first build:
+#       the DerivedData hash may differ), and Tony's scripts bs fz gz pz rz tz (bs = the BeforeSave refresh)
+#     ~/.zshrc: tokall (line 260), the Tawk functions (mpp, mmv, ...) and `path=( . ~/bin ... )` (line 139); ~/.zprofile: MacPorts PATH
+#     symlinks: ~/Dropbox -> ~/Library/CloudStorage/Dropbox (TOK.xcodeproj names /Users/anthony/Dropbox/... absolutely, ~50
+#       paths); ~/data -> Dropbox/data; InProcess/Include, Frame, KeyTable and Groups/Maps -> data/support/... (Dropbox carries these)
+#     gitignored in Groups, NEEDED: Directives/ (groupDirectives, GroupItem, GroupMain, GroupRules, RuleStuff -- 40K; dirCheck
+#       fails without it, and every directives build reads it). Tony's, carry: IncantForms/WorkingOn/incant++, BeforeSave/
+#       (3.6M, his offline diff baseline). Regenerated, need not carry: genLadder/.binRecord, genLadder/smoke.fleet.base.
+#       Not read by anything checked: .claude/settings.local.json, Aside/, BeforeRefactor/, XML/BackupXML/, Tests/ (60 scratch
+#       entries), IncantForms/Tests/, incant/pop/searchAcc* (7 scratch files, no harness names them)
+#     stale TOK search paths, harmless today: /usr/local/incllude (typo), ~/Web/llvm9.0 (missing), InProcess/PLG (missing)
+#   ## Functions touched that carry directive anchors (today): runAction (one parked anchor on `if`, untouched); opPrintList
+#   (none). dirCheck PASSED.
+#
+#   ## CHECKS (trunk, merged, rebuilt): as the baseline above · groups.ext untouched · no incant process · BeforeSave refreshed (bs) last.
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-10-31 (296) ON TRUNK -- PAUSE BEFORE THE BUY. print-sinks BOUGHT AND MERGED (0c4730c2). SEQ 497: return-method PUSHED, NOT MERGED. TONY BUYS OR NOT.
 #
 #   ## THE OPENER: Tony buys or not: return-method (86b93ea9). One plain line: a kant action can now hand back an instruct with a

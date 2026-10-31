@@ -138,6 +138,11 @@ Every rung runs the same incantation under both grammars and compares output.
        everything is built first, then run (unparks cmdCallT CC-1, bridgeT
        BR-3). Then rung 5.
     5  an action, called and self-called    the frame bracket      NEXT
+       RECON 2026-10-31 (SEQ 498), STOPPED, PARKED UNTIL AFTER THE MACHINE
+       MIGRATION (Tony): the new road mints an undeclared name NOWHERE, so an
+       action body built on it has no locals for the bracket to save; the old
+       road mints it into the action (aCTionNamE). A ruling on where the new
+       road's names live comes first. TODO carries the measurement.
                                        (return lands here; WH-8 waits)
     6  the jitter walks the chain      later
        RULED 2026-10-31 (Tony): a walk over the FINISHED chain at an
