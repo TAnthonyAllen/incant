@@ -6,6 +6,14 @@ verifier-rejected marks the action NOT JITTABLE (announced once, by name, interp
 top-level statements stay interpreted; parse bodies keep their road (`probeDrive`); an action already compiled is reused
 from the cache (SEQ 385).
 
+## ⚠⚠ RULED 2026-10-31 (Tony) -- the new road's jitter is a WALK OVER THE FINISHED INSTRUCT CHAIN
+
+At an action's first call the jitter walks the instruct chain kantGrammar's actions built, writes LLVM IR **text**, and
+dispatches per op. An op it cannot write yet falls back to a `testOP` call on that instruct. **The build rules are not
+redefined for jitting.** Parked until after rung 5 (an action called and self-called). The reasoning, and what kant
+lacks to write IR (one `compileIR` extern, unique names, addresses as text, kinds at first call):
+`docs/instructJitter.md`. The macros plan carries it at rung 6.
+
 ## R2 recon (trunk 3edc07f; taps in the clone only, each reverted md5-identical)
 
 ### (a) The call roads

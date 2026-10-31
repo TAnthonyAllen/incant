@@ -132,9 +132,19 @@ Every rung runs the same incantation under both grammars and compares output.
        defer is off the new road's control rules (If, BASICELSe, Do, WHILe,
        FOr, BRANCh, BLOCk, ITERATe); ELSEIf keeps it while it binds the old
        road's aCTionIF. NEXT is rung 5.
+       2026-10-31 (Tony): first one instruction-building kant action for
+       every control rule (in flight); then the next stroke: on the new road
+       a file's top level runs one statement at a time, and inside a block
+       everything is built first, then run (unparks cmdCallT CC-1, bridgeT
+       BR-3). Then rung 5.
     5  an action, called and self-called    the frame bracket      NEXT
                                        (return lands here; WH-8 waits)
     6  the jitter walks the chain      later
+       RULED 2026-10-31 (Tony): a walk over the FINISHED chain at an
+       action's first call. It writes IR text and dispatches per op; an op
+       it cannot write yet falls back to a testOP call. The build rules are
+       not redefined for jitting. Parked until after rung 5. The reasoning:
+       docs/instructJitter.md.
 
 /*******************************************************************************
 	Jitting
