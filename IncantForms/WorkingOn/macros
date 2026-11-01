@@ -244,4 +244,8 @@ Parked: fire(label), a command that fires a rule's action on a label with no
         These could be end of day tasks done just before shutdown
 *******************************************************************************/
 We have a bunch of noPrint commands that call processFlags() mostly to set a flag and those commands are called from aCTionDefinE when it is processing attributes. Why not replace all those commands by having aCTionDefinE check each attribute to see if it is a flag field in GroupFields and if it is call setGroupField() to turn the flag on in NewGroup and then not add the attribute just the way it does not add a noPrint attribute with an immediateMethod. The change to aCTionDefinE would be minimal and it would eliminate all those commands in setup. May then be able to shitcan processFlags
+    Read 2026-11-01 (Tony): processFlags stays. Its 15 commands in setup do not map one to one onto GroupFields
+    flags -- some names differ (index -> isIndexed, isList -> isLIST, TOKENize -> tokened) and some do more than set a
+    flag (bin sets a guard, isRule mints rStuff, sort reads a direction, exit exits). The aCTionDefinE change stays on
+    the table for the attributes that ARE GroupFields flag names; the rest stay commands.
 Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
