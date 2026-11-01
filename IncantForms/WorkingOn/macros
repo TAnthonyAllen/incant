@@ -256,6 +256,7 @@ Have guiHost.mm read its gc header from Groups/include instead of /usr/local/inc
        DONE 2026-11-01 (SEQ 505 R2): `#import "gc/gc.h"`, quoted; guiHost now reads Groups/include/gc; guiHost.o and the binary byte-identical
 Census MacPorts (/opt/local): does any build, script or instrument still use it? If nothing does, uninstall it whole (cleanupList, 6e611fda).
     -- read-only census, then a yes/no uninstall; independent of every other line
+       CENSUS DONE 2026-11-01 (SEQ 505): nothing uses it -- recommend uninstall whole (docs/cleanupList.md); the uninstall is Tony's
 Tony’s M6 cleanup: delete ~/preDropboxReinstall-2026-10-31, the Dropbox “conflicted copy 2026-10-31” files, and the ~/.zshrc / ~/.zprofile .bak-2026-10-31 copies; refresh BeforeSave (bs).
     -- Tony's hands, independent; the BeforeSave refresh closes the old-snapshot audit path, and nothing below needs it
 Rule TL-7: a break inside a top-level if runs and refuses nothing (seal 294).

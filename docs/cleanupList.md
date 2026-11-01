@@ -19,6 +19,21 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   `~/.zprofile` PATH line go together. If SOMETHING uses it, keep it all: the user is MacPorts' safety feature (it builds
   ports unprivileged), so it does not go on its own.
 - **Seen:** 2026-10-31.
+- **CENSUS 2026-11-01 (SEQ 505, read only) -- NOTHING USES IT. Recommendation: uninstall whole, per the ruling above.**
+  - It holds ONE port, `boehmgc` 8.2.10 (libgc, libgccpp, libgctba, libcord), and the `port` tool -- which no longer runs on
+    this OS (`OS platform mismatch`), so `port uninstall` cannot be the way out.
+  - The build does not read it: Groups links its own tracked gc 8.3.0 (`Groups/lib`, a different md5); all 43 of the
+    incant build's dependency files read 0 headers from /opt/local; `otool -L` on incant, tok and plg: 0 references.
+  - TOK.xcodeproj names it 8 times as a search path only: `/opt/local/include` in the Groups and TOK targets' and the
+    project's USER_HEADER_SEARCH_PATHS, `/opt/local/lib` in the TOK target's LIBRARY_SEARCH_PATHS (empty OTHER_LDFLAGS; the
+    TOK target has never been built in this DerivedData). Dead entries once it is gone; a separate small stroke can drop them.
+  - Nothing calls its tools: /opt/local/bin holds only daemondo, port, port-tclsh, portf, portindex, portmirror; none appears
+    in the checklist scripts, ~/bin, ~/.zshrc or ~/.zprofile. They resolve there in a login shell only because it is their
+    only copy.
+  - Left on the machine: the `macports` user (UID 502), /Applications/MacPorts, no launch daemons. PATH lines:
+    `~/.zprofile:3`, four in `~/.profile` (3, 12, 21, 30 -- zsh does not read it), and `~/.zshrc:138` (MANPATH) / `:141`.
+  - ⚠ The first source search ran under ugrep, which ignores --include, and was VOID; redone with /usr/bin/grep and with
+    find over all 25 Xcode projects / Makefiles under ~/Dropbox/data -- the only live hit is TOK.xcodeproj.
 
 ### A set with a modifier after its brackets is stored as a GROUP (data 6) -- HELD for the in-depth cleanup (SEQ 455 R4)
 - **What/where:** `aCTionTraiTdata` (designDocs `scannerKeepsDatA`): `[a-z]+`, `[a-z]*`, `[a-z]?` make the term a group
