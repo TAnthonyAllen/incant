@@ -2098,6 +2098,7 @@ GroupItem 	*ciReport = new GroupItem("driveReport");
 GroupItem 	*ciOwner = 0;
 GroupItem 	*ciSource = 0;
 GroupItem 	*ciSlot = 0;
+GroupItem 	*ciRule = 0;
 GroupItem 	*got = 0;
 GroupItem 	*result = 0;
 char 		*failText = 0;
@@ -2107,12 +2108,18 @@ char 		*failText = 0;
 		{
 		ciOwner = spec->get("owner");
 		ciSource = spec->get("source");
+		ciRule = spec->get("rule");
 		}
 	// namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
 	while ( ciOwner && isGROUP(ciOwner->groupBody->flags.data) && ciOwner->groupBody->gGroup )
 		ciOwner = ciOwner->groupBody->gGroup;
 	while ( ciSource && isGROUP(ciSource->groupBody->flags.data) && ciSource->groupBody->gGroup )
 		ciSource = ciSource->groupBody->gGroup;
+	// ruleOptional a `rule` attribute names the rule to drive, KantGrammar's STARt for a new-road body; with none it is BlocK, the old road (SEQ 502)
+	while ( ciRule && isGROUP(ciRule->groupBody->flags.data) && ciRule->groupBody->gGroup )
+		ciRule = ciRule->groupBody->gGroup;
+	if ( ciRule )
+		blockRULE = ciRule;
 	if ( !ciOwner || !ciSource )
 		return ::refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
 	if ( !ciSource->groupBody->flags.data )
@@ -2123,6 +2130,14 @@ char 		*failText = 0;
 		ciSlot = spec->addAttribute(new GroupItem("result"));
 	ciSlot->setGroup(0);
 	result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
+	// newRoadBody a rule's build hands back its label; its first member is the built seq instruct (measured with no owner, SEQ 502): the action's BlocK takes the instruct's contents and is bound to testOP, so processAction runs the chain unchanged. WIP -- with the owner on the floor the build's own kant actions do not run (SEQ 502 R1 stop)
+	if ( ciRule && result && result != ruler->falseResult )
+		{
+		got = result->get(1);
+		result = new GroupItem("BlocK");
+		result->setContent(got);
+		::setCompiledMethod(result,"testOP");
+		}
 	if ( result && result != ruler->falseResult )
 		{
 		ciSlot->setGroup(result);

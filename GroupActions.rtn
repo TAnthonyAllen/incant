@@ -107,16 +107,21 @@ GroupItem   spec = input,
             ciOwner,
             ciSource,
             ciSlot,
+            ciRule,
             got,
             result;
 String      failText;
     if spec && spec.isGROUP     spec = spec.gGroup;
     if spec {
         ciOwner     = spec["owner"];
-        ciSource    = spec["source"]; }
+        ciSource    = spec["source"];
+        ciRule      = spec["rule"]; }
     // namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
     while ciOwner && ciOwner.isGROUP && ciOwner.gGroup      ciOwner = ciOwner.gGroup;
     while ciSource && ciSource.isGROUP && ciSource.gGroup   ciSource = ciSource.gGroup;
+    // ruleOptional a `rule` attribute names the rule to drive, KantGrammar's STARt for a new-road body; with none it is BlocK, the old road (SEQ 502)
+    while ciRule && ciRule.isGROUP && ciRule.gGroup     ciRule = ciRule.gGroup;
+    if ciRule   blockRULE = ciRule;
     if !ciOwner || !ciSource
         return refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
     if !ciSource.data
@@ -126,6 +131,12 @@ String      failText;
     if !ciSlot      ciSlot = spec.addAttribute(new("result"));
     ciSlot.setGroup(null);
     result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
+    // newRoadBody a rule's build hands back its label; its first member is the built seq instruct (measured with no owner, SEQ 502): the action's BlocK takes the instruct's contents and is bound to testOP, so processAction runs the chain unchanged. WIP -- with the owner on the floor the build's own kant actions do not run (SEQ 502 R1 stop)
+    if ciRule && result && result != falseResult {
+        got     = result[1];
+        result  = new("BlocK");
+        result.setContent(got);
+        setCompiledMethod(result,"testOP"); }
     if result && result != falseResult {
         ciSlot.setGroup(result);
         return trueResult; }
