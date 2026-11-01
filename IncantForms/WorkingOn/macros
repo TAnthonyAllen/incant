@@ -240,6 +240,8 @@ R9  Ruling A: a name the new road meets inside an action body that resolves
     built, once -- the set the old road creates (aCTionNamE) and the frame
     bracket saves. Beside the 2026-09-27 ruling (names become locals at
     compile time, once).                                        (SEQ 502 R0)
+Design talk on checkSkip: indentation-as-blocks is a text rewrite gated by who is building (inCompile, defining, now the name owner). Should the new road spell a block as braces or an indented run in the grammar itself instead? When should indentation count, and how do braces and indentation coexist? Uses SEQ 504’s ML-3 answer.
+    Ruled 2026-11-01: on the new road, checkSkip becomes a kant rule (SKIp) whose action keeps the indent stack and hands up INDENT / DEDENT; kantGrammar spells BLOCk as { } or INDENT ... DEDENT, so where blocks are allowed is a grammar question. The old road’s checkSkip stays untouched. Open: where SKIp runs (the parser’s own skip, or explicit terms), several DEDENTs at once, blank and comment lines, tabs vs spaces.    -- 6: design talk, nothing to build, with ML-3's answer in hand (no road rewrites at the top level); before argument, and before the define work below, because how braces and indentation coexist bears on the braceInCode cure
 Shared with the old grammar, referenced never redefined: TOKENize, DEFINing,
     PRINTing, ANYtoken, followedBy; the C++ bootstrap seeds NamE, NumbeR,
     QuotE, SemI, GrouP, define, counter; Operators and its UnaryOPS bin.
@@ -250,27 +252,25 @@ Parked: fire(label), a command that fires a rule's action on a label with no
         These could be end of day tasks done just before shutdown
 *******************************************************************************/
 Have guiHost.mm read its gc header from Groups/include instead of /usr/local/include, so the Intel bdw-gc 8.2.8 in /usr/local can never shadow the build (seal 298).
-    -- 1: one include path in one file, nothing waits on it; closes seal 298's shadowing risk before anything else is built on the M6
+    -- one include path in one file, nothing waits on it; closes seal 298's shadowing risk before anything else is built on the M6
        DONE 2026-11-01 (SEQ 505 R2): `#import "gc/gc.h"`, quoted; guiHost now reads Groups/include/gc; guiHost.o and the binary byte-identical
 Census MacPorts (/opt/local): does any build, script or instrument still use it? If nothing does, uninstall it whole (cleanupList, 6e611fda).
-    -- 2: read-only census, then a yes/no uninstall; independent of every other line
+    -- read-only census, then a yes/no uninstall; independent of every other line
 Tony’s M6 cleanup: delete ~/preDropboxReinstall-2026-10-31, the Dropbox “conflicted copy 2026-10-31” files, and the ~/.zshrc / ~/.zprofile .bak-2026-10-31 copies; refresh BeforeSave (bs).
-    -- 3: Tony's hands, independent; the BeforeSave refresh closes the old-snapshot audit path, and nothing below needs it
+    -- Tony's hands, independent; the BeforeSave refresh closes the old-snapshot audit path, and nothing below needs it
 Rule TL-7: a break inside a top-level if runs and refuses nothing (seal 294).
-    -- 4: a ruling, nothing to build; cheap, and it pins a row that is open today
+    -- a ruling, nothing to build; cheap, and it pins a row that is open today
 Recon defineCapture shape B, read only: a bare name with members or attributes after it, and whether the original is a rule (seal 254, objectModelRecon section 27).
-    -- 5: read only; it opens the cure for the oldest fixit in Clod's lane
-Design talk on checkSkip: indentation-as-blocks is a text rewrite gated by who is building (inCompile, defining, now the name owner). Should the new road spell a block as braces or an indented run in the grammar itself instead? When should indentation count, and how do braces and indentation coexist? Uses SEQ 504’s ML-3 answer.
-    Ruled 2026-11-01: on the new road, checkSkip becomes a kant rule (SKIp) whose action keeps the indent stack and hands up INDENT / DEDENT; kantGrammar spells BLOCk as { } or INDENT ... DEDENT, so where blocks are allowed is a grammar question. The old road’s checkSkip stays untouched. Open: where SKIp runs (the parser’s own skip, or explicit terms), several DEDENTs at once, blank and comment lines, tabs vs spaces.    -- 6: design talk, nothing to build, with ML-3's answer in hand (no road rewrites at the top level); before argument, and before the define work below, because how braces and indentation coexist bears on the braceInCode cure
+    -- read only; it opens the cure for the oldest fixit in Clod's lane
 Make argument mean one thing everywhere: in a rule’s code it is the label the rule fired on, in an action it is the call’s argument. Rename the rule’s version (actionLabel was proposed 2026-10-22, seal 199) and census rule code that reads argument before changing it. SEQ 502’s AL-3a pins the gap.
-    -- 7: before ruleMethod below: a shared rule action reads argument (the label), so the rename should land first; it also unblocks newLocalArgT AL-3a, rung 5's next gap
+    -- before ruleMethod below: a shared rule action reads argument (the label), so the rename should land first; it also unblocks newLocalArgT AL-3a, rung 5's next gap
 Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
-    -- 8: waits on the argument rename above (If and ELSEIf read their label through argument); opens ELSEIf losing its old-road action
+    -- waits on the argument rename above (If and ELSEIf read their label through argument); opens ELSEIf losing its old-road action
 We have a bunch of noPrint commands that call processFlags() mostly to set a flag and those commands are called from aCTionDefinE when it is processing attributes. Why not replace all those commands by having aCTionDefinE check each attribute to see if it is a flag field in GroupFields and if it is call setGroupField() to turn the flag on in NewGroup and then not add the attribute just the way it does not add a noPrint attribute with an immediateMethod. The change to aCTionDefinE would be minimal and it would eliminate all those commands in setup. May then be able to shitcan processFlags
     Read 2026-11-01 (Tony): processFlags stays. Its 15 commands in setup do not map one to one onto GroupFields
     flags -- some names differ (index -> isIndexed, isList -> isLIST, TOKENize -> tokened) and some do more than set a
     flag (bin sets a guard, isRule mints rStuff, sort reads a direction, exit exits). The aCTionDefinE change stays on
     the table for the attributes that ARE GroupFields flag names; the rest stay commands.
-    -- 9: independent, but it touches aCTionDefinE, where the braceInCode fixit also lives; after the two above so define work comes together
+    -- independent, but it touches aCTionDefinE, where the braceInCode fixit also lives; after the two above so define work comes together
 Decide what a refusal should carry, for a future kant debugger and change refusal processing accordingly
-    -- 10: a design question with no fixed end; last, because every other line is smaller and none waits on it
+    -- a design question with no fixed end; last, because every other line is smaller and none waits on it
