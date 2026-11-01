@@ -2688,3 +2688,13 @@ Same kind, no change: `incant/pop/connectiveT` (`&&` x4 over calls), `incant/pro
 ⚠ **What (b) shows about today, recorded and not ruled:** with no tiers, the five `utilities` comparisons combine as
 `x > (px && (x < pxw))` under today's right-to-left, and as `((x > px) && x) < pxw` under a strict left fold -- **neither
 direction alone gives the reading the code was written for; a comparison tier above the short-circuit one does.**
+
+## Ruling A -- where the new road's names live (Tony, 2026-11-01, SEQ 502 R0)
+
+**A name the new road meets inside an action body that resolves to nothing becomes a local of that action, created when
+the action is built, once.** It is the same set the old road creates through `aCTionNamE` (`resolveName`,
+`ruleActions.rtn`) and the frame bracket (`saveLocalFields` / `restoreLocalFields`) saves.
+
+It stands beside the 2026-09-27 ruling that **an action body's names become locals at COMPILE time, once** -- recorded in
+that day's seal (`docs/wakeup.md`, "Tony's rulings recorded") and not in this file before today. Ruling A is that ruling
+carried to the new road. Rung 5's measurement that asked for it: TODO, SEQ 498.

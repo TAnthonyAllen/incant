@@ -143,6 +143,7 @@ Every rung runs the same incantation under both grammars and compares output.
        action body built on it has no locals for the bracket to save; the old
        road mints it into the action (aCTionNamE). A ruling on where the new
        road's names live comes first. TODO carries the measurement.
+       RULED 2026-11-01 (Tony): Ruling A (R9 below). Step 1 is SEQ 502.
                                        (return lands here; WH-8 waits)
     6  the jitter walks the chain      later
        RULED 2026-10-31 (Tony): a walk over the FINISHED chain at an
@@ -234,6 +235,11 @@ R8  New ops are C++ first, then kant. Each scaffold carries a dated TODO line,
     retired by mapping, groups.ext line included. opSeq, opPrintList and
     opPrintShortcut are such scaffolds. shortcutTest was the new grammar's C++
     parse decider; since SEQ 469 only the old road calls it.   (SEQ 438 R4)
+R9  Ruling A: a name the new road meets inside an action body that resolves
+    to nothing becomes a local of that action, created when the action is
+    built, once -- the set the old road creates (aCTionNamE) and the frame
+    bracket saves. Beside the 2026-09-27 ruling (names become locals at
+    compile time, once).                                        (SEQ 502 R0)
 Shared with the old grammar, referenced never redefined: TOKENize, DEFINing,
     PRINTing, ANYtoken, followedBy; the C++ bootstrap seeds NamE, NumbeR,
     QuotE, SemI, GrouP, define, counter; Operators and its UnaryOPS bin.
