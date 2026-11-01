@@ -6,7 +6,10 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
-### MacPorts on the M6 -- uninstall whole if nothing uses it (Tony, 2026-10-31)
+### ✅ DONE 2026-11-01 -- MacPorts on the M6 -- uninstall whole if nothing uses it (Tony, 2026-10-31)
+- **Done:** Tony removed /opt/local, /Applications/MacPorts and the macports user; Clod removed the PATH lines (~/.zprofile,
+  ~/.profile, ~/.zshrc -- backups .bak-2026-11-01) and TOK.xcodeproj's eight /opt/local search paths (TOK 55d1c0e, binary
+  byte-identical). Fresh login shell clean, full checklist row for row (seal 308).
 - **What/where:** MacPorts at `/opt/local`; the hidden `macports` user it builds under, which the M4 -> M6 transition added;
   and its PATH line in `~/.zprofile:3` (`/opt/local/bin:/opt/local/sbin` prepended -- position 3 and 4 of the login PATH,
   ahead of the system dirs and of `/opt/homebrew/bin`; seal 299's census).
