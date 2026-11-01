@@ -5,9 +5,11 @@
 #   ## R0: merged --no-ff; bare tokall = the branch's generated code; pop.sh 2379 = the branch run row for row; jitLadder
 #   219/0; printPop passed; indent-blocks deleted locally and on GitHub; main = trunk.
 #   ## R1: Tony's checkSkip design-talk line slotted at 6 with its reason, committed alone (de8eb96b).
-#   ## R2 (the picks: end-of-day items 1, 2, 5, pausing after each): ITEM 1 DONE (1007020c) -- `#import "gc/gc.h"` quoted;
+#   ## R2 (the picks, by NAME -- the numbers shift as the list grows: the guiHost gc header, the MacPorts census, the
+#   defineCapture shape B recon, pausing after each): THE guiHost GC HEADER DONE (1007020c) -- `#import "gc/gc.h"` quoted;
 #   guiHost.d lists Groups/include/gc (was /usr/local/include/gc); guiHost.o and ~/bin/incant byte-identical (22aa83a6).
-#   NEXT: item 2, the MacPorts census (read only, ends with a recommendation; the uninstall is Tony's). Then item 5.
+#   NEXT: the MacPorts census (read only, ends with a recommendation; the uninstall is Tony's). Then the defineCapture
+#   shape B recon (read only).
 #
 #   ## Tony's fixit incantations waiting: 0
 #   ## Clod's fixit incantations waiting: 7 (oldest: defineCapture, since 2026-10-02)
