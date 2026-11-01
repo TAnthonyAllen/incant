@@ -177,7 +177,7 @@ extern "C" GroupItem *definersOf(GroupItem *input);
 extern "C" void dispatcher(void *stuff);
 extern "C" GroupItem *displayFill(GroupItem *field);
 extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label);
-extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner);
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner, GroupItem *forNames);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
 extern "C" GroupItem *enclosingInstance(GroupItem *field);

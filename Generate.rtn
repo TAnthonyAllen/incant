@@ -272,6 +272,7 @@ RuleStuff   ruleStuff = rStuff;
     callActive.instance = field;
     callActive.isFloor  = 0;
     callActive.compileOwner = null;
+    callActive.nameOwner    = null;
     callActive.label    = null;
     callActive.prev     = ruler.gParseActive;
     callActive.failPoint = null;

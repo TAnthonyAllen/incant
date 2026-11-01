@@ -859,8 +859,9 @@ GroupItem *result = 0;
 GroupItem *owner = ruler->currentMETHOD->getGroup();
 char *arg = 0;
 	arg = input->getText();
-	if ( ruler->inCompile() )
-		owner = ruler->floorOwner();
+	// nameOwnerRead the owner names are created in is the floor's name channel, never the compile mark (SEQ 502 R1a)
+	if ( ruler->floorNameOwner() )
+		owner = ruler->floorNameOwner();
 	result = resolveName(input->getText(),owner);
 	input->setGroup(result);
 	return input;
@@ -1287,7 +1288,7 @@ int 		stoppedAt = 0;
 		said = new GroupItem("message");
 		said->setText(message->getText());
 		raw = new GroupItem("driveReport");
-		result = driveStep(said,who,raw,0);
+		result = driveStep(said,who,raw,0,0);
 		if ( got = raw->get("length") )
 			msgLen = got->getCount();
 		if ( got = raw->get("mark") )
@@ -2129,7 +2130,10 @@ char 		*failText = 0;
 	if ( !ciSlot )
 		ciSlot = spec->addAttribute(new GroupItem("result"));
 	ciSlot->setGroup(0);
-	result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
+	// twoChannels the old road's compile sets both: its mark (inCompile) and its name owner; a rule's build sets only the name owner, so the new road's own kant actions keep running while it builds (SEQ 502 R1a)
+	if ( ciRule )
+		result = driveStep(ciSource,blockRULE,ciReport,0,ciOwner);
+	else	result = driveStep(ciSource,blockRULE,ciReport,ciOwner,ciOwner);
 	// newRoadBody a rule's build hands back its label; its first member is the built seq instruct (measured with no owner, SEQ 502): the action's BlocK takes the instruct's contents and is bound to testOP, so processAction runs the chain unchanged. WIP -- with the owner on the floor the build's own kant actions do not run (SEQ 502 R1 stop)
 	if ( ciRule && result && result != ruler->falseResult )
 		{
@@ -2417,7 +2421,7 @@ ParseActivation 	*top = ruler->gParseActive;
 }
 
 // driveStep runRule's body and the one drive runRule and tell share: divert input to the field's content, run the rule, and report OFFSETS into the message, never addresses (H3)
-extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner)
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner, GroupItem *forNames)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 GroupItem 			*result = 0;
@@ -2445,6 +2449,8 @@ char 				*driveBase = 0;
 	driveFloor.isFloor = 1;
 	// compileMark a compile's drive passes its owner: the floor answers inCompile() and floorOwner(), and its pop is the restore (SEQ 297, SEQ 299)
 	driveFloor.compileOwner = forOwner;
+	// nameChannel where this drive's undeclared names are created -- resolveName reads it, inCompile() does not (SEQ 502 R1a)
+	driveFloor.nameOwner = forNames;
 	driveFloor.label = 0;
 	driveFloor.prev = ruler->gParseActive;
 	driveFloor.failPoint = 0;
@@ -10128,6 +10134,7 @@ GroupRules 			*ruler = GroupControl::groupController->groupRules;
 	topFloor.instance = 0;
 	topFloor.isFloor = 1;
 	topFloor.compileOwner = 0;
+	topFloor.nameOwner = 0;
 	topFloor.label = 0;
 	topFloor.prev = ruler->gParseActive;
 	topFloor.failPoint = 0;
@@ -10158,6 +10165,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	callActive.instance = field;
 	callActive.isFloor = 0;
 	callActive.compileOwner = 0;
+	callActive.nameOwner = 0;
 	callActive.label = 0;
 	callActive.prev = ruler->gParseActive;
 	callActive.failPoint = 0;
@@ -10745,7 +10753,7 @@ char 		*failText = 0;
 	// parseNeverEmits a parse RUNS, even inside a compile: on the new road the drive runs BlocK's generated body, and under jitting its terms were emitted into the action's function instead of parsing the code (SEQ 382 R2)
 	 bool walkSave = gJitEmitWalk; gJitEmitWalk = false; 
 	 int jitSave = GroupControl::groupController->groupRules->jitting; GroupControl::groupController->groupRules->jitting = 0; 
-	result = ::driveStep(code,blockRULE,codeReport,action);
+	result = ::driveStep(code,blockRULE,codeReport,action,action);
 	 GroupControl::groupController->groupRules->jitting = jitSave; 
 	 gJitEmitWalk = walkSave; if ( walkSave ) ::clearRefusal(field); 
 	if ( result )
@@ -11232,7 +11240,7 @@ extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
 	GroupItem *grup = 0, *result = 0;
-	int inCode = ruler->inCompile();
+	int inCode = ruler->floorNameOwner() != 0;
 	if ( inCode && owner )   result = owner->getAttribute(arg);
 	if ( !result )                          result = GroupControl::groupController->locate(arg);
 	if ( result && result->parent == owner )    return result;
@@ -11802,7 +11810,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = ::driveStep(field,rule,0,0);
+GroupItem 	*result = ::driveStep(field,rule,0,0,0);
 	// oneBit a generated root hands driveStep its LABEL; the kant caller still gets the chain's truth (ruling c')
 	if ( rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult )
 		return ruler->trueResult;
@@ -12341,7 +12349,7 @@ GroupItem 	*result = 0;
 		return 0;
 		}
 	// oneDoor a drive goes through driveStep -- its floor keeps a failed pass off the caller's input (P3a routing, SEQ 185)
-	result = ::driveStep(argument,rule,0,0);
+	result = ::driveStep(argument,rule,0,0,0);
 	::fprintf(stderr,"TREE %s\n",argument->getText());
 	if ( result )
 		::showTree(result,"    ");
@@ -12774,16 +12782,17 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
-	driveStep(GroupItem*,GroupItem*,GroupItem*,null*)
+	driveStep(GroupItem*,GroupItem*,GroupItem*,null*,null*)
+	driveStep(GroupItem*,GroupItem*,GroupItem*,null*,GroupItem*)
 	accFold(GroupItem*)
 	accFold(GroupItem*)
 	accCompare(GroupItem*)
 	accLogic(GroupItem*)
-	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	accBare(GroupItem*,GroupItem*)
+	clearRefusal(GroupItem*)
+	clearRefusal(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
-	clearRefusal(GroupItem*)
-	clearRefusal(GroupItem*)
+	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
