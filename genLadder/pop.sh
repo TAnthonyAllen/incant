@@ -1040,6 +1040,8 @@ _ofeq "newLocalT AL-1h old road (control): lvNew is the action's / a never-writt
 _ofeq "newLocalT AL-2 old road (control): two calls read alike, the local does not leak" "$(_nlv 'AL-2 o')" "lv2 |3 |lv2 |3 |"
 _ofeq "newLocalT AL-3 old road (control): a self-call keeps each level's local" "$(_nlv 'AL-3 o')" "0 |1 |2 |"
 _ofeq "newLocalT AL-4 old road (control): an outer field reads 5 inside, the write reaches it" "$(_nlv 'AL-4 o')" "5 |6 |"
+_ofeq "newLocalT ML-1 old road (control): an indented two-line arm under a false if does not run" "$(_nlv 'ML-1 o')" "4 |"
+_ofeq "newLocalT ML-2 old road (control): the same arm under a true if runs" "$(_nlv 'ML-2 o')" "5 |4 |"
 _ofeq "newLocalT AL-5 old road (control): at the top level the name echoes its tag" "$(_nlv 'AL-5 o')" "lv5o |"
 _ofeq "newLocalT AL-5h old road (control): nothing created in an action" "$(_nlh 'AL-5h o')" "0"
 _nlR="$(_nlv 'RP n')"
@@ -1050,6 +1052,10 @@ fdRow "newLocalT AL-1h new road: lvNew is the action's (road / held)" "$_nlR $(_
 fdRow "newLocalT AL-2 new road: two calls read alike (road / value)" "$_nlR $(_nlv 'AL-2 n')" "[     7 ] | lv2 |3 |lv2 |3 |" "[ 7 ] | lv2 |3 |lv2 |3 |"
 fdRow "newLocalT AL-3 new road: a self-call keeps each level's local (road / value)" "$_nlR $(_nlv 'AL-3 n')" "[     7 ] | 0 |1 |2 |" "[ 7 ] | 0 |1 |2 |"
 fdRow "newLocalT AL-4 new road: the outer field reads 5, the write reaches it (road / value)" "$_nlR $(_nlv 'AL-4 n')" "[     7 ] | 5 |6 |" "[ 7 ] | 5 |6 |"
+#  ML-1 BORN RED (SEQ 503 R2): a new-road build has inCompile() false (SEQ 502, by design), and checkSkip turns indentation
+#  into braces only when inCompile() || defining (GroupRules.twk:209), so an indented arm is its first line only
+fdRow "newLocalT ML-1 new road: an indented two-line arm under a false if does not run (road / value)" "$_nlR $(_nlv 'ML-1 n')" "[ 7 ] | lv7 |4 |" "[ 7 ] | 4 |"
+fdRow "newLocalT ML-2 new road: the same arm under a true if runs (road / value)" "$_nlR $(_nlv 'ML-2 n')" "[ 7 ] | 5 |4 |" "[ 7 ] | 5 |4 |"
 fdRow "newLocalT AL-5 new road: at the top level the name echoes its tag (road / value)" "$_nlR $(_nlv 'AL-5 n')" "[     7 ] | lv5n |" "[ 7 ] | lv5n |"
 fdRow "newLocalT AL-5h new road: nothing created in an action (road / held)" "$_nlR $(_nlh 'AL-5h n')" "[     7 ] | 0" "[ 7 ] | 0"
 else echo "  FAIL  newLocalT MISSING"; fail=1

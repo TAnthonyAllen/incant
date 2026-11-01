@@ -61,6 +61,7 @@ newLocalArgT -- SEQ 502 R3 (2026-11-01): newLocalT's AL-3a in its own process. T
 recursing on lv3a - 1, on both roads (the n action built by compileIn with KantGrammar's STARt, the o with none), and the
 road proof RP again so a new-road row cannot pass on the old road's value.
 A KNOWN GAP on the new road, pinned red: (1) `argument` in an action body is resolved at BUILD, before runAction mints the
-action's argument (at its first call), so it lands on another action's argument field; (2) arithmetic on a holder refuses
-on the new road -- measured with no action and no owner, `hz := qa; print hz - 1` refuses at the top level.
+action's argument (at its first call), so it lands on another action's argument field, and lv3a = argument then copies a
+HOLDER; (2) so `lv3a - 1` refuses -- which is NOT a road difference: `hz := qa; print hz - 1` refuses identically on BOTH
+roads, and `*hy - 1` reads 1 on both (measured SEQ 503). Only (1) is the gap; (2) is its consequence.
 Kept apart because beside newLocalT's AL-3 the gap corrupted AL-3 (bisected).
