@@ -19,7 +19,9 @@ define
     tdRead code={
         tdM := UnitTests["maximus"];
         tdR := Grokking["NamE"];
-        cerr "TD " argument ": UnitTests maximus isRulE=" *tdM.isRulE "   control, the rule NamE isRulE=" *tdR.isRulE:;
+        tdMv := *tdM.isRulE;
+        tdRv := *tdR.isRulE;
+        cerr "TD " argument ": UnitTests maximus isRulE=" tdMv "   control, the rule NamE isRulE=" tdRv:;
         };
     ;
 tdRead(before);
@@ -35,7 +37,8 @@ define
     mcRead code={
         mcM := UnitTests["maximus"];
         mcK := *mcM["mcKid"];
-        cerr "MC " argument ": UnitTests maximus has term mcKid: " *mcK.taG:;
+        mcKv := *mcK.taG;
+        cerr "MC " argument ": UnitTests maximus has term mcKid: " mcKv:;
         };
     ;
 mcRead(before);
@@ -140,3 +143,7 @@ onto whatever node the definition finally owns (om-r2-ownname already carries th
 2026-10-29 SEQ 459  Shape A BOUGHT, merged 19b87c7b: pop.sh 2013 = the branch row for row. counterCapture and docsOnCommands now print
                     their taken signatures (the set; the commands' own tags). The fixit stays OPEN for Shape B: membersFlagCapture,
                     traitDataCapture, the bare-name-with-content cases (SEQ 457 R3).
+2026-11-01 SEQ 506  INSTRUMENT REPAIR, no code: sections 3 and 4 had been REFUSING (4 refusals a run) -- in a print, `"..." *tdM.isRulE`
+                    parses as string * field (`REFUSED Token -- Operator * -- cannot apply`), so their TD / MC lines printed nothing while
+                    the sentinel still printed. Reads now capture first (tdMv := *tdM.isRulE), then print. Live today: TD before 0 / after 1
+                    (control NamE 1 / 1); MC before = tag echo (absent) / after mcKid. Shape B recon: objectModelRecon section 28.

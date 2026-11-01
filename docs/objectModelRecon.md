@@ -1699,3 +1699,54 @@ follows is unchanged. Its **currentDefine repair** stays part of any shape that 
 wrong for value captures (counter still reads 0 at TraiT time, measured today). What moved underneath it: the activation chain
 (stroke 5.5a) makes the TraiT-time test possible; aCTionDefinE gained `noSatellite` (F-O32), ruleOf copies (stroke 4), CodE on the
 property list; resolveName gained the compile-owner path. Its env knob and `ruler->registries` test are measurement scaffolding.
+
+## 28. defineCapture shape B recon: a bare definition name with content after it, resolved into another registry (SEQ 506, 2026-11-01, read-only) -- STOP, Tony rules the shape
+
+**Measured with a temporary build, reverted** (an env-gated tap at aCTionDefinE's entry, after NewGroup resolves and before it is
+re-homed, writing to a file; ruleActions.rtn md5 restored, retokked, rebuilt; the binary byte-identical again, 22aa83a6).
+Population: every process of pop.sh, jitLadder, decodePop, ddPop, printPop and frontier (23,060 tap lines; pop.sh 2379 row for
+row, tapped and untapped), plus the fixit incant/fixits/defineCapture, which the fleet does not run. Logged: a definition whose
+own name resolved to a node homed in ANOTHER registry; kept for this section: those with attributes or members after the name.
+Recon 27 is dated 2026-10-29, before Shape A was bought; this re-measures it.
+
+### 28a. The population today
+
+| definition | name | original (home) | after the name | original is | class (recon 27b, re-read) |
+|---|---|---|---|---|---|
+| CompileInT | WardeD | Grokking | members | a RULE | **intended** -- extends the rule (CI-H) |
+| Decoder | canonOf, TOKENize | cOMMANDs | members | a command | **accidental** -- members on a command |
+| Modifiers | `?` `*` `+` | Operators | attrs (repeatClass) | an operator, not a rule | **intended reference** -- the attribute lands on the shared body (recon 18d, inert) |
+| Utilities | parser | fILEs | attrs (code=) | a fILEs entry (carries its path) | **accidental but load-bearing** (F-O33: a fresh node breaks include(parser)) |
+| McCap (fixit) | maximus | UnitTests | members | a plain field -- **but reads isRule 1 here** | **accidental** (membersFlagCapture) |
+
+Gone since recon 27, by Shape A: the DesignDocs entries with members (stop, compile, parseAction) -- each now has a value, so it
+mints its own node. KantGrammar/KantGrammar isRule is the registry itself, homed in its own registry, so not in the population.
+Value capture (traitDataCapture): still only the fixit's own `tdV=maximus+` -- maximus isRule 0 before, 1 after.
+
+### 28b. What the population says about recon 27c's split ("what the ORIGINAL is")
+
+1. **It fails on the Modifiers lines.** `?`, `*` and `+` are Operators entries, not rules, and their attribute is intended. A
+   rule-or-registry test calls them captures. So the split needs an operator exception, or it is the wrong question.
+2. **It is fooled by the value capture.** In the fixit, McCap's maximus arrives reading isRule 1, because section 3's
+   `tdV=maximus+` promoted UnitTests' plain field to a rule first. Under a rule-means-extend test the members capture would then
+   be ruled intended. **The two captures compose**, so the value capture's cure comes before any test that reads isRule.
+3. **One accidental case is load-bearing.** Utilities' parser takes code= into the fILEs entry, and recon 27b records that a fresh
+   node breaks include(parser). Curing it is a behaviour change with a dependent, not a tidy-up.
+
+### 28c. Shapes for Tony to rule (none built)
+
+- **B1, by the original's kind.** A rule or registry is extended in place; an Operators entry keeps today's shared-body attribute;
+  a command, a fILEs entry or a plain field: the definition mints its own node in its own registry. Needs traitDataCapture's
+  copy-first cure FIRST (28b.2), and parser's dependent re-pointed (28b.3).
+- **B2, explicit.** A definition that means to extend or annotate a foreign entry says so in its spelling; every other bare name
+  with content mints its own node. The population that would carry the marker today is small and named: WardeD (one fixture),
+  the three Modifiers lines, parser. Clod's recommendation: it makes the capture unconstructable rather than guessed at, and the
+  guess (B1) has already been fooled once in this population.
+- **B3, leave bare-with-content as it is.** Cure only the value capture (traitDataCapture) and make the MEMBERs flag land on the
+  node the definition finally owns, so it cannot stick (membersFlagCapture's NEXT).
+
+Either way traitDataCapture's cure is independent and first: the value's writes belong to the value as used here (copy, then
+write), and it is the one that can disguise the others.
+⚠ **Instrument repair on the way:** the fixit's sections 3 and 4 had been refusing every run (`"..." *x.flag` in a print parses
+as string * field), so their readings were absent behind a sentinel that still printed; repaired (capture, then print).
+
