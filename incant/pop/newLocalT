@@ -73,8 +73,6 @@ define
     nl2o code={ print lv2:; lv2 = 3; print lv2:; };
     nl3n code={ lv3 = nlDepN; nlDepN = nlDepN - 1; if lv3 > 0; nl3n(9); print lv3:; };
     nl3o code={ lv3 = nlDepO; nlDepO = nlDepO - 1; if lv3 > 0; nl3o(9); print lv3:; };
-    nl3an code={ lv3a = argument; if lv3a > 0; nl3an(lv3a - 1); print lv3a:; };
-    nl3ao code={ lv3a = argument; if lv3a > 0; nl3ao(lv3a - 1); print lv3a:; };
     nl4n code={ print nlOutN:; nlOutN = 6; };
     nl4o code={ print nlOutO:; nlOutO = 6; };
     ;
@@ -87,8 +85,6 @@ nlNew(nl2n);
 nlOld(nl2o);
 nlNew(nl3n);
 nlOld(nl3o);
-nlNew(nl3an);
-nlOld(nl3ao);
 nlNew(nl4n);
 nlOld(nl4o);
 print "NL RP n":;
@@ -109,10 +105,6 @@ print "NL AL-3 n":;
 nl3n(9);
 print "NL AL-3 o":;
 nl3o(9);
-print "NL AL-3a n":;
-nl3an(2);
-print "NL AL-3a o":;
-nl3ao(2);
 print "NL AL-4 n":;
 nl4n();
 print nlOutN:;
@@ -152,10 +144,8 @@ AL-3 nl3n calls itself while a declared depth counter (2) counts down, printing 
      keeps its own lv3 across the inner call (0 1 2); a shared local would print 0 0 0. RE-PINNED before the buy (SEQ 502
      R3): the dispatched shape read its depth from `argument`, and that rides two new-road gaps outside Ruling A, so
      it is AL-3a. The claim -- the frame bracket covers a new-road local -- needs neither.
-AL-3a the dispatched shape, lv3a = argument, recursing on lv3a - 1. A KNOWN GAP on the new road, pinned red: (1)
-     `argument` in an action body is resolved at BUILD, before runAction mints the action's argument (at its first
-     call), so it resolves to another action's argument field; (2) arithmetic on a holder refuses on the new road --
-     measured with no action and no owner, `hz := qa; print hz - 1` refuses at the top level.
+AL-3a lives in incant/pop/newLocalArgT, its own process: in this file its gap (an `argument` bound into another
+     action's slot at build) corrupted AL-3 -- alone AL-3 reads 0 1 2, beside AL-3a it read 2 (bisected, SEQ 502 R3).
 AL-4 a declared outer field used inside: it reads the outer 5, the write reaches it (6 after), no local shadows it.
 AL-5 the same kind of statement at the top level, outside any action: nothing is created in an action (AL-5h).
 

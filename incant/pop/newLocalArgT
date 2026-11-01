@@ -1,0 +1,66 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewLocalArgT);
+define
+    nlReqN owner source result rule;
+    nlReqO owner source result;
+    nlOutN = 5;
+    nlOutO = 5;
+    nlDepN = 2;
+    nlDepO = 2;
+    itW;
+    it5;
+    nlNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nlOld code={
+        nlSrc := argument.CodE;
+        nlReqO.owner  := argument;
+        nlReqO.source := nlSrc;
+        if compileIn(nlReqO);
+            nlBlock = nlReqO.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nl3an code={ lv3a = argument; if lv3a > 0; nl3an(lv3a - 1); print lv3a:; };
+    nl3ao code={ lv3a = argument; if lv3a > 0; nl3ao(lv3a - 1); print lv3a:; };
+    nlRPn code={ print "[" 7 #5d "]":; };
+    ;
+search NewLocalArgT;
+nlNew(nlRPn);
+nlNew(nl3an);
+nlOld(nl3ao);
+print "NL RP n":;
+nlRPn();
+print "NL AL-3a n":;
+nl3an(2);
+print "NL AL-3a o":;
+nl3ao(2);
+print "NL END":;
+cerr "NEWLOCALARGT SENTINEL":;
+stop();
+
+newLocalArgT -- SEQ 502 R3 (2026-11-01): newLocalT's AL-3a in its own process. The dispatched AL-3 shape, lv3a = argument,
+recursing on lv3a - 1, on both roads (the n action built by compileIn with KantGrammar's STARt, the o with none), and the
+road proof RP again so a new-road row cannot pass on the old road's value.
+A KNOWN GAP on the new road, pinned red: (1) `argument` in an action body is resolved at BUILD, before runAction mints the
+action's argument (at its first call), so it lands on another action's argument field; (2) arithmetic on a holder refuses
+on the new road -- measured with no action and no owner, `hz := qa; print hz - 1` refuses at the top level.
+Kept apart because beside newLocalT's AL-3 the gap corrupted AL-3 (bisected).
