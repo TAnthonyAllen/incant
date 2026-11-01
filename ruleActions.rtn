@@ -680,7 +680,8 @@ GroupItem   owner = currentMETHOD.group;
 String      arg;
 use input
     arg     = text;
-    if inCompile()  owner = floorOwner();
+    // nameOwnerRead the owner names are created in is the floor's name channel, never the compile mark (SEQ 502 R1a)
+    if floorNameOwner()     owner = floorNameOwner();
     result  = resolveName(text,owner);
     group   = result;
     return  input;
@@ -1833,7 +1834,7 @@ extern GroupItem resolveName(String arg, GroupItem owner)
     -%
     GroupRules *ruler = GroupControl::groupController->groupRules;
     GroupItem *grup = 0, *result = 0;
-    int inCode = ruler->inCompile();
+    int inCode = ruler->floorNameOwner() != 0;
     if ( inCode && owner )   result = owner->getAttribute(arg);
     if ( !result )                          result = GroupControl::groupController->locate(arg);
     if ( result && result->parent == owner )    return result;
