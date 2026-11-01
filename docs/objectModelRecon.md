@@ -1745,6 +1745,11 @@ Value capture (traitDataCapture): still only the fixit's own `tdV=maximus+` -- m
 - **B3, leave bare-with-content as it is.** Cure only the value capture (traitDataCapture) and make the MEMBERs flag land on the
   node the definition finally owns, so it cannot stick (membersFlagCapture's NEXT).
 
+**RULED 2026-11-01 (Tony, SEQ 507 R0): B2 IN PRINCIPLE.** A definition that means to extend or annotate an entry in another
+registry says so in its spelling; everything else gets its own node. The spelling and the build come another day. Order when it
+is built: the value-capture fix (copy the value, then write) FIRST, then B2. B2 goes in sequence with the aCTionDefinE
+flag-attribute change, never in the same stroke.
+
 Either way traitDataCapture's cure is independent and first: the value's writes belong to the value as used here (copy, then
 write), and it is the one that can disguise the others.
 ⚠ **Instrument repair on the way:** the fixit's sections 3 and 4 had been refusing every run (`"..." *x.flag` in a print parses

@@ -147,3 +147,6 @@ onto whatever node the definition finally owns (om-r2-ownname already carries th
                     parses as string * field (`REFUSED Token -- Operator * -- cannot apply`), so their TD / MC lines printed nothing while
                     the sentinel still printed. Reads now capture first (tdMv := *tdM.isRulE), then print. Live today: TD before 0 / after 1
                     (control NamE 1 / 1); MC before = tag echo (absent) / after mcKid. Shape B recon: objectModelRecon section 28.
+2026-11-01 SEQ 507  RULED B2 IN PRINCIPLE (Tony): a definition that means to extend or annotate another registry's entry says so in its
+                    spelling; everything else gets its own node. Spelling and build another day. Order: the value-capture fix
+                    (copy, then write) first, then B2; B2 in sequence with the aCTionDefinE flag-attribute change, never one stroke.
