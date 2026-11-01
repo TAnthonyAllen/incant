@@ -255,3 +255,4 @@ We have a bunch of noPrint commands that call processFlags() mostly to set a fla
     flag (bin sets a guard, isRule mints rStuff, sort reads a direction, exit exits). The aCTionDefinE change stays on
     the table for the attributes that ARE GroupFields flag names; the rest stay commands.
 Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
+Decide what a refusal should carry, for a future kant debugger and change refusal processing accordingly
