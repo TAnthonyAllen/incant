@@ -256,3 +256,4 @@ We have a bunch of noPrint commands that call processFlags() mostly to set a fla
     the table for the attributes that ARE GroupFields flag names; the rest stay commands.
 Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
 Decide what a refusal should carry, for a future kant debugger and change refusal processing accordingly
+Make argument mean one thing everywhere: in a rule’s code it is the label the rule fired on, in an action it is the call’s argument. Rename the rule’s version (actionLabel was proposed 2026-10-22, seal 199) and census rule code that reads argument before changing it. SEQ 502’s AL-3a pins the gap.

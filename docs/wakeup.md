@@ -1,3 +1,55 @@
+# ⚠⚠⚠ SEALED 2026-11-01 (302) ON TRUNK -- SEQ 502 BUILT ON BRANCH action-locals (1b218d5c), CERTIFIED, PUSHED, NOT MERGED. PAUSE FOR THE BUY.
+#
+#   ## ONE PLAIN LINE: a name used inside a new-road action body now becomes a local of that action when the action is
+#   built, as on the old road, and the frame bracket covers it on a self-call; one shape still fails -- reading `argument`
+#   in a new-road action body -- and it is pinned red rather than fixed.
+#   ## THE BRANCH (option 1, Tony): a second floor channel, ParseActivation.nameOwner, read by floorNameOwner().
+#   driveStep(field,rule,report,forOwner,forNames) writes it; resolveName's local creation and aCTionNamE's owner read it;
+#   inCompile() keeps its parse-not-run meaning and reads nothing new. compileIn: the OLD road sets BOTH channels (its
+#   compile is still a compile -- old road row for row needs both); a `rule` build (KantGrammar's STARt) sets only the
+#   name owner, and its label's built instruct becomes the action's BlocK bound to testOP, so processAction runs it
+#   unchanged. processCode sets both; every other drive passes null; topFloor and callActive initialise nameOwner (unset,
+#   a stack record read as garbage: the first build crashed in resolveName).
+#   ## TRUNK CARRIES (pre-buy): 19c8f799 the field + floorNameOwner(), INERT (groups.ext = support 943b04f, SEQ 195 rule);
+#   7f7b9e4e newLocalT pinned born red; the AL-3 re-pin; newLocalArgT (AL-3a in its own process).
+#   ## CERTIFICATE (branch, binary built from 1b218d5c):
+#     names   nameOwner / floorNameOwner: 0 bare uses before use -- Groups (.twk .rtn .h .mm .C, Directives/, incant/,
+#             IncantForms/), Include, Tokf, Parse, data/support
+#     tokall  full bare, every generated .mm/.h compared, every line explained -- trunk step: the field, the decl, the body;
+#             branch step: aCTionNamE / resolveName read the channel, driveStep's fifth parameter and floor write, five
+#             callers' extra argument, two initialisations, the .h prototype, and tok's trailing referenced-not-declared
+#             comment list reordered (comment only). Unswept GUI/ Tests/ .mm: 0 mentions. Canary 397 throughout.
+#     pop.sh  2373 green; vs trunk (2364): exactly the 9 newLocalT new-road rows went green, AL-3a moved from MOVED to its
+#             pinned gap; every other FAIL line identical. WH-8 (mover target) did NOT move -- red, not chased.
+#     jitLadder PASSED 219 ok / 0 FAIL · printPop PASSED.
+#     H7 (single fixture, each undone from git and md5-checked): (a) the rule build passes NO name owner -> AL-1 n reads
+#             the tag `lvNew`, AL-1h 0; (b) new-road locals created without isLocal (shared) -> AL-2 n leaks (lv2 3 3 3),
+#             AL-3 n reads 0 0 0, old-road controls unmoved; (c) the channel half -- the rule build sets the compile mark
+#             too -> exit 139 with 6 "REFUSED BlocK -- not an instruct", the R1 suppression back.
+#     anchors processCode (processingCode, result), aCTionNamE (if), runRule (if), parseRule (measureLabelMint) -- all
+#             parked, every touched statement kept its anchor prefix; compileIn, driveStep, resolveName, aCTionTell, treeOf:
+#             none.
+#   ## ROWS (newLocalT; n = new road, every n row prefixed with the road proof RP): RP [ 7 ] vs the old road's [     7 ]
+#   (#5d binds forward on the new road, back on the old) · AL-W the BlocK's first entry seq (old StatemenT; ownerless STARt
+#   instruct) -- the R1 tap made permanent · AL-1 7, held 1 (never-written control 0) · AL-2 lv2 3 lv2 3 · AL-3 0 1 2 · AL-4
+#   5 6 · AL-5 lv5n, nothing in an action.
+#   ## RE-PIN, WITH ITS SENTENCE: AL-3 as dispatched read its depth from `argument`, which rides two new-road gaps outside
+#   Ruling A, so AL-3 now counts down a declared nlDepN; the dispatched shape is AL-3a in incant/pop/newLocalArgT, pinned
+#   red (lv3a 2, one refusal of -). It runs alone because beside AL-3 it corrupted AL-3 (bisected: alone 0 1 2, beside 2).
+#   ## FINDINGS (reported, not minted):
+#   - `argument` in a new-road ACTION body is resolved at BUILD, before runAction mints the action's argument at its first
+#     call, so it lands on another action's argument field (a rule pre-mints its CodE's argument, ruleActions.rtn:357; an
+#     action does not). Tony's macros line on argument's two meanings is committed with this seal.
+#   - Arithmetic on a holder refuses on the new road: `hz := qa; print hz - 1` at the top level, no action, no owner.
+#   - tok: a `//` comment line INSIDE a struct body broke GroupRules.twk's parse and took the canary to 0 (measured once).
+#   - On the new road inCompile() is now false during a build, so checkSkip's indent-to-brace rewrite does not run there:
+#     an indented multi-line new-road body is untested (every row here is one line).
+#   ## THE BUY IS TONY'S: merge action-locals into trunk, or not. After a merge the n rows read green on trunk.
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-11-01 (301) ON TRUNK -- SEQ 502 STOPPED AT R1: THE NEW ROAD CAN KNOW ITS ACTION AT BUILD, BUT THE OWNER'S FLOOR SILENCES THE BUILD'S OWN KANT ACTIONS. RULING OWED.
 #
 #   ## ONE PLAIN LINE: nothing broke; Ruling A is recorded; the build path to create the locals exists but turns off the
