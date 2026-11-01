@@ -251,6 +251,7 @@ Parked: fire(label), a command that fires a rule's action on a label with no
 *******************************************************************************/
 Have guiHost.mm read its gc header from Groups/include instead of /usr/local/include, so the Intel bdw-gc 8.2.8 in /usr/local can never shadow the build (seal 298).
     -- 1: one include path in one file, nothing waits on it; closes seal 298's shadowing risk before anything else is built on the M6
+       DONE 2026-11-01 (SEQ 505 R2): `#import "gc/gc.h"`, quoted; guiHost now reads Groups/include/gc; guiHost.o and the binary byte-identical
 Census MacPorts (/opt/local): does any build, script or instrument still use it? If nothing does, uninstall it whole (cleanupList, 6e611fda).
     -- 2: read-only census, then a yes/no uninstall; independent of every other line
 Tony’s M6 cleanup: delete ~/preDropboxReinstall-2026-10-31, the Dropbox “conflicted copy 2026-10-31” files, and the ~/.zshrc / ~/.zprofile .bak-2026-10-31 copies; refresh BeforeSave (bs).

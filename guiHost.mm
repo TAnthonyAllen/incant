@@ -16,7 +16,7 @@
 ***************************************************************************/
 #import <Cocoa/Cocoa.h>
 #import <stdio.h>
-#import <gc/gc.h>
+#import "gc/gc.h"   // quoted: Groups/include (bdw-gc 8.3.0, the library this links), never /usr/local/include (seal 298, SEQ 505)
 #import "OCroutines.h"
 #import "GroupItem.h"
 #import "GroupControl.h"
