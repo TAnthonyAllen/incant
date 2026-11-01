@@ -1,0 +1,45 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(BraceInCodeOk);
+define
+    bcOk code={ bcY = 4; if bcY > 9; print 1:; print 2:; };
+    ;
+search BraceInCodeOk;
+cerr "ANCHOR braceInCode -- a braced block inside a code={ } body; the second line and the SENTINEL should print":;
+print "BIC control, no braces, define intact -> ":;
+bcOk();
+register(BraceInCode);
+define
+    bcFirst code={ print 3:; };
+    bcBad code={ bcX = 4; if bcX > 9; { print 1:; } print 5:; };
+    ;
+search BraceInCodeOk BraceInCode;
+print "BIC the action defined BEFORE the braced one -> ":;
+bcFirst();
+fixBraceInCodeHere = 0;
+cerr "SENTINEL braceInCode reached the foot":;
+stop();
+
+LANE:  define
+BLAST: DISJOINT
+OWNER: Clod     (SEQ 504 R3, Tony; found SEQ 503 R2 -- severity WRONG, the define is lost with no word pointing at it)
+
+braceInCode -- a braced block INSIDE a code={ } body breaks the define that holds it. Measured 2026-11-01 (SEQ 503 R2,
+then this repro): `bcBad code={ bcX = 4; if bcX > 9; { print 1:; } print 5:; };` kills the whole BraceInCode define,
+so the action defined BEFORE it, bcFirst, is not callable either: `RunRulE: expected a method not bcFirst` -- bear-trap
+32's misdirection, the error names the define's first healthy action -- and the parse abandons every statement after it.
+The control define above it (no braces) is intact and prints 2. Measured on the old road's define (the define is always the old road's).
+
+Why it matters now: a new-road action body cannot use braces as a way round the indentation rule, so SEQ 503 R2's
+option 3 (bodies must brace) was not available. The new road's BLOCk rule (`leftCurly="{"- STATEMENt+ rightCurly="}"-`)
+is fine -- the same braced text built by STARt at the top level skips its arm correctly.
+
+What the output shows today: the ANCHOR, the control line and 2 -- then nothing. The broken define ABANDONS THE REST OF
+THE FILE (`ABANDONED ... the parse STOPPED with input left over`, exit 0): the second line, its 3 and the SENTINEL never
+print. When fixed: the second line, 3, and the SENTINEL.
+
+NEXT: OPEN -- not diagnosed. What would generate a candidate: whether code={ } delimits by brace COUNT or by the first
+`}`, measured with `code={ { print 1:; } }` alone and with a `}` inside a quoted string; and checkSkip's define-time
+indentation rewrite (`defining`), which rewrites line ends to `:`/`>` and may meet the inner `{`.
