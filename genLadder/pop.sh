@@ -1039,6 +1039,7 @@ _ofeq "newLocalT AL-1 old road (control): lvNew = 7; print lvNew" "$(_nlv 'AL-1 
 _ofeq "newLocalT AL-1h old road (control): lvNew is the action's / a never-written name is not" "$(_nlh 'AL-1h o') $(_nlh 'AL-1h control')" "1 0"
 _ofeq "newLocalT AL-2 old road (control): two calls read alike, the local does not leak" "$(_nlv 'AL-2 o')" "lv2 |3 |lv2 |3 |"
 _ofeq "newLocalT AL-3 old road (control): a self-call keeps each level's local" "$(_nlv 'AL-3 o')" "0 |1 |2 |"
+_ofeq "newLocalT AL-3a old road (control): the same through argument" "$(_nlv 'AL-3a o')" "0 |1 |2 |"
 _ofeq "newLocalT AL-4 old road (control): an outer field reads 5 inside, the write reaches it" "$(_nlv 'AL-4 o')" "5 |6 |"
 _ofeq "newLocalT AL-5 old road (control): at the top level the name echoes its tag" "$(_nlv 'AL-5 o')" "lv5o |"
 _ofeq "newLocalT AL-5h old road (control): nothing created in an action" "$(_nlh 'AL-5h o')" "0"
@@ -1049,6 +1050,9 @@ fdRow "newLocalT AL-1 new road: lvNew = 7; print lvNew (road / value)" "$_nlR $(
 fdRow "newLocalT AL-1h new road: lvNew is the action's (road / held)" "$_nlR $(_nlh 'AL-1h n')" "[     7 ] | 1" "[ 7 ] | 1"
 fdRow "newLocalT AL-2 new road: two calls read alike (road / value)" "$_nlR $(_nlv 'AL-2 n')" "[     7 ] | lv2 |3 |lv2 |3 |" "[ 7 ] | lv2 |3 |lv2 |3 |"
 fdRow "newLocalT AL-3 new road: a self-call keeps each level's local (road / value)" "$_nlR $(_nlv 'AL-3 n')" "[     7 ] | 0 |1 |2 |" "[ 7 ] | 0 |1 |2 |"
+#  AL-3a is a KNOWN GAP (argument resolved at build; holder arithmetic refuses), pinned at the branch's reading; before the
+#  buy, trunk reads the old road through the n name and this row says MOVED -- that is the n name, not a move
+fdRow "newLocalT AL-3a new road: a self-call through argument (road / value / refusals of -)" "$_nlR $(_nlv 'AL-3a n') R$(grep -c '^REFUSED lv3a -- Operator - ' "$T/nl.e")" "[ 7 ] | lv3a |2 | R1" "[ 7 ] | 0 |1 |2 | R0"
 fdRow "newLocalT AL-4 new road: the outer field reads 5, the write reaches it (road / value)" "$_nlR $(_nlv 'AL-4 n')" "[     7 ] | 5 |6 |" "[ 7 ] | 5 |6 |"
 fdRow "newLocalT AL-5 new road: at the top level the name echoes its tag (road / value)" "$_nlR $(_nlv 'AL-5 n')" "[     7 ] | lv5n |" "[ 7 ] | lv5n |"
 fdRow "newLocalT AL-5h new road: nothing created in an action (road / held)" "$_nlR $(_nlh 'AL-5h n')" "[     7 ] | 0" "[ 7 ] | 0"
