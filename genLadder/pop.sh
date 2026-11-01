@@ -1022,6 +1022,39 @@ _psN PS-6 "cout ignores printTO's divert" "1 | E: R1 x0 s1" "2 |1 | E: R0 x0 s1"
 else echo "  FAIL  printSinkT MISSING"; fail=1
 fi
 
+#  ⚑ newLocalT -- SEQ 502 (Tony, 2026-11-01): rung 5 step 1, Ruling A -- an undeclared name in a new-road action body
+#  becomes a local of the action, at build, once. PRE-REGISTERED ON TRUNK, born red. One process; each block starts with a
+#  line `NL <row> <road>`. Every n (new road) row is prefixed with RP n's reading, the road proof: on trunk compileIn
+#  ignores `rule` and builds the old road, so without the prefix a 7 from the old road would read as a new-road green.
+_nlF=$(ip newLocalT)
+_nlv () { awk -v k="NL $1" '$0 ~ /^NL / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/nl.o"; }
+_nlh () { grep "^NL $1 " "$T/nl.o" | awk '{print $NF}'; }
+if [ -f "$_nlF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_nlF" > "$T/nl.o" 2> "$T/nl.e"; _nlx=$?
+_ofeq "newLocalT runs (exit / sentinel / NL END)" "$_nlx $(grep -c '^NEWLOCALT SENTINEL' "$T/nl.e") $(grep -c '^NL END' "$T/nl.o")" "0 1 1"
+_ofeq "newLocalT RP old road (control): print \"[\" 7 #5d \"]\" puts the format on the 7 before it" "$(_nlv 'RP o')" "[     7 ] |"
+_ofeq "newLocalT AL-W old road (control): the BlocK's first entry is a StatemenT" "$(_nlv 'AL-W o')" "StatemenT |"
+_ofeq "newLocalT AL-W ownerless (control): STARt built with no owner hands back instructs" "$(_nlv 'AL-W ownerless')" "instruct |"
+_ofeq "newLocalT AL-1 old road (control): lvNew = 7; print lvNew" "$(_nlv 'AL-1 o')" "7 |"
+_ofeq "newLocalT AL-1h old road (control): lvNew is the action's / a never-written name is not" "$(_nlh 'AL-1h o') $(_nlh 'AL-1h control')" "1 0"
+_ofeq "newLocalT AL-2 old road (control): two calls read alike, the local does not leak" "$(_nlv 'AL-2 o')" "lv2 |3 |lv2 |3 |"
+_ofeq "newLocalT AL-3 old road (control): a self-call keeps each level's local" "$(_nlv 'AL-3 o')" "0 |1 |2 |"
+_ofeq "newLocalT AL-4 old road (control): an outer field reads 5 inside, the write reaches it" "$(_nlv 'AL-4 o')" "5 |6 |"
+_ofeq "newLocalT AL-5 old road (control): at the top level the name echoes its tag" "$(_nlv 'AL-5 o')" "lv5o |"
+_ofeq "newLocalT AL-5h old road (control): nothing created in an action" "$(_nlh 'AL-5h o')" "0"
+_nlR="$(_nlv 'RP n')"
+fdRow "newLocalT RP new road: the format applies to what follows, so nothing takes it" "$_nlR" "[     7 ] |" "[ 7 ] |"
+fdRow "newLocalT AL-W new road: the BlocK's first entry is the seq op (road / tag)" "$_nlR $(_nlv 'AL-W n')" "[     7 ] | StatemenT |" "[ 7 ] | seq |"
+fdRow "newLocalT AL-1 new road: lvNew = 7; print lvNew (road / value)" "$_nlR $(_nlv 'AL-1 n')" "[     7 ] | 7 |" "[ 7 ] | 7 |"
+fdRow "newLocalT AL-1h new road: lvNew is the action's (road / held)" "$_nlR $(_nlh 'AL-1h n')" "[     7 ] | 1" "[ 7 ] | 1"
+fdRow "newLocalT AL-2 new road: two calls read alike (road / value)" "$_nlR $(_nlv 'AL-2 n')" "[     7 ] | lv2 |3 |lv2 |3 |" "[ 7 ] | lv2 |3 |lv2 |3 |"
+fdRow "newLocalT AL-3 new road: a self-call keeps each level's local (road / value)" "$_nlR $(_nlv 'AL-3 n')" "[     7 ] | 0 |1 |2 |" "[ 7 ] | 0 |1 |2 |"
+fdRow "newLocalT AL-4 new road: the outer field reads 5, the write reaches it (road / value)" "$_nlR $(_nlv 'AL-4 n')" "[     7 ] | 5 |6 |" "[ 7 ] | 5 |6 |"
+fdRow "newLocalT AL-5 new road: at the top level the name echoes its tag (road / value)" "$_nlR $(_nlv 'AL-5 n')" "[     7 ] | lv5n |" "[ 7 ] | lv5n |"
+fdRow "newLocalT AL-5h new road: nothing created in an action (road / held)" "$_nlR $(_nlh 'AL-5h n')" "[     7 ] | 0" "[ 7 ] | 0"
+else echo "  FAIL  newLocalT MISSING"; fail=1
+fi
+
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
