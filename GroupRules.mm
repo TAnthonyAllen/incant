@@ -12639,6 +12639,17 @@ char 		*atReplaceNewline = 0;
 	return atContent;
 }
 
+// floorNameOwner the NEAREST floor's name owner: where a build creates an action's locals (Ruling A, SEQ 502); inCompile() does not read it
+GroupItem *GroupRules::floorNameOwner()
+{
+ParseActivation 	*top = gParseActive;
+	while ( top && !top->isFloor )
+		top = top->prev;
+	if ( top )
+		return top->nameOwner;
+	return 0;
+}
+
 /*******************************************************************************
     inCompile -- is the parse I am inside a compile? The NEAREST drive floor
     answers: a compile's drive (processCode, compileIn) writes its owner on the

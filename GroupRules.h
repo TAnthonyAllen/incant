@@ -8,6 +8,7 @@ struct ParseActivation
 	GroupItem *instance;
 	int isFloor;
 	GroupItem *compileOwner;
+	GroupItem *nameOwner;
 	GroupItem *label;
 	ParseActivation *prev;
 	char *failPoint;
@@ -98,6 +99,7 @@ struct
 	};
 GroupRules();
 char *checkSkip(char *atContent);
+GroupItem *floorNameOwner();
 GroupItem *floorOwner();
 int inCompile();
 void popInput();
