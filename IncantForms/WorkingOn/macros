@@ -239,3 +239,9 @@ Shared with the old grammar, referenced never redefined: TOKENize, DEFINing,
     QuotE, SemI, GrouP, define, counter; Operators and its UnaryOPS bin.
 Parked: fire(label), a command that fires a rule's action on a label with no
     parse. Returns only if a rung needs parse-then-fire.        (SEQ 440)
+/*******************************************************************************
+	Features to add to incant once it settles. Nothing major nothing urgent
+        These could be end of day tasks done just before shutdown
+*******************************************************************************/
+We have a bunch of noPrint commands that call processFlags() mostly to set a flag and those commands are called from aCTionDefinE when it is processing attributes. Why not replace all those commands by having aCTionDefinE check each attribute to see if it is a flag field in GroupFields and if it is call setGroupField() to turn the flag on in NewGroup and then not add the attribute just the way it does not add a noPrint attribute with an immediateMethod. The change to aCTionDefinE would be minimal and it would eliminate all those commands in setup. May then be able to shitcan processFlags
+Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
