@@ -18,6 +18,8 @@ define
     nlDepO = 2;
     itW;
     it5;
+    it6;
+    qa = 2;
     nlNew code={
         nlSrc := argument.CodE;
         nlReqN.owner  := argument;
@@ -156,6 +158,16 @@ it5 = STARt("lv5n = 4; print lv5n:;");
 testOP(it5);
 print "NL AL-5 o":;
 lv5o = 4; print lv5o:;
+print "NL ML-3 o":;
+if qa > 9;
+    print 1:;
+    print 2:;
+print 3:;
+print "NL ML-3 n":;
+it6 = FILe("if qa > 9;
+    print 1:;
+    print 2:;
+print 3:;");
 itW = STARt("lvNew = 7; print lvNew:;");
 nlWit();
 nlHas();
@@ -191,6 +203,10 @@ ML-1 a body written over several INDENTED lines (SEQ 503 R2): a created local, a
      and a print after it. The condition is FALSE, so the arm must not run and only 4 prints. A build that does not turn
      the indent into a block takes only the arm's first line as the arm, and `print lv7` runs anyway, printing its tag.
 ML-2 the same shape with a TRUE condition, the non-empty sibling: 5 then 4.
+ML-3 the TOP LEVEL, outside any action (SEQ 504 R1): an if whose indented arm is two lines, condition false. Measured
+     2026-11-01 before the build: BOTH roads print 2 3 -- at the top level neither turns indentation into a block (the
+     old road's checkSkip rewrites only `inCompile() || defining`), so the arm is its first line. The roads agree, so
+     option 1 (action bodies only) leaves the top level as the old road has it.
 AL-5 the same kind of statement at the top level, outside any action: nothing is created in an action (AL-5h).
 
 ON TRUNK (born red): compileIn ignores `rule` there, so every `n` action is built on the OLD road -- RP n reads the old

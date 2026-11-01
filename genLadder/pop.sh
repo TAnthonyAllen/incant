@@ -1042,6 +1042,7 @@ _ofeq "newLocalT AL-3 old road (control): a self-call keeps each level's local" 
 _ofeq "newLocalT AL-4 old road (control): an outer field reads 5 inside, the write reaches it" "$(_nlv 'AL-4 o')" "5 |6 |"
 _ofeq "newLocalT ML-1 old road (control): an indented two-line arm under a false if does not run" "$(_nlv 'ML-1 o')" "4 |"
 _ofeq "newLocalT ML-2 old road (control): the same arm under a true if runs" "$(_nlv 'ML-2 o')" "5 |4 |"
+_ofeq "newLocalT ML-3 old road (control): at the TOP LEVEL an indented arm is its first line (no rewrite there)" "$(_nlv 'ML-3 o')" "2 |3 |"
 _ofeq "newLocalT AL-5 old road (control): at the top level the name echoes its tag" "$(_nlv 'AL-5 o')" "lv5o |"
 _ofeq "newLocalT AL-5h old road (control): nothing created in an action" "$(_nlh 'AL-5h o')" "0"
 _nlR="$(_nlv 'RP n')"
@@ -1056,13 +1057,15 @@ fdRow "newLocalT AL-4 new road: the outer field reads 5, the write reaches it (r
 #  into braces only when inCompile() || defining (GroupRules.twk:209), so an indented arm is its first line only
 fdRow "newLocalT ML-1 new road: an indented two-line arm under a false if does not run (road / value)" "$_nlR $(_nlv 'ML-1 n')" "[ 7 ] | lv7 |4 |" "[ 7 ] | 4 |"
 fdRow "newLocalT ML-2 new road: the same arm under a true if runs (road / value)" "$_nlR $(_nlv 'ML-2 n')" "[ 7 ] | 5 |4 |" "[ 7 ] | 5 |4 |"
+#  ML-3 the new road's top level agrees with the old road's today (SEQ 504 R1): neither rewrites indentation outside an action
+fdRow "newLocalT ML-3 new road: a top-level FILe's indented arm is its first line, as on the old road (road / value)" "$_nlR $(_nlv 'ML-3 n')" "[ 7 ] | 2 |3 |" "[ 7 ] | 2 |3 |"
 fdRow "newLocalT AL-5 new road: at the top level the name echoes its tag (road / value)" "$_nlR $(_nlv 'AL-5 n')" "[     7 ] | lv5n |" "[ 7 ] | lv5n |"
 fdRow "newLocalT AL-5h new road: nothing created in an action (road / held)" "$_nlR $(_nlh 'AL-5h n')" "[     7 ] | 0" "[ 7 ] | 0"
 else echo "  FAIL  newLocalT MISSING"; fail=1
 fi
-#  newLocalArgT -- newLocalT's AL-3a in its own process (its gap corrupted AL-3 beside it). A KNOWN GAP, pinned at the branch's
-#  reading (argument resolved at build; holder arithmetic refuses). Before the buy, trunk reads the old road through the n
-#  name and the new-road row says MOVED -- that is the n name, not a move.
+#  newLocalArgT -- newLocalT's AL-3a in its own process (its gap corrupted AL-3 beside it). A KNOWN GAP, pinned: `argument` in
+#  a new-road action body is resolved at build, so lv3a copies a holder, and `lv3a - 1` then refuses. That refusal is RULED
+#  (Tony, SEQ 504 R0): holder arithmetic refuses on BOTH roads (`hz - 1` refuses, `*hz - 1` reads through).
 _naF=$(ip newLocalArgT)
 if [ -f "$_naF" ]; then
 perl -e 'alarm 30; exec @ARGV' "$B" "$_naF" > "$T/na.o" 2> "$T/na.e"; _nax=$?

@@ -64,4 +64,5 @@ A KNOWN GAP on the new road, pinned red: (1) `argument` in an action body is res
 action's argument (at its first call), so it lands on another action's argument field, and lv3a = argument then copies a
 HOLDER; (2) so `lv3a - 1` refuses -- which is NOT a road difference: `hz := qa; print hz - 1` refuses identically on BOTH
 roads, and `*hy - 1` reads 1 on both (measured SEQ 503). Only (1) is the gap; (2) is its consequence.
+RULED (Tony, 2026-11-01, SEQ 504 R0): the holder refusal STANDS on both roads -- `hz - 1` refuses, `*hz - 1` reads through.
 Kept apart because beside newLocalT's AL-3 the gap corrupted AL-3 (bisected).
