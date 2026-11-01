@@ -12593,8 +12593,9 @@ char 		*atReplaceNewline = 0;
 	***************************************************************************/
 	if ( sawNewLine && !lastINDENT )
 		lastINDENT = indenting;
+	// bodyBlocks indentation makes blocks in an action body on either road: the old road's compile (inCompile) and a new-road build for an owner (floorNameOwner) -- Tony, SEQ 504 option 1; at the top level neither road rewrites (newLocalT ML-3)
 	if ( sawNewLine && indenting != lastINDENT )
-		if ( inCompile() || defining )
+		if ( (inCompile() || floorNameOwner()) || defining )
 			while ( indenting != lastINDENT )
 				{
 				atReplaceNewline = atContent - 1;
@@ -12609,7 +12610,7 @@ char 		*atReplaceNewline = 0;
 							}
 						}
 					else
-					if ( inCompile() )
+					if (inCompile() || floorNameOwner())
 						if ( lastNotSpace != '{' )
 							{
 							replaced = 1;
@@ -12633,7 +12634,7 @@ char 		*atReplaceNewline = 0;
 								}
 							}
 						else
-						if ( inCompile() )
+						if (inCompile() || floorNameOwner())
 							{
 							if ( lastNotSpace != '}' )
 								{
