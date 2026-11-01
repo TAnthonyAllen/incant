@@ -1994,6 +1994,22 @@ Hard-won lessons. Each one has cost real debugging time.
     any token inside it — an hour of hunting for a bad character is an hour wasted. And the standing
     canary is what caught it: **`grep -c '^extern' GroupRules.h` after every retok.**
 
+59. **A `//` COMMENT LINE INSIDE A tok STRUCT BODY BREAKS THE PARSE AND EMPTIES THE EXTERN BLOCK —
+    AND A tokall SWEEP CARRIES ON PAST IT.** Gloss: the struct takes no comment. #29's family one
+    construct over: no lexer, so a comment is parsed, and inside `struct ParseActivation { ... }`
+    (in `class GroupRules`) a `//` line between two fields is not a field. Measured once,
+    2026-11-01, SEQ 502 R1a (`19c8f799`), adding `nameOwner`:
+    | the comment | `tok GroupRules.twk` | canary |
+    |---|---|---|
+    | a `//` line between `compileOwner` and the new field | **fails** | **397 → 0** |
+    | the same note moved into the struct's header comment, above `struct` | parses | **397** |
+    ⚠ **THE CANARY IS THE ONLY WITNESS.** `tok GroupRules.twk` itself exits non-zero, but `tokall`
+    is `for f in *.twk; do tok $f; done`: it keeps going and its status is the LAST file's, so the
+    sweep reads clean and the generated `.h` still changed — the diff looks like progress. Only
+    `grep -c '^extern' GroupRules.h` said anything. **The cure is placement:** a struct's notes go
+    in the comment above the `struct` line. Measured with a `//` line only; a `/* */` inside a struct
+    is not claimed either way (bear-trap #18's split).
+
 30. ⚠⚠ **AMENDED 2026-09-04 (C-155): THE RULE IS ONE DIRECTIVE PER MATCHING STATEMENT POINT,
     NOT ONE PER TARGET FUNCTION.** A second armed directive on the same function with a
     **different anchor** fires at its own point — measured on the culled file, one directives
