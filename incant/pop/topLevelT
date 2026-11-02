@@ -43,9 +43,12 @@ TL-5  a break INSIDE a top-level block ends that block only (SEQ 477): inside a 
       -- clears it before it reads, Instruct.rtn:1092 / 1112 / 1133 / 1173, so a stale one has no reader to show it.
       The refusal is the guarantee: the break never runs.)
 TL-6  a print, then a define, then a print: the define lands between them (BR-3's question, asked of FILe).
-TL-7  CONTEXT, NOT RULED: a break inside a top-level if. It is not a top-level statement, so nothing refuses; it runs,
-      sets the signal, and the next statement runs. Pinned as it reads so a change is seen; Tony rules whether it
-      should refuse.
+TL-7  a break inside a top-level if. RULED (Tony, SEQ 513): at the top level, a statement that FINISHES with a branch
+      signal still set -- break, continue or return, at any depth inside it -- is refused by name by FILe / TOPSTATEMENt
+      ("REFUSED break -- at the top level there is no loop or block to end") and the signal is cleared. Nothing else
+      changes. Intended: the break runs, the refusal names it, the next statement prints 2. (Was CONTEXT, not ruled.)
+TL-8  the same, continue.
+TL-9  the same, return.
 
 TL-1|print 1:; print 2:;
 TL-2|print 1:; break; print 2:;
@@ -54,3 +57,5 @@ TL-4|print 1:; return; print 2:;
 TL-5|{ print 1:; break; print 2:; } print 3:;
 TL-6|print qa:; define qa=9; ; print qa:;
 TL-7|if qa < qb; break; print 2:;
+TL-8|if qa < qb; continue; print 2:;
+TL-9|if qa < qb; return; print 2:;

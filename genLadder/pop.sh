@@ -1005,7 +1005,7 @@ while IFS='|' read -r _id _it; do
     { cat "$T/tl.pre"; printf 'it1 = FILe("%s");\ncerr "TL NEXT":;\ncerr "TL SENTINEL":;\nstop();\n' "$_it"; } > "$T/tl.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/tl.$_id.nk" > "$T/tl.$_id.n" 2> "$T/tl.$_id.ne"; echo $? > "$T/tl.$_id.nx"
 done < "$T/tl.list"
-_ofeq "topLevelT rows ran (7 of 7)" "$(ls "$T"/tl.TL-*.ne 2>/dev/null | wc -l | tr -d ' ')" "7"
+_ofeq "topLevelT rows ran (9 of 9)" "$(ls "$T"/tl.TL-*.ne 2>/dev/null | wc -l | tr -d ' ')" "9"
 _tlN () { fdRow "topLevelT $1 FILe: $2 (value / sentinel)" "$(_tlv "$T/tl.$1.n" "$T/tl.$1.ne" "$T/tl.$1.nx") $(grep -c '^TL SENTINEL' "$T/tl.$1.ne")" "$3" "$4 1"; }
 _tlN TL-1 "two prints run in order" " R0 x0 1" "1 |2 | R0 x0"
 _tlN TL-2 "a top-level break refuses by name, both prints run" " R0 x0 1" "1 |2 | R1 x0"
@@ -1013,8 +1013,14 @@ _tlN TL-3 "a top-level continue refuses by name, both prints run" " R0 x0 1" "1 
 _tlN TL-4 "a top-level return refuses by name, both prints run" " R0 x0 1" "1 |2 | R1 x0"
 _tlN TL-5 "a break inside a top-level block ends that block only" " R0 x0 1" "1 |3 | R0 x0"
 _tlN TL-6 "a define lands between two prints" " R0 x0 1" "2 |9 | R0 x0"
-#  TL-7 CONTEXT, NOT RULED: a break inside a top-level if is not a top-level statement, so nothing refuses; pinned as it reads
-_tlN TL-7 "CONTEXT (not ruled): a break inside a top-level if runs, nothing refuses" " R0 x0 1" "2 | R0 x0"
+#  TL-7 RE-PINNED (intended, Tony, SEQ 513 ruling): a top-level statement that FINISHES with a branch signal set is refused by
+#  name and the signal cleared. Was CONTEXT, not ruled (nothing refused). TL-8 continue and TL-9 return added in the same shape
+_tlN TL-7 "a break inside a top-level if: the statement is refused by name, the next runs" "2 | R0 x0 1" "2 | R1 x0"
+_tlN TL-8 "a continue inside a top-level if: the statement is refused by name, the next runs" "2 | R0 x0 1" "2 | R1 x0"
+_tlN TL-9 "a return inside a top-level if: the statement is refused by name, the next runs" "2 | R0 x0 1" "2 | R1 x0"
+fdRow "topLevelT TL-7 the refusal names break" "$(grep -c '^REFUSED break -- at the top level there is no loop or block to end' "$T/tl.TL-7.ne")" "0" "1"
+fdRow "topLevelT TL-8 the refusal names continue" "$(grep -c '^REFUSED continue -- at the top level there is no loop or block to end' "$T/tl.TL-8.ne")" "0" "1"
+fdRow "topLevelT TL-9 the refusal names return" "$(grep -c '^REFUSED return -- at the top level there is no loop or block to end' "$T/tl.TL-9.ne")" "0" "1"
 fdRow "topLevelT TL-2 the refusal names break" "$(grep -c '^REFUSED break' "$T/tl.TL-2.ne")" "0" "1"
 fdRow "topLevelT TL-3 the refusal names continue" "$(grep -c '^REFUSED continue' "$T/tl.TL-3.ne")" "0" "1"
 fdRow "topLevelT TL-4 the refusal names return" "$(grep -c '^REFUSED return' "$T/tl.TL-4.ne")" "0" "1"
