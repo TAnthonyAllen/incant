@@ -620,11 +620,13 @@ while IFS='|' read -r _id _wo _wn _wa; do
         _ofeq "whileT $_id old road sentinel" "$(grep -c '^WH SENTINEL' "$T/wh.$_id.oe")" "1"
     fi
     _run="testOP(it1);"; [ "$_id" = WH-0 ] && _run=""
+    #  wh8Action WH-8 is a new-road ACTION called from the top level (SEQ 509): nothing to testOP
+    [ "$_id" = WH-8 ] && _run=""
     #  the 4th field is an OLD-road statement run after the call (WH-8: the print after the call)
     { cat "$T/wh.pre"; printf '%s\n%s\n%s\ncerr "WH NEXT":;\ncerr "WH SENTINEL":;\nstop();\n' "$_wn" "$_run" "$_wa"; } > "$T/wh.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/wh.$_id.nk" > "$T/wh.$_id.n" 2> "$T/wh.$_id.ne"; echo $? > "$T/wh.$_id.nx"
 done < "$T/wh.list"
-_ofeq "whileT rows ran (9 of 9)" "$(ls "$T"/wh.WH-*.ne 2>/dev/null | wc -l | tr -d ' ')" "9"
+_ofeq "whileT rows ran (10 of 10)" "$(ls "$T"/wh.WH-*.ne 2>/dev/null | wc -l | tr -d ' ')" "10"
 _ofeq "whileT WH-1 old road (control): count to 3, printing each" "$(_whv "$T/wh.WH-1.o")" "1 |2 |3 |"
 _ofeq "whileT WH-2 old road (control): condition false at the start prints nothing" "$(_whv "$T/wh.WH-2.o")" ""
 _ofeq "whileT WH-3 old road (control): break when the count reaches 2" "$(_whv "$T/wh.WH-3.o")" "1 |2 |"
@@ -634,7 +636,7 @@ _ofeq "whileT WH-6 old road (control): nested, the inner breaks at 2, the outer 
 _ofeq "whileT WH-7 old road (control): no leak, the print after a breaking loop runs" "$(_whv "$T/wh.WH-7.o")" "1 |2 |8 |"
 _ofeq "whileT WH-8 old road (control): return through a loop ends the action at 2, the print after the call runs" "$(_whv "$T/wh.WH-8.o")" "1 |2 |8 |"
 _ofeq "whileT WH-0 new road: the WHILe built alone, not run, prints nothing and the file runs on (stdout / exit / sentinel)" "[$(_whv "$T/wh.WH-0.n")] $(cat "$T/wh.WH-0.nx") $(grep -c '^WH SENTINEL' "$T/wh.WH-0.ne")" "[] 0 1"
-for _id in WH-1 WH-2 WH-3 WH-4 WH-5 WH-6 WH-7 WH-8; do
+for _id in WH-1 WH-2 WH-3 WH-4 WH-5 WH-6 WH-7 WH-8 WH-8S; do
     #  exit rows: WH-3, 4, 6, 7, 8 died with exit 139 until SEQ 476 (If attached a null for a break or block arm); green since
     _tw="0 1"
     fdRow "whileT $_id new road runs to its end (exit / sentinel)" "$(cat "$T/wh.$_id.nx") $(grep -c '^WH SENTINEL' "$T/wh.$_id.ne")" "$_tw" "0 1"
@@ -650,7 +652,13 @@ fdRow "whileT WH-7 new road: no leak, the print after a breaking loop in the sam
 #  WH-8 RE-PINNED (Tony, SEQ 476 R0): [] -> 99 8 -- return waits on action bodies (rung 5): it refuses by name at build, STARt skips the unbuilt WHILe
 #  WH-8 RE-PINNED (SEQ 478 R3): 99 8 -> 1 2 3 99 8 -- return waits on action bodies (rung 5); WHILe now runs, and the refused return leaves
 #  its if arm empty (If refuses it), so nothing stops the loop at 2
-fdRow "whileT WH-8 new road: return through a loop ends the STARt at 2, the old-road print after the call runs" "$(_whv "$T/wh.WH-8.n")" "1 |2 |3 |99 |8 |" "1 |2 |8 |"
+#  WH-8 RESHAPED (Tony, SEQ 509): the body is a new-road ACTION (wrN, built by whNew) called from the top level -- same pin,
+#  1 2 3 99 8: wrN's return refuses at build, its if arm is empty, nothing stops the loop. The parse-failed count is the road
+#  proof: a wrN that failed to build would run on the OLD road at its call and read 1 2 8 as a false green
+fdRow "whileT WH-8 new road: return through a loop ends the new-road action at 2, the print after the call runs (value / parse failed)" "$(_whv "$T/wh.WH-8.n") $(grep -c 'parse failed' "$T/wh.WH-8.ne")" "1 |2 |3 |99 |8 | 0" "1 |2 |8 | 0"
+#  WH-8S the OLD shape (SEQ 509): a return in a STARt run by a top-level testOP(it1) -- no action around it. Pinned at today's
+#  behaviour, value and the control slot after the call (branchKindOf), NOT RULED
+_ofeq "whileT WH-8S new road (today, not ruled): a return under a top-level testOP (value / branchKind after)" "$(_whv "$T/wh.WH-8S.n") $(grep '^BRANCHKIND' "$T/wh.WH-8S.ne")" "1 |2 |3 |99 |8 | BRANCHKIND 0"
 else echo "  FAIL  whileT MISSING"; fail=1
 fi
 
@@ -1074,6 +1082,41 @@ _ofeq "newLocalArgT runs (exit / sentinel / NL END)" "$_nax $(grep -c '^NEWLOCAL
 _ofeq "newLocalArgT AL-3a old road (control): a self-call through argument" "$(_nav 'AL-3a o')" "0 |1 |2 |"
 fdRow "newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -)" "$(_nav 'RP n') $(_nav 'AL-3a n') R$(grep -c '^REFUSED lv3a -- Operator - ' "$T/na.e")" "[ 7 ] | lv3a |2 | R1" "[ 7 ] | 0 |1 |2 | R0"
 else echo "  FAIL  newLocalArgT MISSING"; fail=1
+fi
+#  ⚑ newReturnT -- SEQ 508 / 509 (Tony, 2026-11-02): rung 5 part 2, return on the new road. PRE-REGISTERED ON TRUNK, born
+#  red. One process; each block starts with `RT <row> <road>`. Every n row is prefixed with RP n's reading, the road proof,
+#  and the file asserts no `parse failed`: a new-road build that fails falls back to the old road at the first call,
+#  silently. The caller resets rx to 55 before each call, so 55 reads "handed back nothing".
+#  ⚠ RT-5 / RT-5f / RT-5p OLD ROAD are CONTEXT, not intended (SEQ 509, A3 replaced): pinned at their measured values --
+#  the previous statement's value, the return keyword node (read 6, a value nobody wrote), the print's value.
+_nrF=$(ip newReturnT)
+_nrv () { awk -v k="RT $1" '$0 ~ /^RT / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/nr.o"; }
+if [ -f "$_nrF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_nrF" > "$T/nr.o" 2> "$T/nr.e"; _nrx=$?
+_ofeq "newReturnT runs (exit / sentinel / RT END / parse failed)" "$_nrx $(grep -c '^NEWRETURNT SENTINEL' "$T/nr.e") $(grep -c '^RT END' "$T/nr.o") $(grep -c 'parse failed' "$T/nr.e")" "0 1 1 0"
+_ofeq "newReturnT RP old road (control): the format goes on the 7 before it" "$(_nrv 'RP o')" "[     7 ] |"
+_ofeq "newReturnT RT-1 old road (control): return 7 from a plain action" "$(_nrv 'RT-1 o')" "7 |"
+_ofeq "newReturnT RT-2 old road (control): return mid-body, the print after never runs" "$(_nrv 'RT-2 o')" "3 |"
+_ofeq "newReturnT RT-3 old road (control): return inside an if" "$(_nrv 'RT-3 o')" "4 |"
+_ofeq "newReturnT RT-4 old road (control): return from two loops deep" "$(_nrv 'RT-4 o')" "1 |2 |3 |1 |22 |"
+_ofeq "newReturnT RT-5 old road (CONTEXT, not intended): a bare return after rl = 4 hands back 4" "$(_nrv 'RT-5 o')" "4 |"
+_ofeq "newReturnT RT-5f old road (CONTEXT, not intended): a bare return first hands back the keyword node, read 6" "$(_nrv 'RT-5f o')" "6 |"
+_ofeq "newReturnT RT-5p old road (CONTEXT, not intended): a bare return after a print hands back the print's 1" "$(_nrv 'RT-5p o')" "6 |1 |"
+_ofeq "newReturnT RT-6 old road (control): the caller's loop keeps running after a callee returns" "$(_nrv 'RT-6 o')" "1 |2 |3 |8 |"
+_ofeq "newReturnT RT-7 old road (control): a self-call returning at depth" "$(_nrv 'RT-7 o')" "0 |1 |2 |"
+_nrR="$(_nrv 'RP n')"
+fdRow "newReturnT RP new road: the format applies to what follows" "$_nrR" "[ 7 ] |" "[ 7 ] |"
+fdRow "newReturnT return refusals on the new road" "$(grep -c '^REFUSED return -- not built on the new road yet *$' "$T/nr.e")" "10" "0"
+fdRow "newReturnT RT-1 new road: return 7 from a plain action (road / value)" "$_nrR $(_nrv 'RT-1 n')" "[ 7 ] | 55 |" "[ 7 ] | 7 |"
+fdRow "newReturnT RT-2 new road: return mid-body, the print after never runs (road / value)" "$_nrR $(_nrv 'RT-2 n')" "[ 7 ] | 99 |55 |" "[ 7 ] | 3 |"
+fdRow "newReturnT RT-3 new road: return inside an if (road / value)" "$_nrR $(_nrv 'RT-3 n')" "[ 7 ] | 99 |55 |" "[ 7 ] | 4 |"
+fdRow "newReturnT RT-4 new road: return from two loops deep (road / value)" "$_nrR $(_nrv 'RT-4 n')" "[ 7 ] | 1 |2 |3 |1 |2 |3 |1 |2 |3 |99 |55 |" "[ 7 ] | 1 |2 |3 |1 |22 |"
+fdRow "newReturnT RT-5 new road: a bare return hands back nothing, A3 (road / value)" "$_nrR $(_nrv 'RT-5 n')" "[ 7 ] | 55 |" "[ 7 ] | 55 |"
+fdRow "newReturnT RT-5f new road: a bare return first hands back nothing (road / value)" "$_nrR $(_nrv 'RT-5f n')" "[ 7 ] | 55 |" "[ 7 ] | 55 |"
+fdRow "newReturnT RT-5p new road: a bare return after a print hands back nothing (road / value)" "$_nrR $(_nrv 'RT-5p n')" "[ 7 ] | 6 |55 |" "[ 7 ] | 6 |55 |"
+fdRow "newReturnT RT-6 new road: the caller's loop keeps running after a callee returns, A4 (road / value)" "$_nrR $(_nrv 'RT-6 n')" "[ 7 ] | 1 |2 |3 |8 |" "[ 7 ] | 1 |2 |3 |8 |"
+fdRow "newReturnT RT-7 new road: a self-call returning at depth, each level its own (road / value)" "$_nrR $(_nrv 'RT-7 n')" "[ 7 ] | r7b |55 |" "[ 7 ] | 0 |1 |2 |"
+else echo "  FAIL  newReturnT MISSING"; fail=1
 fi
 
 

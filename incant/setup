@@ -26,6 +26,7 @@ define
     bitmap immediateAction=setInternalType noPrint;
     BLOCKing immediateAction=processFlags guard;
     buffer immediateAction=setInternalType noPrint;
+    branchKindOf immediateAction;
     canonOf immediateAction;
     chanReport immediateAction;
     class immediateAction=rEGISTER noPrint;

@@ -18,6 +18,7 @@ extern "C" int auditMissingRules(GroupItem *registry);
 extern "C" int auditMissingTerms(GroupItem *registry);
 extern "C" GroupItem *auditRStuff(GroupItem *argument);
 extern "C" int auditSpurious(GroupItem *registry);
+extern "C" GroupItem *branchKindOf(GroupItem *argument);
 extern "C" GroupItem *canonOf(GroupItem *argument);
 extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" void includeGroupList(GroupItem *field);

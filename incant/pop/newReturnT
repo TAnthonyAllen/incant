@@ -1,0 +1,246 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewReturnT);
+define
+    nlReqN owner source result rule;
+    nlReqO owner source result;
+    nlOutN = 5;
+    nlOutO = 5;
+    nlDepN = 2;
+    nlDepO = 2;
+    itW;
+    it5;
+    it6;
+    qa = 2;
+    nlNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nlOld code={
+        nlSrc := argument.CodE;
+        nlReqO.owner  := argument;
+        nlReqO.source := nlSrc;
+        if compileIn(nlReqO);
+            nlBlock = nlReqO.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    rx;
+    rtDepN = 2;
+    rtDepO = 2;
+    rtRPn code={ print "[" 7 #5d "]":; };
+    rtRPo code={ print "[" 7 #5d "]":; };
+    rt1n code={ return 7; };
+    rt1o code={ return 7; };
+    rt2n code={
+        return 3;
+        print 99:;
+        };
+    rt2o code={
+        return 3;
+        print 99:;
+        };
+    rt3n code={
+        if qa > 1;
+            return 4;
+        print 99:;
+        return 5;
+        };
+    rt3o code={
+        if qa > 1;
+            return 4;
+        print 99:;
+        return 5;
+        };
+    rt4n code={
+        ra = 0;
+        while ra < 3;
+            ra = ra + 1;
+            rb = 0;
+            while rb < 3;
+                rb = rb + 1;
+                if ra == 2;
+                    if rb == 2;     return 22;
+                print rb:;
+        print 99:;
+        };
+    rt4o code={
+        ra = 0;
+        while ra < 3;
+            ra = ra + 1;
+            rb = 0;
+            while rb < 3;
+                rb = rb + 1;
+                if ra == 2;
+                    if rb == 2;     return 22;
+                print rb:;
+        print 99:;
+        };
+    rt5n code={
+        rl = 4;
+        return;
+        };
+    rt5o code={
+        rl = 4;
+        return;
+        };
+    rt5fn code={ return; };
+    rt5fo code={ return; };
+    rt5pn code={
+        print 6:;
+        return;
+        };
+    rt5po code={
+        print 6:;
+        return;
+        };
+    rt6cn code={ return 1; };
+    rt6co code={ return 1; };
+    rt6n code={
+        rk = 0;
+        while rk < 3;
+            rk = rk + 1;
+            rt6cn(1);
+            print rk:;
+        print 8:;
+        };
+    rt6o code={
+        rk = 0;
+        while rk < 3;
+            rk = rk + 1;
+            rt6co(1);
+            print rk:;
+        print 8:;
+        };
+    rt7n code={
+        r7 = rtDepN;
+        rtDepN = rtDepN - 1;
+        if r7 > 0;
+            r7b = rt7n(1);
+            print r7b:;
+        return r7;
+        };
+    rt7o code={
+        r7 = rtDepO;
+        rtDepO = rtDepO - 1;
+        if r7 > 0;
+            r7b = rt7o(1);
+            print r7b:;
+        return r7;
+        };
+    ;
+search NewReturnT;
+nlNew(rt7n);
+nlOld(rt7o);
+nlNew(rtRPn);
+nlOld(rtRPo);
+nlNew(rt1n);
+nlOld(rt1o);
+nlNew(rt2n);
+nlOld(rt2o);
+nlNew(rt3n);
+nlOld(rt3o);
+nlNew(rt4n);
+nlOld(rt4o);
+nlNew(rt5n);
+nlOld(rt5o);
+nlNew(rt5fn);
+nlOld(rt5fo);
+nlNew(rt5pn);
+nlOld(rt5po);
+nlNew(rt6cn);
+nlOld(rt6co);
+nlNew(rt6n);
+nlOld(rt6o);
+print "RT RP n":;
+rtRPn();
+print "RT RP o":;
+rtRPo();
+print "RT RT-1 n":;
+rx = 55; rx = rt1n(); print rx:;
+print "RT RT-1 o":;
+rx = 55; rx = rt1o(); print rx:;
+print "RT RT-2 n":;
+rx = 55; rx = rt2n(); print rx:;
+print "RT RT-2 o":;
+rx = 55; rx = rt2o(); print rx:;
+print "RT RT-3 n":;
+rx = 55; rx = rt3n(); print rx:;
+print "RT RT-3 o":;
+rx = 55; rx = rt3o(); print rx:;
+print "RT RT-4 n":;
+rx = 55; rx = rt4n(); print rx:;
+print "RT RT-4 o":;
+rx = 55; rx = rt4o(); print rx:;
+print "RT RT-5 n":;
+rx = 55; rx = rt5n(); print rx:;
+print "RT RT-5 o":;
+rx = 55; rx = rt5o(); print rx:;
+print "RT RT-5f n":;
+rx = 55; rx = rt5fn(); print rx:;
+print "RT RT-5f o":;
+rx = 55; rx = rt5fo(); print rx:;
+print "RT RT-5p n":;
+rx = 55; rx = rt5pn(); print rx:;
+print "RT RT-5p o":;
+rx = 55; rx = rt5po(); print rx:;
+print "RT RT-6 n":;
+rt6n();
+print "RT RT-6 o":;
+rt6o();
+print "RT RT-7 n":;
+rx = 55; rx = rt7n(); print rx:;
+print "RT RT-7 o":;
+rx = 55; rx = rt7o(); print rx:;
+print "RT END":;
+cerr "NEWRETURNT SENTINEL":;
+stop();
+
+newReturnT -- SEQ 508 / 509 (Tony, 2026-11-02): rung 5, part 2 -- return on the new road. PRE-REGISTERED ON TRUNK, born red.
+
+One process. Every action comes in a pair with the SAME body: the n action is built on the NEW road (nlNew: compileIn
+with KantGrammar's STARt), the o action on the OLD road (nlOld: compileIn with no rule) -- the control. Each block of output
+starts with a line RT <row> <road>; pop.sh reads the lines up to the next RT line. Every multi-line body is written with
+indentation, never braces (fixit braceInCode). The file ends with RT END and a sentinel on stderr, so a define that breaks
+shows as a missing sentinel rather than as missing values.
+
+The caller resets rx to 55 before each call, so a call that hands back nothing leaves 55 -- a value no body here produces.
+
+ROWS
+RP    road proof (newLocalT's): the roads bind #5d in opposite directions -- new [ 7 ], old [     7 ]. And pop.sh asserts
+      NO `parse failed` on stderr: a new-road build that fails falls back to the OLD road at the first call, silently,
+      and its row would read as a green new road. (A call with EMPTY parens, `f();`, does not build on the new road --
+      measured SEQ 509 -- so every call inside a body here passes an argument.)
+RT-1  return 7 from a plain action: rx reads 7.
+RT-2  return mid-body: rx reads 3 and the print after the return never runs.
+RT-3  return inside an if (qa is 2): 4, the print and the second return never run.
+RT-4  return from two loops deep, at ra 2 rb 2: prints 1 2 3 1, then rx reads 22; the 99 never prints.
+RT-5  return with no value after rl = 4. A3 (SEQ 509): on the new road a bare return hands back NOTHING in every
+      position, so rx stays 55. The old road hands back the previous statement's value, 4 -- pinned as context, not as
+      intended.
+RT-5f the bare return as the FIRST statement. New road: nothing (55). Old road: the return keyword node itself, which read
+      6 when measured (SEQ 508 R0) -- a value nobody wrote; pinned as context.
+RT-5p the bare return after a print. New road: nothing (55). Old road: the print's value, 1 -- context.
+RT-6  A4, the no-leak row: the caller's own loop calls a callee that returns, three passes, then prints 8: 1 2 3 8. A signal
+      left set after the landing would end the caller's loop after its first pass.
+RT-7  a self-call that returns at depth (newLocalT's AL-3 shape, read by value): a declared counter (2) counts down, each
+      level returns its own r7 and the level above prints it: 0 1, then rx reads 2. A shared local would print 0 0 / 0.
+      ⚠ rt7n is BUILT FIRST, and that is load-bearing: after any new-road body holding a bare call statement (`f(1);`) is
+      built, the NEXT new-road build RUNS an assignment's call (`x = f(1);`) at build -- measured SEQ 509, a pre-existing
+      gap, reported not chased. Built after rt6n, rt7n ran itself at build, printed 0 1 and spent the counter.

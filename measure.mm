@@ -162,6 +162,15 @@ int 		spurious = 0;
 	return spurious;
 }
 
+/*  the control slot as it stands right now, printed unconditionally (H4) -- a witness for a signal no reader shows: every reader of branchKind clears it first (SEQ 509, WH-8t)   measure.branchKindOf  */
+extern "C" GroupItem *branchKindOf(GroupItem *argument)
+{
+	
+	::fprintf(stderr,"BRANCHKIND %d\n",GroupControl::groupController->groupRules->branchKind);
+	
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
 /*  canon is instanceRule() -- the registered original for a copy of one, else the node (stroke 4.4a; definingRule() retired)   measure.canonOf  */
 extern "C" GroupItem *canonOf(GroupItem *argument)
 {
