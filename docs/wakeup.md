@@ -4,8 +4,13 @@
 #   session builds the top-level refusal and then counts who reads `argument` before renaming it.
 #   ## THE OPENER: build SEQ 513's TL-7 ruling -- a top-level statement that FINISHES with a branch signal set (break,
 #   continue or return, at any depth) is refused by name by FILe / TOPSTATEMENt and the signal cleared. topLevelT TL-7 /
-#   TL-8 / TL-9 are born red (2 | R0 -> 2 | R1, plus a row naming each keyword). ⚠ Ask first: TL-5 (a break inside a
-#   top-level BLOCK) also finishes with the signal set, so the literal ruling refuses it too (R0 today) -- Tony's word owed.
+#   TL-8 / TL-9 are born red (2 | R0 -> 2 | R1, plus a row naming each keyword).
+#   ⚠ AMENDED (Clay's recommendation, Tony agreed, 2026-11-02) -- THE BUILD'S FIRST LINE: TL-5 is left alone. Each signal
+#   has its own landing: a break at the innermost LOOP around it, or with no loop around it at its BLOCK; a continue at a
+#   loop; a return at an action. Anything that reaches the top level unlanded is refused by name and cleared -- TL-7/8/9,
+#   and a continue or return inside a top-level block. ⚠ SCOPED BY CLOD: "a block catches its break" must NOT apply inside
+#   a loop -- whileT WH-3 / WH-6 / WH-7 rely on a body block leaving break set for the loop (opSeq today); a block that
+#   cleared it would turn WH-3's 1 2 into 1 2 3. Confirm the scoping with Tony if the build reads it otherwise.
 #   Then the argument rename, census first (macros ORDER line).
 #   ## TODAY (2026-11-02), in one block:
 #   - SEQ 508/509 return on the new road (merge 26d7708f): the value rides each op's return, processAction is the landing.
