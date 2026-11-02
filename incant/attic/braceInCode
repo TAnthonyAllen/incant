@@ -43,3 +43,11 @@ print. When fixed: the second line, 3, and the SENTINEL.
 NEXT: OPEN -- not diagnosed. What would generate a candidate: whether code={ } delimits by brace COUNT or by the first
 `}`, measured with `code={ { print 1:; } }` alone and with a `}` inside a quoted string; and checkSkip's define-time
 indentation rewrite (`defining`), which rewrites line ends to `:`/`>` and may meet the inner `{`.
+
+RETIRED BY MAPPING 2026-11-02 (SEQ 512 R2, Tony's dispatch): it read its own "when fixed" output on branch code-brace -- the
+second line, 3, and the SENTINEL -- with the amended meaning (a block brace in a body is a user error, refused by name).
+Every assertion and its new home, incant/pop/codeBraceT in pop.sh:
+  - the control define (bcOk, no braces) is intact and prints 2      -> BC-3, the control (a { in a string), sentinel + value
+  - bcFirst, defined BEFORE the braced action, is still callable: 3 -> BIC (sentinel / value "1 3 |")
+  - bcBad's braced arm                                               -> BIC + the refusal row (REFUSED { ... ; REMOVED bcBad)
+  - the file is not abandoned: the SENTINEL prints                   -> codeBraceT's end row (BC END / sentinel "1 1")

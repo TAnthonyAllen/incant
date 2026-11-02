@@ -399,6 +399,9 @@ PARKED behind the jitter walk.**
 
 ### KANT-40 / F-86 and braceInCode are NOT checkSkip, and fall outside SKIp's reach
 
+**CLOSED 2026-11-02 (SEQ 512): aCTionCodE's scan now steps over strings and comments and refuses a block brace by name;
+KANT-40 closes on codeBraceT BC-4.**
+
 They are one mechanism, and it is `aCTionCodE` (ruleActions.rtn:187-192): a `code={ }` body is captured from its `{` to
 the FIRST `}` -- no nesting count, no quote or comment awareness. Measured today, three arms, one define each:
 `print 7:;` -> fine; `print "}":; print 7:;` -> the define dies (`RunRulE: expected a method not bqA`, the define's first
