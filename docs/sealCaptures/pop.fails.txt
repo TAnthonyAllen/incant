@@ -1,9 +1,15 @@
-# pop.sh FAIL rows by name -- first banked 2026-10-31 at seal 298 (M6). 55 rows, identical across two runs.
+# pop.sh FAIL rows by name -- re-banked 2026-11-02 at seal 315 (SEQ 513 shutdown). 61 rows. First banked 2026-10-31, seal 298.
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//').
-FAIL  whileT WH-8 new road: return through a loop ends the STARt at 2, the old-road print after the call runs born red (SEQ 345): today [1 |2 |3 |99 |8 |], intended [1 |2 |8 |]
 FAIL  bridgeT BR-4 new road sentinel -- got [0] want [1]
 FAIL  bridgeT BR-4 new road: a top-level scope: the run ends, nothing refuses (no witness) MOVED: reads [ R0 x139], pinned today [1 |2 | R0 x0], intended [1 |2 | R0 x0]
 FAIL  cmdCallT CC-6 new road: an action call, empty () (value / sentinel) born red (SEQ 345): today [ R0 x0 1], intended [8 |5 | R0 x0 1]
+FAIL  topLevelT TL-7 FILe: a break inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
+FAIL  topLevelT TL-8 FILe: a continue inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
+FAIL  topLevelT TL-9 FILe: a return inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
+FAIL  topLevelT TL-7 the refusal names break born red (SEQ 345): today [0], intended [1]
+FAIL  topLevelT TL-8 the refusal names continue born red (SEQ 345): today [0], intended [1]
+FAIL  topLevelT TL-9 the refusal names return born red (SEQ 345): today [0], intended [1]
+FAIL  newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -) born red (SEQ 345): today [[ 7 ] | lv3a |2 | R1], intended [[ 7 ] | 0 |1 |2 | R0]
 FAIL  setFlagTopT -- wanted: SFT-1 top-level :. read-back  ->  1
 FAIL  setFlagTopT -- dumpContents shows sfTop WITHOUT noPrint
 FAIL  holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow 
