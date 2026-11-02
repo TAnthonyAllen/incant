@@ -10,7 +10,9 @@
 #   loop; a return at an action. Anything that reaches the top level unlanded is refused by name and cleared -- TL-7/8/9,
 #   and a continue or return inside a top-level block. ⚠ SCOPED BY CLOD: "a block catches its break" must NOT apply inside
 #   a loop -- whileT WH-3 / WH-6 / WH-7 rely on a body block leaving break set for the loop (opSeq today); a block that
-#   cleared it would turn WH-3's 1 2 into 1 2 3. Confirm the scoping with Tony if the build reads it otherwise.
+#   cleared it would turn WH-3's 1 2 into 1 2 3. RULED (Tony, 2026-11-02): the scoped version stands as written; a break in
+#   a braced top-level if-arm lands at that block and is not refused -- topLevelT TL-10 pins it, green today, a control the
+#   build must keep green (pop.sh 2428).
 #   Then the argument rename, census first (macros ORDER line).
 #   ## TODAY (2026-11-02), in one block:
 #   - SEQ 508/509 return on the new road (merge 26d7708f): the value rides each op's return, processAction is the landing.

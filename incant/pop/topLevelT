@@ -49,6 +49,11 @@ TL-7  a break inside a top-level if. RULED (Tony, SEQ 513): at the top level, a 
       changes. Intended: the break runs, the refusal names it, the next statement prints 2. (Was CONTEXT, not ruled.)
 TL-8  the same, continue.
 TL-9  the same, return.
+      SCOPED (Tony, 2026-11-02): each signal has its own landing -- a break at the innermost loop around it, or with no loop
+      around it at its block; a continue at a loop; a return at an action. Anything that reaches the top level unlanded
+      is refused by name and cleared (TL-7/8/9, and a continue or return inside a top-level block). TL-5 is unchanged.
+TL-10 the CONTROL for that scoping: a break in a BRACED top-level if-arm lands at its block and is NOT refused. Green
+      today (2 | R0); the TL-7 build must keep it green -- a refusal that over-fires turns it red.
 
 TL-1|print 1:; print 2:;
 TL-2|print 1:; break; print 2:;
@@ -59,3 +64,4 @@ TL-6|print qa:; define qa=9; ; print qa:;
 TL-7|if qa < qb; break; print 2:;
 TL-8|if qa < qb; continue; print 2:;
 TL-9|if qa < qb; return; print 2:;
+TL-10|if qa < qb; { break; } print 2:;
