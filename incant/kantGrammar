@@ -153,8 +153,12 @@ define
             instruct    +% *op;
             instruct    +% unWrap(ANYtoken);
             instruct    +% *arg;
+            // oneCallOneNode the call is copied INTO the label and the local cleared: returned by identity, the local was one node for every call built, so each ran the last callee (SEQ 510)
             // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- EXPRESSIOn binds it on arrival
-            return instruct;
+            icall       := copyOf(instruct);
+            clear(instruct);
+            *argument   := *icall;
+            return  *argument;
         return ANYtoken;
         };
     // STARt only builds (SEQ 446): one seq instruct, op seq, its operand a mint of the list of statement instructs; testOP runs it
