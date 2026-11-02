@@ -658,7 +658,9 @@ fdRow "whileT WH-7 new road: no leak, the print after a breaking loop in the sam
 fdRow "whileT WH-8 new road: return through a loop ends the new-road action at 2, the print after the call runs (value / parse failed)" "$(_whv "$T/wh.WH-8.n") $(grep -c 'parse failed' "$T/wh.WH-8.ne")" "1 |2 |3 |99 |8 | 0" "1 |2 |8 | 0"
 #  WH-8S the OLD shape (SEQ 509): a return in a STARt run by a top-level testOP(it1) -- no action around it. Pinned at today's
 #  behaviour, value and the control slot after the call (branchKindOf), NOT RULED
-_ofeq "whileT WH-8S new road (today, not ruled): a return under a top-level testOP (value / branchKind after)" "$(_whv "$T/wh.WH-8S.n") $(grep '^BRANCHKIND' "$T/wh.WH-8S.ne")" "1 |2 |3 |99 |8 | BRANCHKIND 0"
+#  WH-8S RE-PINNED (SEQ 509 R2): return is built on the new road (SEQ 508). The loop stops at 2 and the print after the call
+#  runs -- but no action is there to consume the signal, so kind 3 STAYS SET after testOP. NOT RULED; reported
+_ofeq "whileT WH-8S new road (not ruled): a return under a top-level testOP (value / branchKind after)" "$(_whv "$T/wh.WH-8S.n") $(grep '^BRANCHKIND' "$T/wh.WH-8S.ne")" "1 |2 |8 | BRANCHKIND 3"
 else echo "  FAIL  whileT MISSING"; fail=1
 fi
 
@@ -696,13 +698,18 @@ done
 fdRow "branchT BR-1 new road: STARt stops at break, nothing refuses" "$(_btv "$T/bt.BR-1.n") $(grep -c '^REFUSED' "$T/bt.BR-1.ne")" "1 |2 | 0" "1 | 0"
 fdRow "branchT BR-2 new road: the top-level statement after the STARt runs (no leak)" "$(_btv "$T/bt.BR-2.n")" "1 |2 |3 |" "1 |3 |"
 fdRow "branchT BR-C new road: STARt stops at continue, nothing refuses" "$(_btv "$T/bt.BR-C.n") $(grep -c '^REFUSED' "$T/bt.BR-C.ne")" "1 |2 | 0" "1 | 0"
-fdRow "branchT BR-R new road: return refuses by name at build, the rest of the seq runs" "$(_btv "$T/bt.BR-R.n") $(grep -c '^REFUSED return -- not built on the new road yet *$' "$T/bt.BR-R.ne")" "1 |2 | 0" "1 |2 | 1"
+#  BR-R RE-PINNED (SEQ 509 R2): return is built on the new road (SEQ 508). It no longer refuses: the STARt prints 1 and stops
+#  at the return. CONTEXT, NOT RULED: a return in a STARt run by a top-level testOP has no action to land in (WH-8S)
+_ofeq "branchT BR-R new road (CONTEXT, not ruled): a return in a STARt under a top-level testOP stops the seq (value / refusals)" "$(_btv "$T/bt.BR-R.n") $(grep -c '^REFUSED return' "$T/bt.BR-R.ne")" "1 | 0"
 fdRow "branchT BL-1 new road: a block builds a seq" "$(_btv "$T/bt.BL-1.n")" "" "1 |2 |"
 fdRow "branchT IF-5 new road: an if whose arm is a block" "$(_btv "$T/bt.IF-5.n")" "" "1 |2 |"
 fdRow "branchT IF-6 new road: if ...; break; at the top, the next statement runs" "$(_btv "$T/bt.IF-6.n")" "" "5 |"
 fdRow "branchT TG-1 testOP on a raw label whose first child carries a method refuses by name" "$(grep -c '^REFUSED it1 -- not an instruct$' "$T/bt.TG-1.ne")" "0" "1"
 #  IF-7 (SEQ 476, H17): an arm that hands up nothing (a refused return) -- If refuses by name, the next statement runs (R6)
-_ofeq "branchT IF-7 if ...; return; -- If refuses its empty arm by name, next runs (refusals / stdout)" "$(grep -c '^REFUSED return -- not built on the new road yet *$' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct *$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "1 1 [5 |]"
+#  IF-7 RE-PINNED (SEQ 509 R2): return is built on the new road (SEQ 508), so the arm is an instruct and If no longer refuses.
+#  ⚠ R6's "arm handed up no instruct" refusal has LOST ITS LIVE TRIGGER (H17) -- reported; no substitute found (an adjacent-
+#  operand arm `qa qb;` does not refuse either)
+_ofeq "branchT IF-7 if ...; return; -- the return arm builds, nothing refuses, next runs (refusals / stdout)" "$(grep -c '^REFUSED return' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct *$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "0 0 [5 |]"
 #  SL-1, SL-2 (SEQ 478 R0): the STARt leak -- a second STARt, and a second sibling block, each run right; no seq error
 fdRow "branchT SL-1 two STARts built in one process each run (stdout / seq errors)" "$(_btv "$T/bt.SL-1.n") $(grep -c 'seq does not contain a list' "$T/bt.SL-1.ne")" "1 | 1" "1 |5 | 0"
 fdRow "branchT SL-2 two sibling blocks in one STARt each run (stdout / seq errors)" "$(_btv "$T/bt.SL-2.n") $(grep -c 'seq does not contain a list' "$T/bt.SL-2.ne")" "1 | 1" "1 |5 | 0"

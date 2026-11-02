@@ -8341,18 +8341,31 @@ int 		priorLimit = ::limitWriteGuard(target);
 	return target;
 }
 
-// opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; retires when a kant action of the same name passes the same rows (branchT)
+// opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; return's operand is a list [keyword, value?]: the value runs here, kind 3 is set and the value is handed up -- a bare return hands back nothing (SEQ 509 A3); retires when a kant action of the same name passes the same rows (branchT)
 extern "C" GroupItem *opBranch(GroupItem *keyword)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*kw = keyword;
+GroupItem 	*value = 0;
 	if ( !keyword )
 		return 0;
-	if ( *keyword->groupBody->tag == 'b' )
+	if ( keyword->groupBody->groupList )
+		{
+		kw = keyword->get(1);
+		value = keyword->get(2);
+		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
+		}
+	if ( !kw )
+		return 0;
+	if ( *kw->groupBody->tag == 'b' )
 		ruler->branchKind = 1;
 	else
-	if ( *keyword->groupBody->tag == 'c' )
+	if ( *kw->groupBody->tag == 'c' )
 		ruler->branchKind = 2;
-	return 0;
+	else
+	if ( *kw->groupBody->tag == 'r' )
+		ruler->branchKind = 3;
+	return value;
 }
 
 // opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
@@ -8519,7 +8532,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return result;
 }
 
-// opDo the doLoop instruct's unary op (SEQ 480 R1): its operand list holds the statement and the condition; each pass runs the statement, then reads the signal -- break clears and ends, continue clears and goes to the condition, any other stays set and ends -- then runs the condition through testOP, false ends it; hands back nothing; its own op, one loop shape; retires when a kant action of the same name passes the same rows (doT)
+// opDo the doLoop instruct's unary op (SEQ 480 R1): its operand list holds the statement and the condition; each pass runs the statement, then reads the signal -- break clears and ends, continue clears and goes to the condition, any other stays set and ends -- then runs the condition through testOP, false ends it; hands back nothing, but a return's value (kind 3) rides up (SEQ 509); its own op, one loop shape; retires when a kant action of the same name passes the same rows (doT)
 extern "C" GroupItem *opDo(GroupItem *arms)
 {
 GroupItem 	*body = arms->get(1);
@@ -8528,9 +8541,11 @@ GroupItem 	*cond = arms->get(2);
 		return 0;
 	
 	GroupRules *doRuler = GroupControl::groupController->groupRules;
+	GroupItem *bodyResult = 0;
 	for (;;) {
 	doRuler->branchKind = 0;
-	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+	bodyResult = 0;
+	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
 	int doKind = doRuler->branchKind;
 	if ( doKind == 1 ) { doRuler->branchKind = 0; break; }
 	if ( doKind == 2 ) doRuler->branchKind = 0;
@@ -8539,6 +8554,7 @@ GroupItem 	*cond = arms->get(2);
 	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
 	if ( !::truthOf(test) ) break;
 	}
+	if ( doRuler->branchKind == 3 ) return bodyResult;
 	
 	return 0;
 }
@@ -8808,7 +8824,7 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-// opFor the forLoop instruct's unary op (SEQ 482 R2): its operand list holds the cursor, the source and the statement, and a fourth entry when `<-` asked for reverse; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing; retires when a kant action of the same name passes the same rows (forT)
+// opFor the forLoop instruct's unary op (SEQ 482 R2): its operand list holds the cursor, the source and the statement, and a fourth entry when `<-` asked for reverse; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509); retires when a kant action of the same name passes the same rows (forT)
 extern "C" GroupItem *opFor(GroupItem *arms)
 {
 GroupItem 	*cursor = arms->get(1);
@@ -8832,16 +8848,18 @@ int 		backward = 0;
 	if ( loopOn->groupBody->groupList ) listed = loopOn; }
 	if ( !loopOn->groupBody->groupList && listed ) loopOn = listed;
 	cursor->clear();
-	GroupItem *member = 0;
+	GroupItem *member = 0, *bodyResult = 0;
 	while ( (member = backward ? loopOn->prior(member) : loopOn->next(member)) ) {
 	cursor->setGroup(member);
 	forRuler->branchKind = 0;
-	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+	bodyResult = 0;
+	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
 	int forKind = forRuler->branchKind;
 	if ( forKind == 1 ) { forRuler->branchKind = 0; break; }
 	if ( forKind == 2 ) { forRuler->branchKind = 0; continue; }
 	if ( forKind ) break;
 	}
+	if ( forRuler->branchKind == 3 ) return bodyResult;
 	
 	return 0;
 }
@@ -9799,15 +9817,20 @@ extern "C" GroupItem *opSeq(GroupItem *items)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*grup = 0;
+GroupItem 	*stmtResult = 0;
 	while ( grup = items->next(grup) )
 		{
 		// clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
 		ruler->branchKind = 0;
-		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) ::testOP(grup); 
+		stmtResult = 0;
+		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) stmtResult = ::testOP(grup); 
 		// stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
 		if ( ruler->branchKind )
 			break;
 		}
+	// returnHandsUp a return's value rides up as the seq's own value, as on the old road; the signal stays set for the action to consume (SEQ 509 A1)
+	if ( ruler->branchKind == 3 )
+		return stmtResult;
 	return items;
 }
 
@@ -9912,7 +9935,7 @@ int 		wrote = 0;
 	return ruler->tempField;
 }
 
-// opWhile the whileLoop instruct's unary op (SEQ 478 R1): its operand list holds the condition and the statement; each pass runs the condition through testOP and ends on false, runs the statement, then reads the signal -- break clears and ends, continue clears and loops, any other stays set and ends the loop; hands back nothing; retires when a kant action of the same name passes the same rows (whileT)
+// opWhile the whileLoop instruct's unary op (SEQ 478 R1): its operand list holds the condition and the statement; each pass runs the condition through testOP and ends on false, runs the statement, then reads the signal -- break clears and ends, continue clears and loops, any other stays set and ends the loop; hands back nothing, but a return's value (kind 3) rides up (SEQ 509); retires when a kant action of the same name passes the same rows (whileT)
 extern "C" GroupItem *opWhile(GroupItem *arms)
 {
 GroupItem 	*cond = arms->get(1);
@@ -9921,17 +9944,20 @@ GroupItem 	*body = arms->get(2);
 		return 0;
 	
 	GroupRules *whileRuler = GroupControl::groupController->groupRules;
+	GroupItem *bodyResult = 0;
 	for (;;) {
 	GroupItem *test = cond;
 	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
 	if ( !::truthOf(test) ) break;
 	whileRuler->branchKind = 0;
-	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) ::testOP(body);
+	bodyResult = 0;
+	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
 	int whileKind = whileRuler->branchKind;
 	if ( whileKind == 1 ) { whileRuler->branchKind = 0; break; }
 	if ( whileKind == 2 ) { whileRuler->branchKind = 0; continue; }
 	if ( whileKind ) break;
 	}
+	if ( whileRuler->branchKind == 3 ) return bodyResult;
 	
 	return 0;
 }

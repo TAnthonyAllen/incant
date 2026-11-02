@@ -352,17 +352,23 @@ define
         *argument   := *built;
         return  *argument;
         };
-    // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal. return waits on action bodies (rung 5)
+    // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal
+    // returnArms return builds the same instruct, its operand a mint of [keyword, value?]; opBranch runs the value, sets kind 3 and hands the value up (SEQ 508 / 509)
     BRANCh code={
-        :argument BRANCHEs;
+        :argument BRANCHEs EXPRESSIOn;
         kw := **BRANCHEs;
-        if *kw.taG == "return";
-            cerr "REFUSED return -- not built on the new road yet":;
-            clear(*argument);
-            return *argument;
         op := Operators["branchSignal"];
         kwMint      := copyOf(*kw);
-        miArgs      +% op kwMint;
+        if *kw.taG == "return";
+            retArms +% *kwMint;
+            xLen    := *EXPRESSIOn.listLengtH;
+            if xLen != 0;
+                val     := **EXPRESSIOn;
+                retArms +% *val;
+            armsMint    := copyOf(retArms);
+            miArgs      +% op armsMint;
+        if *kw.taG != "return";
+            miArgs      +% op kwMint;
         built       := makeInstruct(miArgs);
         *argument   := *built;
         return  *argument;
@@ -429,12 +435,17 @@ define
         :argument STATEMENt;
         ts := **STATEMENt;
         topRun = 1;
-        // topBranch a break or continue at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set; return refuses in BRANCh today, and must refuse here whatever it becomes in rung 5 (Tony, SEQ 495)
+        // topBranch a break or continue at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set; return builds as branchSignal since SEQ 508 and refuses here too (A2, Tony, SEQ 495)
         tsL := *ts.listLengtH;
         if tsL != 0;
             tsOp := *ts[1];
             if *tsOp.taG == "branchSignal";
                 kw := *ts[2];
+                // returnNamesItself return's operand is the mint [keyword, value?], so the refusal names its first entry (SEQ 509)
+                kwL := *kw.listLengtH;
+                if kwL != 0;
+                    k1 := *kw[1];
+                    if *k1.taG == "return";     kw := *k1;
                 kwT := *kw.taG;
                 cerr "REFUSED" kwT "-- at the top level there is no loop or block to end":;
                 topRun = 0;
