@@ -262,3 +262,14 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
   countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
   `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
+
+### checkSkip's `/#` comment form, and three bookkeeping fields nobody reads
+- **What/where:** `GroupRules.twk` checkSkip, the `or (atContent + 1) == '#'` arm (skips from `/#` to the next `#`); and
+  the members `beforeSkip`, `lastSkip`, `noSkipping` (GroupRules.twk:90-91, :112; written at :243-248; mirrored in
+  `groups.ext` :427-428, :448).
+- **Why it looks deletable:** an env-gated tap that disabled the `/#` arm left pop.sh row for row (2420, SEQ 511 R1). The
+  three fields have writers only: 0 readers in any `.twk` / `.rtn` (grep, 2026-11-02).
+- **Confirm:** the tap re-run at cut time with jitLadder, printPop, decodePop, ddPop, frontier; a grep of the gitignored
+  directive files for the three names (SEQ 284 R2); groups.ext lines go in the same stroke (mirror-arity row moves).
+- **Note:** the old road's checkSkip is ruled untouched (2026-11-01) -- these are Tony's to cut or keep.
+- **Seen:** 2026-11-02 (SEQ 511 R1).

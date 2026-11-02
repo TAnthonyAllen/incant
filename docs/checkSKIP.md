@@ -346,3 +346,88 @@ chat, because a division of labour that lives in a conversation is one nobody ca
    better half of that — but it is still owed a run before anyone builds on it.
 5. **checkSKIP in kant, interpreted, CS-1..CS-9 against the C++ oracle.** Correctness only.
 6. Efficiency: waits on the jitter, by Tony's own estimate. Not this card's claim.
+
+## 8. RECON 2026-11-02 (SEQ 511 R1, Clod, read only) -- what checkSkip does today and what SKIp would carry
+
+Context since this card was drafted: the 2026-11-01 ruling (macros, standing rulings) -- on the NEW road checkSkip becomes a
+kant rule SKIp whose action keeps the indent stack and hands up INDENT / DEDENT; kantGrammar spells BLOCk as `{ }` or
+INDENT ... DEDENT; **the old road's checkSkip stays untouched.** And the 2026-10-29 rule: no meaning carried in C++ flags.
+
+**Method.** The jobs below are read from `GroupRules.twk` checkSkip (:139-249) and its one call site, `RuleStuff::inputAt`
+(RuleStuff.twk:61, :64: before every term that does not carry `^`). "Who relies on it" is MEASURED: an env-gated tap in the
+generated `GroupRules.mm` switched each job off by name (one build), pop.sh ran once per job against an untapped run that
+read row for row with the bought trunk (2420), and the tap was then reverted and the binary checked byte-identical. Rows
+are pop.sh's.
+
+| # | job | where | rows that rely on it (tap off) |
+|---|---|---|---|
+| J1 | skip space, tab, newline, CR (`skipSet` = ` \n\r\t/`, GroupMain.twk:86); count `sourceLINE` | :152-158 | everything (not tapped -- the parse) |
+| J2 | `//` line comment, to end of line | :163-167 | **the whole fleet: 2420 -> 132** (setup, grammar and utilities carry `//`) |
+| J3 | `/* */` block comment, NESTED (a count) | :168-200 | **the whole fleet: 2420 -> 132** |
+| J4 | `/#` ... `#` | :172-176 | **none -- row for row.** (It also stops ON the closing `#`, which is not in skipSet.) cleanupList |
+| J5 | track indentation: `lastINDENT`, the `stacked` nodes on `blockSTAK` | :206-237 | carried by J6-J8 |
+| J6a | indentation -> `{` / `}` rewrite IN THE INPUT BUFFER, gate `inCompile()` (old-road compile) | :222-224, :232-235 | **none alone -- masked:** processCode sets the name owner too (SEQ 502), so J6b's half carries every old-road body. See J6a+b |
+| J6b | the same rewrite, gate `floorNameOwner()` (new-road body build, SEQ 504) | same | **6 rows:** whileT WH-8, newLocalT ML-1, newReturnT RT-4 and RT-6, newReturnSelfT RT-7, newCallBindT CB-4 |
+| J6a+b | both halves off | same | **2420 -> 1971; 460 rows changed** -- the old road's multi-line action bodies; three fixtures TIMED OUT (loopBranchT, ctlStampT, ruleReturnT) and ifSeedT's interpreted twin HUNG uncapped (pop.sh:7197 runs it with no cap; killed by PID after 8 min). So J6a is load-bearing for the old road; it hid behind J6b because processCode raises both |
+| J7 | indentation -> `:` / `>` rewrite, gate `defining` (every `define` block's members) | :215-219, :228-231 | **1979 rows** -- the fleet's defines |
+| J8 | bookkeeping: `lastIndent` (read by drives, processCode, the `411` property, jit), `beforeSkip`, `lastSkip`, `noSkipping` | :243-248 | lastIndent: many readers; the other three: **0 readers** (cleanupList) |
+
+The two parked anchors are directive entries on checkSkip (`Directives/groupDirectives:343, :347`, `stacked` and
+`"if stacked"`), both disarmed (`ctive`); their bodies read `blocking`, which no `.twk` / `.rtn` declares any more, so
+armed they would not compile -- dirCheck would name them DARK (bookkeeping, not a finding).
+
+### What a kant SKIp can carry, and what stays C++
+
+**Carry (new road only):** J2, J3 and J5/J6b's meaning. SKIp's alternatives consume `//` and nested `/* */` and hand up
+nothing; its indentation alternative reads the run's column against an indent stack that is SKIp's own data (a list of
+counts on a kant field, not `blockSTAK`) and hands up INDENT, DEDENT (one per level closed -- several at once is a list),
+or nothing. **The gates go away:** whether an INDENT opens a block is the grammar's -- BLOCk takes `{ }` or INDENT
+STATEMENt+ DEDENT, and a rule that does not name INDENT never meets one (FILe at the top level = ML-3's answer: no road
+rewrites there). That is the 10-29 rule satisfied: no `inCompile()`, no `floorNameOwner()`, no text written into the
+buffer.
+
+**Stays C++:** the old road's checkSkip whole (ruled) -- so J6a and J7 (defines are always the old road's) and J4 stay
+where they are; the bootstrap (kantGrammar itself is loaded through the C++ skip -- §3's bootstrap fact); the character
+scan primitives SKIp's rules are made of; `sourceLINE` (a count the error reports read, not a meaning). **And one seam
+needs a ruling, because it is where SKIp runs:** (a) the engine's `inputAt` calls SKIp for a kant-grammar term instead of
+checkSkip -- one C++ seat, the term's grammar decides, `^` still means "no skip"; or (b) SKIp is an explicit term in the
+grammar wherever whitespace may fall -- no C++ seat, but every rule spells it. Option (b) is the purer reading of 10-29
+and much the larger grammar change; (a) is a dispatch, not a meaning, and is Clod's recommendation.
+
+### KANT-40 / F-86 and braceInCode are NOT checkSkip, and fall outside SKIp's reach
+
+They are one mechanism, and it is `aCTionCodE` (ruleActions.rtn:187-192): a `code={ }` body is captured from its `{` to
+the FIRST `}` -- no nesting count, no quote or comment awareness. Measured today, three arms, one define each:
+`print 7:;` -> fine; `print "}":; print 7:;` -> the define dies (`RunRulE: expected a method not bqA`, the define's first
+healthy action -- bear-trap 32's misdirection) and the file is ABANDONED; `print "{":; print 7:;` -> fine. So a `}` in a
+comment (F-86), in a string, or closing a braced block (braceInCode) all end the body. checkSkip never runs inside the
+capture. **The cure is aCTionCodE's scan** -- count nesting, step over quotes and comments -- an old-road C++ change of
+its own, independent of SKIp. SKIp reaches it only under §3's "second customer" design (aCTionCodE routing through the
+same primitive), which the kant rule cannot serve at bootstrap, because aCTionCodE captures the kant rules themselves.
+
+### Proposed shape (unbuilt)
+
+```
+SKIp            SKIPPEd+;                        -- new road; called at inputAt for a kantGrammar term (seam (a))
+SKIPPEd
+    LINECOMMENt     "//" lineBody="\n"};          -- hands up nothing
+    BLOCKCOMMENt    "/*" ... "*/"                 -- nests; card §2's EmbeddedCommenT shape
+    LAYOUt          [ \t\n]+                      -- action: column vs SKIp's stack -> INDENT | DEDENT list | nothing
+BLOCk           leftCurly="{"- STATEMENt+ rightCurly="}"-  |  INDENT STATEMENt+ DEDENT
+```
+Open, carried from the 11-01 ruling: blank and comment-only lines (no layout change -- the C++ resets on a block
+comment's close), tabs = 4, end of input closing every open level.
+
+### Certificate rows (unbuilt) -- `incant/pop/newSkipT`, the old road the control where one exists
+
+| row | text | intended |
+|---|---|---|
+| SK-1 | a `//` line between two statements of a new-road body | both run |
+| SK-2 | a nested `/* /* */ */` between two statements | both run |
+| SK-3 | ML-1: a two-line indented arm under a false if | only the line after it |
+| SK-4 | two levels closed at once (RT-4's loop-in-loop, then a statement at the body's level) | runs once, after both loops |
+| SK-5 | a blank line and a comment line inside an indented arm | the arm does not end there |
+| SK-6 | ML-3: the top level | no block made, as today on both roads |
+| SK-7 | a `{ }` block inside an indented arm | both spellings close where written |
+| SK-8 | a tab-indented arm against a 4-space one | the same blocks |
+| SK-H7 | SKIp's INDENT removed; then J6b's checkSkip half removed with SKIp in place | the first takes SK-3/SK-4 and the six J6b rows red by value; the second leaves them green (SKIp, not checkSkip, carries them) |
