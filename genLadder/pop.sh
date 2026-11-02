@@ -216,6 +216,24 @@ parkdiff () {                   # parkdiff <name> <target> <actual>
 #  afterwards would reorder every merged baseline. `run2` keeps them apart,
 #  which is what iterT1's ORDER assertion needs.
 POPCAP=${POPCAP:-90}
+#  capB (SEQ 512 R3): a DIRECT binary run -- one whose output feeds a pipe, a capture or a check rather than _cap -- goes
+#  through this wrapper, so it is capped like every other run (H5). It is a SCRIPT, not a function: `VAR=x func` persists
+#  VAR after the call in POSIX sh, and several of these runs carry INCANT_JIT_DUMP=1. A run killed at the cap says so on
+#  stderr by name and leaves a marker the foot reads (it may run inside $( ), where fail=1 cannot reach).
+mkdir -p "$T"
+CB="$T/capB"
+cat > "$CB" <<CAPB
+#!/bin/sh
+perl -e 'alarm shift; exec @ARGV' "\$POPCAPB" "$B" "\$@"
+rc=\$?
+if [ \$rc = 142 ]; then
+    echo "  FAIL  \$(basename "\$1") TIMED OUT after \${POPCAPB}s -- KILLED by the cap, not failed" >&2
+    : > "$T/.timedOut.\$(basename "\$1")"
+fi
+exit \$rc
+CAPB
+chmod +x "$CB"
+POPCAPB=$POPCAP; export POPCAPB
 _cap () {                       # _cap <fixture> -- caller has already redirected
     _p=$!
     #  The watchdog is launched inside a brace group whose stderr is discarded,
@@ -6971,7 +6989,7 @@ kindRow "jitRefuseFlagT REFUSED lines (jit-only, raises nothing)" "$(grep -c '^R
 #  THE BOUNDARY CLEAR'S WITNESS: no value row can see it -- without it the refusal stands and every LATER statement is
 #  handed to the run-time call too, so the values still land (H7 #4, measured). The IR shows it: one run-time call with
 #  the clear, four without (statement 1 and each of the three after it).
-kindRow "jitRefuseFlagT run-time interpreted calls in the IR (the refused statement only)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRefuseFlagT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "1"
+kindRow "jitRefuseFlagT run-time interpreted calls in the IR (the refused statement only)" "$(INCANT_JIT_DUMP=1 "$CB" "$(ip jitRefuseFlagT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "1"
 run1 jitRefuseUntakenT "$T/jru";   check "jitRefuseUntakenT runs" 0 $?
 sentinel "jitRefuseUntakenT sentinel" "$T/jru" "JITREFUSEUNTAKEN SENTINEL"
 kindRow "jitRefuseUntakenT jitted" "$(grep -c '^=== jitRunAction: entering on ruBody' "$T/jru")" "1"
@@ -6986,7 +7004,7 @@ run1 jitParseRefuseT "$T/jpr";   check "jitParseRefuseT runs" 0 $?
 sentinel "jitParseRefuseT sentinel" "$T/jpr" "JITPARSEREFUSE SENTINEL"
 kindRow "jitParseRefuseT a c (= interpreted: 12 7)" "$(grep '^JPR ' "$T/jpr" | awk '{print $(NF-2), $NF}')" "12 7"
 kindRow "jitParseRefuseT the parse's refusal printed, once (born red 2026-10-16, green since SEQ 372)" "$(grep -c '^REFUSED Token -- kant has no parenthetical expressions' "$T/jpr")" "1"
-kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinned on a statement) (born red 2026-10-16, green since SEQ 372)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitParseRefuseT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "0"
+kindRow "jitParseRefuseT run-time interpreted calls in the IR (none: never pinned on a statement) (born red 2026-10-16, green since SEQ 372)" "$(INCANT_JIT_DUMP=1 "$CB" "$(ip jitParseRefuseT)" 2>&1 | grep -c 'stmtRT[0-9]* = call')" "0"
 #  jitScCountT (R2): each AND/OR operand the jit cannot emit runs interpreted at run time (jitScOperandRT); the statement is
 #  handed over ONCE. Born red on 02f2cec: jitted 4 calls, interpreted 2 -- the boundary handed the whole statement over too.
 run1 jitScCountT "$T/jsc";   check "jitScCountT runs" 0 $?
@@ -7015,7 +7033,7 @@ sentinel "jitRecurSaveT sentinel" "$T/jrcs" "JITRECURSAVE SENTINEL"
 kindRow "jitRecurSaveT JRS-1 f(4) value:kind = RS-1 (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(sed -n 's/^JRS-1 .*\[ *\([^ ]*\) *\] kind *\([0-9]*\).*/\1:\2/p' "$T/jrcs")" "10:5"
 kindRow "jitRecurSaveT RS-3 degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-9]*\) ===/\1/p' "$T/jrcs")" "0"
 kindRow "jitRecurSaveT RS-3 rsF built as its own function (one restart)" "$(grep -c '^=== jitRunAction: 1 restart(s), 1 callee function(s) ===' "$T/jrcs")" "1"
-kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
+kindRow "jitRecurSaveT RS-3 the recursion is a REAL call (jitEmitSelfCall), not inlined: selfcalls in the IR" "$(INCANT_JIT_DUMP=1 "$CB" "$(ip jitRecurSaveT)" 2>&1 | grep -c 'selfcall[0-9]* = call')" "2"
 #  SEQ 377 R0 (Tony): a depth guard (rsDepth, cap 50) -- the self-call bakes its argument; guard sentinel until the
 #  argument slot (SEQ 376 R1c). Once a compare's result stopped riding on the argument node (jit-compare-result) the folded
 #  `== 0` no longer stopped the recursion by accident. Interpreted, the same bodies run in the same process after the jitted
@@ -7030,7 +7048,7 @@ sentinel "jitRecurSaveGT sentinel" "$T/jrcg" "JITRECURSAVEG SENTINEL"
 #  argument node). With computed results on their own nodes the IR verifies and adds the baked argument (`add i32 ..., 4`),
 #  no constant from a write-back.
 kindRow "jitRecurSaveGT the build verifies (no INVALID IR)" "$(grep -c '^=== jitRunAction: INVALID IR for jit_rs' "$T/jrcg")" "0"
-_rgir="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitRecurSaveGT)" 2>&1)"
+_rgir="$(INCANT_JIT_DUMP=1 "$CB" "$(ip jitRecurSaveGT)" 2>&1)"
 kindRow "jitRecurSaveGT IR: argument - 1 is a live sub, not a folded constant (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(echo "$_rgir" | grep -c '= sub i32 %')" "1"
 #  SEQ 378 R0: r is the call's value -- the add reads %selfcall (before: an unbox of rsG's own node).
 kindRow "jitRecurSaveGT IR: r + argument adds %selfcall to a run-time argument, not a baked 4 (born red 2026-10-18, green since SEQ 381: the argument slot)" "$(echo "$_rgir" | grep -c 'add i32 %selfcall, %')" "1"
@@ -7051,7 +7069,7 @@ perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitStarIdiomT)" > "$T/jsi" 2>&1; _jsix
 kindRow "jitStarIdiomT jitted run's exit under a 10 s alarm (re-pinned SEQ 403: was 142, it hung)" "$_jsix" "0"
 kindRow "jitStarIdiomT JSI-1 jitted: members walked = JSI-I's 8 (re-pinned SEQ 403)" "$(sed -n 's/^JSI-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jsi")" "8"
 sed -e 's/^testing(jsDrive);$//' -e '/JSI-1/d' "$(ip jitStarIdiomT)" > "$T/jsi.src"
-kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the intended value)" "$("$B" "$T/jsi.src" 2>&1 | sed -n 's/^JSI-I .*\[ *\([0-9]*\) *\].*/\1/p')" "8"
+kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the intended value)" "$("$CB" "$T/jsi.src" 2>&1 | sed -n 's/^JSI-I .*\[ *\([0-9]*\) *\].*/\1/p')" "8"
 
 #  ⚑ itRT -- SEQ 402 R0 (2026-10-23): STROKE B'S RUNAWAY (seal 195), PINNED BORN RED AT TODAY'S VALUE. An inlined callee
 #  iterates its run-time argument (`iterate itCur on argument; while ++itCur;`) inside a compiled loop. On trunk the
@@ -7059,7 +7077,7 @@ kindRow "jitStarIdiomT JSI-I the interpreted twin alone: members walked (the int
 #  never ends (142). So it runs under its own 10 s alarm, jitStarIdiomT's shape, never under run1 (H5).
 #  # intended: exit 0, IT-1 = the interpreted twin's 247, its REFUSED lines = the twin's (24 leaves with no list), by name.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip itRT)" > "$T/itrt" 2>&1; _itrtx=$?
-sed '/^jitter;$/d' "$(ip itRT)" > "$T/itrtI.src"; "$B" "$T/itrtI.src" > "$T/itrtI" 2>&1; _itrtIx=$?
+sed '/^jitter;$/d' "$(ip itRT)" > "$T/itrtI.src"; "$CB" "$T/itrtI.src" > "$T/itrtI" 2>&1; _itrtIx=$?
 _itv () { sed -n 's/^IT-1 children walked \[ *\([0-9]*\) *\].*/\1/p' "$1"; }
 fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
@@ -7094,7 +7112,7 @@ kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "
 #  keeps the iterator step for lc (iterNext x2: lR, lc). Its own 10 s alarm (a cursor gone wrong can run away, H5).
 INCANT_JIT_DUMP=1 INCANT_JITTER_ERR="$T/jcl.ir" perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitCursorLifeT)" > "$T/jcl" 2>&1; check "jitCursorLifeT runs" 0 $?
 sentinel "jitCursorLifeT sentinel" "$T/jcl" "JITCURSORLIFE SENTINEL"
-sed '/^jitter;$/d' "$(ip jitCursorLifeT)" > "$T/jclI.src"; "$B" "$T/jclI.src" > "$T/jclI" 2>&1; check "jitCursorLifeT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitCursorLifeT)" > "$T/jclI.src"; "$CB" "$T/jclI.src" > "$T/jclI" 2>&1; check "jitCursorLifeT interpreted twin runs" 0 $?
 sentinel "jitCursorLifeT interpreted twin sentinel" "$T/jclI" "JITCURSORLIFE SENTINEL"
 _jcl2 () { sed -n 's/^LB-2 B.s ++lc value \[ *\([^ ]*\) *\].*/\1/p' "$1"; }
 _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f)==1{p=1;next} p&&/^}/{p=0} p&&/%iterNext[0-9]* = call/{n++} END{print n+0}' "$1"; }
@@ -7112,7 +7130,7 @@ kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-ove
 #  count decrement that never reaches 0. BORN RED: exit 142 under its own 10 s alarm, IB-1 never printed, 2 REFUSED lines
 #  before the kill. # intended: exit 0, IB-1 = the twin's 247, its REFUSED lines = the twin's (24), by name.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip itBackRT)" > "$T/ibrt" 2>&1; _ibrtx=$?
-sed '/^jitter;$/d' "$(ip itBackRT)" > "$T/ibrtI.src"; "$B" "$T/ibrtI.src" > "$T/ibrtI" 2>&1; _ibrtIx=$?
+sed '/^jitter;$/d' "$(ip itBackRT)" > "$T/ibrtI.src"; "$CB" "$T/ibrtI.src" > "$T/ibrtI" 2>&1; _ibrtIx=$?
 _ibv () { sed -n 's/^IB-1 children walked back \[ *\([0-9]*\) *\].*/\1/p' "$1"; }
 fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
@@ -7133,7 +7151,7 @@ kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended 
 _ss () { sed -n "s/^$2 .*\[ *\([0-9]*\) *\].*/\1/p" "$1"; }
 for _sf in seedScopeAT seedScopeBT; do
     perl -e 'alarm 10; exec @ARGV' "$B" "$(ip $_sf)" > "$T/$_sf" 2>&1; check "$_sf runs" 0 $?
-    sed '/^jitter;$/d' "$(ip $_sf)" > "$T/$_sf.I.src"; "$B" "$T/$_sf.I.src" > "$T/$_sf.I" 2>&1; check "$_sf interpreted twin runs" 0 $?
+    sed '/^jitter;$/d' "$(ip $_sf)" > "$T/$_sf.I.src"; "$CB" "$T/$_sf.I.src" > "$T/$_sf.I" 2>&1; check "$_sf interpreted twin runs" 0 $?
 done
 sentinel "seedScopeAT sentinel" "$T/seedScopeAT" "SEEDSCOPEA SENTINEL"
 sentinel "seedScopeAT interpreted twin sentinel" "$T/seedScopeAT.I" "SEEDSCOPEA SENTINEL"
@@ -7150,7 +7168,7 @@ kindRow "seedScopeBT witness: sbDrive built 1 called 1 (compiled, no -5: the reu
 #  ITS HANDED-OVER STATEMENTS. BORN RED, silent (built 1 called 1): AP-1 reads `argument 0`. # intended: the twin's `nine 9`.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineConstArgT)" > "$T/ica" 2>&1; check "inlineConstArgT runs" 0 $?
 sentinel "inlineConstArgT sentinel" "$T/ica" "INLINECONSTARG SENTINEL"
-sed 's/^jitter;$/jitterOff;/' "$(ip inlineConstArgT)" > "$T/icaI.src"; "$B" "$T/icaI.src" > "$T/icaI" 2>&1; check "inlineConstArgT interpreted twin runs" 0 $?
+sed 's/^jitter;$/jitterOff;/' "$(ip inlineConstArgT)" > "$T/icaI.src"; "$CB" "$T/icaI.src" > "$T/icaI" 2>&1; check "inlineConstArgT interpreted twin runs" 0 $?
 sentinel "inlineConstArgT interpreted twin sentinel" "$T/icaI" "INLINECONSTARG SENTINEL"
 _ica () { sed -n 's/^AP-1 name \[ *\([^ ]*\) *\] value \[ *\([^ ]*\) *\].*/\1 \2/p' "$1"; }
 kindRow "inlineConstArgT the interpreted twin: AP-1 name value (the intended values)" "$(_ica "$T/icaI")" "nine 9"
@@ -7162,7 +7180,7 @@ kindRow "inlineConstArgT witness: apDrive built 1 called 1 (compiled, no -5: sil
 #  boxes the count -- FD-1 reads `argument 7` (the box's tag). # intended: the twin's `fdX 7`; FD-2 the twin's 7.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineFieldArgT)" > "$T/ifa" 2>&1; check "inlineFieldArgT runs" 0 $?
 sentinel "inlineFieldArgT sentinel" "$T/ifa" "INLINEFIELDARG SENTINEL"
-sed 's/^jitter;$/jitterOff;/' "$(ip inlineFieldArgT)" > "$T/ifaI.src"; "$B" "$T/ifaI.src" > "$T/ifaI" 2>&1; check "inlineFieldArgT interpreted twin runs" 0 $?
+sed 's/^jitter;$/jitterOff;/' "$(ip inlineFieldArgT)" > "$T/ifaI.src"; "$CB" "$T/ifaI.src" > "$T/ifaI" 2>&1; check "inlineFieldArgT interpreted twin runs" 0 $?
 sentinel "inlineFieldArgT interpreted twin sentinel" "$T/ifaI" "INLINEFIELDARG SENTINEL"
 _ifa () { sed -n 's/^FD-1 name \[ *\([^ ]*\) *\] value \[ *\([^ ]*\) *\].*/\1 \2/p' "$1"; }
 _ifb () { sed -n 's/^FD-2 .*\[ *\([^ ]*\) *\].*/\1/p' "$1"; }
@@ -7177,7 +7195,7 @@ kindRow "inlineFieldArgT witness: fdDrive built 1 called 1 (compiled, no -5: sil
 #  CURED SEQ 421 (d84fc89a): the write-through at the cast arm, the += fire and the unary store -- AW-1..4 = the twin.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip inlineArgWriteT)" > "$T/iawt" 2>&1; check "inlineArgWriteT runs" 0 $?
 sentinel "inlineArgWriteT sentinel" "$T/iawt" "INLINEARGWRITE SENTINEL"
-sed 's/^jitter;$/jitterOff;/' "$(ip inlineArgWriteT)" > "$T/iawtI.src"; "$B" "$T/iawtI.src" > "$T/iawtI" 2>&1; check "inlineArgWriteT interpreted twin runs" 0 $?
+sed 's/^jitter;$/jitterOff;/' "$(ip inlineArgWriteT)" > "$T/iawtI.src"; "$CB" "$T/iawtI.src" > "$T/iawtI" 2>&1; check "inlineArgWriteT interpreted twin runs" 0 $?
 sentinel "inlineArgWriteT interpreted twin sentinel" "$T/iawtI" "INLINEARGWRITE SENTINEL"
 _iaw () { sed -n "s/^$2 .*\[ *\([0-9]*\) *\].*/\1/p" "$1"; }
 _iawc () { sed -n 's/^AW-C .*kid \[ *\([0-9]*\) *\] local \[ *\([0-9]*\) *\].*/\1 \2/p' "$1"; }
@@ -7197,7 +7215,7 @@ kindRow "inlineArgWriteT witness: awAssign built 1 called 1 (compiled, no -5: si
 #  CURED SEQ 421 (d84fc89a): SW-1 srX 1, SW-4 cfOut 14 = the twins.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip argSlotWriteT)" > "$T/aswt" 2>&1; check "argSlotWriteT runs" 0 $?
 sentinel "argSlotWriteT sentinel" "$T/aswt" "ARGSLOTWRITE SENTINEL"
-sed 's/^jitter;$/jitterOff;/' "$(ip argSlotWriteT)" > "$T/aswtI.src"; "$B" "$T/aswtI.src" > "$T/aswtI" 2>&1; check "argSlotWriteT interpreted twin runs" 0 $?
+sed 's/^jitter;$/jitterOff;/' "$(ip argSlotWriteT)" > "$T/aswtI.src"; "$CB" "$T/aswtI.src" > "$T/aswtI" 2>&1; check "argSlotWriteT interpreted twin runs" 0 $?
 sentinel "argSlotWriteT interpreted twin sentinel" "$T/aswtI" "ARGSLOTWRITE SENTINEL"
 _asw () { sed -n "s/^$2 .*$3 \[ *\([0-9]*\) *\].*/\1/p" "$1"; }
 kindRow "argSlotWriteT the interpreted twin: SW-1 srX srSum, SW-2 SW-3 lfOut, SW-4 cfOut cfN (the intended values)" "$(_asw "$T/aswtI" SW-1 srX) $(_asw "$T/aswtI" SW-1 srSum) $(_asw "$T/aswtI" SW-2 lfOut) $(_asw "$T/aswtI" SW-3 lfOut) $(_asw "$T/aswtI" SW-4 cfOut) $(_asw "$T/aswtI" SW-4 cfN)" "1 10 5 5 14 5"
@@ -7214,7 +7232,7 @@ kindRow "argSlotWriteT witness: srF / lfF / cfF built alone" "$(grep -cE '^=== j
 #  nothing), SN-2 (a star in a condition leaks its node into the arm's assignment). # intended: the twin on every row.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip ifSeedT)" > "$T/ist" 2>&1; check "ifSeedT runs" 0 $?
 sentinel "ifSeedT sentinel" "$T/ist" "IFSEED SENTINEL"
-sed 's/^jitter;$/jitterOff;/' "$(ip ifSeedT)" > "$T/istI.src"; "$B" "$T/istI.src" > "$T/istI" 2>&1; check "ifSeedT interpreted twin runs" 0 $?
+sed 's/^jitter;$/jitterOff;/' "$(ip ifSeedT)" > "$T/istI.src"; "$CB" "$T/istI.src" > "$T/istI" 2>&1; check "ifSeedT interpreted twin runs" 0 $?
 sentinel "ifSeedT interpreted twin sentinel" "$T/istI" "IFSEED SENTINEL"
 _isv () { sed -n "s/^$2 .*$3 \[ *\([0-9]*\) *\].*/\1/p" "$1"; }
 _isj () { if grep -q "^=== jitter: $2 NOT JITTABLE (compile returned -5)" "$1"; then echo "-5"; elif grep -q "^=== jitter: $2 built 1 called 1 ===" "$1"; then echo "built"; else echo "other"; fi; }
@@ -7483,7 +7501,7 @@ fi
 #  `return`). BORN RED, silent: PC-1 3. # intended: the twin's 2.
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitContinueRT)" > "$T/jcr" 2>&1; check "jitContinueRT runs" 0 $?
 sentinel "jitContinueRT sentinel" "$T/jcr" "JITCONTINUERT SENTINEL"
-sed 's/^jitter;$/jitterOff;/' "$(ip jitContinueRT)" > "$T/jcrI.src"; "$B" "$T/jcrI.src" > "$T/jcrI" 2>&1; check "jitContinueRT interpreted twin runs" 0 $?
+sed 's/^jitter;$/jitterOff;/' "$(ip jitContinueRT)" > "$T/jcrI.src"; "$CB" "$T/jcrI.src" > "$T/jcrI" 2>&1; check "jitContinueRT interpreted twin runs" 0 $?
 _jcr () { sed -n 's/^PC-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$1"; }
 kindRow "jitContinueRT the interpreted twin: PC-1 (the intended value)" "$(_jcr "$T/jcrI")" "2"
 fdRow "jitContinueRT PC-1 jitted: members walked past a handed-over continue" "$(_jcr "$T/jcr")" "3" "2"
@@ -7496,7 +7514,7 @@ kindRow "jitContinueRT witness: pcWalk built 1 called 1 (compiled, no -5: silent
 _rt () { sed -n "s/^$2 .*\[ *\([0-9]*\) *\].*/\1/p" "$1"; }
 for _rf in jitBreakRT jitInlineContRT jitInlineBreakRT; do
     perl -e 'alarm 10; exec @ARGV' "$B" "$(ip $_rf)" > "$T/$_rf" 2>&1; check "$_rf runs" 0 $?
-    sed 's/^jitter;$/jitterOff;/' "$(ip $_rf)" > "$T/$_rf.I.src"; "$B" "$T/$_rf.I.src" > "$T/$_rf.I" 2>&1; check "$_rf interpreted twin runs" 0 $?
+    sed 's/^jitter;$/jitterOff;/' "$(ip $_rf)" > "$T/$_rf.I.src"; "$CB" "$T/$_rf.I.src" > "$T/$_rf.I" 2>&1; check "$_rf interpreted twin runs" 0 $?
 done
 sentinel "jitBreakRT sentinel" "$T/jitBreakRT" "JITBREAKRT SENTINEL"
 sentinel "jitInlineContRT sentinel" "$T/jitInlineContRT" "JITINLINECONTRT SENTINEL"
@@ -7518,9 +7536,9 @@ _jt () { sed -n "s/^$2 .*\[ *\([^] ]*\) *\].*/\1/p" "$1" | tr '\n' ' ' | sed 's/
 _jtv () { echo "$(_jt "$1" JT-0) $(_jt "$1" JT-1) $(_jt "$1" JT-3) $(_jt "$1" JT-4)"; }
 run1 jitterT "$T/jtr";   check "jitterT runs" 0 $?
 sentinel "jitterT sentinel" "$T/jtr" "JITTER SENTINEL"
-sed '/^jitter;$/d' "$(ip jitterT)" > "$T/jtI.src"; "$B" "$T/jtI.src" > "$T/jtI" 2>&1
+sed '/^jitter;$/d' "$(ip jitterT)" > "$T/jtI.src"; "$CB" "$T/jtI.src" > "$T/jtI" 2>&1
 _jtln=$(awk '/^stop\(\);|^bail\(\);/{exit} /^search /{l=NR} END{print l}' "$(ip jitterT)")
-awk -v L=$_jtln '{print} NR==L{print "parser(Start);"}' "$(ip jitterT)" > "$T/jtN.src"; "$B" "$T/jtN.src" > "$T/jtN" 2>&1; _jtNx=$?
+awk -v L=$_jtln '{print} NR==L{print "parser(Start);"}' "$(ip jitterT)" > "$T/jtN.src"; "$CB" "$T/jtN.src" > "$T/jtN" 2>&1; _jtNx=$?
 kindRow "jitterT the interpreted twin: JT-0 JT-1 JT-3 JT-4 (the intended values)" "$(_jtv "$T/jtI")" "1 9 2 3"
 kindRow "jitterT JT-0..JT-4 jittered = the interpreted twin" "$(_jtv "$T/jtr")" "$(_jtv "$T/jtI")"
 kindRow "jitterT JT-1 witness: jtAdd built once, three compiled calls (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtr")" "1"
@@ -7545,7 +7563,7 @@ kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)"
 #  interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21 on the branch point: KN-2 printed the slot, 0.
 run1 kindlessNetT "$T/kn";   check "kindlessNetT runs" 0 $?
 sentinel "kindlessNetT sentinel" "$T/kn" "KINDLESSNET SENTINEL"
-sed '/^jitter;$/d' "$(ip kindlessNetT)" > "$T/knI.src"; "$B" "$T/knI.src" > "$T/knI" 2>&1; check "kindlessNetT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip kindlessNetT)" > "$T/knI.src"; "$CB" "$T/knI.src" > "$T/knI" 2>&1; check "kindlessNetT interpreted twin runs" 0 $?
 sentinel "kindlessNetT interpreted twin sentinel" "$T/knI" "KINDLESSNET SENTINEL"
 kindRow "kindlessNetT the interpreted twin: KN-1 KN-2 (the intended values)" "$(_jt "$T/knI" KN-1) $(_jt "$T/knI" KN-2)" "7 knLoc"
 kindRow "kindlessNetT KN-1 control: knC written by = 2, compiled = the twin" "$(_jt "$T/kn" KN-1)" "7"
@@ -7558,7 +7576,7 @@ kindRow "kindlessNetT KN-2 witness: knRead NOT JITTABLE by name, compile -8 (bor
 #  print). PINNED AT TODAY'S VALUES, intended = the interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21.
 run1 jitPrintInlineT "$T/jpi";   check "jitPrintInlineT runs" 0 $?
 sentinel "jitPrintInlineT sentinel" "$T/jpi" "JITPRINTINLINE SENTINEL"
-sed '/^jitter;$/d' "$(ip jitPrintInlineT)" > "$T/jpiI.src"; "$B" "$T/jpiI.src" > "$T/jpiI" 2>&1; check "jitPrintInlineT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitPrintInlineT)" > "$T/jpiI.src"; "$CB" "$T/jpiI.src" > "$T/jpiI" 2>&1; check "jitPrintInlineT interpreted twin runs" 0 $?
 sentinel "jitPrintInlineT interpreted twin sentinel" "$T/jpiI" "JITPRINTINLINE SENTINEL"
 kindRow "jitPrintInlineT the interpreted twin: PI-0 PI-1 PI-2 (the intended values)" "$(_jt "$T/jpiI" PI-0) $(_jt "$T/jpiI" PI-1) $(_jt "$T/jpiI" PI-2)" "46 46 46"
 kindRow "jitPrintInlineT PI-2 control, a silent callee: = the twin" "$(_jt "$T/jpi" PI-2)" "46"
@@ -7578,7 +7596,7 @@ sentinel "jitReturnListT sentinel" "$T/jrl" "JITRETURNLIST SENTINEL"
 kindRow "jitReturnListT RL-2 the interpreted caller's statements after the call = the twin (born red SEQ 394: 0, truncated)" "$(grep -c '^RL-2 ' "$T/jrl")" "2"
 kindRow "jitReturnListT RL-4 the caller's last statement ran = the twin (born red SEQ 394: 0, truncated)" "$(grep -c '^RL-4 ' "$T/jrl")" "1"
 kindRow "jitReturnListT RL-1 lines -- PI-1 (one-slot print buffer), parked: today 0, intended 1 line [ 46 ] = the twin" "$(grep -c '^RL-1 ' "$T/jrl")" "0"
-sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$B" "$T/jrlI.src" > "$T/jrlI" 2>&1; check "jitReturnListT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitReturnListT)" > "$T/jrlI.src"; "$CB" "$T/jrlI.src" > "$T/jrlI" 2>&1; check "jitReturnListT interpreted twin runs" 0 $?
 sentinel "jitReturnListT interpreted twin sentinel" "$T/jrlI" "JITRETURNLIST SENTINEL"
 kindRow "jitReturnListT the interpreted twin: RL-1, RL-2 lines, RL-4 lines (the intended values)" "$(_jt "$T/jrlI" RL-1) $(grep -c '^RL-2 ' "$T/jrlI") $(grep -c '^RL-4 ' "$T/jrlI")" "46 2 1"
 
@@ -7592,7 +7610,7 @@ sentinel "jitReturnMidT sentinel" "$T/jrm" "JITRETURNMID SENTINEL"
 kindRow "jitReturnMidT RM-1 the call's value through a mid-body handed-over return = the twin (born red SEQ 394: 99)" "$(_jt "$T/jrm" RM-1)" "46"
 kindRow "jitReturnMidT RM-2 the statement after the return did not run = the twin (born red SEQ 394: 99)" "$(_jt "$T/jrm" RM-2)" "0"
 kindRow "jitReturnMidT witness: rmT built 1 called 1" "$(grep -c '^=== jitter: rmT built 1 called 1 ===' "$T/jrm")" "1"
-sed '/^jitter;$/d' "$(ip jitReturnMidT)" > "$T/jrmI.src"; "$B" "$T/jrmI.src" > "$T/jrmI" 2>&1; check "jitReturnMidT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitReturnMidT)" > "$T/jrmI.src"; "$CB" "$T/jrmI.src" > "$T/jrmI" 2>&1; check "jitReturnMidT interpreted twin runs" 0 $?
 sentinel "jitReturnMidT interpreted twin sentinel" "$T/jrmI" "JITRETURNMID SENTINEL"
 kindRow "jitReturnMidT the interpreted twin: RM-1 RM-2 (the intended values)" "$(_jt "$T/jrmI" RM-1) $(_jt "$T/jrmI" RM-2)" "46 0"
 
@@ -7609,7 +7627,7 @@ kindRow "jitInlineBindT IB-3 callee ends on a handed-over mid-body return: = the
 kindRow "jitInlineBindT IB-4 nested inline: = the twin" "$(_jt "$T/jib" IB-4)" "0 1 2"
 kindRow "jitInlineBindT IB-5 the tail after the mid-body return never ran = the twin" "$(_jt "$T/jib" IB-5)" "0"
 kindRow "jitInlineBindT witness: ibF ibFr ibFm ibFn each built 1 called 1" "$(grep -c '^=== jitter: ibF[rmn]* built 1 called 1 ===' "$T/jib")" "4"
-sed '/^jitter;$/d' "$(ip jitInlineBindT)" > "$T/jibI.src"; "$B" "$T/jibI.src" > "$T/jibI" 2>&1; check "jitInlineBindT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitInlineBindT)" > "$T/jibI.src"; "$CB" "$T/jibI.src" > "$T/jibI" 2>&1; check "jitInlineBindT interpreted twin runs" 0 $?
 sentinel "jitInlineBindT interpreted twin sentinel" "$T/jibI" "JITINLINEBIND SENTINEL"
 kindRow "jitInlineBindT the interpreted twin: IB-1 IB-2 IB-3 IB-4, IB-5 (the intended values)" "$(_jt "$T/jibI" IB-1) / $(_jt "$T/jibI" IB-2) / $(_jt "$T/jibI" IB-3) / $(_jt "$T/jibI" IB-4) / $(_jt "$T/jibI" IB-5)" "0 1 2 / 0 1 2 / 0 1 2 / 0 1 2 / 0"
 
@@ -7636,7 +7654,7 @@ kindRow "termCountT jitted: the refusals, by name, = the plain run's (born red S
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitHoistT)" > "$T/jhz" 2>&1; _jhzx=$?
 kindRow "jitHoistT jitted run's exit = the twin (born red 2026-10-21, 139; green since SEQ 391)" "$_jhzx" "0"
 kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391)" "$(grep -c '^HZ-1 ' "$T/jhz")" "1"
-sed '/^jitter;$/d' "$(ip jitHoistT)" > "$T/jhzI.src"; "$B" "$T/jhzI.src" > "$T/jhzI" 2>&1; check "jitHoistT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitHoistT)" > "$T/jhzI.src"; "$CB" "$T/jhzI.src" > "$T/jhzI" 2>&1; check "jitHoistT interpreted twin runs" 0 $?
 sentinel "jitHoistT interpreted twin sentinel" "$T/jhzI" "JITHOIST SENTINEL"
 kindRow "jitHoistT the interpreted twin: HZ-1 printed (the intended value)" "$(grep -c '^HZ-1 ' "$T/jhzI")" "1"
 kindRow "jitHoistT jitted output = the twin's, the jitter's own lines aside" "$(grep -v '^=== jitter' "$T/jhz" | grep -c '^HZ-1 \|^JITHOIST SENTINEL')" "$(grep -c '^HZ-1 \|^JITHOIST SENTINEL' "$T/jhzI")"
@@ -7652,7 +7670,7 @@ for _fc in jitForCursorT:JITFORCURSOR jitForBodyT:JITFORBODY; do
     perl -e 'alarm 10; exec @ARGV' "$B" "$(ip $_fn)" > "$T/$_fn" 2>&1; _fx=$?
     kindRow "$_fn jitted run's exit (born red 2026-10-21; intended 0 = the twin)" "$_fx" "0"
     kindRow "$_fn jitted run reached its SENTINEL (born red 2026-10-21)" "$(grep -c "^$_fs SENTINEL" "$T/$_fn")" "1"
-    sed 's/^testing(fcAct);/fcAct();/' "$(ip $_fn)" > "$T/$_fn.I.src"; "$B" "$T/$_fn.I.src" > "$T/$_fn.I" 2>&1; check "$_fn interpreted twin runs" 0 $?
+    sed 's/^testing(fcAct);/fcAct();/' "$(ip $_fn)" > "$T/$_fn.I.src"; "$CB" "$T/$_fn.I.src" > "$T/$_fn.I" 2>&1; check "$_fn interpreted twin runs" 0 $?
     sentinel "$_fn interpreted twin sentinel" "$T/$_fn.I" "$_fs SENTINEL"
 done
 kindRow "jitForCursorT FC-0 control: a frame local that stays a count dumps clean (epilogueWriteBack's control)" "$(grep -c '^FC-0 control dumped' "$T/jitForCursorT")" "1"
@@ -7669,7 +7687,7 @@ kindRow "plusUnwrapT pb +% hOp hTgt hArg: the holders' contents (born red SEQ 39
 kindRow "plusUnwrapT pm +% hOp nTgt nArg: the holder unwrapped, the plain fields as before (born red SEQ 399: hOp=nOp ...)" "$(_pu "$T/pu" pm)" "nOp=1 nTgt=2 nArg=3"
 kindRow "plusUnwrapT pe +% hDataless nArg: a holder of a data-less field unwraps to it (born red SEQ 399: hDataless=nEmpty ...)" "$(_pu "$T/pu" pe)" "nEmpty nArg=3"
 kindRow "plusUnwrapT pn +% hNull nArg: hNull is := nothing, NOT a holder -- attaches as itself, both sides of the exception" "$(_pu "$T/pu" pn)" "hNull nArg=3"
-awk '/^puSetUp\(\);/ && !d {print "jitter;"; d=1} {print}' "$(ip plusUnwrapT)" > "$T/puJ.src"; "$B" "$T/puJ.src" > "$T/puJ" 2>&1; check "plusUnwrapT jitted runs" 0 $?
+awk '/^puSetUp\(\);/ && !d {print "jitter;"; d=1} {print}' "$(ip plusUnwrapT)" > "$T/puJ.src"; "$CB" "$T/puJ.src" > "$T/puJ" 2>&1; check "plusUnwrapT jitted runs" 0 $?
 sentinel "plusUnwrapT jitted sentinel" "$T/puJ" "PLUSUNWRAP SENTINEL"
 kindRow "plusUnwrapT jitted: pb pm pe pn read as the interpreted run's" "$(_pu "$T/puJ" pb) / $(_pu "$T/puJ" pm) / $(_pu "$T/puJ" pe) / $(_pu "$T/puJ" pn)" "$(_pu "$T/pu" pb) / $(_pu "$T/pu" pm) / $(_pu "$T/pu" pe) / $(_pu "$T/pu" pn)"
 kindRow "plusUnwrapT jitted witness: puRun built 1 called 1 (the +% lines are compiled)" "$(grep -c '^=== jitter: puRun built 1 called 1 ===' "$T/puJ")" "1"
@@ -7687,7 +7705,7 @@ kindRow "ruleThisT no rule body refuses \$\$ or fails to parse (born red SEQ 401
 kindRow "ruleThisT dumpField(this) in the rule lists rtFirst, rtSecond by name (born red SEQ 401: 0 0)" "$(_rtd "$T/rt" rule rtFirst) $(_rtd "$T/rt" rule rtSecond)" "1 1"
 kindRow "ruleThisT control: RT-3 the action ran past \$\$this" "$(grep -c '^RT-3 ' "$T/rt")" "1"
 kindRow "ruleThisT control: dumpField(this) in the action lists atFirst, atSecond" "$(_rtd "$T/rt" action atFirst) $(_rtd "$T/rt" action atSecond)" "1 1"
-"$B" "$(ip ruleThisTopT)" > "$T/rtt" 2>&1; check "ruleThisTopT runs (a top-level refusal abandons the file, still exit 0)" 0 $?
+"$CB" "$(ip ruleThisTopT)" > "$T/rtt" 2>&1; check "ruleThisTopT runs (a top-level refusal abandons the file, still exit 0)" 0 $?
 kindRow "ruleThisTopT a top-level \$\$this stays refused, and what follows it is abandoned: REFUSED \$\$, RTT-0, RTT-1" "$(grep -c '^REFUSED \$\$ ' "$T/rtt") $(grep -c '^RTT-0 ' "$T/rtt") $(grep -c '^RTT-1 ' "$T/rtt")" "1 1 0"
 
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
@@ -7713,7 +7731,7 @@ fdRow "ruleReturnOpT RR-2T road ii: testOP(**ret) runs the chain -- exit, value"
 #  (139) under a 10 s alarm; intended = the interpreted twin (exit 0, XP after two). No cure yet (F-129 open).
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip xpLocT)" > "$T/xpl" 2>&1; _xplx=$?
 kindRow "xpLocT jitted run's exit -- F-129, pinned at today's 139 (intended 0 = the twin)" "$_xplx" "139"
-sed '/^jitter;$/d' "$(ip xpLocT)" > "$T/xplI.src"; "$B" "$T/xplI.src" > "$T/xplI" 2>&1; check "xpLocT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip xpLocT)" > "$T/xplI.src"; "$CB" "$T/xplI.src" > "$T/xplI" 2>&1; check "xpLocT interpreted twin runs" 0 $?
 sentinel "xpLocT interpreted twin sentinel" "$T/xplI" "XPLOCT SENTINEL"
 kindRow "xpLocT the interpreted twin: XP after two printed (the intended value)" "$(grep -c '^XP after two' "$T/xplI")" "1"
 
@@ -7722,7 +7740,7 @@ kindRow "xpLocT the interpreted twin: XP after two printed (the intended value)"
 #  interpreted twin (the file with `jitter;` deleted). BORN RED 2026-10-21 on the branch point (three empty calls).
 run1 jitArgListT "$T/jal";   check "jitArgListT runs" 0 $?
 sentinel "jitArgListT sentinel" "$T/jal" "JITARGLIST SENTINEL"
-sed '/^jitter;$/d' "$(ip jitArgListT)" > "$T/jalI.src"; "$B" "$T/jalI.src" > "$T/jalI" 2>&1; check "jitArgListT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitArgListT)" > "$T/jalI.src"; "$CB" "$T/jalI.src" > "$T/jalI" 2>&1; check "jitArgListT interpreted twin runs" 0 $?
 sentinel "jitArgListT interpreted twin sentinel" "$T/jalI" "JITARGLIST SENTINEL"
 kindRow "jitArgListT the interpreted twin: three calls (the intended values)" "$(_jt "$T/jalI" AL)" "hasGroup 35 57"
 kindRow "jitArgListT jitted = the twin (born red 2026-10-21)" "$(_jt "$T/jal" AL)" "hasGroup 35 57"
@@ -7736,7 +7754,7 @@ kindRow "jitArgListT jitted = the twin (born red 2026-10-21)" "$(_jt "$T/jal" AL
 _da () { grep -c "^$2 ARM" "$1"; }
 run1 jitterDatAT "$T/jda";   check "jitterDatAT runs" 0 $?
 sentinel "jitterDatAT sentinel" "$T/jda" "JITTERDATA SENTINEL"
-sed '/^jitter;$/d' "$(ip jitterDatAT)" > "$T/jdaI.src"; "$B" "$T/jdaI.src" > "$T/jdaI" 2>&1; check "jitterDatAT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitterDatAT)" > "$T/jdaI.src"; "$CB" "$T/jdaI.src" > "$T/jdaI" 2>&1; check "jitterDatAT interpreted twin runs" 0 $?
 sentinel "jitterDatAT interpreted twin sentinel" "$T/jdaI" "JITTERDATA SENTINEL"
 kindRow "jitterDatAT the interpreted twin: DA-1 DA-2 DA-C DA-F DA-3 arms taken, DA-Y yy (the intended values)" "$(_da "$T/jdaI" DA-1) $(_da "$T/jdaI" DA-2) $(_da "$T/jdaI" DA-C) $(_da "$T/jdaI" DA-F) $(_da "$T/jdaI" DA-3) $(_jt "$T/jdaI" 'DA-Y yy')" "0 0 1 0 1 1"
 kindRow "jitterDatAT DA-C kop.datA != 0 jitted, kop has data: arm taken = the twin" "$(_da "$T/jda" DA-C)" "1"
@@ -7757,7 +7775,7 @@ kindRow "jitterDatAT witness: dA1 dA2 dAc dAf dAy each built once" "$(grep -c '^
 _jk () { sed -n "s/^$2 [a-zA-Z]* \[ *\(.*[^ ]\) *\].*/\1/p" "$1"; }
 run1 jitterKindT "$T/jkd";   check "jitterKindT runs" 0 $?
 sentinel "jitterKindT sentinel" "$T/jkd" "JITTERKIND SENTINEL"
-sed '/^jitter;$/d' "$(ip jitterKindT)" > "$T/jkdI.src"; "$B" "$T/jkdI.src" > "$T/jkdI" 2>&1; check "jitterKindT interpreted twin runs" 0 $?
+sed '/^jitter;$/d' "$(ip jitterKindT)" > "$T/jkdI.src"; "$CB" "$T/jkdI.src" > "$T/jkdI" 2>&1; check "jitterKindT interpreted twin runs" 0 $?
 sentinel "jitterKindT interpreted twin sentinel" "$T/jkdI" "JITTERKIND SENTINEL"
 kindRow "jitterKindT the interpreted twin: JK-1 JK-2 JK-I (the intended values)" "$(_jk "$T/jkdI" JK-1) $(_jk "$T/jkdI" JK-2) $(_jk "$T/jkdI" JK-I)" "abc xyz xyz"
 kindRow "jitterKindT JK-1 print \"abc\" into a buffer, jitted = the twin (born red 2026-10-20, green since jit-kind-handover: the statement hands over)" "$(_jk "$T/jkd" JK-1)" "abc"
@@ -7780,7 +7798,7 @@ kindRow "jitCompileOnceT CO-I interpreted twins: coF(4) coF(3)" "$(sed -n 's/^CO
 kindRow "jitCompileOnceT no duplicate-symbol refusal (born red 2026-10-19)" "$(grep -c 'duplicate definition of symbol' "$T/jco")" "0"
 kindRow "jitCompileOnceT compile counts as printed: two modules built, the third testing() reuses (born red 2026-10-19)" "$(sed -n 's/^=== jitCompile count = \([0-9]*\) ===/\1/p' "$T/jco" | tr '\n' ' ' | sed 's/ $//')" "1 2 2"
 kindRow "jitCompileOnceT the reuse lines: coF as a callee, coDrive1 as a driver (born red 2026-10-19)" "$(grep -c '^=== jitRunAction: callee coF REUSED as jit_coF ===' "$T/jco") $(grep -c '^=== jitRunAction: coDrive1 REUSED as jit_coDrive1 ===' "$T/jco")" "1 1"
-kindRow "jitCompileOnceT IR: jit_coF defined once, declared once (born red 2026-10-19)" "$(INCANT_JIT_DUMP=1 "$B" "$(ip jitCompileOnceT)" 2>&1 | grep -c '^define i32 @jit_coF(') $(INCANT_JIT_DUMP=1 "$B" "$(ip jitCompileOnceT)" 2>&1 | grep -c '^declare i32 @jit_coF(')" "1 1"
+kindRow "jitCompileOnceT IR: jit_coF defined once, declared once (born red 2026-10-19)" "$(INCANT_JIT_DUMP=1 "$CB" "$(ip jitCompileOnceT)" 2>&1 | grep -c '^define i32 @jit_coF(') $(INCANT_JIT_DUMP=1 "$CB" "$(ip jitCompileOnceT)" 2>&1 | grep -c '^declare i32 @jit_coF(')" "1 1"
 
 #  ⚑ jitCmpOperandT / jitCmpOperandAT -- SEQ 376 (Tony, R1 a / R2): A COMPARE'S RESULT IS ITS OWN SSA VALUE, never its
 #  operand's jitData. Measured 2026-10-17: a plain field compared twice is fine (each occurrence is its own node); an
@@ -7802,7 +7820,7 @@ sentinel "jitCmpOperandAT sentinel" "$T/jcma" "JITCMPOPERANDA SENTINEL"
 _ca () { grep "^CA $1 " "$T/jcma" | sed "s/^CA $1 *//" | tr -d ' '; }
 kindRow "jitCmpOperandAT CA interpreted" "$(_ca interpreted)" "5/5/7/7"
 kindRow "jitCmpOperandAT CA jitted = interpreted (born red 2026-10-17, green since SEQ 377)" "$(_ca jitted)" "5/5/7/7"
-_cair="$(INCANT_JIT_DUMP=1 "$B" "$(ip jitCmpOperandAT)" 2>&1)"
+_cair="$(INCANT_JIT_DUMP=1 "$CB" "$(ip jitCmpOperandAT)" 2>&1)"
 kindRow "jitCmpOperandAT IR: the second compare reads an i32, not the first compare's i1 (born red 2026-10-17, green since SEQ 377)" "$(echo "$_cair" | grep -c 'icmp eq i32 %')" "1"
 kindRow "jitCmpOperandAT IR: no i1 stored where the argument is read" "$(echo "$_cair" | grep -c 'store i1')" "0"
 
@@ -8473,6 +8491,11 @@ if [ -n "$_popTee" ]; then
         echo "  FAIL  the fleet's own output has $_cnf 'command not found' line(s) -- those rows did not run"; fail=1
     fi
 fi
+#  timedOutFoot a capped direct run killed at the cap fails the suite by name (SEQ 512 R3, H5)
+for _to in "$T"/.timedOut.*; do
+    [ -e "$_to" ] || continue
+    echo "  FAIL  ${_to##*.timedOut.} TIMED OUT -- a capped direct run was killed; every row that read it measured nothing"; fail=1
+done
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

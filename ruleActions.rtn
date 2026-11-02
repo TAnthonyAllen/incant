@@ -188,7 +188,36 @@ GroupItem   lefty   = rule[1],
         if *atInput {
             beginBox = atInput;
             atInput++;
-            while *atInput && *atInput != *right    atInput++;
+            // usedOutside the scan below is a passthrough, so right is read here too or tok prunes it (bear-trap 13)
+            if !right   return label;
+            // blockBraceRefused a code body is taken to its close with quoted strings, // lines and nested /* */ stepped over; a { in code is a block brace -- a user error, refused by name (use indentation), and the body is still taken to its MATCHING close so the parse resumes after it (Tony, SEQ 512 amendment)
+            -%
+            int codeDepth = 1, codeBrace = 0;
+            char codeQuote = 0;
+            while ( *atInput ) {
+                char ch = *atInput;
+                if ( codeQuote ) {
+                    if ( ch == '\\' && atInput[1] ) { atInput += 2; continue; }
+                    if ( ch == codeQuote ) codeQuote = 0;
+                    atInput++;
+                    continue; }
+                if ( ch == '"' ) { codeQuote = ch; atInput++; continue; }
+                if ( ch == '/' && atInput[1] == '/' ) { while ( *atInput && *atInput != '\n' ) atInput++; continue; }
+                if ( ch == '/' && atInput[1] == '*' ) {
+                    int codeNest = 1;
+                    atInput += 2;
+                    while ( *atInput && codeNest ) {
+                        if ( atInput[0] == '/' && atInput[1] == '*' ) { codeNest++; atInput += 2; }
+                        else if ( atInput[0] == '*' && atInput[1] == '/' ) { codeNest--; atInput += 2; }
+                        else atInput++; }
+                    continue; }
+                if ( ch == *right ) { if ( --codeDepth == 0 ) break; }
+                else if ( ch == *left ) { codeDepth++; codeBrace = 1; }
+                atInput++; }
+            if ( codeBrace ) {
+                ::fprintf(stderr,"REFUSED { -- a block brace in an action body; use indentation\n");
+                ruler->refused = 1; }
+            %-
             if *atInput  endBox = atInput; }
         if beginBox && endBox++ {
             label.setToken(beginBox,(int)(endBox - beginBox));

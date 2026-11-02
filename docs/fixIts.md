@@ -3352,6 +3352,10 @@ bear-trap #32's misdirection, which is why the cost is a bisect rather than a gl
 **This is the worked example for `docs/checkSKIP.md`'s claim that the skip primitive "retires
 KANT-40 by construction."** Until it lands: **no `{` or `}` in a comment inside an action body.**
 **Grade:** CONFIRMED, three arms. **Owner:** unassigned — it is checkSKIP's to close.
+**✅ CLOSED 2026-11-02 (SEQ 512, branch code-brace): KANT-40 / F-86 close on codeBraceT BC-4** -- a `}` in a `//` comment
+in a body now works, sentinel present. The cause was never checkSkip: `aCTionCodE` took a body to its FIRST `}`. It now steps
+over quoted strings, `//` lines and nested `/* */`, counts depth to the matching close, and refuses a `{` in code by name
+(a block brace in a body is a user error, Tony's amendment). braceInCode retired by mapping to codeBraceT.
 
 ### F-84 — ✅ CLOSED 2026-09-17 — `utilities` includes `parser`; the fixtures were FROZEN COPIES, not callers
 **⚠ THIS ROW'S OWN DIAGNOSIS WAS WRONG IN TWO PLACES AND BOTH ARE CORRECTED HERE.**
