@@ -1170,10 +1170,14 @@ if [ -f "$_bcF" ]; then
 perl -e 'alarm 30; exec @ARGV' "$B" "$_bcF" > "$T/bc.o" 2> "$T/bc.e"; _bcx=$?
 _ofeq "codeBraceT runs (exit)" "$_bcx" "0"
 _ofeq "codeBraceT BC-3 (control): a { in a string (sentinel / value)" "$(grep -c '^BC SENTINEL BC-3' "$T/bc.e") $(_bcv 'BC-3')" "1 { |7 |"
-fdRow "codeBraceT BIC braceInCode: a braced block in a body (sentinel / value)" "$(grep -c '^BC SENTINEL BIC' "$T/bc.e") $(_bcv 'BIC')" "0 " "1 3 |5 |"
+#  BIC, BC-2 RE-PINNED (intended, Tony, SEQ 512 amendment): a block brace in an action body is a USER ERROR -- refused by
+#  name, the definition removed, the define's other members and the file run on. Was: the braced arm runs
+fdRow "codeBraceT BIC braceInCode: the braced action refused and removed, bcFirst still prints 3 (sentinel / value)" "$(grep -c '^BC SENTINEL BIC' "$T/bc.e") $(_bcv 'BIC')" "0 " "1 3 |"
 fdRow "codeBraceT BC-1 a } in a quoted string (sentinel / value)" "$(grep -c '^BC SENTINEL BC-1' "$T/bc.e") $(_bcv 'BC-1')" "0 " "1 } |7 |"
-fdRow "codeBraceT BC-2 a braced nested block under a true if (sentinel / value)" "$(grep -c '^BC SENTINEL BC-2' "$T/bc.e") $(_bcv 'BC-2')" "0 " "1 1 |2 |5 |"
-fdRow "codeBraceT BC-4 a } in a comment, balanced then lone (sentinel / value)" "$(grep -c '^BC SENTINEL BC-4' "$T/bc.e") $(_bcv 'BC-4')" "0 " "1 6 |8 |"
+fdRow "codeBraceT BC-2 a braced nested block: refused by name, nothing printed, sentinel present (sentinel / value)" "$(grep -c '^BC SENTINEL BC-2' "$T/bc.e") $(_bcv 'BC-2')" "0 " "1 "
+fdRow "codeBraceT the block-brace refusals, by name, and the definitions removed (BIC's bcBad, BC-2's bc2)" "$(grep -c '^REFUSED { -- a block brace in an action body; use indentation$' "$T/bc.e") $(grep -c '^REMOVED bcBad from CodeBraceBIC' "$T/bc.e") $(grep -c '^REMOVED bc2 from CodeBrace2' "$T/bc.e")" "0 0 0" "2 1 1"
+#  BC-4 (Tony, SEQ 512 correction): the scan steps over comments as it steps over strings -- KANT-40 closes on this row
+fdRow "codeBraceT BC-4 a } in a // comment, balanced then lone: works (sentinel / value)" "$(grep -c '^BC SENTINEL BC-4' "$T/bc.e") $(_bcv 'BC-4')" "0 " "1 6 |8 |"
 fdRow "codeBraceT reaches its end (BC END / sentinel)" "$(grep -c '^BC END' "$T/bc.o") $(grep -c '^CODEBRACET SENTINEL' "$T/bc.e")" "0 0" "1 1"
 else echo "  FAIL  codeBraceT MISSING"; fail=1
 fi

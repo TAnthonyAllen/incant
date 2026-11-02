@@ -67,8 +67,10 @@ file), then its calls under a `BC <row>` stdout line.
 
 ROWS
 BC-3  control: print "{" then 7 -> { 7.
-BIC   braceInCode's repro: bcFirst prints 3; bcBad's braced arm sits under a false if, so 5 alone.
-BC-1  a } inside a quoted string: } 7.
-BC-2  a braced nested block under a true if: 1 2 5.
-BC-4  a } in a // comment -- balanced (code={ x }) then a lone }: 6 8. The ruling's scan skips quoted strings and counts
-      depth; a lone } in a comment needs the comment skipped too, and this row says whether it is.
+BIC   braceInCode's repro. AMENDED (Tony, SEQ 512): a block brace in an action body is a USER ERROR. bcBad is refused by
+      name (REFUSED { -- a block brace in an action body; use indentation) and removed; bcFirst still prints 3; the
+      sentinel after the define prints and the file runs on.
+BC-1  a } inside a quoted string: } 7 -- works.
+BC-2  a braced nested block: refused by name, bc2 removed, nothing printed, the sentinel present.
+BC-4  a } in a // comment -- balanced (code={ x }) then a lone }: 6 8, works, sentinel present. The scan steps over
+      comments (// to end of line, nested /* */) as it steps over strings (Tony, SEQ 512 correction). KANT-40 closes on this row.
