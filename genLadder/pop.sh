@@ -1136,6 +1136,31 @@ _ofeq "newReturnSelfT RT-7 old road (control): a self-call returning at depth" "
 fdRow "newReturnSelfT RT-7 new road: a self-call returning at depth, each level its own (road / value)" "$(_nsv 'RP n') $(_nsv 'RT-7 n')" "[ 7 ] | r7b |r7b |55 |" "[ 7 ] | 0 |1 |2 |"
 else echo "  FAIL  newReturnSelfT MISSING"; fail=1
 fi
+#  ⚑ newCallBindT -- SEQ 510 (Tony, 2026-11-02): every new-road call took the callee of the LAST call built -- INVOKEr
+#  returned its own local `instruct` by identity, one node for every call. PRE-REGISTERED ON TRUNK, born red. ONE process on
+#  purpose (the defect is cross-talk between builds); the build order is part of the test, c5 (pz, 7) last. Every n row is
+#  prefixed with RP n, and the file asserts no `parse failed` (CC-6's silent fallback to the old road).
+_cbF=$(ip newCallBindT)
+_cbv () { awk -v k="CB $1" '$0 ~ /^CB / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/cb.o"; }
+if [ -f "$_cbF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_cbF" > "$T/cb.o" 2> "$T/cb.e"; _cbx=$?
+_ofeq "newCallBindT runs (exit / sentinel / CB END / parse failed)" "$_cbx $(grep -c '^NEWCALLBINDT SENTINEL' "$T/cb.e") $(grep -c '^CB END' "$T/cb.o") $(grep -c 'parse failed' "$T/cb.e")" "0 1 1 0"
+_ofeq "newCallBindT RP old road (control)" "$(_cbv 'RP o')" "[     7 ] |"
+_ofeq "newCallBindT CB-1 old road (control): two callees, built in either order" "$(_cbv 'CB-1 o')" "9 |8 |8 |9 |"
+_ofeq "newCallBindT CB-2 old road (control): a self-call built before unrelated calls" "$(_cbv 'CB-2 o')" "0 |1 |2 |"
+_ofeq "newCallBindT CB-3 old road (control): one body, two different calls" "$(_cbv 'CB-3 o')" "9 |8 |"
+_ofeq "newCallBindT CB-4 old road (control): a call in a loop body, run twice" "$(_cbv 'CB-4 o')" "9 |9 |9 |9 |9 |9 |"
+_ofeq "newCallBindT CB-5 old road (control): the last call built" "$(_cbv 'CB-5 o')" "7 |"
+_cbR="$(_cbv 'RP n')"
+fdRow "newCallBindT BUILD: nothing prints while the actions are built" "$(_cbv 'BUILD')" "9 |8 |8 |9 |9 |8 |9 |7 |" ""
+fdRow "newCallBindT RP new road" "$_cbR" "[ 7 ] |" "[ 7 ] |"
+fdRow "newCallBindT CB-1 new road: two callees, built in either order (road / value)" "$_cbR $(_cbv 'CB-1 n')" "[ 7 ] | " "[ 7 ] | 9 |8 |8 |9 |"
+fdRow "newCallBindT CB-2 new road: a self-call built before unrelated calls (road / value)" "$_cbR $(_cbv 'CB-2 n')" "[ 7 ] | 7 |2 |" "[ 7 ] | 0 |1 |2 |"
+fdRow "newCallBindT CB-3 new road: one body, two different calls (road / value)" "$_cbR $(_cbv 'CB-3 n')" "[ 7 ] | " "[ 7 ] | 9 |8 |"
+fdRow "newCallBindT CB-4 new road: a call in a loop body, run twice (road / value)" "$_cbR $(_cbv 'CB-4 n')" "[ 7 ] | " "[ 7 ] | 9 |9 |9 |9 |9 |9 |"
+fdRow "newCallBindT CB-5 new road: the last call built (road / value)" "$_cbR $(_cbv 'CB-5 n')" "[ 7 ] | " "[ 7 ] | 7 |"
+else echo "  FAIL  newCallBindT MISSING"; fail=1
+fi
 
 
 #  ============================================================================

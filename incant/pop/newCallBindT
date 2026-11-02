@@ -1,0 +1,164 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewCallBindT);
+define
+    nlReqN owner source result rule;
+    nlReqO owner source result;
+    nlOutN = 5;
+    nlOutO = 5;
+    nlDepN = 2;
+    nlDepO = 2;
+    itW;
+    it5;
+    it6;
+    qa = 2;
+    nlNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nlOld code={
+        nlSrc := argument.CodE;
+        nlReqO.owner  := argument;
+        nlReqO.source := nlSrc;
+        if compileIn(nlReqO);
+            nlBlock = nlReqO.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    cbDepN = 2;
+    cbDepO = 2;
+    pc code={ print 9:; };
+    pd code={ print 8:; };
+    pz code={ print 7:; };
+    cbRPn code={ print "[" 7 #5d "]":; };
+    cbRPo code={ print "[" 7 #5d "]":; };
+    c2n code={
+        l2 = cbDepN;
+        cbDepN = cbDepN - 1;
+        if l2 > 0;     c2n(1);
+        print l2:;
+        };
+    c2o code={
+        l2 = cbDepO;
+        cbDepO = cbDepO - 1;
+        if l2 > 0;     c2o(1);
+        print l2:;
+        };
+    c1an code={ pc(1); };
+    c1ao code={ pc(1); };
+    c1bn code={ pd(1); };
+    c1bo code={ pd(1); };
+    c1Bn code={ pd(1); };
+    c1Bo code={ pd(1); };
+    c1An code={ pc(1); };
+    c1Ao code={ pc(1); };
+    c3n code={
+        pc(1);
+        pd(1);
+        };
+    c3o code={
+        pc(1);
+        pd(1);
+        };
+    c4n code={
+        k4 = 0;
+        while k4 < 3;
+            k4 = k4 + 1;
+            pc(1);
+        };
+    c4o code={
+        k4 = 0;
+        while k4 < 3;
+            k4 = k4 + 1;
+            pc(1);
+        };
+    c5n code={ pz(1); };
+    c5o code={ pz(1); };
+    ;
+search NewCallBindT;
+print "CB BUILD":;
+nlNew(cbRPn);
+nlOld(cbRPo);
+nlNew(c2n);
+nlOld(c2o);
+nlNew(c1an);
+nlOld(c1ao);
+nlNew(c1bn);
+nlOld(c1bo);
+nlNew(c1Bn);
+nlOld(c1Bo);
+nlNew(c1An);
+nlOld(c1Ao);
+nlNew(c3n);
+nlOld(c3o);
+nlNew(c4n);
+nlOld(c4o);
+nlNew(c5n);
+nlOld(c5o);
+print "CB RP n":;
+cbRPn();
+print "CB RP o":;
+cbRPo();
+print "CB CB-1 n":;
+c1an(); c1bn(); c1Bn(); c1An();
+print "CB CB-1 o":;
+c1ao(); c1bo(); c1Bo(); c1Ao();
+print "CB CB-2 n":;
+c2n(1);
+print "CB CB-2 o":;
+c2o(1);
+print "CB CB-3 n":;
+c3n();
+print "CB CB-3 o":;
+c3o();
+print "CB CB-4 n":;
+c4n(); c4n();
+print "CB CB-4 o":;
+c4o(); c4o();
+print "CB CB-5 n":;
+c5n();
+print "CB CB-5 o":;
+c5o();
+print "CB END":;
+cerr "NEWCALLBINDT SENTINEL":;
+stop();
+
+newCallBindT -- SEQ 510 (Tony, 2026-11-02): every new-road call instruct took the callee of the LAST call built. INVOKEr
+returned its own local `instruct` by identity, so every built call was one node (measured: addrOf, same field and body on
+every build). PRE-REGISTERED ON TRUNK, born red.
+
+One process, ON PURPOSE: the defect is cross-talk between builds, so the rows must share one. Every action comes in a
+pair with the same body: n built on the NEW road (nlNew), o on the OLD road (nlOld), the control. The callees pc (prints
+9), pd (8) and pz (7) are plain actions, not under test. Bodies are indented, never braced (fixit braceInCode). pop.sh
+asserts no `parse failed` (a failed new-road build falls back to the old road silently, CC-6) and reads each block from its
+`CB <row> <road>` line.
+
+BUILD ORDER IS PART OF THE TEST: c2 (self-call), then c1a / c1b, then c1B / c1A (the same two callees, built the other
+way round), c3, c4, and c5 LAST -- c5 calls pz, so on trunk every new-road call runs pz and prints 7.
+
+ROWS
+BUILD nothing prints while the actions are built. On trunk the calls RUN AT BUILD (9 8 8 9 9 8 9 7) -- the second face of
+      the one shared node (SEQ 509 saw it as an assignment call running at build).
+RP    road proof: new [ 7 ], old [     7 ].
+CB-1  two actions each calling a different callee, built in either order: c1a 9, c1b 8, c1B 8, c1A 9.
+CB-2  a self-call built BEFORE unrelated calls (SEQ 509's reproduction): a declared counter (2) counts down: 0 1 2.
+CB-3  one body making two different calls: 9 8.
+CB-4  a call inside a loop body, three passes, the action run twice: 9 9 9 9 9 9.
+CB-5  the last call built: 7 (the control that the cure does not break the call it used to keep).
+AL-3 (newLocalT) stays pinned as it is: it passes only because nothing with a call is built after it -- its masker.
