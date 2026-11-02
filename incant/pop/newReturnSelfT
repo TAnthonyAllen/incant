@@ -1,0 +1,89 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewReturnSelfT);
+define
+    nlReqN owner source result rule;
+    nlReqO owner source result;
+    nlOutN = 5;
+    nlOutO = 5;
+    nlDepN = 2;
+    nlDepO = 2;
+    itW;
+    it5;
+    it6;
+    qa = 2;
+    nlNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nlOld code={
+        nlSrc := argument.CodE;
+        nlReqO.owner  := argument;
+        nlReqO.source := nlSrc;
+        if compileIn(nlReqO);
+            nlBlock = nlReqO.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    rx;
+    rtDepN = 2;
+    rtDepO = 2;
+    rtRPn code={ print "[" 7 #5d "]":; };
+    rtRPo code={ print "[" 7 #5d "]":; };
+    rt7n code={
+        r7 = rtDepN;
+        rtDepN = rtDepN - 1;
+        if r7 > 0;
+            r7b = rt7n(1);
+            print r7b:;
+        return r7;
+        };
+    rt7o code={
+        r7 = rtDepO;
+        rtDepO = rtDepO - 1;
+        if r7 > 0;
+            r7b = rt7o(1);
+            print r7b:;
+        return r7;
+        };
+    ;
+search NewReturnSelfT;
+nlNew(rtRPn);
+nlOld(rtRPo);
+nlNew(rt7n);
+nlOld(rt7o);
+print "RT RP n":;
+rtRPn();
+print "RT RP o":;
+rtRPo();
+print "RT RT-7 n":;
+rx = 55; rx = rt7n(); print rx:;
+print "RT RT-7 o":;
+rx = 55; rx = rt7o(); print rx:;
+print "RT END":;
+cerr "NEWRETURNSELFT SENTINEL":;
+stop();
+
+newReturnSelfT -- SEQ 509: newReturnT's RT-7 in its own process. Every new-road call instruct takes the callee of the LAST
+call built (pre-existing, measured on trunk SEQ 509, not chased), so a self-call cannot share a process with another
+action's call. Same pairing as newReturnT: n built on the new road (nlNew), o on the old (nlOld), the control.
+
+RP    road proof: new [ 7 ], old [     7 ].
+RT-7  a self-call that returns at depth (newLocalT's AL-3 shape, read by value): a declared counter (2) counts down, each
+      level returns its own r7 and the level above prints it: 0 1, then rx reads 2. A shared local would print 0 0 / 0.

@@ -42,8 +42,6 @@ define
             argument +< *nlBlock;
         };
     rx;
-    rtDepN = 2;
-    rtDepO = 2;
     rtRPn code={ print "[" 7 #5d "]":; };
     rtRPo code={ print "[" 7 #5d "]":; };
     rt1n code={ return 7; };
@@ -128,26 +126,8 @@ define
             print rk:;
         print 8:;
         };
-    rt7n code={
-        r7 = rtDepN;
-        rtDepN = rtDepN - 1;
-        if r7 > 0;
-            r7b = rt7n(1);
-            print r7b:;
-        return r7;
-        };
-    rt7o code={
-        r7 = rtDepO;
-        rtDepO = rtDepO - 1;
-        if r7 > 0;
-            r7b = rt7o(1);
-            print r7b:;
-        return r7;
-        };
     ;
 search NewReturnT;
-nlNew(rt7n);
-nlOld(rt7o);
 nlNew(rtRPn);
 nlOld(rtRPo);
 nlNew(rt1n);
@@ -204,10 +184,6 @@ print "RT RT-6 n":;
 rt6n();
 print "RT RT-6 o":;
 rt6o();
-print "RT RT-7 n":;
-rx = 55; rx = rt7n(); print rx:;
-print "RT RT-7 o":;
-rx = 55; rx = rt7o(); print rx:;
 print "RT END":;
 cerr "NEWRETURNT SENTINEL":;
 stop();
@@ -220,7 +196,9 @@ starts with a line RT <row> <road>; pop.sh reads the lines up to the next RT lin
 indentation, never braces (fixit braceInCode). The file ends with RT END and a sentinel on stderr, so a define that breaks
 shows as a missing sentinel rather than as missing values.
 
-The caller resets rx to 55 before each call, so a call that hands back nothing leaves 55 -- a value no body here produces.
+The caller resets rx to 55 before each call -- a value no body here produces. A call that hands back NOTHING clears rx, which
+then echoes its own tag, rx (bear-trap 26) -- so `rx` is the reading for nothing. ⚠ On trunk a new-road action hands back
+the seq's statement LIST (opSeq), which leaves 55: that is not nothing, and the first pin of RT-5 (55) was that mistake.
 
 ROWS
 RP    road proof (newLocalT's): the roads bind #5d in opposite directions -- new [ 7 ], old [     7 ]. And pop.sh asserts
@@ -234,13 +212,11 @@ RT-4  return from two loops deep, at ra 2 rb 2: prints 1 2 3 1, then rx reads 22
 RT-5  return with no value after rl = 4. A3 (SEQ 509): on the new road a bare return hands back NOTHING in every
       position, so rx stays 55. The old road hands back the previous statement's value, 4 -- pinned as context, not as
       intended.
-RT-5f the bare return as the FIRST statement. New road: nothing (55). Old road: the return keyword node itself, which read
+RT-5f the bare return as the FIRST statement. New road: nothing (rx). Old road: the return keyword node itself, which read
       6 when measured (SEQ 508 R0) -- a value nobody wrote; pinned as context.
-RT-5p the bare return after a print. New road: nothing (55). Old road: the print's value, 1 -- context.
+RT-5p the bare return after a print. New road: nothing (rx). Old road: the print's value, 1 -- context.
 RT-6  A4, the no-leak row: the caller's own loop calls a callee that returns, three passes, then prints 8: 1 2 3 8. A signal
       left set after the landing would end the caller's loop after its first pass.
-RT-7  a self-call that returns at depth (newLocalT's AL-3 shape, read by value): a declared counter (2) counts down, each
-      level returns its own r7 and the level above prints it: 0 1, then rx reads 2. A shared local would print 0 0 / 0.
-      ⚠ rt7n is BUILT FIRST, and that is load-bearing: after any new-road body holding a bare call statement (`f(1);`) is
-      built, the NEXT new-road build RUNS an assignment's call (`x = f(1);`) at build -- measured SEQ 509, a pre-existing
-      gap, reported not chased. Built after rt6n, rt7n ran itself at build, printed 0 1 and spent the counter.
+RT-7  lives in incant/pop/newReturnSelfT, its own process. A pre-existing new-road gap (SEQ 509, measured on trunk, not
+      chased): every new-road call instruct takes the callee of the LAST call built -- build a body holding pc(1) after
+      nl3n and nl3n's own nl3n(9) runs pc. RT-6's rt6cn(1) and RT-7's self-call cannot share a process.
