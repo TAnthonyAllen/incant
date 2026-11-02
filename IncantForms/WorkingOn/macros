@@ -137,7 +137,11 @@ Every rung runs the same incantation under both grammars and compares output.
        a file's top level runs one statement at a time, and inside a block
        everything is built first, then run (unparks cmdCallT CC-1, bridgeT
        BR-3). Then rung 5.
-    5  an action, called and self-called    the frame bracket      NEXT
+    5  an action, called and self-called    the frame bracket      DONE
+       2026-11-02: Ruling A locals (SEQ 502), indented blocks in bodies
+       (SEQ 504), return (SEQ 508/509: the value rides each op's return,
+       the action is the landing), and one node per call (SEQ 510:
+       INVOKEr returned its own local). All bought.
        RECON 2026-10-31 (SEQ 498), STOPPED, PARKED UNTIL AFTER THE MACHINE
        MIGRATION (Tony): the new road mints an undeclared name NOWHERE, so an
        action body built on it has no locals for the bracket to save; the old
@@ -241,7 +245,8 @@ R9  Ruling A: a name the new road meets inside an action body that resolves
     bracket saves. Beside the 2026-09-27 ruling (names become locals at
     compile time, once).                                        (SEQ 502 R0)
 Design talk on checkSkip: indentation-as-blocks is a text rewrite gated by who is building (inCompile, defining, now the name owner). Should the new road spell a block as braces or an indented run in the grammar itself instead? When should indentation count, and how do braces and indentation coexist? Uses SEQ 504’s ML-3 answer.
-    Ruled 2026-11-01: on the new road, checkSkip becomes a kant rule (SKIp) whose action keeps the indent stack and hands up INDENT / DEDENT; kantGrammar spells BLOCk as { } or INDENT ... DEDENT, so where blocks are allowed is a grammar question. The old road’s checkSkip stays untouched. Open: where SKIp runs (the parser’s own skip, or explicit terms), several DEDENTs at once, blank and comment lines, tabs vs spaces.    -- 6: design talk, nothing to build, with ML-3's answer in hand (no road rewrites at the top level); before argument, and before the define work below, because how braces and indentation coexist bears on the braceInCode cure
+    Ruled 2026-11-01: on the new road, checkSkip becomes a kant rule (SKIp) whose action keeps the indent stack and hands up INDENT / DEDENT; kantGrammar spells BLOCk as { } or INDENT ... DEDENT, so where blocks are allowed is a grammar question. The old road’s checkSkip stays untouched. Open: several DEDENTs at once, blank and comment lines, tabs vs spaces.
+    DONE 2026-11-02 (SEQ 512): where SKIp runs is ruled -- the engine calls it where it skips today (inputAt); the build is parked behind the jitter walk (docs/checkSKIP.md section 8). Braces in action bodies: DONE (SEQ 512) -- aCTionCodE steps over strings and comments and refuses a block brace by name; braceInCode retired, KANT-40 closed.    -- 6: design talk, nothing to build, with ML-3's answer in hand (no road rewrites at the top level); before argument, and before the define work below, because how braces and indentation coexist bears on the braceInCode cure
 Shared with the old grammar, referenced never redefined: TOKENize, DEFINing,
     PRINTing, ANYtoken, followedBy; the C++ bootstrap seeds NamE, NumbeR,
     QuotE, SemI, GrouP, define, counter; Operators and its UnaryOPS bin.
@@ -251,11 +256,13 @@ Parked: fire(label), a command that fires a rule's action on a label with no
 	Features to add to incant once it settles. Nothing major nothing urgent
         These could be end of day tasks done just before shutdown
 *******************************************************************************/
+ORDER (Tony, SEQ 513, 2026-11-02): the TL-7 build -> argument rename (census first) -> ruleMethod -> aCTionDefinE flags /
+    defineCapture B2 -> jitter walk recon -> refusal contents.
 Tony’s M6 cleanup: delete ~/preDropboxReinstall-2026-10-31, the Dropbox “conflicted copy 2026-10-31” files, and the ~/.zshrc / ~/.zprofile .bak-2026-10-31 copies; refresh BeforeSave (bs).
     -- Tony's hands, independent; the BeforeSave refresh closes the old-snapshot audit path, and nothing below needs it
        also the .bak-2026-11-01 copies of ~/.zshrc / ~/.zprofile / ~/.profile (seal 308, the MacPorts PATH lines)
-Rule TL-7: a break inside a top-level if runs and refuses nothing (seal 294).
-    -- a ruling, nothing to build; cheap, and it pins a row that is open today
+Rule TL-7 -- RULED 2026-11-02 (SEQ 513): a top-level statement that finishes with a branch signal set is refused by name and the signal cleared. TL-7/8/9 pinned born red; the build is next.
+    -- open for the build: TL-5 (a break inside a top-level block) also finishes with the signal set
 Make argument mean one thing everywhere: in a rule’s code it is the label the rule fired on, in an action it is the call’s argument. Rename the rule’s version (actionLabel was proposed 2026-10-22, seal 199) and census rule code that reads argument before changing it. SEQ 502’s AL-3a pins the gap.
     -- before ruleMethod below: a shared rule action reads argument (the label), so the rename should land first; it also unblocks newLocalArgT AL-3a, rung 5's next gap
 Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
