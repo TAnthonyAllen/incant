@@ -1161,6 +1161,22 @@ fdRow "newCallBindT CB-4 new road: a call in a loop body, run twice (road / valu
 fdRow "newCallBindT CB-5 new road: the last call built (road / value)" "$_cbR $(_cbv 'CB-5 n')" "[ 7 ] | " "[ 7 ] | 7 |"
 else echo "  FAIL  newCallBindT MISSING"; fail=1
 fi
+#  ⚑ codeBraceT -- SEQ 512 (Tony, 2026-11-02): aCTionCodE captured a code={ } body to the FIRST }, so a } in a string, a
+#  braced block or a comment ended it and the parse abandoned the file. PRE-REGISTERED ON TRUNK, born red. One process,
+#  each row its own define with a stderr sentinel after it; BC-3 is the control (a { in a string never broke).
+_bcF=$(ip codeBraceT)
+_bcv () { awk -v k="BC $1" '$0 ~ /^BC / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Search list: | *$)/ { printf "%s|", $0 }' "$T/bc.o"; }
+if [ -f "$_bcF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_bcF" > "$T/bc.o" 2> "$T/bc.e"; _bcx=$?
+_ofeq "codeBraceT runs (exit)" "$_bcx" "0"
+_ofeq "codeBraceT BC-3 (control): a { in a string (sentinel / value)" "$(grep -c '^BC SENTINEL BC-3' "$T/bc.e") $(_bcv 'BC-3')" "1 { |7 |"
+fdRow "codeBraceT BIC braceInCode: a braced block in a body (sentinel / value)" "$(grep -c '^BC SENTINEL BIC' "$T/bc.e") $(_bcv 'BIC')" "0 " "1 3 |5 |"
+fdRow "codeBraceT BC-1 a } in a quoted string (sentinel / value)" "$(grep -c '^BC SENTINEL BC-1' "$T/bc.e") $(_bcv 'BC-1')" "0 " "1 } |7 |"
+fdRow "codeBraceT BC-2 a braced nested block under a true if (sentinel / value)" "$(grep -c '^BC SENTINEL BC-2' "$T/bc.e") $(_bcv 'BC-2')" "0 " "1 1 |2 |5 |"
+fdRow "codeBraceT BC-4 a } in a comment, balanced then lone (sentinel / value)" "$(grep -c '^BC SENTINEL BC-4' "$T/bc.e") $(_bcv 'BC-4')" "0 " "1 6 |8 |"
+fdRow "codeBraceT reaches its end (BC END / sentinel)" "$(grep -c '^BC END' "$T/bc.o") $(grep -c '^CODEBRACET SENTINEL' "$T/bc.e")" "0 0" "1 1"
+else echo "  FAIL  codeBraceT MISSING"; fail=1
+fi
 
 
 #  ============================================================================

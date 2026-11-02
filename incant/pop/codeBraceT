@@ -1,0 +1,74 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(CodeBrace3);
+define
+    bc3 code={ print "{":; print 7:; };
+    ;
+search CodeBrace3;
+cerr "BC SENTINEL BC-3":;
+print "BC BC-3":;
+bc3();
+register(CodeBraceBIC);
+define
+    bcFirst code={ print 3:; };
+    bcBad code={ bcX = 4; if bcX > 9; { print 1:; } print 5:; };
+    ;
+search CodeBrace3 CodeBraceBIC;
+cerr "BC SENTINEL BIC":;
+print "BC BIC":;
+bcFirst();
+bcBad();
+register(CodeBrace1);
+define
+    bc1 code={ print "}":; print 7:; };
+    ;
+search CodeBrace3 CodeBraceBIC CodeBrace1;
+cerr "BC SENTINEL BC-1":;
+print "BC BC-1":;
+bc1();
+register(CodeBrace2);
+define
+    bc2 code={ bcY = 4; if bcY > 2; { print 1:; print 2:; } print 5:; };
+    ;
+search CodeBrace3 CodeBraceBIC CodeBrace1 CodeBrace2;
+cerr "BC SENTINEL BC-2":;
+print "BC BC-2":;
+bc2();
+register(CodeBrace4);
+define
+    bc4a code={
+        // a balanced code={ x } in a comment
+        print 6:;
+        };
+    bc4b code={
+        // a lone close } in a comment
+        print 8:;
+        };
+    ;
+search CodeBrace3 CodeBraceBIC CodeBrace1 CodeBrace2 CodeBrace4;
+cerr "BC SENTINEL BC-4":;
+print "BC BC-4":;
+bc4a();
+bc4b();
+print "BC END":;
+cerr "CODEBRACET SENTINEL":;
+stop();
+
+codeBraceT -- SEQ 512 (Tony, 2026-11-02): aCTionCodE (ruleActions.rtn) captured a code={ } body from its { to the FIRST },
+counting no nesting and stepping over no quote, so a } in a quoted string, a } closing a braced block (braceInCode) or a }
+in a comment (KANT-40 / F-86) ended the body early. The define holding it died -- naming its first healthy action,
+bear-trap 32 -- and the parse ABANDONED the rest of the file at exit 0. PRE-REGISTERED ON TRUNK, born red.
+
+Defines are always the old road's, so there is no new-road twin: BC-3 is the control (a { in a string never broke).
+One process; each row has its own define, a stderr sentinel right after the define (absent = that define abandoned the
+file), then its calls under a `BC <row>` stdout line.
+
+ROWS
+BC-3  control: print "{" then 7 -> { 7.
+BIC   braceInCode's repro: bcFirst prints 3; bcBad's braced arm sits under a false if, so 5 alone.
+BC-1  a } inside a quoted string: } 7.
+BC-2  a braced nested block under a true if: 1 2 5.
+BC-4  a } in a // comment -- balanced (code={ x }) then a lone }: 6 8. The ruling's scan skips quoted strings and counts
+      depth; a lone } in a comment needs the comment skipped too, and this row says whether it is.

@@ -394,6 +394,9 @@ checkSkip -- one C++ seat, the term's grammar decides, `^` still means "no skip"
 grammar wherever whitespace may fall -- no C++ seat, but every rule spells it. Option (b) is the purer reading of 10-29
 and much the larger grammar change; (a) is a dispatch, not a meaning, and is Clod's recommendation.
 
+**RULED 2026-11-02 (Tony, SEQ 512): seam (a) -- the engine calls SKIp where it skips today (`inputAt`). The build is
+PARKED behind the jitter walk.**
+
 ### KANT-40 / F-86 and braceInCode are NOT checkSkip, and fall outside SKIp's reach
 
 They are one mechanism, and it is `aCTionCodE` (ruleActions.rtn:187-192): a `code={ }` body is captured from its `{` to
