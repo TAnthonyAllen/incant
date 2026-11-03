@@ -331,3 +331,11 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
   directive files for the three names (SEQ 284 R2); groups.ext lines go in the same stroke (mirror-arity row moves).
 - **Note:** the old road's checkSkip is ruled untouched (2026-11-01) -- these are Tony's to cut or keep.
 - **Seen:** 2026-11-02 (SEQ 511 R1).
+
+### `aligh` in `IncantForms/Tests/flash` -- a misspelt `align`
+- **What/where:** `IncantForms/Tests/flash`, two uses of the attribute `aligh` (see `grep -n aligh` there).
+- **Why it looks deletable:** no code anywhere reads `aligh`; it is `align` misspelt, so those fields never got the
+  alignment they ask for (found by the forms inventory sweep, A1 Part 1).
+- **Confirm:** `grep -rn aligh IncantForms` -- the only hits are this file and formsRecon. A form file, not engine code:
+  respell to `align` when the form is reworked under kant, or with the next touch of the file.
+- **Seen:** 2026-11-03 (forms afternoon track, A1).
