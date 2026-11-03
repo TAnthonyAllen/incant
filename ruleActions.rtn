@@ -382,8 +382,8 @@ use NewGroup
                 grup            = CodE += "tempField";
                 grup.isLocal    = true;
                 grup.noPrint    = true;
-                // ruleArgument a rule's code reads the label it fired on as argument; processAction binds it per fire (Tony)
-                grup            = CodE += "argument";
+                // ruleActionLabel a rule's code reads the label it fired on as actionLabel; processAction binds it per fire -- an action's argument is runAction's (Tony, SEQ 518)
+                grup            = CodE += "actionLabel";
                 grup.isLocal    = true;
                 grup.noPrint    = true; }
 use NewGroup

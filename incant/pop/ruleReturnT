@@ -49,11 +49,11 @@ define
                     clear(arg);
                     clear(op);
             cur := *cur.nexT;
-        *argument := *target;
+        *actionLabel := *target;
         print "RR-IN BEGIN":;
-        dumpField(*argument);
+        dumpField(*actionLabel);
         print "RR-IN END":;
-        return *argument;
+        return *actionLabel;
         };
     rrDrive code={
         ret := xpListTest("qa - qb + qc;");

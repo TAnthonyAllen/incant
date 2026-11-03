@@ -559,8 +559,8 @@ GroupItem 	*item = 0;
 			grup = CodE->addString("tempField");
 			grup->groupBody->flags.isLocal = 1;
 			grup->groupBody->flags.noPrint = 1;
-			// ruleArgument a rule's code reads the label it fired on as argument; processAction binds it per fire (Tony)
-			grup = CodE->addString("argument");
+			// ruleActionLabel a rule's code reads the label it fired on as actionLabel; processAction binds it per fire -- an action's argument is runAction's (Tony, SEQ 518)
+			grup = CodE->addString("actionLabel");
 			grup->groupBody->flags.isLocal = 1;
 			grup->groupBody->flags.noPrint = 1;
 			}
@@ -10784,8 +10784,8 @@ GroupItem 	*action = field;
 	if ( action->groupBody->flags.isRule )
 		{
 		code = action->actionBody();
-		// ruleArgument the code's argument is the label this fire was handed, the isLabel node itself (Tony)
-		if ( grup = code->get("argument") )
+		// ruleActionLabel the code's actionLabel is the label this fire was handed, the isLabel node itself (Tony, SEQ 518)
+		if ( grup = code->get("actionLabel") )
 			{
 			if ( label->groupBody->flags.isLabel )
 				grup->setGroup(label);

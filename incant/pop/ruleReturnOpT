@@ -50,8 +50,8 @@ define
                     clear(arg);
                     clear(op);
             cur := *cur.nexT;
-        *argument := *target;
-        return *argument;
+        *actionLabel := *target;
+        return *actionLabel;
         };
     rrOp code={
         ret := xpListTest("qa - qb + qc;");

@@ -152,10 +152,10 @@ define
     simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
     stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
     testOR code={ print "testOR:"`; if !righty || feeling; print Saw righty feeling:; else print "I see nothing":; };
-    testARG code={ print "testARG: Argument is:" argument:; };
+    testARG code={ print "testARG: Argument is:" actionLabel:; };
     testForC second=56 third="WTF?" code={
-        print "testForC:"`"Components of" argument with second third:;
-        for grup in argument; attributes
+        print "testForC:"`"Components of" actionLabel with second third:;
+        for grup in actionLabel; attributes
             print `grup += righty:; };
     testGet code={ sumple[width] = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; };
     testIndentBlock code={
@@ -166,16 +166,16 @@ define
         print ~-Three:;
         print ~-Four:; };
     testNegate code={ print "testNegate: does not matter if the ! comes before or after"`; if !whatever; print "No result":; else print "Negate failed":; };
-    testNew code={ grup = new(argument); grup++; return grup; };
+    testNew code={ grup = new(actionLabel); grup++; return grup; };
     testPointer lineIn code={
         print "testPointer:"`;
-        argument = lineIn + 4;
-        if argument& > lineIn; print "Yes it is":; else print "No it aint":; };
+        actionLabel = lineIn + 4;
+        if actionLabel& > lineIn; print "Yes it is":; else print "No it aint":; };
     testList code={
         print `"Processing testList action that runs list rule":;
         list("righty 3.1 seven eight nine;"); };
     testScope code={
-            :argument width height;
+            :actionLabel width height;
             print taG width height:;
             :simple width height quinto@;
             print taG width height:; };
@@ -183,7 +183,7 @@ define
         print "testUnary:":;
         grup = 0;
         if ++grup; print ``"++grup is" grup:;
-        if grup++; print ``"now grup++ is still" grup "Unary operators must preceed their argument":; };
+        if grup++; print ``"now grup++ is still" grup "Unary operators must preceed their actionLabel":; };
     testInterpret code={
         print "testInterpret":`"dot test:", maximus.taG:;
         maximus = 11;
