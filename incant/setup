@@ -58,6 +58,7 @@ define
     jitShowRecord immediateAction=jitShowRecord;
     jitTrace immediateAction=jitTrace;
     labelTree immediateAction;
+    loopOwnsBody immediateAction;
     labelSpans immediateAction;
     listenTo immediateAction noPrint;
     load immediateAction=loadDirectory noPrint;
@@ -72,6 +73,7 @@ define
     quoted  immediateAction;
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
+    refuseTopSignal immediateAction;
     reset immediateAction=resetField;
     setFile immediateAction=setFile;
     setMark immediateAction;
@@ -114,6 +116,7 @@ define
     coutList    unary ruleMethod=opCoutList;
     printShortcut   unary ruleMethod=opPrintShortcut;
     seq     unary ruleMethod=opSeq;
+    bodySeq unary ruleMethod=opBodySeq;
     ifThen  unary ruleMethod=opIf;
     branchSignal    unary ruleMethod=opBranch;
     whileLoop       unary ruleMethod=opWhile;
