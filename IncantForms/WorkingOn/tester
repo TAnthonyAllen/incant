@@ -41,6 +41,23 @@ define
     qa=2;
     qb=3;
     qc=4;
+    // Clod, A2 listener probe fields (driver near the foot)
+    la=1;
+    lb=$la;
+    lc listenTo=la;
+    lpReq owner source result rule;
+    lpNew code={
+        lpSrc := argument.CodE;
+        lpReq.owner  := argument;
+        lpReq.source := lpSrc;
+        lpReq.rule   := KantGrammar["STARt"];
+        if compileIn(lpReq);
+            lpBlock = lpReq.result;
+            *lpBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *lpBlock;
+        };
+    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
     ;
 
 whatsIt = PRINt("print #5.2f,+~+77 - qa / 3 qb/5:;");
@@ -64,27 +81,7 @@ cerr "B3 chain [" testOP(whatsIt) "]":;
 whatsIt = EXPRESSIOn("qa[qb] + qc");
 cerr "B4 chain [" testOP(whatsIt) "]":;
 // Clod, SEQ 448 R5: the new road's print -- PRINt builds one instruct, testOP runs it (prints 77)
-// Clod, A2 listener probe (forms afternoon, 2026-11-03): does b receive a change to a? Old road (define + top level) and new road (lpNew compiles with KantGrammar STARt). Both read NO -- morning docket in macros.
-registry(ListenProbe);
-define
-    la=1;
-    lb=$la;
-    lc listenTo=la;
-    lpReq owner source result rule;
-    lpNew code={
-        lpSrc := argument.CodE;
-        lpReq.owner  := argument;
-        lpReq.source := lpSrc;
-        lpReq.rule   := KantGrammar["STARt"];
-        if compileIn(lpReq);
-            lpBlock = lpReq.result;
-            *lpBlock :. noPrinT;
-            argument :. isActioN;
-            argument +< *lpBlock;
-        };
-    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
-    ;
-search ListenProbe;
+// Clod, A2 listener probe (forms afternoon, 2026-11-03): does b receive a change to a? Old road (define + top level) and new road (lpNew compiles with KantGrammar STARt). Both read NO -- morning docket in macros. Its fields live at the end of TestStuff: pop.sh's testerChainT takes tester up to the LAST indented ; line, so a second define block would pull the driver lines into every row.
 print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
 la = 5;
 print "A2 old road after la=5: la=" la " lb=" lb " lc=" lc:;
