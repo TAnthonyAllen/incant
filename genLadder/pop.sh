@@ -1124,6 +1124,24 @@ _ofeq "newLocalArgT AL-3a old road (control): a self-call through argument" "$(_
 fdRow "newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -)" "$(_nav 'RP n') $(_nav 'AL-3a n') R$(grep -c '^REFUSED lv3a -- Operator - ' "$T/na.e")" "[ 7 ] | lv3a |2 | R1" "[ 7 ] | 0 |1 |2 | R0"
 else echo "  FAIL  newLocalArgT MISSING"; fail=1
 fi
+#  newJitT -- SEQ 520 S0 (2026-11-03): the new road's jitter walk. Three new-road actions (arithmetic, an if, a loop with a
+#  break) run twice: as written (the twin -- testOP interprets each chain) and with `jitter;` inserted after the builds.
+#  Born red: under jitter; the run dies with exit 139 (an op's gate fires on unseeded operands, docs/jitterWalkRecon.md).
+#  S1's witness, one line per new-road compile: walked N handed N native 0.
+_njF=$(ip newJitT)
+if [ -f "$_njF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_njF" > "$T/nj.o" 2> "$T/nj.e"; _njx=$?
+sed '/^njNew(nj3);$/a\
+jitter;
+' "$_njF" > "$T/njj.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/njj.k" > "$T/njj.o" 2> "$T/njj.e"; _njjx=$?
+_njv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | tr '\n' '|'; }
+_ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ END | x0 s1"
+fdRow "newJitT under jitter; = the twin (stdout / exit / sentinel)" "$(_njv "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ END | x0 s1"
+fdRow "newJitT the walk's witness: compiles, and compiles with walked = handed and native 0" "$(grep -c '^=== jitter walk: ' "$T/njj.e") $(grep '^=== jitter walk: ' "$T/njj.e" | awk '$6==$8 && $10==0' | wc -l | tr -d ' ')" "0 0" "3 3"
+fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
+else echo "  FAIL  newJitT MISSING"; fail=1
+fi
 #  ⚑ newReturnT -- SEQ 508 / 509 (Tony, 2026-11-02): rung 5 part 2, return on the new road. PRE-REGISTERED ON TRUNK, born
 #  red. One process; each block starts with `RT <row> <road>`. Every n row is prefixed with RP n's reading, the road proof,
 #  and the file asserts no `parse failed`: a new-road build that fails falls back to the old road at the first call,

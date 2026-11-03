@@ -1,0 +1,59 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewJitT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    nj1 code={ x1 = 3 + 4; print x1:; };
+    nj2 code={ y2 = 5; if y2 > 2; print 1:; };
+    nj3 code={
+        n3 = 0;
+        while n3 < 5;
+            n3 = n3 + 1;
+            if n3 == 3;     break;
+        print n3:;
+        };
+    ;
+search NewJitT;
+njNew(nj1);
+njNew(nj2);
+njNew(nj3);
+print "NJ NJ-1":;
+nj1();
+print "NJ NJ-2":;
+nj2();
+print "NJ NJ-3":;
+nj3();
+print "NJ END":;
+cerr "NEWJITT SENTINEL":;
+stop();
+
+newJitT -- SEQ 520 S0 (2026-11-03): the new road's jitter walk. Three actions built on the new road by njNew (the
+nlNew builder of newLocalT): arithmetic (NJ-1), an if (NJ-2), a loop with a break (NJ-3). pop.sh runs this file twice:
+as written -- the TWIN, testOP interpreting each chain -- and with `jitter;` inserted after the last njNew line, so every
+call is a first call under the jitter. The jitted run must equal the twin.
+
+TODAY (born red): under jitter; the first action is refused NOT JITTABLE and the run dies with exit 139 --
+jitBuildFunction walks a testOP-bound BlocK with jitting on, and an op's own gate fires on unseeded operands
+(docs/jitterWalkRecon.md, the finding).
+
+S1 (branch new-jit): the walk visits the chain and hands EVERY statement to its own testOP at run time; nothing is
+emitted natively. Its witness line, one per compile: `=== jitter walk: <action> walked N handed N native 0 ===`.
