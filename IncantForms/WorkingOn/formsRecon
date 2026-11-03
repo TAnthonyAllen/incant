@@ -219,3 +219,144 @@ keyStroke (and keyAction)
     lean:       keep; respell -- keyStroke entries are already actions with
                 a key filter, which is close to kant's "every attribute can
                 have an action".
+
+=============================================================================
+Table attributes, then the list and layout forms
+=============================================================================
+
+How the old GUI drew at all (needed for every style row below)
+    ⚠ The reference copy and Bot draw by DIFFERENT roads, and neither is
+    native drawing of the field tree:
+        Groups/GUI   Layout.twk drawRect 119-155 lays out, then builds an
+                     HTML page with a <canvas> (Control.twk makeCanvas 402,
+                     jsDraw 953-1040 writes one drawBox(...) JS call per
+                     field) and loads it into a WKWebView. Fonts, alignment,
+                     margins, flex etc. go out as CSS through toCSS (915) and
+                     the CSS / pROPERTIEs registries in
+                     IncantForms/HTML/htmlTraits.
+        Bot          Layout.twk drawRect 28-70 renders the laid-out tree to a
+                     PDF (Bot/PDF.twk, 523 lines: drawRoundedBox, displayCell,
+                     displayImage, displayPath, getFontFrom, setPDFfill /
+                     setPDFstroke) and shows it in a PDFView. That is the
+                     "print-driven layout" Tony's forms notes propose -- Bot
+                     already did it, in 2021.
+    Layout itself (Control layout, Details setFrame / checkStretch /
+    setInnerBox / checkFit) is the same in both and is plain arithmetic.
+
+tableBody / tableCell / tableHead / tableLabel / tableRow
+    did:        nothing of their own -- each is a template in
+                IncantForms/Controls/templates that merges a bundle:
+                    tableBody   normalFont flex down="*"
+                    tableCell   selectable=no style
+                    tableHead   headerFont height=30 across
+                    tableLabel  flex center selectable=no
+                    tableRow    height=20 across flex style
+                The only working parts are down="*" (the repeater, see
+                across/down), height, across, selectable, and the font name.
+                flex and center are CSS hints; bare `style` has no value, and
+                Bot's sTYLE refuses a nameless style ("style attribute has to
+                specify a name"); in Groups/GUI style is not mapped at all.
+    where:      templates file; no C++ names them (searched Groups/GUI and
+                Bot: zero hits).
+    when:       define (template merge into the parent).
+    inherited:  no (merged in, not inherited).
+    leans on:   the template merge (old #registry tEMPLATEs + #macro).
+    C++ floor:  none, pure kant.
+    lean:       respell as kant templates (mergeContainers); drop flex,
+                center and bare style from them.
+
+list (the form, IncantForms/Windows/list)
+    did:        a table of records whose attributes differ per record
+                (listStuff): one row per record, and inside each row one
+                cell per ATTRIBUTE of that record, tag on one line and value
+                under it, the two lines scrolling together. The file's own
+                ?...? comments explain it well and are accurate to Map.rtn.
+                Machinery: source=listStuff (a Source over the block, kept in
+                a hidden sRCe attribute); next=body (each row pulls the next
+                record into row.group); source=row useNext useAttributes
+                across="*" (a nested source over the CURRENT record's
+                attributes, repeated across); tag / trait=source (show the
+                attribute's tag, or its value); scrollWith (two blocks
+                scroll as one).
+    where:      Map.rtn sOURCE 933-1018, nEXT 541-622, tAG 1079-1121, tRAIT
+                1207-1258, scrollWITH 706-741; Control.twk flexLayout and
+                setFlexDetails (the repeater).
+    when:       layout, then listener-driven on every scroll / source move.
+    inherited:  sRCe is found with findAttribute -- the source is inherited
+                down the tree; that is the whole mechanism.
+    leans on:   Source (Source.twk), listeners, contentVaries / indexed
+                flags, setFLEXcontent.
+    C++ floor:  none, pure kant (the drawing is whatever cells use).
+    lean:       keep the idea, respell small: source / next / trait / tag are
+                the data-binding core of forms and A2's listener probe is
+                their first question. useNext and useAttributes are modifiers
+                worth renaming.
+
+layout (the form, IncantForms/Windows/layout)
+    did:        a showcase window with two cards: headed text, images, a
+                button (action=fire prints "Fire action for <tag>"), wrapped
+                text, a sorted table (source=phone, sort= on headings, key
+                and trait cells, next=fifth), a popup=dialog box, form
+                templates with $name/$content references, a pullDown=pull
+                menu. It touches nearly every attribute in this file.
+    where:      the form only; it names `phone` and `pull` and `dialog`,
+                which it does not define (searched IncantForms: phone
+                appears nowhere else) -- so it never ran whole as written.
+    when:       all three moments.
+    inherited:  -
+    leans on:   everything: cards, popup, pullDown, form, source, next, key,
+                trait, sort, image, text, rounded, border, fill, font.
+    C++ floor:  window, draw, image, font measure.
+    lean:       keep as the target showcase, but it is a destination, not
+                A4's first light; rebuild it last.
+
+cards
+    did:        the members of a cards block are stacked; all are hidden
+                (noRoom) but one -- the first, or the one named by
+                cards=Name. Event action "card" (Actions.twk gotoCARD 64-91)
+                switches; scrollCards (Details.rtn 191) steps with the
+                arrow keys / scroll.
+    where:      Map.rtn setCARD 764-800; Details initialize 323 (orient =
+                cards), setFrame 573-577 (each card gets the full box).
+    when:       layout; event to switch.
+    inherited:  no.
+    leans on:   noRoom.
+    C++ floor:  none, pure kant.
+    lean:       keep, respell.
+
+across / down (and the "*" repeater)
+    did:        orientation of the members. A count value (across=3) repeats
+                the block that many times. Any other value (across="*")
+                sets contentVaries: the members become a template (kept in a
+                hidden vCONTENt) and are copied as many times as fit, each
+                copy pulling its record with next=. Neither given: down,
+                unless flex.
+    where:      Details initialize 310-326; Control.twk setDetails 779-814,
+                flexLayout 165-238, setFlexDetails 815-833,
+                resetVariableContent 762-777.
+    when:       layout; the repeater re-runs on resize and scroll.
+    inherited:  no.
+    leans on:   next / source, item heights or widths (a repeated member
+                without a fixed height is a fatal error: exit(0)).
+    C++ floor:  none, pure kant.
+    lean:       keep across/down; keep the repeater but give it its own name
+                (it is a value smuggled onto across/down -- one channel, two
+                meanings).
+
+space (special field)
+    did:        NOTHING SPECIAL -- no code names it (searched Groups/GUI and
+                Bot for space as a word: only a character set in Groups.twk).
+                Its behaviour comes from the general rule: any member with
+                no height (in down) or no width (in across) gets an equal
+                share of what the fixed members leave (Details checkStretch
+                141-187, setFrame 548-552). So every unsized field is a
+                "space"; space is just the conventional name for an empty one.
+    where:      Details.twk checkStretch, setFrame.
+    when:       layout.
+    inherited:  no.
+    leans on:   -
+    C++ floor:  none, pure kant.
+    lean:       keep as is; vertical align by space works already.
+    note:       checkStretch's percent arm adds detail.height * n / 100,
+                the member's own height rather than the parent's -- looks
+                wrong; recorded here only, not chased.
