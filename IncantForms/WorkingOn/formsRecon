@@ -732,3 +732,24 @@ toggle       -- Tests/format, Windows/toggles: the toggle event action
                 (tOGGLE) named directly / event / none / keep with toggled
 hTML, pDF    -- output-road switches in test forms / none / drop
 comments     -- ?text? in old forms; // text in kant (ruled) / -
+
+=============================================================================
+Leftovers from the Part 1 sweep that are not attributes of the GUI
+=============================================================================
+showTag, fitItem -- form-local names, not GUI attributes: showTag is a field
+                in Windows/tree carrying code={...} and used as an attribute
+                (a user-defined action attached by name -- the KeyStrokes /
+                noMerging pattern); fitItem is a local template in
+                Windows/fit. Both show forms already defining their own
+                attribute-actions in incant.
+sum, totals, matrixMethod, xOther, columnWidth, rowHeight, labelWidth --
+                matrix / sheet parameters; see the matrix row (not compiled).
+sRCe, vCONTENt, pULLdOWN, dETAILs -- hidden bookkeeping attributes the GUI
+                writes, never written by a form.
+dump, attributes -- pROPERTIEs entries with no method in either copy.
+card         -- the gotoCARD event action named directly (Tests/flash).
+
+=============================================================================
+STOPPED: 2026-11-03, Part 2 complete -- every row in the dispatch's four
+groups written. Nothing left in hand. A3 can build from this file.
+=============================================================================
