@@ -1,5 +1,5 @@
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//').
-# pop.sh FAIL rows by name -- re-banked 2026-11-03 at seal 318 (SEQ 516 R1). 65 rows. First banked 2026-10-31, seal 298.
+# pop.sh FAIL rows by name -- re-banked 2026-11-03 at seal 320 (SEQ 517 R0, the top-refuse buy). 55 rows. First banked 2026-10-31, seal 298.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
@@ -53,15 +53,5 @@ FAIL  starIdiomT row 2 -- the star did not refuse a null by name. Either the
 FAIL  starT S1  *x   one-deep   = stA -- moved
 FAIL  starT S6  a.b     holder   = stH -- moved
 FAIL  testerChainT TC-10 kant: qa[qb] + qc born red (SEQ 345): today [4], intended [0]
-FAIL  topLevelT TL-11 FILe: a continue inside a top-level block: the block stops, the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [1 |3 | R0 x0 1], intended [1 |3 | R1 x0 1]
-FAIL  topLevelT TL-11 the refusal names continue born red (SEQ 345): today [0], intended [1]
-FAIL  topLevelT TL-12 FILe: a return inside a top-level block: the block stops, the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [1 |3 | R0 x0 1], intended [1 |3 | R1 x0 1]
-FAIL  topLevelT TL-12 the refusal names return born red (SEQ 345): today [0], intended [1]
-FAIL  topLevelT TL-7 FILe: a break inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
-FAIL  topLevelT TL-7 the refusal names break born red (SEQ 345): today [0], intended [1]
-FAIL  topLevelT TL-8 FILe: a continue inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
-FAIL  topLevelT TL-8 the refusal names continue born red (SEQ 345): today [0], intended [1]
-FAIL  topLevelT TL-9 FILe: a return inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
-FAIL  topLevelT TL-9 the refusal names return born red (SEQ 345): today [0], intended [1]
 FAIL  trigDO attached under DO 0 times, want exactly 1
 FAIL  walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is
