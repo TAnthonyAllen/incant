@@ -1,5 +1,5 @@
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//').
-# pop.sh FAIL rows by name -- re-banked 2026-11-03 at seal 326 (SEQ 521 R1, the new-jit buy). 59 rows. First banked 2026-10-31, seal 298.
+# pop.sh FAIL rows by name -- re-banked 2026-11-03 at seal 329 (SEQ 523, shutdown). 60 rows. First banked 2026-10-31, seal 298.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
@@ -16,8 +16,9 @@ FAIL  firstUseT FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero s
 FAIL  holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow 
 FAIL  holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG    = htKid want htInside 
 FAIL  holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow 
+FAIL  newJitT NJ-5 under jitter;: a NUMBER crossing a kindless local = the twin's 4.5 born red (SEQ 345): today [5 ], intended [4.5 ]
 FAIL  newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -) born red (SEQ 345): today [[ 7 ] | lv3a |2 | R1], intended [[ 7 ] | 0 |1 |2 | R0]
-FAIL  newLocalArgT nl3an under jitter; = its plain run (value / refusals of - / exit) born red (SEQ 345): today [ Rmany x139], intended [lv3a |2 | R1 x0]
+FAIL  newPlusEqT new road: m6 += 5 = the old road (value / += refusals) born red (SEQ 345): today [2 | E1], intended [7 | E0]
 FAIL  newReturnT RT-5 new road under jitter; = its plain run born red (SEQ 345): today [0 |], intended [rx |]
 FAIL  newReturnT RT-5f new road under jitter; = its plain run born red (SEQ 345): today [0 |], intended [rx |]
 FAIL  newReturnT RT-5p new road under jitter; = its plain run born red (SEQ 345): today [6 |0 |], intended [6 |rx |]
