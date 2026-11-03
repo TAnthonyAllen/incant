@@ -1149,7 +1149,12 @@ rm -f "$T/njj.w"; INCANT_JITTER_ERR="$T/njj.w" perl -e 'alarm 30; exec @ARGV' "$
 _njv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | tr '\n' '|'; }
 _ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3, NJ-4 14, NJ-5 4.5, NJ-6 7 21 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
 #  SEQ 522 R1: NJ-4..6 added (S2's rows); the jitted run equals the twin today because every statement is handed to testOP
-fdRow "newJitT under jitter; = the twin (stdout / exit / sentinel)" "$(_njv "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
+#  NJ-5 SPLIT OUT (Tony, SEQ 523 R0, ruled (c)): a NUMBER written into a kindless local gets an i32 slot -- on BOTH roads'
+#  compiled code -- so NJ-5 reads 5. It is pinned red on its own row; the whole-output row covers every other action, so a
+#  known red cannot absorb a new one. The cure is the next session's opener (a): kindless-local inference that tells NUMBER from count
+_njv5 () { _njv "$1" | sed 's/NJ NJ-5 |[^N]*//'; }
+fdRow "newJitT under jitter; = the twin, NJ-5 aside (stdout / exit / sentinel)" "$(_njv5 "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
+fdRow "newJitT NJ-5 under jitter;: a NUMBER crossing a kindless local = the twin's 4.5" "$(_njv "$T/njj.o" | sed -n 's/.*NJ NJ-5 |\([^|]*\)|.*/\1/p')" "5 " "4.5 "
 #  witnessPerAction RE-SHAPED (SEQ 522 R1): S1's row asserted walked = handed and native 0 for every compile -- S1's invariant,
 #  which S2 exists to break -- so it retires into this one: per action, walked / handed / native. Today S1's reading (all
 #  handed); intended S2's: assigns and arithmetic native, every other statement (print, if, while) still handed

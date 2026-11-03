@@ -114,3 +114,9 @@ not the emitters.
   count (jitBoxCountRT), so a return of a non-count value reads 0 -- on both roads' compiled functions. Pinned born red:
   newReturnT RT-5 / RT-5f / RT-5p under `jitter;` (0, intended `rx`). The old-road twins lose theirs the same way.
 - **S1b, next:** nl3an under `jitter;` runs away (pinned born red); the measured cause decides the cure.
+- **S2 (SEQ 522 / 523):** a statement built only of `=` and the `jitEmitter=` operators is compiled through the old road's
+  runOPslots, unchanged, inside aCTionBlocK's statement bracket; everything else is handed over. No per-statement result
+  store (A3); a statement reading the argument binding stays handed over.
+- **The next opener, (a):** kindless-local inference that tells NUMBER from count. SEQ 388's net gives a kindless local one
+  scalar kind (5), and the prologue slots a kindless field as i32, so `a5 = 3.5; b5 = a5 + 1` compiles to 5 -- on both
+  roads (probe on the old road: 5; plain 4.5). Pinned: newJitT NJ-5. jitLadder is the control. Then S3 (if).
