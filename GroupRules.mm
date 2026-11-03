@@ -3768,7 +3768,11 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  blocks in a dump. Every exit -- falling off the end, or any `return` --
 	//  branches here, so the frame writeback and the ret exist exactly once.
 	gJitEpilogueBB = llvm::BasicBlock::Create(C, "epilogue");
-	if (isCoded(action->groupBody->flags.actionType))
+	//  chainWalk a new-road action's BlocK is a seq instruct bound to testOP (compileIn's newRoadBody): it is WALKED, never
+	//  re-parsed or run under jitting -- running it let each op's own gate fire on unseeded operands (exit 139, SEQ 519)
+	GroupItem *chainBlk  = action->actionBlocK();
+	bool       chainWalk = chainBlk && (void*)chainBlk->groupBody->gMethod == (void*)&testOP;
+	if (!chainWalk && isCoded(action->groupBody->flags.actionType))
 	::processCode(action,action->actionHolder());
 	
 	// ⚠ THE PROLOGUE RUNS *AFTER* processCode AND THAT PLACEMENT IS LOAD-BEARING.
@@ -3806,7 +3810,9 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// the action, so deferring ITS writeback to the epilogue is not observable --
 	// which is exactly why this increment is behaviour-neutral and cannot certify
 	// itself.
-	{
+	//  chainNoFrame a chain-walked action keeps its locals and its argument in their FIELDS: every statement runs there, at run
+	//  time, through its own testOP -- a slot nothing native reads would only be flushed and reloaded (SEQ 520 S1)
+	if (!chainWalk) {
 	GroupItem *fld = 0;
 	while ((fld = action->next(fld))) {
 	GroupBody *fb = fld->groupBody;
@@ -3832,7 +3838,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	}
 	}
 	//  argSlot THE ARGUMENT SLOT (SEQ 380): filled at entry from %field, the per-call node the caller passed; every own-argument read loads it
-	{
+	if (!chainWalk) {
 	GroupItem *af = action->get((char*)"argument");
 	GroupItem *bound = (af && af->groupBody->flags.isArgument && isGROUP(af->groupBody->flags.data)) ? af->getGroup() : nullptr;
 	int bd = bound ? bound->groupBody->flags.data : 0;
@@ -3856,7 +3862,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	::clearRefusal(action);
 	bool walkSave = gJitEmitWalk;
 	gJitEmitWalk = true;
-	jitExecBlock(action);
+	if (chainWalk)  ::jitWalkChain(action,chainBlk);
+	else            jitExecBlock(action);
 	gJitEmitWalk = walkSave;
 	}
 	ruler->jitting = 0;
@@ -7825,6 +7832,29 @@ extern "C" int jitUnboxCount(GroupItem *node)
 {
 	
 	return node ? node->groupBody->gCount : 0;
+	
+}
+
+/*  jitWalkChain -- THE NEW ROAD'S JITTER WALK (SEQ 520 S1). A new-road action's BlocK is a seq instruct bound to testOP:
+    [1] the op, [2] the statement list. Walk the statements in order and hand each to its OWN testOP at RUN time through
+    jitEmitStmtRT, which runs the instruct's method on the action's fields and maps a return, continue or break left set.
+    Nothing is emitted natively yet; later strokes move ops off this fallback, keyed on the op's jitEmitter= attribute.
+    The witness line is printed unconditionally, one per compile (H4).  */
+extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
+{
+	
+	int walked = 0, handed = 0, native = 0;
+	GroupItem *stmts = blk ? blk->get(2) : nullptr;
+	GroupItem *stmt  = nullptr;
+	if (stmts)
+	while ((stmt = stmts->next(stmt))) {
+	walked++;
+	gJitStmtRTBranches = 0;
+	::jitEmitStmtRT(stmt);
+	handed++; }
+	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, walked, handed, native);
+	::fflush(stderr);
+	return walked;
 	
 }
 
