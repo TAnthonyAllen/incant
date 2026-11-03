@@ -750,6 +750,92 @@ dump, attributes -- pROPERTIEs entries with no method in either copy.
 card         -- the gotoCARD event action named directly (Tests/flash).
 
 =============================================================================
+PDF recon (2026-11-03, read only)
+    Population searched: every file and directory with "pdf" in its name
+    (case-insensitive) under InProcess/ (DerivedData skipped) and under
+    data/support. Found: Bot/PDF.twk (+ its PDF.mm, PDF.h), Bot/PDFs/
+    (drawing.pdf, drawTest.pdf, March 2021 outputs), support/Include/pdf.ext
+    and an older copy in support/Include/BackupIncludes/. Groups/GUI has
+    none. Code that calls into them without "pdf" in its name: Bot/Layout.twk
+    (drawRect), Bot/DrawPoint.twk (drawPDFpath), Bot/Map.rtn (adds the
+    PDFView).
+=============================================================================
+
+Bot/PDF.twk (523 lines, 2021-03-31; its header calls it "a test class to
+experiment with printing a layout to pdf")
+    does:       paints an already laid-out form tree to one PDF page. One walk
+                (drawPDFdetail, walkVisible) over the visible fields; per field
+                it saves graphics state, sets line width / fill / stroke,
+                draws the frame (setFrame: rounded box, rectangle, or the
+                per-side top/bottom/left/right borders), then paints the
+                content by kind -- cell or text (displayCell), image
+                (displayImage, jpg/png, scaled to fill and cropped, offset and
+                scale attributes), path (displayPath, the drawing language
+                through DrawPoint.drawPDFpath, with clip-then-image).
+                Output: drawPDF writes <tag>.pdf (pdfDirectory); Bot's
+                Layout.drawRect instead saves to a memory stream
+                (HPDF_SaveToStream, HPDF_GetStreamSize in Layout.mm) and
+                shows it in a PDFView -- the window IS a PDF.
+    draws by:   neither Core Graphics nor hand-built PDF -- the LIBHARU C
+                library (HPDF_*), wrapped by support/Include/pdf.ext as tok
+                aliases (PDFdocument, PDFpage, writeInFrame, pdfArcTo ...).
+                ⚠ The library is not on this machine: TOK.xcodeproj points its
+                headers at /Volumes/IOmega/optLocal/include/hpdf.h (an external
+                drive), and no libhpdf was found. Bot is not in the build.
+    primitives: document/page (HPDF_New, AddPage, SetWidth/Height, SaveToFile,
+                SaveToStream); path (MoveTo, LineTo, CurveTo, Arc, Rectangle,
+                ClosePath, Clip); paint (Fill, Stroke, FillStroke,
+                SetRGBFill/Stroke, SetLineWidth, GSave/GRestore); image
+                (LoadJpeg/PngImageFromFile, DrawImage, GetWidth/Height); text
+                (BeginText/EndText, SetFontAndSize, TextRect); fonts
+                (LoadTTFontFromFile, LoadTTCFontFromFile, GetFont, GetAscent,
+                GetDescent). That list is the C++ floor almost exactly as the
+                typesetting notes name it: measure text, draw glyphs, draw
+                lines, plus images.
+    text, fonts: a fONTs entry names a directory and a file; ttf or ttc is
+                loaded from disk (ttc: walks faces for "Bold" / "Italic") and
+                the loaded font is cached on the font entry as a pointer
+                attribute (pdfFont, bold, italic). Size comes from fontSize
+                (findAttribute, so inherited) and is required. Line height =
+                size x (ascent - descent) / 1000. Colours parse through the
+                RGBvalue rule. Measuring: textWidth (HPDF_Page_MeasureText) is
+                declared in pdf.ext and NEVER CALLED -- kant itself measures
+                nothing.
+    breaks:     lines, yes, but not itself: writeInFrame is HPDF_Page_TextRect,
+                which word-wraps greedily inside one rectangle (left / center
+                / right / justify) and returns how many characters it printed.
+                That count (charactersPrinted) is THROWN AWAY -- text that does
+                not fit is lost, never carried to a next frame. Pages: no. One
+                page, sized to the window (pageWidth = layout width).
+    note:       PDF's origin is bottom-left, so convertOrigin flips every
+                field's frame in the tree before drawing and flips it back
+                after -- the paint walk mutates the tree it walks, twice.
+    lean:       BORROW IDEAS, LEAVE THE CODE. libharu is a dependency this
+                machine no longer has, and the Display ruling already chose
+                Core Text as the measurer -- Core Graphics writes PDF itself
+                (CGPDFContext), so it covers libharu's job on the platform
+                already chosen. Worth borrowing: one paint walk dispatching by
+                content kind; per-side borders; the rounded-box path; the
+                font cache on the font entry; clip-then-image; and above all
+                TextRect's shape -- "fill this frame, tell me how much you
+                used" -- which is the pour primitive the typesetting notes
+                need, with the returned count kept as the next frame's start
+                instead of discarded. Not to borrow: the in-place origin flip
+                (flip at the emit boundary instead) and greedy line breaking.
+
+support/Include/pdf.ext (275 lines)
+    does:       the tok external declarations for libharu: handle types,
+                struct mirrors (HPDF_Point, HPDF_RGBColor), and kant-side
+                alias names for the HPDF calls. BackupIncludes/pdf.ext is an
+                older variant (differs from line 108).
+    lean:       leave. It documents which libharu calls were in use; nothing
+                else needs it.
+
+Bot/PDFs/drawing.pdf, drawTest.pdf
+    the two outputs from March 2021 (1.4 MB each). Worth opening once as the
+    picture of what Bot's renderer actually produced.
+
+=============================================================================
 STOPPED: 2026-11-03, Part 2 complete -- every row in the dispatch's four
 groups written. Nothing left in hand. A3 can build from this file.
 =============================================================================

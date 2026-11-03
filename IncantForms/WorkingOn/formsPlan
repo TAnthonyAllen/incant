@@ -37,6 +37,69 @@ Folded in from the forms notes
     Comments in a form are // text, with no braces in action bodies.
     Vertical align is dropped in favour of space.
 
+Typesetting notes -- DRAFT, NOT RULED (2026-11-03)
+    Tony and Clay's sketch, as relayed by Clay
+        Three jobs: describe (markup), lay out (break and place), render
+        (backend).
+        Drawing is absolute placement (draw here); typesetting is flowing
+        placement (wherever it fits next). Both sit on one thin C++ floor:
+        measure text, draw glyphs and lines.
+        Take TeX's engine, not its language: boxes and glue, whole-paragraph
+        line breaking, flow into frames. Kant rules and actions replace TeX's
+        macro expansion.
+        Forms are half of it already: down / across are box lists, a valueless
+        space is glue, fit is shrink-wrap.
+        Two trees: a source tree (the what: document, paragraphs, runs) is
+        poured into a frame tree (the where: form fields). Test: if it can
+        break across frames it is flow; a fixed place makes it a form field.
+        Emphasis: marked text becomes its own run; its style is its parent's
+        plus a named change, scoped to the run. Markup names the meaning; the
+        framing style says what it looks like. A wholesale named style is the
+        case where the change sets everything.
+        Prose is written in the typesetting language: text by default,
+        commands as the exception. noSkip ^ and dtext^= are prior art.
+        print source to frame becomes the pour command.
+
+    Clod's reply
+        Text by default: fits as a prose MODE, not a grammar-wide default.
+        The closer prior art is the (...#) literal -- already text by default
+        with one exit. Where it hurts: every rule skips leading space unless
+        ^, so the whole prose path must be noSkip; checkSkip's indent
+        adoption would read an indented paragraph as nesting; comments are
+        parsed, not skipped (bear-traps 4, 29, 53), so // in a URL bites;
+        whitespace-only text has no data (bear-trap 28), so spaces must be
+        glue nodes, never string runs; and a failed parse abandons the rest
+        of the input at exit 0 -- for a document that is a silently lost
+        chapter, so prose mode must fail loudly or carry an end sentinel.
+        Pick one rare escape character; # is taken.
+        The pour and the Buffer mark: the live Buffer has ONE mark (Frame/
+        Buffer.h; the mark stack is in Buffer.new, unbuilt). Enough for one
+        flat buffer poured in order. Not enough for a tree of runs (position
+        is run + offset), whole-paragraph breaking (decides after seeing the
+        paragraph), re-flow on resize (needs each frame's START), or a frame
+        read twice. Proposal: a pour cursor (run, offset) plus a BREAK
+        RECORD -- where each frame's text begins and ends -- as the pour's
+        output, kept out of the source tree. The Buffer mark stays as the
+        leaf (a position inside one run). Old GUI's source= / next= is the
+        same cursor at record grain, with listeners (A2).
+        Parent copy plus named change: matches old GUI (Details setStyle);
+        contradicted the WORDING of StreamModel ("not a scope tree").
+        Reconciled by phase -- resolve as a tree in the pre-pass, paint as a
+        forward-only stream. Now ruled: DesignDocs DisplayDesignHTML /
+        StreamModel / StyleResolution. Build with lazy resolution (pointer
+        to parent style + delta) and := / copyOf, never = (bear-traps 1, 2).
+        Meaning-to-look lookup walks the enclosing frames like findAttribute;
+        keep it separate from the copy.
+        Additions: a third kind for the flow/field test -- a fixed box carried
+        BY the flow (inline image, figure, unsplittable row); forms' space is
+        stretch-only equal-weight glue, so move forms to the same glue model
+        when typesetting adopts it (one mechanism); measure once per run in
+        the pre-pass, through the one measure method the Display ruling
+        reserves; frames name their successor (old GUI next=, text=Name);
+        read Bot's PDF renderer before designing the backend (formsRecon,
+        PDF recon: its TextRect "fill this frame, say how much you used" is
+        the pour primitive); defer hyphenation, widows / orphans, floats.
+
 Where the old GUI lives (A1 Part 1)
     Groups/GUI/                 tracked in Groups; 8,251 lines of .twk/.rtn/
                                 .act/.g. The attribute dispatch table is
@@ -70,3 +133,7 @@ Changes
                 list (style on fields or in named styles; subtree scoping;
                 how kant fires an attribute's action; the drop list; four
                 rows) gates A4.
+    2026-11-03  typesetting notes added (draft, not ruled): the Tony / Clay
+                sketch and Clod's reply. StyleResolution entered in
+                DesignDocs (amends StreamModel). PDF recon added to
+                formsRecon.
