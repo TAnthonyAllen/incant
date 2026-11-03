@@ -701,7 +701,7 @@ while IFS='|' read -r _id _bo _bn _ba; do
     { cat "$T/bt.pre"; printf '%s\ntestOP(it1);\n%s\ncerr "BT NEXT":;\ncerr "BT SENTINEL":;\nstop();\n' "$_bn" "$_ba"; } > "$T/bt.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/bt.$_id.nk" > "$T/bt.$_id.n" 2> "$T/bt.$_id.ne"; echo $? > "$T/bt.$_id.nx"
 done < "$T/bt.list"
-_ofeq "branchT rows ran (11 of 11)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "11"
+_ofeq "branchT rows ran (12 of 12)" "$(ls "$T"/bt.*-*.ne 2>/dev/null | wc -l | tr -d ' ')" "12"
 _ofeq "branchT BR-1 old road (control): a block stops at break" "$(_btv "$T/bt.BR-1.o")" "1 |"
 _ofeq "branchT BR-2 old road (control): the statement after a stopped block runs" "$(_btv "$T/bt.BR-2.o")" "1 |3 |"
 _ofeq "branchT BR-C old road (control): a block stops at continue" "$(_btv "$T/bt.BR-C.o")" "1 |"
@@ -716,6 +716,9 @@ done
 fdRow "branchT BR-1 new road: STARt stops at break, nothing refuses" "$(_btv "$T/bt.BR-1.n") $(grep -c '^REFUSED' "$T/bt.BR-1.ne")" "1 |2 | 0" "1 | 0"
 fdRow "branchT BR-2 new road: the top-level statement after the STARt runs (no leak)" "$(_btv "$T/bt.BR-2.n")" "1 |2 |3 |" "1 |3 |"
 fdRow "branchT BR-C new road: STARt stops at continue, nothing refuses" "$(_btv "$T/bt.BR-C.n") $(grep -c '^REFUSED' "$T/bt.BR-C.ne")" "1 |2 | 0" "1 | 0"
+#  BR-K (SEQ 517 R0, the top-refuse buy): a break at the end of a STARt is caught there -- STARt is a seq, and a seq no loop
+#  owns catches its break (SEQ 516). Was 1 before SEQ 516; born red on a scratch revert of opSeq's catch (read 1 there).
+fdRow "branchT BR-K new road: a break at the end of a STARt is caught there (stdout / signal after)" "$(_btv "$T/bt.BR-K.n") $(grep '^BRANCHKIND' "$T/bt.BR-K.ne")" "1 | BRANCHKIND 1" "1 | BRANCHKIND 0"
 #  BR-R RE-PINNED (SEQ 509 R2): return is built on the new road (SEQ 508). It no longer refuses: the STARt prints 1 and stops
 #  at the return. CONTEXT, NOT RULED: a return in a STARt run by a top-level testOP has no action to land in (WH-8S)
 _ofeq "branchT BR-R new road (CONTEXT, not ruled): a return in a STARt under a top-level testOP stops the seq (value / refusals)" "$(_btv "$T/bt.BR-R.n") $(grep -c '^REFUSED return' "$T/bt.BR-R.ne")" "1 | 0"

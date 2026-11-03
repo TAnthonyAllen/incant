@@ -54,6 +54,10 @@ SL-1, SL-2 (SEQ 478 R0, the STARt leak): two STARts built in one process each ru
 each run right. Today the second of each reads `nextGroup: ERROR seq does not contain a list`: its instruct still holds the
 first one's pieces (measured: STARt's `instruct` is length 2 at its second entry; `stmts` is 0).
 
+BR-K (SEQ 517 R0, at the top-refuse buy): a break at the end of a STARt is caught there -- STARt is a seq, and a seq no
+loop owns catches its break (SEQ 516), so the signal reads 0 after the testOP (it was left 1 before SEQ 516). Read by value
+through branchKindOf. Born red on a scratch revert of opSeq's catch (it read 1 there).
+
 ROWS -- id | old-road statement | new-road statement (testOP follows it) | after the call (optional, old road)
 BR-1|{ print 1:; break; print 2:; }|it1 = STARt("print 1:; break; print 2:;");|
 BR-2|{ print 1:; break; print 2:; } print 3:;|it1 = STARt("print 1:; break; print 2:;");|print 3:;
@@ -66,3 +70,4 @@ TG-1||tgA.methoD = "testOP"; it1 +% tgA;|
 IF-7||it1 = If("if qa < qb; return;");|print 5:;
 SL-1|{ print 1:; } { print 5:; }|it1 = STARt("print 1:;"); it2 = STARt("print 5:;");|testOP(it2);
 SL-2|{ print 1:; } { print 5:; }|it1 = STARt("{ print 1:; } { print 5:; }");|
+BR-K||it1 = STARt("print 1:; break;");|branchKindOf();

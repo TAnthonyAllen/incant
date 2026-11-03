@@ -2010,6 +2010,14 @@ Hard-won lessons. Each one has cost real debugging time.
     in the comment above the `struct` line. Measured with a `//` line only; a `/* */` inside a struct
     is not claimed either way (bear-trap #18's split).
 
+60. **AN INSTRUCT'S OP ENTRY SHARES ITS BODY WITH THE OPERATORS REGISTRY ENTRY. A BUILD-TIME WALK THAT CHANGES AN OP MUST
+    REPLACE THE ENTRY IN THE LIST, NEVER EDIT IT -- OR IT CHANGES THAT OP FOR EVERYONE.** Gloss: the op is the registry's.
+    Measured 2026-11-03 (**kant** build, SEQ 516) with `addrOf`: a STARt's `it1[1]` and `Operators["seq"]` read the same body
+    (#2) through two minted fields. makeInstruct's copy shares entry bodies (addGroup's `new(group)`), so writing the op's tag
+    or method would rebind `seq` in every instruct and in the registry at once. **The cure is the one loopOwnsBody uses**
+    (Instruct.rtn, `ownStatement`): make the new entry as addGroup makes one (`new GroupItem(registryEntry)`), `prepend` it
+    to the old, bump the list length, `remove()` the old. The body is never written.
+
 30. ⚠⚠ **AMENDED 2026-09-04 (C-155): THE RULE IS ONE DIRECTIVE PER MATCHING STATEMENT POINT,
     NOT ONE PER TARGET FUNCTION.** A second armed directive on the same function with a
     **different anchor** fires at its own point — measured on the culled file, one directives
