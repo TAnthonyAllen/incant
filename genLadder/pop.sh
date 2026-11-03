@@ -1122,6 +1122,16 @@ _nav () { awk -v k="NL $1" '$0 ~ /^NL / { on = ($0 == k" ") || ($0 == k); next }
 _ofeq "newLocalArgT runs (exit / sentinel / NL END)" "$_nax $(grep -c '^NEWLOCALARGT SENTINEL' "$T/na.e") $(grep -c '^NL END' "$T/na.o")" "0 1 1"
 _ofeq "newLocalArgT AL-3a old road (control): a self-call through argument" "$(_nav 'AL-3a o')" "0 |1 |2 |"
 fdRow "newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -)" "$(_nav 'RP n') $(_nav 'AL-3a n') R$(grep -c '^REFUSED lv3a -- Operator - ' "$T/na.e")" "[ 7 ] | lv3a |2 | R1" "[ 7 ] | 0 |1 |2 | R0"
+#  UNDER jitter; (SEQ 521 R0, born red): nl3an RUNS AWAY -- ~15,800 levels of self-call, thousands of refusals, a stack
+#  overflow -- where its plain run refuses `lv3a - 1` once and stops. Capped by the alarm; the count reads 1 or many (H3)
+_naK=$(grep -n '^nl\(New\|Old\)(' "$_naF" | tail -1 | cut -d: -f1)
+sed "${_naK}a\\
+jitter;
+" "$_naF" > "$T/naj.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/naj.k" > "$T/naj.o" 2> "$T/naj.e"; _najx=$?
+_najv () { awk -v k="NL $1" '$0 ~ /^NL / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/naj.o"; }
+_najR=$(grep -c '^REFUSED lv3a -- Operator - ' "$T/naj.e"); [ "$_najR" -gt 1 ] && _najR=many
+fdRow "newLocalArgT nl3an under jitter; = its plain run (value / refusals of - / exit)" "$(_najv 'AL-3a n') R$_najR x$_najx" " Rmany x139" "lv3a |2 | R1 x0"
 else echo "  FAIL  newLocalArgT MISSING"; fail=1
 fi
 #  newJitT -- SEQ 520 S0 (2026-11-03): the new road's jitter walk. Three new-road actions (arithmetic, an if, a loop with a
@@ -1177,6 +1187,18 @@ fdRow "newReturnT RT-5 new road: a bare return hands back nothing, A3 (road / va
 fdRow "newReturnT RT-5f new road: a bare return first hands back nothing (road / value)" "$_nrR $(_nrv 'RT-5f n')" "[ 7 ] | 55 |" "[ 7 ] | rx |"
 fdRow "newReturnT RT-5p new road: a bare return after a print hands back nothing (road / value)" "$_nrR $(_nrv 'RT-5p n')" "[ 7 ] | 6 |55 |" "[ 7 ] | 6 |rx |"
 fdRow "newReturnT RT-6 new road: the caller's loop keeps running after a callee returns, A4 (road / value)" "$_nrR $(_nrv 'RT-6 n')" "[ 7 ] | 1 |2 |3 |8 |" "[ 7 ] | 1 |2 |3 |8 |"
+#  UNDER jitter; (SEQ 521 R0, born red): the same file with `jitter;` after its builds. A compiled function returns i32 and
+#  runAction boxes a count, so a new-road return of a non-count value reads 0 (docs/jitterWalkRecon.md, the docket; rides S4)
+_nrK=$(grep -n '^nl\(New\|Old\)(' "$_nrF" | tail -1 | cut -d: -f1)
+sed "${_nrK}a\\
+jitter;
+" "$_nrF" > "$T/nrj.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/nrj.k" > "$T/nrj.o" 2> "$T/nrj.e"; _nrjx=$?
+_nrjv () { awk -v k="RT $1" '$0 ~ /^RT / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/nrj.o"; }
+_ofeq "newReturnT under jitter; runs (exit / sentinel)" "$_nrjx $(grep -c '^NEWRETURNT SENTINEL' "$T/nrj.e")" "0 1"
+fdRow "newReturnT RT-5 new road under jitter; = its plain run" "$(_nrjv 'RT-5 n')" "0 |" "rx |"
+fdRow "newReturnT RT-5f new road under jitter; = its plain run" "$(_nrjv 'RT-5f n')" "0 |" "rx |"
+fdRow "newReturnT RT-5p new road under jitter; = its plain run" "$(_nrjv 'RT-5p n')" "6 |0 |" "6 |rx |"
 else echo "  FAIL  newReturnT MISSING"; fail=1
 fi
 _nrS=$(ip newReturnSelfT)
