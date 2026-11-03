@@ -299,9 +299,10 @@ layout (the form, IncantForms/Windows/layout)
                 and trait cells, next=fifth), a popup=dialog box, form
                 templates with $name/$content references, a pullDown=pull
                 menu. It touches nearly every attribute in this file.
-    where:      the form only; it names `phone` and `pull` and `dialog`,
-                which it does not define (searched IncantForms: phone
-                appears nowhere else) -- so it never ran whole as written.
+    where:      the form only. It leans on other files: phone is the
+                delimited list NotGUI/playlist defines (layout includes it by
+                an old .xml path, /Users/anthony/data/Tawk/Groups/XML/...),
+                dialog is the panel in Windows/menu, pull the menu there.
     when:       all three moments.
     inherited:  -
     leans on:   everything: cards, popup, pullDown, form, source, next, key,
@@ -313,7 +314,7 @@ layout (the form, IncantForms/Windows/layout)
 cards
     did:        the members of a cards block are stacked; all are hidden
                 (noRoom) but one -- the first, or the one named by
-                cards=Name. Event action "card" (Actions.twk gotoCARD 64-91)
+                cards=Name. Event action "card" (Actions.twk gotoCARD 67-91)
                 switches; scrollCards (Details.rtn 191) steps with the
                 arrow keys / scroll.
     where:      Map.rtn setCARD 764-800; Details initialize 323 (orient =
