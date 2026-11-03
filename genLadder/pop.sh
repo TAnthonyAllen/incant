@@ -1144,11 +1144,12 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_njF" > "$T/nj.o" 2> "$T/nj.e"; _njx=$?
 sed '/^njNew(nj3);$/a\
 jitter;
 ' "$_njF" > "$T/njj.k"
-perl -e 'alarm 30; exec @ARGV' "$B" "$T/njj.k" > "$T/njj.o" 2> "$T/njj.e"; _njjx=$?
+#  witnessFile a first-call compile runs SILENCED (jitterReady sends its stdout / stderr to /dev/null); INCANT_JITTER_ERR keeps its stderr
+rm -f "$T/njj.w"; INCANT_JITTER_ERR="$T/njj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/njj.k" > "$T/njj.o" 2> "$T/njj.e"; _njjx=$?
 _njv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | tr '\n' '|'; }
 _ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ END | x0 s1"
 fdRow "newJitT under jitter; = the twin (stdout / exit / sentinel)" "$(_njv "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ END | x0 s1"
-fdRow "newJitT the walk's witness: compiles, and compiles with walked = handed and native 0" "$(grep -c '^=== jitter walk: ' "$T/njj.e") $(grep '^=== jitter walk: ' "$T/njj.e" | awk '$6==$8 && $10==0' | wc -l | tr -d ' ')" "0 0" "3 3"
+fdRow "newJitT the walk's witness: compiles, and compiles with walked = handed and native 0" "$(cat "$T/njj.w" 2>/dev/null | grep -c '^=== jitter walk: ') $(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '$6==$8 && $10==0' | wc -l | tr -d ' ')" "0 0" "3 3"
 fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
 else echo "  FAIL  newJitT MISSING"; fail=1
 fi
