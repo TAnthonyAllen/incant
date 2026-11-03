@@ -273,8 +273,8 @@ We have a bunch of noPrint commands that call processFlags() mostly to set a fla
        defineCapture's B2 (ruled in principle, SEQ 507) goes in sequence with this, never in the same stroke; its value-capture fix comes first (TODO)
 Decide what a refusal should carry, for a future kant debugger and change refusal processing accordingly
     -- a design question with no fixed end; last, because every other line is smaller and none waits on it
-Two ideas (Tony, 2026-11-03 offline status; SEQ 514 R2), NOT ordered:
-(a) chainOP: testOP written in kant. Carried on the instruct as a PROPERTY (+<), not in isGROUP -- isGROUP already means the holder and carries the star law; properties are where artifacts live, and processAction already finds its BlocK as one. After the jitter walk recon, so the jitter does not walk a moving runner. The C++ testOP stays as the floor: something in C++ has to run chainOP itself.
-    -- Clod: the cost to plan for is identity. 15 C++ sites (13 in Instruct.rtn, 2 in GroupActions.rtn) and kantGrammar know an instruct by gMethod == &testOP (SEQ 428) -- one slot meaning both "how it runs" and "it is an instruct". A second channel (a flag, set where methoD = "testOP" is set today) can land alone and row for row before chainOP does.
-(b) | : a per-kind member pick, as += does today (members chosen at each fire) -- bitwise for counts, pipe for structural values. Rulings owed first: its TIER (looser than =?), and WHAT A COMMAND HANDS ON (a list? a buffer?) -- without the second, | has nothing to carry.
-    -- Clod: `'|'` is registered BARE in Operators (incant/setup:104), no method, held for "a future single-character meaning"; seal 99 measured it among the roadless operators (no gOp) that crashed, exit 139, when aCTionDefinE flagged them isOperator. So today it has a name and no meaning.
+chainOP: testOP written in kant (Tony's idea, 2026-11-03; shape SEQ 515 R1). After the jitter walk recon. Two steps:
+    (1) an isInstruct flag, set where methoD = "testOP" is set today; the 15 C++ sites (13 in Instruct.rtn, 2 in GroupActions.rtn) and kantGrammar that know an instruct by gMethod == &testOP (SEQ 428) read the flag instead. Landed alone, every row unchanged.
+    (2) testOP shrinks to a stub that calls chainOP, so no instruct changes shape. The C++ stub stays as the floor -- something in C++ has to run chainOP itself.
+| : RULED (Tony, 2026-11-03): x | f means f(x); the left side's value becomes the right side's argument. | binds looser than arithmetic (x + 1 | f is f(x + 1)). The text (unix) form comes free when the value is a buffer. Not scheduled.
+    -- Clod: `'|'` is registered bare in Operators today (incant/setup:104), no method.
