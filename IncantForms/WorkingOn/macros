@@ -271,6 +271,18 @@ Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): S0 + S1 BOUGHT 2026-11-03 
     NJ-5 reads 5, plain 4.5; the old road's compiled code reads 5 too). Both roads, jitLadder the control. Then S3 (if).
     DOCKET, rides with S4: the NON-COUNT RETURN CHANNEL -- a compiled function returns i32 and runAction boxes a count, so a
     return of a non-count value reads 0 on BOTH roads' compiled functions (newReturnT RT-5 / RT-5f / RT-5p, pinned SEQ 521).
+DOCKET, from the forms afternoon (A2, 2026-11-03): THE LISTENER DOES NOT WORK ON EITHER ROAD. Scaffold: tester, "A2 listener probe".
+    Old road: `lb=$la;` in a define stores the literal text "$la" -- no binding, no copy. The real mechanism is the listenTo
+    attribute (Commands.rtn listenTo; setup: listenTo immediateAction noPrint), and no define spelling arms it: listenTo=la hands
+    it a COPY of la's value (lldb: input text "1", group null, fLAG 1), so it refuses "should be invoked as an attribute when its
+    parent is defined"; listenTo:=la does not parse in a define; listenTo=$la and listenTo<-la refuse the same way.
+    New road: a kantGrammar-compiled action changing la reaches neither lb nor lc (nothing armed); `$ld` in an action body does
+    not parse (processCode refuses it at define) and the action prints nothing.
+    READ, NOT MEASURED (it cannot be reached while nothing arms): GroupItem.twk updateListeners calls runNotified(grup) ON THE
+    NOTIFIER with the listener as argument -- the direction looks inverted (the listener should run against the notifier), and the
+    notifier's setContent would re-enter updateListeners. Fixing the arming first will expose it.
+    Design half for Tony: kant's spelling for "b listens to a" (field=$anotherField from the forms; IncantForms/Notions/fungits
+    sketches `someGroup listen to ...`). Gates every LISTENER row in IncantForms/WorkingOn/formsTable.
 Rule TL-7 -- RULED 2026-11-02 (SEQ 513): a top-level statement that finishes with a branch signal set is refused by name and the signal cleared. TL-7/8/9 pinned born red; the build is next.
     -- BUILT 2026-11-03 (SEQ 516) on branch top-refuse: seq catches a break, bodySeq passes it, each loop walks its own body (question 6 answered); TOPSTATEMENt refuses by name any signal still set. TL-7..12 green. BOUGHT 2026-11-03 (merge f08ae1d5, SEQ 517 R0).
     -- AMENDED 2026-11-02 (Clay, Tony agreed): TL-5 left alone. Landings: break at the innermost loop, else its block; continue at a loop; return at an action; unlanded at the top level -> refused by name and cleared (TL-7/8/9, and continue or return in a top-level block). Scoped by Clod: a block catches break only when no loop is around it (WH-3/6/7). RULED (Tony, 2026-11-02): the scoped version stands; a break in a braced top-level if-arm lands at that block, not refused (TL-10, the control).

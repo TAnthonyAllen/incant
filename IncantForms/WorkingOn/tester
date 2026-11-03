@@ -64,6 +64,32 @@ cerr "B3 chain [" testOP(whatsIt) "]":;
 whatsIt = EXPRESSIOn("qa[qb] + qc");
 cerr "B4 chain [" testOP(whatsIt) "]":;
 // Clod, SEQ 448 R5: the new road's print -- PRINt builds one instruct, testOP runs it (prints 77)
+// Clod, A2 listener probe (forms afternoon, 2026-11-03): does b receive a change to a? Old road (define + top level) and new road (lpNew compiles with KantGrammar STARt). Both read NO -- morning docket in macros.
+registry(ListenProbe);
+define
+    la=1;
+    lb=$la;
+    lc listenTo=la;
+    lpReq owner source result rule;
+    lpNew code={
+        lpSrc := argument.CodE;
+        lpReq.owner  := argument;
+        lpReq.source := lpSrc;
+        lpReq.rule   := KantGrammar["STARt"];
+        if compileIn(lpReq);
+            lpBlock = lpReq.result;
+            *lpBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *lpBlock;
+        };
+    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
+    ;
+search ListenProbe;
+print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
+la = 5;
+print "A2 old road after la=5: la=" la " lb=" lb " lc=" lc:;
+lpNew(lpChange);
+lpChange();
 print "SENTINEL tester driver end":;
 stop();
 
