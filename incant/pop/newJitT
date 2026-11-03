@@ -31,17 +31,29 @@ define
             if n3 == 3;     break;
         print n3:;
         };
+    nj4 code={ a4 = 3; b4 = a4 + 4; c4 = b4 * 2; print c4:; };
+    nj5 code={ a5 = 3.5; b5 = a5 + 1; print b5:; };
+    nj6 code={ m6 = 2; if m6 > 0; m6 = 7; print m6:; n6 = m6 * 3; print n6:; };
     ;
 search NewJitT;
 njNew(nj1);
 njNew(nj2);
 njNew(nj3);
+njNew(nj4);
+njNew(nj5);
+njNew(nj6);
 print "NJ NJ-1":;
 nj1();
 print "NJ NJ-2":;
 nj2();
 print "NJ NJ-3":;
 nj3();
+print "NJ NJ-4":;
+nj4();
+print "NJ NJ-5":;
+nj5();
+print "NJ NJ-6":;
+nj6();
 print "NJ END":;
 cerr "NEWJITT SENTINEL":;
 stop();
@@ -57,3 +69,11 @@ jitBuildFunction walks a testOP-bound BlocK with jitting on, and an op's own gat
 
 S1 (branch new-jit): the walk visits the chain and hands EVERY statement to its own testOP at run time; nothing is
 emitted natively. Its witness line, one per compile: `=== jitter walk: <action> walked N handed N native 0 ===`.
+
+S2 (SEQ 522): seq, arithmetic and assign walked NATIVELY; everything else still handed to testOP. NJ-4 is a seq of
+assigns and arithmetic on counts (14); NJ-5 the same crossing a NUMBER, so the cast rule is crossed (4.5); NJ-6 the
+mix -- a native assign, a FALLBACK statement that writes the same local (an `if` whose arm sets m6 = 7: ifThen is not
+native in S2, so the whole if goes to testOP), a print, then a native statement reading what the fallback left (7, 21).
+NJ-6 is the frame's test: a slot flushed before a fallback and reloaded after it; without the reload, n6 reads the stale
+2 and prints 6. (`m6 += 5` was the first spelling: on the new road it fails, `ERROR Operator += failed on m6 and TOKEn`,
+plainly -- reported in seal 328, not this row's business.)

@@ -1141,15 +1141,19 @@ fi
 _njF=$(ip newJitT)
 if [ -f "$_njF" ]; then
 perl -e 'alarm 30; exec @ARGV' "$B" "$_njF" > "$T/nj.o" 2> "$T/nj.e"; _njx=$?
-sed '/^njNew(nj3);$/a\
+sed '/^njNew(nj6);$/a\
 jitter;
 ' "$_njF" > "$T/njj.k"
 #  witnessFile a first-call compile runs SILENCED (jitterReady sends its stdout / stderr to /dev/null); INCANT_JITTER_ERR keeps its stderr
 rm -f "$T/njj.w"; INCANT_JITTER_ERR="$T/njj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/njj.k" > "$T/njj.o" 2> "$T/njj.e"; _njjx=$?
 _njv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | tr '\n' '|'; }
-_ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ END | x0 s1"
-fdRow "newJitT under jitter; = the twin (stdout / exit / sentinel)" "$(_njv "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ END | x0 s1"
-fdRow "newJitT the walk's witness: compiles, and compiles with walked = handed and native 0" "$(cat "$T/njj.w" 2>/dev/null | grep -c '^=== jitter walk: ') $(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '$6==$8 && $10==0' | wc -l | tr -d ' ')" "0 0" "3 3"
+_ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3, NJ-4 14, NJ-5 4.5, NJ-6 7 21 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
+#  SEQ 522 R1: NJ-4..6 added (S2's rows); the jitted run equals the twin today because every statement is handed to testOP
+fdRow "newJitT under jitter; = the twin (stdout / exit / sentinel)" "$(_njv "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
+#  witnessPerAction RE-SHAPED (SEQ 522 R1): S1's row asserted walked = handed and native 0 for every compile -- S1's invariant,
+#  which S2 exists to break -- so it retires into this one: per action, walked / handed / native. Today S1's reading (all
+#  handed); intended S2's: assigns and arithmetic native, every other statement (print, if, while) still handed
+fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "nj1 2 2 0;nj2 2 2 0;nj3 3 3 0;nj4 4 4 0;nj5 3 3 0;nj6 5 5 0;" "nj1 2 1 1;nj2 2 1 1;nj3 3 2 1;nj4 4 1 3;nj5 3 1 2;nj6 5 3 2;"
 fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
 else echo "  FAIL  newJitT MISSING"; fail=1
 fi
