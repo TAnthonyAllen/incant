@@ -17,6 +17,13 @@
 #   - A slip, caught and cured before the seal: the first tester scaffold had its own define block, and pop.sh's
 #     testerChainT takes tester up to the LAST indented ; line, so Tony's driver lines entered every row (TC-3, TC-10, TC-12
 #     moved). Fields moved into TestStuff; the fleet is back to row for row.
+#   ## NEXT AFTERNOON (Tony via Clay, at shutdown): 0. write the forms / typesetting plan in the shape of the macros plan at
+#   the bottom of IncantForms/WorkingOn/forms, after "Clay comments to be folded in"; fold formsPlan into it and retire
+#   formsPlan (a pointer at most); formsRecon and formsTable stay as the evidence files. 1. listener design -- how kant spells
+#   "b listens to a" and which way updates flow; paper only, it feeds the morning fix. 2. A4 first-light form on paper: the
+#   border-side spelling and pad. 3. event firing (needs-Tony 3), through A4's button.
+#   ## MORNINGS unchanged: NJ-5 opens; the listener docket item sits beside it, after the jitter S-steps unless Tony reorders.
+#   ## FROM TONY: "today was a really good day, succeeding beyond all his expectations."
 #   ## WAITING ON TONY: the listener's spelling (design half of the docket item); event-time firing (open); the method-order
 #   / banner cleanup's first file (from 329).
 #   ## CHECKS (all run this seal, after the tester cure; binary unchanged since 12:18): pop.sh exit 1, 2447 green, FAIL rows
