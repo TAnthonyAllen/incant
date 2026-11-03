@@ -7683,17 +7683,22 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
 GroupItem 	*stmtValue = 0;
 int 		refusedHere = 0;
+int 		inherited = 0;
 	// ownerIsCurrent the statement runs as its action's, so a local it mints or a scope it binds lands there (SEQ 384: dirT's scope statement read a null currentMETHOD)
 	if ( owner )
 		ruler->currentMETHOD->setGroup(owner);
-	::clearRefusal(statement);
+	// keepsInherited a refusal armed BEFORE the statement is the caller's (a refused argument): it is kept, never cleared and never this statement's, so the action runs on with it armed as the interpreted callee does, and runAction's exit clears it (SEQ 521 S1b; cleared, nl3an ran away)
+	inherited = ruler->refused;
+	if ( !inherited )
+		::clearRefusal(statement);
 	if ( isMethod(statement->groupBody->flags.instructType) )
 		stmtValue = statement->groupBody->gMethod(statement);
 	ruler->currentMETHOD->setGroup(priorMETHOD);
 	// endsTheAction a refusal raised by the interpreted run ends the action: the emitted call leaves the function on a 1 (SEQ 370 R1)
-	if ( ruler->refused )
+	if ( ruler->refused && !inherited )
 		refusedHere = 1;
-	::clearRefusal(statement);
+	if ( !inherited )
+		::clearRefusal(statement);
 	// returnEndsTheFunction a return run here ends the COMPILED function, which is its action's frame: the slot is consumed, never left set for the caller's block (SEQ 393 A)
 	if ( !refusedHere && ruler->branchKind == 3 )
 		{
