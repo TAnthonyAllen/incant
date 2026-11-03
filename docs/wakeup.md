@@ -13,7 +13,7 @@
 #   · frontier = capture · canary 402 unmoved · anchors: none on jitStmtRT.
 #   ## H7 (single fixture, alarm, md5-restored, rebuilt byte-identical): the entry clear put back -> nl3an runs away again,
 #   exit 139, 7,919 refusals.
-#   ## THE TREE IS ON TRUNK; the installed binary is s1b's (trunk's jitEmitters lacks the cure). NEXT: the buy, then S2.
+#   ## THE TREE IS LEFT ON s1b, so the sources match the installed binary. NEXT: the buy, then S2.
 #
 #   ## Tony's fixit incantations waiting: 0
 #   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
