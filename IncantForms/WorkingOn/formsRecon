@@ -631,3 +631,104 @@ Bot only: align / justify / format / menuItem / style
                 ruled.
     format      fORMAT: a number format for the field's value (via the
                 Amount rule). C++ floor: number formatting. lean: keep.
+
+=============================================================================
+Geometry and plain style, one line each
+    format: name -- what / where (moment, inherited) / C++ floor / lean
+    "CSS" = Groups/GUI sends it out only as a CSS property through
+    IncantForms/HTML/htmlTraits (pROPERTIEs alias); "PDF" = Bot draws it in
+    Bot/PDF.twk.
+=============================================================================
+
+x, y         -- fixed position in the parent (window: screen place) /
+                Details initialize 340-352, wINDOW (layout, no) / none / keep
+width, height -- fixed size; % of the parent with isPercent; absent: an equal
+                share of what is left (checkStretch) / Details initialize
+                327-339, setFrame (layout, no) / none / keep
+top bottom left right -- bare flags in the forms; NO layout reader in either
+                copy (CSS left/top only, needing a unit); Bot replaced the
+                idea with topBorder / bottomBorder / leftBorder / rightBorder
+                (Bot/Details.twk 741-754, PDF) / draw / respell as per-side
+                borders, decide
+pad, padTop padBottom padLeft padRight -- inner spacing; bare = 1 /
+                Details setInnerBox 594-656 (layout, no) / none / ⚠ old GUI
+                DID support pad; Tony's notes say "not planned" -- decide
+margin, mTop mBottom mLeft mRight -- outer spacing, added in the same place /
+                setInnerBox (layout, no) / none / keep or fold into pad
+border       -- width added to the inner box (bare = 1, off = 0); drawn by
+                jsDraw (GUI) or PDF (Bot); border=colour names the stroke /
+                setInnerBox, Control.twk jsDraw 985 (layout, NOT inherited:
+                own attribute, so Tony's "off only matters if inherited"
+                never arises) / draw / keep, not inheritable
+bordered     -- template: border=1 bStyle=solid stroke=black radius=5 (HTML)
+                / templates (define) / draw / respell as a kant template
+rounded, radius -- rounded box; rounded=n is the radius in GUI (default 5),
+                the border width in Bot; Bot reads radius (default 8) /
+                jsDraw 980-983, Bot/PDF.twk 408-412 (layout, no) / draw /
+                keep, put radius in style as the notes suggest
+fill         -- background colour, by cOLOr name or #hex / Details setStyle
+                716-731 (layout, INHERITED: findAttribute) / draw / keep;
+                decide inheritance on purpose
+stroke       -- line colour / jsDraw 978, Bot setPDFstroke (layout, no) /
+                draw / keep
+color, textColor -- text colour (pROPERTIEs says same thing) / Stylish texter,
+                CSS (layout, via the copied style: yes) / text draw / keep
+                one name
+selectFill, selectStroke -- fill/stroke while selected / setStyle 732-743,
+                tABS (layout + event, no) / draw / keep
+gradient, angle -- colour modifiers on cOLOr entries (lighten/darken
+                templates) / htmlTraits, no GUI reader / draw / drop or
+                defer to drawing language
+shadow, textShadow -- Stylish has a Shadow field; textShadow is CSS / no
+                layout reader found / draw / defer
+font         -- named font from fONTs / Stylish fONT 63-101 is NOT mapped in
+                either copy; reaches the screen as CSS (GUI) or getFontFrom
+                (Bot/PDF.twk 298) (layout, via copied style: yes) / font
+                measure / keep, by name only as the notes say
+normalFont titleFont headerFont copperFont ... used bare -- fONTs entries
+                merged as attributes (define) / font / keep
+fontSize     -- CSS only (htmlTraits), Bot/PDF reads it / font / drop, as
+                the notes rule
+bold, italic, caps -- font style; Stylish / CSS / Bot PDF (layout, yes via
+                style) / font / keep
+align, justify -- text alignment; Stylish bits; mapped only in Bot (aLIGN)
+                (layout, via style) / text layout / keep align
+center, alignAcross, alignDown -- CSS flexbox centring (templates, HTML) /
+                no layout reader / none / drop with flex
+bStyle       -- CSS border-style / HTML only / draw / drop
+label        -- used as a style-ish flag and for HTML (Control.twk 526
+                extract) / HTML road / text / respell or drop
+cell         -- marks a table cell; Details' isCell bit is declared and never
+                set in either copy / none / none / drop or redefine
+layers, overlay -- orientations beside across/down/cards: members share the
+                full box (Details initialize 324-325, setFrame 573-582)
+                (layout, no) / none / keep (overlay is cheap and useful)
+off          -- with toggled, start hidden (Map.rtn tOGGLED 1197) / layout /
+                none / keep as a toggled parameter
+xOffset, yOffset -- menu placement relative to its caller (Actions.twk mENU
+                195-) (event, no) / window / keep with pullDown
+indent, indentIncrement -- tree indentation (expandTREE) (layout, yes:
+                findAttribute) / none / keep with tree
+clip         -- Bot/PDF only / draw / defer
+tip          -- tooltip text (keyStroke form) / no GUI reader (the hits are
+                other words) / window / respell later
+menu, menuItem -- menu blocks for pullDown; menuItem mapped only in Bot
+                (menuITEM) / event / draw / keep with pullDown
+form, Label, Body -- the form template: height=30 across pad=5, a right-
+                aligned Label=$name and a Body=$content cell; $name/$content
+                are macro holes filled at reference / templates (define) /
+                none / respell as a kant template with arguments (the
+                macros plan's "an action works as a macro")
+onLayout, onLoad, onEndEdit, onValue -- event-named attributes carrying
+                code={...}. Details has a hasOnLayout bit that is READ and
+                NEVER SET in either copy, so the GUI side never honoured
+                onLayout; onLoad appears only as the CSS onLoad hook / event
+                / none / respell: this is Tony's "every attribute can have an
+                action, when does it fire" question in its purest form
+setSource, addToSource, deleteFromSource -- Tests/flash; addToSOURCE and
+                deleteFromSOURCE are in Sheet.rtn, marked "unused Action",
+                not compiled / event / none / drop or respell with source
+toggle       -- Tests/format, Windows/toggles: the toggle event action
+                (tOGGLE) named directly / event / none / keep with toggled
+hTML, pDF    -- output-road switches in test forms / none / drop
+comments     -- ?text? in old forms; // text in kant (ruled) / -
