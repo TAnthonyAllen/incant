@@ -1,42 +1,25 @@
-# pop.sh FAIL rows by name -- re-banked 2026-11-02 at seal 315 (SEQ 513 shutdown). 61 rows. First banked 2026-10-31, seal 298.
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//').
+# pop.sh FAIL rows by name -- re-banked 2026-11-03 at seal 318 (SEQ 516 R1). 65 rows. First banked 2026-10-31, seal 298.
+FAIL  ADDROF faSrc field=#3 body=#2 -- moved
+FAIL  anyOrNum.target (generated bodies + the parsed answer)
+FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
 FAIL  bridgeT BR-4 new road sentinel -- got [0] want [1]
 FAIL  bridgeT BR-4 new road: a top-level scope: the run ends, nothing refuses (no witness) MOVED: reads [ R0 x139], pinned today [1 |2 | R0 x0], intended [1 |2 | R0 x0]
+FAIL  carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
 FAIL  cmdCallT CC-6 new road: an action call, empty () (value / sentinel) born red (SEQ 345): today [ R0 x0 1], intended [8 |5 | R0 x0 1]
-FAIL  topLevelT TL-7 FILe: a break inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
-FAIL  topLevelT TL-8 FILe: a continue inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
-FAIL  topLevelT TL-9 FILe: a return inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
-FAIL  topLevelT TL-7 the refusal names break born red (SEQ 345): today [0], intended [1]
-FAIL  topLevelT TL-8 the refusal names continue born red (SEQ 345): today [0], intended [1]
-FAIL  topLevelT TL-9 the refusal names return born red (SEQ 345): today [0], intended [1]
-FAIL  newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -) born red (SEQ 345): today [[ 7 ] | lv3a |2 | R1], intended [[ 7 ] | 0 |1 |2 | R0]
-FAIL  setFlagTopT -- wanted: SFT-1 top-level :. read-back  ->  1
-FAIL  setFlagTopT -- dumpContents shows sfTop WITHOUT noPrint
+FAIL  convDriveT CD-4 'does not understand' lines = 0, want 1 -- BORN RED 2026-09-23.
+FAIL  displayForm baseline (interpreter pin)
+FAIL  faceT F2 flags FORWARD  = 1 -- moved
+FAIL  faceT F3 flags REVERSE  = 1 -- moved
+FAIL  fires=NEVER roster MOVED
+FAIL  firstUseT FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero sibling) -- MOVED. Actual:
 FAIL  holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow 
 FAIL  holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG    = htKid want htInside 
 FAIL  holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow 
-FAIL  spacingT A tight-1  = spA -- missing
-FAIL  spacingT B tight-2  = spB -- missing
-FAIL  spacingT C spaced   = spC -- missing
-FAIL  spacingT D tight-3  = spD -- missing
-FAIL  spacingT E survived -- missing
-FAIL  spacingT '*' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '+' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '-' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '>' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '<' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '==' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '>=' named refusal missing -- its guard stopped naming it
-FAIL  spacingT '<=' named refusal missing -- its guard stopped naming it
-FAIL  spacingT F marker missing -- the operator rows did not run
-FAIL  spacingT G a + **b  = spG -- got: 
-FAIL  spacingT G2 a + *b  = spG2 -- got: 
-FAIL  spacingT H a +* b   = 1 -- got: 
-FAIL  spacingT I a+*b     = 1 -- got: 
-FAIL  starT S1  *x   one-deep   = stA -- moved
-FAIL  starT S6  a.b     holder   = stH -- moved
+FAIL  newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -) born red (SEQ 345): today [[ 7 ] | lv3a |2 | R1], intended [[ 7 ] | 0 |1 |2 | R0]
+FAIL  oneTest baseline
+FAIL  parseClass.target (setParse classification)
 FAIL  pointerT F2 null operand = 0 -- moved
-FAIL  pointerT X witness MISSING -- the star no longer binds to ptBagP
 FAIL  pointerT F2 witness MISSING -- +* no longer names its refused operand
 FAIL  pointerT L4e -- body=#2 not on the line after its label
 FAIL  pointerT L5b -- isCopy=0 not on the line after its label
@@ -44,20 +27,41 @@ FAIL  pointerT L6a -- field=#10 not on the line after its label
 FAIL  pointerT L6b -- field=#10 not on the line after its label
 FAIL  pointerT L6c -- field=#6 not on the line after its label
 FAIL  pointerT L6d -- field=#11 not on the line after its label
-FAIL  ADDROF faSrc field=#3 body=#2 -- moved
-FAIL  faceT F2 flags FORWARD  = 1 -- moved
-FAIL  faceT F3 flags REVERSE  = 1 -- moved
-FAIL  parseClass.target (setParse classification)
-FAIL  fires=NEVER roster MOVED
-FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
-FAIL  anyOrNum.target (generated bodies + the parsed answer)
-FAIL  displayForm baseline (interpreter pin)
-FAIL  starIdiomT row 2 -- the star did not refuse a null by name. Either the
-FAIL  convDriveT CD-4 'does not understand' lines = 0, want 1 -- BORN RED 2026-09-23.
-FAIL  carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
-FAIL  firstUseT FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero sibling) -- MOVED. Actual:
-FAIL  oneTest baseline
+FAIL  pointerT X witness MISSING -- the star no longer binds to ptBagP
 FAIL  raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen
+FAIL  setFlagTopT -- dumpContents shows sfTop WITHOUT noPrint
+FAIL  setFlagTopT -- wanted: SFT-1 top-level :. read-back  ->  1
+FAIL  spacingT '-' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '*' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '+' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '<' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '<=' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '==' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '>' named refusal missing -- its guard stopped naming it
+FAIL  spacingT '>=' named refusal missing -- its guard stopped naming it
+FAIL  spacingT A tight-1  = spA -- missing
+FAIL  spacingT B tight-2  = spB -- missing
+FAIL  spacingT C spaced   = spC -- missing
+FAIL  spacingT D tight-3  = spD -- missing
+FAIL  spacingT E survived -- missing
+FAIL  spacingT F marker missing -- the operator rows did not run
+FAIL  spacingT G a + **b  = spG -- got: 
+FAIL  spacingT G2 a + *b  = spG2 -- got: 
+FAIL  spacingT H a +* b   = 1 -- got: 
+FAIL  spacingT I a+*b     = 1 -- got: 
+FAIL  starIdiomT row 2 -- the star did not refuse a null by name. Either the
+FAIL  starT S1  *x   one-deep   = stA -- moved
+FAIL  starT S6  a.b     holder   = stH -- moved
+FAIL  testerChainT TC-10 kant: qa[qb] + qc born red (SEQ 345): today [4], intended [0]
+FAIL  topLevelT TL-11 FILe: a continue inside a top-level block: the block stops, the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [1 |3 | R0 x0 1], intended [1 |3 | R1 x0 1]
+FAIL  topLevelT TL-11 the refusal names continue born red (SEQ 345): today [0], intended [1]
+FAIL  topLevelT TL-12 FILe: a return inside a top-level block: the block stops, the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [1 |3 | R0 x0 1], intended [1 |3 | R1 x0 1]
+FAIL  topLevelT TL-12 the refusal names return born red (SEQ 345): today [0], intended [1]
+FAIL  topLevelT TL-7 FILe: a break inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
+FAIL  topLevelT TL-7 the refusal names break born red (SEQ 345): today [0], intended [1]
+FAIL  topLevelT TL-8 FILe: a continue inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
+FAIL  topLevelT TL-8 the refusal names continue born red (SEQ 345): today [0], intended [1]
+FAIL  topLevelT TL-9 FILe: a return inside a top-level if: the statement is refused by name, the next runs (value / sentinel) born red (SEQ 345): today [2 | R0 x0 1], intended [2 | R1 x0 1]
+FAIL  topLevelT TL-9 the refusal names return born red (SEQ 345): today [0], intended [1]
 FAIL  trigDO attached under DO 0 times, want exactly 1
 FAIL  walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is
-FAIL  testerChainT TC-10 kant: qa[qb] + qc born red (SEQ 345): today [4], intended [0]
