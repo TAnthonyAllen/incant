@@ -213,7 +213,12 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
       What the method does
   *******************************************************************************/
   ```
-  in place of the one-line `// name what-it-does` header a 2026-09 sweep left on several files.
+  in place of the one-line `// name what-it-does` header.
+- ⚠ **THIS REVERSES AN EARLIER DIRECTION, BY TONY'S WORD (SEQ 514 R1, 2026-11-03) -- do not "correct" it back.** The
+  one-line headers are deliberate: seal 125 (`512d53f7`, Tony's evening cleanup -- GroupActions.rtn and Instruct.rtn
+  alpha order and Instruct's headers) and SEQ 182 (`0d7dea0d`, Generate.rtn) moved banners to `// name sentence` and put
+  the reasoning in DesignDocs. The banner comes back; the DesignDocs half stands (an arguing header still goes there).
+  (Clay's dispatch cited SEQ 182 for GroupActions; by the log SEQ 182 was Generate.rtn and seal 125 GroupActions.)
 - **Recon, 2026-11-03 (read only; `genLadder/alphaLint.sh *.rtn *.twk`, plus a header count of the line above each
   method signature -- the header count is approximate, a method whose header sits inside `-% %-` or above a prototype
   reads as "none"):**
@@ -240,9 +245,14 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   67 methods out of order in 11 files; about 230 `//` headers and about 160 methods with no header line to convert.
 - **Proposed shape:** one file per shutdown seal, smallest first (GroupStak, Stylish, GroupDraw, genParse, GroupRules,
   Generate, GroupActions, measure, Instruct, ruleActions), jitEmitters last -- it is the largest and may take two seals.
-  A file's reorder and its headers land in ONE commit, certified as a move: `genLadder/codeOnly.py` on the sorted method
-  units before and after (no code byte changed), a full bare tokall diff whose every changed generated line is explained,
-  the canary, and the fleet row for row.
+  A file's reorder and its headers land in ONE commit. **The certificate (SEQ 514 R1):** bare tokall identical but for
+  comments, canary unmoved, dirCheck = capture, fleet row for row. ⚠ A reorder moves method order in the generated `.mm`
+  too, so "identical but for comments" is read per method: `genLadder/codeOnly.py` on the sorted method units, before and
+  after, and every other changed generated line explained.
+- ⚠ **The recon checks that tok accepts the banner wherever it lands.** Comments are parsed, not skipped, and have bitten
+  three ways: a comment between if/or arms wiped the externs (#29), backticks in a comment orphaned a directive in another
+  file, a `//` inside a struct body broke the parse (#59). The loud version shows in the canary; dirCheck at the shutdown
+  seal is the instrument for the quiet one.
 - ⚠ **Two hazards a reorder carries, both recorded:** tok's `print` default is sticky across externs (moving an extern can
   change the codegen of the one below it), and bare-field resolution is last-mentioned-wins (bear-trap #42). Either moves
   generated code with no source change, which is why the bare tokall diff is the certificate and the codeOnly diff is not
