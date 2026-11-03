@@ -265,6 +265,10 @@ ORDER (Tony, SEQ 513, 2026-11-02): the TL-7 build -> argument rename (census fir
     the next item is the jitter walk recon (SEQ 519). Then ruleMethod -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
 Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): S0 + S1 BOUGHT 2026-11-03 (merge 3dbec07c) -- a new-road action under jitter; is
     walked by its chain, every statement handed to its own testOP. Next: S1b (a fallback keeps a refusal it did not raise; nl3an).
+    S1b BOUGHT (27226761). S2 (SEQ 522/523): assign and the jitEmitter= operators compiled natively, the rest handed over.
+    NEXT SESSION'S OPENER (Tony, SEQ 523 R0, NJ-5 ruled (c) for now): (a) KINDLESS-LOCAL INFERENCE THAT TELLS NUMBER FROM
+    COUNT -- SEQ 388's net lumps them as one scalar kind, so a NUMBER written into a kindless local gets an i32 slot (newJitT
+    NJ-5 reads 5, plain 4.5; the old road's compiled code reads 5 too). Both roads, jitLadder the control. Then S3 (if).
     DOCKET, rides with S4: the NON-COUNT RETURN CHANNEL -- a compiled function returns i32 and runAction boxes a count, so a
     return of a non-count value reads 0 on BOTH roads' compiled functions (newReturnT RT-5 / RT-5f / RT-5p, pinned SEQ 521).
 Rule TL-7 -- RULED 2026-11-02 (SEQ 513): a top-level statement that finishes with a branch signal set is refused by name and the signal cleared. TL-7/8/9 pinned born red; the build is next.
