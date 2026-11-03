@@ -361,3 +361,273 @@ space (special field)
     note:       checkStretch's percent arm adds detail.height * n / 100,
                 the member's own height rather than the parent's -- looks
                 wrong; recorded here only, not chased.
+
+=============================================================================
+The rest of Bwana's table (attributes with their own method)
+=============================================================================
+
+action
+    did:        action=name hangs the named event action (Actions.twk table:
+                fire, display, menu, card, tab, toggle, ...) on the
+                ATTRIBUTE, not the parent; a click on the parent finds it by
+                bubbling. action=fire only prints "Fire action for <tag>".
+    where:      Map.rtn aCTION 5-20.
+    when:       layout sets up; event fires.
+    inherited:  no.
+    leans on:   setAction (not located, see the head of this file), the
+                Actions table.
+    C++ floor:  none, pure kant; the click event itself is native.
+    lean:       drop as Tony's notes expect: every attribute may carry its
+                own action in kant. What to keep is the bubbling rule.
+
+button
+    did:        NOTHING in either copy -- no code names it (searched
+                Groups/GUI and Bot). A "button" is any field with a click
+                action (layout form: `two button action=fire`).
+    lean:       respell: decide whether button is a template (border,
+                rounded, selectable, an action slot) or just a name.
+
+rightClick
+    did:        rightClick=name hangs action name for the right mouse
+                button; bare rightClick marks the parent as right-click.
+    where:      Map.rtn rightCLICK 690-703; Layout fireAction matches on it.
+    when:       layout sets up; event fires.
+    inherited:  no.     leans on: setAction, fireAction's flag match.
+    C++ floor:  mouse events.
+    lean:       keep, respell as an event filter on an action (like key).
+
+scrollWith
+    did:        scrollWith=Other ties two blocks so scrolling one scrolls the
+                other (each gets the other on a shared scroll list).
+    where:      Map.rtn scrollWITH 706-741; Details.rtn scrollBlock.
+    when:       layout sets up; event (scroll).
+    inherited:  no.     leans on: simplePath / locate, the scroll machinery.
+    C++ floor:  scroll events.
+    lean:       keep, respell.
+
+merge
+    did:        finds the nearest source record above and merges that
+                record's attributes into this field, overriding, and listens
+                so it re-merges as the source moves -- a record's own
+                attributes (a colour, a font) style the row showing it.
+    where:      Map.rtn mERGE 497-528.
+    when:       layout, then on source change (listener).
+    inherited:  sRCe found by walking parents (by hand, not findAttribute).
+    leans on:   source, listeners, GroupItem merge / mergeAttributes.
+    C++ floor:  none, pure kant.
+    lean:       keep, respell; a second A2 listener case.
+
+next
+    did:        next=Block takes the source of the named enclosing block,
+                pulls its next record into this field's group, and copies the
+                source pointer down (hidden sRCe) so the field's own members
+                can find it. Inside a repeater it wires the repeater as a
+                listener (setFLEXcontent) so scrolling re-runs next. No more
+                records: the field is hidden (noData, noRoom).
+    where:      Map.rtn nEXT 541-622; Actions.twk setFLEXcontent 316-331.
+    when:       layout; re-run on scroll / resize.
+    inherited:  -
+    leans on:   Source, contentVaries, listeners.
+    C++ floor:  none, pure kant.
+    lean:       keep, respell -- it is the iterator of the data binding.
+
+source (with useNext, useAttributes)
+    did:        source=Name builds a Source (a cursor) over a registry or a
+                located block, loading it first if it is a list file, and
+                parks the pointer in a hidden sRCe attribute; source=selected
+                follows the current selection; bare source uses the field
+                itself. useNext: source over the named block's CURRENT
+                record. useAttributes: walk the record's attributes, not its
+                members.
+    where:      Map.rtn sOURCE 933-1018, sELECTsource 745-758; Source.twk.
+    when:       layout.
+    inherited:  yes in effect -- everything below finds sRCe by walking up.
+    leans on:   Source class, registries, load, the selection source.
+    C++ floor:  none, pure kant.
+    lean:       keep; respell sRCe as a real field (not a void* in a hidden
+                attribute -- bear-trap #26 territory).
+
+show
+    did:        show=member hides the field (noRoom) unless the current
+                source record carries data for it; listens so it re-checks.
+                Runs LAST (Bwana marks it modified -> delayActions).
+    where:      Map.rtn sHOW 887-929; Details processMethods delay arm.
+    when:       layout, after all other attributes; re-run on change.
+    inherited:  sRCe via findAttribute.
+    leans on:   source, listeners, noRoom.
+    C++ floor:  none, pure kant.
+    lean:       keep, respell (conditional display).
+
+tabs (with tabBODY, tab)
+    did:        a tab bar: tabs=Name picks the first tab (else the first
+                member); each tab's tabBODY=Name points at a registered body;
+                the bodies sit in a cards block whose cards value is set to
+                the selected tab; selection swaps fill/stroke to
+                selectFill/selectStroke. Event action "tab" (sELECTtab
+                Actions.twk 266) switches.
+    where:      Map.rtn tABS 1018-1076.
+    when:       layout; event to switch.
+    inherited:  no.     leans on: cards, currentRegistry, selectFill.
+    C++ floor:  none, pure kant.
+    lean:       keep; respell as a template over cards.
+
+tree (with leaf, entry, indentIncrement, expandTree)
+    did:        tree=Name walks down to the block marked leaf, binds the
+                first branch (and its entry) to the located group, sets the
+                expanders; tree=selected follows the selection. Event action
+                expandTree (xPAND) expands or collapses a leaf: expandTREE
+                (Map.rtn 295-337) wraps the row and adds one indented copy
+                per member (indent from indentIncrement, default 10).
+    where:      Map.rtn tREE 1259-1305, expandTREE, cOLLAPSErow 154-181;
+                Actions.twk xPAND 399-421.
+    when:       layout; event to expand.
+    inherited:  indentIncrement via findAttribute (yes).
+    leans on:   expander templates, matrixRowWrapper template (shared with
+                matrix), noRoom.
+    C++ floor:  none, pure kant.
+    lean:       keep, respell. Note it borrows matrixRowWrapper from the
+                matrix templates; untangle that.
+
+tag / value
+    did:        both map to tAG: show the TAG (tag) of the current source
+                record; with no record, the selection's tag; else "Nothing
+                selected". trait shows an attribute's value, tag shows a
+                name.
+    where:      Map.rtn tAG 1079-1121; Bwana 175, 181.
+    when:       layout, listener-driven.
+    inherited:  sRCe via findAttribute.
+    leans on:   source, listeners.
+    C++ floor:  none, pure kant.
+    lean:       keep tag; drop value as a synonym (one name, one job).
+
+text
+    did:        marks the field as text to be shown in its frame through a
+                text view (setPage builds an NSTextView, 5pt indent).
+                text=Name SHARES the text view of the registered field Name
+                -- two fields, one text object.
+    where:      Map.rtn tEXT 1123-1162; Details.twk setPage 659-703.
+    when:       layout.
+    inherited:  no.
+    leans on:   the text view; registry lookup for text=Name.
+    C++ floor:  text view / font measure and text layout.
+    lean:       keep; the text=Name sharing is a first cousin of pouring
+                text with a Buffer mark -- check it when A4 gets to text.
+
+image (with file, directory)
+    did:        the image file is the value, or the source record's value /
+                file+directory, or inherited file+directory attributes; the
+                file is queued for drawing and action iMAGEwork is hung
+                (Sheet.rtn -- not compiled, see matrix).
+    where:      Map.rtn iMAGE 394-433; Layout displayImage 53-117.
+    when:       layout; drawing at display.
+    inherited:  file and directory via findAttribute (yes).
+    leans on:   source, the display stack.
+    C++ floor:  image load and draw.
+    lean:       keep, respell.
+
+describe (with describeAny)
+    did:        shows, as text, the dESCRIPTIONs entry for the current
+                selection (walking up from it until an entry is found), and
+                listens to the selection; describeAny lifts the
+                same-view restriction. Runs after the other attributes.
+    where:      Map.rtn dESCRIBE 210-292.
+    when:       layout, then on every selection.
+    inherited:  no.     leans on: dESCRIPTIONs, the selection source.
+    C++ floor:  text (as text).
+    lean:       keep; respell -- a listener on the selection.
+
+window / panel (with closable, resize, title, x, y)
+    did:        makes an NSWindow or NSPanel with the closable / titled /
+                resizable mask, places it at x,y, sizes it from the laid-out
+                frame, sets the title, and adds the WKWebView the form is
+                drawn into. closable, resize and title have no method of
+                their own -- wINDOW reads them.
+    where:      Map.rtn wINDOW 1317-1368; Details initialize 333-339
+                (windows registry).
+    when:       layout (first time only).
+    inherited:  no.
+    leans on:   the windows registry.
+    C++ floor:  window (and in Groups/GUI, a web view).
+    lean:       keep; closable / resize / title are window parameters.
+    note:       title also feeds the HTML <title> (Control.twk 444, 673).
+
+drawPath (with perforation, perfColor, the perf* templates)
+    did:        the field's text is a little drawing program; buildPath
+                (Groups.twk, the Groups.g grammar) turns it into path sets of
+                DrawPoints and drawPath draws it. Must run before style.
+    where:      Map.rtn pATH 625-645; Groups.twk buildPath; DrawPoint.twk.
+    when:       layout (parse), drawing at display.
+    inherited:  perforation's depth / gap / stride / perfColor are
+                templates overridable in a parent.
+    leans on:   the drawing grammar, Bwana ordering.
+    C++ floor:  draw (paths).
+    lean:       defer to the drawing-language step (Later in formsPlan).
+
+the flag fields: blank commas doNotScroll editable key keyAction
+noSourceSelect selectable zero
+    did:        flagFIELD, one switch on the first letter: blank / zero /
+                commas name what to print for a blank, a zero, and the
+                thousands separator (commas=text); doNotScroll -> noScroll;
+                editable; key (see key); keyAction; noSourceSelect (a click
+                does not move the selection source); selectable.
+    where:      Map.rtn flagFIELD 342-394.
+    when:       layout.
+    inherited:  no.
+    leans on:   the number formatter (commas).
+    C++ floor:  none, pure kant (commas: number formatting).
+    lean:       keep as plain flags. ⚠ selectable inverts: ANY value,
+                selectable=yes included, sets NOT selectable; bare
+                selectable sets selectable. Respell with a real yes/no.
+
+bigify (with bigColumns bigRows columns rows bigItem regularItem ...)
+    did:        builds a photo-wall grid on load: one big item spanning
+                bigColumns x bigRows, regular items filling the rest, by
+                copying the named template blocks; reBigify re-runs it.
+    where:      Map.rtn bIGIFY 28-123 (Groups/GUI); Sheet.rtn bigify
+                (not compiled); Actions.twk reBIGIFY 224.
+    when:       layout, immediate (first time only).
+    inherited:  no.     leans on: locate of six template blocks.
+    C++ floor:  none, pure kant (images aside).
+    lean:       drop as an attribute; it is a form-building routine, fine
+                as a kant action in the bigify form itself.
+
+buffer / canvas / list / xml / type / register
+    buffer      makes the parent a Buffer block (noPrint). Map.rtn bUFFER
+                127-136. layout, immediate. C++ floor: none. lean: keep only
+                if pouring text wants it; else drop.
+    canvas      renames the parent to an HTML canvas element (id=). Map.rtn
+                cANVAS 141-149. HTML road only. lean: drop.
+    list        loads a delimited file into the field (loadDelimited).
+                Map.rtn delimitFILE 196-207. layout. C++ floor: file read.
+                lean: keep, but as a data-loading command, not a form
+                attribute (it is PLG's delimited-file wish).
+    xml         parses an xml file and merges it into the field. Map.rtn
+                xmlFILE 1376-1398. lean: drop (xml forms are gone).
+    type        sets its value to the parent's registry name. Map.rtn tYPE
+                1307-1313. lean: drop.
+    register    registers the parent; the method is today's trunk rEGISTER
+                (Commands.rtn 479), not GUI code. lean: already kant.
+
+minimumHeight / minimumWidth (Tony's "minimums")
+    did:        ⚠ NOTHING THAT LAYOUT READS. mINIMUM writes Bwana's two
+                globals (Bwana.twk 38-39) and no code reads them, in either
+                copy (Bot/Map.rtn 559 the same). pROPERTIEs describes them
+                as inherited minimums for % sizes; that was never wired.
+    where:      Map.rtn mINIMUM 531-538.
+    lean:       respell from scratch if wanted (a fit check against the
+                parent); nothing to port.
+
+Bot only: align / justify / format / menuItem / style
+    Bot/Bwana.twk maps five more: align and justify -> aLIGN, format ->
+    fORMAT, menuItem -> menuITEM, style -> sTYLE. Groups/GUI has fORMAT and
+    sTYLE methods (Stylish.twk 189, 237) but does not map them; there align,
+    font and the rest reach the screen only as CSS.
+    style       sTYLE: named style from sTYLEs; if new, a COPY of the
+                parent's style, stored by name. Style objects are per field,
+                created by copying the parent's (Details setStyle 713-746),
+                so style is scoped to the subtree -- a child's change does not
+                leak to its siblings. That answers Clay's point 2 the scoped
+                way. C++ floor: none. lean: keep the named whole style, as
+                ruled.
+    format      fORMAT: a number format for the field's value (via the
+                Amount rule). C++ floor: number formatting. lean: keep.
