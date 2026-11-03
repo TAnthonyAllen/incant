@@ -1,0 +1,61 @@
+/*****************************************************************************
+    Forms plan -- the afternoon track. Not an incantation; notes only.
+    Clod keeps this current; each change gets a line under Changes.
+*****************************************************************************/
+
+Purpose
+    Prep work before any forms work under kant. Mornings stay on the kant
+    docket. Afternoons produce recon and documents only, never trunk code.
+    An afternoon finding that needs code becomes a morning docket item.
+
+Steps
+    A1  recon charter: the old GUI, read only.
+        Part 1 (inventory) done 2026-11-03. Part 2 (per-attribute recon into
+        formsRecon) waits for Tony's go.
+    A2  listener probe: does field=$anotherField (listen, and receive on
+        change) work on the new road?
+    A3  attribute table: one row per attribute, columns
+            moment      define / layout / event
+            inherited   yes / no
+            has action  yes / no
+            depends on  other attributes, registries, C++ calls
+            status      known / recon / drop
+        Built from formsRecon.
+    A4  first-light form: the smallest form touching all three moments --
+        a window, down, border, text, one button.
+    A5  foreign-call design, paper only until the jitter settles: a C++
+        method with several arguments or non-kant types is reached through a
+        declared signature; the jitter emits a glue body that reads the
+        field's members and calls the C++, so kant keeps one signature.
+    Later: the drawing language, then print / typesetting.
+
+Folded in from the forms notes
+    Style is ruled: no implicit style updates; title names its style in its
+        own definition.
+    The Buffer mark is the first thing to check for pouring text.
+    Comments in a form are // text, with no braces in action bodies.
+    Vertical align is dropped in favour of space.
+
+Where the old GUI lives (A1 Part 1)
+    Groups/GUI/                 tracked in Groups; 8,251 lines of .twk/.rtn/
+                                .act/.g. The attribute dispatch table is
+                                Bwana.twk registerMethods (mapMethod); the
+                                attribute methods are Map.rtn; layout, fit
+                                and flex are Control.twk and Details.twk;
+                                sheet / matrix is Stuff/Sheet.rtn.
+    InProcess/Bot/              not a git repo; a variant of the same GUI,
+                                dated 2021-03-24 against Groups/GUI's
+                                2021-03-09, so slightly newer. Same file set
+                                plus BotClient/BotServer/PDF/RunBot; about
+                                1,900 differing lines across Actions,
+                                Control, Details, DrawPoint, Layout, Map,
+                                Stylish. Bot/GUI is a symlink to Groups/GUI.
+    Groups/Layout.twk, Stylish.twk, GroupDraw.twk   the 2026-07 rewrite,
+                                not old GUI; read only for comparison.
+    IncantForms/Controls/       templates, attributes, traits: the form
+                                side's own registries (tEMPLATEs, pROPERTIEs,
+                                sTYLEs, cOLOr, fONTs).
+
+Changes
+    2026-11-03  created (Clay SEQ, forms afternoon track): purpose, A1-A5,
+                folded notes, where the old GUI lives.
