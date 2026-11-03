@@ -263,6 +263,10 @@ ORDER (Tony, SEQ 513, 2026-11-02): the TL-7 build -> argument rename (census fir
     defineCapture B2 -> jitter walk recon -> refusal contents.
     REORDERED (Tony, 2026-11-03): TL-7 build DONE (SEQ 516/517), argument rename DONE (SEQ 518, actionLabel). ruleMethod WAITS;
     the next item is the jitter walk recon (SEQ 519). Then ruleMethod -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
+Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): S0 + S1 BOUGHT 2026-11-03 (merge 3dbec07c) -- a new-road action under jitter; is
+    walked by its chain, every statement handed to its own testOP. Next: S1b (a fallback keeps a refusal it did not raise; nl3an).
+    DOCKET, rides with S4: the NON-COUNT RETURN CHANNEL -- a compiled function returns i32 and runAction boxes a count, so a
+    return of a non-count value reads 0 on BOTH roads' compiled functions (newReturnT RT-5 / RT-5f / RT-5p, pinned SEQ 521).
 Rule TL-7 -- RULED 2026-11-02 (SEQ 513): a top-level statement that finishes with a branch signal set is refused by name and the signal cleared. TL-7/8/9 pinned born red; the build is next.
     -- BUILT 2026-11-03 (SEQ 516) on branch top-refuse: seq catches a break, bodySeq passes it, each loop walks its own body (question 6 answered); TOPSTATEMENt refuses by name any signal still set. TL-7..12 green. BOUGHT 2026-11-03 (merge f08ae1d5, SEQ 517 R0).
     -- AMENDED 2026-11-02 (Clay, Tony agreed): TL-5 left alone. Landings: break at the innermost loop, else its block; continue at a loop; return at an action; unlanded at the top level -> refused by name and cleared (TL-7/8/9, and continue or return in a top-level block). Scoped by Clod: a block catches break only when no loop is around it (WH-3/6/7). RULED (Tony, 2026-11-02): the scoped version stands; a break in a braced top-level if-arm lands at that block, not refused (TL-10, the control).

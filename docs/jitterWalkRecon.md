@@ -106,3 +106,11 @@ exists (instructJitter.md §5), plus an unmeasured question of whether a kant st
 **What keeps the door open:** make the dispatch DATA -- an Operators attribute naming each op's walk step, as
 `jitEmitter=` already does for the compares and arithmetic -- so a later kant walk (after chainOP) replaces the dispatcher,
 not the emitters.
+
+## Docket (SEQ 521, 2026-11-03)
+
+- **S0 + S1 bought** (merge 3dbec07c): the walk with every statement on the fallback; newJitT green.
+- **The non-count return channel, rides with S4.** A compiled function returns `i32` and runAction boxes the value as a
+  count (jitBoxCountRT), so a return of a non-count value reads 0 -- on both roads' compiled functions. Pinned born red:
+  newReturnT RT-5 / RT-5f / RT-5p under `jitter;` (0, intended `rx`). The old-road twins lose theirs the same way.
+- **S1b, next:** nl3an under `jitter;` runs away (pinned born red); the measured cause decides the cure.
