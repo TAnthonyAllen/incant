@@ -1,4 +1,7 @@
-# `argument` census -- SEQ 517 R1 (2026-11-03, read only, nothing renamed)
+# `argument` census -- SEQ 517 R1 (2026-11-03, read only)
+
+**RENAMED on branch action-label (SEQ 518):** the rule-code meaning is `actionLabel` -- the two C++ strings and the 92 rule-code
+lines in A1 / A2. The action meaning (A3 / A4) is unchanged. tester and macros held no rule-code line.
 
 `argument` carries two meanings. In an **action** it is the call's argument. In a **rule's code** it is the label the rule
 fired on (SEQ 401). The macros line (`IncantForms/WorkingOn/macros:267`) agrees with the dispatch and already names the
@@ -65,7 +68,10 @@ word `argument` finds nothing on `nl3an`, so resolveName mints `nl3an`'s OWN loc
 runAction later binds that same field. The old road does the same for `nl3ao`. Rule code in the same run resolved to its
 CodE's pre-minted field (31 resolutions, owner CodE). So AL-3a's `lv3a = argument` copies a holder (the SEQ 503/504
 mechanism -- holder arithmetic refuses on both roads by ruling), not another action's or a rule's field.
-⚠ This corrects seal 302's finding (SEQ 502) ("it lands on another action's argument field"), measured here not to hold. The
+⚠ **CORRECTION, dated 2026-11-03 (SEQ 518):** seal 302 (SEQ 502, 2026-11-01) recorded that a new-road action body's
+`argument` "is resolved at BUILD, before runAction mints the action's argument at its first call, so it lands on another
+action's argument field". Measured today it does not: the tap above saw resolveName mint the action's OWN local and
+runAction bind that same field. This corrects seal 302's finding (SEQ 502) ("it lands on another action's argument field"), measured here not to hold. The
 macros line's "it also unblocks newLocalArgT AL-3a" does not follow from the rename.
 
 ## (d) Directive files

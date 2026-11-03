@@ -753,8 +753,8 @@ GroupItem   label = field,
     // labelToLocals a rule's locals take the label's contents; isLabel fields are not cleared below
     if isRule {
         code = action.actionBody();
-        // ruleArgument the code's argument is the label this fire was handed, the isLabel node itself (Tony)
-        if grup = code["argument"] {
+        // ruleActionLabel the code's actionLabel is the label this fire was handed, the isLabel node itself (Tony, SEQ 518)
+        if grup = code["actionLabel"] {
             if label.isLabel    grup.group = label;
             else                grup.clear(); }
         while result = code.nextAttribute(result) {

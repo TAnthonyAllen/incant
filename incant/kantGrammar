@@ -157,13 +157,13 @@ define
             // no method here: a rule's return RUNS a node that has one (bear-trap 34) -- EXPRESSIOn binds it on arrival
             icall       := copyOf(instruct);
             clear(instruct);
-            *argument   := *icall;
-            return  *argument;
+            *actionLabel   := *icall;
+            return  *actionLabel;
         return ANYtoken;
         };
     // STARt only builds (SEQ 446): one seq instruct, op seq, its operand a mint of the list of statement instructs; testOP runs it
     STARt code={
-        cur := *argument.firsT;
+        cur := *actionLabel.firsT;
         while cur.datA != 0;
             stmts +% *cur;
             cur := *cur.nexT;
@@ -171,30 +171,30 @@ define
         stmtsMint   := copyOf(stmts);
         miArgs      +% op stmtsMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // SHORTCUt only builds (Shape S, Tony SEQ 461): one instruct, op printShortcut, its operand a copy of the matched text; opPrintList runs it
     SHORTCUt code={
-        :argument shortcut;
+        :actionLabel shortcut;
         scText      := copyOf(*shortcut);
         op := Operators["printShortcut"];
         miArgs      +% op scText;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // PRINt only builds (rung 1, Tony 2026-10-27): its sink is printList, stdout or printTO's divert; makePrint builds it
     PRINt code={
         op := Operators["printList"];
         mpArgs      +% stuff op;
         built       := makePrint(mpArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // If only builds (SEQ 473): one instruct, op ifThen, its operand a mint of the arm list -- the condition, the then-statement, the else-statement if present; opIf runs it
     If code={
-        :argument EXPRESSIOn STATEMENt ELSe;
+        :actionLabel EXPRESSIOn STATEMENt ELSe;
         // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
         cond    := **EXPRESSIOn;
         thenS   := **STATEMENt;
@@ -202,8 +202,8 @@ define
         thenM   := *thenS.methoD;
         if thenM == 0;
             cerr "REFUSED If -- its then arm handed up no instruct":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         ifArms  +% *cond;
         ifArms  +% *thenS;
         eLen    := *ELSe.listLengtH;
@@ -212,19 +212,19 @@ define
             elseM   := *elseS.methoD;
             if elseM == 0;
                 cerr "REFUSED If -- its else arm handed up no instruct":;
-                clear(*argument);
-                return *argument;
+                clear(*actionLabel);
+                return *actionLabel;
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
         miArgs      +% op armsMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // ELSEIf only builds (SEQ 491): an or arm is an if in If's else slot -- the same ifThen instruct as If (condition, then, else if present), so opIf runs it and If's else slot takes it
     ELSEIf code={
-        :argument EXPRESSIOn STATEMENt ELSe;
+        :actionLabel EXPRESSIOn STATEMENt ELSe;
         // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
         cond    := **EXPRESSIOn;
         thenS   := **STATEMENt;
@@ -232,8 +232,8 @@ define
         thenM   := *thenS.methoD;
         if thenM == 0;
             cerr "REFUSED ELSEIf -- its then arm handed up no instruct":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         ifArms  +% *cond;
         ifArms  +% *thenS;
         eLen    := *ELSe.listLengtH;
@@ -242,19 +242,19 @@ define
             elseM   := *elseS.methoD;
             if elseM == 0;
                 cerr "REFUSED ELSEIf -- its else arm handed up no instruct":;
-                clear(*argument);
-                return *argument;
+                clear(*actionLabel);
+                return *actionLabel;
             ifArms  +% *elseS;
         op := Operators["ifThen"];
         armsMint    := copyOf(ifArms);
         miArgs      +% op armsMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
     ITERATe code={
-        :argument ANYtoken attributes members ITERSOURCe;
+        :actionLabel ANYtoken attributes members ITERSOURCe;
         cursor  := **ANYtoken;
         // filterSlots the filters ride as two counts in fixed places, so opIterate reads them by position
         aOn = 0;
@@ -266,12 +266,12 @@ define
         // childRefused a cursor or source that handed up nothing refuses by name
         if cursor.datA == 0;
             cerr "REFUSED ITERATe -- its cursor handed up nothing":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         if source.datA == 0;
             cerr "REFUSED ITERATe -- its source handed up nothing":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         iterArms    +% *cursor;
         iterArms    +% *source;
         aMint       := copyOf(aOn);
@@ -282,17 +282,17 @@ define
         armsMint    := copyOf(iterArms);
         miArgs      +% op armsMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // FOr only builds (SEQ 482 R0): one instruct, op forLoop, its operand a mint of [cursor, source, statement] and the reverse mark when `<-` is present; opFor binds the cursor to each member when the loop RUNS
     FOr code={
-        :argument LOOPEr EXPRESSIOn LOOPRESTRICt STATEMENt reversE;
+        :actionLabel LOOPEr EXPRESSIOn LOOPRESTRICt STATEMENt reversE;
         // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1)
         if LOOPRESTRICt.datA != 0;
             cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         cursor  := **LOOPEr;
         source  := **EXPRESSIOn;
         body    := **STATEMENt;
@@ -300,8 +300,8 @@ define
         bodyM   := *body.methoD;
         if bodyM == 0;
             cerr "REFUSED FOr -- its statement handed up no instruct":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         forArms +% *cursor;
         forArms +% *source;
         forArms +% *body;
@@ -315,20 +315,20 @@ define
         built       := makeInstruct(miArgs);
         // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
         loopOwnsBody(*built);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // Do only builds (SEQ 480 R0): one instruct, op doLoop, its operand a mint of [statement, condition]; opDo runs the statement first, then tests
     Do code={
-        :argument STATEMENt EXPRESSIOn;
+        :actionLabel STATEMENt EXPRESSIOn;
         body    := **STATEMENt;
         cond    := **EXPRESSIOn;
         // bodyRefused a statement that handed up no instruct refuses by name, as WHILe's (SEQ 476 R6)
         bodyM   := *body.methoD;
         if bodyM == 0;
             cerr "REFUSED Do -- its statement handed up no instruct":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         doArms  +% *body;
         doArms  +% *cond;
         op := Operators["doLoop"];
@@ -337,20 +337,20 @@ define
         built       := makeInstruct(miArgs);
         // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
         loopOwnsBody(*built);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // WHILe only builds (SEQ 478 R1): one instruct, op whileLoop, its operand a mint of [condition, statement]; opWhile runs the loop and catches break and continue
     WHILe code={
-        :argument EXPRESSIOn STATEMENt;
+        :actionLabel EXPRESSIOn STATEMENt;
         cond    := **EXPRESSIOn;
         body    := **STATEMENt;
         // bodyRefused a statement that handed up no instruct refuses by name, as If's arms (SEQ 476 R6)
         bodyM   := *body.methoD;
         if bodyM == 0;
             cerr "REFUSED WHILe -- its statement handed up no instruct":;
-            clear(*argument);
-            return *argument;
+            clear(*actionLabel);
+            return *actionLabel;
         whileArms   +% *cond;
         whileArms   +% *body;
         op := Operators["whileLoop"];
@@ -359,13 +359,13 @@ define
         built       := makeInstruct(miArgs);
         // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
         loopOwnsBody(*built);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal
     // returnArms return builds the same instruct, its operand a mint of [keyword, value?]; opBranch runs the value, sets kind 3 and hands the value up (SEQ 508 / 509)
     BRANCh code={
-        :argument BRANCHEs EXPRESSIOn;
+        :actionLabel BRANCHEs EXPRESSIOn;
         kw := **BRANCHEs;
         op := Operators["branchSignal"];
         kwMint      := copyOf(*kw);
@@ -380,56 +380,56 @@ define
         if *kw.taG != "return";
             miArgs      +% op kwMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // bridgeRun a C++-only statement runs its C++ rule method at RUN, in its place (SEQ 489, bridge-run): one instruct, op runRule, its operand a mint of the statement's label bound to that method; opRunRule runs it
     SEARCh code={
-        lMint       := copyOf(*argument);
+        lMint       := copyOf(*actionLabel);
         *lMint.methoD = "aCTionSearch";
         op := Operators["runRule"];
         miArgs      +% op lMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     DEBUg code={
-        lMint       := copyOf(*argument);
+        lMint       := copyOf(*actionLabel);
         *lMint.methoD = "aCTionDEBUG";
         op := Operators["runRule"];
         miArgs      +% op lMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     SCOPEXp code={
-        lMint       := copyOf(*argument);
+        lMint       := copyOf(*actionLabel);
         *lMint.methoD = "aCTionScopeXP";
         op := Operators["runRule"];
         miArgs      +% op lMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // CERr builds as PRINt does (SEQ 496): its sink is cerrList, stderr
     CERr code={
         op := Operators["cerrList"];
         mpArgs      +% stuff op;
         built       := makePrint(mpArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // COUt builds as PRINt does (SEQ 496): its sink is coutList, stdout and never printTO's divert (KANT-23)
     COUt code={
         op := Operators["coutList"];
         mpArgs      +% stuff op;
         built       := makePrint(mpArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // BLOCk only builds (SEQ 476 R1): one seq instruct, as STARt's, its operand a mint of the list of statement instructs
     BLOCk code={
-        cur := *argument.firsT;
+        cur := *actionLabel.firsT;
         while cur.datA != 0;
             blockStmts +% *cur;
             cur := *cur.nexT;
@@ -437,12 +437,12 @@ define
         stmtsMint   := copyOf(blockStmts);
         miArgs      +% op stmtsMint;
         built       := makeInstruct(miArgs);
-        *argument   := *built;
-        return  *argument;
+        *actionLabel   := *built;
+        return  *actionLabel;
         };
     // TOPSTATEMENt runs its statement as soon as it is built (SEQ 495), so a define or an include lands between its neighbours
     TOPSTATEMENt code={
-        :argument STATEMENt;
+        :actionLabel STATEMENt;
         ts := **STATEMENt;
         topRun = 1;
         // topBranch a break or continue at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set; return builds as branchSignal since SEQ 508 and refuses here too (A2, Tony, SEQ 495)
@@ -464,11 +464,11 @@ define
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
     XPRESs code={
-        :argument EXPRESSIOn;
+        :actionLabel EXPRESSIOn;
         // twoStars EXPRESSIOn is the child label, which holds the instruct: one star hands opSeq the label, and opSeq runs only an instruct, skipping the rest silently
         xi := **EXPRESSIOn;
-        *argument := *xi;
-        return  *argument;
+        *actionLabel := *xi;
+        return  *actionLabel;
         };
     EXPRESSIOn code={
         cur := *lizted.firsT;
@@ -507,8 +507,8 @@ define
                         cOp := *cur[1];
                         adjOp := *cOp.taG;
                         cerr "REFUSED" adjOp "-- a list of adjacent operands is not built on the new road yet":;
-                        clear(*argument);
-                        return *argument;
+                        clear(*actionLabel);
+                        return *actionLabel;
                 // adjacentRun an operand followed by an operand, no op between, joins a run; the run ends at an operator or the end and becomes ONE operand, an ADJACENt list (SEQ 468)
                 nx := *cur.nexT;
                 nxOpnd = 0;
@@ -533,8 +533,8 @@ define
                     if adjRef == 2;     adjOp := *nx.taG;
                     if adjRef != 0;
                         cerr "REFUSED" adjOp "-- a list of adjacent operands is not built on the new road yet":;
-                        clear(*argument);
-                        return *argument;
+                        clear(*actionLabel);
+                        return *actionLabel;
                 if target.datA == 0;    target = opnd;
                 else    arg = opnd;
                 if op.datA != 0 && target.datA != 0;
@@ -571,8 +571,8 @@ define
                                     if tOk == 0;
                                         asgOp := *op.taG;
                                         cerr "REFUSED" asgOp "-- the left of" asgOp "is an instruct, not a field: its op is" tTopT:;
-                                        clear(*argument);
-                                        return *argument;
+                                        clear(*actionLabel);
+                                        return *actionLabel;
                             instruct +% op target;
                             instruct    = kind;
                             instruct.methoD = "testOP";
@@ -604,8 +604,8 @@ define
             target = asgP;
             if asgO.datA != 0;  target = asgO;
         // the chain goes INTO this rule's label, so a caller (INVOKEd, or a command line) gets the label back
-        *argument := *target;
-        return  *argument;
+        *actionLabel := *target;
+        return  *actionLabel;
         };
     ;
 bail();
