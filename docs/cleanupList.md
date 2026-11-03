@@ -205,6 +205,54 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 ### A named-rule trace may be quiet on a face (SEQ 284 R4, parked, 2026-10-03)
 - `groupDirectives`' parse-debugging bodies test `field.debugged`, and `parseRule`/`parseContainer` re-resolve `field` to the enclosing face first; if a face does not share the registry rule's body, `debugRuleNamed` stays quiet there (`debugAllRules` is unaffected). Unmeasured. Confirm: `debugRuleNamed` on a rule reached by face, and count its trace lines.
 
+### Method order and header style in the main .twk / .rtn files -- one file per shutdown (Tony, 2026-11-03 offline status)
+- **What:** put every method of each top-level `.twk` / `.rtn` in alphabetical order (the standing rule of 2026-08-15,
+  so far applied only to new methods), and give each method Tony's header -- the box his offline status uses:
+  ```
+  /*******************************************************************************
+      What the method does
+  *******************************************************************************/
+  ```
+  in place of the one-line `// name what-it-does` header a 2026-09 sweep left on several files.
+- **Recon, 2026-11-03 (read only; `genLadder/alphaLint.sh *.rtn *.twk`, plus a header count of the line above each
+  method signature -- the header count is approximate, a method whose header sits inside `-% %-` or above a prototype
+  reads as "none"):**
+
+  | file | methods | out of order | box | `//` | none |
+  |---|---|---|---|---|---|
+  | jitEmitters.rtn | 129 | 30 | 43 | 6 | 80 |
+  | ruleActions.rtn | 68 | 16 | 34 | 19 | 15 |
+  | Instruct.rtn | 84 | 6 | 0 | 84 | 0 |
+  | measure.twk | 44 | 4 | 0 | 14 | 30 |
+  | GroupRules.twk | 8 | 3 | 5 | 2 | 1 |
+  | GroupActions.rtn | 67 | 2 | 0 | 64 | 3 |
+  | Generate.rtn | 20 | 2 | 0 | 20 | 0 |
+  | genParse.rtn | 6 | 1 | 4 | 1 | 1 |
+  | GroupStak.twk | 11 | 1 | 10 | 0 | 1 |
+  | Stylish.twk | 12 | 1 | 9 | 0 | 3 |
+  | GroupDraw.twk | 7 | 1 | 5 | 0 | 2 |
+  | RuleStuff.twk | 20 | 0 | 0 | 19 | 1 |
+  | GroupItem.twk | 112 | 0 | 85 | 4 | 23 |
+  | Commands, Debug, GroupControl, GroupMain, Layout, groups | -- | 0 | mostly box | 0 | a few |
+
+  GroupBody.twk and GroupList.twk (2 and 3 methods) are not read by alphaLint at all -- it finds no method units there.
+
+  67 methods out of order in 11 files; about 230 `//` headers and about 160 methods with no header line to convert.
+- **Proposed shape:** one file per shutdown seal, smallest first (GroupStak, Stylish, GroupDraw, genParse, GroupRules,
+  Generate, GroupActions, measure, Instruct, ruleActions), jitEmitters last -- it is the largest and may take two seals.
+  A file's reorder and its headers land in ONE commit, certified as a move: `genLadder/codeOnly.py` on the sorted method
+  units before and after (no code byte changed), a full bare tokall diff whose every changed generated line is explained,
+  the canary, and the fleet row for row.
+- ⚠ **Two hazards a reorder carries, both recorded:** tok's `print` default is sticky across externs (moving an extern can
+  change the codegen of the one below it), and bare-field resolution is last-mentioned-wins (bear-trap #42). Either moves
+  generated code with no source change, which is why the bare tokall diff is the certificate and the codeOnly diff is not
+  enough on its own.
+- ⚠ **Two rulings it must respect:** a header that ARGUES (a why, a history, a measurement) still goes to DesignDocs, only
+  a header that DESCRIBES gets the box (2026-09-15); and the inline `// slug sentence?` comments inside method bodies stay
+  as they are -- this is about the header above the method only. Directive anchors match statement text, not position, so
+  a move should not orphan one; dirCheck runs at the seal regardless.
+- **Seen:** 2026-11-03.
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
