@@ -1,0 +1,242 @@
+/*****************************************************************************
+    Forms attribute table -- A3. Not an incantation; notes only.
+    Built from IncantForms/WorkingOn/formsRecon (the evidence: file, method,
+    line for every row). This file is the lookup; formsRecon is the why.
+*****************************************************************************/
+
+NEEDS TONY (short)
+    1. Style-setting attributes (fill, stroke, color, bold, italic, caps,
+       shadow, font, align, border colour ...): allowed directly on fields, or
+       only inside named styles? Old GUI took them on fields.
+    2. Style scoping by subtree: old GUI gave every field a COPY of its
+       parent's style, so a change stopped at the subtree and never reached
+       siblings. Confirm that for kant.
+    3. Event-time firing (a question only): setAction is gone. How does kant
+       fire an attribute's action at event time -- what finds it, in what
+       order, and what decides that a click or key belongs to it? (Old GUI
+       bubbled from the clicked field up through its parents.)
+    4. The drop list, for confirmation -- every row below whose lean is drop,
+       gathered at the foot of this file.
+    5. Four rows marked "needs Tony" in their lean: pad, top/bottom/left/
+       right, fill's inheritance, fit=text.
+
+COLUMNS
+    moment      define / layout / first layout / event  (two may apply)
+    inh         inherited: yes = found by walking the parents; no = own only
+    act         has action: yes = it hangs (or is) an action fired at event
+                time
+    depends on  what it leans on. LISTENER marks the listener macro --
+                bound to a source or the selection and re-run when it
+                changes. That is A2's question; every LISTENER row waits on it.
+    C++ floor   the native primitive it finally needs, or "none" (pure kant)
+    lean        keep / respell / drop / needs Tony; drop and respell rows
+                whose old behaviour did not match their name carry a reason.
+
+=============================================================================
+Tony's named attributes
+=============================================================================
+attribute      moment         inh  act  depends on                     C++ floor        lean
+fit            layout         no   no   member sizes                   none             respell
+fit=text       layout         no   no   -                              font measure     needs Tony
+                 reason: sets a flag nothing reads; never worked -- want it or drop it
+flex           layout         no   no   HTML transpiler                none             drop
+                 reason: only a CSS flexbox hint; the repeater is across/down="*"
+expander       layout+event   yes  no   tree, leaf, templates          none             respell
+                 (with expandable, expanded: template markers + / -)
+matrix         def+lay+event  no   yes  Source, BitMAP, rightClick     BitMAP, draw     drop
+                 reason: Sheet.rtn was never compiled; reassess with the sheet form
+popup          layout+event   no   yes  windows registry               window           respell
+pullDown       layout+event   no   yes  menu form, locate              draw, window     respell
+toggled        layout+event   no   yes  noRoom, locate                 none             keep
+key            layout         no   no   trait, source, prior row       none             respell
+                 reason: hides repeated values in a sorted list; name clashes with keyboard key
+trait          layout         yes  no   LISTENER on source (sRCe)      none             keep
+sort           layout+event   yes  yes  Source.sort, shift state       key modifiers    keep
+keyStroke      first layout+event yes yes KeyStroke rule, modifiers    key events       respell
+keyAction      layout         no   no   flag for keyStroke             none             keep
+
+=============================================================================
+Table attributes, forms, and layout structure
+=============================================================================
+tableBody      define         no   no   template: font, down="*"      none             respell
+tableCell      define         no   no   template: selectable=no style  none             respell
+tableHead      define         no   no   template: font, height, across none            respell
+tableLabel     define         no   no   template: flex center sel=no   none             respell
+tableRow       define         no   no   template: height across style  none            respell
+                 reason (all five): templates carrying CSS hints (flex, center) and a
+                 nameless style; keep the bundles, drop the hints
+list (form)    layout         yes  no   LISTENER: source next tag trait none           respell
+layout (form)  all three      -    yes  nearly every attribute         window draw image font  respell
+                 rebuild last; a destination, not first light
+cards          layout+event   no   yes  noRoom                         none             keep
+across         layout         no   no   -                              none             keep
+down           layout         no   no   -                              none             keep
+across/down="*" layout        no   no   LISTENER via next              none             respell
+                 reason: a repeater smuggled in as a value on across/down; give it its own name
+space          layout         no   no   checkStretch (general rule)    none             keep
+                 any unsized field shares leftover room; space is only the name
+
+=============================================================================
+Attributes with their own old-GUI method
+=============================================================================
+action         layout+event   no   yes  setAction (gone)               none             drop
+                 reason: every attribute may carry its own action in kant
+button         -              -    -    nothing reads it               none             respell
+                 reason: no code named it; decide template or plain name
+rightClick     layout+event   no   yes  fireAction's flag              mouse events     respell
+scrollWith     layout+event   no   no   locate, scroll                 scroll events    keep
+merge          layout         no   no   LISTENER on source             none             keep
+next           layout         -    no   LISTENER on source, repeater   none             keep
+source         layout         yes  no   Source, registries; source=selected is a LISTENER  none  respell
+                 reason: keep; the cursor rides in a hidden void* attribute (sRCe) -- make it a real field
+useNext        layout         no   no   source                         none             respell
+useAttributes  layout         no   no   source                         none             respell
+show           layout (last)  yes  no   LISTENER on source, noRoom     none             keep
+tabs           layout+event   no   yes  cards, registry, selectFill    none             respell
+tabBODY        layout         no   no   tabs                           none             respell
+tree           layout+event   no   yes  leaf, expander; tree=selected is a LISTENER  none  respell
+                 borrows the matrix template matrixRowWrapper; untangle
+leaf           layout         no   no   tree                           none             keep
+entry          layout         no   no   tree                           none             keep
+expandTree     event          no   yes  tree                           none             keep
+tag            layout         yes  no   LISTENER on source             none             keep
+value          layout         yes  no   same method as tag             none             drop
+                 reason: a synonym for tag; one name, one job
+text           layout         no   no   text view; text=Name shares one  font measure, text view  keep
+image          layout         no   yes  source, display stack          image            keep
+file           layout         yes  no   image, popup                   file read        keep
+directory      layout         yes  no   image                          file read        keep
+describe       layout (last)  no   no   LISTENER on the selection      none             keep
+describeAny    layout         no   no   describe                       none             keep
+window         first layout   no   no   windows registry               window           keep
+panel          first layout   no   no   windows registry               window           keep
+closable       first layout   no   no   window                         window           keep
+resize         first layout   no   no   window                         window           keep
+title          first layout   no   no   window, HTML title             window           keep
+drawPath       layout         no   no   drawing grammar, ordering      draw             respell
+                 defer to the drawing-language step
+perforation    define         yes  no   drawPath, perf* templates      draw             respell
+blank          layout         no   no   formatter                      none             keep
+commas         layout         no   no   number formatter               number format    keep
+zero           layout         no   no   formatter                      none             keep
+doNotScroll    layout         no   no   scroll search                  none             keep
+editable       layout         no   no   text view                      text view        keep
+noSourceSelect layout         no   no   selection source               none             keep
+selectable     layout         no   no   -                              none             respell
+                 reason: any value, selectable=yes included, meant NOT selectable
+bigify         first layout   no   no   six template blocks            image            drop
+                 reason: a form-building routine; belongs in the bigify form as an action
+buffer         first layout   no   no   Buffer                         none             needs Tony
+                 keep only if pouring text wants it
+canvas         first layout   no   no   HTML road                      -                drop
+                 reason: renames the parent to an HTML canvas element
+list (attr)    layout         no   no   loadDelimited                  file read        respell
+                 a data-loading command, not a form attribute
+xml            layout         no   no   xml parse                      file read        drop
+                 reason: xml forms are gone
+type           layout         no   no   registry name                  none             drop
+                 reason: writes the parent's registry name; no form use
+register       first layout   no   no   trunk rEGISTER                 none             keep
+minimumHeight  layout         no   no   nothing reads it               none             respell
+minimumWidth   layout         no   no   nothing reads it               none             respell
+                 reason: wrote two globals nobody read; respell from scratch if wanted
+align          layout         yes  no   style (Bot only mapped it)     text layout      keep
+justify        layout         yes  no   align                          text layout      drop
+                 reason: a second name for align
+format         layout         no   no   Amount rule                    number format    keep
+menuItem       event          no   yes  pullDown, menu (Bot only)      draw             respell
+style          layout         yes  no   sTYLEs registry (Bot only)     none             keep
+                 named whole style, as ruled
+
+=============================================================================
+Geometry and plain style
+=============================================================================
+x, y           layout         no   no   -                              none             keep
+width, height  layout         no   no   % of parent, checkStretch      none             keep
+top bottom left right  -      -    -    nothing in layout reads them   draw             needs Tony
+                 reason: bare flags with no layout reader; Bot made them per-side borders
+pad (+ sides)  layout         no   no   setInnerBox                    none             needs Tony
+                 old GUI supported it; the forms notes say not planned
+margin (+ sides) layout       no   no   setInnerBox                    none             respell
+                 fold into pad or keep, with pad's ruling
+border         layout         no   no   setInnerBox, draw              draw             keep
+                 not inheritable (it never was)
+bordered       define         no   no   template                       draw             respell
+rounded        layout         no   no   draw                           draw             keep
+radius         layout         no   no   rounded                        draw             respell
+                 move into style, as the notes suggest
+fill           layout         yes  no   cOLOr registry                 draw             needs Tony
+                 inherited in old GUI (findAttribute) -- decide on purpose
+stroke         layout         no   no   cOLOr registry                 draw             keep
+color          layout         yes  no   style                          text draw        keep
+textColor      layout         yes  no   same as color                  text draw        drop
+                 reason: a second name for color
+selectFill     layout+event   no   no   selection                      draw             keep
+selectStroke   layout+event   no   no   selection                      draw             keep
+gradient       define         no   no   cOLOr entries                  draw             drop
+angle          define         no   no   cOLOr entries                  draw             drop
+                 reason (both): no layout reader; HTML only -- revisit with drawing
+shadow         -              -    no   no reader found                draw             respell
+                 defer to the drawing language
+textShadow     -              -    no   CSS only                       draw             drop
+font           layout         yes  no   fONTs registry, style          font measure     keep
+                 by name only, as the notes say
+font names (normalFont ...)  define  no  no  fONTs merged as attributes  font           keep
+fontSize       layout         -    no   CSS / Bot PDF                  font             drop
+                 reason: ruled out by the notes; fonts are named
+bold           layout         yes  no   style                          font             keep
+italic         layout         yes  no   style                          font             keep
+caps           layout         yes  no   style                          font             keep
+center         define         no   no   CSS flexbox                    none             drop
+alignAcross    define         no   no   CSS flexbox                    none             drop
+alignDown      define         no   no   CSS flexbox                    none             drop
+                 reason (three): flexbox centring hints with no layout reader
+bStyle         define         no   no   CSS border-style               draw             drop
+label          layout         no   no   HTML road                      text             respell
+cell           layout         no   no   isCell bit never set           none             drop
+                 reason: the bit it would set is declared and never written
+layers         layout         no   no   setFrame                       none             keep
+overlay        layout         no   no   setFrame                       none             keep
+off            layout         no   no   toggled                        none             keep
+xOffset        event          no   no   menu placement                 window           keep
+yOffset        event          no   no   menu placement                 window           keep
+indent         layout         yes  no   tree                           none             keep
+indentIncrement layout        yes  no   tree                           none             keep
+clip           -              -    no   Bot PDF only                   draw             respell
+                 defer to the drawing language
+tip            -              -    no   no reader found                window           respell
+menu           event          no   yes  pullDown                       draw             keep
+form           define         no   no   template, $name/$content holes none             respell
+                 a kant template with arguments
+Label, Body    define         no   no   form template                  none             respell
+onLayout       event          no   yes  hasOnLayout, never set         none             respell
+onLoad         event          no   yes  CSS onLoad hook only           none             respell
+onEndEdit      event          no   yes  no reader                      none             respell
+onValue        event          no   yes  no reader                      none             respell
+                 reason (four): event-named attributes the GUI never honoured; they are
+                 Needs Tony 3 in the flesh
+setSource      event          no   yes  Sheet.rtn, not compiled        none             drop
+addToSource    event          no   yes  Sheet.rtn, "unused Action"     none             drop
+deleteFromSource event        no   yes  Sheet.rtn, "unused Action"     none             drop
+                 reason (three): never compiled; respell with source if wanted
+toggle         event          no   yes  toggled                        none             keep
+hTML, pDF      -              -    no   test switches                  -                drop
+comments       define         -    -    // text (ruled)                none             keep
+
+=============================================================================
+Not attributes (from the Part 1 sweep)
+=============================================================================
+showTag, fitItem  form-local names (a user action; a local template)    -   keep as examples
+sum, totals, matrixMethod, xOther, columnWidth, rowHeight, labelWidth   -   drop with matrix
+sRCe, vCONTENt, pULLdOWN, dETAILs   hidden bookkeeping the GUI wrote    -   respell (sRCe) / drop
+dump, attributes                    pROPERTIEs entries, no method       -   drop
+card                                the gotoCARD action, named directly -   keep with cards
+
+=============================================================================
+THE DROP LIST, for Needs Tony 4
+=============================================================================
+    flex · matrix (for first light) · action · value · canvas · xml · type ·
+    bigify (as an attribute) · justify · textColor · gradient · angle ·
+    textShadow · fontSize · center · alignAcross · alignDown · bStyle · cell ·
+    setSource · addToSource · deleteFromSource · hTML · pDF · the matrix
+    parameters · dump · attributes · vCONTENt / pULLdOWN / dETAILs

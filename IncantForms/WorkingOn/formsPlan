@@ -20,7 +20,8 @@ Steps
             has action  yes / no
             depends on  other attributes, registries, C++ calls
             status      known / recon / drop
-        Built from formsRecon.
+        Built from formsRecon. DONE 2026-11-03: IncantForms/WorkingOn/
+        formsTable (135 rows, opens with a five-item needs-Tony list).
     A4  first-light form: the smallest form touching all three moments --
         a window, down, border, text, one button.
     A5  foreign-call design, paper only until the jitter settles: a C++
@@ -65,3 +66,7 @@ Changes
                 print-driven layout; style is per field, copied from the
                 parent (scoped); flex is a CSS hint, the real repeater is
                 across="*"; minimumHeight/Width were never read.
+    2026-11-03  A3 done: formsTable written from formsRecon; its needs-Tony
+                list (style on fields or in named styles; subtree scoping;
+                how kant fires an attribute's action; the drop list; four
+                rows) gates A4.
