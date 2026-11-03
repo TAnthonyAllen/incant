@@ -1,0 +1,221 @@
+/*****************************************************************************
+    Forms recon -- A1 Part 2. Not an incantation; notes only.
+    One row per attribute, so A3 (the attribute table) can build from it.
+    Reference copy: Groups/GUI (2021-03-09). Bot/ (2021-03-24) is noted only
+    where it touches an attribute.
+    Population searched for every row and every "not found": Groups/GUI/**
+    (.twk .rtn .act .g, Stuff/), with Bot/ and data/support checked where a
+    row says so. File:line refers to Groups/GUI unless named.
+*****************************************************************************/
+
+How old GUI fires an attribute (read this first; every row leans on it)
+    Bwana.twk registerMethods (129-198) maps an attribute NAME to a C++
+    method, in one of three ways, and the way IS the moment:
+        mapMethod     layout   runs during layout (layoutAction), each layout
+        mapImmediate  layout   runs the first time layout meets it, then never
+        mapAction     event    deferred, run on user input (deferredAction);
+                               the named actions are in Actions.twk 424-436
+                               (card display expandTree fire iMAGEwork menu
+                               reBigify sORT tab toggle)
+    Most layout methods do their real work by calling setAction(item,"name"),
+    which hangs one of those event actions on the field. setAction itself is
+    NOT FOUND -- not in Groups/GUI, Bot, data/support, Include/GUIexternals or
+    groups.ext; old GUI calls it as ::setAction (Bwana.mm:43).
+    Events (Layout.twk fireAction 160-218) BUBBLE: starting at the clicked
+    block, it runs the block's own method, then every attribute carrying a
+    deferred method, matching left/right click and key events, then moves to
+    the parent until something has fired.
+    Order matters and is only partly handled: panel, drawPath, window first;
+    describe and show last (show is "modified", so Details processMethods
+    runs it late). Bwana's comment says listing order does not guarantee it.
+    Inheritance: tok `x%name` is getAttribute (own attributes only),
+    `x[name]` is get (own child of any kind); only `findAttribute` walks the
+    parents (GroupItem.mm:981). So an attribute is inherited only where its
+    reader says findAttribute.
+    The per-field layout state is a Details object (Details.twk), reached by
+    item.getDetail(); every row's "detail" flag lives there.
+
+Row fields: did / where / when / inherited / leans on / C++ floor / lean.
+
+=============================================================================
+Tony's named attributes
+=============================================================================
+
+fit
+    did:        sizes a container to the sum of its members. Value picks the
+                direction: height/down, width/across, both, text; no value
+                follows the container's own across/down. Down adds member
+                heights and takes the widest width; across the reverse. A
+                member that itself has fit is fitted first (recursive).
+    where:      Details.twk getFitSettings 266-282 (reads the value, sets
+                fitAcross/fitDown/fitBoth/fitText); Control.twk fitSize
+                103-162 (the arithmetic); called from Control layout 259-264,
+                a pass of its own between setDetails and setFrame.
+                Stuff/Sheet.rtn 49-82 repeats the reading for matrix rows.
+    when:       layout -- its own pass, after every field's details are set
+                and before any frame is placed.
+    inherited:  no (wig%fit, own attribute only).
+    leans on:   member width/height already known (fixed numbers); does not
+                look at text. fit=text sets fitText and NOTHING reads it --
+                fitSize has no text branch, so fit=text did nothing.
+    C++ floor:  none, pure kant -- arithmetic over member sizes. fit=text
+                would need font measure.
+    lean:       keep; respell as a layout-pass action. Decide whether
+                fit=text is wanted (it never worked) or dropped.
+
+flex
+    did:        almost nothing in layout: it forces across, and with down it
+                writes flexDirection=column. Both are CSS flexbox words; the
+                only other reader of flex is IncantForms/HTML/htmlTraits
+                (display=flex, flex-direction). The layout code named "flex"
+                (Control.twk flexLayout 165-240, setFlexDetails 815-833) is
+                NOT driven by the flex attribute -- it is driven by
+                contentVaries, which is set by across="*" or down="*" (a
+                value on across/down: repeat the member template as many
+                times as there is room, used with next= and a source).
+    where:      Details.twk initialize 305-326. Bot/Details.twk 394-408 same.
+    when:       layout (details set-up).
+    inherited:  no.
+    leans on:   the HTML transpiler; the templates use it on tableBody,
+                tableLabel, tableRow.
+    C++ floor:  none, pure kant.
+    lean:       drop as a layout attribute (it is an HTML hint). The real
+                mechanism worth keeping is the across="*"/down="*" repeater
+                -- see the across/down row. Clay's guess that flex and
+                valueless space are one mechanism: NO, measured -- flex is a
+                flexbox hint and the repeater fills with copies, not space.
+
+expander (with expandable, expanded)
+    did:        a tree's open/closed marker. A member tagged expander gets
+                its group set to the template expanded ("-") or expandable
+                ("+") depending on whether its leaf's source has members and
+                whether the leaf is expanded; a leaf with no members gets an
+                empty marker.
+    where:      Map.rtn setExpander 803-830; called by tREE (1300) and by the
+                expandTree event action xPAND (Actions.twk 399-421).
+                Templates: IncantForms/Controls/templates expandable/expanded.
+    when:       layout (tree set-up) and event (after each expand/collapse).
+    inherited:  no; finds leaf with findAttribute (walks parents).
+    leans on:   tEMPLATEs registry, the tree / leaf / source machinery,
+                expandTREE and cOLLAPSErow.
+    C++ floor:  none, pure kant (it swaps a child's group); drawing is text.
+    lean:       keep, as part of a tree form; respell as a kant action. It is
+                not an attribute so much as a reserved member name.
+
+matrix (matrixBody matrixBox matrixColumnHead ... in templates)
+    did:        the drill-down / across spreadsheet: buildMatrix, expand by
+                row or column, totals by sum, right-click menus to choose the
+                expansion.
+    where:      Stuff/Sheet.rtn (1,520 lines: buildMatrix 301, expand 587-
+                740, expandThisRow/Column 899-1097, sUM 1502 ...); templates
+                in IncantForms/Controls/templates.
+    when:       define (templates merge), layout (build), event (expand via
+                rightClick, sum).
+    inherited:  matrix templates use $columnWidth $rowHeight $labelWidth
+                macros, resolved where the template is referenced.
+    leans on:   Source (sorting, mapping), mapWRT / BitMAP merging, rightClick,
+                popup, the old #macro template facility.
+    C++ floor:  BitMAP (bit ops); draw for the cells.
+    lean:       ⚠ Sheet.rtn is NOT COMPILED: Bwana.twk:16 reads
+                `//include Sheet.rtn` (Bot/Bwana.twk:16 the same), so matrix,
+                bigify's builder and sum were already off in both copies.
+                Lean: drop for first light; reassess with the sheet form and
+                BitMAP.
+
+popup
+    did:        popup=Name makes a click open the window or panel Name
+                (registered in windows); if not registered and the field has
+                file=, it loads that file as a panel first.
+    where:      Map.rtn popUP 648-655 (hangs action "display"); Actions.twk
+                dISPLAY 6-53 (finds windows[name], keyFront, display).
+    when:       layout sets it up; event fires it (click).
+    inherited:  no.
+    leans on:   the windows registry, controller.load, setAction.
+    C++ floor:  window (show / bring to front).
+    lean:       keep; respell as a click action that opens a named panel.
+
+pullDown
+    did:        pullDown=Name links the field to the menu block Name
+                (located by name), and marks the menu with pULLdOWN pointing
+                back; a click opens it via action "menu" (Actions.twk mENU
+                155-222).
+    where:      Map.rtn pullDOWN 660-679.
+    when:       layout sets up; event fires.
+    inherited:  no.
+    leans on:   locate, the menu form, setAction.
+    C++ floor:  draw (a menu is a drawn panel); possibly window.
+    lean:       keep; respell. Likely the same mechanism as popup with a
+                different target, worth one action for both.
+
+toggled
+    did:        toggled=Name puts a block into a toggle group. If the block
+                also has off it starts hidden (noRoom). Its click action
+                "toggle" (Actions.twk tOGGLE 362-397) locates the wrapper
+                Name and flips noRoom on every block in it whose toggled
+                value is Name -- show/hide by group.
+    where:      Map.rtn tOGGLED 1191-1204.
+    when:       layout sets up; event fires.
+    inherited:  no.
+    leans on:   noRoom (the hide flag layout honours), locate.
+    C++ floor:  none, pure kant (flip a flag, re-layout).
+    lean:       keep, respell -- simple and general (show/hide groups).
+
+key
+    did:        a flag. In a sorted list, a key field whose value equals the
+                same field in the previous row is shown blank (showBlank),
+                so repeated values print once -- "Artist" once over its
+                albums. Only meaningful together with trait.
+    where:      Map.rtn flagFIELD case 'k' 346-394 (keyField); used in tRAIT
+                1225-1243; honoured by Control.twk 598 and Details.rtn 93.
+    when:       layout.
+    inherited:  no.
+    leans on:   trait, source, the previous row.
+    C++ floor:  none, pure kant.
+    lean:       keep, respell; rename (key collides with keyboard key).
+
+trait
+    did:        binds a field's display to one attribute of the current
+                source record: trait reads its own value, or the field's tag
+                if none, and sets the field's group to record[that] (trait=
+                source shows the whole record). It registers the field as a
+                LISTENER of the source, so it updates when the source moves.
+    where:      Map.rtn tRAIT 1207-1258.
+    when:       layout, then again on every source change (listener).
+    inherited:  finds sRCe with findAttribute (walks parents) -- so the
+                source is inherited from an enclosing source= block.
+    leans on:   source (the Source class, Source.twk), listeners, key.
+    C++ floor:  none, pure kant.
+    lean:       keep; this is exactly A2's listener question (field bound to
+                another field's value, updated on change).
+
+sort
+    did:        sort=attr on a table heading makes a click sort the source
+                by that attribute; shift-click sorts descending.
+    where:      Map.rtn setSORT 871-885 (hangs action "sORT"); Actions.twk
+                sORT 333-357 (source.sort(mask.text)); Source.twk sort.
+    when:       layout sets up; event fires.
+    inherited:  finds sRCe with findAttribute.
+    leans on:   source, Source.sort, shift-key state.
+    C++ floor:  none, pure kant (sort a list); key modifier state from the
+                event.
+    lean:       keep, respell. Sorts the displayed source, not the data --
+                as Tony's notes guessed.
+
+keyStroke (and keyAction)
+    did:        keyStroke=c-A parses a key spec with the KeyStroke rule
+                (Groups.twk processKeySpec 115-131) and marks the attribute
+                and its parent keyAction. On a key-up, Layout.twk keyUp walks
+                from the selection up to the first block with keyAction and
+                fires the attribute whose keyStrokeMatch (Map.rtn 480-494)
+                matches the key and the alt/control/command/shift state.
+                keyAction alone is a flag (flagFIELD case 'k').
+    where:      Map.rtn keySTROKE 466-477; Groups.twk / Groups.rtn
+                processKeySpec; Layout.twk 179-249.
+    when:       define-ish (spec parsed at layout), event (key).
+    inherited:  matching uses findAttribute.
+    leans on:   the KeyStroke grammar rule (Groups.g), the event's modifier
+                state, the jit (each keyStroke entry carries jit code).
+    C++ floor:  key events and modifier state.
+    lean:       keep; respell -- keyStroke entries are already actions with
+                a key filter, which is close to kant's "every attribute can
+                have an action".
