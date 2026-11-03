@@ -10,8 +10,8 @@ Purpose
 
 Steps
     A1  recon charter: the old GUI, read only.
-        Part 1 (inventory) done 2026-11-03. Part 2 (per-attribute recon into
-        formsRecon) waits for Tony's go.
+        Part 1 (inventory) and Part 2 (per-attribute recon) done 2026-11-03;
+        the rows are in IncantForms/WorkingOn/formsRecon, ready for A3.
     A2  listener probe: does field=$anotherField (listen, and receive on
         change) work on the new road?
     A3  attribute table: one row per attribute, columns
@@ -59,3 +59,9 @@ Where the old GUI lives (A1 Part 1)
 Changes
     2026-11-03  created (Clay SEQ, forms afternoon track): purpose, A1-A5,
                 folded notes, where the old GUI lives.
+    2026-11-03  A1 marked done (Part 2 rows in formsRecon). Findings that
+                bear on later steps: Groups/GUI drew through a web view
+                (HTML canvas) and Bot through PDF -- Bot already is the
+                print-driven layout; style is per field, copied from the
+                parent (scoped); flex is a CSS hint, the real repeater is
+                across="*"; minimumHeight/Width were never read.
