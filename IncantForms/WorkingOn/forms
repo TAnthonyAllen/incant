@@ -76,7 +76,7 @@ Here is a list form attributes along with an explanation of what each attribute 
     sheet       a form that builds an interactive drill down/across spread sheet. Involves a lot of BitMAP merging. Rewriting BitMAP will be a challenge in kant since it leans heavily into bitmap ops. A task needing assessing.
 
 /*****************************************************************************
-    Clay comments to be folded in
+    Comments to be folded in
 *****************************************************************************/
 This is a solid inventory. The most useful thing it does is separate "we know what this does" from "needs old-GUI recon," and that split is most of what a charter needs. A few things stood out.
 
