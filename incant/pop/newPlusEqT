@@ -1,0 +1,41 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewPlusEqT);
+define
+    peReq owner source result rule;
+    peNew code={
+        peSrc := argument.CodE;
+        peReq.owner  := argument;
+        peReq.source := peSrc;
+        peReq.rule   := KantGrammar["STARt"];
+        if compileIn(peReq);
+            peBlock = peReq.result;
+            *peBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *peBlock;
+        };
+    pen code={ m6 = 2; m6 += 5; print m6:; };
+    peo code={ m6 = 2; m6 += 5; print m6:; };
+    ;
+search NewPlusEqT;
+peNew(pen);
+print "PE o":;
+peo();
+print "PE n":;
+pen();
+print "PE END":;
+cerr "NEWPLUSEQT SENTINEL":;
+stop();
+
+newPlusEqT -- SEQ 523 R2 (2026-11-03), a row only, no cure: `m6 += 5` in a new-road action body, NO jitter. Found
+writing newJitT's NJ-6. The old road (peo, an ordinary action) prints 7. The new road (pen, built by peNew with
+KantGrammar's STARt) refuses: `ERROR Operator += failed on m6 and TOKEn` -- the argument arrives as a TOKEn -- and prints
+2. Intended: the old road's value, nothing refused.

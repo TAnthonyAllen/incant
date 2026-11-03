@@ -1162,6 +1162,17 @@ fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/
 fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
 else echo "  FAIL  newJitT MISSING"; fail=1
 fi
+#  newPlusEqT -- SEQ 523 R2 (2026-11-03), born red, a row only: `m6 += 5` in a new-road action body, no jitter. The new
+#  road refuses (ERROR Operator += failed on m6 and TOKEn) and prints 2; intended the old road's 7, nothing refused
+_peF=$(ip newPlusEqT)
+if [ -f "$_peF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_peF" > "$T/pe.o" 2> "$T/pe.e"; _pex=$?
+_pev () { awk -v k="PE $1" '$0 ~ /^PE / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/pe.o"; }
+_ofeq "newPlusEqT runs (exit / sentinel / PE END)" "$_pex $(grep -c '^NEWPLUSEQT SENTINEL' "$T/pe.e") $(grep -c '^PE END' "$T/pe.o")" "0 1 1"
+_ofeq "newPlusEqT old road (control): m6 = 2; m6 += 5 prints 7" "$(_pev o)" "7 |"
+fdRow "newPlusEqT new road: m6 += 5 = the old road (value / += refusals)" "$(_pev n) E$(grep -c '^ERROR Operator += failed on m6' "$T/pe.e")" "2 | E1" "7 | E0"
+else echo "  FAIL  newPlusEqT MISSING"; fail=1
+fi
 #  ⚑ newReturnT -- SEQ 508 / 509 (Tony, 2026-11-02): rung 5 part 2, return on the new road. PRE-REGISTERED ON TRUNK, born
 #  red. One process; each block starts with `RT <row> <road>`. Every n row is prefixed with RP n's reading, the road proof,
 #  and the file asserts no `parse failed`: a new-road build that fails falls back to the old road at the first call,
