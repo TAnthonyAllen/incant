@@ -4,21 +4,21 @@
     line for every row). This file is the lookup; formsRecon is the why.
 *****************************************************************************/
 
-NEEDS TONY (short)
-    1. Style-setting attributes (fill, stroke, color, bold, italic, caps,
-       shadow, font, align, border colour ...): allowed directly on fields, or
-       only inside named styles? Old GUI took them on fields.
-    2. Style scoping by subtree: old GUI gave every field a COPY of its
-       parent's style, so a change stopped at the subtree and never reached
-       siblings. Confirm that for kant.
-    3. Event-time firing (a question only): setAction is gone. How does kant
-       fire an attribute's action at event time -- what finds it, in what
-       order, and what decides that a click or key belongs to it? (Old GUI
-       bubbled from the clicked field up through its parents.)
-    4. The drop list, for confirmation -- every row below whose lean is drop,
-       gathered at the foot of this file.
-    5. Four rows marked "needs Tony" in their lean: pad, top/bottom/left/
-       right, fill's inheritance, fit=text.
+NEEDS TONY -- RULED 2026-11-03 (Tony, via Clay), except item 3
+    1. RULED: style-setting attributes may go directly on fields.
+    2. RULED: style changes are scoped to the field's subtree. Any field can
+       override by naming its own style or change.
+    3. OPEN (a later afternoon): event-time firing. setAction is gone. How
+       does kant fire an attribute's action at event time -- what finds it, in
+       what order, and what decides that a click or key belongs to it? (Old
+       GUI bubbled from the clicked field up through its parents.)
+    4. RULED: the drop list (foot of this file) is confirmed as listed. If
+       something dropped is wanted later, it comes back then.
+    5. RULED: pad is parked until A4. top / bottom / left / right are border
+       sides (Bot drew them per side), kept, spelling settled at A4. fill is
+       NOT inherited. fit=text is dropped.
+    The rows below still carry their pre-ruling leans; where a ruling moved
+    one, the row says "ruled".
 
 COLUMNS
     moment      define / layout / first layout / event  (two may apply)
@@ -37,8 +37,8 @@ Tony's named attributes
 =============================================================================
 attribute      moment         inh  act  depends on                     C++ floor        lean
 fit            layout         no   no   member sizes                   none             respell
-fit=text       layout         no   no   -                              font measure     needs Tony
-                 reason: sets a flag nothing reads; never worked -- want it or drop it
+fit=text       layout         no   no   -                              font measure     drop (ruled)
+                 reason: sets a flag nothing reads; never worked
 flex           layout         no   no   HTML transpiler                none             drop
                  reason: only a CSS flexbox hint; the repeater is across/down="*"
 expander       layout+event   yes  no   tree, leaf, templates          none             respell
@@ -153,10 +153,10 @@ Geometry and plain style
 =============================================================================
 x, y           layout         no   no   -                              none             keep
 width, height  layout         no   no   % of parent, checkStretch      none             keep
-top bottom left right  -      -    -    nothing in layout reads them   draw             needs Tony
-                 reason: bare flags with no layout reader; Bot made them per-side borders
-pad (+ sides)  layout         no   no   setInnerBox                    none             needs Tony
-                 old GUI supported it; the forms notes say not planned
+top bottom left right  -      -    -    nothing in layout reads them   draw             keep (ruled)
+                 border sides, as Bot drew them; spelling settled at A4
+pad (+ sides)  layout         no   no   setInnerBox                    none             parked (ruled)
+                 parked until A4; old GUI supported it
 margin (+ sides) layout       no   no   setInnerBox                    none             respell
                  fold into pad or keep, with pad's ruling
 border         layout         no   no   setInnerBox, draw              draw             keep
@@ -165,8 +165,8 @@ bordered       define         no   no   template                       draw     
 rounded        layout         no   no   draw                           draw             keep
 radius         layout         no   no   rounded                        draw             respell
                  move into style, as the notes suggest
-fill           layout         yes  no   cOLOr registry                 draw             needs Tony
-                 inherited in old GUI (findAttribute) -- decide on purpose
+fill           layout         no   no   cOLOr registry                 draw             keep (ruled)
+                 NOT inherited (ruled); old GUI inherited it through findAttribute
 stroke         layout         no   no   cOLOr registry                 draw             keep
 color          layout         yes  no   style                          text draw        keep
 textColor      layout         yes  no   same as color                  text draw        drop
@@ -233,10 +233,11 @@ dump, attributes                    pROPERTIEs entries, no method       -   drop
 card                                the gotoCARD action, named directly -   keep with cards
 
 =============================================================================
-THE DROP LIST, for Needs Tony 4
+THE DROP LIST -- CONFIRMED 2026-11-03 (Needs Tony 4)
 =============================================================================
     flex · matrix (for first light) · action · value · canvas · xml · type ·
     bigify (as an attribute) · justify · textColor · gradient · angle ·
     textShadow · fontSize · center · alignAcross · alignDown · bStyle · cell ·
     setSource · addToSource · deleteFromSource · hTML · pDF · the matrix
-    parameters · dump · attributes · vCONTENt / pULLdOWN / dETAILs
+    parameters · dump · attributes · vCONTENt / pULLdOWN / dETAILs ·
+    fit=text (ruled with item 5)

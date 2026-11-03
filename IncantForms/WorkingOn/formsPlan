@@ -37,6 +37,12 @@ Folded in from the forms notes
     Comments in a form are // text, with no braces in action bodies.
     Vertical align is dropped in favour of space.
 
+Native floor (Tony, 2026-11-03, via Clay)
+    Core Text for measuring, Core Graphics for drawing -- to the screen and to
+    PDF (CGPDFContext). libharu (Bot's PDF library) is not needed.
+    Borrow libharu TextRect's shape as the pour primitive: fill this frame and
+    report how much was used -- and KEEP the count, as the next frame's start.
+
 Typesetting notes -- DRAFT, NOT RULED (2026-11-03)
     Tony and Clay's sketch, as relayed by Clay
         Three jobs: describe (markup), lay out (break and place), render
@@ -137,3 +143,6 @@ Changes
                 sketch and Clod's reply. StyleResolution entered in
                 DesignDocs (amends StreamModel). PDF recon added to
                 formsRecon.
+    2026-11-03  formsTable's needs-Tony list ruled (all but event-time
+                firing); native floor recorded (Core Text + Core Graphics, no
+                libharu; TextRect's fill-and-report, count kept).
