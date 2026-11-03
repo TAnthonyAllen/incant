@@ -8079,6 +8079,18 @@ extern "C" GroupItem *loopCondition(GroupItem *cond)
 	return 0;
 }
 
+// loopOwnsBody a loop's build hands its built instruct here (SEQ 516): walk DOWN the loop's own operands and rebind every seq it owns to bodySeq, so a break inside passes up to this loop; a nested loop owned its own; hands the loop back
+extern "C" GroupItem *loopOwnsBody(GroupItem *loop)
+{
+GroupItem 	*arms = loop->get(2);
+GroupItem 	*arm = 0;
+	if ( !arms )
+		return loop;
+	while ( arm = arms->next(arm) )
+		ownStatement(arm);
+	return loop;
+}
+
 // makeDataType set target to the data type the argument names -- called from setInternalType
 extern "C" GroupItem *makeDataType(GroupItem *target, GroupItem *argument)
 {
@@ -8368,6 +8380,28 @@ int 		priorLimit = ::limitWriteGuard(target);
 	if ( priorLimit )
 		::limitWriteCheck(target,priorLimit);
 	return target;
+}
+
+// opBodySeq the bodySeq instruct's unary op (SEQ 516): a seq a loop owns -- each statement instruct runs in order through testOP, a signal stops the list and STAYS SET for the loop to read; a return's value rides up
+extern "C" GroupItem *opBodySeq(GroupItem *items)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*grup = 0;
+GroupItem 	*stmtResult = 0;
+	while ( grup = items->next(grup) )
+		{
+		// clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
+		ruler->branchKind = 0;
+		stmtResult = 0;
+		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) stmtResult = ::testOP(grup); 
+		// stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
+		if ( ruler->branchKind )
+			break;
+		}
+	// returnHandsUp a return's value rides up as the seq's own value, as on the old road; the signal stays set for the action to consume (SEQ 509 A1)
+	if ( ruler->branchKind == 3 )
+		return stmtResult;
+	return items;
 }
 
 // opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; return's operand is a list [keyword, value?]: the value runs here, kind 3 is set and the value is handed up -- a bare return hands back nothing (SEQ 509 A3); retires when a kant action of the same name passes the same rows (branchT)
@@ -9841,26 +9875,14 @@ extern "C" GroupItem *opRunRule(GroupItem *label)
 	return label->groupBody->gMethod(label);
 }
 
-// opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
+// opSeq the seq instruct's unary op (SEQ 446): a block, or STARt's list, that no loop owns -- runs as bodySeq, then CATCHES a break: a break lands at its block when no loop is around it (SEQ 516); continue and return stay set
 extern "C" GroupItem *opSeq(GroupItem *items)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*grup = 0;
-GroupItem 	*stmtResult = 0;
-	while ( grup = items->next(grup) )
-		{
-		// clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
+GroupItem 	*result = ::opBodySeq(items);
+	if ( ruler->branchKind == 1 )
 		ruler->branchKind = 0;
-		stmtResult = 0;
-		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) stmtResult = ::testOP(grup); 
-		// stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
-		if ( ruler->branchKind )
-			break;
-		}
-	// returnHandsUp a return's value rides up as the seq's own value, as on the old road; the signal stays set for the action to consume (SEQ 509 A1)
-	if ( ruler->branchKind == 3 )
-		return stmtResult;
-	return items;
+	return result;
 }
 
 // opSetFlag the :. operator, the inverse of opDot: SET the groupField flag the argument names on target -- it never toggles; explicit operands sidestep processFlags' command detection
@@ -9989,6 +10011,41 @@ GroupItem 	*body = arms->get(2);
 	if ( whileRuler->branchKind == 3 ) return bodyResult;
 	
 	return 0;
+}
+
+// ownStatement one statement under a loop (SEQ 516): a seq becomes bodySeq and its statements are walked; an if's arms are walked; anything else -- a nested loop included -- is left alone
+extern "C" void ownStatement(GroupItem *stmt)
+{
+GroupItem 	*op = 0;
+GroupItem 	*operand = 0;
+GroupItem 	*grup = 0;
+GroupItem 	*bodyOp = 0;
+GroupItem 	*fresh = 0;
+	if ( !stmt )
+		return;
+	 if ( (void*)stmt->groupBody->gMethod != (void*)&testOP ) return; 
+	op = stmt->get(1);
+	operand = stmt->get(2);
+	if ( !op || !operand )
+		return;
+	// rebindByEntry the op entry shares its body with the Operators entry (measured, addrOf), so the seq entry is replaced by a bodySeq entry made as addGroup makes one; the body is never written
+	if ( ::compare(op->groupBody->tag,"seq") == 0 )
+		{
+		bodyOp = GroupControl::groupController->groupRules->opFields->getFromList("bodySeq");
+		if ( !bodyOp )
+			{
+			::fprintf(stderr,"REFUSED loopOwnsBody -- no bodySeq in Operators\n");
+			return;
+			}
+		fresh = new GroupItem(bodyOp);
+		fresh->parent = stmt;
+		op->prepend(fresh);
+		stmt->groupBody->groupList->listLength++;
+		op->remove();
+		}
+	if ( ::compare(op->groupBody->tag,"seq") == 0 || ::compare(op->groupBody->tag,"ifThen") == 0 )
+		while ( grup = operand->next(grup) )
+			::ownStatement(grup);
 }
 
 // parkInRecord a label handed up to a parent whose RECORD is live goes there; with no such record it is dropped -- nothing reads it (1.2f, SEQ 306 R1)
@@ -11094,6 +11151,25 @@ extern "C" int refuseLookupMiss(GroupItem *op, GroupItem *lookup)
 	::refuse(lop,why);
 	return 1;
 	
+}
+
+// refuseTopSignal TOPSTATEMENt's run (SEQ 516): run the statement through testOP; a signal still set when it finishes reached the top level unlanded -- refuse it by name and clear it
+extern "C" GroupItem *refuseTopSignal(GroupItem *stmt)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*result = 0;
+	ruler->branchKind = 0;
+	 if ( stmt && (void*)stmt->groupBody->gMethod == (void*)&testOP ) result = ::testOP(stmt); 
+	if ( ruler->branchKind == 1 )
+		::fprintf(stderr,"REFUSED break -- at the top level there is no loop or block to end\n");
+	else
+	if ( ruler->branchKind == 2 )
+		::fprintf(stderr,"REFUSED continue -- at the top level there is no loop or block to end\n");
+	else
+	if ( ruler->branchKind == 3 )
+		::fprintf(stderr,"REFUSED return -- at the top level there is no loop or block to end\n");
+	ruler->branchKind = 0;
+	return result;
 }
 
 // refuseUnknownOperator an operator registered in Operators with no operateMethod refuses by name; a rule, action or value reaching the foot is untouched
@@ -12856,15 +12932,21 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
+	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusPlusWrite(GroupItem*)
-	measurePlusPlusWrite(GroupItem*)
+	measurePlusEQWrite(GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,int)
 	floor(double)
 */

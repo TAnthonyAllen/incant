@@ -108,6 +108,17 @@ GroupItem   result;
 }
 
 
+// loopOwnsBody a loop's build hands its built instruct here (SEQ 516): walk DOWN the loop's own operands and rebind every seq it owns to bodySeq, so a break inside passes up to this loop; a nested loop owned its own; hands the loop back
+extern GroupItem loopOwnsBody(GroupItem loop)
+{
+GroupItem   arms = loop[2],
+            arm;
+    if !arms    return loop;
+    while arm = arms.next(arm)  ownStatement(arm);
+    return loop;
+}
+
+
 // opAddAttribute the +% operator: add the argument, or each item of a list argument, as an attribute of target
 extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
 {
@@ -198,6 +209,25 @@ use target
     // limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
     if priorLimit   limitWriteCheck(target,priorLimit);
     return  target;
+}
+
+
+// opBodySeq the bodySeq instruct's unary op (SEQ 516): a seq a loop owns -- each statement instruct runs in order through testOP, a signal stops the list and STAYS SET for the loop to read; a return's value rides up
+extern GroupItem opBodySeq(GroupItem items)
+{
+GroupRules  ruler = groupRules;
+GroupItem   grup,
+            stmtResult;
+    while grup = items.next(grup) {
+        // clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
+        ruler.branchKind = 0;
+        stmtResult = null;
+        -% if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) stmtResult = ::testOP(grup); %-
+        // stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
+        if ruler.branchKind     break; }
+    // returnHandsUp a return's value rides up as the seq's own value, as on the old road; the signal stays set for the action to consume (SEQ 509 A1)
+    if ruler.branchKind == 3    return stmtResult;
+    return items;
 }
 
 
@@ -1106,22 +1136,13 @@ GroupItem   probe;
 }
 
 
-// opSeq the seq instruct's unary op (SEQ 446): each statement instruct runs in order, through testOP; hands back its argument list, as opPrintList does, until the runner hands an op its own instruct
+// opSeq the seq instruct's unary op (SEQ 446): a block, or STARt's list, that no loop owns -- runs as bodySeq, then CATCHES a break: a break lands at its block when no loop is around it (SEQ 516); continue and return stay set
 extern GroupItem opSeq(GroupItem items)
 {
 GroupRules  ruler = groupRules;
-GroupItem   grup,
-            stmtResult;
-    while grup = items.next(grup) {
-        // clearFirst each statement starts with no signal, as aCTionBlocK clears -- a stale one cannot cut this seq short (SEQ 476)
-        ruler.branchKind = 0;
-        stmtResult = null;
-        -% if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) stmtResult = ::testOP(grup); %-
-        // stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
-        if ruler.branchKind     break; }
-    // returnHandsUp a return's value rides up as the seq's own value, as on the old road; the signal stays set for the action to consume (SEQ 509 A1)
-    if ruler.branchKind == 3    return stmtResult;
-    return items;
+GroupItem   result = opBodySeq(items);
+    if ruler.branchKind == 1    ruler.branchKind = 0;
+    return result;
 }
 
 
@@ -1433,6 +1454,35 @@ int         wrote = 0;
 }
 
 
+// ownStatement one statement under a loop (SEQ 516): a seq becomes bodySeq and its statements are walked; an if's arms are walked; anything else -- a nested loop included -- is left alone
+extern void ownStatement(GroupItem stmt)
+{
+GroupItem   op,
+            operand,
+            grup,
+            bodyOp,
+            fresh;
+    if !stmt    return;
+    -% if ( (void*)stmt->groupBody->gMethod != (void*)&testOP ) return; %-
+    op = stmt[1];
+    operand = stmt[2];
+    if !op || !operand  return;
+    // rebindByEntry the op entry shares its body with the Operators entry (measured, addrOf), so the seq entry is replaced by a bodySeq entry made as addGroup makes one; the body is never written
+    if op.tag eq "seq" {
+        bodyOp = opFields.getFromList("bodySeq");
+        if !bodyOp {
+            cerr "REFUSED loopOwnsBody -- no bodySeq in Operators":;
+            return; }
+        fresh = new GroupItem(bodyOp);
+        fresh.parent = stmt;
+        op.prepend(fresh);
+        stmt.listLength++;
+        op.remove(); }
+    if op.tag eq "seq" || op.tag eq "ifThen"
+        while grup = operand.next(grup)     ownStatement(grup);
+}
+
+
 // plusEQshapeRefusal a += member's refusal of a list or dataless argument, through refuse(), which prints REFUSED and never ERROR -- pop.sh's ERROR ratchet
 extern GroupItem plusEQshapeRefusal(String kind,GroupItem argument,GroupItem target)
 {
@@ -1441,6 +1491,21 @@ extern GroupItem plusEQshapeRefusal(String kind,GroupItem argument,GroupItem tar
     ::snprintf(why,sizeof why,"+= of a list or dataless argument onto %s -- no member takes that shape",kind ? kind : "?");
     return ::refuse(target,why);
     %-
+}
+
+
+// refuseTopSignal TOPSTATEMENt's run (SEQ 516): run the statement through testOP; a signal still set when it finishes reached the top level unlanded -- refuse it by name and clear it
+extern GroupItem refuseTopSignal(GroupItem stmt)
+{
+GroupRules  ruler = groupRules;
+GroupItem   result;
+    ruler.branchKind = 0;
+    -% if ( stmt && (void*)stmt->groupBody->gMethod == (void*)&testOP ) result = ::testOP(stmt); %-
+    if ruler.branchKind == 1    cerr "REFUSED break -- at the top level there is no loop or block to end":;
+    or ruler.branchKind == 2    cerr "REFUSED continue -- at the top level there is no loop or block to end":;
+    or ruler.branchKind == 3    cerr "REFUSED return -- at the top level there is no loop or block to end":;
+    ruler.branchKind = 0;
+    return result;
 }
 
 

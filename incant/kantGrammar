@@ -313,6 +313,8 @@ define
         armsMint    := copyOf(forArms);
         miArgs      +% op armsMint;
         built       := makeInstruct(miArgs);
+        // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
+        loopOwnsBody(*built);
         *argument   := *built;
         return  *argument;
         };
@@ -333,6 +335,8 @@ define
         armsMint    := copyOf(doArms);
         miArgs      +% op armsMint;
         built       := makeInstruct(miArgs);
+        // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
+        loopOwnsBody(*built);
         *argument   := *built;
         return  *argument;
         };
@@ -353,6 +357,8 @@ define
         armsMint    := copyOf(whileArms);
         miArgs      +% op armsMint;
         built       := makeInstruct(miArgs);
+        // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
+        loopOwnsBody(*built);
         *argument   := *built;
         return  *argument;
         };
@@ -453,7 +459,8 @@ define
                 kwT := *kw.taG;
                 cerr "REFUSED" kwT "-- at the top level there is no loop or block to end":;
                 topRun = 0;
-        if topRun == 1;     testOP(*ts);
+        // unlandedRefused a signal still set when the statement finishes reached the top level unlanded: refuseTopSignal refuses it by name and clears it (SEQ 516)
+        if topRun == 1;     refuseTopSignal(*ts);
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
     XPRESs code={
