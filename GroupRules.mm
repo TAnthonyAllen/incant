@@ -3810,9 +3810,9 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// the action, so deferring ITS writeback to the epilogue is not observable --
 	// which is exactly why this increment is behaviour-neutral and cannot certify
 	// itself.
-	//  chainNoFrame a chain-walked action keeps its locals and its argument in their FIELDS: every statement runs there, at run
-	//  time, through its own testOP -- a slot nothing native reads would only be flushed and reloaded (SEQ 520 S1)
-	if (!chainWalk) {
+	//  chainFrame a chain-walked action's locals get slots as the old road's do: native statements read and write them, and a
+	//  handed-over statement flushes them to their fields before it runs and reloads them after (SEQ 522 S2; S1 had none)
+	{
 	GroupItem *fld = 0;
 	while ((fld = action->next(fld))) {
 	GroupBody *fb = fld->groupBody;
@@ -3838,6 +3838,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	}
 	}
 	//  argSlot THE ARGUMENT SLOT (SEQ 380): filled at entry from %field, the per-call node the caller passed; every own-argument read loads it
+	//  chainNoArgSlot a chain-walked action keeps its argument in its field binding for now (SEQ 520 S1, unchanged in S2)
 	if (!chainWalk) {
 	GroupItem *af = action->get((char*)"argument");
 	GroupItem *bound = (af && af->groupBody->flags.isArgument && isGROUP(af->groupBody->flags.data)) ? af->getGroup() : nullptr;
@@ -7843,23 +7844,74 @@ extern "C" int jitUnboxCount(GroupItem *node)
 /*  jitWalkChain -- THE NEW ROAD'S JITTER WALK (SEQ 520 S1). A new-road action's BlocK is a seq instruct bound to testOP:
     [1] the op, [2] the statement list. Walk the statements in order and hand each to its OWN testOP at RUN time through
     jitEmitStmtRT, which runs the instruct's method on the action's fields and maps a return, continue or break left set.
-    Nothing is emitted natively yet; later strokes move ops off this fallback, keyed on the op's jitEmitter= attribute.
+    S2 (SEQ 522): a statement built only of assign and the jitEmitter= operators is emitted natively (jitWalkEligible,
+    jitWalkExpr); every other statement is still handed over.
     The witness line is printed unconditionally, one per compile (H4).  */
 extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 {
 	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
 	int walked = 0, handed = 0, native = 0;
 	GroupItem *stmts = blk ? blk->get(2) : nullptr;
 	GroupItem *stmt  = nullptr;
 	if (stmts)
 	while ((stmt = stmts->next(stmt))) {
 	walked++;
+	//  nativeStep a statement built only of assign and the jitEmitter= operators is emitted through the old road's own
+	//  dispatch, in aCTionBlocK's per-statement bracket: a part it cannot emit hands the whole statement over (SEQ 522 S2)
+	if (::jitWalkEligible(stmt)) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	::jitWalkExpr(stmt);
+	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
+	bool wasHanded = gJitHandOver;
+	::jitStmtEnd(stmt);
+	//  noResultStore a new-road action hands back only what a return gives (A3, SEQ 509) -- never the last statement's
+	//  value, which is the old road's rule (aCTionBlocK's jitStoreResult); storing it moved RT-5 to 4
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	if (wasHanded) handed++; else native++;
+	continue; }
 	gJitStmtRTBranches = 0;
 	::jitEmitStmtRT(stmt);
 	handed++; }
 	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, walked, handed, native);
 	::fflush(stderr);
 	return walked;
+	
+}
+
+/*  jitWalkEligible -- SEQ 522 S2: is this new-road statement built only of what the walk emits natively? An instruct
+    whose op is assign (opAssign) or a binary operator carrying jitEmitter= (the arithmetic and compare slots), and whose
+    operands are leaves or eligible instructs. Anything else -- print, if, a loop, a call, a unary -- is handed to testOP.  */
+extern "C" int jitWalkEligible(GroupItem *node)
+{
+	
+	if (!node || (void*)node->groupBody->gMethod != (void*)&testOP) return 0;
+	GroupItem *op = node->get(1);
+	if (!op || op->groupBody->registry != GroupControl::groupController->groupRules->opFields) return 0;
+	if (op->groupBody->flags.isUnary) return 0;
+	if (!op->groupBody->gJitEmitter && (void*)op->groupBody->gOp != (void*)&opAssign) return 0;
+	for (int k = 2; k <= 3; k++) {
+	GroupItem *x = node->get(k);
+	//  argumentHandedOver the action's argument is a binding the interpreted road copies as a holder: a statement reading
+	//  it stays on testOP in S2 (native, it read the build's binding and nl3an recursed without end)
+	if (x && x->groupBody->flags.isArgument) return 0;
+	if (x && (void*)x->groupBody->gMethod == (void*)&testOP && !::jitWalkEligible(x)) return 0; }
+	return 1;
+	
+}
+
+/*  jitWalkExpr -- SEQ 522 S2: emit one eligible instruct. Its instruct operands are emitted first and hand back the nodes
+    carrying their values; the op then goes through the old road's runOPslots unchanged -- seeding, kinds, emitter slots,
+    opAssign's gate and the hand-over all happen there. A leaf is handed back as it is, for runOPslots to seed.  */
+extern "C" GroupItem *jitWalkExpr(GroupItem *node)
+{
+	
+	if (!node || (void*)node->groupBody->gMethod != (void*)&testOP) return node;
+	GroupItem *op = node->get(1);
+	GroupItem *t  = ::jitWalkExpr(node->get(2));
+	GroupItem *a  = ::jitWalkExpr(node->get(3));
+	return ::runOPslots(op, t, a);
 	
 }
 
