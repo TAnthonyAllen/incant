@@ -8695,6 +8695,12 @@ GroupItem 	*hit = 0;
 	return 0;
 }
 
+// locateShared the rule a ruleMethod= names, in the registry being defined into
+extern "C" GroupItem *locateShared(char *name)
+{
+	return GroupControl::groupController->locate(name);
+}
+
 // lookupName the name a by-name lookup (=% =/ =<) reads: a string or token argument gives its text, anything else its tag -- the new road hands the name as a field with data (SEQ 443)
 extern "C" char *lookupName(GroupItem *argument)
 {
@@ -12054,7 +12060,7 @@ GroupItem 	*grup = 0;
 			}
 }
 
-// ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator
+// ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator; or share a coded rule's action, by that rule's name (SEQ 528)
 extern "C" GroupItem *ruleMethod(GroupItem *input)
 {
 char 	*name = input->getText();
@@ -12068,6 +12074,18 @@ char 	*name = input->getText();
 					{
 					grup->setMethod((GroupItem*(*)(GroupItem*))::dlsym(RTLD_SELF,name));
 					grup->groupBody->flags.instructType = 1;
+					// sharedActor no C method by that name: a coded rule's builtinActoR, copied, shares its body, so the two rules hold one CodE and one BlocK
+					
+					if ( !grup->groupBody->gMethod ) {
+					GroupItem *shareFrom = ::locateShared(name);
+					GroupItem *shareActor = shareFrom ? shareFrom->getProperty((char*)"builtinActoR") : nullptr;
+					if ( !shareActor || !shareActor->getProperty((char*)"CodE") )
+					::refuse(grup,(char*)"ruleMethod: no method and no coded rule by that name");
+					else {
+					grup->addProperty(shareActor);
+					grup->groupBody->gMethod = shareFrom->groupBody->gMethod;
+					grup->groupBody->flags.actionType = shareFrom->groupBody->flags.actionType; } }
+					
 					}
 				else {
 					grup->setOperat(::dlsym(RTLD_SELF,name));

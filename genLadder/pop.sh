@@ -1210,6 +1210,12 @@ _ofeq "newJitPrintT under jitter; = the twin: stdout, the cerr line, exit, senti
 _ofeq "newJitPrintT twin carries real output (not two empties compared): a value, a string, a format, the cout, the cerr" "$(_njv "$T/npr.o" | grep -c 'n=  3') $(_njv "$T/npr.o" | grep -c 'P p6 |str') $(_njv "$T/npr.o" | grep -c ' 1.50') $(_njv "$T/npr.o" | grep -c 'o  3') $(grep -c '^e  3' "$T/npr.e")" "1 1 1 1 1"
 fdRow "newJitPrintT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nprj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "p1 1 1 0;p2 2 1 1;p3 2 1 1;p4 3 1 2;p5 2 1 1;p6 2 2 0;p7 2 2 0;p8 2 1 1;p9 1 1 0;pa 1 1 0;pb 1 1 0;pc 2 2 0;pd 1 1 0;pe 2 1 1;pf 2 1 1;pg 2 1 1;ph 1 1 0;pi 3 1 2;pj 4 1 3;pk 2 2 0;pl 3 1 2;pm 2 1 1;pn 1 1 0;po 3 2 1;pp 2 1 1;pq 1 1 0;" "p1 1 0 1;p2 2 0 2;p3 2 0 2;p4 3 0 3;p5 2 0 2;p6 2 1 1;p7 2 0 2;p8 2 1 1;p9 1 0 1;pa 1 0 1;pb 1 0 1;pc 2 2 0;pd 1 1 0;pe 2 0 2;pf 2 0 2;pg 2 0 2;ph 1 1 0;pi 3 0 3;pj 4 0 4;pk 2 0 2;pl 3 0 3;pm 2 1 1;pn 1 0 1;po 3 1 2;pp 2 0 2;pq 1 1 0;"
 else echo "  FAIL  newJitPrintT MISSING"; fail=1; fi
+#  ruleShareT -- SEQ 528 R2: ruleMethod= shares a coded rule's action. Identity by BODY (H13).
+_rsF=$(ip ruleShareT)
+if [ -f "$_rsF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_rsF" > "$T/rsh.o" 2> "$T/rsh.e"; _rshx=$?
+_ofeq "ruleShareT If's and ELSEIf's actors read one body, the rule's own another (body numbers, exit, sentinel)" "$(cat "$T/rsh.o" "$T/rsh.e" | sed -n 's/^ADDROF .*body=#\([0-9]*\).*/\1/p' | tr '\n' ' ')x$_rshx s$(grep -c '^RULESHARE SENTINEL' "$T/rsh.e")" "2 2 5 x0 s1"
+else echo "  FAIL  ruleShareT MISSING"; fail=1; fi
 #  newReturnKindT -- SEQ 527 R2: what a compiled function hands back when it is not a count, both roads. Born red under jitter;.
 _rkF=$(ip newReturnKindT)
 if [ -f "$_rkF" ]; then

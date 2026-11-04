@@ -362,6 +362,7 @@ extern "C" GroupItem *listenTo(GroupItem *input);
 extern "C" GroupItem *loadDirectory(GroupItem *input);
 extern "C" GroupItem *loadInputFromFile(GroupItem *source);
 extern "C" GroupItem *locateRule(char *name);
+extern "C" GroupItem *locateShared(char *name);
 extern "C" char *lookupName(GroupItem *argument);
 extern "C" GroupItem *loopCondition(GroupItem *cond);
 extern "C" GroupItem *loopOwnsBody(GroupItem *loop);

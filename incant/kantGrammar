@@ -222,36 +222,8 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // ELSEIf only builds (SEQ 491): an or arm is an if in If's else slot -- the same ifThen instruct as If (condition, then, else if present), so opIf runs it and If's else slot takes it
-    ELSEIf code={
-        :actionLabel EXPRESSIOn STATEMENt ELSe;
-        // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
-        cond    := **EXPRESSIOn;
-        thenS   := **STATEMENt;
-        // armRefused an arm that handed up no instruct refuses by name, never attaches a null (SEQ 476 R6)
-        thenM   := *thenS.methoD;
-        if thenM == 0;
-            cerr "REFUSED ELSEIf -- its then arm handed up no instruct":;
-            clear(*actionLabel);
-            return *actionLabel;
-        ifArms  +% *cond;
-        ifArms  +% *thenS;
-        eLen    := *ELSe.listLengtH;
-        if eLen != 0;
-            elseS   := **ELSe;
-            elseM   := *elseS.methoD;
-            if elseM == 0;
-                cerr "REFUSED ELSEIf -- its else arm handed up no instruct":;
-                clear(*actionLabel);
-                return *actionLabel;
-            ifArms  +% *elseS;
-        op := Operators["ifThen"];
-        armsMint    := copyOf(ifArms);
-        miArgs      +% op armsMint;
-        built       := makeInstruct(miArgs);
-        *actionLabel   := *built;
-        return  *actionLabel;
-        };
+    // ELSEIf shares If's action (SEQ 528): an or arm is an if in If's else slot -- the same ifThen instruct, so opIf runs it and If's else slot takes it
+    ELSEIf ruleMethod=If;
     // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
     ITERATe code={
         :actionLabel ANYtoken attributes members ITERSOURCe;
