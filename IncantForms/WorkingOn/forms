@@ -106,7 +106,7 @@ The typesetting language is a lovely destination. Points 1 and 2 are the parts t
 /*******************************************************************************
 	The forms plan of record (SEQ 531, 2026-11-04)
 *******************************************************************************/
-STATE: A1, A3 and A4 on paper are done, with the side spelling ruled; A2 answered NO and is parked behind SEQ 530. Event firing is next. Nothing built.
+STATE: A1, A3 and A4 on paper are done, with the side spelling ruled; A2 answered NO and is parked behind SEQ 530. Event firing: recon done, waiting on Tony. Nothing built.
 Evidence files: IncantForms/WorkingOn/formsRecon (what the old GUI did: file, method, line) and
 IncantForms/WorkingOn/formsTable (the lookup: one row per attribute). formsPlan is now only a pointer here.
 
@@ -171,13 +171,10 @@ Later: the drawing language, then print / typesetting.
 3  CLOSED 2026-11-04: the border-side spelling is ruled (rulings above), and pad is dropped.
 4  Emphasis inside a paragraph whose style comes from its framing field.
 5  The drawing language in kant. It needs multi-argument C++ calls, so it comes after the jitter (A5).
-6  margin. formsTable reads "fold into pad or keep, with pad's ruling", and pad is now dropped. The forms use mBottom 14
-   times, mRight 6, mTop once. Drop it too, or keep it?
-7  With pad gone, what insets text from its frame? Layout.twk's displayText has a fixed 5 (indentFrame). A fixed inset, a
-   space field, or nothing?
-8  A side on a rounded field. 7 of the 12 side-asking fields are also rounded, and Bot drew sides only when the field was
-   neither rounded nor bordered (Bot/PDF.twk, read, not run), so those sides drew nothing. Keep that?
-
+6  CLOSED FOR NOW 2026-11-04 (Tony): margin stays. Whether kant needs it is decided once the forms can be seen drawn.
+7  CLOSED 2026-11-04 (Tony): text is inset by a fixed default in the text floor (M2), with no attribute until a form needs one.
+8  A side on a rounded field stays OPEN until M4 can draw a side (Tony, 2026-11-04). 7 of the 12 side-asking fields are also
+   rounded, and Bot drew sides only when the field was neither rounded nor bordered (Bot/PDF.twk, read, not run).
 /*******************************************************************************
 	Typesetting notes -- DRAFT, NOT RULED (2026-11-03)
 *******************************************************************************/
@@ -303,5 +300,36 @@ Candidate morning items (none ruled):
     M9 A percentage: width=50.0% reads the number 50. The % goes to Modifier.
     M10 Forms that still call initFORMs stop silently at exit 0 (F-73): simple printed no form. A form's own name can also merge
        into an existing field: with initFORMs swapped for its two search lines, simple merged into UnitTests' simple.
+
+/*******************************************************************************
+	Event firing: recon only (2026-11-04). No design until Tony has read it.
+*******************************************************************************/
+Old GUI (GUI/Layout.twk fireAction 160-218; formsRecon's head and its action row). A native mouseUp, rightMouseUp or key event finds
+the field with blockContaining (GUI/Details.rtn), selects it, then walks up through parents. At each level it runs the field's
+own method, then every attribute with a deferred method whose right-click and key flags match, left to right, and it stops at the
+first level that fired. Attributes got their actions through setAction, which is not in any source we have. A "button" was any field
+with a click action. Own attribute actions came from the Actions.twk table; action=fire only prints.
+
+Census, IncantForms/Windows, live regions, attribute position. Controls: simple's onLayout, keyAction's jit=keyAction and layout's action=fire
+were known beforehand and all appear.
+    click (action, jit, button)  16 uses in 8 forms: descriptions, inspector, keyAction, keyStroke, layout, menu, scroll, wraplist
+    key                          keyStroke 2 (keyStroke form), jit=keyAction 1 (keyAction form)
+    right click                  0
+    layout hook (onLayout)       1, in simple only; old GUI never honoured it
+    named event families         menu / popup 14, select 12, sort 10, toggle 8, tree 8, cards / tabs 7
+    code={ on a field            5 in 4 forms: keyStroke 2, simple, tabs, tree
+    No event attribute at all: accounts, bigify, date, drag, draw.
+
+Measured on today's binary, no window:
+    A field's own code= fires when called, keeps its text, and gets its argument. So does a coded member (click code={ }) reached by
+    subscript. A parent's own code fires the same way.
+    onClick=evFire does not hand over the action: the attribute reads kind 0, a copy (the SEQ 530 family).
+    A member's parent is the parse's label, not the enclosing field: evDeep -> evBody -> MemberS -> DefinE -> MemberS. So a
+    walk up parents does not reach evWin. Subscripts going down do.
+Read: Layout.twk has no event methods, only a comment naming keyUp, mouseUp, rightMouseUp and scrollWheel. blockContaining and contains
+are C++ with a Point argument, not kant commands. deferredAction is gone from the live class.
+
+The smallest event for firstLight's OK: one left mouseUp, one level, no bubbling. It needs (a) ok to carry an action, which it does not
+today; (b) a mouseUp method on Layout; (c) the point mapped to ok, which needs frames (M1) and blockContaining; (d) the fire, which already works.
 
 ORDER (SEQ 531, 2026-11-04): A4 on paper -> event firing, through A4's button -> A5. The listener rejoins after SEQ 530's cure is bought.
