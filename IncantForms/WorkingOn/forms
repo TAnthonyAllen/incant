@@ -235,7 +235,7 @@ IncantForms/Controls/       templates, attributes, traits: the form side's own r
 	A4: the count, the proposal, the walk (SEQ 532, 2026-11-04)
 *******************************************************************************/
 How IncantForms/Windows asks for an incomplete border. Population: all 22 forms' live regions, attribute position only.
-12 fields in 7 forms, 25 side words. Control: simple:14 and simple:15, known beforehand, both appear.
+12 fields in 6 forms, 25 side words. Control: simple:14 and simple:15, known beforehand, both appear.
     combination       fields   where
     left alone          4      simple 14, 15; layout 34, 35
     left right          2      layout 28; wraplist 15
@@ -288,7 +288,7 @@ Candidate morning items (none ruled):
     M1 Layout pass: a kant walk that gives every field a frame from down, across, width, height and space. getFrame reads a
        field's own attributes only, so a child has no frame.
     M2 Text floor: no Core Text anywhere in the tree. One measure method and one pour command, keeping the count.
-    M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses firstLight's shape).
+    M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses a field that has only fill=).
     M4 Stroke floor: no command strokes a rect or a side from kant. Layout.drawRect strokes one frame, in C++.
     M5 Colours and fonts: no cOLOr or fONTs registry loads; IncantForms/Controls/attributes is XML-era text. And with
        wall searchable, fill=wall copies the hex (f7e8aa), while getColor locates by NAME (read, not run). Same family as SEQ 530.
