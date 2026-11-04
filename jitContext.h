@@ -413,6 +413,7 @@ struct JitFrameSlot {
     void        *home;   // &gCount or &gNumber -- the identity that survives
     llvm::Value *slot;   // the alloca
     llvm::Type  *ty;
+    llvm::Value *mark = nullptr;   // a kindless local's written mark (SEQ 526): an i32 alloca, 0 until a compiled store runs. Clear means the field is the truth
 };
 inline std::vector<JitFrameSlot> gJitFrame;
 

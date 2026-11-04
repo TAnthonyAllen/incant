@@ -24,15 +24,29 @@ define
         };
     uNew code={ if 1 > 2; un = 1; print "UN new " un:; };
     uOld code={ if 1 > 2; uo = 1; print "UN old " uo:; };
+    aNew code={ if 1 > 2; ua = 1; va = ua + 1; print "UA new " va:; };
+    aOld code={ if 1 > 2; ub = 1; vb = ub + 1; print "UA old " vb:; };
+    cNew code={ if 1 > 2; uc = 1; vc = uc; print "UC new " vc:; };
+    cOld code={ if 1 > 2; ud = 1; vd = ud; print "UC old " vd:; };
     ;
 search NewJitIfU;
 ifNew(uNew);
+ifNew(aNew);
+ifNew(cNew);
 testing(uOld);
+testing(aOld);
+testing(cOld);
 jitter;
 uNew();
+aNew();
+cNew();
 cerr "NEWJITIFUNSET SENTINEL":;
 stop();
 
 newJitIfUnsetT -- SEQ 525: a local written only in an arm that does not run, then read. Interpreted it has no data, so it echoes its tag
 (bear-trap 26). Compiled, the flush before the handed-over print stamps a count, because gJitFrameAssigned records what the BUILD saw
-written, not what the run did, so it reads 0. Pinned red; the twin replaces testing(uOld) with uOld() and drops jitter;.
+written, not what the run did, so it read 0; each slot now carries a run-time written mark and the print reads the field while it is
+clear. The twin replaces testing(x) with x() and drops jitter;.
+UA and UC are the reads the mark does NOT reach, pinned red: arithmetic on an unwritten local (plain refuses; the new road's block runs on,
+so va has no data and prints its tag, and the old road's block stops, so UA old prints nothing; compiled reads 0 + 1) and a copy of one (plain copies the tag's text; compiled copies the slot's 0). A native statement has already
+emitted its read, so reaching these needs the whole statement to branch on the mark.

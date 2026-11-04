@@ -1879,6 +1879,21 @@ GroupItem 	*field = 0;
 	return field;
 }
 
+// appendGroupMarked a bare read of a kindless slot: written, the slot's value; clear, the field, which is what the interpreted print reads -- the tag if it has no data (SEQ 526)
+extern "C" GroupItem *appendGroupMarked(int value, int written, GroupItem *field, GroupItem *FormaT, Buffer *buffer)
+{
+	if ( written )
+		return ::appendGroupValue(value,FormaT,buffer);
+	return ::appendGroup(field,FormaT,buffer);
+}
+
+extern "C" GroupItem *appendGroupNumberMarked(double value, int written, GroupItem *field, GroupItem *FormaT, Buffer *buffer)
+{
+	if ( written )
+		return appendGroupNumberValue(value,FormaT,buffer);
+	return ::appendGroup(field,FormaT,buffer);
+}
+
 // appendGroupNumberValue the double in flight, as appendGroupValue carries the i32: the interpreted print's own formatting (SEQ 524)
 extern "C" GroupItem *appendGroupNumberValue(double value, GroupItem *FormaT, Buffer *buffer)
 {
@@ -3865,6 +3880,10 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	llvm::PointerType::getUnqual(C));
 	B.CreateStore(B.CreateLoad(ty, home, "prolog"), slot);
 	JitFrameSlot fs; fs.home = addr; fs.slot = slot; fs.ty = ty;
+	//  writtenMark what the BUILD saw written is not what the RUN did: an arm may not run. A kindless local's mark says which (SEQ 526)
+	if (!fb->flags.data) {
+	fs.mark = B.CreateAlloca(llvm::Type::getInt32Ty(C), nullptr, "written");
+	B.CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0), fs.mark); }
 	gJitFrame.push_back(fs);
 	}
 	}
@@ -4488,8 +4507,11 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	//  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given
 	{
 	GroupBody *tb = target->groupBody;
-	if (JitFrameSlot *fs = jitFrameFind((void*)&(tb->gCount))) gJitFrameAssigned.insert(fs->home);
-	else if (JitFrameSlot *fs2 = jitFrameFind((void*)&(tb->gNumber))) gJitFrameAssigned.insert(fs2->home);
+	JitFrameSlot *fsw = jitFrameFind((void*)&(tb->gCount));
+	if (!fsw)     fsw = jitFrameFind((void*)&(tb->gNumber));
+	if (fsw) {
+	gJitFrameAssigned.insert(fsw->home);
+	if (fsw->mark) b->CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(b->getContext()), 1), fsw->mark); }
 	}
 	// Compound (+= *= ...) is NOT a second branch here — it is the composition
 	// done by the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
@@ -5174,8 +5196,12 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	//  this compile gets its KIND too (gJitFrameAssigned); any other stays as it is.
 	auto flush = [&](GroupItem *g, JitFrameSlot *fs, const char *nm) {
 	llvm::Value *v = b->CreateLoad(fs->ty, fs->slot, nm);
-	if (gJitFrameAssigned.count(fs->home)) {
 	bool num = fs->ty->isDoubleTy();
+	if (gJitFrameAssigned.count(fs->home) && fs->mark) {
+	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty, i32}, false);
+	b->CreateCall(fty, bake(num ? (void*)&jitFlushNumberMarkRT : (void*)&jitFlushCountMarkRT, "opFireFlushFn"),
+	{bake((void*)g, "opFireFlushField"), v, b->CreateLoad(i32, fs->mark, "opFireMark")}); }
+	else if (gJitFrameAssigned.count(fs->home)) {
 	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false);
 	b->CreateCall(fty, bake(num ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT, "opFireFlushFn"),
 	{bake((void*)g, "opFireFlushField"), v}); }
@@ -5669,6 +5695,12 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)((char*)f.home - offsetof(GroupBody, gCount))), ptr, "rtBody"); };
 	for ( JitFrameSlot &f : gJitFrame ) {
 	bool num = f.ty->isDoubleTy();
+	//  markedFlush the kind is stamped only if the compiled store RAN (SEQ 526)
+	if ( gJitFrameAssigned.count(f.home) && f.mark ) {
+	llvm::FunctionType *mty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, f.ty, i32}, false);
+	b->CreateCall(mty, b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(num ? (void*)&jitFlushNumberSlotMarkRT : (void*)&jitFlushCountSlotMarkRT)), ptr, "rtFlushFn"),
+	{bodyOf(f), b->CreateLoad(f.ty, f.slot, "rtFlush"), b->CreateLoad(i32, f.mark, "rtMark")});
+	continue; }
 	void *helper = gJitFrameAssigned.count(f.home)
 	? (num ? (void*)&jitFlushNumberSlotKindRT : (void*)&jitFlushCountSlotKindRT)
 	: (num ? (void*)&jitFlushNumberSlotRT     : (void*)&jitFlushCountSlotRT);
@@ -5836,6 +5868,11 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	}
 	target->jitData->setJitter(res);
 	if (target->jitData->jitSlot)   b->CreateStore(res, target->jitData->jitSlot);
+	{
+	JitFrameSlot *fsw = jitFrameFind((void*)&(target->groupBody->gCount));
+	if (!fsw)     fsw = jitFrameFind((void*)&(target->groupBody->gNumber));
+	if (fsw && fsw->mark) b->CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(b->getContext()), 1), fsw->mark);
+	}
 	//  derefTarget ++ / -- on `*h` writes into what h points at (SEQ 423)
 	if (target->jitData->jitNode && res->getType()->isIntegerTy(32)) {
 	llvm::LLVMContext &uctx = b->getContext();
@@ -6024,6 +6061,17 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	
 }
 
+/*  The same with the slot's written mark (SEQ 526): clear, the compiled code never stored, so no kind is stamped -- the value moves only if
+    the field already holds that kind, as the plain flush does.  */
+extern "C" void jitFlushCountMarkRT(GroupItem *field, int value, int written)
+{
+	
+	if (!field) return;
+	if (written) field->setCount(value);
+	else if (isCOUNT(field->groupBody->flags.data)) field->groupBody->gCount = value;
+	
+}
+
 /*******************************************************************************
     jitEmitOpFire / jitOpFireRT -- AN OPERATOR WITH MEMBERS, FIRED AT RUN TIME
     (Tony's ruling 2026-09-25: += answers on the jitted road for every target the
@@ -6053,12 +6101,26 @@ extern "C" void jitFlushCountSlotKindRT(GroupItem *body, int value)
 	 GroupBody *gb = (GroupBody*)(void*)body; if ( isCOUNT(gb->flags.data) || !gb->flags.data ) { gb->gCount = value; gb->flags.data = 5; } 
 }
 
+extern "C" void jitFlushCountSlotMarkRT(GroupItem *body, int value, int written)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; if ( isCOUNT(gb->flags.data) || (written && !gb->flags.data) ) { gb->gCount = value; gb->flags.data = 5; } 
+}
+
 /*  The run-time flush / reload around a handed-over statement (SEQ 384). Each is handed a frame slot's GroupBody -- typed
     GroupItem here only because a tok extern needs a type; the passthrough treats it as the body -- and moves the value
     ONLY while the field holds a scalar of the slot's kind. A field holding a group, a string or a list keeps it.  */
 extern "C" void jitFlushCountSlotRT(GroupItem *body, int value)
 {
 	 GroupBody *gb = (GroupBody*)(void*)body; if ( isCOUNT(gb->flags.data) ) gb->gCount = value; 
+}
+
+extern "C" void jitFlushNumberMarkRT(GroupItem *field, double value, int written)
+{
+	
+	if (!field) return;
+	if (written) field->setNumber(value);
+	else if (isNUMBER(field->groupBody->flags.data)) field->groupBody->gNumber = value;
+	
 }
 
 extern "C" void jitFlushNumberRT(GroupItem *field, double value)
@@ -6069,6 +6131,11 @@ extern "C" void jitFlushNumberRT(GroupItem *field, double value)
 extern "C" void jitFlushNumberSlotKindRT(GroupItem *body, double value)
 {
 	 GroupBody *gb = (GroupBody*)(void*)body; if ( isNUMBER(gb->flags.data) || !gb->flags.data ) { gb->gNumber = value; gb->flags.data = 9; } 
+}
+
+extern "C" void jitFlushNumberSlotMarkRT(GroupItem *body, double value, int written)
+{
+	 GroupBody *gb = (GroupBody*)(void*)body; if ( isNUMBER(gb->flags.data) || (written && !gb->flags.data) ) { gb->gNumber = value; gb->flags.data = 9; } 
 }
 
 extern "C" void jitFlushNumberSlotRT(GroupItem *body, double value)
@@ -6673,6 +6740,18 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	jitDegrade("print operand: expression emitted no value", token);
 	return; }
 	llvm::Value *val = gJitResult;
+	//  printMarked a bare read of a kindless local prints by its written mark (SEQ 526)
+	{
+	JitFrameSlot *pfs = token ? jitFrameFind((void*)&(token->groupBody->gCount)) : nullptr;
+	if (token && !pfs) pfs = jitFrameFind((void*)&(token->groupBody->gNumber));
+	if (pfs && pfs->mark && token->jitData && token->jitData->jitValue == val) {
+	bool mNum = val->getType()->isDoubleTy();
+	llvm::Value *mfn = b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(mNum ? (void*)&appendGroupNumberMarked : (void*)&appendGroupMarked)), ptr, "printMarkFn");
+	llvm::FunctionType *mty = llvm::FunctionType::get(ptr, {val->getType(), i32, ptr, ptr, ptr}, false);
+	b->CreateCall(mty, mfn, {val, b->CreateLoad(i32, pfs->mark, "printMark"),
+	b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)token), ptr, "printMarkField"), fmtAddr, gJitPrintBuf}, "printMarked");
+	return; }
+	}
 	//  printByValueType the helper follows the value's own IR type: a double went to an i32 parameter and the IR was refused (SEQ 524)
 	bool valNum = val->getType()->isDoubleTy();
 	llvm::Value *callee = b->CreateIntToPtr(

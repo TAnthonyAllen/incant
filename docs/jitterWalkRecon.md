@@ -150,3 +150,16 @@ stroke moves that shape from right to wrong.**
 **Docket, found on the way, on trunk today:** an OLD-road action calling a new-road action under `jitter;` segfaults at compile
 (jitEmitCompare, null jitData, through opCall -> testOP): inlining runs the callee's chain with jitting on. No row reaches it. Its first
 sighting was a `rg = i8()` action that `ifNew` left on the old road; why it stayed there was not chased.
+
+## The unset slot (SEQ 526 R2, 2026-11-04) -- branch unset-slot, both roads
+
+A kindless local's slot carries a **written mark**: an i32 alloca, 0 until a compiled store runs. `gJitFrameAssigned` says a store was EMITTED;
+the mark says it RAN. **The invariant: while the mark is clear, the field is the truth**, because only a handed-over statement or an op-fire
+can have written it, and both reload. Clear, a flush stamps no kind (jitFlush{Count,Number}{Slot,}MarkRT) and a bare print reads the field,
+whose tag is what the interpreter shows (appendGroupMarked, appendGroupNumberMarked). Canary 412 -> 418.
+
+**Certificate:** newJitIfUnsetT: `un` and the old-road twin `uo` compiled, both born red. pop.sh, the two rows flip, nothing else; jitLadder 224 / 0
+row for row. **H7 (the mark always reads written):** both read 0 again; binary byte-identical after.
+
+**Past its reach, pinned red, a decision for Tony:** UA and UC. A native statement has already emitted its read, so `v = u + 1` reads 0 + 1 (plain
+refuses) and `v = u` copies 0 (plain copies the tag's text). Reaching them needs a statement to branch on the mark and fall back.
