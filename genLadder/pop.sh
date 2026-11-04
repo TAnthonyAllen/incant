@@ -1189,6 +1189,17 @@ _kav () { grep '^KA ' "$1" | tr -s ' ' | tr '\n' '|'; }
 _ofeq "kindArmNetT plain (the control): both arms' locals read their last write, exit, sentinel" "$(_kav "$T/kap.o") x$_kapx s$(grep -c '^KINDARM SENTINEL' "$T/kap.e")" "KA old 1 |KA new 1 | x0 s1"
 fdRow "kindArmNetT the net: refusals naming the local, old road | new road, then the values" "$(cat "$T/ka.o" "$T/ka.e" | grep -c 'NOT JITTABLE.*local o7') | $(cat "$T/ka.w" 2>/dev/null | grep -c 'NOT JITTABLE.*local n7') | $(_kav "$T/ka.o") x$_kax" "0 | 0 | KA old 1 |KA new 7.5 | x0" "1 | 1 | KA new 1 | x0"
 else echo "  FAIL  kindArmNetT MISSING"; fail=1; fi
+#  the narrowing (Tony, 2026-11-04): writers of ONE kind in both arms compile. Counts through each arm, and numbers, on both roads.
+_ksF=$(ip kindArmSameT)
+if [ -f "$_ksF" ]; then
+rm -f "$T/ks.w"; INCANT_JITTER_ERR="$T/ks.w" perl -e 'alarm 30; exec @ARGV' "$B" "$_ksF" > "$T/ks.o" 2> "$T/ks.e"; _ksx=$?
+sed -e 's/^testing(\(ksOld.\));/\1();/' -e '/^jitter;$/d' "$_ksF" > "$T/ks.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/ks.p" > "$T/ksp.o" 2> "$T/ksp.e"; _kspx=$?
+_ksv () { grep '^KS ' "$1" | tr -s ' ' | tr '\n' '|'; }
+_ksWant="KS oldThen 1 |KS oldElse 2 |KS oldNum 2.5 |KS newThen 1 |KS newElse 2 |KS newNum 2.5 |"
+_ofeq "kindArmSameT plain (the control): each arm's value, exit, sentinel" "$(_ksv "$T/ksp.o") x$_kspx s$(grep -c '^KINDSAME SENTINEL' "$T/ksp.e")" "$_ksWant x0 s1"
+_ofeq "kindArmSameT compiled: same-kind writers in both arms read as interpreted, exit, sentinel" "$(_ksv "$T/ks.o") x$_ksx s$(grep -c '^KINDSAME SENTINEL' "$T/ks.e")" "$_ksWant x0 s1"
+_ofeq "kindArmSameT nothing refused: NOT JITTABLE across both roads (a refused new-road action still prints its value)" "$(cat "$T/ks.e" "$T/ks.w" 2>/dev/null | grep -c 'NOT JITTABLE')" "0"
+else echo "  FAIL  kindArmSameT MISSING"; fail=1; fi
 #  newPlusEqT -- SEQ 523 R2 (2026-11-03), born red, a row only: `m6 += 5` in a new-road action body, no jitter. The new
 #  road refuses (ERROR Operator += failed on m6 and TOKEn) and prints 2; intended the old road's 7, nothing refused
 _peF=$(ip newPlusEqT)

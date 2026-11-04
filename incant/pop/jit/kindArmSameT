@@ -1,0 +1,48 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(KindSame);
+define
+    ksReq owner source result rule;
+    ksNew code={
+        ksSrc := argument.CodE;
+        ksReq.owner  := argument;
+        ksReq.source := ksSrc;
+        ksReq.rule   := KantGrammar["STARt"];
+        if compileIn(ksReq);
+            ksBlock = ksReq.result;
+            *ksBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ksBlock;
+        };
+    ksOldT code={ if 1 > 0; o1 = 1; else o1 = 2; print "KS oldThen " o1:; };
+    ksOldE code={ if 1 > 2; o2 = 1; else o2 = 2; print "KS oldElse " o2:; };
+    ksOldN code={ if 1 > 2; o3 = 1.5; else o3 = 2.5; print "KS oldNum " o3:; };
+    ksNewT code={ if 1 > 0; n1 = 1; else n1 = 2; print "KS newThen " n1:; };
+    ksNewE code={ if 1 > 2; n2 = 1; else n2 = 2; print "KS newElse " n2:; };
+    ksNewN code={ if 1 > 2; n3 = 1.5; else n3 = 2.5; print "KS newNum " n3:; };
+    ;
+search KindSame;
+ksNew(ksNewT);
+ksNew(ksNewE);
+ksNew(ksNewN);
+testing(ksOldT);
+testing(ksOldE);
+testing(ksOldN);
+jitter;
+ksNewT();
+ksNewE();
+ksNewN();
+cerr "KINDSAME SENTINEL":;
+stop();
+
+kindArmSameT -- SEQ 524 R2 ruling (Tony, 2026-11-04): the if-arm net refuses only when the writers' kinds differ. Writers of one
+kind in both arms compile and read as interpreted: counts taking each arm (1, then 2, so an arm not taken cannot satisfy the row),
+and numbers. pop.sh's twin replaces testing(...) with plain calls and drops jitter;.
