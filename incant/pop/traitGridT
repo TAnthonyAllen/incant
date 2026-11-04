@@ -1,0 +1,165 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(GridP);
+define
+    gAnchor=1;
+    gP3;
+    gP4;
+    gP6;
+    gTen=10;
+    gP9;
+    gM
+        gmA=1;
+        gmB=2;
+    nP3;
+    nP4;
+    nP6;
+    nTen=10;
+    nP9;
+    nM
+        nmA=1;
+        nmB=2;
+    ;
+registry(GridR);
+define
+    GridR isRule;
+    gRule nm='q';
+    ;
+registry(GridA);
+define
+    gAnchorA=1;
+    ;
+search GridR GridP GridA Utilities UnitTests list;
+registry(GridR);
+define
+    G1 tdG1=gRule+;
+    G2 tdG2=gRule;
+    G3 tdG3=gP3+;
+    G4 tdG4=gP4;
+    ;
+registry(GridA);
+define
+    gAnchorB=1;
+    G5 tdG5=gRule code={ print 1:; };
+    G6 tdG6=gP6 code={ print 1:; };
+    G7 tdG7=gTen code={ print 1:; };
+    G8 tdG8=gM code={ print 1:; };
+    G9 tdG9=gP9+ code={ print 1:; };
+    ;
+registry(GridR);
+it1 = FILe("define N1 tdN1=gRule+; N2 tdN2=gRule; N3 tdN3=nP3+; N4 tdN4=nP4; ;");
+registry(GridA);
+it1 = FILe("define nAnchorB=1; N5 tdN5=gRule code={ print 1:; }; N6 tdN6=nP6 code={ print 1:; }; N7 tdN7=nTen code={ print 1:; }; N8 tdN8=nM code={ print 1:; }; N9 tdN9=nP9+ code={ print 1:; }; ;");
+registry(GridA);
+define
+    gridRead code={
+        xG1 := G1["tdG1"];
+        kG1 := *xG1.datA;
+        lG1 := *xG1.listLengtH;
+        cerr "TG G1 kind=" kG1 " len=" lG1 " value=" xG1:;
+        xG2 := G2["tdG2"];
+        kG2 := *xG2.datA;
+        lG2 := *xG2.listLengtH;
+        cerr "TG G2 kind=" kG2 " len=" lG2 " value=" xG2:;
+        xG3 := G3["tdG3"];
+        kG3 := *xG3.datA;
+        lG3 := *xG3.listLengtH;
+        cerr "TG G3 kind=" kG3 " len=" lG3 " value=" xG3:;
+        xG4 := G4["tdG4"];
+        kG4 := *xG4.datA;
+        lG4 := *xG4.listLengtH;
+        cerr "TG G4 kind=" kG4 " len=" lG4 " value=" xG4:;
+        xG5 := G5["tdG5"];
+        kG5 := *xG5.datA;
+        lG5 := *xG5.listLengtH;
+        cerr "TG G5 kind=" kG5 " len=" lG5 " value=" xG5:;
+        xG6 := G6["tdG6"];
+        kG6 := *xG6.datA;
+        lG6 := *xG6.listLengtH;
+        cerr "TG G6 kind=" kG6 " len=" lG6 " value=" xG6:;
+        xG7 := G7["tdG7"];
+        kG7 := *xG7.datA;
+        lG7 := *xG7.listLengtH;
+        cerr "TG G7 kind=" kG7 " len=" lG7 " value=" xG7:;
+        xG8 := G8["tdG8"];
+        kG8 := *xG8.datA;
+        lG8 := *xG8.listLengtH;
+        cerr "TG G8 kind=" kG8 " len=" lG8 " value=" xG8:;
+        xG9 := G9["tdG9"];
+        kG9 := *xG9.datA;
+        lG9 := *xG9.listLengtH;
+        cerr "TG G9 kind=" kG9 " len=" lG9 " value=" xG9:;
+        xN1 := N1["tdN1"];
+        kN1 := *xN1.datA;
+        lN1 := *xN1.listLengtH;
+        cerr "TG N1 kind=" kN1 " len=" lN1 " value=" xN1:;
+        xN2 := N2["tdN2"];
+        kN2 := *xN2.datA;
+        lN2 := *xN2.listLengtH;
+        cerr "TG N2 kind=" kN2 " len=" lN2 " value=" xN2:;
+        xN3 := N3["tdN3"];
+        kN3 := *xN3.datA;
+        lN3 := *xN3.listLengtH;
+        cerr "TG N3 kind=" kN3 " len=" lN3 " value=" xN3:;
+        xN4 := N4["tdN4"];
+        kN4 := *xN4.datA;
+        lN4 := *xN4.listLengtH;
+        cerr "TG N4 kind=" kN4 " len=" lN4 " value=" xN4:;
+        xN5 := N5["tdN5"];
+        kN5 := *xN5.datA;
+        lN5 := *xN5.listLengtH;
+        cerr "TG N5 kind=" kN5 " len=" lN5 " value=" xN5:;
+        xN6 := N6["tdN6"];
+        kN6 := *xN6.datA;
+        lN6 := *xN6.listLengtH;
+        cerr "TG N6 kind=" kN6 " len=" lN6 " value=" xN6:;
+        xN7 := N7["tdN7"];
+        kN7 := *xN7.datA;
+        lN7 := *xN7.listLengtH;
+        cerr "TG N7 kind=" kN7 " len=" lN7 " value=" xN7:;
+        xN8 := N8["tdN8"];
+        kN8 := *xN8.datA;
+        lN8 := *xN8.listLengtH;
+        cerr "TG N8 kind=" kN8 " len=" lN8 " value=" xN8:;
+        xN9 := N9["tdN9"];
+        kN9 := *xN9.datA;
+        lN9 := *xN9.listLengtH;
+        cerr "TG N9 kind=" kN9 " len=" lN9 " value=" xN9:;
+        rP4 := GridP["gP4"];
+        sP4 := *rP4.isRulE;
+        cerr "TG sideEffect plain gP4 isRule=" sP4:;
+        rP3 := GridP["gP3"];
+        sP3 := *rP3.isRulE;
+        cerr "TG sideEffect plus gP3 isRule=" sP3:;
+        rP9 := GridP["gP9"];
+        sP9 := *rP9.isRulE;
+        cerr "TG sideEffect plus gP9 isRule=" sP9:;
+        rTen := GridP["gTen"];
+        sTen := *rTen.isRulE;
+        cerr "TG sideEffect plain gTen isRule=" sTen:;
+        };
+    ;
+gridRead();
+cerr "TG SENTINEL":;
+stop();
+
+traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04). What a define's attribute holds, read after the define
+finishes. G rows are the old road (a top-level define); N rows are the same seven-plus-two reached through FILe on the new
+road. Both roads share one define rule, so they should agree. A grid row names: where the define sits (rule = a registry
+flagged isRule; action = a plain registry, host with code=), what the value names, the modifier.
+G1 rule/rule/+  G2 rule/rule/none  G3 rule/plain/+  G4 rule/plain/none  G5 action/rule/none  G6 action/plain/none (Tony's
+tester case)  G7 action/plain holding 10/none  G8 action/plain holding members/none  G9 action/plain/+.
+Each plain target is used by one row only, because + writes the target (sideEffect rows, defineCapture section 3).
+Pinned at today's values. A := build owes new rows of its own and moves none of these.

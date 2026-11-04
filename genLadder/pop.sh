@@ -8687,6 +8687,38 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04): what a define's attribute holds once the define is done, pinned
+#  at today's values on both roads (N rows go through FILe). Columns: kind, list length, value. Rows read kind 6 only where the
+#  value names a rule or carries a modifier that makes it one (ruleActions.rtn:1155; + writes isRule on the target, the sideEffect rows).
+_tgF=$(ip traitGridT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_tgF" > "$T/tg.o" 2> "$T/tg.e"; _tgX=$?
+_ofeq "traitGridT exit status" "$_tgX" "0"
+_ofeq "traitGridT sentinel" "$(grep -c '^TG SENTINEL' "$T/tg.e")" "1"
+_tgv () { grep "^TG $1 " "$T/tg.e" | sed 's/^TG [A-Z0-9]* kind= *//; s/ len= */ /; s/ value= */ /' | xargs; }
+_ofeq "traitGridT G1 rule host, a rule, +: kind, len, value" "$(_tgv G1)" "0 1 tdG1"
+_ofeq "traitGridT G2 rule host, a rule, none: kind, len, value" "$(_tgv G2)" "0 1 tdG2"
+_ofeq "traitGridT G3 rule host, a plain field, +: kind, len, value" "$(_tgv G3)" "6 0 gP3"
+_ofeq "traitGridT G4 rule host, a plain field, none: kind, len, value" "$(_tgv G4)" "13 0 gP4"
+_ofeq "traitGridT G5 action host, a rule, none: kind, len, value" "$(_tgv G5)" "6 0 gRule"
+_ofeq "traitGridT G6 action host, a plain field, none (the tester case): kind, len, value" "$(_tgv G6)" "13 0 gP6"
+_ofeq "traitGridT G7 action host, a plain field holding 10, none: kind, len, value" "$(_tgv G7)" "5 0 10"
+_ofeq "traitGridT G8 action host, a plain field holding members, none: kind, len, value" "$(_tgv G8)" "0 2 tdG8"
+_ofeq "traitGridT G9 action host, a plain field, +: kind, len, value" "$(_tgv G9)" "6 0 gP9"
+_ofeq "traitGridT N1 the same through FILe: kind, len, value" "$(_tgv N1)" "0 1 tdN1"
+_ofeq "traitGridT N2 the same through FILe: kind, len, value" "$(_tgv N2)" "0 1 tdN2"
+_ofeq "traitGridT N3 the same through FILe: kind, len, value" "$(_tgv N3)" "6 0 nP3"
+_ofeq "traitGridT N4 the same through FILe: kind, len, value" "$(_tgv N4)" "13 0 nP4"
+_ofeq "traitGridT N5 the same through FILe: kind, len, value" "$(_tgv N5)" "6 0 gRule"
+_ofeq "traitGridT N6 the same through FILe: kind, len, value" "$(_tgv N6)" "13 0 nP6"
+_ofeq "traitGridT N7 the same through FILe: kind, len, value" "$(_tgv N7)" "5 0 10"
+_ofeq "traitGridT N8 the same through FILe: kind, len, value" "$(_tgv N8)" "0 2 tdN8"
+_ofeq "traitGridT N9 the same through FILe: kind, len, value" "$(_tgv N9)" "6 0 nP9"
+_tgs () { grep "^TG sideEffect $1 $2 " "$T/tg.e" | sed 's/.*isRule= *//' | xargs; }
+_ofeq "traitGridT no modifier leaves the target plain: gP4 isRule" "$(_tgs plain gP4)" "0"
+_ofeq "traitGridT no modifier leaves the target plain: gTen isRule" "$(_tgs plain gTen)" "0"
+_ofeq "traitGridT + writes isRule on the target: gP3 (rule host)" "$(_tgs plus gP3)" "1"
+_ofeq "traitGridT + writes isRule on the target: gP9 (action host)" "$(_tgs plus gP9)" "1"
+
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then
     exec 2>&3 3>&-
