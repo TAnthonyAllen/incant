@@ -1188,8 +1188,18 @@ sed -e 's/^testing(uOld);/uOld();/' -e '/^jitter;$/d' "$_nifuF" > "$T/nifu.p"; p
 rm -f "$T/nifu.w"; INCANT_JITTER_ERR="$T/nifu.w" perl -e 'alarm 30; exec @ARGV' "$B" "$_nifuF" > "$T/nifu.o" 2> "$T/nifu.e"; _nifux=$?
 _nifuv () { grep '^UN ' "$1" | tr -s ' ' | tr '\n' '|'; }
 _ofeq "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UN old uo |UN new un | x0 s1"
-fdRow "newJitIfUnsetT compiled reads an unwritten local as interpreted, exit, sentinel" "$(_nifuv "$T/nifu.o") x$_nifux s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifu.e")" "UN old 0 |UN new 0 | x0 s1" "UN old uo |UN new un | x0 s1"
+_ofeq "newJitIfUnsetT compiled runs (exit, sentinel)" "x$_nifux s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifu.e")" "x0 s1"
+fdRow "newJitIfUnsetT new road compiled: a local written only in an arm not taken reads its tag" "$(grep '^UN new' "$T/nifu.o" | tr -s ' ')" "UN new 0 " "UN new un "
+fdRow "newJitIfUnsetT OLD-road twin compiled: the same shape" "$(grep '^UN old' "$T/nifu.o" | tr -s ' ')" "UN old 0 " "UN old uo "
 else echo "  FAIL  newJitIfUnsetT MISSING"; fail=1; fi
+#  oldCallsNewT -- SEQ 526 R3: an old-road action calling a new-road action under jitter; segfaults at compile. Born red, no cure yet.
+_ocF=$(ip oldCallsNewT)
+if [ -f "$_ocF" ]; then
+sed '/^jitter;$/d' "$_ocF" > "$T/oc.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/oc.p" > "$T/ocp.o" 2> "$T/ocp.e"; _ocpx=$?
+perl -e 'alarm 30; exec @ARGV' "$B" "$_ocF" > "$T/oc.o" 2> "$T/oc.e"; _ocx=$?
+_ofeq "oldCallsNewT plain (the control): value, exit, sentinel" "$(grep '^OC ' "$T/ocp.o" | tr -s ' ') x$_ocpx s$(grep -c '^OLDCALLSNEW SENTINEL' "$T/ocp.e")" "OC 9  x0 s1"
+fdRow "oldCallsNewT under jitter; = plain (value, exit, sentinel)" "$(grep '^OC ' "$T/oc.o" | tr -s ' ') x$_ocx s$(grep -c '^OLDCALLSNEW SENTINEL' "$T/oc.e")" " x139 s0" "OC 9  x0 s1"
+else echo "  FAIL  oldCallsNewT MISSING"; fail=1; fi
 #  kindNumberT / kindZeroT / kindArmNetT -- SEQ 524 R1 (2026-11-04): a NUMBER into a kindless local, on the old road's compiled code.
 _knv () { sed -n 's/^'"$1"'  *\([^ ]*\)  *kind  *\([0-9]*\) *$/\1 \2/p' "$2"; }
 _knF=$(ip kindNumberT)

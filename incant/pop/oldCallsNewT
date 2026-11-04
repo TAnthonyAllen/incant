@@ -1,0 +1,37 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(OldCallsNew);
+define
+    ifReq owner source result rule;
+    ifNew code={
+        ifSrc := argument.CodE;
+        ifReq.owner  := argument;
+        ifReq.source := ifSrc;
+        ifReq.rule   := KantGrammar["STARt"];
+        if compileIn(ifReq);
+            ifBlock = ifReq.result;
+            *ifBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ifBlock;
+        };
+    ocNew code={ x = 5; if x > 2; return 9; return 1; };
+    ocOld code={ r = ocNew(); print "OC " r:; };
+    ;
+search OldCallsNew;
+ifNew(ocNew);
+jitter;
+ocOld();
+cerr "OLDCALLSNEW SENTINEL":;
+stop();
+
+oldCallsNewT -- SEQ 526 R3 (2026-11-04): an OLD-road action calling a NEW-road action, under jitter;. Plain (pop.sh's twin drops
+jitter;) it reads 9. Under jitter; the compile of ocOld inlines the callee, and processAction runs the callee's chain through testOP with
+jitting on, so an op's own gate fires on an operand nothing seeded: jitEmitCompare, null jitData, exit 139. Born red, no cure yet.
