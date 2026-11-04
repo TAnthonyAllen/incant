@@ -1141,27 +1141,46 @@ fi
 _njF=$(ip newJitT)
 if [ -f "$_njF" ]; then
 perl -e 'alarm 30; exec @ARGV' "$B" "$_njF" > "$T/nj.o" 2> "$T/nj.e"; _njx=$?
-sed '/^njNew(nj6);$/a\
+sed '/^njNew(nj7);$/a\
 jitter;
 ' "$_njF" > "$T/njj.k"
 #  witnessFile a first-call compile runs SILENCED (jitterReady sends its stdout / stderr to /dev/null); INCANT_JITTER_ERR keeps its stderr
 rm -f "$T/njj.w"; INCANT_JITTER_ERR="$T/njj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/njj.k" > "$T/njj.o" 2> "$T/njj.e"; _njjx=$?
 _njv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | tr '\n' '|'; }
-_ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3, NJ-4 14, NJ-5 4.5, NJ-6 7 21 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
+_ofeq "newJitT twin (no jitter): NJ-1 7, NJ-2 1, NJ-3 3, NJ-4 14, NJ-5 4.5, NJ-6 7 21, NJ-7 7 21 (stdout / exit / sentinel)" "$(_njv "$T/nj.o") x$_njx s$(grep -c '^NEWJITT SENTINEL' "$T/nj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ NJ-7 |7 |21 |NJ END | x0 s1"
 #  SEQ 522 R1: NJ-4..6 added (S2's rows); the jitted run equals the twin today because every statement is handed to testOP
 #  NJ-5 SPLIT OUT (Tony, SEQ 523 R0, ruled (c)): a NUMBER written into a kindless local gets an i32 slot -- on BOTH roads'
 #  compiled code -- so NJ-5 reads 5. It is pinned red on its own row; the whole-output row covers every other action, so a
 #  known red cannot absorb a new one. The cure is the next session's opener (a): kindless-local inference that tells NUMBER from count
 _njv5 () { _njv "$1" | sed 's/NJ NJ-5 |[^N]*//'; }
-fdRow "newJitT under jitter; = the twin, NJ-5 aside (stdout / exit / sentinel)" "$(_njv5 "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-6 |7 |21 |NJ END | x0 s1"
+fdRow "newJitT under jitter; = the twin, NJ-5 aside (stdout / exit / sentinel)" "$(_njv5 "$T/njj.o") x$_njjx s$(grep -c '^NEWJITT SENTINEL' "$T/njj.e")" "NJ NJ-1 | x139 s0" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-6 |7 |21 |NJ NJ-7 |7 |21 |NJ END | x0 s1"
 fdRow "newJitT NJ-5 under jitter;: a NUMBER crossing a kindless local = the twin's 4.5" "$(_njv "$T/njj.o" | sed -n 's/.*NJ NJ-5 |\([^|]*\)|.*/\1/p')" "5 " "4.5 "
 #  witnessPerAction RE-SHAPED (SEQ 522 R1): S1's row asserted walked = handed and native 0 for every compile -- S1's invariant,
 #  which S2 exists to break -- so it retires into this one: per action, walked / handed / native. Today S1's reading (all
 #  handed); intended S2's: assigns and arithmetic native, every other statement (print, if, while) still handed
-fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "nj1 2 2 0;nj2 2 2 0;nj3 3 3 0;nj4 4 4 0;nj5 3 3 0;nj6 5 5 0;" "nj1 2 1 1;nj2 2 1 1;nj3 3 2 1;nj4 4 1 3;nj5 3 1 2;nj6 5 3 2;"
+fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "nj1 2 1 1;nj2 2 1 1;nj3 3 2 1;nj4 4 1 3;nj5 3 1 2;nj6 5 3 2;nj7 6 3 3;" "nj1 2 1 1;nj2 3 1 2;nj3 3 2 1;nj4 4 1 3;nj5 3 1 2;nj6 6 2 4;nj7 6 3 3;"
 fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
 else echo "  FAIL  newJitT MISSING"; fail=1
 fi
+#  newJitIfT -- SEQ 525 (S3): ifThen through the jit brackets. Values pass today (every if hands over whole); the witness and the
+#  topology are born red. walked counts every statement visited, arm statements included; the if itself is native or handed.
+_nifF=$(ip newJitIfT)
+if [ -f "$_nifF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_nifF" > "$T/nif.o" 2> "$T/nif.e"; _nifx=$?
+sed '/^ifNew(ih);$/a\
+jitter;
+' "$_nifF" > "$T/nifj.k"
+rm -f "$T/nifj.w"; INCANT_JITTER_ERR="$T/nifj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifj.k" > "$T/nifj.o" 2> "$T/nifj.e"; _nifjx=$?
+_nifWant="IF i1 |1 |IF i2 |2 |IF i3 |3 |IF i4 |4 |IF i5 |2 |IF i6 |2 |IF i7 |6 |12 |IF i8 |IF i9 |1 |IF ia |1 |IF ib |1 |IF ic |IF id |1 |2 |IF ie |2 |IF ig |9 |IF ih |1 |IF END |"
+_ofeq "newJitIfT twin (no jitter): every shape's value, exit, sentinel" "$(_njv "$T/nif.o") x$_nifx s$(grep -c '^NEWJITIF SENTINEL' "$T/nif.e")" "$_nifWant x0 s1"
+_ofeq "newJitIfT under jitter; = the twin, exit, sentinel" "$(_njv "$T/nifj.o") x$_nifjx s$(grep -c '^NEWJITIF SENTINEL' "$T/nifj.e")" "$_nifWant x0 s1"
+_ofeq "newJitIfT nothing refused NOT JITTABLE under jitter;" "$(cat "$T/nifj.e" "$T/nifj.w" 2>/dev/null | grep -c 'NOT JITTABLE')" "0"
+fdRow "newJitIfT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nifj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "i1 3 2 1;i2 3 2 1;i3 3 2 1;i4 3 2 1;i5 3 2 1;i6 3 2 1;i7 3 2 1;i8 3 2 1;i9 3 2 1;ia 3 3 0;ib 3 2 1;ic 3 2 1;id 3 2 1;ie 3 2 1;ih 3 2 1;" "i1 5 1 4;i2 5 1 4;i3 4 1 3;i4 4 1 3;i5 7 1 6;i6 7 1 6;i7 6 2 4;i8 4 2 2;i9 3 2 1;ia 3 3 0;ib 5 1 4;ic 4 2 2;id 3 2 1;ie 3 2 1;ih 4 2 2;"
+rm -f "$T/nifd.w"; INCANT_JIT_DUMP=2 INCANT_JITTER_ERR="$T/nifd.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifj.k" > /dev/null 2>&1
+_nifTopo () { awk -v a="@jit_$1(" 'index($0,"define")==1 {on=index($0,a)>0; if(on) t=""} on && /^(then|else|endif)[0-9]*:/ {x=$1; gsub(/[0-9]*:.*/,"",x); t=t x " "} END{print t}' "$T/nifd.w"; }
+fdRow "newJitIfT topology of i1's standing build: then else endif, one each" "$(_nifTopo i1)" "" "then else endif "
+fdRow "newJitIfT the if with a handed-over condition has no arms in its IR (ia)" "$(_nifTopo ia)" "" ""
+else echo "  FAIL  newJitIfT MISSING"; fail=1; fi
 #  kindNumberT / kindZeroT / kindArmNetT -- SEQ 524 R1 (2026-11-04): a NUMBER into a kindless local, on the old road's compiled code.
 _knv () { sed -n 's/^'"$1"'  *\([^ ]*\)  *kind  *\([0-9]*\) *$/\1 \2/p' "$2"; }
 _knF=$(ip kindNumberT)

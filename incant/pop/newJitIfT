@@ -1,0 +1,120 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewJitIf);
+define
+    ifReq owner source result rule;
+    ifNew code={
+        ifSrc := argument.CodE;
+        ifReq.owner  := argument;
+        ifReq.source := ifSrc;
+        ifReq.rule   := KantGrammar["STARt"];
+        if compileIn(ifReq);
+            ifBlock = ifReq.result;
+            *ifBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ifBlock;
+        };
+    i1 code={ x1 = 5; if x1 > 2; y1 = 1; else y1 = 2; print y1:; };
+    i2 code={ x2 = 5; if x2 > 9; y2 = 1; else y2 = 2; print y2:; };
+    i3 code={ y3 = 3; if y3 > 9; y3 = 4; print y3:; };
+    i4 code={ y4 = 3; if y4 > 1; y4 = 4; print y4:; };
+    i5 code={
+        x5 = 5;
+        if x5 > 2;
+            if x5 > 9;  y5 = 1;
+            else        y5 = 2;
+        else y5 = 3;
+        print y5:;
+        };
+    i6 code={ x6 = 5; if x6 > 9; y6 = 1; or x6 > 2; y6 = 2; else y6 = 3; print y6:; };
+    i7 code={
+        x7 = 5;
+        if x7 > 2;
+            y7 = x7 + 1;
+            print y7:;
+            z7 = y7 * 2;
+        print z7:;
+        };
+    i8 code={ x8 = 5; if x8 > 2; return 9; print 1:; };
+    i9 code={ x9 = 1; if x9 > 0 && x9 < 5; y9 = 1; else y9 = 2; print y9:; };
+    ia code={ xa = "s"; if xa == "s"; ya = 1; else ya = 2; print ya:; };
+    ib code={ nb = 0.5; if nb < 1; yb = 1; else yb = 2; print yb:; };
+    ic code={ xc = 5; if xc > 2; break; print 8:; };
+    id code={
+        xd = 5;
+        if xd > 2;
+            print 1:;
+            break;
+        print 2:;
+        };
+    ie code={ xe = 0; if xe; ye = 1; else ye = 2; print ye:; };
+    rg = 0;
+    ih code={ xh = 1; if xh > 2; return 9; print 1:; };
+    ;
+search NewJitIf;
+ifNew(i1);
+ifNew(i2);
+ifNew(i3);
+ifNew(i4);
+ifNew(i5);
+ifNew(i6);
+ifNew(i7);
+ifNew(i8);
+ifNew(i9);
+ifNew(ia);
+ifNew(ib);
+ifNew(ic);
+ifNew(id);
+ifNew(ie);
+ifNew(ih);
+print "IF i1":;
+i1();
+print "IF i2":;
+i2();
+print "IF i3":;
+i3();
+print "IF i4":;
+i4();
+print "IF i5":;
+i5();
+print "IF i6":;
+i6();
+print "IF i7":;
+i7();
+print "IF i8":;
+i8();
+print "IF i9":;
+i9();
+print "IF ia":;
+ia();
+print "IF ib":;
+ib();
+print "IF ic":;
+ic();
+print "IF id":;
+id();
+print "IF ie":;
+ie();
+print "IF ig":;
+rg = i8();
+print rg:;
+print "IF ih":;
+ih();
+print "IF END":;
+cerr "NEWJITIF SENTINEL":;
+stop();
+
+newJitIfT -- SEQ 525 (S3 of docs/jitterWalkRecon.md): ifThen through the jit brackets. Run plain (the twin, testOP) and with jitter;
+after the last ifNew. i1 / i2 each arm by value; i3 / i4 no else, each way; i5 a nested if in a seq arm; i6 an or chain; i7 a seq
+arm with a handed-over print in it, native on both sides; i8 / ih return in an arm, taken (nothing after it prints; IF ig reads 9 at the top level) and not taken (a compiled arm's fallback leaves through the epilogue);
+i9 / ia / ie conditions that hand the whole if over (&&, a string, a bare read); ib a number crossing the compare; ic a break in a
+single-statement arm (the action's seq catches it, so the action ends); id a break in a seq arm (that seq catches it, so the statement
+after the if still runs: the whole if hands over until S4).

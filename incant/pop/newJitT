@@ -34,6 +34,16 @@ define
     nj4 code={ a4 = 3; b4 = a4 + 4; c4 = b4 * 2; print c4:; };
     nj5 code={ a5 = 3.5; b5 = a5 + 1; print b5:; };
     nj6 code={ m6 = 2; if m6 > 0; m6 = 7; print m6:; n6 = m6 * 3; print n6:; };
+    nj7 code={
+        m7 = 2;
+        k7 = 0;
+        while k7 < 1;
+            k7 = k7 + 1;
+            m7 = 7;
+        print m7:;
+        n7 = m7 * 3;
+        print n7:;
+        };
     ;
 search NewJitT;
 njNew(nj1);
@@ -42,6 +52,7 @@ njNew(nj3);
 njNew(nj4);
 njNew(nj5);
 njNew(nj6);
+njNew(nj7);
 print "NJ NJ-1":;
 nj1();
 print "NJ NJ-2":;
@@ -54,6 +65,8 @@ print "NJ NJ-5":;
 nj5();
 print "NJ NJ-6":;
 nj6();
+print "NJ NJ-7":;
+nj7();
 print "NJ END":;
 cerr "NEWJITT SENTINEL":;
 stop();
@@ -74,6 +87,7 @@ S2 (SEQ 522): seq, arithmetic and assign walked NATIVELY; everything else still 
 assigns and arithmetic on counts (14); NJ-5 the same crossing a NUMBER, so the cast rule is crossed (4.5); NJ-6 the
 mix -- a native assign, a FALLBACK statement that writes the same local (an `if` whose arm sets m6 = 7: ifThen is not
 native in S2, so the whole if goes to testOP), a print, then a native statement reading what the fallback left (7, 21).
+NJ-7 (SEQ 525): S3 makes NJ-6's if native, so NJ-7 carries the frame's test -- the fallback writing the local is a whole loop.
 NJ-6 is the frame's test: a slot flushed before a fallback and reloaded after it; without the reload, n6 reads the stale
 2 and prints 6. (`m6 += 5` was the first spelling: on the new road it fails, `ERROR Operator += failed on m6 and TOKEn`,
 plainly -- reported in seal 328, not this row's business.)
