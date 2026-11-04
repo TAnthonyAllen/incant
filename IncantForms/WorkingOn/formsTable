@@ -8,7 +8,7 @@ NEEDS TONY -- RULED 2026-11-03 (Tony, via Clay), except item 3
     1. RULED: style-setting attributes may go directly on fields.
     2. RULED: style changes are scoped to the field's subtree. Any field can
        override by naming its own style or change.
-    3. OPEN (a later afternoon): event-time firing. setAction is gone. How
+    3. RULED 2026-11-04 (forms plan, "Event firing"); the question as it stood: event-time firing. setAction is gone. How
        does kant fire an attribute's action at event time -- what finds it, in
        what order, and what decides that a click or key belongs to it? (Old
        GUI bubbled from the clicked field up through its parents.)
@@ -18,6 +18,7 @@ NEEDS TONY -- RULED 2026-11-03 (Tony, via Clay), except item 3
        sides (Bot drew them per side), kept, spelling settled at A4. fill is
        NOT inherited. fit=text is dropped.
     PAD DROPPED 2026-11-04 (Tony, SEQ 532): item 5's "parked" is superseded.
+    onLayout DROPPED 2026-11-04 (Tony). Click actions use onClick, an attribute naming the action.
     SIDES RULED 2026-11-04 (Tony): topBorder bottomBorder leftBorder rightBorder; bare = width 1, =number = width;
     naming any side draws only the named sides; plain border stays four-sided.
     The rows below still carry their pre-ruling leans; where a ruling moved
@@ -212,7 +213,7 @@ menu           event          no   yes  pullDown                       draw     
 form           define         no   no   template, $name/$content holes none             respell
                  a kant template with arguments
 Label, Body    define         no   no   form template                  none             respell
-onLayout       event          no   yes  hasOnLayout, never set         none             respell
+onLayout       event          no   yes  hasOnLayout, never set         none             drop (ruled)
 onLoad         event          no   yes  CSS onLoad hook only           none             respell
 onEndEdit      event          no   yes  no reader                      none             respell
 onValue        event          no   yes  no reader                      none             respell
@@ -243,4 +244,4 @@ THE DROP LIST -- CONFIRMED 2026-11-03 (Needs Tony 4)
     textShadow · fontSize · center · alignAcross · alignDown · bStyle · cell ·
     setSource · addToSource · deleteFromSource · hTML · pDF · the matrix
     parameters · dump · attributes · vCONTENt / pULLdOWN / dETAILs ·
-    fit=text (ruled with item 5) · pad and its sides (ruled 2026-11-04)
+    fit=text (ruled with item 5) · pad and its sides (ruled 2026-11-04) · onLayout (ruled 2026-11-04)

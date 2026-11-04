@@ -106,7 +106,7 @@ The typesetting language is a lovely destination. Points 1 and 2 are the parts t
 /*******************************************************************************
 	The forms plan of record (SEQ 531, 2026-11-04)
 *******************************************************************************/
-STATE: A1, A3 and A4 on paper are done, with the side spelling ruled; A2 answered NO and is parked behind SEQ 530. Event firing: recon done, waiting on Tony. Nothing built.
+STATE: A1, A3 and A4 on paper are done, with the side spelling ruled; A2 answered NO and is parked behind SEQ 530. Event firing is ruled on paper; its proof waits on M1, := and the parent fix. Nothing built.
 Evidence files: IncantForms/WorkingOn/formsRecon (what the old GUI did: file, method, line) and
 IncantForms/WorkingOn/formsTable (the lookup: one row per attribute). formsPlan is now only a pointer here.
 
@@ -135,6 +135,14 @@ Native floor (Tony via Clay, 2026-11-03)
     Core Text measures and Core Graphics draws, to the screen and to PDF (CGPDFContext). No libharu.
     libharu TextRect's fill-and-report is the pour primitive: fill this frame and report how much was used. The count is
     KEPT, as the next frame's start.
+Event firing (Tony, 2026-11-04)
+    Click actions use onClick, an attribute naming the action. It needs := (SEQ 530): today onClick=action hands over a copy.
+    Bubbling stays, and a member's parent must be its enclosing field. The parse-label parent is a morning docket item, recon first (macros).
+    A field fires its own action, then its attribute actions left to right, as the old GUI did.
+    Click comes first. onLayout is dropped; it joins the drop list.
+    A click selects the field first, as the old GUI did.
+    Layout's mouseUp calls a kant extern.
+    Firing is proved with a synthetic point and no window, after frames exist (M1).
 From the forms notes (forms plan, 2026-11-03)
     Vertical align is dropped in favour of space.
     Comments in a form are // text, with no braces in action bodies.
@@ -155,7 +163,7 @@ A3  Attribute table, one row per attribute: moment (define / layout / event), in
 A4  The first-light form, ON PAPER: the smallest form touching all three moments -- a window, down, border, text, one
     button. WALKED 2026-11-04 (SEQ 532): IncantForms/Windows/firstLight, cut from simple; read back by
     IncantForms/WorkingOn/firstLightRead. The walk and the side count are below. The side spelling is RULED (2026-11-04).
-    Event firing goes after A4, through A4's button.
+    Event firing goes after A4, through A4's button. RECON DONE and RULED 2026-11-04; its proof waits on frames (M1), := and the parent fix.
 A5  The foreign-call design, paper only until the jitter settles: a C++ method with several arguments or non-kant types
     is reached through a declared signature; the jitter emits a glue body that reads the field's members and calls the
     C++, so kant keeps one signature.
@@ -164,9 +172,8 @@ Later: the drawing language, then print / typesetting.
 /*******************************************************************************
 	Open questions
 *******************************************************************************/
-1  Event-time firing (formsTable, needs-Tony item 3). setAction is gone. How does kant fire an attribute's action at event
-   time: what finds it, in what order, and what decides that a click or key belongs to it? Old GUI bubbled from the
-   clicked field up through its parents.
+1  CLOSED 2026-11-04: event-time firing is ruled (rulings above). OPEN from it: := in a define is held until the listener comes
+   off parked (SEQ 532 R2), and onClick now needs it too. Which comes first is Tony's.
 2  The listener's spelling, PARKED: how kant spells "b listens to a", and which way updates flow. See A2.
 3  CLOSED 2026-11-04: the border-side spelling is ruled (rulings above), and pad is dropped.
 4  Emphasis inside a paragraph whose style comes from its framing field.
@@ -302,7 +309,7 @@ Candidate morning items (none ruled):
        into an existing field: with initFORMs swapped for its two search lines, simple merged into UnitTests' simple.
 
 /*******************************************************************************
-	Event firing: recon only (2026-11-04). No design until Tony has read it.
+	Event firing: the recon behind the rulings (2026-11-04)
 *******************************************************************************/
 Old GUI (GUI/Layout.twk fireAction 160-218; formsRecon's head and its action row). A native mouseUp, rightMouseUp or key event finds
 the field with blockContaining (GUI/Details.rtn), selects it, then walks up through parents. At each level it runs the field's

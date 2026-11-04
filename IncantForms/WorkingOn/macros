@@ -303,6 +303,7 @@ DOCKET HEAD (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong
     - RS, a silent wrong answer beside UA: an old-road self-call returning a non-count -- compiled reads 1, interpreted s or 1.5.
     - two blind spots, unpinned: a handed-over new-road writer of unknown kind outside any arm gives no kind, so a later native writer decides the slot; a for body's kinds ignore its if arms.
     - oldCallsNewT: an old-road action calling a new-road action under jitter; segfaults at compile. Pinned born red, no cure.
+    - parse-label parent (Tony, 2026-11-04), RECON FIRST: a member's parent is the parse's label, not its enclosing field (measured: evDeep -> evBody -> MemberS -> DefinE -> MemberS). It must be the enclosing field; forms' bubbling needs it. Record: IncantForms/WorkingOn/forms, Event firing.
     - newPlusEqT: m6 += 5 refuses on the new road (no jitter), "Operator += failed on m6 and TOKEn". Pinned red.
     - kindZeroT: compiled roads read r's kind as 0 after r = 0.0; value right, row red. The spelling users will be told ("make r a number first") holds for the value.
     - gen26 reads 24 / 2 here against 26 / 0 in the SEQ 418 results file: the SHORTCUTFIRE trace is newer than the instrument's mask. An instrument gap, not a value.
