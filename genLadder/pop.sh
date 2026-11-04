@@ -1187,7 +1187,7 @@ if [ -f "$_nifuF" ]; then
 sed -e 's/^testing(uOld);/uOld();/' -e '/^jitter;$/d' "$_nifuF" > "$T/nifu.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifu.p" > "$T/nifup.o" 2> "$T/nifup.e"; _nifupx=$?
 rm -f "$T/nifu.w"; INCANT_JITTER_ERR="$T/nifu.w" perl -e 'alarm 30; exec @ARGV' "$B" "$_nifuF" > "$T/nifu.o" 2> "$T/nifu.e"; _nifux=$?
 _nifuv () { grep '^UN ' "$1" | tr -s ' ' | tr '\n' '|'; }
-_ofeq "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UN new un |UN old uo | x0 s1"
+_ofeq "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UN old uo |UN new un | x0 s1"
 fdRow "newJitIfUnsetT compiled reads an unwritten local as interpreted, exit, sentinel" "$(_nifuv "$T/nifu.o") x$_nifux s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifu.e")" "UN old 0 |UN new 0 | x0 s1" "UN old uo |UN new un | x0 s1"
 else echo "  FAIL  newJitIfUnsetT MISSING"; fail=1; fi
 #  kindNumberT / kindZeroT / kindArmNetT -- SEQ 524 R1 (2026-11-04): a NUMBER into a kindless local, on the old road's compiled code.
