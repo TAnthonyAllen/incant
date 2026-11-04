@@ -321,6 +321,8 @@ inline std::vector<void*> gJitArmStack;
 inline std::map<GroupBody*, void*> gJitWriterArm;
 inline std::map<GroupBody*, int> gJitWriterKinds;
 inline std::set<GroupBody*> gJitArmNet;
+// The jitter walk's witness counts (SEQ 525): every statement visited, arm statements included; each one native or handed.
+inline int gJitWalkWalked = 0, gJitWalkHanded = 0, gJitWalkNative = 0;
 inline bool jitArmNetRefuses(GroupBody *b) {
     if ( !gJitArmNet.count(b) ) return false;
     int k = gJitWriterKinds[b];

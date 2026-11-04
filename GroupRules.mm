@@ -3546,6 +3546,23 @@ extern "C" int jitArgSyncRT(GroupItem *node, GroupItem *field)
 	
 }
 
+/*  jitArmHasBranch -- SEQ 525 S3: does this seq arm hold a branch signal outside a loop? The arm's seq catches a break, and the block-exit
+    target for that is S4's; until then such an if hands over whole, where the seq runs interpreted and catches it.  */
+extern "C" int jitArmHasBranch(GroupItem *n, int d)
+{
+	
+	if ( !n || d > 64 || (void*)n->groupBody->gMethod != (void*)&testOP ) return 0;
+	GroupItem *op = n->get(1), *a = n->get(2);
+	if ( !op || !a || !op->groupBody->tag ) return 0;
+	const char *t = op->groupBody->tag;
+	if ( !::strcmp(t, "branchSignal") ) return 1;
+	if ( ::strcmp(t, "seq") && ::strcmp(t, "ifThen") ) return 0;
+	GroupItem *c = 0;
+	while ( (c = a->next(c)) ) if ( ::jitArmHasBranch(c, d+1) ) return 1;
+	return 0;
+	
+}
+
 /*  the emitted `=` with a node on the right does what opAssign does: setContent,
     or clearData on a null -- a holder on the right carries its group across (Tony,
     2026-10-04; SEQ 295 R2). Edit the two together; incant/pop/assignRoadT pins them.
@@ -7987,42 +8004,21 @@ extern "C" int jitUnboxCount(GroupItem *node)
     [1] the op, [2] the statement list. Walk the statements in order and hand each to its OWN testOP at RUN time through
     jitEmitStmtRT, which runs the instruct's method on the action's fields and maps a return, continue or break left set.
     S2 (SEQ 522): a statement built only of assign and the jitEmitter= operators is emitted natively (jitWalkEligible,
-    jitWalkExpr); every other statement is still handed over.
+    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt); every other statement is still handed over.
     The witness line is printed unconditionally, one per compile (H4).  */
 extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 {
 	
-	GroupRules *ruler = GroupControl::groupController->groupRules;
-	int walked = 0, handed = 0, native = 0;
+	gJitWalkWalked = gJitWalkHanded = gJitWalkNative = 0;
 	GroupItem *stmts = blk ? blk->get(2) : nullptr;
 	GroupItem *stmt  = nullptr;
 	if (stmts)
-	while ((stmt = stmts->next(stmt))) {
-	walked++;
-	//  nativeStep a statement built only of assign and the jitEmitter= operators is emitted through the old road's own
-	//  dispatch, in aCTionBlocK's per-statement bracket: a part it cannot emit hands the whole statement over (SEQ 522 S2)
-	if (::jitWalkEligible(stmt)) {
-	gJitStmt = stmt; gJitStmtRTDone = false;
-	::jitStmtBegin();
-	::jitWalkExpr(stmt);
-	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
-	bool wasHanded = gJitHandOver;
-	::jitStmtEnd(stmt);
-	//  noResultStore a new-road action hands back only what a return gives (A3, SEQ 509) -- never the last statement's
-	//  value, which is the old road's rule (aCTionBlocK's jitStoreResult); storing it moved RT-5 to 4
-	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
-	if (wasHanded) handed++; else native++;
-	continue; }
-	//  handedWriters a statement handed over whole is never walked: its writers reach the if-arm net by a scan (SEQ 524)
-	::jitScanArmsChain(stmt, 0);
-	gJitStmtRTBranches = 0;
-	::jitEmitStmtRT(stmt);
-	handed++; }
+	while ((stmt = stmts->next(stmt))) ::jitWalkStmt(stmt);
 	//  witnessFinal the witness speaks for the build that stands, never one about to restart (SEQ 524, Tony)
 	if ( !gJitRestartNeeded ) {
-	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, walked, handed, native);
+	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, gJitWalkWalked, gJitWalkHanded, gJitWalkNative);
 	::fflush(stderr); }
-	return walked;
+	return gJitWalkWalked;
 	
 }
 
@@ -8058,6 +8054,92 @@ extern "C" GroupItem *jitWalkExpr(GroupItem *node)
 	GroupItem *t  = ::jitWalkExpr(node->get(2));
 	GroupItem *a  = ::jitWalkExpr(node->get(3));
 	return ::runOPslots(op, t, a);
+	
+}
+
+/*  jitWalkIfNative -- SEQ 525 S3: can this ifThen be emitted here? Its condition is an instruct the walk emits natively; a bare read
+    goes to testOP, whose truthOf the emit does not repeat. A seq arm holding a branch signal waits for S4 (jitArmHasBranch).  */
+extern "C" int jitWalkIfNative(GroupItem *stmt)
+{
+	
+	GroupItem *op = stmt ? stmt->get(1) : nullptr, *arms = stmt ? stmt->get(2) : nullptr;
+	if ( !op || !arms || !op->groupBody->tag || ::strcmp(op->groupBody->tag, "ifThen") ) return 0;
+	if ( !::jitWalkEligible(arms->get(1)) ) return 0;
+	for ( int k = 2; k <= 3; k++ ) {
+	GroupItem *arm = arms->get(k);
+	GroupItem *armOp = arm ? arm->get(1) : nullptr;
+	if ( armOp && armOp->groupBody->tag && !::strcmp(armOp->groupBody->tag, "seq") && ::jitArmHasBranch(arm, 0) ) return 0; }
+	return 1;
+	
+}
+
+/*  jitWalkStmt -- SEQ 525 S3: one statement of the walk. An ifThen with a native condition goes through the old road's brackets, each arm
+    walked by this same step; S2's native statement next; anything else is handed to its testOP. The rules are jitEmitGIF's: nothing in
+    flight before the condition, a condition that hands over or has no value hands the whole if over, nothing in flight after each arm.
+    No result store: a new-road action hands back only what a return gives (A3).  */
+extern "C" void jitWalkStmt(GroupItem *stmt)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	gJitWalkWalked++;
+	GroupItem *op = stmt->get(1);
+	if ( op && op->groupBody->tag && !::strcmp(op->groupBody->tag, "seq") && (void*)stmt->groupBody->gMethod == (void*)&testOP ) {
+	gJitWalkWalked--;
+	GroupItem *c = 0, *items = stmt->get(2);
+	while ( items && (c = items->next(c)) ) ::jitWalkStmt(c);
+	return; }
+	if ( ::jitWalkIfNative(stmt) ) {
+	GroupItem *arms = stmt->get(2), *cond = arms->get(1), *thenS = arms->get(2), *elseS = arms->get(3);
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	gJitResult = nullptr;
+	::jitWalkExpr(cond);
+	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
+	//  numberCondition jitIfBegin's test is an integer compare and truthOf is the interpreter's: a double in flight hands over
+	if ( !gJitHandOver && (!gJitResult || gJitResult->getType()->isDoubleTy()) )
+	::jitHandOver((char*)"IF condition with no boolean value -- the whole IF runs INTERPRETED", stmt);
+	if ( gJitHandOver ) {
+	::jitScanArmsChain(stmt, 0);
+	::jitStmtEnd(stmt);
+	gJitWalkHanded++;
+	return; }
+	::jitIfBegin();
+	gJitResult = nullptr;
+	gJitArmStack.push_back((char*)stmt);
+	if ( thenS ) ::jitWalkStmt(thenS);
+	gJitArmStack.pop_back();
+	gJitResult = nullptr;
+	::jitIfElse();
+	gJitArmStack.push_back((char*)stmt + 1);
+	if ( elseS ) ::jitWalkStmt(elseS);
+	gJitArmStack.pop_back();
+	gJitResult = nullptr;
+	::jitIfEnd();
+	gJitResult = nullptr;
+	gJitWalkNative++;
+	gJitStmt = stmt;
+	::jitStmtEnd(stmt);
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	return; }
+	//  nativeStep a statement built only of assign and the jitEmitter= operators is emitted through the old road's own
+	//  dispatch, in aCTionBlocK's per-statement bracket: a part it cannot emit hands the whole statement over (SEQ 522 S2)
+	if ( ::jitWalkEligible(stmt) ) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	::jitWalkExpr(stmt);
+	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
+	bool wasHanded = gJitHandOver;
+	::jitStmtEnd(stmt);
+	//  noResultStore a new-road action hands back only what a return gives (A3, SEQ 509) -- never the last statement's
+	//  value, which is the old road's rule (aCTionBlocK's jitStoreResult); storing it moved RT-5 to 4
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	if ( wasHanded ) gJitWalkHanded++; else gJitWalkNative++;
+	return; }
+	//  handedWriters a statement handed over whole is never walked: its writers reach the if-arm net by a scan (SEQ 524)
+	::jitScanArmsChain(stmt, 0);
+	gJitStmtRTBranches = 0;
+	::jitEmitStmtRT(stmt);
+	gJitWalkHanded++;
 	
 }
 
