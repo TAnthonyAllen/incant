@@ -1158,7 +1158,7 @@ fdRow "newJitT NJ-5 under jitter;: a NUMBER crossing a kindless local = the twin
 #  witnessPerAction RE-SHAPED (SEQ 522 R1): S1's row asserted walked = handed and native 0 for every compile -- S1's invariant,
 #  which S2 exists to break -- so it retires into this one: per action, walked / handed / native. Today S1's reading (all
 #  handed); intended S2's: assigns and arithmetic native, every other statement (print, if, while) still handed
-fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "nj1 2 1 1;nj2 3 1 2;nj3 3 2 1;nj4 4 1 3;nj5 3 1 2;nj6 6 2 4;nj7 5 3 2;" "nj1 2 1 1;nj2 3 1 2;nj3 6 1 5;nj4 4 1 3;nj5 3 1 2;nj6 6 2 4;nj7 5 3 2;"
+fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/njj.w" 2>/dev/null | grep '^=== jitter walk: ' | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "nj1 2 1 1;nj2 3 1 2;nj3 6 1 5;nj4 4 1 3;nj5 3 1 2;nj6 6 2 4;nj7 5 3 2;" "nj1 2 0 2;nj2 3 0 3;nj3 6 0 6;nj4 4 0 4;nj5 3 0 3;nj6 6 0 6;nj7 5 1 4;"
 fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
 else echo "  FAIL  newJitT MISSING"; fail=1
 fi
@@ -1175,7 +1175,7 @@ _nifWant="IF i1 |1 |IF i2 |2 |IF i3 |3 |IF i4 |4 |IF i5 |2 |IF i6 |2 |IF i7 |6 |
 _ofeq "newJitIfT twin (no jitter): every shape's value, exit, sentinel" "$(_njv "$T/nif.o") x$_nifx s$(grep -c '^NEWJITIF SENTINEL' "$T/nif.e")" "$_nifWant x0 s1"
 _ofeq "newJitIfT under jitter; = the twin, exit, sentinel" "$(_njv "$T/nifj.o") x$_nifjx s$(grep -c '^NEWJITIF SENTINEL' "$T/nifj.e")" "$_nifWant x0 s1"
 _ofeq "newJitIfT nothing refused NOT JITTABLE under jitter;" "$(cat "$T/nifj.e" "$T/nifj.w" 2>/dev/null | grep -c 'NOT JITTABLE')" "0"
-fdRow "newJitIfT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nifj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "i1 5 1 4;i2 5 1 4;i3 4 1 3;i4 4 1 3;i5 7 1 6;i6 7 1 6;i7 6 2 4;i8 4 2 2;i9 3 2 1;ia 3 3 0;ib 5 1 4;ic 4 2 2;id 3 2 1;ie 3 2 1;ih 4 2 2;" "i1 5 1 4;i2 5 1 4;i3 4 1 3;i4 4 1 3;i5 7 1 6;i6 7 1 6;i7 6 2 4;i8 4 2 2;i9 3 2 1;ia 3 3 0;ib 5 1 4;ic 4 1 3;id 5 2 3;ie 3 2 1;ih 4 2 2;"
+fdRow "newJitIfT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nifj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "i1 5 1 4;i2 5 1 4;i3 4 1 3;i4 4 1 3;i5 7 1 6;i6 7 1 6;i7 6 2 4;i8 4 2 2;i9 3 2 1;ia 3 3 0;ib 5 1 4;ic 4 1 3;id 5 2 3;ie 3 2 1;ih 4 2 2;" "i1 5 0 5;i2 5 0 5;i3 4 0 4;i4 4 0 4;i5 7 0 7;i6 7 0 7;i7 6 0 6;i8 4 1 3;i9 3 1 2;ia 3 2 1;ib 5 0 5;ic 4 0 4;id 5 0 5;ie 3 1 2;ih 4 1 3;"
 rm -f "$T/nifd.w"; INCANT_JIT_DUMP=2 INCANT_JITTER_ERR="$T/nifd.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifj.k" > /dev/null 2>&1
 _nifTopo () { awk -v a="@jit_$1(" 'index($0,"define")==1 {on=index($0,a)>0; if(on) t=""} on && /^(then|else|endif)[0-9]*:/ {x=$1; gsub(/[0-9]*:.*/,"",x); t=t x " "} END{print t}' "$T/nifd.w"; }
 fdRow "newJitIfT topology of i1's standing build: then else endif, one each" "$(_nifTopo i1)" "" "then else endif "
@@ -1193,11 +1193,23 @@ _nlpWant="L l1 |1 |2 |3 |L l2 |1 |2 |8 |L l3 |1 |3 |4 |L l4 |1 |2 |9 |1 |2 |9 |L
 _ofeq "newJitLoopT twin (no jitter): every shape's value, exit, sentinel" "$(_njv "$T/nlp.o") x$_nlpx s$(grep -c '^NEWJITLOOP SENTINEL' "$T/nlp.e")" "$_nlpWant x0 s1"
 _ofeq "newJitLoopT under jitter; = the twin, exit, sentinel" "$(_njv "$T/nlpj.o") x$_nlpjx s$(grep -c '^NEWJITLOOP SENTINEL' "$T/nlpj.e")" "$_nlpWant x0 s1"
 fdRow "newJitLoopT nothing refused NOT JITTABLE under jitter; (lj's undeclared for cursor is the one today)" "$(cat "$T/nlpj.e" "$T/nlpj.w" 2>/dev/null | grep 'NOT JITTABLE --' | sed 's/.*-- \([a-z0-9]*\).s local.*/\1/' | tr '\n' ' ')" "lj " ""
-fdRow "newJitLoopT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nlpj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "l1 2 1 1;l2 3 2 1;l3 2 1 1;l4 2 1 1;l5 2 1 1;l6 2 1 1;l7 3 2 1;l8 2 1 1;l9 3 2 1;la 3 2 1;lb 3 2 1;lc 3 2 1;ld 3 2 1;le 3 2 1;lf 2 1 1;lg 4 3 1;lh 2 1 1;li 3 2 1;lj 3 2 1;lk 3 3 0;ll 2 1 1;lm 2 1 1;ln 3 2 1;" "l1 4 1 3;l2 7 2 5;l3 6 1 5;l4 10 2 8;l5 4 1 3;l6 4 1 3;l7 7 2 5;l8 6 1 5;l9 7 3 4;la 7 2 5;lb 6 3 3;lc 6 3 3;ld 6 3 3;le 7 3 4;lf 4 1 3;lg 4 3 1;lh 2 1 1;li 4 1 3;lj 3 2 1;lk 3 2 1;ll 6 2 4;lm 7 2 5;ln 5 3 2;"
+fdRow "newJitLoopT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nlpj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "l1 4 1 3;l2 7 2 5;l3 6 1 5;l4 10 2 8;l5 4 1 3;l6 4 1 3;l7 7 2 5;l8 6 1 5;l9 7 3 4;la 7 2 5;lb 6 3 3;lc 6 3 3;ld 6 3 3;le 7 3 4;lf 4 1 3;lg 4 3 1;lh 2 1 1;li 4 1 3;lj 3 2 1;lk 3 2 1;ll 6 2 4;lm 7 2 5;ln 5 3 2;" "l1 4 0 4;l2 7 0 7;l3 6 0 6;l4 10 0 10;l5 4 0 4;l6 4 0 4;l7 7 0 7;l8 6 0 6;l9 7 1 6;la 7 0 7;lb 6 1 5;lc 6 1 5;ld 6 0 6;le 7 0 7;lf 4 0 4;lg 4 2 2;lh 2 1 1;li 4 0 4;lj 3 1 2;lk 3 0 3;ll 6 0 6;lm 7 0 7;ln 5 1 4;"
 rm -f "$T/nlpd.w"; INCANT_JIT_DUMP=2 INCANT_JITTER_ERR="$T/nlpd.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nlpj.k" > /dev/null 2>&1
 _nlpTopo () { awk -v a="@jit_$1(" 'index($0,"define")==1 {on=index($0,a)>0; if(on) t=""} on && /^(cond|body|loopexit|dobody|docond|doexit)[0-9]*:/ {x=$1; gsub(/[0-9]*:.*/,"",x); t=t x " "} END{print t}' "$T/nlpd.w"; }
 fdRow "newJitLoopT topology of the standing build: l1 a while, l5 a do" "$(_nlpTopo l1)| $(_nlpTopo l5)" "| " "cond loopexit body | dobody docond doexit "
 else echo "  FAIL  newJitLoopT MISSING"; fail=1; fi
+#  newJitPrintT -- SEQ 527 R3 (S5): print, cerr, cout through the walk. Values pass today (every print hands over); the witness is born red.
+_nprF=$(ip newJitPrintT)
+if [ -f "$_nprF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_nprF" > "$T/npr.o" 2> "$T/npr.e"; _nprx=$?
+sed '/^prNew(pq);$/a\
+jitter;
+' "$_nprF" > "$T/nprj.k"
+rm -f "$T/nprj.w"; INCANT_JITTER_ERR="$T/nprj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nprj.k" > "$T/nprj.o" 2> "$T/nprj.e"; _nprjx=$?
+_ofeq "newJitPrintT under jitter; = the twin: stdout, the cerr line, exit, sentinel" "$(_njv "$T/nprj.o") $(grep -c '^e  3' "$T/nprj.e") x$_nprjx s$(grep -c '^NEWJITPRINT SENTINEL' "$T/nprj.e")" "$(_njv "$T/npr.o") $(grep -c '^e  3' "$T/npr.e") x$_nprx s$(grep -c '^NEWJITPRINT SENTINEL' "$T/npr.e")"
+_ofeq "newJitPrintT twin carries real output (not two empties compared): a value, a string, a format, the cout, the cerr" "$(_njv "$T/npr.o" | grep -c 'n=  3') $(_njv "$T/npr.o" | grep -c 'P p6 |str') $(_njv "$T/npr.o" | grep -c ' 1.50') $(_njv "$T/npr.o" | grep -c 'o  3') $(grep -c '^e  3' "$T/npr.e")" "1 1 1 1 1"
+fdRow "newJitPrintT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nprj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "p1 1 1 0;p2 2 1 1;p3 2 1 1;p4 3 1 2;p5 2 1 1;p6 2 2 0;p7 2 2 0;p8 2 1 1;p9 1 1 0;pa 1 1 0;pb 1 1 0;pc 2 2 0;pd 1 1 0;pe 2 1 1;pf 2 1 1;pg 2 1 1;ph 1 1 0;pi 3 1 2;pj 4 1 3;pk 2 2 0;pl 3 1 2;pm 2 1 1;pn 1 1 0;po 3 2 1;pp 2 1 1;pq 1 1 0;" "p1 1 0 1;p2 2 0 2;p3 2 0 2;p4 3 0 3;p5 2 0 2;p6 2 1 1;p7 2 0 2;p8 2 1 1;p9 1 0 1;pa 1 0 1;pb 1 0 1;pc 2 2 0;pd 1 1 0;pe 2 0 2;pf 2 0 2;pg 2 0 2;ph 1 1 0;pi 3 0 3;pj 4 0 4;pk 2 0 2;pl 3 0 3;pm 2 1 1;pn 1 0 1;po 3 1 2;pp 2 0 2;pq 1 1 0;"
+else echo "  FAIL  newJitPrintT MISSING"; fail=1; fi
 #  newReturnKindT -- SEQ 527 R2: what a compiled function hands back when it is not a count, both roads. Born red under jitter;.
 _rkF=$(ip newReturnKindT)
 if [ -f "$_rkF" ]; then
