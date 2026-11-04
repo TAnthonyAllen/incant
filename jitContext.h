@@ -298,14 +298,42 @@ inline std::set<void*> gJitFieldResident;
 // so it still picks by the argument's kind, as it does interpreted.
 inline std::set<void*> gJitFrameAssigned;
 // THE KIND A KINDLESS LOCAL'S WRITER GIVES IT (SEQ 388 R1, Tony): written by jitNoteWriter during the emit walk, keyed on
-// the local's GroupBody; 5 = a scalar, anything else = that non-scalar kind (6 a holder or a cursor, 13 a string ...).
+// the local's GroupBody; 5 = a count, 9 = a number (SEQ 524: its FIRST writer's, in walk order), anything else = that
+// non-scalar kind (6 a holder or a cursor, 13 a string ...).
 // Cleared at jitRunAction's entry and NOT by jitFlushTransient -- it is what a restart starts over knowing.
 class GroupBody;
 inline std::map<GroupBody*, int> gJitLocalKind;
 inline int gJitKindRestarts = 0;
 inline bool jitLocalNonScalar(GroupBody *b) {
     auto it = gJitLocalKind.find(b);
-    return it != gJitLocalKind.end() && it->second != 5;
+    return it != gJitLocalKind.end() && it->second != 5 && it->second != 9;
+}
+inline bool jitLocalNumber(GroupBody *b) {
+    auto it = gJitLocalKind.find(b);
+    return it != gJitLocalKind.end() && it->second == 9;
+}
+// THE IF-ARM NET (SEQ 524, Tony): walk order is not run-time order inside an if arm. gJitWriterArm is the arm each kindless
+// local's first writer sits in (null: none); a later writer not in that arm puts the local in gJitArmNet. gJitWriterKinds is
+// every writer's kind seen this build: 1 a count, 2 a number, 4 not known at build. The net refuses a local in gJitArmNet whose
+// writers are not all of one kind (R2's ruling): one kind gets the same slot whichever runs first, and a writer not known at
+// build cannot be said to agree. All cleared at each build's top, because each build's walk notes them again.
+inline std::vector<void*> gJitArmStack;
+inline std::map<GroupBody*, void*> gJitWriterArm;
+inline std::map<GroupBody*, int> gJitWriterKinds;
+inline std::set<GroupBody*> gJitArmNet;
+inline bool jitArmNetRefuses(GroupBody *b) {
+    if ( !gJitArmNet.count(b) ) return false;
+    int k = gJitWriterKinds[b];
+    return k != 1 && k != 2;
+}
+inline void jitNoteArm(GroupBody *b, int seen) {
+    gJitWriterKinds[b] |= seen;
+    void *cur = gJitArmStack.empty() ? nullptr : gJitArmStack.back();
+    auto it = gJitWriterArm.find(b);
+    if ( it == gJitWriterArm.end() ) { gJitWriterArm[b] = cur; return; }
+    if ( !it->second ) return;
+    for ( void *a : gJitArmStack ) if ( a == it->second ) return;
+    gJitArmNet.insert(b);
 }
 
 // Nodes seeded with JitData during the current compile. JitData is transient (one

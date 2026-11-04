@@ -1879,8 +1879,16 @@ GroupItem 	*field = 0;
 	return field;
 }
 
+// appendGroupNumberValue the double in flight, as appendGroupValue carries the i32: the interpreted print's own formatting (SEQ 524)
+extern "C" GroupItem *appendGroupNumberValue(double value, GroupItem *FormaT, Buffer *buffer)
+{
+GroupItem 	*carrier = new GroupItem("jitPrintValue");
+	carrier->setNumber(value);
+	return ::appendGroup(carrier,FormaT,buffer);
+}
+
 /*  a FRESH carrier per call -- a shared one would be a second name for a value in
-    flight. i32 only; a double or string entry wants a rung.  jitEmitters.appendGroupValue  */
+    flight. A string entry wants a rung.  jitEmitters.appendGroupValue  */
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer)
 {
 GroupItem 	*carrier = new GroupItem("jitPrintValue");
@@ -3640,6 +3648,11 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  not change when it dies. jitRunAction still nulls gJitBuilder on the way
 	//  out so it never dangles at a destroyed frame.
 	llvm::IRBuilder<> B(C);
+	//  armsPerBuild the walk notes every writer again, so a discarded build's premature kinds cannot reach the net (SEQ 524)
+	gJitWriterArm.clear();
+	gJitWriterKinds.clear();
+	gJitArmNet.clear();
+	gJitArmStack.clear();
 	// computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
 	gJitComputedVal = nullptr;
 	// cursorRecord a handed-over cursor belongs to one function's build: the next function built in the same compile must not read it (SEQ 403)
@@ -3825,7 +3838,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	if (::jitLocalNonScalar(fb)) continue;
 	llvm::Type *ty;
 	void       *addr;
-	if (isNUMBER(fb->flags.data)) { ty = llvm::Type::getDoubleTy(C); addr = &(fb->gNumber); }
+	//  firstWriterNumber a kindless local whose first writer is a number takes the double slot NUMBER fields use (SEQ 524)
+	if (isNUMBER(fb->flags.data) || ::jitLocalNumber(fb)) { ty = llvm::Type::getDoubleTy(C); addr = &(fb->gNumber); }
 	else                          { ty = llvm::Type::getInt32Ty(C);  addr = &(fb->gCount);  }
 	if (jitFrameFind(addr)) continue;    // one slot per field, not per node
 	llvm::Value *slot = B.CreateAlloca(ty, nullptr, fb->tag);
@@ -3873,6 +3887,15 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	if (!gJitRestartNeeded) for (JitFrameSlot &f : gJitFrame) {
 	GroupBody *lb = f.ty->isDoubleTy() ? (GroupBody*)((char*)f.home - offsetof(GroupBody, gNumber))
 	: (GroupBody*)((char*)f.home - offsetof(GroupBody, gCount));
+	//  ifArmNet a first writer inside an if arm, another elsewhere, kinds that differ: which runs first picks the slot, and that is a run-time fact (SEQ 524, Tony)
+	if (::jitArmNetRefuses(lb)) {
+	fprintf(stderr, "=== jitRunAction: NOT JITTABLE -- %s's local %s has its first writer inside an if arm and a writer of another kind elsewhere ===\n",
+	action->groupBody->tag, lb->tag ? lb->tag : "?");
+	fflush(stderr);
+	gJitBuilder = nullptr;
+	gJitResult  = nullptr;
+	gJitResultSlot = nullptr;
+	return -8; }
 	if (lb->flags.data || gJitLocalKind.count(lb)) continue;
 	fprintf(stderr, "=== jitRunAction: NOT JITTABLE -- %s's local %s is kindless and has no writer the build can see ===\n",
 	action->groupBody->tag, lb->tag ? lb->tag : "?");
@@ -4878,17 +4901,21 @@ GroupItem 	*result = ExpressioN;
 		::jitEmitBareRead(ExpressioN);
 		}
 	// conditionHandedOver a condition that handed its statement to run time ends the emit here: the arms would be rolled back
-	 if ( gJitHandOver ) return new GroupItem((char*)"jitIfRT"); 
+	 if ( gJitHandOver ) { ::jitScanArmsOld(input,0); return new GroupItem((char*)"jitIfRT"); } 
 	// wholeIfInterpreted a condition with no value degrades the WHOLE if to the interpreted road: one run-time call runs it through aCTionIF, and no arm is ever emitted without its condition (SEQ 331, Tony)
 	
 	if (!gJitResult) {
 	::jitHandOver((char*)"IF condition produced no value -- the whole IF runs INTERPRETED", ExpressioN);
+	::jitScanArmsOld(input,0);
 	return new GroupItem((char*)"jitIfRT");
 	}
 	
 	jitIfBegin();
+	// armNoted a writer walked inside an arm is noted with that arm, for the if-arm net (SEQ 524)
+	 gJitArmStack.push_back((char*)input); 
 	if ( StatemenT )
 		result = StatemenT->groupBody->gMethod(StatemenT);
+	 gJitArmStack.pop_back(); 
 	/*  Commit the then-arm's value INSIDE thenBB, and the else-arm's INSIDE
 	elseBB. This is the merge: the exit block's load reads whichever arm
 	ran. Must sit BEFORE jitIfElse/jitIfEnd, which move the insert point. */
@@ -4899,8 +4926,10 @@ GroupItem 	*result = ExpressioN;
 	refuses. THE EMITTER THAT COMMITS OWNS THE CLEARING.  */
 	// absentElseDominance  the measured IR, and why no ladder rung had the shape that exposes it
 	 gJitResult = nullptr; 
+	 gJitArmStack.push_back((char*)input + 1); 
 	if ( ElsE )
 		result = ElsE->groupBody->gMethod(ElsE);
+	 gJitArmStack.pop_back(); 
 	jitStoreResult();
 	jitIfEnd();
 	/*  ⚠ NOTHING IS LEFT IN FLIGHT. Both arms already committed inside their
@@ -6394,16 +6423,18 @@ extern "C" int jitNoteFor(GroupItem *input)
 	GroupBody *tb = t->groupBody;
 	int kind = 1;
 	if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
-	else if ( v && v->groupBody->flags.data ) kind = isCOUNT(v->groupBody->flags.data) || isNUMBER(v->groupBody->flags.data) ? 5 : v->groupBody->flags.data;
+	else if ( v && v->groupBody->flags.data ) kind = isCOUNT(v->groupBody->flags.data) ? 5 : v->groupBody->flags.data;
 	auto it = gJitLocalKind.find(tb);
 	if ( kind == 5 ) { if ( it == gJitLocalKind.end() ) gJitLocalKind[tb] = 5; }
-	else if ( it == gJitLocalKind.end() || it->second == 5 ) {
+	else if ( kind == 9 && it != gJitLocalKind.end() ) { }
+	else if ( it == gJitLocalKind.end() || it->second == 5 || it->second == 9 ) {
 	gJitLocalKind[tb] = kind;
 	if ( ::jitFrameFind((void*)&(tb->gCount)) || ::jitFrameFind((void*)&(tb->gNumber)) ) {
 	gJitRestartNeeded = true;
 	gJitKindRestarts++; } } }
 	for ( GroupItem *c = b->groupList->firstInList; c; c = c->nextInParent ) scan(c, d+1); } };
 	scan(input->get((char*)"StatemenT"), 0);
+	::jitScanArmsOld(input->get((char*)"StatemenT"), 0);
 	return 1;
 	
 }
@@ -6411,26 +6442,38 @@ extern "C" int jitNoteFor(GroupItem *input)
 /*  jitNoteWriter -- a kindless local takes its kind from its build-visible writer (SEQ 388 R1, Tony). Asked at runOPdirect's
     top for every assign-tier op under jitting, and at aCTionIterate's jitting gate for the cursor (op null). `:=`, `<-` and
     a cursor make a holder; `=` or a compound whose argument has a known non-scalar kind (a string literal, a local already
-    found non-scalar) gives that kind; any other argument is one the jit seeds or carries, so a scalar. `=` with no
-    argument in hand says nothing. A non-scalar outranks a scalar, and one found after the prologue slotted the local
-    restarts the build -- a non-scalar never gets a scalar slot.  */
+    found non-scalar) gives that kind; any other argument is one the jit seeds or carries, so a scalar: a number if it is
+    one, else a count. `=` with no argument in hand says nothing. A non-scalar outranks a scalar, and one found after the
+    prologue slotted the local restarts the build -- a non-scalar never gets a scalar slot. Between the scalars the FIRST
+    writer in walk order decides, as the interpreter's kindless `=` does (SEQ 524, Tony); a writer seen once a restart is
+    owed says nothing, because its operands were read at the slots that restart replaces.  */
 extern "C" int jitNoteWriter(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	
 	if ( !target ) return 0;
 	GroupBody *tb = target->groupBody;
 	if ( !tb->flags.isLocal || tb->flags.isArgument || tb->flags.noPrint || tb->flags.data ) return 0;
-	int kind = 5;
+	int kind = 5, seen = 4;
 	if ( !op ) kind = 6;
 	else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
-	else if ( !arg ) return 0;
-	else if ( !arg->jitData ) {
+	else if ( !arg ) { ::jitNoteArm(tb,4); return 0; }
+	else if ( arg->jitData ) {
+	if ( arg->jitData->jitValue ) {
+	if ( arg->jitData->jitValue->getType()->isDoubleTy() ) { kind = 9; seen = 2; }
+	else seen = 1; } }
+	else {
 	int ad = arg->groupBody->flags.data;
-	if ( ad && !isCOUNT(ad) && !isNUMBER(ad) )             kind = ad;
-	else if ( !ad && ::jitLocalNonScalar(arg->groupBody) ) kind = gJitLocalKind[arg->groupBody]; }
+	if ( isNUMBER(ad) )                                    { kind = 9; seen = 2; }
+	else if ( isCOUNT(ad) )                                seen = 1;
+	else if ( ad )                                         kind = ad;
+	else if ( ::jitLocalNonScalar(arg->groupBody) )        kind = gJitLocalKind[arg->groupBody];
+	else if ( ::jitLocalNumber(arg->groupBody) )           { kind = 9; seen = 2; }
+	else if ( gJitLocalKind.count(arg->groupBody) )        seen = 1; }
+	::jitNoteArm(tb,seen);
 	auto it = gJitLocalKind.find(tb);
-	if ( kind == 5 ) { if ( it == gJitLocalKind.end() ) gJitLocalKind[tb] = 5; return 0; }
-	if ( it != gJitLocalKind.end() && it->second != 5 ) return 0;
+	if ( kind == 5 ) { if ( it == gJitLocalKind.end() && !gJitRestartNeeded ) gJitLocalKind[tb] = 5; return 0; }
+	if ( kind == 9 && (gJitRestartNeeded || it != gJitLocalKind.end()) ) return 0;
+	if ( it != gJitLocalKind.end() && it->second != 5 && it->second != 9 ) return 0;
 	gJitLocalKind[tb] = kind;
 	if ( ::jitFrameFind((void*)&(tb->gCount)) || ::jitFrameFind((void*)&(tb->gNumber)) ) {
 	gJitRestartNeeded = true;
@@ -6613,9 +6656,11 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	jitDegrade("print operand: expression emitted no value", token);
 	return; }
 	llvm::Value *val = gJitResult;
+	//  printByValueType the helper follows the value's own IR type: a double went to an i32 parameter and the IR was refused (SEQ 524)
+	bool valNum = val->getType()->isDoubleTy();
 	llvm::Value *callee = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&appendGroupValue), ptr, "printValFn");
-	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {i32, ptr, ptr}, false);
+	llvm::ConstantInt::get(i64, (uint64_t)(valNum ? (void*)&appendGroupNumberValue : (void*)&appendGroupValue)), ptr, "printValFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {val->getType(), ptr, ptr}, false);
 	b->CreateCall(ty, callee, {val, fmtAddr, gJitPrintBuf}, "printVal"); }
 	else {
 	//  A LITERAL OR A SHORTCUT: it contributes ITSELF, so the node goes
@@ -7417,6 +7462,103 @@ int 		truth = 0;
 	return truth;
 }
 
+/*  jitScanArmsChain -- the same for a new-road statement handed over whole, which the walk never enters: an instruct is
+    [op, target, arg], and a unary op's operand is a plain list of statements; ifThen's is condition, then, else (SEQ 524).  */
+extern "C" int jitScanArmsChain(GroupItem *n, int d)
+{
+	
+	if ( !n || d > 64 || (void*)n->groupBody->gMethod != (void*)&testOP ) return 0;
+	GroupItem *op = n->get(1), *a = n->get(2);
+	if ( !op || !a ) return 0;
+	if ( op->groupBody->flags.isUnary ) {
+	bool isIf = op->groupBody->tag && !::strcmp(op->groupBody->tag, "ifThen");
+	if ( (void*)a->groupBody->gMethod == (void*)&testOP ) { ::jitScanArmsChain(a, d+1); return 0; }
+	int i = 0;
+	GroupItem *c = 0;
+	while ( (c = a->next(c)) ) {
+	if ( isIf && i ) gJitArmStack.push_back((char*)n + i);
+	::jitScanArmsChain(c, d+1);
+	if ( isIf && i ) gJitArmStack.pop_back();
+	i++; }
+	return 0; }
+	GroupBody *tb = a->groupBody;
+	if ( ::opIsAssignTier(op) && tb->flags.isLocal && !tb->flags.isArgument && !tb->flags.noPrint && !tb->flags.data ) {
+	bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind;
+	::jitScanWriter(a, holder ? 4 : ::jitScanKind(n->get(3),0)); }
+	::jitScanArmsChain(a, d+1);
+	::jitScanArmsChain(n->get(3), d+1);
+	return 0;
+	
+}
+
+/*  jitScanArmsOld -- the if-arm net's view of an old-road tree the walk will not visit: a for body, or an if whose condition
+    handed over (SEQ 524).  */
+extern "C" int jitScanArmsOld(GroupItem *n, int d)
+{
+	
+	if ( !n || d > 64 ) return 0;
+	GroupBody *b = n->groupBody;
+	if ( b->flags.isLocal || b->flags.isRule || b->flags.actionType ) return 0;
+	if ( (void*)b->gMethod == (void*)&aCTionIF ) {
+	gJitArmStack.push_back((char*)n);
+	::jitScanArmsOld(n->get((char*)"StatemenT"), d+1);
+	gJitArmStack.back() = (char*)n + 1;
+	::jitScanArmsOld(n->get((char*)"ElsE"), d+1);
+	gJitArmStack.pop_back();
+	return 0; }
+	if ( !b->flags.instructType ) {
+	if ( isGROUP(b->flags.data) && b->gGroup && b->tag && !::strcmp(b->tag, "ExpressioN") ) ::jitScanArmsOld(b->gGroup, d+1);
+	return 0; }
+	if ( b->groupList ) {
+	GroupItem *t = n->get(1), *op = n->get(2);
+	if ( t && op && ::opIsAssignTier(op) && t->groupBody->flags.isLocal && !t->groupBody->flags.isArgument
+	&& !t->groupBody->flags.noPrint && !t->groupBody->flags.data ) {
+	bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind;
+	::jitScanWriter(t, holder ? 4 : ::jitScanKind(n->get(3),0)); }
+	for ( GroupItem *c = b->groupList->firstInList; c; c = c->nextInParent ) ::jitScanArmsOld(c, d+1); }
+	return 0;
+	
+}
+
+/*  jitScanKind -- what a scan can say about a value it will not walk: 1 a count, 2 a number, 4 not known at build. A literal or
+    known field, a kindless local already recorded, a binary operator with an emitter over those (a divide is not known: it
+    computes a double from counts). Anything else, a call first of all, is 4 (SEQ 524).  */
+extern "C" int jitScanKind(GroupItem *v, int d)
+{
+	
+	if ( !v || d > 64 ) return 4;
+	GroupBody *b = v->groupBody;
+	if ( isCOUNT(b->flags.data) )  return 1;
+	if ( isNUMBER(b->flags.data) ) return 2;
+	if ( (void*)b->gMethod == (void*)&testOP ) {
+	GroupItem *op = v->get(1);
+	if ( !op || op->groupBody->flags.isUnary || !op->groupBody->gJitEmitter ) return 4;
+	if ( op->groupBody->tag && !::strcmp(op->groupBody->tag, "/") ) return 4;
+	int k = ::jitScanKind(v->get(2),d+1) | ::jitScanKind(v->get(3),d+1);
+	return (k & 4) ? 4 : (k & 2) ? 2 : 1; }
+	if ( b->flags.data || !b->flags.isLocal ) return 4;
+	auto it = gJitLocalKind.find(b);
+	if ( it == gJitLocalKind.end() ) return 4;
+	return it->second == 5 ? 1 : it->second == 9 ? 2 : 4;
+	
+}
+
+/*  jitScanWriter -- a writer a scan found. The net hears it; a count or a number is also a build-visible writer for the slot, the
+    first one in walk order deciding as in jitNoteWriter. A writer whose kind is not known says nothing about the slot (SEQ 524).  */
+extern "C" int jitScanWriter(GroupItem *target, int seen)
+{
+	
+	GroupBody *tb = target->groupBody;
+	::jitNoteArm(tb,seen);
+	if ( seen == 4 || gJitRestartNeeded || gJitLocalKind.count(tb) ) return 0;
+	gJitLocalKind[tb] = seen == 2 ? 9 : 5;
+	if ( seen == 2 && ::jitFrameFind((void*)&(tb->gCount)) ) {
+	gJitRestartNeeded = true;
+	gJitKindRestarts++; }
+	return 1;
+	
+}
+
 /*******************************************************************************
     jitSeedField -- unbox a real count/number field operand, past constant
     folding: bake the stable GroupItem address, load gCount/gNumber, and stash
@@ -7437,7 +7579,7 @@ extern "C" GroupItem *jitSeedField(GroupItem *token)
 	// the node the prologue walked. Globals fall through and bake, unchanged.
 	{
 	GroupBody *tb = token->groupBody;
-	void *home = isNUMBER(tb->flags.data) ? (void*)&(tb->gNumber) : (void*)&(tb->gCount);
+	void *home = (isNUMBER(tb->flags.data) || ::jitLocalNumber(tb)) ? (void*)&(tb->gNumber) : (void*)&(tb->gCount);
 	JitFrameSlot *f = jitFrameFind(home);
 	if (f) {
 	d->jitSlot = f->slot;
@@ -7871,11 +8013,15 @@ extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
 	if (wasHanded) handed++; else native++;
 	continue; }
+	//  handedWriters a statement handed over whole is never walked: its writers reach the if-arm net by a scan (SEQ 524)
+	::jitScanArmsChain(stmt, 0);
 	gJitStmtRTBranches = 0;
 	::jitEmitStmtRT(stmt);
 	handed++; }
+	//  witnessFinal the witness speaks for the build that stands, never one about to restart (SEQ 524, Tony)
+	if ( !gJitRestartNeeded ) {
 	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, walked, handed, native);
-	::fflush(stderr);
+	::fflush(stderr); }
 	return walked;
 	
 }

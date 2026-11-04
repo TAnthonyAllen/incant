@@ -148,3 +148,51 @@ canary 404 throughout.
 **What the census cannot see.** On the new road a handed-over statement is never walked, so its writers never reach
 `jitNoteWriter`. Probed (under `jitter;` = plain on both options): `if 1 > 0; m7 = 7.5; ...` -- no visible writer, the net refuses
 it, interpreted, 8.5. `m8 = 2.5; if ...; m8 = 7;` 8. `m9 = 2; if ...; m9 = 7.5;` 9.
+
+## SEQ 524 R1 + R2 -- the cure (ruled 2026-11-04: option B, the if-arm net, the witness on the standing build only)
+
+**R1, trunk (62bfbd28), all born red on the old binary:** kindNumberT (compiled 5, intended 4.5), rung JN (compiled 4, intended
+3.25; no rung reached a NUMBER-valued kindless local), kindZeroT (the rider), kindArmNetT (the net: 0 refusals, new road 7.5 where
+plain reads 1).
+
+**R2, branch kindless-number (51836c0a), not merged:**
+- `jitNoteWriter`: a number (kind 9) from a NUMBER argument, a double in flight or a kindless number local; the first writer in walk
+  order decides; a writer seen once a restart is owed records no scalar kind. `jitNoteFor` the same for a for body.
+- Prologue and `jitSeedField`: such a local takes the double slot at `gNumber`. No layout change; groups.ext untouched.
+- **One cure the design did not predict:** print's value arm took i32 only, so a double there was invalid IR and the compile was
+  refused. `appendGroupNumberValue` beside `appendGroupValue`; the emit follows the value's IR type.
+- The net: `gJitWriterArm` / `gJitArmNet`; `jitEmitGIF` tracks walked arms; `jitScanArmsOld` (a for body, an if whose condition handed
+  over) and `jitScanArmsChain` (a new-road statement handed over whole) see arms the walk never enters. Refusal, return -8:
+  `NOT JITTABLE -- <action>'s local <x> has its first writer inside an if arm and another writer elsewhere`.
+- `jitWalkChain`'s witness prints only when no restart is owed.
+
+**Certificate:** NJ-5 4.5; kindNumberT 4.5; JN 3.25. Witness row as pinned (nj5 once). pop.sh 2449 -> 2452 green: exactly NJ-5,
+kindNumberT, kindArmNetT flip; jitArgNumberT stays 193; no other FAIL row moves. jitLadder 224 ok / 0 (219 + JN's five), row for row
+but the binary echo. Canary 404 -> 407 (jitScanArmsOld, jitScanArmsChain, appendGroupNumberValue). printPop exit 0; decodePop = capture
+but the binary echo; ddPop 5 / 1 (standing); frontier = capture. gen26 24 / 2, per file as on the tapped trunk binary. Directive anchors
+on the functions touched: none.
+
+**H7 (cure committed first; single fixtures, 60 s alarm; md5-restored, rebuilt, binary byte-identical):**
+| control | NJ-5 | kindNumberT | JN | kindArmNetT |
+|---|---|---|---|---|
+| number arm removed | **5** | **5** | **4** | refused 1 / 1 (unmoved) |
+| net removed | 4.5 | 4.5 | 3.25 | **0 / 0, new road 7.5** |
+
+**The rider** (`r = 0.0; r = 7`): interpreted 7 kind 9; `testing()` and `jitter;` both 7, reading kind 0, with `%r = alloca double`.
+So 0.0 does NOT arrive as a count: the slot is a number. The kind reads 0 inside a compiled action because a frame slot's kind is
+stamped at its flush, and `.datA` reads the field. Red by intent, not cured here.
+
+**Two things the net does as written, for the buy:**
+- It does not look at kinds. `if 1 > 0; x = 1; else x = 2;` (counts in both arms) is refused too, and runs interpreted under `jitter;`
+  with the right value. No fleet row has this shape, so the fleet cannot see the cost.
+- Under `testing()` a refused action does not run at all, as kindlessNetT's refusal already did: kindArmNetT's old-road action prints
+  nothing there.
+
+## SEQ 524 R2 ruling -- the net narrowed (Tony, 2026-11-04)
+
+The net refuses only when the writers' kinds differ. `gJitWriterKinds` records each writer: count, number, or not known at build; a
+local passes only if all its writers are one known kind. A writer not known at build (a call, a divide in a scan) cannot be said to agree,
+so it still refuses, and that action runs interpreted. Same-kind writers in both arms compile (kindArmSameT, both roads, each arm).
+**The scans now record kinds, not only arms:** a writer in a statement the walk never enters was invisible, so `if ...; x = 1; else x = 2;`
+on the new road would have fallen to SEQ 388's no-writer net. A scanned count or number is now a build-visible writer (`jitScanKind`,
+`jitScanWriter`). Arm records clear at each build's top, so a discarded build's premature kinds cannot reach the net. Canary 407 -> 409.
