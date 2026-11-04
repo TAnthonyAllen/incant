@@ -18,6 +18,8 @@ NEEDS TONY -- RULED 2026-11-03 (Tony, via Clay), except item 3
        sides (Bot drew them per side), kept, spelling settled at A4. fill is
        NOT inherited. fit=text is dropped.
     PAD DROPPED 2026-11-04 (Tony, SEQ 532): item 5's "parked" is superseded.
+    SIDES RULED 2026-11-04 (Tony): topBorder bottomBorder leftBorder rightBorder; bare = width 1, =number = width;
+    naming any side draws only the named sides; plain border stays four-sided.
     The rows below still carry their pre-ruling leans; where a ruling moved
     one, the row says "ruled".
 
@@ -155,7 +157,7 @@ Geometry and plain style
 x, y           layout         no   no   -                              none             keep
 width, height  layout         no   no   % of parent, checkStretch      none             keep
 top bottom left right  -      -    -    nothing in layout reads them   draw             keep (ruled)
-                 border sides, as Bot drew them; spelling settled at A4
+                 border sides, as Bot drew them; ruled topBorder bottomBorder leftBorder rightBorder
 pad (+ sides)  layout         no   no   setInnerBox                    none             drop (ruled)
                  dropped (ruled 2026-11-04); old GUI supported it
 margin (+ sides) layout       no   no   setInnerBox                    none             respell

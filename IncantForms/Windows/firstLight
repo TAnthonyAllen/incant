@@ -5,7 +5,7 @@
 register(FORMs);
 define
     firstLight window x=300 y=450 width=400 height=200 down fill=wall font=normal
-        heading="First Light" text height=30 font=title align=center bottom;
+        heading="First Light" text height=30 font=title align=center bottomBorder;
         words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit." text fill=white;
         bar across height=35
             space;
@@ -15,7 +15,7 @@ bail();
 
 Spelled to the forms plan's rulings. Style attributes sit on fields and are scoped to the subtree: font=normal holds for
 everything under firstLight, and heading overrides it by naming font=title. fill is not inherited, so each field names its
-own. Bare bottom is A4's proposed side spelling, for Tony to rule; the plan's A4 section carries the count and the walk.
+own. bottomBorder is the ruled side spelling (Tony, 2026-11-04); the plan's A4 section carries the count and the walk.
 
 Cut from simple, and why:
     onLayout code={}   event firing comes after A4
