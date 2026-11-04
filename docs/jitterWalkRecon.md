@@ -120,3 +120,33 @@ not the emitters.
 - **The next opener, (a):** kindless-local inference that tells NUMBER from count. SEQ 388's net gives a kindless local one
   scalar kind (5), and the prologue slots a kindless field as i32, so `a5 = 3.5; b5 = a5 + 1` compiles to 5 -- on both
   roads (probe on the old road: 5; plain 4.5). Pinned: newJitT NJ-5. jitLadder is the control. Then S3 (if).
+
+## S3 (SEQ 525, 2026-11-04) -- ifThen through the jit brackets; branch new-jit-s3, pins on trunk
+
+**Built:** `jitWalkStmt` is one statement of the walk. An ifThen whose condition is an instruct the walk emits natively goes through
+jitIfBegin / jitIfElse / jitIfEnd, each arm walked by the same step (a seq arm statement by statement), under jitEmitGIF's rules: nothing in
+flight before the condition, none after each arm; a condition that hands over or carries no boolean hands the whole if over. No result
+store (A3). The net's arm stack carries native arms; `jitScanArmsChain` the rest. Two stays on the fallback: a **bare condition** (`if x;`,
+truthOf is the interpreter's and the emit does not repeat it), and **a seq arm holding a branch signal** (that seq catches a break, and the
+block-exit target is S4's). Witness counts now include arm statements. Canary 409 -> 412 (jitArmHasBranch, jitWalkIfNative, jitWalkStmt).
+
+**Certificate:** newJitIfT = its twin on every shape (each arm by value, no else each way, nested, or chain, seq arm with a fallback inside,
+return in an arm taken and not, a number crossing the compare, conditions that hand over, break in each arm shape). Witness as pinned; i1's
+topology then else endif, one each; ia's none. pop.sh 2458 -> 2461 + the unset control, 60 FAIL rows + newJitIfUnsetT; jitLadder 224 / 0 row
+for row. NJ-7 (added on trunk) keeps the fallback's flush-and-reload test now NJ-6's if is native. gen26 24 / 2, per file as before.
+
+**H7 (cure committed first; single fixtures, alarm; binary byte-identical after):**
+| control | newJitIfT values | witness / blocks | other |
+|---|---|---|---|
+| condition falls back: the if hands over (the recon's H7) | = twin | i1 back to 3 2 1; then 27 -> 0 | newJitIfUnsetT's new road reads `un` |
+| the seq-arm branch guard removed | **id loses its 2** | then 27 -> 29 | |
+| native arms not noted to the net | = twin | | kindArmNetT refusals 2 -> 1 (the new road's gone) |
+
+**The divergence S3 opens on the new road, pinned red (newJitIfUnsetT):** `if 1 > 2; u = 1; print u:;` prints `u` plain and `0` compiled.
+The build saw `u` written, so gJitFrameAssigned has it, and the flush before the handed-over print stamps a count, though the run never wrote
+it. The old road has always read 0 here (same row). On trunk the new road reads `u`, because its if hands over whole (H7 row 1): **this
+stroke moves that shape from right to wrong.**
+
+**Docket, found on the way, on trunk today:** an OLD-road action calling a new-road action under `jitter;` segfaults at compile
+(jitEmitCompare, null jitData, through opCall -> testOP): inlining runs the callee's chain with jitting on. No row reaches it. Its first
+sighting was a `rg = i8()` action that `ifNew` left on the old road; why it stayed there was not chased.
