@@ -1,0 +1,72 @@
+class | slotted rows | unslotted rows
+count only | 101 | 31
+neither:holder | 37 | 116
+neither:local | 2 | 0
+neither:no writer | 18 | 0
+neither:nonscalar | 0 | 27
+neither:silent | 1 | 0
+number only | 2 | 0
+slotted total 161 runs 483
+('number only', True, 'jitArgNumberT.88477', 'nmF', 't', ['vdouble'], ['0', '9'])
+('number only', True, 'njj.k.79993', 'nj5', 'a5', ['kind=9'], [])
+--- HOLDS: a local holding NUMBER (9) in an interpreted run
+jitArgNumberT.88477 nmF t ['0', '9']
+--- writers classed silent or local-with-no-kind, slotted
+neither:no writer naj.k.79983 nl3an lv3a [] []
+neither:no writer nrj.k.80074 rt4n rb [] []
+neither:holder kindJ1T.85332 kjWalk g ['cursor'] []
+neither:holder kindLiftT.85453 kjWalk g ['cursor'] []
+neither:holder jitScCountT.86134 scDriver scH ['holder'] ['6']
+neither:holder itRT.86225 itWalk itR ['cursor'] []
+neither:holder jitCursorLifeT.86255 lDrive lR ['cursor'] []
+neither:holder itBackRT.86275 ibWalk ibR ['cursor'] []
+neither:holder jitContinueRT.87683 pcWalk pcCur ['cursor'] []
+neither:holder jitBreakRT.87697 pbWalk pbCur ['cursor'] []
+neither:holder jitInlineContRT.87706 icWalk icCur ['cursor'] []
+neither:holder jitInlineBreakRT.87714 ibkWalk ibkCur ['cursor'] []
+neither:no writer kindlessNetT.87861 knRead knLoc [] ['0']
+neither:no writer jitReturnListT.87927 rlOuter rlLoc [] ['0']
+neither:holder tcJ.src.88026 tcWalk tcR ['cursor'] []
+neither:no writer jitHoistT.88044 hzAct hzL [] ['0']
+neither:holder puJ.src.88114 dumpField grup ['cursor'] ['6']
+neither:no writer xpLocT.88243 xT xLoc [] ['0']
+neither:holder jitBlockCallT.89607 BJ code ['holder'] ['6']
+neither:holder jitBlockNameT.89619 BJ code ['holder'] ['6']
+neither:holder jitBlockNameT.89619 BJ nm ['holder'] ['0', '6']
+neither:holder jitBlockCtlT.89631 BJ block ['holder'] ['0', '6']
+neither:holder jitBlockCtlT.89631 BJ code ['holder'] ['6']
+neither:holder jitJUi.90154 jitJUi g ['cursor'] ['0', '6']
+neither:holder jitIterTwice.90202 itWalk g ['cursor'] ['0', '6']
+neither:local jitSelfFn.90301 sf sfLoc ['local=0x1058cca10:sfDepth'] []
+neither:local jitSelfFn.90325 sf sfLoc ['local=0x105050a10:sfDepth'] []
+neither:holder jitJD.90701 jdRun jdCur ['cursor'] ['0', '6']
+neither:holder jitJD.90708 jdRun jdCur ['cursor'] ['0', '6']
+neither:no writer baselineTestsNew.90846 testARG actionLabel [] ['0']
+neither:holder baselineTestsNew.90846 ifTest grup ['cursor'] ['6']
+neither:no writer baselineTestsNew.90846 testGet width [] ['0']
+neither:no writer baselineTestsNew.90846 testIndentBlock Two [] ['0']
+neither:holder baselineTestsNew.90846 printDefinition grup ['cursor'] ['6']
+neither:no writer baselineTestsNew.90846 testIndentBlock Three [] ['0']
+neither:no writer baselineTestsNew.90846 accessTest across [] ['0']
+neither:no writer baselineTestsNew.90846 formatTest maybe [] ['0']
+neither:no writer baselineTestsNew.90846 formatTest is [] ['0']
+neither:no writer baselineTestsNew.90846 testOR Saw [] ['0']
+neither:no writer baselineTestsNew.90846 testIndentBlock Four [] ['0']
+neither:silent baselineTestsNew.90846 stringTest what ['none'] ['5']
+neither:no writer baselineTestsNew.90846 testInterpret Saw [] ['0']
+neither:no writer baselineTestsNew.90846 testUnitTests This [] ['0']
+neither:no writer baselineTestsNew.90846 testIndentBlock One [] ['0']
+neither:holder driveCompileT.90964 exSay m ['holder'] []
+neither:holder driveCompileT.90964 exSay c ['holder'] []
+neither:holder driveCompileT.90964 exSay v ['holder'] []
+neither:holder leafClassT.91081 lcSay v ['holder'] []
+neither:holder leafClassT.91081 lcSay m ['holder'] []
+neither:holder leafClassT.91081 lcSay c ['holder'] []
+neither:holder leafClassT.91081 lcClass r ['holder'] []
+neither:holder ruleOfT.91345 roParse v ['holder'] []
+neither:holder ruleOfT.91345 roParse roCp ['holder'] []
+neither:holder termCountT.91463 tcWalk tcR ['cursor'] []
+neither:holder zeroWidthT.91551 zwSay n ['holder'] []
+neither:holder zeroWidthT.91551 zwSay m ['holder'] []
+neither:holder zeroWidthT.91551 zwSay v ['holder'] []
+neither:holder zeroWidthT.91551 zwSay c ['holder'] []

@@ -109,3 +109,42 @@ Newly reached since the cure, 23 locals: each refused by the net, slotted holdin
 **Observed, not registered:** `incant/fixits/epilogueWriteBack` (Clod's lane, item 4) exits **0 with its sentinel** on
 the cure (139 at the branch point): its `ewL` has a `:=` writer, so it gets no slot and the epilogue writes nothing over its
 pointer. The fixit is not retired here; the buy is Tony's.
+
+## SEQ 524 R0 -- NUMBER against count (2026-11-04, recon; STOPPED on R0's first stop)
+
+**Where they are one kind.** `jitNoteWriter` (jitEmitters.rtn:634): a count or a number argument, and any computed value, all
+record kind 5. The prologue (jitEmitters.rtn:381): a double slot only if the field's kind at build is NUMBER, so a kindless
+field gets i32. `jitSeedField` (:4433) picks the frame home the same way.
+
+**Census** (clone at 8f649386; tapKindless.py + tapNumber.py, numberTable.py; pop.sh, jitLadder, gen26). Rows = run x slotted
+local. Today's population is 161 rows / 107 distinct (action, local), not SEQ 388's 239 / 53: the fleet has changed since and
+the two tag their runs differently, so the numbers do not compare.
+
+| writers, slotted rows | trunk | with the number arm (prototype A) |
+|---|---|---|
+| count only | 101 | 99 |
+| number only | 2 (nj5 a5; nmF t) | 3 (+ nj5 b5) |
+| **both** | **0** | **1: jitArgNumberT nmF r** |
+| neither (holder 37, no writer 18, kindless operand 2, silent 1) | 58 | 58 |
+
+The trunk column cannot see a number spread through arithmetic: while the slot is i32 the value reads i32. That is why the
+prototype column exists, and it found `r`.
+
+**The one both.** `r = nmF(argument - 1); r = r + t;` -- the call is i32, and `r + t` is double once t has a number slot.
+Interpreted, r holds COUNT and rounds at each step (the row's own note: 0, 2, 5, 9), because a kindless `=` takes its first
+writer's kind and later stores cast into it.
+
+| option (clone builds) | NJ-5 | jitArgNumberT NM jitted (pinned 193, intended 9) | pop.sh | jitLadder |
+|---|---|---|---|---|
+| A: a number writer outranks a count writer | 4.5 | **moves to 144** | 2446 | 219 / 0 |
+| B: the first writer in walk order decides | 4.5 | unmoved, 193 | 2447 | 219 / 0 |
+
+Both options also move the newJitT witness shape: nj5 prints three times, one per restart. The cure owes printing it only on a
+build that is not about to restart. B's limit: walk order is not run-time order when the first writer sits in an arm.
+
+**The frame.** No layout change. Both prototypes use the double slot NUMBER fields already have (`gNumber`); groups.ext unchanged,
+canary 404 throughout.
+
+**What the census cannot see.** On the new road a handed-over statement is never walked, so its writers never reach
+`jitNoteWriter`. Probed (under `jitter;` = plain on both options): `if 1 > 0; m7 = 7.5; ...` -- no visible writer, the net refuses
+it, interpreted, 8.5. `m8 = 2.5; if ...; m8 = 7;` 8. `m9 = 2; if ...; m9 = 7.5;` 9.

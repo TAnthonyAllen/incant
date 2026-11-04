@@ -1,0 +1,75 @@
+class | slotted rows | unslotted rows
+both | 1 | 0
+count only | 99 | 31
+neither:holder | 37 | 116
+neither:local | 2 | 0
+neither:no writer | 18 | 0
+neither:nonscalar | 0 | 27
+neither:silent | 1 | 0
+number only | 3 | 0
+slotted total 161 runs 483
+('both', True, 'jitArgNumberT.3742', 'nmF', 'r', ['vdouble', 'vint'], ['0', '5'])
+('number only', True, 'jitArgNumberT.3742', 'nmF', 't', ['vdouble'], ['0', '9'])
+('number only', True, 'njj.k.94607', 'nj5', 'a5', ['kind=9'], [])
+('number only', True, 'njj.k.94607', 'nj5', 'b5', ['vdouble'], [])
+--- HOLDS: a local holding NUMBER (9) in an interpreted run
+jitArgNumberT.3742 nmF t ['0', '9']
+--- writers classed silent or local-with-no-kind, slotted
+neither:no writer naj.k.94596 nl3an lv3a [] []
+neither:no writer nrj.k.94687 rt4n rb [] []
+neither:holder kindJ1T.99928 kjWalk g ['cursor'] []
+neither:holder kindLiftT.207 kjWalk g ['cursor'] []
+neither:holder jitScCountT.1350 scDriver scH ['holder'] ['6']
+neither:holder itRT.1441 itWalk itR ['cursor'] []
+neither:holder jitCursorLifeT.1471 lDrive lR ['cursor'] []
+neither:holder itBackRT.1491 ibWalk ibR ['cursor'] []
+neither:holder jitContinueRT.2942 pcWalk pcCur ['cursor'] []
+neither:holder jitBreakRT.2956 pbWalk pbCur ['cursor'] []
+neither:holder jitInlineContRT.2964 icWalk icCur ['cursor'] []
+neither:holder jitInlineBreakRT.2972 ibkWalk ibkCur ['cursor'] []
+neither:no writer kindlessNetT.3123 knRead knLoc [] ['0']
+neither:no writer jitReturnListT.3189 rlOuter rlLoc [] ['0']
+neither:holder tcJ.src.3288 tcWalk tcR ['cursor'] []
+neither:no writer jitHoistT.3305 hzAct hzL [] ['0']
+neither:holder puJ.src.3378 dumpField grup ['cursor'] ['6']
+neither:no writer xpLocT.3507 xT xLoc [] ['0']
+neither:holder jitBlockCallT.4878 BJ code ['holder'] ['6']
+neither:holder jitBlockNameT.4890 BJ nm ['holder'] ['0', '6']
+neither:holder jitBlockNameT.4890 BJ code ['holder'] ['6']
+neither:holder jitBlockCtlT.4902 BJ block ['holder'] ['0', '6']
+neither:holder jitBlockCtlT.4902 BJ code ['holder'] ['6']
+neither:holder jitJUi.5426 jitJUi g ['cursor'] ['0', '6']
+neither:holder jitIterTwice.5474 itWalk g ['cursor'] ['0', '6']
+neither:local jitSelfFn.5572 sf sfLoc ['local=0x1018d4a10:sfDepth'] []
+neither:local jitSelfFn.5596 sf sfLoc ['local=0x103028a10:sfDepth'] []
+neither:holder jitJD.5976 jdRun jdCur ['cursor'] ['0', '6']
+neither:holder jitJD.5983 jdRun jdCur ['cursor'] ['0', '6']
+neither:no writer baselineTestsNew.6038 accessTest across [] ['0']
+neither:silent baselineTestsNew.6038 stringTest what ['none'] ['5']
+neither:no writer baselineTestsNew.6038 testIndentBlock One [] ['0']
+neither:no writer baselineTestsNew.6038 testGet width [] ['0']
+neither:no writer baselineTestsNew.6038 testIndentBlock Four [] ['0']
+neither:no writer baselineTestsNew.6038 formatTest maybe [] ['0']
+neither:no writer baselineTestsNew.6038 testUnitTests This [] ['0']
+neither:no writer baselineTestsNew.6038 formatTest is [] ['0']
+neither:no writer baselineTestsNew.6038 testIndentBlock Two [] ['0']
+neither:no writer baselineTestsNew.6038 testInterpret Saw [] ['0']
+neither:no writer baselineTestsNew.6038 testOR Saw [] ['0']
+neither:no writer baselineTestsNew.6038 testARG actionLabel [] ['0']
+neither:holder baselineTestsNew.6038 printDefinition grup ['cursor'] ['6']
+neither:no writer baselineTestsNew.6038 testIndentBlock Three [] ['0']
+neither:holder baselineTestsNew.6038 ifTest grup ['cursor'] ['6']
+neither:holder driveCompileT.6155 exSay v ['holder'] []
+neither:holder driveCompileT.6155 exSay c ['holder'] []
+neither:holder driveCompileT.6155 exSay m ['holder'] []
+neither:holder leafClassT.6272 lcSay c ['holder'] []
+neither:holder leafClassT.6272 lcClass r ['holder'] []
+neither:holder leafClassT.6272 lcSay v ['holder'] []
+neither:holder leafClassT.6272 lcSay m ['holder'] []
+neither:holder ruleOfT.6534 roParse roCp ['holder'] []
+neither:holder ruleOfT.6534 roParse v ['holder'] []
+neither:holder termCountT.6651 tcWalk tcR ['cursor'] []
+neither:holder zeroWidthT.6740 zwSay v ['holder'] []
+neither:holder zeroWidthT.6740 zwSay n ['holder'] []
+neither:holder zeroWidthT.6740 zwSay m ['holder'] []
+neither:holder zeroWidthT.6740 zwSay c ['holder'] []
