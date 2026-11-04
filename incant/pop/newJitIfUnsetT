@@ -1,0 +1,38 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewJitIfU);
+define
+    ifReq owner source result rule;
+    ifNew code={
+        ifSrc := argument.CodE;
+        ifReq.owner  := argument;
+        ifReq.source := ifSrc;
+        ifReq.rule   := KantGrammar["STARt"];
+        if compileIn(ifReq);
+            ifBlock = ifReq.result;
+            *ifBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ifBlock;
+        };
+    uNew code={ if 1 > 2; un = 1; print "UN new " un:; };
+    uOld code={ if 1 > 2; uo = 1; print "UN old " uo:; };
+    ;
+search NewJitIfU;
+ifNew(uNew);
+testing(uOld);
+jitter;
+uNew();
+cerr "NEWJITIFUNSET SENTINEL":;
+stop();
+
+newJitIfUnsetT -- SEQ 525: a local written only in an arm that does not run, then read. Interpreted it has no data, so it echoes its tag
+(bear-trap 26). Compiled, the flush before the handed-over print stamps a count, because gJitFrameAssigned records what the BUILD saw
+written, not what the run did, so it reads 0. Pinned red; the twin replaces testing(uOld) with uOld() and drops jitter;.
