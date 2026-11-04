@@ -1256,7 +1256,7 @@ use field
     %-
     // jitterIntercept after jitter; a call fires its compiled function, compiled at the first call -- inside the bracket, so the frame is the interpreter's (SEQ 386)
     -%
-    if ( gJitter && ::jitterReady(field) )  result = ::jitBoxCountRT(gJitterFn(::jitBodyField(field)));
+    if ( gJitter && ::jitterReady(field) )  result = ::jitTakeReturn(gJitterFn(::jitBodyField(field)));
     else                                    result = ::processAction(field);
     %-
     if result {
