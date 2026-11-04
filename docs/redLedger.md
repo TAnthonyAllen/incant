@@ -6,8 +6,8 @@ Every pinned red row and docket item from today. Silent wrong answers first, the
 | # | what is wrong | pinned | size |
 |---|---|---|---|
 | **Silent wrong answers** | | | |
-| 1 | **The two roads' interpreted recursion disagree.** `r = f(argument - 1); return r;` returning "s" reads `r` on the new road, `s` on the old. Language level, no jit involved; ahead of every jitter item. Measured once, not diagnosed | unpinned | stroke |
-| 2 | `v = u + 1` on an unwritten local: compiled reads 1, interpreted refuses. Waits on row 12 for its intended value | UA | stroke |
+| 1 | **The two roads' interpreted recursion disagree.** `r = f(argument - 1); return r;` returning "s" reads `r` on the new road, `s` on the old. Language level, no jit involved; ahead of every jitter item. Measured once, not diagnosed. **The next opener (SEQ 529 R1): measure only, which road is right and why, then stop for a ruling on the cure; S6 waits on it** | unpinned | stroke |
+| 2 | `v = u + 1` on an unwritten local: compiled reads 1, interpreted refuses. Row 12 rules its intended value: the refusal | UA | stroke |
 | 3 | `v = u` on an unwritten local: compiled copies 0, interpreted copies the tag's text. Same cure as row 2: a statement branches on the written mark and falls back | UC | stroke |
 | 4 | An old-road self-call returning a non-count: compiled reads 1, interpreted `s` or `1.5`. The build would have to know the callee's return kind | RS | stroke |
 | 5 | A handed-over new-road writer of unknown kind outside any arm gives no kind, so a later native writer decides the slot. Read from the code, not measured | unpinned | small to pin, stroke to cure |
@@ -20,7 +20,7 @@ Every pinned red row and docket item from today. Silent wrong answers first, the
 | 9 | `r = 0.0; r = 7`, printed: value right, but an old-road compiled action reads r's kind as 0. `.datA` reads the field before the slot is flushed. The slot itself is a number | kindZeroT | small |
 | 10 | gen26 reads 24 / 2 here against 26 / 0 in the SEQ 418 results file. Measured: every differing line in paReachT and zeroWidthT is the `SHORTCUTFIRE` trace, which is newer than the instrument's mask. An instrument gap, not a value | unpinned | small |
 | 11 | A shared action's refusal names the shared rule: ELSEIf refuses as `REFUSED If`. It should name the rule that fired, from its label's tag | unpinned | small |
-| **For Tony to rule, not a defect** | | | |
-| 12 | Typeless local in arithmetic: count by default, or refuse until typed. UA's intended value (row 2) waits on it | -- | ruling |
+| **Ruled** | | | |
+| 12 | **Ruled (Tony, SEQ 529 R2, 2026-11-04):** a typeless local in arithmetic REFUSES until typed, as the interpreter already does. So row 2's intended value is the refusal: the compiled road must refuse or hand the statement over | -- | ruled |
 
 **Not wrong, for the record:** `for` and `iterate` are still handed over (S4's certificate covers compiling around them). A format, deref, call, dot or compare in a print hands that print over (S5).

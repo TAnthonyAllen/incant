@@ -270,9 +270,9 @@ DOCKET HEAD (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong
     - kindZeroT: compiled roads read r's kind as 0 after r = 0.0; value right, row red. The spelling users will be told ("make r a number first") holds for the value.
     - gen26 reads 24 / 2 here against 26 / 0 in the SEQ 418 results file: the SHORTCUTFIRE trace is newer than the instrument's mask. An instrument gap, not a value.
     - a shared action's refusal names the shared rule: ELSEIf refuses as "REFUSED If". It should name the rule that fired, from its label's tag. Small.
-    - TO RULE (Tony): typeless local in arithmetic: count by default, or refuse until typed. UA's intended value waits on it.
+    - RULED (Tony, SEQ 529 R2, 2026-11-04): a typeless local in arithmetic REFUSES until typed, as the interpreter already does. UA's intended value is the refusal, so the compiled road must refuse or hand the statement over.
     - for and iterate are still handed over (S4's certificate covers compiling around them).
-ORDER (revised 2026-11-04, seal 335): the red ledger first, in Tony's order -> S6 (call) in docs/jitterWalkRecon.md -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
+ORDER (revised 2026-11-04, seal 335; opener ruled SEQ 529 R1): ledger row 1 opens, MEASURE ONLY -- which road is right and why, report, stop for a ruling on the cure; S6 waits on it. The red ledger, in Tony's order -> S6 (call) in docs/jitterWalkRecon.md -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
     Done and off the order: TL-7 (SEQ 516/517), argument rename (SEQ 518, actionLabel), jitter walk recon (SEQ 519), ruleMethod (SEQ 528).
 Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): a new-road action under jitter; is walked by its chain. BOUGHT: S0 + S1 (3dbec07c), S1b (27226761), S2 (69d45ef3), kindless NUMBER vs count, NJ-5's
     opener, retired (5fdabc14, SEQ 524), S3 if (c7292a3f, SEQ 525), the unset-slot mark (5d748896, SEQ 526), S4 while / do / break / continue / computed return (8d11a669, SEQ 526), the non-count return

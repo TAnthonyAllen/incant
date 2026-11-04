@@ -1,3 +1,12 @@
+# ⚠⚠⚠ SEAL 335 AMENDED 2026-11-04 -- SEQ 529: THE NEXT SESSION'S RULINGS, NOTHING BUILT. READ THIS ABOVE SEAL 335'S OWN OPENER AND WAITING LIST.
+#
+#   ## ONE PLAIN LINE: no code moved; Tony ruled the opener and the typeless-local question.
+#   ## THE OPENER (R1): ledger row 1 -- the two roads' interpreted recursion disagree (new road r, old road s). MEASURE ONLY: find which road is right and why, report, and STOP for a ruling on the cure. S6 (call) waits on it.
+#   ## ALSO AT THE OPENER (R3): re-word CLAUDE.md's walkie-talkie section -- dispatches now arrive pasted and are recorded in commits and seals. ipc/clay-to-clod.md stays as history.
+#   ## RULED (R2), recorded in macros and docs/redLedger.md: a typeless local in arithmetic REFUSES until typed, as the interpreter already does. UA's intended value is the refusal, so the compiled road must refuse or
+#   hand the statement over. Nothing built; the UA row's intended text still reads the printed values, and the stroke that cures it owes that row the refusal.
+#   ## STILL WAITING ON TONY: event-time firing; the method-order / banner cleanup's first file.
+
 # ⚠⚠⚠ SEALED 2026-11-04 (335) ON TRUNK -- SHUTDOWN. FIVE STROKES BOUGHT AFTER SEAL 334: S3, THE UNSET MARK, S4, THE RETURN CHANNEL, S5, PLUS ruleMethod. THE OPENER IS TONY'S PICK FROM THE RED LEDGER.
 #
 #   ## ONE PLAIN LINE: on the new road, assign, arithmetic, if, while, do, break, continue, a computed return and print now compile natively, a non-count return reaches its caller on both
