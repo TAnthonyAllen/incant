@@ -1,0 +1,32 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ElseIfT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    ;
+search ElseIfT Utilities UnitTests;
+aIf <- KantGrammar["If"];
+aEl <- KantGrammar["ELSEIf"];
+addrOf(aIf.builtinActoR);
+addrOf(aEl.builtinActoR);
+addrOf(aEl);
+cerr "RULESHARE SENTINEL":;
+stop();
+
+ruleShareT -- SEQ 528 R2: If and ELSEIf hold one action. The question is "the same thing, reached through a carrier", so the BODY column (H13): both actors read one body, and
+the rule's own body differs, so the column discriminates.
