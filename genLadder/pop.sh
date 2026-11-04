@@ -1184,13 +1184,15 @@ else echo "  FAIL  newJitIfT MISSING"; fail=1; fi
 #  newJitIfUnsetT -- SEQ 525: a local written only in an arm not taken, then read: plain echoes its tag, compiled reads 0. Pinned, not cured.
 _nifuF=$(ip newJitIfUnsetT)
 if [ -f "$_nifuF" ]; then
-sed -e 's/^testing(uOld);/uOld();/' -e '/^jitter;$/d' "$_nifuF" > "$T/nifu.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifu.p" > "$T/nifup.o" 2> "$T/nifup.e"; _nifupx=$?
+sed -e 's/^testing(\(.*\));/\1();/' -e '/^jitter;$/d' "$_nifuF" > "$T/nifu.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifu.p" > "$T/nifup.o" 2> "$T/nifup.e"; _nifupx=$?
 rm -f "$T/nifu.w"; INCANT_JITTER_ERR="$T/nifu.w" perl -e 'alarm 30; exec @ARGV' "$B" "$_nifuF" > "$T/nifu.o" 2> "$T/nifu.e"; _nifux=$?
-_nifuv () { grep '^UN ' "$1" | tr -s ' ' | tr '\n' '|'; }
-_ofeq "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UN old uo |UN new un | x0 s1"
+_nifuv () { grep '^U[NAC] ' "$1" | tr -s ' ' | sort | tr '\n' '|'; }
+_ofeq "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UA new va |UA old vb |UC new uc |UC old ud |UN new un |UN old uo | x0 s1"
 _ofeq "newJitIfUnsetT compiled runs (exit, sentinel)" "x$_nifux s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifu.e")" "x0 s1"
 fdRow "newJitIfUnsetT new road compiled: a local written only in an arm not taken reads its tag" "$(grep '^UN new' "$T/nifu.o" | tr -s ' ')" "UN new 0 " "UN new un "
 fdRow "newJitIfUnsetT OLD-road twin compiled: the same shape" "$(grep '^UN old' "$T/nifu.o" | tr -s ' ')" "UN old 0 " "UN old uo "
+fdRow "newJitIfUnsetT arithmetic on an unwritten local, both roads, compiled (SEQ 526: past the mark's reach)" "$(grep '^UA ' "$T/nifu.o" | tr -s ' ' | sort | tr '\n' '|')" "UA new 1 |UA old 1 |" "UA new va |UA old vb |"
+fdRow "newJitIfUnsetT a copy of an unwritten local, both roads, compiled (SEQ 526: past the mark's reach)" "$(grep '^UC ' "$T/nifu.o" | tr -s ' ' | sort | tr '\n' '|')" "UC new 0 |UC old 0 |" "UC new uc |UC old ud |"
 else echo "  FAIL  newJitIfUnsetT MISSING"; fail=1; fi
 #  oldCallsNewT -- SEQ 526 R3: an old-road action calling a new-road action under jitter; segfaults at compile. Born red, no cure yet.
 _ocF=$(ip oldCallsNewT)
