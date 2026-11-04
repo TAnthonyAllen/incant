@@ -187,3 +187,20 @@ l1 cond loopexit body, l5 dobody docond doexit. pop.sh + the new rows, no FAIL r
 | the bodySeq / seq distinction ignored (the recon's H7) | l2 reads 1 2 4 5 8; l4, l7, lb the same way. The recon's "WH-3 reads 1 2 3" is this on WH-3's bound of 3 |
 | a handed-over break ignores the walk's stack | ln loses its 3 |
 | a handed-over statement's branch unread | lb and lc end the action at the signal: 1, no 8 |
+
+## The non-count return channel (SEQ 527 R2, 2026-11-04) -- branch return-channel, both roads
+
+**No signature change: the stop did not trip.** gJitMethod and gJitterFn stay `int (GroupItem*)`. The channel is beside it: each build keeps two locals, what the
+activation hands back (0 nothing, 1 the i32, 2 a node) and the node. Locals because a nested call publishes its own; the epilogue publishes this activation's as its last
+act, and runAction's jitter fire reads them at once (`jitTakeReturn`). A new road starts at 0 (A3); an old road at 1 (its value is the last statement's, in the i32). A
+native return of a double boxes it (`jitBoxNumberRT`); a handed-over return leaves its node (`jitStmtRTValueRT`, then `jitRetPendKindRT` / `jitRetPendNodeRT`) for runAction to
+copy inside its bracket. An inlined region has no activation of its own and writes nothing. Canary 419 -> 423.
+
+**Certificate:** RT-5 / RT-5f / RT-5p `rx`, `rx`, `6 rx`. newReturnKindT under `jitter;` = plain, value and kind, ten shapes on each road (string, local string, number literal,
+computed, local number, counts as the controls, a holder, no return, a return in an arm). pop.sh: those four rows flip, plus the RS pair below; jitLadder 224 / 0 row for row but
+JA's IR byte count, which this stroke's allocas move (1304 -> 1429, noise by H3, the row asserts non-empty). gen26 24 / 2, per file. **H7 (the channel ignored, always box the
+i32):** all four read as before: `0`, `3`, `4`; binary byte-identical after.
+
+**Past its reach, pinned red (RS):** an old-road self-call. jitEmitSelfCall's value is an i32 the walk has already handed to the next operator, so a recursive return of a
+string or a number reads 1 compiled, and silently. Reaching it needs the build to know the callee's return kind. **Context, not chased:** in the same probe a new-road recursive
+action's plain run reads `r` where the old road's reads `s` (`r = pn(argument - 1); return r;`), so the two roads' interpreted recursion disagree here.

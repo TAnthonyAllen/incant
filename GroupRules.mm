@@ -3637,6 +3637,16 @@ extern "C" GroupItem *jitBoxCountRT(int value)
 	
 }
 
+// jitBoxNumberRT the same for a double a compiled return hands back (SEQ 527 R2)
+extern "C" GroupItem *jitBoxNumberRT(double value)
+{
+	
+	GroupItem *box = new GroupItem((char*)"argument");
+	box->setNumber(value);
+	return box;
+	
+}
+
 /*******************************************************************************
     jitBuildFunction -- ONE FUNCTION, START TO FINISH. It owns the shell, entry
     block, result alloca, frame prologue, body walk, frame epilogue, ret,
@@ -3888,6 +3898,14 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	gJitArgSlot   = slot;
 	gJitArgOrigin = bound; }
 	}
+	//  retLocals what this activation hands back (SEQ 527 R2)
+	{
+	llvm::Type *retPtr = llvm::PointerType::getUnqual(C);
+	gJitRetKindSlot = B.CreateAlloca(i32, nullptr, "retKind");
+	gJitRetNodeSlot = B.CreateAlloca(retPtr, nullptr, "retNode");
+	B.CreateStore(llvm::ConstantInt::get(i32, chainWalk ? 0 : 1), gJitRetKindSlot);
+	B.CreateStore(llvm::ConstantPointerNull::get(llvm::PointerType::getUnqual(C)), gJitRetNodeSlot);
+	}
 	// =========================== end frame prologue ===========================
 	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
 	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
@@ -3976,6 +3994,13 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	B.CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0), armP);
 	}
 	
+	//  retPublish the caller reads these as soon as the call returns, and a nested call has already published its own by now
+	if (gJitRetKindSlot) {
+	llvm::Type *retPtr = llvm::PointerType::getUnqual(C);
+	auto retBake = [&](void *p) { return B.CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)p), retPtr); };
+	B.CreateStore(B.CreateLoad(llvm::Type::getInt32Ty(C), gJitRetKindSlot, "retKindOut"), retBake((void*)&gJitRetKind));
+	B.CreateStore(B.CreateLoad(retPtr, gJitRetNodeSlot, "retNodeOut"), retBake((void*)&gJitRetNode));
+	}
 	// ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
 	// Store each frame slot back to the field's own storage, so the interpreter
 	// and every later run see the action's effect. Walk order is the prologue's;
@@ -5402,6 +5427,17 @@ extern "C" int jitEmitReturn()
 	gJitResult  = nullptr;
 	return 1; }
 	
+	
+	//  returnChannel a double cannot ride the i32: it leaves as a node (SEQ 527 R2). A count rides the i32. A bare return says nothing, so the activation's start stands
+	if (gJitRetKindSlot && gJitResult) {
+	llvm::Type *cI32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *cPtr = llvm::PointerType::getUnqual(ctx);
+	if (gJitResult->getType()->isDoubleTy()) {
+	llvm::Value *boxFn = b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)(void*)&jitBoxNumberRT), cPtr, "retBoxFn");
+	b->CreateStore(b->CreateCall(llvm::FunctionType::get(cPtr, {gJitResult->getType()}, false), boxFn, {gJitResult}, "retBox"), gJitRetNodeSlot);
+	b->CreateStore(llvm::ConstantInt::get(cI32, 2), gJitRetKindSlot); }
+	else b->CreateStore(llvm::ConstantInt::get(cI32, 1), gJitRetKindSlot); }
+	
 	/*  COMMIT THE RETURNED VALUE THE SAME WAY EVERY OTHER STATEMENT COMMITS
 	ITS OWN -- shared implementation, so a return cannot drift from the
 	block walk's idea of what a value is (the double and i1 coercions live
@@ -5723,7 +5759,14 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	llvm::Value *old = b->CreateLoad(i32, gJitResultSlot, "rtRetOld");
 	llvm::Value *nv  = b->CreateCall(vty, b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRTValueRT), ptr, "rtRetFn"), {old}, "rtRet");
-	b->CreateStore(nv, gJitResultSlot); }
+	b->CreateStore(nv, gJitResultSlot);
+	//  rtReturnChannel the statement's value, by kind, into this activation's locals; an inlined region has no activation of its own (SEQ 527 R2)
+	if (gJitInlining.empty() && gJitRetKindSlot) {
+	llvm::Value *keep = b->CreateLoad(i32, gJitRetKindSlot, "retKindOld");
+	b->CreateStore(b->CreateCall(llvm::FunctionType::get(i32, {i32}, false), b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendKindRT), ptr, "retPendKindFn"), {keep}, "retPendKind"), gJitRetKindSlot);
+	b->CreateStore(b->CreateCall(llvm::FunctionType::get(ptr, {}, false), b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendNodeRT), ptr, "retPendNodeFn"), {}, "retPendNode"), gJitRetNodeSlot); } }
 	b->CreateBr(exit);
 	b->SetInsertPoint(chk);
 	//  loopTargets a statement carrying a continue / break (and ONLY one) switches: 3 -> the innermost loop's condition,
@@ -7064,6 +7107,17 @@ extern "C" void jitRestoreFrameRT(GroupItem *field)
 	::jitChanPopRT();
 }
 
+/*  jitRetPendKindRT / jitRetPendNodeRT -- run time, straight after jitStmtRTValueRT: what it found. A bare return found nothing, so the activation's own start stands. */
+extern "C" int jitRetPendKindRT(int keep)
+{
+	 return gJitRetPendKind < 0 ? keep : gJitRetPendKind; 
+}
+
+extern "C" GroupItem *jitRetPendNodeRT()
+{
+	 return gJitRetPendNode; 
+}
+
 /*******************************************************************************
     jitRunAction -- THE GENERIC COMPILE DRIVER. It owns the engine, the
     LLVMContext and the Module; jitBuildFunction owns each function in them.
@@ -7957,9 +8011,15 @@ extern "C" int jitStmtRTValueRT(int old)
 	
 	GroupItem *v = gJitStmtRTValue;
 	gJitStmtRTValue = nullptr;
+	gJitRetPendKind = -1;
+	gJitRetPendNode = nullptr;
 	if ( !v ) return old;
-	if ( isGROUP(v->groupBody->flags.data) && v->getGroup() ) v = v->getGroup();
-	return v->getCount();
+	GroupItem *followed = v;
+	if ( isGROUP(v->groupBody->flags.data) && v->getGroup() ) followed = v->getGroup();
+	//  countOrNode a count rides the i32; anything else leaves as the node the statement returned, which runAction copies inside its bracket (SEQ 527 R2)
+	if ( isCOUNT(followed->groupBody->flags.data) ) gJitRetPendKind = 1;
+	else { gJitRetPendKind = 2; gJitRetPendNode = v; }
+	return followed->getCount();
 	
 }
 
@@ -7986,6 +8046,18 @@ extern "C" void jitStoreResult()
 	else if (v->getType() != i32)              return;
 	b->CreateStore(v, gJitResultSlot);
 	gJitEmitted = true;
+	
+}
+
+/*  jitTakeReturn -- run time, runAction's jitter fire: what the compiled function handed back, the i32 in hand: nothing, a fresh box of the count, or its node (SEQ 527 R2). */
+extern "C" GroupItem *jitTakeReturn(int value)
+{
+	
+	GroupItem *node = gJitRetNode;
+	gJitRetNode = nullptr;
+	if ( gJitRetKind == 0 ) return nullptr;
+	if ( gJitRetKind == 2 ) return node;
+	return ::jitBoxCountRT(value);
 	
 }
 
@@ -12191,7 +12263,7 @@ GroupItem 	*ruleArg = 0;
 	
 	// jitterIntercept after jitter; a call fires its compiled function, compiled at the first call -- inside the bracket, so the frame is the interpreter's (SEQ 386)
 	
-	if ( gJitter && ::jitterReady(field) )  result = ::jitBoxCountRT(gJitterFn(::jitBodyField(field)));
+	if ( gJitter && ::jitterReady(field) )  result = ::jitTakeReturn(gJitterFn(::jitBodyField(field)));
 	else                                    result = ::processAction(field);
 	
 	if ( result )

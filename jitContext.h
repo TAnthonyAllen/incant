@@ -652,6 +652,16 @@ inline bool gJitStmtRTDone = false;
 // A handed-over statement that RETURNED (branchKind 3 at run time) parks its value here for the emitted code, which
 // reads it once into the result slot and leaves the function (SEQ 393 A). Null for a bare `return;`.
 inline GroupItem *gJitStmtRTValue = nullptr;
+// THE RETURN CHANNEL (SEQ 527 R2): the i32 a compiled function returns can only carry a count, and its signature stays. So each build keeps two
+// locals, what it hands back (0 nothing, 1 the i32, 2 a node) and the node, and its epilogue publishes them here just before the ret. Locals because
+// a nested call publishes its own: the caller reads these immediately after the call, and nothing runs between. A new road's starts at 0 (A3, a
+// new-road action hands back only what a return gives); an old road's at 1 (its value is the last statement's, in the i32).
+inline int gJitRetKind = 1;
+inline GroupItem *gJitRetNode = nullptr;
+inline llvm::Value *gJitRetKindSlot = nullptr;
+inline llvm::Value *gJitRetNodeSlot = nullptr;
+inline int gJitRetPendKind = -1;
+inline GroupItem *gJitRetPendNode = nullptr;
 // handOver THIS STATEMENT CANNOT BE EMITTED WITHOUT RUNNING SOMETHING AT BUILD (SEQ 384, Tony: compiling has no side
 // effects). Set by jitHandOver; at the statement's end aCTionBlocK rolls back what the statement emitted and emits one
 // run-time call (jitStmtEnd). A mark per statement under emission, nested blocks included; each mark saves the
