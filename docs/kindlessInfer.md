@@ -182,8 +182,8 @@ on the functions touched: none.
 So 0.0 does NOT arrive as a count: the slot is a number. The kind reads 0 inside a compiled action because a frame slot's kind is
 stamped at its flush, and `.datA` reads the field. Red by intent, not cured here.
 
-**Two things the net does as written, for the buy:**
-- It does not look at kinds. `if 1 > 0; x = 1; else x = 2;` (counts in both arms) is refused too, and runs interpreted under `jitter;`
+**Two things the net did as first written** (the first was ruled away, next section):
+- It did not look at kinds. `if 1 > 0; x = 1; else x = 2;` (counts in both arms) is refused too, and runs interpreted under `jitter;`
   with the right value. No fleet row has this shape, so the fleet cannot see the cost.
 - Under `testing()` a refused action does not run at all, as kindlessNetT's refusal already did: kindArmNetT's old-road action prints
   nothing there.
