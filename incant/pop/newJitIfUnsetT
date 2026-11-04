@@ -47,6 +47,6 @@ newJitIfUnsetT -- SEQ 525: a local written only in an arm that does not run, the
 (bear-trap 26). Compiled, the flush before the handed-over print stamps a count, because gJitFrameAssigned records what the BUILD saw
 written, not what the run did, so it read 0; each slot now carries a run-time written mark and the print reads the field while it is
 clear. The twin replaces testing(x) with x() and drops jitter;.
-UA and UC are the reads the mark does NOT reach, pinned red: arithmetic on an unwritten local (plain refuses, so va has no data and prints
-its tag; compiled reads 0 + 1) and a copy of one (plain copies the tag's text; compiled copies the slot's 0). A native statement has already
+UA and UC are the reads the mark does NOT reach, pinned red: arithmetic on an unwritten local (plain refuses; the new road's block runs on,
+so va has no data and prints its tag, and the old road's block stops, so UA old prints nothing; compiled reads 0 + 1) and a copy of one (plain copies the tag's text; compiled copies the slot's 0). A native statement has already
 emitted its read, so reaching these needs the whole statement to branch on the mark.
