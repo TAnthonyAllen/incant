@@ -259,19 +259,25 @@ Parked: fire(label), a command that fires a rule's action on a label with no
 	Features to add to incant once it settles. Nothing major nothing urgent
         These could be end of day tasks done just before shutdown
 *******************************************************************************/
-ORDER (Tony, SEQ 513, 2026-11-02): the TL-7 build -> argument rename (census first) -> ruleMethod -> aCTionDefinE flags /
-    defineCapture B2 -> jitter walk recon -> refusal contents.
-    REORDERED (Tony, 2026-11-03): TL-7 build DONE (SEQ 516/517), argument rename DONE (SEQ 518, actionLabel). ruleMethod WAITS;
-    the next item is the jitter walk recon (SEQ 519). Then ruleMethod -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
-Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): S0 + S1 BOUGHT 2026-11-03 (merge 3dbec07c) -- a new-road action under jitter; is
-    walked by its chain, every statement handed to its own testOP. Next: S1b (a fallback keeps a refusal it did not raise; nl3an).
-    S1b BOUGHT (27226761). S2 (SEQ 522/523): assign and the jitEmitter= operators compiled natively, the rest handed over.
-    NEXT SESSION'S OPENER (Tony, SEQ 523 R0, NJ-5 ruled (c) for now): (a) KINDLESS-LOCAL INFERENCE THAT TELLS NUMBER FROM
-    COUNT -- SEQ 388's net lumps them as one scalar kind, so a NUMBER written into a kindless local gets an i32 slot (newJitT
-    NJ-5 reads 5, plain 4.5; the old road's compiled code reads 5 too). Both roads, jitLadder the control. Then S3 (if).
-    DOCKET, rides with S4: the NON-COUNT RETURN CHANNEL -- a compiled function returns i32 and runAction boxes a count, so a
-    return of a non-count value reads 0 on BOTH roads' compiled functions (newReturnT RT-5 / RT-5f / RT-5p, pinned SEQ 521).
-DOCKET, from the forms afternoon (A2, 2026-11-03): THE LISTENER DOES NOT WORK ON EITHER ROAD. Scaffold: tester, "A2 listener probe".
+DOCKET HEAD (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong answers first. Its first row, ahead of every jitter item: THE TWO ROADS' INTERPRETED
+    RECURSION DISAGREE -- `r = f(argument - 1); return r;` returning "s" reads r on the new road, s on the old. A language-level disagreement, measured once, not diagnosed.
+    The rest, one line each (sizes and detail in the ledger):
+    - UA, a silent wrong answer: v = u + 1 on an unwritten local -- interpreted refuses, compiled reads 1. UC beside it: v = u copies 0 compiled, the tag's text interpreted.
+    - RS, a silent wrong answer beside UA: an old-road self-call returning a non-count -- compiled reads 1, interpreted s or 1.5.
+    - two blind spots, unpinned: a handed-over new-road writer of unknown kind outside any arm gives no kind, so a later native writer decides the slot; a for body's kinds ignore its if arms.
+    - oldCallsNewT: an old-road action calling a new-road action under jitter; segfaults at compile. Pinned born red, no cure.
+    - newPlusEqT: m6 += 5 refuses on the new road (no jitter), "Operator += failed on m6 and TOKEn". Pinned red.
+    - kindZeroT: compiled roads read r's kind as 0 after r = 0.0; value right, row red. The spelling users will be told ("make r a number first") holds for the value.
+    - gen26 reads 24 / 2 here against 26 / 0 in the SEQ 418 results file: the SHORTCUTFIRE trace is newer than the instrument's mask. An instrument gap, not a value.
+    - a shared action's refusal names the shared rule: ELSEIf refuses as "REFUSED If". It should name the rule that fired, from its label's tag. Small.
+    - TO RULE (Tony): typeless local in arithmetic: count by default, or refuse until typed. UA's intended value waits on it.
+    - for and iterate are still handed over (S4's certificate covers compiling around them).
+ORDER (revised 2026-11-04, seal 335): the red ledger first, in Tony's order -> S6 (call) in docs/jitterWalkRecon.md -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
+    Done and off the order: TL-7 (SEQ 516/517), argument rename (SEQ 518, actionLabel), jitter walk recon (SEQ 519), ruleMethod (SEQ 528).
+Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): a new-road action under jitter; is walked by its chain. BOUGHT: S0 + S1 (3dbec07c), S1b (27226761), S2 (69d45ef3), kindless NUMBER vs count, NJ-5's
+    opener, retired (5fdabc14, SEQ 524), S3 if (c7292a3f, SEQ 525), the unset-slot mark (5d748896, SEQ 526), S4 while / do / break / continue / computed return (8d11a669, SEQ 526), the non-count return
+    channel (3d9cf5b6, SEQ 527), S5 print / cerr / cout (53125bd1, SEQ 527). NEXT: S6 (call). for and iterate are handed over until a stroke takes them.
+PARKED by Tony 2026-11-04, may be redesigned as a cross-instance interaction tool (A2, the forms afternoon, 2026-11-03): THE LISTENER DOES NOT WORK ON EITHER ROAD. Scaffold: tester, "A2 listener probe".
     Old road: `lb=$la;` in a define stores the literal text "$la" -- no binding, no copy. The real mechanism is the listenTo
     attribute (Commands.rtn listenTo; setup: listenTo immediateAction noPrint), and no define spelling arms it: listenTo=la hands
     it a COPY of la's value (lldb: input text "1", group null, fLAG 1), so it refuses "should be invoked as an attribute when its
@@ -288,8 +294,8 @@ Rule TL-7 -- RULED 2026-11-02 (SEQ 513): a top-level statement that finishes wit
     -- AMENDED 2026-11-02 (Clay, Tony agreed): TL-5 left alone. Landings: break at the innermost loop, else its block; continue at a loop; return at an action; unlanded at the top level -> refused by name and cleared (TL-7/8/9, and continue or return in a top-level block). Scoped by Clod: a block catches break only when no loop is around it (WH-3/6/7). RULED (Tony, 2026-11-02): the scoped version stands; a break in a braced top-level if-arm lands at that block, not refused (TL-10, the control).
 [BOUGHT 2026-11-03, SEQ 518, merge f8a0b3fe: a rule's code reads its label as actionLabel; an action's argument is unchanged.] Make argument mean one thing everywhere: in a rule’s code it is the label the rule fired on, in an action it is the call’s argument. Rename the rule’s version (actionLabel was proposed 2026-10-22, seal 199) and census rule code that reads argument before changing it. SEQ 502’s AL-3a pins the gap.
     -- before ruleMethod below: a shared rule action reads argument (the label), so the rename should land first; [STRUCK SEQ 518: "it also unblocks newLocalArgT AL-3a" -- it does not. AL-3a is the ACTION meaning: measured 2026-11-03, a new-road action body's argument is the action's own local, bound by runAction; lv3a copies a holder (docs/argumentCensus.md (c))]
-Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
-    -- waits on the argument rename above (If and ELSEIf read their label through argument); opens ELSEIf losing its old-road action
+[BOUGHT 2026-11-04, SEQ 528, merge cd4f4bbf: ruleMethod= takes a coded rule's name; ELSEIf ruleMethod=If; one CodE, one BlocK (docs/ruleShare.md).] Modify ruleMethod() to handle actions as well as methods so rules can share an action. The If and ELSEIf rules in kantGrammar come to mind; their actions are identical
+    -- NOTE (Tony, SEQ 528): ruleMethod on a kantGrammar rule binds the compiled action once jitter covers rule actions; the old road keeps ruleMethod until it retires.
 We have a bunch of noPrint commands that call processFlags() mostly to set a flag and those commands are called from aCTionDefinE when it is processing attributes. Why not replace all those commands by having aCTionDefinE check each attribute to see if it is a flag field in GroupFields and if it is call setGroupField() to turn the flag on in NewGroup and then not add the attribute just the way it does not add a noPrint attribute with an immediateMethod. The change to aCTionDefinE would be minimal and it would eliminate all those commands in setup. May then be able to shitcan processFlags
     Read 2026-11-01 (Tony): processFlags stays. Its 15 commands in setup do not map one to one onto GroupFields
     flags -- some names differ (index -> isIndexed, isList -> isLIST, TOKENize -> tokened) and some do more than set a
