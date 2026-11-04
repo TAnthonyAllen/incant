@@ -18,7 +18,7 @@
 #   Tony's to re-word. ipc/clod-to-skip.md is still STATUS fresh, transcribed and never dispatched.
 #   ## WAITING ON TONY: which ledger row opens; the typeless-local ruling (count by default, or refuse until typed; UA's intended value waits on it); event-time firing (open); the method-order / banner cleanup's first
 #   file (from 329). Next forms afternoon unchanged from seal 333, except the listener design is parked.
-#   ## CHECKS (all run this seal, on the merged trunk): pop.sh exit 1, 2481 green, 61 FAIL rows, pop.fails re-banked (seal 334's less NJ-5's successors, RT-5 x3, plus UA, UC, RS, oldCallsNewT) · jitLadder exit 0, 224 / 0
+#   ## CHECKS (all run this seal, on the merged trunk): pop.sh exit 1, 2481 green, 61 FAIL rows, pop.fails re-banked (seal 334's, less RT-5 x3, plus UA, UC, RS, oldCallsNewT) · jitLadder exit 0, 224 / 0
 #   · printPop exit 0 · decodePop exit 0, re-banked (binary echo) · ddPop exit 1, 5 / 1 (standing) · frontier exit 0, = capture · dirCheck exit 0, 106 of 114 inject (8 parked dark, 0 armed), = capture, tree retokked
 #   bare byte-identical · bare tokall = committed · canary 427 · exec bits all 100755 · groups.ext unchanged today (support clean) · no incant process · Groups, support, TOK, Parse, Tokf clean and pushed after this
 #   commit · main = trunk · no branch left from today.
