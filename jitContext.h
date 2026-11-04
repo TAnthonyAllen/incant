@@ -313,12 +313,21 @@ inline bool jitLocalNumber(GroupBody *b) {
     return it != gJitLocalKind.end() && it->second == 9;
 }
 // THE IF-ARM NET (SEQ 524, Tony): walk order is not run-time order inside an if arm. gJitWriterArm is the arm each kindless
-// local's first writer sits in (null: none); a later writer not in that arm puts the local in gJitArmNet, and the net refuses
-// it. Cleared with gJitLocalKind; an arm is its if statement's address, +1 for the else, so it is the same across restarts.
+// local's first writer sits in (null: none); a later writer not in that arm puts the local in gJitArmNet. gJitWriterKinds is
+// every writer's kind seen this build: 1 a count, 2 a number, 4 not known at build. The net refuses a local in gJitArmNet whose
+// writers are not all of one kind (R2's ruling): one kind gets the same slot whichever runs first, and a writer not known at
+// build cannot be said to agree. All cleared at each build's top, because each build's walk notes them again.
 inline std::vector<void*> gJitArmStack;
 inline std::map<GroupBody*, void*> gJitWriterArm;
+inline std::map<GroupBody*, int> gJitWriterKinds;
 inline std::set<GroupBody*> gJitArmNet;
-inline void jitNoteArm(GroupBody *b) {
+inline bool jitArmNetRefuses(GroupBody *b) {
+    if ( !gJitArmNet.count(b) ) return false;
+    int k = gJitWriterKinds[b];
+    return k != 1 && k != 2;
+}
+inline void jitNoteArm(GroupBody *b, int seen) {
+    gJitWriterKinds[b] |= seen;
     void *cur = gJitArmStack.empty() ? nullptr : gJitArmStack.back();
     auto it = gJitWriterArm.find(b);
     if ( it == gJitWriterArm.end() ) { gJitWriterArm[b] = cur; return; }

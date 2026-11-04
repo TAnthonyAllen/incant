@@ -318,6 +318,8 @@ extern "C" void jitScEnd(GroupItem *resultNode);
 extern "C" int jitScOperandRT(GroupItem *operand);
 extern "C" int jitScanArmsChain(GroupItem *n, int d);
 extern "C" int jitScanArmsOld(GroupItem *n, int d);
+extern "C" int jitScanKind(GroupItem *v, int d);
+extern "C" int jitScanWriter(GroupItem *target, int seen);
 extern "C" GroupItem *jitSeedField(GroupItem *token);
 extern "C" GroupItem *jitSeedLiteral(GroupItem *token);
 extern "C" void jitSeedOperands(GroupItem *target, GroupItem *arg);

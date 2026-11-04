@@ -187,3 +187,12 @@ stamped at its flush, and `.datA` reads the field. Red by intent, not cured here
   with the right value. No fleet row has this shape, so the fleet cannot see the cost.
 - Under `testing()` a refused action does not run at all, as kindlessNetT's refusal already did: kindArmNetT's old-road action prints
   nothing there.
+
+## SEQ 524 R2 ruling -- the net narrowed (Tony, 2026-11-04)
+
+The net refuses only when the writers' kinds differ. `gJitWriterKinds` records each writer: count, number, or not known at build; a
+local passes only if all its writers are one known kind. A writer not known at build (a call, a divide in a scan) cannot be said to agree,
+so it still refuses, and that action runs interpreted. Same-kind writers in both arms compile (kindArmSameT, both roads, each arm).
+**The scans now record kinds, not only arms:** a writer in a statement the walk never enters was invisible, so `if ...; x = 1; else x = 2;`
+on the new road would have fallen to SEQ 388's no-writer net. A scanned count or number is now a build-visible writer (`jitScanKind`,
+`jitScanWriter`). Arm records clear at each build's top, so a discarded build's premature kinds cannot reach the net. Canary 407 -> 409.
