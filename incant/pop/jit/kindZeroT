@@ -1,0 +1,17 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    kzR code={ r = 0.0; r = 7; print "KZ " r " kind " r.datA:; };
+    ;
+testing(kzR);
+cerr "KINDZERO SENTINEL":;
+stop();
+
+kindZeroT -- SEQ 524 rider (Tony, 2026-11-04): the spelling users will be told, "make r a number first". The first writer
+is a number, so r stays a number: intended 7 kind 9 interpreted, under testing() and under jitter;. pop.sh drives all three
+by editing the testing line. Not cured in SEQ 524: a pin of what each road reads.

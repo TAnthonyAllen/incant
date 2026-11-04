@@ -1,0 +1,17 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    knNum code={ a5 = 3.5; b5 = a5 + 1; print "KN " b5 " kind " b5.datA:; };
+    ;
+testing(knNum);
+cerr "KINDNUMBER SENTINEL":;
+stop();
+
+kindNumberT -- SEQ 524 R1 (2026-11-04): the old-road twin of newJitT NJ-5. A NUMBER written into a kindless local, then
+read into another. pop.sh runs this file as written (testing(), compiled) and with testing(knNum) replaced by knNum()
+(interpreted). Born red: compiled reads 5, because a kindless local gets an i32 slot; intended 4.5 kind 9.

@@ -1702,6 +1702,19 @@ jdd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitJD" | tail -1)
 if [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
 else echo "  FAIL  JD degrade count = '$jdd', want 0"; fail=1; fi
 
+#  JN -- SEQ 524 R1 (2026-11-04): a NUMBER crossing kindless locals. Born red: the prologue slots a kindless local i32. Intended = the
+#  interpreted twin, 3.25 kind 9. The value is non-zero and non-integer, so neither a default nor a rounding can satisfy it.
+echo "--- rung JN: a NUMBER crossing kindless locals"
+$B "$(ip jitJN)" > "$T/jitJN" 2>&1; check "JN compiled runs" 0 $?
+sentinel "JN sentinel" "$T/jitJN" "JN SENTINEL"
+sed 's/^testing(jnNum);/jnNum();/' "$(ip jitJN)" > "$T/jitJN.p"; $B "$T/jitJN.p" > "$T/jitJNp" 2>&1; check "JN interpreted runs" 0 $?
+jno=$(sed -n 's/^JN  *\([^ ]*\)  *kind  *\([0-9]*\) *$/\1 \2/p' "$T/jitJNp")
+if [ "$jno" = "3.25 9" ]; then echo "  ok    JN interpreted oracle = 3.25 kind 9"; green=$((green+1))
+else echo "  FAIL  JN interpreted oracle '$jno', want 3.25 9"; fail=1; fi
+jnv=$(sed -n 's/^JN  *\([^ ]*\)  *kind.*/\1/p' "$T/jitJN")
+if [ "$jnv" = "3.25" ]; then echo "  ok    JN compiled = 3.25 (the slots carry the number)"; green=$((green+1))
+else echo "  FAIL  JN compiled '$jnv', want 3.25 (born red SEQ 524: 4 -- i32 slots)"; fail=1; fi
+
 #  A CAPPED FIXTURE FAILS THE LADDER BY NAME, even if every row it fed happened to read green:
 #  its capture is truncated, so nothing read from it is evidence (H5).
 if [ -s "$JITCAPLOG" ]; then
@@ -1714,7 +1727,7 @@ for _mf in "$T"/.missingFixture.*; do
     echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
 done
 rm -f "$JITCAPLOG"
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JD + J-R THE PROOF + SLOT: JM1 JM2)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JD JN + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

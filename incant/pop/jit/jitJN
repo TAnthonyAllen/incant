@@ -1,0 +1,16 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitLadder);
+define
+    jnNum code={ a = 1.5; b = a * 2; c = b + 0.25; print "JN " c " kind " c.datA:; };
+    ;
+testing(jnNum);
+cerr "JN SENTINEL":;
+stop();
+
+jitJN -- SEQ 524 R1 (2026-11-04), ladder rung JN: a NUMBER crossing three kindless locals. Intended 3.25 kind 9, the
+interpreted twin (ladder.sh runs this with testing(jnNum) replaced by jnNum()). Non-zero on purpose (H4's sibling rule).

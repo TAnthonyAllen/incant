@@ -1,0 +1,38 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(KindArm);
+define
+    kaReq owner source result rule;
+    kaNew code={
+        kaSrc := argument.CodE;
+        kaReq.owner  := argument;
+        kaReq.source := kaSrc;
+        kaReq.rule   := KantGrammar["STARt"];
+        if compileIn(kaReq);
+            kaBlock = kaReq.result;
+            *kaBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *kaBlock;
+        };
+    kaOld code={ if 1 > 0; o7 = 7.5; o7 = 1; print "KA old " o7:; };
+    kaNw code={ if 1 > 0; n7 = 7.5; n7 = 1; print "KA new " n7:; };
+    ;
+search KindArm;
+kaNew(kaNw);
+testing(kaOld);
+jitter;
+kaNw();
+cerr "KINDARM SENTINEL":;
+stop();
+
+kindArmNetT -- SEQ 524 ruling (Tony, 2026-11-04): a local whose first writer sits inside an if arm and which has another
+writer elsewhere is NOT JITTABLE, refused by name, because walk order is not run-time order there. One action per road.
+Plain runs read each value through a twin with testing(kaOld) and jitter; replaced by plain calls.

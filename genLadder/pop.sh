@@ -1162,6 +1162,33 @@ fdRow "newJitT the walk's witness per action (walked handed native)" "$(cat "$T/
 fdRow "newJitT nothing refused NOT JITTABLE under jitter;" "$(grep -c 'NOT JITTABLE' "$T/njj.e")" "0" "0"
 else echo "  FAIL  newJitT MISSING"; fail=1
 fi
+#  kindNumberT / kindZeroT / kindArmNetT -- SEQ 524 R1 (2026-11-04): a NUMBER into a kindless local, on the old road's compiled code.
+_knv () { sed -n 's/^'"$1"'  *\([^ ]*\)  *kind  *\([0-9]*\) *$/\1 \2/p' "$2"; }
+_knF=$(ip kindNumberT)
+if [ -f "$_knF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_knF" > "$T/kn.o" 2> "$T/kn.e"; _knx=$?
+sed 's/^testing(knNum);/knNum();/' "$_knF" > "$T/kn.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/kn.p" > "$T/knp.o" 2> "$T/knp.e"; _knpx=$?
+_ofeq "kindNumberT interpreted (the control): value, kind, exit, sentinel" "$(_knv KN "$T/knp.o") x$_knpx s$(grep -c '^KINDNUMBER SENTINEL' "$T/knp.e")" "4.5 9 x0 s1"
+fdRow "kindNumberT compiled under testing(): a NUMBER crossing a kindless local (NJ-5's old-road twin)" "$(_knv KN "$T/kn.o" | cut -d' ' -f1) x$_knx s$(grep -c '^KINDNUMBER SENTINEL' "$T/kn.e")" "5 x0 s1" "4.5 x0 s1"
+else echo "  FAIL  kindNumberT MISSING"; fail=1; fi
+#  the rider (Tony, 2026-11-04): r = 0.0; r = 7 -- "make r a number first". Three roads; pinned, not cured in SEQ 524.
+_kzF=$(ip kindZeroT)
+if [ -f "$_kzF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kzF" > "$T/kz.o" 2> "$T/kz.e"; _kzx=$?
+sed 's/^testing(kzR);/kzR();/' "$_kzF" > "$T/kz.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/kz.p" > "$T/kzp.o" 2> "$T/kzp.e"; _kzpx=$?
+sed 's/^testing(kzR);/jitter;\
+kzR();/' "$_kzF" > "$T/kz.j"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/kz.j" > "$T/kzj.o" 2> "$T/kzj.e"; _kzjx=$?
+fdRow "kindZeroT r = 0.0; r = 7: value kind exit, interpreted | testing() | jitter;" "$(_knv KZ "$T/kzp.o") x$_kzpx | $(_knv KZ "$T/kz.o") x$_kzx | $(_knv KZ "$T/kzj.o") x$_kzjx" "7 9 x0 | 7 0 x0 | 7 0 x0" "7 9 x0 | 7 9 x0 | 7 9 x0"
+else echo "  FAIL  kindZeroT MISSING"; fail=1; fi
+#  the ruling's net: first writer inside an if arm, another writer elsewhere -- NOT JITTABLE, refused by name. Born as the refusal.
+_kaF=$(ip kindArmNetT)
+if [ -f "$_kaF" ]; then
+rm -f "$T/ka.w"; INCANT_JITTER_ERR="$T/ka.w" perl -e 'alarm 30; exec @ARGV' "$B" "$_kaF" > "$T/ka.o" 2> "$T/ka.e"; _kax=$?
+sed -e 's/^testing(kaOld);/kaOld();/' -e '/^jitter;$/d' "$_kaF" > "$T/ka.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/ka.p" > "$T/kap.o" 2> "$T/kap.e"; _kapx=$?
+_kav () { grep '^KA ' "$1" | tr -s ' ' | tr '\n' '|'; }
+_ofeq "kindArmNetT plain (the control): both arms' locals read their last write, exit, sentinel" "$(_kav "$T/kap.o") x$_kapx s$(grep -c '^KINDARM SENTINEL' "$T/kap.e")" "KA old 1 |KA new 1 | x0 s1"
+fdRow "kindArmNetT the net: refusals naming the local, old road | new road, then the values" "$(cat "$T/ka.o" "$T/ka.e" | grep -c 'NOT JITTABLE.*local o7') | $(cat "$T/ka.w" 2>/dev/null | grep -c 'NOT JITTABLE.*local n7') | $(_kav "$T/ka.o") x$_kax" "0 | 0 | KA old 1 |KA new 7.5 | x0" "1 | 1 | KA new 1 | x0"
+else echo "  FAIL  kindArmNetT MISSING"; fail=1; fi
 #  newPlusEqT -- SEQ 523 R2 (2026-11-03), born red, a row only: `m6 += 5` in a new-road action body, no jitter. The new
 #  road refuses (ERROR Operator += failed on m6 and TOKEn) and prints 2; intended the old road's 7, nothing refused
 _peF=$(ip newPlusEqT)
