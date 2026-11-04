@@ -37,10 +37,20 @@ define
                 print ,-;
             else    print *target.taG;
         };
-    invokeTEST code={ print "invokeTEST:" taG "=" argument:; return argument; };
     qa=2;
     qb=3;
     qc=4;
+    simpleValue;
+    listenTEST listenTo=simpleValue code={ print `"listenTEST: was invoked":; };
+    ;
+
+simpleValue=22;
+print "SENTINEL tester driver end":;
+stop();
+
+/***************************************************************************
+    Everything below is left here for cut and paste modifications as needed
+***************************************************************************/
     // Clod, A2 listener probe fields (driver near the foot)
     la=1;
     lb=$la;
@@ -60,62 +70,14 @@ define
     lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
     ;
 
-whatsIt = PRINt("print #5.2f,+~+77 - qa / 3 qb/5:;");
-testOP(whatsIt);
-whatsIt = PRINt("print #5.2f,+~+77 - qa / 3,qb/5:;");
-testOP(whatsIt);
-whatsIt = PRINt("print #4.2f,+~+77 - qa / 3,qb/5:;");
-testOP(whatsIt);
-whatsIt = EXPRESSIOn("invokeTEST call ga > qb || righty = 42 || qb > qc");
-print "SENTINEL after the direct EXPRESSIOn call":;
-testOP(whatsIt);
-print "Dump of the generated instruction chain":;
-listChain(whatsIt);
-// Clod, SEQ 440 R2: bracketed lines run INVOKEd / INVOKEr. HEAD (xpListTest) read the same in this order: 5, 9, 20, 4 (alone, qa[qb] + qc reads 0, refused)
-whatsIt = EXPRESSIOn("invokeTEST(qa + qb)");
-cerr "B1 chain [" testOP(whatsIt) "]":;
-whatsIt = EXPRESSIOn("qa + invokeTEST(qb) + qc");
-cerr "B2 chain [" testOP(whatsIt) "]":;
-whatsIt = EXPRESSIOn("invokeTEST(qa + qb) * qc");
-cerr "B3 chain [" testOP(whatsIt) "]":;
-whatsIt = EXPRESSIOn("qa[qb] + qc");
-cerr "B4 chain [" testOP(whatsIt) "]":;
-// Clod, SEQ 448 R5: the new road's print -- PRINt builds one instruct, testOP runs it (prints 77)
-// Clod, A2 listener probe (forms afternoon, 2026-11-03): does b receive a change to a? Old road (define + top level) and new road (lpNew compiles with KantGrammar STARt). Both read NO -- morning docket in macros. Its fields live at the end of TestStuff: pop.sh's testerChainT takes tester up to the LAST indented ; line, so a second define block would pull the driver lines into every row.
 print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
 la = 5;
 print "A2 old road after la=5: la=" la " lb=" lb " lc=" lc:;
 lpNew(lpChange);
 lpChange();
-print "SENTINEL tester driver end":;
-stop();
-
-/***************************************************************************
-    Everything below is left here for cut and paste modifications as needed
-***************************************************************************/
 
 
 /***************************************************************************
     Current Status
 ***************************************************************************/
 
-Need to test && and ||  Actually tested already; seems to work
-Prefix operators (Clod, 2026-10-26): prevOp marks "the previous entry was an operator, or there was none"; an operator
-arriving then is a PENDING PREFIX (pre) that wraps the next operand (negate / deref), so it never overwrites the pending
-binary op. qc - - qa, - qa + qb, qa - - qb + qc, * qa + qb, righty = - qa + qb now build right. Running a unary through
-testOP needs branch testop-unary-slot (testOP read slot 3; the unary operand is in slot 2) -- until it is bought,
-testOP on a chain with a prefix exits 139. The old `or *target.instructTypE != 0; kind = 3;` rule is gone with kind 3.
-Tiers (Clod, SEQ 434, 2026-10-27): arithmetic folds at once; compare (compareTier), logic (shortCircuit) and assign
-(assignTier) each wait in their own pending slot (cmpP, logP, asgP). A looser operator first closes every tighter slot
-into the target, an equal one closes its own (so a tier reads left to right, as kant does: qc > qa || qa > qc && qb > qc
-is 0), and assign never closes assign. The end closes the slots tightest first. qa > qb + qc, righty = 0 || qb > qc and
-qa > qc && qb > qc || qc > qa now build as kant reads them (testerChainT TC-3c, TC-4b, TC-11, TC-12). Still open: a
-third assign is untested (a second nests through asgO, measured); + on a null target now refuses by name (op-own-write).
-Harder expressions for xpListTest, each with a pinned trunk answer in exprPinT to compare against:
-- qa * qb + qc and qa - qb + qc: left-to-right folding against what the language does today.
-- xw > px && xw < pxw: comparisons and && mixed, which is where precedence matters.
-- -qa + qb and !fTrue(qa): a prefix unary on a term, and on a call.
-- fId(qa + qb) * qc and qa + fNest(qb) + qc: calls with an expression inside or between, so A(B) has to become A call B mid-expression.
-- a < b < c: chained comparisons; expr-accum currently refuses this by name.
-- *block(code): a star on a call target.
-    For now assuming block(code) gets processed into the list as block call code

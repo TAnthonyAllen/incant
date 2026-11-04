@@ -167,6 +167,43 @@ against the rules for new rules. Today the new ops hand over to run time.
 A split rule (decide below, build above) adds one label level; check it there.
 
 /*******************************************************************************
+	Looking into future of integrating claude into kant
+*******************************************************************************/
+Integrating Claude as a kant assistant (Tony / Clay discussion, 2026-11-04). NOT SCHEDULED --
+waits on kant growing, including what it works on (forms, typesetting, drawing), not just how
+it works. HPDL.
+    Question: can an integrated Claude advise and assist a kant user -- e.g. modify an existing
+    form to do what they want -- for a user clueless about programming, and for a good
+    programmer new to kant?
+    Answer: yes, reasonable to plan for and expect. Caveat: kant is in no model's training data,
+    so an assistant knows kant only from what kant hands it at run time (grammar, docs, examples,
+    refusals). The question is not "can AI learn kant" but "does kant explain itself well
+    enough". That part is ours.
+        - Clueless user: judges results by looking (forms suit this); cannot catch a wrong
+          answer, so the assistant must check, and kant must make checking possible.
+        - Programmer new to kant: the assistant mostly translates from what they know.
+    Preparation (rough):
+        1 Keep kant self-describing: grammar as data, a form readable as data.
+        2 Refuse loud, name the patient: silent wrong answers are invisible to a user and an
+          assistant can act on a named refusal. Curing silent wrongs is preparation.
+        3 One spelling per idea (cf. "no cast operator, make it a number first").
+        4 An assistant hands a user a change as a kant directives file (insertAt / replaceAt,
+          the comment-minion shape), with a preview and an undo.
+        5 A small worked-example corpus: form, change, result. Teaches more than a manual.
+        6 The channel: the assistant is another party on the cross-instance channel (why
+          listener is parked rather than patched).
+    User docs: kept SEPARATE from DesignDocs (which stay engineering notes for Clod and Clay)
+    and kant-accessible, perhaps tagged by audience. First audience target: the experienced
+    programmer new to kant. Mostly the what, a little of the why -- what the typesetting
+    documenter would print. Deserves a deep design session on how to shape them to be most
+    effective. HPDL.
+    Background assumption (Tony's forecast): Apple's on-device AI work is taking off; expect a
+    local Claude (e.g. on iPhone) backed by a data center. Implications: a small local context
+    favours terse references and examples; the local side does the checking (preview, fixture,
+    refusal) while the remote side drafts; local / remote / two incant instances are all one
+    pattern -- parties on a channel.
+
+/*******************************************************************************
 	Open questions
 *******************************************************************************/
 1  A kant spelling for a rule action that rejects a match. Today only a null
