@@ -323,6 +323,9 @@ inline std::map<GroupBody*, int> gJitWriterKinds;
 inline std::set<GroupBody*> gJitArmNet;
 // The jitter walk's witness counts (SEQ 525): every statement visited, arm statements included; each one native or handed.
 inline int gJitWalkWalked = 0, gJitWalkHanded = 0, gJitWalkNative = 0;
+// Where a break lands in the walk (SEQ 526 S4): a seq's exit or a loop's, innermost last. A bodySeq pushes nothing, which is the whole
+// difference between them. Empty: the action's own seq catches it, so it leaves through the epilogue.
+inline std::vector<llvm::BasicBlock*> gJitWalkBreak;
 inline bool jitArmNetRefuses(GroupBody *b) {
     if ( !gJitArmNet.count(b) ) return false;
     int k = gJitWriterKinds[b];

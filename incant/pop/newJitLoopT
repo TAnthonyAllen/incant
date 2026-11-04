@@ -195,6 +195,13 @@ define
                 print 6:;
                 break;
         };
+    ln code={
+        x = 1;
+        if x < 3;
+            if x > 0 && x < 5;  break;
+            print 2:;
+        print 3:;
+        };
     ;
 search NewJitLoop;
 fsrc +% fa fb fc;
@@ -220,6 +227,7 @@ lpNew(lj);
 lpNew(lk);
 lpNew(ll);
 lpNew(lm);
+lpNew(ln);
 print "L l1":;
 l1();
 print "L l2":;
@@ -266,6 +274,8 @@ print "L ll":;
 ll();
 print "L lm":;
 lm();
+print "L ln":;
+ln();
 print "L END":;
 cerr "NEWJITLOOP SENTINEL":;
 stop();
@@ -276,4 +286,4 @@ l9 / la return in a loop, bare and computed. lb / lc a handed-over if carrying a
 ld / le a break in a braced arm (TL-10): the arm's seq catches it, the statement after runs. lf a number crossing a condition. lg / lh conditions that
 hand the loop over (a string, a bare read). li a body that never runs, its local read after (the written mark). lj a for, handed over, its break inside.
 lk a break at the action's seq: the action ends. ll a statement after a continue is reachable to the walk, never to the run. lm a seq arm in a loop is the
-loop's bodySeq, so its break leaves the loop.
+loop's bodySeq, so its break leaves the loop. ln a handed-over if's break landing on the compiled seq arm around it, so the statement after that arm runs.
