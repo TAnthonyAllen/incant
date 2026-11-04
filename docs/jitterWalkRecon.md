@@ -163,3 +163,27 @@ row for row. **H7 (the mark always reads written):** both read 0 again; binary b
 
 **Past its reach, pinned red, a decision for Tony:** UA and UC. A native statement has already emitted its read, so `v = u + 1` reads 0 + 1 (plain
 refuses) and `v = u` copies 0 (plain copies the tag's text). Reaching them needs a statement to branch on the mark and fall back.
+
+## S4 (SEQ 526, 2026-11-04) -- while, do, break, continue, a computed return; branch new-jit-s4, pins on trunk
+
+**Built:** `jitWalkStmt` now also takes whileLoop and doLoop through jitLoop* / jitDo*, a break to `gJitWalkBreak.back()` (a seq's exit or a loop's;
+a bodySeq pushes nothing, which is the whole distinction) or the epilogue, a continue to the innermost loop's condition or the epilogue, and a computed
+count return through jitEmitReturn. A condition that cannot emit gives the whole statement up, after popping the loop's stacks; a `do` gives up a body it
+already walked, the roll-back taking it and `jitWalkHandedBack` restoring the counts. A statement handed over whole carries `jitWalkBranches` (a seq keeps
+its own break, a loop both) and `jitEmitStmtRT` lands its break through the walk's stack. S3's guard on a seq arm holding a branch is gone: the arm has an
+exit. Canary 418 -> 419 (jitWalkBranches, jitWalkCondOK, jitWalkHandedBack in; jitArmHasBranch, jitWalkIfNative out).
+
+**Stays handed over:** `for` and `iterate` (their cursors are now recorded as holders, so lj compiles around them; the recon's "binding unmeasured" stands);
+a bare return or a bare condition; a return of a double. **The non-count return channel (docket, "rides with S4") is NOT in this stroke:** RT-5 / RT-5f /
+RT-5p stay pinned red. The recon's S4 certificate does not name it.
+
+**Certificate:** newJitLoopT = its twin on all shapes (WH-3 / WH-6 / WH-7 and DO-1..7 in action form, TL-10's break in a braced arm, return bare and computed,
+handed-over break and continue landing on a compiled loop and on a compiled seq arm). The FR rows' shape only as lj, handed over. Witness as pinned; topology
+l1 cond loopexit body, l5 dobody docond doexit. pop.sh + the new rows, no FAIL row moves but the pinned ones; jitLadder 224 / 0 row for row; gen26 24 / 2, per file.
+
+**H7 (cure committed first; single fixture, alarm; binary byte-identical after):**
+| control | what moved |
+|---|---|
+| the bodySeq / seq distinction ignored (the recon's H7) | l2 reads 1 2 4 5 8; l4, l7, lb the same way. The recon's "WH-3 reads 1 2 3" is this on WH-3's bound of 3 |
+| a handed-over break ignores the walk's stack | ln loses its 3 |
+| a handed-over statement's branch unread | lb and lc end the action at the signal: 1, no 8 |
