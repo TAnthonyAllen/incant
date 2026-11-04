@@ -1198,6 +1198,17 @@ rm -f "$T/nlpd.w"; INCANT_JIT_DUMP=2 INCANT_JITTER_ERR="$T/nlpd.w" perl -e 'alar
 _nlpTopo () { awk -v a="@jit_$1(" 'index($0,"define")==1 {on=index($0,a)>0; if(on) t=""} on && /^(cond|body|loopexit|dobody|docond|doexit)[0-9]*:/ {x=$1; gsub(/[0-9]*:.*/,"",x); t=t x " "} END{print t}' "$T/nlpd.w"; }
 fdRow "newJitLoopT topology of the standing build: l1 a while, l5 a do" "$(_nlpTopo l1)| $(_nlpTopo l5)" "| " "cond loopexit body | dobody docond doexit "
 else echo "  FAIL  newJitLoopT MISSING"; fail=1; fi
+#  newReturnKindT -- SEQ 527 R2: what a compiled function hands back when it is not a count, both roads. Born red under jitter;.
+_rkF=$(ip newReturnKindT)
+if [ -f "$_rkF" ]; then
+_rkv () { grep '^RK ' "$1" | tr -s ' ' | sed 's/^RK //; s/ kind /:/' | tr '\n' '|'; }
+perl -e 'alarm 30; exec @ARGV' "$B" "$_rkF" > "$T/rk.o" 2> "$T/rk.e"; _rkx=$?
+awk 'BEGIN{d=0} /^search NewReturnKindT;$/{c++} {print} c==2 && !d {print "jitter;"; d=1}' "$_rkF" > "$T/rkj.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/rkj.k" > "$T/rkj.o" 2> "$T/rkj.e"; _rkjx=$?
+_rkWant="ns str:13 |os str:13 |nm loc:13 |om loc:13 |nd 3.5:9 |od 3.5:9 |nc 4.5:9 |oc 4.5:9 |nl 2.5:9 |ol 2.5:9 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne arm:13 |oe arm:13 |"
+_ofeq "newReturnKindT plain (the control): value:kind per shape, exit, sentinel" "$(_rkv "$T/rk.o") x$_rkx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rk.e")" "$_rkWant x0 s1"
+fdRow "newReturnKindT under jitter; = plain" "$(_rkv "$T/rkj.o") x$_rkjx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rkj.e")" "ns 3:5 |os 3:5 |nm 3:5 |om 3:5 |nd 4:5 |od 3:5 |nc 5:5 |oc 4:5 |nl 3:5 |ol 2:5 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne 3:5 |oe 3:5 | x0 s1" "$_rkWant x0 s1"
+else echo "  FAIL  newReturnKindT MISSING"; fail=1; fi
 #  newJitIfUnsetT -- SEQ 525: a local written only in an arm not taken, then read: plain echoes its tag, compiled reads 0. Pinned, not cured.
 _nifuF=$(ip newJitIfUnsetT)
 if [ -f "$_nifuF" ]; then
