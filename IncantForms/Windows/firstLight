@@ -1,0 +1,33 @@
+/*****************************************************************************
+    firstLight is A4's form, on paper: the smallest form worth drawing, cut down
+    from IncantForms/Windows/simple. Nothing draws it yet. See the notes below bail().
+*****************************************************************************/
+register(FORMs);
+define
+    firstLight window x=300 y=450 width=400 height=200 down fill=wall font=normal
+        heading="First Light" text height=30 font=title align=center bottom;
+        words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit." text fill=white;
+        bar across height=35
+            space;
+            ok="OK" text width=60 border fill=lightGreen align=center;
+    ;
+bail();
+
+Spelled to the forms plan's rulings. Style attributes sit on fields and are scoped to the subtree: font=normal holds for
+everything under firstLight, and heading overrides it by naming font=title. fill is not inherited, so each field names its
+own. Bare bottom is A4's proposed side spelling, for Tony to rule; the plan's A4 section carries the count and the walk.
+
+Cut from simple, and why:
+    onLayout code={}   event firing comes after A4
+    text=one           one field showing another field's text is a field reference; the listener's family, parked
+    two                a red block holding nothing
+    pad                dropped by ruling (Tony, 2026-11-04)
+    three, stuff, wrap the nesting that existed to carry text=one
+    width=50.0%        the % is parsed as a Modifier and the width reads 50; a percentage needs its own spelling
+    rounded            a border is enough for first light; rounded waits for the drawing step
+    the name simple    UnitTests already has a field named simple, and the define merged into it
+
+Added: down, a text field that pours, and a field shaped like A4's button. Nothing fires. It is plain text with a border
+until event firing comes through it. The word button stays out because nothing reads it (formsTable).
+
+Read it with IncantForms/WorkingOn/firstLightRead.

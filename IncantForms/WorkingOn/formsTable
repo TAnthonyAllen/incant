@@ -17,6 +17,7 @@ NEEDS TONY -- RULED 2026-11-03 (Tony, via Clay), except item 3
     5. RULED: pad is parked until A4. top / bottom / left / right are border
        sides (Bot drew them per side), kept, spelling settled at A4. fill is
        NOT inherited. fit=text is dropped.
+    PAD DROPPED 2026-11-04 (Tony, SEQ 532): item 5's "parked" is superseded.
     The rows below still carry their pre-ruling leans; where a ruling moved
     one, the row says "ruled".
 
@@ -155,8 +156,8 @@ x, y           layout         no   no   -                              none     
 width, height  layout         no   no   % of parent, checkStretch      none             keep
 top bottom left right  -      -    -    nothing in layout reads them   draw             keep (ruled)
                  border sides, as Bot drew them; spelling settled at A4
-pad (+ sides)  layout         no   no   setInnerBox                    none             parked (ruled)
-                 parked until A4; old GUI supported it
+pad (+ sides)  layout         no   no   setInnerBox                    none             drop (ruled)
+                 dropped (ruled 2026-11-04); old GUI supported it
 margin (+ sides) layout       no   no   setInnerBox                    none             respell
                  fold into pad or keep, with pad's ruling
 border         layout         no   no   setInnerBox, draw              draw             keep
@@ -240,4 +241,4 @@ THE DROP LIST -- CONFIRMED 2026-11-03 (Needs Tony 4)
     textShadow · fontSize · center · alignAcross · alignDown · bStyle · cell ·
     setSource · addToSource · deleteFromSource · hTML · pDF · the matrix
     parameters · dump · attributes · vCONTENt / pULLdOWN / dETAILs ·
-    fit=text (ruled with item 5)
+    fit=text (ruled with item 5) · pad and its sides (ruled 2026-11-04)

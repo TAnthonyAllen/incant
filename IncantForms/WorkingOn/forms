@@ -106,7 +106,7 @@ The typesetting language is a lovely destination. Points 1 and 2 are the parts t
 /*******************************************************************************
 	The forms plan of record (SEQ 531, 2026-11-04)
 *******************************************************************************/
-STATE: A1 and A3 are done, A2 answered NO and is parked behind SEQ 530, and A4 on paper is next. Nothing built.
+STATE: A1, A3 and A4's paper walk are done; A2 answered NO and is parked behind SEQ 530. The side spelling waits on Tony's ruling. Nothing built.
 Evidence files: IncantForms/WorkingOn/formsRecon (what the old GUI did: file, method, line) and
 IncantForms/WorkingOn/formsTable (the lookup: one row per attribute). formsPlan is now only a pointer here.
 
@@ -125,7 +125,7 @@ Style (Tony via Clay, 2026-11-03; formsTable, needs-Tony items 1 and 2)
     sets each run's resolved style wholesale (incant/designDocs: DisplayDesignHTML / StreamModel / StyleResolution).
 Attributes (Tony via Clay, 2026-11-03; formsTable, needs-Tony items 4 and 5)
     The drop list at the foot of formsTable is confirmed as listed. Anything dropped and wanted later comes back then.
-    pad is parked to A4.
+    pad is DROPPED (Tony, 2026-11-04, SEQ 532). It joins the drop list.
     top / bottom / left / right are border sides, kept; their spelling is settled at A4.
     fill is not inherited.
     fit=text is dropped.
@@ -151,7 +151,8 @@ A2  Listener probe: does a field listen to another field, and receive on change?
 A3  Attribute table, one row per attribute: moment (define / layout / event), inherited, has action, depends on, status.
     DONE 2026-11-03: formsTable, 135 rows, built from formsRecon. Its needs-Tony list is ruled but for event-time firing.
 A4  The first-light form, ON PAPER: the smallest form touching all three moments -- a window, down, border, text, one
-    button. Settles the border-side spelling and pad.
+    button. WALKED 2026-11-04 (SEQ 532): IncantForms/Windows/firstLight, cut from simple; read back by
+    IncantForms/WorkingOn/firstLightRead. The walk and the side count are below. Only the side spelling is left to rule.
     Event firing goes after A4, through A4's button.
 A5  The foreign-call design, paper only until the jitter settles: a C++ method with several arguments or non-kant types
     is reached through a declared signature; the jitter emits a glue body that reads the field's members and calls the
@@ -165,9 +166,15 @@ Later: the drawing language, then print / typesetting.
    time: what finds it, in what order, and what decides that a click or key belongs to it? Old GUI bubbled from the
    clicked field up through its parents.
 2  The listener's spelling, PARKED: how kant spells "b listens to a", and which way updates flow. See A2.
-3  The border-side spelling and pad. Settled at A4.
+3  The border-side spelling: proposed below, waiting on Tony. pad is dropped.
 4  Emphasis inside a paragraph whose style comes from its framing field.
 5  The drawing language in kant. It needs multi-argument C++ calls, so it comes after the jitter (A5).
+6  margin. formsTable reads "fold into pad or keep, with pad's ruling", and pad is now dropped. The forms use mBottom 14
+   times, mRight 6, mTop once. Drop it too, or keep it?
+7  With pad gone, what insets text from its frame? Layout.twk's displayText has a fixed 5 (indentFrame). A fixed inset, a
+   space field, or nothing?
+8  A side on a rounded field. 7 of the 12 side-asking fields are also rounded, and Bot drew sides only when the field was
+   neither rounded nor bordered (Bot/PDF.twk, read, not run), so those sides drew nothing. Keep that?
 
 /*******************************************************************************
 	Typesetting notes -- DRAFT, NOT RULED (2026-11-03)
@@ -223,5 +230,75 @@ InProcess/Bot/              not a git repo; a variant of the same GUI, dated 202
 Groups/Layout.twk, Stylish.twk, GroupDraw.twk   the 2026-07 rewrite, not old GUI; read only for comparison.
 IncantForms/Controls/       templates, attributes, traits: the form side's own registries (tEMPLATEs, pROPERTIEs, sTYLEs,
                             cOLOr, fONTs).
+
+/*******************************************************************************
+	A4: the count, the proposal, the walk (SEQ 532, 2026-11-04)
+*******************************************************************************/
+How IncantForms/Windows asks for an incomplete border. Population: all 22 forms' live regions, attribute position only.
+12 fields in 7 forms, 25 side words. Control: simple:14 and simple:15, known beforehand, both appear.
+    combination       fields   where
+    left alone          4      simple 14, 15; layout 34, 35
+    left right          2      layout 28; wraplist 15
+    top left right      3      layout 25; list 11; scroll 18
+    bottom left right   1      inspector 11
+    top bottom          1      layout 29
+    top bottom left     1      layout 30
+    Never asked: top alone, bottom alone, right alone, top + left, all four.
+    Spelling: always the bare side names. Bot's internal topBorder / bottomBorder / leftBorder / rightBorder: 0 uses.
+    Value: bare in 7 fields; left=2 in 4; left=5 right=5 in 1 (wraplist, which may mean spacing and not a border).
+    No side field also carries border or bordered. Whole borders: bordered 47, border 3, border=colour 7, border=off 37.
+Excluded by reading: draw 39 and 41 are prose; side words as field names, 13 rows in keyAction, layout, menu, tree; side
+words as values, align=left 11, align=right 2.
+
+PROPOSAL, for Tony to rule: the forms' own spelling, unchanged.
+    A side is its bare name: top, bottom, left, right. Bare draws that side at width 1. =number sets its width.
+    Naming any side means only the named sides draw. border stays the four-sided spelling and is never mixed with a side.
+    The stroke colour comes from stroke=, as for border.
+    A real form:     first height=50 fill=white top left right rounded          (layout 25)
+    firstLight:      heading="First Light" text height=30 font=title align=center bottom;
+
+One hazard, measured: a side word collides with a field of that name IN A SEARCHED REGISTRY. There a bare top takes that
+field's attributes (list length 2), right=5 overwrites the field itself (read back as 5), and align=right copies the field's
+text ("Nothing in here"). A MEMBER named right does not collide (bare right and align=right read right). keyAction registers
+top and bottom in dESCRIPTIONs, so the forms do have this shape.
+
+The walk. "Kant today" is whether the define expresses it and a reader gets the value; every attribute below parses and
+reads back. Nothing below draws until the morning items are built.
+    field / attribute   should draw                   floor call                         kant today
+    window              a window holding the form     Cocoa NSWindow (guiHost openWindow) marks only; openWindow strokes one frame
+    x y width height    the window's frame            none (numbers)                     YES; getFrame reads them
+    down                children stacked              none (arithmetic)                  reads; NO layout pass
+    fill=wall           wall colour across the frame  CG CGContextFillRect               reads as text; NO reader of fill
+    font=normal         font for the subtree          CT CTFontCreateWithFontDescriptor  reads; NO fONTs registry, NO tree
+    heading text        one line of text              CT CTLineDraw                      reads; NO text drawing
+    height=30           fixed height in the stack     none                               reads; NO layout pass
+    font=title          overrides by name, subtree    CT as font                         reads; NO scope
+    align=center        centres the line              CT CTLineGetTypographicBounds      reads; NO reader
+    bottom              a line along the bottom edge  CG MoveTo, AddLineToPoint, StrokePath  reads as presence; NO reader
+    words text          text poured into its frame    CT CTFramesetterCreateFrame, CTFrameGetVisibleStringRange (the count)  reads; NO pour
+    fill=white          white behind the text         CG CGContextFillRect               as fill
+    bar across          children side by side         none                               reads; NO layout pass
+    space               takes the leftover width      none (checkStretch's job)          reads; NO layout pass
+    ok text             one line, in A4's button shape  CT CTLineDraw                    reads; NO text drawing; fires nothing (R1)
+    width=60            fixed width in the row        none                               reads; NO layout pass
+    border              four sides at width 1         CG CGContextStrokeRect             reads as presence; NO reader
+    fill=lightGreen     green behind the text         CG CGContextFillRect               as fill
+
+Candidate morning items (none ruled):
+    M1 Layout pass: a kant walk that gives every field a frame from down, across, width, height and space. getFrame reads a
+       field's own attributes only, so a child has no frame.
+    M2 Text floor: no Core Text anywhere in the tree. One measure method and one pour command, keeping the count.
+    M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses firstLight's shape).
+    M4 Stroke floor: no command strokes a rect or a side from kant. Layout.drawRect strokes one frame, in C++.
+    M5 Colours and fonts: no cOLOr or fONTs registry loads; IncantForms/Controls/attributes is XML-era text. And with
+       wall searchable, fill=wall copies the hex (f7e8aa), while getColor locates by NAME (read, not run). Same family as SEQ 530.
+    M6 Style tree: getStyle returns the first style found up the parents; there is no copy per field, and sTYLEs does not
+       exist. The rulings want a pre-pass.
+    M7 A surface to look at: makeDisplay's bitmap has no y-flip, nothing shows it in a window or writes it to a file (pixelAt
+       is the only reader), and no PDF context exists.
+    M8 The side-name collision above: a define attribute writing through to a same-named registered field (defineCapture's family).
+    M9 A percentage: width=50.0% reads the number 50. The % goes to Modifier.
+    M10 Forms that still call initFORMs stop silently at exit 0 (F-73): simple printed no form. A form's own name can also merge
+       into an existing field: with initFORMs swapped for its two search lines, simple merged into UnitTests' simple.
 
 ORDER (SEQ 531, 2026-11-04): A4 on paper -> event firing, through A4's button -> A5. The listener rejoins after SEQ 530's cure is bought.

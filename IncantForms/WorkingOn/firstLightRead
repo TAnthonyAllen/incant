@@ -1,0 +1,16 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search UnitTests Utilities list;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(firstLightFile);
+search FORMs UnitTests Utilities list;
+printDefinition(firstLight);
+print "SENTINEL firstLightRead":;
+stop();
+
+Reads IncantForms/Windows/firstLight on today's binary: parses, prints its definition. Run from Groups. Measurement only.
