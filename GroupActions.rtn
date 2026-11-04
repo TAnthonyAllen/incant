@@ -1013,7 +1013,14 @@ GroupItem   frame,
 }
 
 
-// ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator
+// locateShared the rule a ruleMethod= names, in the registry being defined into
+extern GroupItem locateShared(String name)
+{
+    return locate(name);
+}
+
+
+// ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator; or share a coded rule's action, by that rule's name (SEQ 528)
 extern GroupItem ruleMethod(GroupItem input)
 {
 String  name = text;
@@ -1024,7 +1031,20 @@ use input
             if grup {
                 if input.tag == 'r' {
                     method = dlsym(RTLD_SELF,name);
-                    isMethod = true; }
+                    isMethod = true;
+                    // sharedActor no C method by that name: a coded rule's builtinActoR, copied, shares its body, so the two rules hold one CodE and one BlocK
+                    -%
+                    if ( !grup->groupBody->gMethod ) {
+                        GroupItem *shareFrom = ::locateShared(name);
+                        GroupItem *shareActor = shareFrom ? shareFrom->getProperty((char*)"builtinActoR") : nullptr;
+                        if ( !shareActor || !shareActor->getProperty((char*)"CodE") )
+                            ::refuse(grup,(char*)"ruleMethod: no method and no coded rule by that name");
+                        else {
+                            grup->addProperty(shareActor);
+                            grup->groupBody->gMethod = shareFrom->groupBody->gMethod;
+                            grup->groupBody->flags.actionType = shareFrom->groupBody->flags.actionType; } }
+                    %-
+                    }
                 else {
                     setOperat(dlsym(RTLD_SELF,name));
                     isOperator = true; }
