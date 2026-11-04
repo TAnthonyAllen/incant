@@ -1,5 +1,5 @@
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//'), sorted.
-# pop.sh FAIL rows by name -- re-banked 2026-11-04 at seal 335 (shutdown). 61 rows. First banked 2026-10-31, seal 298.
+# pop.sh FAIL rows by name -- re-banked 2026-11-04 at seal 336 (shutdown; unchanged by name since seal 335). 61 rows. First banked 2026-10-31, seal 298.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed

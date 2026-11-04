@@ -156,7 +156,7 @@ A1  Recon charter, the old GUI, read only. DONE 2026-11-03: formsRecon, Part 1 (
     is the print-driven layout; style is per field, copied from the parent (scoped); flex is a CSS hint, and the real
     repeater is across="*"; minimumHeight / minimumWidth were never read.
 A2  Listener probe: does a field listen to another field, and receive on change? ANSWERED NO ON BOTH ROADS, 2026-11-03.
-    PARKED by Tony 2026-11-04 (SEQ 531 R2): blocked behind SEQ 530, because TraiTdata hands a define's attribute a value,
+    PARKED by Tony 2026-11-04 (SEQ 531 R2, stands after SEQ 533 R0): waits on := in a define, because TraiTdata hands a define's attribute a value,
     not the field. Every LISTENER row in formsTable waits on it. The measurements are in macros, under PARKED.
 A3  Attribute table, one row per attribute: moment (define / layout / event), inherited, has action, depends on, status.
     DONE 2026-11-03: formsTable, 135 rows, built from formsRecon. Its needs-Tony list is ruled but for event-time firing.
@@ -172,8 +172,8 @@ Later: the drawing language, then print / typesetting.
 /*******************************************************************************
 	Open questions
 *******************************************************************************/
-1  CLOSED 2026-11-04: event-time firing is ruled (rulings above). OPEN from it: := in a define is held until the listener comes
-   off parked (SEQ 532 R2), and onClick now needs it too. Which comes first is Tony's.
+1  CLOSED 2026-11-04: event-time firing is ruled (rulings above). Its conflict is closed too (Tony, SEQ 533 R0): SEQ 532 R2 is superseded,
+   and := in a define is built for onClick, ahead of the listener, which stays parked. Its own rule with its own :=, refused in a rule host.
 2  The listener's spelling, PARKED: how kant spells "b listens to a", and which way updates flow. See A2.
 3  CLOSED 2026-11-04: the border-side spelling is ruled (rulings above), and pad is dropped.
 4  Emphasis inside a paragraph whose style comes from its framing field.
@@ -339,4 +339,4 @@ are C++ with a Point argument, not kant commands. deferredAction is gone from th
 The smallest event for firstLight's OK: one left mouseUp, one level, no bubbling. It needs (a) ok to carry an action, which it does not
 today; (b) a mouseUp method on Layout; (c) the point mapped to ok, which needs frames (M1) and blockContaining; (d) the fire, which already works.
 
-ORDER (SEQ 531, 2026-11-04): A4 on paper -> event firing, through A4's button -> A5. The listener rejoins after SEQ 530's cure is bought.
+ORDER (SEQ 533 R1, 2026-11-04, matching macros): := in a define -> the parse-label parent -> M5 colours and fonts -> M3 fill -> M4 stroke, each in its morning slot. Event firing's proof waits on frames (M1), which is not on the order yet. A5 follows. The listener stays parked.

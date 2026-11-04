@@ -296,7 +296,14 @@ Parked: fire(label), a command that fires a rule's action on a label with no
 	Features to add to incant once it settles. Nothing major nothing urgent
         These could be end of day tasks done just before shutdown
 *******************************************************************************/
-DOCKET HEAD (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong answers first. Its first row, ahead of every jitter item: THE TWO ROADS' INTERPRETED
+DOCKET HEAD (Tony, SEQ 533 R1, 2026-11-04), the morning order:
+    1 := in a define, ahead of the listener because onClick needs it (R0 supersedes SEQ 532 R2; the listener stays parked). Its own rule with its own :=, refused in a rule
+      host. Start with why the trial's action does not fire (docs/traitRefRecon.md).
+    2 aCTionDefinE flag attributes, recon first, then proceed unless it looks like a campaign (the entry below). Its own stroke, never with := or defineCapture B2.
+    3 The parse-label parent, recon first.
+    4 SEQ 529 R1, the recursion measure (below).
+    5 Forms items M5 colours and fonts, M3 fill, M4 stroke, in that order (IncantForms/WorkingOn/forms).
+DOCKET, behind that order (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong answers first. Its first row, ahead of every jitter item: THE TWO ROADS' INTERPRETED
     RECURSION DISAGREE -- `r = f(argument - 1); return r;` returning "s" reads r on the new road, s on the old. A language-level disagreement, measured once, not diagnosed.
     The rest, one line each (sizes and detail in the ledger):
     - UA, a silent wrong answer: v = u + 1 on an unwritten local -- interpreted refuses, compiled reads 1. UC beside it: v = u copies 0 compiled, the tag's text interpreted.
@@ -310,7 +317,7 @@ DOCKET HEAD (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong
     - a shared action's refusal names the shared rule: ELSEIf refuses as "REFUSED If". It should name the rule that fired, from its label's tag. Small.
     - RULED (Tony, SEQ 529 R2, 2026-11-04): a typeless local in arithmetic REFUSES until typed, as the interpreter already does. UA's intended value is the refusal, so the compiled road must refuse or hand the statement over.
     - for and iterate are still handed over (S4's certificate covers compiling around them).
-ORDER (revised 2026-11-04, seal 335; opener ruled SEQ 529 R1): ledger row 1 opens, MEASURE ONLY -- which road is right and why, report, stop for a ruling on the cure; S6 waits on it. The red ledger, in Tony's order -> S6 (call) in docs/jitterWalkRecon.md -> aCTionDefinE flags / defineCapture B2 -> refusal contents.
+ORDER (revised 2026-11-04, SEQ 533 R1): := in a define -> aCTionDefinE flag attributes -> the parse-label parent -> ledger row 1, MEASURE ONLY (SEQ 529 R1): which road is right and why, report, stop for a ruling on the cure; S6 waits on it -> forms M5, M3, M4. Then, unchanged: the rest of the red ledger -> S6 (call) in docs/jitterWalkRecon.md -> defineCapture B2 -> refusal contents.
     Done and off the order: TL-7 (SEQ 516/517), argument rename (SEQ 518, actionLabel), jitter walk recon (SEQ 519), ruleMethod (SEQ 528).
 Jitter walk (SEQ 519 recon, docs/jitterWalkRecon.md): a new-road action under jitter; is walked by its chain. BOUGHT: S0 + S1 (3dbec07c), S1b (27226761), S2 (69d45ef3), kindless NUMBER vs count, NJ-5's
     opener, retired (5fdabc14, SEQ 524), S3 if (c7292a3f, SEQ 525), the unset-slot mark (5d748896, SEQ 526), S4 while / do / break / continue / computed return (8d11a669, SEQ 526), the non-count return
@@ -339,8 +346,11 @@ We have a bunch of noPrint commands that call processFlags() mostly to set a fla
     flags -- some names differ (index -> isIndexed, isList -> isLIST, TOKENize -> tokened) and some do more than set a
     flag (bin sets a guard, isRule mints rStuff, sort reads a direction, exit exits). The aCTionDefinE change stays on
     the table for the attributes that ARE GroupFields flag names; the rest stay commands.
+    RULED ONTO THE ORDER (Tony, SEQ 533 R1, 2026-11-04), recon first, then proceed unless it looks like a campaign: an attribute whose name is a GroupFields flag goes through
+    setGroupField on NewGroup and is not added, as a noPrint immediate attribute is not. processFlags stays, and the commands whose names differ or do more than set a flag keep
+    their commands. The recon lists which of setup's 15 are covered.
     -- independent, but it touches aCTionDefinE, where the braceInCode fixit also lives; after the two above so define work comes together
-       defineCapture's B2 (ruled in principle, SEQ 507) goes in sequence with this, never in the same stroke; its value-capture fix comes first (TODO)
+       Its own stroke, never with := or defineCapture B2 (SEQ 533 R1). B2 (ruled in principle, SEQ 507) keeps its value-capture fix first when B2 is reached (TODO)
 Decide what a refusal should carry, for a future kant debugger and change refusal processing accordingly
     -- a design question with no fixed end; last, because every other line is smaller and none waits on it
 chainOP: testOP written in kant (Tony's idea, 2026-11-03; shape SEQ 515 R1). After the jitter walk recon. Two steps:

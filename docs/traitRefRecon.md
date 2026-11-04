@@ -1,5 +1,7 @@
 # TraiTdata: what a define's attribute holds, and what `:=` in a define would cost (SEQ 530, 2026-11-04)
 
+RULED (Tony, SEQ 533 R0, 2026-11-04): `:=` in a define is first on the morning docket, for onClick, ahead of the parked listener; its own rule, its own `:=`, refused in a rule host. Start with why the trial's action does not fire (below).
+
 Recon only. Nothing here is on trunk except the pin, `incant/pop/traitGridT` and its 24 rows. The trial below ran in a clone.
 
 ## Today, on both roads (fleet: traitGridT)
