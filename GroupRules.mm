@@ -6983,6 +6983,13 @@ extern "C" void jitPrintProbe(GroupItem *node, int phase)
 	
 }
 
+// jitPrintShortcutRT a print item's shortcut, run at its place in the item order on this print's buffer, as opPrintShortcut does (SEQ 527 S5)
+extern "C" void jitPrintShortcutRT(GroupItem *shortcut, Buffer *buffer)
+{
+	if ( shortcut )
+		::runShortcuts(shortcut->getText(),buffer);
+}
+
 /*******************************************************************************
     jitProbeDrive -- THE STATION CERTIFICATE'S DRIVE, jitted against interpreted.
     driveStep's own lines (push the message, raise the floor, fire, read the mark
@@ -8166,7 +8173,7 @@ extern "C" int jitWalkBranches(GroupItem *n, int d)
     [1] the op, [2] the statement list. Walk the statements in order and hand each to its OWN testOP at RUN time through
     jitEmitStmtRT, which runs the instruct's method on the action's fields and maps a return, continue or break left set.
     S2 (SEQ 522): a statement built only of assign and the jitEmitter= operators is emitted natively (jitWalkEligible,
-    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt). S4 (SEQ 526): while, do, break, continue, a computed return; for and iterate are still handed over.
+    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt). S4 (SEQ 526): while, do, break, continue, a computed return. S5 (SEQ 527): print, cerr, cout. for and iterate are still handed over.
     The witness line is printed unconditionally, one per compile (H4).  */
 extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 {
@@ -8242,6 +8249,64 @@ extern "C" void jitWalkHandedBack(GroupItem *stmt, int walked, int handed, int n
 	::jitScanArmsChain(stmt, 0);
 	if ( !gJitStmtMarks.empty() ) gJitStmtMarks.back().branches |= ::jitWalkBranches(stmt, 0);
 	::jitStmtEnd(stmt);
+	
+}
+
+/*  jitWalkPrint -- SEQ 527 S5: one print, cerr or cout through jitPrintOpen and jitPrintItem, closed on its own sink. Item by item as printWalk: a shortcut runs
+    on the buffer; a local with a frame slot prints its value, by the written mark; any other field or literal prints as itself at run time, which is live; an
+    instruct prints the count or number it computes. A value of any other type gives the statement up.  */
+extern "C" void jitWalkPrint(GroupItem *stmt, GroupItem *items, char *sink)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	::jitPrintOpen(items);
+	GroupItem *it = 0;
+	while ( !gJitHandOver && (it = items->next(it)) ) {
+	::jitPrintArm();
+	if ( ::isShortcutInstruct(it) ) {
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, ptr}, false), bake((void*)&jitPrintShortcutRT, "printShortFn"),
+	{bake((void*)it->get(2), "printShort"), gJitPrintBuf});
+	continue; }
+	if ( (void*)it->groupBody->gMethod == (void*)&testOP ) {
+	::jitWalkExpr(it);
+	if ( gJitHandOver ) break;
+	if ( !gJitLastIsNode && (!gJitResult || gJitResult->getType()->isIntegerTy(1)) ) {
+	::jitHandOver((char*)"a print item with no count or number -- its statement runs at RUN time", it);
+	break; }
+	::jitPrintItem(it, nullptr, 1);
+	continue; }
+	GroupBody *ib = it->groupBody;
+	if ( ::jitFrameFind((void*)&(ib->gCount)) || ::jitFrameFind((void*)&(ib->gNumber)) ) {
+	::jitEmitBareRead(it);
+	if ( gJitHandOver ) break;
+	::jitPrintItem(it, nullptr, 1);
+	continue; }
+	::jitPrintItem(it, nullptr, 0); }
+	if ( gJitHandOver || !gJitPrintBuf ) return;
+	//  ownSink the sink is the statement's own op's: stdout or printTO's divert, stderr, or stdout alone
+	void *fn = !::strcmp(sink, "cerrList") ? (void*)&opCerr : !::strcmp(sink, "coutList") ? (void*)&opCout : (void*)&opPrint;
+	b->CreateCall(llvm::FunctionType::get(ptr, {ptr, ptr}, false), bake(fn, "printSinkFn"), {bake((void*)items, "printItems"), gJitPrintBuf}, "printSink");
+	gJitPrintBuf = nullptr;
+	gJitResult   = nullptr;
+	gJitEmitted  = true;
+	
+}
+
+/*  jitWalkPrintNative -- SEQ 527 S5: can this print's items all be emitted? A literal or a field; a shortcut; an instruct the walk emits. A format item sets
+    per-kind slots the emit does not keep, an argument is a binding, and anything else hands the print over whole.  */
+extern "C" int jitWalkPrintNative(GroupItem *items)
+{
+	
+	GroupItem *it = 0;
+	while ( (it = items->next(it)) ) {
+	if ( it->get((char*)"formatTYPE") ) return 0;
+	if ( it->groupBody->flags.isArgument ) return 0;
+	if ( (void*)it->groupBody->gMethod == (void*)&testOP && !::isShortcutInstruct(it) && !::jitWalkEligible(it) ) return 0; }
+	return 1;
 	
 }
 
@@ -8369,6 +8434,17 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	::jitStmtEnd(stmt);
 	gJitStmtCanRefuse = false;
 	return; } }
+	//  printNative print, cerr and cout; a statement that cannot emit an item rolls back to one run-time call (SEQ 527 S5)
+	if ( tag && (!::strcmp(tag, "printList") || !::strcmp(tag, "cerrList") || !::strcmp(tag, "coutList")) && arms && ::jitWalkPrintNative(arms) ) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	::jitWalkPrint(stmt, arms, (char*)tag);
+	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
+	if ( gJitHandOver ) { gJitPrintBuf = nullptr; ::jitWalkHandedBack(stmt, w0, h0, n0); return; }
+	gJitWalkNative++;
+	::jitStmtEnd(stmt);
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	return; }
 	//  nativeStep a statement built only of assign and the jitEmitter= operators is emitted through the old road's own
 	//  dispatch, in aCTionBlocK's per-statement bracket: a part it cannot emit hands the whole statement over (SEQ 522 S2)
 	if ( ::jitWalkEligible(stmt) ) {

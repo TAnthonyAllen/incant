@@ -204,3 +204,15 @@ i32):** all four read as before: `0`, `3`, `4`; binary byte-identical after.
 **Past its reach, pinned red (RS):** an old-road self-call. jitEmitSelfCall's value is an i32 the walk has already handed to the next operator, so a recursive return of a
 string or a number reads 1 compiled, and silently. Reaching it needs the build to know the callee's return kind. **Context, not chased:** in the same probe a new-road recursive
 action's plain run reads `r` where the old road's reads `s` (`r = pn(argument - 1); return r;`), so the two roads' interpreted recursion disagree here.
+
+## S5 (SEQ 527 R3, 2026-11-04) -- print, cerr, cout through the walk; branch new-jit-s5, pins on trunk
+
+**Built:** `jitWalkPrint`, item by item as printWalk: a shortcut runs on the buffer at its place (jitPrintShortcutRT); a local with a frame slot prints its value by the written mark;
+any other field or literal prints as itself at run time, which is live; an instruct prints the count or number it computes. Each print closes on its own sink (opPrint, opCerr, opCout).
+**Stays handed over whole:** a format item (it sets per-kind slots the emit does not keep), an argument, and an item that is a compare, a deref, a call or a dot. Canary 423 -> 426.
+
+**Certificate:** newJitPrintT under `jitter;` = the twin, stdout and the cerr line, 26 shapes, with a row proving the twin holds real output. Every witness (newJitT, newJitIfT, newJitLoopT,
+newJitPrintT) as pre-registered before the build, first run. pop.sh 2476 -> 2480 green, those four rows and nothing else; jitLadder 224 / 0 row for row; gen26 24 / 2, per file.
+
+**H7 (cure committed first; single fixture, alarm; binary byte-identical after):** the print falls back (the recon's H7): the fallback count returns, values unchanged. Every print closes on
+stdout: the cerr line moves from stderr to stdout.
