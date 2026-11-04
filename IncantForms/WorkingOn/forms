@@ -240,13 +240,15 @@ How IncantForms/Windows asks for an incomplete border. Population: all 22 forms'
     left alone          4      simple 14, 15; layout 34, 35
     left right          2      layout 28; wraplist 15
     top left right      3      layout 25; list 11; scroll 18
-    bottom left right   1      inspector 11
+    bottom left right   1      inspector 18
     top bottom          1      layout 29
     top bottom left     1      layout 30
     Never asked: top alone, bottom alone, right alone, top + left, all four.
     Spelling: always the bare side names. Bot's internal topBorder / bottomBorder / leftBorder / rightBorder: 0 uses.
     Value: bare in 7 fields; left=2 in 4; left=5 right=5 in 1 (wraplist, which may mean spacing and not a border).
     No side field also carries border or bordered. Whole borders: bordered 47, border 3, border=colour 7, border=off 37.
+Old GUI (Tony's pointer, 2026-11-04): border and pad handling is GUI/Details.twk setInnerBox 594-656, plus Details.rtn. Read there:
+pad, margin and the whole border each shrink the inner box. The side names have no reader in that function; Bot/Details.twk reads topBorder and its kin.
 Excluded by reading: draw 39 and 41 are prose; side words as field names, 13 rows in keyAction, layout, menu, tree; side
 words as values, align=left 11, align=right 2.
 
