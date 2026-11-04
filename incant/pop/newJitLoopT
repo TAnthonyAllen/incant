@@ -1,0 +1,279 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewJitLoop);
+define
+    lpReq owner source result rule;
+    fsrc=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    r9=0;
+    ra=0;
+    lpNew code={
+        lpSrc := argument.CodE;
+        lpReq.owner  := argument;
+        lpReq.source := lpSrc;
+        lpReq.rule   := KantGrammar["STARt"];
+        if compileIn(lpReq);
+            lpBlock = lpReq.result;
+            *lpBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *lpBlock;
+        };
+    l1 code={
+        n = 0;
+        while n < 3;
+            n = n + 1;
+            print n:;
+        };
+    l2 code={
+        n = 0;
+        while n < 5;
+            n = n + 1;
+            if n == 3;  break;
+            print n:;
+        print 8:;
+        };
+    l3 code={
+        n = 0;
+        while n < 4;
+            n = n + 1;
+            if n == 2;  continue;
+            print n:;
+        };
+    l4 code={
+        o = 0;
+        while o < 2;
+            o = o + 1;
+            i = 0;
+            while i < 5;
+                i = i + 1;
+                if i == 3;  break;
+                print i:;
+            print 9:;
+        };
+    l5 code={
+        n = 0;
+        do
+            n = n + 1;
+            print n:;
+        while n < 2;
+        };
+    l6 code={
+        n = 5;
+        do
+            n = n + 1;
+            print n:;
+        while n < 2;
+        };
+    l7 code={
+        n = 0;
+        do
+            n = n + 1;
+            if n == 2;  break;
+            print n:;
+        while n < 5;
+        print 8:;
+        };
+    l8 code={
+        n = 0;
+        do
+            n = n + 1;
+            if n == 2;  continue;
+            print n:;
+        while n < 3;
+        };
+    l9 code={
+        n = 0;
+        while n < 5;
+            n = n + 1;
+            if n == 2;  return n;
+            print n:;
+        print 99:;
+        };
+    la code={
+        n = 0;
+        while n < 5;
+            n = n + 1;
+            if n == 2;  return n * 10;
+            print n:;
+        print 99:;
+        };
+    lb code={
+        n = 0;
+        while n < 5;
+            n = n + 1;
+            if n > 1 && n < 3;  break;
+            print n:;
+        print 8:;
+        };
+    lc code={
+        n = 0;
+        while n < 4;
+            n = n + 1;
+            if n > 1 && n < 3;  continue;
+            print n:;
+        print 8:;
+        };
+    ld code={
+        x = 1;
+        if x > 2;   print 1:;
+        else
+            print 2:;
+            break;
+        print 3:;
+        };
+    le code={
+        x = 1;
+        if x < 2;
+            if x < 3;
+                print 1:;
+                break;
+            print 2:;
+        print 3:;
+        };
+    lf code={
+        x = 0.5;
+        while x < 1.5;
+            x = x + 0.5;
+            print x:;
+        };
+    lg code={
+        s = "a";
+        k = 0;
+        while s == "a";
+            k = k + 1;
+            if k == 2;  s = "b";
+        print k:;
+        };
+    lh code={
+        k = 2;
+        while k;
+            k = k - 1;
+            print k:;
+        };
+    li code={
+        n = 0;
+        while n > 1;
+            u = 1;
+        print u:;
+        };
+    lj code={
+        s = 0;
+        for e in fsrc;
+            if *e == 2;  break;
+            s = s + 1;
+        print s:;
+        };
+    lk code={
+        print 1:;
+        break;
+        print 2:;
+        };
+    ll code={
+        n = 0;
+        while n < 2;
+            n = n + 1;
+            print n:;
+            continue;
+            print 7:;
+        };
+    lm code={
+        n = 0;
+        while n < 3;
+            n = n + 1;
+            if n == 1;  print 5:;
+            else
+                print 6:;
+                break;
+        };
+    ;
+search NewJitLoop;
+fsrc +% fa fb fc;
+lpNew(l1);
+lpNew(l2);
+lpNew(l3);
+lpNew(l4);
+lpNew(l5);
+lpNew(l6);
+lpNew(l7);
+lpNew(l8);
+lpNew(l9);
+lpNew(la);
+lpNew(lb);
+lpNew(lc);
+lpNew(ld);
+lpNew(le);
+lpNew(lf);
+lpNew(lg);
+lpNew(lh);
+lpNew(li);
+lpNew(lj);
+lpNew(lk);
+lpNew(ll);
+lpNew(lm);
+print "L l1":;
+l1();
+print "L l2":;
+l2();
+print "L l3":;
+l3();
+print "L l4":;
+l4();
+print "L l5":;
+l5();
+print "L l6":;
+l6();
+print "L l7":;
+l7();
+print "L l8":;
+l8();
+print "L l9":;
+r9 = l9();
+print r9:;
+print "L la":;
+ra = la();
+print ra:;
+print "L lb":;
+lb();
+print "L lc":;
+lc();
+print "L ld":;
+ld();
+print "L le":;
+le();
+print "L lf":;
+lf();
+print "L lg":;
+lg();
+print "L lh":;
+lh();
+print "L li":;
+li();
+print "L lj":;
+lj();
+print "L lk":;
+lk();
+print "L ll":;
+ll();
+print "L lm":;
+lm();
+print "L END":;
+cerr "NEWJITLOOP SENTINEL":;
+stop();
+
+newJitLoopT -- SEQ 526 (S4 of docs/jitterWalkRecon.md): the loops, break, continue, return through the walk. Plain = the twin; pop.sh inserts jitter; after the last
+lpNew. l1 / l2 / l3 / l4 while, break (WH-3 / WH-7), continue, nested (WH-6). l5..l8 do: twice, once on a false test, break, continue reaching the test.
+l9 / la return in a loop, bare and computed. lb / lc a handed-over if carrying a break and a continue: the run-time signal lands on the compiled loop.
+ld / le a break in a braced arm (TL-10): the arm's seq catches it, the statement after runs. lf a number crossing a condition. lg / lh conditions that
+hand the loop over (a string, a bare read). li a body that never runs, its local read after (the written mark). lj a for, handed over, its break inside.
+lk a break at the action's seq: the action ends. ll a statement after a continue is reachable to the walk, never to the run. lm a seq arm in a loop is the
+loop's bodySeq, so its break leaves the loop.
