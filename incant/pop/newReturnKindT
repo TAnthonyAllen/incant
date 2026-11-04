@@ -62,6 +62,10 @@ define
     oe code={ n = 1; if n > 0; return "arm"; return "no"; };
     rne;
     roe;
+    selfS code={ if argument < 1; return "s"; r = selfS(argument - 1); return r; };
+    selfD code={ if argument < 1; return 1.5; r = selfD(argument - 1); return r; };
+    rs1;
+    rs2;
     ;
 search NewReturnKindT;
 rkNew(ns);
@@ -115,9 +119,15 @@ rne = ne();
 print "RK ne " rne " kind " rne.datA:;
 roe = oe();
 print "RK oe " roe " kind " roe.datA:;
+rs1 = selfS(2);
+print "RS " rs1:;
+rs2 = selfD(2);
+print "RS " rs2:;
 cerr "NEWRETURNKIND SENTINEL":;
 stop();
 
 newReturnKindT -- SEQ 527 R2 (2026-11-04): what a compiled function hands back when it is not a count, on both roads, against the plain run (pop.sh inserts
 jitter; before the first call). s a string literal, m a local string, d a number literal, c a computed number, l a local number, k / v counts (the controls; a
 non-zero count must stay a count), h a holder, f no return at all (new road: nothing, A3; old road: the last statement's value), e a return in an arm.
+RS, pinned red past the channel's reach: an old-road self-call. jitEmitSelfCall's value is an i32 the walk has already handed to the next operator, so a recursive
+return of a string or a number reads 1 compiled; runAction's fire is the only caller reading the channel.
