@@ -3561,23 +3561,6 @@ extern "C" int jitArgSyncRT(GroupItem *node, GroupItem *field)
 	
 }
 
-/*  jitArmHasBranch -- SEQ 525 S3: does this seq arm hold a branch signal outside a loop? The arm's seq catches a break, and the block-exit
-    target for that is S4's; until then such an if hands over whole, where the seq runs interpreted and catches it.  */
-extern "C" int jitArmHasBranch(GroupItem *n, int d)
-{
-	
-	if ( !n || d > 64 || (void*)n->groupBody->gMethod != (void*)&testOP ) return 0;
-	GroupItem *op = n->get(1), *a = n->get(2);
-	if ( !op || !a || !op->groupBody->tag ) return 0;
-	const char *t = op->groupBody->tag;
-	if ( !::strcmp(t, "branchSignal") ) return 1;
-	if ( ::strcmp(t, "seq") && ::strcmp(t, "ifThen") ) return 0;
-	GroupItem *c = 0;
-	while ( (c = a->next(c)) ) if ( ::jitArmHasBranch(c, d+1) ) return 1;
-	return 0;
-	
-}
-
 /*  the emitted `=` with a node on the right does what opAssign does: setContent,
     or clearData on a null -- a holder on the right carries its group across (Tony,
     2026-10-04; SEQ 295 R2). Edit the two together; incant/pop/assignRoadT pins them.
@@ -5750,6 +5733,8 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	size_t floor = (!gJitInlining.empty() && !gJitInlineFrames.empty()) ? gJitInlineFrames.back().loopDepth : 0;
 	llvm::BasicBlock *contBB = exit, *brkBB = exit;
 	if (gLoopCondBlocks.size() > floor && !gLoopExitBlocks.empty()) { contBB = gLoopCondBlocks.back(); brkBB = gLoopExitBlocks.back(); }
+	//  walkBreakTarget on the new road's walk a seq catches a break too, and the walk's stack says which (SEQ 526 S4)
+	if (!gJitWalkBreak.empty()) brkBB = gJitWalkBreak.back();
 	llvm::IntegerType *it32 = llvm::Type::getInt32Ty(ctx);
 	llvm::SwitchInst *sw = b->CreateSwitch(rv, exit, 3);
 	sw->addCase(llvm::ConstantInt::get(it32, 0), cont);
@@ -7568,6 +7553,10 @@ extern "C" int jitScanArmsChain(GroupItem *n, int d)
 	if ( !op || !a ) return 0;
 	if ( op->groupBody->flags.isUnary ) {
 	bool isIf = op->groupBody->tag && !::strcmp(op->groupBody->tag, "ifThen");
+	//  loopCursor a for's or iterate's cursor is a holder, as on the old road: no scalar slot (SEQ 526 S4)
+	if ( op->groupBody->tag && (!::strcmp(op->groupBody->tag, "forLoop") || !::strcmp(op->groupBody->tag, "iterateOn")) && a->groupBody->groupList ) {
+	GroupItem *cur = a->get(1);
+	if ( cur ) ::jitNoteWriter(0, (isGROUP(cur->groupBody->flags.data) && cur->getGroup()) ? cur->getGroup() : cur, 0); }
 	if ( (void*)a->groupBody->gMethod == (void*)&testOP ) { ::jitScanArmsChain(a, d+1); return 0; }
 	int i = 0;
 	GroupItem *c = 0;
@@ -8079,16 +8068,39 @@ extern "C" int jitUnboxCount(GroupItem *node)
 	
 }
 
+/*  jitWalkBranches -- SEQ 526 S4: the loop controls a statement handed over whole can leave set: 1 a break, 2 a continue. A seq catches its
+    own break; a loop catches both.  */
+extern "C" int jitWalkBranches(GroupItem *n, int d)
+{
+	
+	if ( !n || d > 64 || (void*)n->groupBody->gMethod != (void*)&testOP ) return 0;
+	GroupItem *op = n->get(1), *a = n->get(2);
+	if ( !op || !a || !op->groupBody->tag ) return 0;
+	const char *t = op->groupBody->tag;
+	if ( !::strcmp(t, "branchSignal") ) {
+	GroupItem *kw = a->groupBody->groupList ? a->get(1) : a;
+	const char *k = kw ? kw->groupBody->tag : nullptr;
+	return !k ? 0 : *k == 'b' ? 1 : *k == 'c' ? 2 : 0; }
+	bool isSeq = !::strcmp(t, "seq");
+	if ( !isSeq && ::strcmp(t, "bodySeq") && ::strcmp(t, "ifThen") ) return 0;
+	int r = 0;
+	GroupItem *c = 0;
+	while ( (c = a->next(c)) ) r |= ::jitWalkBranches(c, d+1);
+	return isSeq ? (r & ~1) : r;
+	
+}
+
 /*  jitWalkChain -- THE NEW ROAD'S JITTER WALK (SEQ 520 S1). A new-road action's BlocK is a seq instruct bound to testOP:
     [1] the op, [2] the statement list. Walk the statements in order and hand each to its OWN testOP at RUN time through
     jitEmitStmtRT, which runs the instruct's method on the action's fields and maps a return, continue or break left set.
     S2 (SEQ 522): a statement built only of assign and the jitEmitter= operators is emitted natively (jitWalkEligible,
-    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt); every other statement is still handed over.
+    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt). S4 (SEQ 526): while, do, break, continue, a computed return; for and iterate are still handed over.
     The witness line is printed unconditionally, one per compile (H4).  */
 extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 {
 	
 	gJitWalkWalked = gJitWalkHanded = gJitWalkNative = 0;
+	gJitWalkBreak.clear();
 	GroupItem *stmts = blk ? blk->get(2) : nullptr;
 	GroupItem *stmt  = nullptr;
 	if (stmts)
@@ -8098,6 +8110,19 @@ extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, gJitWalkWalked, gJitWalkHanded, gJitWalkNative);
 	::fflush(stderr); }
 	return gJitWalkWalked;
+	
+}
+
+/*  jitWalkCondOK -- SEQ 526 S4: the condition just emitted carries a boolean. A refusal, a hand-over, no value or a double (jitIfBegin's and
+    jitLoopBody's test is an integer compare, and truthOf is the interpreter's) hands the whole statement over.  */
+extern "C" int jitWalkCondOK(GroupItem *stmt)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
+	if ( !gJitHandOver && (!gJitResult || gJitResult->getType()->isDoubleTy()) )
+	::jitHandOver((char*)"a condition with no boolean value -- the whole statement runs INTERPRETED", stmt);
+	return gJitHandOver ? 0 : 1;
 	
 }
 
@@ -8136,52 +8161,52 @@ extern "C" GroupItem *jitWalkExpr(GroupItem *node)
 	
 }
 
-/*  jitWalkIfNative -- SEQ 525 S3: can this ifThen be emitted here? Its condition is an instruct the walk emits natively; a bare read
-    goes to testOP, whose truthOf the emit does not repeat. A seq arm holding a branch signal waits for S4 (jitArmHasBranch).  */
-extern "C" int jitWalkIfNative(GroupItem *stmt)
+/*  jitWalkHandedBack -- SEQ 526 S4: a bracketed statement gives up. Its emit rolls back to one run-time call, and the counts its body took with it. */
+extern "C" void jitWalkHandedBack(GroupItem *stmt, int walked, int handed, int native)
 {
 	
-	GroupItem *op = stmt ? stmt->get(1) : nullptr, *arms = stmt ? stmt->get(2) : nullptr;
-	if ( !op || !arms || !op->groupBody->tag || ::strcmp(op->groupBody->tag, "ifThen") ) return 0;
-	if ( !::jitWalkEligible(arms->get(1)) ) return 0;
-	for ( int k = 2; k <= 3; k++ ) {
-	GroupItem *arm = arms->get(k);
-	GroupItem *armOp = arm ? arm->get(1) : nullptr;
-	if ( armOp && armOp->groupBody->tag && !::strcmp(armOp->groupBody->tag, "seq") && ::jitArmHasBranch(arm, 0) ) return 0; }
-	return 1;
+	gJitWalkWalked = walked; gJitWalkHanded = handed; gJitWalkNative = native;
+	gJitWalkHanded++;
+	::jitScanArmsChain(stmt, 0);
+	if ( !gJitStmtMarks.empty() ) gJitStmtMarks.back().branches |= ::jitWalkBranches(stmt, 0);
+	::jitStmtEnd(stmt);
 	
 }
 
-/*  jitWalkStmt -- SEQ 525 S3: one statement of the walk. An ifThen with a native condition goes through the old road's brackets, each arm
-    walked by this same step; S2's native statement next; anything else is handed to its testOP. The rules are jitEmitGIF's: nothing in
-    flight before the condition, a condition that hands over or has no value hands the whole if over, nothing in flight after each arm.
-    No result store: a new-road action hands back only what a return gives (A3).  */
+/*  jitWalkStmt -- SEQ 525 S3, SEQ 526 S4: one statement of the walk. A seq statement by statement with its exit as the break target; a bodySeq the
+    same with none (its break belongs to the loop); an ifThen, whileLoop or doLoop whose condition is native through the old road's brackets; a
+    break, a continue, a computed return; S2's native statement; anything else handed to its testOP. Rules from jitEmitGIF: nothing in flight before
+    a condition or after an arm, and a condition that cannot emit gives up the whole statement. No result store but a return's (A3).  */
 extern "C" void jitWalkStmt(GroupItem *stmt)
 {
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
-	gJitWalkWalked++;
 	GroupItem *op = stmt->get(1);
-	if ( op && op->groupBody->tag && !::strcmp(op->groupBody->tag, "seq") && (void*)stmt->groupBody->gMethod == (void*)&testOP ) {
-	gJitWalkWalked--;
+	const char *tag = (op && (void*)stmt->groupBody->gMethod == (void*)&testOP) ? op->groupBody->tag : nullptr;
+	if ( tag && (!::strcmp(tag, "seq") || !::strcmp(tag, "bodySeq")) ) {
+	bool isSeq = !::strcmp(tag, "seq");
+	llvm::BasicBlock *seqExit = nullptr;
+	if ( isSeq ) {
+	seqExit = llvm::BasicBlock::Create(gJitBuilder->getContext(), "seqexit", gJitBuilder->GetInsertBlock()->getParent());
+	gJitWalkBreak.push_back(seqExit); }
 	GroupItem *c = 0, *items = stmt->get(2);
 	while ( items && (c = items->next(c)) ) ::jitWalkStmt(c);
+	if ( isSeq ) {
+	gJitWalkBreak.pop_back();
+	gJitBuilder->CreateBr(seqExit);
+	gJitBuilder->SetInsertPoint(seqExit); }
 	return; }
-	if ( ::jitWalkIfNative(stmt) ) {
-	GroupItem *arms = stmt->get(2), *cond = arms->get(1), *thenS = arms->get(2), *elseS = arms->get(3);
+	gJitWalkWalked++;
+	int w0 = gJitWalkWalked, h0 = gJitWalkHanded, n0 = gJitWalkNative;
+	GroupItem *arms = tag ? stmt->get(2) : nullptr;
+	//  ifNative an ifThen with a native condition goes through the brackets; a bare condition stays on testOP, whose truthOf the emit does not repeat
+	if ( tag && !::strcmp(tag, "ifThen") && arms && ::jitWalkEligible(arms->get(1)) ) {
+	GroupItem *thenS = arms->get(2), *elseS = arms->get(3);
 	gJitStmt = stmt; gJitStmtRTDone = false;
 	::jitStmtBegin();
 	gJitResult = nullptr;
-	::jitWalkExpr(cond);
-	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
-	//  numberCondition jitIfBegin's test is an integer compare and truthOf is the interpreter's: a double in flight hands over
-	if ( !gJitHandOver && (!gJitResult || gJitResult->getType()->isDoubleTy()) )
-	::jitHandOver((char*)"IF condition with no boolean value -- the whole IF runs INTERPRETED", stmt);
-	if ( gJitHandOver ) {
-	::jitScanArmsChain(stmt, 0);
-	::jitStmtEnd(stmt);
-	gJitWalkHanded++;
-	return; }
+	::jitWalkExpr(arms->get(1));
+	if ( !::jitWalkCondOK(stmt) ) { ::jitWalkHandedBack(stmt, w0, h0, n0); return; }
 	::jitIfBegin();
 	gJitResult = nullptr;
 	gJitArmStack.push_back((char*)stmt);
@@ -8200,6 +8225,78 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	::jitStmtEnd(stmt);
 	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
 	return; }
+	//  whileNative condition then body; a condition that cannot emit gives the loop up before its body is walked
+	if ( tag && !::strcmp(tag, "whileLoop") && arms && ::jitWalkEligible(arms->get(1)) && arms->get(2) ) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	::jitLoopBegin();
+	gJitResult = nullptr;
+	::jitWalkExpr(arms->get(1));
+	if ( !::jitWalkCondOK(stmt) ) {
+	gLoopCondBlocks.pop_back(); gLoopExitBlocks.pop_back();
+	::jitWalkHandedBack(stmt, w0, h0, n0);
+	return; }
+	::jitLoopBody();
+	gJitResult = nullptr;
+	gJitWalkBreak.push_back(gLoopExitBlocks.back());
+	::jitWalkStmt(arms->get(2));
+	gJitWalkBreak.pop_back();
+	gJitResult = nullptr;
+	::jitLoopEnd();
+	gJitResult = nullptr;
+	gJitWalkNative++;
+	gJitStmt = stmt;
+	::jitStmtEnd(stmt);
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	return; }
+	//  doNative body then condition; a condition that cannot emit gives up the body already walked, and the roll-back takes it
+	if ( tag && !::strcmp(tag, "doLoop") && arms && arms->get(1) && ::jitWalkEligible(arms->get(2)) ) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	::jitDoBegin();
+	gJitWalkBreak.push_back(gLoopExitBlocks.back());
+	::jitWalkStmt(arms->get(1));
+	gJitWalkBreak.pop_back();
+	gJitStmt = stmt;
+	::jitDoCond();
+	gJitResult = nullptr;
+	::jitWalkExpr(arms->get(2));
+	if ( !::jitWalkCondOK(stmt) ) {
+	gLoopBodyBlocks.pop_back(); gLoopCondBlocks.pop_back(); gLoopExitBlocks.pop_back();
+	::jitWalkHandedBack(stmt, w0, h0, n0);
+	return; }
+	::jitDoEnd();
+	gJitResult = nullptr;
+	gJitWalkNative++;
+	::jitStmtEnd(stmt);
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	return; }
+	if ( tag && !::strcmp(tag, "branchSignal") && arms ) {
+	GroupItem *kw = arms->groupBody->groupList ? arms->get(1) : arms;
+	GroupItem *value = arms->groupBody->groupList ? arms->get(2) : nullptr;
+	const char *k = kw ? kw->groupBody->tag : nullptr;
+	//  jitEmitBreak a break goes to the innermost seq or loop; a continue to the innermost loop's condition; with neither it ends the action
+	if ( k && (*k == 'b' || *k == 'c') ) {
+	llvm::BasicBlock *to = *k == 'b' ? (gJitWalkBreak.empty() ? gJitEpilogueBB : gJitWalkBreak.back())
+	: (gLoopCondBlocks.empty() ? gJitEpilogueBB : gLoopCondBlocks.back());
+	gJitBuilder->CreateBr(to);
+	gJitBuilder->SetInsertPoint(llvm::BasicBlock::Create(gJitBuilder->getContext(), "afterBranch", gJitBuilder->GetInsertBlock()->getParent()));
+	gJitEmitted = true;
+	gJitResult = nullptr;
+	gJitWalkNative++;
+	return; }
+	//  returnNative a computed count goes through jitEmitReturn; a bare read, a literal or a double stays on testOP, which carries its value by jitStmtRT
+	if ( k && *k == 'r' && value && ::jitWalkEligible(value) ) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	gJitResult = nullptr;
+	::jitWalkExpr(value);
+	if ( !::jitWalkCondOK(stmt) ) { ::jitWalkHandedBack(stmt, w0, h0, n0); return; }
+	::jitEmitReturn();
+	gJitWalkNative++;
+	::jitStmtEnd(stmt);
+	gJitStmtCanRefuse = false;
+	return; } }
 	//  nativeStep a statement built only of assign and the jitEmitter= operators is emitted through the old road's own
 	//  dispatch, in aCTionBlocK's per-statement bracket: a part it cannot emit hands the whole statement over (SEQ 522 S2)
 	if ( ::jitWalkEligible(stmt) ) {
@@ -8216,8 +8313,9 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	return; }
 	//  handedWriters a statement handed over whole is never walked: its writers reach the if-arm net by a scan (SEQ 524)
 	::jitScanArmsChain(stmt, 0);
-	gJitStmtRTBranches = 0;
+	gJitStmtRTBranches = ::jitWalkBranches(stmt, 0);
 	::jitEmitStmtRT(stmt);
+	gJitStmtRTBranches = 0;
 	gJitWalkHanded++;
 	
 }
