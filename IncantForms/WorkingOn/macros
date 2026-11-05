@@ -296,7 +296,10 @@ Parked: fire(label), a command that fires a rule's action on a label with no
 	Features to add to incant once it settles. Nothing major nothing urgent
         These could be end of day tasks done just before shutdown
 *******************************************************************************/
-DOCKET HEAD (Tony, SEQ 533 R1, 2026-11-04), the morning order:
+NEXT SESSION (Tony, 2026-11-05, shutdown; docs/wakeup.md seal 342 carries the jitting arc's remaining rungs):
+    1 R1's cure: after a refusal the new road ends the action, as the old road does. Its own stroke.
+    2 S6 (call), per docs/jitterWalkRecon.md.
+DOCKET HEAD, DONE but M3 and M4 (Tony, SEQ 533 R1, 2026-11-04), the morning order:
     1 := in a define, ahead of the listener because onClick needs it (R0 supersedes SEQ 532 R2; the listener stays parked). Its own rule with its own :=, refused in a rule
       host. Start with why the trial's action does not fire (docs/traitRefRecon.md).
     2 aCTionDefinE flag attributes, recon first, then proceed unless it looks like a campaign (the entry below). Its own stroke, never with := or defineCapture B2.

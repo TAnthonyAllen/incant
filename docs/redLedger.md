@@ -22,6 +22,7 @@ Every pinned red row and docket item from today. Silent wrong answers first, the
 | 10 | gen26 reads 24 / 2 here against 26 / 0 in the SEQ 418 results file. Measured: every differing line in paReachT and zeroWidthT is the `SHORTCUTFIRE` trace, which is newer than the instrument's mask. An instrument gap, not a value | unpinned | small |
 | 11 | A shared action's refusal names the shared rule: ELSEIf refuses as `REFUSED If`. It should name the rule that fired, from its label's tag | unpinned | small |
 | **Ruled** | | | |
+| 13 | **Ruled (Tony, 2026-11-05, R1):** after a refusal the new road ends the action, as the old road does: refusal is terminal for the unit that raised it, and the unit is the action. Today the new road runs its next statement. **The next session's opener; its own stroke.** | newJitIfUnsetT plain, argRoadsT AR-8, AR-J1, born red | stroke |
 | 12 | **Ruled (Tony, SEQ 529 R2, 2026-11-04):** a typeless local in arithmetic REFUSES until typed, as the interpreter already does. So row 2's intended value is the refusal: the compiled road must refuse or hand the statement over | -- | ruled |
 
 **Not wrong, for the record:** `for` and `iterate` are still handed over (S4's certificate covers compiling around them). A format, deref, call, dot or compare in a print hands that print over (S5).

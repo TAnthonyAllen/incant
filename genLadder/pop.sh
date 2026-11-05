@@ -1238,11 +1238,12 @@ if [ -f "$_nifuF" ]; then
 sed -e 's/^testing(\(.*\));/\1();/' -e '/^jitter;$/d' "$_nifuF" > "$T/nifu.p"; perl -e 'alarm 30; exec @ARGV' "$B" "$T/nifu.p" > "$T/nifup.o" 2> "$T/nifup.e"; _nifupx=$?
 rm -f "$T/nifu.w"; INCANT_JITTER_ERR="$T/nifu.w" perl -e 'alarm 30; exec @ARGV' "$B" "$_nifuF" > "$T/nifu.o" 2> "$T/nifu.e"; _nifux=$?
 _nifuv () { grep '^U[NAC] ' "$1" | tr -s ' ' | sort | tr '\n' '|'; }
-_ofeq "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UA new va |UC new uc |UC old ud |UN new un |UN old uo | x0 s1"
+#  RE-AIMED 2026-11-05 (Tony, R1): after a refusal the new road ENDS THE ACTION, as the old road does -- refusal is terminal for the unit that raised it, and the unit is the action. So `UA new va` must not print. Born red until the cure, its own stroke.
+fdRow "newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel" "$(_nifuv "$T/nifup.o") x$_nifupx s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifup.e")" "UA new va |UC new uc |UC old ud |UN new un |UN old uo | x0 s1" "UC new uc |UC old ud |UN new un |UN old uo | x0 s1"
 _ofeq "newJitIfUnsetT compiled runs (exit, sentinel)" "x$_nifux s$(grep -c '^NEWJITIFUNSET SENTINEL' "$T/nifu.e")" "x0 s1"
 fdRow "newJitIfUnsetT new road compiled: a local written only in an arm not taken reads its tag" "$(grep '^UN new' "$T/nifu.o" | tr -s ' ')" "UN new 0 " "UN new un "
 fdRow "newJitIfUnsetT OLD-road twin compiled: the same shape" "$(grep '^UN old' "$T/nifu.o" | tr -s ' ')" "UN old 0 " "UN old uo "
-fdRow "newJitIfUnsetT arithmetic on an unwritten local, both roads, compiled (SEQ 526: past the mark's reach)" "$(grep '^UA ' "$T/nifu.o" | tr -s ' ' | sort | tr '\n' '|')" "UA new 1 |UA old 1 |" "UA new va |"
+fdRow "newJitIfUnsetT arithmetic on an unwritten local, both roads, compiled (SEQ 526: past the mark's reach)" "$(grep '^UA ' "$T/nifu.o" | tr -s ' ' | sort | tr '\n' '|')" "UA new 1 |UA old 1 |" ""
 fdRow "newJitIfUnsetT a copy of an unwritten local, both roads, compiled (SEQ 526: past the mark's reach)" "$(grep '^UC ' "$T/nifu.o" | tr -s ' ' | sort | tr '\n' '|')" "UC new 0 |UC old 0 |" "UC new uc |UC old ud |"
 else echo "  FAIL  newJitIfUnsetT MISSING"; fail=1; fi
 #  oldCallsNewT -- SEQ 526 R3: an old-road action calling a new-road action under jitter; segfaults at compile. Born red, no cure yet.
@@ -8731,7 +8732,7 @@ _ofeq "argRoadsT AR-4 y = argument, then y - 1, new road" "$(_arv 'Copy new z=')
 _ofeq "argRoadsT AR-5 argument.datA reads the value's kind, new road" "$(_arv 'Dot new kind=')" "5 5"
 _ofeq "argRoadsT AR-6 recursion through bare argument, new road, depth 0 and 3" "$(_arv 'Rec new 0=') $(_arv 'Rec new 3=')" "s s"
 _ofeq "argRoadsT AR-6 the old road's control" "$(_arv 'Rec old 0=') $(_arv 'Rec old 3=')" "s s"
-_ofeq "argRoadsT AR-8 *argument on a non-holder refuses by name at all four sites, both roads (R1b); nothing is stored, the old road ending the action and the new road running its next statement, as it does after any refusal" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(_arv 'StarPlain old x=')/$(_arv 'StarPlain new x=') $(_arv 'IterStar old n=')/$(_arv 'IterStar new n=')" "4 /x /0"
+fdRow "argRoadsT AR-8 *argument on a non-holder refuses by name at all four sites, both roads (R1b); nothing is stored, and each road ends the action (R1, 2026-11-05; the new road running its next statement is today's, and is the cure's to move)" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(_arv 'StarPlain old x=')/$(_arv 'StarPlain new x=') $(_arv 'IterStar old n=')/$(_arv 'IterStar new n=')" "4 /x /0" "4 //"
 _ofeq "argRoadsT AR-9 *argument bound to a holder reads through it, both roads (the non-zero sibling)" "$(_arv 'StarHeld old x=') $(_arv 'StarHeld new x=')" "5 5"
 _ofeq "argRoadsT AR-10 a star on any other plain field still yields null and does not refuse (the star ruling, 2026-09-05)" "$(grep -c '^AR PlainStar null, no refusal' "$T/ar.e")" "1"
 _ofeq "argRoadsT AR-11 iterate on bare argument, old road (the respell's control)" "$(_arv 'IterBare old n=')" "2"
@@ -8746,7 +8747,7 @@ jitter;
 perl -e 'alarm 30; exec @ARGV' "$B" "$T/arj.k" > "$T/arj.o" 2> "$T/arj.e"; _arjX=$?
 _arjv () { grep "^AR $1" "$T/arj.e" | sed "s/^AR $1 *//" | xargs; }
 _ofeq "argRoadsT under jitter; exit, sentinel" "$_arjX $(grep -c '^AR SENTINEL' "$T/arj.e")" "0 1"
-_ofeq "argRoadsT AR-J1 under jitter; *argument on a non-holder refuses at all four sites, and the old road's silent -1 is gone" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/arj.e") $(_arjv 'StarPlain old x=')/$(_arjv 'StarPlain new x=')" "4 /x"
+fdRow "argRoadsT AR-J1 under jitter; *argument on a non-holder refuses at all four sites, and the old road's silent -1 is gone" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/arj.e") $(_arjv 'StarPlain old x=')/$(_arjv 'StarPlain new x=')" "4 /x" "4 /"
 _ofeq "argRoadsT AR-J2 under jitter; *argument bound to a holder reads through it" "$(_arjv 'StarHeld old x=') $(_arjv 'StarHeld new x=')" "5 5"
 _ofeq "argRoadsT AR-J3 under jitter; bare argument, new road" "$(_arjv 'Minus new x=') $(_arjv 'Rec new 3=')" "-1 2 s"
 #  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.

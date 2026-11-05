@@ -1,8 +1,10 @@
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//'), sorted.
-# pop.sh FAIL rows by name -- re-banked 2026-11-05 at seal 340 (AL-3a out; R1a cured it). 60 rows. First banked 2026-10-31, seal 298.
+# pop.sh FAIL rows by name -- re-banked 2026-11-05 at seal 342 (shutdown): three rows re-aimed by Tony's R1 (newJitIfUnsetT plain, argRoadsT AR-8, AR-J1), red until the cure; UA's intended text moved. 63 rows. First banked 2026-10-31, seal 298.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
+FAIL  argRoadsT AR-8 *argument on a non-holder refuses by name at all four sites, both roads (R1b); nothing is stored, and each road ends the action (R1, 2026-11-05; the new road running its next statement is today's, and is the cure's to move) born red (SEQ 345): today [4 /x /0], intended [4 //]
+FAIL  argRoadsT AR-J1 under jitter; *argument on a non-holder refuses at all four sites, and the old road's silent -1 is gone born red (SEQ 345): today [4 /x], intended [4 /]
 FAIL  bridgeT BR-4 new road sentinel -- got [0] want [1]
 FAIL  bridgeT BR-4 new road: a top-level scope: the run ends, nothing refuses (no witness) MOVED: reads [ R0 x139], pinned today [1 |2 | R0 x0], intended [1 |2 | R0 x0]
 FAIL  carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
@@ -18,7 +20,8 @@ FAIL  holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG   
 FAIL  holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow 
 FAIL  kindZeroT r = 0.0; r = 7: value kind exit, interpreted | testing() | jitter; born red (SEQ 345): today [7 9 x0 | 7 0 x0 | 7 0 x0], intended [7 9 x0 | 7 9 x0 | 7 9 x0]
 FAIL  newJitIfUnsetT a copy of an unwritten local, both roads, compiled (SEQ 526: past the mark's reach) born red (SEQ 345): today [UC new 0 |UC old 0 |], intended [UC new uc |UC old ud |]
-FAIL  newJitIfUnsetT arithmetic on an unwritten local, both roads, compiled (SEQ 526: past the mark's reach) born red (SEQ 345): today [UA new 1 |UA old 1 |], intended [UA new va |]
+FAIL  newJitIfUnsetT arithmetic on an unwritten local, both roads, compiled (SEQ 526: past the mark's reach) born red (SEQ 345): today [UA new 1 |UA old 1 |], intended []
+FAIL  newJitIfUnsetT plain (the control): each road's local echoes its tag, exit, sentinel born red (SEQ 345): today [UA new va |UC new uc |UC old ud |UN new un |UN old uo | x0 s1], intended [UC new uc |UC old ud |UN new un |UN old uo | x0 s1]
 FAIL  newPlusEqT new road: m6 += 5 = the old road (value / += refusals) born red (SEQ 345): today [2 | E1], intended [7 | E0]
 FAIL  newReturnKindT RS under jitter;: past the channel's reach, a self-call reads the i32 born red (SEQ 345): today [RS 1 |RS 1 |], intended [RS s |RS 1.5 |]
 FAIL  oldCallsNewT under jitter; = plain (value, exit, sentinel) born red (SEQ 345): today [ x139 s0], intended [OC 9  x0 s1]
