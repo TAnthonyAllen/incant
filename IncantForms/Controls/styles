@@ -1,0 +1,30 @@
+/*  styles -- the colours and fonts, from the old forms (Tony, 2026-11-05, M5). Not on the
+    default search list until defineCapture B2 lands. A reader includes this file and then
+    names cOLOr and fONTs in its own search. See docs/m5Recon.md.  */
+registry(cOLOr);
+define
+    red=#ef2b2d;
+    blue=#0051ba;
+    lightBlue=#ceffff;
+    lightGreen=#afd378;
+    radialGreen=#afd378;
+    green=#009e0f;
+    paleGray=#f1f1f1;
+    gray=#d6d8d3;
+    darkerGray=#afbcbf;
+    wall=#f7e8aa;
+    white=#ffffff;
+    black=#000000;
+    saberBrown=#e6d1a2;
+    darkBrown=#6b4714;
+    ;
+registry(fONTs);
+define
+    courierFont family='Courier New' size=24 bold;
+    titleFont family='Palatino' size=24 bold;
+    headerFont family='Palatino' size=14 bold;
+    normalFont family='Palatino' size=14;
+    copperFont family='Copperplate' size=12;
+    defaultFont family='Helvetica' size=10;
+    EBgaramondFont family='EB Garamond' size=18 bold;
+    ;

@@ -34,6 +34,7 @@ Stylish(char *name);
 };
 extern "C" GroupItem *blockContaining(GroupItem *base, NSPoint p);
 extern "C" int contains(GroupItem *field, NSPoint p);
+extern "C" GroupItem *fontReport(GroupItem *field);
 extern "C" NSColor *getColor(char *name);
 extern "C" NSFont *getFont(GroupItem *field);
 extern "C" Stylish *getStyle(GroupItem *field);

@@ -152,6 +152,13 @@ What a form is (Tony, offline status, 2026-11-05; the worked example is sample i
     The old GUI's somefield=$simpleValue did this binding at layout time; the new road seems to be evolving away from macros.
     MEASURED 2026-11-05 (kant, tester delta, wall read back with .datA): the define does not yet keep this. wall=5 then walled fill=wall holds the value 5 and still reads 5 after wall=6. With wall empty at define, fill holds the name lateWall as text, which layout could locate. So fill=wall means two things, depending on whether wall holds a value when the define runs (docs/traitRefRecon.md G6, G7).
     RULED (Tony, 2026-11-05, SEQ 534 R1, R2): the spelling is fill:=wall, as onClick:=, which retires the two meanings. Plain = in a define stays a value copy. No global respell and no census: each form, in unitTests (sample too) or IncantForms, gets its := when it comes up for repair on a forms afternoon.
+Colours and fonts (Tony, 2026-11-05, M5; docs/m5Recon.md)
+    setColor skips a leading #. Fonts are written as attributes: titleFont family='Palatino' size=24 bold;
+    IncantForms/Controls/styles holds the 14 colours and 7 fonts. It is not on the default search list until defineCapture B2 lands; tests load it explicitly.
+    fill=purple is fixed when sample comes up for repair.
+Where style code lives (Tony, 2026-11-05)
+    Style resolution is written in jittable kant. C++ is only the drawing floor (setColor, Core Text, Core Graphics), and each floor method stays short and does one thing.
+    Style code runs interpreted until S6 compiles calls, and is S6's natural proving ground after that.
 From the forms notes (forms plan, 2026-11-03)
     Vertical align is dropped in favour of space.
     Comments in a form are // text, with no braces in action bodies.
@@ -307,7 +314,7 @@ Candidate morning items (none ruled):
     M4 Stroke floor: no command strokes a rect or a side from kant. Layout.drawRect strokes one frame, in C++.
     M5 Colours and fonts: no cOLOr or fONTs registry loads; IncantForms/Controls/attributes is XML-era text. And with
        wall searchable, fill=wall copies the hex (f7e8aa), while getColor locates by NAME (read, not run). Same family as SEQ 530.
-       RECON 2026-11-05, docs/m5Recon.md: `wall=#f7e8aa` does not realise (setColor wants six hex characters, no #); three rulings owed. fill:=wall is ruled (above), so getColor by name is M3's to change.
+       BUILT 2026-11-05, branch m5-styles, awaiting the buy; docs/m5Recon.md. fill:=wall is ruled (above), so getColor by name is M3's to change.
     M6 Style tree: getStyle returns the first style found up the parents; there is no copy per field, and sTYLEs does not
        exist. The rulings want a pre-pass.
     M7 A surface to look at: makeDisplay's bitmap has no y-flip, nothing shows it in a window or writes it to a file (pixelAt
