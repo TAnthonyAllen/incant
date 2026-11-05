@@ -8803,6 +8803,18 @@ _ofeq "defineRefT DR-11 the held action fires (direct + held)" "$(grep -c '^DR f
 _ofeq "defineRefT DR-12 := naming nothing refuses by name" "$(grep -c '^REFUSED drNoSuchField' "$T/dr.e")" "1"
 _ofeq "defineRefT DR-13 := in a rule host refuses by name" "$(grep -c '^REFUSED drRuleHost -- a := attribute' "$T/dr.e")" "1"
 _ofeq "defineRefT DR-14 the refused hosts are gone, the good host stands" "$(grep -c '^DR missing host present' "$T/dr.e") $(grep -c '^DR rule host present' "$T/dr.e") $(grep -c '^DR hold host present' "$T/dr.e")" "0 0 1"
+
+#  listenT -- the listener with no onNotify (Tony, 2026-11-05): it copies its notifier's value only, on every write. No flag. H7s: setContent back reds LN-2, LN-3, LN-4; the road before his runNotified hunk reds LN-1.
+_lnF=$(ip listenT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_lnF" > "$T/ln.o" 2> "$T/ln.e"; _lnX=$?
+_ofeq "listenT exit status" "$_lnX" "0"
+_ofeq "listenT sentinel" "$(grep -c '^LN SENTINEL' "$T/ln.e")" "1"
+_ofeq "listenT LN-1 three writes reach the listener" "$(grep '^LN writes' "$T/ln.e" | sed 's/^LN writes *//' | xargs)" "1 22 33 44"
+_ofeq "listenT LN-2 before a notify: its own attribute, none of the notifier's" "$(grep '^LN attrs before' "$T/ln.e" | xargs)" "LN attrs before mine= 5 extra= 0 len= 1 val= 1"
+_ofeq "listenT LN-2 after a notify: the value moved, its own attribute stays, none of the notifier's arrives" "$(grep '^LN attrs after' "$T/ln.e" | xargs)" "LN attrs after mine= 5 extra= 0 len= 1 val= 22"
+_ofeq "listenT LN-3 one write to a reaches c through b" "$(grep '^LN chain' "$T/ln.e" | xargs)" "LN chain a= 9 b= 9 c= 9"
+_ofeq "listenT LN-4 the copy never reports set group to itself" "$(grep -c 'tried to set group to itself' "$T/ln.e")" "0"
+
 #  traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04): what a define's attribute holds once the define is done, pinned
 #  at today's values on both roads (N rows go through FILe). Columns: kind, list length, value. Rows read kind 6 only where the
 #  value names a rule or carries a modifier that makes it one (ruleActions.rtn:1155; + writes isRule on the target, the sideEffect rows).

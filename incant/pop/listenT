@@ -1,0 +1,48 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(ListenStuff);
+define
+    lnSrc=10;
+    lnHear=1 listenTo:=lnSrc;
+    lnTalk=10 lnExtra=7;
+    lnOwn=1 lnMine=5 listenTo:=lnTalk;
+    lnA=1;
+    lnB=2 listenTo:=lnA;
+    lnC=3 listenTo:=lnB;
+    ;
+cerr "LN writes" lnHear:;
+lnSrc=22;
+cerr "LN writes" lnHear:;
+lnSrc=33;
+cerr "LN writes" lnHear:;
+lnSrc=44;
+cerr "LN writes" lnHear:;
+cerr "LN attrs before mine=" lnOwn.lnMine " extra=" lnOwn.lnExtra " len=" lnOwn.listLengtH " val=" lnOwn:;
+lnTalk=22;
+cerr "LN attrs after mine=" lnOwn.lnMine " extra=" lnOwn.lnExtra " len=" lnOwn.listLengtH " val=" lnOwn:;
+lnA=9;
+cerr "LN chain a=" lnA " b=" lnB " c=" lnC:;
+cerr "LN SENTINEL":;
+stop();
+
+listenT -- the listener with no onNotify (Tony, 2026-11-05, R1, R2 and the fixture ruling). A field that names
+listenTo:=x gets x's VALUE on every write to x, and nothing else of x's.
+
+Row by row, in pop.sh:
+  LN-1 three writes reach the listener; the opening 1 is its own value at define (a dead listener reads 1 1 1 1).
+  LN-2 the listener's own attribute survives a notify, and none of the notifier's arrives, with the value moved beside them.
+  LN-3 one write to lnA reaches lnC through lnB.
+  LN-4 the copy never reports "set group to itself".
+
+Not covered here on purpose, because none of it is built: onNotify, and more than one listenTo on a field (the last wins and
+is listed twice). macros, THE LISTENER.
+
+H7s in the commit after this file's: setContent put back goes red on LN-2, LN-3, LN-4; the road before Tony's hunk goes red on LN-1.
