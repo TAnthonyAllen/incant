@@ -113,7 +113,7 @@ GroupItem *remove(char *name);
 int removeProperty(GroupItem *grup);
 GroupItem *replace(GroupItem *argument);
 char *resolvedTag();
-GroupItem *runNotified(GroupItem *notifier);
+GroupItem *runNotified(GroupItem *notified);
 void setActions();
 void setBuffer(Buffer *b);
 void setCharacter(char c);

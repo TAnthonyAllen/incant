@@ -2114,17 +2114,18 @@ char *GroupItem::resolvedTag()
 
 /***************************************************************************
                                 runNotified
-    runNotified is called by updateListeners() to handle listener notifications.
+    called by updateListeners() to handle listener notifications.
 ***************************************************************************/
-GroupItem *GroupItem::runNotified(GroupItem *notifier)
+GroupItem *GroupItem::runNotified(GroupItem *notified)
 {
 GroupItem 	*onNotify = get("onNotify");
 GroupItem 	*action = 0;
 	if ( onNotify )
-		action = GroupControl::groupController->locate(onNotify->getText());
-	if ( action )
-		return action->groupBody->gMethod(notifier);
-	else	setContent(notifier);
+		{
+		if ( action = GroupControl::groupController->locate(onNotify->getText()) )
+			return action->groupBody->gMethod(notified);
+		}
+	else	notified->copyData(this);
 	return this;
 }
 

@@ -1625,15 +1625,15 @@ String resolvedTag()
 
 /***************************************************************************
                                 runNotified
-    runNotified is called by updateListeners() to handle listener notifications.
+    called by updateListeners() to handle listener notifications.
 ***************************************************************************/
-GroupItem runNotified(GroupItem notifier)
+GroupItem runNotified(GroupItem notified)
 {
 GroupItem onNotify = get("onNotify");
 GroupItem action;
-    if onNotify action = locate(onNotify.text);
-    if action   return action.method(notifier);
-    else        setContent(notifier);
+    if onNotify {
+        if action = locate(onNotify.text)   return action.method(notified); }
+    else                                    notified.copyData(this);
     return this;
 }
 

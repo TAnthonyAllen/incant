@@ -41,10 +41,14 @@ define
     qb=3;
     qc=4;
     simpleValue=10;
-    listenTEST listenTo:=simpleValue code={ print `"listenTEST: was invoked":; };
+    listenTEST=simpleValue listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
     ;
 
+listenTEST();
 simpleValue=22;
+listenTEST();
+simpleValue=33;
+listenTEST();
 print "SENTINEL tester driver end":;
 stop();
 

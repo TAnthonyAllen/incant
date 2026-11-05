@@ -265,16 +265,15 @@ extern GroupItem guard(GroupItem item)
     
     Here listener gets added to the notifyList of the notifier; notifyList
     is an attribute of notifier, the field being listened to. If notifier
-    changes, it runs updateListeners(), which runs listener.runNotified(notifier)
+    changes, it runs updateListeners(), which runs notifier.runNotified(listener)
     to deal with the notification.
     
-    The GroupItem method runNotified looks for an onNotify attribute in
-    the listener. onNotify, if it exists, should contain in its text, the
-    name of a field. runNotified locates that field, and runs its method
-    passing in the notifier. If there is no onNotify attribute, or runNotified
-    cannot locate the field named in onNotify, it copies the notifier data
-    into the listener using setContent().
-    
+    The GroupItem method runNotified: a listener with no onNotify copies the
+    notifier's value only, with copyData, so its own attributes stay (Tony,
+    2026-11-05). onNotify is not built: as written it looks on the notifier, and
+    the design of record is one onNotify:= per listener, handed the notifier.
+    See macros.
+
     Note: the listener does not remember the field or fields it listens to.
 *******************************************************************************/
 extern GroupItem listenTo(GroupItem input)
