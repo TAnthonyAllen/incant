@@ -1,3 +1,9 @@
+# ⚠⚠⚠ SEAL 343 AMENDED 2026-11-05 -- isMacrO BACK IN listenTEST (Tony's amendment, which arrived after the stroke's commit). READ AND REPORTED, NOTHING FIXED. NO ENGINE CODE MOVED.
+#
+#   ## ONE PLAIN LINE: at runNotified the macro bit reads 0 on every notify, the listener is the real one by body, and listenTEST's code still runs as an action.
+#   ## THE READ (lldb at runNotified, tester, the copyData build, two notifies, identical both times): notified.isMacro 0; notified field 0x100ed8fa0, registry entry field 0x100ed6730 (get and locate agree); BODY 0x100ed7bd0 on both. A different field over one body, so flags and values are shared (H13's "same thing through a carrier" reads the body column). The prints fire 10, 22, 33 at exit 0, so code= stayed an action; but the bit was never set, so what aCTionDefinE's macro arm would do with a set bit is still NOT MEASURED.
+#
+
 # ⚠⚠⚠ SEALED 2026-11-05 (343) ON TRUNK -- THE LISTENER IS UNPARKED AND COPIES VALUES (86624dd3). onNotify IS NOT BUILT. THE R1 CURE, THEN S6, STILL OPEN THE NEXT JIT SESSION; ONNOTIFY WAITS FOR A FORMS AFTERNOON.
 #
 #   ## ONE PLAIN LINE: a field that listens to another now gets that field's value on every write, and only its value; nothing is broken or in flight; three rows stay red on purpose, waiting for R1's cure.

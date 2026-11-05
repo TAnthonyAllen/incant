@@ -41,7 +41,7 @@ define
     qb=3;
     qc=4;
     simpleValue=10;
-    listenTEST=simpleValue listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
+    listenTEST=simpleValue isMacrO listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
     ;
 
 listenTEST();
