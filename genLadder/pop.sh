@@ -1113,6 +1113,7 @@ fdRow "newLocalT AL-5h new road: nothing created in an action (road / held)" "$_
 else echo "  FAIL  newLocalT MISSING"; fail=1
 fi
 #  newLocalArgT -- newLocalT's AL-3a in its own process (its gap corrupted AL-3 beside it). A KNOWN GAP, pinned: `argument` in
+#  (CURED 2026-11-05, R1a: the new road follows the argument binding before an operator runs, so the rows below read the ruled values.) It was:
 #  a new-road action body is resolved at build, so lv3a copies a holder, and `lv3a - 1` then refuses. That refusal is RULED
 #  (Tony, SEQ 504 R0): holder arithmetic refuses on BOTH roads (`hz - 1` refuses, `*hz - 1` reads through).
 _naF=$(ip newLocalArgT)
@@ -1122,6 +1123,7 @@ _nav () { awk -v k="NL $1" '$0 ~ /^NL / { on = ($0 == k" ") || ($0 == k); next }
 _ofeq "newLocalArgT runs (exit / sentinel / NL END)" "$_nax $(grep -c '^NEWLOCALARGT SENTINEL' "$T/na.e") $(grep -c '^NL END' "$T/na.o")" "0 1 1"
 _ofeq "newLocalArgT AL-3a old road (control): a self-call through argument" "$(_nav 'AL-3a o')" "0 |1 |2 |"
 fdRow "newLocalArgT AL-3a new road: a self-call through argument (road / value / refusals of -)" "$(_nav 'RP n') $(_nav 'AL-3a n') R$(grep -c '^REFUSED lv3a -- Operator - ' "$T/na.e")" "[ 7 ] | lv3a |2 | R1" "[ 7 ] | 0 |1 |2 | R0"
+#  RE-PINNED 2026-11-05 (Tony, R1a): AL-3a's lv3a is the argument's value now, not a copy of a holder, so its plain run recurses to 0 / 1 / 2 with no refusal, and this row's intended value follows it. SEQ 504 R0 stands for every other holder (`hz - 1` still refuses).
 #  UNDER jitter; (SEQ 521 R0, born red): nl3an RUNS AWAY -- ~15,800 levels of self-call, thousands of refusals, a stack
 #  overflow -- where its plain run refuses `lv3a - 1` once and stops. Capped by the alarm; the count reads 1 or many (H3)
 _naK=$(grep -n '^nl\(New\|Old\)(' "$_naF" | tail -1 | cut -d: -f1)
@@ -1131,7 +1133,7 @@ jitter;
 perl -e 'alarm 30; exec @ARGV' "$B" "$T/naj.k" > "$T/naj.o" 2> "$T/naj.e"; _najx=$?
 _najv () { awk -v k="NL $1" '$0 ~ /^NL / { on = ($0 == k" ") || ($0 == k); next } on && $0 !~ /^(stop: |Assign at end|Search list: | *$)/ { printf "%s|", $0 }' "$T/naj.o"; }
 _najR=$(grep -c '^REFUSED lv3a -- Operator - ' "$T/naj.e"); [ "$_najR" -gt 1 ] && _najR=many
-fdRow "newLocalArgT nl3an under jitter; = its plain run (value / refusals of - / exit)" "$(_najv 'AL-3a n') R$_najR x$_najx" " Rmany x139" "lv3a |2 | R1 x0"
+fdRow "newLocalArgT nl3an under jitter; = its plain run (value / refusals of - / exit)" "$(_najv 'AL-3a n') R$_najR x$_najx" " Rmany x139" "0 |1 |2 | R0 x0"
 else echo "  FAIL  newLocalArgT MISSING"; fail=1
 fi
 #  newJitT -- SEQ 520 S0 (2026-11-03): the new road's jitter walk. Three new-road actions (arithmetic, an if, a loop with a
@@ -8691,6 +8693,22 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  argRoadsT -- argument is a binding, and bare argument is the spelling on both roads (Tony, 2026-11-05, R1; docs/argumentRecon.md). Each pair: the same text on both roads, at 0 and at 3, so a row cannot pass on a constant. Born red on trunk: every new-road row here.
+_arF=$(ip argRoadsT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_arF" > "$T/ar.o" 2> "$T/ar.e"; _arX=$?
+_ofeq "argRoadsT exit status" "$_arX" "0"
+_ofeq "argRoadsT sentinel" "$(grep -c '^AR SENTINEL' "$T/ar.e")" "1"
+_arv () { grep "^AR $1" "$T/ar.e" | sed "s/^AR $1 *//" | xargs; }
+_ofeq "argRoadsT AR-1 argument - 1, new road, 0 and 3" "$(_arv 'Minus new x=')" "-1 2"
+_ofeq "argRoadsT AR-1 the old road's control" "$(_arv 'Minus old x=')" "-1 2"
+_ofeq "argRoadsT AR-2 1 + argument, new road" "$(_arv 'Right new x=')" "1 4"
+_ofeq "argRoadsT AR-3 argument < 1, new road (it was silently false)" "$(_arv 'Lt new')" "yes no"
+_ofeq "argRoadsT AR-3 the old road's control" "$(_arv 'Lt old')" "yes no"
+_ofeq "argRoadsT AR-4 y = argument, then y - 1, new road" "$(_arv 'Copy new z=')" "-1 2"
+_ofeq "argRoadsT AR-5 argument.datA reads the value's kind, new road" "$(_arv 'Dot new kind=')" "5 5"
+_ofeq "argRoadsT AR-6 recursion through bare argument, new road, depth 0 and 3" "$(_arv 'Rec new 0=') $(_arv 'Rec new 3=')" "s s"
+_ofeq "argRoadsT AR-6 the old road's control" "$(_arv 'Rec old 0=') $(_arv 'Rec old 3=')" "s s"
+_ofeq "argRoadsT AR-7 no other holder is followed (SEQ 504 R0): hz - 1 refuses, *hz - 1 reads, on the new road" "$(_arv 'Other new hz=') $(_arv 'Star new hz=') $(grep -c '^REFUSED hz -- Operator - ' "$T/ar.e")" "x 5 1"
 #  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
 _pcF=$(ip parentChainT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcX=$?

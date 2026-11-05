@@ -13132,6 +13132,11 @@ GroupItem 	*lookup = 0;
 	// lookupMiss a by-name lookup on the left of an assign that finds nothing refuses by name, and the assign never sees the null (SEQ 443 R1')
 	if ( !target && ::refuseLookupMiss(op,lookup) )
 		return 0;
+	// argBinding argument is a BINDING on this road too (Tony, 2026-11-05, R1a): isArgument fields only, as runOPslots; no other holder is followed
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	argument = ::followArgument(argument);
 	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
 	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);
