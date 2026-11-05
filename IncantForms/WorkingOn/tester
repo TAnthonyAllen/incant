@@ -40,8 +40,8 @@ define
     qa=2;
     qb=3;
     qc=4;
-    simpleValue;
-    listenTEST listenTo=simpleValue code={ print `"listenTEST: was invoked":; };
+    simpleValue=10;
+    listenTEST listenTo:=simpleValue code={ print `"listenTEST: was invoked":; };
     ;
 
 simpleValue=22;

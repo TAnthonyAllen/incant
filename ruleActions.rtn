@@ -324,6 +324,7 @@ use NewGroup
        /***********************************************************************
             Process Attributes.
         ***********************************************************************/
+        if traitRefMarks(NewGroup,Attributes)   Attributes = null;
 use item
         if Attributes
             while item = Attributes.next(item)
@@ -1095,6 +1096,7 @@ extern GroupItem aCTionTraiT(GroupItem input)
 GroupItem   upFlags,
             Modifier:,
             TraiTdata = input["TraiTdata"],
+            TraiTref = input["TraiTref"],
             trait = input[1];
     /***************************************************************************
         A trait value can be a group or a literal. Modifier is passed
@@ -1103,7 +1105,7 @@ GroupItem   upFlags,
     input.clearList();
     if isGROUP      trait = group;
     // ownValueOwnNode a definition's own name found in another registry, arriving with a value, gets its own node -- never the original's (SEQ 457)
-    -% if ( ::traitOwnsValue(trait,TraiTdata) )  trait = new GroupItem(trait->groupBody->tag); %-
+    -% if ( ::traitOwnsValue(trait,TraiTdata ? TraiTdata : TraiTref) )  trait = new GroupItem(trait->groupBody->tag); %-
     if Modifier {
         isAttribute = true;
         if rStuff   trait = new(trait);
@@ -1115,6 +1117,11 @@ GroupItem   upFlags,
     // traitSubjectExplicit trait, NOT bare -- a bare setContent below the upFlags read re-points
     // traitSubjectExplicit to upFlags (bear-trap #42)
     if TraiTdata    trait.setContent(TraiTdata);
+    // traitRefMark the trait holds the field, and a noPrint mark tells aCTionDefinE, the only place the host is known, that it came by :=
+    if TraiTref {
+        trait.setContent(TraiTref);
+        if TraiTdata    refuse(trait,"a := and an = on one attribute");
+        trait.addProperty(traitRefMark()); }
     // traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags
     if Modifier     modify(trait,Modifier.text);
     if upFlags      modifyClass(trait,upFlags.text,0);
@@ -1122,6 +1129,59 @@ GroupItem   upFlags,
     if upFlags && TraiTdata.data > 3 && !TraiTdata.isGROUP     modifyClass(trait,upFlags.text,1);
     input.group     = trait;
     return input;
+}
+
+/*******************************************************************************
+    Immediate method for the TraiTref rule.
+        TraiTref    ":="- GrouP;
+    `fill:=wall` holds the FIELD wall, never a copy of what wall holds (Tony,
+    2026-11-05, R1). The name must locate now.
+*******************************************************************************/
+extern GroupItem aCTionTraiTref(GroupItem input)
+{
+GroupItem   named = input[1],
+            target;
+    if named.isGROUP    named = named.group;
+    target  = locate(named.tag);
+    if !target {
+        refuse(named,"a := in a define names a field, and no field by this name is on the search list");
+        return input; }
+    input.clearList();
+    input.group = target;
+    return input;
+}
+
+/*******************************************************************************
+    The mark a := leaves on its trait.
+*******************************************************************************/
+extern GroupItem traitRefMark()
+{
+GroupItem   mark = new("traitRef");
+    mark.noPrint = true;
+    return mark;
+}
+
+/*******************************************************************************
+    A := attribute is refused in a rule host. The marks are aCTionTraiT's and each
+    is spent here. A refused host fires none of its attributes.
+*******************************************************************************/
+extern int traitRefMarks(GroupItem host, GroupItem attributes)
+{
+GroupItem   item,
+            mark;
+int         marked = 0;
+    if mark = host.getProperty("traitRef") {
+        host.removeProperty(mark);
+        marked = 1; }
+    if attributes
+        while item = attributes.next(item)
+            if mark = item.getProperty("traitRef") {
+                item.removeProperty(mark);
+                marked = 1; }
+    if marked && host.isRule {
+        refuse(host,"a := attribute is refused in a rule host");
+        return 1; }
+    return 0;
 }
 
 /*******************************************************************************

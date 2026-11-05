@@ -119,6 +119,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setText(":");
 	strap = grok->addMember(new GroupItem("EquaL"));
 	strap->setText("=");
+	strap = grok->addMember(new GroupItem("BindOp"));
+	strap->setText(":=");
 	/**************************************************************************
 	Define the setupFILE declared in GroupRules. It gets loaded at the
 	end of this bootstrapper method.
@@ -291,6 +293,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = strap->addAttribute(item);
 	::modify(item,"*");
 	strap->setActions();
+	strap = grok->addString("TraiTref");
+	strap->setRuleStuff();
+	item = strap->addAttribute(grok->getMember("BindOp"));
+	::modify(item,"-");
+	item = strap->addAttribute(grok->getMember("GrouP"));
+	strap->setActions();
 	/*************************************************************************
 	DefinE stub to be added to a little further down
 	*************************************************************************/
@@ -309,6 +317,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->getMember("Modifier");
 	item = strap->addAttribute(item);
 	::modify(item,"*");
+	item = grok->getMember("TraiTref");
+	item = strap->addAttribute(item);
+	::modify(item,"?");
 	item = grok->getMember("TraiTdata");
 	item = strap->addAttribute(item);
 	::modify(item,"?");

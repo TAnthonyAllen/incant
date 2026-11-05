@@ -3,6 +3,7 @@
   LEAF      Any
   COMPILES  Attributes
   COMPILES  BasicElse
+  NOBODY    BindOp -- REFUSED BindOp -- setParse: the field passed in has no rStuff
   COMPILES  BlocK
   COMPILES  Braced
   COMPILES  BrancH
@@ -48,6 +49,7 @@
   COMPILES  StringXP
   COMPILES  TraiT
   COMPILES  TraiTdata
+  COMPILES  TraiTref
   COMPILES  WardeD
   COMPILES  WhilE
   COMPILES  Xpress
@@ -62,4 +64,4 @@
   LEAF      numberSet
   LEAF      return
   LEAF      rightCurly
-PARSER COVERAGE -- 64 rules: 47 generate a body, 47 of them compile; 15 leaves; 0 crashed
+PARSER COVERAGE -- 66 rules: 48 generate a body, 48 of them compile; 15 leaves; 0 crashed
