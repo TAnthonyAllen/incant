@@ -1,0 +1,121 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(RefP);
+define
+    drAnchor=1;
+    drWall=5;
+    drCopy=5;
+    drEmpty;
+    drTen=10;
+    drLate;
+    drFire code={ cerr "DR fired" :; };
+    ;
+registry(RefR);
+define
+    RefR isRule;
+    drRule nm='q';
+    ;
+registry(RefA);
+define
+    drAnchorA=1;
+    ;
+search RefR RefP RefA Utilities UnitTests list;
+registry(RefA);
+define
+    drHold fill:=drWall;
+    drHoldCoded fill:=drWall code={ print 1:; };
+    drPlain fill=drCopy;
+    drEmptyHold fill:=drEmpty;
+    drListen listenTo:=drTen;
+    drListenPlain listenTo=drLate;
+    drClick onClick:=drFire;
+    drOnRule held:=drRule;
+    ;
+it1 = FILe("define drHoldN fill:=drWall; drListenN listenTo:=drLate; ;");
+define
+    drMissing fill:=drNoSuchField;
+    ;
+registry(RefR);
+define
+    drRuleHost term:=drWall;
+    ;
+registry(RefA);
+define
+    drRead code={
+        xh := drHold["fill"];
+        kh := *xh.datA;
+        vh := **xh;
+        cerr "DR hold kind=" kh " value=" vh:;
+        xc := drHoldCoded["fill"];
+        vc := **xc;
+        cerr "DR holdCoded value=" vc:;
+        xn := drHoldN["fill"];
+        vn := **xn;
+        cerr "DR holdN value=" vn:;
+        xp := drPlain["fill"];
+        kp := *xp.datA;
+        cerr "DR plain kind=" kp " value=" xp:;
+        xe := drEmptyHold["fill"];
+        ve := **xe;
+        cerr "DR emptyHold value=" ve:;
+        };
+    drChange code={
+        drWall = 6;
+        drCopy = 6;
+        drEmpty = 7;
+        };
+    drListeners code={
+        nl := drTen["notifyLIST"];
+        ln := *nl.listLengtH;
+        fn := *nl[1];
+        cerr "DR drTen notify length=" ln " first=" fn:;
+        ll := drLate["notifyLIST"];
+        ml := *ll.listLengtH;
+        fl := *ll[1];
+        cerr "DR drLate notify length=" ml " first=" fl:;
+        };
+    drRuleRead code={
+        xr := drOnRule["held"];
+        vr := *xr;
+        cerr "DR on a rule, holds " vr:;
+        };
+    drClickRun code={
+        h := drClick["onClick"];
+        fire := **h;
+        cerr "DR click holds " fire:;
+        cerr "DR direct":;
+        drFire();
+        cerr "DR held":;
+        *fire();
+        cerr "DR click done":;
+        };
+    ;
+drRead();
+drChange();
+cerr "DR after change":;
+drRead();
+drListeners();
+drRuleRead();
+drClickRun();
+if RefA["drMissing"];
+    cerr "DR missing host present":;
+if RefR["drRuleHost"];
+    cerr "DR rule host present":;
+if RefA["drHold"];
+    cerr "DR hold host present":;
+cerr "DR SENTINEL":;
+stop();
+
+ defineRefT: := in a define (Tony, 2026-11-05, R1, R3). A form attribute that means a field is spelled :=.

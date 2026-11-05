@@ -113,6 +113,8 @@ GroupRules  ruler = groupRules;
     text            = ":";
     strap           = grok += new("EquaL");
     text            = "=";
+    strap           = grok += new("BindOp");
+    text            = ":=";
    /**************************************************************************
         Define the setupFILE declared in GroupRules. It gets loaded at the
         end of this bootstrapper method.
@@ -300,6 +302,13 @@ GroupRules  ruler = groupRules;
     modify(item,"*");
     strap.setActions();
     
+    strap           = grok += "TraiTref";
+    setRuleStuff();
+    item            = strap +% grok/BindOp;
+    modify(item,"-");
+    item            = strap +% grok/GrouP;
+    strap.setActions();
+
     /*************************************************************************
         DefinE stub to be added to a little further down
     *************************************************************************/
@@ -320,6 +329,9 @@ GroupRules  ruler = groupRules;
     item            = grok/Modifier;
     item            = strap +% item;
     modify(item,"*");
+    item            = grok/TraiTref;
+    item            = strap +% item;
+    modify(item,"?");
     item            = grok/TraiTdata;
     item            = strap +% item;
     modify(item,"?");

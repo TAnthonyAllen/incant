@@ -488,6 +488,8 @@ GroupItem 	*item = 0;
 	/***********************************************************************
 	Process Attributes.
 	***********************************************************************/
+	if ( traitRefMarks(NewGroup,Attributes) )
+		Attributes = 0;
 	if ( Attributes )
 		while ( item = Attributes->next(item) )
 			if ( item->groupBody->flags.noPrint && immediateACTION(item->groupBody->flags.methodType) )
@@ -1360,6 +1362,7 @@ extern "C" GroupItem *aCTionTraiT(GroupItem *input)
 GroupItem 	*upFlags = 0;
 GroupItem 	*Modifier = input->getLabelGroup("Modifier");
 GroupItem 	*TraiTdata = input->get("TraiTdata");
+GroupItem 	*TraiTref = input->get("TraiTref");
 GroupItem 	*trait = input->get(1);
 	/***************************************************************************
 	A trait value can be a group or a literal. Modifier is passed
@@ -1369,7 +1372,7 @@ GroupItem 	*trait = input->get(1);
 	if ( isGROUP(trait->groupBody->flags.data) )
 		trait = trait->getGroup();
 	// ownValueOwnNode a definition's own name found in another registry, arriving with a value, gets its own node -- never the original's (SEQ 457)
-	 if ( ::traitOwnsValue(trait,TraiTdata) )  trait = new GroupItem(trait->groupBody->tag); 
+	 if ( ::traitOwnsValue(trait,TraiTdata ? TraiTdata : TraiTref) )  trait = new GroupItem(trait->groupBody->tag); 
 	if ( Modifier )
 		{
 		trait->options.affiliation = 1;
@@ -1387,6 +1390,14 @@ GroupItem 	*trait = input->get(1);
 	// traitSubjectExplicit to upFlags (bear-trap #42)
 	if ( TraiTdata )
 		trait->setContent(TraiTdata);
+	// traitRefMark the trait holds the field, and a noPrint mark tells aCTionDefinE, the only place the host is known, that it came by :=
+	if ( TraiTref )
+		{
+		trait->setContent(TraiTref);
+		if ( TraiTdata )
+			::refuse(trait,"a := and an = on one attribute");
+		trait->addProperty(traitRefMark());
+		}
 	// traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags
 	if ( Modifier )
 		::modify(trait,Modifier->getText());
@@ -1440,6 +1451,29 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 	if ( (DatA->isRuleTerm() && (!DatA->groupBody->flags.isLiteral || (repeated == 1 && DatA->groupBody->flags.data <= 3))) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
 		input->setGroup(DatA);
 	else	input->setContent(DatA);
+	return input;
+}
+
+/*******************************************************************************
+    Immediate method for the TraiTref rule.
+        TraiTref    ":="- GrouP;
+    `fill:=wall` holds the FIELD wall, never a copy of what wall holds (Tony,
+    2026-11-05, R1). The name must locate now.
+*******************************************************************************/
+extern "C" GroupItem *aCTionTraiTref(GroupItem *input)
+{
+GroupItem 	*named = input->get(1);
+GroupItem 	*target = 0;
+	if ( isGROUP(named->groupBody->flags.data) )
+		named = named->getGroup();
+	target = GroupControl::groupController->locate(named->groupBody->tag);
+	if ( !target )
+		{
+		::refuse(named,"a := in a define names a field, and no field by this name is on the search list");
+		return input;
+		}
+	input->clearList();
+	input->setGroup(target);
 	return input;
 }
 
@@ -8588,7 +8622,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" GroupItem *listenTo(GroupItem *input)
 {
 GroupItem 	*listener = input->parent;
-GroupItem 	*grup = GroupControl::groupController->locate(input);
+GroupItem 	*grup = input->getGroup();
 GroupItem 	*notifyList = 0;
 	if ( grup && input->groupBody->flags.fLAG )
 		{
@@ -13125,6 +13159,45 @@ extern "C" int traitOwnsValue(GroupItem *trait, GroupItem *value)
 	if ( !a || !a->prev || a->prev->isFloor || !a->prev->instance )   return 0;
 	return ::compare(a->prev->instance->groupBody->tag,"NewGroup") == 0;
 	
+}
+
+/*******************************************************************************
+    The mark a := leaves on its trait.
+*******************************************************************************/
+extern "C" GroupItem *traitRefMark()
+{
+GroupItem 	*mark = new GroupItem("traitRef");
+	mark->groupBody->flags.noPrint = 1;
+	return mark;
+}
+
+/*******************************************************************************
+    A := attribute is refused in a rule host. The marks are aCTionTraiT's and each
+    is spent here. A refused host fires none of its attributes.
+*******************************************************************************/
+extern "C" int traitRefMarks(GroupItem *host, GroupItem *attributes)
+{
+GroupItem 	*item = 0;
+GroupItem 	*mark = 0;
+int 		marked = 0;
+	if ( mark = host->getProperty("traitRef") )
+		{
+		host->removeProperty(mark);
+		marked = 1;
+		}
+	if ( attributes )
+		while ( item = attributes->next(item) )
+			if ( mark = item->getProperty("traitRef") )
+				{
+				item->removeProperty(mark);
+				marked = 1;
+				}
+	if ( marked && host->groupBody->flags.isRule )
+		{
+		::refuse(host,"a := attribute is refused in a rule host");
+		return 1;
+		}
+	return 0;
 }
 
 extern "C" GroupItem *treeOf(GroupItem *argument)

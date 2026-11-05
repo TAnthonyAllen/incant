@@ -280,7 +280,7 @@ extern GroupItem guard(GroupItem item)
 extern GroupItem listenTo(GroupItem input)
 {
 GroupItem   listener = input.parent;
-GroupItem	grup = locate(input),
+GroupItem	grup = input.group,
             notifyList;
     if grup && input.fLAG {
         grup.hasListeners   = true;

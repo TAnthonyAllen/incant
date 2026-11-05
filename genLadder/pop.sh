@@ -2947,11 +2947,12 @@ sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 #  48 -> 49, TF-6 37 -> 38. TF-5 unmoved at 0.
 #  RE-PINNED 2026-10-15 (SEQ 362 R0): TF-1 87 -> 85, TF-2/3/4 49 -> 47 -- TokenXP and UnaryXP left the grammar (S4b).
 #  TF-5 and TF-6 unmoved.
-for _arm in "TF-1 rules seen                   =  85" \
-            "TF-2 carrying hasAttributeS       =  47" \
-            "TF-3 carrying hasTraitS           =  47" \
-            "TF-4 carrying BOTH                =  47" \
-            "TF-6 no attributes                =  38" \
+#  RE-PINNED 2026-11-05 (SEQ 534 R3, := in a define: Grokking gains the literal BindOp and the rule TraiTref): TF-1 85 -> 87 for the two; TF-2/3/4 47 -> 48 for TraiTref, which carries terms; TF-6 38 -> 39 for BindOp, which carries none. TF-5 unmoved.
+for _arm in "TF-1 rules seen                   =  87" \
+            "TF-2 carrying hasAttributeS       =  48" \
+            "TF-3 carrying hasTraitS           =  48" \
+            "TF-4 carrying BOTH                =  48" \
+            "TF-6 no attributes                =  39" \
             "TF-5 the two flags DISAGREE on    =  0"; do
     if grep -qF "$_arm" "$T/tf"; then
         echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
@@ -3286,9 +3287,10 @@ done
 #  RE-PINNED 2026-10-28 (SEQ 452 R1, string-lead): loose 22 -> 23 -- `counter`. Precision now spells its digits [0-9]+,
 #  so the bootstrap digit set `counter` lost its only grammar reference; counter+ could not be used because unitTests:87's
 #  `counter=0;` captures it (Clod's fixit defineCapture), measured in the counter probe. counter stays in Grokking.
-AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 23 loose"
+#  RE-PINNED 2026-11-05 (SEQ 534 R3, := in a define: Grokking gains the literal BindOp and the rule TraiTref): missing rules 6 -> 7 -- BindOp is a bare literal, the same as ColoN and EquaL. Loose unmoved.
+AUDITLINE="AUDIT all registries: 7 missing rules, 0 missing terms, 23 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 23)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 7, loose = 23)"; green=$((green+1))
 else
     echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -7036,10 +7038,11 @@ aoCount () { awk '
 /^AOACTOR /{act[$2]=1; next}
 /^AOCHILD /{if($2=="builtinActoR") bad[r]=1}
 END{na=0;nb=0;names="";for(k in act)na++; for(k in bad){nb++; names=names " " k}; print na "/" nb names}' "$T/ao.e"; }
+#  RE-PINNED 2026-11-05 32 -> 33 (SEQ 534 R3, := in a define: Grokking gains the literal BindOp and the rule TraiTref): aCTionTraiTref is found by lookup.
 #  RE-PINNED 2026-10-15 33 -> 32 (SEQ 361 R0, S4a, sentence): aCTionTokenXP deleted (measured inert, SEQ 358 tap 2), so
 #  TokenXP's actor is no longer found by lookup -- the one rule that left the count.
 AO=$(aoCount)
-kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "32"
+kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "33"
 AOB=${AO#*/}
 kindRow "actorOrderT AO-2 rules with a builtinActoR AMONG their children (names follow if any)" "$AOB" "0"
 
@@ -7301,14 +7304,15 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  258 RE-PINNED 2026-10-30 (SEQ 489 R1, branch bridge-run): 257 -> 258 on this row and its five siblings -- runRule is registered in Operators (SEQ 489).
 #  259 RE-PINNED 2026-10-30 (SEQ 492 R2, branch command-call): 258 -> 259 on this row and its five siblings -- call is registered in Operators (SEQ 492).
 #  261 RE-PINNED 2026-10-31 (SEQ 496, branch print-sinks): 259 -> 261 on this row and its five siblings -- cerrList and coutList are registered in Operators (SEQ 496).
+#  265 RE-PINNED 2026-11-05 (SEQ 534 R3, := in a define: Grokking gains the literal BindOp and the rule TraiTref): 262 -> 265 on this row and its five siblings -- the two new Grokking children plus TraiT's new term.
 #  262 RE-PINNED 2026-11-03 (SEQ 516, branch top-refuse): 261 -> 262 on this row and its five siblings -- bodySeq is registered in Operators (SEQ 516) (control: the bodySeq line removed from incant/setup, all six read 261 again on the same binary).
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "262"
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "265"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "262"
+kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "265"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -7324,8 +7328,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "262 6"
-kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "262"
+kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "265 6"
+kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "265"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -7341,12 +7345,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "262"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "265"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "262"
+kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "265"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -8687,6 +8691,27 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  defineRefT -- := in a define (Tony, 2026-11-05, SEQ 534 R1, R3): a form attribute that means a field is spelled :=. Plain = stays a value copy (traitGridT).
+#  N rows go through FILe. A row whose value is a later change's is paired with the same field's row before the change. H7s are in docs/traitRefRecon.md.
+_drF=$(ip defineRefT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_drF" > "$T/dr.o" 2> "$T/dr.e"; _drX=$?
+_ofeq "defineRefT exit status" "$_drX" "0"
+_ofeq "defineRefT sentinel" "$(grep -c '^DR SENTINEL' "$T/dr.e")" "1"
+_drv () { grep "^DR $1" "$T/dr.e" | sed "s/^DR $1 *//" | xargs; }
+_ofeq "defineRefT DR-1 := holds the field, then sees wall go 5 -> 6" "$(_drv 'hold kind=')" "6 value= 5 6 value= 6"
+_ofeq "defineRefT DR-2 the same in an action host" "$(_drv 'holdCoded value=')" "5 6"
+_ofeq "defineRefT DR-3 the same through FILe" "$(_drv 'holdN value=')" "5 6"
+_ofeq "defineRefT DR-4 plain = stays a value copy (R1), the same two reads" "$(_drv 'plain kind=')" "5 value= 5 5 value= 5"
+_ofeq "defineRefT DR-5 := on a field empty at define, then written" "$(_drv 'emptyHold value=')" "drEmpty 7"
+_ofeq "defineRefT DR-6 listenTo:= arms on a target holding a value" "$(_drv 'drTen notify length=')" "1 first= drListen"
+_ofeq "defineRefT DR-7 listenTo:= arms through FILe" "$(_drv 'drLate notify length=')" "1 first= drListenN"
+_ofeq "defineRefT DR-8 listenTo= hands over no field, refuses once (non-zero sibling of DR-6)" "$(grep -c '^listenTo: should be invoked' "$T/dr.e")" "1"
+_ofeq "defineRefT DR-9 := on a rule holds the rule" "$(_drv 'on a rule, holds')" "drRule"
+_ofeq "defineRefT DR-10 onClick:= holds the action" "$(_drv 'click holds')" "drFire"
+_ofeq "defineRefT DR-11 the held action fires (direct + held)" "$(grep -c '^DR fired' "$T/dr.e")" "2"
+_ofeq "defineRefT DR-12 := naming nothing refuses by name" "$(grep -c '^REFUSED drNoSuchField' "$T/dr.e")" "1"
+_ofeq "defineRefT DR-13 := in a rule host refuses by name" "$(grep -c '^REFUSED drRuleHost -- a := attribute' "$T/dr.e")" "1"
+_ofeq "defineRefT DR-14 the refused hosts are gone, the good host stands" "$(grep -c '^DR missing host present' "$T/dr.e") $(grep -c '^DR rule host present' "$T/dr.e") $(grep -c '^DR hold host present' "$T/dr.e")" "0 0 1"
 #  traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04): what a define's attribute holds once the define is done, pinned
 #  at today's values on both roads (N rows go through FILe). Columns: kind, list length, value. Rows read kind 6 only where the
 #  value names a rule or carries a modifier that makes it one (ruleActions.rtn:1155; + writes isRule on the target, the sideEffect rows).

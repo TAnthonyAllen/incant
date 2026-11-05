@@ -1,8 +1,18 @@
 # TraiTdata: what a define's attribute holds, and what `:=` in a define would cost (SEQ 530, 2026-11-04)
 
-RULED (Tony, SEQ 533 R0, 2026-11-04): `:=` in a define is first on the morning docket, for onClick, ahead of the parked listener; its own rule, its own `:=`, refused in a rule host. Start with why the trial's action does not fire (below).
+RULED (Tony, SEQ 533 R0, 2026-11-04): `:=` in a define is first on the morning docket, for onClick, ahead of the parked listener; its own rule, its own `:=`, refused in a rule host. BUILT below.
 
-Recon only. Nothing here is on trunk except the pin, `incant/pop/traitGridT` and its 24 rows. The trial below ran in a clone.
+Below "BUILT" is the recon as of 2026-11-04: the trial ran in a clone, and its pin is `incant/pop/traitGridT`, 24 rows.
+
+## BUILT, SEQ 534 (Tony's rulings, 2026-11-05; branch define-ref)
+R1: a form attribute that means a field is spelled `:=` (`fill:=wall`, `onClick:=`). Plain `=` stays a value copy. R2: no respell and no census; each form changes on a forms afternoon when it comes up for repair. R3: proved on its own fixture, `incant/pop/defineRefT`; no forms file touched; the temporary `locate(input)` in listenTo reverted. R4: listening stays parked.
+- **Why the trial's action did not fire: NOT RECOVERED.** The trial's clone is gone. A fresh build with the same shape (one new literal, TraiTref a term of TraiT, a marker in the action) fired on the first run. The only thing the old table is good for is "the attribute reads kind 0", which follows anyway: aCTionTraiT never read TraiTref in the trial.
+- Grammar: `BindOp` (the literal `:=`, beside ColoN and EquaL); `TraiTref  BindOp- GrouP`; `TraiT  GrouP Modifier* TraiTref? TraiTdata?` (GroupMain.twk).
+- aCTionTraiTref locates the name now and holds the field. A name that does not locate refuses by name, so a forward reference refuses too (not ruled; easy to change).
+- aCTionTraiT copies the held field to the trait and leaves a noPrint `traitRef` property; traitRefMarks, called from aCTionDefinE where the host is known, spends every mark and refuses in a rule host. No GroupBody bit, no layout change.
+- A held action fires with `fire := **h; *fire();`. Bare `fire();` on that holder does nothing and says nothing (context, measured once).
+- H7 (fix committed first; single fixture under an alarm; `.mm` md5 identical after restore): the action hands a value copy -> DR-1, DR-3 read kind 5; the rule-host arm off -> 0 refusals and the rule host stands; listenTo back to locate -> DR-7 reads 2 and DR-8 reads 0.
+- Fleet: 2505 -> 2521 green (DR's 16 rows), FAIL rows identical by name. Re-pins, sentences in pop.sh: TF-1 85 -> 87, TF-2/3/4 47 -> 48, TF-6 38 -> 39, bare-master 6 -> 7, AO-1 32 -> 33, IT / IB / LB 262 -> 265, parserCoverage.target (BindOp NOBODY, TraiTref COMPILES). traitGridT's 24 did not move.
 
 ## Today, on both roads (fleet: traitGridT)
 | row | define sits in | name points at | modifier | kind | list | value |

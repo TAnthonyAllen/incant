@@ -150,7 +150,8 @@ What a form is (Tony, offline status, 2026-11-05; the worked example is sample i
     Forms are dynamic and can change on layout: a window resize changes every dimension when setFrame runs.
     Form fields can have methods or actions, fired on layout in left to right order.
     The old GUI's somefield=$simpleValue did this binding at layout time; the new road seems to be evolving away from macros.
-    MEASURED 2026-11-05 (kant, tester delta, wall read back with .datA): the define does not yet keep this. wall=5 then walled fill=wall holds the value 5 and still reads 5 after wall=6. With wall empty at define, fill holds the name lateWall as text, which layout could locate. So fill=wall means two things, depending on whether wall holds a value when the define runs (docs/traitRefRecon.md G6, G7). OPEN, Tony's: see the 2026-11-05 note under the listener in macros. M3 (fill) depends on it.
+    MEASURED 2026-11-05 (kant, tester delta, wall read back with .datA): the define does not yet keep this. wall=5 then walled fill=wall holds the value 5 and still reads 5 after wall=6. With wall empty at define, fill holds the name lateWall as text, which layout could locate. So fill=wall means two things, depending on whether wall holds a value when the define runs (docs/traitRefRecon.md G6, G7).
+    RULED (Tony, 2026-11-05, SEQ 534 R1, R2): the spelling is fill:=wall, as onClick:=, which retires the two meanings. Plain = in a define stays a value copy. No global respell and no census: each form, in unitTests (sample too) or IncantForms, gets its := when it comes up for repair on a forms afternoon.
 From the forms notes (forms plan, 2026-11-03)
     Vertical align is dropped in favour of space.
     Comments in a form are // text, with no braces in action bodies.
