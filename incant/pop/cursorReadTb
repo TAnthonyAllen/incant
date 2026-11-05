@@ -28,7 +28,7 @@ define
     crN;
     crTag="ENCLOSING";
     crWalk code={
-        iterate crCur on *argument;
+        iterate crCur on argument;
         while ++crCur;
             ++crN;
             cerr "CR-B" crN " bare=" taG " explicit=" crCur.taG:;

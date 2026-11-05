@@ -9,7 +9,7 @@ define
     lrOther=9;
     lrEcho code={ return argument; };
     lrWalk code={
-        iterate lrCur on *argument;
+        iterate lrCur on argument;
         while ++lrCur;
             lastRefOf("W-walk");
             cerr "LR W bare" ,taG:;

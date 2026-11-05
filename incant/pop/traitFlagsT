@@ -22,7 +22,7 @@ define
         ++tfSeen;
         };
     tfWalk code={
-        iterate tfCur on *argument;
+        iterate tfCur on argument;
         while ++tfCur;
             tfProbe(*tfCur);
         };

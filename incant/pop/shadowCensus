@@ -52,7 +52,7 @@ define
         else                print "-";
         };
     scMembers code={
-        iterate scCur members on *argument;
+        iterate scCur members on argument;
         while ++scCur;
             if !isRulE;     continue;
             /*  CAPTURE, THEN CALL. lastREF answers "what was referenced last",
@@ -74,7 +74,7 @@ define
             print " " ,~scTag:;
         };
     scAttrs code={
-        iterate scCur2 attributes on *argument;
+        iterate scCur2 attributes on argument;
         while ++scCur2;
             if !isRulE;     continue;
             /*  CAPTURE, THEN CALL. lastREF answers "what was referenced last",

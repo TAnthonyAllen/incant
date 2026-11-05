@@ -8708,6 +8708,11 @@ _ofeq "argRoadsT AR-4 y = argument, then y - 1, new road" "$(_arv 'Copy new z=')
 _ofeq "argRoadsT AR-5 argument.datA reads the value's kind, new road" "$(_arv 'Dot new kind=')" "5 5"
 _ofeq "argRoadsT AR-6 recursion through bare argument, new road, depth 0 and 3" "$(_arv 'Rec new 0=') $(_arv 'Rec new 3=')" "s s"
 _ofeq "argRoadsT AR-6 the old road's control" "$(_arv 'Rec old 0=') $(_arv 'Rec old 3=')" "s s"
+_ofeq "argRoadsT AR-8 *argument on a non-holder refuses by name, both roads (R1b), and neither statement goes on" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(grep -c '^AR StarPlain' "$T/ar.e") $(grep -c '^AR IterStar' "$T/ar.e")" "4 0 0"
+_ofeq "argRoadsT AR-9 *argument bound to a holder reads through it, both roads (the non-zero sibling)" "$(_arv 'StarHeld old x=') $(_arv 'StarHeld new x=')" "5 5"
+_ofeq "argRoadsT AR-10 a star on any other plain field still yields null and does not refuse (the star ruling, 2026-09-05)" "$(grep -c '^AR PlainStar null, no refusal' "$T/ar.e")" "1"
+_ofeq "argRoadsT AR-11 iterate on bare argument, old road (the respell's control)" "$(_arv 'IterBare old n=')" "2"
+_ofeq "argRoadsT AR-12 return argument, both roads" "$(_arv 'Ret old=') $(_arv 'Ret new=')" "3 3"
 _ofeq "argRoadsT AR-7 no other holder is followed (SEQ 504 R0): hz - 1 refuses, *hz - 1 reads, on the new road" "$(_arv 'Other new hz=') $(_arv 'Star new hz=') $(grep -c '^REFUSED hz -- Operator - ' "$T/ar.e")" "x 5 1"
 #  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
 _pcF=$(ip parentChainT)
