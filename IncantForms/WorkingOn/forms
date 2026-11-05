@@ -307,6 +307,7 @@ Candidate morning items (none ruled):
     M4 Stroke floor: no command strokes a rect or a side from kant. Layout.drawRect strokes one frame, in C++.
     M5 Colours and fonts: no cOLOr or fONTs registry loads; IncantForms/Controls/attributes is XML-era text. And with
        wall searchable, fill=wall copies the hex (f7e8aa), while getColor locates by NAME (read, not run). Same family as SEQ 530.
+       RECON 2026-11-05, docs/m5Recon.md: `wall=#f7e8aa` does not realise (setColor wants six hex characters, no #); three rulings owed. fill:=wall is ruled (above), so getColor by name is M3's to change.
     M6 Style tree: getStyle returns the first style found up the parents; there is no copy per field, and sTYLEs does not
        exist. The rulings want a pre-pass.
     M7 A surface to look at: makeDisplay's bitmap has no y-flip, nothing shows it in a window or writes it to a file (pixelAt

@@ -1,3 +1,13 @@
+# ⚠⚠⚠ SEAL 339 AMENDED 2026-11-05 -- argument-binding BUILT, PUSHED, NOT MERGED, AWAITING THE BUY (d3b8407a). FORMS M5 RECON DONE, NOTHING BUILT, THREE RULINGS OWED.
+#
+#   ## ONE PLAIN LINE: on the branch, bare argument reads the same on both roads and *argument on a plain value refuses; a colour spelled wall=#f7e8aa does not realise yet, and M5 waits on three small rulings.
+#   ## argument-binding (Tony's R1-R3; docs/argumentRecon.md, incant/pop/argRoadsT, 23 rows): testOP and opIterate follow the binding, isArgument only; *argument on a non-holder refuses by name at the old prefix, testOP and iterate; a compiled *argument runs at run time; new-road ITERATe builds a star instead of dropping it; 39 iterate sites respelled bare. Five H7s, each red by value. Branch: pop.sh 2568 green, 60 FAIL rows (AL-3a out, no row in); jitLadder 224 / 0; printPop, decodePop 0; ddPop 5 / 1; frontier = capture; canary 434. tester and IncantForms carry no *argument.
+#   ## TOLD TONY, FOR A WORD: R1(b) cites F-71 for "a star on a non-holder refuses". F-71 and the star ruling (2026-09-05) say the opposite for a plain field: *x yields null. Built as worded, for *argument ONLY; a star on any other plain field still yields null (AR-10).
+#   ## NEW ON THE LEDGER, 1a, NOT CURED: `*p - 1`, p a plain local: new road exit 139, old road a silent -1.
+#   ## STILL TRUE: after a refusal the new road runs its next statement and the old road ends the action. Pre-existing, pinned by newJitIfUnsetT; not ruled.
+#   ## M5, docs/m5Recon.md: rulings owed on the #, the font spelling, the file. S6 unblocks at the buy.
+#   ## NO ENGINE CODE ON TRUNK SINCE seal 339; this commit is docs.
+
 # ⚠⚠⚠ SEALED 2026-11-05 (339) ON TRUNK -- label-parent BOUGHT (merge 24beb5f0): A MEMBER'S PARENT IS ITS ENCLOSING FIELD. NO SHUTDOWN YET. NEXT: THE ARGUMENT RULING (R1, R2, R3), CENSUS FIRST, THEN FORMS M5.
 #
 #   ## ONE PLAIN LINE: a walk up from a nested member now reaches its window and its registry; ledger row 1's ruling is in hand and the census opens next.
