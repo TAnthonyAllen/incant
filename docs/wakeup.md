@@ -1,3 +1,9 @@
+# ⚠⚠⚠ SEAL 338 AMENDED 2026-11-05 -- ITEM 3, THE PARSE-LABEL PARENT: RECON DONE, NOTHING BUILT (docs/parseLabelParent.md). THE SHAPE WAITS ON TONY.
+#
+#   ## ONE PLAIN LINE: below the first level a member's parent is a stale twin of its enclosing field, whose own parent is the parse label; keeping the copy and re-homing the children cures the chain in a clone, with no fleet mover.
+#   ## A SLIP, NAMED: trial A (move instead of copy) hung at bootstrap and was sent to the suite anyway, against H5's other half; the run was stopped and nothing was lost but time.
+#   ## NO ENGINE CODE MOVED; the checks of seal 338 stand. Commit carries the recon and macros' pointer only.
+
 # ⚠⚠⚠ SEALED 2026-11-05 (338) ON TRUNK -- flag-attrs BOUGHT (merge c4fd8f06): A FLAG-NAMED ATTRIBUTE SETS THE FLAG. NO SHUTDOWN YET. NEXT: THE PARSE-LABEL PARENT, RECON FIRST.
 #
 #   ## ONE PLAIN LINE: in a define, an attribute named for a GroupFields flag now sets that flag and is not added; no command retired, because no command name matches a flag name.
