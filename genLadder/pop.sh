@@ -8691,6 +8691,24 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  flagAttrT -- an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1; docs/flagAttrRecon.md).
+#  FA-1 is the non-zero siblings' zero. FA-9 PINS A KNOWN DEFECT, NOT A WANT: noPrinT=0 writes the registry's own field number, because aCTionTraiT writes the value onto the entry (the value-capture half of incant/fixits/defineCapture). The cure moves that row.
+_faF=$(ip flagAttrT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_faF" > "$T/fa.o" 2> "$T/fa.e"; _faX=$?
+_ofeq "flagAttrT exit status" "$_faX" "0"
+_ofeq "flagAttrT sentinel" "$(grep -c '^FA SENTINEL' "$T/fa.e")" "1"
+_fav () { grep "^FA $1" "$T/fa.e" | sed "s/^FA $1 *//" | xargs; }
+_ofeq "flagAttrT FA-1 no flag attribute: the zeros" "$(_fav 'plain noPrint=')" "0 attrs= 0"
+_ofeq "flagAttrT FA-2 noPrinT sets the flag, is not added" "$(_fav 'noPrinT noPrint=')" "1 attrs= 0"
+_ofeq "flagAttrT FA-3 isBiN, through its own case" "$(_fav 'isBiN bin=')" "1 attrs= 0"
+_ofeq "flagAttrT FA-4 isActioN, through its own case" "$(_fav 'isActioN action=')" "1 attrs= 0"
+_ofeq "flagAttrT FA-5 isVirtuaL mergeON byReF invokE, none added (opDot has no read case for three)" "$(_fav 'four unreadable flags attrs=')" "0"
+_ofeq "flagAttrT FA-6 isRulE has no write case: the ordinary path, flag off, added" "$(_fav 'isRulE no write case rule=')" "0 attrs= 1"
+_ofeq "flagAttrT FA-7 lastIndenT is not a flag: the ordinary path, added" "$(_fav 'lastIndenT not a flag attrs=')" "1"
+_ofeq "flagAttrT FA-8 ordinary attributes beside a flag stay" "$(_fav 'mixed noPrint=')" "1 attrs= 2"
+_ofeq "flagAttrT FA-10 a rule host" "$(_fav 'rule host noPrint=') $(grep -c '^FA rule host found' "$T/fa.e")" "1 attrs= 0 1"
+_ofeq "flagAttrT FA-11 through FILe" "$(_fav 'FILe noPrint=') $(grep -c '^FA FILe found' "$T/fa.e")" "1 attrs= 0 1"
+_ofeq "flagAttrT FA-9 PINNED DEFECT: noPrinT=0 writes the table's field number" "$(_fav 'table after noPrinT=0 reads')" "access to noPrinT not supported yet"
 #  defineRefT -- := in a define (Tony, 2026-11-05, SEQ 534 R1, R3): a form attribute that means a field is spelled :=. Plain = stays a value copy (traitGridT).
 #  N rows go through FILe. A row whose value is a later change's is paired with the same field's row before the change. H7s are in docs/traitRefRecon.md.
 _drF=$(ip defineRefT)

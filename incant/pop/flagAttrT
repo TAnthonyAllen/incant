@@ -1,0 +1,79 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(FaR);
+define
+    faPlain;
+    faA noPrinT;
+    faD isBiN;
+    faC isActioN;
+    faV isVirtuaL mergeON byReF invokE;
+    faE isRulE;
+    faL lastIndenT;
+    faM keep noPrinT also=2;
+    ;
+registry(FaK);
+define
+    FaK isRule;
+    faK noPrinT;
+    ;
+registry(FaR);
+it1 = FILe("define faN noPrinT; ;");
+define
+    faRead code={
+        v1 := faPlain.noPrinT;
+        l1 := faPlain.listLengtH;
+        cerr "FA plain noPrint=" v1 " attrs=" l1:;
+        v2 := faA.noPrinT;
+        l2 := faA.listLengtH;
+        cerr "FA noPrinT noPrint=" v2 " attrs=" l2:;
+        v3 := faD.isBiN;
+        l3 := faD.listLengtH;
+        cerr "FA isBiN bin=" v3 " attrs=" l3:;
+        v4 := faC.isActioN;
+        l4 := faC.listLengtH;
+        cerr "FA isActioN action=" v4 " attrs=" l4:;
+        l5 := faV.listLengtH;
+        cerr "FA four unreadable flags attrs=" l5:;
+        v6 := faE.isRulE;
+        l6 := faE.listLengtH;
+        cerr "FA isRulE no write case rule=" v6 " attrs=" l6:;
+        l7 := faL.listLengtH;
+        cerr "FA lastIndenT not a flag attrs=" l7:;
+        v8 := faM.noPrinT;
+        l8 := faM.listLengtH;
+        cerr "FA mixed noPrint=" v8 " attrs=" l8:;
+        xk := FaK["faK"];
+        v9 := *xk.noPrinT;
+        l9 := *xk.listLengtH;
+        cerr "FA rule host noPrint=" v9 " attrs=" l9:;
+        xn := FaR["faN"];
+        v10 := *xn.noPrinT;
+        l10 := *xn.listLengtH;
+        cerr "FA FILe noPrint=" v10 " attrs=" l10:;
+        };
+    ;
+faRead();
+if FaK["faK"];
+    cerr "FA rule host found":;
+if FaR["faN"];
+    cerr "FA FILe found":;
+define
+    faZero noPrinT=0;
+    faTable code={
+        v11 := faPlain.noPrinT;
+        cerr "FA table after noPrinT=0 reads " v11:;
+        };
+    ;
+faTable();
+cerr "FA SENTINEL":;
+stop();
+
+ flagAttrT: an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1). docs/flagAttrRecon.md.
