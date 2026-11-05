@@ -6,7 +6,7 @@ Every pinned red row and docket item from today. Silent wrong answers first, the
 | # | what is wrong | pinned | size |
 |---|---|---|---|
 | **Silent wrong answers** | | | |
-| 1 | **CURED on branch argument-binding, awaiting the buy (Tony, R1): a bare `argument` follows on the new road; `*argument` on a non-holder refuses on both.** docs/recursionMeasure.md. | argRoadsT | done at the buy |
+| 1 | **CURED, bought 18829d00 (Tony, R1): a bare `argument` follows on the new road; `*argument` on a non-holder refuses on both.** docs/recursionMeasure.md. | argRoadsT | done |
 | 2 | `v = u + 1` on an unwritten local: compiled reads 1, interpreted refuses. Row 12 rules its intended value: the refusal | UA | stroke |
 | 3 | `v = u` on an unwritten local: compiled copies 0, interpreted copies the tag's text. Same cure as row 2: a statement branches on the written mark and falls back | UC | stroke |
 | 4 | An old-road self-call returning a non-count: compiled reads 1, interpreted `s` or `1.5`. The build would have to know the callee's return kind | RS | stroke |

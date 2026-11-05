@@ -1,4 +1,6 @@
-# Forms M5, colours and fonts: recon (2026-11-05, trunk binary). Nothing built. Three rulings owed.
+# Forms M5, colours and fonts: recon (2026-11-05, trunk binary)
+
+**RULED (Tony, 2026-11-05, R2):** setColor skips a leading `#`. Fonts are written as attributes. One new file, IncantForms/Controls/styles, holds the 14 colours and 7 fonts. It is NOT on the default search list until defineCapture B2 lands, because a write-through such as `red=5` is that defect's family; tests load it explicitly. `fill=purple` is fixed when sample comes up for repair. The "owed" list below is closed.
 
 ## Measured (kant)
 | case | result |

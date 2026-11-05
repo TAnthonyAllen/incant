@@ -2,7 +2,7 @@
 
 Searches: `\*argument`, and bare `argument` beside an arithmetic or comparison operator, over every tracked file in incant, IncantForms, jitLadder, genLadder, Tests, XML. Positive control for the regex: ra (docs/recursionProbes) is in the list. Dynamic: a tap (clone, reverted) at the star sites and testOP over incant/pop, incant/fixits, unitTests, utilities, frontier, tester, parser, macros: 53 starred reads in 21 fixtures, every one holding a non-holder; bare in an operator on the new road, one fixture, newLocalArgT.
 
-## RESULT (built, branch argument-binding)
+## RESULT (bought, merge 18829d00). The refusal is scoped to *argument (Tony, 2026-11-05, R1): the F-71 citation was wrong and the star ruling of 2026-09-05 stands; AR-10 pins it.
 Movers as registered: AL-3a, and nl3an under jitter (re-pinned, sentence in pop.sh). Nothing moved through the 39 respells.
 **Found after registration, none of them a row moving:**
 - new-road `iterate` could not read bare argument: opIterate followed nothing. It follows now.
