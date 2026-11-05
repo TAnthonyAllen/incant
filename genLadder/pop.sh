@@ -8691,6 +8691,20 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
+_pcF=$(ip parentChainT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcX=$?
+_ofeq "parentChainT exit status" "$_pcX" "0"
+_ofeq "parentChainT sentinel" "$(grep -c '^PC SENTINEL' "$T/pc.e")" "1"
+_pcf () { awk -v k="PC $1" 'f && /^ADDROF/ {print $2, $3; exit} { s=$0; sub(/ *$/,"",s); f=(s==k) }' "$T/pc.e"; }
+_ofeq "parentChainT PC-1 evLeaf's parent is the evDeep reached going down" "$(_pcf 'UP 1')" "$(_pcf 'DOWN evDeep')"
+_ofeq "parentChainT PC-2 then the evBody reached going down" "$(_pcf 'UP 2')" "$(_pcf 'DOWN evBody')"
+_ofeq "parentChainT PC-3 then the registry's evWin" "$(_pcf 'UP 3')" "$(_pcf 'DOWN evWin')"
+_ofeq "parentChainT PC-4 then the registry" "$(_pcf 'UP 4' | cut -d' ' -f1)" "EvR"
+_ofeq "parentChainT PC-5 control: depth 1 was already right" "$(_pcf 'CONTROL evBody')" "$(_pcf 'DOWN evWin')"
+_ofeq "parentChainT PC-6 a field placed in two hosts: a copy per host, each with its own host" "$(_pcf 'TWO inA parent' | cut -d' ' -f1) $(_pcf 'TWO inB parent' | cut -d' ' -f1)" "evHostA evHostB"
+_ofeq "parentChainT PC-7 its one child, reached three ways, is one field" "$(_pcf 'TWO kid via A') $(_pcf 'TWO kid via B')" "$(_pcf 'TWO kid via entry') $(_pcf 'TWO kid via entry')"
+_ofeq "parentChainT PC-8 PINNED TODAY, intended NOT RULED: that child's parent is the registry entry, in neither host" "$(_pcf 'TWO kid parent')" "$(_pcf 'TWO entry')"
 #  flagAttrT -- an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1; docs/flagAttrRecon.md).
 #  FA-1 is the non-zero siblings' zero. FA-9 PINS A KNOWN DEFECT, NOT A WANT: noPrinT=0 writes the registry's own field number, because aCTionTraiT writes the value onto the entry (the value-capture half of incant/fixits/defineCapture). The cure moves that row.
 _faF=$(ip flagAttrT)

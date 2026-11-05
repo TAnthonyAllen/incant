@@ -372,6 +372,7 @@ extern "C" GroupItem *makeDataType(GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *makeNew(GroupItem *input);
 extern "C" GroupItem *markWindow(GroupItem *input);
 extern "C" int materialiseTerms(GroupItem *rule);
+extern "C" void memberRehome(GroupItem *source, GroupItem *copy);
 extern "C" int modifierIsRepeat(char *modifier);
 extern "C" void modify(GroupItem *field, char *modifier);
 extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat);

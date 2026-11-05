@@ -1,0 +1,86 @@
+Start();
+registry(EvR);
+define
+    evWin
+        evBody
+            evDeep
+                evLeaf;
+    evShared
+        evKid;
+    evHostA
+        evShared;
+    evHostB
+        evShared;
+    ;
+define
+    evRead code={
+        xw := EvR["evWin"];
+        xb := *xw["evBody"];
+        xd := *xb["evDeep"];
+        xl := *xd["evLeaf"];
+        cerr "PC DOWN evWin":;
+        addrOf(*xw);
+        cerr "PC DOWN evBody":;
+        addrOf(*xb);
+        cerr "PC DOWN evDeep":;
+        addrOf(*xd);
+        cerr "PC DOWN evLeaf":;
+        addrOf(*xl);
+        u1 <- *xl.parenT;
+        cerr "PC UP 1":;
+        addrOf(*u1);
+        u2 <- *u1.parenT;
+        cerr "PC UP 2":;
+        addrOf(*u2);
+        u3 <- *u2.parenT;
+        cerr "PC UP 3":;
+        addrOf(*u3);
+        u4 <- *u3.parenT;
+        cerr "PC UP 4":;
+        addrOf(*u4);
+        cerr "PC CONTROL evBody":;
+        c1 <- *xb.parenT;
+        addrOf(*c1);
+        };
+    evTwo code={
+        xr := EvR["evShared"];
+        xk := *xr["evKid"];
+        xa := EvR["evHostA"];
+        xsa := *xa["evShared"];
+        xb2 := EvR["evHostB"];
+        xsb := *xb2["evShared"];
+        xka := *xsa["evKid"];
+        xkb := *xsb["evKid"];
+        cerr "PC TWO entry":;
+        addrOf(*xr);
+        cerr "PC TWO inA":;
+        addrOf(*xsa);
+        cerr "PC TWO inB":;
+        addrOf(*xsb);
+        cerr "PC TWO kid via entry":;
+        addrOf(*xk);
+        cerr "PC TWO kid via A":;
+        addrOf(*xka);
+        cerr "PC TWO kid via B":;
+        addrOf(*xkb);
+        pk <- *xk.parenT;
+        cerr "PC TWO kid parent":;
+        addrOf(*pk);
+        pa <- *xsa.parenT;
+        cerr "PC TWO inA parent":;
+        addrOf(*pa);
+        pb <- *xsb.parenT;
+        cerr "PC TWO inB parent":;
+        addrOf(*pb);
+        };
+    ;
+evRead();
+evTwo();
+cerr "PC SENTINEL":;
+stop();
+
+ parentChainT: a member's parent is its enclosing field (Tony, 2026-11-05, R1, R2, R3; docs/parseLabelParent.md).
+ The question each row asks is H13's "is this the same FIELD", so it reads the field column: the stale twin shares its body with the right field, and only the field column tells them apart.
+ Field numbers are first-seen in the run, so pop.sh compares the walk up to the walk down, tag and number together. A row that names a tag cannot pass by a shallow walk.
+ Born red on trunk: UP 1 is the stale evDeep, UP 2 MemberS, UP 3 DefinE, UP 4 MemberS. The depth-1 control is right on both builds.
+ The twice-placed rows pin today; their intended value is not ruled.

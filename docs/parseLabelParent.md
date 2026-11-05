@@ -1,4 +1,4 @@
-# The parse-label parent (recon, 2026-11-05; nothing built, nothing on trunk but this file)
+# The parse-label parent (recon 2026-11-05; built on branch label-parent, unmerged, for the buy)
 
 RULED (Tony, 2026-11-04): a member's parent must be its enclosing field; forms' bubbling needs it. The cure's shape is not ruled.
 
@@ -34,5 +34,15 @@ So the parent is the right body on a stale field, and that stale field's own par
 - **No fleet row reads a member's parent chain**, so zero movers is evidence about what the fleet reads and nothing more (H12). A cure owes its own fixture: walk up from a depth-3 leaf and assert each hop by field against the walk down (H13's "same field" question: the field column, since the two share a body), with a depth-1 row that was already right as the control. The H7: remove the repoint and the depth-3 row goes red.
 - **137 `parent` mentions in *.twk / *.rtn were not audited.** Only behaviour under the instruments was measured.
 
-## The limit no parent fix removes (read, not measured)
+## BUILT (Tony, 2026-11-05, R1, R2; branch label-parent, unmerged)
+R1: keep the copy and repoint its children: `memberRehome(item,newMember)` at the one site in aCTionDefinE's member loop, only when `item.parent == MemberS`. A child whose parent is anything else is left alone.
+R2: `incant/pop/parentChainT`, field column, the walk up compared to the walk down. Born red on trunk (the same rows, trunk binary): UP 1 the stale evDeep, UP 2 MemberS, UP 3 DefinE, UP 4 MemberS. On the branch: evDeep, evBody, evWin, EvR, each the field reached going down. Control: depth 1 reads evWin on both builds, so it was already right.
+H7 (fix committed first; single fixture, alarm; .mm md5 identical after restore): the repoint removed reads exactly trunk's chain, red by value at PC-1 to PC-4.
+
+## A field placed in two hosts (R3, R4)
+MEASURED, today, on both builds (PC-6, PC-7, PC-8): `evShared` holding `evKid`, a member of both `evHostA` and `evHostB`. Each host gets its own copy, and each copy's parent is its own host. They share one body, so `evKid` is one field reached three ways. Its parent is the registry's evShared: it stays with the first definition, and is in neither host. PC-8 pins this. **Intended value: not ruled.**
+RULING OF DIRECTION (Tony, 2026-11-05, R4): the twice-placed problem's only cure is list copying, which is best avoided.
+A warning when a field is placed twice is a candidate for later. NOT BUILT.
+
+## The limit the repoint does not remove (read, then measured by PC-8)
 Children live in the shared body and each has ONE parent. A second field over the same body (a form used twice, a member added from an existing field, which keeps the copy path because its parent is not the label) has children pointing at only one of the fields. So a walk up is sound for one instance of a form and not for two. If forms ever need the same definition placed twice, bubbling should carry its path down from the hit test (a stack built on the way to the hit) instead of reading parents. **That is Tony's call and not needed for firstLight's one-level OK.**
