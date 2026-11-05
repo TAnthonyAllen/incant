@@ -301,7 +301,7 @@ DOCKET HEAD (Tony, SEQ 533 R1, 2026-11-04), the morning order:
       host. Start with why the trial's action does not fire (docs/traitRefRecon.md).
     2 aCTionDefinE flag attributes, recon first, then proceed unless it looks like a campaign (the entry below). Its own stroke, never with := or defineCapture B2.
     3 The parse-label parent, recon first.
-    4 SEQ 529 R1, the recursion measure (below). MEASURED 2026-11-05, docs/recursionMeasure.md: not recursion; a bare `argument` operand, new road vs old. Waits on Tony's ruling; S6 waits on it.
+    4 SEQ 529 R1, the recursion measure (below). RULED AND BUILT 2026-11-05 (R1, R2, R3), branch argument-binding, awaiting the buy; docs/argumentRecon.md. S6 unblocks at the buy.
     5 Forms items M5 colours and fonts, M3 fill, M4 stroke, in that order (IncantForms/WorkingOn/forms).
 DOCKET, behind that order (Tony, SEQ 528, 2026-11-04): docs/redLedger.md, ranked; silent wrong answers first. Its first row, ahead of every jitter item: THE TWO ROADS' INTERPRETED
     RECURSION DISAGREE -- `r = f(argument - 1); return r;` returning "s" reads r on the new road, s on the old. A language-level disagreement, measured once, not diagnosed.

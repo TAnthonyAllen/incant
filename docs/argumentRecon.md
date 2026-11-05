@@ -2,6 +2,17 @@
 
 Searches: `\*argument`, and bare `argument` beside an arithmetic or comparison operator, over every tracked file in incant, IncantForms, jitLadder, genLadder, Tests, XML. Positive control for the regex: ra (docs/recursionProbes) is in the list. Dynamic: a tap (clone, reverted) at the star sites and testOP over incant/pop, incant/fixits, unitTests, utilities, frontier, tester, parser, macros: 53 starred reads in 21 fixtures, every one holding a non-holder; bare in an operator on the new road, one fixture, newLocalArgT.
 
+## RESULT (built, branch argument-binding)
+Movers as registered: AL-3a, and nl3an under jitter (re-pinned, sentence in pop.sh). Nothing moved through the 39 respells.
+**Found after registration, none of them a row moving:**
+- new-road `iterate` could not read bare argument: opIterate followed nothing. It follows now.
+- new-road ITERATe DROPPED a star on its source (`iterate on *h` found no list; `*argument` could not refuse). It builds a deref instruct now.
+- `*argument` under jitter read a silent -1 on the old road. It is handed to run time now.
+- A refused star handed up null and the new road's outer operator ran on it (exit 139). A binary op whose target refused now ends its statement. A first, broader form moved newJitIfUnsetT and was narrowed.
+- The first copy of this fixture took the name argBindT, an existing fixture, and overwrote it. pop.sh's rows caught it; restored from git before any commit; this one is argRoadsT.
+**tester and IncantForms: no `*argument` site.** Their bare hits are listed below: `+%`, `+<` and `+/`, which the regex caught by its `+` and are not arithmetic, and one real compare, `IncantForms/Windows/bigify:111`, `if grup == argument;`, which reads the same under the follow. Nothing for Tony to respell.
+**H7s (fix committed first; single fixture, alarm; md5 identical after):** the follow removed -> every new-road row reads trunk's wrong value (Minus x, Lt no, Dot 6, Rec r); the refusal removed -> old silent -1, new exit 139; opIterate's follow removed -> IterBare new 0; the hand-over removed -> old -1 under jitter; the star builder removed -> IterStar new 2, StarSrc new 0, 3 refusals.
+
 ## Pre-registered movers
 
 (a) the follow: newLocalArgT AL-3a new road (self-call through argument) and its jitter row go to the old road's values. Nothing else, per the dynamic census.

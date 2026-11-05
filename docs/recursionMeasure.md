@@ -1,4 +1,6 @@
-# Ledger row 1, the recursion measure (Tony, SEQ 529 R1; measured 2026-11-05, trunk binary, nothing built). STOPS FOR A RULING.
+# Ledger row 1, the recursion measure (Tony, SEQ 529 R1; measured 2026-11-05, trunk binary)
+
+**RULED AND BUILT (Tony, 2026-11-05, R1; docs/argumentRecon.md, incant/pop/argRoadsT).** Argument is a binding, and bare `argument` is the spelling on both roads. The new road follows it before an operator runs, isArgument only. `*argument` on a non-holder refuses by name on both roads. The tables below are the state BEFORE that.
 
 Road: kant. Old = the action as defined; new = the same text through compileIn (KantGrammar STARt). Probes: docs/recursionProbes/ (rc, ra, rs; run from the repo root).
 
