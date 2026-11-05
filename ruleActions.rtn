@@ -339,7 +339,7 @@ use item
                     fLAG        = true;
                     method(item);
                     fLAG        = false; }
-                else {
+                or !flagAttribute(NewGroup,item) {
                     if tag eq "code" {
                         CodE                = item;
                         CodE.tag            = "CodE";
@@ -1149,6 +1149,21 @@ GroupItem   named = input[1],
     input.clearList();
     input.group = target;
     return input;
+}
+
+/*******************************************************************************
+    An attribute whose name is a GroupFields flag sets that flag on the field being
+    defined and is not added, as a noPrint immediate attribute is not (Tony, SEQ 533
+    R1). Only a name setGroupField can write; lastIndenT and processingCodE are not
+    flags, so they and every other name keep the ordinary path.
+*******************************************************************************/
+extern int flagAttribute(GroupItem host, GroupItem item)
+{
+GroupRules  ruler = groupRules;
+GroupItem   flagDef = ruler.groupFields[item.tag];
+    if !flagDef                                         return 0;
+    if flagDef.gCount == 411 || flagDef.gCount == 412   return 0;
+    return setGroupField(host,flagDef.gCount,1);
 }
 
 /*******************************************************************************

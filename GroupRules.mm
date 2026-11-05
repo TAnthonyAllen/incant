@@ -505,7 +505,9 @@ GroupItem 	*item = 0;
 				item->groupBody->gMethod(item);
 				item->groupBody->flags.fLAG = 0;
 				}
-			else {
+			else
+			if ( !flagAttribute(NewGroup,item) )
+				{
 				if ( ::compare(item->groupBody->tag,"code") == 0 )
 					{
 					CodE = item;
@@ -2788,6 +2790,23 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
+    An attribute whose name is a GroupFields flag sets that flag on the field being
+    defined and is not added, as a noPrint immediate attribute is not (Tony, SEQ 533
+    R1). Only a name setGroupField can write; lastIndenT and processingCodE are not
+    flags, so they and every other name keep the ordinary path.
+*******************************************************************************/
+extern "C" int flagAttribute(GroupItem *host, GroupItem *item)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*flagDef = ruler->groupFields->get(item->groupBody->tag);
+	if ( !flagDef )
+		return 0;
+	if ( flagDef->groupBody->gCount == 411 || flagDef->groupBody->gCount == 412 )
+		return 0;
+	return setGroupField(host,flagDef->groupBody->gCount,1);
 }
 
 // followArgument argument is a BINDING, not a field: an isArgument operand holding a group yields what it holds

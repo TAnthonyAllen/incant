@@ -188,6 +188,7 @@ extern "C" GroupItem *enclosingInstance(GroupItem *field);
 extern "C" RuleStuff *enclosingStuff(GroupItem *askField, RuleStuff *askStuff);
 extern "C" GroupItem *exitFromParse(GroupItem *field, int exitOK, char *exitAt, GroupItem *exitLab);
 extern "C" GroupItem *fAIL(GroupItem *input);
+extern "C" int flagAttribute(GroupItem *host, GroupItem *item);
 extern "C" GroupItem *followArgument(GroupItem *operand);
 extern "C" GroupItem *frameFind(GroupItem *action);
 extern "C" GroupItem *frameStak(GroupItem *action);
