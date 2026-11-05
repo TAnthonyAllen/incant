@@ -288,6 +288,7 @@ run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 #        lines 70-71   width=50% / text         (see incant/fixits/goldenDrift)
 #  ⚠ 2026-10-03 (SEQ 286): line 5 re-blessed (ifTest test:); lines 44-45 (Saw grup x2,
 #  unitTests:204 reads through the cursor) joined the unpinned set. All three: fixIts F-139.
+#  ⚠ 2026-11-05 (SEQ 535): testSetFrame added (SEQ 535). Its block is the golden's only new text; no other line moved.
 #  So a content diff turned on today comes up RED ON TWO CLUSTERS BY DESIGN. That
 #  is the pin being honest, NOT a regression -- do not "fix" it by re-pinning
 #  them, which is precisely the move goldenDrift's clause 2 prohibits: re-pinning
@@ -328,6 +329,15 @@ if [ "$_uft" = "is    Formatted maybe " ]; then
     echo "  ok    baselineTests formatTest (old road: the format applies to the expression before it) = [$_uft]"; green=$((green+1))
 else
     echo "  FAIL  baselineTests formatTest -- got [$_uft] want [is    Formatted maybe ]"; fail=1
+fi
+#  testSetFrame (Tony, SEQ 535, 2026-11-05): setFrame's trace, by value, depth kept (a tab reads >). UNBLESSED: pinned at TODAY'S values, which are WRONG:
+#  no child of simple or sample gets a frame, because setFrame is refused partway. Tony's reading of the trace becomes the intended values. stderr is filtered, because the merged file interleaves it.
+_tsf="$(sed -n '/^Setting frame for simple/,/^testSetFrame end/p' "$T/base" | grep -v '^REFUSED\|^ERROR' | tr '\t' '>' | xargs)"
+_tsfW="Setting frame for simple testSetFrame simple children with no frame: 3 of 3 simple x=100 y=100 w=250 h=212 >quinto x=- y=- w=150 h=- >sexto x=- y=- w=- h=12 >fifth x=- y=- w=- h=- Setting frame for sample testSetFrame sample children with no frame: 9 of 9 sample x=300 y=450 w=400 h=200 >second x=- y=- w=- h=- >third x=- y=- w=- h=- >>wrap x=- y=- w=- h=- >>>one x=- y=- w=- h=- >>two x=- y=- w=- h=- >>three x=- y=- w=50 h=- >>>stuff x=- y=- w=- h=- >fourth x=- y=- w=- h=12 >fifth x=- y=- w=- h=- testSetFrame end"
+if [ "$_tsf" = "$_tsfW" ]; then
+    echo "  ok    baselineTests testSetFrame UNBLESSED, today's values, frames wrong = [$_tsf]"; green=$((green+1))
+else
+    echo "  FAIL  baselineTests testSetFrame UNBLESSED MOVED -- got [$_tsf] want [$_tsfW]"; fail=1
 fi
 if [ -s "$T/base" ] && tail -1 "$(ip baselineTests.golden)" | grep -qFf - "$T/base"; then
     echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))

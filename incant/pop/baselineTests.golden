@@ -73,5 +73,24 @@ sample x=300 y=450 width=400 height=200
 			stuff text pad=6; 
 	fourth rounded pad fill=lightGreen height=12; 
 	fifth; 
+Setting frame for simple 
+testSetFrame simple children with no frame: 3 of 3 
+simple x=100 y=100 w=250 h=212 
+	quinto x=- y=- w=150 h=- 
+	sexto x=- y=- w=- h=12 
+	fifth x=- y=- w=- h=- 
+Setting frame for sample 
+testSetFrame sample children with no frame: 9 of 9 
+sample x=300 y=450 w=400 h=200 
+	second x=- y=- w=- h=- 
+	third x=- y=- w=- h=- 
+		wrap x=- y=- w=- h=- 
+			one x=- y=- w=- h=- 
+		two x=- y=- w=- h=- 
+		three x=- y=- w=50 h=- 
+			stuff x=- y=- w=- h=- 
+	fourth x=- y=- w=- h=12 
+	fifth x=- y=- w=- h=- 
+testSetFrame end 
 
 stop: ending input divert

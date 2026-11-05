@@ -309,6 +309,10 @@ reads back. Nothing below draws until the morning items are built.
 Candidate morning items (none ruled):
     M1 Layout pass: a kant walk that gives every field a frame from down, across, width, height and space. getFrame reads a
        field's own attributes only, so a child has no frame.
+       setFrame HEALTH (recon, Tony, SEQ 535, 2026-11-05). setFrame and fillDownAcross are KANT, in incant/utilities, read through the old road. Callers: setFrame itself, recursively, and setFrame calls fillDownAcross; then only testUnitTests' testSetFrame. IncantForms/Windows/tabs and incant/pop/oneTest name it below their stop, dead. Before today no fleet row reached it. GUI/Details.twk's setFrame is a different, C++ function and is not in the binary (nm: 0 Details symbols); Layout's are AppKit calls.
+       IT RUNS AND FRAMES NOTHING: exit 0, no crash, but no child of simple (3 of 3) or sample (9 of 9) gets a frame, and sumple (down=*) gets none. REFUSALS BY NAME: ++memberCount (never assigned, fillDownAcross), sideRoom -= width and pX += width where width or the cursor holds no number, sideOut += grup ("holds a group; say *"), ++sideOut (never assigned). A refusal ends the action, so simple stops at its first pass and sample's recursion never starts. The idioms are the language having tightened; it does not need the frame model or M1 to run at all, so no campaign STOP fired.
+       list and wraplist, the forms with ="*", do not parse: XML-era text. firstLight parses and frames nothing, the same way.
+       PINNED: testSetFrame, UNBLESSED, at today's wrong values; a trace for Tony's eye. Tony's reading becomes its intended values. Also wrong on its face: width=50% reads w=50, the % lost. Nothing fixed.
     M2 Text floor: no Core Text anywhere in the tree. One measure method and one pour command, keeping the count.
     M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses a field that has only fill=).
        RULED FOR M3 (Tony, 2026-11-05): setColor's per-field cache must not outlive a change to the value it came from; decide its shape when fill is built.

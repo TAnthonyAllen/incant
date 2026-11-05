@@ -299,7 +299,8 @@ Parked: fire(label), a command that fires a rule's action on a label with no
 NEXT SESSION (Tony, 2026-11-05, shutdown; docs/wakeup.md seal 342 carries the jitting arc's remaining rungs):
     1 R1's cure: after a refusal the new road ends the action, as the old road does. Its own stroke.
     2 S6 (call), per docs/jitterWalkRecon.md.
-    3 (Tony, 2026-11-05, afternoon, R2) An unknown flag name in a define refuses by name. Today it reaches setGroupField as field number 0 and is dropped silently (isMacrO is the worked case); if number 0 ever gets a case, every misspelled flag would quietly write it. RECON FIRST, a later morning. Nothing built.
+    3 (Tony, 2026-11-05, afternoon, SEQ 535 R1) M3 IS (a), NO COLOUR CACHE, A MORNING STROKE. setColor returns the colour and writes nothing to the colour node. The reader takes the field := holds, never the name, which cures the blue-wall defect. Find the 32 bytes a parse and cure its cause; if that cause is the allocator or GC, STOP and report it as its own item. BEFORE building, one recon line: does setFont share setColor's shape? forms, M3 RECON. Nothing built yet.
+    4 (Tony, 2026-11-05, afternoon, R2) An unknown flag name in a define refuses by name. Today it reaches setGroupField as field number 0 and is dropped silently (isMacrO is the worked case); if number 0 ever gets a case, every misspelled flag would quietly write it. RECON FIRST, a later morning. Nothing built.
 DOCKET HEAD, DONE but M3 and M4 (Tony, SEQ 533 R1, 2026-11-04), the morning order:
     1 := in a define, ahead of the listener because onClick needs it (R0 supersedes SEQ 532 R2; the listener stays parked). Its own rule with its own :=, refused in a rule
       host. Start with why the trial's action does not fire (docs/traitRefRecon.md).

@@ -301,6 +301,61 @@ define
         rk = testRecurK(5 - 1);
         print "testRecursion: should be 10 10 4 4. They are" rf rg rh rk:;
         };
+    /***************************************************************************
+        testSetFrame: lays out simple and sample and prints a trace for a glance.
+        Each form opens with a count of the children that have no frame, then one
+        line per field, indented by depth: name x y width height, a dash where
+        the field has none. The fleet pins today's values, UNBLESSED until Tony
+        has read the trace (SEQ 535, 2026-11-05). It runs last in testUnitTests
+        because setFrame rewrites what the printDefinitions above it print.
+    ***************************************************************************/
+    tsfNone;
+    tsfAll;
+    tsfCount code={
+        if argument.listLengtH;
+            for grup in argument; members
+                ++tsfAll;
+                tsfFull = 0;
+                if grup["x"];
+                    if grup["y"];
+                        if grup["width"];
+                            if grup["height"];
+                                tsfFull = 1;
+                if tsfFull == 0;
+                    ++tsfNone;
+                tsfCount(*grup);
+        };
+    tsfLine code={
+        :argument x y width height;
+        if argument["x"];       tx = string $"x=" x;
+        else                    tx = "x=-";
+        if argument["y"];       ty = string $"y=" y;
+        else                    ty = "y=-";
+        if argument["width"];   tw = string $"w=" width;
+        else                    tw = "w=-";
+        if argument["height"];  th = string $"h=" height;
+        else                    th = "h=-";
+        print ~taG tx ty tw th:;
+        if argument.listLengtH;
+            print +;
+            for grup in argument; members
+                tsfLine(*grup);
+            print $-;
+        };
+    tsfTrace code={
+        tsfNone = 0;
+        tsfAll = 0;
+        tsfCount(argument);
+        print "testSetFrame" argument.taG "children with no frame:" tsfNone "of" tsfAll:;
+        tsfLine(argument);
+        };
+    testSetFrame code={
+        setFrame(simple);
+        tsfTrace(simple);
+        setFrame(sample);
+        tsfTrace(sample);
+        print "testSetFrame end":;
+        };
 
     /***************************************************************************
         Unit test runner — calls every verified action in sequence.
@@ -329,5 +384,6 @@ define
         printDefinition(sumple);
         printDefinition(simple);
         printDefinition(sample);
+        testSetFrame();
         };
     ;
