@@ -1,4 +1,4 @@
-# The parse-label parent (recon 2026-11-05; built on branch label-parent, unmerged, for the buy)
+# The parse-label parent (recon 2026-11-05; bought, merge 24beb5f0)
 
 RULED (Tony, 2026-11-04): a member's parent must be its enclosing field; forms' bubbling needs it. The cure's shape is not ruled.
 
@@ -34,7 +34,7 @@ So the parent is the right body on a stale field, and that stale field's own par
 - **No fleet row reads a member's parent chain**, so zero movers is evidence about what the fleet reads and nothing more (H12). A cure owes its own fixture: walk up from a depth-3 leaf and assert each hop by field against the walk down (H13's "same field" question: the field column, since the two share a body), with a depth-1 row that was already right as the control. The H7: remove the repoint and the depth-3 row goes red.
 - **137 `parent` mentions in *.twk / *.rtn were not audited.** Only behaviour under the instruments was measured.
 
-## BUILT (Tony, 2026-11-05, R1, R2; branch label-parent, unmerged)
+## BUILT (Tony, 2026-11-05, R1, R2; bought)
 R1: keep the copy and repoint its children: `memberRehome(item,newMember)` at the one site in aCTionDefinE's member loop, only when `item.parent == MemberS`. A child whose parent is anything else is left alone.
 R2: `incant/pop/parentChainT`, field column, the walk up compared to the walk down. Born red on trunk (the same rows, trunk binary): UP 1 the stale evDeep, UP 2 MemberS, UP 3 DefinE, UP 4 MemberS. On the branch: evDeep, evBody, evWin, EvR, each the field reached going down. Control: depth 1 reads evWin on both builds, so it was already right.
 H7 (fix committed first; single fixture, alarm; .mm md5 identical after restore): the repoint removed reads exactly trunk's chain, red by value at PC-1 to PC-4.
