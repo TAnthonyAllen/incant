@@ -143,6 +143,14 @@ Event firing (Tony, 2026-11-04)
     A click selects the field first, as the old GUI did.
     Layout's mouseUp calls a kant extern.
     Firing is proved with a synthetic point and no window, after frames exist (M1).
+What a form is (Tony, offline status, 2026-11-05; the worked example is sample in incant/unitTests)
+    A form field's attributes are a little language, not assignments. fill=wall is a definition, not an expression assigning a value.
+    fill is a drawing command wearing an attribute dress: at layout, not at define, the layout process sees fill and fires its method to set the field's fill colour.
+    wall stays a field the user can change between layouts, so the colour changes without redefining the form. Look and feel: dark and light are fields, each holding its own wall (one of them on the search list), or actions that change wall.
+    Forms are dynamic and can change on layout: a window resize changes every dimension when setFrame runs.
+    Form fields can have methods or actions, fired on layout in left to right order.
+    The old GUI's somefield=$simpleValue did this binding at layout time; the new road seems to be evolving away from macros.
+    MEASURED 2026-11-05 (kant, tester delta, wall read back with .datA): the define does not yet keep this. wall=5 then walled fill=wall holds the value 5 and still reads 5 after wall=6. With wall empty at define, fill holds the name lateWall as text, which layout could locate. So fill=wall means two things, depending on whether wall holds a value when the define runs (docs/traitRefRecon.md G6, G7). OPEN, Tony's: see the 2026-11-05 note under the listener in macros. M3 (fill) depends on it.
 From the forms notes (forms plan, 2026-11-03)
     Vertical align is dropped in favour of space.
     Comments in a form are // text, with no braces in action bodies.

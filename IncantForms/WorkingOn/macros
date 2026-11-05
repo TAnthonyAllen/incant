@@ -332,6 +332,12 @@ PARKED by Tony 2026-11-04, may be redesigned as a cross-instance interaction too
     READ, NOT MEASURED (it cannot be reached while nothing arms): GroupItem.twk updateListeners calls runNotified(grup) ON THE
     NOTIFIER with the listener as argument -- the direction looks inverted (the listener should run against the notifier), and the
     notifier's setContent would re-enter updateListeners. Fixing the arming first will expose it.
+    2026-11-05, Tony's offline hunk (aae3d188): listenTo reads grup = locate(input) instead of input.group until := works in a define; change it back then. Still PARKED; he is working out what onNotify should do.
+    MEASURED 2026-11-05 (kant, deltas of tester, one case per run; no cure made):
+    - The inversion is real. His probe's "runNotified triggered by listenTEST" names the LISTENER as notifier. Every frame of the crash below has the same this: the notifier runs against itself. So get("onNotify") looks on the notifier, and an onNotify on the listener is not found.
+    - A listener holding a value crashes the notifier's next write: s2; pl=33 listenTo=s2; then s2=22 exits 139, stack overflow in updateListeners -> runNotified -> setContent -> copyData -> updateListeners. tester's listenTEST holds no value, so it exits 0 and simpleValue stays 22.
+    - The locate road holds only for a target with no value at define: keptValue=10; listenVal=44 listenTo=keptValue refuses, because the define hands over 10 (traitRefRecon G7), so listenVal is never armed.
+    OPEN, Tony's (same split as forms' fill=wall): does a form attribute's plain = keep the NAME whatever the target holds, or does fill take := as onClick does? sample spells fill=wall.
     Design half for Tony: kant's spelling for "b listens to a" (field=$anotherField from the forms; IncantForms/Notions/fungits
     sketches `someGroup listen to ...`). Gates every LISTENER row in IncantForms/WorkingOn/formsTable.
 Rule TL-7 -- RULED 2026-11-02 (SEQ 513): a top-level statement that finishes with a branch signal set is refused by name and the signal cleared. TL-7/8/9 pinned born red; the build is next.
