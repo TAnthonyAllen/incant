@@ -589,6 +589,9 @@ GroupItem 	*item = 0;
 		while ( item = MemberS->next(item) )
 			{
 			GroupItem 	*newMember = NewGroup->addMember(item);
+			// memberRehome the enclosing field got a copy, and a copy shares its children -- without this their parent is the source, whose parent is the parse label
+			if ( item->parent == MemberS && newMember != item )
+				memberRehome(item,newMember);
 			if ( newMember->isRuleTerm() && newMember->getRStuff() && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
 				if ( newMember->getRStuff()->max != 1 || newMember->getRStuff()->min != 1 )
 					{
@@ -8896,6 +8899,20 @@ int 		made = 0;
 		i++;
 		}
 	return made;
+}
+
+/*******************************************************************************
+    A member's children point at the field the parse built. When addGroup adds a
+    copy, they point at the copy instead (Tony, 2026-11-05; docs/parseLabelParent.md).
+    A child whose parent is anything else is left alone.
+*******************************************************************************/
+extern "C" void memberRehome(GroupItem *source, GroupItem *copy)
+{
+GroupItem 	*kid = 0;
+	if ( copy->groupBody->groupList )
+		while ( kid = copy->nextGroup(kid) )
+			if ( kid->parent == source )
+				kid->parent = copy;
 }
 
 // modifierIsRepeat THE MODIFIER CLASS PREDICATE: a presence test for repeatClass in the Modifiers registry, default flag -- a hand, not a witness
