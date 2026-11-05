@@ -1,3 +1,11 @@
+# ⚠⚠⚠ SEAL 338 AMENDED AGAIN 2026-11-05 -- label-parent BUILT, PUSHED, NOT MERGED, AWAITING THE BUY. ITEM 4 MEASURED, NOTHING BUILT, WAITING ON TONY'S RULING.
+#
+#   ## ONE PLAIN LINE: a member's parent chain now reaches its window on the branch; and ledger row 1 is not about recursion: the two roads disagree on a bare `argument` operand, and no one spelling works on both.
+#   ## label-parent (dcfc0ab5, live and GitHub, Tony's R1-R4; docs/parseLabelParent.md): memberRehome at the one site; parentChainT born red on trunk, green on the branch; H7 reads trunk's chain exactly; PC-8 pins the twice-placed child's parent, the registry entry, intended not ruled. Branch checks: pop.sh 2544 green (2534 + 10), nothing else moved but the fixture-name count; jitLadder 224 / 0; printPop, decodePop 0; ddPop 5 / 1; frontier = capture; canary 432. Trunk's binary is unchanged.
+#   ## ITEM 4, docs/recursionMeasure.md: runOPslots follows the binding, testOP does not. With `*argument` the new road recurses correctly at every depth and kind. Bare `argument - 1` refuses and `argument < 1` is silently false on the new road; `*argument` silently misreads on the old. NOT CURED. S6 waits on the ruling.
+#   ## A SLIP, NAMED, NOTHING LOST: `git checkout .` in the clone restored its path-rewritten files, so one retok read the live .rtn; the unmoved canary (431, wanted 432) and an empty diff caught it before any number was taken.
+#   ## NO ENGINE CODE ON TRUNK SINCE seal 338; this commit is docs and three probes.
+
 # ⚠⚠⚠ SEAL 338 AMENDED 2026-11-05 -- ITEM 3, THE PARSE-LABEL PARENT: RECON DONE, NOTHING BUILT (docs/parseLabelParent.md). THE SHAPE WAITS ON TONY.
 #
 #   ## ONE PLAIN LINE: below the first level a member's parent is a stale twin of its enclosing field, whose own parent is the parse label; keeping the copy and re-homing the children cures the chain in a clone, with no fleet mover.

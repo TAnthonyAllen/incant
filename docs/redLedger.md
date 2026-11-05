@@ -6,7 +6,7 @@ Every pinned red row and docket item from today. Silent wrong answers first, the
 | # | what is wrong | pinned | size |
 |---|---|---|---|
 | **Silent wrong answers** | | | |
-| 1 | **The two roads' interpreted recursion disagree.** `r = f(argument - 1); return r;` returning "s" reads `r` on the new road, `s` on the old. Language level, no jit involved; ahead of every jitter item. Measured once, not diagnosed. **The next opener (SEQ 529 R1): measure only, which road is right and why, then stop for a ruling on the cure; S6 waits on it** | unpinned | stroke |
+| 1 | **MEASURED 2026-11-05, docs/recursionMeasure.md: not recursion. A bare `argument` as an operand.** `argument - 1` refuses on the new road and `argument < 1` silently answers false, because testOP does not follow the binding as runOPslots does; `*argument` silently misreads on the old road. With `*argument` the new road recurses correctly. Waits on Tony's ruling (SEQ 529 R1). | AL-3a (the minus); the silent `<` unpinned | small, once ruled |
 | 2 | `v = u + 1` on an unwritten local: compiled reads 1, interpreted refuses. Row 12 rules its intended value: the refusal | UA | stroke |
 | 3 | `v = u` on an unwritten local: compiled copies 0, interpreted copies the tag's text. Same cure as row 2: a statement branches on the written mark and falls back | UC | stroke |
 | 4 | An old-road self-call returning a non-count: compiled reads 1, interpreted `s` or `1.5`. The build would have to know the callee's return kind | RS | stroke |
