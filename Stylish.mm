@@ -55,6 +55,19 @@ double 	right = 0;
 }
 
 /*******************************************************************************
+    The incant fontReport command says what a fONTs entry realised as: its family,
+    point size and whether it is bold. Nothing else can read a font from kant.
+*******************************************************************************/
+extern "C" GroupItem *fontReport(GroupItem *field)
+{
+	
+	NSFont *font = ::getFont(field);
+	if ( font ) ::fprintf(stderr,"FONT %s family=%s size=%g bold=%d\n",field->groupBody->tag,[[font familyName] UTF8String],(double)[font pointSize],(int)(([[font fontDescriptor] symbolicTraits] & NSFontDescriptorTraitBold) != 0));
+	
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
     Look up the color in the cOLOr registry, set its color object if needed and
     return the color object.
 *******************************************************************************/
@@ -171,6 +184,9 @@ unsigned int 	isValid = 0;
 unsigned int 	red = 0;
 unsigned int 	green = 0;
 unsigned int 	blue = 0;
+	// hashSkip a form spells a colour wall=#f7e8aa, and the # is no part of the hex (Tony, 2026-11-05)
+	if ( *atText == '#' )
+		atText++;
 	isValid = set->contains(atText);
 	if ( !isValid || ::strlen(atText) != 6 )
 		::printf("ERROR: expected a six character hex string not:%s\n",atText);

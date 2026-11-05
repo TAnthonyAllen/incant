@@ -323,6 +323,7 @@ define
     directives File='incant/directives';
     drawing File='XML/WorkingOn/drawing';
     utilities File='incant/utilities';
+    styles File='IncantForms/Controls/styles';
     unitTests File='incant/unitTests';
     generate File='incant/generate';
     jigcorpus File='incant/jigcorpus';

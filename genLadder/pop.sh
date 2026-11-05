@@ -8693,6 +8693,29 @@ fdRow "opMixT L8 tokab + tokcd, jitR" "$(_omv L8 jitR)" "o8J 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int" "$(_omv L8 int)" "o8I 0" "abcd 13"
 fdRow "opMixT L8 tokab + tokcd, int2" "$(_omv L8 int2)" "o8I 0" "abcd 13"
 
+#  stylesT -- M5 (Tony, 2026-11-05; docs/m5Recon.md): IncantForms/Controls/styles' colours and fonts, realised through the real paths, read BY PIXEL and by the font NSFont reports. The file is NOT on the default search list until defineCapture B2 lands. H7: the # skip removed.
+_stF=$(ip stylesT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_stF" > "$T/st.o" 2> "$T/st.e"; _stX=$?
+_ofeq "stylesT exit status" "$_stX" "0"
+_ofeq "stylesT sentinel" "$(grep -c '^ST SENTINEL' "$T/st.e")" "1"
+_stp () { grep "^=== pixelAt $1 " "$T/st.o" | sed 's/.* = //; s/ ===.*//'; }
+_ofeq "stylesT ST-1 not loaded, and loaded but not searched: wall is not found, nothing drawn" "$(_stp stPreCanvas) / $(_stp stPre2Canvas) $(grep -c '^getColor: ERROR could not find wall' "$T/st.e")" "r0 g0 b0 a0 / r0 g0 b0 a0 2"
+_ofeq "stylesT ST-2 searched explicitly, the registries hold 14 and 7" "$(grep '^ST counts' "$T/st.e" | xargs)" "ST counts colours= 14 fonts= 7"
+_ofeq "stylesT ST-3 setColor: a bare hex and a # hex realise alike" "$(_stp stBareCanvas) / $(_stp stHashCanvas)" "r255 g0 b0 a255 / r255 g0 b0 a255"
+_ofeq "stylesT ST-4 five hex characters after the # still refuse: the skip takes the #, nothing more" "$(_stp stBadCanvas) $(grep -c '^ERROR: expected a six character hex string not:12345' "$T/st.o")" "r0 g0 b0 a0 1"
+for _stc in "red r239 g43 b45" "blue r0 g81 b186" "lightBlue r206 g255 b255" "lightGreen r175 g211 b120" "radialGreen r175 g211 b120" "green r0 g158 b15" "paleGray r241 g241 b241" "gray r214 g216 b211" "darkerGray r175 g188 b191" "wall r247 g232 b170" "white r255 g255 b255" "black r0 g0 b0" "saberBrown r230 g209 b162" "darkBrown r107 g71 b20"; do
+    _ofeq "stylesT colour ${_stc%% *}" "$(_stp "can${_stc%% *}")" "${_stc#* } a255"
+done
+_stf () { grep "^FONT $1 " "$T/st.e" | sed "s/^FONT $1 //"; }
+_ofeq "stylesT font courierFont" "$(_stf courierFont)" "family=Courier New size=24 bold=1"
+_ofeq "stylesT font titleFont" "$(_stf titleFont)" "family=Palatino size=24 bold=1"
+_ofeq "stylesT font headerFont" "$(_stf headerFont)" "family=Palatino size=14 bold=1"
+_ofeq "stylesT font normalFont (bold off, the sibling)" "$(_stf normalFont)" "family=Palatino size=14 bold=0"
+_ofeq "stylesT font copperFont" "$(_stf copperFont)" "family=Copperplate size=12 bold=0"
+_ofeq "stylesT font defaultFont" "$(_stf defaultFont)" "family=Helvetica size=10 bold=0"
+#  Its family is not on every machine, and on this one it falls back to the system font, not bold, silently (H3: the size is what the file controls).
+_ofeq "stylesT font EBgaramondFont: the size arrives" "$(_stf EBgaramondFont | sed 's/.*size=\([0-9]*\).*/\1/')" "18"
+_ofeq "stylesT ST-5 PINNED DEFECT, defineCapture's family, why the file is off the default search list: an attribute red=5 writes the colour" "$(grep '^ST capture red' "$T/st.e" | xargs)" "ST capture red kind= 5 value= 5"
 #  argRoadsT -- argument is a binding, and bare argument is the spelling on both roads (Tony, 2026-11-05, R1; docs/argumentRecon.md). Each pair: the same text on both roads, at 0 and at 3, so a row cannot pass on a constant. Born red on trunk: every new-road row here.
 _arF=$(ip argRoadsT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_arF" > "$T/ar.o" 2> "$T/ar.e"; _arX=$?
