@@ -8588,7 +8588,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" GroupItem *listenTo(GroupItem *input)
 {
 GroupItem 	*listener = input->parent;
-GroupItem 	*grup = input->getGroup();
+GroupItem 	*grup = GroupControl::groupController->locate(input);
 GroupItem 	*notifyList = 0;
 	if ( grup && input->groupBody->flags.fLAG )
 		{
