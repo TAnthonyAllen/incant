@@ -1,3 +1,11 @@
+# ⚠⚠⚠ SEAL 340 AMENDED 2026-11-05 -- M5 BUILT ON BRANCH m5-styles, PUSHED, NOT MERGED, AWAITING THE BUY (54849ce6; support 52e7384). S6 WAITS FOR ITS OWN DISPATCH.
+#
+#   ## ONE PLAIN LINE: on the branch, all 14 colours reach their pixel, spelled with a #, and all 7 fonts load; the styles file is off the default search list until defineCapture B2 lands.
+#   ## RULED AND RECORDED ON THE BRANCH (forms, Rulings of record; Tony, 2026-11-05): style resolution is written in jittable kant; C++ is only the drawing floor, each method short and doing one thing; style code runs interpreted until S6 compiles calls, and is S6's natural proving ground after that.
+#   ## BRANCH CHECKS: pop.sh 2596 green (2568 + stylesT's 28), 60 FAIL rows, nothing else moved but the fixture-name count · H7 the # skip removed: 14 colours and the # control read r0 g0 b0 a0, 16 hex refusals · jitLadder 224 / 0 · printPop, decodePop 0 · ddPop 5 / 1 · frontier = capture · canary 434 · anchors on setColor, fontReport, getFont: 0.
+#   ## NOTED: EBgaramondFont's family is not installed here and falls back to the system font, not bold, silently; its row pins the size. ST-5 pins red=5 writing the colour. setColor's cache on the field is M3's question.
+#   ## NO ENGINE CODE ON TRUNK SINCE seal 340; this commit is this note.
+
 # ⚠⚠⚠ SEALED 2026-11-05 (340) ON TRUNK -- argument-binding BOUGHT (merge 18829d00). NO SHUTDOWN YET. M5 BUILDS ON ITS OWN BRANCH FOR THE BUY. S6 IS UNBLOCKED AND WAITS FOR ITS OWN DISPATCH.
 #
 #   ## ONE PLAIN LINE: bare argument reads the same on both roads, and *argument on a plain value refuses by name.
