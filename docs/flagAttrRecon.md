@@ -40,3 +40,7 @@ aCTionTraiT writes the value onto the trait, and the trait IS the GroupFields en
 - A flag name with no write case (isRulE, isLocaL, hasMemberS and the rest) keeps the ordinary path: flag off, attribute added, silently (FA-6). The same name under `:.` warns. Worth a word from Tony; not ruled.
 - `isBiN` writes the kind only, with no guard, as `x :. isBiN` does. The `bin` command sets one too.
 - opDot has no read case for isVirtuaL, mergeON or byReF, so FA-5 asserts only that they were not added.
+
+## H7 (fix committed first; single fixture, alarm; .mm md5 identical after restore)
+flagAttribute answering 0: FA-2, FA-3, FA-10 go red (flag off, attribute added).
+The gate, each arm off alone: the 411 arm off, `lastIndenT` writes the parser's lastIndent, and the parse stops with `ABANDONED` at the next indented line, exit 0; the 412 arm off, `processingCodE` refuses by name and the definition is removed, the run going on. The gate is load-bearing for the 411 arm. Dictated as seal 50's processingCodE halt in aCTionXpress (Tony, 2026-11-05); measured otherwise and reported to him: that door closed at SEQ 297 R2, when the write began to refuse, and this fixture spells only lastIndenT.
