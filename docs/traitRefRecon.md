@@ -4,11 +4,11 @@ RULED (Tony, SEQ 533 R0, 2026-11-04): `:=` in a define is first on the morning d
 
 Below "BUILT" is the recon as of 2026-11-04: the trial ran in a clone, and its pin is `incant/pop/traitGridT`, 24 rows.
 
-## BUILT, SEQ 534 (Tony's rulings, 2026-11-05; branch define-ref)
+## BUILT, SEQ 534 (Tony's rulings, 2026-11-05; bought, merge 294d2087)
 R1: a form attribute that means a field is spelled `:=` (`fill:=wall`, `onClick:=`). Plain `=` stays a value copy. R2: no respell and no census; each form changes on a forms afternoon when it comes up for repair. R3: proved on its own fixture, `incant/pop/defineRefT`; no forms file touched; the temporary `locate(input)` in listenTo reverted. R4: listening stays parked.
 - **Why the trial's action did not fire: NOT RECOVERED.** The trial's clone is gone. A fresh build with the same shape (one new literal, TraiTref a term of TraiT, a marker in the action) fired on the first run. The only thing the old table is good for is "the attribute reads kind 0", which follows anyway: aCTionTraiT never read TraiTref in the trial.
 - Grammar: `BindOp` (the literal `:=`, beside ColoN and EquaL); `TraiTref  BindOp- GrouP`; `TraiT  GrouP Modifier* TraiTref? TraiTdata?` (GroupMain.twk).
-- aCTionTraiTref locates the name now and holds the field. A name that does not locate refuses by name, so a forward reference refuses too (not ruled; easy to change).
+- aCTionTraiTref locates the name now and holds the field. A name that does not locate refuses by name, so a forward reference refuses too. RULED (Tony, 2026-11-05): it stays a loud refusal until a form needs one.
 - aCTionTraiT copies the held field to the trait and leaves a noPrint `traitRef` property; traitRefMarks, called from aCTionDefinE where the host is known, spends every mark and refuses in a rule host. No GroupBody bit, no layout change.
 - A held action fires with `fire := **h; *fire();`. Bare `fire();` on that holder does nothing and says nothing (context, measured once).
 - H7 (fix committed first; single fixture under an alarm; `.mm` md5 identical after restore): the action hands a value copy -> DR-1, DR-3 read kind 5; the rule-host arm off -> 0 refusals and the rule host stands; listenTo back to locate -> DR-7 reads 2 and DR-8 reads 0.
