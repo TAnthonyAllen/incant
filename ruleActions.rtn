@@ -669,7 +669,13 @@ int         attrOn,
         if source   = srcOp ? IterSource[2] : IterSource[1]
         if source.isGROUP   source = source.group;
         if srcOp
-            if srcOp.tag eq "*" source = opDeref(source);
+            if srcOp.tag eq "*" {
+                if starOnPlainArgument(source) {
+                    iterator.fLAG = 1;
+                    if jitting { -% ::jitCursorHandOver(iterator); %- }
+                    return refuseStarArgument(source); }
+                if source.isArgument    source = source.group;
+                source = opDeref(source); }
             else source = refuse(source,"iterate: only * may precede the source"); }
     if !source {
         // nullAfterStar    THE CONSUMER OF THE NULL REFUSES

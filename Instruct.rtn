@@ -1252,6 +1252,10 @@ int         attributes,
     if aMark && aMark.gCount    attributes = 1;
     if mMark && mMark.gCount    members = 1;
     -% if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); %-
+    // starRefused a starred source that refused stops here, by its own name
+    if !source  return null;
+    // argBinding bare argument reads what it is bound to, as an operator's operand does (R1a)
+    source = followArgument(source);
     if !iterateSetup(cursor,source,attributes,members)
         return refuse(source,"iterate: the source has no list");
     return null;

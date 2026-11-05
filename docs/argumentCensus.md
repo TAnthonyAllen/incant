@@ -66,8 +66,8 @@ for an action with none yet it mints one as a local of that action.
 env-gated tap in resolveName (generated `.mm`, reverted, binary byte-identical): building `nl3an` on the new road, the
 word `argument` finds nothing on `nl3an`, so resolveName mints `nl3an`'s OWN local `argument` (isLocal, parent `nl3an`);
 runAction later binds that same field. The old road does the same for `nl3ao`. Rule code in the same run resolved to its
-CodE's pre-minted field (31 resolutions, owner CodE). So AL-3a's `lv3a = argument` copies a holder (the SEQ 503/504
-mechanism -- holder arithmetic refuses on both roads by ruling), not another action's or a rule's field.
+CodE's pre-minted field (31 resolutions, owner CodE). So AL-3a's `lv3a = argument` copied a holder, not another action's or a rule's field.
+⚠ **CORRECTED 2026-11-05 (Tony, R3):** this read "holder arithmetic refuses on both roads by ruling". For a bare `argument` that was false: the old road's runOPslots followed the binding first, so `argument - 1` never refused there and the two roads disagreed (docs/recursionMeasure.md). SEQ 504 R0 stands for every OTHER holder (`hz - 1` refuses, `*hz - 1` reads through; argRoadsT AR-7). By R1a the new road now follows the binding too, so AL-3a reads 0 / 1 / 2.
 ⚠ **CORRECTION, dated 2026-11-03 (SEQ 518):** seal 302 (SEQ 502, 2026-11-01) recorded that a new-road action body's
 `argument` "is resolved at BUILD, before runAction mints the action's argument at its first call, so it lands on another
 action's argument field". Measured today it does not: the tap above saw resolveName mint the action's OWN local and

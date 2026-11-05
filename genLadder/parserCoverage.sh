@@ -33,7 +33,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(PcovPop);
 define
     pcWalk code={
-        iterate pcCur members on *argument;
+        iterate pcCur members on argument;
         while ++pcCur;
             if noPrinT;             continue;
             if binTypE;             continue;

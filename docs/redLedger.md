@@ -6,13 +6,14 @@ Every pinned red row and docket item from today. Silent wrong answers first, the
 | # | what is wrong | pinned | size |
 |---|---|---|---|
 | **Silent wrong answers** | | | |
-| 1 | **MEASURED 2026-11-05, docs/recursionMeasure.md: not recursion. A bare `argument` as an operand.** `argument - 1` refuses on the new road and `argument < 1` silently answers false, because testOP does not follow the binding as runOPslots does; `*argument` silently misreads on the old road. With `*argument` the new road recurses correctly. Waits on Tony's ruling (SEQ 529 R1). | AL-3a (the minus); the silent `<` unpinned | small, once ruled |
+| 1 | **CURED on branch argument-binding, awaiting the buy (Tony, R1): a bare `argument` follows on the new road; `*argument` on a non-holder refuses on both.** docs/recursionMeasure.md. | argRoadsT | done at the buy |
 | 2 | `v = u + 1` on an unwritten local: compiled reads 1, interpreted refuses. Row 12 rules its intended value: the refusal | UA | stroke |
 | 3 | `v = u` on an unwritten local: compiled copies 0, interpreted copies the tag's text. Same cure as row 2: a statement branches on the written mark and falls back | UC | stroke |
 | 4 | An old-road self-call returning a non-count: compiled reads 1, interpreted `s` or `1.5`. The build would have to know the callee's return kind | RS | stroke |
 | 5 | A handed-over new-road writer of unknown kind outside any arm gives no kind, so a later native writer decides the slot. Read from the code, not measured | unpinned | small to pin, stroke to cure |
 | 6 | A for body's writers ignore its if arms when choosing a kind, so walk order can pick the wrong first writer. Read from the code, not measured | unpinned | small |
 | **Crashes** | | | |
+| 1a | `w = *p - 1`, `p` a plain local, new road: exit 139, the null star reaches opMinus as its target; the old road reads a silent -1. Any non-argument star, so not R1b; found 2026-11-05. docs/recursionProbes/ has the shape | unpinned | small |
 | 7 | An old-road action calling a new-road action under `jitter;` segfaults at compile: inlining runs the callee's chain with jitting on. Likely a guard that hands the call over | oldCallsNewT | small |
 | **Loud refusals** | | | |
 | 8 | `m6 += 5` on the new road refuses "Operator += failed", where the old road adds | newPlusEqT | stroke |

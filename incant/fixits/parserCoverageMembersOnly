@@ -8,7 +8,7 @@ define
     pmAttrs=0;
     pmBins=0;
     pmM code={
-        iterate pmC members on *argument;
+        iterate pmC members on argument;
         while ++pmC;
             if noPrinT;     continue;
             if binTypE;     ++pmBins;
@@ -19,7 +19,7 @@ define
             ++pmMembers;
         };
     pmA code={
-        iterate pmC attributes on *argument;
+        iterate pmC attributes on argument;
         while ++pmC;
             if noPrinT;     continue;
             ++pmAttrs;
@@ -39,7 +39,7 @@ BLAST: DISJOINT
 OWNER: Clod     (SEQ 330, Tony 2026-10-09; banked from the (a) recon -- ⚠ RE-AIMED AT FILING, see below)
 
 parserCoverageMembersOnly -- genLadder/parserCoverage.sh asks "how many grammar rules does parser() generate and compile",
-and its population walk is `iterate pcCur members on *argument` over Grokking. Grokking's ATTRIBUTE rules are never in it
+and its population walk is `iterate pcCur members on argument` over Grokking. Grokking's ATTRIBUTE rules are never in it
 -- ExpressioN and Token among them -- yet parser(Start) generates and compiles them (walkRules descends every term). The
 cost, measured 2026-10-09 (SEQ 329 R2): with the switch on, Token's generated body,
 `return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();`, is refused and silences every new-road expression

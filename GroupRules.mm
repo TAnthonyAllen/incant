@@ -830,7 +830,20 @@ int 		memOn = 0;
 				source = source->getGroup();
 		if ( srcOp )
 			if ( ::compare(srcOp->groupBody->tag,"*") == 0 )
+				{
+				if ( ::starOnPlainArgument(source) )
+					{
+					iterator->groupBody->flags.fLAG = 1;
+					if ( GroupControl::groupController->groupRules->jitting )
+						{
+						 ::jitCursorHandOver(iterator); 
+						}
+					return ::refuseStarArgument(source);
+					}
+				if ( source->groupBody->flags.isArgument )
+					source = source->getGroup();
 				source = ::opDeref(source);
+				}
 			else	source = ::refuse(source,"iterate: only * may precede the source");
 		}
 	if ( !source )
@@ -9857,6 +9870,11 @@ int 		members = 0;
 	if ( mMark && mMark->groupBody->gCount )
 		members = 1;
 	 if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); 
+	// starRefused a starred source that refused stops here, by its own name
+	if ( !source )
+		return 0;
+	// argBinding bare argument reads what it is bound to, as an operator's operand does (R1a)
+	source = ::followArgument(source);
 	if ( !::iterateSetup(cursor,source,attributes,members) )
 		return ::refuse(source,"iterate: the source has no list");
 	return 0;
@@ -11869,6 +11887,12 @@ extern "C" int refuseLookupMiss(GroupItem *op, GroupItem *lookup)
 	
 }
 
+// refuseStarArgument *argument on a non-holder refuses by name, on both roads (Tony, 2026-11-05, R1b); a star on any other plain field still yields null (Instruct.opDeref.starRuling)
+extern "C" GroupItem *refuseStarArgument(GroupItem *raw)
+{
+	return ::refuse(raw,"`*argument` -- argument is a binding and bare argument reads it; a star needs it bound to a holder");
+}
+
 // refuseTopSignal TOPSTATEMENt's run (SEQ 516): run the statement through testOP; a signal still set when it finishes reached the top level unlanded -- refuse it by name and clear it
 extern "C" GroupItem *refuseTopSignal(GroupItem *stmt)
 {
@@ -12502,6 +12526,8 @@ GroupItem 	*arg = 0;
 				op = ruler->opFields->get("negate");
 			if ( ::compare(op->groupBody->tag,"*") == 0 )
 				op = ruler->opFields->get("deref");
+			// starArgument what the argument holds is known only at run time, so a *argument runs there, where it reads through or refuses (R1b)
+			 if ( op == ruler->opFields->get((char*)"deref") && field->get(2) && field->get(2)->groupBody->flags.isArgument ) { ::jitHandOver((char*)"a star on the argument -- what it holds is known only at run time",field); return 0; } 
 			val = runOPaccumOperand(field->get(2));
 			// valueTarget ++ or -- on a computed value refuses by name on the jit road too (SEQ 365 R0)
 			if ( ::refuseValueTarget(op,val) )
@@ -12518,6 +12544,8 @@ GroupItem 	*arg = 0;
 			op = ruler->opFields->get("negate");
 		if ( ::compare(op->groupBody->tag,"*") == 0 )
 			op = ruler->opFields->get("deref");
+		if ( op == ruler->opFields->get("deref") && ::starOnPlainArgument(field->get(2)) )
+			return ::refuseStarArgument(field->get(2));
 		// nullDeref a star handed NOTHING refuses by name before opDeref, which reads its operand's body and crashed on a null (SEQ 327 D3); only the star -- `!` of a false compare is a lawful null
 		if ( !val )
 			if ( op == ruler->opFields->get("deref") )
@@ -13075,6 +13103,16 @@ char 		*deeper = 0;
 	return 1;
 }
 
+// starOnPlainArgument 1 when a star's operand is the argument and what it is bound to holds no group; read without followArgument, which emits under jitting
+extern "C" int starOnPlainArgument(GroupItem *raw)
+{
+	
+	if ( !raw || !raw->groupBody->flags.isArgument ) return 0;
+	GroupItem *bound = isGROUP(raw->groupBody->flags.data) ? raw->getGroup() : raw;
+	return !bound || !isGROUP(bound->groupBody->flags.data);
+	
+}
+
 /*******************************************************************************
 	Immediate method for the stop command.
 *******************************************************************************/
@@ -13132,6 +13170,19 @@ GroupItem 	*lookup = 0;
 	// lookupMiss a by-name lookup on the left of an assign that finds nothing refuses by name, and the assign never sees the null (SEQ 443 R1')
 	if ( !target && ::refuseLookupMiss(op,lookup) )
 		return 0;
+	// refusedOperand an operand that refused hands up null, and a binary op must never run on it (exit 139); the statement ends here, the next one still runs
+	 if ( !target && !op->groupBody->flags.isUnary && GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; 
+	if ( op->groupBody->flags.isUnary && ::compare(op->groupBody->tag,"deref") == 0 )
+		{
+		GroupItem 	*starred = argument ? argument : target;
+		if ( ::starOnPlainArgument(starred) )
+			return ::refuseStarArgument(starred);
+		}
+	// argBinding argument is a BINDING on this road too (Tony, 2026-11-05, R1a): isArgument fields only, as runOPslots; no other holder is followed
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	argument = ::followArgument(argument);
 	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
 	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);

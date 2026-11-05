@@ -24,7 +24,7 @@ define
     crBag   crAlpha crBeta;
     crN;
     crWalk code={
-        iterate crCur on *argument;
+        iterate crCur on argument;
         while ++crCur;
             ++crN;
             cerr "CR-A" crN " bare=" taG " explicit=" crCur.taG:;

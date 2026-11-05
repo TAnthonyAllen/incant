@@ -852,6 +852,24 @@ int         silent = 0;
 }
 
 
+// starOnPlainArgument 1 when a star's operand is the argument and what it is bound to holds no group; read without followArgument, which emits under jitting
+extern int starOnPlainArgument(GroupItem raw)
+{
+    -%
+    if ( !raw || !raw->groupBody->flags.isArgument ) return 0;
+    GroupItem *bound = isGROUP(raw->groupBody->flags.data) ? raw->getGroup() : raw;
+    return !bound || !isGROUP(bound->groupBody->flags.data);
+    %-
+}
+
+
+// refuseStarArgument *argument on a non-holder refuses by name, on both roads (Tony, 2026-11-05, R1b); a star on any other plain field still yields null (Instruct.opDeref.starRuling)
+extern GroupItem refuseStarArgument(GroupItem raw)
+{
+    return refuse(raw,"`*argument` -- argument is a binding and bare argument reads it; a star needs it bound to a holder");
+}
+
+
 // refuseArgRebind a := or <- on the argument refuses by name, tested BEFORE the follow, which destroys the evidence; 1 when it refused
 extern int refuseArgRebind(GroupItem op,GroupItem target)
 {
@@ -1326,6 +1344,8 @@ GroupItem   op, val, arg;
             op = field[1];
             if op.tag eq "-"    op = ruler.opFields["negate"];
             if op.tag eq "*"    op = ruler.opFields["deref"];
+            // starArgument what the argument holds is known only at run time, so a *argument runs there, where it reads through or refuses (R1b)
+            -% if ( op == ruler->opFields->get((char*)"deref") && field->get(2) && field->get(2)->groupBody->flags.isArgument ) { ::jitHandOver((char*)"a star on the argument -- what it holds is known only at run time",field); return 0; } %-
             val = runOPaccumOperand(field[2]);
             // valueTarget ++ or -- on a computed value refuses by name on the jit road too (SEQ 365 R0)
             if refuseValueTarget(op,val)    return null;
@@ -1336,6 +1356,7 @@ GroupItem   op, val, arg;
         val = runOPaccumOperand(field[2]);
         if op.tag eq "-"    op = ruler.opFields["negate"];
         if op.tag eq "*"    op = ruler.opFields["deref"];
+        if op == ruler.opFields["deref"] && starOnPlainArgument(field[2])   return refuseStarArgument(field[2]);
         // nullDeref a star handed NOTHING refuses by name before opDeref, which reads its operand's body and crashed on a null (SEQ 327 D3); only the star -- `!` of a false compare is a lawful null
         if !val
             if op == ruler.opFields["deref"]    return refuse(op,"a star on an operand that is nothing -- the inner read yielded null (the accumulator candidate, SEQ 327 D3)");
@@ -1575,6 +1596,15 @@ GroupItem   target = field[2],
     -% if ( target && (void*)target->groupBody->gMethod == (void*)&testOP ) { lookup = target; target = ::testOP(target); } %-
     // lookupMiss a by-name lookup on the left of an assign that finds nothing refuses by name, and the assign never sees the null (SEQ 443 R1')
     if !target && refuseLookupMiss(op,lookup)   return null;
+    // refusedOperand an operand that refused hands up null, and a binary op must never run on it (exit 139); the statement ends here, the next one still runs
+    -% if ( !target && !op->groupBody->flags.isUnary && GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; %-
+    if op.isUnary && op.tag eq "deref" {
+        GroupItem starred = argument ? argument : target;
+        if starOnPlainArgument(starred)     return refuseStarArgument(starred); }
+    // argBinding argument is a BINDING on this road too (Tony, 2026-11-05, R1a): isArgument fields only, as runOPslots; no other holder is followed
+    if refuseArgRebind(op,target)   return null;
+    target      = followArgument(target);
+    argument    = followArgument(argument);
     // unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
     if op.isUnary && argument   result = op.method(argument);
     or op.isUnary               result = op.method(target);
