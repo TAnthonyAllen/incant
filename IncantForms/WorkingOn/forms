@@ -190,7 +190,7 @@ Later: the drawing language, then print / typesetting.
 *******************************************************************************/
 1  CLOSED 2026-11-04: event-time firing is ruled (rulings above). Its conflict is closed too (Tony, SEQ 533 R0): SEQ 532 R2 is superseded,
    and := in a define is built for onClick, ahead of the listener, which stays parked. Its own rule with its own :=, refused in a rule host.
-2  The listener's spelling, PARKED: how kant spells "b listens to a", and which way updates flow. See A2.
+2  The listener's spelling, UNPARKED 2026-11-05: `b listenTo:=a` copies a's value to b on each write. onNotify is not built; see macros, THE LISTENER.
 3  CLOSED 2026-11-04: the border-side spelling is ruled (rulings above), and pad is dropped.
 4  Emphasis inside a paragraph whose style comes from its framing field.
 5  The drawing language in kant. It needs multi-argument C++ calls, so it comes after the jitter (A5).
