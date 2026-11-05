@@ -312,6 +312,33 @@ Candidate morning items (none ruled):
     M2 Text floor: no Core Text anywhere in the tree. One measure method and one pour command, keeping the count.
     M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses a field that has only fill=).
        RULED FOR M3 (Tony, 2026-11-05): setColor's per-field cache must not outlive a change to the value it came from; decide its shape when fill is built.
+       M3 RECON (Tony's dispatch, 2026-11-05, afternoon; paper only, measured in kant on the bare binary, no trunk code; no STOP fired: no shape needs a new GroupItem field or touches the frame model).
+       RECOMMENDATION, FOR TONY'S RULING: (a), no cache. The lean said (c) only if (a) costs anything noticeable, and it does not.
+
+       WHAT M5'S setColor CACHES TODAY. Not on the fill host and not a static: on the COLOUR NODE's body, as its value. setObject writes gObject and sets the data kind to isOBJECT. There is no key; the kind IS the test (getColor: if !isOBJECT setColor). The sole reader is getColor's item.object, and getColor's sole caller is displayFillRT.
+       THE RULING IS ALREADY MET FOR A WRITE: a write sets a new kind, so the next read re-parses. wall "#ff0000" between two draws read f7e8aa then ff0000, and setColor's hit count was 1001 over 1000 write-and-draw loops. Copying a realised colour (wall=otherC) copies the kind and the pointer, draws correctly, and parses nothing.
+       BUT THE CACHE DOES HARM, and this is what decides it. It REPLACES the value:
+         wall before realising: #f7e8aa, kind 14. After: "data type has no toString() method", kind 10. So one draw makes a colour unreadable, and fill:=wall reads the same through its holder.
+         A listener hears it: realising a listened-to colour runs setObject's updateListeners, so a draw changes the LISTENER too. lcHear went from 1, kind 5, to no readable value, kind 10.
+
+       HOW fill:=wall REACHES setColor AT LAYOUT: IT DOES NOT, TWO WAYS. There is no layout pass (M1) and no reader of fill= (M3 itself). The nearest road is a style's fillColor through displayFillRT, so the two "layouts" below are two draws.
+         fill:=wall holds the field, and reads wall's current value through the holder: #f7e8aa, then #ff0000 after the write (kind 6 on the attribute, DR-1 pins it).
+         fillColor:=wall draws the current value: f7e8aa, then ff0000. BUT IT GETS THERE BY NAME: displayFillRT reads comp.text, getText on a holder returns the held field's TAG, and getColor locates that name.
+         MEASURED DEFECT: with a nearer field also named wall (blue), fillColor:=wall drew BLUE, r0 g0 b255, the wrong wall. M3's reader must take the held field and never its name. M5's note above said this was M3's to change.
+
+       COST OF NO CACHE (2,000,000 loops, each run twice, agreeing to 0.02s; an 8x8 fill):
+         empty loop 0.25s, write only 0.34s, draw on a cache hit 1.10s, write and draw (a miss) 1.54s. So a parse costs about 175ns, and a draw on a hit about 425ns of which most is its two locates and the fill. A parse is cheaper than the draw it serves.
+         Fills per form, by count of fill= in the source: firstLight 3, cards 6, simple 5, layout 11; 140 across IncantForms/Windows. So one layout of the largest sample parses for about 2 microseconds. Nothing has a layout pass to measure directly, so this is a count times a measured cost.
+         MEMORY IS THE ONE REAL COST: the miss run's resident size grew 64MB over 2M parses, 32 bytes a parse, while the hit run did not grow. Not chased. setColor calls truncateString twice and may own all of it; a no-pool NSColor is the other suspect. It matters only if a form re-lays out continuously (11 fills at 60 layouts a second is about 21KB/s) and it should be cured in the stroke.
+
+       THE THREE SHAPES:
+       (a) No cache. setColor returns the colour and writes nothing; the reader takes a field. COST: about 175ns a fill, and the 32 bytes to cure. GAIN: wall stays readable, a draw stops notifying listeners, and there is no state to go stale. Touches setColor, getColor and displayFillRT, and stylesT's pixel rows pin the result. getColor's by-name door goes or stays for styles' "name" spelling, for the stroke to say. setColor's only caller is getColor.
+       (b) Listener drops the cache. Waits on onNotify's four changes, and arms a new hazard: realising fires setObject's notify, so a colour's cache fill notifies its own listeners unless that is cut first. Every fill host becomes a listener to save 175ns. No.
+       (c) Check on read. On the colour node it is redundant, because the kind already drops on a write; that is today's cache, and it keeps the harm. On the fill host it needs two noPrint attributes per filled field, the colour and its source text (no new GroupItem field, so no STOP), and reading wall's text means undoing the kind overwrite anyway. A strcmp saved against a 175ns parse. No.
+
+       FLOOR OR KANT (this morning's ruling): under (a) the question closes: nothing is cached. Kant resolves: the fill holder gives the field, and it hands that field to the floor, which returns or draws a colour and keeps nothing. That is the ruling's own split, and stateless is what jitting wants. If a cache is ever earned, it goes in the floor on the colour node, one per colour rather than one per fill, because an NSColor is no kant value; and it must sit beside the value, not replace it.
+
+       NOT MEASURED: a real layout (M1); the leak's owner; getFont and setFont, which read as the same shape, but a font's value is its attributes, so the harm may not apply. Probes are scratch, not in the tree; a stroke turns them into rows.
     M4 Stroke floor: no command strokes a rect or a side from kant. Layout.drawRect strokes one frame, in C++.
     M5 Colours and fonts: no cOLOr or fONTs registry loads; IncantForms/Controls/attributes is XML-era text. And with
        wall searchable, fill=wall copies the hex (f7e8aa), while getColor locates by NAME (read, not run). Same family as SEQ 530.
