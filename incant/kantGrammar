@@ -235,6 +235,11 @@ define
         if members.datA != 0;       mOn = 1;
         :ITERSOURCe ANYtoken;
         source  := **ANYtoken;
+        // sourceStar a star on the source is built, never dropped: the source becomes a deref instruct, which opIterate runs (2026-11-05)
+        if *ITERSOURCe["UnaryOPS"];
+            derefOp     := Operators["deref"];
+            miArgs      +% derefOp source;
+            source      := makeInstruct(miArgs);
         // childRefused a cursor or source that handed up nothing refuses by name
         if cursor.datA == 0;
             cerr "REFUSED ITERATe -- its cursor handed up nothing":;

@@ -8708,12 +8708,24 @@ _ofeq "argRoadsT AR-4 y = argument, then y - 1, new road" "$(_arv 'Copy new z=')
 _ofeq "argRoadsT AR-5 argument.datA reads the value's kind, new road" "$(_arv 'Dot new kind=')" "5 5"
 _ofeq "argRoadsT AR-6 recursion through bare argument, new road, depth 0 and 3" "$(_arv 'Rec new 0=') $(_arv 'Rec new 3=')" "s s"
 _ofeq "argRoadsT AR-6 the old road's control" "$(_arv 'Rec old 0=') $(_arv 'Rec old 3=')" "s s"
-_ofeq "argRoadsT AR-8 *argument on a non-holder refuses by name, both roads (R1b), and neither statement goes on" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(grep -c '^AR StarPlain' "$T/ar.e") $(grep -c '^AR IterStar' "$T/ar.e")" "4 0 0"
+_ofeq "argRoadsT AR-8 *argument on a non-holder refuses by name at all four sites, both roads (R1b); nothing is stored, the old road ending the action and the new road running its next statement, as it does after any refusal" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(_arv 'StarPlain old x=')/$(_arv 'StarPlain new x=') $(_arv 'IterStar old n=')/$(_arv 'IterStar new n=')" "4 /x /0"
 _ofeq "argRoadsT AR-9 *argument bound to a holder reads through it, both roads (the non-zero sibling)" "$(_arv 'StarHeld old x=') $(_arv 'StarHeld new x=')" "5 5"
 _ofeq "argRoadsT AR-10 a star on any other plain field still yields null and does not refuse (the star ruling, 2026-09-05)" "$(grep -c '^AR PlainStar null, no refusal' "$T/ar.e")" "1"
 _ofeq "argRoadsT AR-11 iterate on bare argument, old road (the respell's control)" "$(_arv 'IterBare old n=')" "2"
+_ofeq "argRoadsT AR-13 iterate on bare argument, new road (opIterate follows)" "$(_arv 'IterBare new n=')" "2"
+_ofeq "argRoadsT AR-14 iterate on *h, new road: the star is built, not dropped, as the old road reads it" "$(_arv 'StarSrc old n=') $(_arv 'StarSrc new n=')" "2 2"
 _ofeq "argRoadsT AR-12 return argument, both roads" "$(_arv 'Ret old=') $(_arv 'Ret new=')" "3 3"
 _ofeq "argRoadsT AR-7 no other holder is followed (SEQ 504 R0): hz - 1 refuses, *hz - 1 reads, on the new road" "$(_arv 'Other new hz=') $(_arv 'Star new hz=') $(grep -c '^REFUSED hz -- Operator - ' "$T/ar.e")" "x 5 1"
+#  The same fixture under jitter;: a compiled *argument is handed to the interpreter, so it refuses at run time as it does plain (R1b); the bare rows read the same.
+sed "$(grep -n '^search ArgRoadsT' "$_arF" | tail -1 | cut -d: -f1)a\\
+jitter;
+" "$_arF" > "$T/arj.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/arj.k" > "$T/arj.o" 2> "$T/arj.e"; _arjX=$?
+_arjv () { grep "^AR $1" "$T/arj.e" | sed "s/^AR $1 *//" | xargs; }
+_ofeq "argRoadsT under jitter; exit, sentinel" "$_arjX $(grep -c '^AR SENTINEL' "$T/arj.e")" "0 1"
+_ofeq "argRoadsT AR-J1 under jitter; *argument on a non-holder refuses at all four sites, and the old road's silent -1 is gone" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/arj.e") $(_arjv 'StarPlain old x=')/$(_arjv 'StarPlain new x=')" "4 /x"
+_ofeq "argRoadsT AR-J2 under jitter; *argument bound to a holder reads through it" "$(_arjv 'StarHeld old x=') $(_arjv 'StarHeld new x=')" "5 5"
+_ofeq "argRoadsT AR-J3 under jitter; bare argument, new road" "$(_arjv 'Minus new x=') $(_arjv 'Rec new 3=')" "-1 2 s"
 #  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
 _pcF=$(ip parentChainT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcX=$?

@@ -9870,6 +9870,11 @@ int 		members = 0;
 	if ( mMark && mMark->groupBody->gCount )
 		members = 1;
 	 if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); 
+	// starRefused a starred source that refused stops here, by its own name
+	if ( !source )
+		return 0;
+	// argBinding bare argument reads what it is bound to, as an operator's operand does (R1a)
+	source = ::followArgument(source);
 	if ( !::iterateSetup(cursor,source,attributes,members) )
 		return ::refuse(source,"iterate: the source has no list");
 	return 0;
@@ -12521,6 +12526,8 @@ GroupItem 	*arg = 0;
 				op = ruler->opFields->get("negate");
 			if ( ::compare(op->groupBody->tag,"*") == 0 )
 				op = ruler->opFields->get("deref");
+			// starArgument what the argument holds is known only at run time, so a *argument runs there, where it reads through or refuses (R1b)
+			 if ( op == ruler->opFields->get((char*)"deref") && field->get(2) && field->get(2)->groupBody->flags.isArgument ) { ::jitHandOver((char*)"a star on the argument -- what it holds is known only at run time",field); return 0; } 
 			val = runOPaccumOperand(field->get(2));
 			// valueTarget ++ or -- on a computed value refuses by name on the jit road too (SEQ 365 R0)
 			if ( ::refuseValueTarget(op,val) )
@@ -13163,8 +13170,8 @@ GroupItem 	*lookup = 0;
 	// lookupMiss a by-name lookup on the left of an assign that finds nothing refuses by name, and the assign never sees the null (SEQ 443 R1')
 	if ( !target && ::refuseLookupMiss(op,lookup) )
 		return 0;
-	// armedStops an operand that refused stops the statement here, as runOPslots: a binary op never sees the null it handed back
-	 if ( GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; 
+	// refusedOperand an operand that refused hands up null, and a binary op must never run on it (exit 139); the statement ends here, the next one still runs
+	 if ( !target && !op->groupBody->flags.isUnary && GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; 
 	if ( op->groupBody->flags.isUnary && ::compare(op->groupBody->tag,"deref") == 0 )
 		{
 		GroupItem 	*starred = argument ? argument : target;
