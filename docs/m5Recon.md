@@ -2,10 +2,10 @@
 
 **RULED (Tony, 2026-11-05, R2):** setColor skips a leading `#`. Fonts are written as attributes. One new file, IncantForms/Controls/styles, holds the 14 colours and 7 fonts. It is NOT on the default search list until defineCapture B2 lands, because a write-through such as `red=5` is that defect's family; tests load it explicitly. `fill=purple` is fixed when sample comes up for repair. The "owed" list below is closed.
 
-**BUILT, branch m5-styles:** the # skip in setColor; `fontReport`, a small witness, because nothing else could read a realised font from kant; `styles`, registered in fILEs and loaded by no one by default; `incant/pop/stylesT`, every colour by pixel and every font by what NSFont reports.
+**BOUGHT, merge 27b9df52:** the # skip in setColor; `fontReport`, a small witness, because nothing else could read a realised font from kant; `styles`, registered in fILEs and loaded by no one by default; `incant/pop/stylesT`, every colour by pixel and every font by what NSFont reports.
 **`EBgaramondFont`'s family is not installed on this machine**: it realises as the system font, not bold, at size 18, with no message. Its row pins the size only.
 **ST-5, measured:** with cOLOr searched, an attribute `red=5` writes red to the count 5. That is the write-through, now a pinned row rather than a read.
-**Left for M3:** setColor caches on the field, so changing wall's hex keeps the old colour until that is dealt with; Tony's dark / light example needs it.
+**RULED FOR M3 (Tony, 2026-11-05):** setColor's per-field cache must not outlive a change to the value it came from; the shape is decided when fill is built. Read, not run: today changing wall's hex keeps the old colour, and Tony's dark / light example needs that gone.
 
 ## Measured (kant)
 | case | result |
