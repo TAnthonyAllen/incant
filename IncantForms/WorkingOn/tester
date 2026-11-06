@@ -155,8 +155,7 @@ define
             else                    pX += width;
         dumpContents(argument);
         for grup in argument; members
-            =:grup across down;
-            if across.datA != 0 || down.datA != 0;
+            if *grup.hasMemberS;
                 setFrame(*grup);
         };
     /***************************************************************************
