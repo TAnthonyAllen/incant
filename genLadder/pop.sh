@@ -1371,6 +1371,37 @@ _ofeq "newReturnSelfT RT-7 old road (control): a self-call returning at depth" "
 fdRow "newReturnSelfT RT-7 new road: a self-call returning at depth, each level its own (road / value)" "$(_nsv 'RP n') $(_nsv 'RT-7 n')" "[ 7 ] | r7b |r7b |55 |" "[ 7 ] | 0 |1 |2 |"
 else echo "  FAIL  newReturnSelfT MISSING"; fail=1
 fi
+#  ⚑ S6, THE NEW ROAD'S CALL (SEQ 540 R0, R1, 2026-11-06). PRE-REGISTERED ON TRUNK BEFORE THE BUILD. Handing a call over already gives the
+#  right value, so the twin rows are green today and only the witness discriminates: `=== jitter calls: <action> self S inlined I handed H ===`,
+#  one line per compile (H4). Today no such line exists. A shape the walk cannot compile is handed over by name and counted.
+_clF=$(ip newJitCallT)
+if [ -f "$_clF" ]; then
+_clK=$(grep -n '^nl\(New\|Old\)(' "$_clF" | tail -1 | cut -d: -f1)
+sed "${_clK}a\\
+jitter;
+" "$_clF" > "$T/cl.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
+rm -f "$T/cl.w"; INCANT_JITTER_ERR="$T/cl.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/cl.k" > "$T/clj.o" 2> "$T/clj.e"; _cljx=$?
+_clv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^=== \|^ *$' "$1" | tr '\n' '|'; }
+_ofeq "newJitCallT twin (no jitter): exit, sentinel" "$_clx $(grep -c '^NEWJITCALL SENTINEL' "$T/cl.o")" "0 1"
+_ofeq "newJitCallT twin holds the shapes: a string, a number, a callee's return riding up, a refusal ending the callee only" "$(_clv "$T/cl.o" | grep -c 'CL cC |r |s |s |CL cD |r |1.5 |1.5 |.*CL t7 |after r |.*CL h1 |7 |')" "1"
+_ofeq "newJitCallT under jitter;: exit, sentinel" "$_cljx $(grep -c '^NEWJITCALL SENTINEL' "$T/clj.o")" "0 1"
+_ofeq "newJitCallT under jitter; = the twin, every shape" "$(_clv "$T/clj.o")" "$(_clv "$T/cl.o")"
+_ofeq "newJitCallT under jitter; refuses by name once per refusing call, as the twin" "$(grep -c '^REFUSED hz' "$T/clj.e")" "$(grep -c '^REFUSED hz' "$T/cl.e")"
+fdRow "newJitCallT the self-call: native above 0 for the call statements" "$(grep -h '^=== jitter calls: [c]' "$T/cl.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "" "cA 1 0 0;cB 1 0 0;cC 1 0 0;cD 1 0 0;cE 1 0 0;cF 1 0 0;cG 1 0 0;"
+fdRow "newJitCallT the callee chain: inlined, a return riding up, handed over by name where the walk cannot" "$(grep -h '^=== jitter calls: [thm]' "$T/cl.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "" "t1 0 1 0;t2 0 1 0;t3 0 1 0;t4 0 1 0;t5 0 1 0;t6 0 2 0;t7 0 0 1;t8 0 1 0;t9 0 1 0;t10 0 2 0;t11 0 0 1;h1 0 2 0;ma 1 1 0;t12 0 0 1;"
+fdRow "newJitCallT NOT JITTABLE names: only a local the build cannot see written" "$(cat "$T/clj.e" "$T/cl.w" 2>/dev/null | grep -o 'NOT JITTABLE -- [a-zA-Z0-9]*.s local' | sed 's/NOT JITTABLE -- //; s/.s local//' | sort -u | tr '\n' ' ')" "cA cB cC cD cE cG h1 h2 k7 k9 " "cA cG k7 k9 "
+#  newReturnT's old-road RT-5f and RT-5p differ under jitter; (0 where plain reads 6 and 1), so the row is its new-road labels only; the old road is not S6's
+_nrjN () { awk '/^RT /{ on = ($0 ~ / n *$/); if(on) printf "%s|", $0; next } on && $0 !~ /^(stop: |Assign at end|Search list: |=== | *$)/ { printf "%s|", $0 }' "$1"; }
+_ofeq "S6 newReturnT's new-road rows under jitter; = plain" "$(_nrjN "$T/nrj.o")" "$(_nrjN "$T/nr.o")"
+sed "$(grep -n '^nl\(New\|Old\)(' "$(ip newReturnSelfT)" | tail -1 | cut -d: -f1)a\\
+jitter;
+" "$(ip newReturnSelfT)" > "$T/nsj.k"
+rm -f "$T/nsj.w"; INCANT_JITTER_ERR="$T/nsj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nsj.k" > "$T/nsj.o" 2> "$T/nsj.e"; _nsjx=$?
+_ofeq "S6 newReturnSelfT under jitter; = plain" "$(_clv "$T/nsj.o") x$_nsjx" "$(_clv "$T/ns.o") x$_nsx"
+fdRow "S6 newReturnSelfT rt7n's self-call is native" "$(grep -h '^=== jitter calls: rt7n' "$T/nsj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "" "rt7n 1 0 0;"
+else echo "  FAIL  newJitCallT MISSING"; fail=1
+fi
 #  ⚑ newCallBindT -- SEQ 510 (Tony, 2026-11-02): every new-road call took the callee of the LAST call built -- INVOKEr
 #  returned its own local `instruct` by identity, one node for every call. PRE-REGISTERED ON TRUNK, born red. ONE process on
 #  purpose (the defect is cross-talk between builds); the build order is part of the test, c5 (pz, 7) last. Every n row is
