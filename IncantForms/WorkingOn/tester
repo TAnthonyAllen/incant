@@ -59,6 +59,7 @@ define
         for grup in argument; members
             ++memberCount;
             target = *grup[tARGET];
+            if target.isPercenT;    target = argument[tARGET] * target / 100;
             if target.datA != 0;    pValue -= target;
         if direct == "*";
             if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
@@ -71,12 +72,41 @@ define
             newStuff +% *grup;
         for grup in argument; members
             newStuff +/ copyOf(*grup);
-        for grup in argument; members
-            while valueCount > 0;
-                --valueCount;
+        while valueCount > 0;
+            --valueCount;
+            for grup in argument; members
                 newStuff +/ copyOf(*grup);
         clear(argument);
         argument = newStuff;
+        };
+    /***************************************************************************
+        Both directions on one field (Clay's design, Tony 2026-11-06). The number
+        goes outside: a new cell holds the members and carries the *, and
+        setFrame's recursion does the rest. Both * or both numbers: parked.
+    ***************************************************************************/
+    bothStuff isList;
+    bothDirections code={
+        =:argument across down;
+        inner = "none";
+        if down == "*";
+            if across != "*";   inner = "down";
+        if across == "*";
+            if down != "*";     inner = "across";
+        if inner == "none";
+            print taG "needs one * and one number to use both down and across":;
+            return;
+        cellHold := new("dirCell");
+        innerAttr := argument[inner];
+        *cellHold :% copyOf(*innerAttr);
+        for grup in argument; members
+            *cellHold +/ copyOf(*grup);
+        clear(bothStuff);
+        for grup in argument; attributes
+            if *grup.taG != inner;
+                bothStuff +% *grup;
+        bothStuff +/ *cellHold;
+        clear(argument);
+        argument = bothStuff;
         };
     /***************************************************************************
          Set frames for members of the group passed in. It must have x y width
@@ -87,6 +117,10 @@ define
     setFrame code={
         print "Setting frame for" taG:;
         =:argument across down width height x y;
+        if across.datA != 0;
+            if down.datA != 0;
+                bothDirections(argument);
+                =:argument across down;
         sideRoom    = width;
         pWidth      = width;
         headRoom    = height;
@@ -182,6 +216,8 @@ define
 
 setFrame(sample);
 printDef(sample);
+setFrame(sumple);
+printDef(sumple);
 print "SENTINEL tester driver end":;
 stop();
 
