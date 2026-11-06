@@ -7882,12 +7882,12 @@ kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391
 
 #  ---- refusalEndsT: AFTER A REFUSAL THE NEW ROAD ENDS THE ACTION, AS THE OLD ROAD DOES (Tony, SEQ 535 R1, SEQ 537 R1). The unit is
 #  the action, not its caller, so the caller rows are the non-zero sibling. Each new-road row has its old-road twin, the oracle.
-#  H7 (fix committed first, single fixture, alarm): opWhile, opDo, opFor and opIf's guards out, the four new rows below go red.
+#  H7 (fix committed first, single fixture, alarm): opBodySeq's guard out, the movers AR-8, AR-J1, newJitIfUnsetT plain go red; opWhile's and opDo's out, while1 and do1 hang (exit 142); opIf's out, ifcall reads tail 1 -- an action called in the else arm clears the refusal, so the action runs on. seq, while, do, for and if wind down with the guards out too, because a standing refusal silences operators, so those rows pin the behaviour and do not discriminate. No twin for while1 / do1: the old road hangs on both.
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip refusalEndsT)" > "$T/re" 2> "$T/re.e"; _rex=$?
 kindRow "refusalEndsT runs" "$_rex" "0"
 sentinel "refusalEndsT sentinel" "$T/re" "REFUSALENDS SENTINEL"
 _re () { grep "^RE $1 " "$T/re" | sed -e "s/^RE $1 //" -e 's/ *$//'; }
-kindRow "refusalEndsT every action refused, by name" "$(grep -c '^REFUSED hz' "$T/re.e")" "12"
+kindRow "refusalEndsT every action refused, by name" "$(grep -c '^REFUSED hz' "$T/re.e")" "16"
 kindRow "refusalEndsT seq: the statement after the refusal does not run, new road" "$(_re 'seq new')" "tail 0"
 kindRow "refusalEndsT seq: the old road's twin" "$(_re 'seq old')" "tail 0"
 kindRow "refusalEndsT while: one pass, then the action ends, new road" "$(_re 'while new')" "passes 1 tail 0"
@@ -7900,6 +7900,10 @@ kindRow "refusalEndsT if: a refused condition takes neither arm, new road" "$(_r
 kindRow "refusalEndsT if: the old road's twin" "$(_re 'if old')" "arm 0 tail 0"
 kindRow "refusalEndsT caller: the refusal ends the callee only, new road (non-zero sibling)" "$(_re 'caller new')" "tail 7"
 kindRow "refusalEndsT caller: the old road's twin" "$(_re 'caller old')" "tail 7"
+kindRow "refusalEndsT while 1: a literal condition ends with the action, new road" "$(_re 'while1 new')" "tail 0"
+kindRow "refusalEndsT do while 1: a literal condition ends with the action, new road" "$(_re 'do1 new')" "tail 0"
+kindRow "refusalEndsT if: a call in the else arm does not run the action on, new road" "$(_re 'ifcall new')" "arm 0 tail 0"
+kindRow "refusalEndsT if: the old road's twin" "$(_re 'ifcall old')" "arm 0 tail 0"
 
 #  ---- scopeValueT: =: THE VALUE SCOPE (Tony, 2026-11-06). A local takes the found field's value, a bare flag reads 1, an
 #  absent field clears, a held group warns and clears. SV-6 is the claim the spelling exists for, and SV-7 is : on the same

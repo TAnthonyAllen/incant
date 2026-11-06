@@ -9727,7 +9727,6 @@ int 		backward = 0;
 	forRuler->branchKind = 0;
 	bodyResult = 0;
 	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
-	if ( forRuler->refused && !forRuler->jitting ) break;
 	int forKind = forRuler->branchKind;
 	if ( forKind == 1 ) { forRuler->branchKind = 0; break; }
 	if ( forKind == 2 ) { forRuler->branchKind = 0; continue; }
@@ -10825,7 +10824,6 @@ GroupItem 	*body = arms->get(2);
 	for (;;) {
 	GroupItem *test = cond;
 	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
-	if ( whileRuler->refused && !whileRuler->jitting ) break;
 	if ( !::truthOf(test) ) break;
 	whileRuler->branchKind = 0;
 	bodyResult = 0;

@@ -42,6 +42,13 @@ define
     oFor code={ reN = 0; reTail = 0; hz := reS; for c in reList; x = hz - ++reN; reTail = 1; };
     oIfC code={ reArm = 0; reTail = 0; hz := reS; if hz - 1; reArm = 1; else reArm = 2; reTail = 1; };
     oCaller code={ reTail = 0; oSeq(1); reTail = 7; };
+    reBump code={ reArm = 9; };
+    nWhile1 code={ reTail = 0; hz := reS; while 1; x = hz - 1; reTail = 1; };
+    nDo1 code={ reTail = 0; hz := reS; do x = hz - 1; while 1; reTail = 1; };
+    nIfCall code={ reArm = 0; reTail = 0; hz := reS; if hz - 1; reArm = 1; else reBump(1); reTail = 1; };
+    oWhile1 code={ reTail = 0; hz := reS; while 1; x = hz - 1; reTail = 1; };
+    oDo1 code={ reTail = 0; hz := reS; do x = hz - 1; while 1; reTail = 1; };
+    oIfCall code={ reArm = 0; reTail = 0; hz := reS; if hz - 1; reArm = 1; else reBump(1); reTail = 1; };
     ;
 search RefusalEndsT;
 reNew(nSeq);
@@ -50,6 +57,9 @@ reNew(nDo);
 reNew(nFor);
 reNew(nIfC);
 reNew(nCaller);
+reNew(nWhile1);
+reNew(nDo1);
+reNew(nIfCall);
 nSeq(1);
 print "RE seq new tail" reTail:;
 oSeq(1);
@@ -74,6 +84,14 @@ nCaller(1);
 print "RE caller new tail" reTail:;
 oCaller(1);
 print "RE caller old tail" reTail:;
+nWhile1(1);
+print "RE while1 new tail" reTail:;
+nDo1(1);
+print "RE do1 new tail" reTail:;
+nIfCall(1);
+print "RE ifcall new arm" reArm "tail" reTail:;
+oIfCall(1);
+print "RE ifcall old arm" reArm "tail" reTail:;
 print "REFUSALENDS SENTINEL":;
 stop();
 
@@ -81,3 +99,8 @@ refusalEndsT -- SEQ 535 R1, SEQ 537: after a refusal the new road ends the actio
 action, not its caller. x = hz - 1 refuses (hz is a holder, SEQ 504 R0). Every statement after it, every further pass of a
 loop, and either arm of an if on a refused condition must not run. Each new-road row has its old-road twin, the oracle. The
 caller rows are the non-zero sibling: the caller runs on and writes 7, because the refusal ended the callee only.
+A standing refusal silences operators, so most shapes wind down by themselves; while1, do1 and ifcall are the shapes that
+go wrong without opWhile's, opDo's and opIf's guards: a literal condition never ends, and an action called in the else arm
+clears the refusal on its way out, so the action runs on (tail 1). oWhile1 and oDo1 are defined and NOT called: the OLD road
+HANGS on both, measured 2026-11-06 (exit 142 under an alarm), so they have no twin row here. opFor carries no guard: a for
+is finite and a standing refusal silences each further pass, so no row could tell a guard from none (measured, same day).
