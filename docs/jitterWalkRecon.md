@@ -230,7 +230,7 @@ stdout: the cerr line moves from stderr to stdout.
 **H7 (cure committed first; single fixture, alarm; each restored md5-identical):**
 | control | what moved |
 |---|---|
-| self-call: the channel ignored, the i32 boxed | cC's `s` reads 1, cD's `1.5` reads 2, cE's `r` a number |
+| self-call: the channel ignored, the i32 boxed | cC's `s` reads 1, cD's `1.5` reads 2, and cE's `r` moves (its new value was cut off in the capture) |
 | self-call: the walk's arm off | the witness: every self 0, handed 1 |
 | callee: the region's channel ignored | t2's `text` reads 4, t3's `2.5` reads 3, t4's `r` reads 0 |
 | callee: the continue floor removed | a callee's restore is skipped: its local q reads 9 where the twin reads q |
