@@ -496,6 +496,9 @@ inline std::vector<GroupBody*> gJitInlining;
 struct JitInlineFrame {
     llvm::BasicBlock *exitBB = nullptr;
     bool              used   = false;
+    //  retSlots a new-road callee's return channel: its own locals, as an activation has, because its caller reads the kind (SEQ 540). Null on the old road's inline.
+    llvm::Value      *retKindSlot = nullptr;
+    llvm::Value      *retNodeSlot = nullptr;
     //  chanPushed the region's entry pushed the argument channel (a run-time bind was emitted); its join pops it (SEQ 396)
     bool              chanPushed = false;
     //  seededAt gJitSeeded's size at the region's entry: what is seeded after it is the region's, and is cleared at its join (SEQ 407 (a))

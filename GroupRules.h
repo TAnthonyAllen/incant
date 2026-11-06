@@ -357,6 +357,7 @@ extern "C" int jitWalkCondOK(GroupItem *stmt);
 extern "C" int jitWalkEligible(GroupItem *node);
 extern "C" GroupItem *jitWalkExpr(GroupItem *node);
 extern "C" void jitWalkHandedBack(GroupItem *stmt, int walked, int handed, int native);
+extern "C" GroupItem *jitWalkInline(GroupItem *arg, GroupItem *callee, GroupItem *stmt);
 extern "C" void jitWalkPrint(GroupItem *stmt, GroupItem *items, char *sink);
 extern "C" int jitWalkPrintNative(GroupItem *items);
 extern "C" void jitWalkStmt(GroupItem *stmt);
