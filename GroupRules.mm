@@ -9736,6 +9736,7 @@ int 		backward = 0;
 // opGE the >= operator, on opEQ's shape
 extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 {
+int 	order = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitGE); 
@@ -9758,15 +9759,19 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 			if ( target->groupBody->gCount >= 0 )
 				return GroupControl::groupController->groupRules->trueResult;
 		}
-	else
-	if ( ::compareValues(target,argument) >= 0 )
-		return GroupControl::groupController->groupRules->trueResult;
+	else {
+		order = ::compareValues(target,argument);
+		// noOrder 2147483647 is compareValues' no-order answer, a number against a string that is not one
+		if ( order >= 0 && order != 2147483647 )
+			return GroupControl::groupController->groupRules->trueResult;
+		}
 	return 0;
 }
 
 // opGT the > operator, on opEQ's shape
 extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 {
+int 	order = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitCompare(argument, target, jitGT); 
@@ -9789,9 +9794,12 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 			if ( target->groupBody->gCount > 0 )
 				return GroupControl::groupController->groupRules->trueResult;
 		}
-	else
-	if ( ::compareValues(target,argument) > 0 )
-		return GroupControl::groupController->groupRules->trueResult;
+	else {
+		order = ::compareValues(target,argument);
+		// noOrder 2147483647 is compareValues' no-order answer, a number against a string that is not one
+		if ( order > 0 && order != 2147483647 )
+			return GroupControl::groupController->groupRules->trueResult;
+		}
 	return 0;
 }
 

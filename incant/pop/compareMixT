@@ -1,0 +1,150 @@
+Start();
+registry(CompareMixT);
+define
+    one=1; three=3; three2=3; two=2; half=1.5;
+    star="*"; star2="*"; digit3="3"; digit12="12"; digitHalf="1.5";
+    row=0;
+    cmRow1 code={
+        row = 0; if one == star;  row = 1;
+        print "CM 1 vs * ==" row:;
+        row = 0; if one != star;  row = 1;
+        print "CM 1 vs * !=" row:;
+        row = 0; if one < star;  row = 1;
+        print "CM 1 vs * <" row:;
+        row = 0; if one <= star;  row = 1;
+        print "CM 1 vs * <=" row:;
+        row = 0; if one > star;  row = 1;
+        print "CM 1 vs * >" row:;
+        row = 0; if one >= star;  row = 1;
+        print "CM 1 vs * >=" row:;
+        };
+    cmRow2 code={
+        row = 0; if star == one;  row = 1;
+        print "CM * vs 1 ==" row:;
+        row = 0; if star != one;  row = 1;
+        print "CM * vs 1 !=" row:;
+        row = 0; if star < one;  row = 1;
+        print "CM * vs 1 <" row:;
+        row = 0; if star <= one;  row = 1;
+        print "CM * vs 1 <=" row:;
+        row = 0; if star > one;  row = 1;
+        print "CM * vs 1 >" row:;
+        row = 0; if star >= one;  row = 1;
+        print "CM * vs 1 >=" row:;
+        };
+    cmRow3 code={
+        row = 0; if three == digit3;  row = 1;
+        print "CM 3 vs '3' ==" row:;
+        row = 0; if three != digit3;  row = 1;
+        print "CM 3 vs '3' !=" row:;
+        row = 0; if three < digit3;  row = 1;
+        print "CM 3 vs '3' <" row:;
+        row = 0; if three <= digit3;  row = 1;
+        print "CM 3 vs '3' <=" row:;
+        row = 0; if three > digit3;  row = 1;
+        print "CM 3 vs '3' >" row:;
+        row = 0; if three >= digit3;  row = 1;
+        print "CM 3 vs '3' >=" row:;
+        };
+    cmRow4 code={
+        row = 0; if digit3 == three;  row = 1;
+        print "CM '3' vs 3 ==" row:;
+        row = 0; if digit3 != three;  row = 1;
+        print "CM '3' vs 3 !=" row:;
+        row = 0; if digit3 < three;  row = 1;
+        print "CM '3' vs 3 <" row:;
+        row = 0; if digit3 <= three;  row = 1;
+        print "CM '3' vs 3 <=" row:;
+        row = 0; if digit3 > three;  row = 1;
+        print "CM '3' vs 3 >" row:;
+        row = 0; if digit3 >= three;  row = 1;
+        print "CM '3' vs 3 >=" row:;
+        };
+    cmRow5 code={
+        row = 0; if one == digit3;  row = 1;
+        print "CM 1 vs '3' ==" row:;
+        row = 0; if one != digit3;  row = 1;
+        print "CM 1 vs '3' !=" row:;
+        row = 0; if one < digit3;  row = 1;
+        print "CM 1 vs '3' <" row:;
+        row = 0; if one <= digit3;  row = 1;
+        print "CM 1 vs '3' <=" row:;
+        row = 0; if one > digit3;  row = 1;
+        print "CM 1 vs '3' >" row:;
+        row = 0; if one >= digit3;  row = 1;
+        print "CM 1 vs '3' >=" row:;
+        };
+    cmRow6 code={
+        row = 0; if digit12 == two;  row = 1;
+        print "CM '12' vs 2 ==" row:;
+        row = 0; if digit12 != two;  row = 1;
+        print "CM '12' vs 2 !=" row:;
+        row = 0; if digit12 < two;  row = 1;
+        print "CM '12' vs 2 <" row:;
+        row = 0; if digit12 <= two;  row = 1;
+        print "CM '12' vs 2 <=" row:;
+        row = 0; if digit12 > two;  row = 1;
+        print "CM '12' vs 2 >" row:;
+        row = 0; if digit12 >= two;  row = 1;
+        print "CM '12' vs 2 >=" row:;
+        };
+    cmRow7 code={
+        row = 0; if half == digitHalf;  row = 1;
+        print "CM 1.5 vs '1.5' ==" row:;
+        row = 0; if half != digitHalf;  row = 1;
+        print "CM 1.5 vs '1.5' !=" row:;
+        row = 0; if half < digitHalf;  row = 1;
+        print "CM 1.5 vs '1.5' <" row:;
+        row = 0; if half <= digitHalf;  row = 1;
+        print "CM 1.5 vs '1.5' <=" row:;
+        row = 0; if half > digitHalf;  row = 1;
+        print "CM 1.5 vs '1.5' >" row:;
+        row = 0; if half >= digitHalf;  row = 1;
+        print "CM 1.5 vs '1.5' >=" row:;
+        };
+    cmRow8 code={
+        row = 0; if three == three2;  row = 1;
+        print "CM 3 vs 3 (no string, no warning) ==" row:;
+        row = 0; if three != three2;  row = 1;
+        print "CM 3 vs 3 (no string, no warning) !=" row:;
+        row = 0; if three < three2;  row = 1;
+        print "CM 3 vs 3 (no string, no warning) <" row:;
+        row = 0; if three <= three2;  row = 1;
+        print "CM 3 vs 3 (no string, no warning) <=" row:;
+        row = 0; if three > three2;  row = 1;
+        print "CM 3 vs 3 (no string, no warning) >" row:;
+        row = 0; if three >= three2;  row = 1;
+        print "CM 3 vs 3 (no string, no warning) >=" row:;
+        };
+    cmRow9 code={
+        row = 0; if star == star2;  row = 1;
+        print "CM * vs * (no number, no warning) ==" row:;
+        row = 0; if star != star2;  row = 1;
+        print "CM * vs * (no number, no warning) !=" row:;
+        row = 0; if star < star2;  row = 1;
+        print "CM * vs * (no number, no warning) <" row:;
+        row = 0; if star <= star2;  row = 1;
+        print "CM * vs * (no number, no warning) <=" row:;
+        row = 0; if star > star2;  row = 1;
+        print "CM * vs * (no number, no warning) >" row:;
+        row = 0; if star >= star2;  row = 1;
+        print "CM * vs * (no number, no warning) >=" row:;
+        };
+    ;
+cmRow1();
+cmRow2();
+cmRow3();
+cmRow4();
+cmRow5();
+cmRow6();
+cmRow7();
+cmRow8();
+cmRow9();
+print "COMPAREMIX SENTINEL":;
+stop();
+
+compareMixT -- a number against a string (Tony, 2026-11-06). A string that is a number in full compares by value, with a
+warning; any other string has no order against a number, with a warning: every operator false but !=, which is true.
+Each pair prints all six operators, and the number-only and string-only pairs are the controls, which must not warn.
+Before this ruling a number against a string compared with the string's LENGTH, so 1 vs * read equal. Arithmetic still
+reads a string as its length (SEQ 347 R3); only compares changed.

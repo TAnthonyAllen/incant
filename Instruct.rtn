@@ -463,6 +463,7 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
 // opGE the >= operator, on opEQ's shape
 extern GroupItem opGE(GroupItem argument,GroupItem target)
 {
+int order = 0;
     if jitting {
         -% return jitEmitCompare(argument, target, jitGE); %-
     }
@@ -475,7 +476,10 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
     or argument && !argument.data {
         if isCOUNT || isNUMBER
             if gCount >= 0              return trueResult; }
-    or compareValues(target,argument) >= 0  return trueResult;
+    else {
+        order = compareValues(target,argument);
+        // noOrder 2147483647 is compareValues' no-order answer, a number against a string that is not one
+        if order >= 0 && order != 2147483647  return trueResult; }
     return null;
 }
 
@@ -523,6 +527,7 @@ String strung = lookupName(argument);
 // opGT the > operator, on opEQ's shape
 extern GroupItem opGT(GroupItem argument,GroupItem target)
 {
+int order = 0;
     if jitting {
         -% return jitEmitCompare(argument, target, jitGT); %-
     }
@@ -535,7 +540,10 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
     or argument && !argument.data {
         if isCOUNT || isNUMBER
             if gCount > 0               return trueResult; }
-    or compareValues(target,argument) > 0   return trueResult;
+    else {
+        order = compareValues(target,argument);
+        // noOrder 2147483647 is compareValues' no-order answer, a number against a string that is not one
+        if order > 0 && order != 2147483647  return trueResult; }
     return null;
 }
 
