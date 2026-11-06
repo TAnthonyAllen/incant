@@ -8818,7 +8818,8 @@ _ofeq "argRoadsT AR-11 iterate on bare argument, old road (the respell's control
 _ofeq "argRoadsT AR-13 iterate on bare argument, new road (opIterate follows)" "$(_arv 'IterBare new n=')" "2"
 _ofeq "argRoadsT AR-14 iterate on *h, new road: the star is built, not dropped, as the old road reads it" "$(_arv 'StarSrc old n=') $(_arv 'StarSrc new n=')" "2 2"
 _ofeq "argRoadsT AR-12 return argument, both roads" "$(_arv 'Ret old=') $(_arv 'Ret new=')" "3 3"
-_ofeq "argRoadsT AR-7 no other holder is followed (SEQ 504 R0): hz - 1 refuses, *hz - 1 reads, on the new road" "$(_arv 'Other new hz=') $(_arv 'Star new hz=') $(grep -c '^REFUSED hz -- Operator - ' "$T/ar.e")" "x 5 1"
+#  RE-PINNED 2026-11-06 (SEQ 539 R0) x 5 1 -> 5 1: the action now ends at hz - 1, so its witness line does not print; the refusal and *hz's 5 still read.
+_ofeq "argRoadsT AR-7 no other holder is followed (SEQ 504 R0): hz - 1 refuses, *hz - 1 reads, on the new road" "$(_arv 'Other new hz=') $(_arv 'Star new hz=') $(grep -c '^REFUSED hz -- Operator - ' "$T/ar.e")" " 5 1"
 #  The same fixture under jitter;: a compiled *argument is handed to the interpreter, so it refuses at run time as it does plain (R1b); the bare rows read the same.
 sed "$(grep -n '^search ArgRoadsT' "$_arF" | tail -1 | cut -d: -f1)a\\
 jitter;
