@@ -23,6 +23,12 @@ silence a print whose item is a plain value: a primary never reaches `runOP`, it
 StringXP), stops at a raised refusal, so a refused statement prints nothing on either road. Pinned by `dotNumT`
 (old road) and `unaryNatT`'s `unPrDot` (new road).
 
+### On the new road a refusal ends the action (Tony, SEQ 535 R1, SEQ 537 R1, 2026-11-06)
+
+`opBodySeq` stops on a raised refusal and leaves it raised, so every enclosing seq and loop stops too, and `runAction`'s refusalArm ends the action. The caller carries on. `opWhile`, `opDo` and `opFor` do not run the body again; `opIf` takes neither arm on a refused condition. `testOP`'s `refusedOperand` stop stays: it acts inside one statement, before any seq could. `incant/pop/refusalEndsT` pins the shapes.
+
+**A standing refusal already silences operators, so most shapes wind down without these guards and their rows do not discriminate.** The shapes that do: `while 1;` and `do ...; while 1;` never end; an action called in an else arm clears the refusal on its way out, so the action runs on; a `for` body runs again and refuses once per pass.
+
 ## What it replaced, and why the replacement was needed
 
 Before it, the only clearers were `aCTionDefinE`'s boundary and `runAction`. A refusal raised at

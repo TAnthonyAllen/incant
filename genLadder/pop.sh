@@ -7880,6 +7880,31 @@ perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitHoistT)" > "$T/jhz" 2>&1; _jhzx=$?
 kindRow "jitHoistT jitted run's exit = the twin (born red 2026-10-21, 139; green since SEQ 391)" "$_jhzx" "0"
 kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391)" "$(grep -c '^HZ-1 ' "$T/jhz")" "1"
 
+#  ---- refusalEndsT: AFTER A REFUSAL THE NEW ROAD ENDS THE ACTION, AS THE OLD ROAD DOES (Tony, SEQ 535 R1, SEQ 537 R1). The unit is
+#  the action, not its caller, so the caller rows are the non-zero sibling. Each new-road row has its old-road twin, the oracle.
+#  H7 (fix committed first, single fixture, alarm): opBodySeq's guard out, the movers AR-8, AR-J1, newJitIfUnsetT plain go red; opWhile's and opDo's out, while1 and do1 hang (exit 142); opIf's out, ifcall reads tail 1 -- an action called in the else arm clears the refusal, so the action runs on; opFor's out, the refusal count reads 19, the body running again and refusing once per pass. seq, while, do, for and if otherwise wind down with the guards out too, because a standing refusal silences operators, so those rows pin the behaviour and do not discriminate. No twin for while1 / do1: the old road hangs on both.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip refusalEndsT)" > "$T/re" 2> "$T/re.e"; _rex=$?
+kindRow "refusalEndsT runs" "$_rex" "0"
+sentinel "refusalEndsT sentinel" "$T/re" "REFUSALENDS SENTINEL"
+_re () { grep "^RE $1 " "$T/re" | sed -e "s/^RE $1 //" -e 's/ *$//'; }
+kindRow "refusalEndsT every action refused, by name" "$(grep -c '^REFUSED hz' "$T/re.e")" "16"
+kindRow "refusalEndsT seq: the statement after the refusal does not run, new road" "$(_re 'seq new')" "tail 0"
+kindRow "refusalEndsT seq: the old road's twin" "$(_re 'seq old')" "tail 0"
+kindRow "refusalEndsT while: one pass, then the action ends, new road" "$(_re 'while new')" "passes 1 tail 0"
+kindRow "refusalEndsT while: the old road's twin" "$(_re 'while old')" "passes 1 tail 0"
+kindRow "refusalEndsT do: no second pass, new road" "$(_re 'do new')" "passes 0 tail 0"
+kindRow "refusalEndsT do: the old road's twin" "$(_re 'do old')" "passes 0 tail 0"
+kindRow "refusalEndsT for: one member, then the action ends, new road" "$(_re 'for new')" "passes 1 tail 0"
+kindRow "refusalEndsT for: the old road's twin" "$(_re 'for old')" "passes 1 tail 0"
+kindRow "refusalEndsT if: a refused condition takes neither arm, new road" "$(_re 'if new')" "arm 0 tail 0"
+kindRow "refusalEndsT if: the old road's twin" "$(_re 'if old')" "arm 0 tail 0"
+kindRow "refusalEndsT caller: the refusal ends the callee only, new road (non-zero sibling)" "$(_re 'caller new')" "tail 7"
+kindRow "refusalEndsT caller: the old road's twin" "$(_re 'caller old')" "tail 7"
+kindRow "refusalEndsT while 1: a literal condition ends with the action, new road" "$(_re 'while1 new')" "tail 0"
+kindRow "refusalEndsT do while 1: a literal condition ends with the action, new road" "$(_re 'do1 new')" "tail 0"
+kindRow "refusalEndsT if: a call in the else arm does not run the action on, new road" "$(_re 'ifcall new')" "arm 0 tail 0"
+kindRow "refusalEndsT if: the old road's twin" "$(_re 'ifcall old')" "arm 0 tail 0"
+
 #  ---- scopeValueT: =: THE VALUE SCOPE (Tony, 2026-11-06). A local takes the found field's value, a bare flag reads 1, an
 #  absent field clears, a held group warns and clears. SV-6 is the claim the spelling exists for, and SV-7 is : on the same
 #  field, still a holder. H7 (fix committed first, single fixture): the warning arm and the bare-flag arm out, SV-3a reads flagish, SV-10 has data, no warning; SV-11 stays, its non-zero sibling.
@@ -8786,7 +8811,7 @@ _ofeq "argRoadsT AR-4 y = argument, then y - 1, new road" "$(_arv 'Copy new z=')
 _ofeq "argRoadsT AR-5 argument.datA reads the value's kind, new road" "$(_arv 'Dot new kind=')" "5 5"
 _ofeq "argRoadsT AR-6 recursion through bare argument, new road, depth 0 and 3" "$(_arv 'Rec new 0=') $(_arv 'Rec new 3=')" "s s"
 _ofeq "argRoadsT AR-6 the old road's control" "$(_arv 'Rec old 0=') $(_arv 'Rec old 3=')" "s s"
-fdRow "argRoadsT AR-8 *argument on a non-holder refuses by name at all four sites, both roads (R1b); nothing is stored, and each road ends the action (R1, 2026-11-05; the new road running its next statement is today's, and is the cure's to move)" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(_arv 'StarPlain old x=')/$(_arv 'StarPlain new x=') $(_arv 'IterStar old n=')/$(_arv 'IterStar new n=')" "4 /x /0" "4 //"
+fdRow "argRoadsT AR-8 *argument on a non-holder refuses by name at all four sites, both roads (R1b); nothing is stored, and each road ends the action (R1, 2026-11-05; the new road running its next statement is today's, and is the cure's to move)" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/ar.e") $(_arv 'StarPlain old x=')/$(_arv 'StarPlain new x=') $(_arv 'IterStar old n=')/$(_arv 'IterStar new n=')" "4 /x /0" "4 / /"
 _ofeq "argRoadsT AR-9 *argument bound to a holder reads through it, both roads (the non-zero sibling)" "$(_arv 'StarHeld old x=') $(_arv 'StarHeld new x=')" "5 5"
 _ofeq "argRoadsT AR-10 a star on any other plain field still yields null and does not refuse (the star ruling, 2026-09-05)" "$(grep -c '^AR PlainStar null, no refusal' "$T/ar.e")" "1"
 _ofeq "argRoadsT AR-11 iterate on bare argument, old road (the respell's control)" "$(_arv 'IterBare old n=')" "2"
