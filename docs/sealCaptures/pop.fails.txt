@@ -1,5 +1,5 @@
 # Compare by name at the next seal: diff this file against a fresh run's FAIL lines (sed 's/^ *//'), sorted.
-# pop.sh FAIL rows by name -- re-banked 2026-11-06 at seal 348: R1's cure (SEQ 537, SEQ 539) took AR-8, AR-J1 and newJitIfUnsetT plain green; nothing else since seal 342's bank. Read again at seal 349, S6 merged, seal 350, M3 merged, and seal 351, near-flag merged: identical by name. Read again at seal 353, fill-reader merged: identical.
+# pop.sh FAIL rows by name -- re-banked 2026-11-06 at seal 348: R1's cure (SEQ 537, SEQ 539) took AR-8, AR-J1 and newJitIfUnsetT plain green; nothing else since seal 342's bank. Read again at seal 349, S6 merged, seal 350, M3 merged, and seal 351, near-flag merged: identical by name. Read again at seal 353, fill-reader merged: identical. Re-banked at seal 356: percent-unit bought, its 2 percentJitT rows added by Tony's word, the jitted store left uncured (SEQ 552); the other 60 identical.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
@@ -24,6 +24,8 @@ FAIL  newReturnKindT RS under jitter;: past the channel's reach, a self-call rea
 FAIL  oldCallsNewT under jitter; = plain (value, exit, sentinel) born red (SEQ 345): today [ x139 s0], intended [OC 9  x0 s1]
 FAIL  oneTest baseline
 FAIL  parseClass.target (setParse classification)
+FAIL  percentJitT = carries under the JIT born red (SEQ 345): today [PJ = copy 0 value 50], intended [PJ = copy 1 value 50]
+FAIL  percentJitT a plain write clears under the JIT born red (SEQ 345): today [PJ plain write 1 value 60], intended [PJ plain write 0 value 60]
 FAIL  pointerT F2 null operand = 0 -- moved
 FAIL  pointerT F2 witness MISSING -- +* no longer names its refused operand
 FAIL  pointerT L4e -- body=#2 not on the line after its label
