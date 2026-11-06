@@ -4230,13 +4230,11 @@ extern "C" int jitBuildFunction(GroupItem *action)
 }
 
 /*  jitCallReturnRT -- run time, straight after a native call on the new road, before the frame restores: what the callee handed back, copied as
-    runAction copies it, or null for nothing. A refusal ends the callee only, as runAction's refusalArm ends it: cleared here, and the caller reads null (SEQ 540).  */
+    runAction copies it, or null for nothing. A refusal inside the callee has already been cleared, by jitStmtRT, so the caller carries on and reads null (SEQ 540).  */
 extern "C" GroupItem *jitCallReturnRT(int value)
 {
 	
-	GroupRules *ruler = GroupControl::groupController->groupRules;
 	GroupItem *result = ::jitTakeReturn(value);
-	if ( ruler->refused ) { ::clearRefusal(result); return nullptr; }
 	if ( !result ) return nullptr;
 	GroupItem *capture = new GroupItem(result->groupBody->tag);
 	capture->setContent(result);
