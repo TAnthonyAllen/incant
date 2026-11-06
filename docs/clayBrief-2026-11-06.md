@@ -32,7 +32,7 @@ Parked last night and still on the list: `fillDownAcross` with both `down` and `
 
 ## State of setFrame
 
-The `tester` draft is on `=:`. Its `isGrouP` branches are gone and Tony's `somple` output is unchanged line for line. Driven on scratch copies of `tester`:
+The `tester` draft is on `=:`. Its `isGrouP` branches are gone and Tony's `somple` output is unchanged line for line. Its two `<:` lines are gone too: `fillDownAcross` needed them only so a scope could read a field whose name is held in another field, and a subscript already does that, `pValue = argument[tARGET];` and, through a cursor, `target = *grup[tARGET];`. No engine change. A miss leaves the local empty, as `=:` does. Driven on scratch copies of `tester`:
 
 | shape | holder version | `=:` version |
 |---|---|---|

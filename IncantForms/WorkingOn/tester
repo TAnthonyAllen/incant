@@ -53,17 +53,15 @@ define
     dIRECTion;
     newStuff isList;
     fillDownAcross code={
-        target <: tARGET;
-        direct <: dIRECTion;
-        =:argument target direct;
-        pValue = target;
+        pValue = argument[tARGET];
+        direct = argument[dIRECTion];
         memberCount=0;
         for grup in argument; members
             ++memberCount;
-            =:grup target;
+            target = *grup[tARGET];
             if target.datA != 0;    pValue -= target;
         if direct == "*";
-            if memberCount > 1; print taG "can only have one member when" $direct "=*":;
+            if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
             valueCount = pValue / target;
         else
             if direct > 0;
