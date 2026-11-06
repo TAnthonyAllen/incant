@@ -174,7 +174,7 @@ define
             print :;
             for grup in argument; members
                 print +;
-                printDefinition(*grup);
+                printDef(*grup);
                 print ,-;
         else
             print ";":;
