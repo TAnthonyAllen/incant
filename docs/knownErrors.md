@@ -910,3 +910,24 @@ probe and is not claimed either way.** Pre-existing — the line read the same b
 
 Tony — ruled above, and **KE-4 is now CLOSED**: row 1 blessed and graduated, row 2 restored and
 pinned at 4. Both halves are live fleet checks and neither is a pinned defect.
+
+## KE-5 — **the collector never frees a GroupItem: plain `new` is uncollectable.** Found 2026-11-06, because Tony asked whether the GC ran. Status: open, for Tony's ruling.
+
+**Measured (bare binary, merged trunk):**
+- `GC_PRINT_STATS=1`: the collector runs (201 collections by 5000 layouts of setFrame on 110 fields) and the heap reads 99% in use. No collection in any run frees anything.
+- The control is a plain `m := copyOf(v);` in a loop: 2,000,000 passes, 415MB, 62 collections, none freeing. 200,000 passes, 72MB.
+- `otool -tV` on the binary: `__Znwm`, global operator new, calls `GC_malloc_uncollectable`. That is libgc's gc_cpp default for a class with no `gc` base.
+- GroupItem and GroupBody have no base class today. grep of .mm, .h and .twk for `public gc`, `new (GC)`, `gc_cleanup`: 0. `new GroupItem(`: 96 sites in GroupRules.mm and GroupItem.mm.
+- `public gc` came in with da9f701a (2026-04-26, Phase 0) and is touched last by a15471ce (2026-05-14). READ, NOT RUN: whether a15471ce removed it on purpose.
+
+**So CLAUDE.md's "Boehm-GC managed (inherits from `gc`)", line 176, and docs/gc.md's "collected automatically" do not describe today's binary.** Corrected by this entry, not by editing them, until this is ruled.
+
+**Cost:** setFrame on 110 fields keeps about 300KB a layout, 4.2GB after about 16,500 (docs/setFrameSpec.md). Each collection scans it all, which fits a layout slowing as it runs (fits, not shown).
+
+**WHY THIS IS A RULING AND NOT A ONE-LINE REPAIR.** Uncollectable is also what makes things safe today. Not measured, each a reason to measure before anything flips:
+- The JIT bakes absolute field addresses into IR (bear-trap #10's note). Emitted code is not scanned, so a collectable field reached only from baked code could be freed under it.
+- GroupItems held from malloc memory, from C++ containers, from Objective-C objects or Core Graphics contexts are invisible to the collector.
+- A collectable class's first run will find every such case as a crash, far from its cause.
+
+**The options:** (a) leave it, and treat memory as the cost of the interpreter for now; (b) a `gc` base on GroupBody and GroupItem, behind a clone build and the whole checklist; (c) free only named transients, such as the entry `replace` removes.
+
