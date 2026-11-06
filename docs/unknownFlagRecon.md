@@ -63,3 +63,7 @@ It catches all six silent ones above. Two commands fold onto entries, `isList` a
 **Two questions this cannot answer, for Tony:**
 - **`isGROUP` in tabs.** Respell the form, or add a clause (a run of capitals is not a near miss), which clears tabs, and also stops catching `isLIST`, `isBIN`, a C spelling a kant writer could plausibly reach for. **Leaning respell:** a list of kind names can spell them any way, and the catch is worth more.
 - **A flag with no write case, `isRulE`.** SEQ 338 left those silent. This stroke could refuse them too. It moves FA-6, and only that row today, so it is cheap now and is the same defect seen from the other side. **Leaning yes,** as its own ruling.
+
+## Ruled (SEQ 545, 2026-11-06): built on branch near-flag
+
+The rule stands as written. **A near miss warns and keeps the attribute, not refuses**, so the REMOVED consequence above does not apply to it. An exact flag with no write case refuses. `isGROUP` in tabs stays, warns, and is respelled when that form comes up for repair.
