@@ -4229,6 +4229,19 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	
 }
 
+/*  jitCallReturnRT -- run time, straight after a native call on the new road, before the frame restores: what the callee handed back, copied as
+    runAction copies it, or null for nothing. A refusal inside the callee has already been cleared, by jitStmtRT, so the caller carries on and reads null (SEQ 540).  */
+extern "C" GroupItem *jitCallReturnRT(int value)
+{
+	
+	GroupItem *result = ::jitTakeReturn(value);
+	if ( !result ) return nullptr;
+	GroupItem *capture = new GroupItem(result->groupBody->tag);
+	capture->setContent(result);
+	return capture;
+	
+}
+
 // jitCarryCopy a copy-out keeps the compiled value: a FRESH JitData holding the source's, never the shared pointer -- a later dot re-seeds tempField's (docket item 1)
 extern "C" void jitCarryCopy(GroupItem *keep, GroupItem *source)
 {
@@ -5555,6 +5568,15 @@ extern "C" int jitEmitReturn()
 	::fflush(stderr);
 	return -1; }
 	JitInlineFrame &f = gJitInlineFrames.back();
+	//  inlineChannel a new-road callee's return says its kind, as an activation's does (SEQ 540)
+	if (f.retKindSlot && gJitResult) {
+	llvm::Type *cI32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *cPtr = llvm::PointerType::getUnqual(ctx);
+	if (gJitResult->getType()->isDoubleTy()) {
+	llvm::Value *boxFn = b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)(void*)&jitBoxNumberRT), cPtr, "retBoxFn");
+	b->CreateStore(b->CreateCall(llvm::FunctionType::get(cPtr, {gJitResult->getType()}, false), boxFn, {gJitResult}, "retBox"), f.retNodeSlot);
+	b->CreateStore(llvm::ConstantInt::get(cI32, 2), f.retKindSlot); }
+	else b->CreateStore(llvm::ConstantInt::get(cI32, 1), f.retKindSlot); }
 	
 	jitStoreResult();
 	
@@ -5768,9 +5790,23 @@ extern "C" GroupItem *jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	llvm::Value *callField = selfArg ? selfArg
 	: (llvm::Value*)llvm::ConstantPointerNull::get(llvm::PointerType::getUnqual(ctx));
 	llvm::Value *v = b->CreateCall(target, {callField}, "selfcall");
+	//  callValue the new road reads the value before the restore: a returned local's content is the frame's to restore (SEQ 540)
+	llvm::Value *callNode = nullptr;
+	if (gJitCallTakesNode)
+	callNode = b->CreateCall(llvm::FunctionType::get(ptr, {llvm::Type::getInt32Ty(ctx)}, false),
+	b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitCallReturnRT), ptr, "callRetFn"), {v}, "callRet");
 	llvm::Value *restoreFn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRestoreFrameRT), ptr, "restoreFn");
 	b->CreateCall(frameTy, restoreFn, {calleeAddr});
+	if (callNode) {
+	GroupItem *nodeResult = new GroupItem((char*)"callResult");
+	nodeResult->jitData = new JitData();
+	nodeResult->jitData->jitNode = callNode;
+	gJitSeeded.push_back(nodeResult);
+	gJitCallResult = nodeResult;
+	gJitResult  = nullptr;
+	gJitEmitted = true;
+	return nodeResult; }
 	gJitResult  = v;
 	gJitEmitted = true;
 	//  ⚠ THE CALL'S VALUE IS %selfcall, ON ITS OWN NODE (Tony, SEQ 378 R0). runAction used to hand back the ACTION,
@@ -5900,12 +5936,14 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitStmtRTValueRT), ptr, "rtRetFn"), {old}, "rtRet");
 	b->CreateStore(nv, gJitResultSlot);
 	//  rtReturnChannel the statement's value, by kind, into this activation's locals; an inlined region has no activation of its own (SEQ 527 R2)
-	if (gJitInlining.empty() && gJitRetKindSlot) {
-	llvm::Value *keep = b->CreateLoad(i32, gJitRetKindSlot, "retKindOld");
+	llvm::Value *rkSlot = gJitInlining.empty() ? gJitRetKindSlot : (gJitInlineFrames.empty() ? nullptr : gJitInlineFrames.back().retKindSlot);
+	llvm::Value *rnSlot = gJitInlining.empty() ? gJitRetNodeSlot : (gJitInlineFrames.empty() ? nullptr : gJitInlineFrames.back().retNodeSlot);
+	if (rkSlot) {
+	llvm::Value *keep = b->CreateLoad(i32, rkSlot, "retKindOld");
 	b->CreateStore(b->CreateCall(llvm::FunctionType::get(i32, {i32}, false), b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendKindRT), ptr, "retPendKindFn"), {keep}, "retPendKind"), gJitRetKindSlot);
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendKindRT), ptr, "retPendKindFn"), {keep}, "retPendKind"), rkSlot);
 	b->CreateStore(b->CreateCall(llvm::FunctionType::get(ptr, {}, false), b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendNodeRT), ptr, "retPendNodeFn"), {}, "retPendNode"), gJitRetNodeSlot); } }
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendNodeRT), ptr, "retPendNodeFn"), {}, "retPendNode"), rnSlot); } }
 	b->CreateBr(exit);
 	b->SetInsertPoint(chk);
 	//  loopTargets a statement carrying a continue / break (and ONLY one) switches: 3 -> the innermost loop's condition,
@@ -6708,6 +6746,8 @@ extern "C" int jitNoteWriter(GroupItem *op, GroupItem *target, GroupItem *arg)
 	if ( !op ) kind = 6;
 	else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
 	else if ( !arg ) { ::jitNoteArm(tb,4); return 0; }
+	//  callWriter what a call hands back is a run-time fact, so its local gets no scalar slot and native reads of it hand over (SEQ 540)
+	else if ( arg == gJitCallResult ) kind = 6;
 	else if ( arg->jitData ) {
 	if ( arg->jitData->jitValue ) {
 	if ( arg->jitData->jitValue->getType()->isDoubleTy() ) { kind = 9; seen = 2; }
@@ -8308,16 +8348,55 @@ extern "C" int jitWalkBranches(GroupItem *n, int d)
 	
 }
 
+/*  jitWalkCall -- SEQ 540 S6: emit one call: its argument, then the call. Hands back the node standing for the call's value. An argument that is not a count, computed, cannot be
+    boxed, so the statement hands over.  */
+extern "C" GroupItem *jitWalkCall(GroupItem *call)
+{
+	
+	GroupItem *callee = call->get(2), *arg = call->get(3);
+	if ( arg && (void*)arg->groupBody->gMethod == (void*)&testOP ) {
+	gJitResult = nullptr;
+	arg = ::jitWalkExpr(arg);
+	if ( !gJitHandOver && (!gJitResult || gJitResult->getType()->isDoubleTy()) )
+	::jitHandOver((char*)"a call's computed argument that is not a count -- the whole statement runs INTERPRETED", gJitStmt); }
+	if ( gJitHandOver ) return nullptr;
+	gJitCallTakesNode = true;
+	GroupItem *result = ::jitEmitSelfCall(arg, callee);
+	gJitCallTakesNode = false;
+	if ( result ) { gJitCallSelf++; return result; }
+	return ::jitWalkInline(arg, callee, gJitStmt);
+	
+}
+
+/*  jitWalkCallOK -- SEQ 540 S6: a call the walk can compile. The callee is an action named directly and its argument is nothing, a leaf other than this action's own argument,
+    or an instruct the walk emits. A self-call, or a callee that has its own function; anything else is handed over.  */
+extern "C" int jitWalkCallOK(GroupItem *call)
+{
+	
+	GroupItem *callee = call->get(2), *arg = call->get(3);
+	if ( !callee || (void*)callee->groupBody->gMethod == (void*)&testOP || !callee->groupBody->flags.actionType || ::callIsRule(callee) ) return 0;
+	if ( arg && (void*)arg->groupBody->gMethod == (void*)&testOP ) { if ( !::jitWalkEligible(arg) ) return 0; }
+	else if ( arg && arg->groupBody->flags.isArgument ) return 0;
+	if ( jitFnMapFind(callee->groupBody) ) return 1;
+	if ( gJitCurrentAction && callee->groupBody == gJitCurrentAction->groupBody ) return 1;
+	for ( GroupBody *onWalk : gJitInlining ) if ( onWalk == callee->groupBody ) return 1;
+	//  chainCallee a new-road callee is inlined by walking its chain; an old-road callee hands over, by name in the witness
+	GroupItem *blk = callee->actionBlocK();
+	return blk && (void*)blk->groupBody->gMethod == (void*)&testOP;
+	
+}
+
 /*  jitWalkChain -- THE NEW ROAD'S JITTER WALK (SEQ 520 S1). A new-road action's BlocK is a seq instruct bound to testOP:
     [1] the op, [2] the statement list. Walk the statements in order and hand each to its OWN testOP at RUN time through
     jitEmitStmtRT, which runs the instruct's method on the action's fields and maps a return, continue or break left set.
     S2 (SEQ 522): a statement built only of assign and the jitEmitter= operators is emitted natively (jitWalkEligible,
-    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt). S4 (SEQ 526): while, do, break, continue, a computed return. S5 (SEQ 527): print, cerr, cout. for and iterate are still handed over.
+    jitWalkExpr). S3 (SEQ 525): an ifThen too (jitWalkStmt). S4 (SEQ 526): while, do, break, continue, a computed return. S5 (SEQ 527): print, cerr, cout. S6 (SEQ 540): call. for and iterate are still handed over.
     The witness line is printed unconditionally, one per compile (H4).  */
 extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 {
 	
 	gJitWalkWalked = gJitWalkHanded = gJitWalkNative = 0;
+	gJitCallSelf = gJitCallInlined = gJitCallHanded = 0;
 	gJitWalkBreak.clear();
 	GroupItem *stmts = blk ? blk->get(2) : nullptr;
 	GroupItem *stmt  = nullptr;
@@ -8326,6 +8405,7 @@ extern "C" int jitWalkChain(GroupItem *action, GroupItem *blk)
 	//  witnessFinal the witness speaks for the build that stands, never one about to restart (SEQ 524, Tony)
 	if ( !gJitRestartNeeded ) {
 	::fprintf(stderr, "=== jitter walk: %s walked %d handed %d native %d ===\n", action->groupBody->tag, gJitWalkWalked, gJitWalkHanded, gJitWalkNative);
+	::fprintf(stderr, "=== jitter calls: %s self %d inlined %d handed %d ===\n", action->groupBody->tag, gJitCallSelf, gJitCallInlined, gJitCallHanded);
 	::fflush(stderr); }
 	return gJitWalkWalked;
 	
@@ -8388,6 +8468,67 @@ extern "C" void jitWalkHandedBack(GroupItem *stmt, int walked, int handed, int n
 	::jitScanArmsChain(stmt, 0);
 	if ( !gJitStmtMarks.empty() ) gJitStmtMarks.back().branches |= ::jitWalkBranches(stmt, 0);
 	::jitStmtEnd(stmt);
+	
+}
+
+/*  jitWalkInline -- SEQ 540 S6: a new-road callee, inlined by walking its chain, in runAction's own order: bind, save, body, take the value, restore. The region keeps its own
+    return channel, read at the join as a separately built callee's is. A callee local nothing the walk saw has written hands the whole call over, as the kindless net refuses a
+    function: what it holds is a run-time fact a native read would get wrong.  */
+extern "C" GroupItem *jitWalkInline(GroupItem *arg, GroupItem *callee, GroupItem *stmt)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Function *fn = b->GetInsertBlock()->getParent();
+	auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	llvm::FunctionType *frameTy = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr}, false);
+	GroupItem *ruleArg = callee->get((char*)"argument");
+	if ( !ruleArg ) ruleArg = callee->addAttribute(new GroupItem((char*)"argument"));
+	ruleArg->groupBody->flags.isArgument = 1;
+	::jitEmitArgBind(arg, callee);
+	b->CreateCall(frameTy, bake((void*)&jitSaveFrameRT, "saveFn"), {bake((void*)callee, "frameCallee")});
+	::jitInlinePush(callee);
+	llvm::IRBuilder<> eb(&fn->getEntryBlock(), fn->getEntryBlock().begin());
+	llvm::Value *kindSlot = eb.CreateAlloca(i32, nullptr, "inlineRetKind");
+	llvm::Value *nodeSlot = eb.CreateAlloca(ptr, nullptr, "inlineRetNode");
+	b->CreateStore(llvm::ConstantInt::get(i32, 0), kindSlot);
+	b->CreateStore(llvm::ConstantPointerNull::get(llvm::PointerType::getUnqual(ctx)), nodeSlot);
+	gJitInlineFrames.back().retKindSlot = kindSlot;
+	gJitInlineFrames.back().retNodeSlot = nodeSlot;
+	int walked = gJitWalkWalked, handed = gJitWalkHanded, native = gJitWalkNative;
+	std::vector<llvm::BasicBlock*> breakSave;
+	breakSave.swap(gJitWalkBreak);
+	gJitResult = nullptr;
+	::jitWalkStmt(callee->actionBlocK());
+	gJitWalkBreak.swap(breakSave);
+	gJitWalkWalked = walked; gJitWalkHanded = handed; gJitWalkNative = native;
+	gJitStmt = stmt;
+	::jitInlinePop(nullptr);
+	gJitResult = nullptr;
+	GroupItem *a = 0;
+	while ( (a = callee->next(a)) ) {
+	GroupBody *lb = a->groupBody;
+	if ( !lb->flags.isLocal || lb->flags.isArgument || lb->flags.noPrint || lb->flags.data || gJitLocalKind.count(lb) ) continue;
+	char why[160];
+	::snprintf(why, sizeof why, "the inlined callee %s's local %s is kindless and has no writer the build can see -- the whole statement runs INTERPRETED", callee->groupBody->tag, lb->tag ? lb->tag : "?");
+	::jitHandOver(::strdup(why), stmt);
+	return nullptr; }
+	gJitCallInlined++;
+	b->CreateStore(b->CreateLoad(i32, kindSlot, "inlineKind"), bake((void*)&gJitRetKind, "retKindPub"));
+	b->CreateStore(b->CreateLoad(ptr, nodeSlot, "inlineNode"), bake((void*)&gJitRetNode, "retNodePub"));
+	llvm::Value *v = gJitResultSlot ? (llvm::Value*)b->CreateLoad(i32, gJitResultSlot, "inlineValue") : (llvm::Value*)llvm::ConstantInt::get(i32, 0);
+	llvm::Value *callNode = b->CreateCall(llvm::FunctionType::get(ptr, {i32}, false), bake((void*)&jitCallReturnRT, "callRetFn"), {v}, "callRet");
+	b->CreateCall(frameTy, bake((void*)&jitRestoreFrameRT, "restoreFn"), {bake((void*)callee, "frameCallee")});
+	GroupItem *nodeResult = new GroupItem((char*)"callResult");
+	nodeResult->jitData = new JitData();
+	nodeResult->jitData->jitNode = callNode;
+	gJitSeeded.push_back(nodeResult);
+	gJitCallResult = nodeResult;
+	gJitEmitted = true;
+	return nodeResult;
 	
 }
 
@@ -8553,8 +8694,15 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	const char *k = kw ? kw->groupBody->tag : nullptr;
 	//  jitEmitBreak a break goes to the innermost seq or loop; a continue to the innermost loop's condition; with neither it ends the action
 	if ( k && (*k == 'b' || *k == 'c') ) {
-	llvm::BasicBlock *to = *k == 'b' ? (gJitWalkBreak.empty() ? gJitEpilogueBB : gJitWalkBreak.back())
-	: (gLoopCondBlocks.empty() ? gJitEpilogueBB : gLoopCondBlocks.back());
+	//  regionFloor an inlined callee's continue with no loop of its own ends the callee: its caller's loop is not its to continue (SEQ 540)
+	size_t loopFloor = gJitInlineFrames.empty() ? 0 : gJitInlineFrames.back().loopDepth;
+	llvm::BasicBlock *noLoop = gJitEpilogueBB;
+	if ( !gJitInlineFrames.empty() && gJitInlineFrames.back().exitBB ) {
+	JitInlineFrame &rf = gJitInlineFrames.back();
+	if ( !rf.used ) { gJitBuilder->GetInsertBlock()->getParent()->insert(gJitBuilder->GetInsertBlock()->getParent()->end(), rf.exitBB); rf.used = true; }
+	noLoop = rf.exitBB; }
+	llvm::BasicBlock *to = *k == 'b' ? (gJitWalkBreak.empty() ? noLoop : gJitWalkBreak.back())
+	: (gLoopCondBlocks.size() <= loopFloor ? noLoop : gLoopCondBlocks.back());
 	gJitBuilder->CreateBr(to);
 	gJitBuilder->SetInsertPoint(llvm::BasicBlock::Create(gJitBuilder->getContext(), "afterBranch", gJitBuilder->GetInsertBlock()->getParent()));
 	gJitEmitted = true;
@@ -8572,6 +8720,30 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	gJitWalkNative++;
 	::jitStmtEnd(stmt);
 	gJitStmtCanRefuse = false;
+	return; } }
+	//  callNative a call standing alone, or `x = f(y)` with x a plain field; a shape the walk cannot compile rolls back to one run-time call (SEQ 540 S6)
+	{
+	GroupItem *callNode = nullptr, *callTarget = nullptr;
+	if ( tag && !::strcmp(tag, "call") ) callNode = stmt;
+	else if ( tag && (void*)op->groupBody->gOp == (void*)&opAssign ) {
+	GroupItem *rhs = stmt->get(3), *lhs = stmt->get(2);
+	if ( rhs && lhs && (void*)rhs->groupBody->gMethod == (void*)&testOP && rhs->get(1) && rhs->get(1)->groupBody->tag && !::strcmp(rhs->get(1)->groupBody->tag, "call")
+	&& (void*)lhs->groupBody->gMethod != (void*)&testOP && !lhs->groupBody->flags.isArgument ) { callNode = rhs; callTarget = lhs; } }
+	//  handedWriter a call handed over still writes its local, with a kind known only at run time: the same non-scalar writer as a native call's
+	auto noteHanded = [&]() { if ( callTarget ) { gJitCallResult = new GroupItem((char*)"callResult"); ::jitNoteWriter(op, callTarget, gJitCallResult); } };
+	if ( callNode && !::jitWalkCallOK(callNode) ) { gJitCallHanded++; noteHanded(); callNode = nullptr; }
+	else if ( callNode ) {
+	gJitStmt = stmt; gJitStmtRTDone = false;
+	::jitStmtBegin();
+	int selfBefore = gJitCallSelf, inlinedBefore = gJitCallInlined;
+	GroupItem *value = ::jitWalkCall(callNode);
+	if ( callTarget && !gJitHandOver ) ::runOPslots(op, callTarget, value);
+	if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(stmt); }
+	gJitResult = nullptr;
+	bool wasHanded = gJitHandOver;
+	::jitStmtEnd(stmt);
+	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
+	if ( wasHanded ) { gJitWalkHanded++; gJitCallSelf = selfBefore; gJitCallInlined = inlinedBefore; gJitCallHanded++; noteHanded(); } else gJitWalkNative++;
 	return; } }
 	//  printNative print, cerr and cout; a statement that cannot emit an item rolls back to one run-time call (SEQ 527 S5)
 	if ( tag && (!::strcmp(tag, "printList") || !::strcmp(tag, "cerrList") || !::strcmp(tag, "coutList")) && arms && ::jitWalkPrintNative(arms) ) {

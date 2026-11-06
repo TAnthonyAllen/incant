@@ -216,3 +216,25 @@ newJitPrintT) as pre-registered before the build, first run. pop.sh 2476 -> 2480
 
 **H7 (cure committed first; single fixture, alarm; binary byte-identical after):** the print falls back (the recon's H7): the fallback count returns, values unchanged. Every print closes on
 stdout: the cerr line moves from stderr to stdout.
+
+## S6 (SEQ 540, 2026-11-06) -- call through the walk; branch new-jit-s6, pins on trunk
+
+**Built:** a call standing alone, or `x = f(y)` with x a plain field, whose callee is an action named directly and whose argument is nothing, a leaf other than the action's own argument, or an instruct the walk emits. A **self-call**, or a callee with its own function, goes through jitEmitSelfCall. A **new-road callee** is inlined by walking its chain, in runAction's order: bind, save, body, take the value, restore (jitWalkInline). Either way the call's value is a run-time node read before the restore (jitCallReturnRT), because a callee may return a string, a number or nothing; **its local gets no scalar slot** (a non-scalar writer, jitNoteWriter), so native reads of it hand over. An inlined region keeps its own return channel on its frame; the old road's inline does not, so its IR is unchanged.
+
+**Stays handed over, counted in `=== jitter calls: ... ===`:** an old-road callee; a callee with a kindless local nothing the walk saw written; a call inside a print, a return, a condition or arithmetic; an argument that is this action's own `argument`, directly or in an expression (jitWalkEligible's standing rule), so `f(argument - 1)`; a computed argument that is not a count. A local written only by a handed-over statement still refuses its action NOT JITTABLE: cA (`v = argument`), cG, k7, k9.
+
+**What (d) no longer said:** handing a call over already gave the right value, so its certificate could not go red on values and the witness is what discriminates. newReturnT's old-road RT-5f and RT-5p differ under jitter (0 for 6 and 1), so the row is its new-road labels. nl3an no longer runs away (R1a). (d) named no H7.
+
+**Certificate:** newJitCallT under `jitter;` = the twin, every shape; the self-call and callee witness as pre-registered on trunk before the build, but for the shapes added after H7 asked for them; newReturnT's new-road rows and newReturnSelfT = plain; rt7n's self-call native. **oldCallsNewT, not a registered mover: exit 139 before and after, unmoved.** S6 does not touch runAction's jitting arm, which is where it dies.
+
+**H7 (cure committed first; single fixture, alarm; each restored md5-identical):**
+| control | what moved |
+|---|---|
+| self-call: the channel ignored, the i32 boxed | cC's `s` reads 1, cD's `1.5` reads 2, and cE's `r` moves (its new value was cut off in the capture) |
+| self-call: the walk's arm off | the witness: every self 0, handed 1 |
+| callee: the region's channel ignored | t2's `text` reads 4, t3's `2.5` reads 3, t4's `r` reads 0 |
+| callee: the continue floor removed | a callee's restore is skipped: its local q reads 9 where the twin reads q |
+| callee: the region's frame save removed | t16's unset local reads 5 on the second call, q reads 9 |
+| callee: the kindless hand-over removed | t7 reads `after 3`, silently, where the twin reads `after r` |
+| a handed writer not noted | NOT JITTABLE returns for t7, t11, t12 |
+| a refusal not cleared at the call | nothing moved: jitStmtRT had already cleared it, so the line came out |
