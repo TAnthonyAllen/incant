@@ -2,7 +2,7 @@
 
 **One plain line: kant has a new value scope, `=:`, and a number compared with a string no longer compares against the string's length; both are on trunk, nothing is broken, and the morning docket is unchanged and ready.**
 
-Seal 347. Trunk `jit-unified-emit-wip` = main, merge `b57ae3d7`. These rulings carry no SEQ number; assign them if you want them on the ledger.
+Seal 347. Trunk `jit-unified-emit-wip` = main, merge `b57ae3d7`. These rulings are SEQ 536 (Clay, SEQ 537).
 
 ## Why this came up
 
