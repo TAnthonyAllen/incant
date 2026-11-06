@@ -918,7 +918,7 @@ pinned at 4. Both halves are live fleet checks and neither is a pinned defect.
 - The control is a plain `m := copyOf(v);` in a loop: 2,000,000 passes, 415MB, 62 collections, none freeing. 200,000 passes, 72MB.
 - `otool -tV` on the binary: `__Znwm`, global operator new, calls `GC_malloc_uncollectable`. That is libgc's gc_cpp default for a class with no `gc` base.
 - GroupItem and GroupBody have no base class today. grep of .mm, .h and .twk for `public gc`, `new (GC)`, `gc_cleanup`: 0. `new GroupItem(`: 96 sites in GroupRules.mm and GroupItem.mm.
-- `public gc` came in with da9f701a (2026-04-26, Phase 0) and is touched last by a15471ce (2026-05-14). READ, NOT RUN: whether a15471ce removed it on purpose.
+- `class GroupItem : public gc` and `#include "gc/gc_cpp.h"` came in with da9f701a (2026-04-26, Phase 0) and went out with a15471ce (2026-05-14). That commit's message is about CodE parsing and never mentions them, and bear-trap #5 says a retok drops includes, so this may be an accident of a retok: read, not run, and not established. So GroupItem has been uncollectable for about six months, on all of today's work.
 
 **So CLAUDE.md's "Boehm-GC managed (inherits from `gc`)", line 176, and docs/gc.md's "collected automatically" do not describe today's binary.** Corrected by this entry, not by editing them, until this is ruled.
 
