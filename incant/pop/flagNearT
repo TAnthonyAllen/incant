@@ -1,0 +1,70 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(FnR);
+define
+    fnL isLocal;
+    fnM isMacro;
+    fnB byRef;
+    fnI isBin;
+    fnP noprint;
+    fnX noPrinX;
+    fnV noPrinX=5;
+    cA noPrinT;
+    cB noPrint;
+    cC isRule;
+    cD isList;
+    cE across;
+    cF InvokeD;
+    cG plain words only;
+    ;
+registry(FnE);
+define
+    fnE isRulE;
+    fnKeep isBiN;
+    ;
+registry(FnK);
+define
+    FnK isRule;
+    fnT flags;
+    ;
+registry(FnR);
+define
+    fnRead code={
+        l := fnL.listLengtH;   cerr "FN isLocal attrs=" l:;
+        l := fnM.listLengtH;   cerr "FN isMacro attrs=" l:;
+        l := fnB.listLengtH;   cerr "FN byRef attrs=" l:;
+        l := fnI.listLengtH;   cerr "FN isBin attrs=" l:;
+        l := fnP.listLengtH;   cerr "FN noprint attrs=" l:;
+        l := fnX.listLengtH;   cerr "FN noPrinX attrs=" l:;
+        l := fnV.listLengtH;   cerr "FN noPrinX=5 attrs=" l:;
+        v := fnV["noPrinX"];   cerr "FN noPrinX=5 reads " v:;
+        l := cA.listLengtH;    cerr "FN noPrinT attrs=" l:;
+        l := cB.listLengtH;    cerr "FN noPrint attrs=" l:;
+        l := cC.listLengtH;    cerr "FN isRule attrs=" l:;
+        l := cD.listLengtH;    cerr "FN isList attrs=" l:;
+        l := cE.listLengtH;    cerr "FN across attrs=" l:;
+        l := cF.listLengtH;    cerr "FN InvokeD attrs=" l:;
+        l := cG.listLengtH;    cerr "FN plain attrs=" l:;
+        };
+    ;
+fnRead();
+if FnE["fnE"];
+    cerr "FN isRulE field survives":;
+else
+    cerr "FN isRulE field gone":;
+if FnE["fnKeep"];
+    cerr "FN the next field defined":;
+if FnK["fnT"];
+    cerr "FN rule term found":;
+cerr "FLAGNEAR SENTINEL":;
+stop();
+
+flagNearT -- SEQ 545: a name that looks like a flag warns and stays an ordinary attribute (R0, R1). An exact flag with no write case refuses, as a define refusal does, so the field is removed and the next one still defines (R2). A fold first, then one edit: isLocal, isMacro, byRef, isBin, noprint fold; noPrinX is one edit. noPrinT, noPrint, isRule, isList, across, the rule term flags and InvokeD are quiet. Every attribute counted: the kept ones read 1, the flags and the commands 0.

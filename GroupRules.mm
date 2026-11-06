@@ -2881,18 +2881,55 @@ char 	*name = input->getText();
 /*******************************************************************************
     An attribute whose name is a GroupFields flag sets that flag on the field being
     defined and is not added, as a noPrint immediate attribute is not (Tony, SEQ 533
-    R1). Only a name setGroupField can write; lastIndenT and processingCodE are not
-    flags, so they and every other name keep the ordinary path.
+    R1). A flag with no write case refuses by name (SEQ 545 R2). lastIndenT and
+    processingCodE are not flags, so they and every other name keep the ordinary path,
+    and a name that looks like a flag warns as it does (nearFlag, SEQ 545 R0, R1).
 *******************************************************************************/
 extern "C" int flagAttribute(GroupItem *host, GroupItem *item)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*flagDef = ruler->groupFields->get(item->groupBody->tag);
+GroupItem 	*near = 0;
 	if ( !flagDef )
+		{
+		// nearMiss a rule's term and a command are not flag spellings
+		if ( host->groupBody->flags.isRule )
+			return 0;
+		if ( immediateACTION(item->groupBody->flags.methodType) )
+			return 0;
+		if ( ruler->currentRegistry && ruler->currentRegistry->groupBody->flags.isRule )
+			return 0;
+		near = ::nearFlag(item->groupBody->tag);
+		if ( near )
+			::fprintf(stderr,"WARNING %s in %s looks like flag %s -- kept as an attribute\n",item->groupBody->tag,host->groupBody->tag,near->groupBody->tag);
 		return 0;
+		}
 	if ( flagDef->groupBody->gCount == 411 || flagDef->groupBody->gCount == 412 )
 		return 0;
-	return setGroupField(host,flagDef->groupBody->gCount,1);
+	if ( setGroupField(host,flagDef->groupBody->gCount,1) )
+		return 1;
+	if ( !::flagEntry(flagDef) )
+		return 0;
+	// tableWritten a table entry holding a count of 0 is FA-9's defect, noPrinT=0 having overwritten its number: not a flag with no write case
+	if ( flagDef->groupBody->flags.data && !flagDef->groupBody->gCount )
+		return 0;
+	::refuse(host,"a flag with no write case -- a define cannot set it");
+	return 1;
+}
+
+/*******************************************************************************
+    1 for a GroupFields entry that is a flag: 36 of the 53. The plain accessors and
+    lastIndenT and processingCodE, by number, are not.
+*******************************************************************************/
+extern "C" int flagEntry(GroupItem *entry)
+{
+	
+	int n = entry->groupBody->gCount;
+	if ( n >= 1 && n <= 6 ) return 0;
+	if ( n >= 401 && n <= 407 ) return 0;
+	if ( n == 409 || n == 411 || n == 412 || n == 413 ) return 0;
+	return 1;
+	
 }
 
 // followArgument argument is a BINDING, not a field: an isArgument operand holding a group yields what it holds
@@ -9248,6 +9285,36 @@ extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat)
 	one[0] = *p;
 	if ( ::modifierIsRepeat(one) == wantRepeat ) ::modify(field,one);
 	}
+	
+}
+
+/*******************************************************************************
+    A name that looks like a flag it is not: lower case first, and it folds to a
+    flag or is one edit from one, a fold winning (Tony, SEQ 545 R0). Null otherwise.
+*******************************************************************************/
+extern "C" GroupItem *nearFlag(char *name)
+{
+	
+	GroupItem *fields = GroupControl::groupController->groupRules->groupFields;
+	//  notYetFilled setup fills GroupFields at its line 264, and next() on an empty list prints an error for every attribute above it
+	if ( !name || !islower((unsigned char)*name) || !fields || !fields->groupBody->groupList ) return 0;
+	GroupItem *entry = 0, *edit = 0;
+	int la = (int)strlen(name);
+	while ( (entry = fields->next(entry)) ) {
+	const char *flag = entry->groupBody->tag;
+	if ( !flag || !::flagEntry(entry) ) continue;
+	if ( !strcasecmp(name,flag) ) return entry;
+	if ( edit ) continue;
+	int lb = (int)strlen(flag), i = 0, j = 0, edits = 0;
+	if ( abs(la - lb) > 1 ) continue;
+	while ( i < la && j < lb && edits < 2 ) {
+	if ( tolower((unsigned char)name[i]) == tolower((unsigned char)flag[j]) ) { i++; j++; continue; }
+	edits++;
+	if ( la > lb ) i++;
+	else if ( lb > la ) j++;
+	else { i++; j++; } }
+	if ( edits + (la - i) + (lb - j) == 1 ) edit = entry; }
+	return edit;
 	
 }
 
