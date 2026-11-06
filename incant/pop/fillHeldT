@@ -34,11 +34,14 @@ makeDisplay(fhNameCanvas);
 displayFillRT(fhNameCanvas);
 print "FH pixel by name":;
 pixelAt(fhNameCanvas);
+/* the far registry is off the list while the nearer wall is defined: with it on, a define writes the far field and mints nothing (defineCapture) */
+search reset stack Grokking UnitTests Utilities list;
 register(FillHeldNear);
 define
     wall=#0000ff;
     ;
-search FillHeldNear FillHeldFar UnitTests Utilities list;
+search reset stack FillHeldNear Grokking FillHeldFar UnitTests Utilities list;
+print "FH two walls: near" FillHeldNear["wall"] "far" FillHeldFar["wall"]:;
 print "FH nearest wall by name" wall:;
 makeDisplay(fhCanvas);
 displayFillRT(fhCanvas);
