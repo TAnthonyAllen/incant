@@ -7,7 +7,7 @@
 #   ## STILL NOT BUILT: fill= has no reader; this stroke is fillColor through a style. A draw that names a colour by a quoted name still looks up by name, as ruled.
 #   ## A CORRECTION: with the far registry on the search list a second wall= rewrites the far field (defineCapture), so my first pin read one wall, and the 11-05 recon's measurement may have. The pin now mints two and says so by value. forms carries the note.
 #   ## BRANCH CHECKS (binary bare): pop.sh exit 1, 2672 green, 60 FAIL rows identical by name with pop.fails; 11 new rows, fixture-name count 355 -> 357, all that moved · jitLadder exit 0, 224 / 0, identical · printPop exit 0 · decodePop = capture but its echo · ddPop 5 / 1 · frontier = capture · bare tokall = committed · canary 439, unmoved · groups.ext: setColor's signature, on support branch m3-fill · functions touched that carry directive anchors: none.
-#   ## TRUNK: the six M3 rows born red. Canary 439, support on main.
+#   ## TRUNK: pop.sh exit 1, 2667 green, 65 FAIL rows: pop.fails plus the five M3 rows born red. Canary 439, support on main.
 #
 #   ## Tony's fixit incantations waiting: 0
 #   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
