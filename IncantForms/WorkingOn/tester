@@ -63,7 +63,9 @@ define
             if target.datA != 0;    pValue -= target;
         if direct == "*";
             if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
+            valueCount = 0;
             valueCount = pValue / target;
+            if valueCount * target > pValue;    --valueCount;
         else
             if direct > 0;
                 valueCount = direct - 1;
@@ -165,14 +167,24 @@ define
                 upOut       +/ *grup;
                 ++upOut;
         if upOut > 0;
-            headRoom /= upOut;
+            shareN = 0;
+            shareUsed = 0;
+            shareEdge = 0;
             for grup in upOut;
-                height = headRoom;
+                ++shareN;
+                shareEdge = headRoom * shareN / upOut;
+                height = shareEdge - shareUsed;
+                shareUsed = shareEdge;
                 *grup :% copyOf(height);
         if sideOut > 0;
-            sideRoom /= sideOut;
+            shareN = 0;
+            shareUsed = 0;
+            shareEdge = 0;
             for grup in sideOut;
-                width = sideRoom;
+                ++shareN;
+                shareEdge = sideRoom * shareN / sideOut;
+                width = shareEdge - shareUsed;
+                shareUsed = shareEdge;
                 *grup :% copyOf(width);
         headRoom    = 0;
         sideRoom    = 0;
