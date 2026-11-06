@@ -108,6 +108,12 @@ define
     ***************************************************************************/
         for grup in argument; members
             =:grup width height;
+            if width.isPercenT;
+                width = pWidth * width / 100;
+                *grup :% copyOf(width);
+            if height.isPercenT;
+                height = pHeight * height / 100;
+                *grup :% copyOf(height);
             if width.datA != 0;
                 sideRoom    -= width;
             or across.datA == 0;
@@ -175,8 +181,8 @@ define
         };
     ;
 
-setFrame(somple);
-printDef(somple);
+setFrame(sample);
+printDef(sample);
 print "SENTINEL tester driver end":;
 stop();
 
