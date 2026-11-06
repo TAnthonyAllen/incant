@@ -41,8 +41,8 @@
   COMPILES  QuotE1
   COMPILES  QuotE2
   COMPILES  RunRulE
-  COMPILES  ScopeXP
   COMPILES  ScopeValue
+  COMPILES  ScopeXP
   COMPILES  Search
   COMPILES  SetBrackets
   LEAF      ShortcuT

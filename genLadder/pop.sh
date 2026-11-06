@@ -7882,7 +7882,7 @@ kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391
 
 #  ---- scopeValueT: =: THE VALUE SCOPE (Tony, 2026-11-06). A local takes the found field's value, a bare flag reads 1, an
 #  absent field clears, a held group warns and clears. SV-6 is the claim the spelling exists for, and SV-7 is : on the same
-#  field, still a holder. H7 (fix committed first): copyData's arm out, SV-1 SV-6 SV-8 SV-9 red; the warning arm out, SV-10 and the warning row red.
+#  field, still a holder. H7 (fix committed first, single fixture): the warning arm and the bare-flag arm out, SV-3a reads flagish, SV-10 has data, no warning; SV-11 stays, its non-zero sibling.
 perl -e 'alarm 20; exec @ARGV' "$B" "$(ip scopeValueT)" > "$T/sv" 2> "$T/sv.e"; _svx=$?
 kindRow "scopeValueT runs" "$_svx" "0"
 sentinel "scopeValueT sentinel" "$T/sv" "SCOPEVALUE SENTINEL"
@@ -7900,7 +7900,7 @@ kindRow "scopeValueT the warning names the field and the form, once" "$(grep -c 
 
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
-#  H7 (fix committed first): compareValues' mixed block out, the six rows 1 vs *, * vs 1, 3 vs '3', '3' vs 3, 1 vs '3', '12' vs 2 go red.
+#  H7 (fix committed first, single fixture): compareValues' mixed block out, no warnings; 1 vs * reads 010000 -> 011100 and '12' vs 2 reads 010011 -> 011100, both red.
 perl -e 'alarm 20; exec @ARGV' "$B" "$(ip compareMixT)" > "$T/cm" 2> "$T/cm.e"; _cmx=$?
 kindRow "compareMixT runs" "$_cmx" "0"
 sentinel "compareMixT sentinel" "$T/cm" "COMPAREMIX SENTINEL"
