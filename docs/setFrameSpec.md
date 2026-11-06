@@ -29,3 +29,5 @@ Recorded as Clay wrote it. Not a build dispatch; setFrame is Tony's. Its RULINGS
 - H7 on each half: the split, the reset, the % read, and declared-survives.
 
 **Parked:** jitting setFrame (`=:` makes it NOT JITTABLE today, docs/percentRecon.md R4), and the ties above.
+
+**Clod's note, 2026-11-06, for the session.** Once percent-unit is bought, `=:grup width height;` brings the unit across, so a bare `width.isPercenT` reads 1; through `:` it must be `*width.isPercenT`. A computed value written with `=` from a plain number clears the bit, so declared-survives depends on writing somewhere else, as this spec says.

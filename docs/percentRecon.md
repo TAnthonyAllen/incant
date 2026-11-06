@@ -1,5 +1,7 @@
 # The %: width=50% on the road to setFrame (SEQ 551, recon only, 2026-11-06)
 
+**BUILT 2026-11-06 on branch percent-unit, 2b61dcc3, not merged (SEQ 552; see the seal and macros). Below is the recon as written.**
+
 **Plain line: nothing is built. The % is lost twice before setFrame can use it, the fix fits in one existing bit with two write sites, and the frame row cannot go green until Tony's setFrame draft is in utilities.**
 
 Measured in **kant**, bare binary, merged trunk 54287f99 (2026-11-06). Written tok lines are tok. Probes: docs/percentProbes (scratch, not fleet). Ruling in force, SEQ 538 via SEQ 551 R0: a % after a value is a unit on that value and travels through every value copy.
