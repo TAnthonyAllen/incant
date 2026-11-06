@@ -8907,12 +8907,33 @@ _ofeq "flagAttrT FA-2 noPrinT sets the flag, is not added" "$(_fav 'noPrinT noPr
 _ofeq "flagAttrT FA-3 isBiN, through its own case" "$(_fav 'isBiN bin=')" "1 attrs= 0"
 _ofeq "flagAttrT FA-4 isActioN, through its own case" "$(_fav 'isActioN action=')" "1 attrs= 0"
 _ofeq "flagAttrT FA-5 isVirtuaL mergeON byReF invokE, none added (opDot has no read case for three)" "$(_fav 'four unreadable flags attrs=')" "0"
-_ofeq "flagAttrT FA-6 isRulE has no write case: the ordinary path, flag off, added" "$(_fav 'isRulE no write case rule=')" "0 attrs= 1"
+#  RE-PINNED 2026-11-06 (SEQ 545 R2) 0 attrs= 1 -> 0 attrs= 0: a flag with no write case refuses (SEQ 545 R2).
+_ofeq "flagAttrT FA-6 isRulE has no write case: refused by name, the field removed" "$(_fav 'isRulE no write case rule=') R$(grep -c '^REFUSED faE -- a flag with no write case' "$T/fa.e")" "0 attrs= 0 R1"
 _ofeq "flagAttrT FA-7 lastIndenT is not a flag: the ordinary path, added" "$(_fav 'lastIndenT not a flag attrs=')" "1"
 _ofeq "flagAttrT FA-8 ordinary attributes beside a flag stay" "$(_fav 'mixed noPrint=')" "1 attrs= 2"
 _ofeq "flagAttrT FA-10 a rule host" "$(_fav 'rule host noPrint=') $(grep -c '^FA rule host found' "$T/fa.e")" "1 attrs= 0 1"
 _ofeq "flagAttrT FA-11 through FILe" "$(_fav 'FILe noPrint=') $(grep -c '^FA FILe found' "$T/fa.e")" "1 attrs= 0 1"
 _ofeq "flagAttrT FA-9 PINNED DEFECT: noPrinT=0 writes the table's field number" "$(_fav 'table after noPrinT=0 reads')" "access to noPrinT not supported yet"
+#  flagNearT -- SEQ 545: a name that looks like a flag warns by name and stays an attribute (R0, R1); an exact flag with no write case refuses (R2).
+#  H7 (fix committed first, single fixture): the near-miss arm out, the six and noPrinX=5 go silent; the exact-flag arm out, isRulE is silent and its field survives.
+_fnF=$(ip flagNearT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_fnF" > "$T/fn.o" 2> "$T/fn.e"; _fnX=$?
+_ofeq "flagNearT exit / sentinel" "$_fnX $(grep -c '^FLAGNEAR SENTINEL' "$T/fn.e")" "0 1"
+_fnw () { grep -c "^WARNING $1 in $2 looks like flag $3 -- kept as an attribute" "$T/fn.e"; }
+_fnv () { grep "^FN $1" "$T/fn.e" | sed "s/^FN $1 *//" | xargs; }
+for _fn in "isLocal fnL isLocaL" "isMacro fnM isMacrO" "byRef fnB byReF" "isBin fnI isBiN" "noprint fnP noPrinT" "noPrinX fnX noPrinT"; do set -- $_fn
+    _ofeq "flagNearT $1 warns by name and keeps its attribute" "$(_fnw $1 $2 $3) $(_fnv "$1 attrs=")" "1 1"
+done
+_ofeq "flagNearT noPrinX=5 warns and keeps its value" "$(_fnw noPrinX fnV noPrinT) $(_fnv 'noPrinX=5 reads')" "1 5"
+_ofeq "flagNearT the warnings, all of them: nothing else looks like a flag" "$(grep -c 'looks like flag' "$T/fn.e")" "7"
+_ofeq "flagNearT isRulE refuses by name, its field removed, the next field defined" "$(grep -c '^REFUSED fnE -- a flag with no write case' "$T/fn.e") $(grep -c '^FN isRulE field gone' "$T/fn.e") $(grep -c '^FN the next field defined' "$T/fn.e")" "1 1 1"
+_ofeq "flagNearT the controls: noPrinT noPrint isRule isList take no attribute, quietly" "$(_fnv 'noPrinT attrs=') $(_fnv 'noPrint attrs=') $(_fnv 'isRule attrs=') $(_fnv 'isList attrs=')" "0 0 0 0"
+_ofeq "flagNearT the controls: across, InvokeD and plain words stay attributes (non-zero sibling)" "$(_fnv 'across attrs=') $(_fnv 'InvokeD attrs=') $(_fnv 'plain attrs=')" "1 1 3"
+_ofeq "flagNearT the rule term flags is defined and quiet" "$(grep -c '^FN rule term found' "$T/fn.e") $(grep -c 'WARNING flags' "$T/fn.e")" "1 0"
+#  The corpus: every tracked live file but this fixture, one run each. Windows/tabs is the one warning by ruling (SEQ 545 R3), until that form comes up for repair.
+_fnC=""; for _f in $(git ls-files incant IncantForms | grep -vE 'attic/|BackupXML/|\.target$|\.base$|\.md$|incant/pop/flagNearT$'); do [ -f "$_f" ] || continue
+    _w=$(perl -e 'alarm 4; exec @ARGV' "$B" "$_f" 2>&1 </dev/null | grep -c 'looks like flag'); [ "$_w" -gt 0 ] && _fnC="$_fnC$_f=$_w "; done
+_ofeq "flagNearT the corpus: one warning, in tabs" "$_fnC" "IncantForms/Windows/tabs=1 "
 #  defineRefT -- := in a define (Tony, 2026-11-05, SEQ 534 R1, R3): a form attribute that means a field is spelled :=. Plain = stays a value copy (traitGridT).
 #  N rows go through FILe. A row whose value is a later change's is paired with the same field's row before the change. H7s are in docs/traitRefRecon.md.
 _drF=$(ip defineRefT)
