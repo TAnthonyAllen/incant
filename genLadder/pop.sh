@@ -7882,7 +7882,7 @@ kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391
 
 #  ---- refusalEndsT: AFTER A REFUSAL THE NEW ROAD ENDS THE ACTION, AS THE OLD ROAD DOES (Tony, SEQ 535 R1, SEQ 537 R1). The unit is
 #  the action, not its caller, so the caller rows are the non-zero sibling. Each new-road row has its old-road twin, the oracle.
-#  H7 (fix committed first, single fixture, alarm): opBodySeq's guard out, the movers AR-8, AR-J1, newJitIfUnsetT plain go red; opWhile's and opDo's out, while1 and do1 hang (exit 142); opIf's out, ifcall reads tail 1 -- an action called in the else arm clears the refusal, so the action runs on. seq, while, do, for and if wind down with the guards out too, because a standing refusal silences operators, so those rows pin the behaviour and do not discriminate. No twin for while1 / do1: the old road hangs on both.
+#  H7 (fix committed first, single fixture, alarm): opBodySeq's guard out, the movers AR-8, AR-J1, newJitIfUnsetT plain go red; opWhile's and opDo's out, while1 and do1 hang (exit 142); opIf's out, ifcall reads tail 1 -- an action called in the else arm clears the refusal, so the action runs on; opFor's out, the refusal count reads 19, the body running again and refusing once per pass. seq, while, do, for and if otherwise wind down with the guards out too, because a standing refusal silences operators, so those rows pin the behaviour and do not discriminate. No twin for while1 / do1: the old road hangs on both.
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip refusalEndsT)" > "$T/re" 2> "$T/re.e"; _rex=$?
 kindRow "refusalEndsT runs" "$_rex" "0"
 sentinel "refusalEndsT sentinel" "$T/re" "REFUSALENDS SENTINEL"

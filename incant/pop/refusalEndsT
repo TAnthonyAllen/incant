@@ -102,5 +102,4 @@ caller rows are the non-zero sibling: the caller runs on and writes 7, because t
 A standing refusal silences operators, so most shapes wind down by themselves; while1, do1 and ifcall are the shapes that
 go wrong without opWhile's, opDo's and opIf's guards: a literal condition never ends, and an action called in the else arm
 clears the refusal on its way out, so the action runs on (tail 1). oWhile1 and oDo1 are defined and NOT called: the OLD road
-HANGS on both, measured 2026-11-06 (exit 142 under an alarm), so they have no twin row here. opFor carries no guard: a for
-is finite and a standing refusal silences each further pass, so no row could tell a guard from none (measured, same day).
+HANGS on both, measured 2026-11-06 (exit 142 under an alarm), so they have no twin row here. Without opFor's guard the body runs again and the refusal prints once per pass, which the refusal count row reads.

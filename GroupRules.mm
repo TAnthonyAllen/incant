@@ -9727,6 +9727,7 @@ int 		backward = 0;
 	forRuler->branchKind = 0;
 	bodyResult = 0;
 	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
+	if ( forRuler->refused && !forRuler->jitting ) break;
 	int forKind = forRuler->branchKind;
 	if ( forKind == 1 ) { forRuler->branchKind = 0; break; }
 	if ( forKind == 2 ) { forRuler->branchKind = 0; continue; }
