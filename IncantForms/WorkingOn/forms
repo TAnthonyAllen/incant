@@ -333,6 +333,7 @@ Candidate morning items (none ruled):
        HOW fill:=wall REACHES setColor AT LAYOUT: IT DOES NOT, TWO WAYS. There is no layout pass (M1) and no reader of fill= (M3 itself). The nearest road is a style's fillColor through displayFillRT, so the two "layouts" below are two draws.
          fill:=wall holds the field, and reads wall's current value through the holder: #f7e8aa, then #ff0000 after the write (kind 6 on the attribute, DR-1 pins it).
          fillColor:=wall draws the current value: f7e8aa, then ff0000. BUT IT GETS THERE BY NAME: displayFillRT reads comp.text, getText on a holder returns the held field's TAG, and getColor locates that name.
+         (CORRECTED 2026-11-06, SEQ 542: with the far registry on the search list a second wall= REWRITES the far field and mints nothing, defineCapture, so this measurement may have read one wall, not two. The defect is real on two fields, fillHeldT with the far registry off the list while the near one is defined.)
          MEASURED DEFECT: with a nearer field also named wall (blue), fillColor:=wall drew BLUE, r0 g0 b255, the wrong wall. M3's reader must take the held field and never its name. M5's note above said this was M3's to change.
 
        COST OF NO CACHE (2,000,000 loops, each run twice, agreeing to 0.02s; an 8x8 fill):
