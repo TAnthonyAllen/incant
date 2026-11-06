@@ -1,0 +1,111 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define makeDisplay    immediateAction=makeDisplay; ;
+define displayFillRT  immediateAction=displayFillRT; ;
+define pixelAt        immediateAction=pixelAt; ;
+register(FillRead);
+define
+    frWall=#ff0000;
+    frMove=#ff0000;
+    frGreen=#00ff00;
+    frHeldF    x=0 y=0 width=8 height=8 px=2 py=2 fill:=frWall;
+    frQuoteF   x=0 y=0 width=8 height=8 px=2 py=2 fill="frGreen";
+    frLateF    x=0 y=0 width=8 height=8 px=2 py=2 fill=frLate;
+    frCopyF    x=0 y=0 width=8 height=8 px=2 py=2 fill=frWall;
+    frHexF     x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00;
+    frMissF    x=0 y=0 width=8 height=8 px=2 py=2 fill=frNoSuch;
+    frOffF     x=0 y=0 width=8 height=8 px=2 py=2 fill=off;
+    frBareF    x=0 y=0 width=8 height=8 px=2 py=2 fill;
+    frMoveHeld x=0 y=0 width=8 height=8 px=2 py=2 fill:=frMove;
+    frMoveCopy x=0 y=0 width=8 height=8 px=2 py=2 fill=frMove;
+    sHeld   fillColor:=frWall;
+    sQuote  fillColor="frGreen";
+    sLate   fillColor=frLate;
+    sCopy   fillColor=frWall;
+    sHex    fillColor=#00ff00;
+    sMiss   fillColor=frNoSuch;
+    sBlue   fillColor=#0000ff;
+    frHeldS  x=0 y=0 width=8 height=8 px=2 py=2 style="sHeld";
+    frQuoteS x=0 y=0 width=8 height=8 px=2 py=2 style="sQuote";
+    frLateS  x=0 y=0 width=8 height=8 px=2 py=2 style="sLate";
+    frCopyS  x=0 y=0 width=8 height=8 px=2 py=2 style="sCopy";
+    frHexS   x=0 y=0 width=8 height=8 px=2 py=2 style="sHex";
+    frMissS  x=0 y=0 width=8 height=8 px=2 py=2 style="sMiss";
+    frBoth   x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00 style="sBlue";
+    frStyleOnly x=0 y=0 width=8 height=8 px=2 py=2 style="sBlue";
+    frNeither x=0 y=0 width=8 height=8 px=2 py=2;
+    frMom x=0 y=0 width=8 height=8 px=2 py=2 fill=#ff0000
+        frKid x=0 y=0 width=8 height=8 px=2 py=2;
+        frKidStyled x=0 y=0 width=8 height=8 px=2 py=2 style="sBlue";
+        frKidOwn x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00;
+    frDraw code={
+        makeDisplay(argument);
+        displayFillRT(argument);
+        pixelAt(argument);
+        };
+    frMoveTo code={ frMove = argument; };
+    frKids code={
+        print "FR kid parent is mom" frMom["frKid"].parenT:;
+        frK := frMom["frKid"];
+        frDraw(*frK);
+        frK := frMom["frKidStyled"];
+        frDraw(*frK);
+        frK := frMom["frKidOwn"];
+        frDraw(*frK);
+        };
+    ;
+define
+    frLate=#00ffff;
+    ;
+search reset stack Grokking FillRead cOLOr UnitTests Utilities list;
+register(FillReadColours);
+define
+    frWhiteF x=0 y=0 width=8 height=8 px=2 py=2 fill=white;
+    sWhite   fillColor=white;
+    frWhiteS x=0 y=0 width=8 height=8 px=2 py=2 style="sWhite";
+    ;
+search reset stack Grokking FillRead FillReadColours cOLOr UnitTests Utilities list;
+print "FR kind held" frHeldF["fill"].datA "quoted" frQuoteF["fill"].datA "late" frLateF["fill"].datA "copy" frCopyF["fill"].datA "hex" frHexF["fill"].datA "white" frWhiteF["fill"].datA:;
+print "FR kind style held" sHeld["fillColor"].datA "quoted" sQuote["fillColor"].datA "late" sLate["fillColor"].datA "copy" sCopy["fillColor"].datA "hex" sHex["fillColor"].datA "white" sWhite["fillColor"].datA:;
+frDraw(frHeldF);
+frDraw(frQuoteF);
+frDraw(frLateF);
+frDraw(frCopyF);
+frDraw(frHexF);
+frDraw(frWhiteF);
+frDraw(frMissF);
+frDraw(frOffF);
+frDraw(frBareF);
+frDraw(frHeldS);
+frDraw(frQuoteS);
+frDraw(frLateS);
+frDraw(frCopyS);
+frDraw(frHexS);
+frDraw(frWhiteS);
+frDraw(frMissS);
+frDraw(frBoth);
+frDraw(frStyleOnly);
+frDraw(frNeither);
+frDraw(frMom);
+frKids();
+print "FR copy readable after a draw, kind" frCopyF["fill"].datA "value" frCopyF["fill"]:;
+frDraw(frMoveHeld);
+frDraw(frMoveCopy);
+print "FR move":;
+frMoveTo("#0000ff");
+displayFillRT(frMoveHeld);
+pixelAt(frMoveHeld);
+displayFillRT(frMoveCopy);
+pixelAt(frMoveCopy);
+print "FILLREAD SENTINEL":;
+stop();
+
+fillReadT -- a reader for fill= (SEQ 547 recon, SEQ 549 rulings). displayFillRT takes the field's own fill first, then its style's fillColor. A value starting with # is parsed where it sits, on both. Any other plain value is looked up by name at draw, and a miss refuses by name. fill is not inherited: the reader reads the field's own attribute and never walks to a parent.
+
+Every spelling runs on fill and on fillColor, side by side. The move rows are the point of := against =: after a write to the source, the held draw changes and the copy does not.
+
+Pinned on trunk, born red, before the build. No form is respelled (SEQ 549 R3), so this fixture is the only user of the reader; fill=off and bare fill refuse by name.

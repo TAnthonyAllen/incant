@@ -8847,6 +8847,42 @@ _fcr () { /usr/bin/time -l perl -e 'alarm 60; exec @ARGV' "$B" "$1" 2>&1 >/dev/n
 _fcA=$(_fcr "$T/fc0"); _fcB=$(_fcr "$_fcF")
 _ofeq "fillCostT anti-vacuity: both loops ran" "$( [ -n "$_fcA" ] && [ -n "$_fcB" ] && [ "$_fcA" -gt 1000000 ] && echo ran)" "ran"
 fdRow "fillCostT bytes each colour parse costs" "$(( ( (_fcB - _fcA) / 1000000 + 4 ) / 8 * 8 ))" "32" "0"
+#  ⚑ fillReadT -- a reader for fill= (SEQ 547 recon, SEQ 549 R0-R3). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The field's own fill first, then its style's fillColor; a # value parsed where it sits, on both; any other plain value looked up by name at draw, a miss refusing by name; fill not inherited.
+_frF=$(ip fillReadT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_frF" > "$T/fr.o" 2> "$T/fr.e"; _frx=$?
+_frp () { grep "^=== pixelAt $1 " "$T/fr.o" | sed 's/^.* = //; s/ ===$/\//' | tr -d '\n'; }
+_frr () { grep "^displayFill: REFUSING $1 " "$T/fr.e" | sed "s/^displayFill: REFUSING $1 -- //"; }
+_ofeq "fillReadT exit / sentinel" "$_frx $(grep -c '^FILLREAD SENTINEL' "$T/fr.o")" "0 1"
+_ofeq "fillReadT what each spelling holds, on fill" "$(grep '^FR kind held' "$T/fr.o" | xargs)" "FR kind held 6 quoted 13 late 13 copy 14 hex 14 white 14"
+_ofeq "fillReadT what each spelling holds, on fillColor" "$(grep '^FR kind style held' "$T/fr.o" | xargs)" "FR kind style held 6 quoted 13 late 13 copy 14 hex 14 white 14"
+fdRow "fillReadT fill:=wall draws the held field" "$(_frp frHeldF)" "r0 g0 b0 a0/" "r255 g0 b0 a255/"
+fdRow "fillReadT fill=quoted looks up by name" "$(_frp frQuoteF)" "r0 g0 b0 a0/" "r0 g255 b0 a255/"
+fdRow "fillReadT fill=a name with no value at define looks up at draw" "$(_frp frLateF)" "r0 g0 b0 a0/" "r0 g255 b255 a255/"
+fdRow "fillReadT fill=wall, a value copy, draws the hex it holds" "$(_frp frCopyF)" "r0 g0 b0 a0/" "r255 g0 b0 a255/"
+fdRow "fillReadT fill=#00ff00 draws where it sits" "$(_frp frHexF)" "r0 g0 b0 a0/" "r0 g255 b0 a255/"
+fdRow "fillReadT fill=white, the colour file on the list: a copy of the hex draws" "$(_frp frWhiteF)" "r0 g0 b0 a0/" "r255 g255 b255 a255/"
+_ofeq "fillReadT fillColor:=wall still draws the held field" "$(_frp frHeldS)" "r255 g0 b0 a255/"
+_ofeq "fillReadT fillColor=quoted still looks up by name" "$(_frp frQuoteS)" "r0 g255 b0 a255/"
+_ofeq "fillReadT fillColor=a name with no value at define still looks up at draw" "$(_frp frLateS)" "r0 g255 b255 a255/"
+fdRow "fillReadT fillColor=wall, a value copy, draws the hex it holds" "$(_frp frCopyS)" "r0 g0 b0 a0/" "r255 g0 b0 a255/"
+fdRow "fillReadT fillColor=#00ff00 draws where it sits" "$(_frp frHexS)" "r0 g0 b0 a0/" "r0 g255 b0 a255/"
+fdRow "fillReadT fillColor=white, the colour file on the list: a copy of the hex draws" "$(_frp frWhiteS)" "r0 g0 b0 a0/" "r255 g255 b255 a255/"
+_ofeq "fillReadT a miss on fill draws nothing and names the colour" "$(_frp frMissF) $(grep -c '^getColor: ERROR could not find frNoSuch$' "$T/fr.e")" "r0 g0 b0 a0/ 2"
+fdRow "fillReadT a miss on fill refuses as fill" "$(_frr frMissF)" "its style names no fillColor component" "fill names no colour that could be realised"
+_ofeq "fillReadT a miss on fillColor refuses as fillColor" "$(_frp frMissS) $(_frr frMissS)" "r0 g0 b0 a0/ fillColor names no colour that could be realised"
+fdRow "fillReadT fill=off refuses by name until its form is repaired (R3)" "$(_frp frOffF) $(_frr frOffF) $(grep -c '^getColor: ERROR could not find off$' "$T/fr.e")" "r0 g0 b0 a0/ its style names no fillColor component 0" "r0 g0 b0 a0/ fill names no colour that could be realised 1"
+fdRow "fillReadT a bare fill names no colour and refuses" "$(_frp frBareF) $(_frr frBareF)" "r0 g0 b0 a0/ its style names no fillColor component" "r0 g0 b0 a0/ fill names no colour that could be realised"
+_ofeq "fillReadT neither fill nor style refuses as before" "$(_frp frNeither) $(_frr frNeither)" "r0 g0 b0 a0/ its style names no fillColor component"
+fdRow "fillReadT precedence: a field's own fill over its style's fillColor" "$(_frp frBoth)" "r0 g0 b0 a0/" "r0 g255 b0 a255/"
+fdRow "fillReadT precedence's control: the same style with no own fill draws the style" "$(_frp frStyleOnly)" "r0 g0 b0 a0/" "r0 g0 b255 a255/"
+_ofeq "fillReadT the child's parent really is the filled field (anti-vacuity for R1)" "$(grep '^FR kid parent' "$T/fr.o" | xargs)" "FR kid parent is mom frMom"
+fdRow "fillReadT R1 the filled parent draws (non-zero sibling)" "$(_frp frMom)" "r0 g0 b0 a0/" "r255 g0 b0 a255/"
+_ofeq "fillReadT R1 a child of a filled field draws no fill" "$(_frp frKid) $(_frr frKid)" "r0 g0 b0 a0/ its style names no fillColor component"
+fdRow "fillReadT R1 a styled child draws its style, not the parent's fill" "$(_frp frKidStyled)" "r0 g0 b0 a0/" "r0 g0 b255 a255/"
+fdRow "fillReadT R1 a child's own fill draws its own" "$(_frp frKidOwn)" "r0 g0 b0 a0/" "r0 g255 b0 a255/"
+_ofeq "fillReadT a draw leaves the copied value readable" "$(grep '^FR copy readable' "$T/fr.o" | xargs)" "FR copy readable after a draw, kind 14 value #ff0000"
+fdRow "fillReadT after a write to the source: fill:= follows it" "$(_frp frMoveHeld)" "r0 g0 b0 a0/r0 g0 b0 a0/" "r255 g0 b0 a255/r0 g0 b255 a255/"
+fdRow "fillReadT after a write to the source: plain fill= stays the copy" "$(_frp frMoveCopy)" "r0 g0 b0 a0/r0 g0 b0 a0/" "r255 g0 b0 a255/r255 g0 b0 a255/"
 #  argRoadsT -- argument is a binding, and bare argument is the spelling on both roads (Tony, 2026-11-05, R1; docs/argumentRecon.md). Each pair: the same text on both roads, at 0 and at 3, so a row cannot pass on a constant. Born red on trunk: every new-road row here.
 _arF=$(ip argRoadsT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_arF" > "$T/ar.o" 2> "$T/ar.e"; _arX=$?
