@@ -1,0 +1,156 @@
+NOTADJ IncantForms/WorkingOn/macros:54  iterate instruct   op = iterateOn, argument = [cursor, source, attributes 0/1,
+      next:                    members 0/1]; opIterate calls iterateSetup, the setup both
+ADJ IncantForms/WorkingOn/parser:28          iterate grup on argument;
+ADJ IncantForms/WorkingOn/parser:53              iterate grup on argument;
+ADJ genLadder/breakSpecimen:12          iterate bkCur members on argument;
+ADJ genLadder/countPopulation:8          iterate cpCur members on argument;
+ADJ genLadder/mkProbeOne.py:32          iterate fbC on fbFirst;
+ADJ genLadder/parserCoverage.sh:36          iterate pcCur members on argument;
+ADJ incant/attic/branchTagTruth:17          iterate btCur members on *argument;
+NOTADJ incant/attic/branchTagTruth:93  iterate matching every member; #35's cure is to capture first. This says the cure
+      next: is not sufficient: the capture is REAL -- btT prints the correct, distinct tag on
+ADJ incant/attic/hasTraits:26          iterate htCur on *argument;
+ADJ incant/attic/hasTraits:37          iterate htP members on *argument;
+ADJ incant/attic/hasTraits:44          iterate grup on argument;
+ADJ incant/attic/hasTraits:59          iterate grup on htDisagree;
+ADJ incant/attic/nullAccessorDeref:9          iterate naT on argument;
+ADJ incant/attic/nullAccessorDeref:14          iterate naT on argument;
+NOTADJ incant/attic/ppwriteCountIsAnAddress:10          iterate pcCur on *argument;
+      next:         traceParse("on");
+NOTADJ incant/designDocs:3850                  iterate cursor is a holder and a bare read of it reads the holder -- and it
+      next:                 is not the accessor family at all.
+ADJ incant/fixits/parserCoverageMembersOnly:11          iterate pmC members on argument;
+ADJ incant/fixits/parserCoverageMembersOnly:22          iterate pmC attributes on argument;
+ADJ incant/pop/actorOrderT:16          iterate aoCur on argument;
+ADJ incant/pop/actorOrderT:21          iterate aoR on Grokking;
+ADJ incant/pop/altShadowT:51          iterate asCur attributes on argument;
+ADJ incant/pop/anyOrNumT:32          iterate grup on argument;
+ADJ incant/pop/anyOrNumT:60                  iterate grup on argument;
+ADJ incant/pop/artifactSkipT:21          iterate asCur on argument;
+ADJ incant/pop/bisectQ:63          iterate bqTerm on argument;
+ADJ incant/pop/bisectQ:91              iterate bqCur on argument;
+ADJ incant/pop/connectiveT:13          iterate cdAt attributes on argument;
+ADJ incant/pop/connectiveT:16          iterate cdMe members on argument;
+ADJ incant/pop/cursorReadT:27          iterate crCur on argument;
+ADJ incant/pop/cursorReadTb:31          iterate crCur on argument;
+NOTADJ incant/pop/displayFormT:34                                iterate has run over a full one.
+      next: 
+ADJ incant/pop/displayFormT:68              iterate grup attributes on argument;
+ADJ incant/pop/displayFormT:73              iterate grup members on argument;
+ADJ incant/pop/emitRefT:27          iterate erCur on argument;
+ADJ incant/pop/exprPinT:87          iterate c5C on *c5L;
+ADJ incant/pop/f31:45          iterate fbTerm on argument;
+ADJ incant/pop/f31:71          iterate fbCur members on argument;
+ADJ incant/pop/f31:90          iterate fbC on fbFirst;
+ADJ incant/pop/flagPlusT:16          iterate fpJ on fpBag;
+NOTADJ incant/pop/flagPlusT:20          iterate fpI on fpBag;
+      next:         fpI :. flaG;
+ADJ incant/pop/iterRefuseT:56          iterate g on irLeaf;
+ADJ incant/pop/iterRefuseT:63          iterate w on argument;
+NOTADJ incant/pop/iterT:36  iterate only sets up a cursor over a source; WHILe and ++ / -- do the looping and stepping. This file is not run alone:
+      next: pop.sh builds two inputs per row, one process each under an alarm -- everything above this file's `stop();` (fsrc gets fa fb fc
+NOTADJ incant/pop/iterT1:42          iterate grup on argument;
+      next:         while ++grup
+NOTADJ incant/pop/iterT1m:37          iterate grup on argument;
+      next:         while ++grup
+NOTADJ incant/pop/iterT1m:44          iterate grup on argument;
+      next:         while ++grup
+NOTADJ incant/pop/iterT3:32          iterate grup on argument;
+      next:         while ++grup
+NOTADJ incant/pop/iterT3:40          iterate grup on argument;
+      next:         while ++grup
+NOTADJ incant/pop/iterT3:49          iterate grup on argument;
+      next:         ++grup;
+NOTADJ incant/pop/iterT3:63          iterate grup on argument;
+      next:         ++grup;
+NOTADJ incant/pop/iterT3:65          iterate grup on pair;
+      next:         while ++grup
+ADJ incant/pop/jit/itBackRT:11          iterate ibCur on argument;
+ADJ incant/pop/jit/itBackRT:16          iterate ibR on Grokking;
+ADJ incant/pop/jit/itRT:11          iterate itCur on argument;
+ADJ incant/pop/jit/itRT:16          iterate itR on Grokking;
+ADJ incant/pop/jit/jitBreakRT:12          iterate pbCur on pbList;
+ADJ incant/pop/jit/jitContinueRT:12          iterate pcCur on pcList;
+ADJ incant/pop/jit/jitCursorLifeT:13          iterate lc on argument;
+ADJ incant/pop/jit/jitCursorLifeT:25          iterate lR on Grokking;
+ADJ incant/pop/jit/jitDfProbe:176              iterate grup attributes on argument;
+ADJ incant/pop/jit/jitDfProbe:181              iterate grup members on argument;
+ADJ incant/pop/jit/jitInlineBreakRT:17          iterate ibkCur on ibkList;
+ADJ incant/pop/jit/jitInlineContRT:17          iterate icCur on icList;
+NOTADJ incant/pop/jit/jitIterTwice:6      iterate three times and asserted 3/3/3 -- which passed IDENTICALLY with the
+      next:     new emitted setup and with it removed, because an exhausted iterator
+NOTADJ incant/pop/jit/jitIterTwice:16          iterate g members on trunk;     while ++g  countB++;
+      next: 
+NOTADJ incant/pop/jit/jitIterTwice:63          iterate g attributes on itTrunk;
+      next:         while ++g
+NOTADJ incant/pop/jit/jitIterTwice:66          iterate g members on itTrunk;
+      next:         while ++g
+ADJ incant/pop/jit/jitIterTwice:70          iterate g members on itTrunk;
+ADJ incant/pop/jit/jitJD:25          iterate jdCur attributes on jdBag;
+NOTADJ incant/pop/jit/jitJUi:100          iterate g on juiTrunk;
+      next:         while ++g
+ADJ incant/pop/jit/jitStarIdiomT:10          iterate w on *idF;
+NOTADJ incant/pop/jit/kindJ1T:18          iterate g members on kjList;
+      next:         while ++g
+NOTADJ incant/pop/jit/kindJ1T:23          iterate g members on kjiList;
+      next:         while ++g
+NOTADJ incant/pop/jit/kindJ1T:28          iterate h members on argument;
+      next:         while ++h
+NOTADJ incant/pop/jitInlineBindT:14          iterate ibQ on argument;
+      next:         ibSeen = 5;
+ADJ incant/pop/jsonTest:11          iterate jtK on argument;
+ADJ incant/pop/jsonTest:28          iterate jtC on field;
+NOTADJ incant/pop/kant8T:169          iterate k6cur attributes on argument;
+      next:         k6seen = 0;
+NOTADJ incant/pop/kant8T:200          iterate k6cur2 attributes on k6big;
+      next:         k6seen2 = 0;
+NOTADJ incant/pop/kant8T:233          iterate k6cur3 attributes on k6small;
+      next:         k6seen3 = 0;
+NOTADJ incant/pop/kant8T:237          iterate k6cur3 attributes on k6big;
+      next:         k6seen3 = 0;
+NOTADJ incant/pop/kant8T:282          iterate k6cur4 attributes on k6small;
+      next:         k6seenA = 0;
+NOTADJ incant/pop/kant8T:353          iterate k6cur5 attributes on argument;
+      next:         k6seen5 = 0;
+NOTADJ incant/pop/kindLiftT:15          iterate g members on kjList;
+      next:         while ++g
+NOTADJ incant/pop/kindLiftT:22          iterate g members on kiList;
+      next:         while ++g
+NOTADJ incant/pop/kindLiftT:29          iterate h members on argument;
+      next:         while ++h
+ADJ incant/pop/kindT:11          iterate kCur on argument;
+ADJ incant/pop/kindT:16          iterate kShC on argument;
+ADJ incant/pop/lastRefT:12          iterate lrCur on argument;
+ADJ incant/pop/parseClass:67          iterate pcA attributes on argument;
+ADJ incant/pop/parseClass:72          iterate pcM members on argument;
+ADJ incant/pop/parseClass:79          iterate pcR members on argument;
+ADJ incant/pop/propGetT:23          iterate pgCur on argument;
+ADJ incant/pop/propOpT:29          iterate poCur on argument;
+ADJ incant/pop/ruleCount:33          iterate rcCur members on argument;
+ADJ incant/pop/ruleCount:44          iterate rcCur3 attributes on argument;
+ADJ incant/pop/shadowCensus:55          iterate scCur members on argument;
+ADJ incant/pop/shadowCensus:77          iterate scCur2 attributes on argument;
+NOTADJ incant/pop/starIdiomT:12      iterate must not then try to walk nothing.
+      next: 
+ADJ incant/pop/starIdiomT:43          iterate w on *idF;
+ADJ incant/pop/starIdiomT:51          iterate w on *idN;
+ADJ incant/pop/starIdiomT:59          iterate w on *idL;
+ADJ incant/pop/termCountT:19          iterate tcCur on argument;
+ADJ incant/pop/termCountT:24          iterate tcR on Grokking;
+ADJ incant/pop/testPrecedence:377              iterate tpCur on tpPending;
+ADJ incant/pop/traitFlagsT:25          iterate tfCur on argument;
+ADJ incant/pop/traitFlagsT:31          iterate grup on argument;
+ADJ incant/pop/traitFlagsT:47          iterate grup on tfDisagree;
+ADJ incant/pop/trigDO:33          iterate grup on argument;
+ADJ incant/pop/trigDO:57              iterate grup on argument;
+ADJ incant/pop/trigDO:71              iterate grup on argument;
+ADJ incant/probes/kantGrammarLoad:15          iterate kgT on KantGrammar;
+ADJ incant/probes/kantGrammarLoad:21          iterate kgC on argument;
+ADJ incant/probes/kantGrammarNames:11          iterate kgM on argument;
+ADJ incant/probes/kantGrammarNames:17          iterate kgR on registries;
+ADJ incant/utilities:143              iterate grup on argument;
+ADJ incant/walkRefT:43          iterate wrCur attributes on wrBag;
+NOTADJ jitLadder/station2/pool:11  iterate s2C attributes on s2L;
+      next: print 1;
+NOTADJ jitLadder/station2/pool:100  iterate s2C
+      next: { }

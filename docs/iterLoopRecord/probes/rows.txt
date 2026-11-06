@@ -1,0 +1,13 @@
+C1two|iterate ic on fsrc; while ++ic; print *ic:;
+L1semi|iterate ++ic on fsrc; print *ic:;
+L2nosemi|iterate ++ic on fsrc print *ic:;
+L3block|iterate ++ic on fsrc; { print *ic:; if *ic == 2; break; }
+L4empty|iterate ++ic on fe; print *ic:;
+C4two|iterate ic on fe; while ++ic; print *ic:;
+L5twice|iterate ++ic on fsrc; print *ic:; print 7:; iterate ++ic on fsrc; print *ic:;
+L6attrs|iterate ++ic attributes on fsrc; print *ic:;
+L7members|iterate ++ic members on fsrc; print *ic:;
+C7members|iterate ic members on fsrc; while ++ic; print *ic:;
+L8if|if qa == 2; iterate ++ic on fsrc; print *ic:; print 8:;
+L8ifF|if qa == 9; iterate ++ic on fsrc; print *ic:; print 8:;
+L9inWhile|wc = 0; while wc < 2; { wc = wc + 1; iterate ++ic on fsrc; { print *ic:; if *ic == 2; break; } print 9:; }

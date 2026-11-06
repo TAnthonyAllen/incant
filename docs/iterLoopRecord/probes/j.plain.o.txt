@@ -1,0 +1,16 @@
+
+stop: ending input divert
+
+stop: ending input divert
+Assign at end 
+Assign at end 
+Assign at end 
+Assign at end 
+TWO  3 
+ONE  3 
+TWO  3 
+ONE  3 
+
+stop: ending input divert
+
+stop: end parsing

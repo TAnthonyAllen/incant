@@ -1,0 +1,46 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IterT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    fe;
+    fn=5;
+    ic;
+    gsrc;
+    ga=7;
+    gb=8;
+    ;
+search IterT Utilities UnitTests list;
+fsrc +% fa fb fc;
+gsrc +% ga gb;
+register(XA);
+define
+    xa code={
+        iterate ++xc on argument;
+            print *xc:;
+        print 7:;
+        };
+    ;
+xa(fsrc);
+cerr "IR SENTINEL":;
+stop();

@@ -1,0 +1,46 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewJitIfU);
+define
+    ifReq owner source result rule;
+    ifNew code={
+        ifSrc := argument.CodE;
+        ifReq.owner  := argument;
+        ifReq.source := ifSrc;
+        ifReq.rule   := KantGrammar["STARt"];
+        if compileIn(ifReq);
+            ifBlock = ifReq.result;
+            *ifBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ifBlock;
+        };
+    two code={ jn = 0; iterate jc on argument; while ++jc; jn = jn + 1; print "TWO " jn:; };
+    one code={ je = 0; iterate ++jd on argument; je = je + 1; print "ONE " je:; };
+    ;
+search NewJitIfU;
+ifNew(two);
+ifNew(one);
+registry(JS);
+define
+    jsrc;
+    ja=1;
+    jb=2;
+    jc=3;
+    ;
+search JS NewJitIfU;
+jsrc +% ja jb jc;
+
+two(jsrc);
+one(jsrc);
+two(jsrc);
+one(jsrc);
+cerr "J SENTINEL":;
+stop();

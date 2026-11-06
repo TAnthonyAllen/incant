@@ -1,0 +1,111 @@
+ADJ-PP IncantForms/WorkingOn/parser:28
+ADJ-PP IncantForms/WorkingOn/parser:53
+ADJ-PP genLadder/breakSpecimen:12
+ADJ-PP genLadder/countPopulation:8
+ADJ-PP incant/attic/branchTagTruth:17
+ADJ-PP incant/attic/hasTraits:26
+ADJ-PP incant/attic/hasTraits:37
+ADJ-PP incant/attic/hasTraits:44
+ADJ-PP incant/attic/hasTraits:59
+ADJ-PP incant/attic/nullAccessorDeref:9
+ADJ-PP incant/attic/nullAccessorDeref:14
+OTHER incant/attic/ppwriteCountIsAnAddress:10         traceParse("on");
+ADJ-PP incant/fixits/parserCoverageMembersOnly:11
+ADJ-PP incant/fixits/parserCoverageMembersOnly:22
+ADJ-PP incant/pop/actorOrderT:16
+ADJ-PP incant/pop/actorOrderT:21
+ADJ-PP incant/pop/altShadowT:51
+ADJ-PP incant/pop/anyOrNumT:32
+ADJ-PP incant/pop/anyOrNumT:60
+ADJ-PP incant/pop/artifactSkipT:21
+ADJ-PP incant/pop/bisectQ:63
+ADJ-PP incant/pop/bisectQ:91
+ADJ-PP incant/pop/connectiveT:13
+ADJ-PP incant/pop/connectiveT:16
+ADJ-PP incant/pop/cursorReadT:27
+ADJ-PP incant/pop/cursorReadTb:31
+ADJ-PP incant/pop/displayFormT:68
+ADJ-PP incant/pop/displayFormT:73
+ADJ-PP incant/pop/emitRefT:27
+ADJ-PP incant/pop/exprPinT:87
+ADJ-PP incant/pop/f31:45
+ADJ-PP incant/pop/f31:71
+ADJ-PP incant/pop/f31:90
+ADJ-PP incant/pop/flagPlusT:16
+OTHER incant/pop/flagPlusT:20         fpI :. flaG;
+ADJ-PP incant/pop/iterRefuseT:56
+ADJ-PP incant/pop/iterRefuseT:63
+ADJ-PP incant/pop/iterT1:42
+ADJ-PP incant/pop/iterT1m:37
+ADJ-PP incant/pop/iterT1m:44
+ADJ-PP incant/pop/iterT3:32
+ADJ-PP incant/pop/iterT3:40
+OTHER incant/pop/iterT3:49         ++grup;
+OTHER incant/pop/iterT3:63         ++grup;
+ADJ-PP incant/pop/iterT3:65
+ADJ-MM incant/pop/jit/itBackRT:11
+ADJ-PP incant/pop/jit/itBackRT:16
+ADJ-PP incant/pop/jit/itRT:11
+ADJ-PP incant/pop/jit/itRT:16
+ADJ-PP incant/pop/jit/jitBreakRT:12
+ADJ-PP incant/pop/jit/jitContinueRT:12
+ADJ-PP incant/pop/jit/jitCursorLifeT:13
+ADJ-PP incant/pop/jit/jitCursorLifeT:25
+ADJ-PP incant/pop/jit/jitDfProbe:176
+ADJ-PP incant/pop/jit/jitDfProbe:181
+ADJ-PP incant/pop/jit/jitInlineBreakRT:17
+ADJ-PP incant/pop/jit/jitInlineContRT:17
+SAMELINE-PP incant/pop/jit/jitIterTwice:15
+SAMELINE-PP incant/pop/jit/jitIterTwice:16
+ADJ-PP incant/pop/jit/jitIterTwice:63
+ADJ-PP incant/pop/jit/jitIterTwice:66
+ADJ-PP incant/pop/jit/jitIterTwice:70
+ADJ-MM incant/pop/jit/jitJD:25
+ADJ-PP incant/pop/jit/jitJUi:100
+ADJ-PP incant/pop/jit/jitStarIdiomT:10
+ADJ-PP incant/pop/jit/kindJ1T:18
+ADJ-PP incant/pop/jit/kindJ1T:23
+ADJ-PP incant/pop/jit/kindJ1T:28
+OTHER incant/pop/jitInlineBindT:14         ibSeen = 5;
+ADJ-PP incant/pop/jsonTest:11
+ADJ-PP incant/pop/jsonTest:28
+OTHER incant/pop/kant8T:169         k6seen = 0;
+OTHER incant/pop/kant8T:200         k6seen2 = 0;
+OTHER incant/pop/kant8T:233         k6seen3 = 0;
+OTHER incant/pop/kant8T:237         k6seen3 = 0;
+OTHER incant/pop/kant8T:282         k6seenA = 0;
+OTHER incant/pop/kant8T:353         k6seen5 = 0;
+ADJ-PP incant/pop/kindLiftT:15
+ADJ-PP incant/pop/kindLiftT:22
+ADJ-PP incant/pop/kindLiftT:29
+ADJ-PP incant/pop/kindT:11
+ADJ-PP incant/pop/kindT:16
+ADJ-PP incant/pop/lastRefT:12
+ADJ-PP incant/pop/parseClass:67
+ADJ-PP incant/pop/parseClass:72
+ADJ-PP incant/pop/parseClass:79
+ADJ-PP incant/pop/propGetT:23
+ADJ-PP incant/pop/propOpT:29
+ADJ-PP incant/pop/ruleCount:33
+ADJ-PP incant/pop/ruleCount:44
+ADJ-PP incant/pop/shadowCensus:55
+ADJ-PP incant/pop/shadowCensus:77
+ADJ-PP incant/pop/starIdiomT:43
+ADJ-PP incant/pop/starIdiomT:51
+ADJ-PP incant/pop/starIdiomT:59
+ADJ-PP incant/pop/termCountT:19
+ADJ-PP incant/pop/termCountT:24
+ADJ-PP incant/pop/testPrecedence:377
+ADJ-PP incant/pop/traitFlagsT:25
+ADJ-PP incant/pop/traitFlagsT:31
+ADJ-PP incant/pop/traitFlagsT:47
+ADJ-PP incant/pop/trigDO:33
+ADJ-PP incant/pop/trigDO:57
+ADJ-PP incant/pop/trigDO:71
+ADJ-PP incant/probes/kantGrammarLoad:15
+ADJ-PP incant/probes/kantGrammarLoad:21
+ADJ-PP incant/probes/kantGrammarNames:11
+ADJ-PP incant/probes/kantGrammarNames:17
+ADJ-PP incant/utilities:143
+ADJ-PP incant/walkRefT:43
+OTHER jitLadder/station2/pool:11 print 1;

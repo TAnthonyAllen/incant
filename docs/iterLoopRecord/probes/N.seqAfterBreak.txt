@@ -1,0 +1,35 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IterT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    wc=0;
+    wo=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    fe;
+    fn=5;
+    ic;
+    ;
+search IterT Utilities UnitTests list;
+fsrc +% fa fb fc;
+it1 = STARt("iterate ic on fsrc; while ++ic; { print *ic:; if *ic == 1; break; } iterate ic on fsrc; while ++ic; print *ic:;");
+testOP(it1);
+cerr "IR SENTINEL":;
+stop();

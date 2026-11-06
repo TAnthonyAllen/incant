@@ -1,0 +1,24 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewJitIfU);
+define
+    ifReq owner source result rule;
+    ifNew code={
+        ifSrc := argument.CodE;
+        ifReq.owner  := argument;
+        ifReq.source := ifSrc;
+        ifReq.rule   := KantGrammar["STARt"];
+        if compileIn(ifReq);
+            ifBlock = ifReq.result;
+            *ifBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ifBlock;
+        };

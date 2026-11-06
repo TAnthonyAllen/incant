@@ -1,0 +1,1 @@
+sh genLadder/pop.sh > $S/pop.base.out 2>&1  30.56s user 13.11s system 97% cpu 44.706 total

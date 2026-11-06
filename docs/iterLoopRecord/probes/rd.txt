@@ -1,0 +1,23 @@
+Start();
+include(utilities);
+include(unitTests);
+search reset stack Grokking;
+search Utilities UnitTests list;
+registry(RD);
+define
+    outer a=1
+        inner b=2
+            deep c=3;
+            deep2;
+        ;
+        inner2=7;
+    ;
+    ;
+search RD Utilities UnitTests list;
+print "ATTRS ON printDefinition":;
+listRules(printDefinition);
+print "BEGIN":;
+printDefinition(outer);
+print "NEXT":;
+print "RD SENTINEL":;
+stop();

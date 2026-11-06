@@ -1,0 +1,48 @@
+import sys,re
+p=sys.argv[1]; s=open(p).read()
+old="        ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe;\n"
+new='        ITERLOOp    iterate- stepUp-="++" ANYtoken attributes? members? on- ITERSOURCe SemI-? STATEMENt;\n'+old
+assert old in s; s=s.replace(old,new)
+m=re.search(r"    ITERATe code=\{.*?\n        \};\n",s,re.S); assert m
+c=m.group(0)
+n=c.replace("ITERATe code={","ITERLOOp code={").replace(":actionLabel ANYtoken attributes members ITERSOURCe;",":actionLabel ANYtoken attributes members ITERSOURCe STATEMENt;").replace("REFUSED ITERATe","REFUSED ITERLOOp")
+tail="""        op := Operators["iterateOn"];
+        armsMint    := copyOf(iterArms);
+        miArgs      +% op armsMint;
+        built       := makeInstruct(miArgs);
+        *actionLabel   := *built;
+        return  *actionLabel;
+"""
+assert tail in n
+newtail="""        op := Operators["iterateOn"];
+        armsMint    := copyOf(iterArms);
+        miArgs      +% op armsMint;
+        setupI      := makeInstruct(miArgs);
+        body        := **STATEMENt;
+        bodyM       := *body.methoD;
+        if bodyM == 0;
+            cerr "REFUSED ITERLOOp -- its statement handed up no instruct":;
+            clear(*actionLabel);
+            return *actionLabel;
+        stepOp      := Operators["++"];
+        miArgs      +% stepOp cursor;
+        stepI       := makeInstruct(miArgs);
+        whileArms   +% *stepI;
+        whileArms   +% *body;
+        op          := Operators["whileLoop"];
+        armsMint    := copyOf(whileArms);
+        miArgs      +% op armsMint;
+        loopI       := makeInstruct(miArgs);
+        loopOwnsBody(*loopI);
+        twoStmts    +% *setupI;
+        twoStmts    +% *loopI;
+        op          := Operators["seq"];
+        stmtsMint   := copyOf(twoStmts);
+        miArgs      +% op stmtsMint;
+        built       := makeInstruct(miArgs);
+        *actionLabel   := *built;
+        return  *actionLabel;
+"""
+n=n.replace(tail,newtail)
+s=s[:m.end()]+n+s[m.end():]
+open(p,'w').write(s)
