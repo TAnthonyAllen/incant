@@ -10915,6 +10915,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		added = target->replace(argument);
 		added->options.affiliation = 1;
 		}
+	// flagsFollow replace adds by the entry's OLD affiliation, so the flags are set again from the list as it stands
+	target->updateContentFlags();
 	return target;
 }
 
@@ -10937,6 +10939,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		added = target->replace(argument);
 		added->options.affiliation = 2;
 		}
+	// flagsFollow replace adds by the entry's OLD affiliation, so the flags are set again from the list as it stands
+	target->updateContentFlags();
 	return target;
 }
 
