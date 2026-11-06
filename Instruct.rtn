@@ -388,6 +388,7 @@ use argument
                 case 17:    if target.isLiteral     product.count = 1;
                 case 19:    if target.isMethod      product.count = 1;
                 case 20:    if target.isOperator    product.count = 1;
+                case 21:    if target.isPercent     product.count = 1;
                 case 23:    if target.isRuleTerm()  product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.rStuff && target.noLabel  product.count = 1;
@@ -406,6 +407,7 @@ use argument
                 case 44:    if target.debugged      product.count = 1;
                 case 45:    if target.isUnary       product.count = 1;
                 case 46:    if target.fLAG          product.count = 1;
+                case 47:    if target.isMacro       product.count = 1;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;
@@ -1561,6 +1563,7 @@ int         on = 0;
                         or target.actionType == 2   target.actionType = 0;
             case 41:    target.hasNewParse  = on;
             case 46:    target.fLAG         = on;
+            case 47:    target.isMacro      = on;
             // isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
             case 408:   if on   target.actionType = 1;
                         or target.actionType == 1   target.actionType = 0;

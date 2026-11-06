@@ -3,7 +3,6 @@
     under development so it changes when there is a new feature in the works.
 *****************************************************************************/
 Start();
-include(utilities);
 include(unitTests);
 registry(fILEs);
 define
@@ -11,14 +10,12 @@ define
     ;
 include(kantGrammar);
 search reset stack KantGrammar Grokking;
-search Utilities UnitTests list;
+search UnitTests list;
 
 registry(TestStuff);
 define
     /*****************************************************************************
         Debugging routines. listChain lists out an instruction chain: op, argument, target
-        invokeTEST just prints out its argument. qa qb and qc are literal value
-        fields used in testing
     *****************************************************************************/
     listChain code={
         if listLengtH != 0;
@@ -37,24 +34,173 @@ define
                 print ,-;
             else    print *target.taG;
         };
-    qa=2;
-    qb=3;
-    qc=4;
-    simpleValue=10;
-    listenTEST=simpleValue isMacrO listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
+    somple="What if it is a long string." height=200 width=250 x=100 y=100 down=*
+        crossing height=50;
+    /***************************************************************************
+        fillDownAcross deals with direction framing. The direction can be either
+        down or across. When the direction passed in has a value. The value can
+        be "*" or a number. The argument passed in has to contain the direction
+        attribute (that is down or across respectively).
+        
+        If the direction value is "*", the argument passed in can have only one
+        member (the member may have members); also the member should have its
+        target (width or height) specified. If direction value is a number
+        (like down=3) the argument can have more than one member, but all members
+        should have no target specified. Also, the argument passed in should
+        have no data (you can add data after setFrame finishes).
+    ***************************************************************************/
+    tARGET;
+    dIRECTion;
+    newStuff isList;
+    fillDownAcross code={
+        target <: tARGET;
+        direct <: dIRECTion;
+        :argument target direct;
+        pValue = *target;
+        memberCount=0;
+        for grup in argument; members
+            ++memberCount;
+            :grup target;
+            if target.datA != 0;    pValue -= *target;
+        if *direct == "*";
+            if memberCount > 1; print taG "can only have one member when" $direct "=*":;
+            valueCount = pValue / *target;
+        else
+            if *direct > 0;
+                valueCount = *direct - 1;
+        clear(newStuff);
+        for grup in argument; attributes
+            newStuff +% *grup;
+        for grup in argument; members
+            newStuff +/ copyOf(*grup);
+        for grup in argument; members
+            while valueCount > 0;
+                --valueCount;
+                newStuff +/ copyOf(*grup);
+        clear(argument);
+        argument = newStuff;
+        };
+    /***************************************************************************
+         Set frames for members of the group passed in. It must have x y width
+         and height attributes.
+         
+         Should modify to check for noRoom and bail if there aint none
+    ***************************************************************************/
+    setFrame code={
+        print "Setting frame for" taG:;
+        :argument across down width height x y;
+        sideRoom    = *width;
+        pWidth      = *width;
+        headRoom    = *height;
+        pHeight     = *height;
+        pX          = *x;
+        pY          = *y;
+        upOut       = 0;
+        sideOut     = 0;
+        if down > 0;
+            tARGET="height";
+            dIRECTion="down";
+            fillDownAcross(argument);
+        if across > 0;
+            tARGET="width";
+            dIRECTion="across";
+            fillDownAcross(argument);
+   /***************************************************************************
+                 Create frame and set width and height
+    ***************************************************************************/
+        for grup in argument; members
+            :grup width height;
+            if width.isGrouP;
+                if *width.isPercenT; *width = *width * sideRoom / 100;
+                sideRoom    -= *width;
+            or across.datA == 0;
+                cout "no across in" taG:;
+                width = pWidth;
+                *grup :% copyOf(width);
+            else
+                cout "There is an across in" taG:;
+                sideOut     +/ *grup;
+                ++sideOut;
+            if height.isGrouP;
+                if *height.isPercenT;
+                    *height = *height * headRoom / 100;
+                headRoom    -= *height;
+            or across.datA != 0;
+                height = pHeight;
+                *grup :% copyOf(height);
+            else
+                upOut       +/ *grup;
+                ++upOut;
+        if upOut > 0;
+            headRoom /= upOut;
+            for grup in upOut;
+                *height = headRoom;
+                *grup +% copyOf(*height);
+        if sideOut > 0;
+            sideRoom /= sideOut;
+            for grup in sideOut;
+                *width = sideRoom;
+                *grup +% copyOf(*width);
+        headRoom    = 0;
+        sideRoom    = 0;
+    /***************************************************************************
+             Set x and y in frame
+    ***************************************************************************/
+        for grup in argument; members
+            :grup width height x y;
+            if across.datA == 0;
+                cout "when setting x y no across in" taG:;
+                if y.isGrouP;
+                    *y = pY;
+                    *grup :% copyOf(*y);
+                else
+                    y = pY;
+                    *grup :% copyOf(y);
+                pY += *height;
+                if x.isGrouP;
+                    *x = pX;
+                    *grup :% copyOf(*x);
+                else
+                    x = pX;
+                    *grup :% copyOf(x);
+            else
+                cout "when setting x y there is an across in" taG:;
+                if y.isGrouP;
+                    *y = pY;
+                    *grup :% copyOf(*y);
+                else
+                    y = pY;
+                    *grup :% copyOf(y);
+                if x.isGrouP;
+                    *x = pX;
+                    *grup :% copyOf(*x);
+                else
+                    x = pX;
+                    *grup :% copyOf(x);
+                pX += width;
+        dumpContents(argument);
+        for grup in argument; members
+            :grup across down;
+            if across.datA != 0 || down.datA != 0;
+                setFrame(*grup);
+        };
     ;
 
-listenTEST();
-simpleValue=22;
-listenTEST();
-simpleValue=33;
-listenTEST();
+setFrame(somple);
+printDefinition(somple);
 print "SENTINEL tester driver end":;
 stop();
 
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
+    // definitions
+    qa=2;
+    qb=3;
+    qc=4;
+    simpleValue=10;
+    listenTEST=simpleValue listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
+
     // Clod, A2 listener probe fields (driver near the foot)
     la=1;
     lb=$la;
@@ -72,7 +218,12 @@ stop();
             argument +< *lpBlock;
         };
     lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
-    ;
+// actions
+listenTEST();
+simpleValue=22;
+listenTEST();
+simpleValue=33;
+listenTEST();
 
 print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
 la = 5;

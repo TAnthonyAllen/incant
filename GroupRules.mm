@@ -9450,6 +9450,10 @@ GroupItem 	*minted = 0;
 					if ( isOperator(target->groupBody->flags.instructType) )
 						product->setCount(1);
 					break;
+				case 21:
+					if ( target->groupBody->flags.isPercent )
+						product->setCount(1);
+					break;
 				case 23:
 					if ( target->isRuleTerm() )
 						product->setCount(1);
@@ -9508,6 +9512,10 @@ GroupItem 	*minted = 0;
 					break;
 				case 46:
 					if ( target->groupBody->flags.fLAG )
+						product->setCount(1);
+					break;
+				case 47:
+					if ( target->groupBody->flags.isMacro )
 						product->setCount(1);
 					break;
 				case 401:
@@ -12859,6 +12867,9 @@ int 		on = 0;
 			break;
 		case 46:
 			target->groupBody->flags.fLAG = on;
+			break;
+		case 47:
+			target->groupBody->flags.isMacro = on;
 			// isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
 			break;
 		case 408:

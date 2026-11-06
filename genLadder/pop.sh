@@ -6968,7 +6968,8 @@ _msR=$(cat *.twk *.rtn | grep -cE 'hasMacro|setMacroValue')
 _msR=$((_msR + $(cat RuleStuff.twk GroupItem.twk | grep -c 'isMacro')))
 _msN=$(cat *.twk *.rtn | grep -c 'isMacro')
 kindRow "macroStrip MX-1 rule-side hasMacro/setMacroValue/isMacro sites in source" "$_msR" "0"
-kindRow "macroStrip MX-2 the non-rule isMacro sites that stay (anti-vacuity for MX-1)" "$_msN" "6"
+#  RE-PINNED 6 -> 8, 2026-11-06: Tony's offline isMacrO read and write in Instruct.rtn (opDot case 47, setGroupField case 47), both field flags, neither on the rule side.
+kindRow "macroStrip MX-2 the non-rule isMacro sites that stay (anti-vacuity for MX-1)" "$_msN" "8"
 
 #  ---- ruleOfT: STROKE 4.1 -- THE INSTANCE -> RULE LINK IS WRITTEN (SEQ 227, 2026-09-29) ----
 #  GroupItem.ruleOf is set by the copy constructor on EVERY copy, aimed at the ORIGINAL (a copy of a copy takes its

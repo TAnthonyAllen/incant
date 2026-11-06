@@ -286,7 +286,7 @@ define
     isInitializeD;
     isLiteraL=17;
     isLisT=32;
-    isMacrO;
+    isMacrO=47;
     isMembeR=35;
     isMethoD=19;
     isOperatoR=20;

@@ -1,5 +1,6 @@
 register(TesterChainT);
 define
+    qa=2; qb=3; qc=4;
     xw=5; px=3; pxw=9; kv=0; kt=0; ct=0;
     fId code={ return argument; };
     fNest code={ return argument + 1; };
@@ -10,6 +11,7 @@ stop();
 
 testerChainT -- SEQ 427 R0 (2026-10-26): tester's instruction chain against kant's own value for the same expression.
 
+qa, qb, qc live here since 2026-11-06: Tony moved them out of tester's define block, and a row's operands must not depend on tester's churn (they are tester's old values, so no row's value moves).
 This file is not run alone. pop.sh builds one input per row: Tony's LIVE IncantForms/WorkingOn/tester up to the end of
 its define block (the last line `    ;` before the first `stop();`), then everything above this file's `stop();`, then the
 row. One process per row, so a crash costs only its own row. COUPLED to tester's shape: if tester's define stops ending in
