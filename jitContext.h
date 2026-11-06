@@ -661,6 +661,11 @@ inline GroupItem *gJitRetNode = nullptr;
 inline llvm::Value *gJitRetKindSlot = nullptr;
 inline llvm::Value *gJitRetNodeSlot = nullptr;
 inline int gJitRetPendKind = -1;
+// THE NEW ROAD'S CALL (SEQ 540 S6). A native call's value is a run-time node, read from the return channel before the frame restores, because a callee may
+// return a string, a number or nothing. gJitCallTakesNode asks jitEmitSelfCall for it; gJitCallResult is the node standing for it, which jitNoteWriter reads as a non-scalar writer.
+inline bool gJitCallTakesNode = false;
+inline GroupItem *gJitCallResult = nullptr;
+inline int gJitCallSelf = 0, gJitCallInlined = 0, gJitCallHanded = 0;
 inline GroupItem *gJitRetPendNode = nullptr;
 // handOver THIS STATEMENT CANNOT BE EMITTED WITHOUT RUNNING SOMETHING AT BUILD (SEQ 384, Tony: compiling has no side
 // effects). Set by jitHandOver; at the statement's end aCTionBlocK rolls back what the statement emitted and emits one

@@ -34,6 +34,7 @@ define
             argument +< *nlBlock;
         };
     rx;
+    iG=0;
     dB=2; dC=2; dD=2; dE=2; dF=2; dG=2; dM=2;
     hzS=3;
     cRP code={ print "[" 7 #5d "]":; };
@@ -66,7 +67,8 @@ define
     t6 code={ r = k6(4); print r:; x = 2; r = k6(x + 1); print r:; };
     t7 code={ r = k7(1); print "after" r:; };
     t8 code={ k8(1); print "after k8":; };
-    t9 code={ i = 0; while ++i < 3; k1(1); print i:; };
+    k10 code={ iG = iG + 1; };
+    t9 code={ iG = 0; while iG < 3; k10(1); print iG:; };
     t10 code={ r = k1(1); s = k1(1); print r s:; };
     t11 code={ x = 3; r = k9(x); print x r:; };
     ma code={ d = dM; dM = dM - 1; if d > 0; r = mb(1); print r:; return d; };
@@ -92,6 +94,7 @@ nlNew(k6);
 nlNew(k7);
 nlNew(k8);
 nlNew(k9);
+nlNew(k10);
 nlNew(h3);
 nlNew(h2);
 nlNew(h1);
