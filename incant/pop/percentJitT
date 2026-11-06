@@ -1,0 +1,18 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(PercentJit);
+define
+    src=50;
+    clr=1;
+    pjSet code={ src :. isPercenT; clr :. isPercenT; };
+    pjCopy code={ a1 = src; b := a1.isPercenT; print "PJ = copy" b "value" a1:; };
+    pjClear code={ clr = 60; b := clr.isPercenT; print "PJ plain write" b "value" clr:; };
+    ;
+pjSet();
+testing(pjCopy);
+print "PERCENTJIT SENTINEL":;
+stop();
+
+percentJitT -- percentT's copy and clear rows under the JIT (SEQ 552). pop.sh runs it twice, the second time on a copy with testing(pjClear). The interpreted answers are percentT's rows.

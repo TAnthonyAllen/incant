@@ -8883,6 +8883,38 @@ fdRow "fillReadT R1 a child's own fill draws its own" "$(_frp frKidOwn)" "r0 g0 
 _ofeq "fillReadT a draw leaves the copied value readable" "$(grep '^FR copy readable' "$T/fr.o" | xargs)" "FR copy readable after a draw, kind 14 value #ff0000"
 fdRow "fillReadT after a write to the source: fill:= follows it" "$(_frp frMoveHeld)" "r0 g0 b0 a0/r0 g0 b0 a0/" "r255 g0 b0 a255/r0 g0 b255 a255/"
 fdRow "fillReadT after a write to the source: plain fill= stays the copy" "$(_frp frMoveCopy)" "r0 g0 b0 a0/r0 g0 b0 a0/" "r255 g0 b0 a255/r255 g0 b0 a255/"
+#  ⚑ percentT, percentJitT -- a % after a value is a unit on that value (SEQ 538, SEQ 551 recon, SEQ 552 R0-R4). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The 100-against-200 row is in docs/setFrameSpec.md (R4).
+_pcF=$(ip percentT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcx=$?
+_pcl () { grep "^$1" "$T/pc.o" | sed "s/^$1 *//; s/ *$//"; }
+_pcm () { grep "^MODSOF width in $1 " "$T/pc.e" | sed -n 's/.* pct=\([0-9]*\) .* modPercent=\([0-9]*\) .*/pct=\1 modPercent=\2/p'; }
+_ofeq "percentT exit / sentinel" "$_pcx $(grep -c '^PERCENT SENTINEL' "$T/pc.o")" "0 1"
+_ofeq "percentT the read's control: source set, a field never set" "$(_pcl 'PC control source') $(_pcl 'PC control unset')" "1 0"
+fdRow "percentT width=50% is a unit on the value" "$(_pcl 'PD width=50% bit')" "0 value 50" "1 value 50"
+fdRow "percentT a field's own value, declared=50%" "$(_pcl 'PD declared=50% bit')" "0 value 50" "1 value 50"
+_ofeq "percentT width=50 has no unit (sibling)" "$(_pcl 'PD width=50 bit')" "0"
+fdRow "percentT the split: a value's % is the body bit, not the term's modPercent" "$(_pcm fValue)" "pct=0 modPercent=1" "pct=1 modPercent=0"
+_ofeq "percentT the split: width%=50 stays the term's modPercent, bit 0" "$(_pcm fName) $(_pcl 'PD width%=50 bit')" "pct=0 modPercent=1 0"
+fdRow "percentT = into a new local carries" "$(_pcl 'PR = new local')" "0 value 50" "1 value 50"
+fdRow "percentT = into the same kind carries" "$(_pcl 'PR = same kind')" "0 value 50" "1 value 50"
+fdRow "percentT = into another kind (castStore) carries" "$(_pcl 'PR = other kind')" "0 value 50%" "1 value 50%"
+fdRow "percentT = into an empty field carries" "$(_pcl 'PR = empty')" "0 value 50" "1 value 50"
+fdRow "percentT = copy of an argument carries" "$(_pcl 'PR = copy of argument')" "0" "1"
+fdRow "percentT =: value scope carries" "$(_pcl 'PR =: value scope')" "0 value 50" "1 value 50"
+_ofeq "percentT carries already: argument, := through, <- through, copyOf, +% copy, +% field, : through" "$(_pcl 'PR argument') $(_pcl 'PR := through') $(_pcl 'PR <- through') $(_pcl 'PR copyOf') $(_pcl 'PR +% copy through') $(_pcl 'PR +% field through') $(_pcl 'PR : through')" "1 1 1 1 1 1 1"
+_ofeq "percentT a product is a new value, no unit" "$(_pcl 'PR product')" "0 value 100"
+fdRow "percentT a plain write clears, same kind" "$(_pcl 'PC plain write, same kind')" "1 value 60" "0 value 60"
+fdRow "percentT a plain write clears, other kind (castStore)" "$(_pcl 'PC plain write, other kind')" "1 value 3" "0 value 3"
+fdRow "percentT term=5% in a rule host refuses by name" "$(grep -c '^REFUSED pRuleHost -- a % after a value' "$T/pc.e")" "0" "1"
+_ofeq "percentT term=5 in a rule host does not refuse (control)" "$(grep -c '^REFUSED pRuleOK' "$T/pc.e") $(_pcl 'PH control host present')" "0 pRuleOK"
+fdRow "percentT w = 50%; and w = v%; in a body refuse by name" "$(grep -c '^REFUSED % -- a % after a value' "$T/pc.e")" "0" "2"
+_ofeq "percentT a % between two operands stays modulo" "$(_pcl 'PM modulo literal') $(_pcl 'PM modulo field')" "2 0"
+_pjF=$(ip percentJitT); sed 's/^testing(pjCopy);$/testing(pjClear);/' "$_pjF" > "$T/pj2"
+perl -e 'alarm 20; exec @ARGV' "$B" "$_pjF" > "$T/pj.o" 2> "$T/pj.e"; _pjx=$?
+perl -e 'alarm 20; exec @ARGV' "$B" "$T/pj2" > "$T/pj2.o" 2> "$T/pj2.e"; _pjy=$?
+_ofeq "percentJitT exit / sentinel, both runs, and each compiled" "$_pjx $_pjy $(grep -c '^PERCENTJIT SENTINEL' "$T/pj.o") $(grep -c '^PERCENTJIT SENTINEL' "$T/pj2.o") $(grep -c 'jitRunAction: entering' "$T/pj.o") $(grep -c 'jitRunAction: entering' "$T/pj2.o")" "0 0 1 1 1 1"
+fdRow "percentJitT = carries under the JIT" "$(grep '^PJ = copy' "$T/pj.o" | head -1 | xargs)" "PJ = copy 0 value 50" "PJ = copy 1 value 50"
+fdRow "percentJitT a plain write clears under the JIT" "$(grep '^PJ plain write' "$T/pj2.o" | head -1 | xargs)" "PJ plain write 1 value 60" "PJ plain write 0 value 60"
 #  argRoadsT -- argument is a binding, and bare argument is the spelling on both roads (Tony, 2026-11-05, R1; docs/argumentRecon.md). Each pair: the same text on both roads, at 0 and at 3, so a row cannot pass on a constant. Born red on trunk: every new-road row here.
 _arF=$(ip argRoadsT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_arF" > "$T/ar.o" 2> "$T/ar.e"; _arX=$?

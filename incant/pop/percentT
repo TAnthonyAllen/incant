@@ -1,0 +1,75 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(PercentT);
+define
+    src=50;
+    target0=9;
+    target1=3;
+    tgtS="abc";
+    empty1;
+    declared=50%;
+    fValue width=50%;
+    fPlain width=50;
+    fName width%=50;
+    fScope width=50;
+    fHost hk=1;
+    fHost2 hk=1;
+    clr1=1;
+    clr2=1;
+    pSet code={ src :. isPercenT; fScope["width"] :. isPercenT; clr1 :. isPercenT; clr2 :. isPercenT; };
+    pCtl code={ b := src.isPercenT; print "PC control source" b:; c := target0.isPercenT; print "PC control unset" c:; };
+    pDef code={
+        b := fValue["width"].isPercenT; v := fValue["width"]; print "PD width=50% bit" b "value" v:;
+        c := fPlain["width"].isPercenT; print "PD width=50 bit" c:;
+        d := fName["width"].isPercenT; print "PD width%=50 bit" d:;
+        e := declared.isPercenT; print "PD declared=50% bit" e "value" declared:;
+        };
+    pA code={ a1 = src; b := a1.isPercenT; print "PR = new local" b "value" a1:; };
+    pB code={ target1 = src; b := target1.isPercenT; print "PR = same kind" b "value" target1:; };
+    pC code={ tgtS = src; b := tgtS.isPercenT; print "PR = other kind" b "value" tgtS:; };
+    pD code={ empty1 = src; b := empty1.isPercenT; print "PR = empty" b "value" empty1:; };
+    pArg code={ b := argument.isPercenT; print "PR argument" b:; c1 = argument; d := c1.isPercenT; print "PR = copy of argument" d:; };
+    pE code={ pArg(src); };
+    pF code={ =:fScope width; b := width.isPercenT; print "PR =: value scope" b "value" width:; };
+    pG code={ h := src; b := *h.isPercenT; print "PR := through" b:; };
+    pH code={ h2 <- src; b := *h2.isPercenT; print "PR <- through" b:; };
+    pI code={ m := copyOf(src); b := *m.isPercenT; print "PR copyOf" b:; };
+    pJ code={ fHost +% copyOf(src); e := fHost["src"]; c := *e.isPercenT; print "PR +% copy through" c:; };
+    pK code={ fHost2 +% src; e2 := fHost2["src"]; c := *e2.isPercenT; print "PR +% field through" c:; };
+    pL code={ :fScope width; c := *width.isPercenT; print "PR : through" c:; };
+    pM code={ p = src * 2; b := p.isPercenT; print "PR product" b "value" p:; };
+    pN code={ clr1 = 60; b := clr1.isPercenT; print "PC plain write, same kind" b "value" clr1:; };
+    pO code={ clr2 = "abc"; b := clr2.isPercenT; print "PC plain write, other kind" b "value" clr2:; };
+    pMod code={ w = 50 % 3; print "PM modulo literal" w:; x = 2; y = 50 % x; print "PM modulo field" y:; };
+    pRefA code={ w = 50%; print "PB after w = 50%, reached" w:; };
+    pRefB code={ v = 7; w = v%; print "PB after w = v%, reached" w:; };
+    pOne code={ r := PercentT[argument]; y := *r["width"]; modsOf(*y); };
+    ;
+registry(PctRules);
+define
+    PctRules isRule;
+    pRuleHost term=5%;
+    pRuleOK term=5;
+    ;
+search reset stack Grokking PercentT UnitTests Utilities list;
+print "PH refused host present" PctRules["pRuleHost"]:;
+print "PH control host present" PctRules["pRuleOK"]:;
+pSet();
+pCtl();
+pDef();
+pA(); pB(); pC(); pD(); pE(); pF(); pG(); pH(); pI(); pJ(); pK(); pL(); pM(); pN(); pO();
+pMod();
+pRefA();
+pRefB();
+pOne("fValue");
+pOne("fName");
+print "PERCENT SENTINEL":;
+stop();
+
+percentT -- a % after a value is a unit on that value (SEQ 538, SEQ 551 recon, SEQ 552). width=50% writes the body's isPercent, apart from a term's modPercent. The unit travels through copyData and castStore, and a plain write clears it. The copy roads start from a bit set by :. isPercenT, so they do not lean on the define's write and the H7 halves stay apart. term=5% in a rule host refuses by name; w = 50%; in a body refuses by name, and a % between two operands stays modulo.
+
+A define does not parse inside an action body (measured, processCode: parse failed), so in a body a unit can only travel by copy, or refuse. No grammar change is needed: incant/grammar's TraiTdata already takes the %, and only its action writes the wrong place.
+
+Pinned on trunk, born red, before the build. The row of width=50% under a 200-wide parent is in docs/setFrameSpec.md, not here (SEQ 552 R4).
