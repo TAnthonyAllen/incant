@@ -1,0 +1,349 @@
+/*****************************************************************************
+	This is the tester incantation. It is a working file for testing new features
+    under development so it changes when there is a new feature in the works.
+*****************************************************************************/
+Start();
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests list;
+
+registry(TestStuff);
+define
+    /*****************************************************************************
+        Debugging routines. listChain lists out an instruction chain: op, argument, target
+    *****************************************************************************/
+    listChain code={
+        if listLengtH != 0;
+            op      := argument[1];
+            target  := argument[2];
+            arg     := argument[3];
+            print *op.taG;
+            if *arg.taG == "instruct";
+                print ,:+~ "argument is:";
+                listChain(*arg);
+                print ,-;
+            else    print *arg.taG;
+            if *target.taG == "instruct";
+                print ,:+~ "target is:";
+                listChain(*target);
+                print ,-;
+            else    print *target.taG;
+        };
+    frameRuns=0;
+    bigF x=0 y=0 width=1000 height=1000
+        row0 across
+            c0x0;
+            c0x1;
+            c0x2;
+            c0x3;
+            c0x4;
+            c0x5;
+            c0x6;
+            c0x7;
+            c0x8;
+            c0x9;
+        row1 across
+            c1x0;
+            c1x1;
+            c1x2;
+            c1x3;
+            c1x4;
+            c1x5;
+            c1x6;
+            c1x7;
+            c1x8;
+            c1x9;
+        row2 across
+            c2x0;
+            c2x1;
+            c2x2;
+            c2x3;
+            c2x4;
+            c2x5;
+            c2x6;
+            c2x7;
+            c2x8;
+            c2x9;
+        row3 across
+            c3x0;
+            c3x1;
+            c3x2;
+            c3x3;
+            c3x4;
+            c3x5;
+            c3x6;
+            c3x7;
+            c3x8;
+            c3x9;
+        row4 across
+            c4x0;
+            c4x1;
+            c4x2;
+            c4x3;
+            c4x4;
+            c4x5;
+            c4x6;
+            c4x7;
+            c4x8;
+            c4x9;
+        row5 across
+            c5x0;
+            c5x1;
+            c5x2;
+            c5x3;
+            c5x4;
+            c5x5;
+            c5x6;
+            c5x7;
+            c5x8;
+            c5x9;
+        row6 across
+            c6x0;
+            c6x1;
+            c6x2;
+            c6x3;
+            c6x4;
+            c6x5;
+            c6x6;
+            c6x7;
+            c6x8;
+            c6x9;
+        row7 across
+            c7x0;
+            c7x1;
+            c7x2;
+            c7x3;
+            c7x4;
+            c7x5;
+            c7x6;
+            c7x7;
+            c7x8;
+            c7x9;
+        row8 across
+            c8x0;
+            c8x1;
+            c8x2;
+            c8x3;
+            c8x4;
+            c8x5;
+            c8x6;
+            c8x7;
+            c8x8;
+            c8x9;
+        row9 across
+            c9x0;
+            c9x1;
+            c9x2;
+            c9x3;
+            c9x4;
+            c9x5;
+            c9x6;
+            c9x7;
+            c9x8;
+            c9x9;
+    somple="What if it is a long string." height=200 width=250 x=100 y=100 down=*
+        crossing height=50;
+    /***************************************************************************
+        fillDownAcross deals with direction framing. The direction can be either
+        down or across. When the direction passed in has a value. The value can
+        be "*" or a number. The argument passed in has to contain the direction
+        attribute (that is down or across respectively).
+        
+        If the direction value is "*", the argument passed in can have only one
+        member (the member may have members); also the member should have its
+        target (width or height) specified. If direction value is a number
+        (like down=3) the argument can have more than one member, but all members
+        should have no target specified. Also, the argument passed in should
+        have no data (you can add data after setFrame finishes).
+    ***************************************************************************/
+    tARGET;
+    dIRECTion;
+    newStuff isList;
+    fillDownAcross code={
+        pValue = argument[tARGET];
+        direct = argument[dIRECTion];
+        memberCount=0;
+        for grup in argument; members
+            ++memberCount;
+            target = *grup[tARGET];
+            if target.datA != 0;    pValue -= target;
+        if direct == "*";
+            if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
+            valueCount = pValue / target;
+        else
+            if direct > 0;
+                valueCount = direct - 1;
+        clear(newStuff);
+        for grup in argument; attributes
+            newStuff +% *grup;
+        for grup in argument; members
+            newStuff +/ copyOf(*grup);
+        for grup in argument; members
+            while valueCount > 0;
+                --valueCount;
+                newStuff +/ copyOf(*grup);
+        clear(argument);
+        argument = newStuff;
+        };
+    /***************************************************************************
+         Set frames for members of the group passed in. It must have x y width
+         and height attributes.
+         
+         Should modify to check for noRoom and bail if there aint none
+    ***************************************************************************/
+    setFrame code={
+        frameRuns += 1;
+        =:argument across down width height x y;
+        sideRoom    = width;
+        pWidth      = width;
+        headRoom    = height;
+        pHeight     = height;
+        pX          = x;
+        pY          = y;
+        upOut       = 0;
+        sideOut     = 0;
+        if down.datA != 0;
+            tARGET="height";
+            dIRECTion="down";
+            fillDownAcross(argument);
+        if across.datA != 0;
+            tARGET="width";
+            dIRECTion="across";
+            fillDownAcross(argument);
+   /***************************************************************************
+                 Create frame and set width and height
+    ***************************************************************************/
+        for grup in argument; members
+            =:grup width height;
+            if width.isPercenT;
+                width = pWidth * width / 100;
+                *grup :% copyOf(width);
+            if height.isPercenT;
+                height = pHeight * height / 100;
+                *grup :% copyOf(height);
+            if width.datA != 0;
+                sideRoom    -= width;
+            or across.datA == 0;
+                width = pWidth;
+                *grup :% copyOf(width);
+            else
+                sideOut     +/ *grup;
+                ++sideOut;
+            if height.datA != 0;
+                headRoom    -= height;
+            or across.datA != 0;
+                height = pHeight;
+                *grup :% copyOf(height);
+            else
+                upOut       +/ *grup;
+                ++upOut;
+        if upOut > 0;
+            headRoom /= upOut;
+            for grup in upOut;
+                height = headRoom;
+                *grup :% copyOf(height);
+        if sideOut > 0;
+            sideRoom /= sideOut;
+            for grup in sideOut;
+                width = sideRoom;
+                *grup :% copyOf(width);
+        headRoom    = 0;
+        sideRoom    = 0;
+    /***************************************************************************
+             Set x and y in frame
+    ***************************************************************************/
+        for grup in argument; members
+            =:grup width height x y;
+            y = pY;
+            *grup :% copyOf(y);
+            x = pX;
+            *grup :% copyOf(x);
+            if across.datA == 0;    pY += height;
+            else                    pX += width;
+        for grup in argument; members
+            if *grup.hasMemberS;
+                setFrame(*grup);
+        };
+    /***************************************************************************
+        print out incant definition for the group passed in.
+    ***************************************************************************/
+    runIt code={
+        n = 0;
+        while n < 200;
+            setFrame(bigF);
+            n = n + 1;
+        print "RAN" n "setFrame calls" frameRuns:;
+        };
+    printDef code={
+        if datA != 0;  print ~$taG "=" argument$;
+        else    print ~$taG$;
+        if hasAttributeS;
+            for grup in argument; attributes
+                if datA != 0;
+                    print $_taG "=" grup$;
+                else    print $_taG$;
+        if hasMemberS;
+            print :;
+            for grup in argument; members
+                print +;
+                printDef(*grup);
+                print ,-;
+        else
+            print ";":;
+        };
+    ;
+
+runIt();
+print "SENTINEL tester driver end":;
+stop();
+
+/***************************************************************************
+    Everything below is left here for cut and paste modifications as needed
+***************************************************************************/
+    // definitions
+    qa=2;
+    qb=3;
+    qc=4;
+    simpleValue=10;
+    listenTEST=simpleValue listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
+
+    // Clod, A2 listener probe fields (driver near the foot)
+    la=1;
+    lb=$la;
+    lc listenTo=la;
+    lpReq owner source result rule;
+    lpNew code={
+        lpSrc := argument.CodE;
+        lpReq.owner  := argument;
+        lpReq.source := lpSrc;
+        lpReq.rule   := KantGrammar["STARt"];
+        if compileIn(lpReq);
+            lpBlock = lpReq.result;
+            *lpBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *lpBlock;
+        };
+    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
+// actions
+listenTEST();
+simpleValue=22;
+listenTEST();
+simpleValue=33;
+listenTEST();
+
+print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
+la = 5;
+print "A2 old road after la=5: la=" la " lb=" lb " lc=" lc:;
+lpNew(lpChange);
+lpChange();
+
+
+/***************************************************************************
+    Current Status
+***************************************************************************/
+
