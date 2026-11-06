@@ -1489,8 +1489,9 @@ GroupItem 	*trait = input->get(1);
 	// traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags
 	if ( Modifier )
 		::modify(trait,Modifier->getText());
+	// valuePercent a % after a value is a unit on the value, never the term's modPercent (SEQ 538, SEQ 552 R2)
 	if ( upFlags )
-		::modifyClass(trait,upFlags->getText(),0);
+		valueFlags(trait,upFlags->getText());
 	// wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
 	if ( upFlags && TraiTdata->groupBody->flags.data > 3 && !isGROUP(TraiTdata->groupBody->flags.data) )
 		::modifyClass(trait,upFlags->getText(),1);
@@ -2124,6 +2125,8 @@ extern "C" int castStore(GroupItem *argument, GroupItem *target)
 		return 0;
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) || isSTRING(argument->groupBody->flags.data) || isTOKEN(argument->groupBody->flags.data) )
 		{
+		// unitTravels castStore never reaches copyData, so it is the second write site (SEQ 552 R2)
+		target->groupBody->flags.isPercent = argument->groupBody->flags.isPercent;
 		// castCount .count is getCount: a NUMBER rounds half up toward +inf, a STRING or TOKEN reads its text length
 		if ( isCOUNT(target->groupBody->flags.data) )
 			target->setCount(argument->getCount());
@@ -3534,6 +3537,13 @@ GroupItem 	*right = 0;
 		}
 	if ( pend->groupBody->groupList )
 		return ::refuse(pend->get(1),"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
+	// trailingPercent w = 50%; a % with nothing after it is a unit, and only a define's value carries one (SEQ 552 R3)
+	if ( !cur && flat->groupBody->groupList )
+		{
+		term = flat->get(flat->groupBody->groupList->listLength);
+		if ( ::compare(term->groupBody->tag,"%") == 0 )
+			return ::refuse(term,"a % after a value is a unit, and only a define's value carries one");
+		}
 	if ( cur )
 		{
 		cur = interpretXPaccumWrap(cur,rest);
@@ -13584,6 +13594,16 @@ extern "C" int traitOwnsValue(GroupItem *trait, GroupItem *value)
 }
 
 /*******************************************************************************
+    The mark a value's % leaves on its trait, so aCTionDefinE can refuse it in a rule host.
+*******************************************************************************/
+extern "C" GroupItem *traitPercentMark()
+{
+GroupItem 	*mark = new GroupItem("traitPercent");
+	mark->groupBody->flags.noPrint = 1;
+	return mark;
+}
+
+/*******************************************************************************
     The mark a := leaves on its trait.
 *******************************************************************************/
 extern "C" GroupItem *traitRefMark()
@@ -13594,8 +13614,9 @@ GroupItem 	*mark = new GroupItem("traitRef");
 }
 
 /*******************************************************************************
-    A := attribute is refused in a rule host. The marks are aCTionTraiT's and each
-    is spent here. A refused host fires none of its attributes.
+    A := attribute, or a % after a value, is refused in a rule host (SEQ 552 R3). The
+    marks are aCTionTraiT's and each is spent here. A refused host fires none of its
+    attributes.
 *******************************************************************************/
 extern "C" int traitRefMarks(GroupItem *host, GroupItem *attributes)
 {
@@ -13617,6 +13638,24 @@ int 		marked = 0;
 	if ( marked && host->groupBody->flags.isRule )
 		{
 		::refuse(host,"a := attribute is refused in a rule host");
+		return 1;
+		}
+	marked = 0;
+	if ( mark = host->getProperty("traitPercent") )
+		{
+		host->removeProperty(mark);
+		marked = 1;
+		}
+	if ( attributes )
+		while ( item = attributes->next(item) )
+			if ( mark = item->getProperty("traitPercent") )
+				{
+				item->removeProperty(mark);
+				marked = 1;
+				}
+	if ( marked && host->groupBody->flags.isRule )
+		{
+		::refuse(host,"a % after a value is refused in a rule host");
 		return 1;
 		}
 	return 0;
@@ -13688,6 +13727,26 @@ GroupItem 	*reg = 0;
 	if ( reg->get("accessClass") )
 		return 1;
 	return 0;
+}
+
+/*******************************************************************************
+    A value's non-repeat modifiers. A % writes the body's unit and leaves its mark;
+    every other one goes to modify, as modifyClass does.
+*******************************************************************************/
+extern "C" void valueFlags(GroupItem *trait, char *modifier)
+{
+	
+	char one[2];
+	one[1] = 0;
+	for ( char *p = modifier; p && *p; p++ ) {
+	one[0] = *p;
+	if ( *p == '%' ) {
+	trait->groupBody->flags.isPercent = 1;
+	trait->addProperty(::traitPercentMark());
+	}
+	else if ( !::modifierIsRepeat(one) ) ::modify(trait,one);
+	}
+	
 }
 
 // verdictCount add one named count to a verdict

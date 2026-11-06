@@ -396,12 +396,16 @@ int contents()
 *****************************************************************************/
 void copyData(GroupItem item)
 {
+    // unitTravels a % is a unit on the value, so it comes with the value and a plain value clears it (SEQ 538, SEQ 552 R2)
     if item
-        if !item.data   text = item.tag;
+        if !item.data {
+            text        = item.tag;
+            isPercent   = false; }
         else {
-            data    = item.data;
-            gText   = item.gText;
-            gNumber = item.gNumber; }
+            data        = item.data;
+            gText       = item.gText;
+            gNumber     = item.gNumber;
+            isPercent   = item.isPercent; }
     if data isInitialized   = true;
     else    isInitialized   = false;
     if hasListeners  updateListeners();

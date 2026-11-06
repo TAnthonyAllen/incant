@@ -638,13 +638,18 @@ int GroupItem::contents()
 *****************************************************************************/
 void GroupItem::copyData(GroupItem *item)
 {
+	// unitTravels a % is a unit on the value, so it comes with the value and a plain value clears it (SEQ 538, SEQ 552 R2)
 	if ( item )
 		if ( !item->groupBody->flags.data )
+			{
 			setText(item->groupBody->tag);
+			groupBody->flags.isPercent = 0;
+			}
 		else {
 			groupBody->flags.data = item->groupBody->flags.data;
 			groupBody->gText = item->groupBody->gText;
 			groupBody->gNumber = item->groupBody->gNumber;
+			groupBody->flags.isPercent = item->groupBody->flags.isPercent;
 			}
 	if ( groupBody->flags.data )
 		groupBody->flags.isInitialized = 1;
