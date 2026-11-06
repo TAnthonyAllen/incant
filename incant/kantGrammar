@@ -127,7 +127,6 @@ define
         SEARCh      search- followedBy GrouP+ SemI-;
         BRANCh      BRANCHEs EXPRESSIOn? SemI-;
         SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- ;
-        SCOPEVAl    byValue-="=:" scopeList=SCOPEFIELd+ SemI- ;
     XPRESs          EXPRESSIOn SemI- ;
     STATEMENt
         SemI;
@@ -383,15 +382,6 @@ define
     SCOPEXp code={
         lMint       := copyOf(*actionLabel);
         *lMint.methoD = "aCTionScopeXP";
-        op := Operators["runRule"];
-        miArgs      +% op lMint;
-        built       := makeInstruct(miArgs);
-        *actionLabel   := *built;
-        return  *actionLabel;
-        };
-    SCOPEVAl code={
-        lMint       := copyOf(*actionLabel);
-        *lMint.methoD = "aCTionScopeValue";
         op := Operators["runRule"];
         miArgs      +% op lMint;
         built       := makeInstruct(miArgs);
