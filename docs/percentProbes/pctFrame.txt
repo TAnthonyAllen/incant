@@ -1,0 +1,14 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(PctFrame);
+define
+    pp x=0 y=0 width=200 height=100 across
+        ka width=50% height=10;
+        kb width=25% height=10;
+    ;
+setFrame(pp);
+dumpContents(pp);
+print "PCTFRAME SENTINEL":;
+stop();
