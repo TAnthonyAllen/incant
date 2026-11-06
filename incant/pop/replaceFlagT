@@ -1,0 +1,68 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ReplaceFlag);
+define
+    vv=7;
+    ww=8;
+    twoAttrs isList;
+    twoMems isList;
+    a1;
+    a2;
+    a3;
+    a4 k=1;
+    m1;
+    m2;
+    m3;
+    m4 k=1
+        kid;
+    aRd code={ if hasAttributeS; print "RF attr" taG "1":; else print "RF attr" taG "0":; };
+    mRd code={ if hasMemberS; print "RF mem" taG "1":; else print "RF mem" taG "0":; };
+    aWalk code={
+        n = 0;
+        iterate g attributes on argument;
+        while ++g;
+            n = n + 1;
+        print "RF walk attrs" n:;
+        };
+    mWalk code={
+        n = 0;
+        iterate g members on argument;
+        while ++g;
+            n = n + 1;
+        print "RF walk mems" n:;
+        };
+    go code={
+        a1 :% copyOf(vv);
+        a2 +% copyOf(vv);
+        twoAttrs +% copyOf(vv);
+        twoAttrs +% copyOf(ww);
+        a3 :% twoAttrs;
+        a4 :% copyOf(vv);
+        a1 :% copyOf(vv);
+        m1 :+ copyOf(vv);
+        m2 +/ copyOf(vv);
+        twoMems +% copyOf(vv);
+        twoMems +% copyOf(ww);
+        m3 :+ twoMems;
+        m4 :+ copyOf(vv);
+        };
+    ;
+go();
+aRd(a1); aRd(a2); aRd(a3); aRd(a4);
+mRd(m1); mRd(m2); mRd(m3); mRd(m4);
+aWalk(a1); aWalk(a3);
+mWalk(m1); mWalk(m3);
+print "RF cross":;
+mRd(a1);
+mRd(a3);
+aRd(m1);
+aRd(m3);
+print "RF def":;
+printDefinition(a1);
+print "RF def end":;
+print "REPLACEFLAG SENTINEL":;
+stop();
+
+replaceFlagT -- :% and :+ set the field's hasAttributes and hasMembers, as +% and +/ do (Tony, 2026-11-06; found by printDef printing second and fifth bare after setFrame). Each row reads a field that had no attribute or member before the operator, in both arms, a single argument and a list. a2 and m2 are the controls on +% and +/, a4 and m4 the fields that already had one. Each pair is a non-zero sibling of the cross rows, which stay 0.

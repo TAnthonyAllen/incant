@@ -8915,6 +8915,19 @@ perl -e 'alarm 20; exec @ARGV' "$B" "$T/pj2" > "$T/pj2.o" 2> "$T/pj2.e"; _pjy=$?
 _ofeq "percentJitT exit / sentinel, both runs, and each compiled" "$_pjx $_pjy $(grep -c '^PERCENTJIT SENTINEL' "$T/pj.o") $(grep -c '^PERCENTJIT SENTINEL' "$T/pj2.o") $(grep -c 'jitRunAction: entering' "$T/pj.o") $(grep -c 'jitRunAction: entering' "$T/pj2.o")" "0 0 1 1 1 1"
 fdRow "percentJitT = carries under the JIT" "$(grep '^PJ = copy' "$T/pj.o" | head -1 | xargs)" "PJ = copy 0 value 50" "PJ = copy 1 value 50"
 fdRow "percentJitT a plain write clears under the JIT" "$(grep '^PJ plain write' "$T/pj2.o" | head -1 | xargs)" "PJ plain write 1 value 60" "PJ plain write 0 value 60"
+#  ⚑ replaceFlagT -- :% and :+ keep the field's content flags true (Tony, 2026-11-06). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. replace() adds by the entry's old affiliation, so on an empty field :% set hasMembers and not hasAttributes: printDefinition printed it bare, with no closing ;.
+_rfF=$(ip replaceFlagT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_rfF" > "$T/rf.o" 2> "$T/rf.e"; _rfx=$?
+_rfv () { grep "^RF $1" "$T/rf.o" | sed "s/^RF $1 *//; s/ *$//" | tr '\n' ' ' | sed 's/ *$//'; }
+_ofeq "replaceFlagT exit / sentinel" "$_rfx $(grep -c '^REPLACEFLAG SENTINEL' "$T/rf.o")" "0 1"
+fdRow "replaceFlagT :% on an empty field sets hasAttributes" "$(_rfv 'attr a1')" "0" "1"
+_ofeq "replaceFlagT +% (control), :% of a list, :% on a field that had one" "$(_rfv 'attr a2') $(_rfv 'attr a3') $(_rfv 'attr a4')" "1 1 1"
+_ofeq "replaceFlagT :+ of one, +/ (control), :+ on a field that had one" "$(_rfv 'mem m1') $(_rfv 'mem m2') $(_rfv 'mem m4')" "1 1 1"
+fdRow "replaceFlagT :+ of a list sets hasMembers" "$(_rfv 'mem m3')" "0" "1"
+_ofeq "replaceFlagT the walks find them: attributes 1 2, members 1 2" "$(_rfv 'walk attrs') / $(_rfv 'walk mems')" "1 2 / 1 2"
+fdRow "replaceFlagT :% on an empty field leaves no stale hasMembers" "$(grep -A1 '^RF cross' "$T/rf.o" | tail -1 | xargs)" "RF mem a1 1" "RF mem a1 0"
+fdRow "replaceFlagT :+ of a list leaves no stale hasAttributes" "$(grep '^RF attr m3' "$T/rf.o" | xargs)" "RF attr m3 1" "RF attr m3 0"
+fdRow "replaceFlagT printDefinition shows what :% attached, and closes" "$(grep -A1 '^RF def$\|^RF def ' "$T/rf.o" | sed -n 2p | xargs)" "a1" "a1 vv=7;"
 #  argRoadsT -- argument is a binding, and bare argument is the spelling on both roads (Tony, 2026-11-05, R1; docs/argumentRecon.md). Each pair: the same text on both roads, at 0 and at 3, so a row cannot pass on a constant. Born red on trunk: every new-road row here.
 _arF=$(ip argRoadsT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_arF" > "$T/ar.o" 2> "$T/ar.e"; _arX=$?
