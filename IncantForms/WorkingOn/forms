@@ -320,6 +320,7 @@ Candidate morning items (none ruled):
        setFrame IS TONY'S, OFFLINE. THE FORMS AFTERNOON TRACK WAITS ON IT.
     M2 Text floor: no Core Text anywhere in the tree. One measure method and one pour command, keeping the count.
     M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses a field that has only fill=).
+       A READER FOR fill= IS BUILT ON BRANCH fill-reader, NOT MERGED (SEQ 549): the field's own fill, then its style's fillColor; # parsed where it sits; a name looked up at draw; not inherited. The line above stays true until the buy.
        RULED FOR M3 (Tony, 2026-11-05): setColor's per-field cache must not outlive a change to the value it came from; decide its shape when fill is built.
        M3 RECON (Tony's dispatch, 2026-11-05, afternoon; paper only, measured in kant on the bare binary, no trunk code; no STOP fired: no shape needs a new GroupItem field or touches the frame model).
        RECOMMENDATION, FOR TONY'S RULING: (a), no cache. The lean said (c) only if (a) costs anything noticeable, and it does not.
