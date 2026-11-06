@@ -3487,6 +3487,8 @@ failure it closes:** a dispatch whose body said "Rulings (Tony, date)" while its
 agree" -- Clod could not tell ruled from proposed, and had to either guess or stop. A body sentence
 that reads like a ruling and is not in the block is a **proposal**; say so rather than act on it.
 
+⚠⚠ **A DISPATCH THAT TOUCHES GRAMMAR NAMES WHICH GRAMMAR THE CHANGE MUST REACH AND WHERE IT MUST WORK (top level, an action body, a form). Tony, standing, 2026-11-06 (SEQ 552 R5).** Action bodies and forms parse on `incant/grammar`, so a change made only in `incant/kantGrammar` can't be reached there. **If a dispatch doesn't say, ask before building.**
+
 **Poll the file when you finish a unit of work.** Messages have sat `fresh`
 unread across session boundaries more than once (a SEQ 2 from 2026-07-02, three
 questions in `rstuff-chokepoint.md` open since 2026-06-20, a SEQ 7 skipped

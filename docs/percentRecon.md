@@ -110,7 +110,7 @@ So **11 live uses in Windows forms** (2 of them in wraplist, which does not pars
 
 **Bookkeeping:** no GroupBody field is added (isPercent exists), so no layout change and no tokall sweep owed. Canary unmoved unless a helper is added. Bare tokall diff stands. utilities' five `:. isPercenT` sites come alive once setFrame reads the bit; `height = x; height :. isPercenT` sets after the write, so the clearing does not undo them.
 
-## For ruling
+## For ruling (RULED, SEQ 552: see IncantForms/WorkingOn/macros; the setFrame half went to docs/setFrameSpec.md)
 1. **Percent of what:** remaining room or the parent's size, in Tony's setFrame.
 2. **Resize:** does the declared 50% survive a computed frame?
 3. **`term=5%` in a rule host:** refuse (recommended) or leave.
