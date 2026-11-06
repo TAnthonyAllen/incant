@@ -306,6 +306,12 @@ NEXT SESSION (Tony, 2026-11-05, shutdown; docs/wakeup.md seal 342 carries the ji
        (Instance) Stroke 1 stands, kant gets a modPercent accessor, and a copied member probably loses it (copyOf copies the body, not rStuff, per Ruling D of 2026-08-22; not re-measured).
     setFrame IS TONY'S, OFFLINE; THE FORMS AFTERNOON TRACK WAITS ON IT. This afternoon's rulings stand as SEQ 535 unless Tony says otherwise.
        HARD PART, DO LATER (Tony, 2026-11-05, evening, parked): fillDownAcross cannot handle a field with both down and across specified. Tony's report from his offline work; not measured here, no design yet, on no order.
+       THE VALUE SCOPE (Tony, 2026-11-06): =: on branch scope-value; a value, an empty local, a bare flag as 1, a warning on a group. setFrame respelled in tester.
+       A NUMBER AGAINST A NON-NUMERIC STRING READS FALSE (Tony, 2026-11-06): 1 == "*" is true today, because a string read as a number is its length. Recon first, then the stroke.
+       WARNINGS NEED AN ON/OFF SWITCH (Tony, 2026-11-06); CLAY'S TO WEIGH IN. The granularity is the question: all warnings, or only those on some methods or actions. Two warnings exist now, =: on a held group and a compare of a number with a string; neither can be turned off. A form with a bare across warns on every setFrame, from fillDownAcross's direct == "*".
+       A CAST (Tony, 2026-11-06): to keep a string's length as its number useful, kant needs an equivalent of a C++ cast, so the reading is asked for. No design yet; for Clay. Arithmetic still reads a string as its length (SEQ 347 R3); compares no longer do. SEQ 347's "cast rule" is about storing into a typed target, not this.
+       KANT COMPARES ARE A CONTINUING ISSUE (Tony, 2026-11-06): for example, !across is not the same as across.datA == 1 in an if statement. His words; not measured here, on no order.
+       printDefinition IS DUE FOR A REWRITE (Tony, 2026-11-06). Measured: after down=3 each member holds its frame (dumpContents length 4) and printDefinition prints it bare. On no order.
        ANOTHER DAY (Tony, 2026-11-05, evening): error messages should point better at the line that raised them. A bigger problem, on no order. Seen in the same run: REFUSED carries [line N], ERROR getNumber carries no line.
 DOCKET HEAD, DONE but M3 and M4 (Tony, SEQ 533 R1, 2026-11-04), the morning order:
     1 := in a define, ahead of the listener because onClick needs it (R0 supersedes SEQ 532 R2; the listener stays parked). Its own rule with its own :=, refused in a rule

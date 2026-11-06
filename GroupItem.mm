@@ -91,13 +91,37 @@ int 	result = 0;
 
 /*****************************************************************************
                                 compareValues
-    Compare value of group1 to value of group2.
+    Compare value of group1 to value of group2. A number against a string warns: a
+    string that is a number in full compares by value, and any other string has no
+    order against a number, which compareValues returns as 2147483647. opEQ, opNotEQ,
+    opLT and opLE read that value correctly as it stands; opGT and opGE test for it.
 *****************************************************************************/
 int compareValues(GroupItem *group1, GroupItem *group2)
 {
 int 	result = -1;
 int 	numeric = 0;
 double 	diff = 0;
+	
+	if ( group1 && group2 ) {
+	int d1 = group1->groupBody->flags.data, d2 = group2->groupBody->flags.data;
+	bool n1 = isCOUNT(d1) || isNUMBER(d1), n2 = isCOUNT(d2) || isNUMBER(d2);
+	bool s1 = isSTRING(d1) || isTOKEN(d1) || isBUFFER(d1), s2 = isSTRING(d2) || isTOKEN(d2) || isBUFFER(d2);
+	if ( (n1 && s2) || (s1 && n2) ) {
+	GroupItem *textSide = s1 ? group1 : group2, *numberSide = s1 ? group2 : group1;
+	const char *txt = textSide->getText();
+	const char *p = txt;
+	char *end = 0;
+	while ( isspace((unsigned char)*p) ) p++;
+	bool startsRight = isdigit((unsigned char)*p) || *p == '-' || *p == '+' || *p == '.';
+	double textValue = startsRight && !strpbrk(p,"xX") ? strtod(p,&end) : 0;
+	if ( end ) while ( isspace((unsigned char)*end) ) end++;
+	if ( !end || end == p || *end ) {
+	fprintf(stderr,"WARNING compare: number %s [%s] against string %s [%s] -- the string is not a number, so they have no order\n",numberSide->groupBody->tag,numberSide->getText(),textSide->groupBody->tag,txt);
+	return 2147483647; }
+	fprintf(stderr,"WARNING compare: string %s [%s] read as a number against %s [%s]\n",textSide->groupBody->tag,txt,numberSide->groupBody->tag,numberSide->getText());
+	double left = s1 ? textValue : group1->getNumber(), right = s1 ? group2->getNumber() : textValue;
+	return left < right ? -1 : left > right ? 1 : 0; } }
+	
 	if ( group1 && !group2 )
 		result = 1;
 	else
@@ -114,7 +138,7 @@ double 	diff = 0;
 				result = group1->getItem()->compare(group2->getItem());
 				break;
 			case 9:
-				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) || isSTRING(group2->groupBody->flags.data) )
+				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) )
 					{
 					numeric = 1;
 					diff = group1->groupBody->gNumber - group2->getNumber();
@@ -123,15 +147,7 @@ double 	diff = 0;
 			case 4:
 			case 13:
 			case 14:
-				if ( isNUMBER(group2->groupBody->flags.data) )
-					{
-					numeric = 1;
-					diff = group1->getCount() - group2->getNumber();
-					}
-				else
-				if ( isCOUNT(group2->groupBody->flags.data) )
-					result = group1->getCount() - group2->getCount();
-				else	result = ::compare(group1->getText(),group2->getText());
+				result = ::compare(group1->getText(),group2->getText());
 				break;
 			case 5:
 				if ( isNUMBER(group2->groupBody->flags.data) )
@@ -140,7 +156,7 @@ double 	diff = 0;
 					diff = group1->getCount() - group2->getNumber();
 					}
 				else
-				if ( isCOUNT(group2->groupBody->flags.data) || isSTRING(group2->groupBody->flags.data) )
+				if ( isCOUNT(group2->groupBody->flags.data) )
 					result = group1->getCount() - group2->getCount();
 				break;
 			default:

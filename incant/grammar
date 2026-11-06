@@ -167,6 +167,7 @@ define
         Search      search- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
         ScopeXP     colon-=":" scopeList=ScopeField+ SemI- defer;
+        ScopeValue  byValue-="=:" scopeList=ScopeField+ SemI- defer;
     Xpress          ExpressioN SemI- defer;
     StatemenT
         SemI;

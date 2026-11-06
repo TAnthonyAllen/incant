@@ -1,0 +1,17 @@
+Start();
+registry(CompareMixCompT);
+define
+    n=1; s="*"; r=0;
+    cmcAct code={
+        r = 0;
+        if n == s;  r = 1;
+        return r;
+        };
+    ;
+jitter;
+x := cmcAct();
+print "CMC" r:;
+print "CMC SENTINEL":;
+stop();
+
+compareMixCompT -- compareMixT's no-order case in an action jitter; builds: the action is built, the warning fires, the answer is 0.

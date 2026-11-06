@@ -2961,10 +2961,11 @@ sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 #  RE-PINNED 2026-10-15 (SEQ 362 R0): TF-1 87 -> 85, TF-2/3/4 49 -> 47 -- TokenXP and UnaryXP left the grammar (S4b).
 #  TF-5 and TF-6 unmoved.
 #  RE-PINNED 2026-11-05 (SEQ 534 R3, := in a define: Grokking gains the literal BindOp and the rule TraiTref): TF-1 85 -> 87 for the two; TF-2/3/4 47 -> 48 for TraiTref, which carries terms; TF-6 38 -> 39 for BindOp, which carries none. TF-5 unmoved.
-for _arm in "TF-1 rules seen                   =  87" \
-            "TF-2 carrying hasAttributeS       =  48" \
-            "TF-3 carrying hasTraitS           =  48" \
-            "TF-4 carrying BOTH                =  48" \
+#  RE-PINNED 2026-11-06 (Tony, the value scope =:): Grokking gains the one rule ScopeValue and its terms, so every count of the grammar moves by them.
+for _arm in "TF-1 rules seen                   =  88" \
+            "TF-2 carrying hasAttributeS       =  49" \
+            "TF-3 carrying hasTraitS           =  49" \
+            "TF-4 carrying BOTH                =  49" \
             "TF-6 no attributes                =  39" \
             "TF-5 the two flags DISAGREE on    =  0"; do
     if grep -qF "$_arm" "$T/tf"; then
@@ -4446,11 +4447,11 @@ if grep -qxE 'SWEEP SENTINEL ?' "$T/sw.e"; then echo "  ok    sweepT sentinel (e
 #  rules the sweep reaches, and both AGREE at degrade 0; diff stays 0.
 #  RE-PINNED 2026-10-15 (SEQ 362 R0): 49 -> 47 certified, carriers 66 -> 64 -- TokenXP and UnaryXP left the grammar (S4b);
 #  exactly those two results left the set, and every remaining one still AGREEs, diff 0.
-if grep -q '^SWEEP END .* certified=47 agree=47 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=47 agree=47 diff=0"; green=$((green+1))
+if grep -q '^SWEEP END .* certified=48 agree=48 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=48 agree=48 diff=0"; green=$((green+1))
 else echo "  FAIL  sweepT MOVED: $(grep '^SWEEP END' "$T/sw.e")"; fail=1; fi
 _swr=$(grep -c '^SWEEP RESULT .* AGREE degrade=0$' "$T/sw.e"); _swa=$(grep -c '^SWEEP RESULT ' "$T/sw.e")
-if [ "$_swa" -eq 47 ] && [ "$_swr" -eq 47 ]; then echo "  ok    sweepT 47 carrier results, every one AGREE at degrade 0"; green=$((green+1))
-else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 47 of 47)"; fail=1; fi
+if [ "$_swa" -eq 48 ] && [ "$_swr" -eq 48 ]; then echo "  ok    sweepT 48 carrier results, every one AGREE at degrade 0"; green=$((green+1))
+else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 48 of 48)"; fail=1; fi
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
 
@@ -7056,7 +7057,7 @@ END{na=0;nb=0;names="";for(k in act)na++; for(k in bad){nb++; names=names " " k}
 #  RE-PINNED 2026-10-15 33 -> 32 (SEQ 361 R0, S4a, sentence): aCTionTokenXP deleted (measured inert, SEQ 358 tap 2), so
 #  TokenXP's actor is no longer found by lookup -- the one rule that left the count.
 AO=$(aoCount)
-kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "33"
+kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "34"
 AOB=${AO#*/}
 kindRow "actorOrderT AO-2 rules with a builtinActoR AMONG their children (names follow if any)" "$AOB" "0"
 
@@ -7318,15 +7319,16 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  258 RE-PINNED 2026-10-30 (SEQ 489 R1, branch bridge-run): 257 -> 258 on this row and its five siblings -- runRule is registered in Operators (SEQ 489).
 #  259 RE-PINNED 2026-10-30 (SEQ 492 R2, branch command-call): 258 -> 259 on this row and its five siblings -- call is registered in Operators (SEQ 492).
 #  261 RE-PINNED 2026-10-31 (SEQ 496, branch print-sinks): 259 -> 261 on this row and its five siblings -- cerrList and coutList are registered in Operators (SEQ 496).
+#  RE-PINNED 2026-11-06 (Tony, the value scope =:): Grokking gains the one rule ScopeValue and its terms, so every count of the grammar moves by them.
 #  265 RE-PINNED 2026-11-05 (SEQ 534 R3, := in a define: Grokking gains the literal BindOp and the rule TraiTref): 262 -> 265 on this row and its five siblings -- the two new Grokking children plus TraiT's new term.
 #  262 RE-PINNED 2026-11-03 (SEQ 516, branch top-refuse): 261 -> 262 on this row and its five siblings -- bodySeq is registered in Operators (SEQ 516) (control: the bodySeq line removed from incant/setup, all six read 261 again on the same binary).
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "265"
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "0" "269"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "265"
+kindRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "269"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -7342,8 +7344,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "265 6"
-kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "265"
+kindRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "269 6"
+kindRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "269"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -7359,12 +7361,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "265"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "" "269"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "265"
+kindRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "269"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -7877,6 +7879,47 @@ kindRow "termCountT jitted: the refusals, by name, = the plain run's (born red S
 perl -e 'alarm 10; exec @ARGV' "$B" "$(ip jitHoistT)" > "$T/jhz" 2>&1; _jhzx=$?
 kindRow "jitHoistT jitted run's exit = the twin (born red 2026-10-21, 139; green since SEQ 391)" "$_jhzx" "0"
 kindRow "jitHoistT jitted HZ-1 printed (born red 2026-10-21; green since SEQ 391)" "$(grep -c '^HZ-1 ' "$T/jhz")" "1"
+
+#  ---- scopeValueT: =: THE VALUE SCOPE (Tony, 2026-11-06). A local takes the found field's value, a bare flag reads 1, an
+#  absent field clears, a held group warns and clears. SV-6 is the claim the spelling exists for, and SV-7 is : on the same
+#  field, still a holder. H7 (fix committed first, single fixture): the warning arm and the bare-flag arm out, SV-3a reads flagish, SV-10 has data, no warning; SV-11 stays, its non-zero sibling.
+perl -e 'alarm 20; exec @ARGV' "$B" "$(ip scopeValueT)" > "$T/sv" 2> "$T/sv.e"; _svx=$?
+kindRow "scopeValueT runs" "$_svx" "0"
+sentinel "scopeValueT sentinel" "$T/sv" "SCOPEVALUE SENTINEL"
+_sv () { grep "^$1 " "$T/sv" | sed 's/ *$//' | tr '\n' '|'; }
+kindRow "scopeValueT SV-1 present values" "$(_sv SV-1)" "SV-1 present values 250 50|"
+kindRow "scopeValueT SV-3a a bare flag and a member with no data read 1" "$(_sv SV-3a)" "SV-3a a bare flag reads 1 and a member with no data reads 1|"
+kindRow "scopeValueT SV-4 absent has no data" "$(_sv SV-4)" "SV-4 absent no data|"
+kindRow "scopeValueT SV-6 writing the local leaves the source" "$(_sv SV-6)" "SV-6 local 7 source 250|"
+kindRow "scopeValueT SV-7 : on the same field still writes through" "$(_sv SV-7)" "SV-7 colon still writes through, source 8|"
+kindRow "scopeValueT SV-8 value, miss clears, value" "$(_sv SV-8)" "SV-8 8|SV-8 no data|SV-8 8|"
+kindRow "scopeValueT SV-9 through a cursor" "$(_sv SV-9)" "SV-9 a 11|SV-9 b 22|"
+kindRow "scopeValueT SV-10 a held group leaves the local empty" "$(_sv SV-10)" "SV-10 held group left the local empty|"
+kindRow "scopeValueT SV-11 its neighbour still reads (non-zero sibling)" "$(_sv SV-11)" "SV-11 its neighbour still reads 4|"
+kindRow "scopeValueT the warning names the field and the form, once" "$(grep -c '^WARNING =: height in svHeld holds a group' "$T/sv.e")" "1"
+
+#  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
+#  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
+#  H7 (fix committed first, single fixture): compareValues' mixed block out, no warnings; 1 vs * reads 010000 -> 011100 and '12' vs 2 reads 010011 -> 011100, both red.
+perl -e 'alarm 20; exec @ARGV' "$B" "$(ip compareMixT)" > "$T/cm" 2> "$T/cm.e"; _cmx=$?
+kindRow "compareMixT runs" "$_cmx" "0"
+sentinel "compareMixT sentinel" "$T/cm" "COMPAREMIX SENTINEL"
+_cm () { grep -F "CM $1 " "$T/cm" | sed -e 's/ *$//' -e 's/^.* //' | tr -d '\n'; }
+#  each row is its six truths in the order == != < <= > >=
+kindRow "compareMixT 1 vs * has no order" "$(_cm '1 vs *')" "010000"
+kindRow "compareMixT * vs 1 has no order" "$(_cm '* vs 1')" "010000"
+kindRow "compareMixT 3 vs '3' by value" "$(_cm "3 vs '3'")" "100101"
+kindRow "compareMixT '3' vs 3 by value" "$(_cm "'3' vs 3")" "100101"
+kindRow "compareMixT 1 vs '3' by value, not length" "$(_cm "1 vs '3'")" "011100"
+kindRow "compareMixT '12' vs 2 by value, not length" "$(_cm "'12' vs 2")" "010011"
+kindRow "compareMixT 1.5 vs '1.5' by value" "$(_cm "1.5 vs '1.5'")" "100101"
+kindRow "compareMixT 3 vs 3, the number control" "$(_cm '3 vs 3 (no string, no warning)')" "100101"
+kindRow "compareMixT * vs *, the string control" "$(_cm '* vs * (no number, no warning)')" "100101"
+kindRow "compareMixT the seven mixed pairs warn on all six operators" "$(grep -c '^WARNING compare' "$T/cm.e")" "42"
+kindRow "compareMixT the two control pairs do not warn" "$(grep '^WARNING compare' "$T/cm.e" | grep -c 'three2\|star2')" "0"
+perl -e 'alarm 20; exec @ARGV' "$B" "$(ip compareMixCompT)" > "$T/cmc" 2>&1; _cmcx=$?
+kindRow "compareMixCompT under jitter;: exit, built, warned, answer" "$_cmcx $(grep -c 'cmcAct built 1 called 1' "$T/cmc") $(grep -c '^WARNING compare' "$T/cmc") $(sed -n 's/^CMC \([0-9]*\) *$/\1/p' "$T/cmc")" "0 1 1 0"
+sentinel "compareMixCompT sentinel" "$T/cmc" "CMC SENTINEL"
 sed '/^jitter;$/d' "$(ip jitHoistT)" > "$T/jhzI.src"; "$CB" "$T/jhzI.src" > "$T/jhzI" 2>&1; check "jitHoistT interpreted twin runs" 0 $?
 sentinel "jitHoistT interpreted twin sentinel" "$T/jhzI" "JITHOIST SENTINEL"
 kindRow "jitHoistT the interpreted twin: HZ-1 printed (the intended value)" "$(grep -c '^HZ-1 ' "$T/jhzI")" "1"
@@ -8099,7 +8142,7 @@ kindRow "jitArgNumberT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-
 run1 halfLessT "$T/hl";   check "halfLessT runs" 0 $?
 sentinel "halfLessT sentinel" "$T/hl" "HALFLESS SENTINEL"
 kindRow "halfLessT parser(Start) ran between the two lines (the second line is the new road)" "$(grep -c '^setParse ended and that ends compileRules' "$T/hl")" "1"
-_hl () { sed -n "s/^HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*\) *1\.5<2 *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/hl"; }
+_hl () { sed -n "s/^.*HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*\) *1\.5<2 *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/hl"; }
 #  HL rows re-pinned 0 1 0 0 -> 1 1 0 1 (SEQ 417): 0.5 < 1 and 1.5 < 2 now compare the values -- compareValues' number arm
 #  was (int)(a - b). The intended value since 2026-10-19; halfLessFalse retires by mapping onto these two rows.
 kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2" "$(_hl old)" "1 1 0 1"
