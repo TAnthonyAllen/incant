@@ -9192,6 +9192,9 @@ GroupItem 	*stmtResult = 0;
 		ruler->branchKind = 0;
 		stmtResult = 0;
 		 if ( (void*)grup->groupBody->gMethod == (void*)&testOP ) stmtResult = ::testOP(grup); 
+		// refusalEndsAction a refusal stops the list and stays raised, so every enclosing seq and loop stops too, and runAction's refusalArm ends the action (Tony, SEQ 535 R1)
+		if ( ruler->refused && !ruler->jitting )
+			break;
 		// stopOnSignal a break or continue stops the list, and the signal stays set for the loop to read (SEQ 476 R3)
 		if ( ruler->branchKind )
 			break;
@@ -9407,6 +9410,7 @@ GroupItem 	*cond = arms->get(2);
 	doRuler->branchKind = 0;
 	bodyResult = 0;
 	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
+	if ( doRuler->refused && !doRuler->jitting ) break;
 	int doKind = doRuler->branchKind;
 	if ( doKind == 1 ) { doRuler->branchKind = 0; break; }
 	if ( doKind == 2 ) doRuler->branchKind = 0;
@@ -9723,6 +9727,7 @@ int 		backward = 0;
 	forRuler->branchKind = 0;
 	bodyResult = 0;
 	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
+	if ( forRuler->refused && !forRuler->jitting ) break;
 	int forKind = forRuler->branchKind;
 	if ( forKind == 1 ) { forRuler->branchKind = 0; break; }
 	if ( forKind == 2 ) { forRuler->branchKind = 0; continue; }
@@ -9882,6 +9887,8 @@ GroupItem 	*elseArm = arms->get(3);
 GroupItem 	*arm = 0;
 GroupItem 	*result = 0;
 	 if ( cond && (void*)cond->groupBody->gMethod == (void*)&testOP ) cond = ::testOP(cond); 
+	// condRefused a condition that refused takes neither arm: the else is a choice, and no choice was made
+	 if ( GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; 
 	if ( ::truthOf(cond) )
 		arm = thenArm;
 	else	arm = elseArm;
@@ -10818,10 +10825,12 @@ GroupItem 	*body = arms->get(2);
 	for (;;) {
 	GroupItem *test = cond;
 	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) test = ::testOP(cond);
+	if ( whileRuler->refused && !whileRuler->jitting ) break;
 	if ( !::truthOf(test) ) break;
 	whileRuler->branchKind = 0;
 	bodyResult = 0;
 	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
+	if ( whileRuler->refused && !whileRuler->jitting ) break;
 	int whileKind = whileRuler->branchKind;
 	if ( whileKind == 1 ) { whileRuler->branchKind = 0; break; }
 	if ( whileKind == 2 ) { whileRuler->branchKind = 0; continue; }
