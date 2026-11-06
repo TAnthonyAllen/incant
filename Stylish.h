@@ -40,5 +40,5 @@ extern "C" NSFont *getFont(GroupItem *field);
 extern "C" Stylish *getStyle(GroupItem *field);
 extern "C" NSRect indentFrame(NSRect f, double b);
 extern "C" Stylish *makeStyleFor(GroupItem *field);
-extern "C" void setColor(GroupItem *field);
+extern "C" NSColor *setColor(GroupItem *field);
 extern "C" void setFont(GroupItem *field);

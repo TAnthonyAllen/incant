@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <Foundation/Foundation.h>
 #include "OCroutines.h"
-#include "StringRoutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
 #include "GroupControl.h"
@@ -68,8 +67,8 @@ extern "C" GroupItem *fontReport(GroupItem *field)
 }
 
 /*******************************************************************************
-    Look up the color in the cOLOr registry, set its color object if needed and
-    return the color object.
+    Look up the color by name and return its color object. Nothing is kept: a color is
+    parsed when it is drawn (Tony, SEQ 535 R1).
 *******************************************************************************/
 extern "C" NSColor *getColor(char *name)
 {
@@ -77,9 +76,7 @@ NSColor 	*color = 0;
 GroupItem 	*item = GroupControl::groupController->locate(name);
 	if ( item )
 		{
-		if ( !isOBJECT(item->groupBody->flags.data) )
-			::setColor(item);
-		if ( !(color = (NSColor*)item->getObject()) )
+		if ( !(color = ::setColor(item)) )
 			::fprintf(stderr,"getColor: ERROR could not get color %s\n",name);
 		}
 	else	::fprintf(stderr,"getColor: ERROR could not find %s\n",name);
@@ -171,13 +168,14 @@ Stylish 	*style = 0;
 }
 
 /***************************************************************************
-	Converts a color hex code into a color object
+	Converts a color hex code into a color object and returns it, writing nothing to
+    the field: its value stays readable and no listener hears a draw (Tony, SEQ 535 R1).
     Note: cOLORs registry stores color hex as a string like "rrggbb"
 ***************************************************************************/
-extern "C" void setColor(GroupItem *field)
+extern "C" NSColor *setColor(GroupItem *field)
 {
+NSColor 		*color = 0;
 char 			*atText = field->getText();
-char 			*atPart = 0;
 GroupItem 		*hexSet = GroupControl::groupController->groupRules->properties->get("hexSet");
 PLGset 			*set = hexSet->getCharacterSet();
 unsigned int 	isValid = 0;
@@ -191,15 +189,11 @@ unsigned int 	blue = 0;
 	if ( !isValid || ::strlen(atText) != 6 )
 		::printf("ERROR: expected a six character hex string not:%s\n",atText);
 	else {
-		NSColor 	*color = 0;
-		atPart = atText + 4;
-		::sscanf(atPart,"%x",&blue);
-		atPart = atText + 2;
-		::sscanf(::truncateString(atPart,2),"%x",&green);
-		::sscanf(::truncateString(atText,2),"%x",&red);
+		// noCopy the widths read in place: truncateString's two copies were never freed, 32 bytes a parse
+		::sscanf(atText,"%2x%2x%2x",&red,&green,&blue);
 		color = [NSColor colorWithCalibratedRed:(double)red / 255.0 green:(double)green / 255.0 blue:(double)blue / 255.0 alpha:1.0];
-		field->setObject((NSObject*)color);
 		}
+	return color;
 }
 
 /***************************************************************************

@@ -22,7 +22,10 @@ NSColor 	*colour = 0;
 		::fprintf(stderr,"displayFill: REFUSING %s -- its style names no fillColor component\n",field->groupBody->tag);
 		return 0;
 		}
-	colour = getColor(comp->getText());
+	// heldNotName fillColor:=wall draws the field := holds; a quoted name still looks up (Tony, SEQ 535 R1)
+	if ( isGROUP(comp->groupBody->flags.data) )
+		colour = ::setColor(comp->getGroup());
+	else	colour = getColor(comp->getText());
 	if ( !colour )
 		{
 		::fprintf(stderr,"displayFill: REFUSING %s -- fillColor names no colour that could be realised\n",field->groupBody->tag);
@@ -95,10 +98,8 @@ NSRect 		framed;
     DS-6's rival-design failure, arriving one command after the fence was aimed
     at it. One command is a conversion; three is a migration.
 
-    The colour itself is still a NAME needing realisation, which is DS's opening
-    measurement and is unchanged: the component's text names a cOLORs-style
-    entry and getColor realises hex->NSColor once, caching on the colour node's
-    object slot. Never per draw call.
+    The colour is parsed when it is drawn, with nothing kept (Tony, SEQ 535 R1): a
+    component holding a field reads that field; a quoted component names one.
 
     COORDINATES: CGBitmapContext is origin-bottom-left. guiDesign S10.3 rules
     that Display exposes top-left/y-down and flips internally. This increment

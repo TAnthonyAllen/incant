@@ -8839,7 +8839,7 @@ _ofeq "fillHeldT := with no nearer field draws its colour (non-zero sibling)" "$
 _ofeq "fillHeldT two walls, really: the near define minted its own (anti-vacuity, defineCapture)" "$(_fhl 'two walls:')" "near #0000ff far #ff0000"
 fdRow "fillHeldT fillColor:=wall, a nearer wall in scope: the held field, then the held field's new value" "$(_fhpx fhCanvas)" "r0 g0 b255 a255/r0 g0 b255 a255/" "r255 g0 b0 a255/r0 g255 b0 a255/"
 fdRow "fillHeldT the nearer wall is what a lookup would have found, and a draw leaves it" "$(_fhl 'nearest wall by name') / $(_fhl 'nearest wall unmoved')" "#0000ff / walldata type has no toString() method" "#0000ff / #0000ff"
-fdRow "fillHeldT a draw leaves the colour readable" "$(_fhl 'readable after a draw')" "kind 10 value fhPredata type has no toString() method" "kind 14 value #0000ff"
+fdRow "fillHeldT a draw leaves the colour readable" "$(_fhl 'readable after a draw,')" "kind 10 value fhPredata type has no toString() method" "kind 14 value #0000ff"
 fdRow "fillHeldT a draw notifies no listener" "$(_fhl 'listener after a draw')" "fhHeardata type has no toString() method" "7"
 #  R2: maximum resident size, the loop with displayFillRT against the loop without, over the million, to the nearest 8 bytes. Two truncateString(x,2) in setColor, malloc(3) and never freed, are 16 + 16.
 _fcF=$(ip fillCostT); sed '/^            displayFillRT(fcCanvas);$/d' "$_fcF" > "$T/fc0"
