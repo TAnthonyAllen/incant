@@ -111,11 +111,9 @@ define
             if width.datA != 0;
                 sideRoom    -= width;
             or across.datA == 0;
-                cout "no across in" taG:;
                 width = pWidth;
                 *grup :% copyOf(width);
             else
-                cout "There is an across in" taG:;
                 sideOut     +/ *grup;
                 ++sideOut;
             if height.datA != 0;
@@ -147,22 +145,38 @@ define
             *grup :% copyOf(y);
             x = pX;
             *grup :% copyOf(x);
-            if across.datA == 0;
-                cout "when setting x y no across in" taG:;
-                pY += height;
-            else
-                cout "when setting x y there is an across in" taG:;
-                pX += width;
+            if across.datA == 0;    pY += height;
+            else                    pX += width;
         dumpContents(argument);
         for grup in argument; members
             =:grup across down;
             if across.datA != 0 || down.datA != 0;
                 setFrame(*grup);
         };
+    /***************************************************************************
+        print out incant definition for the group passed in.
+    ***************************************************************************/
+    printDef code={
+        if datA != 0;  print ~$taG "=" argument$;
+        else    print ~$taG$;
+        if hasAttributeS;
+            for grup in argument; attributes
+                if datA != 0;
+                    print $_taG "=" grup$;
+                else    print $_taG$;
+        if hasMemberS;
+            print :;
+            for grup in argument; members
+                print +;
+                printDefinition(*grup);
+                print ,-;
+        else
+            print ";":;
+        };
     ;
 
 setFrame(somple);
-printDefinition(somple);
+printDef(somple);
 print "SENTINEL tester driver end":;
 stop();
 
