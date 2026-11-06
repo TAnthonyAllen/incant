@@ -81,16 +81,15 @@ double	top, right;
 }
 
 /*******************************************************************************
-    Look up the color in the cOLOr registry, set its color object if needed and
-    return the color object.
+    Look up the color by name and return its color object. Nothing is kept: a color is
+    parsed when it is drawn (Tony, SEQ 535 R1).
 *******************************************************************************/
 extern Color getColor(String name)
 {
 Color       color;
 GroupItem   item = locate(name);
     if item {
-        if !isOBJECT    setColor(item);
-        if !(color = item.object)   cerr "getColor: ERROR could not get color",name:; }
+        if !(color = setColor(item))    cerr "getColor: ERROR could not get color",name:; }
     else    cerr "getColor: ERROR could not find",name:;
     return color;
 }
@@ -125,13 +124,14 @@ extern Frame indentFrame(Frame f,double b)
 }
 
 /***************************************************************************
-	Converts a color hex code into a color object
+	Converts a color hex code into a color object and returns it, writing nothing to
+    the field: its value stays readable and no listener hears a draw (Tony, SEQ 535 R1).
     Note: cOLORs registry stores color hex as a string like "rrggbb"
 ***************************************************************************/
-extern void setColor(GroupItem field)
+extern Color setColor(GroupItem field)
 {
-String      atText  = text,
-            atPart;
+Color       color;
+String      atText  = text;
 GroupItem   hexSet  = properties["hexSet"];
 PLGset      set     = characterSet;
 unsigned int    isValid,
@@ -144,14 +144,10 @@ use field
     isValid = set.contains(atText);
     if !isValid || strlen(atText) != 6      cout "ERROR: expected a six character hex string not:" atText:;
     else {
-        Color       color;
-        atPart  = atText + 4;
-        sscanf(atPart,"%x",&blue);
-        atPart  = atText + 2;
-        sscanf(truncateString(atPart,2),"%x",&green);
-        sscanf(truncateString(atText,2),"%x",&red);
-        color = rgbColor((double)red / 255.0,(double)green / 255.0,(double)blue / 255.0,1.0);
-        object = color; }
+        // noCopy the widths read in place: truncateString's two copies were never freed, 32 bytes a parse
+        sscanf(atText,"%2x%2x%2x",&red,&green,&blue);
+        color = rgbColor((double)red / 255.0,(double)green / 255.0,(double)blue / 255.0,1.0); }
+    return color;
 }
 
 /***************************************************************************
