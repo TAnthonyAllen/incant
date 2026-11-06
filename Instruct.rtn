@@ -52,6 +52,8 @@ extern int castStore(GroupItem argument,GroupItem target)
     if argument.isGROUP                     return 0;
     if !target.isCOUNT && !target.isNUMBER && !target.isSTRING  return 0;
     if argument.isCOUNT || argument.isNUMBER || argument.isSTRING || argument.isTOKEN {
+        // unitTravels castStore never reaches copyData, so it is the second write site (SEQ 552 R2)
+        target.isPercent = argument.isPercent;
         // castCount .count is getCount: a NUMBER rounds half up toward +inf, a STRING or TOKEN reads its text length
         if target.isCOUNT       target.count    = argument.count;
         or target.isNUMBER {
