@@ -14,21 +14,29 @@ extern "C" GroupItem *displayFillRT(GroupItem *field)
 {
 GroupItem 	*comp = 0;
 NSColor 	*colour = 0;
+char 		*value = 0;
 	if ( !field )
 		return 0;
-	comp = ::styleComponent(field,"fillColor");
+	// ownFill the field's own fill first, never a parent's: fill is not inherited (SEQ 549 R0, R1)
+	comp = field->get("fill");
+	if ( !comp )
+		comp = ::styleComponent(field,"fillColor");
 	if ( !comp )
 		{
 		::fprintf(stderr,"displayFill: REFUSING %s -- its style names no fillColor component\n",field->groupBody->tag);
 		return 0;
 		}
-	// heldNotName fillColor:=wall draws the field := holds; a quoted name still looks up (Tony, SEQ 535 R1)
+	// heldNotName := draws the field it holds; a # value is parsed where it sits; any other value is a name, looked up at draw (Tony, SEQ 535 R1, SEQ 549 R0)
+	value = comp->getText();
 	if ( isGROUP(comp->groupBody->flags.data) )
 		colour = ::setColor(comp->getGroup());
-	else	colour = getColor(comp->getText());
+	else
+	if ( *value == '#' )
+		colour = ::setColor(comp);
+	else	colour = getColor(value);
 	if ( !colour )
 		{
-		::fprintf(stderr,"displayFill: REFUSING %s -- fillColor names no colour that could be realised\n",field->groupBody->tag);
+		::fprintf(stderr,"displayFill: REFUSING %s -- %s names no colour that could be realised\n",field->groupBody->tag,comp->groupBody->tag);
 		return 0;
 		}
 	
@@ -180,8 +188,8 @@ extern "C" GroupItem *pixelAt(GroupItem *field)
 /*****************************************************************************
     displayFillRT — THE SPECIMEN, and the runtime half of it.
 
-    Fills the field's own frame rect with the colour its `style` attribute
-    names. Nothing else: no pen, no text, no path, no clip.
+    Fills the field's own frame rect with its own `fill`, or else with the
+    fillColor of the style it names. Nothing else: no pen, no text, no path, no clip.
 
     NAMED displayFill AND NOT `fill`, AND THAT IS BEAR-TRAP #17 AND NOT TASTE.
     `fill()` is in ~/data/support/Include/OCframe -- the shared cross-project
