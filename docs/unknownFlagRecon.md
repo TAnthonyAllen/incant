@@ -19,7 +19,7 @@ Three roads exist today, and they are measured in one define (`a1`..`a10`):
 
 ## 2. The census
 
-**Bare attributes matching a GroupFields flag: 9 names, 13 sites, every one in `incant/pop/flagAttrT`.** No form and no other live file uses one. The registry holds 53 entries: 14 write as flags (byReF flaG hasNewParsE invokE isActioN isBiN isCodeD isLisT isMacrO isPercenT isVirtuaL mergeON noPrinT, plus lastIndenT and processingCodE, which flagAttribute excludes, so 13); 23 flag-shaped with no write case; 15 accessors, not flags. Of the 23, **one is used: `isRulE`, FA-6, and it stays silent (SEQ 338).** Six of them carry no number (isConditioN isFilE isIndexeD isInitializeD isPointeR noSkiP).
+**Bare attributes matching a GroupFields flag: 9 names, 13 sites, every one in `incant/pop/flagAttrT`.** No form and no other live file uses one. The registry holds 53 entries: 13 flags with a write case (byReF flaG hasNewParsE invokE isActioN isBiN isCodeD isLisT isMacrO isPercenT isVirtuaL mergeON noPrinT); 23 flag-shaped with no write case; 15 accessors, not flags; and lastIndenT and processingCodE, which have write cases but which flagAttribute excludes. Of the 23, **one is used: `isRulE`, FA-6, and it stays silent (SEQ 338).** Six of them carry no number (isConditioN isFilE isIndexeD isInitializeD isPointeR noSkiP).
 
 **Bare, accessor spelling, no entry: 23 names, 24 sites. Every one intended, none a typo.**
 
