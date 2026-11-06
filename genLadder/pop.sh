@@ -8827,6 +8827,25 @@ _ofeq "stylesT font defaultFont" "$(_stf defaultFont)" "family=Helvetica size=10
 #  Its family is not on every machine, and on this one it falls back to the system font, not bold, silently (H3: the size is what the file controls).
 _ofeq "stylesT font EBgaramondFont: the size arrives" "$(_stf EBgaramondFont | sed 's/.*size=\([0-9]*\).*/\1/')" "18"
 _ofeq "stylesT ST-5 PINNED DEFECT, defineCapture's family, why the file is off the default search list: an attribute red=5 writes the colour" "$(grep '^ST capture red' "$T/st.e" | xargs)" "ST capture red kind= 5 value= 5"
+#  ⚑ fillHeldT, fillCostT -- M3 (Tony, SEQ 535 R1, SEQ 542 R0-R2). PINNED ON TRUNK BEFORE THE BUILD. No colour cache: a colour is parsed when it is drawn; fillColor:=wall draws the field := holds, never a lookup by name.
+_fhF=$(ip fillHeldT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_fhF" > "$T/fh.o" 2> "$T/fh.e"; _fhx=$?
+_fhl () { grep "^FH $1" "$T/fh.o" | sed "s/^FH $1 *//; s/ *$//"; }
+_ofeq "fillHeldT exit / sentinel" "$_fhx $(grep -c '^FILLHELD SENTINEL' "$T/fh.o")" "0 1"
+_ofeq "fillHeldT the control: a colour before any draw reads kind 14, its text" "$(_fhl 'pre kind')" "14 value #0000ff"
+_fhpx () { grep '^=== pixelAt '"$1" "$T/fh.o" "$T/fh.e" 2>/dev/null | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+_ofeq "fillHeldT a quoted name still looks up (the control)" "$(_fhpx fhNameCanvas)" "r0 g255 b0 a255/"
+_ofeq "fillHeldT := with no nearer field draws its colour (non-zero sibling)" "$(_fhpx fhPreCanvas)" "r0 g0 b255 a255/"
+fdRow "fillHeldT fillColor:=wall, a nearer wall in scope: the held field, then the held field's new value" "$(_fhpx fhCanvas)" "r0 g0 b255 a255/r0 g0 b255 a255/" "r255 g0 b0 a255/r0 g255 b0 a255/"
+_ofeq "fillHeldT the nearer wall is what a lookup would have found, and stays" "$(_fhl 'nearest wall by name') $(_fhl 'nearest wall unmoved')" "#0000ff #0000ff"
+fdRow "fillHeldT a draw leaves the colour readable" "$(_fhl 'readable after a draw')" "kind 10 value fhPredata type has no toString() method" "kind 14 value #0000ff"
+fdRow "fillHeldT a draw notifies no listener" "$(_fhl 'listener after a draw')" "fhHeardata type has no toString() method" "7"
+#  R2: maximum resident size, the loop with displayFillRT against the loop without, over the million, to the nearest 8 bytes. Two truncateString(x,2) in setColor, malloc(3) and never freed, are 16 + 16.
+_fcF=$(ip fillCostT); sed '/^            displayFillRT(fcCanvas);$/d' "$_fcF" > "$T/fc0"
+_fcr () { /usr/bin/time -l perl -e 'alarm 60; exec @ARGV' "$B" "$1" 2>&1 >/dev/null | awk '/maximum resident/{print $1}'; }
+_fcA=$(_fcr "$T/fc0"); _fcB=$(_fcr "$_fcF")
+_ofeq "fillCostT anti-vacuity: both loops ran" "$( [ -n "$_fcA" ] && [ -n "$_fcB" ] && [ "$_fcA" -gt 1000000 ] && echo ran)" "ran"
+fdRow "fillCostT bytes each colour parse costs" "$(( ( (_fcB - _fcA) / 1000000 + 4 ) / 8 * 8 ))" "32" "0"
 #  argRoadsT -- argument is a binding, and bare argument is the spelling on both roads (Tony, 2026-11-05, R1; docs/argumentRecon.md). Each pair: the same text on both roads, at 0 and at 3, so a row cannot pass on a constant. Born red on trunk: every new-road row here.
 _arF=$(ip argRoadsT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_arF" > "$T/ar.o" 2> "$T/ar.e"; _arX=$?

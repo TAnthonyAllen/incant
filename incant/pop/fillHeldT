@@ -1,0 +1,55 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+registry(cOMMANDs);
+define makeDisplay    immediateAction=makeDisplay; ;
+define displayFillRT  immediateAction=displayFillRT; ;
+define pixelAt        immediateAction=pixelAt; ;
+register(FillHeldFar);
+define
+    wall=#ff0000;
+    fhHeld fillColor:=wall;
+    fhCanvas x=0 y=0 width=8 height=8 style="fhHeld" px=2 py=2;
+    fhNamed=#00ff00;
+    fhByName fillColor="fhNamed";
+    fhNameCanvas x=0 y=0 width=8 height=8 style="fhByName" px=2 py=2;
+    fhPre=#0000ff;
+    fhPreStyle fillColor:=fhPre;
+    fhPreCanvas x=0 y=0 width=8 height=8 style="fhPreStyle" px=2 py=2;
+    fhHear=1 listenTo:=fhPre;
+    fhWrite code={ wall = argument; };
+    ;
+search FillHeldFar UnitTests Utilities list;
+fhWrite("#ff0000");
+makeDisplay(fhPreCanvas);
+print "FH pre kind" fhPre.datA "value" fhPre:;
+fhHear = 7;
+displayFillRT(fhPreCanvas);
+print "FH pixel pre":;
+pixelAt(fhPreCanvas);
+print "FH readable after a draw, kind" fhPre.datA "value" fhPre:;
+print "FH listener after a draw" fhHear:;
+makeDisplay(fhNameCanvas);
+displayFillRT(fhNameCanvas);
+print "FH pixel by name":;
+pixelAt(fhNameCanvas);
+register(FillHeldNear);
+define
+    wall=#0000ff;
+    ;
+search FillHeldNear FillHeldFar UnitTests Utilities list;
+print "FH nearest wall by name" wall:;
+makeDisplay(fhCanvas);
+displayFillRT(fhCanvas);
+print "FH pixel held, a nearer wall in scope":;
+pixelAt(fhCanvas);
+fhWrite("#00ff00");
+displayFillRT(fhCanvas);
+print "FH pixel after writing the held wall":;
+pixelAt(fhCanvas);
+print "FH nearest wall unmoved" wall:;
+print "FILLHELD SENTINEL":;
+stop();
+
+fillHeldT -- M3 (Tony, SEQ 535 R1, SEQ 542): fillColor:=wall draws the field := holds, never a lookup by name, and a colour is parsed when it is drawn, with no cache. The byName row is the control: a quoted name still looks up. FH readable and listener are the harm the cache did: one draw replaced the colour's value, and notified whoever listens.
