@@ -42,6 +42,7 @@
   COMPILES  QuotE2
   COMPILES  RunRulE
   COMPILES  ScopeXP
+  COMPILES  ScopeValue
   COMPILES  Search
   COMPILES  SetBrackets
   LEAF      ShortcuT
@@ -64,4 +65,4 @@
   LEAF      numberSet
   LEAF      return
   LEAF      rightCurly
-PARSER COVERAGE -- 66 rules: 48 generate a body, 48 of them compile; 15 leaves; 0 crashed
+PARSER COVERAGE -- 67 rules: 49 generate a body, 49 of them compile; 15 leaves; 0 crashed
