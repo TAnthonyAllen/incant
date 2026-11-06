@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-145 — oldRoadLoopHang: the old road hangs on a refusal in a loop with a literal condition
+
+**What:** `while 1; x = hz - 1;` and `do x = hz - 1; while 1;`, with `hz` a holder, refuse once and never end on the old road. Measured 2026-11-06 in **kant**, on the old road: exit 142 under a 6 second alarm, one refusal printed. The new road ends the action (SEQ 537 R1, on branch `refusal-ends-action`).
+**Where:** the old road's `aCTionWhilE` / `aCTionDO`, not read. `oWhile1` and `oDo1` stand defined and uncalled in `incant/pop/refusalEndsT`.
+**Evidence:** each shape alone under an alarm; the `for` and `if` twins end.
+**Done when:** both shapes end the action, and `refusalEndsT` gains their old-road twin rows.
+**Owner:** Tony, whether it is worth curing on a road that is retiring. **Size:** not known.
+**Attempt log:** none.
+
 ### F-144 — ✅ CLOSED 2026-10-27 (merged 4f0937ca, SEQ 433) — staleTempField: an arithmetic operator's "cannot apply" guard asks the SHARED tempField whether THIS call wrote, so it hands back the previous computation's value
 
 **What.** When no arm of `opPlus` writes (an operand it cannot add, e.g. an unrun instruct), its guard
