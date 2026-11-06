@@ -1370,6 +1370,8 @@ GroupRules  ruler = groupRules;
     else {
         added = target.replace(argument);
         added.isAttribute = true; }
+    // flagsFollow replace adds by the entry's OLD affiliation, so the flags are set again from the list as it stands
+    target.updateContentFlags();
     return target;
 }
 
@@ -1389,6 +1391,8 @@ GroupRules  ruler = groupRules;
     else {
         added = target.replace(argument);
         added.isMember = true; }
+    // flagsFollow replace adds by the entry's OLD affiliation, so the flags are set again from the list as it stands
+    target.updateContentFlags();
     return target;
 }
 
