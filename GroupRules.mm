@@ -1121,6 +1121,76 @@ GroupItem 	*rule = input->get(1);
 }
 
 /***************************************************************************
+    Process a value scope expression, =:lookin a b c; The first field is the
+    lookin field, as in aCTionScopeXP. Each field that follows updates the local
+    of its name with the found field's value, not with the field: a local either
+    has a value or it does not, and writing to it writes only the local. An absent
+    field leaves the local cleared. A field with no data reads as 1, so a bare
+    across is across=1. A field holding a group warns and leaves the local cleared.
+***************************************************************************/
+extern "C" GroupItem *aCTionScopeValue(GroupItem *input)
+{
+GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD->getGroup();
+GroupItem 	*field = 0;
+GroupItem 	*listItem = 0;
+GroupItem 	*lookin = 0;
+GroupItem 	*scopeList = input->getLabelGroup("scopeList");
+GroupItem 	*code = 0;
+GroupItem 	*grup = 0;
+char 		*name = 0;
+	if ( GroupControl::groupController->groupRules->jitting )
+		{
+		jitHandOver("a value scope statement -- it binds locals, so it runs at RUN time",input);
+		return input;
+		}
+	if ( action->groupBody->flags.isRule )
+		{
+		code = action->actionBody();
+		if ( code )
+			action = code;
+		}
+	while ( listItem = scopeList->next(listItem) )
+		{
+		if ( isGROUP(listItem->groupBody->flags.data) )
+			grup = listItem->getGroup();
+		else	grup = listItem;
+		if ( !lookin )
+			lookin = grup;
+		else {
+			name = grup->groupBody->tag;
+			field = lookin->get(name);
+			grup = action->get(name);
+			if ( !grup )
+				{
+				grup = new GroupItem(name);
+				grup->groupBody->flags.isLocal = 1;
+				grup = action->addAttribute(grup);
+				}
+			if ( field && isGROUP(field->groupBody->flags.data) )
+				{
+				::fprintf(stderr,"WARNING =: %s in %s holds a group -- use : for this field\n",name,lookin->groupBody->tag);
+				grup->clear();
+				}
+			else
+			if ( field && field->groupBody->flags.data )
+				{
+				if ( field->groupBody == grup->groupBody )
+					continue;
+				grup->copyData(field);
+				}
+			else
+			if ( field )
+				{
+				grup->clear();
+				grup->setCount(1);
+				}
+			else	grup->clear();
+			}
+		}
+	return input;
+}
+
+/***************************************************************************
     Process a scope expression. It is a convenient way to set local fields.
     The first field in the scope list becomes the lookin field searched for
     the fields that follow. Fields then found update local fields. The
@@ -13753,6 +13823,7 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	clearRefusal(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
+	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)

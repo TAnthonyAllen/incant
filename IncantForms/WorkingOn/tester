@@ -55,19 +55,19 @@ define
     fillDownAcross code={
         target <: tARGET;
         direct <: dIRECTion;
-        :argument target direct;
-        pValue = *target;
+        =:argument target direct;
+        pValue = target;
         memberCount=0;
         for grup in argument; members
             ++memberCount;
-            :grup target;
-            if target.datA != 0;    pValue -= *target;
-        if *direct == "*";
+            =:grup target;
+            if target.datA != 0;    pValue -= target;
+        if direct == "*";
             if memberCount > 1; print taG "can only have one member when" $direct "=*":;
-            valueCount = pValue / *target;
+            valueCount = pValue / target;
         else
-            if *direct > 0;
-                valueCount = *direct - 1;
+            if direct > 0;
+                valueCount = direct - 1;
         clear(newStuff);
         for grup in argument; attributes
             newStuff +% *grup;
@@ -88,20 +88,20 @@ define
     ***************************************************************************/
     setFrame code={
         print "Setting frame for" taG:;
-        :argument across down width height x y;
-        sideRoom    = *width;
-        pWidth      = *width;
-        headRoom    = *height;
-        pHeight     = *height;
-        pX          = *x;
-        pY          = *y;
+        =:argument across down width height x y;
+        sideRoom    = width;
+        pWidth      = width;
+        headRoom    = height;
+        pHeight     = height;
+        pX          = x;
+        pY          = y;
         upOut       = 0;
         sideOut     = 0;
-        if down > 0;
+        if down.datA != 0;
             tARGET="height";
             dIRECTion="down";
             fillDownAcross(argument);
-        if across > 0;
+        if across.datA != 0;
             tARGET="width";
             dIRECTion="across";
             fillDownAcross(argument);
@@ -109,10 +109,9 @@ define
                  Create frame and set width and height
     ***************************************************************************/
         for grup in argument; members
-            :grup width height;
-            if width.isGrouP;
-                if *width.isPercenT; *width = *width * sideRoom / 100;
-                sideRoom    -= *width;
+            =:grup width height;
+            if width.datA != 0;
+                sideRoom    -= width;
             or across.datA == 0;
                 cout "no across in" taG:;
                 width = pWidth;
@@ -121,10 +120,8 @@ define
                 cout "There is an across in" taG:;
                 sideOut     +/ *grup;
                 ++sideOut;
-            if height.isGrouP;
-                if *height.isPercenT;
-                    *height = *height * headRoom / 100;
-                headRoom    -= *height;
+            if height.datA != 0;
+                headRoom    -= height;
             or across.datA != 0;
                 height = pHeight;
                 *grup :% copyOf(height);
@@ -134,53 +131,33 @@ define
         if upOut > 0;
             headRoom /= upOut;
             for grup in upOut;
-                *height = headRoom;
-                *grup +% copyOf(*height);
+                height = headRoom;
+                *grup :% copyOf(height);
         if sideOut > 0;
             sideRoom /= sideOut;
             for grup in sideOut;
-                *width = sideRoom;
-                *grup +% copyOf(*width);
+                width = sideRoom;
+                *grup :% copyOf(width);
         headRoom    = 0;
         sideRoom    = 0;
     /***************************************************************************
              Set x and y in frame
     ***************************************************************************/
         for grup in argument; members
-            :grup width height x y;
+            =:grup width height x y;
+            y = pY;
+            *grup :% copyOf(y);
+            x = pX;
+            *grup :% copyOf(x);
             if across.datA == 0;
                 cout "when setting x y no across in" taG:;
-                if y.isGrouP;
-                    *y = pY;
-                    *grup :% copyOf(*y);
-                else
-                    y = pY;
-                    *grup :% copyOf(y);
-                pY += *height;
-                if x.isGrouP;
-                    *x = pX;
-                    *grup :% copyOf(*x);
-                else
-                    x = pX;
-                    *grup :% copyOf(x);
+                pY += height;
             else
                 cout "when setting x y there is an across in" taG:;
-                if y.isGrouP;
-                    *y = pY;
-                    *grup :% copyOf(*y);
-                else
-                    y = pY;
-                    *grup :% copyOf(y);
-                if x.isGrouP;
-                    *x = pX;
-                    *grup :% copyOf(*x);
-                else
-                    x = pX;
-                    *grup :% copyOf(x);
                 pX += width;
         dumpContents(argument);
         for grup in argument; members
-            :grup across down;
+            =:grup across down;
             if across.datA != 0 || down.datA != 0;
                 setFrame(*grup);
         };

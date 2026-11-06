@@ -947,6 +947,55 @@ String      name;
     return input;
 }
 
+/***************************************************************************
+    Process a value scope expression, =:lookin a b c; The first field is the
+    lookin field, as in aCTionScopeXP. Each field that follows updates the local
+    of its name with the found field's value, not with the field: a local either
+    has a value or it does not, and writing to it writes only the local. An absent
+    field leaves the local cleared. A field with no data reads as 1, so a bare
+    across is across=1. A field holding a group warns and leaves the local cleared.
+***************************************************************************/
+extern GroupItem aCTionScopeValue(GroupItem input)
+{
+GroupItem   action = currentMETHOD.group,
+            field,
+            listItem,
+            lookin,
+            scopeList:,
+            code,
+            grup;
+String      name;
+    if jitting {
+        jitHandOver("a value scope statement -- it binds locals, so it runs at RUN time", input);
+        return input; }
+    if action.isRule {
+        code = action.actionBody();
+        if code action = code; }
+    while listItem = scopeList.next(listItem) {
+        if listItem.isGROUP grup = listItem.group;
+        else    grup = listItem;
+        if !lookin  lookin = grup;
+        else {
+            name    = grup.tag;
+            field   = lookin[name];
+            grup    = action[name];
+            if !grup {
+                grup = new(name);
+                grup.isLocal = true;
+                grup = action +% grup; }
+            if field && field.isGROUP {
+                cerr "WARNING =:", name, "in", lookin.tag, "holds a group -- use : for this field":;
+                grup.clear(); }
+            or field && field.data {
+                if field.groupBody == grup.groupBody    continue;
+                grup.copyData(field); }
+            or field {
+                grup.clear();
+                grup.count = 1; }
+            else    grup.clear(); }}
+    return input;
+}
+
 /*******************************************************************************
 	Search rule action. List, setStakked, add to, or reset the SearchList.
 *******************************************************************************/

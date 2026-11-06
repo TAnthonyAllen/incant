@@ -8099,7 +8099,7 @@ kindRow "jitArgNumberT degrade count" "$(sed -n 's/^=== jitDegrade count = \([0-
 run1 halfLessT "$T/hl";   check "halfLessT runs" 0 $?
 sentinel "halfLessT sentinel" "$T/hl" "HALFLESS SENTINEL"
 kindRow "halfLessT parser(Start) ran between the two lines (the second line is the new road)" "$(grep -c '^setParse ended and that ends compileRules' "$T/hl")" "1"
-_hl () { sed -n "s/^HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*\) *1\.5<2 *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/hl"; }
+_hl () { sed -n "s/^.*HL $1 *0\.5<1 *\([0-9]*\) *1<2 *\([0-9]*\) *1<0\.5 *\([0-9]*\) *1\.5<2 *\([0-9]*\) *\$/\1 \2 \3 \4/p" "$T/hl"; }
 #  HL rows re-pinned 0 1 0 0 -> 1 1 0 1 (SEQ 417): 0.5 < 1 and 1.5 < 2 now compare the values -- compareValues' number arm
 #  was (int)(a - b). The intended value since 2026-10-19; halfLessFalse retires by mapping onto these two rows.
 kindRow "halfLessT HL old road: 0.5<1, 1<2, 1<0.5, 1.5<2" "$(_hl old)" "1 1 0 1"

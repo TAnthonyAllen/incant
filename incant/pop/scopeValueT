@@ -1,0 +1,74 @@
+Start();
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests list;
+registry(ScopeValueT);
+define
+    svSrc="text" width=250 height=50 flagish
+        kid;
+    svEmpty kid;
+    svOther=9;
+    svHeld height:=svOther width=4;
+    readAll code={
+        =:argument width height flagish missing kid;
+        print "SV-1 present values" width height:;
+        print "SV-3a a bare flag reads" flagish "and a member with no data reads" kid:;
+        if width.datA == 0;     print "SV-2 width no data":;
+        else                    print "SV-2 width has data":;
+        if flagish.datA == 0;   print "SV-3 dataless attribute no data":;
+        else                    print "SV-3 dataless attribute has data":;
+        if missing.datA == 0;   print "SV-4 absent no data":;
+        else                    print "SV-4 absent has data":;
+        if kid.datA == 0;       print "SV-5 member with no data no data":;
+        else                    print "SV-5 member with no data has data":;
+        };
+    noWriteThrough code={
+        =:argument width;
+        width = 7;
+        print "SV-6 local" width "source" argument["width"]:;
+        };
+    holderControl code={
+        :argument width;
+        *width = 8;
+        print "SV-7 colon still writes through, source" argument["width"]:;
+        };
+    refire code={
+        =:argument width;
+        if width.datA == 0;     print "SV-8 no data":;
+        else                    print "SV-8" width:;
+        };
+    heldWarns code={
+        =:argument height width;
+        if height.datA == 0;    print "SV-10 held group left the local empty":;
+        else                    print "SV-10 held group has data":;
+        print "SV-11 its neighbour still reads" width:;
+        };
+    viaCursor code={
+        for grup in argument; members
+            =:grup height;
+            print "SV-9" taG height:;
+        };
+    svKids="p"
+        a height=11;
+        b height=22;
+    ;
+readAll(svSrc);
+noWriteThrough(svSrc);
+holderControl(svSrc);
+refire(svSrc);
+refire(svEmpty);
+refire(svSrc);
+viaCursor(svKids);
+heldWarns(svHeld);
+print "SCOPEVALUE SENTINEL":;
+stop();
+
+scopeValueT -- the value scope =: on the kant road. A local takes the found field's value, or is cleared. SV-6 is the
+claim the spelling exists for: writing the local leaves the source alone. SV-7 is : on the same field, still a holder.
+SV-3a: a bare flag is 1, so a bare across is across=1 (Tony, 2026-11-06). SV-10: a field holding a group warns by name and
+leaves the local empty, because copyData would otherwise carry the pointer and make a quiet holder. SV-8's three fires, value / none / value, show a miss clears what the previous fire left.
