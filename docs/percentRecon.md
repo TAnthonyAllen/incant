@@ -32,14 +32,14 @@ Bit set with `:. isPercenT`, then read through each road (pctRoads). Control pai
 | `=` copy of an argument | **DROPS** | copyData | copyData |
 | `=:` value scope | **DROPS** | aCTionScopeValue, copyData | copyData |
 | define's TraiTdata | **DROPS** | trait.setContent, and never written (loss 1) | loss 1's cure, then copyData |
-| setContent on a list | n/a | copyListFrom shares or copies each entry's body | carries |
+| setContent on a list | n/a, read not run | copyListFrom shares or copies each entry's body | carries |
 | `:=` hold | carries | the holder reaches the same body | carries |
 | `<-` hold | carries | same | carries |
 | `:` scope | carries, through | bare reads the holder: 0; `*width` reads 1 | **a reader must star** |
 | copyOf | carries | copies the body whole | carries |
 | `+%` of a copy or a field | carries, through | entry 0, `*entry` 1 | carries |
 | argument binding | carries | the carrier shares the body | carries |
-| copy constructor, new GroupItem(x) | carries | shares the body (GroupItem.twk) | carries |
+| copy constructor, new GroupItem(x) | carries (read, not run) | shares the body (GroupItem.twk) | carries |
 
 Not copies, but the stroke has to say what they do:
 - **Sticky:** `w :. isPercenT; w = 60;` reads bit 1, value 60. copyData leaves the bit alone today. If it assigns the bit (`isPercent = item.isPercent`), a plain write clears it, which is what a unit on the value means. castStore needs the same.
@@ -52,7 +52,7 @@ Not copies, but the stroke has to say what they do:
 ## R3. The split
 Position separates them in the grammar and in the action. `TraiT NamE Modifier* TraiTdata?` against `TraiTdata '='- DatA Modifier*`: aCTionTraiT holds them as two nodes, `Modifier` and `upFlags`. So `OmA%`, `width%=50` stay modify's modPercent (OM-2 pins it, body pct 0), and only `upFlags` writes the bit.
 
-**One case position does not separate:** a value-position % in a RULE host, `term=5%`. ffa850fe made a value's + and * real rule-term modifiers, so that position is live in rules, and aCTionTraiT does not know its host. Written to the bit, its text reads `5%`, so a literal term would match `5%`. Census of incant/grammar, kantGrammar, grammar, setup, directives: **zero**. Options: refuse it, as traitRefMarks refuses `:=` in a rule host, from aCTionDefinE where the host is known (recommended), or leave it.
+**One case position does not separate:** a value-position % in a RULE host, `term=5%`. ffa850fe made a value's + and * real rule-term modifiers, so that position is live in rules, and aCTionTraiT does not know its host. Written to the bit, its text would read `5%`, so a literal term would match `5%` (read, not run). Census of incant/grammar, kantGrammar, grammar, setup, directives: **zero**. Options: refuse it, as traitRefMarks refuses `:=` in a rule host, from aCTionDefinE where the host is known (recommended), or leave it.
 
 **A related hazard, not new:** a named trait resolved to a searched field writes through (defineCapture, ST-5). `x width=50%` with a searched `width` would set the bit on that field's body, as `=` already writes its value. modPercent on the instance could not. Same family, no worse.
 
@@ -71,7 +71,7 @@ Not measured: `width=50 %` with a space. It parses and prints 50; modPercent can
 **The JIT:** nothing jits setFrame or fillDownAcross (grep of incant and WorkingOn; both run interpreted on the old road). Measured on an old-road action through testing(), interpreted statements under the hood:
 - `src.isPercenT` reads 1, 4 degrades; `*h.isPercenT` reads 1, 6 degrades: each statement runs at run time.
 - `a1 = src` reads 0, the same drop.
-- `=:` hands over at emit ("binds locals, so it runs at RUN time"), and on this probe the action's print did not appear. Not chased.
+- `=:` degrades at emit ("binds locals, so it runs at RUN time"), then the whole action refuses: `jitRunAction: NOT JITTABLE -- jD's local width is kindless and has no writer the build can see`. It stays interpreted, and its print does not appear under testing(). **Tony's draft uses `=:` for width and height, so as drafted it would not jit.**
 No emitted store carries the bit, because no JIT path was seen writing it; **jitEmitAssign's count store is the one to check in the stroke**. Its emitted `=` with a node on the right calls setContent (jitEmitters.rtn:54), which would carry after the cure.
 
 ## R5. Census by text
@@ -88,7 +88,7 @@ No emitted store carries the bit, because no JIT path was seen writing it; **jit
 | IncantForms/WorkingOn/forms | 4 | 0 | notes, never run |
 | IncantForms/WorkingOn/macros | 2 | 0 | notes, never run |
 
-So **11 uses in forms**, 8 of them in notes or a backup or dead text. Outside IncantForms: incant/unitTests:105 (`sample`). `incant/pop/baselineTests.golden:72` pins that line.
+So **11 live uses in Windows forms** (2 of them in wraplist, which does not parse), 1 dead, and 7 in notes or a backup. Outside IncantForms: incant/unitTests:105 (`sample`). `incant/pop/baselineTests.golden:72` pins that line.
 
 ## R6. The proposed certificate
 **Rows, born red on trunk, by value (fixture name a placeholder, percentT):**
