@@ -1,0 +1,75 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+include(firstLightFile);
+registry(cOMMANDs);
+define makeDisplay    immediateAction=makeDisplay; ;
+define displayFillRT  immediateAction=displayFillRT; ;
+define pixelAt        immediateAction=pixelAt; ;
+register(FillPage);
+define
+    fpX = 0;
+    fpY = 0;
+    fpAt code={
+        px = fpX;
+        py = fpY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    fpFlip x=300 y=450 width=100 height=100 fill=wall
+        fpBand height=10 fill=lightGreen;
+        fpRest;
+    ;
+search FillPage FORMs UnitTests Utilities cOLOr fONTs list;
+setFrame(firstLight);
+makeDisplay(firstLight);
+displayFillRT(firstLight);
+displayFillRT(firstLight["words"]);
+fpX = 5; fpY = 5;
+fpAt(firstLight);
+cerr "FP-1 firstLight top-left, page (5,5), want wall":;
+fpY = 29;
+fpAt(firstLight["heading"]);
+fpY = 100;
+fpAt(firstLight["words"]);
+fpY = 166;
+fpAt(firstLight["bar"]);
+pixelAt(firstLight);
+cerr "FP-2 words inside its frame, page (5,100), want white":;
+pixelAt(firstLight["words"]);
+cerr "FP-3 above words, page (5,29), want wall":;
+pixelAt(firstLight["heading"]);
+cerr "FP-4 below words, page (5,166), want wall":;
+pixelAt(firstLight["bar"]);
+setFrame(fpFlip);
+makeDisplay(fpFlip);
+displayFillRT(fpFlip);
+displayFillRT(fpFlip["fpBand"]);
+fpY = 2;
+fpAt(fpFlip["fpBand"]);
+fpY = 97;
+fpAt(fpFlip["fpRest"]);
+cerr "FP-5 the band at the top of the form, page (5,2), want lightGreen":;
+pixelAt(fpFlip["fpBand"]);
+cerr "FP-6 the bottom of the form, page (5,97), want wall":;
+pixelAt(fpFlip["fpRest"]);
+cerr "FILLPAGE SENTINEL":;
+stop();
+
+fillPageT -- step 1 toward the first PDF (Tony, 2026-11-07, SEQ ___ R1). The top field opens one drawing context;
+fill draws into it at page coordinates, for the top field and every child. The y flip and the page origin are set
+once, on the top context, when makeDisplay opens it; no field below knows. A child takes the context from the top.
+
+Rows (read in genLadder/pop.sh): FP-1 firstLight at (300,450) paints wall at its own top-left, the case that read
+0,0,0,0 before. FP-2 words paints white inside its frame; FP-3 and FP-4 are just above and just below it and read
+wall, so the fill stays inside. FP-5 and FP-6 are the flip by value on fpFlip: the band at the top of the form reads
+lightGreen at the top of the bitmap and the bottom reads wall. The two are a pair against the same field: with the
+flip removed they swap. The refusal count is read beside the child pixels: a child that refuses paints nothing.
+
+Spellings: px and py go in through fpAt, from fpX and fpY. A top-level `field px=5 py=5;` does not take (measured 2026-11-07: pixelAt then read (0,0)).
