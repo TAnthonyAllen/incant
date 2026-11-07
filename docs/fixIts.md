@@ -92,14 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-147 — refusedConditionCrash: a refused condition or value crashes the new road's build, interpreted, at exit 139
+### F-147 — BUILT, NOT MERGED, branch `null-attach` (1acd2557, SEQ 556), the buy is Tony's — refusedConditionCrash: a refused condition or value crashes the new road's build, interpreted, at exit 139
 
 **What:** a rule that reads a child EXPRESSIOn which refused gets null from `**EXPRESSIOn`, attaches it, and dies. `if qa qb + 1; print 1:;` prints `REFUSED + -- a list of adjacent operands ...` and then exits 139, with every later statement gone.
 **Where:** kantGrammar's If (`ifArms +% *cond`), and the same shape in ELSEIf (its action), WHILe, Do, FOr's source, BRANCh's return value, INVOKEr's argument. The crash is in `opAddAttribute`, argument null. **New road only** (kant build); the old road not measured for this. Not a compile defect: no jitter involved.
 **Evidence:** measured 2026-11-07, scratch parses at each of the seven rules' roots, exit 139 on all seven, and four shapes through STARt, exit 139 on all four; the then, else and statement arms of the same rules refuse cleanly at exit 0, because they already check.
-**Done when:** each reads and refuses by name, as the arm checks do, with a fleet row at each rule. Blocks a compiled-equals-interpreted row on that shape (`docs/ruleJitCensus.md`).
-**Owner:** unassigned, for Tony's ruling. **Size:** small per rule; one arm each.
-**Attempt log:** none.
+**Done when:** each refuses by name and the next statement runs, with a fleet row at each rule. Blocks a compiled-equals-interpreted row on that shape (`docs/ruleJitCensus.md`).
+**Owner:** Clod. **Size:** one line, by ruling (SEQ 556 R1).
+**Attempt log:** `opAddAttribute` refuses a null by name, rather than a guard in each rule -> refusedCondT's 33 rows green, 11 shapes, all exit 0 with the next statement run. H7, refusal removed: all 11 exit 139, restored md5-identical. Certified by pop.sh's refusedCondT rows.
+**Census, who passes null:** the operator is reached only by dispatch (`'+%' operateMethod=opAddAttribute`, incant/setup:173; no direct caller in tok source). Over the whole fleet and the ladder the refusal fired 11 times, all refusedCondT's: ifArms (If, ELSEIf), whileArms, doArms, forArms, retArms, instruct (INVOKEr). Nobody can rely on attaching null: before the cure it was an unconditional null deref at `argument.isLIST`.
 
 ### F-146 — DOCKETED (Tony, SEQ 554 R2, 2026-11-07) — compiledRuleEnding: a compiled rule can only hand back its label, so a refusal, running off the end, and a label holding a count all end in the guard's refusal
 
