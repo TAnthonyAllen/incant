@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-146 — DOCKETED (Tony, SEQ 554 R2, 2026-11-07) — compiledRuleEnding: a compiled rule can only hand back its label, so a refusal, running off the end, and a label holding a count all end in the guard's refusal
+
+**What:** a rule compiled through the door (`jitterRule(X);`) that refuses mid-body or runs off its end finishes with return kind 1, a boxed count. The door's guard refuses by name and adopts nothing, so nothing wrong is adopted, but the rule does not match the interpreted road: running off the end interpreted adopts the last statement's value. Separately, read and not run: `jitStmtRTValueRT` follows a returned holder and boxes it if what it holds is a count, so a compiled `return *actionLabel` over a count-holding label would hit the same guard. `EXPRESSIOn` is the rule that can (`instruct = kind`, kantGrammar:554).
+**Where:** `GroupActions.rtn` processAction's door (`ruleDoorGuard`); `jitEmitters.rtn` `jitStmtRTValueRT`, and the kind 1 start in `jitBuildFunction`. Branch `rule-door` until bought.
+**Evidence:** `incant/pop/ruleDoorT`'s RG rows in pop.sh: FELLOFf interpreted reads `ANS 1`, compiled `ANS untouched` with one guard line; REFUSEs reads `ANS untouched` on both, compiled with one guard line. H7: guard removed, FELLOFf compiled reads `ANS 1`.
+**Done when:** a compiled rule ends every way the interpreted one does, and the guard is deleted or unreachable, with FELLOFf's compiled row re-pinned. Needed before `EXPRESSIOn` or a wider gate.
+**Owner:** Clod, when the gate widens. **Size:** not known.
+**Attempt log:** none.
+
 ### F-145 — PARKED (Tony, SEQ 539 R1, 2026-11-06: recorded, not cured; the old road is retiring) — oldRoadLoopHang: the old road hangs on a refusal in a loop with a literal condition
 
 **What:** `while 1; x = hz - 1;` and `do x = hz - 1; while 1;`, with `hz` a holder, refuse once and never end on the old road. Measured 2026-11-06 in **kant**, on the old road: exit 142 under a 6 second alarm, one refusal printed. The new road ends the action (SEQ 537 R1, on branch `refusal-ends-action`).

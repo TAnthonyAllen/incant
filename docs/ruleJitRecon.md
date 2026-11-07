@@ -118,3 +118,22 @@ TOPSTATEMENt would also run the whole program inside a compiled body, on every s
 - **F-145:** the candidate has no loop. PRINt, STARt, BLOCk and EXPRESSIOn do, the first through makePrint, though none has a literal condition, which is F-145's shape.
 - **Old-road defects:** none hit in these compiles; `kindZeroT` (red ledger 9, `.datA` reading a number field before its slot flushes) is the one closest to ITERATe, which reads `.datA` only on terms it does not write. Reported, not chased.
 - **ELSEIf** shares If's CodE and BlocK (SEQ 528), with a separate rule body, so the cache keyed by body would compile it twice. Later.
+
+## 7. Built: SEQ 554, branch `rule-door` (70ec82dd), measured 2026-11-07
+
+Rulings as section 5, with Clay's addition: a per-fire count, so that compiled equals interpreted cannot pass with the interpreted road doing all the work.
+
+- **The door:** processAction's walk line only. Binding, local clear and restore are unchanged. No ruler slot, no frame change. `jitterRule` is the one new extern (canary 443 -> 444) with one groups.ext line.
+- **Witnesses:** `=== jitter rule walk: ITERATe native 6 handed 17 ===` per compile, exactly as registered in section 4 before the run. `=== jitter rule: ITERATe built 1 fired N ===` at exit, printed even at zero.
+- **The rows:** `incant/pop/ruleDoorT` and pop.sh: 9 RD rows on two arms, each exit, sentinel, pinned value, compiled = interpreted, fired count, walk line, including attributes, members, a starred source, and two fires with different terms in both orders. Plus `jitter;` alone, a non-rule opt-in, and the guard's rows. 73 rows, all green.
+- **H7s, each a single-fixture run under an alarm, restored md5-identical:**
+
+| removed | what moved |
+|---|---|
+| the door | `built 0 fired 0`; **the values stayed right**, which is exactly why the count exists |
+| the binding, under the door | every RD value empty, `REFUSED deref`, then the guard's line |
+| the guard | FELLOFf compiled reads `ANS 1`: the box is adopted |
+
+- **The guard's reach:** ITERATe cannot reach it, as the recon said. It is driven from the fleet by three scratch rules in the fixture.
+- **Not reached:** ITERATe's two `REFUSED ITERATe` arms. `iterate 5 on fsrc;` and `iterate ic on 5;` do not take them, interpreted, so no row pins them.
+- **Fleet:** see seal 363. Everything outside these rows is unmoved but for an address (H3), the fixture-name count and the groups.ext mirror count, both bookkeeping.
