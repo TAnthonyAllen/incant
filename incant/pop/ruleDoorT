@@ -1,0 +1,72 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(RuleDoorT);
+define
+    it1;
+    it2;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    hs;
+    ic;
+    jc;
+    fm x=7 y=8
+        m1=4;
+        m2=5;
+        m3=6;
+    ;
+search RuleDoorT Utilities UnitTests list;
+fsrc +% fa fb fc;
+hs := fsrc;
+registry(RuleDoorG);
+define
+    RuleDoorG isRule;
+    FELLOFf     word=[a-z]+;
+    REFUSEs     word=[a-z]+;
+    KEEPs       word=[a-z]+;
+    FELLOFf code={ fo = 1; };
+    REFUSEs code={ rz = 1; rr = hs - 1; return *actionLabel; };
+    KEEPs code={ kz = 1; return *actionLabel; };
+    ;
+search RuleDoorG RuleDoorT Utilities UnitTests list;
+stop();
+
+ruleDoorT -- SEQ 554 (Tony, 2026-11-07): ITERATe compiled through the rule door. Rows prefixed RD-.
+
+Not run alone: pop.sh builds each row's input, everything above this file's stop(); then the row, then a sentinel, one process per
+arm under an alarm. The arms are interpreted (no opt-in) and compiled (jitterRule(ITERATe);). Every RD row is read by value, by exit
+and by sentinel, on both arms, and compiled must equal interpreted AND the pinned value. A row whose value could be produced by the
+interpreted road alone is why the per-fire count is asserted beside it: a door that never opened would agree with itself.
+
+ATTRIBUTES / MEMBERS rows are the ones that matter: aMint := copyOf(aOn) is a handed-over read of a natively written local, and the
+filter it carries decides what the loop walks. RD-6 and RD-7 fire twice in one process with different terms, so anything fixed at
+the first fire (the compile) reads wrong on the second.
+
+RG- rows drive three scratch rules, because ITERATe cannot reach the R2 guard on a parse: every path of it ends in a return. KEEPs
+returns its label; REFUSEs refuses mid-body; FELLOFf runs off its end. it1 is preset to "untouched" so a fire that adopts something
+shows it. FELLOFf is the one deliberate difference: interpreted adopts its last value (1), compiled refuses by name and adopts nothing.
+The running-off and refusal behaviour itself is docketed, not cured (SEQ 554 R2, docs/ruleJitRecon.md).
+
+ROWS -- id | statements | pinned value
+RD-0|it1 = ITERATe("iterate ic on fsrc;"); print *it1.taG:;|instruct |
+RD-1|it1 = STARt("iterate ic on fsrc; while ++ic; print *ic:;"); testOP(it1);|1 |2 |3 |
+RD-2|it1 = STARt("iterate ic on fsrc; while --ic; print *ic:;"); testOP(it1);|3 |2 |1 |
+RD-3|it1 = STARt("iterate ic attributes on fm; while ++ic; print *ic:;"); testOP(it1);|7 |8 |
+RD-4|it1 = STARt("iterate ic members on fm; while ++ic; print *ic:;"); testOP(it1);|4 |5 |6 |
+RD-5|it1 = STARt("iterate ic on *hs; while ++ic; print *ic:;"); testOP(it1);|1 |2 |3 |
+RD-6|it1 = STARt("iterate ic attributes on fm; while ++ic; print *ic:;"); testOP(it1); it2 = STARt("iterate jc members on fm; while ++jc; print *jc:;"); testOP(it2);|7 |8 |4 |5 |6 |
+RD-7|it1 = STARt("iterate ic members on fm; while ++ic; print *ic:;"); testOP(it1); it2 = STARt("iterate jc attributes on fm; while ++jc; print *jc:;"); testOP(it2);|4 |5 |6 |7 |8 |
+RD-8|it1 = STARt("iterate ic on fm; while ++ic; print *ic:;"); testOP(it1);|7 |8 |4 |5 |6 |

@@ -364,6 +364,7 @@ extern "C" int jitWalkPrintNative(GroupItem *items);
 extern "C" void jitWalkStmt(GroupItem *stmt);
 extern "C" GroupItem *jitter(GroupItem *input);
 extern "C" int jitterReady(GroupItem *field);
+extern "C" GroupItem *jitterRule(GroupItem *input);
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit);
 extern "C" int limitWriteGuard(GroupItem *target);
 extern "C" GroupItem *listenTo(GroupItem *input);

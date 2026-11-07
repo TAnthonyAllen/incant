@@ -74,6 +74,8 @@ GroupItem 	*prior = 0;
 			//  noBuildRun a statement that could not be emitted without running something at build -- or whose emit refused --
 			//  is rolled back and emitted as ONE run-time call; an operand already handed over alone counts (SEQ 384, SEQ 372 R2)
 			 if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(grup); } 
+			//  oldWalkCount the function's own statements only, read before jitStmtEnd pops the mark and restores the flag (SEQ 554 R3)
+			 if ( gJitStmtMarks.size() == 1 ) { if ( gJitHandOver ) gJitOldHanded++; else gJitOldNative++; } 
 			 ::jitStmtEnd(grup); 
 			 jitStoreResult(); 
 			//  A3 + the statement-local gate: the check is emitted only for a
@@ -3863,6 +3865,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	gJitWriterArm.clear();
 	gJitWriterKinds.clear();
 	gJitArmNet.clear();
+	gJitOldNative = 0;
+	gJitOldHanded = 0;
 	gJitArmStack.clear();
 	// computedVal a computed value belongs to one function's build; a freed Value's address must not match the next (SEQ 365)
 	gJitComputedVal = nullptr;
@@ -8855,7 +8859,7 @@ extern "C" int jitterReady(GroupItem *field)
 	
 	GroupBody   *fb = field->groupBody;
 	JitterTally *t  = ::jitterTallyFind(fb);
-	if ( !t ) { gJitterTally.push_back({fb, std::string(fb->tag ? fb->tag : "anon"), 0, 0, false}); t = &gJitterTally.back(); }
+	if ( !t ) { gJitterTally.push_back({fb, std::string(fb->tag ? fb->tag : "anon"), 0, 0, false, 0}); t = &gJitterTally.back(); }
 	if ( t->notJittable ) { t->called++; return 0; }
 	JitCacheSlot *c = ::jitCacheFind(fb);
 	if ( !c ) {
@@ -8879,11 +8883,34 @@ extern "C" int jitterReady(GroupItem *field)
 	::fprintf(stderr,"=== jitter: %s NOT JITTABLE (compile returned %d) -- it runs interpreted from now on ===\n", t->tag.c_str(), rc);
 	::fflush(stderr);
 	return 0; }
-	t->built++; }
+	t->built++;
+	if ( ::jitterRuleOpted(fb) ) { ::fprintf(stderr,"=== jitter rule walk: %s native %d handed %d ===\n", t->tag.c_str(), gJitOldNative, gJitOldHanded); ::fflush(stderr); } }
 	t->called++;
 	gJitterFn = c->fn;
 	return 1;
 	
+}
+
+/*******************************************************************************
+    jitterRule -- jitterRule(X); THE OPT-IN FOR THE RULE DOOR (SEQ 554 R1). From this
+    point in the run X's body runs compiled, through processAction's door. It is
+    gJitterRules' one writer, and the exit report is the per-fire witness: one line per
+    opted rule, printed whether or not it ever fired.   docs/ruleJitRecon.md
+*******************************************************************************/
+extern "C" GroupItem *jitterRule(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	if ( !input || !input->groupBody->flags.isRule ) return ::refuse(input,"jitterRule: not a rule");
+	if ( gJitterRules.empty() )
+	::atexit([]{
+	for ( GroupBody *r : gJitterRules ) {
+	JitterTally *t = ::jitterTallyFind(r);
+	::fprintf(stderr,"=== jitter rule: %s built %d fired %d%s ===\n", r->tag ? r->tag : "anon", t ? t->built : 0, t ? t->fired : 0, t && t->notJittable ? " NOT JITTABLE" : ""); }
+	::fflush(stderr); });
+	if ( !::jitterRuleOpted(input->groupBody) ) gJitterRules.push_back(input->groupBody);
+	
+	return ruler->trueResult;
 }
 
 // limitWriteCheck after the write: a bad maxLimit or repeatLimit is refused and the prior count put back (F-27)
@@ -11888,13 +11915,30 @@ GroupItem 	*action = field;
 		}
 	if ( result = action->actionBlocK() )
 		{
+		 GroupItem *fireRule = action; 
 		if ( action->groupBody->flags.isRule )
 			action = code;
 		// argumentExempt the argument is exempt from the entry clear -- runAction bound it before calling here
 		while ( grup = action->nextAttribute(grup) )
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && !grup->groupBody->flags.isArgument && grup->groupBody != action->groupBody )
 				grup->clear();
-		result = result->groupBody->gMethod(result);
+		// ruleDoor an opted-in rule's body runs compiled here and nowhere else; the binding above and the restore below stay as they are (SEQ 554)
+		// ruleDoorGuard a compiled rule that hands back a boxed count refuses by name and adopts nothing: a box must never become the label (SEQ 554 R2)
+		
+		bool ruleCompiled = false;
+		if ( !gJitterRules.empty() && !ruler->jitting && ::jitterRuleOpted(fireRule->groupBody) ) {
+		int armedSave = ruler->refused;
+		int ready = ::jitterReady(fireRule);
+		ruler->refused = armedSave;
+		if ( ready ) {
+		ruleCompiled = true;
+		::jitterTallyFind(fireRule->groupBody)->fired++;
+		int ruleValue = gJitterFn(::jitBodyField(fireRule));
+		int ruleKind  = gJitRetKind;
+		result = ::jitTakeReturn(ruleValue);
+		if ( ruleKind == 1 ) result = ::refuse(fireRule,"a compiled rule handed back a count, not its label: it refused or ran off its end, and nothing is adopted"); } }
+		if ( !ruleCompiled ) result = result->groupBody->gMethod(result);
+		
 		}
 	 GroupControl::groupController->groupRules->branchKind = actionBranchSave; 
 	ruler->currentMETHOD->setGroup(priorMETHOD);

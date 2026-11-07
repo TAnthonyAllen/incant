@@ -765,12 +765,29 @@ GroupItem   label = field,
                 result.isLabel  = true; }
             else    if result.isLocal || action[result.tag]     result.clear(); }}
     if result = action.actionBlocK() {
+        -% GroupItem *fireRule = action; %-
         if isRule   action = code;
 use grup
         // argumentExempt the argument is exempt from the entry clear -- runAction bound it before calling here
         while grup = action.nextAttribute(grup)
             if isLocal && !isLabel && !noPrint && !isArgument && groupBody != action.groupBody clear();
-        result = result.gMethod(result); }
+        // ruleDoor an opted-in rule's body runs compiled here and nowhere else; the binding above and the restore below stay as they are (SEQ 554)
+        // ruleDoorGuard a compiled rule that hands back a boxed count refuses by name and adopts nothing: a box must never become the label (SEQ 554 R2)
+        -%
+        bool ruleCompiled = false;
+        if ( !gJitterRules.empty() && !ruler->jitting && ::jitterRuleOpted(fireRule->groupBody) ) {
+            int armedSave = ruler->refused;
+            int ready = ::jitterReady(fireRule);
+            ruler->refused = armedSave;
+            if ( ready ) {
+                ruleCompiled = true;
+                ::jitterTallyFind(fireRule->groupBody)->fired++;
+                int ruleValue = gJitterFn(::jitBodyField(fireRule));
+                int ruleKind  = gJitRetKind;
+                result = ::jitTakeReturn(ruleValue);
+                if ( ruleKind == 1 ) result = ::refuse(fireRule,"a compiled rule handed back a count, not its label: it refused or ran off its end, and nothing is adopted"); } }
+        if ( !ruleCompiled ) result = result->groupBody->gMethod(result);
+        %- }
     -% GroupControl::groupController->groupRules->branchKind = actionBranchSave; %-
     currentMETHOD.group = priorMETHOD;
     tempField           = priorTempField;
