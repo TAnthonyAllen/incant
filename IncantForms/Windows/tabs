@@ -8,7 +8,7 @@ search UnitTests Utilities cOLORs fONTs list;
 register(dESCRIPTIONs);
 define
     tabFORM=(In this example, there are two key components to a tabFORM interface, the tabBAR (a block with a tabs attribute containing tab blocks). The second component is a block of body panels, with each panel associated with a tab. Each tab block must include a tab attribute whose value is the tag of the body block associated with the tab. The body panel blocks must have unique name and must all be registered in the current registry (done here via the register attribute). This implies the current registry must be set (in this case, it is set as the FORMs registry).#);
-    tabBAR=(Note the use of selectFill to set the background color of the tab when a tab is selected. Here the selected tab color is matched to the color of the associated body panel but it does not have to be.#);
+    tabBAR=(When you select a tab on the tabBAR, the body shown in the bodies block becomes the card named in the tab selected: so if tabOne is selected, the firstCard becomes the body, the other two card bodies are hidden. Note the use of selectFill to set the background color of the tab when a tab is selected. Here the selected tab color is matched to the color of the associated body panel but it does not have to be.#);
     ;
 register(FORMs);
 define
@@ -25,36 +25,10 @@ define
                 secondCard="The second tab body" register bordered fill=blue;
                 thirdCard="The third tab body" register bordered fill=red;
             help describe=tabFORM bordered height=100 fill=lightGreen;
-    matrix="What if it is a long string." height=200 width=400 x=100 y=100 down=4
-        crossup height=50 across=2
-            cell;
-    lightBlue="ceffff";
-    jsonResult;
-    jsonTestField=({"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}#);
-    dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
-    tester code={
-        name = dataNames[datA];
-        if name != 0;
-            print "data name for" taG name:;
-        else print "data name for" taG "none":;};
     ;
 
-tester(jsonResult);
-tester(lightBlue);
+setFrame(tabFORM);
 stop();
-debug JSONblock;
-jsonResult = JSONblock(jsonTestField);
-listRules(jsonResult);
-setFrame(matrix);
-printDefinition(matrix);
-testing(headerFont);
 
-    *****************************************************************************
-
-The initFORMs() action run at the top of this file is defined in utilities. It changes the incant grammar to allow a field definition to take the form: field=(a delimited block of text that can contain any characters up to the delimiter that ends the text block. The delimiter field used has a value of #).
-    The two fields defined in the dESCRIPTIONs registry above make use of this.
 Note the value of the tabs attribute in the tabBAR block above is set to tabTwo. That sets the initially selected tab to be tabTwo. If the tabs attribute has no value, the default will use the first tab block (tabOne in this case) as the initially selected tab.
-Also note: this text is not wrapped in a comment; the incant parser stops parsing and exits at the stop() command so there is no need to.
-And it would be nice to wrap everything at the top of this file into an incant action up to and including the changeDatA() line to not have to copy all those lines into the almost 100 form files we now have (and there will likely be more forthcoming).
-The printDefinition(tabFORM); line before the stop() command is there as POP to show that the xml to incant conversion works as intended.
 
