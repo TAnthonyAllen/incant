@@ -533,7 +533,8 @@ projectBible.md "Phase Generate Tawk".
      by the old-road jit from its existing body; the rebuild as a new-road chain is a later stroke, recorded and not scheduled.
      Recon: `docs/ruleJitRecon.md`. Bought (SEQ 555, merge aa25fc3c). The order for the rest: `docs/ruleJitCensus.md`; F-146, F-147.
      - FOr compiled, SEQ 557, bought; F-147 cured.
-     - Operator rung, stroke 1 (SEQ 559), branch `rule-operators`, the buy is Tony's. **`gJitRuleOperators` is scaffolding: stroke 2 (everywhere plus the walk) removes it.**
+     - Operator rung, stroke 1 (SEQ 559), bought 2026-11-07, 10:38. **`gJitRuleOperators` is scaffolding: stroke 2 (everywhere plus the walk) removes it.**
+     - THE ORDER FROM HERE (Tony, via Clay, 2026-11-07): cure jitterT first, a silent wrong answer in an inlined callee, in a repair made once already. Then stroke 2, with nh's shape (h := 7; return h;) kept handed over until F-146; before the build, register the rows owed: x := *y, x := copyOf(y) and l +% *y, in loops and in if arms, plus rows for argRoadsT's four newly compiling actions. Then F-146, which cures nh with it.
      - null-attach was bought by Tony at 09:44, before SEQ 557; buying rule-for (Tony, 2026-11-07) lands both.
      - Order amended (Tony, 2026-11-07): If, ELSEIf, WHILe, Do and BRANCh stay in the safe group with the guard's extra refusal pinned, as FOr's is. F-146 moves up to follow the operator rung and come before If.
      - The rule order now reads: the operator rung (+%, :=, copyOf compiled natively); F-146; If, and the rest of the safe group; the loop measurement. The setFrame recon stays the afternoon's opener.

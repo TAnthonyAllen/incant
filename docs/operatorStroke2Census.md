@@ -6,7 +6,7 @@ Read only. The dispatch's SEQ was blank; this calls it 560. Road: **emitted**.
 
 ## How it was measured
 
-**The base is `rule-operators`, not trunk.** `gJitRuleOperators` exists only on that branch, which is not reported bought, so that is the only place it can be removed. Nothing was merged. Base and scratch are both that commit.
+**The base is `rule-operators`, not trunk.** `gJitRuleOperators` existed only on that branch, so that is the only place it could be removed. Tony had bought it at 10:38; word had not reached this seat, and nothing was merged for the census. Base and scratch are both that commit.
 
 **The scratch build,** uncommitted, unpushed and discarded with `git checkout -- <files>`; trunk then rebuilt, canary 444, `pop.sh` 2966, tree clean:
 
@@ -61,6 +61,8 @@ The five degrade rows moved with "a value moved: no" by a full diff of each: onl
 - **The fleet barely exercises the walk on these operators.** Of the walk's witness rows, only `pc` moved. newJitT, newJitIfT, newJitLoopT and newJitCallT have no `:=`, `+%`, star or copyOf in their actions, so **a small mover count here is partly thin coverage, not safety.** Stroke 2 owes rows for those shapes on the walk: `x := *y`, `x := copyOf(y)`, `l +% *y`, in a loop and an if arm, with a slotted operand.
 - **The scratch build is one reading of "as the recon describes".** Serving inlined bodies and flushing `copyOf`'s operand were my calls, the second because the recon said so. Defect 2 is in an inlined body. A stroke 2 that kept inlined bodies handed over might not have it, and would move other rows.
 - **Correcting the recon:** section 7's "30 fixtures" and "93 lines" read as a large blast radius. That count was lexical and mostly top-level `:=` outside any jitted body. Measured, it is 3 rows.
+
+**Ruled since (Tony, via Clay, 2026-11-07):** jitterT is cured first. Stroke 2 follows, keeping `nh`'s shape handed over until F-146, with the owed rows registered before the build, plus rows for argRoadsT's four newly compiling actions. F-146 then cures `nh`.
 
 ## The movers to register, if stroke 2 is built
 

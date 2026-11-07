@@ -108,7 +108,7 @@ The alternative is one stroke with the movers registered up front: larger, and e
 
 **None fires.** No frame-model change: rule locals are already on fields, and action locals use the existing flush. No new ruler slot: stroke 1's flag is file-scope, beside `gJitter`. No new slot kind: `:=` targets are already kind 6, and `+%` writes no scalar.
 
-## 10. Built: stroke 1, SEQ 559, branch `rule-operators` (1536cf48), measured 2026-11-07
+## 10. Built: stroke 1, SEQ 559, branch `rule-operators` (1536cf48), measured 2026-11-07. Bought by Tony, 10:38
 
 Opted-in rules only, on the old road, as ruled. `gJitRuleOperators` is **scaffolding**: stroke 2 (everywhere plus the walk) removes it.
 
