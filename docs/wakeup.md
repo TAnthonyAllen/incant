@@ -1,4 +1,4 @@
-# ⚠⚠⚠ SEALED 2026-11-07 (377) ON TRUNK -- fill-page BOUGHT WITH BOTH RIDERS (merge 543073f8); STEP 2 PARKED AS PINS ONLY ON draw-walk, NOTHING BUILT. STOPPED UNDER R3: A SLIP REACHED A PINNED VALUE. NO SHUTDOWN.
+# ⚠⚠⚠ SHUTDOWN SEALED 2026-11-07 (377) ON TRUNK -- THE DAY'S CLOSE, CLOD'S CHOICE (Tony offered to go on). fill-page BOUGHT WITH BOTH RIDERS (merge 543073f8); STEP 2 PARKED AS PINS ONLY ON draw-walk, NOTHING BUILT. STOPPED UNDER R3: A SLIP REACHED A PINNED VALUE. NO SHUTDOWN.
 #
 #   ## ONE PLAIN LINE: step 1 is on trunk, fills drawing into one context, right way up, and the form's definition untouched; step 2's rows are written and waiting; I stopped because one of my slips got into a committed pin.
 #   ## CHECKS (merged trunk, binary bare, built after the merge): pop.sh exit 1, 2985 green = 2976 + fillPageT's 9, 62 FAIL rows identical by name · jitLadder exit 0, 224 / 0 · printPop 0 · decodePop = capture but its echo · ddPop 5 / 1 · frontier = capture · canary 447 · bare tokall = committed · Groups, support, TOK clean and pushed.
@@ -6,6 +6,8 @@
 #   ## RIDER 2: the display is a property (+<): fillPageT FP-7, a child's list length unchanged by makeDisplay (6 6 / 7 7). H7, attribute put back: 6 7 / 7 8, pixels unmoved; restored md5-identical.
 #   ## STEP 2, PARKED: branch draw-walk (pushed), incant/pop/drawWalkT and five rows, all born red with measured values. Not built: utilities' drawWalk, and registering makeDisplay, displayFill and pixelAt in incant/setup (the fixtures register them locally today). The next stroke starts there.
 #   ## SLIPS: (1) the FP-7 pin first carried a guessed value for bar (9 10, measured 7 8), caught before commit. (2) drawWalkT's pins were committed as placeholders (d4ac151e): the edit failed on its own over-broad check and the commit was chained after it with no check between; caught on the next read and corrected in a separate commit (706a2316). (2) reached a pinned value, so R3: stop and seal.
+#   ## SHUTDOWN: dirCheck exit 0, 108 of 116 inject, 8 parked dark, tree retokked bare and byte-identical; capture banked. Executable bits clean.
+#   ## WHY STOP HERE: two slips in the last stroke, one into a committed pin; the seat's mechanical state, not its reasoning, was slipping, and step 2 is parked at a clean edge.
 #   ## NEXT: step 2 on draw-walk; Tony's call when.
 #
 #   ## Tony's fixit incantations waiting: 0
