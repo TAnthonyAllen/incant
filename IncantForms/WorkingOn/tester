@@ -34,8 +34,6 @@ define
                 print ,-;
             else    print *target.taG;
         };
-    somple="What if it is a long string." height=200 width=250 x=100 y=100 down=*
-        crossing height=50;
     /***************************************************************************
         fillDownAcross deals with direction framing. The direction can be either
         down or across. When the direction passed in has a value. The value can

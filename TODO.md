@@ -529,6 +529,9 @@ projectBible.md "Phase Generate Tawk".
   4. **JITTER DOCKET -- emit the built-target call (SEQ 342 R1, 2026-10-12).** `*f(x)` stays refused by name under jitting
      ("a call whose target is built", acC, since J1) with its rows pinned as they are: jitLadder JXD-4's degrade row (2)
      and jitXscRT's two refusals. Its VALUE is right (fault A / fault B run it interpreted), so it is docket, not a fixit.
+  5. **A KANTGRAMMAR ACTION UNDER THE OLD-ROAD JIT (SEQ 553 R0, 2026-11-07).** The first jitterized kantGrammar action is compiled
+     by the old-road jit from its existing body; the rebuild as a new-road chain is a later stroke, recorded and not scheduled.
+     Recon, candidate (ITERATe) and the rulings wanted: `docs/ruleJitRecon.md`.
 
 - [ ] **parseR -- a road anyone uses, or a cleanup candidate? Tony's call.** (Docketed 2026-10-04, SEQ 290 R5, no
   action.) Its only entry is a kant rule called with a field that has no data (driveStep's no-data arm). Before
