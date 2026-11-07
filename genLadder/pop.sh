@@ -330,12 +330,12 @@ if [ "$_uft" = "is    Formatted maybe " ]; then
 else
     echo "  FAIL  baselineTests formatTest -- got [$_uft] want [is    Formatted maybe ]"; fail=1
 fi
-#  testSetFrame (Tony, SEQ 535, 2026-11-05): setFrame's trace, by value, depth kept (a tab reads >). UNBLESSED: pinned at TODAY'S values, which are WRONG:
-#  no child of simple or sample gets a frame, because setFrame is refused partway. Tony's reading of the trace becomes the intended values. stderr is filtered, because the merged file interleaves it.
-_tsf="$(sed -n '/^Setting frame for simple/,/^testSetFrame end/p' "$T/base" | grep -v '^REFUSED\|^ERROR' | tr '\t' '>' | xargs)"
-_tsfW="Setting frame for simple testSetFrame simple children with no frame: 3 of 3 simple x=100 y=100 w=250 h=212 >quinto x=- y=- w=150 h=- >sexto x=- y=- w=- h=12 >fifth x=- y=- w=- h=- Setting frame for sample testSetFrame sample children with no frame: 9 of 9 sample x=300 y=450 w=400 h=200 >second x=- y=- w=- h=- >third x=- y=- w=- h=- >>wrap x=- y=- w=- h=- >>>one x=- y=- w=- h=- >>two x=- y=- w=- h=- >>three x=- y=- w=50 h=- >>>stuff x=- y=- w=- h=- >fourth x=- y=- w=- h=12 >fifth x=- y=- w=- h=- testSetFrame end"
+#  testSetFrame (Tony, SEQ 535, 2026-11-05): setFrame's trace, by value, depth kept (a tab reads >). UNBLESSED: pinned at TODAY'S values; Tony's reading of the trace becomes the intended values. stderr is filtered, because the merged file interleaves it.
+#  RE-PINNED 2026-11-07 (Tony's offline status: tester's setFrame replaces utilities'): the old pin was the refused setFrame, no child framed. Every child is framed now, and the sizes sum to the parent (sample's heights 63 62 12 63 = 200). The filter keeps the Setting line, the count and the frame lines, because setFrame's dumpContents now prints the wrap text and its apostrophe kills xargs. tsfCount read the cursor holder and said "no frame" for every child, framed or not; it reads *grup now (unframed sample 9 of 9, framed 0 of 9, one run).
+_tsf="$(sed -n '/^Setting frame for simple/,/^testSetFrame end/p' "$T/base" | grep -E '^Setting frame for|^testSetFrame |x=[^ ]+ y=[^ ]+ w=[^ ]+ h=' | tr '\t' '>' | xargs)"
+_tsfW="Setting frame for simple testSetFrame simple children with no frame: 0 of 3 simple x=100 y=100 w=250 h=212 >quinto x=100 y=100 w=150 h=212 >sexto x=250 y=100 w=50 h=12 >fifth x=300 y=100 w=50 h=212 Setting frame for sample Setting frame for third Setting frame for wrap Setting frame for three testSetFrame sample children with no frame: 0 of 9 sample x=300 y=450 w=400 h=200 >second x=300 y=450 w=400 h=63 >third x=300 y=513 w=400 h=62 >>wrap x=300 y=513 w=100 h=62 >>>one x=300 y=513 w=100 h=62 >>two x=400 y=513 w=100 h=62 >>three x=500 y=513 w=200 h=62 >>>stuff x=500 y=513 w=200 h=62 >fourth x=300 y=575 w=400 h=12 >fifth x=300 y=587 w=400 h=63 testSetFrame end"
 if [ "$_tsf" = "$_tsfW" ]; then
-    echo "  ok    baselineTests testSetFrame UNBLESSED, today's values, frames wrong = [$_tsf]"; green=$((green+1))
+    echo "  ok    baselineTests testSetFrame UNBLESSED, today's values = [$_tsf]"; green=$((green+1))
 else
     echo "  FAIL  baselineTests testSetFrame UNBLESSED MOVED -- got [$_tsf] want [$_tsfW]"; fail=1
 fi
@@ -9136,10 +9136,11 @@ _ofeq "flagNearT isRulE refuses by name, its field removed, the next field defin
 _ofeq "flagNearT the controls: noPrinT noPrint isRule isList take no attribute, quietly" "$(_fnv 'noPrinT attrs=') $(_fnv 'noPrint attrs=') $(_fnv 'isRule attrs=') $(_fnv 'isList attrs=')" "0 0 0 0"
 _ofeq "flagNearT the controls: across, InvokeD and plain words stay attributes (non-zero sibling)" "$(_fnv 'across attrs=') $(_fnv 'InvokeD attrs=') $(_fnv 'plain attrs=')" "1 1 3"
 _ofeq "flagNearT the rule term flags is defined and quiet" "$(grep -c '^FN rule term found' "$T/fn.e") $(grep -c 'WARNING flags' "$T/fn.e")" "1 0"
-#  The corpus: every tracked live file but this fixture, one run each. Windows/tabs is the one warning by ruling (SEQ 545 R3), until that form comes up for repair.
+#  The corpus: every tracked live file but this fixture, one run each. Reads empty, and the rows above are its non-zero sibling.
+#  RE-PINNED 2026-11-07, one warning in tabs -> none: Tony's offline edit took dataNames out of Windows/tabs, and its isGROUP was the warning SEQ 545 R3 left standing. The old file, run the same day, still warns.
 _fnC=""; for _f in $(git ls-files incant IncantForms | grep -vE 'attic/|BackupXML/|\.target$|\.base$|\.md$|incant/pop/flagNearT$'); do [ -f "$_f" ] || continue
     _w=$(perl -e 'alarm 4; exec @ARGV' "$B" "$_f" 2>&1 </dev/null | grep -c 'looks like flag'); [ "$_w" -gt 0 ] && _fnC="$_fnC$_f=$_w "; done
-_ofeq "flagNearT the corpus: one warning, in tabs" "$_fnC" "IncantForms/Windows/tabs=1 "
+_ofeq "flagNearT the corpus: no warnings" "$_fnC" ""
 #  defineRefT -- := in a define (Tony, 2026-11-05, SEQ 534 R1, R3): a form attribute that means a field is spelled :=. Plain = stays a value copy (traitGridT).
 #  N rows go through FILe. A row whose value is a later change's is paired with the same field's row before the change. H7s are in docs/traitRefRecon.md.
 _drF=$(ip defineRefT)

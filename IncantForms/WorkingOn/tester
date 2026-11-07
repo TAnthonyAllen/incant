@@ -4,13 +4,14 @@
 *****************************************************************************/
 Start();
 include(unitTests);
+include(utilities);
 registry(fILEs);
 define
     kantGrammar File='incant/kantGrammar';
     ;
 include(kantGrammar);
 search reset stack KantGrammar Grokking;
-search UnitTests list;
+search UnitTests Utilities list;
 
 registry(TestStuff);
 define
@@ -33,174 +34,6 @@ define
                 listChain(*target);
                 print ,-;
             else    print *target.taG;
-        };
-    /***************************************************************************
-        fillDownAcross deals with direction framing. The direction can be either
-        down or across. When the direction passed in has a value. The value can
-        be "*" or a number. The argument passed in has to contain the direction
-        attribute (that is down or across respectively).
-        
-        If the direction value is "*", the argument passed in can have only one
-        member (the member may have members); also the member should have its
-        target (width or height) specified. If direction value is a number
-        (like down=3) the argument can have more than one member, but all members
-        should have no target specified. Also, the argument passed in should
-        have no data (you can add data after setFrame finishes).
-    ***************************************************************************/
-    tARGET;
-    dIRECTion;
-    newStuff isList;
-    fillDownAcross code={
-        pValue = argument[tARGET];
-        direct = argument[dIRECTion];
-        memberCount=0;
-        for grup in argument; members
-            ++memberCount;
-            target = *grup[tARGET];
-            if target.isPercenT;    target = argument[tARGET] * target / 100;
-            if target.datA != 0;    pValue -= target;
-        if direct == "*";
-            if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
-            valueCount = 0;
-            valueCount = pValue / target;
-            if valueCount * target > pValue;    --valueCount;
-        else
-            if direct > 0;
-                valueCount = direct - 1;
-        clear(newStuff);
-        for grup in argument; attributes
-            newStuff +% *grup;
-        for grup in argument; members
-            newStuff +/ copyOf(*grup);
-        while valueCount > 0;
-            --valueCount;
-            for grup in argument; members
-                newStuff +/ copyOf(*grup);
-        clear(argument);
-        argument = newStuff;
-        };
-    /***************************************************************************
-        Both directions on one field (Clay's design, Tony 2026-11-06). The number
-        goes outside: a new cell holds the members and carries the *, and
-        setFrame's recursion does the rest. Both * or both numbers: parked.
-    ***************************************************************************/
-    bothStuff isList;
-    bothDirections code={
-        =:argument across down;
-        inner = "none";
-        if down == "*";
-            if across != "*";   inner = "down";
-        if across == "*";
-            if down != "*";     inner = "across";
-        if inner == "none";
-            print taG "needs one * and one number to use both down and across":;
-            return;
-        cellHold := new("dirCell");
-        innerAttr := argument[inner];
-        *cellHold :% copyOf(*innerAttr);
-        for grup in argument; members
-            *cellHold +/ copyOf(*grup);
-        clear(bothStuff);
-        for grup in argument; attributes
-            if *grup.taG != inner;
-                bothStuff +% *grup;
-        bothStuff +/ *cellHold;
-        clear(argument);
-        argument = bothStuff;
-        };
-    /***************************************************************************
-         Set frames for members of the group passed in. It must have x y width
-         and height attributes.
-         
-         Should modify to check for noRoom and bail if there aint none
-    ***************************************************************************/
-    setFrame code={
-        print "Setting frame for" taG:;
-        =:argument across down width height x y;
-        if across.datA != 0;
-            if down.datA != 0;
-                bothDirections(argument);
-                =:argument across down;
-        sideRoom    = width;
-        pWidth      = width;
-        headRoom    = height;
-        pHeight     = height;
-        pX          = x;
-        pY          = y;
-        upOut       = 0;
-        sideOut     = 0;
-        if down.datA != 0;
-            tARGET="height";
-            dIRECTion="down";
-            fillDownAcross(argument);
-        if across.datA != 0;
-            tARGET="width";
-            dIRECTion="across";
-            fillDownAcross(argument);
-   /***************************************************************************
-                 Create frame and set width and height
-    ***************************************************************************/
-        for grup in argument; members
-            =:grup width height;
-            if width.isPercenT;
-                width = pWidth * width / 100;
-                *grup :% copyOf(width);
-            if height.isPercenT;
-                height = pHeight * height / 100;
-                *grup :% copyOf(height);
-            if width.datA != 0;
-                sideRoom    -= width;
-            or across.datA == 0;
-                width = pWidth;
-                *grup :% copyOf(width);
-            else
-                sideOut     +/ *grup;
-                ++sideOut;
-            if height.datA != 0;
-                headRoom    -= height;
-            or across.datA != 0;
-                height = pHeight;
-                *grup :% copyOf(height);
-            else
-                upOut       +/ *grup;
-                ++upOut;
-        if upOut > 0;
-            shareN = 0;
-            shareUsed = 0;
-            shareEdge = 0;
-            for grup in upOut;
-                ++shareN;
-                shareEdge = headRoom * shareN / upOut;
-                height = shareEdge - shareUsed;
-                shareUsed = shareEdge;
-                *grup :% copyOf(height);
-        if sideOut > 0;
-            shareN = 0;
-            shareUsed = 0;
-            shareEdge = 0;
-            for grup in sideOut;
-                ++shareN;
-                shareEdge = sideRoom * shareN / sideOut;
-                width = shareEdge - shareUsed;
-                shareUsed = shareEdge;
-                *grup :% copyOf(width);
-        headRoom    = 0;
-        sideRoom    = 0;
-    /***************************************************************************
-             Set x and y in frame
-    ***************************************************************************/
-        for grup in argument; members
-            =:grup width height x y;
-            y = pY;
-            *grup :% copyOf(y);
-            x = pX;
-            *grup :% copyOf(x);
-            if across.datA == 0;    pY += height;
-            else                    pX += width;
-        dumpContents(argument);
-        for grup in argument; members
-            if *grup.hasMemberS;
-                setFrame(*grup);
         };
     /***************************************************************************
         print out incant definition for the group passed in.

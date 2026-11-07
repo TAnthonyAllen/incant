@@ -316,10 +316,10 @@ define
             for grup in argument; members
                 ++tsfAll;
                 tsfFull = 0;
-                if grup["x"];
-                    if grup["y"];
-                        if grup["width"];
-                            if grup["height"];
+                if *grup["x"];
+                    if *grup["y"];
+                        if *grup["width"];
+                            if *grup["height"];
                                 tsfFull = 1;
                 if tsfFull == 0;
                     ++tsfNone;

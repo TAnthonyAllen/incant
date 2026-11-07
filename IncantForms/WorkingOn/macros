@@ -429,3 +429,7 @@ chainOP: testOP written in kant (Tony's idea, 2026-11-03; shape SEQ 515 R1). Aft
     (2) testOP shrinks to a stub that calls chainOP, so no instruct changes shape. The C++ stub stays as the floor -- something in C++ has to run chainOP itself.
 | : RULED (Tony, 2026-11-03): x | f means f(x); the left side's value becomes the right side's argument. | binds looser than arithmetic (x + 1 | f is f(x + 1)). The text (unix) form comes free when the value is a buffer. Not scheduled.
     -- Clod: `'|'` is registered bare in Operators today (incant/setup:104), no method.
+
+FORMS ORDER (Tony, offline status 2026-11-07, via Clay, R2): firstLight drawn to PDF, then the descriptions form. descriptions has a relatively simple layout and tries to explain how it is supposed to work; if the explanation is unclear, fix it. THE DATA RECON ABOVE IS WITHDRAWN until a form needs it.
+
+setFrame IN utilities (Tony, 2026-11-07): tester's fillDownAcross, bothDirections and setFrame replaced utilities' definitions, verbatim. The second-run recon reads utilities, not tester (R3).
