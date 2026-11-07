@@ -8990,6 +8990,17 @@ fdRow "fillPageT FP-6 the flip's pair: the bottom of the form reads wall, page (
 _fpl () { grep "^FP LEN $1 " "$T/fp.e" | sed "s/^FP LEN $1 *//" | xargs; }
 fdRow "fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay" "$(_fpl words) / $(_fpl bar)" "6 7 / 7 8" "6 6 / 7 7"
 fdRow "fillPageT a child takes the top's context: no child refuses no display" "$(grep -c 'REFUSING .* no display' "$T/fp.e")" "2" "0"
+#  ⚑ drawWalkT -- step 2 toward the first PDF (Tony, 2026-11-07): utilities' drawWalk, parent before child, fills each field
+#  that names a fill and skips the rest. PINNED BEFORE THE BUILD, born red. DW-4 is the depth row; the refusal count is paired with DW-2 and DW-4.
+_dwF=$(ip drawWalkT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_dwF" > "$T/dw.o" 2> "$T/dw.e"; _dwx=$?
+_dwp () { grep -h '^=== pixelAt '"$1"' ' "$T/dw.o" "$T/dw.e" 2>/dev/null | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+_ofeq "drawWalkT exit / sentinel" "$_dwx $(grep -c '^DRAWWALK SENTINEL' "$T/dw.e")" "0 1"
+fdRow "drawWalkT DW-1 heading has no fill: the top's wall shows, page (5,15)" "$(_dwp heading)" "TODAY1" "r247 g232 b170 a255/"
+fdRow "drawWalkT DW-2 words, depth 1, white, page (5,100)" "$(_dwp words)" "TODAY2" "r255 g255 b255 a255/"
+fdRow "drawWalkT DW-3 space, depth 2, no fill: wall, page (100,180)" "$(_dwp space)" "TODAY3" "r247 g232 b170 a255/"
+fdRow "drawWalkT DW-4 ok, depth 2, lightGreen, page (360,180)" "$(_dwp ok)" "TODAY4" "r175 g211 b120 a255/"
+fdRow "drawWalkT a field with no fill is skipped, not refused: refusals during the walk" "$(sed -n '/^DW walk begins/,/^DW walk ends/p' "$T/dw.e" | grep -c 'REFUS')" "TODAY5" "0"
 #  ⚑ fillReadT -- a reader for fill= (SEQ 547 recon, SEQ 549 R0-R3). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The field's own fill first, then its style's fillColor; a # value parsed where it sits, on both; any other plain value looked up by name at draw, a miss refusing by name; fill not inherited.
 _frF=$(ip fillReadT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_frF" > "$T/fr.o" 2> "$T/fr.e"; _frx=$?

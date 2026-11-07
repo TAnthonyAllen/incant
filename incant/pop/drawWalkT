@@ -1,0 +1,53 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+include(firstLightFile);
+register(DrawWalk);
+define
+    dwX = 0;
+    dwY = 0;
+    dwAt code={
+        px = dwX;
+        py = dwY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    ;
+search DrawWalk FORMs UnitTests Utilities cOLOr fONTs list;
+setFrame(firstLight);
+makeDisplay(firstLight);
+cerr "DW walk begins":;
+drawWalk(firstLight);
+cerr "DW walk ends":;
+dwX = 5; dwY = 15;
+dwAt(firstLight["heading"]);
+dwY = 100;
+dwAt(firstLight["words"]);
+dwX = 100; dwY = 180;
+dwAt(firstLight["bar"]["space"]);
+dwX = 360;
+dwAt(firstLight["bar"]["ok"]);
+cerr "DW-1 heading has no fill, page (5,15): the top's wall shows":;
+pixelAt(firstLight["heading"]);
+cerr "DW-2 words, one level down, page (5,100): white":;
+pixelAt(firstLight["words"]);
+cerr "DW-3 space, two levels down and no fill, page (100,180): wall":;
+pixelAt(firstLight["bar"]["space"]);
+cerr "DW-4 ok, two levels down, page (360,180): lightGreen":;
+pixelAt(firstLight["bar"]["ok"]);
+cerr "DRAWWALK SENTINEL":;
+stop();
+
+drawWalkT -- step 2 toward the first PDF (Tony, 2026-11-07): the draw walk, in kant (utilities' drawWalk). It walks a
+form parent before child, depth first, and fills each field that names a fill; a field with no fill is skipped, not
+refused. The display is opened by makeDisplay before the walk, as step 1 built it.
+
+Rows (genLadder/pop.sh): DW-1 to DW-4 are one pixel per depth: the top's wall where heading has no fill, words at
+depth 1, space (no fill) and ok at depth 2. DW-4 is the depth row: a walk that stops at the top reads wall there. The
+refusal count between the walk markers is 0, paired with DW-2 and DW-4, which only a walk that called the fill can paint.
