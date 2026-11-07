@@ -23,6 +23,12 @@ define
     hs;
     ic;
     jc;
+    cpSrc=9;
+    dv=0;
+    dblAct code={ dv = **dh2; print "dbl" dv:; };
+    dsrc=6;
+    dh1;
+    dh2;
     fm x=7 y=8
         m1=4;
         m2=5;
@@ -31,15 +37,21 @@ define
 search RuleDoorT Utilities UnitTests list;
 fsrc +% fa fb fc;
 hs := fsrc;
+dh1 := dsrc;
+dh2 := dh1;
 registry(RuleDoorG);
 define
     RuleDoorG isRule;
     FELLOFf     word=[a-z]+;
     REFUSEs     word=[a-z]+;
     KEEPs       word=[a-z]+;
+    COPYs       word=[a-z]+;
+    DBLs        word=[a-z]+;
     FELLOFf code={ fo = 1; };
     REFUSEs code={ rz = 1; rr = hs - 1; return *actionLabel; };
     KEEPs code={ kz = 1; return *actionLabel; };
+    COPYs code={ cy := copyOf(cpSrc); ct := *cy.taG; print ct:; print *cy:; return *actionLabel; };
+    DBLs code={ dd := **dh2; print *dd:; return *actionLabel; };
     ;
 search RuleDoorG RuleDoorT Utilities UnitTests list;
 stop();
@@ -54,6 +66,8 @@ interpreted road alone is why the per-fire count is asserted beside it: a door t
 ATTRIBUTES / MEMBERS rows are the ones that matter: aMint := copyOf(aOn) is a handed-over read of a natively written local, and the
 filter it carries decides what the loop walks. RD-6 and RD-7 fire twice in one process with different terms, so anything fixed at
 the first fire (the compile) reads wrong on the second.
+
+SEQ 559 adds COPYs (a native copyOf keeps its tag), DBLs (a native star on a star, in a rule) and dblAct (the same in an action, the defect's own row: `**x` read nothing natively before R2).
 
 RG- rows drive three scratch rules, because ITERATe cannot reach the R2 guard on a parse: every path of it ends in a return. KEEPs
 returns its label; REFUSEs refuses mid-body; FELLOFf runs off its end. it1 is preset to "untouched" so a fire that adopts something

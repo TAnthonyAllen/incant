@@ -1422,6 +1422,8 @@ GroupItem   result;
     -% if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); %-
     // handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
     -% if ( ruler->jitting && gJitHandOver ) return 0; %-
+    // ruleOperators operator rung stroke 1: +%, := and copyOf go native in an opted-in rule, ahead of the kind gate; the flag is scaffolding, stroke 2 removes it (SEQ 559)
+    -% if ( gJitRuleOperators && ruler->jitting ) { GroupItem *ruleOp = ::jitRuleOperator(op,target,arg); if ( ruleOp ) return ruleOp; } %-
     // storeRuling an armed statement dispatches nothing further -- interpreted only
     if ruler.refused
         if !jitting     return null;

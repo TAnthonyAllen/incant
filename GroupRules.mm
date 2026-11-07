@@ -4346,6 +4346,12 @@ extern "C" void jitChanPushRT()
 	
 }
 
+/*  jitCopyOfRT -- run time: copyOf as opCall fires a method, a null argument falling back to the target.  */
+extern "C" GroupItem *jitCopyOfRT(GroupItem *target, GroupItem *arg)
+{
+	 return ::copyOf(arg ? arg : target); 
+}
+
 /*  jitCursorHandOver / jitHandedCursor -- an iterate refused at build is handed over to run time (its statement becomes one
     jitStmtRT call), so its cursor is not flagged isIterator until the run, and opPlusPlus's build-time read would emit a count
     increment that never ends. aCTionIterate's poison arms record the cursor; opPlusPlus asks, and emits the iterator step,
@@ -4948,6 +4954,34 @@ extern "C" int jitEmitContinue()
 	
 }
 
+/*  jitEmitCopyOf -- the copyOf call-through (SEQ 559): the FIELD or a run-time node goes in, never a seeded value, so the copy keeps its tag. What
+    comes back is a run-time node with no scalar. A frame-slotted operand goes to run time: a rule's locals have no slot, and flushing is stroke 2's.  */
+extern "C" GroupItem *jitEmitCopyOf(GroupItem *target, GroupItem *arg)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if ( !b || !arg ) return nullptr;
+	if ( !(arg->jitData && arg->jitData->jitNode) && (jitFrameFind((void*)&(arg->groupBody->gCount)) || jitFrameFind((void*)&(arg->groupBody->gNumber))) ) return nullptr;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	llvm::Value *argV = (arg->jitData && arg->jitData->jitNode) ? arg->jitData->jitNode : bake((void*)arg, "copyArg");
+	llvm::Value *res = b->CreateCall(llvm::FunctionType::get(ptr, {ptr, ptr}, false), bake((void*)&jitCopyOfRT, "copyFn"), {bake((void*)target, "copyTarget"), argV}, "copyRes");
+	GroupItem *node = new GroupItem((char*)"copyResult");
+	node->jitData = new JitData();
+	node->jitData->jitNode = res;
+	node->jitData->computed = true;
+	gJitSeeded.push_back(node);
+	gJitResultNode = res;
+	gJitResult     = nullptr;
+	gJitLastIsNode = true;
+	gJitNodeOwner  = node;
+	gJitEmitted    = true;
+	return node;
+	
+}
+
 /*******************************************************************************
     jitEmitDO -- the do-while emitter (rung J4). Body first, condition second.
 
@@ -4995,7 +5029,8 @@ extern "C" int jitEmitDeref(GroupItem *operand)
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Value *argAddr = b->CreateIntToPtr(
+	//  followTheNode a star on a star reads the inner star's RUN-TIME node; its fresh field holds no group, and baking that read null (SEQ 559 R2)
+	llvm::Value *argAddr = (operand->jitData && operand->jitData->jitNode) ? operand->jitData->jitNode : b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "derefArg");
 	llvm::Value *derefFn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitDerefRT), ptr, "derefFn");
@@ -7355,6 +7390,39 @@ extern "C" GroupItem *jitRetPendNodeRT()
 	 return gJitRetPendNode; 
 }
 
+/*  jitRuleOperator -- runOPdirect's route for the operator rung, stroke 1 (SEQ 559): +% and := to the op-fire call-through, copyOf to its emitter, only
+    for a rule's own statements under gJitRuleOperators. An operand the call-through cannot pass, a carried value, an adjacent run, the action's
+    argument, returns null and the statement takes its ordinary road, which hands it over.   docs/operatorRungRecon.md  */
+extern "C" GroupItem *jitRuleOperator(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+	
+	if ( !op || !target || !arg || !gJitInlining.empty() ) return nullptr;
+	if ( arg->groupBody->flags.isArgument || target->groupBody->flags.isArgument ) return nullptr;
+	if ( arg == gJitCallResult || (arg->groupBody->tag && !::strcmp(arg->groupBody->tag,"xl1")) ) return nullptr;
+	if ( arg->jitData && !arg->jitData->jitNode ) return nullptr;
+	if ( isOperator(op->groupBody->flags.instructType) ) {
+	void *g = (void*)op->groupBody->gOp;
+	if ( g != (void*)&opAddAttribute && g != (void*)&opSetGroup ) return nullptr;
+	GroupItem *fired = ::jitEmitOpFire(op,arg,target);
+	//  refusalEndsTheRule a refuse in the call leaves the function here, as a handed-over statement's does: jitEmitRefusedCheck covers inlined bodies only, and carrying on let the rule's return adopt its label (SEQ 559)
+	if ( fired ) {
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	void *armAddr = (void*)&(GroupControl::groupController->groupRules->refused);
+	llvm::Value *armP = b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx),(uint64_t)armAddr), llvm::PointerType::getUnqual(ctx));
+	llvm::Value *armed = b->CreateICmpNE(b->CreateLoad(i32, armP, "ruleOpArm"), llvm::ConstantInt::get(i32,0), "ruleOpRefused");
+	llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx,"ruleOpOK",b->GetInsertBlock()->getParent());
+	b->CreateCondBr(armed, gJitEpilogueBB, cont);
+	b->SetInsertPoint(cont);
+	gJitStmtCanRefuse = false; }
+	return fired; }
+	if ( !isMethod(op->groupBody->flags.instructType) && isMethod(target->groupBody->flags.instructType) && (void*)target->groupBody->gMethod == (void*)&copyOf )
+	return ::jitEmitCopyOf(target,arg);
+	return nullptr;
+	
+}
+
 /*******************************************************************************
     jitRunAction -- THE GENERIC COMPILE DRIVER. It owns the engine, the
     LLVMContext and the Module; jitBuildFunction owns each function in them.
@@ -8871,7 +8939,9 @@ extern "C" int jitterReady(GroupItem *field)
 	int de = keep ? open(keep, O_WRONLY | O_CREAT | O_APPEND, 0644) : dup(dn);
 	dup2(dn,1); dup2(de,2); close(de);
 	gJitCompileOnly = 1;
+	gJitRuleOperators = ::jitterRuleOpted(fb);
 	int rc = ::jitRunAction(field);
+	gJitRuleOperators = false;
 	gJitCompileOnly = 0;
 	fflush(stdout); fflush(stderr);
 	dup2(so,1); dup2(se,2); close(so); close(se); close(dn);
@@ -12995,6 +13065,8 @@ GroupItem 	*result = 0;
 	 if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); 
 	// handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
 	 if ( ruler->jitting && gJitHandOver ) return 0; 
+	// ruleOperators operator rung stroke 1: +%, := and copyOf go native in an opted-in rule, ahead of the kind gate; the flag is scaffolding, stroke 2 removes it (SEQ 559)
+	 if ( gJitRuleOperators && ruler->jitting ) { GroupItem *ruleOp = ::jitRuleOperator(op,target,arg); if ( ruleOp ) return ruleOp; } 
 	// storeRuling an armed statement dispatches nothing further -- interpreted only
 	if ( ruler->refused )
 		if ( !ruler->jitting )
