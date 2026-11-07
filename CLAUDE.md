@@ -3010,6 +3010,9 @@ direction the campaign might take, it is a state the machinery must report as a 
 > red since SEQ 384 (2026-10-19), docketed F-149 (`docs/fixIts.md`). It is the drawing surface's own pop and was on no
 > checklist, so that row went red for three weeks unseen: the countPop and printPop pattern again. Its capture is
 > `docs/sealCaptures/formsPop.txt`; a seal reads it row for row, and F-149's row turning green is a change to report.
+> ⚠⚠ **DRAWING ROWS LIVE IN `formsPop.sh` ONLY (Tony, 2026-11-07).** fillPageT's nine rows moved there from pop.sh,
+> retired by mapping (pop.sh 2985 -> 2976 green, formsPop 13 -> 22, the same nine rows), and every new drawing row goes
+> there. A row pinned in two places has to be re-pinned in two, and one copy drifts.
 >
 > ⚠⚠ **`countPop.sh` LEFT THE SEAL 2026-10-02 (SEQ 260 R3), RETIRED BY MAPPING to `parserCoverage`.** Its
 > scorer had been dead since 2026-09-08 and its scaffold since stroke 3, so for weeks it was recorded "row for
@@ -3417,7 +3420,7 @@ path), with a `-derivedDataPath` per clone, and check the build log for live Gro
 R1b).** The phantom `incant/oneTest` (the real file is `incant/pop/oneTest`) ran nothing three times: F-O28 (09-28), and
 the coverage taps of SEQ 183 and SEQ 184. The binary exits 2 with `getFile: could not open file`, and every one of
 those runs threw the exit status away. **The checklist scripts** (`pop.sh`, `jitLadder/ladder.sh`, `decodePop.sh`,
-`ddPop.sh`, `printPop.sh`) resolve every fixture through `ip()`, which now prints `FAIL fixture MISSING: <name>` and
+`ddPop.sh`, `printPop.sh`, `formsPop.sh` since 2026-11-07) resolve every fixture through `ip()`, which now prints `FAIL fixture MISSING: <name>` and
 leaves a marker that fails the script at its foot (H7: a pop.sh copy pointed at a missing name went red by name).
 **An ad-hoc tap** resolves its fixtures the same way or checks `[ -f ]` first, and keeps each run's exit status.
 

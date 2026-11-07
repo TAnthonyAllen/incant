@@ -34,6 +34,9 @@ ip () {
     for _d in incant incant/pop incant/pop/jit incant/fixits; do
         [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
     done
+    #  missingFixtureLoud (joined the seal 2026-11-07): a name that resolves nowhere FAILS BY NAME, as pop.sh's does
+    printf '  FAIL  fixture MISSING: %s -- not in incant, incant/pop, incant/pop/jit, incant/fixits\n' "$1" >&2
+    mkdir -p "$T" && : > "$T/.missingFixture.$1"
     printf '%s\n' "incant/$1"
 }
 
@@ -59,6 +62,14 @@ pixel () {
         echo "  FAIL  $1 -- NO pixelAt line $3 for $4 at all (the read never ran)"; fail=1
     elif [ "$_got" = "$5" ]; then echo "  ok    $1 ($_got)"; green=$((green+1))
     else echo "  FAIL  $1 -- got [$_got] want [$5]"; fail=1; fi
+}
+#  _ofeq / fdRow -- pop.sh's two row helpers, carried with the drawing rows that moved here (2026-11-07). fdRow pins today's
+#  value beside the intended one: green when they agree, "born red" while today still reads the pinned value.
+_ofeq () { if [ "$2" = "$3" ]; then echo "  ok    $1 = [$3]"; green=$((green+1)); else echo "  FAIL  $1 -- got [$2] want [$3]"; fail=1; fi; }
+fdRow () {
+    if [ "$2" = "$4" ]; then echo "  ok    $1 = [$2]"; green=$((green+1))
+    elif [ "$2" = "$3" ]; then echo "  FAIL  $1 born red (SEQ 345): today [$2], intended [$4]"; fail=1
+    else echo "  FAIL  $1 MOVED: reads [$2], pinned today [$3], intended [$4]"; fail=1; fi
 }
 hasmark () {                    # hasmark <name> <file> <text>
     if grep -qF "$3" "$2"; then echo "  ok    $1"; green=$((green+1))
@@ -130,6 +141,31 @@ hasmark "degrade count 0 (nothing fell through to emit-time)" "$T/j.o" \
         "jitDegrade count = 0"
 hasmark "exactly one compile across both fires" "$T/j.o" "jitCompile count = 1"
 
+echo ""
+echo "-- the page: step 1 toward the first PDF (moved from pop.sh, 2026-11-07, Tony: drawing rows live here)."
+#  ⚑ fillPageT -- step 1 toward the first PDF (Tony, 2026-11-07, SEQ ___ R1): the top field opens one context; fill draws into it at
+#  page coordinates for the top and every child; the y flip is set once, on the top context. PINNED BEFORE THE BUILD, born red.
+#  FP-5 and FP-6 are a pair on one field: with the flip removed they swap. The refusal count sits beside the child pixels.
+_fpF=$(ip fillPageT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_fpF" > "$T/fp.o" 2> "$T/fp.e"; _fpx=$?
+_fpp () { grep -h '^=== pixelAt '"$1"' ' "$T/fp.o" "$T/fp.e" 2>/dev/null | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+_ofeq "fillPageT exit / sentinel" "$_fpx $(grep -c '^FILLPAGE SENTINEL' "$T/fp.e")" "0 1"
+fdRow "fillPageT FP-1 firstLight at (300,450) paints wall at its own top-left, page (5,5)" "$(_fpp firstLight)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
+fdRow "fillPageT FP-2 a child, words, paints white inside its frame, page (5,100)" "$(_fpp words)" "" "r255 g255 b255 a255/"
+fdRow "fillPageT FP-3 just above words, page (5,29), reads wall: the child's fill stays inside" "$(_fpp heading)" "" "r247 g232 b170 a255/"
+fdRow "fillPageT FP-4 just below words, page (5,166), reads wall" "$(_fpp bar)" "" "r247 g232 b170 a255/"
+fdRow "fillPageT FP-5 the flip: the band at the top of the form paints the top of the bitmap, page (5,2)" "$(_fpp fpBand)" "" "r175 g211 b120 a255/"
+fdRow "fillPageT FP-6 the flip's pair: the bottom of the form reads wall, page (5,97)" "$(_fpp fpRest)" "" "r247 g232 b170 a255/"
+#  FP-7 (SEQ ___ R0 rider 2): the display is handed down as a property (+<), so the form's definition is unchanged: a child's list length before and after makeDisplay.
+_fpl () { grep "^FP LEN $1 " "$T/fp.e" | sed "s/^FP LEN $1 *//" | xargs; }
+fdRow "fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay" "$(_fpl words) / $(_fpl bar)" "6 7 / 7 8" "6 6 / 7 7"
+fdRow "fillPageT a child takes the top's context: no child refuses no display" "$(grep -c 'REFUSING .* no display' "$T/fp.e")" "2" "0"
+
+#  missingFixtureFoot every fixture a row ran must have existed
+for _mf in "$T"/.missingFixture.*; do
+    [ -e "$_mf" ] || continue
+    echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
+done
 echo ""
 #  RULE H2 TURNED ON THE HARNESS ITSELF. A green count is a tally of the checks
 #  that RAN; a check that evaporates because a helper went missing is INVISIBLE
