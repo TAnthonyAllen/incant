@@ -101,3 +101,7 @@ Ranked as ruled: fleet reach, then native.
 ## Fleet coverage worth knowing
 
 **Refusal arms no fleet row reaches:** If's then and else, the statement arm of WHILe, Do and FOr (all four reached in scratch), and ITERATe's cursor and source (not reached in scratch either). A certificate for those rules needs rows for them.
+
+## Added 2026-11-07, after FOr's certificate (SEQ 557)
+
+**Point 3 above has moved. With F-147 cured, a refused child now does reach the hand-back.** Measured on FOr: `for lp in qa qb + 1; ...` raises a real refuse() at the attach, in a handed-over statement, so the compiled body leaves with a boxed count and the guard adds its line. The value and the other refusals match interpreted; it is one extra `REFUSED FOr -- a compiled rule handed back a count` line, pinned by ruleForT's RF-O. If, ELSEIf, WHILe, Do and BRANCh have the same shape, read and not run, because compiling them here would open them. So by this census's own test they now meet "a refusal can reach the hand-back". Whether that moves them to the F-146 group, or stays in the safe group with the line pinned as FOr's is, needs a ruling before If.
