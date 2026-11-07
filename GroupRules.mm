@@ -9371,6 +9371,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// storeRuling an armed statement stores nothing
 	if ( ruler->refused )
 		return 0;
+	// nullAttach an operand that is nothing refuses by name and ends its unit; a refused child hands up nothing, and every rule attaching it lands here (F-147)
+	if ( !argument )
+		return ::refuse(target,"Operator +% -- an operand that is nothing");
 	// listHolderUnwraps a list entry that is a holder attaches its CONTENT, one level -- a dated exception to the star law (Tony, 2026-10-22, SEQ 399); the list arm only
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->next(grup) )

@@ -909,6 +909,37 @@ _ofeq "refusedCondT rows ran (11 of 11)" "$_rcn" "11"
 fi
 
 #  ============================================================================
+#  ⚑ ruleForT -- SEQ 557 (Tony, 2026-11-07): FOr compiled through the rule door. Per row one process interpreted and one with jitterRule(FOr);,
+#  by value, by exit and sentinel, with the walk line (native 2 handed 16) and the fired count asserted by value. Stderr is compared too, the
+#  witnesses and the guard's own line aside, and the guard's line is pinned per row.
+_rfF=$(ip ruleForT)
+_rfe () { grep -v '^=== jitter rule\|^RF SENTINEL\|a compiled rule handed back a count\|^ *$' "$1" | tr '\n' '|'; }
+_rfrun () {  # name  arm-line  statements
+    { cat "$T/rf.pre"; [ -n "$2" ] && printf '%s\n' "$2"; printf '%s\nprint "NEXT":;\ncerr "RF SENTINEL":;\nstop();\n' "$3"; } > "$T/rf.$1.k"
+    perl -e 'alarm 30; exec @ARGV' "$B" "$T/rf.$1.k" > "$T/rf.$1.o" 2> "$T/rf.$1.e"; echo $? > "$T/rf.$1.x"
+}
+if [ -f "$_rfF" ]; then
+sed '/^stop();/,$d' "$_rfF" > "$T/rf.pre"
+grep '^RF-[0-9A-Z]*|' "$_rfF" > "$T/rf.list"
+_rfn=0
+while IFS='|' read -r _id _f _g _ref _st _pin; do
+    _rfn=$((_rfn+1)); _pin="${_pin%|}"; [ -n "$_pin" ] && _pin="$_pin|"
+    _rfrun "$_id.i" "" "$_st"
+    _rfrun "$_id.c" "jitterRule(FOr);" "$_st"
+    _ofeq "ruleForT $_id interpreted exit, sentinel" "$(cat "$T/rf.$_id.i.x") $(grep -c '^RF SENTINEL' "$T/rf.$_id.i.e")" "0 1"
+    _ofeq "ruleForT $_id compiled exit, sentinel" "$(cat "$T/rf.$_id.c.x") $(grep -c '^RF SENTINEL' "$T/rf.$_id.c.e")" "0 1"
+    _ofeq "ruleForT $_id interpreted value" "$(_rdv "$T/rf.$_id.i.o")" "${_pin}NEXT |"
+    _ofeq "ruleForT $_id compiled = interpreted, stdout" "$(_rdv "$T/rf.$_id.c.o")" "$(_rdv "$T/rf.$_id.i.o")"
+    _ofeq "ruleForT $_id compiled = interpreted, stderr" "$(_rfe "$T/rf.$_id.c.e")" "$(_rfe "$T/rf.$_id.i.e")"
+    _ofeq "ruleForT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: FOr built 1 fired $_f ===" "$T/rf.$_id.c.e")" "1"
+    _ofeq "ruleForT $_id old-road walk line: native 2 handed 16" "$(grep -c '^=== jitter rule walk: FOr native 2 handed 16 ===' "$T/rf.$_id.c.e")" "1"
+    _ofeq "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g"
+    if [ -n "$_ref" ]; then _ofeq "ruleForT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/rf.$_id.i.e") $(grep -c "^$_ref" "$T/rf.$_id.c.e")" "1 1"; fi
+done < "$T/rf.list"
+_ofeq "ruleForT rows ran (12 of 12)" "$_rfn" "12"
+fi
+
+#  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today
 #  `while ++ic` on a cursor that is not an iterator counts forever (++ on a never-assigned field counts on the new road).
