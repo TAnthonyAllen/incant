@@ -41,6 +41,8 @@ GroupItem   grup,
             //  noBuildRun a statement that could not be emitted without running something at build -- or whose emit refused --
             //  is rolled back and emitted as ONE run-time call; an operand already handed over alone counts (SEQ 384, SEQ 372 R2)
             -% if ( ruler->refused ) { if ( !gJitStmtRTDone ) gJitHandOver = true; ::clearRefusal(grup); } %-
+            //  oldWalkCount the function's own statements only, read before jitStmtEnd pops the mark and restores the flag (SEQ 554 R3)
+            -% if ( gJitStmtMarks.size() == 1 ) { if ( gJitHandOver ) gJitOldHanded++; else gJitOldNative++; } %-
             -% ::jitStmtEnd(grup); %-
             -% jitStoreResult(); %-
             //  A3 + the statement-local gate: the check is emitted only for a

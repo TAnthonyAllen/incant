@@ -595,9 +595,17 @@ inline JitCacheSlot *jitCacheFind(GroupBody *b) {
 // so the exit report needs no live node.
 inline int gJitter = 0;
 inline int (*gJitterFn)(GroupItem*) = nullptr;
-struct JitterTally { GroupBody *body; std::string tag; int built; int called; bool notJittable; };
+struct JitterTally { GroupBody *body; std::string tag; int built; int called; bool notJittable; int fired; };
 inline std::vector<JitterTally> gJitterTally;
 
+//  THE RULE DOOR (SEQ 554). `jitterRule(X);` is gJitterRules' one writer, and only a rule on this list runs compiled:
+//  processAction's door asks here, so `jitter;` alone opens no rule fire. The two counters are the old-road walk line's,
+//  one function's own statements, zeroed per build (R3).
+inline std::vector<GroupBody*> gJitterRules;
+inline bool jitterRuleOpted(GroupBody *b) {
+    for (GroupBody *r : gJitterRules) if (r == b) return true;
+    return false; }
+inline int gJitOldNative = 0, gJitOldHanded = 0;
 inline JitterTally *jitterTallyFind(GroupBody *b) {
     for (JitterTally &t : gJitterTally) if (t.body == b) return &t;
     return nullptr;

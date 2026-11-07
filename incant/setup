@@ -52,6 +52,7 @@ define
     isRule immediateAction=processFlags noPrint;
     jitRefire immediateAction=jitRefire;
     jitter immediateAction=jitter;
+    jitterRule immediateAction=jitterRule;
     probeDrive immediateAction=probeDrive;
     probeSweep immediateAction=probeSweep;
     jitFieldMethod immediateAction=jitFieldMethod;

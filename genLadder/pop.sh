@@ -834,6 +834,61 @@ else echo "  FAIL  forT MISSING"; fail=1
 fi
 
 #  ============================================================================
+#  ⚑ ruleDoorT -- SEQ 554 (Tony, 2026-11-07): ITERATe compiled through the rule door. Per row one process interpreted and one with
+#  jitterRule(ITERATe);, by value against each other AND the pin, by exit and sentinel. The native count and the per-fire count are
+#  asserted by value: compiled = interpreted alone would pass with the interpreted road doing all the work.
+_rdF=$(ip ruleDoorT)
+_rdv () { grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'; }
+_rdrun () {  # name  arm-line  statements
+    { cat "$T/rd.pre"; [ -n "$2" ] && printf '%s\n' "$2"; printf '%s\ncerr "RD SENTINEL":;\nstop();\n' "$3"; } > "$T/rd.$1.k"
+    perl -e 'alarm 30; exec @ARGV' "$B" "$T/rd.$1.k" > "$T/rd.$1.o" 2> "$T/rd.$1.e"; echo $? > "$T/rd.$1.x"
+}
+if [ -f "$_rdF" ]; then
+sed '/^stop();/,$d' "$_rdF" > "$T/rd.pre"
+grep '^RD-[0-9]*|' "$_rdF" > "$T/rd.list"
+_rdn=0
+while IFS='|' read -r _id _st _pin; do
+    _rdn=$((_rdn+1)); _pin="${_pin%|}|"
+    _rdrun "$_id.i" "" "$_st"
+    _rdrun "$_id.c" "jitterRule(ITERATe);" "$_st"
+    _ofeq "ruleDoorT $_id interpreted exit, sentinel" "$(cat "$T/rd.$_id.i.x") $(grep -c '^RD SENTINEL' "$T/rd.$_id.i.e")" "0 1"
+    _ofeq "ruleDoorT $_id compiled exit, sentinel" "$(cat "$T/rd.$_id.c.x") $(grep -c '^RD SENTINEL' "$T/rd.$_id.c.e")" "0 1"
+    _ofeq "ruleDoorT $_id interpreted value" "$(_rdv "$T/rd.$_id.i.o")" "$_pin"
+    _ofeq "ruleDoorT $_id compiled = interpreted" "$(_rdv "$T/rd.$_id.c.o")" "$(_rdv "$T/rd.$_id.i.o")"
+    _f=1; case "$_id" in RD-6|RD-7) _f=2;; esac
+    _ofeq "ruleDoorT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: ITERATe built 1 fired $_f ===" "$T/rd.$_id.c.e")" "1"
+    _ofeq "ruleDoorT $_id old-road walk line: native 6 handed 17" "$(grep -c '^=== jitter rule walk: ITERATe native 6 handed 17 ===' "$T/rd.$_id.c.e")" "1"
+done < "$T/rd.list"
+_ofeq "ruleDoorT rows ran (9 of 9)" "$_rdn" "9"
+#  jitter; ALONE does not open a rule fire (R1): BRANCh, opted in and never fired, proves the report printed; ITERATe has no line
+_rdrun jA 'jitter; jitterRule(BRANCh);' 'it1 = STARt("iterate ic attributes on fm; while ++ic; print *ic:;"); testOP(it1);'
+_ofeq "ruleDoorT jitter; alone: value" "$(_rdv "$T/rd.jA.o")" "7 |8 |"
+_ofeq "ruleDoorT jitter; alone: the report printed, nothing fired" "$(grep -c '^=== jitter rule: BRANCh built 0 fired 0 ===' "$T/rd.jA.e")" "1"
+_ofeq "ruleDoorT jitter; alone: ITERATe did not go through the door" "$(grep -c 'ITERATe' "$T/rd.jA.e")" "0"
+#  the opt-in refuses what is not a rule, by name, and the run goes on
+_rdrun nR 'jitterRule(fa);' 'print "next":;'
+_ofeq "ruleDoorT jitterRule on a non-rule refuses by name" "$(grep -c '^REFUSED fa -- jitterRule: not a rule' "$T/rd.nR.e") $(_rdv "$T/rd.nR.o")" "1 next |"
+#  THE R2 GUARD'S REACH: three scratch rules, because ITERATe cannot reach it. Preset it1 so a fire that adopts something shows it
+_rdg () {  # rule  interpreted-read  compiled-read  guard-lines
+    _s="it1 = \"untouched\"; it1 = $1(\"abc\"); print \"ANS\" it1:;"
+    _rdrun "g$1.i" "" "$_s"
+    _rdrun "g$1.c" "jitterRule($1);" "$_s"
+    _ofeq "ruleDoorT guard $1 interpreted" "$(_rdv "$T/rd.g$1.i.o")" "$2"
+    _ofeq "ruleDoorT guard $1 compiled" "$(_rdv "$T/rd.g$1.c.o")" "$3"
+    _ofeq "ruleDoorT guard $1 guard lines" "$(grep -c "^REFUSED $1 -- a compiled rule handed back a count" "$T/rd.g$1.c.e")" "$4"
+    _ofeq "ruleDoorT guard $1 went through the door" "$(grep -c "^=== jitter rule: $1 built 1 fired 1 ===" "$T/rd.g$1.c.e")" "1"
+}
+_rdg KEEPs   "ANS untouched |" "ANS untouched |" 0
+_rdg REFUSEs "ANS untouched |" "ANS untouched |" 1
+_rdg FELLOFf "ANS 1 |"         "ANS untouched |" 1
+#  KEEPs' label keeps its word on both arms: the return handed back the label, and the fire adopted it
+_rdrun kI "" 'it1 = "untouched"; it1 = KEEPs("abc"); dumpContents(it1);'
+_rdrun kC "jitterRule(KEEPs);" 'it1 = "untouched"; it1 = KEEPs("abc"); dumpContents(it1);'
+_ofeq "ruleDoorT KEEPs' label carries its term, interpreted" "$(grep -c 'word=abc' "$T/rd.kI.o")" "1"
+_ofeq "ruleDoorT KEEPs' label carries its term, compiled" "$(grep -c 'word=abc' "$T/rd.kC.o")" "1"
+fi
+
+#  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today
 #  `while ++ic` on a cursor that is not an iterator counts forever (++ on a never-assigned field counts on the new road).
