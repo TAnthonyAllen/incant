@@ -107,3 +107,25 @@ The alternative is one stroke with the movers registered up front: larger, and e
 ## 9. STOP conditions
 
 **None fires.** No frame-model change: rule locals are already on fields, and action locals use the existing flush. No new ruler slot: stroke 1's flag is file-scope, beside `gJitter`. No new slot kind: `:=` targets are already kind 6, and `+%` writes no scalar.
+
+## 10. Built: stroke 1, SEQ 559, branch `rule-operators` (1536cf48), measured 2026-11-07
+
+Opted-in rules only, on the old road, as ruled. `gJitRuleOperators` is **scaffolding**: stroke 2 (everywhere plus the walk) removes it.
+
+| what read differently from this recon | what it was |
+|---|---|
+| **ITERATe reads 15 / 8, registered 14 / 9.** FOr reads 9 / 9 as registered | Section 6 said `if *ITERSOURCe[...]` writes `source`, so `iterArms +% *source` stays handed. The if hands over at its condition, so its arm is never walked, its write never noted, and that statement goes native. It reads `source` at run time, so it is right either way: RD-5, a starred source, reads 1 2 3 |
+| **A refuse in a native call did not end the rule.** Not in this recon | `jitEmitRefusedCheck` covers inlined bodies only. A native `+%` that refused carried on, reached `return *actionLabel` and **adopted the label where interpreted adopts nothing**, with the same stdout. ruleForT's pinned guard line caught it. Cured in `jitRuleOperator`: it branches to the epilogue, as a handed-over statement does. A new row reads what is adopted |
+| **`**x` was wrong in actions today, not only in a rule.** Section 3 read it as never shown | `dv = **dh2` with holders set at the top level printed `dbl dv` on trunk, a tag echo at degrade 0. It reads 6 now. This fix is not behind the flag, by R2 |
+
+**H7, each by single fixtures, restored md5-identical:**
+
+| removed | ITERATe | FOr | values |
+|---|---|---|---|
+| `+%` | 11 / 12 | 6 / 12 | right |
+| `:=` | 6 / 17 | 2 / 16 | right |
+| `copyOf` | 10 / 13 | 8 / 10 | right |
+| the deref fix | 15 / 8 | 9 / 9 | **gone**: every RD and RF value empty, DBLs empty, dblAct `dbl dv` |
+| the refusal exit (extra) | 15 / 8 | 9 / 9 | right, but **RF-O adopts the label**, its new row red |
+
+**The census's native column is not recomputed.** Doing so means compiling rules this dispatch does not name. Section 6's predictions stand as predictions, with ITERATe's miss noted.
