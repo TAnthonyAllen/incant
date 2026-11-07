@@ -8973,6 +8973,23 @@ _fcr () { /usr/bin/time -l perl -e 'alarm 60; exec @ARGV' "$B" "$1" 2>&1 >/dev/n
 _fcA=$(_fcr "$T/fc0"); _fcB=$(_fcr "$_fcF")
 _ofeq "fillCostT anti-vacuity: both loops ran" "$( [ -n "$_fcA" ] && [ -n "$_fcB" ] && [ "$_fcA" -gt 1000000 ] && echo ran)" "ran"
 fdRow "fillCostT bytes each colour parse costs" "$(( ( (_fcB - _fcA) / 1000000 + 4 ) / 8 * 8 ))" "32" "0"
+#  ⚑ fillPageT -- step 1 toward the first PDF (Tony, 2026-11-07, SEQ ___ R1): the top field opens one context; fill draws into it at
+#  page coordinates for the top and every child; the y flip is set once, on the top context. PINNED BEFORE THE BUILD, born red.
+#  FP-5 and FP-6 are a pair on one field: with the flip removed they swap. The refusal count sits beside the child pixels.
+_fpF=$(ip fillPageT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_fpF" > "$T/fp.o" 2> "$T/fp.e"; _fpx=$?
+_fpp () { grep -h '^=== pixelAt '"$1"' ' "$T/fp.o" "$T/fp.e" 2>/dev/null | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+_ofeq "fillPageT exit / sentinel" "$_fpx $(grep -c '^FILLPAGE SENTINEL' "$T/fp.e")" "0 1"
+fdRow "fillPageT FP-1 firstLight at (300,450) paints wall at its own top-left, page (5,5)" "$(_fpp firstLight)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
+fdRow "fillPageT FP-2 a child, words, paints white inside its frame, page (5,100)" "$(_fpp words)" "" "r255 g255 b255 a255/"
+fdRow "fillPageT FP-3 just above words, page (5,29), reads wall: the child's fill stays inside" "$(_fpp heading)" "" "r247 g232 b170 a255/"
+fdRow "fillPageT FP-4 just below words, page (5,166), reads wall" "$(_fpp bar)" "" "r247 g232 b170 a255/"
+fdRow "fillPageT FP-5 the flip: the band at the top of the form paints the top of the bitmap, page (5,2)" "$(_fpp fpBand)" "" "r175 g211 b120 a255/"
+fdRow "fillPageT FP-6 the flip's pair: the bottom of the form reads wall, page (5,97)" "$(_fpp fpRest)" "" "r247 g232 b170 a255/"
+#  FP-7 (SEQ ___ R0 rider 2): the display is handed down as a property (+<), so the form's definition is unchanged: a child's list length before and after makeDisplay.
+_fpl () { grep "^FP LEN $1 " "$T/fp.e" | sed "s/^FP LEN $1 *//" | xargs; }
+fdRow "fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay" "$(_fpl words) / $(_fpl bar)" "6 7 / 7 8" "6 6 / 7 7"
+fdRow "fillPageT a child takes the top's context: no child refuses no display" "$(grep -c 'REFUSING .* no display' "$T/fp.e")" "2" "0"
 #  ⚑ fillReadT -- a reader for fill= (SEQ 547 recon, SEQ 549 R0-R3). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The field's own fill first, then its style's fillColor; a # value parsed where it sits, on both; any other plain value looked up by name at draw, a miss refusing by name; fill not inherited.
 _frF=$(ip fillReadT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_frF" > "$T/fr.o" 2> "$T/fr.e"; _frx=$?
