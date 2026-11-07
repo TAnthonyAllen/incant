@@ -256,7 +256,6 @@ define
          Should modify to check for noRoom and bail if there aint none
     ***************************************************************************/
     setFrame code={
-        print "Setting frame for" taG:;
         =:argument across down width height x y;
         if across.datA != 0;
             if down.datA != 0;
@@ -338,7 +337,6 @@ define
             *grup :% copyOf(x);
             if across.datA == 0;    pY += height;
             else                    pX += width;
-        dumpContents(argument);
         for grup in argument; members
             if *grup.hasMemberS;
                 setFrame(*grup);
