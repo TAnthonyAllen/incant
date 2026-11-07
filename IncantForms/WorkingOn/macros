@@ -433,3 +433,4 @@ chainOP: testOP written in kant (Tony's idea, 2026-11-03; shape SEQ 515 R1). Aft
 FORMS ORDER (Tony, offline status 2026-11-07, via Clay, R2): firstLight drawn to PDF, then the descriptions form. descriptions has a relatively simple layout and tries to explain how it is supposed to work; if the explanation is unclear, fix it. THE DATA RECON ABOVE IS WITHDRAWN until a form needs it.
 
 setFrame IN utilities (Tony, 2026-11-07): tester's fillDownAcross, bothDirections and setFrame replaced utilities' definitions, verbatim. The second-run recon reads utilities, not tester (R3).
+SECOND RUN, DEFERRED (Tony, 2026-11-07, R0): A or B is not chosen. The first PDF lays out the original form once. How a second run and a resize are addressed is discussed with Clay and comes back as its own dispatch. The PDF steps: docs/firstLightPdfRecon.md, Tony picks the first.

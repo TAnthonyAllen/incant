@@ -76,3 +76,5 @@ shape above except the declared percent, which A keeps intact. B's cost is paid 
   trace's own reading, not setFrame's. The fleet's simple and sample have no zero coordinate.
 - The certificate row the spec registered, "a resize to 400 reads 200 and the declared 50% is still there", reads 100,
   with the bit gone, today.
+
+**Ruled 2026-11-07 (Tony, R0): A or B is NOT chosen.** The first PDF lays out the original form once; the second run and resize are discussed with Clay and come back as their own dispatch. Clod's lean above stands as a lean only.

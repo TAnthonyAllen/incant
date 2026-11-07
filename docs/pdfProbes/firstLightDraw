@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+include(firstLightFile);
+registry(cOMMANDs);
+define makeDisplay    immediateAction=makeDisplay; ;
+define displayFillRT  immediateAction=displayFillRT; ;
+define pixelAt        immediateAction=pixelAt; ;
+register(FlProbe);
+define
+    flPx code={
+        px = 5; py = 5;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    flOrigin fill=wall x=0 y=0 width=400 height=200;
+    ;
+search FlProbe FORMs UnitTests Utilities cOLOr fONTs list;
+setFrame(firstLight);
+print "FRAMES":;
+tsfLine(firstLight);
+print "AFTER FRAMES":;
+cerr "M1 makeDisplay":;
+makeDisplay(firstLight);
+cerr "M2 fill top":;
+displayFillRT(firstLight);
+cerr "M3 set px":;
+flPx(firstLight);
+flPx(flOrigin);
+makeDisplay(flOrigin);
+displayFillRT(flOrigin);
+pixelAt(flOrigin);
+cerr "M4 pixelAt":;
+pixelAt(firstLight);
+cerr "M5 fill child":;
+displayFillRT(firstLight["heading"]);
+cerr "M6 fill words":;
+displayFillRT(firstLight["words"]);
+cerr "FL SENTINEL":;
+stop();
+
+firstLight to PDF recon probe (2026-11-07, docs/firstLightPdfRecon.md). Run from Groups: ~/bin/incant docs/pdfProbes/firstLightDraw
+Frames on stdout (tsfLine); markers, refusals and pixels on stderr. flOrigin is the control: the same size and fill at 0,0.
