@@ -2993,18 +2993,23 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> **`printPop.sh`** · `incant/frontier` (run once) · **`genLadder/dirCheck.sh` AT SHUTDOWN SEALS ONLY** (every directive still
+> **`printPop.sh`** · **`genLadder/formsPop.sh`** (the drawing surface, by pixel) · `incant/frontier` (run once) · **`genLadder/dirCheck.sh` AT SHUTDOWN SEALS ONLY** (every directive still
 > injects; then the tree is retokked bare -- SEQ 455 R2; any other seal carries the stroke's anchor line instead) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
 > ⚠⚠ **EVERY SCRIPT THE CHECKLIST RUNS IS EXECUTABLE IN GIT, CHECKED WITH ONE COMMAND (Tony, standing, SEQ 285
 > R6, 2026-10-03):** `git ls-files -s genLadder/pop.sh jitLadder/ladder.sh genLadder/decodePop.sh genLadder/ddPop.sh
-> genLadder/printPop.sh genLadder/fixitNag.sh genLadder/dirCheck.sh | grep -v '^100755'` must print nothing. Any that print get
+> genLadder/printPop.sh genLadder/fixitNag.sh genLadder/dirCheck.sh genLadder/formsPop.sh | grep -v '^100755'` must print nothing. Any that print get
 > `git update-index --chmod=+x` and are named in the seal. **Why it kept recurring:** no commit ever stripped a bit.
 > jitLadder, printPop and decodePop were CREATED 100644 and stayed that way, so the bit lived only on disk, and any
 > write git makes (checkout, bisect, clone) lays the file down non-executable. The 2026-09-23 in-place bisect rewrote
 > 131 files at 15:19, and the 100644 scripts among them are exactly the ones that lost the bit. A script joins this
 > line when it joins the checklist.
+>
+> ⚠⚠ **`formsPop.sh` JOINED THE SEAL 2026-11-07 (Tony), WITH ONE ROW RED AND BANKED BY NAME:** `degrade count 0`, dsFillJ's,
+> red since SEQ 384 (2026-10-19), docketed F-149 (`docs/fixIts.md`). It is the drawing surface's own pop and was on no
+> checklist, so that row went red for three weeks unseen: the countPop and printPop pattern again. Its capture is
+> `docs/sealCaptures/formsPop.txt`; a seal reads it row for row, and F-149's row turning green is a change to report.
 >
 > ⚠⚠ **`countPop.sh` LEFT THE SEAL 2026-10-02 (SEQ 260 R3), RETIRED BY MAPPING to `parserCoverage`.** Its
 > scorer had been dead since 2026-09-08 and its scaffold since stroke 3, so for weeks it was recorded "row for
