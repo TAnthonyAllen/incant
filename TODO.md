@@ -531,7 +531,10 @@ projectBible.md "Phase Generate Tawk".
      and jitXscRT's two refusals. Its VALUE is right (fault A / fault B run it interpreted), so it is docket, not a fixit.
   5. **A KANTGRAMMAR ACTION UNDER THE OLD-ROAD JIT (SEQ 553 R0, 2026-11-07).** The first jitterized kantGrammar action is compiled
      by the old-road jit from its existing body; the rebuild as a new-road chain is a later stroke, recorded and not scheduled.
-     Recon: `docs/ruleJitRecon.md`. Built on branch `rule-door` (SEQ 554), the buy is Tony's. Next, unscheduled: a census, then opening the gate wider; F-146.
+     Recon: `docs/ruleJitRecon.md`. Bought (SEQ 555, merge aa25fc3c). The order for the rest: `docs/ruleJitCensus.md`; F-146, F-147.
+     - Rule-door bought. Tony, 2026-11-07: rule-door (70ec82dd) is bought, so ITERATe runs compiled through jitterRule, and the morning goal is reached. F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to F-146's cure.
+     - One rule at a time. Tony, 2026-11-07: rule compiling widens one rule per stroke, safest first, in the order the census sets (docs/ruleJitCensus.md). No dispatch offers an open option to compile more than it names.
+     - Foreign calls, shape (C). Tony, 2026-11-07, with the details left to Clay and Clod: kant calls a C++ floor method with one request group, on both roads. groups.ext records each floor method's typed parameters as it is built, so the jitter can read them later and emit a direct typed call. A request is built fresh per call and carries no state between calls. Results are written into the request (for example req.fit); the call answers true or false, and a failure refuses by name. There is no multi-argument call syntax; f(a, b) stays with the comma docket item. Nothing is built for this now: the first floor methods written this way come with the PDF stroke.
 
 - [ ] **parseR -- a road anyone uses, or a cleanup candidate? Tony's call.** (Docketed 2026-10-04, SEQ 290 R5, no
   action.) Its only entry is a kant rule called with a field that has no data (driveStep's no-data arm). Before

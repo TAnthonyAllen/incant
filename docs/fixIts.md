@@ -92,12 +92,22 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-147 — refusedConditionCrash: a refused condition or value crashes the new road's build, interpreted, at exit 139
+
+**What:** a rule that reads a child EXPRESSIOn which refused gets null from `**EXPRESSIOn`, attaches it, and dies. `if qa qb + 1; print 1:;` prints `REFUSED + -- a list of adjacent operands ...` and then exits 139, with every later statement gone.
+**Where:** kantGrammar's If (`ifArms +% *cond`), and the same shape in ELSEIf (its action), WHILe, Do, FOr's source, BRANCh's return value, INVOKEr's argument. The crash is in `opAddAttribute`, argument null. **New road only** (kant build); the old road not measured for this. Not a compile defect: no jitter involved.
+**Evidence:** measured 2026-11-07, `testing`-free scratch parses at each rule's root and through STARt: exit 139 on all seven; the then, else and statement arms of the same rules refuse cleanly at exit 0, because they already check.
+**Done when:** each reads and refuses by name, as the arm checks do, with rows at each rule, in both grammars' fleet. Blocks a compiled-equals-interpreted row on that shape (`docs/ruleJitCensus.md`).
+**Owner:** unassigned, for Tony's ruling. **Size:** small per rule; one arm each.
+**Attempt log:** none.
+
 ### F-146 — DOCKETED (Tony, SEQ 554 R2, 2026-11-07) — compiledRuleEnding: a compiled rule can only hand back its label, so a refusal, running off the end, and a label holding a count all end in the guard's refusal
 
 **What:** a rule compiled through the door (`jitterRule(X);`) that refuses mid-body or runs off its end finishes with return kind 1, a boxed count. The door's guard refuses by name and adopts nothing, so nothing wrong is adopted, but the rule does not match the interpreted road: running off the end interpreted adopts the last statement's value. Separately, read and not run: `jitStmtRTValueRT` follows a returned holder and boxes it if what it holds is a count, so a compiled `return *actionLabel` over a count-holding label would hit the same guard. `EXPRESSIOn` is the rule that can (`instruct = kind`, kantGrammar:554).
 **Where:** `GroupActions.rtn` processAction's door (`ruleDoorGuard`); `jitEmitters.rtn` `jitStmtRTValueRT`, and the kind 1 start in `jitBuildFunction`. Branch `rule-door` until bought.
 **Evidence:** `incant/pop/ruleDoorT`'s RG rows in pop.sh: FELLOFf interpreted reads `ANS 1`, compiled `ANS untouched` with one guard line; REFUSEs reads `ANS untouched` on both, compiled with one guard line. H7: guard removed, FELLOFf compiled reads `ANS 1`.
 **Done when:** a compiled rule ends every way the interpreted one does, and the guard is deleted or unreachable, with FELLOFf's compiled row re-pinned. Needed before `EXPRESSIOn` or a wider gate.
+**Tony, SEQ 555:** F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to its cure. Branch merged (aa25fc3c). Blocked rules, per the census: XPRESs, INVOKEr, TOPSTATEMENt, EXPRESSIOn.
 **Owner:** Clod, when the gate widens. **Size:** not known.
 **Attempt log:** none.
 

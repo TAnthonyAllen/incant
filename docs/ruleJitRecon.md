@@ -137,3 +137,5 @@ Rulings as section 5, with Clay's addition: a per-fire count, so that compiled e
 - **The guard's reach:** ITERATe cannot reach it, as the recon said. It is driven from the fleet by three scratch rules in the fixture.
 - **Not reached:** ITERATe's two `REFUSED ITERATe` arms. `iterate 5 on fsrc;` and `iterate ic on 5;` do not take them, interpreted, so no row pins them.
 - **Fleet:** see seal 363. Everything outside these rows is unmoved but for an address (H3), the fixture-name count and the groups.ext mirror count, both bookkeeping.
+
+**Bought 2026-11-07 (SEQ 555, merge aa25fc3c).** The next rules' order is `docs/ruleJitCensus.md`.
