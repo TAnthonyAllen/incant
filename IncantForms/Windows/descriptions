@@ -1,9 +1,7 @@
 Start();
 include(unitTests);
-include(generate);
 include(utilities);
-initFORMs();
-search Generating list;
+search dESCRIPTIONs list;
 
 register(dESCRIPTIONs);
 define
@@ -37,5 +35,4 @@ define
                 describeHelp describe="This is the default text description when nothing is selected" bordered normalFont pad=5 fill=lightGreen;
     ;
 
-printDefinition(webViewExample);
 stop();
