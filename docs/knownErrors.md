@@ -467,6 +467,8 @@ deliberately, since the expected values are exactly what this entry asks Tony to
 
 # KE-5 — `&&` ANSWERS `true && true` AS **false**. The symbol form of AND is not a truth table.
 
+**When the recon opens (Tony, 2026-11-07):** the jitter's interaction with the collector comes first: baked GroupItem addresses in JIT code memory, which the collector does not scan.
+
 **Filed 2026-08-11**, during the AND/OR rung, on Clay's SEQ 32 instruction to file rather than
 widen. **Deliberately NOT repaired** — the rung is scoped to the **word** forms, and widening
 tier 3 to the symbols is a ruling, not a rung.
