@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-149 — DOCKETED (Tony, SEQ ___ R0, 2026-11-07) — jitAwareCommandHandedOver: displayFill's own jit emitter is never reached; the call runs at run time
+
+**What:** `displayFill` is a jit-aware command: under jitting it emits a native call to displayFillRT (`jitEmitFill`). Since SEQ 384 R1 (`b258208e`, 2026-10-19) `jitOpEmits` decides before dispatch whether a call emits, and for a command it admits only `jitTrace`. So `displayFill` is handed over: `JIT DEGRADE #1: a command call -- its statement runs at RUN time ... displayFill`, `jitDegrade count = 1`. The pixels stay right (the statement runs per fire, at run time); what is lost is the native emit.
+**Where:** `jitEmitters.rtn` jitOpEmits, the command branch (`return (void*)tb->gMethod == (void*)&jitTrace;`); `displayFill`'s gate, `jitEmitters.rtn:43`.
+**Evidence:** measured 2026-11-07 on trunk's binary and on fill-page's alike: `genLadder/formsPop.sh` 13 green, 1 red, the dsFillJ row "degrade count 0" (marker `jitDegrade count = 0` absent). formsPop is not on the seal checklist, which is why it went unseen for three weeks. The fill-page step did not move it.
+**Done when:** dsFillJ reads `jitDegrade count = 0` and its two fires keep their pixels, with an H7: the command's admission removed, the degrade returns. A likely shape is a list of jit-aware commands beside jitTrace; not ruled.
+**Owner:** Clod, when Tony rules it in. **Size:** probably one line, not measured.
+**Attempt log:** none.
+
 ### F-148 — DOCKETED (Tony, 2026-11-07) — refusalNamesTheList: F-147's refusal names the internal list, not the rule and the part that refused
 
 **What:** `REFUSED ifArms -- Operator +% -- an operand that is nothing` names kantGrammar's internal list. It should name the rule and the part that refused, for example If's condition.

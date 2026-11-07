@@ -124,6 +124,8 @@ pixel "fire 1 -- compiled, style djStyle"      "$T/j.o" 2 djCanvas "r255 g0 b0 a
 pixel "fire 2 -- NO recompile, style swapped" "$T/j.o" 3 djCanvas "r0 g128 b128 a255"
 #  H4: presence-with-value. Asserting "no degrade message appeared" would go
 #  green the day the message is deleted.
+#  RED SINCE 2026-10-19, KNOWN REGRESSION, docs/fixIts.md F-149: SEQ 384's jitOpEmits admits only jitTrace among
+#  commands, so displayFill's own emitter is never reached and the call runs at run time (degrade count 1).
 hasmark "degrade count 0 (nothing fell through to emit-time)" "$T/j.o" \
         "jitDegrade count = 0"
 hasmark "exactly one compile across both fires" "$T/j.o" "jitCompile count = 1"
