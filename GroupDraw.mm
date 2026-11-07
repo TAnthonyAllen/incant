@@ -41,7 +41,8 @@ char 		*value = 0;
 		}
 	
 	NSRect       framed = ::getFrame(field);
-	CGContextRef ctx    = (CGContextRef)field->getPointer();
+	GroupItem   *top    = displayOf(field);
+	CGContextRef ctx    = top ? (CGContextRef)top->getPointer() : 0;
 	if (!ctx) {
 	::fprintf(stderr,"displayFill: REFUSING %s -- no display; call makeDisplay first\n",
 	field->groupBody->tag);
@@ -53,27 +54,6 @@ char 		*value = 0;
 	framed.size.width, framed.size.height));
 	
 	return field;
-}
-
-/*******************************************************************************
-	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
-    twice, causing a duplicate-symbol link error; Stylish's version is current).
-*******************************************************************************/
-/****************************************************************************
-	Get the frame struct for the group passed in.
-****************************************************************************/
-extern "C" NSRect getFrame(GroupItem *item)
-{
-GroupItem 	*x = item->getLabelGroup("x");
-GroupItem 	*y = item->getLabelGroup("y");
-GroupItem 	*width = item->getLabelGroup("width");
-GroupItem 	*height = item->getLabelGroup("height");
-NSRect 		framed;
-	framed.origin.x = x ? x->getNumber() : 0.0;
-	framed.origin.y = y ? y->getNumber() : 0.0;
-	framed.size.width = width ? width->getNumber() : 0.0;
-	framed.size.height = height ? height->getNumber() : 0.0;
-	return framed;
 }
 
 /*****************************************************************************
@@ -109,12 +89,71 @@ NSRect 		framed;
     The colour is parsed when it is drawn, with nothing kept (Tony, SEQ 535 R1): a
     component holding a field reads that field; a quoted component names one.
 
-    COORDINATES: CGBitmapContext is origin-bottom-left. guiDesign S10.3 rules
-    that Display exposes top-left/y-down and flips internally. This increment
-    does NOT flip, and that is a deliberate omission rather than an oversight:
-    the flip needs the frame's height to be meaningful and this specimen fills a
-    rect it was handed. Named here so the class brief inherits the debt.
+    COORDINATES (step 1 toward the first PDF, Tony, 2026-11-07): the top field
+    opens the one context and sets it, once, to draw in the form's own
+    coordinates: y down from the top, the origin at the top field's x and y. So
+    every field fills its own frame as it stands and lands at page coordinates;
+    no field below the top knows about the flip. The top then hands the context
+    down: each descendant gets a `display` attribute holding the top field, and
+    displayOf finds the context through it. Not the pointer slot: gPointer
+    shares its union with gText, so a context there would destroy a child's text.
 *****************************************************************************/
+/*  displayOf the field whose pointer slot holds the drawing context: the field
+    itself if it opened one, else the top field its `display` attribute holds.  */
+GroupItem *displayOf(GroupItem *field)
+{
+GroupItem 	*hold = 0;
+	if ( field->groupBody->flags.isPointer )
+		return field;
+	hold = field->get("display");
+	if ( hold && isGROUP(hold->groupBody->flags.data) )
+		return hold->getGroup();
+	return 0;
+}
+
+/*******************************************************************************
+	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
+    twice, causing a duplicate-symbol link error; Stylish's version is current).
+*******************************************************************************/
+/****************************************************************************
+	Get the frame struct for the group passed in.
+****************************************************************************/
+extern "C" NSRect getFrame(GroupItem *item)
+{
+GroupItem 	*x = item->getLabelGroup("x");
+GroupItem 	*y = item->getLabelGroup("y");
+GroupItem 	*width = item->getLabelGroup("width");
+GroupItem 	*height = item->getLabelGroup("height");
+NSRect 		framed;
+	framed.origin.x = x ? x->getNumber() : 0.0;
+	framed.origin.y = y ? y->getNumber() : 0.0;
+	framed.size.width = width ? width->getNumber() : 0.0;
+	framed.size.height = height ? height->getNumber() : 0.0;
+	return framed;
+}
+
+/*  handDisplay the top hands its context down: every descendant's `display`
+    attribute holds the top field (an existing one is re-aimed, not doubled).  */
+void handDisplay(GroupItem *field, GroupItem *top)
+{
+GroupItem 	*item = 0;
+GroupItem 	*hold = 0;
+	if ( !field->groupBody->flags.hasMembers )
+		return;
+	while ( item = field->nextMember(item) )
+		{
+		hold = item->get("display");
+		if ( !hold )
+			{
+			hold = new GroupItem("display");
+			item->addAttribute(hold);
+			}
+		hold->setGroup(top);
+		if ( item->groupBody->flags.hasMembers )
+			::handDisplay(item,top);
+		}
+}
+
 extern "C" GroupItem *makeDisplay(GroupItem *field)
 {
 	
@@ -144,8 +183,13 @@ extern "C" GroupItem *makeDisplay(GroupItem *field)
 	object slot rejects it at compile time. The pointer slot is the
 	tree's existing home for a non-NSObject payload; it is what
 	makeStyleFor uses to hang a Stylish on a GroupItem.  */
+	/*  flipOnce top-left, y down, origin at the top field: set here and nowhere else  */
+	CGContextTranslateCTM(ctx, 0, h);
+	CGContextScaleCTM(ctx, 1, -1);
+	CGContextTranslateCTM(ctx, -framed.origin.x, -framed.origin.y);
 	field->setPointer((void*)ctx);
 	
+	::handDisplay(field,field);
 	return field;
 }
 
@@ -167,7 +211,8 @@ extern "C" GroupItem *pixelAt(GroupItem *field)
 	nastiest form of this trap: the survivor makes the block look wired.  */
 	GroupItem   *px = field->get("px");
 	GroupItem   *py = field->get("py");
-	CGContextRef ctx = (CGContextRef)field->getPointer();
+	GroupItem   *top = displayOf(field);
+	CGContextRef ctx = top ? (CGContextRef)top->getPointer() : 0;
 	if (!ctx) { ::fprintf(stderr,"pixelAt: no display on %s\n", field->groupBody->tag); return 0; }
 	unsigned char *data = (unsigned char*)CGBitmapContextGetData(ctx);
 	size_t rowBytes = CGBitmapContextGetBytesPerRow(ctx);
