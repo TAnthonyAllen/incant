@@ -6,6 +6,12 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
+### Methods out of alphabetical order, in the `.rtn` and `.twk` files (Tony, 2026-11-07: "seriously not")
+- **What/where:** measured by `genLadder/alphaLint.sh`, report tier. `.rtn` sweep: alphaLint -- 8 file(s) examined, 81 out-of-order method(s), 0 broken unit(s). By file (name, count): Generate.rtn out;genParse.rtn out;GroupActions.rtn out;Instruct.rtn out;jitEmitters.rtn out;ruleActions.rtn out; `.twk` sweep (`alphaLint.sh *.twk`): alphaLint -- 11 file(s) examined, 11 out-of-order method(s), 0 broken unit(s). By file: GroupDraw.twk out;GroupRules.twk out;GroupStak.twk out;measure.twk out;Stylish.twk out;
+- **Why it is here:** the standing rule (Tony, 2026-08-15) is that new methods go in alphabetically. Strokes have added methods beside the code they serve, so the order has drifted. Some of it reads as families kept together, such as ruleActions.rtn's `acc*` and jitEmitters.rtn's `jitWalk*`; whether a family stays together is part of the ruling.
+- **Confirm:** re-run the lint at the pass, because these numbers move with every stroke. **A reorder is not automatically inert in tok:** bare-name resolution is last-mentioned-wins (bear-traps #42, #57), and a sticky `print` default crosses externs and files, so moving an extern can change downstream code. Certify each file by `genLadder/codeOnly.py`, line counts both sides, plus a full bare tokall diff, then the checklist. `GroupItem.twk`'s 2026-09-15 sweep is the worked example.
+- **Seen:** 2026-11-07.
+
 ### ✅ DONE 2026-11-01 -- MacPorts on the M6 -- uninstall whole if nothing uses it (Tony, 2026-10-31)
 - **Done:** Tony removed /opt/local, /Applications/MacPorts and the macports user; Clod removed the PATH lines (~/.zprofile,
   ~/.profile, ~/.zshrc -- backups .bak-2026-11-01) and TOK.xcodeproj's eight /opt/local search paths (TOK 55d1c0e, binary
