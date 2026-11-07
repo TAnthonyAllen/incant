@@ -889,6 +889,26 @@ _ofeq "ruleDoorT KEEPs' label carries its term, compiled" "$(grep -c 'word=abc' 
 fi
 
 #  ============================================================================
+#  ⚑ refusedCondT -- F-147, SEQ 556 (Tony, 2026-11-07): a refused condition crashed the new road at exit 139. Per row, by value: exit, the
+#  child's refusal, the attach's refusal by name, the statement after it still runs, and the sentinel. Each run bounded at 20 s.
+_rcF=$(ip refusedCondT)
+if [ -f "$_rcF" ]; then
+sed '/^stop();/,$d' "$_rcF" > "$T/rc.pre"
+grep '^RC-[A-Za-z]*|' "$_rcF" > "$T/rc.list"
+_rcn=0
+while IFS='|' read -r _id _st _nm; do
+    _rcn=$((_rcn+1))
+    { cat "$T/rc.pre"; printf '%s\nprint "NEXT":;\ncerr "RC SENTINEL":;\nstop();\n' "$_st"; } > "$T/rc.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/rc.$_id.k" > "$T/rc.$_id.o" 2> "$T/rc.$_id.e"; echo $? > "$T/rc.$_id.x"
+    _ofeq "refusedCondT $_id exit, sentinel" "$(cat "$T/rc.$_id.x") $(grep -c '^RC SENTINEL' "$T/rc.$_id.e")" "0 1"
+    _ofeq "refusedCondT $_id the child's refusal by name" "$(grep -c '^REFUSED + -- a list of adjacent operands' "$T/rc.$_id.e")" "1"
+    _ofeq "refusedCondT $_id the attach's refusal names $_nm" "$(grep -c "^REFUSED $_nm -- Operator +% -- an operand that is nothing" "$T/rc.$_id.e")" "1"
+    _ofeq "refusedCondT $_id the next statement ran" "$(grep -c '^NEXT' "$T/rc.$_id.o")" "1"
+done < "$T/rc.list"
+_ofeq "refusedCondT rows ran (11 of 11)" "$_rcn" "11"
+fi
+
+#  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today
 #  `while ++ic` on a cursor that is not an iterator counts forever (++ on a never-assigned field counts on the new road).

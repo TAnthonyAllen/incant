@@ -1,0 +1,41 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(RefusedCondT);
+define
+    it1;
+    qa=2;
+    qb=3;
+    fsrc;
+    ;
+search RefusedCondT Utilities UnitTests list;
+fsrc +% qa qb;
+stop();
+
+refusedCondT -- F-147, SEQ 556 (Tony, 2026-11-07): a refused condition or value crashed the new road's build at exit 139. Rows prefixed RC-.
+
+Not run alone: pop.sh builds each row, everything above this stop(); then the row, a statement that must still run, then a sentinel. The
+adjacent run `qa qb + 1` is the child: EXPRESSIOn refuses it by name and clears its label, so the parent's `**EXPRESSIOn` reads null and the
+parent attaches it. Each row reads, by value: exit 0; the child's refusal; the attach's refusal, naming the list the rule was building; and
+the next statement's output. The cure is in one place (R1): opAddAttribute refuses a null attach, so the rows are one per shape and no rule
+carries a guard. Roots first, then the four shapes through STARt, the road a program takes.
+
+ROWS -- id | statement | the list the attach names
+RC-If|it1 = If("if qa qb + 1; print 1:;");|ifArms
+RC-ElseIf|it1 = ELSEIf("or qa qb + 1; print 1:;");|ifArms
+RC-While|it1 = WHILe("while qa qb + 1; print 1:;");|whileArms
+RC-Do|it1 = Do("do print 1:; while qa qb + 1;");|doArms
+RC-For|it1 = FOr("for x in qa qb + 1; print 1:;");|forArms
+RC-Branch|it1 = BRANCh("return qa qb + 1;");|retArms
+RC-Invoke|it1 = INVOKEr("qa(qa qb + 1)");|instruct
+RC-sIf|it1 = STARt("if qa qb + 1; print 1:;");|ifArms
+RC-sWhile|it1 = STARt("while qa qb + 1; print 1:;");|whileArms
+RC-sBranch|it1 = STARt("return qa qb + 1;");|retArms
+RC-sInvoke|it1 = STARt("qa(qa qb + 1);");|instruct

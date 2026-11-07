@@ -88,6 +88,8 @@ Ranked as ruled: fleet reach, then native.
 
 **Then:** F-146's cure opens XPRESs, INVOKEr and TOPSTATEMENt. A ruling on the F-145 group opens the rest, EXPRESSIOn last.
 
+**Ruled since (Tony, 2026-11-07):** F-147's cure, then FOr, then a jitter rung compiling `+%`, `:=` and `copyOf` natively, then a measurement of the six loop rules, then this order resumes. The certificate keeps "native above 0".
+
 ## Three things the dispatch's rules do not settle
 
 **1. Only FOr has a native count among those left.** The other nine are native 0: every statement hands over. SEQ 554's certificate asks for native above 0, and these cannot give it. A compile of them proves the door and the label path, and buys no speed. So either that certificate line changes for this group, or FOr goes first, or the order waits on hand-overs becoming native (`+%`, `:=`, copyOf are nearly all of them).
