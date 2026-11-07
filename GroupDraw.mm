@@ -94,18 +94,20 @@ char 		*value = 0;
     coordinates: y down from the top, the origin at the top field's x and y. So
     every field fills its own frame as it stands and lands at page coordinates;
     no field below the top knows about the flip. The top then hands the context
-    down: each descendant gets a `display` attribute holding the top field, and
-    displayOf finds the context through it. Not the pointer slot: gPointer
-    shares its union with gText, so a context there would destroy a child's text.
+    down: each descendant gets a `display` PROPERTY holding the top field, and
+    displayOf finds the context through it. A property, not an attribute, so the
+    form's definition is unchanged (Tony, SEQ ___ R0). Not the pointer slot:
+    gPointer shares its union with gText, so a context there would destroy a
+    child's text.
 *****************************************************************************/
 /*  displayOf the field whose pointer slot holds the drawing context: the field
-    itself if it opened one, else the top field its `display` attribute holds.  */
+    itself if it opened one, else the top field its `display` property holds.  */
 GroupItem *displayOf(GroupItem *field)
 {
 GroupItem 	*hold = 0;
 	if ( field->groupBody->flags.isPointer )
 		return field;
-	hold = field->get("display");
+	hold = field->getProperty("display");
 	if ( hold && isGROUP(hold->groupBody->flags.data) )
 		return hold->getGroup();
 	return 0;
@@ -133,7 +135,7 @@ NSRect 		framed;
 }
 
 /*  handDisplay the top hands its context down: every descendant's `display`
-    attribute holds the top field (an existing one is re-aimed, not doubled).  */
+    property holds the top field (an existing one is re-aimed, not doubled).  */
 void handDisplay(GroupItem *field, GroupItem *top)
 {
 GroupItem 	*item = 0;
@@ -142,11 +144,11 @@ GroupItem 	*hold = 0;
 		return;
 	while ( item = field->nextMember(item) )
 		{
-		hold = item->get("display");
+		hold = item->getProperty("display");
 		if ( !hold )
 			{
 			hold = new GroupItem("display");
-			item->addAttribute(hold);
+			item->addProperty(hold);
 			}
 		hold->setGroup(top);
 		if ( item->groupBody->flags.hasMembers )
