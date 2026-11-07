@@ -857,7 +857,7 @@ while IFS='|' read -r _id _st _pin; do
     _ofeq "ruleDoorT $_id compiled = interpreted" "$(_rdv "$T/rd.$_id.c.o")" "$(_rdv "$T/rd.$_id.i.o")"
     _f=1; case "$_id" in RD-6|RD-7) _f=2;; esac
     _ofeq "ruleDoorT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: ITERATe built 1 fired $_f ===" "$T/rd.$_id.c.e")" "1"
-    _ofeq "ruleDoorT $_id old-road walk line: native 6 handed 17" "$(grep -c '^=== jitter rule walk: ITERATe native 6 handed 17 ===' "$T/rd.$_id.c.e")" "1"
+    _ofeq "ruleDoorT $_id old-road walk line: native 15 handed 8" "$(grep -c '^=== jitter rule walk: ITERATe native 15 handed 8 ===' "$T/rd.$_id.c.e")" "1"
 done < "$T/rd.list"
 _ofeq "ruleDoorT rows ran (9 of 9)" "$_rdn" "9"
 #  jitter; ALONE does not open a rule fire (R1): BRANCh, opted in and never fired, proves the report printed; ITERATe has no line
@@ -881,6 +881,18 @@ _rdg () {  # rule  interpreted-read  compiled-read  guard-lines
 _rdg KEEPs   "ANS untouched |" "ANS untouched |" 0
 _rdg REFUSEs "ANS untouched |" "ANS untouched |" 1
 _rdg FELLOFf "ANS 1 |"         "ANS untouched |" 1
+#  SEQ 559: the copy keeps its tag and value, a star on a star reads through natively; native above 0 on both
+_rds='it1 = COPYs("abc");'; _rdrun cI "" "$_rds"; _rdrun cC "jitterRule(COPYs);" "$_rds"
+_ofeq "ruleDoorT COPYs interpreted: the copy keeps its tag, its value" "$(_rdv "$T/rd.cI.o")" "cpSrc |9 |"
+_ofeq "ruleDoorT COPYs compiled = interpreted" "$(_rdv "$T/rd.cC.o")" "$(_rdv "$T/rd.cI.o")"
+_ofeq "ruleDoorT COPYs a native copyOf: native above 0, fired 1" "$(grep -c '^=== jitter rule walk: COPYs native [1-9]' "$T/rd.cC.e") $(grep -c '^=== jitter rule: COPYs built 1 fired 1 ===' "$T/rd.cC.e")" "1 1"
+_rds='it1 = DBLs("abc");'; _rdrun dI "" "$_rds"; _rdrun dC "jitterRule(DBLs);" "$_rds"
+_ofeq "ruleDoorT DBLs interpreted: a star on a star reads through" "$(_rdv "$T/rd.dI.o")" "6 |"
+_ofeq "ruleDoorT DBLs compiled = interpreted" "$(_rdv "$T/rd.dC.o")" "$(_rdv "$T/rd.dI.o")"
+_ofeq "ruleDoorT DBLs a native **: native above 0, fired 1" "$(grep -c '^=== jitter rule walk: DBLs native [1-9]' "$T/rd.dC.e") $(grep -c '^=== jitter rule: DBLs built 1 fired 1 ===' "$T/rd.dC.e")" "1 1"
+_rdrun aI "" 'dblAct();'; _rdrun aC "" 'testing(dblAct);'
+_ofeq "ruleDoorT dblAct interpreted: dbl 6" "$(grep -c '^dbl 6' "$T/rd.aI.o")" "1"
+_ofeq "ruleDoorT dblAct compiled, ** in an action reads through natively, degrade 0" "$(grep -c '^dbl 6' "$T/rd.aC.o") $(grep -c '^=== jitDegrade count = 0 ===' "$T/rd.aC.o")" "1 1"
 #  KEEPs' label keeps its word on both arms: the return handed back the label, and the fire adopted it
 _rdrun kI "" 'it1 = "untouched"; it1 = KEEPs("abc"); dumpContents(it1);'
 _rdrun kC "jitterRule(KEEPs);" 'it1 = "untouched"; it1 = KEEPs("abc"); dumpContents(it1);'
@@ -932,11 +944,18 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     _ofeq "ruleForT $_id compiled = interpreted, stdout" "$(_rdv "$T/rf.$_id.c.o")" "$(_rdv "$T/rf.$_id.i.o")"
     _ofeq "ruleForT $_id compiled = interpreted, stderr" "$(_rfe "$T/rf.$_id.c.e")" "$(_rfe "$T/rf.$_id.i.e")"
     _ofeq "ruleForT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: FOr built 1 fired $_f ===" "$T/rf.$_id.c.e")" "1"
-    _ofeq "ruleForT $_id old-road walk line: native 2 handed 16" "$(grep -c '^=== jitter rule walk: FOr native 2 handed 16 ===' "$T/rf.$_id.c.e")" "1"
+    _ofeq "ruleForT $_id old-road walk line: native 9 handed 9" "$(grep -c '^=== jitter rule walk: FOr native 9 handed 9 ===' "$T/rf.$_id.c.e")" "1"
     _ofeq "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g"
     if [ -n "$_ref" ]; then _ofeq "ruleForT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/rf.$_id.i.e") $(grep -c "^$_ref" "$T/rf.$_id.c.e")" "1 1"; fi
 done < "$T/rf.list"
 _ofeq "ruleForT rows ran (12 of 12)" "$_rfn" "12"
+#  SEQ 559: what the fire ADOPTS when the source arm refuses: nothing, on both arms. A value row cannot see it: a native +% that did not end the rule adopted its label with the same stdout
+_rfs='it1 = "untouched"; it1 = FOr("for lp in qa qb + 1; print 1:;"); dumpContents(it1);'
+_rfrun adI "" "$_rfs"; _rfrun adC "jitterRule(FOr);" "$_rfs"
+_ofeq "ruleForT RF-O adopts nothing: terms in the label, interpreted | compiled" "$(grep -c 'LOOPEr' "$T/rf.adI.o") | $(grep -c 'LOOPEr' "$T/rf.adC.o")" "0 | 0"
+_rfs='it1 = "untouched"; it1 = FOr("for lp in fsrc; print *lp:;"); dumpContents(it1);'
+_rfrun cfI "" "$_rfs"; _rfrun cfC "jitterRule(FOr);" "$_rfs"
+_ofeq "ruleForT the anti-vacuity sibling: a clean fire does adopt its built instruct, interpreted | compiled" "$(grep -c 'length 3 *instruct\|instruct' "$T/rf.cfI.o" | sed 's/^[1-9][0-9]*$/some/') | $(grep -c 'instruct' "$T/rf.cfC.o" | sed 's/^[1-9][0-9]*$/some/')" "some | some"
 fi
 
 #  ============================================================================

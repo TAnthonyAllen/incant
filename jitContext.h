@@ -606,6 +606,8 @@ inline bool jitterRuleOpted(GroupBody *b) {
     for (GroupBody *r : gJitterRules) if (r == b) return true;
     return false; }
 inline int gJitOldNative = 0, gJitOldHanded = 0;
+//  ⚠ SCAFFOLDING (SEQ 559 R1): +%, := and copyOf emit native only while the door compiles an opted-in rule. Operator rung stroke 2 (everywhere plus the walk) REMOVES this flag.
+inline bool gJitRuleOperators = false;
 inline JitterTally *jitterTallyFind(GroupBody *b) {
     for (JitterTally &t : gJitterTally) if (t.body == b) return &t;
     return nullptr;
