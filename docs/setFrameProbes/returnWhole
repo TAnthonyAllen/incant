@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(RetProbe);
+define
+    pNest x=1 y=1 width=100 height=90 down=3
+        cell across
+            lA;
+            lB;
+    pLay code={
+        pc := copyOf(argument);
+        setFrame(*pc);
+        n0 := *pc.listLengtH;
+        cerr "INSIDE members" n0:;
+        return *pc;
+        };
+    pLayHold code={
+        pc := copyOf(argument);
+        setFrame(*pc);
+        return pc;
+        };
+    pDrive code={
+        lay := pLay(pNest);
+        n1 := *lay.listLengtH;
+        cerr "RETURNED := members" n1:;
+        print "RETURNED :=":;
+        tsfLine(*lay);
+        lay2 = pLay(pNest);
+        n2 := lay2.listLengtH;
+        cerr "RETURNED = members" n2:;
+        lay3 := pLayHold(pNest);
+        n3 := *lay3.listLengtH;
+        cerr "RETURNED holder, then star, members" n3:;
+        print "RETURNED holder":;
+        tsfLine(*lay3);
+        print "ORIGINAL":;
+        tsfLine(pNest);
+        };
+    ;
+search RetProbe UnitTests Utilities list;
+pDrive();
+cerr "RET SENTINEL":;
+stop();
+
+Return probe (2026-11-07, docs/setFrameSecondRun.md, the OWED line). Run from Groups. A laid-out copy returned three ways; each must arrive with 8 list entries and its frames, and the original must stay unframed.

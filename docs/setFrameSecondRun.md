@@ -78,3 +78,25 @@ shape above except the declared percent, which A keeps intact. B's cost is paid 
   with the bit gone, today.
 
 **Ruled 2026-11-07 (Tony, R0): A or B is NOT chosen.** The first PDF lays out the original form once; the second run and resize are discussed with Clay and come back as their own dispatch. Clod's lean above stands as a lean only.
+
+## THE DESIGN (Tony, 2026-11-07, via Clay). Build after the first PDF.
+
+1. setFrame(request): the request carries the form and, optionally, a revised frame (x, y, width, height).
+2. The gate: if the request has a revised frame, the top field takes those four values from it; if not, it uses the
+   form's declared values. Only the top field is gated; every child recomputes from its parent, so a % follows the new
+   size. The "is there a frame" check must read right when absent (a lookup miss has read as true before); pin both cases.
+3. setFrame copies the form, lays out the copy and returns it. The form's definition is never written.
+   printDefinition(setFrame(form)) is the test.
+4. The engine keeps the returned layout to draw from. On a resize it calls setFrame on the original form with the
+   revised frame, replaces its stored layout, drops the old one. No laid-out result is ever saved.
+5. fillDownAcross takes one request group (target, direction, ...), the compileIn pattern.
+
+OWED: a returned tree arrives whole through return (members kept). Each copy leaks until KE-5.
+LATER (windows): a laid-out field keeps a link to the field it came from, so clicks and listeners reach it.
+
+**The OWED line, measured 2026-11-07 (kant, interpreted; docs/setFrameProbes/returnWhole).** A copy of a nested form,
+laid out inside an action and returned, arrives whole by all three spellings tried: `return *pc;` read with `:=`, the
+same read with `=`, and `return pc;` (the holder) starred by the caller. Each reads 8 list entries, the same count as
+inside the action (3 cells and the form's 5 attributes), and every frame to the leaves; the original stays unframed. Not
+measured: a jitted return, or returning through more than one call. This answers the OWED line for the interpreter only.
+Nothing is pinned in the fleet; the build's certificate owes the rows.
