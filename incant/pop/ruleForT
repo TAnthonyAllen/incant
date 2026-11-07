@@ -1,0 +1,65 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(RuleForT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    it2;
+    wo=0;
+    fa=1;
+    fb=2;
+    fc=3;
+    ga=7;
+    gb=8;
+    fsrc;
+    gsrc;
+    fe;
+    fn=5;
+    lp;
+    lq;
+    ;
+search RuleForT Utilities UnitTests list;
+fsrc +% fa fb fc;
+gsrc +% ga gb;
+stop();
+
+ruleForT -- SEQ 557 (Tony, 2026-11-07): FOr compiled through the rule door. Rows prefixed RF-.
+
+Not run alone: pop.sh builds each row, everything above this stop(); then the row, a statement that must still run, then a sentinel, one
+process per arm under an alarm. Arms: interpreted, and compiled (jitterRule(FOr);). Each row reads exit and sentinel on both arms; the pinned
+value; compiled = interpreted, stdout and stderr, witnesses aside; the walk line, native 2 handed 16, registered from docs/ruleJitCensus.md
+before this ran; and the fired count, because a door that never opened would agree with itself.
+
+RF-7 and RF-8 fire twice in one process: different sources, and backwards then forwards. The native statements are FOr's two ifs, on
+LOOPRESTRICt and reversE, and RF-8's second fire reads reversE absent after a fire that read it present.
+
+RF-S, RF-O and RF-R are the refusal arms. RF-S (the statement arm) and RF-R (the restriction arm) are FOr's own and end in a return. RF-O (the
+source) is F-147's shape, a real refuse() inside a handed-over statement, so on the compiled arm it reaches the hand-back and the guard adds
+its line: the fifth column pins that. Same value and same refusals otherwise; the behaviour is F-146's.
+
+ROWS -- id | fires | guard lines | a refusal to read by name | statement | pinned value, before NEXT
+RF-1|1|0||it1 = FOr("for lp in fsrc; print *lp:;"); testOP(it1);|1 |2 |3 |
+RF-2|1|0||it1 = FOr("for lp in <- fsrc; print *lp:;"); testOP(it1);|3 |2 |1 |
+RF-3|1|0||it1 = FOr("for lp in fe; print *lp:;"); testOP(it1);|
+RF-4|1|0||it1 = FOr("for lp in fn; print *lp:;"); testOP(it1);|
+RF-5|1|0||it1 = FOr("for lp in fsrc; { print *lp:; if *lp == 2; break; }"); testOP(it1);|1 |2 |
+RF-6|1|0||it1 = FOr("for lp in fsrc; { if *lp == 2; continue; print *lp:; }"); testOP(it1);|1 |3 |
+RF-7|2|0||it1 = FOr("for lp in fsrc; print *lp:;"); testOP(it1); it2 = FOr("for lq in gsrc; print *lq:;"); testOP(it2);|1 |2 |3 |7 |8 |
+RF-8|2|0||it1 = FOr("for lp in <- fsrc; print *lp:;"); testOP(it1); it2 = FOr("for lq in gsrc; print *lq:;"); testOP(it2);|3 |2 |1 |7 |8 |
+RF-9|1|0||it1 = WHILe("while wo < 2; { wo = wo + 1; for lp in fsrc; { print *lp:; if *lp == 2; break; } print 9:; }"); testOP(it1);|1 |2 |9 |1 |2 |9 |
+RF-S|1|0|REFUSED FOr -- its statement handed up no instruct|it1 = FOr("for lp in fsrc; qa qb + 1;");|
+RF-O|1|1|REFUSED forArms -- Operator +% -- an operand that is nothing|it1 = FOr("for lp in qa qb + 1; print 1:;");|
+RF-R|1|0|REFUSED FOr attributes / members -- not built on the new road yet|it1 = FOr("for lp in fsrc; attributes print *lp:;");|
