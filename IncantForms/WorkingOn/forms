@@ -395,6 +395,20 @@ are C++ with a Point argument, not kant commands. deferredAction is gone from th
 The smallest event for firstLight's OK: one left mouseUp, one level, no bubbling. It needs (a) ok to carry an action, which it does not
 today; (b) a mouseUp method on Layout; (c) the point mapped to ok, which needs frames (M1) and blockContaining; (d) the fire, which already works.
 
+THE TYPESETTING SUBSET FOR FIRST LIGHT, under the PDF goal (recorded 2026-11-07). Nothing is built now. It shapes the PDF stroke.
+RULED by Tony, 2026-11-07:
+    Text source. A field's text is its own string value. If the field holds a group, the text is that group's text, read by an explicit check in kant as *field. One level only: a group that holds another group refuses by name. getText is unchanged; today it returns the held group's tag.
+    Overflow. Text that doesn't fit its box is clipped between words, with a warning naming the field. No flag is set; noRoom means only "the field doesn't fit its parent". A single word wider than the box is clipped at the box edge, with the same warning.
+    Units. A bare number in a form is in points (1/72 inch).
+CLAY'S DRAFT, to be confirmed when the PDF stroke opens:
+    Style. Resolved by the style tree pre-pass, with one font, size and colour per field.
+    The pour. One floor request in shape (C). In the request: text, font, size, colour, box (x, y, w, h), the fixed text inset, and left alignment. The floor wraps with Core Text's framesetter. It writes back req.fit (characters placed) and req.used (height used).
+    Paint order. Parents first, and for each field: fill, then stroke, then text.
+    The page. The top field's frame is the page. The floor flips coordinates once, at page setup.
+    Missing fonts. A missing font warns by name and falls back.
+    Left out: emphasis inside a run, text flowing between fields, paragraphs as nodes, pagination, hyphenation, right and centre alignment, and more than one style per field.
+CHECKS for when the PDF stroke opens: who calls getText today, and whether any caller relied on the old following behaviour; whether a held group can hold another group in practice.
+
 Points. Tony, 2026-11-07: a bare number in a form is in points (1/72 inch), on PDF and in Apple windows alike.
 The order. Tony, 2026-11-07, for rule compiling: F-147's cure, then FOr, then a jitter rung compiling +%, := and copyOf natively, then a measurement of the six loop rules, then the census order resumes. The certificate keeps "native above 0".
 Rule-door bought. Tony, 2026-11-07: rule-door (70ec82dd) is bought, so ITERATe runs compiled through jitterRule, and the morning goal is reached. F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to F-146's cure.

@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-148 — DOCKETED (Tony, 2026-11-07) — refusalNamesTheList: F-147's refusal names the internal list, not the rule and the part that refused
+
+**What:** `REFUSED ifArms -- Operator +% -- an operand that is nothing` names kantGrammar's internal list. It should name the rule and the part that refused, for example If's condition.
+**Where:** `Instruct.rtn` opAddAttribute's `nullAttach` line (branch `null-attach`), which has only the target to name.
+**Evidence:** `incant/pop/refusedCondT`'s rows pin the list names: ifArms, whileArms, doArms, forArms, retArms, instruct.
+**Done when:** those rows read the rule and the part, re-pinned with a sentence. It gets fixed when refusal contents get their turn; not now.
+**Owner:** Clod, when refusal contents get their turn. **Size:** not known.
+**Attempt log:** none.
+
 ### F-147 — BUILT, NOT MERGED, branch `null-attach` (1acd2557, SEQ 556), the buy is Tony's — refusedConditionCrash: a refused condition or value crashes the new road's build, interpreted, at exit 139
 
 **What:** a rule that reads a child EXPRESSIOn which refused gets null from `**EXPRESSIOn`, attaches it, and dies. `if qa qb + 1; print 1:;` prints `REFUSED + -- a list of adjacent operands ...` and then exits 139, with every later statement gone.
