@@ -95,13 +95,13 @@ where it stands. Nothing else is backfilled.
 ### F-148 — DOCKETED (Tony, 2026-11-07) — refusalNamesTheList: F-147's refusal names the internal list, not the rule and the part that refused
 
 **What:** `REFUSED ifArms -- Operator +% -- an operand that is nothing` names kantGrammar's internal list. It should name the rule and the part that refused, for example If's condition.
-**Where:** `Instruct.rtn` opAddAttribute's `nullAttach` line (branch `null-attach`), which has only the target to name.
+**Where:** `Instruct.rtn` opAddAttribute's `nullAttach` line, which has only the target to name.
 **Evidence:** `incant/pop/refusedCondT`'s rows pin the list names: ifArms, whileArms, doArms, forArms, retArms, instruct.
 **Done when:** those rows read the rule and the part, re-pinned with a sentence. It gets fixed when refusal contents get their turn; not now.
 **Owner:** Clod, when refusal contents get their turn. **Size:** not known.
 **Attempt log:** none.
 
-### F-147 — BUILT, NOT MERGED, branch `null-attach` (1acd2557, SEQ 556), the buy is Tony's — refusedConditionCrash: a refused condition or value crashes the new road's build, interpreted, at exit 139
+### F-147 — ✅ CLOSED 2026-11-07 (`1acd2557`, landed by the rule-for merge; null-attach bought by Tony) — refusedConditionCrash: a refused condition or value crashes the new road's build, interpreted, at exit 139
 
 **What:** a rule that reads a child EXPRESSIOn which refused gets null from `**EXPRESSIOn`, attaches it, and dies. `if qa qb + 1; print 1:;` prints `REFUSED + -- a list of adjacent operands ...` and then exits 139, with every later statement gone.
 **Where:** kantGrammar's If (`ifArms +% *cond`), and the same shape in ELSEIf (its action), WHILe, Do, FOr's source, BRANCh's return value, INVOKEr's argument. The crash is in `opAddAttribute`, argument null. **New road only** (kant build); the old road not measured for this. Not a compile defect: no jitter involved.
@@ -114,10 +114,10 @@ where it stands. Nothing else is backfilled.
 ### F-146 — DOCKETED (Tony, SEQ 554 R2, 2026-11-07) — compiledRuleEnding: a compiled rule can only hand back its label, so a refusal, running off the end, and a label holding a count all end in the guard's refusal
 
 **What:** a rule compiled through the door (`jitterRule(X);`) that refuses mid-body or runs off its end finishes with return kind 1, a boxed count. The door's guard refuses by name and adopts nothing, so nothing wrong is adopted, but the rule does not match the interpreted road: running off the end interpreted adopts the last statement's value. Separately, read and not run: `jitStmtRTValueRT` follows a returned holder and boxes it if what it holds is a count, so a compiled `return *actionLabel` over a count-holding label would hit the same guard. `EXPRESSIOn` is the rule that can (`instruct = kind`, kantGrammar:554).
-**Where:** `GroupActions.rtn` processAction's door (`ruleDoorGuard`); `jitEmitters.rtn` `jitStmtRTValueRT`, and the kind 1 start in `jitBuildFunction`. Branch `rule-door` until bought.
+**Where:** `GroupActions.rtn` processAction's door (`ruleDoorGuard`); `jitEmitters.rtn` `jitStmtRTValueRT`, and the kind 1 start in `jitBuildFunction`.
 **Evidence:** `incant/pop/ruleDoorT`'s RG rows in pop.sh: FELLOFf interpreted reads `ANS 1`, compiled `ANS untouched` with one guard line; REFUSEs reads `ANS untouched` on both, compiled with one guard line. H7: guard removed, FELLOFf compiled reads `ANS 1`.
 **Done when:** a compiled rule ends every way the interpreted one does, and the guard is deleted or unreachable, with FELLOFf's compiled row re-pinned. Needed before `EXPRESSIOn` or a wider gate.
-**Tony, SEQ 555:** F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to its cure. Branch merged (aa25fc3c). Blocked rules, per the census: XPRESs, INVOKEr, TOPSTATEMENt, EXPRESSIOn.
+**Order (Tony, 2026-11-07):** follows the operator rung and comes before If. If, ELSEIf, WHILe, Do and BRANCh stay safe meanwhile, with the guard's extra refusal pinned, as FOr's RF-O is. **Tony, SEQ 555:** F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to its cure. Branch merged (aa25fc3c). Blocked rules, per the census: XPRESs, INVOKEr, TOPSTATEMENt, EXPRESSIOn.
 **Owner:** Clod, when the gate widens. **Size:** not known.
 **Attempt log:** none.
 

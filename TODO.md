@@ -532,6 +532,11 @@ projectBible.md "Phase Generate Tawk".
   5. **A KANTGRAMMAR ACTION UNDER THE OLD-ROAD JIT (SEQ 553 R0, 2026-11-07).** The first jitterized kantGrammar action is compiled
      by the old-road jit from its existing body; the rebuild as a new-road chain is a later stroke, recorded and not scheduled.
      Recon: `docs/ruleJitRecon.md`. Bought (SEQ 555, merge aa25fc3c). The order for the rest: `docs/ruleJitCensus.md`; F-146, F-147.
+     - FOr compiled, SEQ 557, bought; F-147 cured.
+     - null-attach was bought by Tony at 09:44, before SEQ 557; buying rule-for (Tony, 2026-11-07) lands both.
+     - Order amended (Tony, 2026-11-07): If, ELSEIf, WHILe, Do and BRANCh stay in the safe group with the guard's extra refusal pinned, as FOr's is. F-146 moves up to follow the operator rung and come before If.
+     - The rule order now reads: the operator rung (+%, :=, copyOf compiled natively); F-146; If, and the rest of the safe group; the loop measurement. The setFrame recon stays the afternoon's opener.
+     - Typesetting (Tony, 2026-11-07): one style vocabulary for fields, paragraphs and runs. A field's style is its paragraphs' style until the text changes style. A style change in text ends at the end of its paragraph, never at a line end, and never crosses a paragraph. Whether a change can end earlier, inside a paragraph, is to be decided.
      - Points. Tony, 2026-11-07: a bare number in a form is in points (1/72 inch), on PDF and in Apple windows alike.
      - The order. Tony, 2026-11-07, for rule compiling: F-147's cure, then FOr, then a jitter rung compiling +%, := and copyOf natively, then a measurement of the six loop rules, then the census order resumes. The certificate keeps "native above 0".
      - Rule-door bought. Tony, 2026-11-07: rule-door (70ec82dd) is bought, so ITERATe runs compiled through jitterRule, and the morning goal is reached. F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to F-146's cure.
