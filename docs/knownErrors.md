@@ -467,8 +467,6 @@ deliberately, since the expected values are exactly what this entry asks Tony to
 
 # KE-5 — `&&` ANSWERS `true && true` AS **false**. The symbol form of AND is not a truth table.
 
-**When the recon opens (Tony, 2026-11-07):** the jitter's interaction with the collector comes first: baked GroupItem addresses in JIT code memory, which the collector does not scan.
-
 **Filed 2026-08-11**, during the AND/OR rung, on Clay's SEQ 32 instruction to file rather than
 widen. **Deliberately NOT repaired** — the rung is scoped to the **word** forms, and widening
 tier 3 to the symbols is a ruling, not a rung.
@@ -914,6 +912,8 @@ Tony — ruled above, and **KE-4 is now CLOSED**: row 1 blessed and graduated, r
 pinned at 4. Both halves are live fleet checks and neither is a pinned defect.
 
 ## KE-5 — **the collector never frees a GroupItem: plain `new` is uncollectable.** Found 2026-11-06, because Tony asked whether the GC ran. Status: open, for Tony's ruling.
+
+**When the recon opens (Tony, 2026-11-07):** the jitter's interaction with the collector comes first: baked GroupItem addresses in JIT code memory, which the collector does not scan.
 
 **Measured (bare binary, merged trunk):**
 - `GC_PRINT_STATS=1`: the collector runs (201 collections by 5000 layouts of setFrame on 110 fields) and the heap reads 99% in use. No collection in any run frees anything.
