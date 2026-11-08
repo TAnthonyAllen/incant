@@ -92,6 +92,17 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-150 — CURE BUILT ON jitterT-cure (95dbaa2f, rows d5964914), NOT MERGED, THE BUY IS TONY'S (SEQ 561, 2026-11-08) — argumentReadsPreStore: an inlined callee's `argument` reads the caller's field from before its `=` stored
+
+**What:** a caller passes `kk=1` to a callee the jitter inlines; the callee's `if argument == 1` compiles against kk's value from BEFORE the store. jitEmitAssign's scalar arm stores into kk's slot and leaves kk's build value as the seed's load; followArgument's jitting arm follows the inlined `argument` to kk and the compare reads that load (the slot at entry). Silent: exit 0, no refusal, degrade 0. It is what jitterT's JTT showed under stroke 2's route (1 against 2); on trunk JTT's compare hands over (`*jtRead`, a holder a handed-over `:=` wrote), which hides it.
+**Where:** `jitEmitters.rtn` jitEmitAssign, the scalar arm's `b->CreateStore(v, target->jitData->jitSlot)`.
+**Evidence:** trunk `678e718c`: incant/pop/jitArgStaleT (on the branch) jitted 0 hits, interpreted 2. Scratch build with the route on (flag out, inline guard out, walk admits `:=` `+%` `*`): JTT 1; the route restricted to `:=` alone, 1; to `+%` alone, 2; the pre-mem2reg IR's compare reads `%frame`, the load before `store i32 1`.
+**Done when:** jitArgStaleT's jitted row reads 2, and with the route on JTT reads 2.
+**Owner:** Clod. **Size:** one line.
+**Attempt log:**
+- 2026-11-08: clearing the node in flight after a routed fire -> JTT still 1; not the mechanism, reverted (scratch only).
+- 2026-11-08: the target's build value set to the stored v in jitEmitAssign's scalar arm (95dbaa2f) -> jitArgStaleT 2, route-on JTT 2. H7 (cure out, single fixture): route off, jitArgStaleT 0 and JTT 2; route on, JTT 1 and jitArgStaleT 0. Branch pop.sh 2981 green = 2976 + 5, FAIL rows identical to R00's by name; route-on scratch moves only pc's witness and nh (F-146), the census's other two.
+
 ### F-149 — DOCKETED (Tony, SEQ ___ R0, 2026-11-07) — jitAwareCommandHandedOver: displayFill's own jit emitter is never reached; the call runs at run time
 
 **What:** `displayFill` is a jit-aware command: under jitting it emits a native call to displayFillRT (`jitEmitFill`). Since SEQ 384 R1 (`b258208e`, 2026-10-19) `jitOpEmits` decides before dispatch whether a call emits, and for a command it admits only `jitTrace`. So `displayFill` is handed over: `JIT DEGRADE #1: a command call -- its statement runs at RUN time ... displayFill`, `jitDegrade count = 1`. The pixels stay right (the statement runs per fire, at run time); what is lost is the native emit.

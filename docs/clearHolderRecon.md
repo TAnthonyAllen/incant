@@ -1,5 +1,10 @@
 # clear on a holder -- recon for a ruling (Tony's docket, 2026-11-08)
 
+**RULED (SEQ 561 R3, 2026-11-08):** `clear(h)` empties the holder and `clear(*h)` empties the target, everywhere.
+`argument` stays the exception (SEQ 339 R1). Next, after jitterT, read-only: is the top-level unwrap clear's alone, or
+does every old-road top-level call read through a holder? The rider joins the parked side-by-side-operands item (macros,
+item 5).
+
 **One plain line:** inside an action and on the new road, `clear(holder)` already empties the holder and `clear(*holder)`
 reaches the target, which is the proposed ruling. Only a statement at a file's top level differs: there `clear(holder)`
 empties the target. No fleet row clears a holder at top level, so no row would move. The missing-`;` rider is a list of

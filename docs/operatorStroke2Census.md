@@ -62,6 +62,8 @@ The five degrade rows moved with "a value moved: no" by a full diff of each: onl
 - **The scratch build is one reading of "as the recon describes".** Serving inlined bodies and flushing `copyOf`'s operand were my calls, the second because the recon said so. Defect 2 is in an inlined body. A stroke 2 that kept inlined bodies handed over might not have it, and would move other rows.
 - **Correcting the recon:** section 7's "30 fixtures" and "93 lines" read as a large blast radius. That count was lexical and mostly top-level `:=` outside any jitted body. Measured, it is 3 rows.
 
+**Measured since (SEQ 561, 2026-11-08):** defect 2 is a trunk defect the route exposes: the routed `:=` stops `*jtRead`'s statement handing over, and its inlined `argument` read compares against a pre-store load. F-150; cured on `jitterT-cure`.
+
 **Ruled since (Tony, via Clay, 2026-11-07):** jitterT is cured first. Stroke 2 follows, keeping `nh`'s shape handed over until F-146, with the owed rows registered before the build, plus rows for argRoadsT's four newly compiling actions. F-146 then cures `nh`.
 
 ## The movers to register, if stroke 2 is built
