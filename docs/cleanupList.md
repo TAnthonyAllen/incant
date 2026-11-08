@@ -9,6 +9,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 ### EXPRESSIOn's `instruct = kind;`, and pop.sh's 25 `^Assign at end` filters (SEQ 562, 2026-11-08)
 - **What/where:** `incant/kantGrammar`, EXPRESSIOn's action, `instruct    = kind;` (the line after `instruct +% op target;` in the loose-tier arm). And `genLadder/pop.sh`, 25 `grep -v` filters naming `^Assign at end` (`_ajv`, `_whv`, `_btv`, `_ccv` and kin), which strip a print removed in `726dac7d`.
 - **Why it looks deletable:** nothing reads the kind count. The slot tests (`cmpP.datA != 0` and kin) read the holder's own data, not the held instruct's count. The filters now strip a line that is never printed.
+- ⚠ **CORRECTED 2026-11-08 (SEQ 564, docs/f146Recon.md): `instruct = kind;` IS read when XPRESs (or EXPRESSIOn) runs compiled.** `jitStmtRTValueRT` follows the returned label to the chain's top instruct, finds its count and sends a bare count, so the rule door's guard fires (XPRESs `qr = qa + 1` reads QR 0; without the line, QR 3). The interpreted-fleet measurement below stands, but the line is NOT inert; leave it until F-146's cure, which may make it so.
 - **Confirm:** measured 2026-11-08 with `instruct = kind;` removed: pop.sh unmoved row for row, and the prose's worked example, compare-or, chained assign and a zero row (each paired with a non-zero sibling) all read the same on the new road. For the filters: `git grep -n "Assign at end" -- genLadder` after the cut, then the fleet row for row.
 - **Seen:** 2026-11-08.
 
