@@ -190,3 +190,13 @@ xpListTest), ruleThisT (rtRule, rtInvoke), ruleDoorT (REFUSEs, KEEPs, COPYs, DBL
 **Ruling owed, per rule: an explicit `return *actionLabel;`, or a refusal.** They are scaffolding whose job is to fire
 and print a marker; none exists to test running off the end (FELLOFf does that). **Clod's lean: a return for each**, then
 R2's mover run shows whether any row reads the change.
+
+## 9. The build (SEQ 567 R3, 2026-11-08): branch f146-cure
+
+Cure 0c85b12c, RA rows e406b792. Option (b) as ruled. One departure from section 3's shape: section 3 put a refusal's
+"nothing" in the kind alone. The rule door also has to know the body refused, because the interpreted rule leaves the
+refusal armed for its caller and the compiled epilogue clears it. So the ending is a second channel beside the kind,
+`gJitRetEnding` (0 a return, 1 ran off its end, 2 refused), and the door re-arms on 2. Part 1 is narrower than section 3:
+a string literal in an action body is a parse label, so "a label leaves as itself" means "a label holding a group is never
+followed to its count". Certificate, H7s and the three first-build movers: `docs/fixIts.md` F-146's attempt log. EXPRESSIOn
+still assigns nothing compiled: F-151.
