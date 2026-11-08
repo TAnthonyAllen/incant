@@ -166,7 +166,9 @@ echo "-- the draw walk: step 2 toward the first PDF."
 #  that names a fill and skips the rest. PINNED BEFORE THE BUILD, born red. DW-4 is the depth row; the refusal count is paired with DW-2 and DW-4.
 _dwF=$(ip drawWalkT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_dwF" > "$T/dw.o" 2> "$T/dw.e"; _dwx=$?
-_dwp () { grep -h '^=== pixelAt '"$1"' ' "$T/dw.o" "$T/dw.e" 2>/dev/null | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+#  _dwp the FIRST read of a field (DW-1 to DW-4); _dwpr reads N to M of the same field (DW-5, DW-6 read edges after them)
+_dwp () { grep -h '^=== pixelAt '"$1"' ' "$T/dw.o" "$T/dw.e" 2>/dev/null | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+_dwpr () { grep -h '^=== pixelAt '"$1"' ' "$T/dw.o" "$T/dw.e" 2>/dev/null | sed -n "$2,$3p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
 _ofeq "drawWalkT exit / sentinel" "$_dwx $(grep -c '^DRAWWALK SENTINEL' "$T/dw.e")" "0 1"
 #  RE-PIN (SEQ ___ R1, 2026-11-08): "today" was "" because drawWalkT registered neither makeDisplay nor pixelAt, so no pixel was read at all;
 #  with both in incant/setup the display opens and reads empty until drawWalk exists. Intended values unchanged.
@@ -174,6 +176,9 @@ fdRow "drawWalkT DW-1 heading has no fill: the top's wall shows, page (5,15)" "$
 fdRow "drawWalkT DW-2 words, depth 1, white, page (5,100)" "$(_dwp words)" "r0 g0 b0 a0/" "r255 g255 b255 a255/"
 fdRow "drawWalkT DW-3 space, depth 2, no fill: wall, page (100,180)" "$(_dwp space)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
 fdRow "drawWalkT DW-4 ok, depth 2, lightGreen, page (360,180)" "$(_dwp ok)" "r0 g0 b0 a0/" "r175 g211 b120 a255/"
+#  forms step 2 R2 (2026-11-08): the right way up, each side of an edge; a flipped child lands 5 points off and fails a pair
+_ofeq "drawWalkT DW-5 words' edges (5,29) (5,31) (5,164) (5,166): wall white white wall" "$(_dwpr words 2 5)" "r247 g232 b170 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/"
+_ofeq "drawWalkT DW-6 ok's edges (339,190) (341,190) (399,199) (341,165) (341,164): wall green green green white" "$(_dwpr ok 2 6)" "r247 g232 b170 a255/r175 g211 b120 a255/r175 g211 b120 a255/r175 g211 b120 a255/r255 g255 b255 a255/"
 fdRow "drawWalkT a field with no fill is skipped, not refused: refusals during the walk, beside words' pixel (anti-vacuity)" "$(sed -n '/^DW walk begins/,/^DW walk ends/p' "$T/dw.e" | grep -c 'REFUS') $(_dwp words)" "0 r0 g0 b0 a0/" "0 r255 g255 b255 a255/"
 
 #  missingFixtureFoot every fixture a row ran must have existed

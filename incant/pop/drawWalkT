@@ -41,6 +41,17 @@ cerr "DW-3 space, two levels down and no fill, page (100,180): wall":;
 pixelAt(firstLight["bar"]["space"]);
 cerr "DW-4 ok, two levels down, page (360,180): lightGreen":;
 pixelAt(firstLight["bar"]["ok"]);
+cerr "DW-5 words edges, page (5,29) (5,31) (5,164) (5,166): wall white white wall":;
+dwX = 5; dwY = 29; dwAt(firstLight["words"]); pixelAt(firstLight["words"]);
+dwY = 31; dwAt(firstLight["words"]); pixelAt(firstLight["words"]);
+dwY = 164; dwAt(firstLight["words"]); pixelAt(firstLight["words"]);
+dwY = 166; dwAt(firstLight["words"]); pixelAt(firstLight["words"]);
+cerr "DW-6 ok edges, page (339,190) (341,190) (399,199) (341,165) (341,164): wall lightGreen lightGreen lightGreen white":;
+dwX = 339; dwY = 190; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 341; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 399; dwY = 199; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 341; dwY = 165; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwY = 164; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
 cerr "DRAWWALK SENTINEL":;
 stop();
 
@@ -51,3 +62,6 @@ refused. The display is opened by makeDisplay before the walk, as step 1 built i
 Rows (genLadder/pop.sh): DW-1 to DW-4 are one pixel per depth: the top's wall where heading has no fill, words at
 depth 1, space (no fill) and ok at depth 2. DW-4 is the depth row: a walk that stops at the top reads wall there. The
 refusal count between the walk markers is 0, paired with DW-2 and DW-4, which only a walk that called the fill can paint.
+DW-5 and DW-6 (forms step 2 R2, 2026-11-08) read each side of an edge: words' top and bottom, ok's left, bottom and top.
+A child drawn upside down lands 5 points off at the vertical edges (words at 35..170, ok at 0..35), so (5,31), (5,166)
+and ok's rows go wrong under a flip. The walk itself also calls makeDisplay; the fixture's own call before it stays, as step 1 built it.
