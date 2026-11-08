@@ -10,6 +10,95 @@
 #include "Stylish.h"
 #include "GroupDraw.h"
 
+/*****************************************************************************
+    displayBorder -- forms step 3. Strokes the field's border into the display
+    its top handed down, built as displayFillRT is: one argument, the field's
+    own drawing attributes read here in C++.
+
+    WIDTH: border, topBorder, bottomBorder, leftBorder, rightBorder; a bare
+    name is width 1, =n is width n. Naming any side draws only the sides
+    named; a plain border draws all four. Any other value is refused by name:
+    a border's value is its width (Tony, forms step 3 R1).
+    COLOUR: strokeColor, the field's own first, then its style's, else black.
+    PLACE: width sits INSIDE the frame -- each line is inset by half its width,
+    so a field's drawing never spills onto a neighbour (R2).
+*****************************************************************************/
+extern "C" GroupItem *displayBorder(GroupItem *field)
+{
+GroupItem 	*comp = 0;
+NSColor 	*colour = 0;
+char 		*value = 0;
+	if ( !field )
+		return 0;
+	// ownThenStyle the field's own strokeColor first, then its style's; none at all is black (forms step 3 R1)
+	comp = field->get("strokeColor");
+	if ( !comp )
+		comp = ::styleComponent(field,"strokeColor");
+	if ( comp )
+		{
+		value = comp->getText();
+		if ( isGROUP(comp->groupBody->flags.data) )
+			colour = ::setColor(comp->getGroup());
+		else
+		if ( *value == '#' )
+			colour = ::setColor(comp);
+		else	colour = getColor(value);
+		if ( !colour )
+			{
+			::fprintf(stderr,"displayBorder: REFUSING %s -- %s names no colour that could be realised\n",field->groupBody->tag,comp->groupBody->tag);
+			return 0;
+			}
+		}
+	
+	NSRect       framed = ::getFrame(field);
+	GroupItem   *top    = displayOf(field);
+	CGContextRef ctx    = top ? (CGContextRef)top->getPointer() : 0;
+	if (!ctx) {
+	::fprintf(stderr,"displayBorder: REFUSING %s -- no display; call makeDisplay first\n", field->groupBody->tag);
+	return 0; }
+	const char *bad = 0;
+	auto widthOf = [&](const char *name, CGFloat *w) -> int {
+	GroupItem *side = field->get((char*)name);
+	if (!side) return 0;
+	unsigned int d = side->groupBody->flags.data;
+	if (isCOUNT(d))         *w = side->getCount();
+	else if (isNUMBER(d))   *w = side->getNumber();
+	else if (!d)            *w = 1;
+	else { bad = name; return -1; }
+	return *w > 0 ? 1 : 0; };
+	CGFloat wAll = 0, wT = 0, wB = 0, wL = 0, wR = 0;
+	int all = widthOf("border", &wAll);
+	int t = widthOf("topBorder", &wT), b = widthOf("bottomBorder", &wB);
+	int l = widthOf("leftBorder", &wL), r = widthOf("rightBorder", &wR);
+	if (bad) {
+	::fprintf(stderr,"displayBorder: REFUSING %s -- %s's value is not a width\n", field->groupBody->tag, bad);
+	return 0; }
+	if (!t && !b && !l && !r) {
+	if (all <= 0) return field;
+	t = b = l = r = 1;
+	wT = wB = wL = wR = wAll; }
+	//  asFillDoes a named colour's components go in as displayFillRT hands its own; no colour named is black
+	CGFloat cr = 0, cg = 0, cb = 0, ca = 1;
+	if (comp) [colour getRed:&cr green:&cg blue:&cb alpha:&ca];
+	CGContextSetRGBStrokeColor(ctx, cr, cg, cb, ca);
+	CGContextSetLineCap(ctx, kCGLineCapButt);
+	CGFloat x0 = framed.origin.x, y0 = framed.origin.y;
+	CGFloat x1 = x0 + framed.size.width, y1 = y0 + framed.size.height;
+	//  insideTheFrame each side's line is inset by half its width, and runs the frame's whole length (R2)
+	auto side = [&](CGFloat w, CGFloat ax, CGFloat ay, CGFloat bx, CGFloat by) {
+	CGContextSetLineWidth(ctx, w);
+	CGContextBeginPath(ctx);
+	CGContextMoveToPoint(ctx, ax, ay);
+	CGContextAddLineToPoint(ctx, bx, by);
+	CGContextStrokePath(ctx); };
+	if (t > 0) side(wT, x0, y0 + wT / 2, x1, y0 + wT / 2);
+	if (b > 0) side(wB, x0, y1 - wB / 2, x1, y1 - wB / 2);
+	if (l > 0) side(wL, x0 + wL / 2, y0, x0 + wL / 2, y1);
+	if (r > 0) side(wR, x1 - wR / 2, y0, x1 - wR / 2, y1);
+	
+	return field;
+}
+
 extern "C" GroupItem *displayFillRT(GroupItem *field)
 {
 GroupItem 	*comp = 0;

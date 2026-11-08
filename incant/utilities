@@ -132,7 +132,9 @@ define
         The top field opens the display (makeDisplay hands it down as each
         descendant's display property, step 1), then every field that names a
         fill, or a style for displayFill to resolve, fills into it at page
-        coordinates. A field naming neither is skipped, not refused.
+        coordinates. A field naming neither is skipped, not refused. After its
+        fill, a field naming border or a side (topBorder, bottomBorder,
+        leftBorder, rightBorder) draws it through displayBorder (forms step 3).
         drawKids descends where *grup.hasMemberS: grup is the loop's holder, so
         the star is needed (grup.hasMemberS reads nothing; measured 2026-11-08,
         bar 1, every leaf 0).
@@ -140,15 +142,24 @@ define
     drawWalk code={
         makeDisplay(argument);
         drawFill(argument);
+        drawBorder(argument);
         drawKids(argument);
         };
     drawFill code={
         if argument["fill"];    displayFill(argument);
         or argument["style"];   displayFill(argument);
         };
+    drawBorder code={
+        if argument["border"];          displayBorder(argument);
+        or argument["topBorder"];       displayBorder(argument);
+        or argument["bottomBorder"];    displayBorder(argument);
+        or argument["leftBorder"];      displayBorder(argument);
+        or argument["rightBorder"];     displayBorder(argument);
+        };
     drawKids code={
         for grup in argument; members
             drawFill(*grup);
+            drawBorder(*grup);
             if *grup.hasMemberS;    drawKids(*grup);
         };
     listed;

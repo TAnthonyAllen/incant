@@ -10,6 +10,7 @@ public:
 GroupItem *drawRegistry;
 Layout *layout;
 };
+extern "C" GroupItem *displayBorder(GroupItem *field);
 extern "C" GroupItem *displayFillRT(GroupItem *field);
 GroupItem *displayOf(GroupItem *field);
 extern "C" NSRect getFrame(GroupItem *item);

@@ -38,6 +38,7 @@ define
     copyOf immediateAction;
     defer immediateAction=processFlags noPrint;
     definersOf immediateAction;
+    displayBorder immediateAction=displayBorder;
     displayFill immediateAction=displayFill;
     displayFillRT immediateAction=displayFillRT;
     ruleOfCensus immediateAction;
