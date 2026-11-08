@@ -18,6 +18,24 @@ define
         argument :% copyOf(px);
         argument :% copyOf(py);
         };
+    dwScanX code={
+        dwX = 0;
+        while dwX < dwEnd;
+            dwAt(argument);
+            pixelAt(argument);
+            dwX += 1;
+        };
+    dwScanY code={
+        dwY = 0;
+        while dwY < dwEnd;
+            dwAt(argument);
+            pixelAt(argument);
+            dwY += 1;
+        };
+    dwEnd = 0;
+    dwThick x=0 y=0 width=20 height=20 fill=white border=3 strokeColor=blue;
+    dwSt strokeColor="red";
+    dwStyled x=0 y=0 width=10 height=10 fill=white border style="dwSt";
     ;
 search DrawWalk FORMs UnitTests Utilities cOLOr fONTs list;
 setFrame(firstLight);
@@ -52,6 +70,37 @@ dwX = 341; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
 dwX = 399; dwY = 199; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
 dwX = 341; dwY = 165; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
 dwY = 164; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+cerr "DW-7 ok's plain border, inside / outside each edge: left (340,180) (339,180), top (360,165) (360,164), right (399,180) (398,180), bottom (360,199) (360,198)":;
+dwY = 180; dwX = 340; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 339; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 360; dwY = 165; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwY = 164; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 399; dwY = 180; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 398; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwX = 360; dwY = 199; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+dwY = 198; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
+cerr "DW-8 heading's bottomBorder: inside (5,29), outside (5,30)":;
+dwX = 5; dwY = 29; dwAt(firstLight["heading"]); pixelAt(firstLight["heading"]);
+dwY = 30; dwAt(firstLight["heading"]); pixelAt(firstLight["heading"]);
+cerr "DW-9 heading's other three sides, every pixel: top row y=0 x 0..399, left x=0 y 0..28, right x=399 y 0..28; then its bottom row y=29 x 0..399":;
+dwEnd = 400; dwY = 0; dwScanX(firstLight["heading"]);
+dwEnd = 29; dwX = 0; dwScanY(firstLight["heading"]);
+dwX = 399; dwScanY(firstLight["heading"]);
+dwEnd = 400; dwY = 29; dwScanX(firstLight["heading"]);
+cerr "DW-10 width 3 (own strokeColor=blue): left (0,10) (1,10) (2,10) painted, (3,10) not; top (10,0) (10,1) (10,2) painted, (10,3) not":;
+drawWalk(dwThick);
+dwY = 10; dwX = 0; dwAt(dwThick); pixelAt(dwThick);
+dwX = 1; dwAt(dwThick); pixelAt(dwThick);
+dwX = 2; dwAt(dwThick); pixelAt(dwThick);
+dwX = 3; dwAt(dwThick); pixelAt(dwThick);
+dwX = 10; dwY = 0; dwAt(dwThick); pixelAt(dwThick);
+dwY = 1; dwAt(dwThick); pixelAt(dwThick);
+dwY = 2; dwAt(dwThick); pixelAt(dwThick);
+dwY = 3; dwAt(dwThick); pixelAt(dwThick);
+cerr "DW-11 colour from the style (dwSt strokeColor red): (0,5) painted, (1,5) not":;
+drawWalk(dwStyled);
+dwX = 0; dwY = 5; dwAt(dwStyled); pixelAt(dwStyled);
+dwX = 1; dwAt(dwStyled); pixelAt(dwStyled);
 cerr "DRAWWALK SENTINEL":;
 stop();
 
@@ -65,3 +114,8 @@ refusal count between the walk markers is 0, paired with DW-2 and DW-4, which on
 DW-5 and DW-6 (forms step 2 R2, 2026-11-08) read each side of an edge: words' top and bottom, ok's left, bottom and top.
 A child drawn upside down lands 5 points off at the vertical edges (words at 35..170, ok at 0..35), so (5,31), (5,166)
 and ok's rows go wrong under a flip. The walk itself also calls makeDisplay; the fixture's own call before it stays, as step 1 built it.
+DW-7 to DW-11 (forms step 3, borders, registered before the build): ok's plain border inside and outside each edge (right and
+bottom sit on the page's edge, so their second pixel is the next one in); heading's bottomBorder at its edge, then every pixel
+of its other three sides (unpainted) and of its bottom row (painted); dwThick, width 3 with its own strokeColor; dwStyled,
+its colour from its style. Width sits inside the frame (Tony): a border never spills onto a neighbour. DW-5 and DW-6 move
+with the border by design: (5,29) is heading's bottom row, and (399,199) and (341,165) are on ok's edges.
