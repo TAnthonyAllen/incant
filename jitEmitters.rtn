@@ -1306,6 +1306,9 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
             else if (!slotT->isDoubleTy() && vNum)  v = b->CreateFPToSI(b->CreateUnaryIntrinsic(llvm::Intrinsic::floor,
                                                          b->CreateFAdd(v, llvm::ConstantFP::get(dT, 0.5), "castHalf")), iT, "castCount");
             b->CreateStore(v, target->jitData->jitSlot);
+            //  storeIsTheValue the slot now holds v, so the target's build value is v: left as the seed's load, a later read
+            //  in the same build -- an inlined callee's argument, followed to this field -- read the value from BEFORE the store
+            target->jitData->jitValue = v;
         }
     }
     //  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given

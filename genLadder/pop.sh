@@ -7939,6 +7939,18 @@ sentinel "jitterT new road sentinel" "$T/jtN" "JITTER SENTINEL"
 kindRow "jitterT new road: JT-0..JT-4 = the interpreted twin" "$(_jtv "$T/jtN")" "$(_jtv "$T/jtI")"
 kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtN")" "1"
 
+#  ⚑ jitArgStaleT -- jitterT's cure (2026-11-08, branch jitterT-cure): an inlined callee's `argument`, followed at build to the
+#  caller's `kk=1`, read the slot's value from BEFORE jitEmitAssign stored 1 (the seed's load). Trunk read 0 hits jitted, 2
+#  interpreted, exit 0, silent. JTT above cannot show it on trunk (its compare hands over); this row can. The fixture's dead
+#  region carries the mechanism.
+_asv () { sed -n 's/^AS hits .*\[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+run1 jitArgStaleT "$T/as";   check "jitArgStaleT runs" 0 $?
+sentinel "jitArgStaleT sentinel" "$T/as" "AS SENTINEL"
+sed '/^jitter;$/d' "$(ip jitArgStaleT)" > "$T/asI.src"; "$CB" "$T/asI.src" > "$T/asI" 2>&1
+kindRow "jitArgStaleT the interpreted twin: two calls, two hits" "$(_asv "$T/asI")" "2"
+fdRow "jitArgStaleT jitted: an inlined callee's argument after the caller's kk=1 (trunk read the pre-store load)" "$(_asv "$T/as")" "0" "2"
+kindRow "jitArgStaleT witness: asCa built 1 called 2 (the hits come from the compiled run)" "$(grep -c '^=== jitter: asCa built 1 called 2 ===' "$T/as")" "1"
+
 #  ⚑ kindlessNetT -- SEQ 388 R2 (Tony, 2026-10-21): THE NET. A kindless local with no writer the build can see is NOT
 #  JITTABLE -- refused by name, interpreted after. Nothing in the fleet reaches it (SEQ 388 R1), so this fixture is its
 #  only reach. KN-1 is the control (a `= 2` writer compiles); KN-2's knLoc is read and never written. Intended = the
