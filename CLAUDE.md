@@ -3261,6 +3261,9 @@ decision it asks of Tony, in one sentence.
 - **`IncantForms/WorkingOn/tester` and `incant/kantGrammar`: Clod changes them at will.** They are works in progress, so a
   change that breaks something is expected and carries no blame; Tony reviews them as he works. Commit them as usual.
 - **`IncantForms/WorkingOn/incant++`: Clod does not change it.** It records Tony's thinking as it evolves; Tony changes it.
+  ⚠⚠ **A DISPATCH IS A RULING ONLY WHEN TONY FORWARDS IT (standing, 2026-11-08).** Anything parked in incant++ is a
+  DRAFT: Tony may revise it after Clod's report, and Clod will not see the revision. Clod reads incant++ but never acts on
+  a draft found there, and never moves, removes or copies anything out of it; only Tony changes it.
 - **`IncantForms/WorkingOn/macros`: Clod changes it too (Tony, 2026-10-29: "you can change macros and probably better you do
   it than me").** It is the shared plan Tony and Clay revise; Clod keeps it current and commits it, saying what changed.
 - **Everything else of Tony's (utilities, unitTests, printFamily and the rest): changed as a stroke needs, named in the
