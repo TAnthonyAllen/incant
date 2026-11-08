@@ -6,6 +6,12 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
+### EXPRESSIOn's `instruct = kind;`, and pop.sh's 25 `^Assign at end` filters (SEQ 562, 2026-11-08)
+- **What/where:** `incant/kantGrammar`, EXPRESSIOn's action, `instruct    = kind;` (the line after `instruct +% op target;` in the loose-tier arm). And `genLadder/pop.sh`, 25 `grep -v` filters naming `^Assign at end` (`_ajv`, `_whv`, `_btv`, `_ccv` and kin), which strip a print removed in `726dac7d`.
+- **Why it looks deletable:** nothing reads the kind count. The slot tests (`cmpP.datA != 0` and kin) read the holder's own data, not the held instruct's count. The filters now strip a line that is never printed.
+- **Confirm:** measured 2026-11-08 with `instruct = kind;` removed: pop.sh unmoved row for row, and the prose's worked example, compare-or, chained assign and a zero row (each paired with a non-zero sibling) all read the same on the new road. For the filters: `git grep -n "Assign at end" -- genLadder` after the cut, then the fleet row for row.
+- **Seen:** 2026-11-08.
+
 ### Methods out of alphabetical order, in the `.rtn` and `.twk` files (Tony, 2026-11-07: "seriously not")
 - **What/where:** measured by `genLadder/alphaLint.sh`, report tier. `.rtn` sweep: alphaLint -- 8 file(s) examined, 81 out-of-order method(s), 0 broken unit(s). By file: jitEmitters.rtn 46 of 162, ruleActions.rtn 21 of 78, Instruct.rtn 6 of 88, GroupActions.rtn 5 of 70, Generate.rtn 2 of 20, genParse.rtn 1 of 6. `.twk` sweep (`alphaLint.sh *.twk`): alphaLint -- 11 file(s) examined, 11 out-of-order method(s), 0 broken unit(s). By file: measure.twk 4 of 43, GroupRules.twk 3 of 7, Stylish.twk 2 of 10, GroupDraw.twk 1 of 5, GroupStak.twk 1 of 10; GroupItem.twk, RuleStuff.twk and the rest in order.
 - **Why it is here:** the standing rule (Tony, 2026-08-15) is that new methods go in alphabetically. Tony's reason (2026-11-07): he knows about where to look when searching for a method. "No big deal", so it is low priority, and it is the test for any family kept together: can it still be found by name? Strokes have added methods beside the code they serve, so the order has drifted. Some of it reads as families kept together, such as ruleActions.rtn's `acc*` and jitEmitters.rtn's `jitWalk*`; whether a family stays together is part of the ruling.
