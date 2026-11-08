@@ -6,6 +6,12 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
+### utilities' `flatten`: its descent test `grup.hasMembers` never fires (forms step 2, 2026-11-08)
+- **What/where:** `incant/utilities`, `flatten`, `if grup.hasMembers; flatten(*grup);`.
+- **Why it looks deletable or owed a respell:** two spellings are off. `hasMembers` is tok; kant's is `hasMemberS` (Tony). And `grup` is the loop's holder, so the read needs `*grup`. Measured while writing drawWalk: `grup.hasMemberS` reads nothing, `*grup.hasMemberS` reads 1 on firstLight's bar and 0 on every leaf. So flatten never recurses; every member goes to whatsIt. Its comment says "Just a test action for now", and nothing in the fleet calls it (to confirm).
+- **Confirm:** `git grep -n 'flatten(' -- incant IncantForms genLadder` for callers; then either respell to `*grup.hasMemberS` with a fixture, or cut it.
+- **Seen:** 2026-11-08.
+
 ### EXPRESSIOn's `instruct = kind;`, and pop.sh's 25 `^Assign at end` filters (SEQ 562, 2026-11-08)
 - **What/where:** `incant/kantGrammar`, EXPRESSIOn's action, `instruct    = kind;` (the line after `instruct +% op target;` in the loose-tier arm). And `genLadder/pop.sh`, 25 `grep -v` filters naming `^Assign at end` (`_ajv`, `_whv`, `_btv`, `_ccv` and kin), which strip a print removed in `726dac7d`.
 - **Why it looks deletable:** nothing reads the kind count. The slot tests (`cmpP.datA != 0` and kin) read the holder's own data, not the held instruct's count. The filters now strip a line that is never printed.
