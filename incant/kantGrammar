@@ -576,7 +576,6 @@ define
             *logP +% *target;
             target = logP;
         if asgP.datA != 0;
-            print "Assign at end":;
             *asgP +% *target;
             target = asgP;
             if asgO.datA != 0;  target = asgO;
