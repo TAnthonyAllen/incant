@@ -672,6 +672,15 @@ inline GroupItem *gJitRetNode = nullptr;
 inline llvm::Value *gJitRetKindSlot = nullptr;
 inline llvm::Value *gJitRetNodeSlot = nullptr;
 inline int gJitRetPendKind = -1;
+// THE ENDING CHANNEL (F-146, SEQ 567 R3): how the activation's body ended -- 0 a return, 1 it ran off its end, 2 it refused. A second channel
+// beside the kind, because the kind says what is handed back and this says how the body ended. 1 at entry. Published by the epilogue beside the
+// kind; only the rule door reads it: 1 is refused by name, 2 re-arms the refusal the epilogue cleared, as the interpreted rule leaves it armed.
+inline int gJitRetEnding = 0;
+inline llvm::Value *gJitRetEndSlot = nullptr;
+// gJitStmtRTNewRoad the handed-over statement that RETURNED was a new-road instruct (testOP): its holder leaves as the holder (F-146).
+// gJitReturnLabel a native return's operand, when it is a label: it leaves as the node, never its count (F-146). Set by the walk around jitEmitReturn.
+inline bool gJitStmtRTNewRoad = false;
+inline GroupItem *gJitReturnLabel = nullptr;
 // THE NEW ROAD'S CALL (SEQ 540 S6). A native call's value is a run-time node, read from the return channel before the frame restores, because a callee may
 // return a string, a number or nothing. gJitCallTakesNode asks jitEmitSelfCall for it; gJitCallResult is the node standing for it, which jitNoteWriter reads as a non-scalar writer.
 inline bool gJitCallTakesNode = false;
@@ -689,10 +698,8 @@ inline std::set<void*> gJitRTCursors;
 // dereference of one is handed over too (SEQ 405). gJitStmtHolderWrites holds the writes of the statements still open,
 // with the depth that wrote them; a statement that is not handed over passes its writes up. Both cleared per function build.
 inline std::set<void*> gJitRTHolders;
-// gJitNativeHolders the holders a COMPILED := wrote this build (operator rung stroke 2, SEQ 563). gJitF146Return the first bare `return`
-// of one: nh's shape, which hands back a box of the count until F-146, so the build refuses by name (SEQ 563 R1). Both cleared per build.
+// gJitNativeHolders the holders a COMPILED := wrote this build (operator rung stroke 2, SEQ 563). Cleared per build.
 inline std::set<void*> gJitNativeHolders;
-inline GroupItem *gJitF146Return = nullptr;
 inline std::vector<std::pair<size_t, void*>> gJitStmtHolderWrites;
 // gJitArgFollowNode / gJitArgFollowVal a rule-holding argument followed at build: the node followArgument returned, and the
 // value that holds the binding at RUN time (SEQ 409). Read by jitEmitArgBind alone; cleared per statement and per build.

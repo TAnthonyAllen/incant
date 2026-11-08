@@ -3875,7 +3875,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
 	gJitRTHolders.clear();
 	gJitStmtHolderWrites.clear();
-	gJitNativeHolders.clear(); gJitF146Return = nullptr;
+	gJitNativeHolders.clear();
 	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
@@ -4096,6 +4096,8 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	gJitRetNodeSlot = B.CreateAlloca(retPtr, nullptr, "retNode");
 	B.CreateStore(llvm::ConstantInt::get(i32, chainWalk ? 0 : 1), gJitRetKindSlot);
 	B.CreateStore(llvm::ConstantPointerNull::get(llvm::PointerType::getUnqual(C)), gJitRetNodeSlot);
+	gJitRetEndSlot = B.CreateAlloca(i32, nullptr, "retEnding");
+	B.CreateStore(llvm::ConstantInt::get(i32, 1), gJitRetEndSlot);
 	}
 	// =========================== end frame prologue ===========================
 	// Execute the parsed BlocK under jitting: runOP/op-gates emit straight-line IR;
@@ -4111,16 +4113,6 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	}
 	ruler->jitting = 0;
 	ruler->branchKind = emitBranchSave;
-	//  nhShape refused by name until F-146 (SEQ 563 R1): the action returns a holder a compiled := wrote
-	if (!gJitRestartNeeded && gJitF146Return) {
-	fprintf(stderr, "=== jitRunAction: NOT JITTABLE -- %s returns %s, a holder a compiled := wrote: handed over until F-146 (SEQ 563 R1) ===\n",
-	action->groupBody->tag, gJitF146Return->groupBody->tag ? gJitF146Return->groupBody->tag : "?");
-	fflush(stderr);
-	gJitF146Return = nullptr;
-	gJitBuilder = nullptr;
-	gJitResult  = nullptr;
-	gJitResultSlot = nullptr;
-	return -8; }
 	//  kindlessNet a slotted local still kindless with no writer the build saw is NOT JITTABLE (SEQ 388 R2, Tony)
 	if (!gJitRestartNeeded) for (JitFrameSlot &f : gJitFrame) {
 	GroupBody *lb = f.ty->isDoubleTy() ? (GroupBody*)((char*)f.home - offsetof(GroupBody, gNumber))
@@ -4187,11 +4179,14 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  emitted-road helper calls refuse() -- measured, all six. Routing the
 	//  three gated sites (jitDerefRT x2, jitPrintNodeRT) is what makes the leak
 	//  reachable, so the clear lands FIRST and those follow.
+	//  armedExit the arm is read before it is cleared: an activation that leaves refused hands back nothing, and its ending says refused (F-146)
+	llvm::Value *exitArmed = nullptr;
 	{
 	void *armAddr = (void*)&(GroupControl::groupController->groupRules->refused);
 	llvm::Value *armP = B.CreateIntToPtr(
 	llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)armAddr),
 	llvm::PointerType::getUnqual(C));
+	exitArmed = B.CreateICmpNE(B.CreateLoad(llvm::Type::getInt32Ty(C), armP, "exitArm"), llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0), "exitArmed");
 	B.CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0), armP);
 	}
 	
@@ -4199,8 +4194,11 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	if (gJitRetKindSlot) {
 	llvm::Type *retPtr = llvm::PointerType::getUnqual(C);
 	auto retBake = [&](void *p) { return B.CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)p), retPtr); };
-	B.CreateStore(B.CreateLoad(llvm::Type::getInt32Ty(C), gJitRetKindSlot, "retKindOut"), retBake((void*)&gJitRetKind));
+	llvm::Type *ri32 = llvm::Type::getInt32Ty(C);
+	llvm::Value *zero = llvm::ConstantInt::get(ri32, 0);
+	B.CreateStore(B.CreateSelect(exitArmed, zero, B.CreateLoad(ri32, gJitRetKindSlot, "retKindOut")), retBake((void*)&gJitRetKind));
 	B.CreateStore(B.CreateLoad(retPtr, gJitRetNodeSlot, "retNodeOut"), retBake((void*)&gJitRetNode));
+	B.CreateStore(B.CreateSelect(exitArmed, llvm::ConstantInt::get(ri32, 2), B.CreateLoad(ri32, gJitRetEndSlot, "retEndOut")), retBake((void*)&gJitRetEnding));
 	}
 	// ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
 	// Store each frame slot back to the field's own storage, so the interpreter
@@ -5690,7 +5688,11 @@ extern "C" int jitEmitReturn()
 	if (f.retKindSlot && gJitResult) {
 	llvm::Type *cI32 = llvm::Type::getInt32Ty(ctx);
 	llvm::Type *cPtr = llvm::PointerType::getUnqual(ctx);
-	if (gJitResult->getType()->isDoubleTy()) {
+	//  labelReturn a label leaves as the node (F-146)
+	if (gJitReturnLabel) {
+	b->CreateStore(b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)(void*)gJitReturnLabel), cPtr, "retLabel"), f.retNodeSlot);
+	b->CreateStore(llvm::ConstantInt::get(cI32, 2), f.retKindSlot); }
+	else if (gJitResult->getType()->isDoubleTy()) {
 	llvm::Value *boxFn = b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)(void*)&jitBoxNumberRT), cPtr, "retBoxFn");
 	b->CreateStore(b->CreateCall(llvm::FunctionType::get(cPtr, {gJitResult->getType()}, false), boxFn, {gJitResult}, "retBox"), f.retNodeSlot);
 	b->CreateStore(llvm::ConstantInt::get(cI32, 2), f.retKindSlot); }
@@ -5708,10 +5710,16 @@ extern "C" int jitEmitReturn()
 	
 	
 	//  returnChannel a double cannot ride the i32: it leaves as a node (SEQ 527 R2). A count rides the i32. A bare return says nothing, so the activation's start stands
+	//  returnedNotOffEnd any return, a bare one too, means the activation did not run off its end (F-146)
+	if (gJitRetEndSlot) b->CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(ctx), 0), gJitRetEndSlot);
 	if (gJitRetKindSlot && gJitResult) {
 	llvm::Type *cI32 = llvm::Type::getInt32Ty(ctx);
 	llvm::Type *cPtr = llvm::PointerType::getUnqual(ctx);
-	if (gJitResult->getType()->isDoubleTy()) {
+	//  labelReturn a label leaves as the node, never its count (F-146)
+	if (gJitReturnLabel) {
+	b->CreateStore(b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)(void*)gJitReturnLabel), cPtr, "retLabel"), gJitRetNodeSlot);
+	b->CreateStore(llvm::ConstantInt::get(cI32, 2), gJitRetKindSlot); }
+	else if (gJitResult->getType()->isDoubleTy()) {
 	llvm::Value *boxFn = b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx), (uint64_t)(void*)&jitBoxNumberRT), cPtr, "retBoxFn");
 	b->CreateStore(b->CreateCall(llvm::FunctionType::get(cPtr, {gJitResult->getType()}, false), boxFn, {gJitResult}, "retBox"), gJitRetNodeSlot);
 	b->CreateStore(llvm::ConstantInt::get(cI32, 2), gJitRetKindSlot); }
@@ -6061,8 +6069,19 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	b->CreateStore(b->CreateCall(llvm::FunctionType::get(i32, {i32}, false), b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendKindRT), ptr, "retPendKindFn"), {keep}, "retPendKind"), rkSlot);
 	b->CreateStore(b->CreateCall(llvm::FunctionType::get(ptr, {}, false), b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendNodeRT), ptr, "retPendNodeFn"), {}, "retPendNode"), rnSlot); } }
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRetPendNodeRT), ptr, "retPendNodeFn"), {}, "retPendNode"), rnSlot); }
+	//  rtReturnedNotOffEnd the activation returned (F-146); an inlined region's return is its own
+	if (gJitInlining.empty() && gJitRetEndSlot) b->CreateStore(llvm::ConstantInt::get(i32, 0), gJitRetEndSlot); }
 	b->CreateBr(exit);
+	//  refusedLeg a statement that refused leaves with nothing, and the activation's ending says refused (F-146); its arm is already cleared
+	llvm::BasicBlock *refused = llvm::BasicBlock::Create(ctx, "stmtRefusedExit", rfn);
+	{
+	llvm::IRBuilder<> rb(refused);
+	llvm::Value *rk = gJitInlining.empty() ? gJitRetKindSlot : (gJitInlineFrames.empty() ? nullptr : gJitInlineFrames.back().retKindSlot);
+	if (rk) rb.CreateStore(llvm::ConstantInt::get(i32, 0), rk);
+	if (gJitInlining.empty() && gJitRetEndSlot) rb.CreateStore(llvm::ConstantInt::get(i32, 2), gJitRetEndSlot);
+	rb.CreateBr(exit);
+	}
 	b->SetInsertPoint(chk);
 	//  loopTargets a statement carrying a continue / break (and ONLY one) switches: 3 -> the innermost loop's condition,
 	//  4 -> its exit -- the loop of THIS function or inlined region; a region with no loop of its own ends there, as the
@@ -6074,11 +6093,11 @@ extern "C" void jitEmitStmtRT(GroupItem *statement)
 	//  walkBreakTarget on the new road's walk a seq catches a break too, and the walk's stack says which (SEQ 526 S4)
 	if (!gJitWalkBreak.empty()) brkBB = gJitWalkBreak.back();
 	llvm::IntegerType *it32 = llvm::Type::getInt32Ty(ctx);
-	llvm::SwitchInst *sw = b->CreateSwitch(rv, exit, 3);
+	llvm::SwitchInst *sw = b->CreateSwitch(rv, refused, 3);
 	sw->addCase(llvm::ConstantInt::get(it32, 0), cont);
 	if (gJitStmtRTBranches & 2) sw->addCase(llvm::ConstantInt::get(it32, 3), contBB);
 	if (gJitStmtRTBranches & 1) sw->addCase(llvm::ConstantInt::get(it32, 4), brkBB); }
-	else b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), exit, cont);
+	else b->CreateCondBr(b->CreateICmpNE(rv, llvm::ConstantInt::get(i32, 0), "stmtRefused"), refused, cont);
 	b->SetInsertPoint(cont);
 	
 }
@@ -8332,7 +8351,7 @@ int 		inherited = 0;
 		ruler->branchKind = 0;
 		if ( stmtValue && stmtValue->groupBody->registry == ruler->keyWords )
 			stmtValue = 0;
-		 gJitStmtRTValue = stmtValue; 
+		 gJitStmtRTValue = stmtValue; gJitStmtRTNewRoad = (void*)statement->groupBody->gMethod == (void*)&testOP; 
 		refusedHere = 2;
 		}
 	// loopControl a continue or a break run here leaves the statement for its loop: 3 continue, 4 break (SEQ 410)
@@ -8350,7 +8369,8 @@ int 		inherited = 0;
 }
 
 /*  jitStmtRTValueRT -- run time, after a handed-over statement RETURNED: the value it returned, as a count, followed
-    through a holder as aCTionBlocK follows it; `old` (the result slot) for a bare `return;` (SEQ 393 A).  */
+    through a holder as aCTionBlocK follows it; `old` (the result slot) for a bare `return;` (SEQ 393 A). A label leaves
+    as itself, and on the new road a holder leaves as the holder, as the interpreted return hands them back (F-146).  */
 extern "C" int jitStmtRTValueRT(int old)
 {
 	
@@ -8361,6 +8381,9 @@ extern "C" int jitStmtRTValueRT(int old)
 	if ( !v ) return old;
 	GroupItem *followed = v;
 	if ( isGROUP(v->groupBody->flags.data) && v->getGroup() ) followed = v->getGroup();
+	//  labelAsItself a label holding a group is the rule's answer, never followed to its count; on the new road a holder leaves as the holder,
+	//  as its interpreted return hands it back -- the old road follows, as aCTionBlocK does. The i32 is unchanged (F-146)
+	if ( followed != v && (v->groupBody->flags.isLabel || gJitStmtRTNewRoad) ) { gJitRetPendKind = 2; gJitRetPendNode = v; return followed->getCount(); }
 	//  countOrNode a count rides the i32; anything else leaves as the node the statement returned, which runAction copies inside its bracket (SEQ 527 R2)
 	if ( isCOUNT(followed->groupBody->flags.data) ) gJitRetPendKind = 1;
 	else { gJitRetPendKind = 2; gJitRetPendNode = v; }
@@ -8856,9 +8879,6 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	GroupItem *kw = arms->groupBody->groupList ? arms->get(1) : arms;
 	GroupItem *value = arms->groupBody->groupList ? arms->get(2) : nullptr;
 	const char *k = kw ? kw->groupBody->tag : nullptr;
-	//  nhShape a bare return of a holder a compiled := wrote hands back a box of the count until F-146: the build is refused by name (SEQ 563 R1)
-	if ( k && *k == 'r' && value && (void*)value->groupBody->gMethod != (void*)&testOP && gJitNativeHolders.count((void*)value->groupBody) && !gJitF146Return )
-	gJitF146Return = value;
 	//  jitEmitBreak a break goes to the innermost seq or loop; a continue to the innermost loop's condition; with neither it ends the action
 	if ( k && (*k == 'b' || *k == 'c') ) {
 	//  regionFloor an inlined callee's continue with no loop of its own ends the callee: its caller's loop is not its to continue (SEQ 540)
@@ -8883,7 +8903,9 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	gJitResult = nullptr;
 	::jitWalkExpr(value);
 	if ( !::jitWalkCondOK(stmt) ) { ::jitWalkHandedBack(stmt, w0, h0, n0); return; }
+	gJitReturnLabel = ((void*)value->groupBody->gMethod != (void*)&testOP && value->groupBody->flags.isLabel) ? value : nullptr;
 	::jitEmitReturn();
+	gJitReturnLabel = nullptr;
 	gJitWalkNative++;
 	::jitStmtEnd(stmt);
 	gJitStmtCanRefuse = false;
@@ -12042,9 +12064,10 @@ GroupItem 	*action = field;
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && !grup->groupBody->flags.isArgument && grup->groupBody != action->groupBody )
 				grup->clear();
 		// ruleDoor an opted-in rule's body runs compiled here and nowhere else; the binding above and the restore below stay as they are (SEQ 554)
-		// ruleDoorGuard a compiled rule that hands back a boxed count refuses by name and adopts nothing: a box must never become the label (SEQ 554 R2)
+		// ranOffItsEnd a rule whose code ends without a return or a refusal is refused by name on both roads and adopts nothing (F-146, SEQ 565 R0)
 		
-		bool ruleCompiled = false;
+		bool ruleCompiled = false, bodyRanOff = false, bodyRefused = false;
+		bool fireIsRule = fireRule->groupBody->flags.isRule;
 		if ( !gJitterRules.empty() && !ruler->jitting && ::jitterRuleOpted(fireRule->groupBody) ) {
 		int armedSave = ruler->refused;
 		int ready = ::jitterReady(fireRule);
@@ -12053,10 +12076,14 @@ GroupItem 	*action = field;
 		ruleCompiled = true;
 		::jitterTallyFind(fireRule->groupBody)->fired++;
 		int ruleValue = gJitterFn(::jitBodyField(fireRule));
-		int ruleKind  = gJitRetKind;
-		result = ::jitTakeReturn(ruleValue);
-		if ( ruleKind == 1 ) result = ::refuse(fireRule,"a compiled rule handed back a count, not its label: it refused or ran off its end, and nothing is adopted"); } }
-		if ( !ruleCompiled ) result = result->groupBody->gMethod(result);
+		bodyRanOff  = gJitRetEnding == 1;
+		bodyRefused = gJitRetEnding == 2;
+		result = ::jitTakeReturn(ruleValue); } }
+		if ( !ruleCompiled ) {
+		result = result->groupBody->gMethod(result);
+		bodyRanOff = fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused; }
+		if ( bodyRanOff ) result = ::refuse(fireRule,"the rule ran off its end: it handed back no label, and nothing is adopted");
+		if ( bodyRefused ) { ruler->refused = 1; result = nullptr; }
 		
 		}
 	 GroupControl::groupController->groupRules->branchKind = actionBranchSave; 
