@@ -8,10 +8,6 @@ define
     ;
 include(styles);
 include(firstLightFile);
-registry(cOMMANDs);
-define makeDisplay    immediateAction=makeDisplay; ;
-define displayFillRT  immediateAction=displayFillRT; ;
-define pixelAt        immediateAction=pixelAt; ;
 register(FillPage);
 define
     fpX = 0;

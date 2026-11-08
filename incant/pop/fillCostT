@@ -2,9 +2,6 @@ Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
-registry(cOMMANDs);
-define makeDisplay    immediateAction=makeDisplay; ;
-define displayFillRT  immediateAction=displayFillRT; ;
 register(FillCostT);
 define
     fcWall=#f7e8aa;

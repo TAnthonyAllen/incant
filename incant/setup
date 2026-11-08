@@ -38,6 +38,8 @@ define
     copyOf immediateAction;
     defer immediateAction=processFlags noPrint;
     definersOf immediateAction;
+    displayFill immediateAction=displayFill;
+    displayFillRT immediateAction=displayFillRT;
     ruleOfCensus immediateAction;
     dumpContents immediateAction;
     exit immediateAction=processFlags;
@@ -60,6 +62,7 @@ define
     jitTrace immediateAction=jitTrace;
     labelTree immediateAction;
     loopOwnsBody immediateAction;
+    makeDisplay immediateAction=makeDisplay;
     labelSpans immediateAction;
     listenTo immediateAction noPrint;
     load immediateAction=loadDirectory noPrint;
@@ -69,6 +72,7 @@ define
     new immediateAction=makeNew;
     openWindow immediateAction=openWindow;
     parseClassify immediateAction;
+    pixelAt immediateAction=pixelAt;
     printTO immediateAction=printToBuffer;
     probeNode immediateAction;
     quoted  immediateAction;

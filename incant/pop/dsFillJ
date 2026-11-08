@@ -21,10 +21,6 @@ include(utilities);
 search reset stack Grokking;
 search Generating UnitTests Utilities list;
 
-registry(cOMMANDs);
-define makeDisplay immediateAction=makeDisplay; ;
-define displayFill immediateAction=displayFill; ;
-define pixelAt     immediateAction=pixelAt; ;
 
 register(DsFillJ);
 define
