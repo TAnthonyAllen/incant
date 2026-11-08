@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(ArgStale);
+define
+    asHits=0;
+    asCb code={
+        if argument == 1;   asHits = asHits + 1;
+        };
+    asCa code={
+        asCb(kk=1);
+        };
+    ;
+jitter;
+asCa();
+asCa();
+cerr "AS hits after two calls: asHits = [" asHits "]":;
+cerr "AS SENTINEL":;
+stop();
+
+jitArgStaleT -- the jitterT cure (2026-11-08, branch jitterT-cure). Road: emitted (old road, under jitter;).
+
+What it asks: a caller passes `kk=1` to a callee that the jitter inlines, and the callee tests `argument == 1`.
+Two calls, so the interpreted twin (pop.sh deletes the jitter; line) reads 2 hits.
+
+What went wrong on trunk before the cure: jitEmitAssign's scalar arm stored 1 into kk's frame slot and left kk's
+build value as the load it seeded from before the store. The inlined callee's `argument`, followed at build to kk,
+compared against that old load, so the jitted run read 0 hits. Exit 0, no refusal, no degrade.
+
+Why jitterT's JTT row could not show it on trunk: there the callee's test reads `*jtRead`, a holder written by a
+handed-over :=, and a dereference of such a holder hands its whole statement over, so the compare ran interpreted.
+Stroke 2's route compiles that :=, the statement goes native, and JTT read 1 against 2.
+
+The rows: the interpreted twin's 2; the jitted reading pinned at its trunk value 0 and intended 2; asCa built once
+and called twice, so a green row cannot come from a run that never compiled.
