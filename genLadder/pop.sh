@@ -876,18 +876,21 @@ _ofeq "ruleDoorT jitter; alone: ITERATe did not go through the door" "$(grep -c 
 _rdrun nR 'jitterRule(fa);' 'print "next":;'
 _ofeq "ruleDoorT jitterRule on a non-rule refuses by name" "$(grep -c '^REFUSED fa -- jitterRule: not a rule' "$T/rd.nR.e") $(_rdv "$T/rd.nR.o")" "1 next |"
 #  THE R2 GUARD'S REACH: three scratch rules, because ITERATe cannot reach it. Preset it1 so a fire that adopts something shows it
-_rdg () {  # rule  interpreted-read  compiled-read  guard-lines
+#  F-146 REGISTERED (SEQ 567 R2, on trunk before the cure): each read pinned at today's value with the intended beside it. Option b:
+#  a rule that runs off its end is refused by name on both roads, and the guard goes. FELLOFf is the one that runs off its end.
+_rdg () {  # rule  interp-today interp-intended  compiled-today compiled-intended  guard-today  offEnd-today offEnd-intended
     _s="it1 = \"untouched\"; it1 = $1(\"abc\"); print \"ANS\" it1:;"
     _rdrun "g$1.i" "" "$_s"
     _rdrun "g$1.c" "jitterRule($1);" "$_s"
-    _ofeq "ruleDoorT guard $1 interpreted" "$(_rdv "$T/rd.g$1.i.o")" "$2"
-    _ofeq "ruleDoorT guard $1 compiled" "$(_rdv "$T/rd.g$1.c.o")" "$3"
-    _ofeq "ruleDoorT guard $1 guard lines" "$(grep -c "^REFUSED $1 -- a compiled rule handed back a count" "$T/rd.g$1.c.e")" "$4"
+    fdRow "ruleDoorT guard $1 interpreted" "$(_rdv "$T/rd.g$1.i.o")" "$2" "$3"
+    fdRow "ruleDoorT guard $1 compiled" "$(_rdv "$T/rd.g$1.c.o")" "$4" "$5"
+    fdRow "ruleDoorT guard $1 guard lines" "$(grep -c "^REFUSED $1 -- a compiled rule handed back a count" "$T/rd.g$1.c.e")" "$6" "0"
+    fdRow "ruleDoorT guard $1 ran-off-its-end refusals, interpreted / compiled" "$(grep -c "^REFUSED $1 -- the rule ran off its end" "$T/rd.g$1.i.e") $(grep -c "^REFUSED $1 -- the rule ran off its end" "$T/rd.g$1.c.e")" "$7" "$8"
     _ofeq "ruleDoorT guard $1 went through the door" "$(grep -c "^=== jitter rule: $1 built 1 fired 1 ===" "$T/rd.g$1.c.e")" "1"
 }
-_rdg KEEPs   "ANS untouched |" "ANS untouched |" 0
-_rdg REFUSEs "ANS untouched |" "ANS untouched |" 1
-_rdg FELLOFf "ANS 1 |"         "ANS untouched |" 1
+_rdg KEEPs   "ANS untouched |" "ANS untouched |"  "ANS untouched |" "ANS untouched |"  0  "0 0" "0 0"
+_rdg REFUSEs "ANS untouched |" "ANS untouched |"  "ANS untouched |" "ANS untouched |"  1  "0 0" "0 0"
+_rdg FELLOFf "ANS 1 |"         "ANS untouched |"  "ANS untouched |" "ANS untouched |"  1  "0 0" "1 1"
 #  SEQ 559: the copy keeps its tag and value, a star on a star reads through natively; native above 0 on both
 _rds='it1 = COPYs("abc");'; _rdrun cI "" "$_rds"; _rdrun cC "jitterRule(COPYs);" "$_rds"
 _ofeq "ruleDoorT COPYs interpreted: the copy keeps its tag, its value" "$(_rdv "$T/rd.cI.o")" "cpSrc |9 |"
@@ -928,6 +931,29 @@ _ofeq "refusedCondT rows ran (11 of 11)" "$_rcn" "11"
 fi
 
 #  ============================================================================
+#  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
+#  the rule door. Per row one process interpreted and one with jitterRule(<rule>);. Value, exit and sentinel compiled = interpreted
+#  (fdRow: XP-1 and XP-2 lose the statement today), and the guard's line count pinned at today's value, intended 0.
+_rxF=$(ip ruleXpresT)
+if [ -f "$_rxF" ]; then
+sed '/^stop();/,$d' "$_rxF" > "$T/rx.pre"
+grep '^[A-Z][A-Z]-[0-9]*|' "$_rxF" > "$T/rx.list"
+_rxv () { echo "$(grep -v '^stop: \|^Search list: \|^ *$' "$1" | tr '\n' '|') x$(cat "$2") s$(grep -c '^RX SENTINEL' "$3")"; }
+while IFS='|' read -r _id _rule _ent _st _g; do
+    for _v in i c; do
+        { cat "$T/rx.pre"; [ $_v = c ] && printf 'jitterRule(%s);\n' "$_rule"
+          if [ "$_ent" = FILe ]; then printf 'it1 = FILe("%s");\n' "$_st"; else printf 'qr = 0;\nit1 = STARt("%s"); testOP(it1);\n' "$_st"; fi
+          printf 'print "QR" qr:;\ncerr "RX SENTINEL":;\nstop();\n'; } > "$T/rx.$_id.$_v.k"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/rx.$_id.$_v.k" > "$T/rx.$_id.$_v.o" 2> "$T/rx.$_id.$_v.e"; echo $? > "$T/rx.$_id.$_v.x"
+    done
+    _ofeq "ruleXpresT $_id $_rule interpreted: value, exit, sentinel" "$(_rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e")" "$(_rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e" | grep -v ' x[1-9]\| s0')"
+    fdRow "ruleXpresT $_id $_rule compiled = interpreted: value, exit, sentinel" "$(_rxv "$T/rx.$_id.c.o" "$T/rx.$_id.c.x" "$T/rx.$_id.c.e")" "$([ "$_g" = 1 ] && echo "QR 0 | x0 s1" || _rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e")" "$(_rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e")"
+    fdRow "ruleXpresT $_id $_rule compiled: the guard's lines" "$(grep -c 'a compiled rule handed back a count' "$T/rx.$_id.c.e")" "$_g" "0"
+    _ofeq "ruleXpresT $_id $_rule went through the door" "$(grep -c "^=== jitter rule: $_rule built 1 fired [1-9]" "$T/rx.$_id.c.e")" "1"
+done < "$T/rx.list"
+_ofeq "ruleXpresT rows ran (5 of 5)" "$(ls "$T"/rx.*.c.x 2>/dev/null | wc -l | tr -d ' ')" "5"
+else echo "  FAIL  ruleXpresT MISSING"; fail=1; fi
+
 #  ⚑ ruleForT -- SEQ 557 (Tony, 2026-11-07): FOr compiled through the rule door. Per row one process interpreted and one with jitterRule(FOr);,
 #  by value, by exit and sentinel, with the walk line (native 2 handed 16) and the fired count asserted by value. Stderr is compared too, the
 #  witnesses and the guard's own line aside, and the guard's line is pinned per row.
@@ -952,7 +978,8 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     _ofeq "ruleForT $_id compiled = interpreted, stderr" "$(_rfe "$T/rf.$_id.c.e")" "$(_rfe "$T/rf.$_id.i.e")"
     _ofeq "ruleForT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: FOr built 1 fired $_f ===" "$T/rf.$_id.c.e")" "1"
     _ofeq "ruleForT $_id old-road walk line: native 9 handed 9" "$(grep -c '^=== jitter rule walk: FOr native 9 handed 9 ===' "$T/rf.$_id.c.e")" "1"
-    _ofeq "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g"
+    #  F-146 REGISTERED (SEQ 567 R2): the guard goes, so every row's intended is 0; RF-O reads 1 today
+    fdRow "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g" "0"
     if [ -n "$_ref" ]; then _ofeq "ruleForT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/rf.$_id.i.e") $(grep -c "^$_ref" "$T/rf.$_id.c.e")" "1 1"; fi
 done < "$T/rf.list"
 _ofeq "ruleForT rows ran (12 of 12)" "$_rfn" "12"
@@ -1388,6 +1415,8 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$T/rkj.k" > "$T/rkj.o" 2> "$T/rkj.e"; _rkjx
 _rkWant="ns str:13 |os str:13 |nm loc:13 |om loc:13 |nd 3.5:9 |od 3.5:9 |nc 4.5:9 |oc 4.5:9 |nl 2.5:9 |ol 2.5:9 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne arm:13 |oe arm:13 |"
 _ofeq "newReturnKindT plain (the control): value:kind per shape, exit, sentinel" "$(_rkv "$T/rk.o") x$_rkx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rk.e")" "$_rkWant x0 s1"
 fdRow "newReturnKindT under jitter; = plain" "$(_rkv "$T/rkj.o") x$_rkjx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rkj.e")" "ns 3:5 |os 3:5 |nm 3:5 |om 3:5 |nd 4:5 |od 3:5 |nc 5:5 |oc 4:5 |nl 3:5 |ol 2:5 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne 3:5 |oe 3:5 | x0 s1" "$_rkWant x0 s1"
+#  F-146 REGISTERED (SEQ 567 R2): nh's shape is refused by name today (stroke 2's R1); with the cure it compiles and still reads 7:6
+fdRow "newReturnKindT nh under jitter;: built 1 called 1 (1) or refused, NOT JITTABLE (0)" "$(cat "$T/rkj.o" "$T/rkj.e" | grep -c '^=== jitter: nh built 1 called 1 ===')" "0" "1"
 _rsv () { grep '^RS ' "$1" | tr -s ' ' | tr '\n' '|'; }
 _ofeq "newReturnKindT RS plain (the control): an old-road self-call's non-count return" "$(_rsv "$T/rk.o")" "RS s |RS 1.5 |"
 fdRow "newReturnKindT RS under jitter;: past the channel's reach, a self-call reads the i32" "$(_rsv "$T/rkj.o")" "RS 1 |RS 1 |" "RS s |RS 1.5 |"
