@@ -147,3 +147,46 @@ that golden would move. **Ruling owed: `list` gains an explicit `return *actionL
 reach (both roads); ruleDoorT's FELLOFf is one, deliberately. A first static pass over them was void (its pattern counted
 any field with an attribute as a rule) and is not reported; a census by `isRulE` per fixture is the read to do next if
 Tony wants it before R2.
+
+## 8. R1's fixture-rule census (SEQ 566, 2026-11-08): stopped for a ruling
+
+Ruled first (SEQ 566 R0): `list` (unitTests:147) gets `return *actionLabel;`, and its output in baselineTests.golden must
+not move (a certificate row). FELLOFf is expected to run off its end and is re-pinned to the refusal on both roads.
+
+**Population:** every tracked file in the four fixture directories (incant, incant/pop, incant/pop/jit, incant/fixits) with
+a code body in its live region, less section 7's files: **292 files.** Each probed through the runtime: the fixture's own
+definitions, then `NAME.isRulE` and `NAME["CodE"]` for every code-bearing name, with `NamE.isRulE` (must read 1) and a
+probe-local action (must read 0, and show its CodE) as controls, and a sentinel.
+
+- **283 read validly**: 269 with the probe at the foot, 14 more re-probed right after their last define (their own drivers
+  end in a `stop()` inside an action, so a probe at the foot never ran).
+- **9 by reading their definitions** (the probe could not run or its control could not go red): ruleDoorT and percentT
+  (the control landed in a rule registry; ruleDoorT's names still read as the source says), defineOwnT, testerChainT, and
+  the include-only decoder, designDocs, directives, generate, dirSample. Every code body there is code-only (no pattern
+  before `code={`) in an action registry; percentT's PctRules holds two rules without code.
+- **Names that resolved to neither a rule nor a CodE** were read by their definition: three are rules (below); the rest are
+  actions removed by a refusal on purpose, prose, or locals.
+- **First-pass slip, caught:** the first control required a fresh action to read `isActioN` 1, which it does only once
+  used, so every probe read invalid; the resolution check became `isRulE` or a `CodE`.
+
+**Rules with code that run off their end, every one on its only path (no return):**
+
+| fixture | rule | how it ends |
+|---|---|---|
+| incant/pop/chainTruthT | wzNum | `cerr "WZNUM-FIRED":;` |
+| incant/pop/compileInT | CiA | `cerr "CIFIRE CiA":;` |
+| incant/pop/compileInT | PcST | `cerr "CI-H4 ... " ciReq.processingCodE:;` |
+| incant/pop/convDriveT | ask | `cerr " >>> lamp ask FIRED":;` |
+| incant/pop/convLeakT | setT | `cerr " >>> thermo set FIRED":;` |
+| incant/pop/driveDoorT | ScafA | `cerr "IAFIRE ScafA":;` |
+| incant/pop/failPointT | FpREC | `fpSay("FpREC (x)");` |
+| incant/pop/fireSeatT | fsOldRule, fsNewRule, fsFieldOld, fsFieldNew, fsArrayOld, fsArrayNew | a `cerr` marker line each |
+| incant/pop/ruleGlobalT | rgRule | `if rgLoc == 5; rgStale = rgStale + 1; rgLoc = 5;` |
+| incant/frontier | frRule | `if frEntries.isGrouP; for frSum in frEntries; ...` |
+
+That is **15 rules in 10 files**, besides FELLOFf. All return elsewhere: ruleReturnT and ruleReturnOpT (InvokeR,
+xpListTest), ruleThisT (rtRule, rtInvoke), ruleDoorT (REFUSEs, KEEPs, COPYs, DBLs).
+
+**Ruling owed, per rule: an explicit `return *actionLabel;`, or a refusal.** They are scaffolding whose job is to fire
+and print a marker; none exists to test running off the end (FELLOFf does that). **Clod's lean: a return for each**, then
+R2's mover run shows whether any row reads the change.
