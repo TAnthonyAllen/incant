@@ -302,6 +302,12 @@ run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)"
 #  completeness marker is the LAST LINE OF ITS GOLDEN -- which only appears if
 #  the run reached the end. This is a presence check on one line, not the golden
 #  diff that ruling 3 deliberately declined.
+#  listReturns SEQ 567 R0 (Tony): unitTests' list rule gets an explicit `return *actionLabel;` (F-146, option b); its output in
+#  the golden must not move. Both blocks (header + five entries) against the golden's same lines, and both must be there.
+_lst=$(grep -A5 '^list tests the for statement:' "$T/base" | tr '\n' '|'); _lstG=$(grep -A5 '^list tests the for statement:' "$(ip baselineTests).golden" | tr '\n' '|')
+if [ "$_lst" = "$_lstG" ] && [ "$(grep -c '^list tests the for statement:' "$T/base")" = 2 ]; then
+    echo "  ok    baselineTests list's output = the golden's, both blocks (F-146: list hands back its label explicitly)"; green=$((green+1))
+else echo "  FAIL  baselineTests list's output moved from the golden -- got [$_lst] want [$_lstG]"; fail=1; fi
 #  testRecursion SEQ 374 R3 (Tony): recurSaveT's four cases copied into unitTests (the fleet rows stay in recurSaveT) -- f(4) a
 #  local across the call, g(4) the argument after the call, h / k(5 - 1) callee arithmetic beside a computed argument.
 #  On the engine before the SEQ 374 cure it read 10 4 104 10.

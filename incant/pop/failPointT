@@ -14,7 +14,7 @@ register(Ladder);
 define
     FpA isRule ka-="a";
     FpOUT isRule lp-="(" FpA rp-=")";
-    FpREC isRule lp-="(" FpA rp-=")" code={ cerr "FP-C inner drive, the root re-entered":; fpSay("FpREC (x)"); };
+    FpREC isRule lp-="(" FpA rp-=")" code={ cerr "FP-C inner drive, the root re-entered":; fpSay("FpREC (x)"); return *actionLabel; };
     ;
 search GroupFields UnitTests Utilities Ladder list;
 cerr "FP-0 old road, fails at 1 (a witness)":;

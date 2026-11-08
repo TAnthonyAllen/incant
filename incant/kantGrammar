@@ -438,6 +438,7 @@ define
                 topRun = 0;
         // unlandedRefused a signal still set when the statement finishes reached the top level unlanded: refuseTopSignal refuses it by name and clears it (SEQ 516)
         if topRun == 1;     refuseTopSignal(*ts);
+        return *actionLabel;
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
     XPRESs code={

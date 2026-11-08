@@ -21,7 +21,7 @@ registry(cOMMANDs);
 define treeOf immediateAction=treeOf; ;
 register(Ladder);
 define
-    ScafA isRule "a"- code={ cerr "IAFIRE ScafA":; };
+    ScafA isRule "a"- code={ cerr "IAFIRE ScafA":; return *actionLabel; };
     ScafI isRule "i"-;
     ScafALT isRule
         ScafA;

@@ -146,7 +146,9 @@ define
     layout code={ gruber = 23; print "layout:"`"Here is" parent.taG and gruber:; };
     list isRule entries=ANYstring+ SemI?- code={
         print "list tests the for statement:":;
-        for sumGrup in entries; print `sumGrup:; };
+        for sumGrup in entries; print `sumGrup:;
+        return *actionLabel;
+        };
     lefty=3 code={ lefty += 43; print "lefty:"``"got reset to" lefty:; return lefty; };
     printTest code={ print "printTest:"`"lefty should return itself. It returns" lefty():; };
     simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
