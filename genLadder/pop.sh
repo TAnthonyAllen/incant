@@ -1363,7 +1363,8 @@ _owv () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | tr '\n' '|'; }
 _ofeq "opWalkT plain: the oracle's values, exit, sentinel" "$(_owv "$T/ow.o") x$_owx s$(grep -c '^OPWALK SENTINEL' "$T/ow.e")" "oa |14 |ob |7 |oc |3 |od |3 |oe |2 |of |1 | x0 s1"
 _ofeq "opWalkT under jitter; = the oracle: values, exit, sentinel" "$(_owv "$T/owj.o") x$_owjx s$(grep -c '^OPWALK SENTINEL' "$T/owj.e")" "$(_owv "$T/ow.o") x$_owx s1"
 fdRow "opWalkT under jitter; each action built (1) or NOT JITTABLE (0)" "$(for _a in oa ob oc od oe of; do printf '%s %s;' $_a $(grep -c "^=== jitter: $_a built 1 called 1 ===" "$T/owj.o" "$T/owj.e" | awk -F: '{s+=$2} END{print s}'); done)" "oa 0;ob 0;oc 0;od 0;oe 1;of 1;" "oa 1;ob 1;oc 1;od 1;oe 1;of 1;"
-fdRow "opWalkT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/owj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "oa 8 2 6;ob 5 2 3;oc 8 2 6;od 5 2 3;oe 6 2 4;of 5 2 3;" "oa 8 0 8;ob 5 0 5;oc 8 0 8;od 5 0 5;oe 6 0 6;of 5 0 5;"
+#  RE-PINNED SEQ 564 R0 (Tony): oe 6 0 6 -> 6 1 5, of 5 0 5 -> 5 1 4. The dot read on a list (print gla.listLengtH) stays handed over; not stroke 2's.
+fdRow "opWalkT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/owj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "oa 8 2 6;ob 5 2 3;oc 8 2 6;od 5 2 3;oe 6 2 4;of 5 2 3;" "oa 8 0 8;ob 5 0 5;oc 8 0 8;od 5 0 5;oe 6 1 5;of 5 1 4;"
 else echo "  FAIL  opWalkT MISSING"; fail=1; fi
 #  ruleShareT -- SEQ 528 R2: ruleMethod= shares a coded rule's action. Identity by BODY (H13).
 _rsF=$(ip ruleShareT)
