@@ -13,6 +13,7 @@ define
         rgFires = rgFires + 1;
         if rgLoc == 5;      rgStale = rgStale + 1;
         rgLoc = 5;
+        return *actionLabel;
         };
     rgRun code={
         rgRule("a b;");

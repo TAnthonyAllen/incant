@@ -1,0 +1,39 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(RuleXpresT);
+define
+    qa=2;
+    qr;
+    it1;
+    fId code={ return argument; };
+    ;
+search RuleXpresT Utilities UnitTests list;
+stop();
+
+ruleXpresT -- F-146's certificate rows (SEQ 567 R2, registered on trunk before the cure). Rows prefixed XP- (XPRESs),
+TS- (TOPSTATEMENt) and IV- (INVOKEr). Road: emitted, through the rule door.
+
+This file is not run alone. pop.sh builds two inputs per row from everything above `stop();`: the row's statement run
+interpreted, and the same with `jitterRule(<rule>);` first. A STARt row runs `qr = 0; it1 = STARt("<st>"); testOP(it1);`,
+a FILe row `it1 = FILe("<st>");`. Each prints `QR <qr>` and a sentinel on stderr. Read: the value, exit and sentinel, and
+the count of the guard's line ("a compiled rule handed back a count"), pinned at today's value with the intended beside it.
+
+ROWS -- id | rule | entry | statement | guard lines today
+XP-1|XPRESs|STARt|qr = qa + 1;|1
+XP-2|XPRESs|STARt|qr = 4;|1
+XP-3|XPRESs|STARt|fId(qa);|0
+TS-1|TOPSTATEMENt|FILe|qr = qa + 1;|0
+IV-1|INVOKEr|STARt|qr = fId(qa);|0
+
+XP-1 and XP-2 are F-146: XPRESs hands back its label, which holds EXPRESSIOn's chain; an assign chain's top instruct carries
+its tier as a count, jitStmtRTValueRT reports a count, and the guard refuses, so the statement is lost (QR 0). XP-3, a bare
+call, builds a chain whose top carries no count, so it reads right today: the control for the XPRESs pair. TS-1: TOPSTATEMENt ran off its end until SEQ 567 R0 gave it a return; it reads right today. IV-1 is a
+control: INVOKEr's call path returns its label and must not move.

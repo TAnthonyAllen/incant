@@ -1,0 +1,110 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(OpWalk);
+define
+    owReq owner source result rule;
+    gv=7;
+    gh;
+    gla;
+    glb;
+    owNew code={
+        owSrc := argument.CodE;
+        owReq.owner  := argument;
+        owReq.source := owSrc;
+        owReq.rule   := KantGrammar["STARt"];
+        if compileIn(owReq);
+            owBlock = owReq.result;
+            *owBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *owBlock;
+        };
+    oa code={
+        n = 0;
+        t = 0;
+        while n < 2;
+            n = n + 1;
+            x := *gh;
+            t = t + *x;
+        print "oa":;
+        print t:;
+        };
+    ob code={
+        n = 1;
+        if n > 0;
+            x := *gh;
+            print "ob":;
+            print *x:;
+        };
+    oc code={
+        n = 0;
+        t = 0;
+        while n < 2;
+            n = n + 1;
+            x := copyOf(n);
+            t = t + *x;
+        print "oc":;
+        print t:;
+        };
+    od code={
+        n = 3;
+        if n > 0;
+            x := copyOf(n);
+            print "od":;
+            print *x:;
+        };
+    oe code={
+        n = 0;
+        while n < 2;
+            n = n + 1;
+            gla +% *gh;
+        print "oe":;
+        print gla.listLengtH:;
+        };
+    of code={
+        n = 1;
+        if n > 0;
+            glb +% *gh;
+            print "of":;
+            print glb.listLengtH:;
+        };
+    ;
+search OpWalk;
+gh := gv;
+owNew(oa);
+owNew(ob);
+owNew(oc);
+owNew(od);
+owNew(oe);
+owNew(of);
+oa();
+ob();
+oc();
+od();
+oe();
+of();
+cerr "OPWALK SENTINEL":;
+stop();
+
+opWalkT -- operator rung stroke 2's owed rows (SEQ 560's census, registered SEQ 563 R2, 2026-11-08). Road: emitted
+(the new road's walk, under jitter;).
+
+Each action is a new-road action, built by owNew as newJitPrintT's prNew builds its own. pop.sh runs the file twice:
+plain (the interpreted oracle) and with jitter; after the owNew lines, which compiles each action through the walk.
+
+    oa  x := *y        in a loop body       oa 14  (two passes, 7 each)
+    ob  x := *y        in an if arm         ob 7
+    oc  x := copyOf(y) in a loop body       oc 3   (1 + 2; y is n, a frame-slotted scalar)
+    od  x := copyOf(y) in an if arm         od 3   (y is n, slotted)
+    oe  l +% *y        in a loop body       oe 2
+    of  l +% *y        in an if arm         of 1
+
+Rows: each value under jitter; = the oracle, and the walk's witness per action (walked handed native), pinned at
+today's value with the intended value beside it.

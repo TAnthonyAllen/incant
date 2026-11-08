@@ -198,6 +198,7 @@ define
     labelIndex;     // used in bytecode label generate
     null=0;
     notInNameSet=[^a-zA-Z0-9];
+    selection;      // its group contains the current selection
     stringBUFFER;
     UnaryOPS bin
         '--';

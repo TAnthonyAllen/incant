@@ -21,6 +21,7 @@ define
         frTermsSeen = 0;
         if frEntries.isGrouP;
             for frSum in frEntries;     frTermsSeen = frTermsSeen + 1;
+        return *actionLabel;
         };
     frDrive code={
         frRule("alpha beta gamma;");

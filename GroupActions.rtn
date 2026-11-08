@@ -772,9 +772,10 @@ use grup
         while grup = action.nextAttribute(grup)
             if isLocal && !isLabel && !noPrint && !isArgument && groupBody != action.groupBody clear();
         // ruleDoor an opted-in rule's body runs compiled here and nowhere else; the binding above and the restore below stay as they are (SEQ 554)
-        // ruleDoorGuard a compiled rule that hands back a boxed count refuses by name and adopts nothing: a box must never become the label (SEQ 554 R2)
+        // ranOffItsEnd a rule whose code ends without a return or a refusal is refused by name on both roads and adopts nothing (F-146, SEQ 565 R0)
         -%
-        bool ruleCompiled = false;
+        bool ruleCompiled = false, bodyRanOff = false, bodyRefused = false;
+        bool fireIsRule = fireRule->groupBody->flags.isRule;
         if ( !gJitterRules.empty() && !ruler->jitting && ::jitterRuleOpted(fireRule->groupBody) ) {
             int armedSave = ruler->refused;
             int ready = ::jitterReady(fireRule);
@@ -783,10 +784,14 @@ use grup
                 ruleCompiled = true;
                 ::jitterTallyFind(fireRule->groupBody)->fired++;
                 int ruleValue = gJitterFn(::jitBodyField(fireRule));
-                int ruleKind  = gJitRetKind;
-                result = ::jitTakeReturn(ruleValue);
-                if ( ruleKind == 1 ) result = ::refuse(fireRule,"a compiled rule handed back a count, not its label: it refused or ran off its end, and nothing is adopted"); } }
-        if ( !ruleCompiled ) result = result->groupBody->gMethod(result);
+                bodyRanOff  = gJitRetEnding == 1;
+                bodyRefused = gJitRetEnding == 2;
+                result = ::jitTakeReturn(ruleValue); } }
+        if ( !ruleCompiled ) {
+            result = result->groupBody->gMethod(result);
+            bodyRanOff = fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused; }
+        if ( bodyRanOff ) result = ::refuse(fireRule,"the rule ran off its end: it handed back no label, and nothing is adopted");
+        if ( bodyRefused ) { ruler->refused = 1; result = nullptr; }
         %- }
     -% GroupControl::groupController->groupRules->branchKind = actionBranchSave; %-
     currentMETHOD.group = priorMETHOD;
@@ -1422,8 +1427,8 @@ GroupItem   result;
     -% if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); %-
     // handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
     -% if ( ruler->jitting && gJitHandOver ) return 0; %-
-    // ruleOperators operator rung stroke 1: +%, := and copyOf go native in an opted-in rule, ahead of the kind gate; the flag is scaffolding, stroke 2 removes it (SEQ 559)
-    -% if ( gJitRuleOperators && ruler->jitting ) { GroupItem *ruleOp = ::jitRuleOperator(op,target,arg); if ( ruleOp ) return ruleOp; } %-
+    // ruleOperators +%, := and copyOf go native in every compiled body, inlined callees included, ahead of the kind gate (SEQ 559; stroke 2, SEQ 563 R0)
+    -% if ( ruler->jitting ) { GroupItem *ruleOp = ::jitRuleOperator(op,target,arg); if ( ruleOp ) return ruleOp; } %-
     // storeRuling an armed statement dispatches nothing further -- interpreted only
     if ruler.refused
         if !jitting     return null;

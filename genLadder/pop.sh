@@ -302,6 +302,12 @@ run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)"
 #  completeness marker is the LAST LINE OF ITS GOLDEN -- which only appears if
 #  the run reached the end. This is a presence check on one line, not the golden
 #  diff that ruling 3 deliberately declined.
+#  listReturns SEQ 567 R0 (Tony): unitTests' list rule gets an explicit `return *actionLabel;` (F-146, option b); its output in
+#  the golden must not move. Both blocks (header + five entries) against the golden's same lines, and both must be there.
+_lst=$(grep -A5 '^list tests the for statement:' "$T/base" | tr '\n' '|'); _lstG=$(grep -A5 '^list tests the for statement:' "$(ip baselineTests).golden" | tr '\n' '|')
+if [ "$_lst" = "$_lstG" ] && [ "$(grep -c '^list tests the for statement:' "$T/base")" = 2 ]; then
+    echo "  ok    baselineTests list's output = the golden's, both blocks (F-146: list hands back its label explicitly)"; green=$((green+1))
+else echo "  FAIL  baselineTests list's output moved from the golden -- got [$_lst] want [$_lstG]"; fail=1; fi
 #  testRecursion SEQ 374 R3 (Tony): recurSaveT's four cases copied into unitTests (the fleet rows stay in recurSaveT) -- f(4) a
 #  local across the call, g(4) the argument after the call, h / k(5 - 1) callee arithmetic beside a computed argument.
 #  On the engine before the SEQ 374 cure it read 10 4 104 10.
@@ -870,18 +876,27 @@ _ofeq "ruleDoorT jitter; alone: ITERATe did not go through the door" "$(grep -c 
 _rdrun nR 'jitterRule(fa);' 'print "next":;'
 _ofeq "ruleDoorT jitterRule on a non-rule refuses by name" "$(grep -c '^REFUSED fa -- jitterRule: not a rule' "$T/rd.nR.e") $(_rdv "$T/rd.nR.o")" "1 next |"
 #  THE R2 GUARD'S REACH: three scratch rules, because ITERATe cannot reach it. Preset it1 so a fire that adopts something shows it
-_rdg () {  # rule  interpreted-read  compiled-read  guard-lines
+#  F-146 REGISTERED (SEQ 567 R2, on trunk before the cure): each read pinned at today's value with the intended beside it. Option b:
+#  a rule that runs off its end is refused by name on both roads, and the guard goes. FELLOFf is the one that runs off its end.
+_rdg () {  # rule  interp-today interp-intended  compiled-today compiled-intended  guard-today  offEnd-today offEnd-intended
     _s="it1 = \"untouched\"; it1 = $1(\"abc\"); print \"ANS\" it1:;"
     _rdrun "g$1.i" "" "$_s"
     _rdrun "g$1.c" "jitterRule($1);" "$_s"
-    _ofeq "ruleDoorT guard $1 interpreted" "$(_rdv "$T/rd.g$1.i.o")" "$2"
-    _ofeq "ruleDoorT guard $1 compiled" "$(_rdv "$T/rd.g$1.c.o")" "$3"
-    _ofeq "ruleDoorT guard $1 guard lines" "$(grep -c "^REFUSED $1 -- a compiled rule handed back a count" "$T/rd.g$1.c.e")" "$4"
+    fdRow "ruleDoorT guard $1 interpreted" "$(_rdv "$T/rd.g$1.i.o")" "$2" "$3"
+    fdRow "ruleDoorT guard $1 compiled" "$(_rdv "$T/rd.g$1.c.o")" "$4" "$5"
+    fdRow "ruleDoorT guard $1 guard lines" "$(grep -c "^REFUSED $1 -- a compiled rule handed back a count" "$T/rd.g$1.c.e")" "$6" "0"
+    fdRow "ruleDoorT guard $1 ran-off-its-end refusals, interpreted / compiled" "$(grep -c "^REFUSED $1 -- the rule ran off its end" "$T/rd.g$1.i.e") $(grep -c "^REFUSED $1 -- the rule ran off its end" "$T/rd.g$1.c.e")" "$7" "$8"
     _ofeq "ruleDoorT guard $1 went through the door" "$(grep -c "^=== jitter rule: $1 built 1 fired 1 ===" "$T/rd.g$1.c.e")" "1"
 }
-_rdg KEEPs   "ANS untouched |" "ANS untouched |" 0
-_rdg REFUSEs "ANS untouched |" "ANS untouched |" 1
-_rdg FELLOFf "ANS 1 |"         "ANS untouched |" 1
+_rdg KEEPs   "ANS untouched |" "ANS untouched |"  "ANS untouched |" "ANS untouched |"  0  "0 0" "0 0"
+_rdg REFUSEs "ANS untouched |" "ANS untouched |"  "ANS untouched |" "ANS untouched |"  1  "0 0" "0 0"
+_rdg FELLOFf "ANS 1 |"         "ANS untouched |"  "ANS untouched |" "ANS untouched |"  1  "0 0" "1 1"
+#  F-146 (SEQ 567 R3): a compiled ACTION that refuses mid-body hands back nothing (kind 0), as interpreted. The rule door masks the kind (it
+#  re-arms the refusal), so an action carries the row. H7 (the armed exit's kind 0 removed): compiled reads ANS 1, a box.
+_ras='it1 = "untouched"; it1 = refAct(); print "ANS" it1:;'; _rdrun aI "" "$_ras"; _rdrun aC "jitter;" "$_ras"
+_ofeq "ruleDoorT RA refAct interpreted: refused, adopts nothing; exit, sentinel" "$(_rdv "$T/rd.aI.o") x$(cat "$T/rd.aI.x") s$(grep -c '^RD SENTINEL' "$T/rd.aI.e")" "ANS it1 | x0 s1"
+_ofeq "ruleDoorT RA refAct compiled = interpreted: adopts nothing; exit, sentinel" "$(_rdv "$T/rd.aC.o") x$(cat "$T/rd.aC.x") s$(grep -c '^RD SENTINEL' "$T/rd.aC.e")" "ANS it1 | x0 s1"
+_ofeq "ruleDoorT RA refAct went compiled: built 1 called 1" "$(grep -c '^=== jitter: refAct built 1 called 1 ===' "$T/rd.aC.e")" "1"
 #  SEQ 559: the copy keeps its tag and value, a star on a star reads through natively; native above 0 on both
 _rds='it1 = COPYs("abc");'; _rdrun cI "" "$_rds"; _rdrun cC "jitterRule(COPYs);" "$_rds"
 _ofeq "ruleDoorT COPYs interpreted: the copy keeps its tag, its value" "$(_rdv "$T/rd.cI.o")" "cpSrc |9 |"
@@ -922,6 +937,29 @@ _ofeq "refusedCondT rows ran (11 of 11)" "$_rcn" "11"
 fi
 
 #  ============================================================================
+#  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
+#  the rule door. Per row one process interpreted and one with jitterRule(<rule>);. Value, exit and sentinel compiled = interpreted
+#  (fdRow: XP-1 and XP-2 lose the statement today), and the guard's line count pinned at today's value, intended 0.
+_rxF=$(ip ruleXpresT)
+if [ -f "$_rxF" ]; then
+sed '/^stop();/,$d' "$_rxF" > "$T/rx.pre"
+grep '^[A-Z][A-Z]-[0-9]*|' "$_rxF" > "$T/rx.list"
+_rxv () { echo "$(grep -v '^stop: \|^Search list: \|^ *$' "$1" | tr '\n' '|') x$(cat "$2") s$(grep -c '^RX SENTINEL' "$3")"; }
+while IFS='|' read -r _id _rule _ent _st _g; do
+    for _v in i c; do
+        { cat "$T/rx.pre"; [ $_v = c ] && printf 'jitterRule(%s);\n' "$_rule"
+          if [ "$_ent" = FILe ]; then printf 'it1 = FILe("%s");\n' "$_st"; else printf 'qr = 0;\nit1 = STARt("%s"); testOP(it1);\n' "$_st"; fi
+          printf 'print "QR" qr:;\ncerr "RX SENTINEL":;\nstop();\n'; } > "$T/rx.$_id.$_v.k"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/rx.$_id.$_v.k" > "$T/rx.$_id.$_v.o" 2> "$T/rx.$_id.$_v.e"; echo $? > "$T/rx.$_id.$_v.x"
+    done
+    _ofeq "ruleXpresT $_id $_rule interpreted: value, exit, sentinel" "$(_rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e")" "$(_rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e" | grep -v ' x[1-9]\| s0')"
+    fdRow "ruleXpresT $_id $_rule compiled = interpreted: value, exit, sentinel" "$(_rxv "$T/rx.$_id.c.o" "$T/rx.$_id.c.x" "$T/rx.$_id.c.e")" "$([ "$_g" = 1 ] && echo "QR 0 | x0 s1" || _rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e")" "$(_rxv "$T/rx.$_id.i.o" "$T/rx.$_id.i.x" "$T/rx.$_id.i.e")"
+    fdRow "ruleXpresT $_id $_rule compiled: the guard's lines" "$(grep -c 'a compiled rule handed back a count' "$T/rx.$_id.c.e")" "$_g" "0"
+    _ofeq "ruleXpresT $_id $_rule went through the door" "$(grep -c "^=== jitter rule: $_rule built 1 fired [1-9]" "$T/rx.$_id.c.e")" "1"
+done < "$T/rx.list"
+_ofeq "ruleXpresT rows ran (5 of 5)" "$(ls "$T"/rx.*.c.x 2>/dev/null | wc -l | tr -d ' ')" "5"
+else echo "  FAIL  ruleXpresT MISSING"; fail=1; fi
+
 #  ⚑ ruleForT -- SEQ 557 (Tony, 2026-11-07): FOr compiled through the rule door. Per row one process interpreted and one with jitterRule(FOr);,
 #  by value, by exit and sentinel, with the walk line (native 2 handed 16) and the fired count asserted by value. Stderr is compared too, the
 #  witnesses and the guard's own line aside, and the guard's line is pinned per row.
@@ -946,7 +984,8 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     _ofeq "ruleForT $_id compiled = interpreted, stderr" "$(_rfe "$T/rf.$_id.c.e")" "$(_rfe "$T/rf.$_id.i.e")"
     _ofeq "ruleForT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: FOr built 1 fired $_f ===" "$T/rf.$_id.c.e")" "1"
     _ofeq "ruleForT $_id old-road walk line: native 9 handed 9" "$(grep -c '^=== jitter rule walk: FOr native 9 handed 9 ===' "$T/rf.$_id.c.e")" "1"
-    _ofeq "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g"
+    #  F-146 REGISTERED (SEQ 567 R2): the guard goes, so every row's intended is 0; RF-O reads 1 today
+    fdRow "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g" "0"
     if [ -n "$_ref" ]; then _ofeq "ruleForT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/rf.$_id.i.e") $(grep -c "^$_ref" "$T/rf.$_id.c.e")" "1 1"; fi
 done < "$T/rf.list"
 _ofeq "ruleForT rows ran (12 of 12)" "$_rfn" "12"
@@ -1337,6 +1376,7 @@ _nlpTopo () { awk -v a="@jit_$1(" 'index($0,"define")==1 {on=index($0,a)>0; if(o
 fdRow "newJitLoopT topology of the standing build: l1 a while, l5 a do" "$(_nlpTopo l1)| $(_nlpTopo l5)" "| " "cond loopexit body | dobody docond doexit "
 else echo "  FAIL  newJitLoopT MISSING"; fail=1; fi
 #  newJitPrintT -- SEQ 527 R3 (S5): print, cerr, cout through the walk. Values pass today (every print hands over); the witness is born red.
+#  RE-PINNED SEQ 563 R3 (operator rung stroke 2, a registered mover): pc 2 2 0 -> 2 0 2 -- `h := gc` and `print *h` go native; its value row is unmoved.
 _nprF=$(ip newJitPrintT)
 if [ -f "$_nprF" ]; then
 perl -e 'alarm 30; exec @ARGV' "$B" "$_nprF" > "$T/npr.o" 2> "$T/npr.e"; _nprx=$?
@@ -1346,8 +1386,25 @@ jitter;
 rm -f "$T/nprj.w"; INCANT_JITTER_ERR="$T/nprj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nprj.k" > "$T/nprj.o" 2> "$T/nprj.e"; _nprjx=$?
 _ofeq "newJitPrintT under jitter; = the twin: stdout, the cerr line, exit, sentinel" "$(_njv "$T/nprj.o") $(grep -c '^e  3' "$T/nprj.e") x$_nprjx s$(grep -c '^NEWJITPRINT SENTINEL' "$T/nprj.e")" "$(_njv "$T/npr.o") $(grep -c '^e  3' "$T/npr.e") x$_nprx s$(grep -c '^NEWJITPRINT SENTINEL' "$T/npr.e")"
 _ofeq "newJitPrintT twin carries real output (not two empties compared): a value, a string, a format, the cout, the cerr" "$(_njv "$T/npr.o" | grep -c 'n=  3') $(_njv "$T/npr.o" | grep -c 'P p6 |str') $(_njv "$T/npr.o" | grep -c ' 1.50') $(_njv "$T/npr.o" | grep -c 'o  3') $(grep -c '^e  3' "$T/npr.e")" "1 1 1 1 1"
-fdRow "newJitPrintT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nprj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "p1 1 1 0;p2 2 1 1;p3 2 1 1;p4 3 1 2;p5 2 1 1;p6 2 2 0;p7 2 2 0;p8 2 1 1;p9 1 1 0;pa 1 1 0;pb 1 1 0;pc 2 2 0;pd 1 1 0;pe 2 1 1;pf 2 1 1;pg 2 1 1;ph 1 1 0;pi 3 1 2;pj 4 1 3;pk 2 2 0;pl 3 1 2;pm 2 1 1;pn 1 1 0;po 3 2 1;pp 2 1 1;pq 1 1 0;" "p1 1 0 1;p2 2 0 2;p3 2 0 2;p4 3 0 3;p5 2 0 2;p6 2 1 1;p7 2 0 2;p8 2 1 1;p9 1 0 1;pa 1 0 1;pb 1 0 1;pc 2 2 0;pd 1 1 0;pe 2 0 2;pf 2 0 2;pg 2 0 2;ph 1 1 0;pi 3 0 3;pj 4 0 4;pk 2 0 2;pl 3 0 3;pm 2 1 1;pn 1 0 1;po 3 1 2;pp 2 0 2;pq 1 1 0;"
+fdRow "newJitPrintT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nprj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "p1 1 1 0;p2 2 1 1;p3 2 1 1;p4 3 1 2;p5 2 1 1;p6 2 2 0;p7 2 2 0;p8 2 1 1;p9 1 1 0;pa 1 1 0;pb 1 1 0;pc 2 2 0;pd 1 1 0;pe 2 1 1;pf 2 1 1;pg 2 1 1;ph 1 1 0;pi 3 1 2;pj 4 1 3;pk 2 2 0;pl 3 1 2;pm 2 1 1;pn 1 1 0;po 3 2 1;pp 2 1 1;pq 1 1 0;" "p1 1 0 1;p2 2 0 2;p3 2 0 2;p4 3 0 3;p5 2 0 2;p6 2 1 1;p7 2 0 2;p8 2 1 1;p9 1 0 1;pa 1 0 1;pb 1 0 1;pc 2 0 2;pd 1 1 0;pe 2 0 2;pf 2 0 2;pg 2 0 2;ph 1 1 0;pi 3 0 3;pj 4 0 4;pk 2 0 2;pl 3 0 3;pm 2 1 1;pn 1 0 1;po 3 1 2;pp 2 0 2;pq 1 1 0;"
 else echo "  FAIL  newJitPrintT MISSING"; fail=1; fi
+#  opWalkT -- SEQ 563 R2 (registered on trunk before stroke 2's build; SEQ 560's owed rows): x := *y, x := copyOf(y) and
+#  l +% *y, each in a loop body and an if arm, through the walk. Pinned at TODAY'S values with the intended beside each:
+#  today oa..od are NOT JITTABLE (x is kindless; its := writer is handed over), oe and of build with 2 handed.
+_owF=$(ip opWalkT)
+if [ -f "$_owF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_owF" > "$T/ow.o" 2> "$T/ow.e"; _owx=$?
+sed '/^owNew(of);$/a\
+jitter;
+' "$_owF" > "$T/owj.k"
+rm -f "$T/owj.w"; INCANT_JITTER_ERR="$T/owj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/owj.k" > "$T/owj.o" 2> "$T/owj.e"; _owjx=$?
+_owv () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | tr '\n' '|'; }
+_ofeq "opWalkT plain: the oracle's values, exit, sentinel" "$(_owv "$T/ow.o") x$_owx s$(grep -c '^OPWALK SENTINEL' "$T/ow.e")" "oa |14 |ob |7 |oc |3 |od |3 |oe |2 |of |1 | x0 s1"
+_ofeq "opWalkT under jitter; = the oracle: values, exit, sentinel" "$(_owv "$T/owj.o") x$_owjx s$(grep -c '^OPWALK SENTINEL' "$T/owj.e")" "$(_owv "$T/ow.o") x$_owx s1"
+fdRow "opWalkT under jitter; each action built (1) or NOT JITTABLE (0)" "$(for _a in oa ob oc od oe of; do printf '%s %s;' $_a $(grep -c "^=== jitter: $_a built 1 called 1 ===" "$T/owj.o" "$T/owj.e" | awk -F: '{s+=$2} END{print s}'); done)" "oa 0;ob 0;oc 0;od 0;oe 1;of 1;" "oa 1;ob 1;oc 1;od 1;oe 1;of 1;"
+#  RE-PINNED SEQ 564 R0 (Tony): oe 6 0 6 -> 6 1 5, of 5 0 5 -> 5 1 4. The dot read on a list (print gla.listLengtH) stays handed over; not stroke 2's.
+fdRow "opWalkT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/owj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "oa 8 2 6;ob 5 2 3;oc 8 2 6;od 5 2 3;oe 6 2 4;of 5 2 3;" "oa 8 0 8;ob 5 0 5;oc 8 0 8;od 5 0 5;oe 6 1 5;of 5 1 4;"
+else echo "  FAIL  opWalkT MISSING"; fail=1; fi
 #  ruleShareT -- SEQ 528 R2: ruleMethod= shares a coded rule's action. Identity by BODY (H13).
 _rsF=$(ip ruleShareT)
 if [ -f "$_rsF" ]; then
@@ -1364,6 +1421,8 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$T/rkj.k" > "$T/rkj.o" 2> "$T/rkj.e"; _rkjx
 _rkWant="ns str:13 |os str:13 |nm loc:13 |om loc:13 |nd 3.5:9 |od 3.5:9 |nc 4.5:9 |oc 4.5:9 |nl 2.5:9 |ol 2.5:9 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne arm:13 |oe arm:13 |"
 _ofeq "newReturnKindT plain (the control): value:kind per shape, exit, sentinel" "$(_rkv "$T/rk.o") x$_rkx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rk.e")" "$_rkWant x0 s1"
 fdRow "newReturnKindT under jitter; = plain" "$(_rkv "$T/rkj.o") x$_rkjx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rkj.e")" "ns 3:5 |os 3:5 |nm 3:5 |om 3:5 |nd 4:5 |od 3:5 |nc 5:5 |oc 4:5 |nl 3:5 |ol 2:5 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne 3:5 |oe 3:5 | x0 s1" "$_rkWant x0 s1"
+#  F-146 REGISTERED (SEQ 567 R2): nh's shape is refused by name today (stroke 2's R1); with the cure it compiles and still reads 7:6
+fdRow "newReturnKindT nh under jitter;: built 1 called 1 (1) or refused, NOT JITTABLE (0)" "$(cat "$T/rkj.o" "$T/rkj.e" | grep -c '^=== jitter: nh built 1 called 1 ===')" "0" "1"
 _rsv () { grep '^RS ' "$1" | tr -s ' ' | tr '\n' '|'; }
 _ofeq "newReturnKindT RS plain (the control): an old-road self-call's non-count return" "$(_rsv "$T/rk.o")" "RS s |RS 1.5 |"
 fdRow "newReturnKindT RS under jitter;: past the channel's reach, a self-call reads the i32" "$(_rsv "$T/rkj.o")" "RS 1 |RS 1 |" "RS s |RS 1.5 |"
@@ -7939,6 +7998,18 @@ sentinel "jitterT new road sentinel" "$T/jtN" "JITTER SENTINEL"
 kindRow "jitterT new road: JT-0..JT-4 = the interpreted twin" "$(_jtv "$T/jtN")" "$(_jtv "$T/jtI")"
 kindRow "jitterT new road witness: jtAdd built 1 called 3 (born red 2026-10-19)" "$(grep -c '^=== jitter: jtAdd built 1 called 3 ===' "$T/jtN")" "1"
 
+#  ⚑ jitArgStaleT -- jitterT's cure (2026-11-08, branch jitterT-cure): an inlined callee's `argument`, followed at build to the
+#  caller's `kk=1`, read the slot's value from BEFORE jitEmitAssign stored 1 (the seed's load). Trunk read 0 hits jitted, 2
+#  interpreted, exit 0, silent. JTT above cannot show it on trunk (its compare hands over); this row can. The fixture's dead
+#  region carries the mechanism.
+_asv () { sed -n 's/^AS hits .*\[ *\([0-9]*\) *\].*/\1/p' "$1"; }
+run1 jitArgStaleT "$T/as";   check "jitArgStaleT runs" 0 $?
+sentinel "jitArgStaleT sentinel" "$T/as" "AS SENTINEL"
+sed '/^jitter;$/d' "$(ip jitArgStaleT)" > "$T/asI.src"; "$CB" "$T/asI.src" > "$T/asI" 2>&1
+kindRow "jitArgStaleT the interpreted twin: two calls, two hits" "$(_asv "$T/asI")" "2"
+fdRow "jitArgStaleT jitted: an inlined callee's argument after the caller's kk=1 (trunk read the pre-store load)" "$(_asv "$T/as")" "0" "2"
+kindRow "jitArgStaleT witness: asCa built 1 called 2 (the hits come from the compiled run)" "$(grep -c '^=== jitter: asCa built 1 called 2 ===' "$T/as")" "1"
+
 #  ⚑ kindlessNetT -- SEQ 388 R2 (Tony, 2026-10-21): THE NET. A kindless local with no writer the build can see is NOT
 #  JITTABLE -- refused by name, interpreted after. Nothing in the fleet reaches it (SEQ 388 R1), so this fixture is its
 #  only reach. KN-1 is the control (a `= 2` writer compiles); KN-2's knLoc is read and never written. Intended = the
@@ -9098,6 +9169,10 @@ _ofeq "argRoadsT under jitter; exit, sentinel" "$_arjX $(grep -c '^AR SENTINEL' 
 fdRow "argRoadsT AR-J1 under jitter; *argument on a non-holder refuses at all four sites, and the old road's silent -1 is gone" "$(grep -c '^REFUSED argument -- .\*argument. -- argument is a binding' "$T/arj.e") $(_arjv 'StarPlain old x=')/$(_arjv 'StarPlain new x=')" "4 /x" "4 /"
 _ofeq "argRoadsT AR-J2 under jitter; *argument bound to a holder reads through it" "$(_arjv 'StarHeld old x=') $(_arjv 'StarHeld new x=')" "5 5"
 _ofeq "argRoadsT AR-J3 under jitter; bare argument, new road" "$(_arjv 'Minus new x=') $(_arjv 'Rec new 3=')" "-1 2 s"
+#  SEQ 563 R2 (registered on trunk before stroke 2's build): argRoadsT's four actions SEQ 560's census saw go from NOT JITTABLE to
+#  compiled, by name, today's state with the intended beside it; and their values under jitter; = plain, which must hold across the flip.
+fdRow "argRoadsT under jitter; nMid oStarSrc nStarSrc nStar: built (1) or NOT JITTABLE (0)" "$(for _a in nMid oStarSrc nStarSrc nStar; do printf '%s %s;' $_a $(cat "$T/arj.o" "$T/arj.e" | grep -c "^=== jitter: $_a built 1 called "); done)" "nMid 0;oStarSrc 0;nStarSrc 0;nStar 0;" "nMid 1;oStarSrc 1;nStarSrc 1;nStar 1;"
+_ofeq "argRoadsT under jitter; the four actions' values = plain" "$(_arjv 'StarHeld new x=')/$(_arjv 'StarSrc old n=')/$(_arjv 'StarSrc new n=')/$(_arjv 'Star new hz=')" "$(_arv 'StarHeld new x=')/$(_arv 'StarSrc old n=')/$(_arv 'StarSrc new n=')/$(_arv 'Star new hz=')"
 #  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
 _pcF=$(ip parentChainT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcX=$?

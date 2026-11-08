@@ -1,0 +1,54 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
+register(PrbReg);
+define
+    tgtA="text A";
+    tgtB="text B";
+    tgtC="text C";
+    tgtD="text D";
+    bumps=0;
+    bump code={ bumps += 1; };
+    actRoad code={
+        hC := tgtC;
+        clear(hC);
+        print "A1 tgtC after clear(hC) in an action:" tgtC:;
+        hD := tgtD;
+        clear(*hD);
+        print "A2 tgtD after clear(*hD) in an action:" tgtD:;
+        };
+    ;
+search PrbReg list;
+register(Prb2);
+define
+    gH;
+    tgtG="text G";
+    tgtL="text L";
+    tgtT="text T";
+    road2 code={
+        gH := tgtG;
+        print "B0 global holder in action, isGrouP before:" gH.isGrouP:;
+        clear(gH);
+        print "B1 tgtG after clear(gH):" tgtG:;
+        print "B2 gH isGrouP after:" gH.isGrouP:;
+        lH := tgtL;
+        clear(lH);
+        print "B3 tgtL after clear(lH), local:" tgtL:;
+        print "B4 lH isGrouP after:" lH.isGrouP:;
+        };
+    ;
+search Prb2 list;
+road2();
+gH := tgtT;
+clear(gH);
+print "B5 top level, same global holder: tgtT after clear(gH):" tgtT:;
+print "B6 gH isGrouP after:" gH.isGrouP:;
+print "SENTINEL x22 end":;
+stop();

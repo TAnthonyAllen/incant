@@ -83,25 +83,31 @@ define
     fsOldRule isRule entries=ANYstring+ SemI?- code={
         cerr "FSOLD-MARK action entered":;
         cerr "FSOLD-LEN" entries.listLengtH:;
+        return *actionLabel;
         };
     fsNewRule isRule entries=ANYstring+ SemI?- code={
         cerr "FSNEW-MARK action entered":;
         cerr "FSNEW-LEN" entries.listLengtH:;
+        return *actionLabel;
         };
     fsFieldOld isRule NamE ":"- NumbeR ","?- code={
         cerr "FSFLDO-MARK action entered":;
         cerr "FSFLDO-DATA" NamE.datA:;
+        return *actionLabel;
         };
     fsFieldNew isRule NamE ":"- NumbeR ","?- code={
         cerr "FSFLDN-MARK action entered":;
         cerr "FSFLDN-DATA" NamE.datA:;
+        return *actionLabel;
         };
     fsItemsR isRule bits=ANYstring+;
     fsArrayOld isRule "arr"- fsItemsR? SemI?- code={
         cerr "FSARRO-MARK action entered":;
+        return *actionLabel;
         };
     fsArrayNew isRule "arr"- fsItemsR? SemI?- code={
         cerr "FSARRN-MARK action entered":;
+        return *actionLabel;
         };
     ;
 traceParse(0);

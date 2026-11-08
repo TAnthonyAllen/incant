@@ -2995,7 +2995,9 @@ direction the campaign might take, it is a state the machinery must report as a 
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
 > **`printPop.sh`** · **`genLadder/formsPop.sh`** (the drawing surface, by pixel) · `incant/frontier` (run once) · **`genLadder/dirCheck.sh` AT SHUTDOWN SEALS ONLY** (every directive still
 > injects; then the tree is retokked bare -- SEQ 455 R2; any other seal carries the stroke's anchor line instead) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
-> `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+> `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause** · **main = trunk** (the kitchen pass
+> fast-forwards `main` to `jit-unified-emit-wip`; Tony, SEQ 562 R0a, 2026-11-08 -- it lapsed after seal 372, main stalled on
+> Nov 7, and a checkout of main then built a day-old trunk).
 >
 > ⚠⚠ **EVERY SCRIPT THE CHECKLIST RUNS IS EXECUTABLE IN GIT, CHECKED WITH ONE COMMAND (Tony, standing, SEQ 285
 > R6, 2026-10-03):** `git ls-files -s genLadder/pop.sh jitLadder/ladder.sh genLadder/decodePop.sh genLadder/ddPop.sh
@@ -3259,6 +3261,9 @@ decision it asks of Tony, in one sentence.
 - **`IncantForms/WorkingOn/tester` and `incant/kantGrammar`: Clod changes them at will.** They are works in progress, so a
   change that breaks something is expected and carries no blame; Tony reviews them as he works. Commit them as usual.
 - **`IncantForms/WorkingOn/incant++`: Clod does not change it.** It records Tony's thinking as it evolves; Tony changes it.
+  ⚠⚠ **A DISPATCH IS A RULING ONLY WHEN TONY FORWARDS IT (standing, 2026-11-08).** Anything parked in incant++ is a
+  DRAFT: Tony may revise it after Clod's report, and Clod will not see the revision. Clod reads incant++ but never acts on
+  a draft found there, and never moves, removes or copies anything out of it; only Tony changes it.
 - **`IncantForms/WorkingOn/macros`: Clod changes it too (Tony, 2026-10-29: "you can change macros and probably better you do
   it than me").** It is the shared plan Tony and Clay revise; Clod keeps it current and commits it, saying what changed.
 - **Everything else of Tony's (utilities, unitTests, printFamily and the rest): changed as a stroke needs, named in the

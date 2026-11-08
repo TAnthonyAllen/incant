@@ -238,6 +238,10 @@ it works. HPDL.
    value becomes the seq's, +%'s holder unwrap has no list to act on, and the
    spread sits in the slot code SEQ 448 R6 wants simplified. Tony, 2026-10-30:
    leave the REFUSED on an adjacent run in place (print items separate with ,).
+   JOINS IT (SEQ 561 R3, 2026-11-08): the silent side-by-side call. With no ;
+   between them, clear(x) describe(); is one statement, an adjacent run of two
+   calls, on both roads; it meets no operator, so nothing refuses and neither
+   call runs (exit 0). Measured in docs/clearHolderRecon.md, the rider.
 6  Build order vs branch targets (2026-10-30). Children build first, so a
    break cannot name its loop -- the loop does not exist yet when the break is
    built. Only the loop could bind its breaks, by walking its own body at build

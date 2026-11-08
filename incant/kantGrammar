@@ -438,6 +438,7 @@ define
                 topRun = 0;
         // unlandedRefused a signal still set when the statement finishes reached the top level unlanded: refuseTopSignal refuses it by name and clears it (SEQ 516)
         if topRun == 1;     refuseTopSignal(*ts);
+        return *actionLabel;
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
     XPRESs code={
@@ -576,7 +577,6 @@ define
             *logP +% *target;
             target = logP;
         if asgP.datA != 0;
-            print "Assign at end":;
             *asgP +% *target;
             target = asgP;
             if asgO.datA != 0;  target = asgO;
@@ -586,6 +586,113 @@ define
         };
     ;
 bail();
+
+/***************************************************************************
+    Comments
+***************************************************************************/
+
+EXPRESSIOn, in prose (Tony's original, Clod's improvements; written by Clay and
+Tony, read against the action and corrected by Clod, SEQ 562, 2026-11-08). The
+code is the authority; each correction is marked CORRECTED and says what the
+code does.
+
+EXPRESSIOn's grammar hands the action one flat list, lizted: the tokens of
+the expression in source order, operands and operators side by side. The
+action walks that list once, left to right, and builds one instruct chain.
+The chain goes into the rule's own label (actionLabel), so whoever called
+EXPRESSIOn gets the label back holding the chain.
+
+Telling an operator from an operand. A token with an instructTypE is an
+operator; anything else is an operand. One flag, prevOp, remembers whether
+the last token was an operator. It starts as 1, as if an operator had come
+before the first token. So an operator that follows an operator, or opens
+the expression, is a PREFIX. An operator that follows an operand is BINARY.
+
+Prefixes. A prefix waits in pre until its operand arrives. A - becomes
+Operators["negate"] and a * becomes Operators["deref"]; any other prefix
+stays as it is. When the operand comes, the two are wrapped into an
+instruct, prefix then operand, and that instruct stands in for the operand
+from then on.
+    CORRECTED: only ONE prefix waits. pre = cur replaces whatever pre held,
+    so of two prefixes in a row only the second is kept: - - qv reads -3 on
+    this road, 3 on the old road (measured 2026-11-08).
+
+Calls. A call arrives from INVOKEr as an instruct with no method; it gets
+testOP here. If its argument is a run of side-by-side operands, the call is
+refused by name.
+    CORRECTED: calls AND subscripts. INVOKEr builds both, op call for ( and
+    op =[ for [ , and the action treats every operand tagged instruct alike:
+    it binds testOP, and refuses one whose third entry (the argument) is an
+    ADJACENt run, naming the op.
+
+Side-by-side operands. Two operands with no operator between them start a
+run. The run collects operands until an operator or the end of the list,
+then becomes ONE operand, an ADJACENt list. If an operator touches the run
+on either side, the expression is refused by name: list operators are
+parked, not forbidden.
+
+The tiers. Every binary operator has a tier, read from its entry in
+setup's Operators:
+    1 arithmetic   (no tier flag)
+    2 compare      (compareTier)
+    3 logic        (shortCircuit)
+    4 assign       (assignTier)
+The walk keeps a running value, target. The first operand becomes target;
+each later one is arg, the right side of the operator before it.
+
+Arithmetic folds at once. When an arithmetic operator has both sides, it is
+built straight away and the result becomes target. So arithmetic reads
+strictly left to right, with no precedence among its own operators:
+a + b * 2 is (a + b) * 2.
+
+Looser tiers wait. A compare, logic or assign operator does not fold at
+once. It is built with only its left side and parked in its tier's pending
+slot: cmpP for compare, logP for logic, asgP for assign. target then starts
+again from the operator's right side, so everything tighter to its right
+gathers first.
+
+Closing a slot. When a new compare, logic or assign operator arrives, any
+pending slot at its own tier or tighter is closed first: the slot takes
+target as its right side and becomes target. That is why a looser operator
+waits for the tighter ones, and why two operators of the same tier read
+left to right (a < b < c is (a < b) < c). Assign never closes assign.
+    CORRECTED, timing only: nothing happens when the operator itself
+    arrives; it is held in op. The closing, the building and the parking all
+    happen when its RIGHT operand arrives, and the right operand becomes
+    target. The results are the same.
+
+Chained assign. A second = nests inside the first as its right side, so
+a = b = c is a = (b = c). asgO remembers the outermost one.
+
+What may sit left of =. If the left side of an assign is itself an instruct,
+its top operator must hand back a field: subscript =[ , star deref, dot,
+or the by-name lookups =% =/ =< . Any other top operator, present or
+future, is refused by name when the chain is built.
+
+The end. When the list runs out, the pending slots close tightest first:
+compare, then logic, then assign. The outermost assign, if there is one,
+is the answer.
+
+A worked example: r = a + b * 2 > lim && ok
+    r               target is r
+    =               assign, waits: asgP = [= r]; target starts again
+    a + b           arithmetic folds: target = [+ a b]
+    * 2             folds again: target = [* [+ a b] 2]
+    > lim           compare, waits: cmpP = [> that]; target = lim
+    && ok           logic arrives: cmpP closes, target = [> ... lim];
+                    logP = [&& that]; target = ok
+    end             logP closes: [&& [> ...] ok]
+                    asgP closes: [= r [&& [> [* [+ a b] 2] lim] ok]]
+The label hands back that one chain. (By the timing correction above, asgP
+is built when a arrives, cmpP when lim arrives, logP when ok arrives. Run on
+this road with a=1 b=3 lim=5 ok=1, r reads 1.)
+
+What it refuses, each by name, the action ending at once:
+    a call or subscript whose argument is a side-by-side run
+    a side-by-side run that touches any operator
+    an instruct left of = whose top operator is not on the field list
+"Ending at once" is: the action clears its label and returns it, so the
+caller receives an empty label.
 
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed

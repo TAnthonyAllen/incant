@@ -67,11 +67,11 @@ search reset stack Grokking;
 define
     WardeD
         TellST  isRule tellst- target=[a-zA-Z0-9]+ message?=[^;]+ SemI- ruleMethod=aCTionTell;
-        PcST    isRule pcst- SemI- code={ cerr "CI-H4 a rule fired BY the compile reads processingCodE -> " ciReq.processingCodE:; };
+        PcST    isRule pcst- SemI- code={ cerr "CI-H4 a rule fired BY the compile reads processingCodE -> " ciReq.processingCodE:; return *actionLabel; };
     ;
 register(CiLadder);
 define
-    CiA isRule "a"- code={ cerr "CI-H3 inside a drive pushed INSIDE the compile, processingCodE -> " ciReq.processingCodE:; cerr "CIFIRE CiA":; };
+    CiA isRule "a"- code={ cerr "CI-H3 inside a drive pushed INSIDE the compile, processingCodE -> " ciReq.processingCodE:; cerr "CIFIRE CiA":; return *actionLabel; };
     ;
 register(CompileInH);
 search reset stack Grokking UnitTests Utilities CompileInT CiLadder list;

@@ -54,7 +54,7 @@ include(utilities);
 search reset stack Grokking;
 search Utilities list;
 define
-    wzNum isRule NumbeR code={ cerr "WZNUM-FIRED":; };
+    wzNum isRule NumbeR code={ cerr "WZNUM-FIRED":; return *actionLabel; };
     wzRun code={
         cerr "CT-ROW1":;
         Search("search list;");

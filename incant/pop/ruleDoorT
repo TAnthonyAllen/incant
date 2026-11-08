@@ -26,6 +26,7 @@ define
     cpSrc=9;
     dv=0;
     dblAct code={ dv = **dh2; print "dbl" dv:; };
+    refAct code={ rr = 0; rz = 1; rr = hs - 1; return 5; };
     dsrc=6;
     dh1;
     dh2;
@@ -69,6 +70,9 @@ the first fire (the compile) reads wrong on the second.
 
 SEQ 559 adds COPYs (a native copyOf keeps its tag), DBLs (a native star on a star, in a rule) and dblAct (the same in an action, the defect's own row: `**x` read nothing natively before R2).
 
+RA rows (F-146, SEQ 567 R3): refAct is an ACTION that refuses mid-body; under jitter; its caller must adopt nothing, as interpreted.
+The rule door re-arms a compiled refusal and so masks the kind it hands back; an action has no door, so this is where kind 0 shows.
+H7 (the armed exit's kind 0 removed): compiled reads ANS 1, a box.
 RG- rows drive three scratch rules, because ITERATe cannot reach the R2 guard on a parse: every path of it ends in a return. KEEPs
 returns its label; REFUSEs refuses mid-body; FELLOFf runs off its end. it1 is preset to "untouched" so a fire that adopts something
 shows it. FELLOFf is the one deliberate difference: interpreted adopts its last value (1), compiled refuses by name and adopts nothing.

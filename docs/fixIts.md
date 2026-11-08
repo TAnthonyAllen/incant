@@ -92,6 +92,36 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-151 — DOCKETED (SEQ 567 R3, 2026-11-08) — expressionLosesAssign: EXPRESSIOn compiled through the rule door assigns nothing, silently
+
+**What:** with F-146's cure in, every assignment EXPRESSIOn handles reads QR 0 compiled, with no refusal and no degrade line, where the interpreted rule assigns. `qr = qa < 3;` also refuses `+% -- an operand that is nothing` compiled. This is the recon's "second mechanism" (`docs/f146Recon.md` section 2); F-146 removed the guard that used to sit on top of it.
+**Where:** not read. kantGrammar's EXPRESSIOn: its `while cur.datA` chain loop (it is also in F-145's census group) and `instruct = kind`; the chain walk of a compiled rule.
+**Evidence:** measured 2026-11-08 in **emitted** (kant source), branch `f146-cure` binary, `incant/pop/ruleXpresT`'s preamble with `jitterRule(EXPRESSIOn);`, `qa=2`, one process per road. All exit 0, sentinel present, `built 1 fired 1`:
+
+| statement | interpreted | compiled |
+|---|---|---|
+| `qr = qa;` | QR 2 | QR 0 |
+| `qr = qa + 1;` | QR 3 | QR 0 |
+| `qr = - qa;` | QR -2 | QR 0 |
+| `qr = 4;` | QR 4 | QR 0 |
+| `qr = qa < 3;` | QR 1 | QR 0, plus `REFUSED instruct -- Operator +% -- an operand that is nothing` |
+
+**Done when:** each shape compiled = interpreted by value, exit and sentinel, as fleet rows beside ruleXpresT's. EXPRESSIOn is F-146's first customer (SEQ 555), so this gates it.
+**Owner:** Clod, when EXPRESSIOn's gate opens. **Size:** not known.
+**Attempt log:** none.
+
+### F-150 — ✅ CLOSED 2026-11-08 (merged de2a8905, bought by Tony, SEQ 562 R0; cure 95dbaa2f, rows d5964914) — argumentReadsPreStore: an inlined callee's `argument` reads the caller's field from before its `=` stored
+
+**What:** a caller passes `kk=1` to a callee the jitter inlines; the callee's `if argument == 1` compiles against kk's value from BEFORE the store. jitEmitAssign's scalar arm stores into kk's slot and leaves kk's build value as the seed's load; followArgument's jitting arm follows the inlined `argument` to kk and the compare reads that load (the slot at entry). Silent: exit 0, no refusal, degrade 0. It is what jitterT's JTT showed under stroke 2's route (1 against 2); on trunk JTT's compare hands over (`*jtRead`, a holder a handed-over `:=` wrote), which hides it.
+**Where:** `jitEmitters.rtn` jitEmitAssign, the scalar arm's `b->CreateStore(v, target->jitData->jitSlot)`.
+**Evidence:** trunk `678e718c`: incant/pop/jitArgStaleT (on the branch) jitted 0 hits, interpreted 2. Scratch build with the route on (flag out, inline guard out, walk admits `:=` `+%` `*`): JTT 1; the route restricted to `:=` alone, 1; to `+%` alone, 2; the pre-mem2reg IR's compare reads `%frame`, the load before `store i32 1`.
+**Done when:** jitArgStaleT's jitted row reads 2, and with the route on JTT reads 2.
+**Owner:** Clod. **Size:** one line.
+**Attempt log:**
+- 2026-11-08: clearing the node in flight after a routed fire -> JTT still 1; not the mechanism, reverted (scratch only).
+- 2026-11-08: the target's build value set to the stored v in jitEmitAssign's scalar arm (95dbaa2f) -> jitArgStaleT 2, route-on JTT 2. H7 (cure out, single fixture): route off, jitArgStaleT 0 and JTT 2; route on, JTT 1 and jitArgStaleT 0. Branch pop.sh 2981 green = 2976 + 5, FAIL rows identical to R00's by name; route-on scratch moves only pc's witness and nh (F-146), the census's other two.
+- 2026-11-08: merged to trunk (de2a8905); bare tokall = the branch, pop.sh = the branch's run row for row but acceptStartT's address (H3) -> certified by `jitArgStaleT jitted: an inlined callee's argument after the caller's kk=1` = [2].
+
 ### F-149 — DOCKETED (Tony, SEQ ___ R0, 2026-11-07) — jitAwareCommandHandedOver: displayFill's own jit emitter is never reached; the call runs at run time
 
 **What:** `displayFill` is a jit-aware command: under jitting it emits a native call to displayFillRT (`jitEmitFill`). Since SEQ 384 R1 (`b258208e`, 2026-10-19) `jitOpEmits` decides before dispatch whether a call emits, and for a command it admits only `jitTrace`. So `displayFill` is handed over: `JIT DEGRADE #1: a command call -- its statement runs at RUN time ... displayFill`, `jitDegrade count = 1`. The pixels stay right (the statement runs per fire, at run time); what is lost is the native emit.
@@ -128,7 +158,11 @@ where it stands. Nothing else is backfilled.
 **Done when:** a compiled rule ends every way the interpreted one does, and the guard is deleted or unreachable, with FELLOFf's compiled row re-pinned. Needed before `EXPRESSIOn` or a wider gate.
 **Order (Tony, 2026-11-07):** follows the operator rung and comes before If. If, ELSEIf, WHILe, Do and BRANCh stay safe meanwhile, with the guard's extra refusal pinned, as FOr's RF-O is. **Tony, SEQ 555:** F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to its cure. Branch merged (aa25fc3c). Blocked rules, per the census: XPRESs, INVOKEr, TOPSTATEMENt, EXPRESSIOn.
 **Owner:** Clod, when the gate widens. **Size:** not known.
-**Attempt log:** none.
+**Attempt log:**
+- 2026-11-08 (SEQ 567 R3, branch `f146-cure`, cure 0c85b12c): a label holding a group leaves as itself and a new-road holder as the holder (jitStmtRTValueRT, the i32 unchanged); a native return of a label leaves as the node (IR-only); a second channel, gJitRetEnding (0 returned, 1 ran off its end, 2 refused), beside the kind; an armed exit leaves kind 0; the guard and nh's refusal deleted; a rule that runs off its end is refused by name on both roads, and a compiled refusal is re-armed at the door. -> pop.sh 3003 -> 3013: exactly the 10 registered born-red rows went to their intended values; FAIL rows otherwise identical by name. jitLadder exit 0, printPop exit 0, decodePop / formsPop / frontier = captures but the binary echo, ddPop 5 / 1, canary 447.
+- First build moved 3 unregistered rows, all mine: RO-6 (`ruleOffEnd` matched `ruleOf` -- renamed); newReturnKindT RS (a string literal in an action body is itself a parse label, so "a label leaves as itself" changed the i32 -- narrowed to "never follow a label to a count", i32 unchanged); ruleDoorT REFUSEs compiled read `ANS it1` (the epilogue clears the arm, so the caller saw no refusal -- the ending channel's 2 and the door's re-arm). Second build: 0 unregistered movers.
+- H7-1 (the follow and the label decay restored, single fixtures): nh 7:5, XPRESs `qr = qa + 1` compiled QR 0 (interpreted 3), now silent. H7-2a (the armed exit's kind 0 removed): a compiled action that refused adopts a box, `ANS 1` (interpreted `ANS it1`); the rule door stayed green, masked by the ending channel (H17), so the new ruleDoorT RA rows (e406b792) carry it and go red on that build. H7-2b (the refused ending removed): compiled REFUSEs gains a false "ran off its end" refusal, 0 -> 1. Cure restored md5-identical each time; pop.sh 3016 = 3013 + 3 RA rows.
+- EXPRESSIOn still wrong compiled, silently: docketed F-151.
 
 ### F-145 — PARKED (Tony, SEQ 539 R1, 2026-11-06: recorded, not cured; the old road is retiring) — oldRoadLoopHang: the old road hangs on a refusal in a loop with a literal condition
 

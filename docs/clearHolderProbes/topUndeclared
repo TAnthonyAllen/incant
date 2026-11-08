@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
+register(PrbReg);
+define
+    tgtA="text A";
+    tgtB="text B";
+    tgtC="text C";
+    tgtD="text D";
+    bumps=0;
+    bump code={ bumps += 1; };
+    actRoad code={
+        hC := tgtC;
+        clear(hC);
+        print "A1 tgtC after clear(hC) in an action:" tgtC:;
+        hD := tgtD;
+        clear(*hD);
+        print "A2 tgtD after clear(*hD) in an action:" tgtD:;
+        };
+    ;
+search PrbReg list;
+hA := tgtA;
+print "K0 hA isGrouP before:" hA.isGrouP:;
+clear(hA);
+print "K1 tgtA after clear(hA):" tgtA:;
+print "K2 hA isGrouP after:" hA.isGrouP:;
+hB := tgtB;
+clear(*hB);
+print "K3 tgtB after clear(*hB):" tgtB:;
+print "K4 hB isGrouP after:" hB.isGrouP:;
+actRoad();
+print "SENTINEL core end":;
+stop();

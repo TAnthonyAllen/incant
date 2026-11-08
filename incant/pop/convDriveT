@@ -5,7 +5,7 @@ search reset stack Grokking;
 search GroupFields UnitTests Utilities list;
 define
     lamp isRule defer
-        ask   isRule q-="value?" defer code={ cerr "   >>> lamp ask FIRED":; };
+        ask   isRule q-="value?" defer code={ cerr "   >>> lamp ask FIRED":; return *actionLabel; };
     cdSay code={
         v := tell(argument);
         m := *v["matched"]; c := *v["consumed"]; l := *v["length"]; k := *v["known"];

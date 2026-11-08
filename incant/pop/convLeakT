@@ -5,7 +5,7 @@ search reset stack Grokking;
 search GroupFields UnitTests Utilities list;
 define
     thermo isRule defer
-        setT  isRule s-="set" n=NumbeR defer code={ cerr "   >>> thermo set FIRED":; };
+        setT  isRule s-="set" n=NumbeR defer code={ cerr "   >>> thermo set FIRED":; return *actionLabel; };
     ;
 cerr "CL-1 drive thermo(set), failing at end of message":;
 thermo("set");
