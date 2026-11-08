@@ -101,6 +101,8 @@ cerr "DW-11 colour from the style (dwSt strokeColor red): (0,5) painted, (1,5) n
 drawWalk(dwStyled);
 dwX = 0; dwY = 5; dwAt(dwStyled); pixelAt(dwStyled);
 dwX = 1; dwAt(dwStyled); pixelAt(dwStyled);
+cerr "DW-12 x past the width refuses: ok (400,180)":;
+dwX = 400; dwY = 180; dwAt(firstLight["bar"]["ok"]); pixelAt(firstLight["bar"]["ok"]);
 cerr "DRAWWALK SENTINEL":;
 stop();
 
@@ -119,3 +121,4 @@ bottom sit on the page's edge, so their second pixel is the next one in); headin
 of its other three sides (unpainted) and of its bottom row (painted); dwThick, width 3 with its own strokeColor; dwStyled,
 its colour from its style. Width sits inside the frame (Tony): a border never spills onto a neighbour. DW-5 and DW-6 move
 with the border by design: (5,29) is heading's bottom row, and (399,199) and (341,165) are on ok's edges.
+DW-12 (forms step 4 R1): a read at x=400, past the page's width, refuses by name; unchecked it read the next row's first pixel.

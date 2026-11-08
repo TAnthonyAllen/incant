@@ -332,9 +332,11 @@ extern GroupItem pixelAt(GroupItem field)
     unsigned char *data = (unsigned char*)CGBitmapContextGetData(ctx);
     size_t rowBytes = CGBitmapContextGetBytesPerRow(ctx);
     size_t h        = CGBitmapContextGetHeight(ctx);
+    size_t w        = CGBitmapContextGetWidth(ctx);
     int    ix = px ? (int)px->getNumber() : 0;
     int    iy = py ? (int)py->getNumber() : 0;
-    if (!data || ix < 0 || iy < 0 || (size_t)iy >= h) {
+    //  bothAxes x past the width would read the next row's pixel: refused as y is (forms step 4 R1)
+    if (!data || ix < 0 || iy < 0 || (size_t)iy >= h || (size_t)ix >= w) {
         ::fprintf(stderr,"pixelAt: %s (%d,%d) OUT OF RANGE\n", field->groupBody->tag, ix, iy);
         return 0; }
     unsigned char *p = data + (size_t)iy * rowBytes + (size_t)ix * 4;
