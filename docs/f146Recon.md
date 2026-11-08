@@ -119,3 +119,31 @@ jitStmtRTValueRT, jitStmtRT (the road), jitTakeReturn, jitEmitReturn, the epilog
 guard): **only processAction carries a directive**, parked (`ctive`), anchored at `code` (`code = action.actionBody();`),
 in Directives/GroupRules and Directives/groupDirectives. The guard sits in a `-% %-` passthrough below it; the anchor
 is untouched.
+
+## 7. R1's census (SEQ 565, 2026-11-08): every rule with code, and every path that runs off its end
+
+Ruled first (SEQ 565 R0): option (b) -- a rule whose code runs off its end is refused by name on both roads; TOPSTATEMENt
+gains `return *actionLabel;`. The census asks whether TOPSTATEMENt is the only such rule. **It is not: `list` is the second.**
+
+**Population and how it was read.** Rule-ness was asked of the running system (`NAME.isRulE`, a positive and a negative
+control in every probe that loads the file), not read from text, because kantGrammar's rules carry no `isRule`.
+
+| source | code bodies | rules among them | runs off its end |
+|---|---|---|---|
+| incant/kantGrammar | 21 (regex count = grep count) | 19 (+ ELSEIf, which shares If's code); makeInstruct and makePrint are Utilities actions | **TOPSTATEMENt**, every path. The other 18 end in `return *actionLabel` (INVOKEr: `return ANYtoken` after its call path) |
+| incant/grammar | 0 (its rules act through C++ aCTion methods) | 0 | -- |
+| incant/unitTests | 41 | **list** (`list isRule entries=ANYstring+ SemI?- code={ print ...; for sumGrup in entries; print ...; }`, unitTests:147) | **list**, its only path |
+| incant/utilities (included with unitTests everywhere) | 13 | JSONfield, JSONarray | neither: both end in `return *jfOut` / `return *jaOut` |
+| IncantForms/WorkingOn/tester | 3 live | 0 (measured: describe, listChain, printDef) | -- |
+| IncantForms: scratch (measured, control NamE 1), checkSKIP, parser, Windows keyStroke / simple / tree | 3, 1, 4, 2 / 1 / 1 | 0: actions in TestStuff / Utilities, and field handlers on window fields | -- |
+| IncantForms: forms, formsRecon, macros | prose (no stop line; `code={` appears in descriptions) | -- | -- |
+
+**`list` is live in the fleet.** unitTests' `testList` and the testUnitTests driver both call `list("righty 3.1 seven eight
+nine;")`, and `incant/pop/baselineTests.golden` holds its output (`list tests the for statement:`) twice -- baselineTests
+is the only fixture that reaches testUnitTests (pop.sh:273). Under (b) as written, `list` would refuse on both roads and
+that golden would move. **Ruling owed: `list` gains an explicit `return *actionLabel;`, or it is refused.**
+
+**Not covered:** rules defined inside fleet fixtures (incant/pop). They are outside R1's named sources but inside R0's
+reach (both roads); ruleDoorT's FELLOFf is one, deliberately. A first static pass over them was void (its pattern counted
+any field with an attribute as a rule) and is not reported; a census by `isRulE` per fixture is the read to do next if
+Tony wants it before R2.
