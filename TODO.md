@@ -649,6 +649,8 @@ projectBible.md "Phase Generate Tawk".
 - [ ] TAWK autopsy remainder
 - [ ] Scoped TAWK autopsy: GC inheritance fix, include guard fix
 - [ ] GC: native Tok base class -- spelling exists (`external class gc no.h;` + `class X extends gc`, probed 2026-11-08 on ~/bin/tok), ruling Tony's; then operator new and unseen roots, recon first, after the first PDF. (Tokf's FormatC.twk:653 already emits `: public gc` on every class but ~/bin/tok, Nov 2024, predates it.)
+  - 2026-11-08 build-and-diff (Tony's ruling): Tokf HEAD (e37cced) DOES NOT COMPILE -- 180 errors (Tawk.C 179, 163 of them "reference to non-static member function must be called"; Tok.C 1, printErrorMessage, an old PLGtester method). Phase Integrate phase C (first clean compile) never reached. No new tok, so no diff; ~/bin/tok and otok untouched (935e69a8). The legacy source (OLDtawkDoNotTouch/Tokf/FormatC.twk:584) matches the binary: no gc, no gc_cpp include.
+  - OPTION FOR THE GC RECON, NOT RULED (Tony, 2026-11-08 R3): a tok that adds gc only where a class says `extends gc` -- which today's binary already does, given `external class gc no.h;`.
 
 ---
 
