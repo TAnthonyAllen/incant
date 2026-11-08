@@ -414,6 +414,8 @@ use argument
                 case 45:    if target.isUnary       product.count = 1;
                 case 46:    if target.fLAG          product.count = 1;
                 case 47:    if target.isMacro       product.count = 1;
+                // isPointeRReadOnly READ-ONLY: setPointer is the writer; drawWalk asks whether the top already holds a context, so it answers 0 as well as 1 (forms step 4)
+                case 48:    product.count   = target.isPointer;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;

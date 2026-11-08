@@ -135,12 +135,18 @@ define
         coordinates. A field naming neither is skipped, not refused. After its
         fill, a field naming border or a side (topBorder, bottomBorder,
         leftBorder, rightBorder) draws it through displayBorder (forms step 3).
+        A top that already holds a context (openPDF's, or a bitmap the caller
+        opened) is drawn into as it stands: drawWalk opens no bitmap of its own
+        (forms step 4). The capture is `=`, not `:=`: a := capture is a holder,
+        and `dwOpen == 0` then reads false on a 0 (measured 2026-11-08; #55's
+        family). isPointeR always writes 0 or 1, so `=` carries it.
         drawKids descends where *grup.hasMemberS: grup is the loop's holder, so
         the star is needed (grup.hasMemberS reads nothing; measured 2026-11-08,
         bar 1, every leaf 0).
     ***************************************************************************/
     drawWalk code={
-        makeDisplay(argument);
+        dwOpen = argument.isPointeR;
+        if dwOpen == 0;     makeDisplay(argument);
         drawFill(argument);
         drawBorder(argument);
         drawKids(argument);

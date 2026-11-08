@@ -10008,6 +10008,10 @@ GroupItem 	*minted = 0;
 				case 47:
 					if ( target->groupBody->flags.isMacro )
 						product->setCount(1);
+					// isPointeRReadOnly READ-ONLY: setPointer is the writer; drawWalk asks whether the top already holds a context, so it answers 0 as well as 1 (forms step 4)
+					break;
+				case 48:
+					product->setCount((int)target->groupBody->flags.isPointer);
 					break;
 				case 401:
 					if ( !target->nextInParent )

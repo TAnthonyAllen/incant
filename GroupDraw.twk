@@ -168,6 +168,105 @@ extern GroupItem makeDisplay(GroupItem field)
 }
 
 /*****************************************************************************
+    openPDF / closePDF / readPDF -- forms step 4, the first PDF. One request
+    field each. The request names the file (`path`) and, for openPDF, the form
+    (`form:=` its top field) and the page (`width`, `height`, points).
+
+    openPDF opens a PDF context and treats it exactly as makeDisplay treats a
+    bitmap: the same flip (y down, origin at the top's x and y), the context in
+    the TOP field's pointer slot, handed down to every descendant (Tony, step 4
+    R0: step 1's finding covers the children's slots only). So drawWalk and
+    the fill and border floors draw into it unchanged. closePDF ends the page,
+    closes the file, and clears the top's slot so nothing reads a released
+    context. readPDF draws page 1 into a fresh bitmap held by the request
+    itself, the page's own size, so pixelAt reads it as it reads the display.
+*****************************************************************************/
+extern GroupItem openPDF(GroupItem request)
+{
+    -%
+    if (!request) return 0;
+    GroupItem *pathF = request->get("path"), *formF = request->get("form");
+    GroupItem *wF = request->get("width"), *hF = request->get("height");
+    GroupItem *top = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+    char *path = pathF ? pathF->getText() : 0;
+    double w = wF ? wF->getNumber() : 0, h = hF ? hF->getNumber() : 0;
+    if (!path || !*path || !top || w < 1 || h < 1) {
+        ::fprintf(stderr,"openPDF: REFUSING %s -- needs path, form:= its top field, and width and height\n", request->groupBody->tag);
+        return 0; }
+    CFURLRef url = CFURLCreateFromFileSystemRepresentation(0, (const UInt8*)path, ::strlen(path), false);
+    CGRect   box = CGRectMake(0, 0, w, h);
+    CGContextRef ctx = url ? CGPDFContextCreateWithURL(url, &box, 0) : 0;
+    if (url) CFRelease(url);
+    if (!ctx) {
+        ::fprintf(stderr,"openPDF: REFUSING %s -- could not create %s\n", request->groupBody->tag, path);
+        return 0; }
+    CGPDFContextBeginPage(ctx, 0);
+    NSRect framed = ::getFrame(top);
+    CGContextTranslateCTM(ctx, 0, h);
+    CGContextScaleCTM(ctx, 1, -1);
+    CGContextTranslateCTM(ctx, -framed.origin.x, -framed.origin.y);
+    top->setPointer((void*)ctx);
+    handDisplay(top, top);
+    %-
+    return request;
+}
+
+extern GroupItem closePDF(GroupItem request)
+{
+    -%
+    if (!request) return 0;
+    GroupItem *formF = request->get("form");
+    GroupItem *top = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+    CGContextRef ctx = top ? (CGContextRef)top->getPointer() : 0;
+    if (!ctx) {
+        ::fprintf(stderr,"closePDF: REFUSING %s -- its form holds no open PDF\n", request->groupBody->tag);
+        return 0; }
+    CGPDFContextEndPage(ctx);
+    CGPDFContextClose(ctx);
+    CGContextRelease(ctx);
+    //  noDangling the slot is cleared, so a later read finds no context rather than a released one
+    top->groupBody->gPointer = 0;
+    top->groupBody->flags.isPointer = 0;
+    %-
+    return request;
+}
+
+extern GroupItem readPDF(GroupItem request)
+{
+    -%
+    if (!request) return 0;
+    GroupItem *pathF = request->get("path");
+    char *path = pathF ? pathF->getText() : 0;
+    if (!path || !*path) {
+        ::fprintf(stderr,"readPDF: REFUSING %s -- needs path\n", request->groupBody->tag);
+        return 0; }
+    CFURLRef url = CFURLCreateFromFileSystemRepresentation(0, (const UInt8*)path, ::strlen(path), false);
+    CGPDFDocumentRef doc = url ? CGPDFDocumentCreateWithURL(url) : 0;
+    if (url) CFRelease(url);
+    CGPDFPageRef page = doc ? CGPDFDocumentGetPage(doc, 1) : 0;
+    if (!page) {
+        ::fprintf(stderr,"readPDF: REFUSING %s -- no readable page 1 in %s\n", request->groupBody->tag, path);
+        if (doc) CGPDFDocumentRelease(doc);
+        return 0; }
+    CGRect box = CGPDFPageGetBoxRect(page, kCGPDFMediaBox);
+    int w = (int)box.size.width, h = (int)box.size.height;
+    CGColorSpaceRef cs  = CGColorSpaceCreateDeviceRGB();
+    CGContextRef    ctx = CGBitmapContextCreate(0, w, h, 8, 0, cs, kCGImageAlphaPremultipliedLast);
+    CGColorSpaceRelease(cs);
+    if (!ctx) {
+        ::fprintf(stderr,"readPDF: REFUSING %s -- CGBitmapContextCreate failed\n", request->groupBody->tag);
+        CGPDFDocumentRelease(doc);
+        return 0; }
+    CGContextDrawPDFPage(ctx, page);
+    ::printf("=== readPDF %s pages %d size %dx%d ===\n", request->groupBody->tag, (int)CGPDFDocumentGetNumberOfPages(doc), w, h);
+    ::fflush(stdout);
+    CGPDFDocumentRelease(doc);
+    request->setPointer((void*)ctx);
+    %-
+    return request;
+}
+
+/*****************************************************************************
     displayFillRT — THE SPECIMEN, and the runtime half of it.
 
     Fills the field's own frame rect with its own `fill`, or else with the

@@ -38,6 +38,7 @@ define
     copyOf immediateAction;
     defer immediateAction=processFlags noPrint;
     definersOf immediateAction;
+    closePDF immediateAction=closePDF;
     displayBorder immediateAction=displayBorder;
     displayFill immediateAction=displayFill;
     displayFillRT immediateAction=displayFillRT;
@@ -71,6 +72,7 @@ define
     merge immediateAction=processFlags noPrint;
     modsOf immediateAction;
     new immediateAction=makeNew;
+    openPDF immediateAction=openPDF;
     openWindow immediateAction=openWindow;
     parseClassify immediateAction;
     pixelAt immediateAction=pixelAt;
@@ -80,6 +82,7 @@ define
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
     refuseTopSignal immediateAction;
+    readPDF immediateAction=readPDF;
     reset immediateAction=resetField;
     setFile immediateAction=setFile;
     setMark immediateAction;
@@ -298,7 +301,7 @@ define
     isMethoD=19;
     isOperatoR=20;
     isPercenT=21;
-    isPointeR;
+    isPointeR=48;
     isRulE=23;
     isShortcuT=24;
     isVirtuaL=25;
