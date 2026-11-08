@@ -891,6 +891,12 @@ _rdg () {  # rule  interp-today interp-intended  compiled-today compiled-intende
 _rdg KEEPs   "ANS untouched |" "ANS untouched |"  "ANS untouched |" "ANS untouched |"  0  "0 0" "0 0"
 _rdg REFUSEs "ANS untouched |" "ANS untouched |"  "ANS untouched |" "ANS untouched |"  1  "0 0" "0 0"
 _rdg FELLOFf "ANS 1 |"         "ANS untouched |"  "ANS untouched |" "ANS untouched |"  1  "0 0" "1 1"
+#  F-146 (SEQ 567 R3): a compiled ACTION that refuses mid-body hands back nothing (kind 0), as interpreted. The rule door masks the kind (it
+#  re-arms the refusal), so an action carries the row. H7 (the armed exit's kind 0 removed): compiled reads ANS 1, a box.
+_ras='it1 = "untouched"; it1 = refAct(); print "ANS" it1:;'; _rdrun aI "" "$_ras"; _rdrun aC "jitter;" "$_ras"
+_ofeq "ruleDoorT RA refAct interpreted: refused, adopts nothing; exit, sentinel" "$(_rdv "$T/rd.aI.o") x$(cat "$T/rd.aI.x") s$(grep -c '^RD SENTINEL' "$T/rd.aI.e")" "ANS it1 | x0 s1"
+_ofeq "ruleDoorT RA refAct compiled = interpreted: adopts nothing; exit, sentinel" "$(_rdv "$T/rd.aC.o") x$(cat "$T/rd.aC.x") s$(grep -c '^RD SENTINEL' "$T/rd.aC.e")" "ANS it1 | x0 s1"
+_ofeq "ruleDoorT RA refAct went compiled: built 1 called 1" "$(grep -c '^=== jitter: refAct built 1 called 1 ===' "$T/rd.aC.e")" "1"
 #  SEQ 559: the copy keeps its tag and value, a star on a star reads through natively; native above 0 on both
 _rds='it1 = COPYs("abc");'; _rdrun cI "" "$_rds"; _rdrun cC "jitterRule(COPYs);" "$_rds"
 _ofeq "ruleDoorT COPYs interpreted: the copy keeps its tag, its value" "$(_rdv "$T/rd.cI.o")" "cpSrc |9 |"
