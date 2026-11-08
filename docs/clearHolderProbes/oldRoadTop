@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack Grokking;
+search UnitTests Utilities;
+register(PrbR);
+define
+    gH;
+    tgtH="text H";
+    tgtP="text P";
+    tgtQ="text Q";
+    bumps=0;
+    bump code={ bumps += 1; };
+    ;
+search PrbR list;
+gH := tgtH;
+clear(gH);
+print "R1 holder: tgtH after clear(gH):" tgtH "| gH isGrouP:" gH.isGrouP:;
+clear(tgtP);
+print "R2 plain control: tgtP after clear(tgtP):" tgtP:;
+clear(tgtQ)
+bump();
+print "R3 no semicolon: tgtQ:" tgtQ "| bumps:" bumps:;
+bump();
+print "R4 bump control: bumps:" bumps:;
+print "SENTINEL rider end":;
+stop();

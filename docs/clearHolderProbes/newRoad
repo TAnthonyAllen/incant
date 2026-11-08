@@ -1,0 +1,36 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
+register(PrbR);
+define
+    gH;
+    tgtH="text H";
+    tgtS="text S";
+    tgtP="text P";
+    tgtQ="text Q";
+    bumps=0;
+    it1;
+    bump code={ bumps += 1; };
+    ;
+search PrbR list;
+gH := tgtH;
+it1 = STARt("clear(gH);"); testOP(it1);
+print "N1 new road holder: tgtH after clear(gH):" tgtH "| gH isGrouP:" gH.isGrouP:;
+gH := tgtS;
+it1 = STARt("clear(*gH);"); testOP(it1);
+print "N1b new road star: tgtS after clear(*gH):" tgtS "| gH isGrouP:" gH.isGrouP:;
+it1 = STARt("clear(tgtP);"); testOP(it1);
+print "N2 new road plain control: tgtP:" tgtP:;
+it1 = STARt("bump(1);"); testOP(it1);
+print "N3 new road bump control: bumps:" bumps:;
+it1 = STARt("clear(tgtQ) bump(1);"); testOP(it1);
+print "N4 new road no semicolon: tgtQ:" tgtQ "| bumps:" bumps:;
+print "SENTINEL newS end":;
+stop();

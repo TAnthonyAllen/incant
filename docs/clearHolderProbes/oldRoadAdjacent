@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack Grokking;
+search UnitTests Utilities;
+register(PrbR);
+define
+    tgtQ="text Q";
+    tgtV="text V";
+    bumps=0;
+    bump code={ bumps += 1; };
+    inAct code={
+        clear(tgtV)
+        bump();
+        print "V4 in an action, no semicolon: tgtV:" tgtV "| bumps:" bumps:;
+        };
+    ;
+search PrbR list;
+bump() bump();
+print "V1 two calls one line: bumps:" bumps:;
+clear(tgtQ) bump() + 1;
+print "V2 adjacent then an operator: tgtQ:" tgtQ "| bumps:" bumps:;
+bumps = 0;
+inAct();
+print "SENTINEL v end":;
+stop();
