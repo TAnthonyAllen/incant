@@ -606,8 +606,6 @@ inline bool jitterRuleOpted(GroupBody *b) {
     for (GroupBody *r : gJitterRules) if (r == b) return true;
     return false; }
 inline int gJitOldNative = 0, gJitOldHanded = 0;
-//  ⚠ SCAFFOLDING (SEQ 559 R1): +%, := and copyOf emit native only while the door compiles an opted-in rule. Operator rung stroke 2 (everywhere plus the walk) REMOVES this flag.
-inline bool gJitRuleOperators = false;
 inline JitterTally *jitterTallyFind(GroupBody *b) {
     for (JitterTally &t : gJitterTally) if (t.body == b) return &t;
     return nullptr;
@@ -691,6 +689,10 @@ inline std::set<void*> gJitRTCursors;
 // dereference of one is handed over too (SEQ 405). gJitStmtHolderWrites holds the writes of the statements still open,
 // with the depth that wrote them; a statement that is not handed over passes its writes up. Both cleared per function build.
 inline std::set<void*> gJitRTHolders;
+// gJitNativeHolders the holders a COMPILED := wrote this build (operator rung stroke 2, SEQ 563). gJitF146Return the first bare `return`
+// of one: nh's shape, which hands back a box of the count until F-146, so the build refuses by name (SEQ 563 R1). Both cleared per build.
+inline std::set<void*> gJitNativeHolders;
+inline GroupItem *gJitF146Return = nullptr;
 inline std::vector<std::pair<size_t, void*>> gJitStmtHolderWrites;
 // gJitArgFollowNode / gJitArgFollowVal a rule-holding argument followed at build: the node followArgument returned, and the
 // value that holds the binding at RUN time (SEQ 409). Read by jitEmitArgBind alone; cleared per statement and per build.

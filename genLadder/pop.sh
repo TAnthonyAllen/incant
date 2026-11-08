@@ -1337,6 +1337,7 @@ _nlpTopo () { awk -v a="@jit_$1(" 'index($0,"define")==1 {on=index($0,a)>0; if(o
 fdRow "newJitLoopT topology of the standing build: l1 a while, l5 a do" "$(_nlpTopo l1)| $(_nlpTopo l5)" "| " "cond loopexit body | dobody docond doexit "
 else echo "  FAIL  newJitLoopT MISSING"; fail=1; fi
 #  newJitPrintT -- SEQ 527 R3 (S5): print, cerr, cout through the walk. Values pass today (every print hands over); the witness is born red.
+#  RE-PINNED SEQ 563 R3 (operator rung stroke 2, a registered mover): pc 2 2 0 -> 2 0 2 -- `h := gc` and `print *h` go native; its value row is unmoved.
 _nprF=$(ip newJitPrintT)
 if [ -f "$_nprF" ]; then
 perl -e 'alarm 30; exec @ARGV' "$B" "$_nprF" > "$T/npr.o" 2> "$T/npr.e"; _nprx=$?
@@ -1346,7 +1347,7 @@ jitter;
 rm -f "$T/nprj.w"; INCANT_JITTER_ERR="$T/nprj.w" perl -e 'alarm 30; exec @ARGV' "$B" "$T/nprj.k" > "$T/nprj.o" 2> "$T/nprj.e"; _nprjx=$?
 _ofeq "newJitPrintT under jitter; = the twin: stdout, the cerr line, exit, sentinel" "$(_njv "$T/nprj.o") $(grep -c '^e  3' "$T/nprj.e") x$_nprjx s$(grep -c '^NEWJITPRINT SENTINEL' "$T/nprj.e")" "$(_njv "$T/npr.o") $(grep -c '^e  3' "$T/npr.e") x$_nprx s$(grep -c '^NEWJITPRINT SENTINEL' "$T/npr.e")"
 _ofeq "newJitPrintT twin carries real output (not two empties compared): a value, a string, a format, the cout, the cerr" "$(_njv "$T/npr.o" | grep -c 'n=  3') $(_njv "$T/npr.o" | grep -c 'P p6 |str') $(_njv "$T/npr.o" | grep -c ' 1.50') $(_njv "$T/npr.o" | grep -c 'o  3') $(grep -c '^e  3' "$T/npr.e")" "1 1 1 1 1"
-fdRow "newJitPrintT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nprj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "p1 1 1 0;p2 2 1 1;p3 2 1 1;p4 3 1 2;p5 2 1 1;p6 2 2 0;p7 2 2 0;p8 2 1 1;p9 1 1 0;pa 1 1 0;pb 1 1 0;pc 2 2 0;pd 1 1 0;pe 2 1 1;pf 2 1 1;pg 2 1 1;ph 1 1 0;pi 3 1 2;pj 4 1 3;pk 2 2 0;pl 3 1 2;pm 2 1 1;pn 1 1 0;po 3 2 1;pp 2 1 1;pq 1 1 0;" "p1 1 0 1;p2 2 0 2;p3 2 0 2;p4 3 0 3;p5 2 0 2;p6 2 1 1;p7 2 0 2;p8 2 1 1;p9 1 0 1;pa 1 0 1;pb 1 0 1;pc 2 2 0;pd 1 1 0;pe 2 0 2;pf 2 0 2;pg 2 0 2;ph 1 1 0;pi 3 0 3;pj 4 0 4;pk 2 0 2;pl 3 0 3;pm 2 1 1;pn 1 0 1;po 3 1 2;pp 2 0 2;pq 1 1 0;"
+fdRow "newJitPrintT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/nprj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "p1 1 1 0;p2 2 1 1;p3 2 1 1;p4 3 1 2;p5 2 1 1;p6 2 2 0;p7 2 2 0;p8 2 1 1;p9 1 1 0;pa 1 1 0;pb 1 1 0;pc 2 2 0;pd 1 1 0;pe 2 1 1;pf 2 1 1;pg 2 1 1;ph 1 1 0;pi 3 1 2;pj 4 1 3;pk 2 2 0;pl 3 1 2;pm 2 1 1;pn 1 1 0;po 3 2 1;pp 2 1 1;pq 1 1 0;" "p1 1 0 1;p2 2 0 2;p3 2 0 2;p4 3 0 3;p5 2 0 2;p6 2 1 1;p7 2 0 2;p8 2 1 1;p9 1 0 1;pa 1 0 1;pb 1 0 1;pc 2 0 2;pd 1 1 0;pe 2 0 2;pf 2 0 2;pg 2 0 2;ph 1 1 0;pi 3 0 3;pj 4 0 4;pk 2 0 2;pl 3 0 3;pm 2 1 1;pn 1 0 1;po 3 1 2;pp 2 0 2;pq 1 1 0;"
 else echo "  FAIL  newJitPrintT MISSING"; fail=1; fi
 #  opWalkT -- SEQ 563 R2 (registered on trunk before stroke 2's build; SEQ 560's owed rows): x := *y, x := copyOf(y) and
 #  l +% *y, each in a loop body and an if arm, through the walk. Pinned at TODAY'S values with the intended beside each:
@@ -1362,7 +1363,8 @@ _owv () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | tr '\n' '|'; }
 _ofeq "opWalkT plain: the oracle's values, exit, sentinel" "$(_owv "$T/ow.o") x$_owx s$(grep -c '^OPWALK SENTINEL' "$T/ow.e")" "oa |14 |ob |7 |oc |3 |od |3 |oe |2 |of |1 | x0 s1"
 _ofeq "opWalkT under jitter; = the oracle: values, exit, sentinel" "$(_owv "$T/owj.o") x$_owjx s$(grep -c '^OPWALK SENTINEL' "$T/owj.e")" "$(_owv "$T/ow.o") x$_owx s1"
 fdRow "opWalkT under jitter; each action built (1) or NOT JITTABLE (0)" "$(for _a in oa ob oc od oe of; do printf '%s %s;' $_a $(grep -c "^=== jitter: $_a built 1 called 1 ===" "$T/owj.o" "$T/owj.e" | awk -F: '{s+=$2} END{print s}'); done)" "oa 0;ob 0;oc 0;od 0;oe 1;of 1;" "oa 1;ob 1;oc 1;od 1;oe 1;of 1;"
-fdRow "opWalkT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/owj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "oa 8 2 6;ob 5 2 3;oc 8 2 6;od 5 2 3;oe 6 2 4;of 5 2 3;" "oa 8 0 8;ob 5 0 5;oc 8 0 8;od 5 0 5;oe 6 0 6;of 5 0 5;"
+#  RE-PINNED SEQ 564 R0 (Tony): oe 6 0 6 -> 6 1 5, of 5 0 5 -> 5 1 4. The dot read on a list (print gla.listLengtH) stays handed over; not stroke 2's.
+fdRow "opWalkT the walk's witness per action (walked handed native)" "$(grep '^=== jitter walk: ' "$T/owj.w" 2>/dev/null | awk '{printf "%s %s %s %s;", $4, $6, $8, $10}')" "oa 8 2 6;ob 5 2 3;oc 8 2 6;od 5 2 3;oe 6 2 4;of 5 2 3;" "oa 8 0 8;ob 5 0 5;oc 8 0 8;od 5 0 5;oe 6 1 5;of 5 1 4;"
 else echo "  FAIL  opWalkT MISSING"; fail=1; fi
 #  ruleShareT -- SEQ 528 R2: ruleMethod= shares a coded rule's action. Identity by BODY (H13).
 _rsF=$(ip ruleShareT)

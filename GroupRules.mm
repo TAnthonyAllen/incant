@@ -3875,6 +3875,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// holderRecord a holder written at run time belongs to one function's build, as the cursor record does (SEQ 405)
 	gJitRTHolders.clear();
 	gJitStmtHolderWrites.clear();
+	gJitNativeHolders.clear(); gJitF146Return = nullptr;
 	gJitArgFollowNode = nullptr; gJitArgFollowVal = nullptr;
 	
 	llvm::Type *i32 = llvm::Type::getInt32Ty(C);
@@ -4110,6 +4111,16 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	}
 	ruler->jitting = 0;
 	ruler->branchKind = emitBranchSave;
+	//  nhShape refused by name until F-146 (SEQ 563 R1): the action returns a holder a compiled := wrote
+	if (!gJitRestartNeeded && gJitF146Return) {
+	fprintf(stderr, "=== jitRunAction: NOT JITTABLE -- %s returns %s, a holder a compiled := wrote: handed over until F-146 (SEQ 563 R1) ===\n",
+	action->groupBody->tag, gJitF146Return->groupBody->tag ? gJitF146Return->groupBody->tag : "?");
+	fflush(stderr);
+	gJitF146Return = nullptr;
+	gJitBuilder = nullptr;
+	gJitResult  = nullptr;
+	gJitResultSlot = nullptr;
+	return -8; }
 	//  kindlessNet a slotted local still kindless with no writer the build saw is NOT JITTABLE (SEQ 388 R2, Tony)
 	if (!gJitRestartNeeded) for (JitFrameSlot &f : gJitFrame) {
 	GroupBody *lb = f.ty->isDoubleTy() ? (GroupBody*)((char*)f.home - offsetof(GroupBody, gNumber))
@@ -4958,17 +4969,35 @@ extern "C" int jitEmitContinue()
 }
 
 /*  jitEmitCopyOf -- the copyOf call-through (SEQ 559): the FIELD or a run-time node goes in, never a seeded value, so the copy keeps its tag. What
-    comes back is a run-time node with no scalar. A frame-slotted operand goes to run time: a rule's locals have no slot, and flushing is stroke 2's.  */
+    comes back is a run-time node with no scalar. A frame-slotted operand is flushed to its field first, so the copy reads this run's value (stroke 2);
+    a computed value with no field still goes to run time.  */
 extern "C" GroupItem *jitEmitCopyOf(GroupItem *target, GroupItem *arg)
 {
 	
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if ( !b || !arg ) return nullptr;
-	if ( !(arg->jitData && arg->jitData->jitNode) && (jitFrameFind((void*)&(arg->groupBody->gCount)) || jitFrameFind((void*)&(arg->groupBody->gNumber))) ) return nullptr;
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
 	auto bake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	if ( !(arg->jitData && arg->jitData->jitNode) ) {
+	JitFrameSlot *fs = jitFrameFind((void*)&(arg->groupBody->gCount));
+	if ( !fs ) fs = jitFrameFind((void*)&(arg->groupBody->gNumber));
+	if ( fs ) {
+	//  slotFlush the slot to its field through the kind-checked helper, as opFire's flush does (gCount shares gGroup's storage)
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Value *v = b->CreateLoad(fs->ty, fs->slot, "copyFlushV");
+	bool num = fs->ty->isDoubleTy();
+	if ( gJitFrameAssigned.count(fs->home) && fs->mark )
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty, i32}, false),
+	bake(num ? (void*)&jitFlushNumberMarkRT : (void*)&jitFlushCountMarkRT, "copyFlushFn"), {bake((void*)arg, "copyFlushField"), v, b->CreateLoad(i32, fs->mark, "copyFlushMark")});
+	else if ( gJitFrameAssigned.count(fs->home) )
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false),
+	bake(num ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT, "copyFlushFn"), {bake((void*)arg, "copyFlushField"), v});
+	else
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false),
+	bake(num ? (void*)&jitFlushNumberSlotRT : (void*)&jitFlushCountSlotRT, "copyFlushFn"), {bake((char*)fs->home - offsetof(GroupBody, gCount), "copyFlushBody"), v}); }
+	else if ( arg->jitData && arg->jitData->computed ) return nullptr; }
 	llvm::Value *argV = (arg->jitData && arg->jitData->jitNode) ? arg->jitData->jitNode : bake((void*)arg, "copyArg");
 	llvm::Value *res = b->CreateCall(llvm::FunctionType::get(ptr, {ptr, ptr}, false), bake((void*)&jitCopyOfRT, "copyFn"), {bake((void*)target, "copyTarget"), argV}, "copyRes");
 	GroupItem *node = new GroupItem((char*)"copyResult");
@@ -7393,20 +7422,30 @@ extern "C" GroupItem *jitRetPendNodeRT()
 	 return gJitRetPendNode; 
 }
 
-/*  jitRuleOperator -- runOPdirect's route for the operator rung, stroke 1 (SEQ 559): +% and := to the op-fire call-through, copyOf to its emitter, only
-    for a rule's own statements under gJitRuleOperators. An operand the call-through cannot pass, a carried value, an adjacent run, the action's
-    argument, returns null and the statement takes its ordinary road, which hands it over.   docs/operatorRungRecon.md  */
+/*  jitRuleOperator -- runOPdirect's route for the operator rung (SEQ 559; stroke 2, SEQ 563): +% and := to the op-fire call-through, copyOf --
+    as a method or the new road's call -- to its emitter, in every compiled body, inlined callees included. An operand the call-through cannot
+    pass, a carried value, an adjacent run, the action's argument, returns null and the statement takes its ordinary road, which hands it over.
+    docs/operatorRungRecon.md, docs/operatorStroke2Census.md  */
 extern "C" GroupItem *jitRuleOperator(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	
-	if ( !op || !target || !arg || !gJitInlining.empty() ) return nullptr;
+	if ( !op || !target || !arg ) return nullptr;
 	if ( arg->groupBody->flags.isArgument || target->groupBody->flags.isArgument ) return nullptr;
+	//  copyOfFirst a copyOf -- the old road's method, or the new road's call op on it -- goes to its emitter before the carried-value test: a
+	//  frame-slotted operand is flushed there, not handed over (stroke 2)
+	if ( isMethod(target->groupBody->flags.instructType) && (void*)target->groupBody->gMethod == (void*)&copyOf
+	&& (!isMethod(op->groupBody->flags.instructType) || (isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp == (void*)&opCallTest)) )
+	return ::jitEmitCopyOf(target,arg);
 	if ( arg == gJitCallResult || (arg->groupBody->tag && !::strcmp(arg->groupBody->tag,"xl1")) ) return nullptr;
 	if ( arg->jitData && !arg->jitData->jitNode ) return nullptr;
 	if ( isOperator(op->groupBody->flags.instructType) ) {
 	void *g = (void*)op->groupBody->gOp;
 	if ( g != (void*)&opAddAttribute && g != (void*)&opSetGroup ) return nullptr;
 	GroupItem *fired = ::jitEmitOpFire(op,arg,target);
+	//  nativeHolder a holder a compiled := wrote: a bare return of it is nh's shape, refused by name until F-146 (SEQ 563 R1)
+	if ( fired && g == (void*)&opSetGroup ) gJitNativeHolders.insert((void*)target->groupBody);
+	//  inlinedRefusal in an inlined callee a refuse leaves through the callee's own exit: the statement's refusal check does it (stroke 2)
+	if ( fired && !gJitInlining.empty() ) { gJitStmtCanRefuse = true; return fired; }
 	//  refusalEndsTheRule a refuse in the call leaves the function here, as a handed-over statement's does: jitEmitRefusedCheck covers inlined bodies only, and carrying on let the rule's return adopt its label (SEQ 559)
 	if ( fired ) {
 	llvm::IRBuilder<> *b = gJitBuilder;
@@ -7420,8 +7459,6 @@ extern "C" GroupItem *jitRuleOperator(GroupItem *op, GroupItem *target, GroupIte
 	b->SetInsertPoint(cont);
 	gJitStmtCanRefuse = false; }
 	return fired; }
-	if ( !isMethod(op->groupBody->flags.instructType) && isMethod(target->groupBody->flags.instructType) && (void*)target->groupBody->gMethod == (void*)&copyOf )
-	return ::jitEmitCopyOf(target,arg);
 	return nullptr;
 	
 }
@@ -8555,8 +8592,13 @@ extern "C" int jitWalkEligible(GroupItem *node)
 	if (!node || (void*)node->groupBody->gMethod != (void*)&testOP) return 0;
 	GroupItem *op = node->get(1);
 	if (!op || op->groupBody->registry != GroupControl::groupController->groupRules->opFields) return 0;
-	if (op->groupBody->flags.isUnary) return 0;
-	if (!op->groupBody->gJitEmitter && (void*)op->groupBody->gOp != (void*)&opAssign) return 0;
+	//  ruleOperators the walk admits :=, +% and the star, and a call on copyOf: runOPdirect's route compiles them (stroke 2, SEQ 563)
+	void *g = (void*)op->groupBody->gOp;
+	bool star = op->groupBody->flags.isUnary && op->groupBody->tag && !::strcmp(op->groupBody->tag, "deref");
+	bool rung = g == (void*)&opSetGroup || g == (void*)&opAddAttribute
+	|| (g == (void*)&opCallTest && node->get(2) && (void*)node->get(2)->groupBody->gMethod == (void*)&copyOf);
+	if (op->groupBody->flags.isUnary && !star) return 0;
+	if (!star && !rung && !op->groupBody->gJitEmitter && g != (void*)&opAssign) return 0;
 	for (int k = 2; k <= 3; k++) {
 	GroupItem *x = node->get(k);
 	//  argumentHandedOver the action's argument is a binding the interpreted road copies as a holder: a statement reading
@@ -8814,6 +8856,9 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	GroupItem *kw = arms->groupBody->groupList ? arms->get(1) : arms;
 	GroupItem *value = arms->groupBody->groupList ? arms->get(2) : nullptr;
 	const char *k = kw ? kw->groupBody->tag : nullptr;
+	//  nhShape a bare return of a holder a compiled := wrote hands back a box of the count until F-146: the build is refused by name (SEQ 563 R1)
+	if ( k && *k == 'r' && value && (void*)value->groupBody->gMethod != (void*)&testOP && gJitNativeHolders.count((void*)value->groupBody) && !gJitF146Return )
+	gJitF146Return = value;
 	//  jitEmitBreak a break goes to the innermost seq or loop; a continue to the innermost loop's condition; with neither it ends the action
 	if ( k && (*k == 'b' || *k == 'c') ) {
 	//  regionFloor an inlined callee's continue with no loop of its own ends the callee: its caller's loop is not its to continue (SEQ 540)
@@ -8942,9 +8987,7 @@ extern "C" int jitterReady(GroupItem *field)
 	int de = keep ? open(keep, O_WRONLY | O_CREAT | O_APPEND, 0644) : dup(dn);
 	dup2(dn,1); dup2(de,2); close(de);
 	gJitCompileOnly = 1;
-	gJitRuleOperators = ::jitterRuleOpted(fb);
 	int rc = ::jitRunAction(field);
-	gJitRuleOperators = false;
 	gJitCompileOnly = 0;
 	fflush(stdout); fflush(stderr);
 	dup2(so,1); dup2(se,2); close(so); close(se); close(dn);
@@ -13068,8 +13111,8 @@ GroupItem 	*result = 0;
 	 if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); 
 	// handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
 	 if ( ruler->jitting && gJitHandOver ) return 0; 
-	// ruleOperators operator rung stroke 1: +%, := and copyOf go native in an opted-in rule, ahead of the kind gate; the flag is scaffolding, stroke 2 removes it (SEQ 559)
-	 if ( gJitRuleOperators && ruler->jitting ) { GroupItem *ruleOp = ::jitRuleOperator(op,target,arg); if ( ruleOp ) return ruleOp; } 
+	// ruleOperators +%, := and copyOf go native in every compiled body, inlined callees included, ahead of the kind gate (SEQ 559; stroke 2, SEQ 563 R0)
+	 if ( ruler->jitting ) { GroupItem *ruleOp = ::jitRuleOperator(op,target,arg); if ( ruleOp ) return ruleOp; } 
 	// storeRuling an armed statement dispatches nothing further -- interpreted only
 	if ( ruler->refused )
 		if ( !ruler->jitting )
