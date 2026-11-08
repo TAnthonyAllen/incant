@@ -191,6 +191,23 @@ fdRow "drawWalkT DW-11 colour from the style (dwSt strokeColor red): (0,5) paint
 _ofeq "drawWalkT DW-12 x past the width refuses by name, and no pixel line for it (ok's reads stay 14)" "$(grep -c '^pixelAt: ok (400,180) OUT OF RANGE' "$T/dw.e") $(grep -h '^=== pixelAt ok ' "$T/dw.o" | wc -l | tr -d ' ')" "1 14"
 fdRow "drawWalkT a field with no fill is skipped, not refused: refusals during the walk, beside words' pixel (anti-vacuity)" "$(sed -n '/^DW walk begins/,/^DW walk ends/p' "$T/dw.e" | grep -c 'REFUS') $(_dwp words)" "0 r0 g0 b0 a0/" "0 r255 g255 b255 a255/"
 
+echo "-- the first PDF: step 4."
+#  ⚑ firstPdfT -- forms step 4 (Tony, 2026-11-08): openPDF / drawWalk / closePDF, then readPDF draws page 1 into a bitmap
+#  for pixelAt. REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value, the intended beside it. The file is
+#  deleted first, so a stale one cannot pass. H7 (the walk skipped): the file rows hold, the page reads blank.
+_pdF=$(ip firstPdfT)
+_pdO=IncantForms/PDF/output.pdf
+rm -f "$_pdO"
+perl -e 'alarm 20; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
+_pdp () { grep -h '^=== pixelAt pdfRead ' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
+_ofeq "firstPdfT exit / sentinel" "$_pdx $(grep -c '^FIRSTPDF SENTINEL' "$T/pd.e")" "0 1"
+fdRow "firstPdfT the file exists and begins %PDF" "$([ -s "$_pdO" ] && head -c 4 "$_pdO" || echo none)" "none" "%PDF"
+fdRow "firstPdfT readPDF: one page, firstLight's frame (400 x 200 points)" "$(grep '^=== readPDF pdfRead' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed 's/.*pdfRead //; s/ ===.*//')" "" "pages 1 size 400x200"
+fdRow "firstPdfT PD-1 read back: heading (5,15) wall, words (5,100) white, space (100,180) wall, ok (360,180) lightGreen" "$(_pdp 1 4)" "" "r247 g232 b170 a255/r255 g255 b255 a255/r247 g232 b170 a255/r175 g211 b120 a255/"
+fdRow "firstPdfT PD-2 read back: ok's border left (340,180) black / (339,180) wall, top (360,165) black / (360,164) white" "$(_pdp 5 8)" "" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/"
+fdRow "firstPdfT PD-3 read back: heading's bottom line (5,29) black, (5,30) white" "$(_pdp 9 10)" "" "r0 g0 b0 a255/r255 g255 b255 a255/"
+fdRow "firstPdfT PD-4 read back, the right way up: (5,31) white, (5,166) wall" "$(_pdp 11 12)" "" "r255 g255 b255 a255/r247 g232 b170 a255/"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

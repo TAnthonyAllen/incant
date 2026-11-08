@@ -1,0 +1,61 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+include(firstLightFile);
+register(FirstPdf);
+define
+    fpdX = 0;
+    fpdY = 0;
+    fpdAt code={
+        px = fpdX;
+        py = fpdY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    pdfReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ;
+search FirstPdf FORMs UnitTests Utilities cOLOr fONTs list;
+setFrame(firstLight);
+pdfReq :% copyOf(firstLight["width"]);
+pdfReq :% copyOf(firstLight["height"]);
+cerr "PDF open":;
+openPDF(pdfReq);
+drawWalk(firstLight);
+closePDF(pdfReq);
+cerr "PDF closed":;
+readPDF(pdfRead);
+cerr "PD-1 the read-back page, one pixel per field: heading (5,15) wall, words (5,100) white, space (100,180) wall, ok (360,180) lightGreen":;
+fpdX = 5; fpdY = 15; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdY = 100; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdX = 100; fpdY = 180; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdX = 360; fpdAt(pdfRead); pixelAt(pdfRead);
+cerr "PD-2 ok's border: left (340,180) black, (339,180) wall; top (360,165) black, (360,164) white":;
+fpdX = 340; fpdY = 180; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdX = 339; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdX = 360; fpdY = 165; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdY = 164; fpdAt(pdfRead); pixelAt(pdfRead);
+cerr "PD-3 heading's bottom line: (5,29) black, (5,30) white":;
+fpdX = 5; fpdY = 29; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdY = 30; fpdAt(pdfRead); pixelAt(pdfRead);
+cerr "PD-4 the right way up: words' top and bottom edges, (5,31) white, (5,166) wall":;
+fpdY = 31; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdY = 166; fpdAt(pdfRead); pixelAt(pdfRead);
+cerr "FIRSTPDF SENTINEL":;
+stop();
+
+firstPdfT -- forms step 4, the first PDF (Tony, 2026-11-08). openPDF(pdfReq) opens a PDF context at the request's path,
+its page the request's width and height (copied from firstLight's own), and puts it in the top's pointer slot as
+makeDisplay does a bitmap, handing it down; drawWalk then draws exactly as it draws into the bitmap, opening no bitmap of
+its own because the top already holds a context; closePDF(pdfReq) ends the page and closes the file. readPDF(pdfRead)
+draws page 1 into a bitmap on pdfRead, so pixelAt reads it. The file goes to IncantForms/PDF/output.pdf, gitignored,
+overwritten each run (Tony, R1); formsPop deletes it before the run, so a stale file cannot pass.
+Rows (genLadder/formsPop.sh): the file exists and begins %PDF; readPDF reports 1 page of 400x200 (firstLight's frame);
+PD-1 to PD-4 read the page back at today's bitmap rows' coordinates, the fills, ok's border, heading's line and the
+right way up. H7 (the walk skipped between open and close): the file rows hold, the page reads blank.

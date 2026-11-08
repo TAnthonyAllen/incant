@@ -113,3 +113,6 @@ Directives/
 
 # pop.sh STALE record: the binary md5 and its sources (Tony, 2026-10-20)
 genLadder/.binRecord*
+
+# IncantForms/PDF: every PDF goes to output.pdf, overwritten each run (Tony, forms step 4 R1); the directory is kept by .keep
+IncantForms/PDF/output.pdf
