@@ -2995,7 +2995,9 @@ direction the campaign might take, it is a state the machinery must report as a 
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
 > **`printPop.sh`** · **`genLadder/formsPop.sh`** (the drawing surface, by pixel) · `incant/frontier` (run once) · **`genLadder/dirCheck.sh` AT SHUTDOWN SEALS ONLY** (every directive still
 > injects; then the tree is retokked bare -- SEQ 455 R2; any other seal carries the stroke's anchor line instead) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
-> `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+> `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause** · **main = trunk** (the kitchen pass
+> fast-forwards `main` to `jit-unified-emit-wip`; Tony, SEQ 562 R0a, 2026-11-08 -- it lapsed after seal 372, main stalled on
+> Nov 7, and a checkout of main then built a day-old trunk).
 >
 > ⚠⚠ **EVERY SCRIPT THE CHECKLIST RUNS IS EXECUTABLE IN GIT, CHECKED WITH ONE COMMAND (Tony, standing, SEQ 285
 > R6, 2026-10-03):** `git ls-files -s genLadder/pop.sh jitLadder/ladder.sh genLadder/decodePop.sh genLadder/ddPop.sh
