@@ -105,3 +105,9 @@ Ranked as ruled: fleet reach, then native.
 ## Added 2026-11-07, after FOr's certificate (SEQ 557)
 
 **Point 3 above has moved. With F-147 cured, a refused child now does reach the hand-back.** Measured on FOr: `for lp in qa qb + 1; ...` raises a real refuse() at the attach, in a handed-over statement, so the compiled body leaves with a boxed count and the guard adds its line. The value and the other refusals match interpreted; it is one extra `REFUSED FOr -- a compiled rule handed back a count` line, pinned by ruleForT's RF-O. If, ELSEIf, WHILe, Do and BRANCh have the same shape, read and not run, because compiling them here would open them. So by this census's own test they now meet "a refusal can reach the hand-back". **Ruled (Tony, 2026-11-07):** they stay in the safe group with the guard's extra refusal pinned, as FOr's is, and F-146 moves up to come before If.
+
+## Added 2026-11-09, If compiled (SEQ 569, branch rule-if)
+
+**If reads native 5 handed 10, as registered before the run** (operatorRungRecon section 6's lower figure, calibrated on FOr's 9 / 9). Native: `cond := **EXPRESSIOn`, `thenS := **STATEMENt`, the two `ifArms +%`, `armsMint := copyOf(ifArms)`. F-146's guard line is gone: RI-C's compiled stderr equals interpreted with no filter for it. ELSEIf stays interpreted inside a compiled If: the door is keyed on the firing rule's own body.
+
+**Two H7 findings.** Skipping the term-binding loop (`labelToLocals`) for an opted rule changes nothing for If: its scope line `:actionLabel EXPRESSIOn STATEMENt ELSe;` re-hoists the terms from actionLabel, so the control must unbind actionLabel itself. And with actionLabel unbound, the ELSEIf rows with the outer condition false still read right: ELSEIf shares If's CodE, so the outer If rebuilt the ELSEIf's stale label, whose chain alone gives those answers. RI-12 (outer true) was added for that, and reads the stale `3` under the control.
