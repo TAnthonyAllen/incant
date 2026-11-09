@@ -7,6 +7,8 @@ registry(fILEs);
 define
     firstLightFile File='IncantForms/Windows/firstLight';
     ;
+include(styles);
+search cOLOr fONTs;
 include(firstLightFile);
 search FORMs UnitTests Utilities list;
 printDefinition(firstLight);

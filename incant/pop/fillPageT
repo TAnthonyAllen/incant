@@ -7,6 +7,7 @@ define
     firstLightFile File='IncantForms/Windows/firstLight';
     ;
 include(styles);
+search cOLOr fONTs;
 include(firstLightFile);
 register(FillPage);
 define
