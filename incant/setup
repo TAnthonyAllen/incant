@@ -64,6 +64,7 @@ define
     jitTrace immediateAction=jitTrace;
     labelTree immediateAction;
     loopOwnsBody immediateAction;
+    ruleOpOf immediateAction;
     makeDisplay immediateAction=makeDisplay;
     labelSpans immediateAction;
     listenTo immediateAction noPrint;
@@ -128,7 +129,7 @@ define
     bodySeq unary ruleMethod=opBodySeq;
     ifThen  unary ruleMethod=opIf;
     branchSignal    unary ruleMethod=opBranch;
-    whileLoop       unary ruleMethod=opWhile;
+    whileLoop       unary ruleMethod=opWhile  ownsBody;
     doLoop          unary ruleMethod=opDo;
     forLoop         unary ruleMethod=opFor;
     iterateOn       unary ruleMethod=opIterate;

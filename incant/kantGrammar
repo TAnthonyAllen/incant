@@ -123,7 +123,7 @@ define
         Do          do- followedBy STATEMENt while- EXPRESSIOn SemI-;
         If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
         FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
-        WHILe       while- followedBy EXPRESSIOn SemI-? STATEMENt;
+        WHILe       op="whileLoop" while- followedBy EXPRESSIOn SemI-? STATEMENt;
         PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
         CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
         COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
@@ -320,28 +320,42 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // WHILe only builds (SEQ 478 R1): one instruct, op whileLoop, its operand a mint of [condition, statement]; opWhile runs the loop and catches break and continue
-    WHILe code={
-        :actionLabel EXPRESSIOn STATEMENt;
-        cond    := **EXPRESSIOn;
-        body    := **STATEMENt;
-        // bodyRefused a statement that handed up no instruct refuses by name, as If's arms (SEQ 476 R6)
-        bodyM   := *body.methoD;
-        if bodyM == 0;
-            cerr "REFUSED WHILe -- its statement handed up no instruct":;
+    // OPERATOr the default action (SEQ 580): a rule declared with op= builds one instruct, op the declared Operators entry, operand a mint of its label's entries in order
+    OPERATOr code={
+        opR := ruleOpOf(*actionLabel);
+        // noOp ruleOpOf refused by name: nothing is built
+        if opR.datA == 0;
             clear(*actionLabel);
             return *actionLabel;
-        whileArms   +% *cond;
-        whileArms   +% *body;
-        op := Operators["whileLoop"];
-        armsMint    := copyOf(whileArms);
-        miArgs      +% op armsMint;
+        ruleT := *actionLabel.taG;
+        slot := *actionLabel.firsT;
+        while slot.datA != 0;
+            slN := *slot.taG;
+            sv := **slot;
+            // slotNothing any slot that handed up nothing refuses by its own label
+            if sv.datA == 0;
+                cerr "REFUSED" ruleT "-- its" slN "handed up nothing":;
+                clear(*actionLabel);
+                return *actionLabel;
+            // slotStatement a STATEMENt slot must hand up an instruct
+            if *slot.taG == "STATEMENt";
+                svM := *sv.methoD;
+                if svM == 0;
+                    cerr "REFUSED" ruleT "-- its" slN "handed up no instruct":;
+                    clear(*actionLabel);
+                    return *actionLabel;
+            opArms  +% *sv;
+            slot := *slot.nexT;
+        armsMint    := copyOf(opArms);
+        miArgs      +% opR armsMint;
         built       := makeInstruct(miArgs);
-        // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
-        loopOwnsBody(*built);
+        // loopTrait an op carrying ownsBody walks down its own body and rebinds each seq it owns to bodySeq (loopOwnsBody, SEQ 516)
+        if *opR["ownsBody"];    loopOwnsBody(*built);
         *actionLabel   := *built;
         return  *actionLabel;
         };
+    // whileIsAnOperator WHILe declares op= on its grammar line and takes the default action (SEQ 580)
+    WHILe ruleMethod=OPERATOr;
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal
     // returnArms return builds the same instruct, its operand a mint of [keyword, value?]; opBranch runs the value, sets kind 3 and hands the value up (SEQ 508 / 509)
     BRANCh code={
