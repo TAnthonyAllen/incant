@@ -14,6 +14,7 @@ extern "C" GroupItem *closePDF(GroupItem *request);
 extern "C" GroupItem *displayBorder(GroupItem *field);
 extern "C" GroupItem *displayFillRT(GroupItem *field);
 GroupItem *displayOf(GroupItem *field);
+extern "C" GroupItem *displayText(GroupItem *request);
 extern "C" NSRect getFrame(GroupItem *item);
 void handDisplay(GroupItem *field, GroupItem *top);
 extern "C" GroupItem *makeDisplay(GroupItem *field);

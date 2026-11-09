@@ -149,7 +149,59 @@ define
         if dwOpen == 0;     makeDisplay(argument);
         drawFill(argument);
         drawBorder(argument);
+        drawText(argument);
         drawKids(argument);
+        };
+    /***************************************************************************
+        drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
+        font and color in kant and hands displayText one request, textReq,
+        written afresh on every call. Each of font and color comes from the
+        field's own attribute, else its style's (style:= names the style field),
+        else the enclosing field's, walking up to the top (the field holding the
+        display). Nothing found leaves the slot at 0: displayText then draws
+        Helvetica 12 in black. The text is the field's own string, or, when the
+        field holds a group, that group's (*argument, one level). A field with
+        no text costs a call and draws nothing (displayText skips it).
+    ***************************************************************************/
+    textReq field source font color;
+    drawText code={
+        textReq.field := argument;
+        dtG = argument.isGrouP;
+        if dtG == 1;    textReq.source := *argument;
+        else            textReq.source := argument;
+        textReq.font = 0;
+        textReq.color = 0;
+        dtFont = 0;
+        dtColor = 0;
+        dtCur := argument;
+        dtHops = 0;
+        while dtHops < 32;
+            if dtFont == 0;
+                if *dtCur["font"];
+                    textReq.font := *dtCur["font"];
+                    dtFont = 1;
+            if dtColor == 0;
+                if *dtCur["color"];
+                    textReq.color := *dtCur["color"];
+                    dtColor = 1;
+            if *dtCur["style"];
+                dtStyle := *dtCur["style"];
+                if dtFont == 0;
+                    if **dtStyle["font"];
+                        textReq.font := **dtStyle["font"];
+                        dtFont = 1;
+                if dtColor == 0;
+                    if **dtStyle["color"];
+                        textReq.color := **dtStyle["color"];
+                        dtColor = 1;
+            dtTop = *dtCur.isPointeR;
+            if dtTop == 1;      dtHops = 32;
+            if dtFont == 1;
+                if dtColor == 1;    dtHops = 32;
+            // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
+            dtCur := *dtCur.parenT;
+            dtHops += 1;
+        displayText(textReq);
         };
     drawFill code={
         if argument["fill"];    displayFill(argument);
@@ -166,6 +218,7 @@ define
         for grup in argument; members
             drawFill(*grup);
             drawBorder(*grup);
+            drawText(*grup);
             if *grup.hasMemberS;    drawKids(*grup);
         };
     listed;

@@ -40,6 +40,7 @@ define
     definersOf immediateAction;
     closePDF immediateAction=closePDF;
     displayBorder immediateAction=displayBorder;
+    displayText immediateAction=displayText;
     displayFill immediateAction=displayFill;
     displayFillRT immediateAction=displayFillRT;
     ruleOfCensus immediateAction;

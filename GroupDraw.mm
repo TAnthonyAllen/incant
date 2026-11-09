@@ -222,6 +222,131 @@ GroupItem 	*hold = 0;
 	return 0;
 }
 
+/*****************************************************************************
+    displayText -- forms step 5. Draws a field's text in its frame, into the
+    display its top handed down. ONE argument, a request kant's drawText fills
+    afresh on every call (utilities): field:= the field (frame and display),
+    source:= the field whose own string is the text (the field, or *field one
+    level down), font:= and color:= as kant resolved them -- own, style, then
+    the enclosing field (Tony, SEQ 582 R1). A slot written `= 0` holds no
+    group and means none: the font is then Helvetica 12, the colour black.
+    The floor resolves nothing; it reads the request.
+
+    WRAP at word boundaries, wrapped lines not indented; a line that does not
+    fit the frame's height is not drawn, so the last line drawn ends on a
+    space; a single word wider than the frame is kept whole and clipped at the
+    frame edge (R1). Either case warns once, naming the field. The inset is a
+    fixed 4 points (R3). Left-aligned only (R4; alignment is step 5a).
+    A line per call on stdout says what was used -- font, colour, lines drawn,
+    characters drawn, and what follows the last drawn word -- so a row
+    compares values (H4).
+*****************************************************************************/
+extern "C" GroupItem *displayText(GroupItem *request)
+{
+	
+	if (!request) return 0;
+	//  heldBy follows a slot through holders to the first node that is not one; a slot holding no group gives null
+	auto heldBy = [](GroupItem *slot) -> GroupItem* {
+	GroupItem *node = slot;
+	int hops = 0;
+	while (node && isGROUP(node->groupBody->flags.data) && hops < 4) { node = node->getGroup(); hops++; }
+	return hops ? node : 0; };
+	GroupItem *fieldSlot = request->get("field"), *sourceSlot = request->get("source");
+	GroupItem *field  = (fieldSlot && isGROUP(fieldSlot->groupBody->flags.data)) ? fieldSlot->getGroup() : 0;
+	GroupItem *source = (sourceSlot && isGROUP(sourceSlot->groupBody->flags.data)) ? sourceSlot->getGroup() : 0;
+	if (!field || !source) {
+	::fprintf(stderr,"displayText: REFUSING %s -- needs field:= and source:=\n", request->groupBody->tag);
+	return 0; }
+	unsigned int kind = source->groupBody->flags.data;
+	//  oneLevel the text is the source's own string; a source that holds a group is a group inside a group
+	if (isGROUP(kind)) {
+	::fprintf(stderr,"displayText: REFUSING %s -- its text is a group holding a group; one level only\n", field->groupBody->tag);
+	return 0; }
+	if (!isSTRING(kind) && !isTOKEN(kind)) return request;
+	char *text = source->getText();
+	if (!text || !*text) return request;
+	GroupItem   *top = displayOf(field);
+	CGContextRef ctx = top ? (CGContextRef)top->getPointer() : 0;
+	if (!ctx) {
+	::fprintf(stderr,"displayText: REFUSING %s -- no display; call makeDisplay first\n", field->groupBody->tag);
+	return 0; }
+	GroupItem *fontNode = heldBy(request->get("font")), *colorNode = heldBy(request->get("color"));
+	NSFont *font = fontNode ? ::getFont(fontNode) : 0;
+	if (!font) font = [NSFont fontWithName:@"Helvetica" size:12];
+	//  asFillDoes a colour entry is read as displayFillRT reads one; none named is black (R2)
+	NSColor *colour = 0;
+	if (colorNode) {
+	char *value = colorNode->getText();
+	colour = (value && *value == '#') ? ::setColor(colorNode) : ::getColor(value); }
+	CGFloat cr = 0, cg = 0, cb = 0, ca = 1;
+	if (colour) [colour getRed:&cr green:&cg blue:&cb alpha:&ca];
+	CTFontRef ct = (CTFontRef)font;
+	NSString *str = [NSString stringWithUTF8String:text];
+	NSDictionary *attrs = @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorFromContextAttributeName: @YES };
+	NSAttributedString *as = [[NSAttributedString alloc] initWithString:str attributes:attrs];
+	CTTypesetterRef ts = CTTypesetterCreateWithAttributedString((CFAttributedStringRef)as);
+	NSRect  framed = ::getFrame(field);
+	CGFloat inset = 4;
+	CGFloat x0 = framed.origin.x + inset, width = framed.size.width - 2 * inset;
+	CGFloat bottom = framed.origin.y + framed.size.height - inset;
+	CGFloat asc = CTFontGetAscent(ct), desc = CTFontGetDescent(ct), lineH = asc + desc + CTFontGetLeading(ct);
+	CGFloat baseline = framed.origin.y + inset + asc;
+	CFIndex len = [str length], start = 0;
+	int lines = 0, tooWide = 0;
+	CGContextSaveGState(ctx);
+	//  clipAtFrame a word wider than the frame is cut at the frame's edge, never beyond it (R1)
+	CGContextClipToRect(ctx, CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height));
+	CGContextSetRGBFillColor(ctx, cr, cg, cb, ca);
+	//  uprightGlyphs the top's context is flipped (y down); this turns the glyphs the right way up, and only them
+	CGContextSetTextMatrix(ctx, CGAffineTransformMakeScale(1, -1));
+	while (start < len) {
+	//  noIndent a wrapped line starts at its first character that is not a space
+	if (lines) while (start < len && [str characterAtIndex:start] == ' ') start++;
+	if (start >= len) break;
+	//  wholeLines a line that does not fit the frame's height is not drawn
+	if (baseline + desc > bottom) break;
+	//  wordWrap the typesetter breaks at a word boundary that fits the width
+	CFIndex n = CTTypesetterSuggestLineBreak(ts, start, width);
+	if (n < 1) n = 1;
+	//  wholeWord with no space to break at, the typesetter cuts the word; keep it whole to its end instead
+	BOOL spaced = NO;
+	for (CFIndex i = start; i < start + n; i++) if ([str characterAtIndex:i] == ' ') { spaced = YES; break; }
+	if (!spaced && start + n < len && [str characterAtIndex:start + n - 1] != '-') {
+	CFIndex e = start + n;
+	while (e < len && [str characterAtIndex:e] != ' ') e++;
+	n = e - start; }
+	CTLineRef line = CTTypesetterCreateLine(ts, CFRangeMake(start, n));
+	if (CTLineGetTypographicBounds(line, 0, 0, 0) - CTLineGetTrailingWhitespaceWidth(line) > width) tooWide = 1;
+	CGContextSetTextPosition(ctx, x0, baseline);
+	CTLineDraw(line, ctx);
+	CFRelease(line);
+	lines++;
+	start += n;
+	baseline += lineH;
+	}
+	CGContextRestoreGState(ctx);
+	CFRelease(ts);
+	[as release];
+	//  afterLastWord what follows the last word drawn: a space, the end of the text, or more of the same word
+	const char *next = "end";
+	if (start < len) {
+	CFIndex k = start - 1;
+	while (k >= 0 && [str characterAtIndex:k] == ' ') k--;
+	next = ([str characterAtIndex:k + 1] == ' ') ? "space" : "word"; }
+	if (start < len || tooWide)
+	::fprintf(stderr,"displayText: WARNING %s -- %s; %ld of %ld characters drawn\n", field->groupBody->tag,
+	tooWide ? "a word wider than its frame is clipped at the frame" : "its text does not fit its frame", (long)start, (long)len);
+	int bold = (CTFontGetSymbolicTraits(ct) & kCTFontBoldTrait) ? 1 : 0;
+	CFStringRef family = CTFontCopyFamilyName(ct);
+	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s ===\n",
+	field->groupBody->tag, [(NSString*)family UTF8String], (double)CTFontGetSize(ct), bold,
+	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, (long)start, (long)len, next);
+	::fflush(stdout);
+	CFRelease(family);
+	
+	return request;
+}
+
 /*******************************************************************************
 	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
     twice, causing a duplicate-symbol link error; Stylish's version is current).
