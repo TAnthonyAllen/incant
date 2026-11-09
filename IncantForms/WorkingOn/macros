@@ -204,6 +204,25 @@ it works. HPDL.
     pattern -- parties on a channel.
 
 /*******************************************************************************
+	Design notion: a rule as an operator -- NOT RULED, NOT SCHEDULED
+*******************************************************************************/
+(Tony and Clay, 2026-11-09; recon SEQ 578, docs/ruleAsOperator.md.) Every
+kantGrammar rule now ends in an instruct, an op and an operand list, and testOP
+runs ifThen, whileLoop, seq and printList like any operator. So a control rule
+is a mixfix operator: keywords, with operand slots between them. The notion: a
+rule declares its op; its labelled terms, in order, are its operand slots; one
+shared default action builds the instruct through makeInstruct and refuses by
+the slot's name when a slot hands up nothing. EXPRESSIOn would narrow to infix.
+What the recon measured: a rule's label already holds exactly its slots, in
+term order, keywords left out, an absent optional term simply absent. A rule
+cannot carry op= as an attribute today: any name=value on a rule becomes a term
+and the rule stops matching. Regular rules (If with ELSEIf, WHILe, Do, STARt,
+BLOCk) could lose their hand actions; FOr, ITERATe, BRANCh, the prints,
+SHORTCUt and INVOKEr keep theirs. The hard part is a keyword form in operand
+position (x = if a; 1 else 2), where the ; is ambiguous; today it builds
+nothing, silently.
+
+/*******************************************************************************
 	Open questions
 *******************************************************************************/
 1  A kant spelling for a rule action that rejects a match. Today only a null
