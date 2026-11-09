@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-152 — DOCKETED (SEQ 571, 2026-11-09) — pdfHeapStomp: firstPdfT crashes intermittently in the collector's allocator; the free list holds ASCII text
+
+**What:** `incant/pop/firstPdfT` exits 139 (once 134) on about 4 runs in 10, at random points, so formsPop's firstPdfT rows read anything from all green to exit/sentinel and PD-2..PD-4 red. Seals 394 and 397 recorded formsPop row for row on lucky runs. The crash is in `GC_generic_malloc_uncollectable` under an ordinary `operator new` (`GroupItem::addGroup` from `interpretXPaccum`), on a free-list pointer that is TEXT: the two captured fault addresses decode as `pdfRead` and `driveRep`. Heap corruption: something writes a string into a freed or uncollectable block, and a later allocation trips on it.
+**Where:** not read. The likeliest writer is forms step 4's GroupDraw code (openPDF / closePDF / readPDF / pixelAt, seal 393, `6465847c`), because `pdfRead` is the request name firstPdfT hands it -- inferred from the bytes, not measured.
+**Evidence:** measured 2026-11-09 in **kant** (fixture), trunk binary built bare 09:41: firstPdfT alone 10 runs, `0 139 139 0 139 0 0 0 0 139`; with kantGrammar put back to `76e547e9` (before SEQ 571; firstPdfT does not load kantGrammar), `139 139 0 0 0 0 139 0 139 139` -- not SEQ 571's. formsPop three runs: 44, 43, 42 green. lldb: `EXC_BAD_ACCESS address=0x64616552666470` ("pdfRead"), frame 0 `GC_generic_malloc_uncollectable + 116`, frame 2 `GroupItem::addGroup GroupItem.mm:310`.
+**Done when:** firstPdfT exits 0 with its sentinel on 20 runs of 20, and the writer is named.
+**Owner:** Clod, on Tony's word. **Size:** not known.
+**Attempt log:** none.
+
 ### F-151 — DOCKETED (SEQ 567 R3, 2026-11-08) — expressionLosesAssign: EXPRESSIOn compiled through the rule door assigns nothing, silently
 
 **What:** with F-146's cure in, every assignment EXPRESSIOn handles reads QR 0 compiled, with no refusal and no degrade line, where the interpreted rule assigns. `qr = qa < 3;` also refuses `+% -- an operand that is nothing` compiled. This is the recon's "second mechanism" (`docs/f146Recon.md` section 2); F-146 removed the guard that used to sit on top of it.
