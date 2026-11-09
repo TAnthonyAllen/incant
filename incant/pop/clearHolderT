@@ -1,0 +1,98 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+register(ClearHolderT);
+define
+    chReq owner source result rule;
+    tH1="t1"; tH2="t2"; tH3="t3"; tH4="t4"; tH5="t5"; tH6="t6"; tH7="t7"; tH8="t8"; tH9="t9"; tHA="tA"; tHB="tB";
+    cH1; cH2; cH3; cH4; cH5; cH6; cH7; cH8; cH9; cHA; cHB;
+    chNew code={
+        chSrc := argument.CodE;
+        chReq.owner  := argument;
+        chReq.source := chSrc;
+        chReq.rule   := KantGrammar["STARt"];
+        if compileIn(chReq);
+            chBlock = chReq.result;
+            *chBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *chBlock;
+        };
+    chClrArg code={ clear(argument); };
+    chNClrArg code={ clear(argument); };
+    chSee code={ print "CH TS argument tag" argument.taG:; };
+    chBind code={ cH2 := tH2; };
+    chClrIn code={ clear(cH3); };
+    chClrLate code={ clear(cH4); };
+    chOwn code={ cHA := tHA; clear(cHA); };
+    chJit code={ clear(cH9); };
+    ;
+search ClearHolderT list;
+cH1 := tH1;
+clear(cH1);
+print "CH OT-H" tH1 cH1.isGrouP:;
+chBind();
+clear(cH2);
+print "CH X1" tH2 cH2.isGrouP:;
+cH3 := tH3;
+chClrIn();
+print "CH X2" tH3 cH3.isGrouP:;
+cH4 := tH4;
+chClrLate();
+print "CH Z2" tH4 cH4.isGrouP:;
+cH5 := tH5;
+chClrArg(cH5);
+print "CH OT-AH" tH5 cH5.isGrouP:;
+chNew(chNClrArg);
+cH6 := tH6;
+chNClrArg(cH6);
+print "CH NA-AH" tH6 cH6.isGrouP:;
+cH7 := tH7;
+cerr "CH TA target, then holder":;
+addrOf(tH7);
+addrOf(cH7);
+cH8 := tH8;
+chSee(cH8);
+cHB := tHB;
+clear(*cHB);
+print "CH K1" tHB cHB.isGrouP:;
+chOwn();
+print "CH K2" tHA cHA.isGrouP:;
+jitter;
+cH9 := tH9;
+chJit();
+print "CH JC-H" tH9 cH9.isGrouP:;
+print "CH SENTINEL":;
+stop();
+
+clearHolderT -- SEQ 577 (Tony, 2026-11-09): the old road's holder read-through, PINNED AS TRIPWIRES, not born red. The cure is
+parked (R0). Every row reads TODAY's value; the rule's answer (SEQ 561 R3: clear(h) empties the holder, clear(*h) the target,
+argument the one exception, and a bare name means the holder) is named beside it in pop.sh. A row that moves is a finding.
+
+THE MECHANISM (docs/clearHolderRecon.md, SEQ 577): getLabelGroup (GroupItem.twk:929-930) walks group links to the first node that
+is not a group. A call's argument is fetched through it (aCTionParens), so a holder that already holds a group when the statement is
+BUILT is walked through to its target; built before the bind, the walk stops at the holder. Top-level statements are always built
+after their binds.
+
+One process, rows prefixed CH. Each print carries the target's value then the holder's isGrouP after the clear.
+  OT-H   top level clear(h)                                    today: target emptied, holder kept   rule: holder emptied
+  X1     bound in an action, cleared at top                    today: target emptied               rule: holder emptied
+  X2     bound at top, cleared in an action built after it     today: target emptied               rule: holder emptied
+  Z2     an action first built after the bind                  today: target emptied               rule: holder emptied
+  OT-AH  clear(argument), a holder passed from the top level   today: target emptied               rule: holder emptied
+  NA-AH  the same, the action built on the new road            today: target emptied (the CALL is old road)  rule: holder
+  TA     addrOf(target) then addrOf(holder) at top level       today: the same body                rule: different bodies
+  TS     a user action's argument, a holder passed at top      today: tagged as the target         rule: the holder
+  JC-H   a compiled action (jitter;) built after the bind      today: target emptied               rule: holder emptied
+  K1     control: top level clear(*h)                          today and rule: target emptied
+  K2     control: := and clear in the same action              today and rule: holder emptied

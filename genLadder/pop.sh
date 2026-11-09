@@ -1129,6 +1129,26 @@ _ofeq "jitAssignHolderT the action was compiled (built 1 called 2)" "$(grep -c '
 fdRow "jitAssignHolderT compiled = interpreted: t = h" "$(_jav "$T/ja.c.o")" "OA addr |OA addr |OA after addr |" "OA 7 |OA 7 |OA after 7 |"
 else echo "  FAIL  jitAssignHolderT MISSING"; fail=1; fi
 
+#  ⚑ clearHolderT -- SEQ 577 (Tony, 2026-11-09): the old road's holder read-through (getLabelGroup, GroupItem.twk:929-930), PINNED AS
+#  TRIPWIRES at today's value (R1), the rule's answer named in each label. The cure is parked; a row that moves is a finding.
+_chF=$(ip clearHolderT)
+if [ -f "$_chF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_chF" > "$T/ch.o" 2> "$T/ch.e"; echo $? > "$T/ch.x"
+_chv () { grep -a "^CH $1 " "$T/ch.o" | head -1 | sed "s/^CH $1 //; s/ *\$//"; }
+_ofeq "clearHolderT exit, sentinel" "$(cat "$T/ch.x") $(grep -c '^CH SENTINEL' "$T/ch.o")" "0 1"
+_ofeq "clearHolderT OT-H top clear(h): TODAY target emptied, holder kept (rule: holder emptied)" "$(_chv OT-H)" "tH1 1"
+_ofeq "clearHolderT X1 bound in an action, cleared at top: TODAY target emptied (rule: holder emptied)" "$(_chv X1)" "tH2 1"
+_ofeq "clearHolderT X2 bound at top, cleared in an action built after: TODAY target emptied (rule: holder emptied)" "$(_chv X2)" "tH3 1"
+_ofeq "clearHolderT Z2 action first built after the bind: TODAY target emptied (rule: holder emptied)" "$(_chv Z2)" "tH4 1"
+_ofeq "clearHolderT OT-AH clear(argument), holder passed at top: TODAY target emptied (rule: holder emptied)" "$(_chv OT-AH)" "tH5 1"
+_ofeq "clearHolderT NA-AH the same into a new-road action, old-road call: TODAY target emptied (rule: holder emptied)" "$(_chv NA-AH)" "tH6 1"
+_ofeq "clearHolderT TA addrOf(target) and addrOf(holder) at top: TODAY the same body (rule: different bodies)" "$(grep -a '^ADDROF tH7 ' "$T/ch.o" "$T/ch.e" 2>/dev/null | sed 's/.*body=\(#[0-9]*\).*/\1/' | tr '\n' ' ' | sed 's/ *$//')" "#2 #2"
+_ofeq "clearHolderT TS a user action's argument, holder passed at top: TODAY tagged as the target (rule: the holder)" "$(_chv TS)" "argument tag tH8"
+_ofeq "clearHolderT JC-H compiled action (jitter;) built after the bind: TODAY target emptied (rule: holder emptied)" "$(_chv JC-H)" "tH9 1"
+_ofeq "clearHolderT K1 control, top clear(*h): target emptied, holder kept (= rule)" "$(_chv K1)" "tHB 1"
+_ofeq "clearHolderT K2 control, := and clear in the same action: holder emptied, target kept (= rule)" "$(_chv K2)" "tA 0"
+else echo "  FAIL  clearHolderT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today

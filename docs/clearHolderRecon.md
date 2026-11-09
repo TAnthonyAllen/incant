@@ -167,3 +167,27 @@ unconditional break in aCTionNamE when text is the holder's name at top level, t
 OT-H, X1, X2, Z2, OT-AH, NA-AH (old call), JC-H, and the read-through rows for addrOf / a user action's argument at top level
 (about 9). Green controls that must not move: OT-S, OT-P, OA-H, X4, Y1, Z1, OA-S, OT-AP, OA-AH, NT-*, NA-*, JC-HB, JC-S,
 JC-P, ruleDoor.
+
+## SEQ 577 (2026-11-09): the site isolated, the cells pinned as tripwires, the cure parked
+
+**The line: `getLabelGroup`, GroupItem.twk:929-930** -- `while block && block.isGROUP && !block.isMethod && !block.isRule  block = block.group;`.
+It walks group links to the first node that is not a group. aCTionParens (ruleActions.rtn) fetches a call's argument with it
+(`GroupItem ExpressioN:;` generates `input->getLabelGroup("ExpressioN")`) and holds the result in InvokeArg; handleCall then
+attaches a copy, which is what the call receives. Measured hop by hop in lldb on `qqH := qqTgt; addrOf(qqH);` at top level: the
+ExpressioN label -> a node over the HOLDER's body (tag qqH, a group) -> qqTgt (not a group): the walk stops at the TARGET, and
+InvokeArg's group is the target field itself (same address). Before the bind the holder is not a group yet, so the walk stops one hop
+earlier, at the holder -- the build-order dependence, explained. resolveName returns the holder (data 6), so it is innocent.
+
+**The parked cure's reach (R2):** at this line it would stop at the label's own value instead of walking every link. It is a
+GroupItem method: no frame model, no ruler slot, no gJitMethod signature. **But getLabelGroup is behind every generated `X:;` label
+fetch in every rule action**, so the cure, when unparked, owes a census of every caller first, every mover registered.
+
+**Tripwires (R3):** `incant/pop/clearHolderT`, 12 pop.sh rows, every one green at today's value with the rule's answer in its label:
+OT-H, X1, X2, Z2, OT-AH, NA-AH, TA (addrOf), TS (a user action's argument), JC-H; controls K1 (`clear(*h)` at top) and K2 (`:=` and
+clear in one action).
+
+**R4, IncantForms and tester spellings that could meet this today: none.** A census of all 89 tracked IncantForms files (tester
+included): every name bound with `:=` in a live region, then every call handed that name bare -- 0 hits (positive control: 12 hits on
+m576_old + clearHolderT). Nearest, not the shape: tester's `selection := listChain` at top level, read inside `describe` through
+`.isGrouP` and `*selection.taG`, never handed bare to a call (and describe's body is built before the bind); and the forms'
+attribute holders (`form:=firstLight`, `fill:=wall`, `onClick:=`), read by C++ getters at run time, never as a bare name in a built call.
