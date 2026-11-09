@@ -1,0 +1,44 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(RuleExprT);
+define
+    qa=2;
+    qb=3;
+    qc=1;
+    qr;
+    it1;
+    fId code={ return argument; };
+    ;
+search RuleExprT Utilities UnitTests list;
+stop();
+
+ruleExprT -- F-151, SEQ 575 (Tony, 2026-11-09): EXPRESSIOn compiled through the rule door. Rows prefixed RE-.
+
+Not run alone: pop.sh builds each row, everything above this stop(); then qr = "pre", the row through STARt and testOP, a print of
+qr, a sentinel; one process interpreted and one with jitterRule(EXPRESSIOn);. Each row reads exit and sentinel on both arms; the
+interpreted value, pinned; the compiled value beside it (today it leaves qr unwritten, "pre", silently); stderr compiled =
+interpreted, witnesses aside; the door (built 1 fired N) and the walk line, native 7 handed 2 -- EXPRESSIOn's native count must
+stay above 0 (SEQ 575 R5).
+
+The mechanism (docs/fixIts.md F-151): the four closing lines of EXPRESSIOn, `target = cmpP / logP / asgP / asgO`, copy from holders
+written inside arms that hand over at build, so the compiled = takes its scalar path and the holder's group does not cross. RE-5
+also refuses `+% -- an operand that is nothing` compiled today: the same loss one step later. RE-8 is SEQ 570's chain refusal and
+agrees on both roads today; it must not move.
+
+ROWS, separated by ^ -- id ^ fires ^ statement ^ interpreted value (before NEXT) ^ compiled-only refusal lines today
+RE-1^1^qr = qb;^QR 3 |^0
+RE-2^1^qr = qa + qb;^QR 5 |^0
+RE-3^1^qr = - qb;^QR -3 |^0
+RE-4^1^qr = 4;^QR 4 |^0
+RE-5^1^qr = qa < qb;^QR 1 |^1
+RE-6^2^qr = fId(qa);^QR 2 |^0
+RE-7^1^qr = - - qb;^QR 3 |^0
+RE-8^1^qr = qa < qb < qc;^QR pre |^0

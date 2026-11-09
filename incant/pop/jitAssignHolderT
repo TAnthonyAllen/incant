@@ -1,0 +1,21 @@
+Start();
+include(utilities);
+include(unitTests);
+search reset stack Grokking;
+register(JitAssignHolderT);
+define
+    oaSrc = 7;
+    oaOn = 1;
+    oaH;
+    oaT;
+    oa code={ if oaOn == 1; oaH := oaSrc; oaT = oaH; print "OA" oaT:; };
+    ;
+search JitAssignHolderT UnitTests Utilities list;
+stop();
+
+jitAssignHolderT -- F-151, SEQ 575 (Tony, 2026-11-09): the trap outside EXPRESSIOn. An ordinary action, compiled by jitter;, whose
+holder oaH is written by := inside an if-arm, then `oaT = oaH;`. Interpreted, the holder's group crosses and oaT reads 7. Compiled
+today the = takes its scalar path and stores the holder's pointer bits as a count: 52032688 on the run that measured it, an
+address, so it moves run to run (H3) and pop.sh pins it by class -- any value of 65536 or more reads "addr".
+
+Not run alone: pop.sh appends, per arm, oaT = "pre", two calls, a print after, a sentinel; the compiled arm puts jitter; first.

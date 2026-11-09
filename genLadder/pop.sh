@@ -1083,6 +1083,52 @@ done < "$T/pn.list"
 _ofeq "prefixNestT rows ran (16 of 16)" "$_pnn" "16"
 else echo "  FAIL  prefixNestT MISSING"; fail=1; fi
 
+#  ⚑ ruleExprT -- F-151, SEQ 575 (Tony, 2026-11-09): EXPRESSIOn compiled through the rule door; the closing `target = <slot>`
+#  lines lose the holder's group compiled. Per row one process interpreted and one with jitterRule(EXPRESSIOn);: exit and sentinel,
+#  the interpreted value pinned, the compiled value (fdRow: today "QR pre"), the compiled-only refusal lines (fdRow), stderr compared
+#  with witnesses and that refusal aside, the door and the walk line (native 7 handed 2: the native count stays above 0).
+_reF=$(ip ruleExprT)
+_rer () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | tr '\n' '|'; }
+_ree () { grep -v '^=== jitter rule\|^RE SENTINEL\|^REFUSED instruct -- Operator +% -- an operand that is nothing\|^ *$' "$1" | tr '\n' '|'; }
+if [ -f "$_reF" ]; then
+sed '/^stop();/,$d' "$_reF" > "$T/re.pre"
+grep '^RE-[0-9]*\^' "$_reF" > "$T/re.list"
+_ren=0
+while IFS='^' read -r _id _f _st _iv _rf; do
+    _ren=$((_ren+1))
+    for _v in i c; do
+        { cat "$T/re.pre"; [ $_v = c ] && printf 'jitterRule(EXPRESSIOn);\n'
+          printf 'qr = "pre";\nit1 = STARt("%s"); testOP(it1);\nprint "QR" qr:;\nprint "NEXT":;\ncerr "RE SENTINEL":;\nstop();\n' "$_st"; } > "$T/re.$_id.$_v.k"
+        perl -e 'alarm 20; exec @ARGV' "$B" "$T/re.$_id.$_v.k" > "$T/re.$_id.$_v.o" 2> "$T/re.$_id.$_v.e"; echo $? > "$T/re.$_id.$_v.x"
+    done
+    _ofeq "ruleExprT $_id interpreted exit, sentinel" "$(cat "$T/re.$_id.i.x") $(grep -c '^RE SENTINEL' "$T/re.$_id.i.e")" "0 1"
+    _ofeq "ruleExprT $_id compiled exit, sentinel" "$(cat "$T/re.$_id.c.x") $(grep -c '^RE SENTINEL' "$T/re.$_id.c.e")" "0 1"
+    _ofeq "ruleExprT $_id interpreted value: $_st" "$(_rer "$T/re.$_id.i.o")" "${_iv}NEXT |"
+    fdRow "ruleExprT $_id compiled value = interpreted: $_st" "$(_rer "$T/re.$_id.c.o")" "QR pre |NEXT |" "${_iv}NEXT |"
+    fdRow "ruleExprT $_id compiled-only refusal lines (+% on nothing)" "$(grep -c '^REFUSED instruct -- Operator +% -- an operand that is nothing' "$T/re.$_id.c.e")" "$_rf" "0"
+    _ofeq "ruleExprT $_id compiled = interpreted, stderr" "$(_ree "$T/re.$_id.c.e")" "$(_ree "$T/re.$_id.i.e")"
+    _ofeq "ruleExprT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: EXPRESSIOn built 1 fired $_f ===" "$T/re.$_id.c.e")" "1"
+    _ofeq "ruleExprT $_id walk line: native 7 handed 2" "$(grep -c '^=== jitter rule walk: EXPRESSIOn native 7 handed 2 ===' "$T/re.$_id.c.e")" "1"
+done < "$T/re.list"
+_ofeq "ruleExprT rows ran (8 of 8)" "$_ren" "8"
+else echo "  FAIL  ruleExprT MISSING"; fail=1; fi
+
+#  ⚑ jitAssignHolderT -- F-151, SEQ 575: the trap in an ordinary action under jitter;: a holder written by := in an if-arm, then
+#  t = h. Interpreted 7; compiled today the holder's pointer bits as a count, pinned by class ("addr" = 65536 or more; H3).
+_jaF=$(ip jitAssignHolderT)
+_jav () { grep -v '^stop: \|^Search list: \|^ *$' "$1" | perl -pe 's/\b(\d+)\b/$1 >= 65536 ? "addr" : $1/ge' | tr '\n' '|'; }
+if [ -f "$_jaF" ]; then
+sed '/^stop();/,$d' "$_jaF" > "$T/ja.pre"
+for _v in i c; do
+    { cat "$T/ja.pre"; [ $_v = c ] && printf 'jitter;\n'; printf 'oaT = "pre";\noa();\noa();\nprint "OA after" oaT:;\ncerr "OA SENTINEL":;\nstop();\n'; } > "$T/ja.$_v.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ja.$_v.k" > "$T/ja.$_v.o" 2> "$T/ja.$_v.e"; echo $? > "$T/ja.$_v.x"
+done
+_ofeq "jitAssignHolderT exit, sentinel, interpreted | compiled" "$(cat "$T/ja.i.x") $(grep -c '^OA SENTINEL' "$T/ja.i.e") | $(cat "$T/ja.c.x") $(grep -c '^OA SENTINEL' "$T/ja.c.e")" "0 1 | 0 1"
+_ofeq "jitAssignHolderT interpreted: t = h carries the holder's group" "$(_jav "$T/ja.i.o")" "OA 7 |OA 7 |OA after 7 |"
+_ofeq "jitAssignHolderT the action was compiled (built 1 called 2)" "$(grep -c '^=== jitter: oa built 1 called 2 ===' "$T/ja.c.e")" "1"
+fdRow "jitAssignHolderT compiled = interpreted: t = h" "$(_jav "$T/ja.c.o")" "OA addr |OA addr |OA after addr |" "OA 7 |OA 7 |OA after 7 |"
+else echo "  FAIL  jitAssignHolderT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today
