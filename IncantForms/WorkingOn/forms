@@ -445,6 +445,13 @@ DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as
     9  Rounded fields; a side on a rounded field is decided here.
          Moved here (open question 8, Tony, 2026-11-04): a side on a rounded field stays OPEN until a side can be drawn on one. 7 of the 12 side-asking fields are also rounded, and Bot drew sides only when the field was neither rounded nor bordered (Bot/PDF.twk, read, not run).
     10 Windows -- assess and plan first; images and field actions come with it.
+         FEATURE REQUEST (Tony, 2026-11-09, SEQ 585 R2), recorded, not ruled for build:
+           move start to cursor: the field's displayed text (possibly part of a larger text source) restarts at the beginning of the
+             word the cursor is in, or the next word if the cursor is between words, then redisplays;
+           move end to cursor: the mirror -- the displayed text ends after the word the cursor is in, or the previous word if between words;
+           try it and adjust;
+           editing commands are reached by a short selection pop-up rather than memorised keys; a pop-up is itself a form (select a
+             command, its action fires).
   Directions every step keeps (not steps):
     C++ is only the short drawing floor, one argument per method, until shape C's foreign calls exist.
     The drawing language moves into kant when the jitter allows.
