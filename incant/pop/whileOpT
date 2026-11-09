@@ -1,0 +1,46 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(WhileOpT);
+define
+    qa=2;
+    qb=3;
+    wc=0;
+    wo=0;
+    it1;
+    woAct code={ while wc < 2; qa qb + 1; print "O-NEXT":; };
+    ;
+search WhileOpT Utilities UnitTests list;
+stop();
+
+whileOpT -- SEQ 580 (Tony, 2026-11-09): WHILe as an operator. WHILe declares op= and its hand action is deleted; a default
+action builds its instruct from its label. whileT (both roads) must not move; these rows pin what the default CHANGES and two
+controls it must not. Rows prefixed WO-. Interpreted only.
+
+WO-1  the body slot refuses: today "REFUSED WHILe -- its statement handed up no instruct" (WHILe's own refusal, pinned by no
+      row until now); the default names the slot by its label and, the body having handed up nothing, says so.
+WO-2  the condition slot refuses: today F-147's attach refusal naming the internal list (whileArms, F-148); the default names
+      the slot by its label.
+WO-3  control: a bare-name condition is a value, not an instruct, and is not refused (the default demands an instruct only
+      from a STATEMENt slot).
+WO-4  control: the old road's WhilE, a refused body in an action: refused naming xl1, the rest of the action does not run.
+
+Not run alone: pop.sh appends the row, print "NEXT", a sentinel; one process per row. Each row reads exit and sentinel; stdout
+(lines joined by |); and the REFUSED lines that name WHILe, whileArms or xl1, joined by |.
+
+ROWS, separated by ^ -- id ^ statements ^ stdout today ^ refusals today ^ stdout intended ^ refusals intended
+WO-1^it1 = WHILe("while wc < 2; qa qb + 1;"); testOP(it1); print "Q":;^Q |^REFUSED WHILe -- its statement handed up no instruct |^Q |^REFUSED WHILe -- its STATEMENt handed up nothing |
+WO-2^it1 = WHILe("while qa qb + 1; print 1:;"); testOP(it1); print "Q":;^Q |^REFUSED whileArms -- Operator +% -- an operand that is nothing|^Q |^REFUSED WHILe -- its EXPRESSIOn handed up nothing |
+WO-3^wo = 1; it1 = WHILe("while wo; { wo = 0; print 1:; }"); testOP(it1); print "Q":;^1 |Q |^^1 |Q |^
+WO-4^woAct(); print "Q":;^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|

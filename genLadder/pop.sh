@@ -930,11 +930,34 @@ while IFS='|' read -r _id _st _nm; do
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/rc.$_id.k" > "$T/rc.$_id.o" 2> "$T/rc.$_id.e"; echo $? > "$T/rc.$_id.x"
     _ofeq "refusedCondT $_id exit, sentinel" "$(cat "$T/rc.$_id.x") $(grep -c '^RC SENTINEL' "$T/rc.$_id.e")" "0 1"
     _ofeq "refusedCondT $_id the child's refusal by name" "$(grep -c '^REFUSED + -- a list of adjacent operands' "$T/rc.$_id.e")" "1"
-    _ofeq "refusedCondT $_id the attach's refusal names $_nm" "$(grep -c "^REFUSED $_nm -- Operator +% -- an operand that is nothing" "$T/rc.$_id.e")" "1"
+    if [ "$_id" = RC-While ] || [ "$_id" = RC-sWhile ]; then
+        #  SEQ 580 REGISTERED: WHILe's default action refuses its condition slot by the slot's label, before any attach
+        fdRow "refusedCondT $_id the refusal: whileArms attach | WHILe's EXPRESSIOn slot" "$(grep -c '^REFUSED whileArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED WHILe -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+    else
+        _ofeq "refusedCondT $_id the attach's refusal names $_nm" "$(grep -c "^REFUSED $_nm -- Operator +% -- an operand that is nothing" "$T/rc.$_id.e")" "1"
+    fi
     _ofeq "refusedCondT $_id the next statement ran" "$(grep -c '^NEXT' "$T/rc.$_id.o")" "1"
 done < "$T/rc.list"
 _ofeq "refusedCondT rows ran (11 of 11)" "$_rcn" "11"
 fi
+
+#  ⚑ whileOpT -- SEQ 580 (Tony, 2026-11-09): WHILe as an operator, op= and a default action. One process per row: exit and sentinel;
+#  stdout and the REFUSED lines naming WHILe / whileArms / xl1 (line numbers stripped, H3), each fdRow today beside intended.
+_woF=$(ip whileOpT)
+if [ -f "$_woF" ]; then
+sed '/^stop();/,$d' "$_woF" > "$T/wo.pre"
+grep '^WO-[0-9]*\^' "$_woF" > "$T/wo.list"
+_won=0
+while IFS='^' read -r _id _st _to _tr _io _ir; do
+    _won=$((_won+1))
+    { cat "$T/wo.pre"; printf '%s\nprint "NEXT":;\ncerr "WO SENTINEL":;\nstop();\n' "$_st"; } > "$T/wo.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/wo.$_id.k" > "$T/wo.$_id.o" 2> "$T/wo.$_id.e"; echo $? > "$T/wo.$_id.x"
+    _ofeq "whileOpT $_id exit, sentinel" "$(cat "$T/wo.$_id.x") $(grep -c '^WO SENTINEL' "$T/wo.$_id.e")" "0 1"
+    fdRow "whileOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/wo.$_id.o" | tr '\n' '|')" "$_to" "$_io"
+    fdRow "whileOpT $_id refusals" "$(grep '^REFUSED WHILe\|^REFUSED whileArms\|^REFUSED xl1' "$T/wo.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+done < "$T/wo.list"
+_ofeq "whileOpT rows ran (4 of 4)" "$_won" "4"
+else echo "  FAIL  whileOpT MISSING"; fail=1; fi
 
 #  ============================================================================
 #  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
