@@ -192,12 +192,9 @@ Later: the drawing language, then print / typesetting.
    and := in a define is built for onClick, ahead of the listener, which stays parked. Its own rule with its own :=, refused in a rule host.
 2  The listener's spelling, UNPARKED 2026-11-05: `b listenTo:=a` copies a's value to b on each write. onNotify is not built; see macros, THE LISTENER.
 3  CLOSED 2026-11-04: the border-side spelling is ruled (rulings above), and pad is dropped.
-4  Emphasis inside a paragraph whose style comes from its framing field.
-5  The drawing language in kant. It needs multi-argument C++ calls, so it comes after the jitter (A5).
 6  CLOSED FOR NOW 2026-11-04 (Tony): margin stays. Whether kant needs it is decided once the forms can be seen drawn.
-7  CLOSED 2026-11-04 (Tony): text is inset by a fixed default in the text floor (M2), with no attribute until a form needs one.
-8  A side on a rounded field stays OPEN until M4 can draw a side (Tony, 2026-11-04). 7 of the 12 side-asking fields are also
-   rounded, and Bot drew sides only when the field was neither rounded nor bordered (Bot/PDF.twk, read, not run).
+   (4, 5, 7 and 8 moved 2026-11-09 under the Drawing steps at the foot of this file: 4 to step 7, 8 to step 9, 7 to step 5,
+   5 to the directions.)
 /*******************************************************************************
 	Typesetting notes -- DRAFT, NOT RULED (2026-11-03)
 *******************************************************************************/
@@ -426,7 +423,29 @@ setFrame IN utilities (Tony, 2026-11-07): tester's fillDownAcross, bothDirection
 
 ORDER (SEQ 533 R1, 2026-11-04, matching macros): := in a define -> the parse-label parent -> M5 colours and fonts -> M3 fill -> M4 stroke, each in its morning slot. Event firing's proof waits on frames (M1), which is not on the order yet. A5 follows. The listener stays parked.
 SECOND RUN, DEFERRED (Tony, 2026-11-07, R0): A or B is not chosen. The first PDF lays out the original form once. How a second run and a resize are addressed is discussed with Clay and comes back as its own dispatch. The PDF steps: docs/firstLightPdfRecon.md, Tony picks the first.
-SECOND-RUN DESIGN (Tony, 2026-11-07, via Clay; build after the first PDF): setFrame takes a request (form plus an optional revised frame), gates only the top field, copies the form, lays out the copy and returns it; the engine keeps the returned layout and on a resize lays out the original again and drops the old. fillDownAcross takes one request group. Full text and the OWED measurement: docs/setFrameSecondRun.md. A returned laid-out copy arrives whole (interpreted, measured).
+    NOW DRAWING STEP 6 (2026-11-09): this item is no longer a separate dispatch; see the Drawing steps at the foot of this file.
+SECOND-RUN DESIGN (Tony, 2026-11-07, via Clay; build after the first PDF): setFrame takes a request (form plus an optional revised frame), gates only the top field, copies the form, lays out the copy and returns it; the engine keeps the returned layout and on a resize lays out the original again and drops the old. fillDownAcross takes one request group. Full text and the OWED measurement: docs/setFrameSecondRun.md. A returned laid-out copy arrives whole (interpreted, measured). It is DRAWING STEP 6 (2026-11-09).
 
 LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expected, and a tag -- form if the incantation needs rearranging, engine if it is drawn wrongly. Clod keeps it current. Items are taken one or two per afternoon session and never fixed inside another stroke.
     (none yet)
+
+DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as IncantForms is worked through; Tony has ideas still to come.
+    1  Fills into one context, the right way up (fill-page; seals 376-377).
+    2  The draw walk: the whole form drawn into its bitmap from kant (draw-walk; seals 389-390).
+    3  Borders: a field's frame or named sides, with a colour (borders; seals 391-392).
+    4  The first PDF: firstLight as IncantForms/PDF/output.pdf (first-pdf; seals 393-394).
+    5  Text -- plain text in a field's frame, wrapped, clipped.
+         Moved here (open question 7, closed 2026-11-04, Tony): text is inset by a fixed default in the text floor (M2), with no attribute until a form needs one.
+    6  setFrame finished -- Tony's 2026-11-07 design: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, and a resize re-runs it from the revised top frame. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (The 2026-11-07 SECOND RUN and SECOND-RUN DESIGN items above point here.)
+    7  Runs inside text -- {style: text}, {name} insertion, a paragraph poured into a field, one fresh layout context per pass, in kant. The first typesetting step.
+         Moved here (open question 4): emphasis inside a paragraph whose style comes from its framing field.
+    8  The descriptions form as a PDF layout test.
+    9  Rounded fields; a side on a rounded field is decided here.
+         Moved here (open question 8, Tony, 2026-11-04): a side on a rounded field stays OPEN until a side can be drawn on one. 7 of the 12 side-asking fields are also rounded, and Bot drew sides only when the field was neither rounded nor bordered (Bot/PDF.twk, read, not run).
+    10 Windows -- assess and plan first; images and field actions come with it.
+  Directions every step keeps (not steps):
+    C++ is only the short drawing floor, one argument per method, until shape C's foreign calls exist.
+    The drawing language moves into kant when the jitter allows.
+         Moved here (open question 5): the drawing language in kant needs multi-argument C++ calls, so it comes after the jitter (A5).
+    Old spellings (border=off ...) are respelled form by form, never as a sweep.
+    The yardstick: each step adds at most one floor method, and prefers retiring to adding.
