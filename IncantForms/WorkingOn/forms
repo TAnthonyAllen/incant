@@ -434,9 +434,10 @@ DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as
     2  The draw walk: the whole form drawn into its bitmap from kant (draw-walk; seals 389-390).
     3  Borders: a field's frame or named sides, with a colour (borders; seals 391-392).
     4  The first PDF: firstLight as IncantForms/PDF/output.pdf (first-pdf; seals 393-394).
-    5  Text -- plain text in a field's frame, wrapped, clipped.
+    5  Text -- plain text in a field's frame, wrapped, clipped. DONE (text-floor, seals 412-413, bought 2026-11-09).
          Moved here (open question 7, closed 2026-11-04, Tony): text is inset by a fixed default in the text floor (M2), with no attribute until a form needs one.
-    5a Alignment (Tony, 2026-11-09, SEQ 582 R4): align=left / center / right inside a field's frame. Step 5 draws left-aligned, so heading and ok (align=center) look left-aligned until 5a.
+    5a Alignment (Tony, 2026-11-09, SEQ 582 R4; SEQ 584): align=left / center / right / justify inside a field's frame, inside the 4-point inset; no align is left; justify stretches every line but the paragraph's last; any other value refuses by name and draws left. Built on branch align (SEQ 584).
+    Layout pass (Tony, 2026-11-09, SEQ 584 R5): build the style in effect left to right once per field, in kant (see THE STYLE IN EFFECT below). Today's lookup (own, style, enclosing) gives the same answers wherever the convention holds.
     6  setFrame finished -- Tony's 2026-11-07 design: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, and a resize re-runs it from the revised top frame. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (The 2026-11-07 SECOND RUN and SECOND-RUN DESIGN items above point here.)
     7  Runs inside text -- {style: text}, {name} insertion, a paragraph poured into a field, one fresh layout context per pass, in kant. The first typesetting step.
          Moved here (open question 4): emphasis inside a paragraph whose style comes from its framing field.
@@ -451,5 +452,11 @@ DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as
     Old spellings (border=off ...) are respelled form by form, never as a sweep.
     The yardstick: each step adds at most one floor method, and prefers retiring to adding.
     A small drawing language: parked design question; may not be needed, and simpler if colour and font stay with styles (Tony, 2026-11-09, SEQ 582 R6).
+  THE STYLE IN EFFECT (Tony, 2026-11-09, SEQ 584 R5):
+    A field starts with a copy of its enclosing field's style.
+    Its attributes are processed left to right, each changing the style in effect; every style attribute inherits this way, align included.
+    By convention style:= comes first on the line, so later attributes override it; a style out of place is the author's mistake.
+    Drawing happens after every attribute is processed: fill, then borders, then text.
+    What is built (a lookup: own, style, enclosing) gives the same answers wherever the convention holds, so no code changes for it now.
   Naming (Tony, 2026-11-09, SEQ 582 R5): form attributes are camelCase, no dashes, no capital last; the qualifier first and the thing last (topBorder, strokeColor, fillColor); a plain name (color, border) is the default case.
   Text (Tony, 2026-11-09, SEQ 582 R0-R3): a field takes font and color from its own attribute, else its style, else its enclosing field, walking up; resolved in kant, and displayText reads only the field it is handed. color falls back to black, and the font to Helvetica 12, when nothing up the chain names one (Tony, 2026-11-09, SEQ 583 R1). An attribute that names a field is spelled := (firstLight: fill:=, font:=). The inset is a fixed 4 points in the text floor.
