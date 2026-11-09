@@ -102,7 +102,7 @@ define
         Operators;
         // keywordLast a Keywords entry fails ANYtoken; this last alternative lets it reach EXPRESSIOn, which refuses it by name (SEQ 579)
         KEYWORd;
-    KEYWORd         NamE@;
+    KEYWORd         NamE;
     // stringParked STRINGXp is out of TOKEn and parked (Tony, SEQ 449 R1, R2): after an expression it took a following `#5d` as a string, so a format there could not reach FORMAt
     STRINGXp        pound-="#" stuff=PRINTXp+ ;
     EXPRESSIOn      lizted=TOKEn+;
@@ -457,12 +457,15 @@ define
         npre = 0;
         while cur.datA != 0;
             // keywordRefused a keyword inside an expression refuses by name and ends the statement: a keyword form is not an expression yet (SEQ 579 R1)
-            kwReg := *cur.registrY;
-            if *kwReg.taG == "Keywords";
-                kwT := *cur.taG;
-                cerr "REFUSED" kwT "-- a keyword inside an expression; a keyword form is not an expression yet":;
-                clear(*actionLabel);
-                return *actionLabel;
+            // keywordShape KEYWORd arrives as a TOKEn whose first entry is its NamE; no other child has that shape
+            if *cur.taG == "TOKEn";
+                if *cur.listLengtH != 0;
+                    kwF := *cur.firsT;
+                    if *kwF.taG == "NamE";
+                        kwT := *kwF.texT;
+                        cerr "REFUSED" kwT "-- a keyword inside an expression; a keyword form is not an expression yet":;
+                        clear(*actionLabel);
+                        return *actionLabel;
             if *cur.instructTypE != 0;
                 // prefixRun a run of prefixes is counted; the operand wraps them innermost first (SEQ 571 R0)
                 if prevOp == 1;
