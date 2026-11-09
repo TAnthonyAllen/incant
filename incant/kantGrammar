@@ -451,9 +451,13 @@ define
     EXPRESSIOn code={
         cur := *lizted.firsT;
         prevOp = 1;
+        npre = 0;
         while cur.datA != 0;
             if *cur.instructTypE != 0;
-                if prevOp == 1;     pre = cur;
+                // prefixRun a run of prefixes is counted; the operand wraps them innermost first (SEQ 571 R0)
+                if prevOp == 1;
+                    pre = cur;
+                    npre = npre + 1;
                 else
                     op      = cur;
                     // tiers (SEQ 434): 1 arithmetic folds at once; 2 compare, 3 logic, 4 assign each wait in their own pending slot
@@ -466,13 +470,21 @@ define
                 prevOp = 0;
                 wrapped = 0;
                 if pre.datA != 0;
-                    if *pre.taG == "-";     pre := Operators["negate"];
-                    or *pre.taG == "*";     pre := Operators["deref"];
-                    instruct    +% pre cur;
-                    // an instruct is known by its method: testOP runs it (SEQ 428)
-                    instruct.methoD = "testOP";
-                    opnd        := copyOf(instruct);
-                    clear(instruct);
+                    // prefixesNest walk back from the operand over the counted run: the nearest prefix wraps first, so - - qv reads 3 (SEQ 571 R0)
+                    opnd := *cur;
+                    pp := *cur.prioR;
+                    while npre > 0;
+                        pOp = pp;
+                        if *pOp.taG == "-";     pOp := Operators["negate"];
+                        or *pOp.taG == "*";     pOp := Operators["deref"];
+                        instruct    +% pOp opnd;
+                        // an instruct is known by its method: testOP runs it (SEQ 428)
+                        instruct.methoD = "testOP";
+                        opnd        := copyOf(instruct);
+                        clear(instruct);
+                        clear(pOp);
+                        pp := *pp.prioR;
+                        npre = npre - 1;
                     clear(pre);
                     wrapped = 1;
                 else    opnd = cur;
