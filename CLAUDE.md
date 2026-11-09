@@ -3473,24 +3473,14 @@ project `.md` files) must read clean to fresh-Claude tomorrow with no
 memory of today. See bible's Working Relationship section for the full
 statement.
 
-### Clay↔Clod walkie-talkie protocol (standing rules, 2026-07-25)
+### Dispatches (standing rules; the walkie-talkie retired 2026-11-09, SEQ 570 R3)
 
-`ipc/clay-to-clod.md` and `ipc/clod-to-clay.md` are the one-way-owned,
-gitignored scratch channel between Clay and Clod (see each file's own header
-for the send/receive mechanics). Three STATUS states, not two: `fresh`
-(parked/unread), `working` (picked up, in progress), `cleared` (done) — the
-same three in both files, so `grep -H '^STATUS:' ipc/*.md` reports the whole
-channel at a glance. That grep is Tony's only window into whether anything
-is stalled, since he is deliberately not in this channel otherwise. Two
-standing rules follow from that:
-
-1. **Set `STATUS=working` the moment you pick a message up, before you start
-   acting on it — not when you finish.** This is what lets Tony tell "parked"
-   from "in progress" with one grep, without anyone remembering to tell him.
-2. **Tell Tony in chat when you act on a walkie-talkie instruction**, unless
-   it's trivial. One specific line citing the SEQ number is enough — e.g.
-   "picked up SEQ 9, starting the macro library" — since he can see you're
-   busy but not always on what.
+**Dispatches arrive PASTED into the session, and are recorded in commits and seals** -- the practice since SEQ 429,
+ruled 2026-11-09 (SEQ 570 R3). `ipc/clay-to-clod.md` and `ipc/clod-to-clay.md` are **retired and deleted**; the last
+commit that holds them is `76e547e9`, so a citation of the form *"clod-to-clay SEQ n"* in a dated record resolves there.
+`docs/walkieTalkie.md` stays as history. ~~The STATUS header, `grep -H '^STATUS:' ipc/*.md`, and polling the file~~ are
+retired with them. **When the dispatch leaves SEQ to Clod, Clod assigns the next number and the seal says so.**
+⚠ The other files under `ipc/` (the forms, skip and support minion channels) are not named by that ruling and stay.
 
 ⚠⚠ **A FORWARDED DISPATCH RULES EXACTLY WHAT ITS `RULINGS` BLOCK SAYS. Tony, standing, 2026-09-28.**
 Every dispatch opens with a `RULINGS` block, **one ruling per line**. **Nothing in the body counts as
@@ -3501,11 +3491,5 @@ agree" -- Clod could not tell ruled from proposed, and had to either guess or st
 that reads like a ruling and is not in the block is a **proposal**; say so rather than act on it.
 
 ⚠⚠ **A DISPATCH THAT TOUCHES GRAMMAR NAMES WHICH GRAMMAR THE CHANGE MUST REACH AND WHERE IT MUST WORK (top level, an action body, a form). Tony, standing, 2026-11-06 (SEQ 552 R5).** Action bodies and forms parse on `incant/grammar`, so a change made only in `incant/kantGrammar` can't be reached there. **If a dispatch doesn't say, ask before building.**
-
-**Poll the file when you finish a unit of work.** Messages have sat `fresh`
-unread across session boundaries more than once (a SEQ 2 from 2026-07-02, three
-questions in `rstuff-chokepoint.md` open since 2026-06-20, a SEQ 7 skipped
-entirely) — the channel mechanics are fine, the polling discipline is what
-lapses. Check it proactively; don't wait to be told something is waiting.
 
 See `projectBible.md` for full glossary, HWF protocol, and ecosystem context.

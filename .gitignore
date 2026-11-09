@@ -74,6 +74,8 @@ XML/WorkingOn/incant++
 # convention is untouched by this, and tracking must never be read as licence
 # to relax it. Commits are batched AT SEAL, not per dispatch. See WT-14a–d in
 # docs/walkieTalkie.md.
+# RETIRED 2026-11-09 (SEQ 570 R3): clay-to-clod.md and clod-to-clay.md are deleted (last held at 76e547e9);
+# the minion channels left under ipc/ are unaffected.
 genLadder/smoke.fleet.base
 
 #  ⚠ TONY'S DAILY WIP -- NEVER FOR ARCHIVING. Untracked 2026-09-02 after R16's

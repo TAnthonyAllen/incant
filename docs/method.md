@@ -14,15 +14,12 @@
 
 The separation is adversarial by construction. Clay's claims must survive Clod's greps because Clay cannot quietly make them true himself. A design seat that can edit the tree will, eventually, confirm its own theories. This one can't.
 
-## 2. The transport — walkie-talkie
+## 2. The transport — pasted dispatches
 
-Full protocol in `docs/walkieTalkie.md`; read it before writing anything into `ipc/`. The essentials:
-
-- **Channel:** `Groups/ipc/clay-to-clod.md` and `ipc/clod-to-clay.md`, sequenced (SEQ n), with a three-state header: fresh / working / cleared.
-- **Asymmetric by nature** (WT-10/13): Clod polls the file; Clay reads only when Tony prompts.
-- **No silent overwrite** (WT-11): every write carries the whole file. This rule has been broken exactly once; the erratum lives in the file it damaged.
-- **Route by class** (WT-9): a brief Clod will *act on* is dictated by Clay and transcribed by Clod — the transcription is a second close reader. Reference docs travel as files, imported directly.
-- **Tony's window:** `grep -H '^STATUS:' ipc/*.md`.
+**Dispatches arrive pasted into Clod's session and are recorded in commits and seals** (since SEQ 429; ruled 2026-11-09,
+SEQ 570 R3). The walkie-talkie files `ipc/clay-to-clod.md` and `ipc/clod-to-clay.md` are retired and deleted; the last
+commit holding them is `76e547e9`. `docs/walkieTalkie.md` is kept as the history of that channel. What survives of it is
+the dispatch shape: a `RULINGS` block, one ruling per line, and nothing in the body counts as ruled unless listed there.
 
 ## 3. The claim discipline
 

@@ -1,3 +1,7 @@
+> ⚠⚠ **RETIRED 2026-11-09 (SEQ 570 R3).** Dispatches arrive pasted and are recorded in commits and seals (since SEQ 429).
+> `ipc/clay-to-clod.md` and `ipc/clod-to-clay.md` are deleted; the last commit that holds them is `76e547e9`. This file is
+> kept as the history of the channel and of the WT rules; nothing below is current practice.
+
 # WALKIE TALKIE — a shared surface for Clay and Clod
 
 *Clay, 2026-07-29, for `docs/walkieTalkie.md`. Written in B0's claim format as a second
