@@ -221,6 +221,20 @@ BLOCk) could lose their hand actions; FOr, ITERATe, BRANCh, the prints,
 SHORTCUt and INVOKEr keep theirs. The hard part is a keyword form in operand
 position (x = if a; 1 else 2), where the ; is ambiguous; today it builds
 nothing, silently.
+  ⚠ DATED 2026-11-09 (SEQ 579): no longer silent -- a keyword inside an expression
+  now refuses by name on the new road and the next statement runs. Keyword forms
+  as expressions stay unruled.
+
+ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
+1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
+   action: a default action is generic (walks the label), so native counts may fall; and one
+   action shared by many rules meets the rule door, which is keyed to the firing rule's own
+   body -- opening it for one may open it for all, or for none.
+2. Can this road simplify the jitter? Hypothesis: once rule actions are defaults, they hold
+   little worth compiling; what is worth compiling is the instruct chain they build -- the
+   new road's jitter walk (S0-S6, "a walk over the finished chain"). If so, the rule door is a
+   bridge, not the destination: chains compiled op by op, one emitter per operator, instead
+   of rule actions compiled one at a time. To be measured as the road goes, rule by rule.
 
 /*******************************************************************************
 	Open questions
