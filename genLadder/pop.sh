@@ -1037,6 +1037,32 @@ _rirun cfI "" "$_ris"; _rirun cfC "$_riArm" "$_ris"
 _ofeq "ruleIfT the anti-vacuity sibling: a clean fire adopts its ifThen instruct, interpreted | compiled" "$(grep -c 'ifThen' "$T/ri.cfI.o") | $(grep -c 'ifThen' "$T/ri.cfC.o")" "1 | 1"
 else echo "  FAIL  ruleIfT MISSING"; fail=1; fi
 
+#  ⚑ chainCmpT -- SEQ 570 (Tony, 2026-11-09): a chained comparison refuses by name on the NEW road (kantGrammar's EXPRESSIOn), as the
+#  old road does (SEQ 318 R1; its rows are exprPinT E2's, unmoved). Interpreted only (F-151). One process per row: exit and sentinel (the
+#  next statement runs), the value (fdRow, today beside intended), and the chain-refusal line counted by name. Controls want no REFUSED line.
+_ccF=$(ip chainCmpT)
+_ccrun () {  # name  statements
+    { cat "$T/cc.pre"; printf '%s\nprint "NEXT":;\ncerr "CC SENTINEL":;\nstop();\n' "$2"; } > "$T/cc.$1.k"
+    perl -e 'alarm 30; exec @ARGV' "$B" "$T/cc.$1.k" > "$T/cc.$1.o" 2> "$T/cc.$1.e"; echo $? > "$T/cc.$1.x"
+}
+if [ -f "$_ccF" ]; then
+sed '/^stop();/,$d' "$_ccF" > "$T/cc.pre"
+grep '^CC-[0-9A-Z]*\^' "$_ccF" > "$T/cc.list"
+_ccn=0
+while IFS='^' read -r _id _ref _st _today _int; do
+    _ccn=$((_ccn+1))
+    _ccrun "$_id" "$_st"
+    _ofeq "chainCmpT $_id exit, sentinel (the next statement runs)" "$(cat "$T/cc.$_id.x") $(grep -c '^CC SENTINEL' "$T/cc.$_id.e")" "0 1"
+    fdRow "chainCmpT $_id value" "$(_rdv "$T/cc.$_id.o")" "${_today}NEXT |" "${_int}NEXT |"
+    if [ -n "$_ref" ]; then
+        fdRow "chainCmpT $_id refused by name as a chained comparison, naming $_ref" "$(grep -c "^REFUSED $_ref -- a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)" "$T/cc.$_id.e")" "0" "1"
+    else
+        _ofeq "chainCmpT $_id control: no REFUSED line" "$(grep -c '^REFUSED' "$T/cc.$_id.e")" "0"
+    fi
+done < "$T/cc.list"
+_ofeq "chainCmpT rows ran (13 of 13)" "$_ccn" "13"
+else echo "  FAIL  chainCmpT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today

@@ -1,0 +1,72 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ChainCmpT);
+define
+    chReq owner source result rule;
+    it1;
+    qa=2;
+    qb=10;
+    qc=3;
+    qr="untouched";
+    chNew code={
+        chSrc := argument.CodE;
+        chReq.owner  := argument;
+        chReq.source := chSrc;
+        chReq.rule   := KantGrammar["STARt"];
+        if compileIn(chReq);
+            chBlock = chReq.result;
+            *chBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *chBlock;
+        };
+    chRP code={ print "[" 7 #5d "]":; };
+    chA code={ qr = qa < qb < qc; print "CH in" qr:; };
+    chK code={ qr = qa < qb && qb < qc; print "CH in" qr:; };
+    ;
+search ChainCmpT Utilities UnitTests list;
+stop();
+
+chainCmpT -- SEQ 570 (Tony, 2026-11-09): a chained comparison (a < b < c) refuses by name on the NEW road (kantGrammar's
+EXPRESSIOn), as the old road already does (SEQ 318 R1, exprPinT E2). Rows prefixed CC-. INTERPRETED ONLY: EXPRESSIOn does
+not run compiled yet (F-151), so no row here has a compiled arm.
+
+Not run alone: pop.sh builds each row, everything above this stop(); then the row, then print "NEXT" and a sentinel, one
+process per row under an alarm. Each row reads exit and sentinel (the next statement runs); the printed value; and the
+count of the chain-refusal line by name -- the old road's wording, "REFUSED <first comparison> -- a chained comparison
+(a < b < c) -- refused by name (SEQ 318 R1)". The old road's refuse() appends " [line N]"; the new road's cerr does not.
+
+qa 2, qb 10, qc 3, so a first comparison yields 0 or 1 and any "< qc" after it reads 1 whatever the operator: today every
+chain row reads 1, silently. A refused statement does nothing, so qr keeps "untouched".
+
+The operator rows put each compareTier operator FIRST (the refusal names the first comparison): the six of R4 plus ~= and
+IN, which also carry compareTier. CC-A is the second reach, an action body built through kantGrammar by compileIn with
+STARt (newLocalT's shape); its chRP line proves that road ([ 7 ] is the new road's binding). CC-K1, CC-K2 and CC-KA are controls
+that must not move: one comparison, and two joined by &&, at the top level and in an action. The old road's control is
+exprPinT E2, pinned in its own block.
+
+ROWS, separated by ^ -- id ^ refusal name, empty for a control ^ statement ^ value today ^ value intended (each value as pop.sh reads it, lines joined by |, before NEXT)
+CC-1^<^it1 = STARt("qr = qa < qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-2^>^it1 = STARt("qr = qa > qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-3^<=^it1 = STARt("qr = qa <= qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-4^>=^it1 = STARt("qr = qa >= qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-5^==^it1 = STARt("qr = qa == qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-6^!=^it1 = STARt("qr = qa != qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-7^~=^it1 = STARt("qr = qa ~= qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-8^IN^it1 = STARt("qr = qa IN qb < qc;"); testOP(it1); print qr:;^1 |^untouched |
+CC-P^<^it1 = STARt("print qa < qb < qc:;"); testOP(it1);^1 |^
+CC-A^<^chNew(chRP); chNew(chA); chRP(); chA(); print qr:;^[ 7 ] |CH in 1 |1 |^[ 7 ] |CH in untouched |untouched |
+CC-K1^^it1 = STARt("qr = qa < qb;"); testOP(it1); print qr:;^1 |^1 |
+CC-K2^^it1 = STARt("qr = qa < qb && qb < qc;"); testOP(it1); print qr:;^0 |^0 |
+CC-KA^^chNew(chRP); chNew(chK); chRP(); chK(); print qr:;^[ 7 ] |CH in 0 |0 |^[ 7 ] |CH in 0 |0 |
