@@ -998,6 +998,45 @@ _rfrun cfI "" "$_rfs"; _rfrun cfC "jitterRule(FOr);" "$_rfs"
 _ofeq "ruleForT the anti-vacuity sibling: a clean fire does adopt its built instruct, interpreted | compiled" "$(grep -c 'length 3 *instruct\|instruct' "$T/rf.cfI.o" | sed 's/^[1-9][0-9]*$/some/') | $(grep -c 'instruct' "$T/rf.cfC.o" | sed 's/^[1-9][0-9]*$/some/')" "some | some"
 fi
 
+#  ⚑ ruleIfT -- SEQ 569 (Tony, 2026-11-09): If compiled through the rule door, ruleForT's shape. Per row one process interpreted and one
+#  on the compiled arm, by value, by exit and sentinel, stdout and stderr compared (witnesses aside, and NO filter for F-146's deleted guard
+#  line, so its absence is measured), with the walk line (native 5 handed 10, registered in the fixture before any run) and the fired count.
+#  _riArm is the compiled arm's opt-in line. Pinned on trunk with it EMPTY (the door shut): the door and walk rows are born red, intended
+#  as written; branch rule-if sets it to jitterRule(If); (R4).
+_riArm=""
+_riF=$(ip ruleIfT)
+_rie () { grep -v '^=== jitter rule\|^RI SENTINEL\|^ *$' "$1" | tr '\n' '|'; }
+_rirun () {  # name  arm-line  statements
+    { cat "$T/ri.pre"; [ -n "$2" ] && printf '%s\n' "$2"; printf '%s\nprint "NEXT":;\ncerr "RI SENTINEL":;\nstop();\n' "$3"; } > "$T/ri.$1.k"
+    perl -e 'alarm 30; exec @ARGV' "$B" "$T/ri.$1.k" > "$T/ri.$1.o" 2> "$T/ri.$1.e"; echo $? > "$T/ri.$1.x"
+}
+if [ -f "$_riF" ]; then
+sed '/^stop();/,$d' "$_riF" > "$T/ri.pre"
+grep '^RI-[0-9A-Z]*|' "$_riF" > "$T/ri.list"
+_rin=0
+while IFS='|' read -r _id _f _ref _st _pin; do
+    _rin=$((_rin+1)); _pin="${_pin%|}"; [ -n "$_pin" ] && _pin="$_pin|"
+    _rirun "$_id.i" "" "$_st"
+    _rirun "$_id.c" "$_riArm" "$_st"
+    _ofeq "ruleIfT $_id interpreted exit, sentinel" "$(cat "$T/ri.$_id.i.x") $(grep -c '^RI SENTINEL' "$T/ri.$_id.i.e")" "0 1"
+    _ofeq "ruleIfT $_id compiled exit, sentinel" "$(cat "$T/ri.$_id.c.x") $(grep -c '^RI SENTINEL' "$T/ri.$_id.c.e")" "0 1"
+    _ofeq "ruleIfT $_id interpreted value" "$(_rdv "$T/ri.$_id.i.o")" "${_pin}NEXT |"
+    _ofeq "ruleIfT $_id compiled = interpreted, stdout" "$(_rdv "$T/ri.$_id.c.o")" "$(_rdv "$T/ri.$_id.i.o")"
+    _ofeq "ruleIfT $_id compiled = interpreted, stderr" "$(_rie "$T/ri.$_id.c.e")" "$(_rie "$T/ri.$_id.i.e")"
+    fdRow "ruleIfT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: If built 1 fired $_f ===" "$T/ri.$_id.c.e")" "0" "1"
+    fdRow "ruleIfT $_id old-road walk line: native 5 handed 10" "$(grep -c '^=== jitter rule walk: If native 5 handed 10 ===' "$T/ri.$_id.c.e")" "0" "1"
+    if [ -n "$_ref" ]; then _ofeq "ruleIfT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/ri.$_id.i.e") $(grep -c "^$_ref" "$T/ri.$_id.c.e")" "1 1"; fi
+done < "$T/ri.list"
+_ofeq "ruleIfT rows ran (14 of 14)" "$_rin" "14"
+#  what the fire ADOPTS when the condition refuses: nothing, on both arms; and its anti-vacuity sibling, a clean fire adopts its ifThen instruct
+_ris='it1 = "untouched"; it1 = If("if qa qb + 1; print 1:;"); dumpContents(it1);'
+_rirun adI "" "$_ris"; _rirun adC "$_riArm" "$_ris"
+_ofeq "ruleIfT RI-C adopts nothing: ifThen in the label, interpreted | compiled" "$(grep -c 'ifThen' "$T/ri.adI.o") | $(grep -c 'ifThen' "$T/ri.adC.o")" "0 | 0"
+_ris='it1 = "untouched"; it1 = If("if qa == 2; print 1:;"); dumpContents(it1);'
+_rirun cfI "" "$_ris"; _rirun cfC "$_riArm" "$_ris"
+_ofeq "ruleIfT the anti-vacuity sibling: a clean fire adopts its ifThen instruct, interpreted | compiled" "$(grep -c 'ifThen' "$T/ri.cfI.o") | $(grep -c 'ifThen' "$T/ri.cfC.o")" "1 | 1"
+else echo "  FAIL  ruleIfT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today
