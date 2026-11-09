@@ -269,9 +269,33 @@ fdRow "textT TX-C2 tOver's own color:=blue (pair: TX-C1)" "$(_txTrace tOver colo
 fdRow "textT TX-C3 tLong inherits tForm's color:=red" "$(_txTrace tLong color)" "" "r239 g43 b45"
 fdRow "textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green)" "$(_txTrace tStyled font) $(_txTrace tStyled color)" " " "Palatino 24 1 r0 g158 b15"
 fdRow "textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end)" "$(_txTrace tOver lines) / $(_txTrace tLong lines)" "  /  " "2 space / 1 end"
-fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled, then tPlain (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tPlain" "heading words ok tOver tLong tStyled tPlain"
+#  RE-PIN (SEQ 584): textT gained tRight, tKid, tKidL, tBad for step 5a, so the call list grows by those four; nothing else changed.
+fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, then tPlain (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tPlain" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tPlain"
 fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^displayText: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "heading tOver tLong" "tOver tLong"
-_ofeq "textT no refusal" "$(grep -c 'REFUS' "$T/tx.e")" "0"
+#  ⚑ STEP 5a, ALIGNMENT (Tony, 2026-11-09, SEQ 584). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value (everything
+#  draws left), the intended beside it. TOLERANCES: centred = the ink's distances to the frame's two edges differ by at most 2 px; at the
+#  edge = the last ink within 2 px of the frame edge less the 4-point inset; left = the first ink at most 6 px inside the frame edge.
+#  _txCentre <file> <tag> <box x0 x1 y0 y1> <bg> <frame left> <frame right>
+_txCentre () { _l=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" minx); _r=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" maxx)
+    if [ "$_l" = none ]; then echo none; return; fi
+    _dl=$(( _l - $8 )); _dr=$(( $9 - _r )); _d=$(( _dl > _dr ? _dl - _dr : _dr - _dl ))
+    [ $_d -le 2 ] && echo centred || echo "off $_dl $_dr"; }
+#  _txEdge <file> <tag> <box> <bg> <edge less inset>: the last ink within 2 px of it
+_txEdge () { _r=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" maxx); if [ "$_r" = none ]; then echo none; elif [ $_r -ge $(( $8 - 2 )) ] && [ $_r -le $8 ]; then echo edge; else echo short; fi; }
+#  _txLeft <file> <tag> <box> <bg> <frame left>: the first ink at most 6 px in
+_txLeft () { _l=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" minx); if [ "$_l" = none ]; then echo none; elif [ $_l -le $(( $8 + 6 )) ]; then echo left; else echo "in $(( _l - $8 ))"; fi; }
+#  _alClasses <file> <tag>: heading centred, words line 1, line 2, line 3 (justify: edge edge short)
+_alClasses () { echo "$(_txCentre "$1" "$2" 0 399 10 28 "$_txWall" 0 399) $(_txEdge "$1" "$2" 300 399 49 60 "$_txWhite" 395) $(_txEdge "$1" "$2" 300 399 64 75 "$_txWhite" 395) $(_txEdge "$1" "$2" 0 399 80 90 "$_txWhite" 395)"; }
+fdRow "textT AL-1 CENTER: heading's ink centred in its frame (x 0..399, y 10..28)" "$(_txCentre "$T/tx.o" firstLight 0 399 10 28 "$_txWall" 0 399)" "off 4 282" "centred"
+fdRow "textT AL-2 CENTER: ok's ink centred in its frame (x 340..399; scanned 342..397, y 168..196)" "$(_txCentre "$T/tx.o" firstLight 342 397 168 196 "$_txGreen" 340 399)" "off 4 34" "centred"
+fdRow "textT AL-3 JUSTIFY: words' lines 1 and 2 end at x 395 (396 less a pixel), line 3, the last, does not" "$(_txEdge "$T/tx.o" firstLight 300 399 49 60 "$_txWhite" 395) $(_txEdge "$T/tx.o" firstLight 300 399 64 75 "$_txWhite" 395) $(_txEdge "$T/tx.o" firstLight 0 399 80 90 "$_txWhite" 395)" "short short short" "edge edge short"
+fdRow "textT AL-4 RIGHT: tRight's last ink at its frame edge less the inset, x 185 (190 - 4, less a pixel)" "$(_txEdge "$T/tx.o" tForm 140 189 64 85 "$_txBlue" 185)" "short" "edge"
+fdRow "textT AL-5 LEFT: tOver, no align, draws as before -- first ink within 6 of x 10" "$(_txLeft "$T/tx.o" tForm 10 40 15 28 "$_txBlue" 10)" "left" "left"
+fdRow "textT AL-6 INHERIT: tKid (no align) centred under tCenterTop; tKidL (style align=left) left; tBad (align=leftl) left" "$(_txCentre "$T/tx.o" tCenterTop 0 119 5 26 "$_txWhite" 0 119) $(_txLeft "$T/tx.o" tCenterTop 0 119 35 56 "$_txWhite" 0) $(_txLeft "$T/tx.o" tCenterTop 0 119 65 86 "$_txWhite" 0)" "off 4 99 left left" "centred left left"
+fdRow "textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left" "$(grep -c "^displayText: REFUSING tBad's align=leftl" "$T/tx.e")" "0" "1"
+fdRow "textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad" "$(for _f in heading words ok tRight tKid tKidL tBad; do grep -h "^=== displayText $_f " "$T/tx.o" | head -1 | sed -n 's/.* align \([a-z]*\) ===$/\1/p'; done | xargs)" "" "center justify center right center left left"
+#  "no refusal" counts every refusal but AL-7's, which is expected (SEQ 584): the row's question is unchanged
+_ofeq "textT no refusal" "$(grep 'REFUS' "$T/tx.e" | grep -vc "align=leftl")" "0"
 #  ⚑ textTopT (SEQ 583): a top's text slot holds its display (the pointer / text union), so a top's own text is not drawable; displayText
 #  read the context's bytes as text and threw (exit 134). Pinned: refused by name, exit 0.
 _ttF=$(ip textTopT)
@@ -302,6 +326,9 @@ fdRow "firstPdfT PD-4 read back, the right way up: (5,44) white, (5,166) wall" "
 #  PD-5 (forms step 5, SEQ 582): the text read back at textT's firstLight points, classified as textT's bitmap is; the PDF agrees with the bitmap.
 fdRow "firstPdfT PD-5 the text read back: heading, words line 1, line 2, no indent, orientation, ok" "$(_txClasses "$T/pd.o" pdfRead)" "none ink ink flush flipped ink" "ink ink ink flush upright ink"
 _ofeq "firstPdfT PD-6 the PDF agrees with the bitmap on the same points (textT's classes)" "$(_txClasses "$T/pd.o" pdfRead)" "$(_txClasses "$T/tx.o" firstLight)"
+#  PD-7 / PD-8 (step 5a, SEQ 584): heading centred and words justified, read back from the PDF at textT's AL points; the PDF agrees with the bitmap.
+fdRow "firstPdfT PD-7 the read-back: heading centred, words lines 1 and 2 at the edge, line 3 short" "$(_alClasses "$T/pd.o" pdfRead)" "off 4 282 short short short" "centred edge edge short"
+_ofeq "firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify points" "$(_alClasses "$T/pd.o" pdfRead)" "$(_alClasses "$T/tx.o" firstLight)"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do

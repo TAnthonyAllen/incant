@@ -74,6 +74,11 @@ fpdY = 70; fpdRow(pdfRead);
 fpdX0 = 0; fpdX1 = 30; fpdY0 = 49; fpdY1 = 59; fpdBand(pdfRead);
 fpdY0 = 64; fpdY1 = 74; fpdBand(pdfRead);
 fpdY = 176; fpdX0 = 342; fpdX1 = 398; fpdRow(pdfRead);
+cerr "PD-7 step 5a, the read-back at textT's AL points: heading y 10..28 x 0..399; words line 1 y 49..60 and line 2 y 64..75 x 300..399, line 3 y 80..90 x 0..399":;
+fpdX0 = 0; fpdX1 = 400; fpdY0 = 10; fpdY1 = 29; fpdBand(pdfRead);
+fpdX0 = 300; fpdY0 = 49; fpdY1 = 61; fpdBand(pdfRead);
+fpdY0 = 64; fpdY1 = 76; fpdBand(pdfRead);
+fpdX0 = 0; fpdY0 = 80; fpdY1 = 91; fpdBand(pdfRead);
 cerr "FIRSTPDF SENTINEL":;
 stop();
 
