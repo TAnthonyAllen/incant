@@ -1063,6 +1063,26 @@ done < "$T/cc.list"
 _ofeq "chainCmpT rows ran (13 of 13)" "$_ccn" "13"
 else echo "  FAIL  chainCmpT MISSING"; fail=1; fi
 
+#  ⚑ prefixNestT -- SEQ 571 (Tony, 2026-11-09): stacked prefixes nest inside-out on the NEW road (kantGrammar EXPRESSIOn), as on the
+#  old road. One process; per row the old road (the reference, pinned unmoved), the new road at top level and in an action built through
+#  kantGrammar (fdRow, today beside intended = the old road's value). Interpreted only (F-151).
+_pnF=$(ip prefixNestT)
+if [ -f "$_pnF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_pnF" > "$T/pn.o" 2> "$T/pn.e"; echo $? > "$T/pn.x"
+_ofeq "prefixNestT exit, sentinel, stderr empty" "$(cat "$T/pn.x") $(grep -c '^PN SENTINEL' "$T/pn.o") $(wc -c < "$T/pn.e" | tr -d ' ')" "0 1 0"
+_ofeq "prefixNestT road proof: the act column is built on the new road" "$(grep '^PN RP' "$T/pn.o" | sed 's/ *$//')" "PN RP [ 7 ]"
+_pnv () { grep "^$1 $2 " "$T/pn.o" | head -1 | sed "s/^$1 $2 //; s/ *\$//"; }
+grep '^PN-[0-9A-Z]*\^' "$_pnF" > "$T/pn.list"
+_pnn=0
+while IFS='^' read -r _id _ex _old _today; do
+    _pnn=$((_pnn+1))
+    _ofeq "prefixNestT $_id old road: $_ex" "$(_pnv "$_id" old)" "$_old"
+    fdRow "prefixNestT $_id new road, top level: $_ex" "$(_pnv "$_id" top)" "$_today" "$_old"
+    fdRow "prefixNestT $_id new road, action body: $_ex" "$(_pnv "$_id" act)" "$_today" "$_old"
+done < "$T/pn.list"
+_ofeq "prefixNestT rows ran (16 of 16)" "$_pnn" "16"
+else echo "  FAIL  prefixNestT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today

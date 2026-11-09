@@ -1,0 +1,172 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(PrefixNestT);
+define
+    pnReq owner source result rule;
+    it1;
+    qv=3;
+    qa=10;
+    qb=4;
+    x0=0;
+    x5=5;
+    nv=7;
+    h;
+    r;
+    pnNew code={
+        pnSrc := argument.CodE;
+        pnReq.owner  := argument;
+        pnReq.source := pnSrc;
+        pnReq.rule   := KantGrammar["STARt"];
+        if compileIn(pnReq);
+            pnBlock = pnReq.result;
+            *pnBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *pnBlock;
+        };
+    pnRP code={ print "PN RP" "[" 7 #5d "]":; };
+    pnO1 code={ r = "pre"; r = - - qv; print "PN-1 old" r:; };
+    pnA1 code={ r = "pre"; r = - - qv; print "PN-1 act" r:; };
+    pnO2 code={ r = "pre"; r = ! ! x0; print "PN-2 old" r:; };
+    pnA2 code={ r = "pre"; r = ! ! x0; print "PN-2 act" r:; };
+    pnO3 code={ r = "pre"; r = ! ! x5; print "PN-3 old" r:; };
+    pnA3 code={ r = "pre"; r = ! ! x5; print "PN-3 act" r:; };
+    pnO4 code={ r = "pre"; r = - ! x0; print "PN-4 old" r:; };
+    pnA4 code={ r = "pre"; r = - ! x0; print "PN-4 act" r:; };
+    pnO5 code={ r = "pre"; r = ! - x0; print "PN-5 old" r:; };
+    pnA5 code={ r = "pre"; r = ! - x0; print "PN-5 act" r:; };
+    pnO6 code={ r = "pre"; r = ! - qv; print "PN-6 old" r:; };
+    pnA6 code={ r = "pre"; r = ! - qv; print "PN-6 act" r:; };
+    pnO7 code={ r = "pre"; r = - - - qv; print "PN-7 old" r:; };
+    pnA7 code={ r = "pre"; r = - - - qv; print "PN-7 act" r:; };
+    pnO8 code={ r = "pre"; r = - - - - qv; print "PN-8 old" r:; };
+    pnA8 code={ r = "pre"; r = - - - - qv; print "PN-8 act" r:; };
+    pnO9 code={ r = "pre"; r = - - - ! x0; print "PN-9 old" r:; };
+    pnA9 code={ r = "pre"; r = - - - ! x0; print "PN-9 act" r:; };
+    pnO10 code={ r = "pre"; r = ! ! ! x0; print "PN-10 old" r:; };
+    pnA10 code={ r = "pre"; r = ! ! ! x0; print "PN-10 act" r:; };
+    pnO11 code={ r = "pre"; r = - * h; print "PN-11 old" r:; };
+    pnA11 code={ r = "pre"; r = - * h; print "PN-11 act" r:; };
+    pnO12 code={ r = "pre"; r = - qv; print "PN-K1 old" r:; };
+    pnA12 code={ r = "pre"; r = - qv; print "PN-K1 act" r:; };
+    pnO13 code={ r = "pre"; r = ! x0; print "PN-K2 old" r:; };
+    pnA13 code={ r = "pre"; r = ! x0; print "PN-K2 act" r:; };
+    pnO14 code={ r = "pre"; r = qa - - qb; print "PN-K3 old" r:; };
+    pnA14 code={ r = "pre"; r = qa - - qb; print "PN-K3 act" r:; };
+    pnO15 code={ r = "pre"; r = qa - qb; print "PN-K4 old" r:; };
+    pnA15 code={ r = "pre"; r = qa - qb; print "PN-K4 act" r:; };
+    pnO16 code={ r = "pre"; r = * h; print "PN-K5 old" r:; };
+    pnA16 code={ r = "pre"; r = * h; print "PN-K5 act" r:; };
+    ;
+search PrefixNestT Utilities UnitTests list;
+h := nv;
+pnNew(pnRP);
+pnRP();
+pnO1();
+r = "pre"; it1 = STARt("r = - - qv;"); testOP(it1); print "PN-1 top" r:;
+pnNew(pnA1);
+pnA1();
+pnO2();
+r = "pre"; it1 = STARt("r = ! ! x0;"); testOP(it1); print "PN-2 top" r:;
+pnNew(pnA2);
+pnA2();
+pnO3();
+r = "pre"; it1 = STARt("r = ! ! x5;"); testOP(it1); print "PN-3 top" r:;
+pnNew(pnA3);
+pnA3();
+pnO4();
+r = "pre"; it1 = STARt("r = - ! x0;"); testOP(it1); print "PN-4 top" r:;
+pnNew(pnA4);
+pnA4();
+pnO5();
+r = "pre"; it1 = STARt("r = ! - x0;"); testOP(it1); print "PN-5 top" r:;
+pnNew(pnA5);
+pnA5();
+pnO6();
+r = "pre"; it1 = STARt("r = ! - qv;"); testOP(it1); print "PN-6 top" r:;
+pnNew(pnA6);
+pnA6();
+pnO7();
+r = "pre"; it1 = STARt("r = - - - qv;"); testOP(it1); print "PN-7 top" r:;
+pnNew(pnA7);
+pnA7();
+pnO8();
+r = "pre"; it1 = STARt("r = - - - - qv;"); testOP(it1); print "PN-8 top" r:;
+pnNew(pnA8);
+pnA8();
+pnO9();
+r = "pre"; it1 = STARt("r = - - - ! x0;"); testOP(it1); print "PN-9 top" r:;
+pnNew(pnA9);
+pnA9();
+pnO10();
+r = "pre"; it1 = STARt("r = ! ! ! x0;"); testOP(it1); print "PN-10 top" r:;
+pnNew(pnA10);
+pnA10();
+pnO11();
+r = "pre"; it1 = STARt("r = - * h;"); testOP(it1); print "PN-11 top" r:;
+pnNew(pnA11);
+pnA11();
+pnO12();
+r = "pre"; it1 = STARt("r = - qv;"); testOP(it1); print "PN-K1 top" r:;
+pnNew(pnA12);
+pnA12();
+pnO13();
+r = "pre"; it1 = STARt("r = ! x0;"); testOP(it1); print "PN-K2 top" r:;
+pnNew(pnA13);
+pnA13();
+pnO14();
+r = "pre"; it1 = STARt("r = qa - - qb;"); testOP(it1); print "PN-K3 top" r:;
+pnNew(pnA14);
+pnA14();
+pnO15();
+r = "pre"; it1 = STARt("r = qa - qb;"); testOP(it1); print "PN-K4 top" r:;
+pnNew(pnA15);
+pnA15();
+pnO16();
+r = "pre"; it1 = STARt("r = * h;"); testOP(it1); print "PN-K5 top" r:;
+pnNew(pnA16);
+pnA16();
+print "PN SENTINEL":;
+stop();
+
+prefixNestT -- SEQ 571 (Tony, 2026-11-09): stacked prefix operators nest on the NEW road (kantGrammar EXPRESSIOn), inside-out, as
+many as are written, as on the old road. Rows prefixed PN-. Interpreted only (EXPRESSIOn does not run compiled yet, F-151).
+
+One process. Each row prints three lines: "old" -- an incant/grammar action, the old road, the reference and pinned unmoved;
+"top" -- STARt at the top level, new road; "act" -- an action body built through kantGrammar by compileIn with STARt (the PN RP line
+proves that road: [ 7 ] is the new road's binding). r is reset to "pre" before each, so a statement that wrote nothing reads pre.
+qv 3, qa 10, qb 4, x0 0, x5 5, h := nv (7). A FALSE result carries no data on both roads, so it prints r's own tag, "r": the
+language's false (! x5 and x5 == 4 read alike), not a defect; PN-2 and PN-6 pin it, each paired with a non-zero sibling.
+
+Today the new road keeps ONLY THE LAST prefix of a run. PN-7 (- - - qv) is the dispatch's three-deep row and does not discriminate
+(the last prefix alone also gives -3); PN-8 and PN-9 do. PN-11 stacks a deref (* is a prefix too, remapped to deref; - to negate;
+any other operator in prefix position stays itself). PN-K1..K5 are controls: a single prefix, and a prefix on a binary operand.
+
+ROWS, separated by ^ -- id ^ expression ^ old-road value (intended on the new road) ^ new road today (measured 2026-11-09, top and act alike)
+PN-1^- - qv^3^-3
+PN-2^! ! x0^r^1
+PN-3^! ! x5^1^r
+PN-4^- ! x0^-1^1
+PN-5^! - x0^1^0
+PN-6^! - qv^r^-3
+PN-7^- - - qv^-3^-3
+PN-8^- - - - qv^3^-3
+PN-9^- - - ! x0^-1^1
+PN-10^! ! ! x0^1^1
+PN-11^- * h^-7^7
+PN-K1^- qv^-3^-3
+PN-K2^! x0^1^1
+PN-K3^qa - - qb^14^14
+PN-K4^qa - qb^6^6
+PN-K5^* h^7^7
