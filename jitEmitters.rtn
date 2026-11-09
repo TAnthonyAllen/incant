@@ -1285,6 +1285,29 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
         gJitResult = nullptr;
         return target;
     }
+    //  untypedSource a named field the build cannot type -- not computed, not in the frame, neither a count nor a number -- may
+    //  hold a GROUP at run time (a holder written in an arm that hands over at build); assign it at run time as opAssign does, so
+    //  the group crosses, never store its pointer bits as a count (F-151, SEQ 575)
+    {
+        GroupBody *ub = argument->groupBody;
+        bool uFrame = jitFrameFind((void*)&(ub->gCount)) || jitFrameFind((void*)&(ub->gNumber));
+        if (!argument->jitData->computed && !uFrame && !isCOUNT(ub->flags.data) && !isNUMBER(ub->flags.data)) {
+            llvm::IRBuilder<> *ux = gJitBuilder;
+            llvm::LLVMContext &uctx = ux->getContext();
+            llvm::Type *uptr = llvm::PointerType::getUnqual(uctx);
+            llvm::Type *ui64 = llvm::Type::getInt64Ty(uctx);
+            auto ubake = [&](void *p, const char *nm) { return ux->CreateIntToPtr(llvm::ConstantInt::get(ui64, (uint64_t)p), uptr, nm); };
+            ux->CreateCall(llvm::FunctionType::get(uptr, {uptr, uptr}, false), ubake((void*)&jitAssignNodeRT, "untypedFn"),
+                {ubake((void*)argument, "untypedSrc"), ubake((void*)target, "untypedTgt")}, "untypedAssign");
+            gJitLastIsNode = false;
+            gJitFieldResident.insert((void*)target->groupBody);
+            GroupBody    *utb = target->groupBody;
+            JitFrameSlot *ufs = jitFrameFind((void*)&(utb->gCount));
+            if (!ufs)     ufs = jitFrameFind((void*)&(utb->gNumber));
+            if (ufs) ux->CreateStore(ux->CreateLoad(ufs->ty, ubake(ufs->home, "untypedHome"), "untypedReload"), ufs->slot);
+            return target;
+        }
+    }
     llvm::IRBuilder<> *b = gJitBuilder;
     // Plain `=`: pure store-back of the source operand's SSA value into the
     // target's slot. No arithmetic.
