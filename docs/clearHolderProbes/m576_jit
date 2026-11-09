@@ -1,0 +1,25 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(ClrJ);
+define
+    jT1="j1"; jT2="j2"; jT3="j3"; jT4="j4"; jp1="jp";
+    jH1; jH2; jH3;
+    jAfter code={ clear(jH1); clear(jp1); };
+    jOwn code={ jH2 := jT2; clear(jH2); };
+    jStar code={ clear(*jH3); };
+    ;
+search ClrJ UnitTests Utilities list;
+jitter;
+jH1 := jT1;
+jAfter();
+print "JC-H  compiled action built after the bind: clear(h) target" jT1 "holder isGrouP" jH1.isGrouP:;
+print "JC-P  compiled action: clear(plain)" jp1:;
+jOwn();
+print "JC-HB compiled action, bound in the action: target" jT2 "holder isGrouP" jH2.isGrouP:;
+jH3 := jT3;
+jStar();
+print "JC-S  compiled action: clear(*h) target" jT3 "holder isGrouP" jH3.isGrouP:;
+print "J SENTINEL":;
+stop();

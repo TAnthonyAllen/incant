@@ -1,0 +1,28 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(RuleExprT);
+define
+    qa=2;
+    qb=3;
+    qc=1;
+    qr;
+    it1;
+    fId code={ return argument; };
+    ;
+search RuleExprT Utilities UnitTests list;
+jitterRule(EXPRESSIOn);
+qr = "pre"; it1 = STARt("qr = - qb;"); testOP(it1); print "qr = - qb; ->" qr:;
+qr = "pre"; it1 = STARt("qr = - qa;"); testOP(it1); print "qr = - qa; ->" qr:;
+qr = "pre"; it1 = STARt("qr = qa - qb;"); testOP(it1); print "qr = qa - qb; ->" qr:;
+qr = "pre"; it1 = STARt("qr = qa < qb;"); testOP(it1); print "qr = qa < qb; ->" qr:;
+qr = "pre"; it1 = STARt("qr = qb < qa;"); testOP(it1); print "qr = qb < qa; ->" qr:;
+qr = "pre"; it1 = STARt("qr = * qa;"); testOP(it1); print "qr = * qa; ->" qr:;
+stop();

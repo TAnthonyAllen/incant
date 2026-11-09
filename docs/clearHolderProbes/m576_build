@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(ClrB);
+define
+    zT1="early"; zT2="late";
+    zH1; zH2;
+    clrEarly code={ clear(zH1); };
+    clrLate code={ clear(zH2); };
+    ;
+search ClrB UnitTests Utilities list;
+clrEarly();
+zH1 := zT1;
+zH2 := zT2;
+clrEarly();
+clrLate();
+print "Z1 built BEFORE the bind, cleared after: target" zT1 "holder isGrouP" zH1.isGrouP:;
+print "Z2 built AFTER the bind:                  target" zT2 "holder isGrouP" zH2.isGrouP:;
+print "Z SENTINEL":;
+stop();

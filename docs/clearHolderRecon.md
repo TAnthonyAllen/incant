@@ -112,3 +112,58 @@ CC-6) and refuses `it1 -- not an instruct`, so the new-road probes use `bump(1)`
 
 At top level, `hA := tgtA` on a name **declared nowhere** left `hA.isGrouP` reading 0; `clear(hA)` did not touch
 `tgtA`, and `clear(*hB)` on a second such name did not touch `tgtB` (probe topUndeclared, K0-K4). The declared holders behaved as in the table. No row relies on either.
+
+## The top-level clear measure (SEQ 576, 2026-11-09) -- measured on trunk 3449257d, read-only
+
+**One plain line: "top level" was a proxy. The old road resolves a name when it BUILDS a statement, and if that name is a
+holder already holding a group at that moment, the built call is handed the TARGET -- for every call, not only clear.** A
+statement built before the bind (an action body whose first call came first, or whose own `:=` binds the name) hands over
+the holder, as ruled. Top-level statements are always built after their binds, which is why they looked special. The new
+road matches the rule everywhere. Compiled actions inherit their old-road body's answer. Probes: `docs/clearHolderProbes/m576_*`.
+
+**The discriminating pair (m576_build):** two identical actions, `clear(zH1)` and `clear(zH2)`, both called after the bind.
+Built BEFORE the bind (called once first): holder emptied, target intact. Built AFTER: target emptied, holder intact.
+
+| shape | today | the rule's answer | road(s) that differ | probe row |
+|---|---|---|---|---|
+| top level `clear(h)` | target emptied, holder kept | holder emptied | old | OT-H |
+| top level `clear(*h)` | target emptied | target emptied | -- | OT-S |
+| top level `clear(plain)` | cleared | cleared | -- | OT-P |
+| action, `:=` in the same body (any call), `clear(h)` | holder emptied | holder emptied | -- | OA-H, X4, Y1 |
+| action, `clear(*h)` | target emptied | target emptied | -- | OA-S |
+| action bound elsewhere, body built after the bind, `clear(h)` | target emptied | holder emptied | old | X1, X2, Z2 |
+| action built before the bind, `clear(h)` | holder emptied | holder emptied | -- | Z1 |
+| `clear(argument)`, caller passes a plain field | caller's field cleared | the same (the exception) | -- | OT-AP, NA-AP |
+| `clear(argument)`, caller passes a holder, CALL built after the bind (old road) | target emptied | holder emptied (the bare name is the holder) | old | OT-AH, NA-AH |
+| the same, call built in the binding body / on the new road | holder emptied | holder emptied | -- | OA-AH, NT-AH |
+| any call, not clear: `addrOf(h)`, `dumpContents(h)`, a user action's `argument` | handed the TARGET (addrOf: body #2, the target's) | handed the holder (body #4 measured in the binding body, Y2) | old | who, Y2 |
+| new road top level (`STARt`): `clear(h)` / `clear(*h)` / `clear(plain)` | holder / target / cleared | the same | -- | NT-H, NT-S, NT-P |
+| new-road action (compileIn), built after the bind: `clear(h)` | holder emptied | holder emptied | -- | NA-H, NA-HB |
+| compiled action (`jitter;`), built after the bind: `clear(h)` | target emptied | holder emptied | old (inherited) | JC-H |
+| compiled action, bound in the body / `clear(*h)` / plain | holder / target / cleared | the same | -- | JC-HB, JC-S, JC-P |
+| rule door: EXPRESSIOn compiled, its own `clear(pre)`, `clear(op)`, `clear(cmpP)` | holders emptied (Operators entries intact over repeated prefixes and operators, both roads alike) | the same | -- | ruleDoor |
+
+**Fleet rows:** none reads an off-rule cell. Everything EXPRESSIOn builds (ruleExprT, prefixNestT, chainCmpT, ...) reads the
+rule-correct in-body cell implicitly, because its own clears depend on emptying the holder.
+
+**Mechanism, measured as a class, site NOT isolated.** The call's operand is a FRESH field over the target's BODY (addrOf:
+field #3, body #2 = the target's). It is not `clear`'s (cLEAR clears whatever node it is handed), not `followArgument` (run
+time, isArgument only), not setGroup (it never collapses) and not the copy constructor (it shares the body and follows
+nothing). resolveName (ruleActions.rtn:2115) hands a found field to `owner->addAttribute` inside code, but that copies the
+holder, not its target, so the read-through is still downstream. An lldb tap with conditional breakpoints on the copy
+constructor and setGroup did not hold its condition and was dropped. **The measurement that would isolate it:** an
+unconditional break in aCTionNamE when text is the holder's name at top level, then step to the operand acC carries.
+
+**Cure shapes, smallest first, for Tony:**
+1. **Isolate the site first** (the measurement above), read-only, before any build. Its reach is unknown until then.
+2. **Then bind at build to the holder itself, never through it**, at that site, so the run time decides: the bare name means the
+   holder (the star law), `*h` the target, and `argument` stays followed at run time. This changes EVERY old-road call handed a
+   holder after its bind, not clear alone, so a census first (F-151's shape: a tap counting build-time read-throughs across
+   pop.sh and jitLadder) with every mover registered. Whether it reaches the frame model, a ruler slot or gJitMethod's signature
+   is not known until the site is named -- if it does, that is a STOP.
+3. No cure inside cLEAR is possible: clear is handed the target already and cannot tell.
+
+**Pre-registered rows (a fixture, e.g. `incant/pop/clearHolderT`):** the table's rows as one process per road. Born red today:
+OT-H, X1, X2, Z2, OT-AH, NA-AH (old call), JC-H, and the read-through rows for addrOf / a user action's argument at top level
+(about 9). Green controls that must not move: OT-S, OT-P, OA-H, X4, Y1, Z1, OA-S, OT-AP, OA-AH, NT-*, NA-*, JC-HB, JC-S,
+JC-P, ruleDoor.

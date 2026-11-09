@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(ClrWho);
+define
+    wT="tgt";
+    wH;
+    wA;
+    seeArg code={ print "   seeArg's argument tag:" argument.taG "isGrouP" argument.isGrouP:; };
+    inAct code={
+        print "IN ACTION addrOf(wT) then addrOf(wH):":;
+        addrOf(wT);
+        addrOf(wH);
+        dumpContents(wH);
+        seeArg(wH);
+        };
+    ;
+search ClrWho UnitTests Utilities list;
+wH := wT;
+print "TOP addrOf(wT) then addrOf(wH):":;
+addrOf(wT);
+addrOf(wH);
+dumpContents(wH);
+seeArg(wH);
+inAct();
+print "WHO SENTINEL":;
+stop();

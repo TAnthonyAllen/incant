@@ -1,0 +1,47 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
+register(ClrOld);
+define
+    hT1="t1"; hT2="t2"; hT3="t3"; hT4="t4"; hT5="t5"; hT6="t6"; hT7="t7"; hT8="t8";
+    pf1="p1"; pf2="p2"; pf3="p3";
+    h1; h2; h3; h4; h7; h8;
+    clrArg code={ clear(argument); };
+    act code={
+        h3 := hT3;
+        clear(h3);
+        print "OA-H  action clear(h)  target" hT3 "holder isGrouP" h3.isGrouP:;
+        h4 := hT4;
+        clear(*h4);
+        print "OA-S  action clear(*h) target" hT4 "holder isGrouP" h4.isGrouP:;
+        clear(pf2);
+        print "OA-P  action clear(plain)" pf2:;
+        h8 := hT8;
+        clrArg(h8);
+        print "OA-AH action clear(argument), arg a holder: target" hT8 "holder isGrouP" h8.isGrouP:;
+        };
+    ;
+search ClrOld list;
+h1 := hT1;
+clear(h1);
+print "OT-H  top clear(h)  target" hT1 "holder isGrouP" h1.isGrouP:;
+h2 := hT2;
+clear(*h2);
+print "OT-S  top clear(*h) target" hT2 "holder isGrouP" h2.isGrouP:;
+clear(pf1);
+print "OT-P  top clear(plain)" pf1:;
+act();
+clrArg(pf3);
+print "OT-AP top clrArg(plain): argument reaches the caller's field" pf3:;
+h7 := hT7;
+clrArg(h7);
+print "OT-AH top clrArg(holder): target" hT7 "holder isGrouP" h7.isGrouP:;
+print "OLD SENTINEL":;
+stop();

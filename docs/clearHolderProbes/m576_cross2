@@ -1,0 +1,26 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(ClrY);
+define
+    yT1="a"; yT2="b"; yT3="c";
+    yH1; yH2; yH3;
+    yMode = 0;
+    twoCalls code={
+        if yMode == 0;  yH1 := yT1;
+        if yMode == 1;  clear(yH1);
+        };
+    whoSame code={ yH2 := yT2; addrOf(yT2); addrOf(yH2); };
+    localH code={ lh := yT3; clear(lh); print "Y3 action-LOCAL holder bound and cleared: target" yT3 "lh isGrouP" lh.isGrouP:; };
+    ;
+search ClrY UnitTests Utilities list;
+twoCalls();
+yMode = 1;
+twoCalls();
+print "Y1 same action, bound on call 1, cleared on call 2: target" yT1 "holder isGrouP" yH1.isGrouP:;
+print "Y2 addrOf inside the binding action (target first):":;
+whoSame();
+localH();
+print "Y SENTINEL":;
+stop();
