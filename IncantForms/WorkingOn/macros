@@ -203,6 +203,13 @@ it works. HPDL.
     refusal) while the remote side drafts; local / remote / two incant instances are all one
     pattern -- parties on a channel.
 
+ADDED 2026-11-09 -- THE YARDSTICK (Tony): Kant's design and implementation aim to be as
+clean and conceptually simple as Forth, Scheme or Lisp, while integrating into a C++
+environment. Read every design choice against it: prefer the choice that leaves fewer kinds
+of thing (one way to run an instruct, one way a rule builds one, one narrow door to C++),
+and prefer retiring to adding. We may not get all the way there; it is the direction, not a
+promise.
+
 /*******************************************************************************
 	Design notion: a rule as an operator -- NOT RULED, NOT SCHEDULED
 *******************************************************************************/
