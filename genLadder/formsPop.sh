@@ -181,13 +181,15 @@ fdRow "drawWalkT DW-4 ok, depth 2, lightGreen, page (390,190)" "$(_dwp ok)" "r0 
 #  forms step 2 R2 (2026-11-08): the right way up, each side of an edge; a flipped child lands 5 points off and fails a pair
 #  BORDERS REGISTERED (forms step 3, before the build): DW-5 and DW-6 move with the border by design -- (5,29) is heading's bottom row,
 #  (399,199) and (341,165) lie on ok's edges. Width sits inside the frame (Tony), so nothing outside a field's frame is painted.
-fdRow "drawWalkT DW-5 words' edges (5,29) (5,31) (5,164) (5,166): wall white white wall; (5,29) becomes heading's bottomBorder" "$(_dwpr words 2 5)" "r247 g232 b170 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/"
-fdRow "drawWalkT DW-6 ok's edges (339,190) (341,190) (399,199) (341,165) (341,164); (399,199) and (341,165) become ok's border" "$(_dwpr ok 2 6)" "r247 g232 b170 a255/r175 g211 b120 a255/r175 g211 b120 a255/r175 g211 b120 a255/r255 g255 b255 a255/" "r247 g232 b170 a255/r175 g211 b120 a255/r0 g0 b0 a255/r0 g0 b0 a255/r255 g255 b255 a255/"
+#  SEQ 583 (heading 43, colour in firstLight), REGISTERED BEFORE THE FORM CHANGE: DW-5, DW-8, DW-9 (both), PD-3, PD-4 re-aimed to heading's new
+#  bottom edge y=42 (they keep asking about heading's border and words' top); DW-6, DW-7, PD-2 move as ok's border turns red (strokeColor:=red).
+fdRow "drawWalkT DW-5 words' edges (5,42) (5,44) (5,164) (5,166): heading's bottomBorder, white, white, wall" "$(_dwpr words 2 5)" "r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/"
+fdRow "drawWalkT DW-6 ok's edges (339,190) (341,190) (399,199) (341,165) (341,164); (399,199) and (341,165) are ok's border, red" "$(_dwpr ok 2 6)" "r247 g232 b170 a255/r175 g211 b120 a255/r0 g0 b0 a255/r0 g0 b0 a255/r255 g255 b255 a255/" "r247 g232 b170 a255/r175 g211 b120 a255/r239 g43 b45 a255/r239 g43 b45 a255/r255 g255 b255 a255/"
 _dwcnt () { grep -h '^=== pixelAt '"$1"' ' "$T/dw.o" "$T/dw.e" 2>/dev/null | sed -n "$2,$3p" | grep -c "$4"; }
-fdRow "drawWalkT DW-7 ok's plain border, inside / outside: left (340,180) (339,180), top (360,165) (360,164), right (399,180) (398,180), bottom (360,199) (360,198)" "$(_dwpr ok 7 14)" "r175 g211 b120 a255/r247 g232 b170 a255/r175 g211 b120 a255/r255 g255 b255 a255/r175 g211 b120 a255/r175 g211 b120 a255/r175 g211 b120 a255/r175 g211 b120 a255/" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/r0 g0 b0 a255/r175 g211 b120 a255/r0 g0 b0 a255/r175 g211 b120 a255/"
-fdRow "drawWalkT DW-8 heading's bottomBorder: inside (5,29) black, outside (5,30) white" "$(_dwpr heading 2 3)" "r247 g232 b170 a255/r255 g255 b255 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/"
-_ofeq "drawWalkT DW-9 heading's other three sides unpainted: pixels not wall / pixels read (top row, left and right columns above the bottom row)" "$(_dwcnt heading 4 461 'r247 g232 b170 a255' | awk '{print 458-$1}')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '4,461p' | wc -l | tr -d ' ')" "0/458"
-fdRow "drawWalkT DW-9 heading's bottom row painted: black pixels / pixels read (y=29, x 0..399)" "$(_dwcnt heading 462 861 'r0 g0 b0 a255')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '462,861p' | wc -l | tr -d ' ')" "0/400" "400/400"
+fdRow "drawWalkT DW-7 ok's plain border, inside / outside: left (340,180) (339,180), top (360,165) (360,164), right (399,180) (398,180), bottom (360,199) (360,198); inside red" "$(_dwpr ok 7 14)" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/r0 g0 b0 a255/r175 g211 b120 a255/r0 g0 b0 a255/r175 g211 b120 a255/" "r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/r239 g43 b45 a255/r175 g211 b120 a255/r239 g43 b45 a255/r175 g211 b120 a255/"
+fdRow "drawWalkT DW-8 heading's bottomBorder: inside (5,42) black, outside (5,43) white" "$(_dwpr heading 2 3)" "r255 g255 b255 a255/r255 g255 b255 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/"
+fdRow "drawWalkT DW-9 heading's other three sides unpainted: pixels not wall / pixels read (top row, left and right columns y 0..41)" "$(_dwcnt heading 4 487 'r247 g232 b170 a255' | awk '{print 484-$1}')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '4,487p' | wc -l | tr -d ' ')" "26/484" "0/484"
+fdRow "drawWalkT DW-9 heading's bottom row painted: black pixels / pixels read (y=42, x 0..399)" "$(_dwcnt heading 488 887 'r0 g0 b0 a255')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '488,887p' | wc -l | tr -d ' ')" "27/400" "400/400"
 fdRow "drawWalkT DW-10 width 3, own strokeColor=blue: left (0..3,10), top (10,0..3) -- three painted, the fourth not" "$(_dwpr dwThick 1 8)" "r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/" "r0 g81 b186 a255/r0 g81 b186 a255/r0 g81 b186 a255/r255 g255 b255 a255/r0 g81 b186 a255/r0 g81 b186 a255/r0 g81 b186 a255/r255 g255 b255 a255/"
 fdRow "drawWalkT DW-11 colour from the style (dwSt strokeColor red): (0,5) painted, (1,5) not" "$(_dwpr dwStyled 1 2)" "r255 g255 b255 a255/r255 g255 b255 a255/" "r239 g43 b45 a255/r255 g255 b255 a255/"
 _ofeq "drawWalkT DW-12 x past the width refuses by name, and no pixel line for it (ok's reads stay 14)" "$(grep -c '^pixelAt: ok (400,180) OUT OF RANGE' "$T/dw.e") $(grep -h '^=== pixelAt ok ' "$T/dw.o" | wc -l | tr -d ' ')" "1 14"
@@ -214,6 +216,20 @@ _txs () {
 _txWall="r247 g232 b170 a255"; _txWhite="r255 g255 b255 a255"; _txGreen="r175 g211 b120 a255"; _txBlue="r206 g255 b255 a255"
 _txInk () { [ "$1" -gt 0 ] && echo ink || echo none; }
 _txClean () { [ "$1" -eq 0 ] && echo clean || echo "ink $1"; }
+#  _txHue <file> <tag> <box> <background>: the darkest non-background pixel's strongest channel (r g b), k when its channels are within 40 (grey or black)
+_txHue () {
+    awk -v tag="$2" -v x0="$3" -v x1="$4" -v y0="$5" -v y1="$6" -v bg="$7" '
+        $1 == "===" && $2 == "pixelAt" && $3 == tag {
+            split($4, c, /[(,)]/); x = c[2] + 0; y = c[3] + 0; k = x "," y
+            if (k in seen) next; seen[k] = 1
+            if (x < x0 || x > x1 || y < y0 || y > y1) next
+            if ($6 " " $7 " " $8 " " $9 == bg) next
+            r = substr($6, 2) + 0; g = substr($7, 2) + 0; b = substr($8, 2) + 0
+            if (best == "" || r + g + b < best) { best = r + g + b; R = r; G = g; B = b } }
+        END { if (best == "") { print "none"; exit }
+              mx = R; if (G > mx) mx = G; if (B > mx) mx = B; mn = R; if (G < mn) mn = G; if (B < mn) mn = B
+              if (mx - mn < 40) print "k"; else if (mx == R) print "r"; else if (mx == G) print "g"; else print "b" }' "$1"
+}
 #  _txFlush <minx line 1> <minx line 2>: both within 2 of each other and at most 7 (the 4-point inset plus a glyph's bearing)
 _txFlush () { if [ "$1" = none ] || [ "$2" = none ]; then echo none
     elif [ $(( $1 > $2 ? $1 - $2 : $2 - $1 )) -le 2 ] && [ "$1" -le 7 ] && [ "$2" -le 7 ]; then echo flush; else echo "indent $1 $2"; fi; }
@@ -221,7 +237,7 @@ _txFlush () { if [ "$1" = none ] || [ "$2" = none ]; then echo none
 _txOrient () { if [ "$1" -eq 0 ] && [ "$2" -eq 0 ]; then echo none; elif [ "$1" -gt "$2" ]; then echo upright; elif [ "$1" -lt "$2" ]; then echo flipped; else echo level; fi; }
 #  _txClasses <file> <tag>: the six firstLight classes -- heading, words line 1, words line 2, no indent, orientation, ok
 _txClasses () {
-    echo "$(_txInk $(_txs "$1" "$2" 4 203 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 42 42 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 57 57 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 36 45 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 51 60 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 36 38 "$_txWhite" count) $(_txs "$1" "$2" 3 12 42 44 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 342 397 176 176 "$_txGreen" count))"
+    echo "$(_txInk $(_txs "$1" "$2" 4 203 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 55 55 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 70 70 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 49 58 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 64 73 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 49 51 "$_txWhite" count) $(_txs "$1" "$2" 3 12 55 57 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 342 397 176 176 "$_txGreen" count))"
 }
 #  _txTrace <tag> <field>: a field of displayText's line for that field (font / color / lines / next)
 _txTrace () { grep -h "^=== displayText $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | head -1 | sed "s/^=== displayText $1 //; s/ ===\$//" | awk -v want="$2" '
@@ -230,10 +246,10 @@ _txTrace () { grep -h "^=== displayText $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | h
     END { if (want == "font") print f; else if (want == "color") print c; else if (want == "lines") print l " " nx }'; }
 _ofeq "textT exit / sentinel" "$_txx $(grep -c '^TEXTT SENTINEL' "$T/tx.e")" "0 1"
 fdRow "textT TX-1 heading's text inks its line: y=18, x 4..203, not wall" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 18 18 "$_txWall" count))" "none" "ink"
-fdRow "textT TX-2 words' first line inks: y=42, x 4..203, not white" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 42 42 "$_txWhite" count))" "none" "ink"
-fdRow "textT TX-3 WRAP: words' second line inks: y=57, x 4..203" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 57 57 "$_txWhite" count))" "none" "ink"
-fdRow "textT TX-4 WRAP, no indent: first ink of line 1 (y 36..45) and line 2 (y 51..60) at the same x, within 2, at most 7" "$(_txFlush $(_txs "$T/tx.o" firstLight 0 29 36 45 "$_txWhite" minx) $(_txs "$T/tx.o" firstLight 0 29 51 60 "$_txWhite" minx))" "none" "flush"
-fdRow "textT TX-5 ORIENTATION: the T of This, bar rows y 36..38 outweigh stem rows y 42..44, x 3..12" "$(_txOrient $(_txs "$T/tx.o" firstLight 3 12 36 38 "$_txWhite" count) $(_txs "$T/tx.o" firstLight 3 12 42 44 "$_txWhite" count))" "none" "upright"
+fdRow "textT TX-2 words' first line inks: y=55, x 4..203, not white" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 55 55 "$_txWhite" count))" "ink" "ink"
+fdRow "textT TX-3 WRAP: words' second line inks: y=70, x 4..203" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 70 70 "$_txWhite" count))" "ink" "ink"
+fdRow "textT TX-4 WRAP, no indent: first ink of line 1 (y 49..58) and line 2 (y 64..73) at the same x, within 2, at most 7" "$(_txFlush $(_txs "$T/tx.o" firstLight 0 29 49 58 "$_txWhite" minx) $(_txs "$T/tx.o" firstLight 0 29 64 73 "$_txWhite" minx))" "flush" "flush"
+fdRow "textT TX-5 ORIENTATION: the T of This, bar rows y 49..51 outweigh stem rows y 55..57, x 3..12" "$(_txOrient $(_txs "$T/tx.o" firstLight 3 12 49 51 "$_txWhite" count) $(_txs "$T/tx.o" firstLight 3 12 55 57 "$_txWhite" count))" "flipped" "upright"
 fdRow "textT TX-6 ok's text inks: y=176, x 342..397, not lightGreen" "$(_txInk $(_txs "$T/tx.o" firstLight 342 397 176 176 "$_txGreen" count))" "none" "ink"
 fdRow "textT TX-7 tOver's second line inks: y=37, x 14..125" "$(_txInk $(_txs "$T/tx.o" tForm 14 125 37 37 "$_txBlue" count))" "none" "ink"
 fdRow "textT TX-8 a line that does not fit is not drawn: below tOver's second line, y 46..49, x 14..125, clean (pair: TX-7)" "$(_txClean $(_txs "$T/tx.o" tForm 14 125 46 49 "$_txBlue" count))" "clean" "clean"
@@ -242,14 +258,26 @@ fdRow "textT TX-10 a too-wide word runs to its frame's edge: tLong y 66..75, x 6
 fdRow "textT TX-11 and is clipped there: past tLong's edge, y 62..89, x 70..79, clean (pair: TX-10)" "$(_txClean $(_txs "$T/tx.o" tForm 70 79 62 89 "$_txWhite" count))" "clean" "clean"
 fdRow "textT TX-F1 words' font, inherited from firstLight (font:=normalFont): family size bold" "$(_txTrace words font)" "" "Palatino 14 0"
 fdRow "textT TX-F2 heading's font, its own (font:=titleFont)" "$(_txTrace heading font)" "" "Palatino 24 1"
-fdRow "textT TX-C1 words names no color, nor does anything above it: black" "$(_txTrace words color)" "" "r0 g0 b0"
+fdRow "textT TX-C0 tPlain names no color, nor does anything above it: black (SEQ 583, moved from words)" "$(_txTrace tPlain color)" "r0 g0 b0" "r0 g0 b0"
+fdRow "textT TX-F0 tPlain names no font, nor does anything above it: Helvetica 12 (R1)" "$(_txTrace tPlain font)" "Helvetica 12 0" "Helvetica 12 0"
+fdRow "textT TX-C1 words inherits firstLight's color:=blue" "$(_txTrace words color)" "r0 g0 b0" "r0 g81 b186"
+fdRow "textT TX-C4 heading's own color:=green wins over firstLight's blue" "$(_txTrace heading color)" "r0 g0 b0" "r0 g158 b15"
+fdRow "textT TX-K1 heading's ink is green: its darkest ink pixel's strongest channel (y=18, x 4..203)" "$(_txHue "$T/tx.o" firstLight 4 203 18 18 "$_txWall")" "none" "g"
+fdRow "textT TX-K2 words' ink is blue, inherited (y=55, x 4..203)" "$(_txHue "$T/tx.o" firstLight 4 203 55 55 "$_txWhite")" "k" "b"
+fdRow "textT TX-K3 ok's ink is blue, inherited through bar (y=176, x 342..397)" "$(_txHue "$T/tx.o" firstLight 342 397 176 176 "$_txGreen")" "k" "b"
 fdRow "textT TX-C2 tOver's own color:=blue (pair: TX-C1)" "$(_txTrace tOver color)" "" "r0 g81 b186"
 fdRow "textT TX-C3 tLong inherits tForm's color:=red" "$(_txTrace tLong color)" "" "r239 g43 b45"
 fdRow "textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green)" "$(_txTrace tStyled font) $(_txTrace tStyled color)" " " "Palatino 24 1 r0 g158 b15"
 fdRow "textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end)" "$(_txTrace tOver lines) / $(_txTrace tLong lines)" "  /  " "2 space / 1 end"
-fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "" "heading words ok tOver tLong tStyled"
-fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^displayText: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "" "tOver tLong"
+fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled, then tPlain (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tPlain" "heading words ok tOver tLong tStyled tPlain"
+fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^displayText: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "heading tOver tLong" "tOver tLong"
 _ofeq "textT no refusal" "$(grep -c 'REFUS' "$T/tx.e")" "0"
+#  ⚑ textTopT (SEQ 583): a top's text slot holds its display (the pointer / text union), so a top's own text is not drawable; displayText
+#  read the context's bytes as text and threw (exit 134). Pinned: refused by name, exit 0.
+_ttF=$(ip textTopT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_ttF" > "$T/tt.o" 2> "$T/tt.e"; _ttx=$?
+fdRow "textTopT a top with its own text: exit / sentinel" "$_ttx $(grep -c '^TEXTTOPT SENTINEL' "$T/tt.e")" "134 0" "0 1"
+fdRow "textTopT ... refused by name, its text slot holds the display" "$(grep -c '^displayText: REFUSING ttTop -- a top keeps its display in its text slot' "$T/tt.e")" "0" "1"
 
 echo "-- the first PDF: step 4."
 #  ⚑ firstPdfT -- forms step 4 (Tony, 2026-11-08): openPDF / drawWalk / closePDF, then readPDF draws page 1 into a bitmap
@@ -266,11 +294,13 @@ fdRow "firstPdfT readPDF: one page, firstLight's frame (400 x 200 points)" "$(gr
 #  RE-AIM (SEQ 582, forms step 5, 2026-11-09): text now draws in heading and ok, over (5,15) and (360,180). These rows ask about FILL, so the point
 #  moves off the text, to (300,15) and (390,190), where the same fill shows; pinned values unchanged.
 fdRow "firstPdfT PD-1 read back: heading (300,15) wall, words (5,100) white, space (100,180) wall, ok (390,190) lightGreen" "$(_pdp 1 4)" "" "r247 g232 b170 a255/r255 g255 b255 a255/r247 g232 b170 a255/r175 g211 b120 a255/"
-fdRow "firstPdfT PD-2 read back: ok's border left (340,180) black / (339,180) wall, top (360,165) black / (360,164) white" "$(_pdp 5 8)" "" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/"
-fdRow "firstPdfT PD-3 read back: heading's bottom line (5,29) black, (5,30) white" "$(_pdp 9 10)" "" "r0 g0 b0 a255/r255 g255 b255 a255/"
-fdRow "firstPdfT PD-4 read back, the right way up: (5,31) white, (5,166) wall" "$(_pdp 11 12)" "" "r255 g255 b255 a255/r247 g232 b170 a255/"
+fdRow "firstPdfT PD-2 read back: ok's border left (340,180) red / (339,180) wall, top (360,165) red / (360,164) white" "$(_pdp 5 8)" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/" "r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/"
+fdRow "firstPdfT PD-3 read back: heading's bottom line (5,42) black, (5,43) white" "$(_pdp 9 10)" "r255 g255 b255 a255/r255 g255 b255 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/"
+fdRow "firstPdfT PD-4 read back, the right way up: (5,44) white, (5,166) wall" "$(_pdp 11 12)" "r255 g255 b255 a255/r247 g232 b170 a255/" "r255 g255 b255 a255/r247 g232 b170 a255/"
+#  PD-5 RE-PINNED (SEQ 583): its words scans moved 13 down with heading, so today (heading 30) the shifted scans read line 2 and words's edge;
+#  intended unchanged.
 #  PD-5 (forms step 5, SEQ 582): the text read back at textT's firstLight points, classified as textT's bitmap is; the PDF agrees with the bitmap.
-fdRow "firstPdfT PD-5 the text read back: heading, words line 1, line 2, no indent, orientation, ok" "$(_txClasses "$T/pd.o" pdfRead)" "none none none none none none" "ink ink ink flush upright ink"
+fdRow "firstPdfT PD-5 the text read back: heading, words line 1, line 2, no indent, orientation, ok" "$(_txClasses "$T/pd.o" pdfRead)" "none ink ink flush flipped ink" "ink ink ink flush upright ink"
 _ofeq "firstPdfT PD-6 the PDF agrees with the bitmap on the same points (textT's classes)" "$(_txClasses "$T/pd.o" pdfRead)" "$(_txClasses "$T/tx.o" firstLight)"
 
 #  missingFixtureFoot every fixture a row ran must have existed

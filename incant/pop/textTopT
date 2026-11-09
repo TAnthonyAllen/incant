@@ -1,0 +1,21 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs;
+register(TextTopT);
+define
+    ttTop="Top text" x=0 y=0 width=100 height=30 fill:=white;
+    ;
+search TextTopT UnitTests Utilities cOLOr fONTs list;
+cerr "TT a top with its own text, drawn":;
+makeDisplay(ttTop);
+drawWalk(ttTop);
+cerr "TEXTTOPT SENTINEL":;
+stop();
+
+textTopT -- forms step 5 (SEQ 583). A top field keeps its drawing context in its pointer slot, and the pointer slot shares
+its union with the text slot (GroupDraw.twk, makeDisplay's comment), so a top's own string is overwritten when its display
+opens. displayText then reads the context's bytes as text: measured 2026-11-09, 5 bytes of junk, kind still string, and an
+NSException on a nil NSString (exit 134). No form today puts text on its top. Pinned: the run refuses by name and exits 0.
