@@ -232,6 +232,10 @@ nothing, silently.
   now refuses by name on the new road and the next statement runs. Keyword forms
   as expressions stay unruled.
 
+FIRST PROOF BUILT 2026-11-09 (SEQ 580, branch op-default, not merged): WHILe declares
+op="whileLoop", its hand action is deleted, and OPERATOr builds its instruct from its label;
+whileLoop carries the trait ownsBody. Same answers on both roads; the buy is Tony's.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
