@@ -4,12 +4,12 @@
 *****************************************************************************/
 register(FORMs);
 define
-    firstLight window x=300 y=450 width=400 height=200 down fill:=wall font:=normalFont
-        heading="First Light" text height=30 font:=titleFont align=center bottomBorder;
+    firstLight window x=300 y=450 width=400 height=200 down fill:=wall font:=normalFont color:=blue
+        heading="First Light" text height=43 font:=titleFont color:=green align=center bottomBorder;
         words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit." text fill:=white;
         bar across height=35
             space;
-            ok="OK" text width=60 border fill:=lightGreen align=center;
+            ok="OK" text width=60 border strokeColor:=red fill:=lightGreen align=center;
     ;
 bail();
 

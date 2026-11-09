@@ -263,6 +263,10 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	::fprintf(stderr,"displayText: REFUSING %s -- its text is a group holding a group; one level only\n", field->groupBody->tag);
 	return 0; }
 	if (!isSTRING(kind) && !isTOKEN(kind)) return request;
+	//  topText a top's pointer slot shares its union with the text slot, so a top that holds a display and a string has lost the string
+	if (source->groupBody->flags.isPointer) {
+	::fprintf(stderr,"displayText: REFUSING %s -- a top keeps its display in its text slot; put the text on a child\n", source->groupBody->tag);
+	return 0; }
 	char *text = source->getText();
 	if (!text || !*text) return request;
 	GroupItem   *top = displayOf(field);
