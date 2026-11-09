@@ -20,6 +20,23 @@ define
         argument :% copyOf(py);
         };
     pdfRead path="IncantForms/PDF/output.pdf";
+    fpdX0 = 0;
+    fpdX1 = 0;
+    fpdY0 = 0;
+    fpdY1 = 0;
+    fpdRow code={
+        fpdX = fpdX0;
+        while fpdX < fpdX1;
+            fpdAt(argument);
+            pixelAt(argument);
+            fpdX += 1;
+        };
+    fpdBand code={
+        fpdY = fpdY0;
+        while fpdY < fpdY1;
+            fpdRow(argument);
+            fpdY += 1;
+        };
     ;
 search FirstPdf FORMs UnitTests Utilities cOLOr fONTs list;
 define
@@ -34,11 +51,11 @@ drawWalk(firstLight);
 closePDF(pdfReq);
 cerr "PDF closed":;
 readPDF(pdfRead);
-cerr "PD-1 the read-back page, one pixel per field: heading (5,15) wall, words (5,100) white, space (100,180) wall, ok (360,180) lightGreen":;
-fpdX = 5; fpdY = 15; fpdAt(pdfRead); pixelAt(pdfRead);
-fpdY = 100; fpdAt(pdfRead); pixelAt(pdfRead);
+cerr "PD-1 the read-back page, one pixel per field: heading (300,15) wall, words (5,100) white, space (100,180) wall, ok (390,190) lightGreen":;
+fpdX = 300; fpdY = 15; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdX = 5; fpdY = 100; fpdAt(pdfRead); pixelAt(pdfRead);
 fpdX = 100; fpdY = 180; fpdAt(pdfRead); pixelAt(pdfRead);
-fpdX = 360; fpdAt(pdfRead); pixelAt(pdfRead);
+fpdX = 390; fpdY = 190; fpdAt(pdfRead); pixelAt(pdfRead);
 cerr "PD-2 ok's border: left (340,180) black, (339,180) wall; top (360,165) black, (360,164) white":;
 fpdX = 340; fpdY = 180; fpdAt(pdfRead); pixelAt(pdfRead);
 fpdX = 339; fpdAt(pdfRead); pixelAt(pdfRead);
@@ -50,6 +67,13 @@ fpdY = 30; fpdAt(pdfRead); pixelAt(pdfRead);
 cerr "PD-4 the right way up: words' top and bottom edges, (5,31) white, (5,166) wall":;
 fpdY = 31; fpdAt(pdfRead); pixelAt(pdfRead);
 fpdY = 166; fpdAt(pdfRead); pixelAt(pdfRead);
+cerr "PD-5 the text, read back at textT's points (forms step 5): heading y=18 x 4..203; words y=42, y=57 x 4..203; words bands y 36..45 and 51..60 x 0..29; ok y=176 x 342..397":;
+fpdY = 18; fpdX0 = 4; fpdX1 = 204; fpdRow(pdfRead);
+fpdY = 42; fpdRow(pdfRead);
+fpdY = 57; fpdRow(pdfRead);
+fpdX0 = 0; fpdX1 = 30; fpdY0 = 36; fpdY1 = 46; fpdBand(pdfRead);
+fpdY0 = 51; fpdY1 = 61; fpdBand(pdfRead);
+fpdY = 176; fpdX0 = 342; fpdX1 = 398; fpdRow(pdfRead);
 cerr "FIRSTPDF SENTINEL":;
 stop();
 
@@ -62,3 +86,5 @@ overwritten each run (Tony, R1); formsPop deletes it before the run, so a stale 
 Rows (genLadder/formsPop.sh): the file exists and begins %PDF; readPDF reports 1 page of 400x200 (firstLight's frame);
 PD-1 to PD-4 read the page back at today's bitmap rows' coordinates, the fills, ok's border, heading's line and the
 right way up. H7 (the walk skipped between open and close): the file rows hold, the page reads blank.
+PD-5 (forms step 5, SEQ 582): the text read back at incant/pop/textT's firstLight points; formsPop classifies both the same
+way and asks that the PDF agree with the bitmap. PD-1's heading and ok points moved off the text (SEQ 582 re-aim).
