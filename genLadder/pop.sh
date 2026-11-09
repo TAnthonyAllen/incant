@@ -1002,8 +1002,8 @@ fi
 #  on the compiled arm, by value, by exit and sentinel, stdout and stderr compared (witnesses aside, and NO filter for F-146's deleted guard
 #  line, so its absence is measured), with the walk line (native 5 handed 10, registered in the fixture before any run) and the fired count.
 #  _riArm is the compiled arm's opt-in line. Pinned on trunk with it EMPTY (the door shut): the door and walk rows are born red, intended
-#  as written; branch rule-if sets it to jitterRule(If); (R4).
-_riArm=""
+#  as written; branch rule-if sets it to jitterRule(If); (R4). SET (rule-if).
+_riArm="jitterRule(If);"
 _riF=$(ip ruleIfT)
 _rie () { grep -v '^=== jitter rule\|^RI SENTINEL\|^ *$' "$1" | tr '\n' '|'; }
 _rirun () {  # name  arm-line  statements
