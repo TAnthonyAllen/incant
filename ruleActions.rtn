@@ -1257,6 +1257,40 @@ extern GroupItem nearFlag(String name)
 }
 
 /*******************************************************************************
+    declareRuleOp -- op= on a rule (SEQ 580 R1): the Operators entry its default action
+    builds is kept as the rule's property opDeclared; the attribute is never a term.
+    ruleOpOf -- a label's rule's declared op, for the default action; refuses by name
+    when the rule declares none.
+*******************************************************************************/
+extern int declareRuleOp(GroupItem host, GroupItem item)
+{
+GroupRules  ruler = groupRules;
+GroupItem   entry,
+            hold;
+String      name = item.text;
+    if name     entry = ruler.opFields[name];
+    if !entry {
+        refuse(host,"op= names no Operators entry");
+        return 1; }
+    hold = host.getProperty("opDeclared");
+    if !hold {
+        hold = new("opDeclared");
+        host.addProperty(hold); }
+    hold.group = entry;
+    return 1;
+}
+
+extern GroupItem ruleOpOf(GroupItem label)
+{
+GroupItem   rule,
+            hold;
+    if label && label.isLabel   rule = label.labelOf;
+    if rule     hold = rule.getProperty("opDeclared");
+    if hold     return hold.group;
+    return refuse(label,"no op= declared on its rule -- the default action has no operator");
+}
+
+/*******************************************************************************
     An attribute whose name is a GroupFields flag sets that flag on the field being
     defined and is not added, as a noPrint immediate attribute is not (Tony, SEQ 533
     R1). A flag with no write case refuses by name (SEQ 545 R2). lastIndenT and
@@ -1268,6 +1302,8 @@ extern int flagAttribute(GroupItem host, GroupItem item)
 GroupRules  ruler = groupRules;
 GroupItem   flagDef = ruler.groupFields[item.tag],
             near;
+    // opDeclares op= on a rule declares the operator its default action builds, never a term (SEQ 580 R1)
+    if host.isRule && item.tag eq "op"      return declareRuleOp(host,item);
     if !flagDef {
         // nearMiss a rule's term and a command are not flag spellings
         if host.isRule              return 0;

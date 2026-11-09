@@ -2515,6 +2515,35 @@ int 	length = 0;
 		::printf("\n");
 }
 
+/*******************************************************************************
+    declareRuleOp -- op= on a rule (SEQ 580 R1): the Operators entry its default action
+    builds is kept as the rule's property opDeclared; the attribute is never a term.
+    ruleOpOf -- a label's rule's declared op, for the default action; refuses by name
+    when the rule declares none.
+*******************************************************************************/
+extern "C" int declareRuleOp(GroupItem *host, GroupItem *item)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*entry = 0;
+GroupItem 	*hold = 0;
+char 		*name = item->getText();
+	if ( name )
+		entry = ruler->opFields->get(name);
+	if ( !entry )
+		{
+		::refuse(host,"op= names no Operators entry");
+		return 1;
+		}
+	hold = host->getProperty("opDeclared");
+	if ( !hold )
+		{
+		hold = new GroupItem("opDeclared");
+		host->addProperty(hold);
+		}
+	hold->setGroup(entry);
+	return 1;
+}
+
 // definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether instanceRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally; and whether every child of the shared list is parented to its owner
 extern "C" GroupItem *definersOf(GroupItem *input)
 {
@@ -2895,6 +2924,9 @@ extern "C" int flagAttribute(GroupItem *host, GroupItem *item)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*flagDef = ruler->groupFields->get(item->groupBody->tag);
 GroupItem 	*near = 0;
+	// opDeclares op= on a rule declares the operator its default action builds, never a term (SEQ 580 R1)
+	if ( host->groupBody->flags.isRule && ::compare(item->groupBody->tag,"op") == 0 )
+		return ::declareRuleOp(host,item);
 	if ( !flagDef )
 		{
 		// nearMiss a rule's term and a command are not flag spellings
@@ -12809,6 +12841,19 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::fprintf(stderr,"RULEOF cross-registry copies=%d\n",xr);
 	
 	return ruler->trueResult;
+}
+
+extern "C" GroupItem *ruleOpOf(GroupItem *label)
+{
+GroupItem 	*rule = 0;
+GroupItem 	*hold = 0;
+	if ( label && label->groupBody->flags.isLabel )
+		rule = label->labelOf;
+	if ( rule )
+		hold = rule->getProperty("opDeclared");
+	if ( hold )
+		return hold->getGroup();
+	return ::refuse(label,"no op= declared on its rule -- the default action has no operator");
 }
 
 // runAccAnd the logic tier, &&: evaluate the left side, early-out on false, else the right side decides -- a SENTINEL either way
