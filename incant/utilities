@@ -154,16 +154,16 @@ define
         };
     /***************************************************************************
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
-        font and color in kant and hands displayText one request, textReq,
+        font, color and align (step 5a, SEQ 584) in kant and hands displayText one request, textReq,
         written afresh on every call. Each of font and color comes from the
         field's own attribute, else its style's (style:= names the style field),
         else the enclosing field's, walking up to the top (the field holding the
         display). Nothing found leaves the slot at 0: displayText then draws
-        Helvetica 12 in black. The text is the field's own string, or, when the
+        Helvetica 12 in black, left-aligned. The text is the field's own string, or, when the
         field holds a group, that group's (*argument, one level). A field with
         no text costs a call and draws nothing (displayText skips it).
     ***************************************************************************/
-    textReq field source font color;
+    textReq field source font color align;
     drawText code={
         textReq.field := argument;
         dtG = argument.isGrouP;
@@ -171,8 +171,10 @@ define
         else            textReq.source := argument;
         textReq.font = 0;
         textReq.color = 0;
+        textReq.align = 0;
         dtFont = 0;
         dtColor = 0;
+        dtAlign = 0;
         dtCur := argument;
         dtHops = 0;
         while dtHops < 32;
@@ -184,6 +186,10 @@ define
                 if *dtCur["color"];
                     textReq.color := *dtCur["color"];
                     dtColor = 1;
+            if dtAlign == 0;
+                if *dtCur["align"];
+                    textReq.align := *dtCur["align"];
+                    dtAlign = 1;
             if *dtCur["style"];
                 dtStyle := *dtCur["style"];
                 if dtFont == 0;
@@ -194,10 +200,15 @@ define
                     if **dtStyle["color"];
                         textReq.color := **dtStyle["color"];
                         dtColor = 1;
+                if dtAlign == 0;
+                    if **dtStyle["align"];
+                        textReq.align := **dtStyle["align"];
+                        dtAlign = 1;
             dtTop = *dtCur.isPointeR;
             if dtTop == 1;      dtHops = 32;
             if dtFont == 1;
-                if dtColor == 1;    dtHops = 32;
+                if dtColor == 1;
+                    if dtAlign == 1;    dtHops = 32;
             // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
             dtCur := *dtCur.parenT;
             dtHops += 1;

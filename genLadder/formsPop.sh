@@ -158,7 +158,9 @@ fdRow "fillPageT FP-5 the flip: the band at the top of the form paints the top o
 fdRow "fillPageT FP-6 the flip's pair: the bottom of the form reads wall, page (5,97)" "$(_fpp fpRest)" "" "r247 g232 b170 a255/"
 #  FP-7 (SEQ ___ R0 rider 2): the display is handed down as a property (+<), so the form's definition is unchanged: a child's list length before and after makeDisplay.
 _fpl () { grep "^FP LEN $1 " "$T/fp.e" | sed "s/^FP LEN $1 *//" | xargs; }
-fdRow "fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay" "$(_fpl words) / $(_fpl bar)" "6 7 / 7 8" "6 6 / 7 7"
+#  RE-PIN (SEQ 584, an unregistered mover caught at the certificate): R2 gives words align=justify, one more attribute, so its list
+#  length is 7, not 6; the row's question -- unchanged across makeDisplay -- still reads equal both sides (7 7).
+fdRow "fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay" "$(_fpl words) / $(_fpl bar)" "6 7 / 7 8" "7 7 / 7 7"
 fdRow "fillPageT a child takes the top's context: no child refuses no display" "$(grep -c 'REFUSING .* no display' "$T/fp.e")" "2" "0"
 
 echo "-- the draw walk: step 2 toward the first PDF."
