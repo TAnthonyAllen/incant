@@ -247,6 +247,14 @@ ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
    bridge, not the destination: chains compiled op by op, one emitter per operator, instead
    of rule actions compiled one at a time. To be measured as the road goes, rule by rule.
 
+ADDED 2026-11-09 -- describing operators (Tony, NOT RULED, NOT SCHEDULED): Each
+Operators entry may carry describe=, linking to a dESCRIPTIONs entry, exactly as a form
+field's describe does; the fuller text lives in dESCRIPTIONs, so setup stays lean. On an
+Operators entry describe is a link only, never an action. Engine-only ops (ifThen,
+whileLoop, seq, printList, branchSignal, runRule, call, ...) carry a mark so a reader can
+tell them from operators users write. Documentation is generated from the registry, not
+written beside it. Measure the spelling on one entry first (bear-trap #56).
+
 /*******************************************************************************
 	Open questions
 *******************************************************************************/
