@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   1990320 bytes  Nov  9 16:22
+  bin   1990480 bytes  Nov  9 16:36
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -27,7 +27,7 @@
   ok    fillPageT FP-4 just below words, page (5,166), reads wall = [r247 g232 b170 a255/]
   ok    fillPageT FP-5 the flip: the band at the top of the form paints the top of the bitmap, page (5,2) = [r175 g211 b120 a255/]
   ok    fillPageT FP-6 the flip's pair: the bottom of the form reads wall, page (5,97) = [r247 g232 b170 a255/]
-  ok    fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay = [6 6 / 7 7]
+  ok    fillPageT FP-7 the handed-down display is a property: words and bar keep their list length across makeDisplay = [7 7 / 7 7]
   ok    fillPageT a child takes the top's context: no child refuses no display = [0]
 -- the draw walk: step 2 toward the first PDF.
   ok    drawWalkT exit / sentinel = [0 1]
@@ -71,8 +71,16 @@
   ok    textT TX-C3 tLong inherits tForm's color:=red = [r239 g43 b45]
   ok    textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green) = [Palatino 24 1 r0 g158 b15]
   ok    textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end) = [2 space / 1 end]
-  ok    textT TX-N displayText calls: heading words ok, then tOver tLong tStyled, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tPlain]
+  ok    textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tRight tKid tKidL tBad tPlain]
   ok    textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else = [tOver tLong]
+  ok    textT AL-1 CENTER: heading's ink centred in its frame (x 0..399, y 10..28) = [centred]
+  ok    textT AL-2 CENTER: ok's ink centred in its frame (x 340..399; scanned 342..397, y 168..196) = [centred]
+  ok    textT AL-3 JUSTIFY: words' lines 1 and 2 end at x 395 (396 less a pixel), line 3, the last, does not = [edge edge short]
+  ok    textT AL-4 RIGHT: tRight's last ink at its frame edge less the inset, x 185 (190 - 4, less a pixel) = [edge]
+  ok    textT AL-5 LEFT: tOver, no align, draws as before -- first ink within 6 of x 10 = [left]
+  ok    textT AL-6 INHERIT: tKid (no align) centred under tCenterTop; tKidL (style align=left) left; tBad (align=leftl) left = [centred left left]
+  ok    textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left = [1]
+  ok    textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad = [center justify center right center left left]
   ok    textT no refusal = [0]
   ok    textTopT a top with its own text: exit / sentinel = [0 1]
   ok    textTopT ... refused by name, its text slot holds the display = [1]
@@ -86,5 +94,7 @@
   ok    firstPdfT PD-4 read back, the right way up: (5,44) white, (5,166) wall = [r255 g255 b255 a255/r247 g232 b170 a255/]
   ok    firstPdfT PD-5 the text read back: heading, words line 1, line 2, no indent, orientation, ok = [ink ink ink flush upright ink]
   ok    firstPdfT PD-6 the PDF agrees with the bitmap on the same points (textT's classes) = [ink ink ink flush upright ink]
+  ok    firstPdfT PD-7 the read-back: heading centred, words lines 1 and 2 at the edge, line 3 short = [centred edge edge short]
+  ok    firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify points = [centred edge edge short]
 
-FORMS POP FAILED -- 76 green, see above
+FORMS POP FAILED -- 86 green, see above
