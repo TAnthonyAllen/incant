@@ -522,6 +522,14 @@ define
                             instruct.methoD = "testOP";
                             target      := copyOf(instruct);
                         else
+                            // chainRefused a comparison arriving while one is pending is a chain (a < b < c): refused by name, the old road's wording, never folded as (a < b) < c (SEQ 570 R0)
+                            if kind == 2;
+                                if cmpP.datA != 0;
+                                    chTop := *cmpP[1];
+                                    chOp := *chTop.taG;
+                                    cerr "REFUSED" chOp "-- a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)":;
+                                    clear(*actionLabel);
+                                    return *actionLabel;
                             // a looser operator first closes every tighter slot into the target; an equal one closes its own, so a tier reads left to right; assign never closes assign
                             if kind >= 2;
                                 if cmpP.datA != 0;
