@@ -43,6 +43,9 @@ makeInstruct(...); *actionLabel := *built; return. This is docs/operatorRungReco
 
 R0: If only. ELSEIf shares If's body (ruleMethod=If) but the door is keyed on the firing rule's own body, so RI-5 and RI-6 run ELSEIf
 interpreted inside a compiled If, and their fired count is If's alone.
+RI-12 is the ELSEIf row with the OUTER condition true. Added after H7(b): ELSEIf shares If's CodE, so with actionLabel left unbound the
+outer If rebuilt the ELSEIf's stale label, and RI-5 / RI-6 (outer false) still read right -- the ELSEIf chain alone gives their answer.
+RI-12 cannot: its answer is the outer then arm.
 
 RI-C, RI-S and RI-E are the refusal arms. RI-S and RI-E are If's own (then, else) and end in a return. RI-C is F-147's shape, a real refuse()
 inside a handed-over statement. F-146 deleted the guard that added "a compiled rule handed back a count" on that shape; its text is in no
@@ -60,6 +63,7 @@ RI-8|1||it1 = WHILe("while wo < 3; { wo = wo + 1; if wo == 2; print 7:; else pri
 RI-9|2||it1 = If("if qa == 2; if qb == 3; print 5:;"); testOP(it1);|5 |
 RI-10|2||it1 = If("if qa == 2; if qb == 4; print 5:; else print 6:;"); testOP(it1);|6 |
 RI-11|2||it1 = If("if qa == 2; print 1:;"); testOP(it1); it2 = If("if qb == 2; print 1:; else print 4:;"); testOP(it2);|1 |4 |
+RI-12|1||it1 = If("if qa == 2; print 1:; or qb == 3; print 3:; else print 2:;"); testOP(it1);|1 |
 RI-C|1|REFUSED ifArms -- Operator +% -- an operand that is nothing|it1 = If("if qa qb + 1; print 1:;");|
 RI-S|1|REFUSED If -- its then arm handed up no instruct|it1 = If("if qa == 2; qa qb + 1;");|
 RI-E|1|REFUSED If -- its else arm handed up no instruct|it1 = If("if qa == 2; print 1:; else qa qb + 1;");|

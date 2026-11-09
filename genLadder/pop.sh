@@ -1027,7 +1027,7 @@ while IFS='|' read -r _id _f _ref _st _pin; do
     fdRow "ruleIfT $_id old-road walk line: native 5 handed 10" "$(grep -c '^=== jitter rule walk: If native 5 handed 10 ===' "$T/ri.$_id.c.e")" "0" "1"
     if [ -n "$_ref" ]; then _ofeq "ruleIfT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/ri.$_id.i.e") $(grep -c "^$_ref" "$T/ri.$_id.c.e")" "1 1"; fi
 done < "$T/ri.list"
-_ofeq "ruleIfT rows ran (14 of 14)" "$_rin" "14"
+_ofeq "ruleIfT rows ran (15 of 15)" "$_rin" "15"
 #  what the fire ADOPTS when the condition refuses: nothing, on both arms; and its anti-vacuity sibling, a clean fire adopts its ifThen instruct
 _ris='it1 = "untouched"; it1 = If("if qa qb + 1; print 1:;"); dumpContents(it1);'
 _rirun adI "" "$_ris"; _rirun adC "$_riArm" "$_ris"
