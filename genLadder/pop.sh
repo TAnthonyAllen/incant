@@ -1149,6 +1149,32 @@ _ofeq "clearHolderT K1 control, top clear(*h): target emptied, holder kept (= ru
 _ofeq "clearHolderT K2 control, := and clear in the same action: holder emptied, target kept (= rule)" "$(_chv K2)" "tA 0"
 else echo "  FAIL  clearHolderT MISSING"; fail=1; fi
 
+#  ⚑ kwExprT -- SEQ 579 (Tony, 2026-11-09): a keyword inside an expression refuses by name on the NEW road (today the statement and
+#  everything after it are dropped silently). One process per row: exit and sentinel; stdout and a stderr summary (keywords refused
+#  by name, ABANDONED, PARSEFAIL), each fdRow today beside intended. KC- and KO- rows want today = intended (controls).
+_kxF=$(ip kwExprT)
+_kxs () { { grep -a '^REFUSED [A-Za-z]* -- a keyword inside an expression' "$1" | sed 's/^REFUSED \([A-Za-z]*\) .*/\1/'; grep -a -q '^ABANDONED' "$1" && echo ABANDONED; grep -a '^ERROR processCode:.*parse failed' "$1" | sed 's/.*/PARSEFAIL/'; } | tr '\n' ' ' | sed 's/ *$//'; }
+_kxo () { grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$1" | tr '\n' '|'; }
+if [ -f "$_kxF" ]; then
+sed '/^stop();/,$d' "$_kxF" > "$T/kx.pre"
+grep '^K[ECO]-[0-9]*\^' "$_kxF" > "$T/kx.list"
+_kxn=0
+while IFS='^' read -r _id _st _to _te _io _ie; do
+    _kxn=$((_kxn+1))
+    { cat "$T/kx.pre"; printf '%s\nprint "NEXT":;\ncerr "KX SENTINEL":;\nstop();\n' "$_st"; } > "$T/kx.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/kx.$_id.k" > "$T/kx.$_id.o" 2> "$T/kx.$_id.e"; echo $? > "$T/kx.$_id.x"
+    cat "$T/kx.$_id.o" >> "$T/kx.$_id.e"
+    if [ "$_id" = "KO-1" ]; then
+        _ofeq "kwExprT $_id exit (old road top level abandons the file, exit 0)" "$(cat "$T/kx.$_id.x")" "0"
+    else
+        _ofeq "kwExprT $_id exit, sentinel" "$(cat "$T/kx.$_id.x") $(grep -c '^KX SENTINEL' "$T/kx.$_id.e")" "0 1"
+    fi
+    fdRow "kwExprT $_id stdout" "$(_kxo "$T/kx.$_id.o")" "$_to" "$_io"
+    fdRow "kwExprT $_id stderr: keywords refused by name / ABANDONED / PARSEFAIL" "$(_kxs "$T/kx.$_id.e")" "$_te" "$_ie"
+done < "$T/kx.list"
+_ofeq "kwExprT rows ran (10 of 10)" "$_kxn" "10"
+else echo "  FAIL  kwExprT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ iterT -- SEQ 484 (Tony, 2026-10-30): iterate on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and the
 #  new road, one process each, read by value; the new road also by exit and sentinel. The NEW-road runs are bounded at 5 s: today

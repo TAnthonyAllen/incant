@@ -1,0 +1,66 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(KwExprT);
+define
+    kReq owner source result rule;
+    qa=2;
+    qr;
+    iffy;
+    it1;
+    kNew code={
+        kSrc := argument.CodE;
+        kReq.owner  := argument;
+        kReq.source := kSrc;
+        kReq.rule   := KantGrammar["STARt"];
+        if compileIn(kReq);
+            kBlock = kReq.result;
+            *kBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *kBlock;
+        };
+    kA1 code={ qr = "preA"; qr = if qa; 1 else 2; print "A-NEXT" qr:; };
+    kO1 code={ qr = "preO"; qr = if qa; 1 else 2; print "O-NEXT" qr:; };
+    ;
+search KwExprT Utilities UnitTests list;
+qr = "pre";
+stop();
+
+kwExprT -- SEQ 579 (Tony, 2026-11-09): a keyword inside an expression refuses by name on the NEW road. Rows prefixed KE- (cure),
+KC- (new-road controls), KO- (old-road controls, already loud, unmoved). Interpreted only.
+
+TODAY, measured: on the new road a Keywords entry (if, while, do, for, print, else, this, ... -- the registry, not a list here)
+anywhere in an expression fails ANYtoken (ruleActions.rtn:9, aCTionANYtoken: a keyWords field is not a token), so the statement
+cannot match and STARt / FILe stop QUIETLY: the statement and every statement after it are dropped, exit 0, no word. A new-road
+ACTION is loud already (its build fails; the old road's processCode reports). The old road is loud everywhere: ABANDONED at the
+top level, `ERROR processCode ... parse failed` in an action.
+
+THE CURE (new road only): KEYWORd, TOKEn's last alternative, lets the keyword reach EXPRESSIOn, which refuses it by name and ends
+the statement. `qr = if qa; 1 else 2;` then refuses twice -- if, and else in the next statement `1 else 2;` -- because the first
+`;` ends the statement. Keyword forms AS expressions stay unruled (the ; question, docs/ruleAsOperator.md R5).
+
+Not run alone: pop.sh appends the row, print "NEXT", a sentinel; one process per row. Each row reads exit and sentinel; stdout
+(lines joined by |); and a stderr summary -- the keywords refused by name, then ABANDONED and PARSEFAIL when those lines appear.
+
+ROWS, separated by ^ -- id ^ statements ^ stdout today ^ stderr summary today ^ stdout intended ^ stderr summary intended
+KE-1^it1 = STARt("qr = if qa; 1 else 2; print 9:;"); testOP(it1); print "Q" qr:;^Q pre |^^9 |Q pre |^if else
+KE-2^it1 = STARt("qr = while qa < 0; 1; print 9:;"); testOP(it1); print "Q" qr:;^Q pre |^^9 |Q pre |^while
+KE-3^it1 = FILe("qr = if qa; 1 else 2; print 9:;"); print "Q" qr:;^Q pre |^^9 |Q pre |^if else
+KE-4^it1 = STARt("qr = this; print 9:;"); testOP(it1); print "Q" qr:;^Q pre |^^9 |Q pre |^this
+KE-5^kNew(kA1); kA1(); print "Q" qr:;^Q pre |^PARSEFAIL PARSEFAIL^A-NEXT preA |Q preA |^if else
+KC-1^it1 = STARt("if qa; qr = 7; else qr = 8; print 9:;"); testOP(it1); print "Q" qr:;^9 |Q 7 |^^9 |Q 7 |^
+KC-2^it1 = STARt("iffy = 3; qr = iffy; print 9:;"); testOP(it1); print "Q" qr:;^9 |Q 3 |^^9 |Q 3 |^
+KC-3^it1 = STARt("while qa < 0; qr = 1; print 9:;"); testOP(it1); print "Q" qr:;^9 |Q pre |^^9 |Q pre |^
+KO-1^qr = if qa; 1 else 2; print "Q" qr:;^^ABANDONED^^ABANDONED
+KO-2^kO1(); print "Q" qr:;^Q pre |^PARSEFAIL^Q pre |^PARSEFAIL
