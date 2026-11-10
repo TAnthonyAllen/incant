@@ -9492,6 +9492,18 @@ _ofeq "traitGridT no modifier leaves the target plain: gTen isRule" "$(_tgs plai
 _ofeq "traitGridT + writes isRule on the target: gP3 (rule host)" "$(_tgs plus gP3)" "1"
 _ofeq "traitGridT + writes isRule on the target: gP9 (action host)" "$(_tgs plus gP9)" "1"
 
+#  ⚑ systemT -- SEQ 587 (Tony, 2026-11-10): the system command restored (runSystem). R1: harmless commands only, never a
+#  window or an app. true answers 1 (trueResult), false 0 (falseResult), and a command that writes a file this script reads back.
+_stF=$(ip systemT)
+if [ -f "$_stF" ]; then
+SYSTEMT_OUT="$T/st.file" perl -e 'alarm 20; exec @ARGV' "$B" "$_stF" > "$T/st.o" 2> "$T/st.e"; echo $? > "$T/st.x"
+_ofeq "systemT exit, sentinel" "$(cat "$T/st.x") $(grep -c '^ST SENTINEL' "$T/st.e")" "0 1"
+_ofeq "systemT true answers trueResult (1)" "$(grep '^ST true ' "$T/st.o" | awk '{print $3}')" "1"
+_ofeq "systemT false answers falseResult (0)" "$(grep '^ST false ' "$T/st.o" | awk '{print $3}')" "0"
+_ofeq "systemT a file-writing command answers 1" "$(grep '^ST write ' "$T/st.o" | awk '{print $3}')" "1"
+_ofeq "systemT the file it wrote reads back" "$(cat "$T/st.file" 2>/dev/null)" "systemT-wrote"
+else echo "  FAIL  systemT MISSING"; fail=1; fi
+
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then
     exec 2>&3 3>&-

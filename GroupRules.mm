@@ -13349,6 +13349,25 @@ int 		indenting = 0;
 		buffer->tabRight(ruler->inDENT->groupBody->gCount);
 }
 
+/*******************************************************************************
+    C extern backing the incant `system` command. Named runSystem to avoid
+    the extern "C" symbol clash with libc system(3). User-beware: no escaping,
+    no stdout capture, no elaborate error handling. Returns trueResult on
+    exit code 0, falseResult otherwise. Cut in the deep clean (S3, ce90eef6),
+    restored as it was (Tony, SEQ 587 R0).
+*******************************************************************************/
+extern "C" GroupItem *runSystem(GroupItem *command)
+{
+char 	*cmdText = command->getText();
+int 	status = 0;
+	if ( !cmdText )
+		return GroupControl::groupController->groupRules->falseResult;
+	status = ::system(cmdText);
+	if ( status == 0 )
+		return GroupControl::groupController->groupRules->trueResult;
+	return GroupControl::groupController->groupRules->falseResult;
+}
+
 // saveLocalFields save an action's argument and locals before a nested call, so each activation starts from its own state
 extern "C" void saveLocalFields(GroupItem *action)
 {

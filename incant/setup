@@ -93,6 +93,7 @@ define
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;
     stop=stopParsingInput immediateAction;
+    system immediateAction=runSystem;
     showBody immediateAction;
     testing immediateAction;
     testOP immediateAction;

@@ -525,6 +525,7 @@ extern "C" GroupItem *runOPdirect(GroupItem *op, GroupItem *target, GroupItem *a
 extern "C" GroupItem *runOPslots(GroupItem *op, GroupItem *target, GroupItem *arg);
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule);
 extern "C" void runShortcuts(char *shortcuts, Buffer *buffer);
+extern "C" GroupItem *runSystem(GroupItem *command);
 extern "C" void saveLocalFields(GroupItem *action);
 extern "C" int setCompiledMethod(GroupItem *block, char *name);
 extern "C" void setFile(GroupItem *bufField, char *name);

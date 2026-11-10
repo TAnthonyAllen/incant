@@ -503,6 +503,23 @@ String      name = item.data ? item.text : 0;
 }
 
 /*******************************************************************************
+    C extern backing the incant `system` command. Named runSystem to avoid
+    the extern "C" symbol clash with libc system(3). User-beware: no escaping,
+    no stdout capture, no elaborate error handling. Returns trueResult on
+    exit code 0, falseResult otherwise. Cut in the deep clean (S3, ce90eef6),
+    restored as it was (Tony, SEQ 587 R0).
+*******************************************************************************/
+extern GroupItem runSystem(GroupItem command)
+{
+String  cmdText = command.text;
+int     status;
+    if !cmdText return falseResult;
+    status = system(cmdText);
+    if status == 0  return trueResult;
+    return falseResult;
+}
+
+/*******************************************************************************
     A cOMMANDs method associated with commands like hash and buffer that set
     the appropriate value for the grup passed in.
 *******************************************************************************/

@@ -1,0 +1,30 @@
+Start();
+include(utilities);
+registry(SystemT);
+define
+    sA;
+    sB;
+    sC;
+    ;
+search SystemT Utilities list;
+sA := system("true");
+sB := system("false");
+sC := system("echo systemT-wrote > $SYSTEMT_OUT");
+print "ST true" sA:;
+print "ST false" sB:;
+print "ST write" sC:;
+cerr "ST SENTINEL":;
+stop();
+
+systemT -- SEQ 587 (Tony, 2026-11-10): the system command restored (runSystem, cut in the deep clean S3, ce90eef6).
+The field's text goes to libc system(); trueResult on exit 0, falseResult otherwise; no escaping, no output capture.
+
+R1: a fleet row never opens a window or an app. These rows drive harmless commands only.
+
+ST true    system("true") answers trueResult, which prints 1.
+ST false   system("false") answers falseResult, which prints 0 -- the zero row's non-zero sibling is ST true.
+ST write   a command that writes a file; pop.sh sets SYSTEMT_OUT to a file in its own temp directory and reads it
+           back, so the row proves the command ran, not only that something answered 1.
+
+Run alone, SYSTEMT_OUT is unset and the write row's shell redirect fails, so it prints 0.
+The Skim check is a tester scaffold Tony runs by hand (R2), never a row.

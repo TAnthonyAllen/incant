@@ -99,6 +99,30 @@ print "After a mock selection unchanged:" ``describe:;
 selection := dESCRIPT;
 describe();
 print "After mock deselect and set dESCRIPT:"`describe:;
+/*******************************************************************************
+    Clod, SEQ 587 R2: the Skim check, run by hand. firstLight to output.pdf,
+    then the restored system command opens it in Skim. Never a fleet row.
+*******************************************************************************/
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs;
+include(firstLightFile);
+search FORMs cOLOr fONTs list;
+define
+    skimReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    skimOpened;
+    ;
+setFrame(firstLight);
+skimReq :% copyOf(firstLight["width"]);
+skimReq :% copyOf(firstLight["height"]);
+openPDF(skimReq);
+drawWalk(firstLight);
+closePDF(skimReq);
+skimOpened := system("open -a Skim IncantForms/PDF/output.pdf");
+print "Skim open answered" skimOpened:;
 print "SENTINEL tester driver end":;
 stop();
 
