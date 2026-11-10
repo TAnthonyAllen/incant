@@ -166,6 +166,71 @@ char 		*value = 0;
 }
 
 /*****************************************************************************
+    displayImage -- forms step 8, the first image (Tony, 2026-11-10, SEQ 609).
+    Draws an image file in a field's frame, into the display its top handed
+    down. ONE argument, a request kant's drawImage fills afresh on every call
+    (utilities): field:= the field (frame and display), source:= the field
+    whose own string is the file's path (the image attribute), fit:= the fit
+    rule. The only fit is fill, and none named is fill: the image is scaled to
+    cover the frame keeping its shape, centred, and cropped at the frame.
+    Refuses by name and draws nothing: no field or source, no display, a file
+    that cannot be read as an image, a fit that is not fill.
+    A line per call on stdout says what was used -- the file, the image's
+    pixel size, the fit, and the rectangle drawn -- so a row compares values.
+*****************************************************************************/
+extern "C" GroupItem *displayImage(GroupItem *request)
+{
+	
+	if (!request) return 0;
+	GroupItem *fieldSlot = request->get("field"), *sourceSlot = request->get("source");
+	GroupItem *field  = (fieldSlot && isGROUP(fieldSlot->groupBody->flags.data)) ? fieldSlot->getGroup() : 0;
+	GroupItem *source = (sourceSlot && isGROUP(sourceSlot->groupBody->flags.data)) ? sourceSlot->getGroup() : 0;
+	if (!field || !source) {
+	::fprintf(stderr,"displayImage: REFUSING %s -- needs field:= and source:=\n", request->groupBody->tag);
+	return 0; }
+	GroupItem   *top = displayOf(field);
+	CGContextRef ctx = top ? (CGContextRef)top->getPointer() : 0;
+	if (!ctx) {
+	::fprintf(stderr,"displayImage: REFUSING %s -- no display; call makeDisplay first\n", field->groupBody->tag);
+	return 0; }
+	//  fitOf fill is the one fit; a slot holding no group means fill; any other name is refused, nothing drawn (R5)
+	GroupItem *fitSlot = request->get("fit");
+	GroupItem *fitNode = (fitSlot && isGROUP(fitSlot->groupBody->flags.data)) ? fitSlot->getGroup() : 0;
+	if (fitNode) {
+	char *named = fitNode->getText();
+	if (!named || ::strcmp(named,"fill")) {
+	::fprintf(stderr,"displayImage: REFUSING %s's fit=%s -- the only fit is fill\n", field->groupBody->tag, named ? named : "");
+	return 0; } }
+	unsigned int kind = source->groupBody->flags.data;
+	char *path = (isSTRING(kind) || isTOKEN(kind)) ? source->getText() : 0;
+	NSImage   *loaded = (path && *path) ? [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:path]] : nil;
+	CGImageRef image  = loaded ? [loaded CGImageForProposedRect:NULL context:nil hints:nil] : 0;
+	if (!image) {
+	::fprintf(stderr,"displayImage: REFUSING %s -- cannot read an image from %s\n", field->groupBody->tag, path ? path : "(no path)");
+	if (loaded) [loaded release];
+	return 0; }
+	NSRect  framed = ::getFrame(field);
+	CGFloat iw = CGImageGetWidth(image), ih = CGImageGetHeight(image);
+	//  fillFit the larger of the two ratios covers the frame; the overhang is split evenly and cropped
+	CGFloat wr = framed.size.width / iw, hr = framed.size.height / ih, scale = wr > hr ? wr : hr;
+	CGFloat dw = iw * scale, dh = ih * scale;
+	CGFloat dx = framed.origin.x + (framed.size.width - dw) / 2, dy = framed.origin.y + (framed.size.height - dh) / 2;
+	CGContextSaveGState(ctx);
+	CGContextClipToRect(ctx, CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height));
+	//  uprightImage the top's context is flipped (y down); this turns the image the right way up, and only it
+	CGContextTranslateCTM(ctx, dx, dy + dh);
+	CGContextScaleCTM(ctx, 1, -1);
+	CGContextDrawImage(ctx, CGRectMake(0, 0, dw, dh), image);
+	CGContextRestoreGState(ctx);
+	::printf("=== displayImage %s file %s pixels %gx%g fit fill drawn %gx%g at %g,%g ===\n",
+	field->groupBody->tag, path, (double)iw, (double)ih, (double)dw, (double)dh, (double)dx, (double)dy);
+	::fflush(stdout);
+	[loaded release];
+	
+	return request;
+}
+
+/*****************************************************************************
     DS-6 — THE MINIMAL DISPLAY. 2026-08-06.
 
     Two of the GD ruling's four things, and only two: A BITMAP CONTEXT and a

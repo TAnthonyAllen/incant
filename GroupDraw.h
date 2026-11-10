@@ -13,6 +13,7 @@ Layout *layout;
 extern "C" GroupItem *closePDF(GroupItem *request);
 extern "C" GroupItem *displayBorder(GroupItem *field);
 extern "C" GroupItem *displayFillRT(GroupItem *field);
+extern "C" GroupItem *displayImage(GroupItem *request);
 GroupItem *displayOf(GroupItem *field);
 extern "C" GroupItem *displayText(GroupItem *request);
 extern "C" NSRect getFrame(GroupItem *item);

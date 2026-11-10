@@ -31,7 +31,7 @@ define
                 first height=50 fill:=lightGreen border
                     describeHead="Using Descriptions" font:=titleFont color:=white align=center valign=center;
                 second across font:=normalFont
-                    saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" border fill:=paleGray;
+                    saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Saber.jpg" border fill:=paleGray;
                     trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" border fill:=paleGray;
                 describeHelp describe="This is the default text description when nothing is selected" border font:=normalFont fill:=lightGreen;
     ;

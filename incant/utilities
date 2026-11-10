@@ -148,6 +148,7 @@ define
         dwOpen = argument.isPointeR;
         if dwOpen == 0;     makeDisplay(argument);
         drawFill(argument);
+        drawImage(argument);
         drawBorder(argument);
         drawText(argument);
         drawKids(argument);
@@ -254,6 +255,23 @@ define
             dtHops += 1;
         if dtDraw == 1;     displayText(textReq);
         };
+    /***************************************************************************
+        drawImage -- forms step 8 (Tony, 2026-11-10, SEQ 609). A field with an
+        image attribute hands displayImage one request, imageReq, written afresh
+        on every call: the field, and the image attribute as the source (its
+        text is the file's path). fit stays 0, which the floor reads as fill:
+        no attribute names a fit yet. Drawn after the fill and before the
+        border, so the border sits on the image.
+    ***************************************************************************/
+    imageReq field source fit;
+    drawImage code={
+        diSelf := argument;
+        if *diSelf["image"];
+            imageReq.field := argument;
+            imageReq.source := *diSelf["image"];
+            imageReq.fit = 0;
+            displayImage(imageReq);
+        };
     drawFill code={
         if argument["fill"];    displayFill(argument);
         or argument["style"];   displayFill(argument);
@@ -268,6 +286,7 @@ define
     drawKids code={
         for grup in argument; members
             drawFill(*grup);
+            drawImage(*grup);
             drawBorder(*grup);
             drawText(*grup);
             if *grup.hasMemberS;    drawKids(*grup);
