@@ -1,0 +1,81 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ForOpT);
+define
+    qa=2;
+    qb=3;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    it1;
+    lp;
+    foN code={
+        for lp in fsrc;     print *lp:;
+        for lp in <- fsrc;
+            print *lp:;
+            if *lp == 2;    break;
+        print 8:;
+        };
+    nlReqN owner source result rule;
+    foNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    foAct code={ for lp in <- fsrc; qa qb + 1; print "O-NEXT":; };
+    ;
+search ForOpT Utilities UnitTests list;
+fsrc +% fa fb fc;
+stop();
+
+forOpT -- SEQ 594 (Tony, 2026-11-10): FOr split into fixed shapes. FOr becomes the parent of FORBACk (for .. in <- ..) and
+FORWARd (for .. in ..), each an operator with the default action OPERATOr and its own op (forBack, forLoop); FOr's hand
+action is deleted. The <- is a keyword that hands nothing up, so both rules hold cursor, source, statement. LOOPRESTRICt
+(attributes / members) keeps today's refusal, given by its own action. forT and ruleForT's values must not move; these
+rows pin what the split CHANGES and the controls it must not. Rows prefixed FO-. Interpreted only.
+
+FO-1  the forward rule's statement slot refuses: today FOr's own wording; the default names FORWARd and the slot.
+FO-2  the same with <-: the default names FORBACk.
+FO-3  the reverse rule's source refuses: today the attach's refusal naming the internal list (forArms).
+FO-4  a restriction, forward: today's wording stays, from LOOPRESTRICt's own action; the default then adds its line for
+      the slot that handed up nothing.
+FO-5  a restriction with <-: the same, the default's line naming FORBACk.
+FO-6  control: the old road's For with <-, a refused body in an action: refused naming xl1, the rest does not run.
+FO-7  control (R0): top level through FILe -- a forward loop, then a <- loop that breaks at 2, then a print.
+FO-8  control (R0): the same statements as a new-road action body (foN, built by foNew -- whileT's whNew). A "parse
+      failed" line would mean foN ran on the old road; the refusals column would show it.
+FO-9  control: continue in a <- loop (3, then 1).
+
+Not run alone: pop.sh appends the row, print "NEXT", a sentinel; one process per row. Each row reads exit and sentinel; stdout
+(lines joined by |); and the lines that are REFUSED naming FOr, FORBACk, FORWARd, forArms or xl1, or say parse failed,
+joined by |.
+
+ROWS, separated by ^ -- id ^ statements ^ stdout today ^ refusals today ^ stdout intended ^ refusals intended
+FO-1^it1 = FOr("for lp in fsrc; qa qb + 1;"); print "Q":;^Q |^REFUSED FOr -- its statement handed up no instruct |^Q |^REFUSED FORWARd -- its STATEMENt handed up nothing |
+FO-2^it1 = FOr("for lp in <- fsrc; qa qb + 1;"); print "Q":;^Q |^REFUSED FOr -- its statement handed up no instruct |^Q |^REFUSED FORBACk -- its STATEMENt handed up nothing |
+FO-3^it1 = FOr("for lp in <- qa qb + 1; print 1:;"); print "Q":;^Q |^REFUSED forArms -- Operator +% -- an operand that is nothing|^Q |^REFUSED FORBACk -- its EXPRESSIOn handed up nothing |
+FO-4^it1 = FOr("for lp in fsrc; attributes print *lp:;"); print "Q":;^Q |^REFUSED FOr attributes / members -- not built on the new road yet |^Q |^REFUSED FOr attributes / members -- not built on the new road yet |REFUSED FORWARd -- its LOOPRESTRICt handed up nothing |
+FO-5^it1 = FOr("for lp in <- fsrc; members print *lp:;"); print "Q":;^Q |^REFUSED FOr attributes / members -- not built on the new road yet |^Q |^REFUSED FOr attributes / members -- not built on the new road yet |REFUSED FORBACk -- its LOOPRESTRICt handed up nothing |
+FO-6^foAct(); print "Q":;^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|
+FO-7^it1 = FILe("for lp in fsrc; print *lp:; for lp in <- fsrc; { print *lp:; if *lp == 2; break; } print 8:;"); print "Q":;^1 |2 |3 |3 |2 |8 |Q |^^1 |2 |3 |3 |2 |8 |Q |^
+FO-8^foNew(foN); foN(); print "Q":;^1 |2 |3 |3 |2 |8 |Q |^^1 |2 |3 |3 |2 |8 |Q |^
+FO-9^it1 = STARt("for lp in <- fsrc; { if *lp == 2; continue; print *lp:; }"); testOP(it1); print "Q":;^3 |1 |Q |^^3 |1 |Q |^
