@@ -1,3 +1,34 @@
+# ⚠⚠⚠ OPENER AMENDED 2026-11-10, AFTER SHUTDOWN SEAL 437 (Tony's note): THE NEXT SESSION IS A LIGHT AFTERNOON AND OPENS ON valign, BELOW. THE CLEANUP-CENSUS DISPATCH UNDER SEAL 437 MOVES TO THE NEXT MORNING SESSION, UNCHANGED.
+#
+#   ## ONE PLAIN LINE: nothing was built after the shutdown; only the order of the two recorded openers changed -- valign this afternoon, the census the next morning.
+#   ## PROVENANCE: Tony pasted the dispatch below into the closed session, saying Clay drafted it as the afternoon's opening dispatch. Recorded VERBATIM. If Tony revises it before the afternoon, the text he pastes then is the ruling, not this copy. SEQ is Clod's to assign: 604 goes to this one, and the census takes the number after it.
+#
+#   DISPATCH -- SEQ (Clod assigns) -- AFTERNOON, LIGHT: FORMS STEP 5b, valign. THE CENSUS STAYS THE NEXT MORNING'S OPENER.
+#
+#   RULINGS (Tony, 2026-11-10)
+#   R0  This afternoon opens on valign, not the census: the recorded census opener moves to the next
+#       morning session, unchanged.
+#   R1  valign=top|center|bottom, resolved as align is (the field's own, its style:=, then the enclosing
+#       fields) into textReq; displayText offsets the line block before the first line, within the 4-point
+#       inset. Default top. A bad value refused by name and drawn top, as align's is. One argument still.
+#   R2  firstLight: ok's text valign=center (a button's label centred both ways). Say if heading or words
+#       would read better with it too; do not apply that without Tony's word.
+#   R3  Drawing rows live in formsPop only: centred, bottom, inherited, the bad value, and the PDF read-back.
+#
+#   ROWS FIRST, born red at today's value; tolerances as align's (SEQ 584).
+#
+#   CERTIFICATE: only the registered rows move; formsPop otherwise as banked; pop.sh FAIL rows identical to
+#   the bank by name. H7: valign ignored -> the centred and bottom rows red; the walk stopped at the field ->
+#   the inherited row red.
+#
+#   Keep it short: seal and stop after this one unless Tony says otherwise.
+#
+#   At the end of your report, say whether you'd rather shut down or continue.
+#
+#   ## NOTES FOR THE OPENER: align's stroke is SEQ 582 R4 and SEQ 584 (seals 412-413 and the day's drawing seals); IncantForms/WorkingOn/forms, DRAWING STEPS 5a, carries its ruling text. formsPop's banked state is docs/sealCaptures/formsPop.txt, with F-149 red as banked. The state to open from is seal 437's, just below: pop.sh 3720 green, FAIL 67 by name, canary 460.
+#   ## STILL OWED TO TONY'S HANDS: `git branch -D arrow-retire` and `git push origin --delete arrow-retire`.
+#
+
 # ⚠⚠⚠ SHUTDOWN SEALED 2026-11-10 (437) ON TRUNK -- SEQ 598-603 CLOSED; THE KITCHEN PASS RUN. THE NEXT SESSION OPENS ON THE DISPATCH BELOW: THE CLEANUP CENSUSES (md FILES, UNUSED INCANTATIONS, HWF IDEAS), READ-ONLY. ONE THING OWED TO TONY'S HANDS: THE BRANCH arrow-retire IS NOT DELETED.
 #
 #   ## ONE PLAIN LINE: the day closes clean -- <- is retired on trunk, no operator in a prefix position crashes the new road, the ten reserved operators refuse by name, and ITERATe and BRANCh are operators built by the default action, so no control rule keeps a hand action; every check reads as banked, the tree is bare, all repos are pushed and main is trunk; the bought branch arrow-retire still waits for its delete.
