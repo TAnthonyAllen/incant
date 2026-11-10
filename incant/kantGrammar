@@ -116,12 +116,12 @@ define
     // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2), and off ELSEIf, PRINt, CERr, COUt, SCOPEXp, XPRESs and STRINGXp (Tony, offline 2026-10-30; fleet unmoved); ELSEIf builds its own instruct (SEQ 491)
     ELSe
         BASICELSe   else- followedBy STATEMENt@;
-        ELSEIf      or- EXPRESSIOn SemI- STATEMENt ELSe?;
+        ELSEIf      op="ifThen" or- EXPRESSIOn SemI- STATEMENt ELSe?;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
         Do          op="doLoop" do- followedBy STATEMENt while- EXPRESSIOn SemI-;
-        If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
+        If          op="ifThen" if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
         FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         WHILe       op="whileLoop" while- followedBy EXPRESSIOn SemI-? STATEMENt;
         PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
@@ -195,38 +195,6 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // If only builds (SEQ 473): one instruct, op ifThen, its operand a mint of the arm list -- the condition, the then-statement, the else-statement if present; opIf runs it
-    If code={
-        :actionLabel EXPRESSIOn STATEMENt ELSe;
-        // twoStars each child label holds its instruct, as XPRESs reads EXPRESSIOn
-        cond    := **EXPRESSIOn;
-        thenS   := **STATEMENt;
-        // armRefused an arm that handed up no instruct refuses by name, never attaches a null (SEQ 476 R6)
-        thenM   := *thenS.methoD;
-        if thenM == 0;
-            cerr "REFUSED If -- its then arm handed up no instruct":;
-            clear(*actionLabel);
-            return *actionLabel;
-        ifArms  +% *cond;
-        ifArms  +% *thenS;
-        eLen    := *ELSe.listLengtH;
-        if eLen != 0;
-            elseS   := **ELSe;
-            elseM   := *elseS.methoD;
-            if elseM == 0;
-                cerr "REFUSED If -- its else arm handed up no instruct":;
-                clear(*actionLabel);
-                return *actionLabel;
-            ifArms  +% *elseS;
-        op := Operators["ifThen"];
-        armsMint    := copyOf(ifArms);
-        miArgs      +% op armsMint;
-        built       := makeInstruct(miArgs);
-        *actionLabel   := *built;
-        return  *actionLabel;
-        };
-    // ELSEIf shares If's action (SEQ 528): an or arm is an if in If's else slot -- the same ifThen instruct, so opIf runs it and If's else slot takes it
-    ELSEIf ruleMethod=If;
     // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
     ITERATe code={
         :actionLabel ANYtoken attributes members ITERSOURCe;
@@ -336,6 +304,9 @@ define
     WHILe ruleMethod=OPERATOr;
     // doIsAnOperator Do declares op= and takes the default action; its slots in order are the statement then the condition, the order opDo reads (SEQ 591)
     Do ruleMethod=OPERATOr;
+    // ifIsAnOperator If and ELSEIf declare op="ifThen" and take the default action; the slots in order are the condition, the then statement and the else, absent when absent, the order opIf reads (SEQ 592)
+    If ruleMethod=OPERATOr;
+    ELSEIf ruleMethod=OPERATOr;
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal
     // returnArms return builds the same instruct, its operand a mint of [keyword, value?]; opBranch runs the value, sets kind 3 and hands the value up (SEQ 508 / 509)
     BRANCh code={
