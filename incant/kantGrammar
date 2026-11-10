@@ -23,6 +23,8 @@
 // makeInstruct lives in Utilities, which every reader of this file searches: a name defined in KantGrammar is not reachable as an action (SEQ 494, measured)
 registry(Utilities);
 define
+    // refusalSaid ONE MEANING: a kant action has already printed the refusal for the statement being built. Every refusing kant action sets it; the default action OPERATOr reads it and stays quiet when its own slot is the casualty; TOPSTATEMENt and STARt clear it when their statements end. Declared because more than one action touches it (Tony, SEQ 596 R1)
+    refusalSaid=0;
     // makeInstruct builds one instruct from a field carrying two entries, the op and its operand, binds testOP and returns it; it clears its pieces, so the next build starts empty (SEQ 478 R0). Each rule keeps its own missing-part check (Tony, SEQ 494 R1)
     // plainReturn the return copy carries the method binding, so the instruct comes back still bound to testOP (Tony, SEQ 497)
     makeInstruct code={
@@ -180,6 +182,8 @@ define
         stmtsMint   := copyOf(stmts);
         miArgs      +% op stmtsMint;
         built       := makeInstruct(miArgs);
+        // sequenceEnds the sequence is built: nothing said carries past it (SEQ 596 R1)
+        refusalSaid = 0;
         *actionLabel   := *built;
         return  *actionLabel;
         };
@@ -220,10 +224,12 @@ define
         // childRefused a cursor or source that handed up nothing refuses by name
         if cursor.datA == 0;
             cerr "REFUSED ITERATe -- its cursor handed up nothing":;
+            refusalSaid = 1;
             clear(*actionLabel);
             return *actionLabel;
         if source.datA == 0;
             cerr "REFUSED ITERATe -- its source handed up nothing":;
+            refusalSaid = 1;
             clear(*actionLabel);
             return *actionLabel;
         iterArms    +% *cursor;
@@ -242,6 +248,7 @@ define
     // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1); the refusal lives here, so the loop's default action meets a slot that handed up nothing (SEQ 594 R2)
     LOOPRESTRICt code={
         cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
+        refusalSaid = 1;
         clear(*actionLabel);
         return *actionLabel;
         };
@@ -259,7 +266,9 @@ define
             sv := **slot;
             // slotNothing any slot that handed up nothing refuses by its own label
             if sv.datA == 0;
-                cerr "REFUSED" ruleT "-- its" slN "handed up nothing":;
+                // oneRefusal when the slot's own rule has already said its refusal, the default action stays quiet: one statement, one refusal, naming the real patient (Tony, SEQ 596 R1)
+                if refusalSaid == 0;    cerr "REFUSED" ruleT "-- its" slN "handed up nothing":;
+                refusalSaid = 1;
                 clear(*actionLabel);
                 return *actionLabel;
             // slotStatement a STATEMENt slot must hand up an instruct
@@ -267,6 +276,7 @@ define
                 svM := *sv.methoD;
                 if svM == 0;
                     cerr "REFUSED" ruleT "-- its" slN "handed up no instruct":;
+                    refusalSaid = 1;
                     clear(*actionLabel);
                     return *actionLabel;
             opArms  +% *sv;
@@ -385,9 +395,12 @@ define
                     if *k1.taG == "return";     kw := *k1;
                 kwT := *kw.taG;
                 cerr "REFUSED" kwT "-- at the top level there is no loop or block to end":;
+                refusalSaid = 1;
                 topRun = 0;
         // unlandedRefused a signal still set when the statement finishes reached the top level unlanded: refuseTopSignal refuses it by name and clears it (SEQ 516)
         if topRun == 1;     refuseTopSignal(*ts);
+        // statementEnds the top-level statement is over: the next one starts with nothing said
+        refusalSaid = 0;
         return *actionLabel;
         };
     // XPRESs hands its EXPRESSIOn's instruct up as the statement, so STARt's seq runs it (SQ-4)
@@ -411,6 +424,7 @@ define
                     if *kwF.taG == "NamE";
                         kwT := *kwF.texT;
                         cerr "REFUSED" kwT "-- a keyword inside an expression; a keyword form is not an expression yet":;
+                        refusalSaid = 1;
                         clear(*actionLabel);
                         return *actionLabel;
             if *cur.instructTypE != 0;
@@ -438,6 +452,7 @@ define
                         // arrowNoTarget a <- in a prefix position has no target: refused by name, the old road's wording, and the statement does nothing (SEQ 596 R0); without this the <- was dropped and its operand used
                         if *pOp.taG == "<-";
                             cerr "REFUSED <- -- an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)":;
+                            refusalSaid = 1;
                             clear(*actionLabel);
                             return *actionLabel;
                         if *pOp.taG == "-";     pOp := Operators["negate"];
@@ -462,6 +477,7 @@ define
                         cOp := *cur[1];
                         adjOp := *cOp.taG;
                         cerr "REFUSED" adjOp "-- a list of adjacent operands is not built on the new road yet":;
+                        refusalSaid = 1;
                         clear(*actionLabel);
                         return *actionLabel;
                 // adjacentRun an operand followed by an operand, no op between, joins a run; the run ends at an operator or the end and becomes ONE operand, an ADJACENt list (SEQ 468)
@@ -488,6 +504,7 @@ define
                     if adjRef == 2;     adjOp := *nx.taG;
                     if adjRef != 0;
                         cerr "REFUSED" adjOp "-- a list of adjacent operands is not built on the new road yet":;
+                        refusalSaid = 1;
                         clear(*actionLabel);
                         return *actionLabel;
                 if target.datA == 0;    target = opnd;
@@ -505,6 +522,7 @@ define
                                     chTop := *cmpP[1];
                                     chOp := *chTop.taG;
                                     cerr "REFUSED" chOp "-- a chained comparison (a < b < c) -- refused by name (SEQ 318 R1)":;
+                                    refusalSaid = 1;
                                     clear(*actionLabel);
                                     return *actionLabel;
                             // a looser operator first closes every tighter slot into the target; an equal one closes its own, so a tier reads left to right; assign never closes assign
@@ -534,6 +552,7 @@ define
                                     if tOk == 0;
                                         asgOp := *op.taG;
                                         cerr "REFUSED" asgOp "-- the left of" asgOp "is an instruct, not a field: its op is" tTopT:;
+                                        refusalSaid = 1;
                                         clear(*actionLabel);
                                         return *actionLabel;
                             instruct +% op target;
