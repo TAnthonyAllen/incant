@@ -5,6 +5,7 @@
 # RE-BANKED 2026-11-10 at seal 430 (SEQ 597): 62 + prefixOpT's 89 pins (R2, not cured by ruling) + 8 born red for the <- retirement (arrowRetiredT AR-1..6, arrowExprT AX-5 x2; green on branch arrow-retire, the buy is Tony's) = 159.
 # RE-BANKED 2026-11-10 (SEQ 598 R0): arrow-retire bought (the tombstone); the 8 retirement rows (arrowRetiredT AR-1..6, arrowExprT AX-5 x2) are green; 159 - 8 = 151 = 62 + prefixOpT's 89 pins.
 # RE-BANKED 2026-11-10 at seal 432 (SEQ 598 R1): 81 prefixOpT rows cured and green; 151 - 81 = 70 = 62 + prefixOpT's 8 (the old road's 3 print items of +*, + and :., pinned by R2; 5 new-road print items :- :+ :. +* +, taken by print's flag reader, not cured).
+# RE-BANKED 2026-11-10 at seal 433 (SEQ 599): prefixOpT's 5 new-road print items re-pinned by ruling (in a print, : + - are shortcuts); 70 - 5 = 65 = 62 + the old road's 3 prefixOpT print items (+* + :.). The 31 rows born red for SEQ 599 are green.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
@@ -40,13 +41,8 @@ FAIL  pointerT L6b -- field=#10 not on the line after its label
 FAIL  pointerT L6c -- field=#6 not on the line after its label
 FAIL  pointerT L6d -- field=#11 not on the line after its label
 FAIL  pointerT X witness MISSING -- the star no longer binds to ptBagP
-FAIL  prefixOpT PX-44 :- new road, print item born red (SEQ 345): today [[3 |Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
-FAIL  prefixOpT PX-45 :+ new road, print item born red (SEQ 345): today [[3 |Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
-FAIL  prefixOpT PX-50 :. new road, print item born red (SEQ 345): today [[Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
 FAIL  prefixOpT PX-50 :. old road, print item born red (SEQ 345): today [[Q |] r1 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
-FAIL  prefixOpT PX-57 +* new road, print item born red (SEQ 345): today [[Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
 FAIL  prefixOpT PX-57 +* old road, print item born red (SEQ 345): today [[Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
-FAIL  prefixOpT PX-61 + new road, print item born red (SEQ 345): today [[3 |Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
 FAIL  prefixOpT PX-61 + old road, print item born red (SEQ 345): today [[3 |Q |] r0 p0 x0 s1], intended [[Q |] r1 p1 x0 s1]
 FAIL  raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen
 FAIL  setFlagTopT -- dumpContents shows sfTop WITHOUT noPrint
