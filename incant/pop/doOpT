@@ -1,0 +1,71 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(DoOpT);
+define
+    qa=2;
+    qb=3;
+    wc=0;
+    wo=0;
+    it1;
+    dpAct code={ do qa qb + 1; while wc < 2; print "O-NEXT":; };
+    dpN code={
+        do
+            wc = wc + 1;
+            print wc:;
+            if wc == 2;     break;
+        while wc < 3;
+        print 8:;
+        };
+    nlReqN owner source result rule;
+    dpNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    ;
+search DoOpT Utilities UnitTests list;
+stop();
+
+doOpT -- SEQ 591 (Tony, 2026-11-10): Do as an operator, WHILe's shape (SEQ 580). Do declares op="doLoop" and its hand action
+is deleted; the default action OPERATOr builds its instruct from its label, the statement then the condition, the order opDo
+reads. doT (both roads) must not move; these rows pin what the default CHANGES and the controls it must not. Rows prefixed
+DP-. Interpreted only.
+
+DP-1  the body slot refuses: today "REFUSED Do -- its statement handed up no instruct" (Do's own refusal, pinned by no row
+      until now); the default names the slot by its label and, the body having handed up nothing, says so.
+DP-2  the condition slot refuses: today F-147's attach refusal naming the internal list (doArms); the default names the slot
+      by its label.
+DP-3  control: a bare-name condition is a value, not an instruct, and is not refused; two passes, so the test is read.
+DP-4  control: the old road's Do, a refused body in an action: refused naming xl1, the rest of the action does not run.
+DP-5  control (R0): top level through FILe, which runs as it builds -- no testOP; the statement after the Do runs.
+DP-6  control (R0): a new-road action body (dpN, built by dpNew -- whileT's whNew), a break inside the Do ends only the Do.
+      A "parse failed" line would mean dpN ran on the old road; the refusals column would show it.
+
+Not run alone: pop.sh appends the row, print "NEXT", a sentinel; one process per row. Each row reads exit and sentinel; stdout
+(lines joined by |); and the lines that are REFUSED naming Do, doArms or xl1, or say parse failed, joined by |.
+
+ROWS, separated by ^ -- id ^ statements ^ stdout today ^ refusals today ^ stdout intended ^ refusals intended
+DP-1^it1 = Do("do qa qb + 1; while wc < 2;"); testOP(it1); print "Q":;^Q |^REFUSED Do -- its statement handed up no instruct |^Q |^REFUSED Do -- its STATEMENt handed up nothing |
+DP-2^it1 = Do("do print 1:; while qa qb + 1;"); testOP(it1); print "Q":;^Q |^REFUSED doArms -- Operator +% -- an operand that is nothing|^Q |^REFUSED Do -- its EXPRESSIOn handed up nothing |
+DP-3^wo = 2; it1 = Do("do { print wo:; wo = wo - 1; } while wo;"); testOP(it1); print "Q":;^2 |1 |Q |^^2 |1 |Q |^
+DP-4^dpAct(); print "Q":;^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|
+DP-5^it1 = FILe("do { wc = wc + 1; print wc:; } while wc < 3; print 8:;"); print "Q":;^1 |2 |3 |8 |Q |^^1 |2 |3 |8 |Q |^
+DP-6^dpNew(dpN); dpN(); print "Q":;^1 |2 |8 |Q |^^1 |2 |8 |Q |^

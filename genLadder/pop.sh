@@ -933,6 +933,9 @@ while IFS='|' read -r _id _st _nm; do
     if [ "$_id" = RC-While ] || [ "$_id" = RC-sWhile ]; then
         #  SEQ 580 REGISTERED: WHILe's default action refuses its condition slot by the slot's label, before any attach
         fdRow "refusedCondT $_id the refusal: whileArms attach | WHILe's EXPRESSIOn slot" "$(grep -c '^REFUSED whileArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED WHILe -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+    elif [ "$_id" = RC-Do ]; then
+        #  SEQ 591 REGISTERED: Do's default action refuses its condition slot by the slot's label, before any attach
+        fdRow "refusedCondT $_id the refusal: doArms attach | Do's EXPRESSIOn slot" "$(grep -c '^REFUSED doArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED Do -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
     else
         _ofeq "refusedCondT $_id the attach's refusal names $_nm" "$(grep -c "^REFUSED $_nm -- Operator +% -- an operand that is nothing" "$T/rc.$_id.e")" "1"
     fi
@@ -958,6 +961,24 @@ while IFS='^' read -r _id _st _to _tr _io _ir; do
 done < "$T/wo.list"
 _ofeq "whileOpT rows ran (4 of 4)" "$_won" "4"
 else echo "  FAIL  whileOpT MISSING"; fail=1; fi
+
+#  ⚑ doOpT -- SEQ 591 (Tony, 2026-11-10): Do as an operator, WHILe's shape. One process per row: exit and sentinel; stdout and the
+#  REFUSED lines naming Do / doArms / xl1 or a parse failed line (line numbers stripped, H3), each fdRow today beside intended.
+_dpF=$(ip doOpT)
+if [ -f "$_dpF" ]; then
+sed '/^stop();/,$d' "$_dpF" > "$T/dp.pre"
+grep '^DP-[0-9]*\^' "$_dpF" > "$T/dp.list"
+_dpn=0
+while IFS='^' read -r _id _st _to _tr _io _ir; do
+    _dpn=$((_dpn+1))
+    { cat "$T/dp.pre"; printf '%s\nprint "NEXT":;\ncerr "DP SENTINEL":;\nstop();\n' "$_st"; } > "$T/dp.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/dp.$_id.k" > "$T/dp.$_id.o" 2> "$T/dp.$_id.e"; echo $? > "$T/dp.$_id.x"
+    _ofeq "doOpT $_id exit, sentinel" "$(cat "$T/dp.$_id.x") $(grep -c '^DP SENTINEL' "$T/dp.$_id.e")" "0 1"
+    fdRow "doOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/dp.$_id.o" | tr '\n' '|')" "$_to" "$_io"
+    fdRow "doOpT $_id refusals" "$(grep '^REFUSED Do\|^REFUSED doArms\|^REFUSED xl1\|parse failed' "$T/dp.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+done < "$T/dp.list"
+_ofeq "doOpT rows ran (6 of 6)" "$_dpn" "6"
+else echo "  FAIL  doOpT MISSING"; fail=1; fi
 
 #  ============================================================================
 #  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
