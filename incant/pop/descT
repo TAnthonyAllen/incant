@@ -1,0 +1,37 @@
+register(DescT);
+define
+    deX = 0;
+    deY = 0;
+    deAt code={
+        px = deX;
+        py = deY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    ;
+search DescT FORMs dESCRIPTIONs UnitTests Utilities cOLOr fONTs list;
+cerr "DE the descriptions registry after the form's define":;
+cerr "DED saber [" dESCRIPTIONs["saber"] "]":;
+cerr "DED describeHelp [" dESCRIPTIONs["describeHelp"] "]":;
+setFrame(webViewExample);
+printDefinition(webViewExample);
+makeDisplay(webViewExample);
+drawWalk(webViewExample);
+cerr "DE pixels: first (10,10), saber (100,300), trees (350,300), describeHelp (100,550)":;
+deX = 10; deY = 10; deAt(webViewExample);
+deX = 100; deY = 300; deAt(webViewExample);
+deX = 350; deAt(webViewExample);
+deX = 100; deY = 550; deAt(webViewExample);
+cerr "DE borders: saber's left (0,300), trees' left (250,300), describeHelp's top (100,325)":;
+deX = 0; deY = 300; deAt(webViewExample);
+deX = 250; deAt(webViewExample);
+deX = 100; deY = 325; deAt(webViewExample);
+cerr "DESCT SENTINEL":;
+stop();
+
+descT -- the descriptions form's driver (SEQ 607, Tony, 2026-11-10). NOT RUN ALONE: IncantForms/Windows/descriptions is a
+whole incantation (its own Start and includes), so it cannot be included; genLadder/formsPop.sh joins the form, up to its
+stop(), to this driver and runs the result. Rows in formsPop. Coordinates are page coordinates (the top's x and y are the
+origin). The DED lines read the descriptions registry after the form is defined: with dESCRIPTIONs on the search list
+during the form's define (R1), a form field of the same name is the registry's entry, not a second field.

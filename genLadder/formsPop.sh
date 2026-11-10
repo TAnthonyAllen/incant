@@ -371,6 +371,27 @@ _ofeq "firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify p
 fdRow "firstPdfT PD-9 the read-back: ok's ink centred top to bottom in its frame" "$(_tyCentre "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" 165 199)" "off 5 18" "centred"
 _ofeq "firstPdfT PD-10 the PDF agrees with the bitmap on ok's first and last ink rows, within 1" "$(_p=$(( $(_tys "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" miny) - $(_tys "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" miny) )); _q=$(( $(_tys "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" maxy) - $(_tys "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" maxy) )); [ ${_p#-} -le 1 ] && [ ${_q#-} -le 1 ] && echo agree || echo "differ $_p $_q")" "agree"
 
+echo "-- the descriptions form: forms step 8, baby steps."
+#  ⚑ descT -- the descriptions form (Tony, 2026-11-10, SEQ 607): IncantForms/Windows/descriptions is a whole incantation, so the run file is
+#  the form up to its stop() joined to the driver incant/pop/descT. REGISTERED BEFORE THE FORM CHANGE: each row pinned at the old form's
+#  value, the intended beside it. Pixels are page coordinates.
+_deF=$(ip descT)
+awk '/^stop\(\);$/{exit} {print}' IncantForms/Windows/descriptions > "$T/de.k"; cat "$_deF" >> "$T/de.k"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/de.k" > "$T/de.o" 2> "$T/de.e"; _dex=$?
+_dep () { grep -h "^=== pixelAt webViewExample ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
+#  _deFr <field>: the field's frame from the definition printed after setFrame, as "WxH at X,Y"
+_deFr () { grep -h "^[[:space:]]*$1=" "$T/de.o" | tail -1 | awk '{ for (i = 1; i <= NF; i++) { split($i, kv, "="); gsub(/;/, "", kv[2]); if (kv[1] == "width") w = kv[2]; if (kv[1] == "height") h = kv[2]; if (kv[1] == "x") x = kv[2]; if (kv[1] == "y") y = kv[2] } } END { print w "x" h " at " x "," y }'; }
+_det () { grep -h "^=== displayText $1 " "$T/de.o" | head -1 | sed "s/^=== displayText $1 //; s/ lines .* next [a-z]*//; s/ ===\$//"; }
+_ofeq "descT exit / sentinel" "$_dex $(grep -c '^DESCT SENTINEL' "$T/de.e")" "0 1"
+fdRow "descT DE-1 ACROSS: saber and trees side by side, each half of second (flex is gone, across is written)" "$(_deFr saber) / $(_deFr trees)" "500x138 at 500,250 / 500x137 at 500,388" "250x275 at 500,250 / 250x275 at 750,250"
+fdRow "descT DE-2 the heading's text: titleFont, white, centred both ways (font:= color:= align valign)" "$(_det describeHead)" "font Helvetica 12 0 color r0 g0 b0 valign top align left" "font Palatino 24 1 color r255 g255 b255 valign center align center"
+fdRow "descT DE-3 FILLS (fill:=): first lightGreen (10,10), saber paleGray (100,300), trees paleGray (350,300), describeHelp lightGreen (100,550)" "$(_dep 10,10)/$(_dep 100,300)/$(_dep 350,300)/$(_dep 100,550)" "r0 g0 b0 a131/r0 g0 b0 a0/r0 g0 b0 a0/r0 g0 b0 a0" "r175 g211 b120 a255/r241 g241 b241 a255/r241 g241 b241 a255/r175 g211 b120 a255"
+fdRow "descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' left (250,300), describeHelp's top (100,325), black" "$(_dep 0,300)/$(_dep 250,300)/$(_dep 100,325)" "r0 g0 b0 a0/r0 g0 b0 a0/r0 g0 b0 a0" "r0 g0 b0 a255/r0 g0 b0 a255/r0 g0 b0 a255"
+fdRow "descT DE-5 no refusal and no colour error (the form includes styles itself)" "$(grep -c 'REFUS\|ERROR' "$T/de.e")" "11" "0"
+#  DE-6 MEASURED, NOT CHOSEN: with dESCRIPTIONs on the search list during the form's define (R1), the form's saber IS the registry's saber, so
+#  the registry entry's text becomes the form field's text. R2 reads the same way (an image field's text is its description).
+fdRow "descT DE-6 the registry's saber after the form's define (R1: one field, the form's text)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor" "Saber from Fate Stay Night"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
