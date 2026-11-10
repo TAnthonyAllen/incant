@@ -1,0 +1,77 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NotBuiltT);
+define
+    qa=2;
+    qb=3;
+    qr=0;
+    it1;
+    nbAct code={ qr = qa | qb; print 6:; };
+    nbN code={
+        qr = qa | qb;
+        print 6:;
+        };
+    nlReqN owner source result rule;
+    nbNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    ;
+search NotBuiltT Utilities UnitTests list;
+stop();
+
+notBuiltT -- SEQ 599 A0 (Tony, 2026-11-10): the ten Operators entries that had no method (| ^ GO ? >> << :> :< :- &) are
+RESERVED. Each is bound to one shared method, opNotBuilt, and using one between two operands refuses by name on both
+roads, "REFUSED <op> -- is not built yet -- a reserved operator (SEQ 599)", and the statement does nothing. In a prefix
+position they refuse with the prefix wording, as every operator that is not a unary does (prefixOpT pins that). When one
+is built for real its refusal is replaced by its method (| is ruled as x | f meaning f(x), not scheduled).
+
+Not run alone: pop.sh appends the row's statements, print "Q", a sentinel; one process per run. Each value reads:
+[stdout, lines joined by |] nb<lines with the not-built wording naming this row's op> o<other REFUSED lines> x<exit>
+s<sentinel>.
+
+OPS: one line per reserved operator. pop.sh runs each as qr = qa <op> qb; print qr:; print 7:; at top level (old road)
+and as it1 = FILe("qr = qa <op> qb; print qr:;"); print 7:; (new road). Intended on the old road [0 |7 |Q |] nb1 o0 x0 s1
+(qr keeps its 0 and the next statement runs); on the new road [7 |Q |] nb1 o0 x0 s1 (an engine refusal ends the FILe
+call's unit; the statement after the call runs). Fields are separated by TABS (operators use | and ^).
+
+ROWS, separated by TABS -- id, statements, op named in the refusal, value today (seal 432's binary), intended:
+NB-C1 / NB-C2  a reserved operator as an if's condition, old road and new: neither arm runs.
+NB-A1          an old-road action, interpreted: refused, the action ends there (6 is not printed).
+NB-A2          the same action compiled (testing()).
+NB-A3          a new-road action body.
+
+TODAY, before the build: the old road refuses each with "operator '<op>' has no road"; the new road reads the operator as
+an operand, so the assignment refuses as a list of adjacent operands, and an if with one as its condition TAKES ITS THEN
+ARM in silence (NB-C2 prints 1).
+
+OP	|
+OP	^
+OP	GO
+OP	?
+OP	>>
+OP	<<
+OP	:>
+OP	:<
+OP	:-
+OP	&
+ROW	NB-C1	if qa | qb; print 1:; else print 2:; print 7:;	|	[7 |Q |] nb0 o1 x0 s1	[7 |Q |] nb1 o0 x0 s1
+ROW	NB-C2	it1 = FILe("if qa | qb; print 1:; else print 2:;"); print 7:;	|	[1 |7 |Q |] nb0 o0 x0 s1	[7 |Q |] nb1 o0 x0 s1
+ROW	NB-A1	nbAct(); print 7:;	|	[7 |Q |] nb0 o1 x0 s1	[7 |Q |] nb1 o0 x0 s1
+ROW	NB-A2	testing(nbAct); print 7:;	|	[7 |Q |] nb0 o1 x0 s1	[7 |Q |] nb1 o0 x0 s1
+ROW	NB-A3	nbNew(nbN); nbN(); print 7:;	|	[6 |7 |Q |] nb0 o1 x0 s1	[7 |Q |] nb1 o0 x0 s1

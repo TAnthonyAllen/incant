@@ -1078,13 +1078,49 @@ while IFS='	' read -r _id _op _cl _oa _na _opr _npr; do
         fdRow "prefixOpT $_id $_op old road, assignment" "$_v1" "$_oa" "[0 |Q |] r1 p1 x0 s1"
         fdRow "prefixOpT $_id $_op new road, assignment" "$_v2" "$_na" "[0 |Q |] r1 p1 x0 s1"
         fdRow "prefixOpT $_id $_op old road, print item" "$_v3" "$_opr" "[Q |] r1 p1 x0 s1"
-        fdRow "prefixOpT $_id $_op new road, print item" "$_v4" "$_npr" "[Q |] r1 p1 x0 s1"
+        #  RE-PINNED SEQ 599 A3 (Tony, 2026-11-10): in a print, : + - are shortcuts (SHORTCUt). These five never reach the expression as
+        #  an operator in a prefix position -- print's flag reader takes : + and - first -- so they are pinned at the shortcuts' own behaviour.
+        case "$_id" in
+            PX-44|PX-45|PX-50|PX-57|PX-61) _ofeq "prefixOpT $_id $_op new road, print item -- in a print, : + - are shortcuts (SHORTCUt), pinned" "$_v4" "$_npr" ;;
+            *) fdRow "prefixOpT $_id $_op new road, print item" "$_v4" "$_npr" "[Q |] r1 p1 x0 s1" ;;
+        esac
     else
         _ofeq "prefixOpT $_id $_op (a unary, pinned) old | new assignment, old | new print item" "$_v1 | $_v2 | $_v3 | $_v4" "$_oa | $_na | $_opr | $_npr"
     fi
 done < "$T/px.list"
 _ofeq "prefixOpT rows ran (68 of 68)" "$_pxn" "68"
 else echo "  FAIL  prefixOpT MISSING"; fail=1; fi
+
+#  ⚑ notBuiltT -- SEQ 599 A0 (Tony, 2026-11-10): the ten reserved Operators entries refuse by name between two operands, both roads,
+#  as a condition, in an action interpreted and compiled, and in a new-road action body. One process per run under an alarm. Value:
+#  [stdout] nb<not-built lines naming the op> o<other REFUSED lines> x<exit> s<sentinel>; today (seal 432's binary) beside intended.
+_nbF=$(ip notBuiltT)
+if [ -f "$_nbF" ]; then
+sed '/^stop();/,$d' "$_nbF" > "$T/nb.pre"
+grep '^OP	\|^ROW	' "$_nbF" > "$T/nb.list"
+_nbn=0
+_nbrun () {  # statements  op
+    _nbn=$((_nbn+1))
+    { cat "$T/nb.pre"; printf '%s\nprint "Q":;\ncerr "NB SENTINEL":;\nstop();\n' "$1"; } > "$T/nb.$_nbn.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/nb.$_nbn.k" > "$T/nb.$_nbn.o" 2> "$T/nb.$_nbn.e"; _nbx=$?
+    _nbv="[$(grep -v '^stop: \|^Search list: \|^===\|^ *$' "$T/nb.$_nbn.o" | tr '\n' '|')] nb$(grep -cF "REFUSED $2 -- is not built yet" "$T/nb.$_nbn.e") o$(grep '^REFUSED' "$T/nb.$_nbn.e" | grep -vcF "REFUSED $2 -- is not built yet") x$_nbx s$(grep -c 'NB SENTINEL' "$T/nb.$_nbn.e")"
+}
+_nbo=0
+while IFS='	' read -r _k _a _b _c _d _e; do
+    if [ "$_k" = OP ]; then
+        _nbo=$((_nbo+1))
+        _nbrun "qr = qa $_a qb; print qr:; print 7:;" "$_a"
+        fdRow "notBuiltT $_a between two operands, old road" "$_nbv" "[0 |7 |Q |] nb0 o1 x0 s1" "[0 |7 |Q |] nb1 o0 x0 s1"
+        _nbrun "it1 = FILe(\"qr = qa $_a qb; print qr:;\"); print 7:;" "$_a"
+        fdRow "notBuiltT $_a between two operands, new road" "$_nbv" "[0 |7 |Q |] nb0 o1 x0 s1" "[7 |Q |] nb1 o0 x0 s1"
+    elif [ "$_k" = ROW ]; then
+        _nbo=$((_nbo+1))
+        _nbrun "$_b" "$_c"
+        fdRow "notBuiltT $_a" "$_nbv" "$_d" "$_e"
+    fi
+done < "$T/nb.list"
+_ofeq "notBuiltT lines ran (15 of 15)" "$_nbo" "15"
+else echo "  FAIL  notBuiltT MISSING"; fail=1; fi
 
 #  ⚑ arrowRetiredT -- SEQ 597 R0 (Tony, 2026-11-10): <- retires as an operator and refuses by name on both roads, interpreted and compiled.
 #  One process per row; value = stdout / retired <its wording> other <other REFUSED lines> x<exit> s<sentinel>; today beside intended.
@@ -4382,7 +4418,10 @@ if grep -qF "ROAD-B reached" "$T/ord"; then
 else
     echo "  FAIL  opRoadT ROAD-B missing -- the fixture never reached its subject"; fail=1
 fi
-if grep -qF "operator '<<' has no road" "$T/ord"; then
+#  RE-AIMED SEQ 599 A0 (Tony, 2026-11-10), with its sentence (H6): << is no longer methodless -- the ten reserved entries are bound
+#  to opNotBuilt and refuse "is not built yet". The row keeps its question (a reserved operator cannot be silent, and names itself);
+#  the old "has no road" gate (refuseUnknownOperator) now has NO Operators entry that can reach it, so this row no longer covers it.
+if grep -qF "REFUSED << -- is not built yet" "$T/ord"; then
     echo "  ok    opRoadT '<<' refuses BY NAME -- a methodless operator cannot be silent"; green=$((green+1))
 else
     echo "  FAIL  opRoadT '<<' did not refuse by name -- the unknown-operator gate is GONE,"
@@ -5861,7 +5900,8 @@ done
 #  refusal channel is live and reports the token it read. Without them, a build
 #  where refusals had stopped printing would pass the two rows above in silence.
 for _op in '>>' '<<' '|' '&' '^'; do
-    if grep -qF "operator '$_op' has no road" "$T/opp.e"; then
+    #  RE-AIMED SEQ 599 A0: the reserved entries refuse "is not built yet" by their own name; the question is unchanged.
+    if grep -qF "REFUSED $_op -- is not built yet" "$T/opp.e"; then
         echo "  ok    opPrefix roadless '$_op' refuses BY ITS OWN NAME"; green=$((green+1))
     else
         echo "  FAIL  opPrefix roadless '$_op' did not refuse by name. Either the"
