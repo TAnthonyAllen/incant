@@ -867,7 +867,9 @@ while IFS='|' read -r _id _st _pin; do
     #  row, built equals it but on RD-6 and RD-7, which fire two DIFFERENT shapes (attributes then members): two rules built, 2 for 1.
     #  The walk line is the default action's, native 3 handed 8 (the hand action's was native 15 handed 8), one per shape that fired.
     _f=1; _b=1; case "$_id" in RD-6|RD-7) _f=2; _b=2;; esac
-    fdRow "ruleDoorT $_id through the door: built, fired summed over ITERATe's four shapes" "$(grep -E '^=== jitter rule: ITER(BOTh|ATTRs|MEMBERs|PLAIn) built [0-9]+ fired [0-9]+ ===$' "$T/rd.$_id.c.e" | awk '{b+=$6; f+=$8} END {print b+0, f+0}')" "0 0" "$_b $_f"
+    #  RE-PINNED SEQ 602 R3 (Tony, 2026-11-10), RD-6 and RD-7 at built 2: each iterate shape is its own rule, so two shapes fired build two (SEQ 601).
+    _dl="built, fired summed over ITERATe's four shapes"; [ "$_b" = 2 ] && _dl="$_dl -- each iterate shape is its own rule, so two shapes fired build two (SEQ 601)"
+    fdRow "ruleDoorT $_id through the door: $_dl" "$(grep -E '^=== jitter rule: ITER(BOTh|ATTRs|MEMBERs|PLAIn) built [0-9]+ fired [0-9]+ ===$' "$T/rd.$_id.c.e" | awk '{b+=$6; f+=$8} END {print b+0, f+0}')" "0 0" "$_b $_f"
     fdRow "ruleDoorT $_id walk lines: a shape's, native 3 handed 8" "$(grep -cE '^=== jitter rule walk: ITER(BOTh|ATTRs|MEMBERs|PLAIn) native 3 handed 8 ===' "$T/rd.$_id.c.e")" "0" "$_b"
     fdRow "ruleDoorT $_id the parent itself is not opted: lines naming ITERATe built" "$(grep -c '^=== jitter rule: ITERATe built' "$T/rd.$_id.c.e")" "1" "0"
 done < "$T/rd.list"
