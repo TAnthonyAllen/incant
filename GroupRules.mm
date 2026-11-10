@@ -9138,13 +9138,22 @@ extern "C" GroupItem *jitterRule(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	
 	if ( !input || !input->groupBody->flags.isRule ) return ::refuse(input,"jitterRule: not a rule");
+	//  parentArm a rule with no body of its own that is a parent opts in each child rule, one level; with neither a body nor a child rule it refuses by name (Tony, SEQ 595 R0). A parent's alternatives are its MEMBERS (hasMembers); a plain rule's terms are attributes and are never opted (measured: binType reads 0 on a grammar parent)
+	std::vector<GroupBody*> opting;
+	if ( input->actionBody() ) opting.push_back(input->groupBody);
+	else if ( input->groupBody->flags.hasMembers ) {
+	GroupItem *child = 0;
+	while ( (child = input->nextMember(child)) )
+	if ( child->groupBody->flags.isRule ) opting.push_back(child->groupBody); }
+	if ( opting.empty() ) return ::refuse(input,"jitterRule: a rule with neither a body nor child rules");
 	if ( gJitterRules.empty() )
 	::atexit([]{
 	for ( GroupBody *r : gJitterRules ) {
 	JitterTally *t = ::jitterTallyFind(r);
 	::fprintf(stderr,"=== jitter rule: %s built %d fired %d%s ===\n", r->tag ? r->tag : "anon", t ? t->built : 0, t ? t->fired : 0, t && t->notJittable ? " NOT JITTABLE" : ""); }
 	::fflush(stderr); });
-	if ( !::jitterRuleOpted(input->groupBody) ) gJitterRules.push_back(input->groupBody);
+	for ( GroupBody *ob : opting )
+	if ( !::jitterRuleOpted(ob) ) gJitterRules.push_back(ob);
 	
 	return ruler->trueResult;
 }
