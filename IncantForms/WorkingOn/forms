@@ -427,7 +427,7 @@ SECOND RUN, DEFERRED (Tony, 2026-11-07, R0): A or B is not chosen. The first PDF
 SECOND-RUN DESIGN (Tony, 2026-11-07, via Clay; build after the first PDF): setFrame takes a request (form plus an optional revised frame), gates only the top field, copies the form, lays out the copy and returns it; the engine keeps the returned layout and on a resize lays out the original again and drops the old. fillDownAcross takes one request group. Full text and the OWED measurement: docs/setFrameSecondRun.md. A returned laid-out copy arrives whole (interpreted, measured). It is DRAWING STEP 6 (2026-11-09).
 
 LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expected, and a tag -- form if the incantation needs rearranging, engine if it is drawn wrongly. Clod keeps it current. Items are taken one or two per afternoon session and never fixed inside another stroke.
-    (none yet)
+    Windows/tabs: the run warns that isGROUP looks like a flag (nearFlag) and keeps it as an attribute; expected no warning -- form, the incantation's isGROUP needs respelling when that form comes up for repair (docs/unknownFlagRecon.md; moved from macros, SEQ 601 rider).
 
 DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as IncantForms is worked through; Tony has ideas still to come.
     1  Fills into one context, the right way up (fill-page; seals 376-377).

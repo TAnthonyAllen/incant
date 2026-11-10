@@ -396,7 +396,6 @@ TRIMMED 2026-11-10 (SEQ 600, Tony): done items removed, open items one line each
 OPEN, THE LANGUAGE:
     iterate ++g on x; (and --g): one statement, always from the first member; recon only, nothing built, Clay decides the build. Record: docs/iterLoopRecord; rulings in the pre-trim text (SEQ 550).
     The two-line iterate resumes after a break and does not reach a new source; and a ; does not end while ++g; -- docketed, own stroke, recon first (SEQ 550 R2; docs/iterLoopRecord).
-    ITERATe split into fixed shapes like FOr, recon gate first: next on the list (docs/wakeup.md seal 432).
     The ten reserved operators (| ^ GO ? >> << :> :< :- &) refuse "is not built yet" (SEQ 599). | is ruled as x | f meaning f(x), looser than arithmetic; not scheduled.
     A cast: three reading accessors (s.lengtH, s.numbeR, n.texT), shape ruled SEQ 537, not built; a name census first (docs/clayBrief-2026-11-06.md).
     Warnings on/off: one switch per warning in a Warnings registry, shape ruled SEQ 537, not built (docs/clayBrief-2026-11-06.md).
@@ -413,11 +412,10 @@ OPEN, COMPILING:
     Rule compiling widens one rule per stroke, safest first: docs/ruleJitCensus.md. The loop measurement of the six loop rules is still owed.
     A kantGrammar action rebuilt as a new-road chain: recorded, not scheduled (SEQ 553 R0; docs/ruleJitRecon.md).
     jitter; alone does not open a rule fire; opening it wider is its own stroke, census first (docs/ruleJitRecon.md).
-    Tony? for and iterate handed over in the jitter walk (docs/jitterWalkRecon.md) -- still true after the rule door?
-    Tony? F-145, the old road hanging on while 1 with a refusal in the body: parked, the old road is retiring (docs/fixIts.md).
+    F-145, the old road hanging on while 1 with a refusal in the body: parked, the old road is retiring (docs/fixIts.md).
     The JIT's plain store does not carry or clear a % unit: left uncured by ruling at the buy; percentJitT's 2 rows stay red (docs/percentRecon.md, docs/jit.md).
 OPEN, FORMS:
-    Tony? The forms order was firstLight drawn to PDF, then the descriptions form (Tony, 2026-11-07); firstLight draws to PDF since SEQ 581-584, so descriptions is next? (docs/firstLightPdfRecon.md)
+    The forms order: firstLight draws to PDF (SEQ 581-584); the descriptions form is next (Tony, 2026-11-07, 2026-11-10; docs/firstLightPdfRecon.md).
     setFrame, both directions on one field: docs/setFrameSpec.md. fillDownAcross cannot handle a field with both down and across (Tony, 2026-11-05; no design yet).
     The second run and a resize: design ruled, build after the first PDF (docs/setFrameSecondRun.md, docs/setFrameSecondRunDesign.md).
     Foreign calls, shape (C): kant calls a C++ floor method with one request group; first built with the PDF stroke (TODO.md, docs/firstLightPdfRecon.md).
@@ -428,5 +426,3 @@ OPEN, FORMS:
     A bare number in a form is in points, 1/72 inch (TODO.md, IncantForms/WorkingOn/forms).
     fill= forms not respelled: 160 plain fill= uses, fill=off, $perfColor and purple are fixed as each form is repaired (SEQ 547).
     The data recon (old GUI data files, DB results, the sheets indexing): WITHDRAWN until a form needs it (Tony, 2026-11-07); Clay's six asks are in the pre-trim text.
-    Tony? isMacro seen set on a notified field in Xcode, once (2026-11-05, R3): if it recurs, note the binary and the tester lines.
-    Tony? isGROUP in Windows/tabs warns until that form comes up for repair (docs/unknownFlagRecon.md).

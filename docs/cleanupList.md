@@ -369,3 +369,4 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
   header that extends it; fleet and ladder row for row.
 - **Seen:** 2026-11-10 (SEQ 589 / 590).
 
+- **ITERSOURCe in incant/kantGrammar** (the line `ITERSOURCe      UnaryOPS? ANYtoken;`, and its name in genLadder/kantGrammarNames.sh). Why deletable: since SEQ 601 no kantGrammar rule uses it; ITERATe's four shapes take an EXPRESSIOn source. To confirm: grep kantGrammar and incant/pop for ITERSOURCe; removing a rule moves the registry-count rows (itRT, jitCursorLifeT, itBackRT, termCountT). Seen 2026-11-10.
