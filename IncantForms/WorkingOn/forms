@@ -7,6 +7,7 @@ Here is a list form attributes along with an explanation of what each attribute 
     across              form field members will be laid out horizontally
     action              in old GUI seems to provide an onClick functionality but action will probably not make the transition from old GUI to kant where every attribute can have a method/action and we need to figure out how and when those get fired
     align               aligns text in the frame; allowed values: left center right;
+    valign              places the block of text lines top to bottom in the frame; allowed values: top center bottom; no valign is top (step 5b, SEQ 605)
     border              prints a rectangular border around the field; if border value is number that is used for its width;
                         an off value says no border but that is only relevant if border is inherited and probably it should not be inheritable
     button              a form component that acts as a button; has to have a method/action to fire when it gets clicked on (that implies a form component action works like an onClick action)
@@ -437,6 +438,7 @@ DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as
     5  Text -- plain text in a field's frame, wrapped, clipped. DONE (text-floor, seals 412-413, bought 2026-11-09).
          Moved here (open question 7, closed 2026-11-04, Tony): text is inset by a fixed default in the text floor (M2), with no attribute until a form needs one.
     5a Alignment (Tony, 2026-11-09, SEQ 582 R4; SEQ 584): align=left / center / right / justify inside a field's frame, inside the 4-point inset; no align is left; justify stretches every line but the paragraph's last; any other value refuses by name and draws left. Built on branch align (SEQ 584).
+    5b Vertical alignment (Tony, 2026-11-10, SEQ 605): valign=top / center / bottom, resolved as align is (own, style, enclosing); the lines that fit are counted, then the block is moved down as one inside the 4-point inset; no valign is top; any other value refuses by name and draws at the top. firstLight's ok is valign=center. This reverses the earlier notes above that dropped vertical align in favour of a space field. Built on trunk.
     Layout pass (Tony, 2026-11-09, SEQ 584 R5): build the style in effect left to right once per field, in kant (see THE STYLE IN EFFECT below). Today's lookup (own, style, enclosing) gives the same answers wherever the convention holds.
     6  setFrame finished -- Tony's 2026-11-07 design: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, and a resize re-runs it from the revised top frame. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (The 2026-11-07 SECOND RUN and SECOND-RUN DESIGN items above point here.)
     7  Runs inside text -- {style: text}, {name} insertion, a paragraph poured into a field, one fresh layout context per pass, in kant. The first typesetting step.

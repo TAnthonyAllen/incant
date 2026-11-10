@@ -239,7 +239,9 @@ GroupItem 	*hold = 0;
     fixed 4 points (R3). align (step 5a, SEQ 584): left, center, right or
     justify, read from the request's align slot; each line is flushed or
     justified on its own inside the inset, and justify leaves the paragraph's
-    last line left (Core Text's own meaning).
+    last line left (Core Text's own meaning). valign (step 5b, SEQ 605): top,
+    center or bottom, read from the request's valign slot; the block of lines
+    that fit is counted first, then moved down as one inside the inset.
     A line per call on stdout says what was used -- font, colour, lines drawn,
     characters drawn, and what follows the last drawn word -- so a row
     compares values (H4).
@@ -297,6 +299,16 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	else ::fprintf(stderr,"displayText: REFUSING %s's align=%s -- not left, center, right or justify; drawn left\n",
 	field->groupBody->tag, named ? named : ""); }
 	int alignKind = !::strcmp(align,"center") ? 1 : !::strcmp(align,"right") ? 2 : !::strcmp(align,"justify") ? 3 : 0;
+	//  valignOf top, center or bottom as kant resolved it; none is top; any other value is refused by name and drawn top (SEQ 605 R1)
+	GroupItem  *valignNode = heldBy(request->get("valign"));
+	const char *valign = "top";
+	if (valignNode) {
+	char *named = valignNode->getText();
+	if (named && (!::strcmp(named,"top") || !::strcmp(named,"center") || !::strcmp(named,"bottom")))
+	valign = named;
+	else ::fprintf(stderr,"displayText: REFUSING %s's valign=%s -- not top, center or bottom; drawn top\n",
+	field->groupBody->tag, named ? named : ""); }
+	int valignKind = !::strcmp(valign,"center") ? 1 : !::strcmp(valign,"bottom") ? 2 : 0;
 	CTFontRef ct = (CTFontRef)font;
 	NSString *str = [NSString stringWithUTF8String:text];
 	NSDictionary *attrs = @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorFromContextAttributeName: @YES };
@@ -310,6 +322,31 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	CGFloat baseline = framed.origin.y + inset + asc;
 	CFIndex len = [str length], start = 0;
 	int lines = 0, tooWide = 0;
+	//  lineBreak the characters of the line that starts here: a word boundary that fits the width, or a whole word with no space to break at
+	auto lineBreak = [&](CFIndex from) -> CFIndex {
+	CFIndex n = CTTypesetterSuggestLineBreak(ts, from, width);
+	if (n < 1) n = 1;
+	BOOL spaced = NO;
+	for (CFIndex i = from; i < from + n; i++) if ([str characterAtIndex:i] == ' ') { spaced = YES; break; }
+	if (!spaced && from + n < len && [str characterAtIndex:from + n - 1] != '-') {
+	CFIndex e = from + n;
+	while (e < len && [str characterAtIndex:e] != ' ') e++;
+	n = e - from; }
+	return n; };
+	//  blockFirst center and bottom count the lines that fit, then move the whole block down inside the inset; the same lines fit after the move
+	if (valignKind) {
+	int fit = 0;
+	CFIndex at = 0;
+	CGFloat line0 = baseline;
+	while (at < len) {
+	if (fit) while (at < len && [str characterAtIndex:at] == ' ') at++;
+	if (at >= len || line0 + desc > bottom) break;
+	at += lineBreak(at);
+	fit++;
+	line0 += lineH; }
+	if (fit) {
+	CGFloat spare = (framed.size.height - 2 * inset) - ((fit - 1) * lineH + asc + desc);
+	if (spare > 0) baseline += (valignKind == 1) ? spare / 2 : spare; } }
 	CGContextSaveGState(ctx);
 	//  clipAtFrame a word wider than the frame is cut at the frame's edge, never beyond it (R1)
 	CGContextClipToRect(ctx, CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height));
@@ -322,16 +359,7 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	if (start >= len) break;
 	//  wholeLines a line that does not fit the frame's height is not drawn
 	if (baseline + desc > bottom) break;
-	//  wordWrap the typesetter breaks at a word boundary that fits the width
-	CFIndex n = CTTypesetterSuggestLineBreak(ts, start, width);
-	if (n < 1) n = 1;
-	//  wholeWord with no space to break at, the typesetter cuts the word; keep it whole to its end instead
-	BOOL spaced = NO;
-	for (CFIndex i = start; i < start + n; i++) if ([str characterAtIndex:i] == ' ') { spaced = YES; break; }
-	if (!spaced && start + n < len && [str characterAtIndex:start + n - 1] != '-') {
-	CFIndex e = start + n;
-	while (e < len && [str characterAtIndex:e] != ' ') e++;
-	n = e - start; }
+	CFIndex n = lineBreak(start);
 	CTLineRef line = CTTypesetterCreateLine(ts, CFRangeMake(start, n));
 	if (CTLineGetTypographicBounds(line, 0, 0, 0) - CTLineGetTrailingWhitespaceWidth(line) > width) tooWide = 1;
 	//  alignLine within the inset: center and right flush the line; justify stretches every line but the paragraph's last (R1)
@@ -365,9 +393,9 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	tooWide ? "a word wider than its frame is clipped at the frame" : "its text does not fit its frame", (long)start, (long)len);
 	int bold = (CTFontGetSymbolicTraits(ct) & kCTFontBoldTrait) ? 1 : 0;
 	CFStringRef family = CTFontCopyFamilyName(ct);
-	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s align %s ===\n",
+	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s ===\n",
 	field->groupBody->tag, [(NSString*)family UTF8String], (double)CTFontGetSize(ct), bold,
-	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, (long)start, (long)len, next, align);
+	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, (long)start, (long)len, next, valign, align);
 	::fflush(stdout);
 	CFRelease(family);
 	

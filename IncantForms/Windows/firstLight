@@ -9,7 +9,7 @@ define
         words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit." text fill:=white align=justify;
         bar across height=35
             space;
-            ok="OK" text width=60 border strokeColor:=red fill:=lightGreen align=center;
+            ok="OK" text width=60 border strokeColor:=red fill:=lightGreen align=center valign=center;
     ;
 bail();
 

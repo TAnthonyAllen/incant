@@ -29,7 +29,7 @@ define
             wrap mRight=15 mBottom=15
                 first height=50 fill=lightGreen bordered
                     describeHead="Using Descriptions" flex center titleFont color=white shadow;
-                second flex normalFont mBottom=5
+                second flex normalFont
                     saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" bordered fill=paleGray;
                     trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" bordered fill=paleGray;
                 describeHelp describe="This is the default text description when nothing is selected" bordered normalFont fill=lightGreen;
