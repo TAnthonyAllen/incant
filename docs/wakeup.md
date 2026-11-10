@@ -1,3 +1,51 @@
+# ⚠⚠⚠ SHUTDOWN SEALED 2026-11-10 (437) ON TRUNK -- SEQ 598-603 CLOSED; THE KITCHEN PASS RUN. THE NEXT SESSION OPENS ON THE DISPATCH BELOW: THE CLEANUP CENSUSES (md FILES, UNUSED INCANTATIONS, HWF IDEAS), READ-ONLY. ONE THING OWED TO TONY'S HANDS: THE BRANCH arrow-retire IS NOT DELETED.
+#
+#   ## ONE PLAIN LINE: the day closes clean -- <- is retired on trunk, no operator in a prefix position crashes the new road, the ten reserved operators refuse by name, and ITERATe and BRANCh are operators built by the default action, so no control rule keeps a hand action; every check reads as banked, the tree is bare, all repos are pushed and main is trunk; the bought branch arrow-retire still waits for its delete.
+#   ## WHY A SHUTDOWN: Clod's call, offered by Tony -- six strokes in one session and a long context; the next stroke reads every .md in the tree and is better done fresh.
+#   ## THE SESSION (second on Fable 5.2): SEQ 598 arrow-retire bought, the new road's non-prefix operators refuse (seal 432) · 599 the ten reserved operators get opNotBuilt · 600 macros' features list trimmed (433) · 601 ITERATe as four shapes, the rider (434) · 602 BRANCh's gate stopped, rows only (435) · 603 BRANCh as four shapes, the signal read from the op in three places (436).
+#   ## KITCHEN PASS: dirCheck exit 0, 116 directives, 108 inject, 8 parked dark, tree retokked bare and byte-identical; = its capture, no line differs. ~/bin/incant rebuilt after the retok so it is newer than every source. The rest as run at seal 436 on this same tree: pop.sh exit 1, 3720 green, FAIL rows identical by name to the bank (67); groups.ext mirror 0 drift over 266. jitLadder exit 0, row for row. printPop exit 0. decodePop and formsPop = capture but the binary echo (F-149 red as banked). ddPop 5 / 1. frontier = capture. Canary 460. Exec bits clean.
+#   ## REPOS: Groups, support, TOK clean and pushed; main = trunk. BeforeSave refreshed (bs) last, after this commit.
+#   ## OWED, TONY'S HANDS OR HIS ALLOWANCE: `git branch -D arrow-retire` and `git push origin --delete arrow-retire`. Bought at SEQ 598 (its commit sits on trunk as ca528e04); the session's permission classifier denied both deletes.
+#   ## OPEN FROM THIS SESSION, each named in its seal: the ten keep the prefix wording in a prefix position (ruled, no re-pin) · iterOpT IO-1 and IO-7 pinned red, not cured (both filter words; iterate with no cursor) · ITERSOURCe on docs/cleanupList.md · a break and a continue inside a handed-over if under jitter; measured, not pinned as rows (seal 436) · genLadder/kantGrammarNames.sh fails, on no checklist.
+#   ## NEXT -- OPEN ON THIS: the dispatch, recorded VERBATIM below as Tony pasted it. SEQ is Clod's to assign (604).
+#
+#   DISPATCH -- SEQ (Clod assigns) -- CLEANUP CENSUSES: THE md FILES, UNUSED INCANTATIONS, AND HWF IDEAS. READ-ONLY.
+#
+#   RULINGS (Tony, 2026-11-10)
+#   R0  md census: every .md under Groups (docs/ and elsewhere), one line each -- live (something cites it,
+#       or its campaign is open) or history (its campaign closed; nothing live cites it). wakeup.md gets a
+#       proposed trim line too. Nothing moved or deleted: Tony rules the list ("when in doubt, throw it out").
+#   R1  HWF harvest, during the same read: any idea or notion in an md file that was never scheduled or
+#       ruled and is not on the HWF list below. One line each: the idea, the file, its date.
+#   R2  Unused incantations: every kant file nothing loads -- no pop.sh row, no ladder rung, no include,
+#       not tester, kantGrammar, macros or Tony's WIP under IncantForms. One line each, with what it seems
+#       to be for. Nothing deleted.
+#   R3  Write the HWF list into macros as its own short section, marked "HWF, not scheduled", one line each,
+#       plus anything R1 finds:
+#         1 parse-then-fire, possibly finished by the back door (the new road builds, testOP fires)
+#         2 the kant mirror of setParse / compile / processCode
+#         3 the containers idea
+#         4 rStuff folding into the instance
+#         5 component flavors, fewer bitfields
+#         6 the listener and $, firing on command
+#         7 multi-processing and a web channel -- possibly one shape: processes exchanging fields as
+#           messages, dispatch() as the sender
+#         8 EXPRESSIOn as operators: each Operators entry becomes a grammar rule whose operands are
+#           expressions, so the grammar that parses expressions is built from the operators it parses.
+#           Tiers become nested repetition (a sum is a product, then any number of + product) -- never
+#           left recursion, which a top-down parse loops on. SEQ 578's recon: an infix-only EXPRESSIOn
+#           keeps about two-thirds of today's shape; prefix runs leave. The natural next campaign once the
+#           control rules are done.
+#       This is the only file change.
+#
+#   At the end of your report, say whether you'd rather shut down or continue.
+#
+#   ## NOTES FOR THE OPENER (so nothing is re-derived): R0's "live" needs a citation search over the WHOLE tree, not docs/ alone -- CLAUDE.md, TODO.md, projectBible.md, pop.sh comments, incant/designDocs and IncantForms/WorkingOn/macros and forms all cite docs by path. docs/wakeup.md is 11,000+ lines; every seal is in git, so a trim line can name a cut point by seal number. R2's population is every extensionless file under incant/ and IncantForms/ plus XML/; `ip()` in pop.sh and the fILEs registry in incant/setup are the two load paths besides include(). Estimate the read up front and say so (the standing rule on long runs).
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-11-10 (436) ON TRUNK -- SEQ 603: BRANCh IS THE PARENT OF FOUR FIXED SHAPES, EACH AN OPERATOR BUILT BY THE DEFAULT ACTION; ITS HAND ACTION IS GONE. ON TRUNK, NO BUY OWED. NO HAND ACTION IS LEFT AMONG THE CONTROL RULES. STILL OWED: THE BRANCH arrow-retire IS NOT DELETED. NO SHUTDOWN.
 #
 #   ## ONE PLAIN LINE: break, continue, return and return-with-a-value are now four small rules built by the shared default action; every answer is the same as before, interpreted and compiled, and the top-level refusals read word for word as they did; the signal is now read from which operator it is, in the interpreter and in the compiler's two places.
