@@ -268,6 +268,14 @@ cleared when a top-level statement or a sequence ends. ANSWERED, not ruled: <- d
 := in two ways only -- a right side that is nothing leaves the target as it was (:= clears
 it), and := compiles natively where <- is handed over. Whether <- retires is Tony's.
 
+2026-11-10 (SEQ 597): <- RETIRES, built on branch arrow-retire, NOT MERGED. The entry
+cannot leave Operators: with no entry `x <- y` reads as `x < -y`; an entry elsewhere is
+not read as an operator. So it stays as a tombstone whose method refuses by name and says
+to write :=; opRebind is deleted. On trunk already: utilities' six lines and the fleet's
+incidental uses are respelled to :=, nothing moved by value. PINNED, NOT CURED: every
+Operators entry in a prefix position, both roads (incant/pop/prefixOpT) -- on the new road
+16 non-unary entries end the run at exit 139.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
