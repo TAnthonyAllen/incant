@@ -131,6 +131,12 @@ define
         ITERATTRs   op="iterateAttrs" iterate- LOOPEr attributes- on- EXPRESSIOn;
         ITERMEMBERs op="iterateMembers" iterate- LOOPEr members- on- EXPRESSIOn;
         ITERPLAIn   op="iterateOn" iterate- LOOPEr on- EXPRESSIOn;
+    // branchShapes a rule's slots never vary (Tony, SEQ 594, SEQ 603): BRANCh is the parent of four fixed shapes; the keyword hands nothing up and the shape's op carries the signal. break, continue and a bare return have no slot; return with a value has one, the value. The two return shapes land right in either order: each fails where the other matches
+    BRANCh
+        BREAk       op="breakSignal" break- SemI-;
+        CONTINUe    op="continueSignal" continue- SemI-;
+        RETURNVALUe op="returnValue" return- EXPRESSIOn SemI-;
+        RETURn      op="returnSignal" return- SemI-;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
@@ -142,7 +148,7 @@ define
         CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
         COUt        cout- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
         SEARCh      search- followedBy GrouP+ SemI-;
-        BRANCh      BRANCHEs EXPRESSIOn? SemI-;
+        BRANCh;
         SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- ;
     XPRESs          EXPRESSIOn SemI- ;
     STATEMENt
@@ -262,6 +268,11 @@ define
     // forIsTwoOperators FORBACk (op forBack) and FORWARd (op forLoop) take the default action; opForBack and opFor share forWalk (SEQ 594)
     FORBACk ruleMethod=OPERATOr;
     FORWARd ruleMethod=OPERATOr;
+    // branchIsFourOperators BREAk, CONTINUe, RETURNVALUe and RETURn take the default action; each op is its own signal (SEQ 603)
+    BREAk ruleMethod=OPERATOr;
+    CONTINUe ruleMethod=OPERATOr;
+    RETURNVALUe ruleMethod=OPERATOr;
+    RETURn ruleMethod=OPERATOr;
     // iterateIsFourOperators ITERBOTh, ITERATTRs, ITERMEMBERs and ITERPLAIn take the default action; their four ops share iterateWalk (SEQ 601)
     ITERBOTh ruleMethod=OPERATOr;
     ITERATTRs ruleMethod=OPERATOr;
@@ -270,27 +281,6 @@ define
     // ifIsAnOperator If and ELSEIf declare op="ifThen" and take the default action; the slots in order are the condition, the then statement and the else, absent when absent, the order opIf reads (SEQ 592)
     If ruleMethod=OPERATOr;
     ELSEIf ruleMethod=OPERATOr;
-    // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal
-    // returnArms return builds the same instruct, its operand a mint of [keyword, value?]; opBranch runs the value, sets kind 3 and hands the value up (SEQ 508 / 509)
-    BRANCh code={
-        :actionLabel BRANCHEs EXPRESSIOn;
-        kw := **BRANCHEs;
-        op := Operators["branchSignal"];
-        kwMint      := copyOf(*kw);
-        if *kw.taG == "return";
-            retArms +% *kwMint;
-            xLen    := *EXPRESSIOn.listLengtH;
-            if xLen != 0;
-                val     := **EXPRESSIOn;
-                retArms +% *val;
-            armsMint    := copyOf(retArms);
-            miArgs      +% op armsMint;
-        if *kw.taG != "return";
-            miArgs      +% op kwMint;
-        built       := makeInstruct(miArgs);
-        *actionLabel   := *built;
-        return  *actionLabel;
-        };
     // bridgeRun a C++-only statement runs its C++ rule method at RUN, in its place (SEQ 489, bridge-run): one instruct, op runRule, its operand a mint of the statement's label bound to that method; opRunRule runs it
     SEARCh code={
         lMint       := copyOf(*actionLabel);
@@ -353,19 +343,20 @@ define
         :actionLabel STATEMENt;
         ts := **STATEMENt;
         topRun = 1;
-        // topBranch a break or continue at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set; return builds as branchSignal since SEQ 508 and refuses here too (A2, Tony, SEQ 495)
+        // topBranch a break, continue or return at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set (A2, Tony, SEQ 495); the name comes from the instruct's op since the four shapes (SEQ 603)
         tsL := *ts.listLengtH;
         if tsL != 0;
             tsOp := *ts[1];
-            if *tsOp.taG == "branchSignal";
-                kw := *ts[2];
-                // returnNamesItself return's operand is the mint [keyword, value?], so the refusal names its first entry (SEQ 509)
-                kwL := *kw.listLengtH;
-                if kwL != 0;
-                    k1 := *kw[1];
-                    if *k1.taG == "return";     kw := *k1;
-                kwT := *kw.taG;
-                cerr "REFUSED" kwT "-- at the top level there is no loop or block to end":;
+            // topKwCount the keyword is picked as a count and printed by its own line: a string assigned into a count local stores its length (measured SEQ 603: the refusal named 5)
+            topKw = 0;
+            if *tsOp.taG == "breakSignal";      topKw = 1;
+            if *tsOp.taG == "continueSignal";   topKw = 2;
+            if *tsOp.taG == "returnSignal";     topKw = 3;
+            if *tsOp.taG == "returnValue";      topKw = 3;
+            if topKw == 1;  cerr "REFUSED break -- at the top level there is no loop or block to end":;
+            if topKw == 2;  cerr "REFUSED continue -- at the top level there is no loop or block to end":;
+            if topKw == 3;  cerr "REFUSED return -- at the top level there is no loop or block to end":;
+            if topKw != 0;
                 refusalSaid = 1;
                 topRun = 0;
         // unlandedRefused a signal still set when the statement finishes reached the top level unlanded: refuseTopSignal refuses it by name and clears it (SEQ 516)

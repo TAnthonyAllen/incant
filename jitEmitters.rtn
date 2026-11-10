@@ -5306,10 +5306,10 @@ extern int jitWalkBranches(GroupItem n,int d)
     GroupItem *op = n->get(1), *a = n->get(2);
     if ( !op || !a || !op->groupBody->tag ) return 0;
     const char *t = op->groupBody->tag;
-    if ( !::strcmp(t, "branchSignal") ) {
-        GroupItem *kw = a->groupBody->groupList ? a->get(1) : a;
-        const char *k = kw ? kw->groupBody->tag : nullptr;
-        return !k ? 0 : *k == 'b' ? 1 : *k == 'c' ? 2 : 0; }
+    //  signalFromOp the signal is read from which operator the instruct carries, as its method reads it (SEQ 603)
+    if ( !::strcmp(t, "breakSignal") ) return 1;
+    if ( !::strcmp(t, "continueSignal") ) return 2;
+    if ( !::strcmp(t, "returnSignal") || !::strcmp(t, "returnValue") ) return 0;
     bool isSeq = !::strcmp(t, "seq");
     if ( !isSeq && ::strcmp(t, "bodySeq") && ::strcmp(t, "ifThen") ) return 0;
     int r = 0;
@@ -5512,10 +5512,11 @@ extern void jitWalkStmt(GroupItem stmt)
         ::jitStmtEnd(stmt);
         ::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
         return; }
-    if ( tag && !::strcmp(tag, "branchSignal") && arms ) {
-        GroupItem *kw = arms->groupBody->groupList ? arms->get(1) : arms;
-        GroupItem *value = arms->groupBody->groupList ? arms->get(2) : nullptr;
-        const char *k = kw ? kw->groupBody->tag : nullptr;
+    //  signalFromOp the signal is read from the op and the value from the operand's one slot, as the four methods read them (SEQ 603)
+    const char *brK = !tag ? nullptr : !::strcmp(tag, "breakSignal") ? "b" : !::strcmp(tag, "continueSignal") ? "c" : (!::strcmp(tag, "returnSignal") || !::strcmp(tag, "returnValue")) ? "r" : nullptr;
+    if ( brK && arms ) {
+        GroupItem *value = (!::strcmp(tag, "returnValue") && arms->groupBody->groupList) ? arms->get(1) : nullptr;
+        const char *k = brK;
         //  jitEmitBreak a break goes to the innermost seq or loop; a continue to the innermost loop's condition; with neither it ends the action
         if ( k && (*k == 'b' || *k == 'c') ) {
             //  regionFloor an inlined callee's continue with no loop of its own ends the callee: its caller's loop is not its to continue (SEQ 540)

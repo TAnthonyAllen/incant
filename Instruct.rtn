@@ -1324,22 +1324,42 @@ extern GroupItem opRunRule(GroupItem label)
 }
 
 
-// opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; return's operand is a list [keyword, value?]: the value runs here, kind 3 is set and the value is handed up -- a bare return hands back nothing (SEQ 509 A3); retires when a kant action of the same name passes the same rows (branchT)
-extern GroupItem opBranch(GroupItem keyword)
+// opBreakSignal the breakSignal instruct's unary op, BREAk's (SEQ 476 R0; SEQ 603): the SIGNAL comes from which operator fired, never from an operand -- break sets branchKind 1, a signal, never a target; its operand list is empty
+extern GroupItem opBreakSignal(GroupItem arms)
 {
 GroupRules  ruler = groupRules;
-GroupItem   kw = keyword,
-            value;
-    if !keyword     return null;
-    if keyword.groupList {
-        kw      = keyword[1];
-        value   = keyword[2];
-        -% if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); %-
-        }
-    if !kw          return null;
-    if *kw.tag == 'b'       ruler.branchKind = 1;
-    or *kw.tag == 'c'       ruler.branchKind = 2;
-    or *kw.tag == 'r'       ruler.branchKind = 3;
+    ruler.branchKind = 1;
+    return null;
+}
+
+
+// opContinueSignal the continueSignal instruct's unary op, CONTINUe's (SEQ 603): branchKind 2
+extern GroupItem opContinueSignal(GroupItem arms)
+{
+GroupRules  ruler = groupRules;
+    ruler.branchKind = 2;
+    return null;
+}
+
+
+// opReturnSignal the returnSignal instruct's unary op, RETURn's (SEQ 603): a return with no value -- branchKind 3, nothing handed up
+extern GroupItem opReturnSignal(GroupItem arms)
+{
+GroupRules  ruler = groupRules;
+    ruler.branchKind = 3;
+    return null;
+}
+
+
+// opReturnValue the returnValue instruct's unary op, RETURNVALUe's (SEQ 508 / 509; SEQ 603): its operand list holds the value, its one slot; the value runs here, kind 3 is set and the value is handed up
+extern GroupItem opReturnValue(GroupItem arms)
+{
+GroupRules  ruler = groupRules;
+GroupItem   value;
+    if !arms    return null;
+    value = arms[1];
+    -% if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); %-
+    ruler.branchKind = 3;
     return value;
 }
 

@@ -8633,10 +8633,10 @@ extern "C" int jitWalkBranches(GroupItem *n, int d)
 	GroupItem *op = n->get(1), *a = n->get(2);
 	if ( !op || !a || !op->groupBody->tag ) return 0;
 	const char *t = op->groupBody->tag;
-	if ( !::strcmp(t, "branchSignal") ) {
-	GroupItem *kw = a->groupBody->groupList ? a->get(1) : a;
-	const char *k = kw ? kw->groupBody->tag : nullptr;
-	return !k ? 0 : *k == 'b' ? 1 : *k == 'c' ? 2 : 0; }
+	//  signalFromOp the signal is read from which operator the instruct carries, as its method reads it (SEQ 603)
+	if ( !::strcmp(t, "breakSignal") ) return 1;
+	if ( !::strcmp(t, "continueSignal") ) return 2;
+	if ( !::strcmp(t, "returnSignal") || !::strcmp(t, "returnValue") ) return 0;
 	bool isSeq = !::strcmp(t, "seq");
 	if ( !isSeq && ::strcmp(t, "bodySeq") && ::strcmp(t, "ifThen") ) return 0;
 	int r = 0;
@@ -8991,10 +8991,11 @@ extern "C" void jitWalkStmt(GroupItem *stmt)
 	::jitStmtEnd(stmt);
 	::jitEmitRefusedCheck(); gJitStmtCanRefuse = false;
 	return; }
-	if ( tag && !::strcmp(tag, "branchSignal") && arms ) {
-	GroupItem *kw = arms->groupBody->groupList ? arms->get(1) : arms;
-	GroupItem *value = arms->groupBody->groupList ? arms->get(2) : nullptr;
-	const char *k = kw ? kw->groupBody->tag : nullptr;
+	//  signalFromOp the signal is read from the op and the value from the operand's one slot, as the four methods read them (SEQ 603)
+	const char *brK = !tag ? nullptr : !::strcmp(tag, "breakSignal") ? "b" : !::strcmp(tag, "continueSignal") ? "c" : (!::strcmp(tag, "returnSignal") || !::strcmp(tag, "returnValue")) ? "r" : nullptr;
+	if ( brK && arms ) {
+	GroupItem *value = (!::strcmp(tag, "returnValue") && arms->groupBody->groupList) ? arms->get(1) : nullptr;
+	const char *k = brK;
 	//  jitEmitBreak a break goes to the innermost seq or loop; a continue to the innermost loop's condition; with neither it ends the action
 	if ( k && (*k == 'b' || *k == 'c') ) {
 	//  regionFloor an inlined callee's continue with no loop of its own ends the callee: its caller's loop is not its to continue (SEQ 540)
@@ -9757,31 +9758,12 @@ GroupItem 	*stmtResult = 0;
 	return items;
 }
 
-// opBranch the branchSignal instruct's unary op (SEQ 476 R0): its operand is the keyword; break sets branchKind 1, continue 2 -- a signal, never a target; return's operand is a list [keyword, value?]: the value runs here, kind 3 is set and the value is handed up -- a bare return hands back nothing (SEQ 509 A3); retires when a kant action of the same name passes the same rows (branchT)
-extern "C" GroupItem *opBranch(GroupItem *keyword)
+// opBreakSignal the breakSignal instruct's unary op, BREAk's (SEQ 476 R0; SEQ 603): the SIGNAL comes from which operator fired, never from an operand -- break sets branchKind 1, a signal, never a target; its operand list is empty
+extern "C" GroupItem *opBreakSignal(GroupItem *arms)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*kw = keyword;
-GroupItem 	*value = 0;
-	if ( !keyword )
-		return 0;
-	if ( keyword->groupBody->groupList )
-		{
-		kw = keyword->get(1);
-		value = keyword->get(2);
-		 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
-		}
-	if ( !kw )
-		return 0;
-	if ( *kw->groupBody->tag == 'b' )
-		ruler->branchKind = 1;
-	else
-	if ( *kw->groupBody->tag == 'c' )
-		ruler->branchKind = 2;
-	else
-	if ( *kw->groupBody->tag == 'r' )
-		ruler->branchKind = 3;
-	return value;
+	ruler->branchKind = 1;
+	return 0;
 }
 
 // opCall THE CALL EXECUTOR, A(B) and field(): rule, action, method, in runOP's old order; operands arrive finished (SEQ 318 c2)
@@ -9844,6 +9826,14 @@ extern "C" GroupItem *opCerrList(GroupItem *items)
 {
 Buffer 	*buffer = ::printWalk(items);
 	return ::opCerr(items,buffer);
+}
+
+// opContinueSignal the continueSignal instruct's unary op, CONTINUe's (SEQ 603): branchKind 2
+extern "C" GroupItem *opContinueSignal(GroupItem *arms)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	ruler->branchKind = 2;
+	return 0;
 }
 
 // opCout the cout rule's operator method, the explicit stdout sink: it never consults toBUFFER, and that missing test IS the feature (KANT-23)
@@ -11212,6 +11202,27 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// flagsFollow replace adds by the entry's OLD affiliation, so the flags are set again from the list as it stands
 	target->updateContentFlags();
 	return target;
+}
+
+// opReturnSignal the returnSignal instruct's unary op, RETURn's (SEQ 603): a return with no value -- branchKind 3, nothing handed up
+extern "C" GroupItem *opReturnSignal(GroupItem *arms)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	ruler->branchKind = 3;
+	return 0;
+}
+
+// opReturnValue the returnValue instruct's unary op, RETURNVALUe's (SEQ 508 / 509; SEQ 603): its operand list holds the value, its one slot; the value runs here, kind 3 is set and the value is handed up
+extern "C" GroupItem *opReturnValue(GroupItem *arms)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*value = 0;
+	if ( !arms )
+		return 0;
+	value = arms->get(1);
+	 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
+	ruler->branchKind = 3;
+	return value;
 }
 
 // opRunRule the runRule instruct's unary op (SEQ 489, bridge-run): its operand is a mint of a C++-only statement's label, bound by its kant action to that statement's C++ rule method; at RUN the method runs on the mint, in the statement's place; a mint with no method refuses by name

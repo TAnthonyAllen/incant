@@ -134,7 +134,10 @@ define
     seq     unary ruleMethod=opSeq;
     bodySeq unary ruleMethod=opBodySeq;
     ifThen  unary ruleMethod=opIf;
-    branchSignal    unary ruleMethod=opBranch;
+    breakSignal     unary ruleMethod=opBreakSignal;
+    continueSignal  unary ruleMethod=opContinueSignal;
+    returnValue     unary ruleMethod=opReturnValue;
+    returnSignal    unary ruleMethod=opReturnSignal;
     whileLoop       unary ruleMethod=opWhile  ownsBody;
     doLoop          unary ruleMethod=opDo  ownsBody;
     forLoop         unary ruleMethod=opFor  ownsBody;
