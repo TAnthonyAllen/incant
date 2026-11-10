@@ -1,3 +1,48 @@
+# ⚠⚠⚠ SEALED 2026-11-10 (440) ON TRUNK -- SEQ 606: THE descriptions FORM, RECON ONLY. NOTHING BUILT, NO SOURCE, FIXTURE OR FORM CHANGED. THE LIST IS WITH TONY TO RULE LINE BY LINE. STOPPED AS THE DISPATCH SAID. THE CENSUS DISPATCH BELOW (NOW SEQ 607) STAYS THE NEXT MORNING'S OPENER.
+#
+#   ## ONE PLAIN LINE: nothing changed; the descriptions form parses and lays out today under firstLight's preamble, but most of its attributes are old spellings nothing reads, its two images need one new floor method, and dropping flex without writing across stacks the images instead of putting them side by side.
+#   ## THE NUMBER: 606 (Clod's). The dispatch (Tony, 2026-11-10, "Fearless"): R0 recon only · R1 attribute map · R2 images in the old GUI · R3 flex confirmed in Layout's code · R4 what the drawing floor needs. Seal and stop.
+#   ## MEASURED (a scratch copy outside the tree, the form's define blocks under firstLight's preamble; the form itself untouched): it parses; setFrame lays it out -- first 500x50, second 500x275 with saber 500x138 over trees 500x137 (stacked), describeHelp 500x275. The same four names in dESCRIPTIONs and FORMs do not merge. The form's OWN preamble warns (`search dESCRIPTIONs list` before the registry exists) and includes no styles. Saber.jpg is not at the form's path (it is at /Users/anthony/Pictures/Saber.jpg); BetweenTrees.jpg is.
+#   ## R1 ATTRIBUTE MAP, one line each (table = IncantForms/WorkingOn/formsTable):
+#     window, closable, resize, title -- table keep; windows are step 10; a PDF ignores them. Lean keep, unread for now.
+#     x y width height -- table keep; setFrame reads them today.
+#     fill=wall / lightGreen / paleGray -- table keep (ruled, not inherited); the ruled spelling is fill:= (SEQ 534). Lean respell in this form.
+#     minimumHeight -- table respell; the old GUI wrote a global nobody read. Lean drop from this form.
+#     mRight, mBottom -- table "margin: respell, with pad's ruling"; pad was dropped 2026-11-04 and margin never got its own ruling. Old GUI: added to the inner box's right and bottom (GUI/Details.twk 626-631). setFrame does not read them. Lean drop (a space field gives a gap). NEEDS A RULING.
+#     bordered -- table respell; a template: border=1 bStyle=solid stroke=black radius=5 (IncantForms/Controls/templates 65). Lean respell to plain border here; the radius waits for step 9.
+#     flex -- on the confirmed drop list; see R3: on `second` it also meant across. Lean drop, and write `across` on second.
+#     center -- on the drop list (a flexbox hint, no layout reader). What it asked for on describeHead is now align=center valign=center. Lean respell.
+#     titleFont, normalFont written bare -- table keep ("font names merged as attributes"). NOT what the text floor reads: drawText looks for font:= (SEQ 582), so a bare name would draw Helvetica 12 (read in drawText, not run). Lean respell font:=titleFont. NEEDS A RULING: the table says keep.
+#     color=white -- table keep; the floor takes a colour through a holder, so the spelling is color:=white. Lean respell.
+#     shadow -- table respell, deferred to the drawing language; no reader was ever found. Lean drop from this form for now.
+#     image="path" -- table keep (has an action). Not built; R2 and R4.
+#     the text on an image field (saber="Saber from Fate Stay Night") -- NOT IN THE TABLE. Old GUI: a field's content was one kind (isImage or isText), so the text was not drawn. Today drawText would draw it over the image. NEEDS A RULING: caption, or not drawn.
+#     describe="..." -- table keep, a listener on the selection, which is parked. A first build can show its value (the text when nothing is selected) with no listener.
+#     height=50 -- keep. body, wrap, first, second -- field names, not attributes.
+#   ## R2 IMAGES IN THE OLD GUI:
+#     the attribute (GUI/Map.rtn iMAGE 397-434): marks the field an image; the file is the attribute's value, else the source record's value or file + directory, else inherited file and directory; queues the field for drawing; hangs the action iMAGEwork.
+#     the draw (GUI/Layout.twk displayImage 53-117): one rule -- scale the image to FILL the frame keeping its shape (the larger of the two ratios), times the zoom factor if set, centre it, crop to the frame; an offset shifts the crop, clamped to the image. ITS CALL IS COMMENTED OUT in drawRect (131-151): at the end the old GUI drew through a web view. Bot/PDF.twk 30-160 does the same fill-and-crop with libharu (jpg and png). The top-level Layout.twk 46 (in today's build) draws image.object with scale and offset and says the fit moves to a kant action, "imageFit action TBD".
+#     sizing: an image never sized its field; the frame came from layout. imageSized is set in two places and read nowhere under GUI/.
+#     the click (GUI/Actions.twk iMAGEwork 94-149, registered at 430; Bot/Actions.twk 64 the same): click = zoom factor + 0.5 (from 1.0); shift-click = - 0.5, with no lower bound (read, not run); control-click = the clicked point becomes the centre. Then the field is marked modified and redrawn. CORRECTION TO formsRecon: it placed iMAGEwork only in Sheet.rtn (never compiled); the compiled copy is in Actions.twk.
+#     the wiring: Layout's mouseUp finds the field under the point (blockContaining), and fireAction (GUI/Layout.twk 160-218) selects it, then walks up the parents running the field's own action and its attribute actions, stopping at the first level that fired. The selection is what re-ran describe (GUI/Map.rtn dESCRIBE 213-292, a listener on the selection). guiHost.mm only opens a window on a Layout view: no mouse code. Today's Layout.twk has no event methods.
+#     what kant would need: a zoom action in kant that changes scale and offset on the field (onClick:= per 2026-11-04); the click point and the shift / control state handed to it; Layout's mouseUp calling a kant extern; select-then-fire with bubbling (the parent fix); a redraw. All of it is step 10 -- a PDF has no clicks. A first build reads scale and offset as plain attributes and fires nothing.
+#   ## R3 flex: CONFIRMED WITH ONE CORRECTION. GUI/Details.twk 305-326: flex sets across, and with down it writes flexDirection=column (the CSS hint); a field with neither across nor down is laid out DOWN unless it has flex, then ACROSS. So flex was not layout-neutral: it changed the default direction. The repeater is contentVaries, set only by a value on across or down (Details 314, 321; GUI/Control.twk 805-807) and driving flexLayout (168) and setFlexDetails (818): confirmed. The `flexed` in Actions.twk 318 is an unrelated local. In this form `second flex` put the two images side by side; without it they stack (measured above).
+#   ## R4 WHAT THE FIRST BUILD NEEDS FROM THE FLOOR THAT firstLight DID NOT:
+#     1 displayImage(imageReq) -- ONE ARGUMENT, shaped as displayText's: field:= (frame and display), source:= the field whose text is the file path, and fit / scale / offset slots resolved in kant. Core Graphics image load and draw, clipped to the frame, turned upright (the context is y-down, as glyphs were); the same calls draw into the PDF context. Refuses by name: no display, a file that cannot be read, an unknown fit. One trace line per call (pixel size, fit, the rectangle drawn).
+#     2 the fit rule -- the old GUI had one: fill, centred, cropped. To rule: fill only, or also whole (all of the image, the field's fill showing beside it) and stretch. Lean fill as the default, computed in the floor, which knows the image's size. A fit computed in kant would need a second method returning width and height -- shape (C). NAME CLASH: `fit` is already a layout attribute in the table.
+#     3 nothing for describe: textReq's source:= already takes any field, so kant can point it at the describe value or a dESCRIPTIONs entry.
+#     4 nothing for the border (drawBorder exists); rounded corners are step 9; shadow has no floor.
+#     5 kant, not floor: the walk's order becomes fill, image, border, text.
+#     6 for the rows: the form names two pictures by absolute path in Tony's Pictures; a fleet row needs a small image kept in the tree.
+#   ## CHECKS: no file but this one changed, so every instrument reads as at seal 439. Tree clean and pushed; main = trunk.
+#   ## ANCHORS: functions touched that carry directive anchors: none (nothing touched).
+#   ## SHUT DOWN OR CONTINUE: shut down, or stop here at least: three strokes and a recon in this session, and the next step is Tony's line-by-line ruling. If shutdown, the kitchen pass (dirCheck, bs) is owed.
+#   ## NEXT: Tony rules the list; then the descriptions build, rows first. The census dispatch (SEQ 607) is still the next morning's opener.
+#
+#   ## Tony's fixit incantations waiting: 0
+#   ## Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-11-10 (439) ON TRUNK -- SEQ 605: valign=top|center|bottom (FORMS STEP 5b) IS BUILT; firstLight's ok IS CENTRED BOTH WAYS. NO SHUTDOWN. NEXT IS THE descriptions FORM, WAITING ON CLAY'S INSTRUCTIONS (TONY'S WORD); THE CENSUS DISPATCH BELOW STAYS THE NEXT MORNING'S.
 #
 #   ## ONE PLAIN LINE: nothing broke; a field's text can now sit at the top, the middle or the bottom of its frame, the OK button's label is centred both ways in the bitmap and in the PDF, and every earlier drawing answer is unchanged.
