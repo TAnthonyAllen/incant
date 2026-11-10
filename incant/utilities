@@ -514,7 +514,7 @@ define
                 cell, then right-strip columns, left to right.
             ***************************************************************/
                 bandName = string $"band" r;
-                band <- argument :+ new(bandName);
+                band := argument :+ new(bandName);
                 across = 1;
                 band +% across;
                 height = bigHpct;
@@ -524,7 +524,7 @@ define
                 while c < columns;
                     if c == bOC;
                         bigName = string "big" r;
-                        big <- band :+ new(bigName);
+                        big := band :+ new(bigName);
                         big :. mergeON;
                         big +% bigItem;
                         width = bigWpct;
@@ -537,7 +537,7 @@ define
                         c += bigColumns;
                     else
                         colName = string "strip" c;
-                        column <- band :+ new(colName);
+                        column := band :+ new(colName);
                         width = colPct;
                         width :. isPercenT;
                         column +% copyOf(width);
@@ -545,7 +545,7 @@ define
                         while rr < bigRows;
                             cellRow = bOR + rr;
                             cellName = string "c" cellRow "x" c;
-                            cell <- column :+ new(cellName);
+                            cell := column :+ new(cellName);
                             cell :. mergeON;
                             cell +% regularItem;
                             row = cellRow;
@@ -560,7 +560,7 @@ define
                 A full-width regular row.
             ***************************************************************/
                 rowName = string "row" r;
-                rowBlock <- argument :+ new(rowName);
+                rowBlock := argument :+ new(rowName);
                 across = 1;
                 rowBlock +% across;
                 height = rowPct;
@@ -569,7 +569,7 @@ define
                 c = 0;
                 while c < columns;
                     cellName = string "c" r "x" c$;
-                    cell <- rowBlock :+ new(cellName);
+                    cell := rowBlock :+ new(cellName);
                     cell :. mergeON;
                     cell +% regularItem;
                     width = colPct;

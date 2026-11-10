@@ -39,20 +39,20 @@ define
         htInside x=10 y=10 width=20 height=20;
 
     htDirect code={
-        htKid <- htWindow["htInside"];
+        htKid := htWindow["htInside"];
         print "holderT 2 identity  .taG    =" htKid.taG "  want htInside":;
-        htU <- htKid.parenT;
+        htU := htKid.parenT;
         print "holderT 1 direct    .parenT =" htU.taG "  want htWindow":;
         };
 
     htProbe code={
-        htP <- argument.parenT;
+        htP := argument.parenT;
         print "holderT 3 holder    .parenT =" htP.taG "  want htWindow":;
         };
 
     htRun code={
         htDirect();
-        htChild <- htWindow["htInside"];
+        htChild := htWindow["htInside"];
         htProbe(htChild);
         };
     ;

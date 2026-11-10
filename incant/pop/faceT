@@ -12,7 +12,7 @@ define
     faClean;
     faRun code={
         faBag +% faSrc;
-        faFace <- faBag["faSrc"];
+        faFace := faBag["faSrc"];
 
         cerr "faceT F1  identity -- two fields, ONE body:":;
         addrOf(faSrc);
@@ -26,7 +26,7 @@ define
         print "faceT F0 anti-vacuity   =" faR0 "  want noPrinT -- never written, must NOT read 1":;
 
         faBag2 +% faSrc2;
-        faFace2 <- faBag2["faSrc2"];
+        faFace2 := faBag2["faSrc2"];
         faFace2 :. noPrinT;
         faR2 = faSrc2.noPrinT;
         print "faceT F3 flags REVERSE  =" faR2 "  want 1 -- wrote face, read original":;

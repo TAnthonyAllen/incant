@@ -42,7 +42,7 @@ define
         print `closeBrace:;
         clear(CodE);
         CodE = codeBuffer;
-        codeCopy <- copyOf(CodE);
+        codeCopy := copyOf(CodE);
         codeCopy :. noPrinT;
         argument +% codeCopy;
         argument :. isCodeD;

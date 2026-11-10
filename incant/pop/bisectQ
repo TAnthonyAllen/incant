@@ -74,7 +74,7 @@ define
         printTO(0);
         clear(CodE);
         CodE = bqBuffer;
-        bqCopy <- copyOf(CodE);
+        bqCopy := copyOf(CodE);
         bqCopy :. noPrinT;
         argument +% bqCopy;
         argument :. isCodeD;

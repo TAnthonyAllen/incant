@@ -2980,9 +2980,9 @@ for _l4 in "L4a source asked once:|body=#2|source body, first ask" \
            "L4e that capture STARRED|body=#2|the star REACHED the source (law 4)" \
            "L5a a NAMED field|isCopy=1|a NAMED read is a COPY (the carrier mints one)" \
            "L5b the SUBSCRIPT ELEMENT|isCopy=0|the ELEMENT is nobody's copy" \
-           "L6a a <- capture OF A NAME, first ask|field=#10|a <- capture of a NAME" \
-           "L6b the SAME capture, second ask|field=#10|SAME FIELD -- <- is carrier-stable" \
-           "L6c a <- capture OF A SUBSCRIPT|field=#6|a <- capture of a SUBSCRIPT, also stable" \
+           "L6a a := capture OF A NAME, first ask|field=#10|a := capture of a NAME" \
+           "L6b the SAME capture, second ask|field=#10|SAME FIELD -- := is carrier-stable" \
+           "L6c a := capture OF A SUBSCRIPT|field=#6|a := capture of a SUBSCRIPT, also stable" \
            "L6d the DEFINE-BLOCK field|field=#11|a FRESH carrier -- the control"; do
     _lbl=${_l4%%|*}; _rest=${_l4#*|}; _want=${_rest%%|*}; _why=${_rest##*|}
     if grep -A1 -F "$_lbl" "$T/ptr" | grep -qE "ADDROF .*[ ]$_want([ ]|\$)"; then

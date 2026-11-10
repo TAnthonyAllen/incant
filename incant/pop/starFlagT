@@ -10,7 +10,7 @@ define
     sfClean;
     sfRun code={
         sfBag +% sfSrc;
-        sfFace <- sfBag["sfSrc"];
+        sfFace := sfBag["sfSrc"];
         cerr "SF-0 THREE NODES, AND THE FACE IS THE THIRD -- read the BODY column:":;
         cerr "     1 the ORIGINAL:":;
         addrOf(sfSrc);

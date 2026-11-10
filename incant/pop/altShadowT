@@ -53,7 +53,7 @@ define
             print "C guard poisoned rule carries attribute" ,~taG:;
         };
     poison code={
-        dud <- copyOf(dummy);
+        dud := copyOf(dummy);
         dud :. noPrinT;
         argument +% dud;
         print "A ok    poisoned" ,~taG "with one noPrint attribute":;

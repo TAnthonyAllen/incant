@@ -20,8 +20,8 @@ define
     wc=0;
     ;
 search ElseIfT Utilities UnitTests;
-aIf <- KantGrammar["If"];
-aEl <- KantGrammar["ELSEIf"];
+aIf := KantGrammar["If"];
+aEl := KantGrammar["ELSEIf"];
 addrOf(aIf.builtinActoR);
 addrOf(aEl.builtinActoR);
 addrOf(aEl);

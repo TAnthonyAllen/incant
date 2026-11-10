@@ -58,7 +58,7 @@ define
             return;
         clear(CodE);
         CodE = fbBuffer;
-        fbCopy <- copyOf(CodE);
+        fbCopy := copyOf(CodE);
         fbCopy :. noPrinT;
         argument +% fbCopy;
         argument :. isCodeD;

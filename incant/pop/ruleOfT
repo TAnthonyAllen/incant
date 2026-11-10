@@ -10,7 +10,7 @@ define
         roN = 1;
         };
     roParse code={
-        roCp <- roSrc;
+        roCp := roSrc;
         v := tell("QuotE 'abc'");
         cerr "RO-PHASE tell":;
         ruleOfCensus(*v);

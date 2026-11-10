@@ -57,7 +57,7 @@ define
         ptBagL +* ptOther;
         print "pointerT L  three ptrs   =" ptBagL.listLengtH "  want 3":;
         print "pointerT L1 prints values =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER -- these elements HOLD DATA, no follow involved":;
-        ptNamed <- ptBagL["ptSrc"];
+        ptNamed := ptBagL["ptSrc"];
         print "pointerT L2 name-then-star =" ,*ptNamed "  want CHANGED -- LAW 4, the lawful read":;
         ptAssigned = ptBagL["ptSrc"];
         print "pointerT L3 assign-then-star =" ,*ptAssigned "  want CHANGED -- = with a holder on the right carries its group across":;
@@ -71,10 +71,10 @@ define
         addrOf(ptSrc);
         cerr "  L4c a DIFFERENT field -- body must DIFFER (column discriminates):":;
         addrOf(ptOther);
-        ptElem <- ptBagL["ptSrc"];
+        ptElem := ptBagL["ptSrc"];
         cerr "  L4d the SUBSCRIPT RESULT -- law 2 says this is NOT the source:":;
         addrOf(ptElem);
-        ptFollowed <- *ptElem;
+        ptFollowed := *ptElem;
         cerr "  L4e that capture STARRED -- law 4 says THIS is the source:":;
         addrOf(ptFollowed);
 
@@ -87,12 +87,12 @@ define
         print "pointerT L5c flag road   =" ptFlagRead "  want ptFlagRead -- UNREADABLE, see the note":;
 
         cerr "pointerT L6 -- IS `<-` CARRIER-STABLE? Ask the SAME capture twice.":;
-        ptCapName <- ptSrc;
-        cerr "  L6a a <- capture OF A NAME, first ask:":;
+        ptCapName := ptSrc;
+        cerr "  L6a a := capture OF A NAME, first ask:":;
         addrOf(ptCapName);
         cerr "  L6b the SAME capture, second ask -- field must REPEAT:":;
         addrOf(ptCapName);
-        cerr "  L6c a <- capture OF A SUBSCRIPT, asked twice -- field must REPEAT:":;
+        cerr "  L6c a := capture OF A SUBSCRIPT, asked twice -- field must REPEAT:":;
         addrOf(ptElem);
         cerr "  L6d the DEFINE-BLOCK field, asked again -- a FRESH carrier each time:":;
         addrOf(ptSrc);
