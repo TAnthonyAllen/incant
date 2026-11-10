@@ -427,6 +427,21 @@ define
                         refusalSaid = 1;
                         clear(*actionLabel);
                         return *actionLabel;
+            // methodlessPrefix an Operators entry with no method arrives looking like an operand (instruct type 0, not an operator by flag), so where an operand is expected it is found by name in Operators and refused with the same wording; without this an assignment refused as a list of adjacent operands and a print item printed the token as text (SEQ 598 R1)
+            if prevOp == 1;
+                if *cur.instructTypE == 0;
+                    mlHit = 0;
+                    if Operators[*cur.taG];     mlHit = 1;
+                    if mlHit == 1;
+                        mlE := Operators[*cur.taG];
+                        mlI := *mlE.instructTypE;
+                        if *mlI != 0;   mlHit = 0;
+                    if mlHit == 1;
+                        mlT := *cur.taG;
+                        cerr "REFUSED" mlT "-- an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)":;
+                        refusalSaid = 1;
+                        clear(*actionLabel);
+                        return *actionLabel;
             if *cur.instructTypE != 0;
                 // prefixRun a run of prefixes is counted; the operand wraps them innermost first (SEQ 571 R0)
                 if prevOp == 1;
@@ -450,13 +465,19 @@ define
                     while npre > 0;
                         pOp = pp;
                         // arrowNoTarget a <- in a prefix position has no target: refused by name, the old road's wording, and the statement does nothing (SEQ 596 R0); without this the <- was dropped and its operand used
-                        if *pOp.taG == "<-";
-                            cerr "REFUSED <- -- an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)":;
+                        if *pOp.taG == "-";     pOp := Operators["negate"];
+                        or *pOp.taG == "*";     pOp := Operators["deref"];
+                        // notAPrefix an operator that is not a unary has no target in a prefix position: refused by name, the old road's wording and the old road's test (isUnary, and the dot), and the statement does nothing; without this it was built with one operand and its method read a null argument -- sixteen entries ended the run at exit 139 (SEQ 598 R1)
+                        pUn := *pOp.isUnarY;
+                        pTg := *pOp.taG;
+                        notPre = 0;
+                        if *pUn == 0;   notPre = 1;
+                        if *pTg == "."; notPre = 0;
+                        if notPre == 1;
+                            cerr "REFUSED" pTg "-- an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)":;
                             refusalSaid = 1;
                             clear(*actionLabel);
                             return *actionLabel;
-                        if *pOp.taG == "-";     pOp := Operators["negate"];
-                        or *pOp.taG == "*";     pOp := Operators["deref"];
                         instruct    +% pOp opnd;
                         // an instruct is known by its method: testOP runs it (SEQ 428)
                         instruct.methoD = "testOP";
