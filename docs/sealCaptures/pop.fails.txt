@@ -3,17 +3,10 @@
 # RE-BANKED 2026-11-10 at seal 428 (SEQ 595 R2): 62 + the four arrowExprT new-road rows, pinned and not cured by ruling (a <- with no target in an expression) = 66.
 # RE-BANKED 2026-11-10 at seal 429 (SEQ 596 R0): the four arrowExprT rows are cured and green; back to 62.
 # RE-BANKED 2026-11-10 at seal 430 (SEQ 597): 62 + prefixOpT's 89 pins (R2, not cured by ruling) + 8 born red for the <- retirement (arrowRetiredT AR-1..6, arrowExprT AX-5 x2; green on branch arrow-retire, the buy is Tony's) = 159.
+# RE-BANKED 2026-11-10 (SEQ 598 R0): arrow-retire bought (the tombstone); the 8 retirement rows (arrowRetiredT AR-1..6, arrowExprT AX-5 x2) are green; 159 - 8 = 151 = 62 + prefixOpT's 89 pins.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
-FAIL  arrowExprT AX-5 new road: x <- y, stdout / REFUSED <- lines (retired: refused by name) born red (SEQ 345): today [3 |Q | / 0], intended [Q | / 1]
-FAIL  arrowExprT AX-5 old road: x <- y, stdout / REFUSED <- lines (retired: refused by name) born red (SEQ 345): today [3 |Q | / 0], intended [Q | / 1]
-FAIL  arrowRetiredT AR-1 born red (SEQ 345): today [3 |7 |Q | / retired 0 other 0 x0 s1], intended [2 |7 |Q | / retired 1 other 0 x0 s1]
-FAIL  arrowRetiredT AR-2 born red (SEQ 345): today [3 |7 |Q | / retired 0 other 0 x0 s1], intended [7 |Q | / retired 1 other 0 x0 s1]
-FAIL  arrowRetiredT AR-3 born red (SEQ 345): today [3 |6 |7 |Q | / retired 0 other 0 x0 s1], intended [7 |Q | / retired 1 other 0 x0 s1]
-FAIL  arrowRetiredT AR-4 born red (SEQ 345): today [3 |6 |7 |Q | / retired 0 other 0 x0 s1], intended [7 |Q | / retired 1 other 0 x0 s1]
-FAIL  arrowRetiredT AR-5 born red (SEQ 345): today [3 |6 |7 |Q | / retired 0 other 0 x0 s1], intended [7 |Q | / retired 1 other 0 x0 s1]
-FAIL  arrowRetiredT AR-6 born red (SEQ 345): today [5 |7 |Q | / retired 0 other 1 x0 s1], intended [5 |7 |Q | / retired 1 other 0 x0 s1]
 FAIL  bridgeT BR-4 new road sentinel -- got [0] want [1]
 FAIL  bridgeT BR-4 new road: a top-level scope: the run ends, nothing refuses (no witness) MOVED: reads [ R0 x139], pinned today [1 |2 | R0 x0], intended [1 |2 | R0 x0]
 FAIL  carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
