@@ -391,6 +391,13 @@ fdRow "descT DE-5 no refusal and no colour error (the form includes styles itsel
 #  DE-6 MEASURED, NOT CHOSEN: with dESCRIPTIONs on the search list during the form's define (R1), the form's saber IS the registry's saber, so
 #  the registry entry's text becomes the form field's text. R2 reads the same way (an image field's text is its description).
 fdRow "descT DE-6 the registry's saber after the form's define (R1: one field, the form's text)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor" "Saber from Fate Stay Night"
+#  ⚑ SEQ 608 (R2, R6): describeHelp shows its describe attribute's text; an image field's text is its description and is not drawn; the
+#  describe action moved from tester to incant/utilities. REGISTERED BEFORE THE BUILD.
+fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== displayText describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"
+fdRow "descT DE-8 IMAGE TEXT: displayText is called for describeHead and describeHelp, never for saber or trees" "$(grep -h '^=== displayText ' "$T/de.o" | awk '{print $3}' | xargs)" "describeHead saber trees describeHelp" "describeHead describeHelp"
+#  tester's describe lines, a control across the move: the six lines tester prints from describe() must not change.
+perl -e 'alarm 30; exec @ARGV' "$B" IncantForms/WorkingOn/tester > "$T/tsd.o" 2> "$T/tsd.e"
+_ofeq "tester's six describe lines across the move to utilities (R6), md5" "$(grep 'initial description\|mock ' "$T/tsd.o" | md5 -q) $(grep -c 'initial description\|mock ' "$T/tsd.o")" "556d248688d4ae5418d9c134712a5f6a 6"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
