@@ -1,0 +1,72 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IfOpT);
+define
+    qa=2;
+    qb=3;
+    it1;
+    ioN code={
+        if qa == 3;     print 1:;
+        or qb == 3;     print 3:;
+        else            print 2:;
+        if qa == 2;     print 4:;
+        print 8:;
+        };
+    nlReqN owner source result rule;
+    ioNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    ioAct code={ if qa == 2; qa qb + 1; print "O-NEXT":; };
+    ;
+search IfOpT Utilities UnitTests list;
+stop();
+
+ifOpT -- SEQ 592 (Tony, 2026-11-10): If and ELSEIf as operators, WHILe's shape (SEQ 580). Both declare op="ifThen" and take
+the default action OPERATOr; If's hand action (which ELSEIf shared) is deleted. The label's slots arrive as condition, then,
+else, the order opIf reads, an absent else absent. ifT, elseIfT, branchT and ruleIfT's values must not move; these rows pin
+what the default CHANGES for ELSEIf and the controls it must not. If's own three refusals are ruleIfT's RI-C / RI-S / RI-E
+(both arms) and refusedCondT's RC-If / RC-sIf. Rows prefixed IO-. Interpreted only.
+
+IO-1  ELSEIf's then slot refuses: today it says If (ELSEIf ran If's action); the default names ELSEIf and its slot.
+IO-2  ELSEIf's else slot refuses: the same.
+IO-3  an or arm refused inside an If: today two lines, both naming If (the or arm's then, then the If's else, the or arm
+      having handed up nothing); the default names ELSEIf's slot, then If's ELSe.
+IO-4  control: a bare-name condition is a value, not an instruct, and is not refused; run twice, true then false.
+IO-5  control: the old road's If, a refused then arm in an action: refused naming xl1, the rest of the action does not run.
+IO-6  control (R0): top level through FILe -- an if / or / else, then a plain if, then a print.
+IO-7  control (R0): the same statements as a new-road action body (ioN, built by ioNew -- whileT's whNew). A "parse failed"
+      line would mean ioN ran on the old road; the refusals column would show it.
+IO-8  control: a bare name as the else statement builds, and the false condition runs it, printing nothing.
+
+Not run alone: pop.sh appends the row, print "NEXT", a sentinel; one process per row. Each row reads exit and sentinel; stdout
+(lines joined by |); and the lines that are REFUSED naming If, ELSEIf, ifArms or xl1, or say parse failed, joined by |.
+
+ROWS, separated by ^ -- id ^ statements ^ stdout today ^ refusals today ^ stdout intended ^ refusals intended
+IO-1^it1 = ELSEIf("or qa == 2; qa qb + 1;"); print "Q":;^Q |^REFUSED If -- its then arm handed up no instruct |^Q |^REFUSED ELSEIf -- its STATEMENt handed up nothing |
+IO-2^it1 = ELSEIf("or qa == 3; print 1:; else qa qb + 1;"); print "Q":;^Q |^REFUSED If -- its else arm handed up no instruct |^Q |^REFUSED ELSEIf -- its ELSe handed up nothing |
+IO-3^it1 = If("if qa == 3; print 1:; or qa == 2; qa qb + 1;"); print "Q":;^Q |^REFUSED If -- its then arm handed up no instruct |REFUSED If -- its else arm handed up no instruct |^Q |^REFUSED ELSEIf -- its STATEMENt handed up nothing |REFUSED If -- its ELSe handed up nothing |
+IO-4^it1 = If("if qa; print 1:; else print 2:;"); testOP(it1); qa = 0; testOP(it1); print "Q":;^1 |2 |Q |^^1 |2 |Q |^
+IO-5^ioAct(); print "Q":;^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|
+IO-6^it1 = FILe("if qa == 3; print 1:; or qb == 3; print 3:; else print 2:; if qa == 2; print 4:; print 8:;"); print "Q":;^3 |4 |8 |Q |^^3 |4 |8 |Q |^
+IO-7^ioNew(ioN); ioN(); print "Q":;^3 |4 |8 |Q |^^3 |4 |8 |Q |^
+IO-8^it1 = If("if qa == 3; print 1:; else qa;"); testOP(it1); print "Q":;^Q |^^Q |^

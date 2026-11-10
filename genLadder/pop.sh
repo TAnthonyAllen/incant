@@ -747,7 +747,7 @@ fdRow "branchT TG-1 testOP on a raw label whose first child carries a method ref
 #  IF-7 RE-PINNED (SEQ 509 R2): return is built on the new road (SEQ 508), so the arm is an instruct and If no longer refuses.
 #  ⚠ R6's "arm handed up no instruct" refusal has LOST ITS LIVE TRIGGER (H17) -- reported; no substitute found (an adjacent-
 #  operand arm `qa qb;` does not refuse either)
-_ofeq "branchT IF-7 if ...; return; -- the return arm builds, nothing refuses, next runs (refusals / stdout)" "$(grep -c '^REFUSED return' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its then arm handed up no instruct *$' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "0 0 [5 |]"
+_ofeq "branchT IF-7 if ...; return; -- the return arm builds, nothing refuses, next runs (refusals / stdout)" "$(grep -c '^REFUSED return' "$T/bt.IF-7.ne") $(grep -c '^REFUSED If -- its \(then arm handed up no instruct\|STATEMENt handed up\)' "$T/bt.IF-7.ne") [$(_btv "$T/bt.IF-7.n")]" "0 0 [5 |]"
 #  SL-1, SL-2 (SEQ 478 R0): the STARt leak -- a second STARt, and a second sibling block, each run right; no seq error
 fdRow "branchT SL-1 two STARts built in one process each run (stdout / seq errors)" "$(_btv "$T/bt.SL-1.n") $(grep -c 'seq does not contain a list' "$T/bt.SL-1.ne")" "1 | 1" "1 |5 | 0"
 fdRow "branchT SL-2 two sibling blocks in one STARt each run (stdout / seq errors)" "$(_btv "$T/bt.SL-2.n") $(grep -c 'seq does not contain a list' "$T/bt.SL-2.ne")" "1 | 1" "1 |5 | 0"
@@ -933,6 +933,10 @@ while IFS='|' read -r _id _st _nm; do
     if [ "$_id" = RC-While ] || [ "$_id" = RC-sWhile ]; then
         #  SEQ 580 REGISTERED: WHILe's default action refuses its condition slot by the slot's label, before any attach
         fdRow "refusedCondT $_id the refusal: whileArms attach | WHILe's EXPRESSIOn slot" "$(grep -c '^REFUSED whileArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED WHILe -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+    elif [ "$_id" = RC-If ] || [ "$_id" = RC-ElseIf ] || [ "$_id" = RC-sIf ]; then
+        #  SEQ 592 REGISTERED: If's and ELSEIf's default action refuses the condition slot by the slot's label, before any attach
+        _rcR=If; [ "$_id" = RC-ElseIf ] && _rcR=ELSEIf
+        fdRow "refusedCondT $_id the refusal: ifArms attach | $_rcR's EXPRESSIOn slot" "$(grep -c '^REFUSED ifArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c "^REFUSED $_rcR -- its EXPRESSIOn handed up nothing" "$T/rc.$_id.e")" "1 | 0" "0 | 1"
     elif [ "$_id" = RC-Do ]; then
         #  SEQ 591 REGISTERED: Do's default action refuses its condition slot by the slot's label, before any attach
         fdRow "refusedCondT $_id the refusal: doArms attach | Do's EXPRESSIOn slot" "$(grep -c '^REFUSED doArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED Do -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
@@ -979,6 +983,24 @@ while IFS='^' read -r _id _st _to _tr _io _ir; do
 done < "$T/dp.list"
 _ofeq "doOpT rows ran (6 of 6)" "$_dpn" "6"
 else echo "  FAIL  doOpT MISSING"; fail=1; fi
+
+#  ⚑ ifOpT -- SEQ 592 (Tony, 2026-11-10): If and ELSEIf as operators. One process per row: exit and sentinel; stdout and the REFUSED
+#  lines naming If / ELSEIf / ifArms / xl1 or a parse failed line (line numbers stripped, H3), each fdRow today beside intended.
+_ioF=$(ip ifOpT)
+if [ -f "$_ioF" ]; then
+sed '/^stop();/,$d' "$_ioF" > "$T/io.pre"
+grep '^IO-[0-9]*\^' "$_ioF" > "$T/io.list"
+_ion=0
+while IFS='^' read -r _id _st _to _tr _io _ir; do
+    _ion=$((_ion+1))
+    { cat "$T/io.pre"; printf '%s\nprint "NEXT":;\ncerr "IO SENTINEL":;\nstop();\n' "$_st"; } > "$T/io.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/io.$_id.k" > "$T/io.$_id.o" 2> "$T/io.$_id.e"; echo $? > "$T/io.$_id.x"
+    _ofeq "ifOpT $_id exit, sentinel" "$(cat "$T/io.$_id.x") $(grep -c '^IO SENTINEL' "$T/io.$_id.e")" "0 1"
+    fdRow "ifOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/io.$_id.o" | tr '\n' '|')" "$_to" "$_io"
+    fdRow "ifOpT $_id refusals" "$(grep '^REFUSED If\|^REFUSED ELSEIf\|^REFUSED ifArms\|^REFUSED xl1\|parse failed' "$T/io.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+done < "$T/io.list"
+_ofeq "ifOpT rows ran (8 of 8)" "$_ion" "8"
+else echo "  FAIL  ifOpT MISSING"; fail=1; fi
 
 #  ============================================================================
 #  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
@@ -1068,8 +1090,13 @@ while IFS='|' read -r _id _f _ref _st _pin; do
     _ofeq "ruleIfT $_id compiled = interpreted, stdout" "$(_rdv "$T/ri.$_id.c.o")" "$(_rdv "$T/ri.$_id.i.o")"
     _ofeq "ruleIfT $_id compiled = interpreted, stderr" "$(_rie "$T/ri.$_id.c.e")" "$(_rie "$T/ri.$_id.i.e")"
     fdRow "ruleIfT $_id through the door: built 1 fired $_f" "$(grep -c "^=== jitter rule: If built 1 fired $_f ===" "$T/ri.$_id.c.e")" "0" "1"
-    fdRow "ruleIfT $_id old-road walk line: native 5 handed 10" "$(grep -c '^=== jitter rule walk: If native 5 handed 10 ===' "$T/ri.$_id.c.e")" "0" "1"
-    if [ -n "$_ref" ]; then _ofeq "ruleIfT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/ri.$_id.i.e") $(grep -c "^$_ref" "$T/ri.$_id.c.e")" "1 1"; fi
+    #  SEQ 592 REGISTERED: If takes the default action, so the door compiles OPERATOr's body for it -- the walk line moves to native 3 handed 8
+    #  (WHILe's measured figure, SEQ 580), and the three refusals move to the slot names (the fixture's third field stays today's wording)
+    fdRow "ruleIfT $_id walk line: native 5 handed 10 | native 3 handed 8" "$(grep -c '^=== jitter rule walk: If native 5 handed 10 ===' "$T/ri.$_id.c.e") | $(grep -c '^=== jitter rule walk: If native 3 handed 8 ===' "$T/ri.$_id.c.e")" "1 | 0" "0 | 1"
+    if [ -n "$_ref" ]; then
+        case "$_id" in RI-C) _rn="REFUSED If -- its EXPRESSIOn handed up nothing";; RI-S) _rn="REFUSED If -- its STATEMENt handed up nothing";; RI-E) _rn="REFUSED If -- its ELSe handed up nothing";; *) _rn="NO-INTENDED-WORDING";; esac
+        fdRow "ruleIfT $_id the arm refuses by name, both arms: today's wording | the slot's name" "$(grep -c "^$_ref" "$T/ri.$_id.i.e") $(grep -c "^$_ref" "$T/ri.$_id.c.e") | $(grep -c "^$_rn" "$T/ri.$_id.i.e") $(grep -c "^$_rn" "$T/ri.$_id.c.e")" "1 1 | 0 0" "0 0 | 1 1"
+    fi
 done < "$T/ri.list"
 _ofeq "ruleIfT rows ran (15 of 15)" "$_rin" "15"
 #  what the fire ADOPTS when the condition refuses: nothing, on both arms; and its anti-vacuity sibling, a clean fire adopts its ifThen instruct

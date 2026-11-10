@@ -47,6 +47,11 @@ RI-12 is the ELSEIf row with the OUTER condition true. Added after H7(b): ELSEIf
 outer If rebuilt the ELSEIf's stale label, and RI-5 / RI-6 (outer false) still read right -- the ELSEIf chain alone gives their answer.
 RI-12 cannot: its answer is the outer then arm.
 
+SEQ 592 REGISTERED (Tony, 2026-11-10), from a dry run: If takes the default action OPERATOr, so the door compiles OPERATOr's body
+for it. The walk line moves to native 3 handed 8 on every row (WHILe's figure, SEQ 580); the fired counts do not move (ELSEIf, WHILe
+and Do take the same action and are NOT fired through If's door). RI-C / RI-S / RI-E move to "REFUSED If -- its EXPRESSIOn / STATEMENt /
+ELSe handed up nothing"; the third field below stays today's wording, pop.sh holds the intended one.
+
 RI-C, RI-S and RI-E are the refusal arms. RI-S and RI-E are If's own (then, else) and end in a return. RI-C is F-147's shape, a real refuse()
 inside a handed-over statement. F-146 deleted the guard that added "a compiled rule handed back a count" on that shape; its text is in no
 source, so the stderr compare (no filter for it) is the measurement that the line is gone.
