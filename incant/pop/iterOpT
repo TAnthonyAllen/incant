@@ -1,0 +1,94 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IterOpT);
+define
+    it1;
+    it2;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    hs;
+    ic;
+    jc;
+    cpSrc=9;
+    dv=0;
+    dblAct code={ dv = **dh2; print "dbl" dv:; };
+    refAct code={ rr = 0; rz = 1; rr = hs - 1; return 5; };
+    dsrc=6;
+    dh1;
+    dh2;
+    ioN code={
+        iterate jc members on fm;
+        while ++jc;
+            print *jc:;
+        print 6:;
+        };
+    nlReqN owner source result rule;
+    ioNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    jc;
+    fm x=7 y=8
+        m1=4;
+        m2=5;
+        m3=6;
+    ;
+search IterOpT Utilities UnitTests list;
+fsrc +% fa fb fc;
+hs := fsrc;
+dh1 := dsrc;
+dh2 := dh1;
+stop();
+
+iterOpT -- SEQ 601 (Tony, 2026-11-10): ITERATe is the parent of four fixed shapes, each an operator built by the default
+action: ITERPLAIn (op iterateOn), ITERATTRs (iterateAttrs), ITERMEMBERs (iterateMembers), ITERBOTh (iterateBoth). Each has
+two slots, the cursor and the source; the filter words hand nothing up and the shape's op carries the filter. The source
+is an EXPRESSIOn, so a starred source is its deref instruct, and an operator in the source is read as part of the source.
+
+Not run alone: pop.sh appends the row's statements and a sentinel; one process per row under an alarm. Each value reads:
+[stdout, lines joined by |] r<REFUSED lines> adj<the adjacent-operands wording> pre<the prefix-position wording>
+plus<Operator + cannot apply> x<exit> s<sentinel>.
+
+IO-1  both filter words: walks the attributes only, as the hand action did (iterateSetup is handed both).
+IO-2  a filter with a starred source.
+IO-3  an operator before the source: refused today as a list of adjacent operands, then as an operator in a prefix
+      position (the source is an EXPRESSIOn now); either way the loop refuses and the next statement runs.
+IO-4  an operator after the source: TODAY the iterate takes fsrc, walks it (1 2 3), and "+ 1" is a second statement that
+      refuses; INTENDED the source is fsrc + 1, which refuses when the iterate runs, and nothing is walked.
+IO-5  control: a source with no list refuses at run, the old road's wording.
+IO-6  control: the filter words in the other order are no shape; the statement is not an iterate and ++ refuses.
+IO-7  control: no cursor -- "on" is read as the cursor, as today; nothing refuses. Not cured, not asked.
+IO-8  top level through FILe, a members walk across two calls.
+IO-9  a new-road action body: a members walk, then 6.
+
+ROWS, separated by ^ -- id ^ statements ^ value today ^ value intended
+IO-1^it1 = STARt("iterate ic attributes members on fm; while ++ic; print *ic:;"); testOP(it1); print 9:;^[7 |8 |9 |] r0 adj0 pre0 plus0 x0 s1^[7 |8 |9 |] r0 adj0 pre0 plus0 x0 s1
+IO-2^it1 = STARt("iterate ic attributes on *hs; while ++ic; print *ic:;"); testOP(it1); print 9:;^[1 |2 |3 |9 |] r0 adj0 pre0 plus0 x0 s1^[1 |2 |3 |9 |] r0 adj0 pre0 plus0 x0 s1
+IO-3^it1 = STARt("iterate ic on / fsrc; while ++ic; print *ic:;"); testOP(it1); print 9:;^[9 |] r2 adj1 pre0 plus0 x0 s1^[9 |] r2 adj0 pre1 plus0 x0 s1
+IO-4^it1 = STARt("iterate ic on fsrc + 1; while ++ic; print *ic:;"); testOP(it1); print 9:;^[1 |2 |3 |9 |] r1 adj0 pre1 plus0 x0 s1^[9 |] r1 adj0 pre0 plus1 x0 s1
+IO-5^it1 = STARt("iterate ic on dsrc; while ++ic; print *ic:;"); testOP(it1); print 9:;^[9 |] r1 adj0 pre0 plus0 x0 s1^[9 |] r1 adj0 pre0 plus0 x0 s1
+IO-6^it1 = STARt("iterate ic members attributes on fm; while ++ic; print *ic:;"); testOP(it1); print 9:;^[9 |] r1 adj0 pre0 plus0 x0 s1^[9 |] r1 adj0 pre0 plus0 x0 s1
+IO-7^it1 = STARt("iterate on fsrc; print 5:;"); testOP(it1); print 9:;^[5 |9 |] r0 adj0 pre0 plus0 x0 s1^[5 |9 |] r0 adj0 pre0 plus0 x0 s1
+IO-8^it1 = FILe("iterate ic members on fm;"); it1 = FILe("while ++ic; print 4:;"); print 9:;^[4 |4 |4 |9 |] r1 adj0 pre0 plus0 x0 s1^[4 |4 |4 |9 |] r1 adj0 pre0 plus0 x0 s1
+IO-9^ioNew(ioN); ioN(); print 9:;^[4 |5 |6 |6 |9 |] r0 adj0 pre0 plus0 x0 s1^[4 |5 |6 |6 |9 |] r0 adj0 pre0 plus0 x0 s1
