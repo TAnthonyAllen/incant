@@ -1353,6 +1353,13 @@ extern GroupItem opArrowRetired(GroupItem argument,GroupItem target)
 }
 
 
+// opNotBuilt the shared method of the ten reserved Operators entries (| ^ GO ? >> << :> :< :- &; Tony, SEQ 599 A0): a real method, so the entry is an operator with no null to read; runOPdirect names the operator and refuses before calling it, and a road that reaches here another way refuses on what it was handed
+extern GroupItem opNotBuilt(GroupItem argument,GroupItem target)
+{
+    return refuse(target,"an operator that is not built yet -- reserved (SEQ 599)");
+}
+
+
 // opRem the % operator: integer remainder
 extern GroupItem opRem(GroupItem argument,GroupItem target)
 {

@@ -436,6 +436,7 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result);
 extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opMultiplyEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opNOT(GroupItem *result);
+extern "C" GroupItem *opNotBuilt(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target);

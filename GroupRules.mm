@@ -10788,6 +10788,12 @@ extern "C" GroupItem *opNOT(GroupItem *result)
 	return 0;
 }
 
+// opNotBuilt the shared method of the ten reserved Operators entries (| ^ GO ? >> << :> :< :- &; Tony, SEQ 599 A0): a real method, so the entry is an operator with no null to read; runOPdirect names the operator and refuses before calling it, and a road that reaches here another way refuses on what it was handed
+extern "C" GroupItem *opNotBuilt(GroupItem *argument, GroupItem *target)
+{
+	return ::refuse(target,"an operator that is not built yet -- reserved (SEQ 599)");
+}
+
 // opNotEQ the != operator, on opEQ's shape
 extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 {
@@ -13274,6 +13280,8 @@ GroupItem 	*result = 0;
 	// dispatchSeat which node the name reached, and which arm the fork will take
 	::measureRuleDispatch(op,target,arg);
 	// callExecutor an operator fires as itself; anything else whose target is callable is a CALL, and opCall is its one executor (SEQ 318 c2)
+	// notBuilt a reserved operator refuses BY ITS OWN NAME here, the one seat that still holds the op: its shared method is handed only operands (SEQ 599 A0)
+	 if ( isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp == (void*)&opNotBuilt ) return ::refuse(op,(char*)"is not built yet -- a reserved operator (SEQ 599)"); 
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
@@ -13837,6 +13845,8 @@ GroupItem 	*lookup = 0;
 	target = ::followArgument(target);
 	argument = ::followArgument(argument);
 	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
+	// notBuilt the new road's seat for the same refusal runOPdirect makes: a reserved operator is named here, where the op is still in hand (SEQ 599 A0)
+	 if ( isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp == (void*)&opNotBuilt ) return ::refuse(op,(char*)"is not built yet -- a reserved operator (SEQ 599)"); 
 	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);
 	else

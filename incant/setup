@@ -116,13 +116,14 @@ define
 *******************************************************************************/
 registry(Operators);
 define
+    // notBuilt the ten entries bound to opNotBuilt are RESERVED -- Tony, SEQ 599: using one refuses by name as not built yet and the statement does nothing; when one is built its refusal is replaced by its method
     '~='    operateMethod=opMatch  compareTier;
     '||'    operateMethod=opOR   shortCircuit isOR;
-    '|';
+    '|'    operateMethod=opNotBuilt;
     '&&'    operateMethod=opAND  shortCircuit;
-    '^';
+    '^'    operateMethod=opNotBuilt;
     IN      operateMethod=opIN  compareTier;
-    GO;
+    GO    operateMethod=opNotBuilt;
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
     deref   unary ruleMethod=opDeref;
@@ -141,8 +142,8 @@ define
     iterateOn       unary ruleMethod=opIterate;
     call            operateMethod=opCallTest  assignTier;
     runRule         unary ruleMethod=opRunRule;
-    '?';
-    '>>';
+    '?'    operateMethod=opNotBuilt;
+    '>>'    operateMethod=opNotBuilt;
     '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;
     '>'     operateMethod=opGT  jitEmitter=jitEmitGT  compareTier;
 
@@ -154,16 +155,16 @@ define
     '='     operateMethod=opAssign  assignTier;
 
     '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier;
-    '<<';
+    '<<'    operateMethod=opNotBuilt;
     '<:'    operateMethod=opSetTag  assignTier;
     // arrowRetired <- is RETIRED as an operator (Tony, SEQ 597): it did nothing := cannot. The entry stays as a tombstone because the two characters must still be read together -- with no entry `x <- y` reads as `x < -y`, a comparison, silently, and an entry outside this registry is not read as an operator (both measured). Its method refuses by name and says to write :=. The <- inside a for loop is grammar text, not this entry
     '<-'    operateMethod=opArrowRetired  assignTier;
     '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier;
 
-    ':>';
+    ':>'    operateMethod=opNotBuilt;
     ':='    operateMethod=opSetGroup  assignTier;
-    ':<';   // not used
-    ':-';   // pop not written yet
+    ':<'    operateMethod=opNotBuilt;   // not used
+    ':-'    operateMethod=opNotBuilt;   // pop not written yet
     ':+'    operateMethod=opReplaceMember  assignTier;
     ':%'    operateMethod=opReplaceAttribute  assignTier;
     '/='    operateMethod=opDivEQ  assignTier;
@@ -193,7 +194,7 @@ define
     '*='    operateMethod=opMultiplyEQ  assignTier;
     '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass;
     '@'     unary ruleMethod=opLastREF;
-    '&';
+    '&'    operateMethod=opNotBuilt;
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier;
     '!'     unary ruleMethod=opNOT;
