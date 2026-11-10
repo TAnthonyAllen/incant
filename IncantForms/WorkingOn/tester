@@ -100,8 +100,8 @@ selection := dESCRIPT;
 describe();
 print "After mock deselect and set dESCRIPT:"`describe:;
 /*******************************************************************************
-    Clod, SEQ 587 R2: the Skim check, run by hand. firstLight to output.pdf,
-    then the restored system command opens it in Skim. Never a fleet row.
+    Clod, SEQ 587 R2: firstLight to output.pdf. The system("open -a Skim ...")
+    that followed is gone (2026-11-10, it popped Skim up on every run). Never a fleet row.
 *******************************************************************************/
 registry(fILEs);
 define
@@ -121,8 +121,7 @@ skimReq :% copyOf(firstLight["height"]);
 openPDF(skimReq);
 drawWalk(firstLight);
 closePDF(skimReq);
-skimOpened := system("open -a Skim IncantForms/PDF/output.pdf");
-print "Skim open answered" skimOpened:;
+//  Skim no longer opened on every run (Tony, 2026-11-10: it kept popping up). To look: open -a Skim IncantForms/PDF/output.pdf
 print "SENTINEL tester driver end":;
 stop();
 
