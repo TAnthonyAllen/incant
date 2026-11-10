@@ -247,6 +247,14 @@ then, else, an absent else absent; opIf and OPERATOr did not change. Refusals na
 slot, and an or arm's now say ELSEIf. Compiled through the rule door the walk line is
 OPERATOr's (native 3 handed 8, was 5 / 10); values and fired counts unmoved.
 
+FOr 2026-11-10 (SEQ 593 gate, SEQ 594 build, on trunk): a rule's slots never vary, so FOr
+is now the PARENT of two fixed shapes, FORBACk (for .. in <- .., op forBack) and FORWARd
+(op forLoop), each cursor, source, statement, each taking OPERATOr, both ops ownsBody. The
+<- is a keyword that hands nothing up. FORBACk is first: FORWARd first runs a <- loop
+forwards. opForBack and opFor share one walk. LOOPRESTRICt is a rule over the two words
+(LOOPKINd) with its own refusing action. A parent has no body, so the rule door takes
+FORBACk and FORWARd by name; jitterRule(FOr) builds nothing.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
