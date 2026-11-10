@@ -69,12 +69,16 @@ Not run alone: pop.sh appends the row, print "NEXT", a sentinel; one process per
 (lines joined by |); and the lines that are REFUSED naming FOr, FORBACk, FORWARd, forArms or xl1, or say parse failed,
 joined by |.
 
+SEQ 596 R1 (Tony, 2026-11-10): one refusal per statement. The refusals column now holds EVERY REFUSED line of the run (and
+any parse failed line), so it reads how many there are: today the first refusal and then the default action's line for the slot
+that handed up nothing; intended the first refusal alone.
+
 ROWS, separated by ^ -- id ^ statements ^ stdout today ^ refusals today ^ stdout intended ^ refusals intended
-FO-1^it1 = FOr("for lp in fsrc; qa qb + 1;"); print "Q":;^Q |^REFUSED FOr -- its statement handed up no instruct |^Q |^REFUSED FORWARd -- its STATEMENt handed up nothing |
-FO-2^it1 = FOr("for lp in <- fsrc; qa qb + 1;"); print "Q":;^Q |^REFUSED FOr -- its statement handed up no instruct |^Q |^REFUSED FORBACk -- its STATEMENt handed up nothing |
-FO-3^it1 = FOr("for lp in <- qa qb + 1; print 1:;"); print "Q":;^Q |^REFUSED forArms -- Operator +% -- an operand that is nothing|^Q |^REFUSED FORBACk -- its EXPRESSIOn handed up nothing |
-FO-4^it1 = FOr("for lp in fsrc; attributes print *lp:;"); print "Q":;^Q |^REFUSED FOr attributes / members -- not built on the new road yet |^Q |^REFUSED FOr attributes / members -- not built on the new road yet |REFUSED FORWARd -- its LOOPRESTRICt handed up nothing |
-FO-5^it1 = FOr("for lp in <- fsrc; members print *lp:;"); print "Q":;^Q |^REFUSED FOr attributes / members -- not built on the new road yet |^Q |^REFUSED FOr attributes / members -- not built on the new road yet |REFUSED FORBACk -- its LOOPRESTRICt handed up nothing |
+FO-1^it1 = FOr("for lp in fsrc; qa qb + 1;"); print "Q":;^Q |^REFUSED + -- a list of adjacent operands is not built on the new road yet |REFUSED FORWARd -- its STATEMENt handed up nothing |^Q |^REFUSED + -- a list of adjacent operands is not built on the new road yet |
+FO-2^it1 = FOr("for lp in <- fsrc; qa qb + 1;"); print "Q":;^Q |^REFUSED + -- a list of adjacent operands is not built on the new road yet |REFUSED FORBACk -- its STATEMENt handed up nothing |^Q |^REFUSED + -- a list of adjacent operands is not built on the new road yet |
+FO-3^it1 = FOr("for lp in <- qa qb + 1; print 1:;"); print "Q":;^Q |^REFUSED + -- a list of adjacent operands is not built on the new road yet |REFUSED FORBACk -- its EXPRESSIOn handed up nothing |^Q |^REFUSED + -- a list of adjacent operands is not built on the new road yet |
+FO-4^it1 = FOr("for lp in fsrc; attributes print *lp:;"); print "Q":;^Q |^REFUSED FOr attributes / members -- not built on the new road yet |REFUSED FORWARd -- its LOOPRESTRICt handed up nothing |^Q |^REFUSED FOr attributes / members -- not built on the new road yet |
+FO-5^it1 = FOr("for lp in <- fsrc; members print *lp:;"); print "Q":;^Q |^REFUSED FOr attributes / members -- not built on the new road yet |REFUSED FORBACk -- its LOOPRESTRICt handed up nothing |^Q |^REFUSED FOr attributes / members -- not built on the new road yet |
 FO-6^foAct(); print "Q":;^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|^Q |^REFUSED xl1 -- Operator + -- cannot apply to these operands|
 FO-7^it1 = FILe("for lp in fsrc; print *lp:; for lp in <- fsrc; { print *lp:; if *lp == 2; break; } print 8:;"); print "Q":;^1 |2 |3 |3 |2 |8 |Q |^^1 |2 |3 |3 |2 |8 |Q |^
 FO-8^foNew(foN); foN(); print "Q":;^1 |2 |3 |3 |2 |8 |Q |^^1 |2 |3 |3 |2 |8 |Q |^

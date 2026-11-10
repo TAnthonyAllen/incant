@@ -932,17 +932,17 @@ while IFS='|' read -r _id _st _nm; do
     _ofeq "refusedCondT $_id the child's refusal by name" "$(grep -c '^REFUSED + -- a list of adjacent operands' "$T/rc.$_id.e")" "1"
     if [ "$_id" = RC-While ] || [ "$_id" = RC-sWhile ]; then
         #  SEQ 580 REGISTERED: WHILe's default action refuses its condition slot by the slot's label, before any attach
-        fdRow "refusedCondT $_id the refusal: whileArms attach | WHILe's EXPRESSIOn slot" "$(grep -c '^REFUSED whileArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED WHILe -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+        fdRow "refusedCondT $_id the default action's slot line | REFUSED lines in all (SEQ 596 R1: one refusal per statement)" "$(grep -c '^REFUSED WHILe -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED' "$T/rc.$_id.e")" "1 | 2" "0 | 1"
     elif [ "$_id" = RC-If ] || [ "$_id" = RC-ElseIf ] || [ "$_id" = RC-sIf ]; then
         #  SEQ 592 REGISTERED: If's and ELSEIf's default action refuses the condition slot by the slot's label, before any attach
         _rcR=If; [ "$_id" = RC-ElseIf ] && _rcR=ELSEIf
-        fdRow "refusedCondT $_id the refusal: ifArms attach | $_rcR's EXPRESSIOn slot" "$(grep -c '^REFUSED ifArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c "^REFUSED $_rcR -- its EXPRESSIOn handed up nothing" "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+        fdRow "refusedCondT $_id the default action's slot line | REFUSED lines in all (SEQ 596 R1: one refusal per statement)" "$(grep -c "^REFUSED $_rcR -- its EXPRESSIOn handed up nothing" "$T/rc.$_id.e") | $(grep -c '^REFUSED' "$T/rc.$_id.e")" "1 | 2" "0 | 1"
     elif [ "$_id" = RC-For ]; then
         #  SEQ 594 REGISTERED: the forward rule's default action refuses its source slot by the slot's label, before any attach
-        fdRow "refusedCondT $_id the refusal: forArms attach | FORWARd's EXPRESSIOn slot" "$(grep -c '^REFUSED forArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED FORWARd -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+        fdRow "refusedCondT $_id the default action's slot line | REFUSED lines in all (SEQ 596 R1: one refusal per statement)" "$(grep -c '^REFUSED FORWARd -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED' "$T/rc.$_id.e")" "1 | 2" "0 | 1"
     elif [ "$_id" = RC-Do ]; then
         #  SEQ 591 REGISTERED: Do's default action refuses its condition slot by the slot's label, before any attach
-        fdRow "refusedCondT $_id the refusal: doArms attach | Do's EXPRESSIOn slot" "$(grep -c '^REFUSED doArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED Do -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e")" "1 | 0" "0 | 1"
+        fdRow "refusedCondT $_id the default action's slot line | REFUSED lines in all (SEQ 596 R1: one refusal per statement)" "$(grep -c '^REFUSED Do -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED' "$T/rc.$_id.e")" "1 | 2" "0 | 1"
     else
         _ofeq "refusedCondT $_id the attach's refusal names $_nm" "$(grep -c "^REFUSED $_nm -- Operator +% -- an operand that is nothing" "$T/rc.$_id.e")" "1"
     fi
@@ -964,7 +964,8 @@ while IFS='^' read -r _id _st _to _tr _io _ir; do
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/wo.$_id.k" > "$T/wo.$_id.o" 2> "$T/wo.$_id.e"; echo $? > "$T/wo.$_id.x"
     _ofeq "whileOpT $_id exit, sentinel" "$(cat "$T/wo.$_id.x") $(grep -c '^WO SENTINEL' "$T/wo.$_id.e")" "0 1"
     fdRow "whileOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/wo.$_id.o" | tr '\n' '|')" "$_to" "$_io"
-    fdRow "whileOpT $_id refusals" "$(grep '^REFUSED WHILe\|^REFUSED whileArms\|^REFUSED xl1' "$T/wo.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+    #  SEQ 596 R1 REGISTERED: the column holds EVERY REFUSED line -- today the first refusal and the default action's slot line, intended the first alone
+    fdRow "whileOpT $_id refusals" "$(grep '^REFUSED\|parse failed' "$T/wo.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
 done < "$T/wo.list"
 _ofeq "whileOpT rows ran (4 of 4)" "$_won" "4"
 else echo "  FAIL  whileOpT MISSING"; fail=1; fi
@@ -982,7 +983,8 @@ while IFS='^' read -r _id _st _to _tr _io _ir; do
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/dp.$_id.k" > "$T/dp.$_id.o" 2> "$T/dp.$_id.e"; echo $? > "$T/dp.$_id.x"
     _ofeq "doOpT $_id exit, sentinel" "$(cat "$T/dp.$_id.x") $(grep -c '^DP SENTINEL' "$T/dp.$_id.e")" "0 1"
     fdRow "doOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/dp.$_id.o" | tr '\n' '|')" "$_to" "$_io"
-    fdRow "doOpT $_id refusals" "$(grep '^REFUSED Do\|^REFUSED doArms\|^REFUSED xl1\|parse failed' "$T/dp.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+    #  SEQ 596 R1 REGISTERED: the column holds EVERY REFUSED line -- today the first refusal and the default action's slot line, intended the first alone
+    fdRow "doOpT $_id refusals" "$(grep '^REFUSED\|parse failed' "$T/dp.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
 done < "$T/dp.list"
 _ofeq "doOpT rows ran (6 of 6)" "$_dpn" "6"
 else echo "  FAIL  doOpT MISSING"; fail=1; fi
@@ -1000,7 +1002,8 @@ while IFS='^' read -r _id _st _to _tr _io _ir; do
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/io.$_id.k" > "$T/io.$_id.o" 2> "$T/io.$_id.e"; echo $? > "$T/io.$_id.x"
     _ofeq "ifOpT $_id exit, sentinel" "$(cat "$T/io.$_id.x") $(grep -c '^IO SENTINEL' "$T/io.$_id.e")" "0 1"
     fdRow "ifOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/io.$_id.o" | tr '\n' '|')" "$_to" "$_io"
-    fdRow "ifOpT $_id refusals" "$(grep '^REFUSED If\|^REFUSED ELSEIf\|^REFUSED ifArms\|^REFUSED xl1\|parse failed' "$T/io.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+    #  SEQ 596 R1 REGISTERED: the column holds EVERY REFUSED line -- today the first refusal and the default action's slot line, intended the first alone
+    fdRow "ifOpT $_id refusals" "$(grep '^REFUSED\|parse failed' "$T/io.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
 done < "$T/io.list"
 _ofeq "ifOpT rows ran (8 of 8)" "$_ion" "8"
 else echo "  FAIL  ifOpT MISSING"; fail=1; fi
@@ -1021,7 +1024,8 @@ while IFS='^' read -r _id _st _to _tr _io _ir; do
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/fo.$_id.k" > "$T/fo.$_id.o" 2> "$T/fo.$_id.e"; echo $? > "$T/fo.$_id.x"
     _ofeq "forOpT $_id exit, sentinel" "$(cat "$T/fo.$_id.x") $(grep -c '^FO SENTINEL' "$T/fo.$_id.e")" "0 1"
     fdRow "forOpT $_id stdout" "$(grep -v '^stop: \|^Search list: \|^NEXT\|^ *$' "$T/fo.$_id.o" | tr '\n' '|')" "$_to" "$_io"
-    fdRow "forOpT $_id refusals" "$(grep '^REFUSED FOr\|^REFUSED FORBACk\|^REFUSED FORWARd\|^REFUSED forArms\|^REFUSED xl1\|parse failed' "$T/fo.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
+    #  SEQ 596 R1 REGISTERED: the column holds EVERY REFUSED line -- today the first refusal and the default action's slot line, intended the first alone
+    fdRow "forOpT $_id refusals" "$(grep '^REFUSED\|parse failed' "$T/fo.$_id.e" | sed 's/ \[line [0-9]*\]//' | tr '\n' '|')" "$_tr" "$_ir"
 done < "$T/fo.list"
 _ofeq "forOpT rows ran (9 of 9)" "$_fon" "9"
 else echo "  FAIL  forOpT MISSING"; fail=1; fi
@@ -1111,9 +1115,10 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     #  default action adds its line for the slot that handed up nothing
     case "$_id" in
         RF-S|RF-O) _rn="REFUSED FORWARd -- its STATEMENt handed up nothing"; [ "$_id" = RF-O ] && _rn="REFUSED FORWARd -- its EXPRESSIOn handed up nothing"
-            fdRow "ruleForT $_id the arm refuses by name, both arms: today's wording | the slot's name" "$(grep -c "^$_ref" "$T/rf.$_id.i.e") $(grep -c "^$_ref" "$T/rf.$_id.c.e") | $(grep -c "^$_rn" "$T/rf.$_id.i.e") $(grep -c "^$_rn" "$T/rf.$_id.c.e")" "1 1 | 0 0" "0 0 | 1 1";;
+            #  SEQ 596 R1 REGISTERED: the default action's slot line goes; one REFUSED line per arm
+            fdRow "ruleForT $_id the default's slot line, both arms" "$(grep -c "^$_rn" "$T/rf.$_id.i.e") $(grep -c "^$_rn" "$T/rf.$_id.c.e")" "1 1" "0 0"; fdRow "ruleForT $_id REFUSED lines in all, both arms" "$(grep -c '^REFUSED' "$T/rf.$_id.i.e") $(grep -c '^REFUSED' "$T/rf.$_id.c.e")" "2 2" "1 1";;
         RF-R) _ofeq "ruleForT $_id the arm refuses by name, both arms" "$(grep -c "^$_ref" "$T/rf.$_id.i.e") $(grep -c "^$_ref" "$T/rf.$_id.c.e")" "1 1"
-            fdRow "ruleForT $_id the default's line for the refused LOOPRESTRICt slot, both arms" "$(grep -c '^REFUSED FORWARd -- its LOOPRESTRICt handed up nothing' "$T/rf.$_id.i.e") $(grep -c '^REFUSED FORWARd -- its LOOPRESTRICt handed up nothing' "$T/rf.$_id.c.e")" "0 0" "1 1";;
+            fdRow "ruleForT $_id the default's line for the refused LOOPRESTRICt slot, both arms" "$(grep -c '^REFUSED FORWARd -- its LOOPRESTRICt handed up nothing' "$T/rf.$_id.i.e") $(grep -c '^REFUSED FORWARd -- its LOOPRESTRICt handed up nothing' "$T/rf.$_id.c.e")" "1 1" "0 0"; fdRow "ruleForT $_id REFUSED lines in all, both arms" "$(grep -c '^REFUSED' "$T/rf.$_id.i.e") $(grep -c '^REFUSED' "$T/rf.$_id.c.e")" "2 2" "1 1";;
     esac
 done < "$T/rf.list"
 _ofeq "ruleForT rows ran (12 of 12)" "$_rfn" "12"
@@ -1162,7 +1167,9 @@ while IFS='|' read -r _id _f _ref _st _pin; do
     fdRow "ruleIfT $_id walk line: native 5 handed 10 | native 3 handed 8" "$(grep -c '^=== jitter rule walk: If native 5 handed 10 ===' "$T/ri.$_id.c.e") | $(grep -c '^=== jitter rule walk: If native 3 handed 8 ===' "$T/ri.$_id.c.e")" "1 | 0" "0 | 1"
     if [ -n "$_ref" ]; then
         case "$_id" in RI-C) _rn="REFUSED If -- its EXPRESSIOn handed up nothing";; RI-S) _rn="REFUSED If -- its STATEMENt handed up nothing";; RI-E) _rn="REFUSED If -- its ELSe handed up nothing";; *) _rn="NO-INTENDED-WORDING";; esac
-        fdRow "ruleIfT $_id the arm refuses by name, both arms: today's wording | the slot's name" "$(grep -c "^$_ref" "$T/ri.$_id.i.e") $(grep -c "^$_ref" "$T/ri.$_id.c.e") | $(grep -c "^$_rn" "$T/ri.$_id.i.e") $(grep -c "^$_rn" "$T/ri.$_id.c.e")" "1 1 | 0 0" "0 0 | 1 1"
+        #  SEQ 596 R1 REGISTERED: one refusal per statement -- the default action's slot line goes (1 1 -> 0 0) and each arm prints one REFUSED line
+        fdRow "ruleIfT $_id the default's slot line, both arms" "$(grep -c "^$_rn" "$T/ri.$_id.i.e") $(grep -c "^$_rn" "$T/ri.$_id.c.e")" "1 1" "0 0"
+        fdRow "ruleIfT $_id REFUSED lines in all, both arms" "$(grep -c '^REFUSED' "$T/ri.$_id.i.e") $(grep -c '^REFUSED' "$T/ri.$_id.c.e")" "2 2" "1 1"
     fi
 done < "$T/ri.list"
 _ofeq "ruleIfT rows ran (15 of 15)" "$_rin" "15"
