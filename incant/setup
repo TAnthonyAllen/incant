@@ -135,7 +135,7 @@ define
     ifThen  unary ruleMethod=opIf;
     branchSignal    unary ruleMethod=opBranch;
     whileLoop       unary ruleMethod=opWhile  ownsBody;
-    doLoop          unary ruleMethod=opDo;
+    doLoop          unary ruleMethod=opDo  ownsBody;
     forLoop         unary ruleMethod=opFor;
     iterateOn       unary ruleMethod=opIterate;
     call            operateMethod=opCallTest  assignTier;

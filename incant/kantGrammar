@@ -120,7 +120,7 @@ define
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
-        Do          do- followedBy STATEMENt while- EXPRESSIOn SemI-;
+        Do          op="doLoop" do- followedBy STATEMENt while- EXPRESSIOn SemI-;
         If          if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
         FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         WHILe       op="whileLoop" while- followedBy EXPRESSIOn SemI-? STATEMENt;
@@ -298,28 +298,6 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // Do only builds (SEQ 480 R0): one instruct, op doLoop, its operand a mint of [statement, condition]; opDo runs the statement first, then tests
-    Do code={
-        :actionLabel STATEMENt EXPRESSIOn;
-        body    := **STATEMENt;
-        cond    := **EXPRESSIOn;
-        // bodyRefused a statement that handed up no instruct refuses by name, as WHILe's (SEQ 476 R6)
-        bodyM   := *body.methoD;
-        if bodyM == 0;
-            cerr "REFUSED Do -- its statement handed up no instruct":;
-            clear(*actionLabel);
-            return *actionLabel;
-        doArms  +% *body;
-        doArms  +% *cond;
-        op := Operators["doLoop"];
-        armsMint    := copyOf(doArms);
-        miArgs      +% op armsMint;
-        built       := makeInstruct(miArgs);
-        // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
-        loopOwnsBody(*built);
-        *actionLabel   := *built;
-        return  *actionLabel;
-        };
     // OPERATOr the default action (SEQ 580): a rule declared with op= builds one instruct, op the declared Operators entry, operand a mint of its label's entries in order
     OPERATOr code={
         opR := ruleOpOf(*actionLabel);
@@ -356,6 +334,8 @@ define
         };
     // whileIsAnOperator WHILe declares op= on its grammar line and takes the default action (SEQ 580)
     WHILe ruleMethod=OPERATOr;
+    // doIsAnOperator Do declares op= and takes the default action; its slots in order are the statement then the condition, the order opDo reads (SEQ 591)
+    Do ruleMethod=OPERATOr;
     // BRANCh only builds (SEQ 476 R0): break and continue build one instruct, op branchSignal, its operand a copy of the keyword; opBranch sets the signal
     // returnArms return builds the same instruct, its operand a mint of [keyword, value?]; opBranch runs the value, sets kind 3 and hands the value up (SEQ 508 / 509)
     BRANCh code={
