@@ -14,7 +14,6 @@ define
     abRead   code={ return argument; };
     abWrite  code={ argument = 5;          return argument; };
     abSet    code={ argument := abElse;    return argument; };
-    abArrow  code={ argument <- abElse;    return argument; };
     abRun code={
         b1 = abRead(abCaller);
         print "B1 read through the argument       " b1 " (want 7 -- the passed field)":;
@@ -23,8 +22,6 @@ define
         print "B3 untouched sibling               " abOther " (want 7 -- ANTI-VACUITY)":;
         abSet(abCaller);
         print "B4 caller after `argument := x`    " abCaller " (want 5 -- REBIND REFUSED, unmoved)":;
-        abArrow(abCaller);
-        print "B5 caller after `argument <- x`    " abCaller " (want 5 -- REBIND REFUSED, unmoved)":;
         print "B6 the rebind target itself        " abElse " (want 41 -- never became the caller)":;
         };
     ;

@@ -12,7 +12,6 @@ define
     swAddAttr=109; swReplM=110;   swReplA=111;
     wAssign   code={ swAssign   =  swBag +* Grokking["swNoRule"]; };
     wSetGroup code={ swSetGroup := swBag +* Grokking["swNoRule"]; };
-    wRebind   code={ swRebind   <- swBag +* Grokking["swNoRule"]; };
     wSetTag   code={ swSetTag   <: swBag +* Grokking["swNoRule"]; };
     wPlusEQ   code={ swPlusEQ   += swBag +* Grokking["swNoRule"]; };
     wMinusEQ  code={ swMinusEQ  -= swBag +* Grokking["swNoRule"]; };
@@ -24,7 +23,6 @@ define
     swRun code={
         wAssign();   print "SW = "  swAssign   " (want 101)":;
         wSetGroup(); print "SW := " swSetGroup " (want 102)":;
-        wRebind();   print "SW <- " swRebind   " (want 103)":;
         wSetTag();   print "SW <: " swSetTag   " (want 104)":;
         wPlusEQ();   print "SW += " swPlusEQ   " (want 105)":;
         wMinusEQ();  print "SW -= " swMinusEQ  " (want 106)":;

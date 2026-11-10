@@ -1088,7 +1088,7 @@ else echo "  FAIL  prefixOpT MISSING"; fail=1; fi
 
 #  ⚑ arrowRetiredT -- SEQ 597 R0 (Tony, 2026-11-10): <- retires as an operator and refuses by name on both roads, interpreted and compiled.
 #  One process per row; value = stdout / retired <its wording> other <other REFUSED lines> x<exit> s<sentinel>; today beside intended.
-#  REGISTERED TO RETIRE BY MAPPING AT THE BUILD, each a row that tests <- itself and has a := twin or a new home here:
+#  RETIRED BY MAPPING AT THE BUILD (branch arrow-retire), each a row that tested <- itself and has a := twin or a new home here:
 #    argBindT "'<-' refusal NAMED"  -> its := twin (the same loop) and AR-6;   percentT "<- through" -> its "PR := through" column;
 #    storeT wRebind ("SW <-", 103)  -> its := twin wSetGroup (102);            opPrefixT "rebind <-" (one token, not < then -) -> AR-1.
 _arF=$(ip arrowRetiredT)
@@ -2063,7 +2063,6 @@ for _b in "B1 read through the argument        7" \
           "B2 caller after \`argument = 5\`      5" \
           "B3 untouched sibling                7" \
           "B4 caller after \`argument := x\`     5" \
-          "B5 caller after \`argument <- x\`     5" \
           "B6 the rebind target itself         41"; do
     if grep -qF "$_b" "$T/abt"; then
         echo "  ok    argBindT ${_b%% *} -- PINNED BY VALUE"; green=$((green+1))
@@ -2071,7 +2070,8 @@ for _b in "B1 read through the argument        7" \
         echo "  FAIL  argBindT ${_b%% *} -- wanted: $_b"; fail=1
     fi
 done
-for _o in ':=' '<-'; do
+#  SEQ 597: <- retired as an operator; its refusal row retired by mapping to the := row below and to arrowRetiredT AR-6
+for _o in ':='; do
 #  ⚠ RE-PINNED 2026-09-05 to refuse()'s uniform line. Same refusal, same two
 #  operators, same presence-with-value discipline -- only the spelling moved
 #  into the one funnel.
@@ -4397,13 +4397,14 @@ fi
 run1 storeT "$T/stw"; check "storeT runs" 0 $?
 sentinel "storeT sentinel (no truncation)" "$T/stw" "STORET SENTINEL"
 _swn=0
-for _w in "=  101" ":=  102" "<-  103" "<:  104" "+=  105" "-=  106" "*=  107" "/=  108" "+%  109" ":+  110" ":%  111"; do
+#  SEQ 597: <- retired as an operator and is no longer a writer; wRebind retired by mapping to wSetGroup (:= 102). Ten writers.
+for _w in "=  101" ":=  102" "<:  104" "+=  105" "-=  106" "*=  107" "/=  108" "+%  109" ":+  110" ":%  111"; do
     if grep -qF "SW $_w (want" "$T/stw"; then _swn=$((_swn+1)); fi
 done
-if [ "$_swn" = 11 ]; then
-    echo "  ok    storeT all 11 writers consult the arm -- targets UNCHANGED -- PINNED BY VALUE"; green=$((green+1))
+if [ "$_swn" = 10 ]; then
+    echo "  ok    storeT all 10 writers consult the arm -- targets UNCHANGED -- PINNED BY VALUE"; green=$((green+1))
 else
-    echo "  FAIL  storeT $_swn of 11 writers left their target alone -- a writer stopped"
+    echo "  FAIL  storeT $_swn of 10 writers left their target alone -- a writer stopped"
     echo "        consulting the arm and is blanking its target on a refused rhs."; fail=1
 fi
 
@@ -5837,7 +5838,6 @@ for _r in "ge     3>=3 (prefix > answers 0)|OPP ge     3>=3   =  1" \
           "addptr  3+*4 (prefix + answers 7)|OPP addptr  3+*4  =  3" \
           "addattr 3+%4 (prefix + answers 7)|OPP addattr 3+%4  =  3" \
           "addmem  3+/4 (prefix + answers 7)|OPP addmem  3+/4  =  3" \
-          "rebind  <-   (prefix < leaves it empty)|OPP rebind  <-    =  4" \
           "settag  <:   (prefix < leaves the tag)|OPP settag  <:    =  opRenamed" \
           "oror    3||0 (prefix | would refuse)|OPP oror    3||0  =  1" \
           "oror    0||0 non-vacuity sibling|OPP oror    0||0  =  0" \
@@ -9487,7 +9487,8 @@ fdRow "percentT = into another kind (castStore) carries" "$(_pcl 'PR = other kin
 fdRow "percentT = into an empty field carries" "$(_pcl 'PR = empty')" "0 value 50" "1 value 50"
 fdRow "percentT = copy of an argument carries" "$(_pcl 'PR = copy of argument')" "0" "1"
 fdRow "percentT =: value scope carries" "$(_pcl 'PR =: value scope')" "0 value 50" "1 value 50"
-_ofeq "percentT carries already: argument, := through, <- through, copyOf, +% copy, +% field, : through" "$(_pcl 'PR argument') $(_pcl 'PR := through') $(_pcl 'PR <- through') $(_pcl 'PR copyOf') $(_pcl 'PR +% copy through') $(_pcl 'PR +% field through') $(_pcl 'PR : through')" "1 1 1 1 1 1 1"
+#  SEQ 597: <- retired as an operator; the "<- through" column retired by mapping to "PR := through" beside it
+_ofeq "percentT carries already: argument, := through, copyOf, +% copy, +% field, : through" "$(_pcl 'PR argument') $(_pcl 'PR := through') $(_pcl 'PR copyOf') $(_pcl 'PR +% copy through') $(_pcl 'PR +% field through') $(_pcl 'PR : through')" "1 1 1 1 1 1"
 _ofeq "percentT a product is a new value, no unit" "$(_pcl 'PR product')" "0 value 100"
 fdRow "percentT a plain write clears, same kind" "$(_pcl 'PC plain write, same kind')" "1 value 60" "0 value 60"
 fdRow "percentT a plain write clears, other kind (castStore)" "$(_pcl 'PC plain write, other kind')" "1 value 3" "0 value 3"

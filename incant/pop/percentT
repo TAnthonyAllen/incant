@@ -34,7 +34,6 @@ define
     pE code={ pArg(src); };
     pF code={ =:fScope width; b := width.isPercenT; print "PR =: value scope" b "value" width:; };
     pG code={ h := src; b := *h.isPercenT; print "PR := through" b:; };
-    pH code={ h2 <- src; b := *h2.isPercenT; print "PR <- through" b:; };
     pI code={ m := copyOf(src); b := *m.isPercenT; print "PR copyOf" b:; };
     pJ code={ fHost +% copyOf(src); e := fHost["src"]; c := *e.isPercenT; print "PR +% copy through" c:; };
     pK code={ fHost2 +% src; e2 := fHost2["src"]; c := *e2.isPercenT; print "PR +% field through" c:; };
@@ -59,7 +58,7 @@ print "PH control host present" PctRules["pRuleOK"]:;
 pSet();
 pCtl();
 pDef();
-pA(); pB(); pC(); pD(); pE(); pF(); pG(); pH(); pI(); pJ(); pK(); pL(); pM(); pN(); pO();
+pA(); pB(); pC(); pD(); pE(); pF(); pG(); pI(); pJ(); pK(); pL(); pM(); pN(); pO();
 pMod();
 pRefA();
 pRefB();

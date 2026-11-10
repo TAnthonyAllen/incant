@@ -717,7 +717,7 @@ extern int jitNoteWriter(GroupItem op,GroupItem target,GroupItem arg)
     if ( !tb->flags.isLocal || tb->flags.isArgument || tb->flags.noPrint || tb->flags.data ) return 0;
     int kind = 5, seen = 4;
     if ( !op ) kind = 6;
-    else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
+    else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup ) kind = 6;
     else if ( !arg ) { ::jitNoteArm(tb,4); return 0; }
     //  callWriter what a call hands back is a run-time fact, so its local gets no scalar slot and native reads of it hand over (SEQ 540)
     else if ( arg == gJitCallResult ) kind = 6;
@@ -807,7 +807,7 @@ extern int jitScanArmsOld(GroupItem n,int d)
         GroupItem *t = n->get(1), *op = n->get(2);
         if ( t && op && ::opIsAssignTier(op) && t->groupBody->flags.isLocal && !t->groupBody->flags.isArgument
              && !t->groupBody->flags.noPrint && !t->groupBody->flags.data ) {
-            bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind;
+            bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup;
             ::jitScanWriter(t, holder ? 4 : ::jitScanKind(n->get(3),0)); }
         for ( GroupItem *c = b->groupList->firstInList; c; c = c->nextInParent ) ::jitScanArmsOld(c, d+1); }
     return 0;
@@ -839,7 +839,7 @@ extern int jitScanArmsChain(GroupItem n,int d)
         return 0; }
     GroupBody *tb = a->groupBody;
     if ( ::opIsAssignTier(op) && tb->flags.isLocal && !tb->flags.isArgument && !tb->flags.noPrint && !tb->flags.data ) {
-        bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind;
+        bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup;
         ::jitScanWriter(a, holder ? 4 : ::jitScanKind(n->get(3),0)); }
     ::jitScanArmsChain(a, d+1);
     ::jitScanArmsChain(n->get(3), d+1);
@@ -873,7 +873,7 @@ extern int jitNoteFor(GroupItem input)
                  && !t->groupBody->flags.noPrint && !t->groupBody->flags.data ) {
                 GroupBody *tb = t->groupBody;
                 int kind = 1;
-                if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
+                if ( (void*)op->groupBody->gOp == (void*)&opSetGroup ) kind = 6;
                 else if ( v && v->groupBody->flags.data ) kind = isCOUNT(v->groupBody->flags.data) ? 5 : v->groupBody->flags.data;
                 auto it = gJitLocalKind.find(tb);
                 if ( kind == 5 ) { if ( it == gJitLocalKind.end() ) gJitLocalKind[tb] = 5; }

@@ -892,13 +892,13 @@ extern GroupItem refuseStarArgument(GroupItem raw)
 }
 
 
-// refuseArgRebind a := or <- on the argument refuses by name, tested BEFORE the follow, which destroys the evidence; 1 when it refused
+// refuseArgRebind a := on the argument refuses by name (<- retired, SEQ 597), tested BEFORE the follow, which destroys the evidence; 1 when it refused
 extern int refuseArgRebind(GroupItem op,GroupItem target)
 {
     -%
     if ( !op || !target || !target->groupBody->flags.isArgument ) return 0;
     void *gop = (void*)op->groupBody->gOp;
-    if ( gop != (void*)&opSetGroup && gop != (void*)&opRebind ) return 0;
+    if ( gop != (void*)&opSetGroup ) return 0;
     char why[192];
     ::snprintf(why,sizeof(why),
         "`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
@@ -1423,8 +1423,8 @@ GroupRules  ruler = groupRules;
 GroupItem   result;
     // kindlessWriter a kindless local's writer is recorded before anything else -- one in a handed-over statement counts (SEQ 388)
     -% if ( ruler->jitting && target && op && ::opIsAssignTier(op) ) ::jitNoteWriter(op,target,arg); %-
-    // holderWrite a := or <- notes the holder it writes, for its statement's hand-over to record (SEQ 405)
-    -% if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); %-
+    // holderWrite a := notes the holder it writes, for its statement's hand-over to record (SEQ 405)
+    -% if ( ruler->jitting && target && op && (void*)op->groupBody->gOp == (void*)&opSetGroup ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); %-
     // handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
     -% if ( ruler->jitting && gJitHandOver ) return 0; %-
     // ruleOperators +%, := and copyOf go native in every compiled body, inlined callees included, ahead of the kind gate (SEQ 559; stroke 2, SEQ 563 R0)

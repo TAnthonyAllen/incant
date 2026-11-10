@@ -156,7 +156,8 @@ define
     '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier;
     '<<';
     '<:'    operateMethod=opSetTag  assignTier;
-    '<-'    operateMethod=opRebind  assignTier;
+    // arrowRetired <- is RETIRED as an operator (Tony, SEQ 597): it did nothing := cannot. The entry stays as a tombstone because the two characters must still be read together -- with no entry `x <- y` reads as `x < -y`, a comparison, silently, and an entry outside this registry is not read as an operator (both measured). Its method refuses by name and says to write :=. The <- inside a for loop is grammar text, not this entry
+    '<-'    operateMethod=opArrowRetired  assignTier;
     '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier;
 
     ':>';

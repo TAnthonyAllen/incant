@@ -6939,7 +6939,7 @@ extern "C" int jitNoteFor(GroupItem *input)
 	&& !t->groupBody->flags.noPrint && !t->groupBody->flags.data ) {
 	GroupBody *tb = t->groupBody;
 	int kind = 1;
-	if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
+	if ( (void*)op->groupBody->gOp == (void*)&opSetGroup ) kind = 6;
 	else if ( v && v->groupBody->flags.data ) kind = isCOUNT(v->groupBody->flags.data) ? 5 : v->groupBody->flags.data;
 	auto it = gJitLocalKind.find(tb);
 	if ( kind == 5 ) { if ( it == gJitLocalKind.end() ) gJitLocalKind[tb] = 5; }
@@ -6972,7 +6972,7 @@ extern "C" int jitNoteWriter(GroupItem *op, GroupItem *target, GroupItem *arg)
 	if ( !tb->flags.isLocal || tb->flags.isArgument || tb->flags.noPrint || tb->flags.data ) return 0;
 	int kind = 5, seen = 4;
 	if ( !op ) kind = 6;
-	else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind ) kind = 6;
+	else if ( (void*)op->groupBody->gOp == (void*)&opSetGroup ) kind = 6;
 	else if ( !arg ) { ::jitNoteArm(tb,4); return 0; }
 	//  callWriter what a call hands back is a run-time fact, so its local gets no scalar slot and native reads of it hand over (SEQ 540)
 	else if ( arg == gJitCallResult ) kind = 6;
@@ -8084,7 +8084,7 @@ extern "C" int jitScanArmsChain(GroupItem *n, int d)
 	return 0; }
 	GroupBody *tb = a->groupBody;
 	if ( ::opIsAssignTier(op) && tb->flags.isLocal && !tb->flags.isArgument && !tb->flags.noPrint && !tb->flags.data ) {
-	bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind;
+	bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup;
 	::jitScanWriter(a, holder ? 4 : ::jitScanKind(n->get(3),0)); }
 	::jitScanArmsChain(a, d+1);
 	::jitScanArmsChain(n->get(3), d+1);
@@ -8114,7 +8114,7 @@ extern "C" int jitScanArmsOld(GroupItem *n, int d)
 	GroupItem *t = n->get(1), *op = n->get(2);
 	if ( t && op && ::opIsAssignTier(op) && t->groupBody->flags.isLocal && !t->groupBody->flags.isArgument
 	&& !t->groupBody->flags.noPrint && !t->groupBody->flags.data ) {
-	bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind;
+	bool holder = (void*)op->groupBody->gOp == (void*)&opSetGroup;
 	::jitScanWriter(t, holder ? 4 : ::jitScanKind(n->get(3),0)); }
 	for ( GroupItem *c = b->groupList->firstInList; c; c = c->nextInParent ) ::jitScanArmsOld(c, d+1); }
 	return 0;
@@ -9676,6 +9676,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
+// opArrowRetired the retired <- spelling's method (Tony, SEQ 597 R0): <- did nothing := cannot, so it is no longer an operator; its two characters are kept together by the RetiredOps registry so they refuse by name here instead of reading as `<` then `-`; nothing is stored
+extern "C" GroupItem *opArrowRetired(GroupItem *argument, GroupItem *target)
+{
+	
+	GroupItem *retired = GroupControl::groupController->getRegistry((char*)"Operators");
+	GroupItem *who = retired ? retired->get((char*)"<-") : nullptr;
+	return ::refuse(who ? who : target,"retired as an operator -- write := (SEQ 597)");
+	
+}
+
 // opAssign the = operator: setContent -- target takes the argument's data, a holder carries its group across, a null clears; it never aliases, whatever byRef says; jitAssignNodeRT is its jitted twin, so edit the two together (assignRoadT pins both)
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
@@ -11117,18 +11127,6 @@ Buffer 	*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK
 	return 0;
 }
 
-// opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
-extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	// storeRuling an armed statement stores nothing
-	if ( ruler->refused )
-		return 0;
-	if ( argument )
-		target->setGroup(argument);
-	return target;
-}
-
 // opRem the % operator: integer remainder
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target)
 {
@@ -12427,13 +12425,13 @@ int 		silent = 0;
 	return 0;
 }
 
-// refuseArgRebind a := or <- on the argument refuses by name, tested BEFORE the follow, which destroys the evidence; 1 when it refused
+// refuseArgRebind a := on the argument refuses by name (<- retired, SEQ 597), tested BEFORE the follow, which destroys the evidence; 1 when it refused
 extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target)
 {
 	
 	if ( !op || !target || !target->groupBody->flags.isArgument ) return 0;
 	void *gop = (void*)op->groupBody->gOp;
-	if ( gop != (void*)&opSetGroup && gop != (void*)&opRebind ) return 0;
+	if ( gop != (void*)&opSetGroup ) return 0;
 	char why[192];
 	::snprintf(why,sizeof(why),
 	"`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
@@ -13229,8 +13227,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 	// kindlessWriter a kindless local's writer is recorded before anything else -- one in a handed-over statement counts (SEQ 388)
 	 if ( ruler->jitting && target && op && ::opIsAssignTier(op) ) ::jitNoteWriter(op,target,arg); 
-	// holderWrite a := or <- notes the holder it writes, for its statement's hand-over to record (SEQ 405)
-	 if ( ruler->jitting && target && op && ((void*)op->groupBody->gOp == (void*)&opSetGroup || (void*)op->groupBody->gOp == (void*)&opRebind) ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); 
+	// holderWrite a := notes the holder it writes, for its statement's hand-over to record (SEQ 405)
+	 if ( ruler->jitting && target && op && (void*)op->groupBody->gOp == (void*)&opSetGroup ) gJitStmtHolderWrites.push_back({gJitStmtMarks.size(), (void*)target->groupBody}); 
 	// handedOverEmitsNothing a statement already handed to run time dispatches nothing more at build -- its emitters would be handed nulls (SEQ 384)
 	 if ( ruler->jitting && gJitHandOver ) return 0; 
 	// ruleOperators +%, := and copyOf go native in every compiled body, inlined callees included, ahead of the kind gate (SEQ 559; stroke 2, SEQ 563 R0)

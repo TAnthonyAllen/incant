@@ -99,8 +99,6 @@ define
         print "OPP addmem  3+/4  = " opAM:;
 
         print "== 4 THE ANGLE FAMILY -- a less-than read would answer a boolean":;
-        opHold <- opY;
-        print "OPP rebind  <-    = " opHold:;
         opTag = 9;
         opTag <: "opRenamed";
         print "OPP settag  <:    = " opTag.taG:;

@@ -1342,14 +1342,14 @@ GroupItem   cond = arms[1],
 }
 
 
-// opRebind the <- operator: point the target local's group at the evaluated right side -- no content copy, no byRef stamp; a fresh handle each loop pass: cell <- argument :+ new(nm);
-extern GroupItem opRebind(GroupItem argument,GroupItem target)
+// opArrowRetired the retired <- spelling's method (Tony, SEQ 597 R0): <- did nothing := cannot, so it is no longer an operator; its two characters are kept together by the RetiredOps registry so they refuse by name here instead of reading as `<` then `-`; nothing is stored
+extern GroupItem opArrowRetired(GroupItem argument,GroupItem target)
 {
-GroupRules  ruler = groupRules;
-    // storeRuling an armed statement stores nothing
-    if ruler.refused    return null;
-    if argument target.group = argument;
-    return      target;
+    -%
+    GroupItem *retired = GroupControl::groupController->getRegistry((char*)"Operators");
+    GroupItem *who = retired ? retired->get((char*)"<-") : nullptr;
+    return ::refuse(who ? who : target,"retired as an operator -- write := (SEQ 597)");
+    %-
 }
 
 
