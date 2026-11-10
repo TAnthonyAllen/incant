@@ -7,6 +7,7 @@
 # RE-BANKED 2026-11-10 at seal 432 (SEQ 598 R1): 81 prefixOpT rows cured and green; 151 - 81 = 70 = 62 + prefixOpT's 8 (the old road's 3 print items of +*, + and :., pinned by R2; 5 new-road print items :- :+ :. +* +, taken by print's flag reader, not cured).
 # RE-BANKED 2026-11-10 at seal 433 (SEQ 599): prefixOpT's 5 new-road print items re-pinned by ruling (in a print, : + - are shortcuts); 70 - 5 = 65 = 62 + the old road's 3 prefixOpT print items (+* + :.). The 31 rows born red for SEQ 599 are green.
 # RE-BANKED 2026-11-10 at seal 435 (SEQ 602 R3): 65 + two iterOpT rows pinned born red by ruling, not cured (IO-1 both filter words walk attributes only; IO-7 iterate with no cursor takes on as the cursor) = 67.
+# RE-BANKED 2026-11-10 at seal 438 (SEQ 604): 67 less iterOpT IO-1, now green as the plain walk (ITERBOTh) = 66.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
@@ -20,10 +21,9 @@ FAIL  faceT F2 flags FORWARD  = 1 -- moved
 FAIL  faceT F3 flags REVERSE  = 1 -- moved
 FAIL  fires=NEVER roster MOVED
 FAIL  firstUseT FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero sibling) -- MOVED. Actual:
-FAIL  holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow
-FAIL  holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG    = htKid want htInside
-FAIL  holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow
-FAIL  iterOpT IO-1 born red (SEQ 345): today [[7 |8 |9 |] r0 adj0 pre0 plus0 x0 s1], intended [[7 |8 |4 |5 |6 |9 |] r0 adj0 pre0 plus0 x0 s1]
+FAIL  holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow 
+FAIL  holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG    = htKid want htInside 
+FAIL  holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow 
 FAIL  iterOpT IO-7 born red (SEQ 345): today [[5 |9 |] r0 adj0 pre0 plus0 x0 s1], intended [[5 |9 |] r1 adj0 pre0 plus0 x0 s1]
 FAIL  kindZeroT r = 0.0; r = 7: value kind exit, interpreted | testing() | jitter; born red (SEQ 345): today [7 9 x0 | 7 0 x0 | 7 0 x0], intended [7 9 x0 | 7 9 x0 | 7 9 x0]
 FAIL  newJitIfUnsetT a copy of an unwritten local, both roads, compiled (SEQ 526: past the mark's reach) born red (SEQ 345): today [UC new 0 |UC old 0 |], intended [UC new uc |UC old ud |]
@@ -64,10 +64,10 @@ FAIL  spacingT C spaced   = spC -- missing
 FAIL  spacingT D tight-3  = spD -- missing
 FAIL  spacingT E survived -- missing
 FAIL  spacingT F marker missing -- the operator rows did not run
-FAIL  spacingT G a + **b  = spG -- got:
-FAIL  spacingT G2 a + *b  = spG2 -- got:
-FAIL  spacingT H a +* b   = 1 -- got:
-FAIL  spacingT I a+*b     = 1 -- got:
+FAIL  spacingT G a + **b  = spG -- got: 
+FAIL  spacingT G2 a + *b  = spG2 -- got: 
+FAIL  spacingT H a +* b   = 1 -- got: 
+FAIL  spacingT I a+*b     = 1 -- got: 
 FAIL  starIdiomT row 2 -- the star did not refuse a null by name. Either the
 FAIL  starT S1  *x   one-deep   = stA -- moved
 FAIL  starT S6  a.b     holder   = stH -- moved
