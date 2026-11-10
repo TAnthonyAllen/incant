@@ -7,6 +7,7 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
+#include "gcEngine.h"
 #include "jitContext.h"
 #include "Stak.h"
 #include "Buffer.h"

@@ -91,7 +91,7 @@ struct bools
 	The body of a GroupItem containing its data
 *******************************************************************************/
 
-class GroupBody
+class GroupBody : public gcEngine
 {
 public:
 char *tag;

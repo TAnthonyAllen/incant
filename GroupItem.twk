@@ -3,7 +3,7 @@ include groupIncludes
 /******************************************************************************
 	A group.
 ******************************************************************************/
-class GroupItem
+class GroupItem extends gcEngine
 {
 GroupBody       groupBody;
 GroupItem       labelOf;

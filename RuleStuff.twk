@@ -2,7 +2,7 @@
 include groupIncludes
 
 // fields RuleStuff is the per-node parse state -- instance facts only; the rule's testMatch, parseMethod and jitMethod are groupBody slots since stroke 1.4
-class RuleStuff
+class RuleStuff extends gcEngine
 {
 String      ruleName;       // sourceRuleByIntent a debugging aid only, which rule this RuleStuff refers to -- on a copy it names the SOURCE rule, by intent; no engine code reads it, do not "fix" it
 GroupItem   onGroup;

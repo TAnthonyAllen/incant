@@ -945,7 +945,7 @@ expectations:
 alarming precisely because output appears where there was none, while nothing about the program has
 moved. Say which it is, first word, and the alarm never starts.
 
-**THE FOUNDING EXAMPLE IS `iterT1m`'s ROW 2** (KE-4, ruled 2026-08-20). Restoring the deleted
+**THE FOUNDING EXAMPLE IS `iterT1m`'s ROW 2** (KE-9, numbered KE-4 then; ruled 2026-08-20). Restoring the deleted
 `cerr` in `aCTionIterate`'s refusal arm **changed no behaviour whatever** — the poison
 (`if iterator iterator.fLAG = true; return 0;`) was intact throughout and the walk already
 terminated correctly at exit 0 with nothing printed. What it restored was **the fleet's only
@@ -974,7 +974,7 @@ signal. **It failed its first cold reader, on the first file to use it.**
 REMEDY block in the same commit that re-pinned it. `iterT1m` **retired by mapping** instead
 (`859afe9`), which supersedes the retrofit: **a block's life ends when its citizen's does**, and its
 content is mapped out like every other assertion — walk → `iterT1m.target`, refusal count → the
-`pop.sh` grep row, exit 0 → `iterrunLIVE`. The reason lives on in KE-4.
+`pop.sh` grep row, exit 0 → `iterrunLIVE`. The reason lives on in KE-9.
 
 ⚠⚠ **ADDENDUM 4 — EVERY CITIZEN ENDS WITH `NEXT:` (Clay, Tony's ruling, 2026-08-20). IT IS NEVER
 ABSENT.** The dead region of every fixit **terminates** in a marked `NEXT:` block whose **first word

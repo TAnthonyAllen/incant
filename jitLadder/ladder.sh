@@ -1723,7 +1723,17 @@ echo "--- rung JGC: compile, collect, fire from the cache"
 GCSTRESS=0 $B "$(ip gcJitT)" > "$T/gcJitT" 2>&1; check "JGC runs" 0 $?
 sentinel "JGC sentinel" "$T/gcJitT" "GCJIT SENTINEL"
 _gjv () { sed -n "s/^$1 .*\[ *\([^] ]*\) *\].*\[ *\([^] ]*\) *\].*/\1 \2/p; s/^$1 [^[]*\[ *\([^] ]*\) *\] *$/\1/p" "$T/gcJitT" | head -1; }
-for _gj in "GJ-1|3 2|first call" "GJ-2|0|objects found unreachable (0 today; moves on the branch)" "GJ-3|9 9|two cached calls after the collection"; do
+#  RE-PIN, SEQ 589 (GC stroke 2 on gc-collect, registered): the node classes are collectable, so GJ-2 finds garbage; the
+#  count varies run to run (measured 151 153 153 153 151), so it asks for MORE THAN 0. GJ-3 stays 9 9 because each cache
+#  slot keeps the nodes its code bakes in (R3); the H7 is the pin list removed. JGC-P reads that list's size (> 0).
+GCSTRESS=0 INCANT_JIT_PINS=1 INCANT_JITTER_ERR="$T/gjPins" $B "$(ip gcJitT)" > /dev/null 2>&1
+_gjp=$(sed -n 's/^=== jitPins: jit_gjCount keeps \([0-9]*\) ===$/\1/p' "$T/gjPins" | head -1)
+if [ -n "$_gjp" ] && [ "$_gjp" -gt 0 ]; then echo "  ok    JGC-P gjCount's cache slot pins $_gjp baked objects (> 0)"; green=$((green+1))
+else echo "  FAIL  JGC-P gjCount's cache slot pins '$_gjp', want > 0"; fail=1; fi
+_gj2=$(_gjv GJ-2)
+if [ -n "$_gj2" ] && [ "$_gj2" -gt 0 ] 2>/dev/null; then echo "  ok    JGC GJ-2 objects found unreachable > 0 ($_gj2)"; green=$((green+1))
+else echo "  FAIL  JGC GJ-2 objects found unreachable: got '$_gj2', want > 0"; fail=1; fi
+for _gj in "GJ-1|3 2|first call" "GJ-3|9 9|two cached calls after the collection"; do
     _gk=${_gj%%|*}; _gr=${_gj#*|}; _gw=${_gr%%|*}; _gl=${_gr#*|}
     if [ "$(_gjv "$_gk")" = "$_gw" ]; then echo "  ok    JGC $_gk $_gl = $_gw"; green=$((green+1))
     else echo "  FAIL  JGC $_gk $_gl: got '$(_gjv "$_gk")', want $_gw"; fail=1; fi

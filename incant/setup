@@ -96,6 +96,7 @@ define
     system immediateAction=runSystem;
     collect immediateAction=collectNow;
     poisonProbe immediateAction=gcPoisonProbe;
+    offMainProbe immediateAction=gcOffMainProbe;
     showBody immediateAction;
     testing immediateAction;
     testOP immediateAction;

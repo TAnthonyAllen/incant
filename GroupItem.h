@@ -19,7 +19,7 @@ struct GroupOptions
 	A group.
 ******************************************************************************/
 
-class GroupItem
+class GroupItem : public gcEngine
 {
 public:
 GroupBody *groupBody;

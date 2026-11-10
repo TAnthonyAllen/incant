@@ -1,0 +1,17 @@
+Start();
+include(utilities);
+print "OM-1 before the probe":;
+offMainProbe();
+print "OM-2 after the probe -- a run that reaches this line was not refused":;
+print "GCOFFMAIN SENTINEL":;
+stop();
+
+gcOffMainT -- SEQ 589 (GC stroke 2, R2, Tony, 2026-11-10): the engine base refuses an allocation off the main thread.
+
+offMainProbe (gcThreads.mm, gcOffMainProbe) constructs a GroupItem on a pthread of its own, named offMainProbe. gcEngine's
+new sees it is not the main thread, prints one line naming itself, the size and the thread, and aborts. So this run
+ENDS at the probe: exit 134 (SIGABRT), OM-1 printed, the refusal line on stderr, and neither OM-2 nor the sentinel --
+the sentinel here is the H7: if the refusal is removed, OM-2 and the sentinel print and the exit is 0.
+
+Why a probe and not a real case: nothing in the engine allocates off the main thread today (docs/gcRecon.md 3c --
+GroupItem::dispatch() is parked with no callers), so no fixture could reach the refusal any other way.

@@ -3800,7 +3800,7 @@ iterrun iterT3 genLadder/iterT3.target "iterT3 (rewind, := reset)"
 #  DELETIONS ONLY -- 4d3, 6,7d4, 9,10d5, 13,14d7, nothing added and nothing
 #  reordered. Today's walk IS the old walk with its seven duplicate visits
 #  removed. That is exactly "each node once" and it is why the move is legible
-#  without a bisect. It is also the SAME 7-changed-line diff KE-4 measured on
+#  without a bisect. It is also the SAME 7-changed-line diff KE-9 (then KE-4) measured on
 #  2026-08-13, so the walk has not moved since; only the refusal count has.
 #
 #  ⚠ WHAT IS *NOT* CLAIMED, because the fixture's own header would have you
@@ -3823,7 +3823,7 @@ iterrunLIVE iterT1m genLadder/iterT1m.target "iterT1m (mutual recursion, each no
 #  silently starts working.
 #
 #  ⚠ RULED AND RESTORED 2026-08-20, and the count is 4 rather than 7 for a
-#  reason worth keeping. KE-4 held this row red pending a cause and named three
+#  reason worth keeping. KE-9 (then KE-4) held this row red pending a cause and named three
 #  candidates. It resolved to the FIRST -- the announcement was DELETED, in
 #  9c4962b (2026-08-15). The poison was never the problem: the refusal arm's
 #  real work, `if iterator iterator.fLAG = true; return 0;`, was intact the
@@ -9513,11 +9513,30 @@ if [ -f "$_gcF" ]; then
 GCSTRESS=0 perl -e 'alarm 30; exec @ARGV' "$B" "$_gcF" > "$T/gc.o" 2> "$T/gc.e"; echo $? > "$T/gc.x"
 _gcv () { sed -n "s/^$1 .*\[ *\([^] ]*\) *\].*/\1/p" "$T/gc.o" | head -1; }
 _ofeq "gcT exit, sentinel" "$(cat "$T/gc.x") $(grep -c '^GCT SENTINEL' "$T/gc.o")" "0 1"
-_ofeq "gcT GC-1 copy loop then collect: objects found (0 today; moves on the stroke-2 branch)" "$(_gcv GC-1)" "0"
-_ofeq "gcT GC-2 Stak-only node after a collection: popped, popped again, found (moves on the branch before R4)" "$(sed -n 's/^GC-2 .*popped \[ *\([^] ]*\) *\] then \[ *\([^] ]*\) *\], found \[ *\([^] ]*\) *\].*/\1 \2 \3/p' "$T/gc.o")" "stakKept skAgain 0"
+#  RE-PIN, SEQ 589 (GC stroke 2 on gc-collect, registered in the dispatch's certificate): the four node classes are
+#  collectable, so collect finds the copy loop's garbage. The count varies run to run (conservative scanning: a stale
+#  stack word keeps a different few alive), measured 127 217 767 161 1767 on five runs, so the row asks for MORE THAN 0.
+#  H7: the base removed -> 0 again. GC-2's node is held only on a Stak, whose array is uncollectable since R4, so it pops
+#  stakKept; found is the collection's other garbage, > 0 for the same reason. H7: the array back to calloc -> GC-2 fails.
+_gcPos () { case "$1" in ''|*[!0-9]*) echo "no: [$1]";; *) if [ "$1" -gt 0 ]; then echo yes; else echo "no: [$1]"; fi;; esac; }
+_ofeq "gcT GC-1 copy loop then collect: objects found > 0 (the copies are collected)" "$(_gcPos "$(_gcv GC-1)")" "yes"
+_gc2=$(sed -n 's/^GC-2 .*popped \[ *\([^] ]*\) *\] then \[ *\([^] ]*\) *\], found \[ *\([^] ]*\) *\].*/\1 \2 \3/p' "$T/gc.o")
+_ofeq "gcT GC-2 Stak-only node after a collection: popped stakKept, then empty, found > 0 (R4 keeps the array scanned)" "${_gc2% *} $(_gcPos "${_gc2##* }")" "stakKept skAgain yes"
 _ofeq "gcT GC-3 poisonProbe fills 16 of 16 (the known-bad end; stays 16)" "$(_gcv GC-3)" "16"
 _ofeq "gcT GC-3 collect's counter found the 16 (the counter collect answers with)" "$(grep -c '^=== poisonProbe: of 16 unreachable blocks, collect.s counter found 16, 16 filled ===' "$T/gc.e")" "1"
 else echo "  FAIL  gcT MISSING"; fail=1; fi
+
+#  ⚑ gcOffMainT -- SEQ 589 (GC stroke 2, R2): gcEngine's new refuses an allocation off the main thread, by name. The probe
+#  makes a GroupItem on a pthread named offMainProbe, so the run must END there: exit 134, OM-1 printed, the refusal line
+#  on stderr, and OM-2 not reached (its sentinel is the H7 -- refusal removed, OM-2 prints and the exit is 0).
+_omF=$(ip gcOffMainT)
+if [ -f "$_omF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_omF" > "$T/om.o" 2> "$T/om.e"; echo $? > "$T/om.x"
+_ofeq "gcOffMainT exit 134 (aborted at the refusal)" "$(cat "$T/om.x")" "134"
+_ofeq "gcOffMainT OM-1 printed before the probe" "$(grep -c '^OM-1 before the probe' "$T/om.o")" "1"
+_ofeq "gcOffMainT the refusal names gcEngine and the thread" "$(grep -c "^=== gcEngine: REFUSED -- an engine object ([0-9]* bytes) allocated OFF THE MAIN THREAD (thread 'offMainProbe')" "$T/om.e")" "1"
+_ofeq "gcOffMainT OM-2 and the sentinel not reached (0 0)" "$(grep -c '^OM-2 ' "$T/om.o") $(grep -c '^GCOFFMAIN SENTINEL' "$T/om.o")" "0 0"
+else echo "  FAIL  gcOffMainT MISSING"; fail=1; fi
 
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then

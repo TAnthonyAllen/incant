@@ -3,7 +3,7 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 /*******************************************************************************
 	A skeleton class containing a group list (used in GroupBody)
 *******************************************************************************/
-class GroupList
+class GroupList extends gcEngine
 {
 GroupItem       firstInList,
                 lastInList;

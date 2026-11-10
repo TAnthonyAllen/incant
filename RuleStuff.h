@@ -1,7 +1,7 @@
 class GroupItem;
 // fields RuleStuff is the per-node parse state -- instance facts only; the rule's testMatch, parseMethod and jitMethod are groupBody slots since stroke 1.4
 
-class RuleStuff
+class RuleStuff : public gcEngine
 {
 public:
 char *ruleName;

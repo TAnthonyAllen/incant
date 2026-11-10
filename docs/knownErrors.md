@@ -315,7 +315,9 @@ other silent leaves the composition intact.
 
 ---
 
-# KE-3 — REMOVING `case 'M'` FROM processFlags KILLS THE MEMBERs GATE
+# KE-8 — REMOVING `case 'M'` FROM processFlags KILLS THE MEMBERs GATE
+
+*Numbered KE-3 until 2026-11-10, when the name was found on two entries (SEQ 588); renumbered under SEQ 589 R5, the way KE-5's was. The name stays with the entry most live citations point at -- here the `jitRunAction` 139 crash below. Dated records that say KE-3 for this entry are left as written.*
 ## ✅ CLOSED 2026-08-05 — RULED: **KEEP**. The restore stands.
 
 **Tony's ruling, via Clay:** the diff was a **stale Dropbox base**, not one third of an
@@ -719,7 +721,9 @@ interpreted, **returns the interpreted answer**, and exits **0**. ⚠ **The cens
 
 ---
 
-## KE-4 — the three `pop.sh` targets were **ALREADY STALE AT THE SEQ 55 SEAL**. Verdicts and evidence
+## KE-9 — the three `pop.sh` targets were **ALREADY STALE AT THE SEQ 55 SEAL**. Verdicts and evidence
+
+*Numbered KE-4 until 2026-11-10, when the name was found on two entries (SEQ 588); renumbered under SEQ 589 R5, the way KE-5's was. The name stays with the entry most live citations point at -- the text local returned as its length, above. Dated records that say KE-4 for this entry (seals, wakeup vintages) are left as written; the present-tense ones are repointed (CLAUDE.md's REMEDY founding example, pop.sh's iterT1m comment).*
 
 *Measured 2026-08-13 (SEQ 70). Three binaries built and run against the SAME targets; only the
 binary varied. Report only — every re-pin sentence comes back for ruling.*
@@ -910,7 +914,7 @@ probe and is not claimed either way.** Pre-existing — the line read the same b
 
 ### Who rules
 
-Tony — ruled above, and **KE-4 is now CLOSED**: row 1 blessed and graduated, row 2 restored and
+Tony — ruled above, and **KE-9 (then KE-4) is now CLOSED**: row 1 blessed and graduated, row 2 restored and
 pinned at 4. Both halves are live fleet checks and neither is a pinned defect.
 
 ## KE-5 — **the collector never frees a GroupItem: plain `new` is uncollectable.** Found 2026-11-06, because Tony asked whether the GC ran. Status: open, for Tony's ruling.

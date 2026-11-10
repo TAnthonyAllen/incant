@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-153 — OPEN, docketed 2026-11-10 (SEQ 589 R6) — windowHidesGlobals: once a window opens, the collector scans no global but the controller
+
+**What:** `openWindow` (`guiHost.mm`) calls `GC_set_no_dls(1)` to dodge AppKit's root-set limit, which stops libgc scanning EVERY image's data segment, ours included. It roots `GroupControl::groupController` and (SEQ 589) the form, nothing else. With the node classes collectable (GC stroke 2, branch gc-collect), any engine object held only by a raw-pointer global is then collected while the window is open: the JIT globals in `jitContext.h` (`gJitLastAction`, `gJitCurrentAction`, `gJitArgOrigin`, `gJitDotSeeded`, `gJitProbeCarrier`, `gChanPendGroup`, `gChanStkGroup[]`, docs/gcRecon.md 3a), `gParseActive` while its frames are off the stack, and any `static GroupItem*` in a .mm. The std::vector / map globals are safe (their storage is uncollectable and scanned).
+**Where:** `guiHost.mm` (openWindow, the `GC_set_no_dls(1)` line); the globals above.
+**Evidence:** read, not run -- windows are not a target yet (R6: do not certify a window run), and no fleet fixture opens a window.
+**Done when:** a window run with the node classes collectable, under GCSTRESS, survives a relayout with the JIT active, and a row says so.
+**Owner:** Clod, when windows become a target. **Size:** not small -- the candidates are a census of every raw-pointer global holding an engine object plus one `GC_add_roots` range each, or one uncollectable root table they all live in, or a narrower no-dls (register our image's data segment by hand after the switch).
+**Attempt log:** SEQ 589 (branch gc-collect): Layout->base, the small half, fixed -- openWindow holds the form in a GC_MALLOC_UNCOLLECTABLE cell (a Layout is an Objective-C object in malloc memory, never scanned; `selection` is declared and never written). This half docketed.
+
 ### F-152 — CURED, BOUGHT 2026-11-09 (SEQ 573; cause SEQ 572; on trunk at seal 401) — pdfHeapStomp: a CoreGraphics thread allocates through our single-threaded collector; the free list ends up holding text
 
 **What:** `incant/pop/firstPdfT` exits 139 (once 134) on about 4 runs in 10, at random points, so formsPop's firstPdfT rows read anything from all green to exit/sentinel and PD-2..PD-4 red. Seals 394 and 397 recorded formsPop row for row on lucky runs. The crash is in `GC_generic_malloc_uncollectable` under an ordinary `operator new` (`GroupItem::addGroup` from `interpretXPaccum`), on a free-list pointer that is TEXT: the two captured fault addresses decode as `pdfRead` and `driveRep`. Heap corruption: something writes a string into a freed or uncollectable block, and a later allocation trips on it.

@@ -39,6 +39,13 @@
       against a known-bad end (H16) -- 16 collectable blocks held by
       nothing but hidden pointers, one collection; answers how many came
       back filled with the pattern. Runs whether or not GCSTRESS is set.
+
+    THE ENGINE BASE (SEQ 589, GC stroke 2, R1 / R2; gcEngine.h). GroupItem,
+    GroupBody, GroupList and RuleStuff extend gcEngine, whose new is
+    defined below: on the main thread a COLLECTABLE block (GC_malloc),
+    the stress tick, and the poison; off it, a refusal by name and abort().
+    offMainProbe (kant command, gcOffMainProbe) is the refusal's witness: it
+    constructs a GroupItem on a thread of its own, so the process dies there.
 ****************************************************************************/
 #include <new>
 #include <cstdlib>
@@ -48,6 +55,7 @@
 #include <malloc/malloc.h>
 #include <cstring>
 #include "gc/gc.h"
+#include "gcEngine.h"
 #include "GroupItem.h"
 
 //  noThrowHere the target builds with exceptions off; libgccpp's own gc_badalc.o raises the same std::bad_alloc
@@ -199,4 +207,52 @@ extern "C" GroupItem *gcPoisonProbe(GroupItem *)
 extern "C" void *gcHeapBase(void *p)
 {
     return GC_base(p);
+}
+
+
+/***************************************************************************
+    THE ENGINE BASE (SEQ 589) -- see the header and gcEngine.h.
+****************************************************************************/
+static std::atomic<long> gEngineOffDel{0};
+
+//  engineAlloc collectable on the main thread; off it the allocation is REFUSED BY NAME, because the collector takes no lock (F-152)
+void *gcEngine::operator new(size_t n)
+{
+    if ( !::pthread_main_np() ) {
+        char name[64] = "";
+        ::pthread_getname_np(::pthread_self(), name, sizeof(name));
+        ::fprintf(stderr,"=== gcEngine: REFUSED -- an engine object (%zu bytes) allocated OFF THE MAIN THREAD (thread '%s'); the collector is single-threaded (F-152) ===\n", n, name);
+        ::fflush(stderr);
+        ::abort(); }
+    gcStressTick();
+    void *p = GC_malloc(n);
+    if ( !p ) GC_throw_bad_alloc();
+    gcPoisonOnFree(p);
+    return p;
+}
+
+//  engineFree nothing in the engine deletes (recon 4); a delete frees on the main thread and is leaked, counted, off it
+void gcEngine::operator delete(void *p) noexcept
+{
+    if ( !p ) return;
+    if ( ::pthread_main_np() ) { GC_free(p); return; }
+    gEngineOffDel++;
+}
+
+//  offMainProbe a GroupItem constructed on a thread of its own: the refusal above must fire there, by name, and end the process
+static void *gcOffMainMint(void *)
+{
+    ::pthread_setname_np("offMainProbe");
+    GroupItem *g = new GroupItem((char*)"offMain");
+    ::fprintf(stderr,"=== offMainProbe: NOT REFUSED -- %p was made off the main thread ===\n", (void*)g);
+    return 0;
+}
+
+extern "C" GroupItem *gcOffMainProbe(GroupItem *)
+{
+    pthread_t t;
+    ::pthread_create(&t, 0, gcOffMainMint, 0);
+    ::pthread_join(t, 0);
+    GroupItem *answer = new GroupItem((char*)"offMainRan");
+    return answer;
 }

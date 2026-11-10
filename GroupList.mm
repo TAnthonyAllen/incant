@@ -4,6 +4,7 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
+#include "gcEngine.h"
 #include "GroupBody.h"
 #include "GroupStak.h"
 #include "PLGset.h"

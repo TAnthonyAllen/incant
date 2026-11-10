@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "OCroutines.h"
 #include "GroupItem.h"
+#include "gcEngine.h"
 #include "DoubleLinkList.h"
 #include "Stak.h"
 #include "Buffer.h"

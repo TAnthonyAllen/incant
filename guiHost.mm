@@ -34,6 +34,15 @@ extern "C" GroupItem *openWindow(GroupItem *input)
        otherwise it gets collected mid-run and drawRect derefs freed memory. */
     GC_add_roots((char *)&GroupControl::groupController,
                  (char *)&GroupControl::groupController + sizeof(GroupControl *));
+    /* THE FORM ITSELF, held in an UNCOLLECTABLE cell (GC stroke 2, R6, SEQ 589).
+       The Layout below keeps the form in its `base` ivar, and a Layout is an
+       Objective-C object in malloc memory, which the collector never scans --
+       so a form reachable only through the window (one built in a local and
+       handed straight in) would be collected under the open window. An
+       uncollectable block is always scanned, whatever no_dls says. One word
+       per window, never freed. */
+    GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *));
+    *heldForm = input;
     @autoreleasepool {
         NSApplication *app = [NSApplication sharedApplication];
         [app setActivationPolicy:NSApplicationActivationPolicyRegular];

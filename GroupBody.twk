@@ -3,7 +3,7 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 /*******************************************************************************
 	The body of a GroupItem containing its data
 *******************************************************************************/
-class GroupBody
+class GroupBody extends gcEngine
 {
 String          tag;
 GroupList       propertyList;

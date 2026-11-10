@@ -4,7 +4,7 @@ class GroupStak;
 	A skeleton class containing a group list (used in GroupBody)
 *******************************************************************************/
 
-class GroupList
+class GroupList : public gcEngine
 {
 public:
 GroupItem *firstInList;

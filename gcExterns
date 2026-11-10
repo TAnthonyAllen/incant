@@ -1,0 +1,9 @@
+/*******************************************************************************
+    gcExterns -- the engine's collectable base, known to tok (GC stroke 2,
+    SEQ 589, R2). FIRST in groupIncludes, so every class that says
+    `extends gcEngine` finds the type. The class itself is gcEngine.h
+    (hand-written); gcThreads.mm defines its new and delete.
+*******************************************************************************/
+external gcEngine
+{
+}
