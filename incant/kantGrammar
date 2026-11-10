@@ -435,6 +435,11 @@ define
                     pp := *cur.prioR;
                     while npre > 0;
                         pOp = pp;
+                        // arrowNoTarget a <- in a prefix position has no target: refused by name, the old road's wording, and the statement does nothing (SEQ 596 R0); without this the <- was dropped and its operand used
+                        if *pOp.taG == "<-";
+                            cerr "REFUSED <- -- an operator in a prefix position with no target -- it is not a unary (SEQ 347 R4)":;
+                            clear(*actionLabel);
+                            return *actionLabel;
                         if *pOp.taG == "-";     pOp := Operators["negate"];
                         or *pOp.taG == "*";     pOp := Operators["deref"];
                         instruct    +% pOp opnd;
