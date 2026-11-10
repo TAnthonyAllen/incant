@@ -1050,6 +1050,36 @@ done < "$T/ax.list"
 _ofeq "arrowExprT rows ran (5 of 5)" "$_axn" "5"
 else echo "  FAIL  arrowExprT MISSING"; fail=1; fi
 
+#  ⚑ prefixOpT -- SEQ 597 R2 (Tony, 2026-11-10): PINNED, NOT CURED. Every Operators entry in a prefix position, as an assignment's right
+#  side and as a print item, both roads; one process each under an alarm. Value: [stdout] r<REFUSED lines> p<the prefix-position wording>
+#  x<exit> s<sentinel>. A non-unary entry is an fdRow, today beside intended (refused by name, one wording, the next statement runs);
+#  a unary entry is pinned at today's value. On the new road 16 entries end the run at exit 139 (27 of their runs).
+_pxF=$(ip prefixOpT)
+if [ -f "$_pxF" ]; then
+sed '/^stop();/,$d' "$_pxF" > "$T/px.pre"
+grep '^PX-[0-9]*	' "$_pxF" > "$T/px.list"
+_pxn=0
+_pxrun () {  # name  body
+    { cat "$T/px.pre"; printf '%s\nprint "Q":;\ncerr "PX SENTINEL":;\nstop();\n' "$2"; } > "$T/px.$1.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/px.$1.k" > "$T/px.$1.o" 2> "$T/px.$1.e"; _pxx=$?
+    echo "[$(grep -v '^stop: \|^Search list: \|^ *$' "$T/px.$1.o" | tr '\n' '|')] r$(grep -c '^REFUSED' "$T/px.$1.e") p$(grep -c 'in a prefix position with no target' "$T/px.$1.e") x$_pxx s$(grep -c 'PX SENTINEL' "$T/px.$1.e")"
+}
+while IFS='	' read -r _id _op _cl _oa _na _opr _npr; do
+    _pxn=$((_pxn+1))
+    _sa="qr = $_op qb; print qr:;"; _sp="print $_op qb:;"
+    _v1=$(_pxrun "$_pxn.oa" "$_sa"); _v2=$(_pxrun "$_pxn.na" "it1 = FILe(\"$_sa\");"); _v3=$(_pxrun "$_pxn.op" "$_sp"); _v4=$(_pxrun "$_pxn.np" "it1 = FILe(\"$_sp\");")
+    if [ "$_cl" = n ]; then
+        fdRow "prefixOpT $_id $_op old road, assignment" "$_v1" "$_oa" "[0 |Q |] r1 p1 x0 s1"
+        fdRow "prefixOpT $_id $_op new road, assignment" "$_v2" "$_na" "[0 |Q |] r1 p1 x0 s1"
+        fdRow "prefixOpT $_id $_op old road, print item" "$_v3" "$_opr" "[Q |] r1 p1 x0 s1"
+        fdRow "prefixOpT $_id $_op new road, print item" "$_v4" "$_npr" "[Q |] r1 p1 x0 s1"
+    else
+        _ofeq "prefixOpT $_id $_op (a unary, pinned) old | new assignment, old | new print item" "$_v1 | $_v2 | $_v3 | $_v4" "$_oa | $_na | $_opr | $_npr"
+    fi
+done < "$T/px.list"
+_ofeq "prefixOpT rows ran (68 of 68)" "$_pxn" "68"
+else echo "  FAIL  prefixOpT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
 #  the rule door. Per row one process interpreted and one with jitterRule(<rule>);. Value, exit and sentinel compiled = interpreted

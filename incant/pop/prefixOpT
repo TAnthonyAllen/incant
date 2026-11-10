@@ -1,0 +1,105 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(PrefixOpT);
+define
+    qa=2;
+    qb=3;
+    qr=0;
+    it1;
+    ;
+search PrefixOpT Utilities UnitTests list;
+stop();
+
+prefixOpT -- SEQ 597 R2 (Tony, 2026-11-10): PIN, DO NOT CURE. Every Operators entry in a prefix position, where it has no
+target: as an assignment's right side (qr = <op> qb; print qr:;) and as a print item (print <op> qb:;), on the old road
+(the statements at top level) and the new road (the same statements through FILe), then print "Q" and a sentinel.
+
+Each value reads: [stdout, lines joined by |] r<REFUSED lines> p<of those, the "in a prefix position with no target"
+wording> x<exit status> s<sentinel reached>.
+
+INTENDED for an entry that is not a unary (class n): refused by name, one wording, and the next statement runs --
+[0 |Q |] r1 p1 x0 s1 for the assignment (qr keeps its 0) and [Q |] r1 p1 x0 s1 for the print item. The old road is there
+already on nearly every entry. The new road is not: it uses the operand, or refuses with another wording, or prints
+the token as text, and on 16 entries the run DIES at exit 139 with no sentinel, 27 runs in all (qr = / qb is one). The cure is its own
+later stroke. A unary entry (class u: declared unary, or in the UnaryOPS bin) is pinned at today's value and has no
+intended value here. A second mention of += in setup (its member block) is one entry and one row.
+
+Not run alone: pop.sh builds four inputs per row. Fields are separated by TABS (operators use | and ^).
+
+ROWS -- id, op, class, old road assignment, new road assignment, old road print item, new road print item
+PX-1	~=	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1
+PX-2	||	n	[0 |Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1
+PX-3	|	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[| 3 |Q |] r0 p0 x0 s1
+PX-4	&&	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[0 |Q |] r0 p0 x0 s1
+PX-5	^	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[^ 3 |Q |] r0 p0 x0 s1
+PX-6	IN	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-7	GO	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[GO 3 |Q |] r0 p0 x0 s1
+PX-8	modedOP	n	[0 |Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-9	negate	u	[-3 |Q |] r0 p0 x0 s1	[-3 |Q |] r0 p0 x0 s1	[-3 |Q |] r0 p0 x0 s1	[-3 |Q |] r0 p0 x0 s1
+PX-10	deref	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-11	printList	u	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1
+PX-12	cerrList	u	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1
+PX-13	coutList	u	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1	[1 |Q |] r0 p0 x0 s1
+PX-14	printShortcut	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-15	seq	u	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-16	bodySeq	u	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-17	ifThen	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-18	branchSignal	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-19	whileLoop	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-20	doLoop	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-21	forLoop	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-22	forBack	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-23	iterateOn	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-24	call	n	[0 |Q |] r1 p1 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r0 p0 x0 s1
+PX-25	runRule	u	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p0 x0 s1
+PX-26	?	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[? 3 |Q |] r0 p0 x0 s1
+PX-27	>>	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[>> 3 |Q |] r0 p0 x0 s1
+PX-28	>=	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-29	>	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-30	==	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-31	=[	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-32	=/	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-33	=%	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-34	=<	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-35	=	n	[0 |Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1
+PX-36	<=	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-37	<<	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[<< 3 |Q |] r0 p0 x0 s1
+PX-38	<:	n	[0 |Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-39	<-	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p1 x0 s1
+PX-40	<	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-41	:>	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-42	:=	n	[0 |Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1
+PX-43	:<	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-44	:-	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-45	:+	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-46	:%	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-47	/=	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-48	/	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-49	.	u	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-50	:.	n	[0 |Q |] r1 p1 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-51	-=	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1
+PX-52	--	u	[2 |Q |] r0 p0 x0 s1	[2 |Q |] r0 p0 x0 s1	[2 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-53	$$	u	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-54	-	u	[-3 |Q |] r0 p0 x0 s1	[-3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-55	+=	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1
+PX-56	++	u	[4 |Q |] r0 p0 x0 s1	[4 |Q |] r0 p0 x0 s1	[4 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-57	+*	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-58	+%	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-59	+<	n	[0 |Q |] r1 p1 x0 s1	[3 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1
+PX-60	+/	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-61	+	n	[0 |Q |] r1 p1 x0 s1	[Q |] r1 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-62	*=	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-63	*	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-64	@	u	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
+PX-65	&	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[& 3 |Q |] r0 p0 x0 s1
+PX-66	%	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
+PX-67	!=	n	[0 |Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1
+PX-68	!	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
