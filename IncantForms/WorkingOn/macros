@@ -261,6 +261,13 @@ refuses by name. PINNED, NOT CURED: a <- with no target in an ordinary expressio
 dropped silently on the new road (the old road refuses it by name); incant/pop/arrowExprT.
 NOT BUILT: one refusal per statement -- kant cannot see that a slot's own rule refused.
 
+2026-11-10 (SEQ 596), both built: a prefix <- in an expression refuses by name on the new
+road, the old road's wording. ONE REFUSAL PER STATEMENT: refusalSaid, a declared mark every
+refusing kant action sets; OPERATOr stays quiet when its slot's own rule already refused;
+cleared when a top-level statement or a sequence ends. ANSWERED, not ruled: <- differs from
+:= in two ways only -- a right side that is nothing leaves the target as it was (:= clears
+it), and := compiles natively where <- is handed over. Whether <- retires is Tony's.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
