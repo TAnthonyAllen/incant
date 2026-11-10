@@ -239,7 +239,7 @@ _txFlush () { if [ "$1" = none ] || [ "$2" = none ]; then echo none
 _txOrient () { if [ "$1" -eq 0 ] && [ "$2" -eq 0 ]; then echo none; elif [ "$1" -gt "$2" ]; then echo upright; elif [ "$1" -lt "$2" ]; then echo flipped; else echo level; fi; }
 #  _txClasses <file> <tag>: the six firstLight classes -- heading, words line 1, words line 2, no indent, orientation, ok
 _txClasses () {
-    echo "$(_txInk $(_txs "$1" "$2" 4 203 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 55 55 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 70 70 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 49 58 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 64 73 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 49 51 "$_txWhite" count) $(_txs "$1" "$2" 3 12 55 57 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 342 397 176 176 "$_txGreen" count))"
+    echo "$(_txInk $(_txs "$1" "$2" 4 203 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 55 55 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 70 70 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 49 58 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 64 73 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 49 51 "$_txWhite" count) $(_txs "$1" "$2" 3 12 55 57 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 342 397 180 180 "$_txGreen" count))"
 }
 #  _txTrace <tag> <field>: a field of displayText's line for that field (font / color / lines / next)
 _txTrace () { grep -h "^=== displayText $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | head -1 | sed "s/^=== displayText $1 //; s/ ===\$//" | awk -v want="$2" '
@@ -252,7 +252,10 @@ fdRow "textT TX-2 words' first line inks: y=55, x 4..203, not white" "$(_txInk $
 fdRow "textT TX-3 WRAP: words' second line inks: y=70, x 4..203" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 70 70 "$_txWhite" count))" "ink" "ink"
 fdRow "textT TX-4 WRAP, no indent: first ink of line 1 (y 49..58) and line 2 (y 64..73) at the same x, within 2, at most 7" "$(_txFlush $(_txs "$T/tx.o" firstLight 0 29 49 58 "$_txWhite" minx) $(_txs "$T/tx.o" firstLight 0 29 64 73 "$_txWhite" minx))" "flush" "flush"
 fdRow "textT TX-5 ORIENTATION: the T of This, bar rows y 49..51 outweigh stem rows y 55..57, x 3..12" "$(_txOrient $(_txs "$T/tx.o" firstLight 3 12 49 51 "$_txWhite" count) $(_txs "$T/tx.o" firstLight 3 12 55 57 "$_txWhite" count))" "flipped" "upright"
-fdRow "textT TX-6 ok's text inks: y=176, x 342..397, not lightGreen" "$(_txInk $(_txs "$T/tx.o" firstLight 342 397 176 176 "$_txGreen" count))" "none" "ink"
+#  RE-AIM (SEQ 605, step 5b): ok is centred top to bottom, so its letters sit about 6 lower. TX-6, TX-K3 and the ok point of _txClasses ask
+#  about ink and colour, not position, so their row moves from y=176 to y=180, inside the letters at the top and at the centre alike; pinned
+#  values unchanged. firstPdfT reads y=180 from its PD-9 band.
+fdRow "textT TX-6 ok's text inks: y=180, x 342..397, not lightGreen" "$(_txInk $(_txs "$T/tx.o" firstLight 342 397 180 180 "$_txGreen" count))" "none" "ink"
 fdRow "textT TX-7 tOver's second line inks: y=37, x 14..125" "$(_txInk $(_txs "$T/tx.o" tForm 14 125 37 37 "$_txBlue" count))" "none" "ink"
 fdRow "textT TX-8 a line that does not fit is not drawn: below tOver's second line, y 46..49, x 14..125, clean (pair: TX-7)" "$(_txClean $(_txs "$T/tx.o" tForm 14 125 46 49 "$_txBlue" count))" "clean" "clean"
 fdRow "textT TX-9 SPACE-CLIP: tOver's second line ends inside the inset, last ink x at most 125 (y 31..44, x 100..129)" "$(_m=$(_txs "$T/tx.o" tForm 100 129 31 44 "$_txBlue" maxx); [ "$_m" = none ] && echo none || { [ "$_m" -le 125 ] && echo inside || echo "past $_m"; })" "none" "inside"
@@ -266,13 +269,14 @@ fdRow "textT TX-C1 words inherits firstLight's color:=blue" "$(_txTrace words co
 fdRow "textT TX-C4 heading's own color:=green wins over firstLight's blue" "$(_txTrace heading color)" "r0 g0 b0" "r0 g158 b15"
 fdRow "textT TX-K1 heading's ink is green: its darkest ink pixel's strongest channel (y=18, x 4..203)" "$(_txHue "$T/tx.o" firstLight 4 203 18 18 "$_txWall")" "none" "g"
 fdRow "textT TX-K2 words' ink is blue, inherited (y=55, x 4..203)" "$(_txHue "$T/tx.o" firstLight 4 203 55 55 "$_txWhite")" "k" "b"
-fdRow "textT TX-K3 ok's ink is blue, inherited through bar (y=176, x 342..397)" "$(_txHue "$T/tx.o" firstLight 342 397 176 176 "$_txGreen")" "k" "b"
+fdRow "textT TX-K3 ok's ink is blue, inherited through bar (y=180, x 342..397)" "$(_txHue "$T/tx.o" firstLight 342 397 180 180 "$_txGreen")" "k" "b"
 fdRow "textT TX-C2 tOver's own color:=blue (pair: TX-C1)" "$(_txTrace tOver color)" "" "r0 g81 b186"
 fdRow "textT TX-C3 tLong inherits tForm's color:=red" "$(_txTrace tLong color)" "" "r239 g43 b45"
 fdRow "textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green)" "$(_txTrace tStyled font) $(_txTrace tStyled color)" " " "Palatino 24 1 r0 g158 b15"
 fdRow "textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end)" "$(_txTrace tOver lines) / $(_txTrace tLong lines)" "  /  " "2 space / 1 end"
 #  RE-PIN (SEQ 584): textT gained tRight, tKid, tKidL, tBad for step 5a, so the call list grows by those four; nothing else changed.
-fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, then tPlain (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tPlain" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tPlain"
+#  RE-PIN (SEQ 605): textT gained tVTop's six children for step 5b, so the call list grows by those six; nothing else changed.
+fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain"
 fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^displayText: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "heading tOver tLong" "tOver tLong"
 #  ⚑ STEP 5a, ALIGNMENT (Tony, 2026-11-09, SEQ 584). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value (everything
 #  draws left), the intended beside it. TOLERANCES: centred = the ink's distances to the frame's two edges differ by at most 2 px; at the
@@ -297,7 +301,39 @@ fdRow "textT AL-6 INHERIT: tKid (no align) centred under tCenterTop; tKidL (styl
 fdRow "textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left" "$(grep -c "^displayText: REFUSING tBad's align=leftl" "$T/tx.e")" "0" "1"
 fdRow "textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad" "$(for _f in heading words ok tRight tKid tKidL tBad; do grep -h "^=== displayText $_f " "$T/tx.o" | head -1 | sed -n 's/.* align \([a-z]*\) ===$/\1/p'; done | xargs)" "" "center justify center right center left left"
 #  "no refusal" counts every refusal but AL-7's, which is expected (SEQ 584): the row's question is unchanged
-_ofeq "textT no refusal" "$(grep 'REFUS' "$T/tx.e" | grep -vc "align=leftl")" "0"
+_ofeq "textT no refusal" "$(grep 'REFUS' "$T/tx.e" | grep -vc "align=leftl\|valign=middle")" "0"
+#  ⚑ STEP 5b, VERTICAL ALIGNMENT (Tony, 2026-11-10, SEQ 605). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value
+#  (everything draws at the top), the intended beside it. TOLERANCES, as align's turned on their side: centred = the ink's distances to
+#  the frame's top and bottom differ by at most 2 px; at the bottom = the last ink within 2 px of the frame's bottom less the 4-point
+#  inset; top = the first ink at most 6 px inside the frame's top. The words carry an ascender and a descender (Edgy) so the ink spans
+#  the line; OK has neither and its capitals still centre within the tolerance.
+#  _tys <file> <tag> <x0> <x1> <y0> <y1> <background> <miny|maxy>: the first or last row holding a pixel that is not the background
+_tys () {
+    awk -v tag="$2" -v x0="$3" -v x1="$4" -v y0="$5" -v y1="$6" -v bg="$7" -v mode="$8" '
+        $1 == "===" && $2 == "pixelAt" && $3 == tag {
+            split($4, c, /[(,)]/); x = c[2] + 0; y = c[3] + 0; k = x "," y
+            if (k in seen) next; seen[k] = 1
+            if (x < x0 || x > x1 || y < y0 || y > y1) next
+            if ($6 " " $7 " " $8 " " $9 == bg) next
+            if (mn == "" || y < mn) mn = y; if (mx == "" || y > mx) mx = y }
+        END { if (mode == "miny") print (mn == "" ? "none" : mn); else print (mx == "" ? "none" : mx) }' "$1"
+}
+#  _tyCentre <file> <tag> <box x0 x1 y0 y1> <bg> <frame top> <frame bottom>
+_tyCentre () { _t=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" miny); _b=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" maxy)
+    if [ "$_t" = none ]; then echo none; return; fi
+    _dt=$(( _t - $8 )); _db=$(( $9 - _b )); _d=$(( _dt > _db ? _dt - _db : _db - _dt ))
+    [ $_d -le 2 ] && echo centred || echo "off $_dt $_db"; }
+#  _tyBottom <file> <tag> <box> <bg> <frame bottom less inset>: the last ink within 2 px of it
+_tyBottom () { _b=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" maxy); if [ "$_b" = none ]; then echo none; elif [ $_b -ge $(( $8 - 2 )) ] && [ $_b -le $(( $8 + 2 )) ]; then echo bottom; else echo "short $_b"; fi; }
+#  _tyTop <file> <tag> <box> <bg> <frame top>: the first ink at most 6 px down
+_tyTop () { _t=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" miny); if [ "$_t" = none ]; then echo none; elif [ $_t -le $(( $8 + 6 )) ]; then echo top; else echo "down $(( _t - $8 ))"; fi; }
+_vaOf () { grep -h "^=== displayText $1 " "$T/tx.o" | head -1 | sed -n 's/.* valign \([a-z]*\) align [a-z]* ===$/\1/p'; }
+fdRow "textT VA-1 CENTER: ok's ink centred top to bottom in its frame (y 165..199; scanned inside the border, 167..197, x 342..397)" "$(_tyCentre "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" 165 199)" "off 5 18" "centred"
+fdRow "textT VA-2 CENTER: tVOwn (its own valign=center) centred in its frame (y 60..119)" "$(_tyCentre "$T/tx.o" tVTop 0 59 60 119 "$_txWhite" 60 119)" "off 4 43" "centred"
+fdRow "textT VA-3 BOTTOM: tVBot's last ink at its frame's bottom less the inset (y 55); tVTwo's three lines end at y 115, the first starts below the middle" "$(_tyBottom "$T/tx.o" tVTop 60 119 0 59 "$_txWhite" 55) $(_tyBottom "$T/tx.o" tVTop 240 299 0 119 "$_txWhite" 115) $([ "$(_tys "$T/tx.o" tVTop 240 299 0 119 "$_txWhite" miny)" -ge 60 ] && echo low || echo high)" "short 16 short 40 high" "bottom bottom low"
+fdRow "textT VA-4 INHERIT: tVKid (no valign) centred under tVTop's valign=center; tVSty (style valign=top) at the top" "$(_tyCentre "$T/tx.o" tVTop 0 59 0 59 "$_txWhite" 0 59) $(_tyTop "$T/tx.o" tVTop 120 179 0 59 "$_txWhite" 0)" "off 4 43 top" "centred top"
+fdRow "textT VA-5 REFUSAL: tVBad's valign=middle refused by name, drawn at the top (not the inherited centre)" "$(grep -c "^displayText: REFUSING tVBad's valign=middle" "$T/tx.e") $(_tyTop "$T/tx.o" tVTop 180 239 0 59 "$_txWhite" 0)" "0 top" "1 top"
+fdRow "textT VA-6 the valign each field drew with: heading ok tVKid tVBot tVSty tVBad tVTwo tVOwn" "$(for _f in heading ok tVKid tVBot tVSty tVBad tVTwo tVOwn; do _vaOf $_f; done | xargs)" "" "top center center bottom top top bottom center"
 #  ⚑ textTopT (SEQ 583): a top's text slot holds its display (the pointer / text union), so a top's own text is not drawable; displayText
 #  read the context's bytes as text and threw (exit 134). Pinned: refused by name, exit 0.
 _ttF=$(ip textTopT)
@@ -331,6 +367,9 @@ _ofeq "firstPdfT PD-6 the PDF agrees with the bitmap on the same points (textT's
 #  PD-7 / PD-8 (step 5a, SEQ 584): heading centred and words justified, read back from the PDF at textT's AL points; the PDF agrees with the bitmap.
 fdRow "firstPdfT PD-7 the read-back: heading centred, words lines 1 and 2 at the edge, line 3 short" "$(_alClasses "$T/pd.o" pdfRead)" "off 4 282 short short short" "centred edge edge short"
 _ofeq "firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify points" "$(_alClasses "$T/pd.o" pdfRead)" "$(_alClasses "$T/tx.o" firstLight)"
+#  PD-9 / PD-10 (step 5b, SEQ 605): ok centred top to bottom, read back from the PDF inside ok's border; the PDF agrees with the bitmap.
+fdRow "firstPdfT PD-9 the read-back: ok's ink centred top to bottom in its frame" "$(_tyCentre "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" 165 199)" "off 5 18" "centred"
+_ofeq "firstPdfT PD-10 the PDF agrees with the bitmap on ok's first and last ink rows, within 1" "$(_p=$(( $(_tys "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" miny) - $(_tys "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" miny) )); _q=$(( $(_tys "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" maxy) - $(_tys "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" maxy) )); [ ${_p#-} -le 1 ] && [ ${_q#-} -le 1 ] && echo agree || echo "differ $_p $_q")" "agree"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do

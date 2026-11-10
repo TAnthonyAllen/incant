@@ -79,6 +79,8 @@ fpdX0 = 0; fpdX1 = 400; fpdY0 = 10; fpdY1 = 29; fpdBand(pdfRead);
 fpdX0 = 300; fpdY0 = 49; fpdY1 = 61; fpdBand(pdfRead);
 fpdY0 = 64; fpdY1 = 76; fpdBand(pdfRead);
 fpdX0 = 0; fpdY0 = 80; fpdY1 = 91; fpdBand(pdfRead);
+cerr "PD-9 step 5b, ok's frame inside its border, read back: y 167..197 x 342..397":;
+fpdX0 = 342; fpdX1 = 398; fpdY0 = 167; fpdY1 = 198; fpdBand(pdfRead);
 cerr "FIRSTPDF SENTINEL":;
 stop();
 
