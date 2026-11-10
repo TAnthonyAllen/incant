@@ -359,3 +359,13 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
   respell to `align` when the form is reworked under kant, or with the next touch of the file.
 - **Seen:** 2026-11-03 (forms afternoon track, A1).
 
+### The Groups target's `-include gcEngine.h`
+- **What/where:** `TOK.xcodeproj`, Groups target, OTHER_CPLUSPLUSFLAGS (Debug and Release): `-include
+  /Users/anthony/Dropbox/data/InProcess/Groups/gcEngine.h`.
+- **Why it could go:** it exists only because tok emits a type's `#include` in its type table's hash order
+  (`Tokf/FormatC.twk` printCode iterates `types`, a BaseHash), so `gcEngine.h` lands after `GroupItem.h`. A tok fix
+  that emits a class's base before the class would retire it (SEQ 590 R3).
+- **Confirm:** remove the flag, retok bare, build: every generated .mm must include gcEngine.h ahead of the first class
+  header that extends it; fleet and ladder row for row.
+- **Seen:** 2026-11-10 (SEQ 589 / 590).
+

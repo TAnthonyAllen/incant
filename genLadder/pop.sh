@@ -9523,7 +9523,12 @@ _ofeq "gcT GC-1 copy loop then collect: objects found > 0 (the copies are collec
 _gc2=$(sed -n 's/^GC-2 .*popped \[ *\([^] ]*\) *\] then \[ *\([^] ]*\) *\], found \[ *\([^] ]*\) *\].*/\1 \2 \3/p' "$T/gc.o")
 _ofeq "gcT GC-2 Stak-only node after a collection: popped stakKept, then empty, found > 0 (R4 keeps the array scanned)" "${_gc2% *} $(_gcPos "${_gc2##* }")" "stakKept skAgain yes"
 _ofeq "gcT GC-3 poisonProbe fills 16 of 16 (the known-bad end; stays 16)" "$(_gcv GC-3)" "16"
-_ofeq "gcT GC-3 collect's counter found the 16 (the counter collect answers with)" "$(grep -c '^=== poisonProbe: of 16 unreachable blocks, collect.s counter found 16, 16 filled ===' "$T/gc.e")" "1"
+#  RE-PIN, SEQ 590 R1 (Tony, 2026-11-10): collect now also frees engine objects (SEQ 589), so the probe's one collection
+#  finds its 16 blocks AND whatever engine garbage is waiting -- the counter reads AT LEAST 16 (290 measured). GC-3's fill
+#  count stays 16 of 16 (the row above).
+_gc3n=$(sed -n 's/^=== poisonProbe: of 16 unreachable blocks, collect.s counter found \([0-9]*\), 16 filled ===$/\1/p' "$T/gc.e" | head -1)
+_gcAtLeast16 () { case "$1" in ''|*[!0-9]*) echo "no: [$1]";; *) if [ "$1" -ge 16 ]; then echo yes; else echo "no: [$1]"; fi;; esac; }
+_ofeq "gcT GC-3 collect's counter found at least the 16 (the counter collect answers with)" "$(_gcAtLeast16 "$_gc3n")" "yes"
 else echo "  FAIL  gcT MISSING"; fail=1; fi
 
 #  ⚑ gcOffMainT -- SEQ 589 (GC stroke 2, R2): gcEngine's new refuses an allocation off the main thread, by name. The probe

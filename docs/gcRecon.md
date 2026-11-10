@@ -281,3 +281,13 @@ Notes for the opener, from strokes 1 and the recon (not rulings):
   before every generated .h that names it.
 - The poison registers only while GCSTRESS is set; gcT and JGC run under GCSTRESS=0 for that reason.
 - The stroke-1 baseline: pop.sh 3353 green, FAIL rows = docs/sealCaptures/pop.fails.txt (72); jitLadder exit 0.
+
+## Settled after stroke 2 (SEQ 590, Tony, 2026-11-10)
+
+- **ParseActivation keeps no base class (R2).** It is never allocated with `new`: every record lives on the C stack,
+  which the collector scans, so it is no root and nothing it points at is hidden. tok could not spell the base anyway
+  (`Tokf/declare.g`, Structure, takes no `extends`). Do not try again unless ParseActivation gains a heap site.
+- **The force-include stays (R3).** tok emits `#include "gcEngine.h"` in its type table's hash order, after
+  `GroupItem.h` in most `.mm`, so the Groups target compiles with `-include Groups/gcEngine.h`
+  (`TOK.xcodeproj`, OTHER_CPLUSPLUSFLAGS). A tok fix to the include order would retire it (docs/cleanupList.md).
+
