@@ -140,6 +140,9 @@ define
     forLoop         unary ruleMethod=opFor  ownsBody;
     forBack         unary ruleMethod=opForBack  ownsBody;
     iterateOn       unary ruleMethod=opIterate;
+    iterateAttrs    unary ruleMethod=opIterateAttrs;
+    iterateMembers  unary ruleMethod=opIterateMembers;
+    iterateBoth     unary ruleMethod=opIterateBoth;
     call            operateMethod=opCallTest  assignTier;
     runRule         unary ruleMethod=opRunRule;
     '?'    operateMethod=opNotBuilt;

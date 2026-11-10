@@ -1270,18 +1270,12 @@ extern GroupItem opForBack(GroupItem arms)
 }
 
 
-// opIterate the iterateOn instruct's unary op (SEQ 486 R2): its operand list holds the cursor, the source and the attributes / members counts; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does; WHILe and ++ / -- do the walking; hands back nothing; retires when a kant action of the same name passes the same rows (iterT)
-extern GroupItem opIterate(GroupItem arms)
+// iterateWalk the walk the four iterate operators share (SEQ 601): the operand list holds the cursor and the source, and the FILTER comes from which operator fired, never from the list; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does
+extern GroupItem iterateWalk(GroupItem arms,int attributes,int members)
 {
 GroupItem   cursor = arms[1],
-            source = arms[2],
-            aMark = arms[3],
-            mMark = arms[4];
-int         attributes,
-            members;
+            source = arms[2];
     if !cursor || !source   return null;
-    if aMark && aMark.gCount    attributes = 1;
-    if mMark && mMark.gCount    members = 1;
     -% if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); %-
     // starRefused a starred source that refused stops here, by its own name
     if !source  return null;
@@ -1290,6 +1284,34 @@ int         attributes,
     if !iterateSetup(cursor,source,attributes,members)
         return refuse(source,"iterate: the source has no list");
     return null;
+}
+
+
+// opIterate the iterateOn instruct's unary op, ITERPLAIn's (SEQ 486 R2; SEQ 601): every entry of the source's list
+extern GroupItem opIterate(GroupItem arms)
+{
+    return iterateWalk(arms,0,0);
+}
+
+
+// opIterateAttrs the iterateAttrs instruct's unary op, ITERATTRs's (SEQ 601): the attributes only
+extern GroupItem opIterateAttrs(GroupItem arms)
+{
+    return iterateWalk(arms,1,0);
+}
+
+
+// opIterateMembers the iterateMembers instruct's unary op, ITERMEMBERs's (SEQ 601): the members only
+extern GroupItem opIterateMembers(GroupItem arms)
+{
+    return iterateWalk(arms,0,1);
+}
+
+
+// opIterateBoth the iterateBoth instruct's unary op, ITERBOTh's (SEQ 601): both filter words written; iterateSetup is handed both, as the hand action handed it both
+extern GroupItem opIterateBoth(GroupItem arms)
+{
+    return iterateWalk(arms,1,1);
 }
 
 

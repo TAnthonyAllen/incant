@@ -3736,6 +3736,24 @@ extern "C" int iterateSetup(GroupItem *iterator, GroupItem *source, int attribut
 	return 1;
 }
 
+// iterateWalk the walk the four iterate operators share (SEQ 601): the operand list holds the cursor and the source, and the FILTER comes from which operator fired, never from the list; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does
+extern "C" GroupItem *iterateWalk(GroupItem *arms, int attributes, int members)
+{
+GroupItem 	*cursor = arms->get(1);
+GroupItem 	*source = arms->get(2);
+	if ( !cursor || !source )
+		return 0;
+	 if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); 
+	// starRefused a starred source that refused stops here, by its own name
+	if ( !source )
+		return 0;
+	// argBinding bare argument reads what it is bound to, as an operator's operand does (R1a)
+	source = ::followArgument(source);
+	if ( !::iterateSetup(cursor,source,attributes,members) )
+		return ::refuse(source,"iterate: the source has no list");
+	return 0;
+}
+
 extern "C" GroupItem *jitAccessorNodeRT(GroupItem *source, GroupItem *product)
 {
 	
@@ -8070,7 +8088,7 @@ extern "C" int jitScanArmsChain(GroupItem *n, int d)
 	if ( op->groupBody->flags.isUnary ) {
 	bool isIf = op->groupBody->tag && !::strcmp(op->groupBody->tag, "ifThen");
 	//  loopCursor a for's or iterate's cursor is a holder, as on the old road: no scalar slot (SEQ 526 S4)
-	if ( op->groupBody->tag && (!::strcmp(op->groupBody->tag, "forLoop") || !::strcmp(op->groupBody->tag, "forBack") || !::strcmp(op->groupBody->tag, "iterateOn")) && a->groupBody->groupList ) {
+	if ( op->groupBody->tag && (!::strcmp(op->groupBody->tag, "forLoop") || !::strcmp(op->groupBody->tag, "forBack") || !::strncmp(op->groupBody->tag, "iterate", 7)) && a->groupBody->groupList ) {
 	GroupItem *cur = a->get(1);
 	if ( cur ) ::jitNoteWriter(0, (isGROUP(cur->groupBody->flags.data) && cur->getGroup()) ? cur->getGroup() : cur, 0); }
 	if ( (void*)a->groupBody->gMethod == (void*)&testOP ) { ::jitScanArmsChain(a, d+1); return 0; }
@@ -10455,30 +10473,28 @@ extern "C" int opIsShortCircuit(GroupItem *op)
 	return 0;
 }
 
-// opIterate the iterateOn instruct's unary op (SEQ 486 R2): its operand list holds the cursor, the source and the attributes / members counts; at RUN it calls iterateSetup -- the one setup both roads share -- and a source with no list refuses as the old road does; WHILe and ++ / -- do the walking; hands back nothing; retires when a kant action of the same name passes the same rows (iterT)
+// opIterate the iterateOn instruct's unary op, ITERPLAIn's (SEQ 486 R2; SEQ 601): every entry of the source's list
 extern "C" GroupItem *opIterate(GroupItem *arms)
 {
-GroupItem 	*cursor = arms->get(1);
-GroupItem 	*source = arms->get(2);
-GroupItem 	*aMark = arms->get(3);
-GroupItem 	*mMark = arms->get(4);
-int 		attributes = 0;
-int 		members = 0;
-	if ( !cursor || !source )
-		return 0;
-	if ( aMark && aMark->groupBody->gCount )
-		attributes = 1;
-	if ( mMark && mMark->groupBody->gCount )
-		members = 1;
-	 if ( (void*)source->groupBody->gMethod == (void*)&testOP ) source = ::testOP(source); 
-	// starRefused a starred source that refused stops here, by its own name
-	if ( !source )
-		return 0;
-	// argBinding bare argument reads what it is bound to, as an operator's operand does (R1a)
-	source = ::followArgument(source);
-	if ( !::iterateSetup(cursor,source,attributes,members) )
-		return ::refuse(source,"iterate: the source has no list");
-	return 0;
+	return ::iterateWalk(arms,0,0);
+}
+
+// opIterateAttrs the iterateAttrs instruct's unary op, ITERATTRs's (SEQ 601): the attributes only
+extern "C" GroupItem *opIterateAttrs(GroupItem *arms)
+{
+	return ::iterateWalk(arms,1,0);
+}
+
+// opIterateBoth the iterateBoth instruct's unary op, ITERBOTh's (SEQ 601): both filter words written; iterateSetup is handed both, as the hand action handed it both
+extern "C" GroupItem *opIterateBoth(GroupItem *arms)
+{
+	return ::iterateWalk(arms,1,1);
+}
+
+// opIterateMembers the iterateMembers instruct's unary op, ITERMEMBERs's (SEQ 601): the members only
+extern "C" GroupItem *opIterateMembers(GroupItem *arms)
+{
+	return ::iterateWalk(arms,0,1);
 }
 
 // opLE the <= operator, on opEQ's shape

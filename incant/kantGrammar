@@ -125,6 +125,12 @@ define
     FOr
         FORBACk     op="forBack" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         FORWARd     op="forLoop" for- followedBy LOOPEr in- EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
+    // iterateShapes a rule's slots never vary (Tony, SEQ 594, SEQ 601): ITERATe is the parent of four fixed shapes, each cursor then source; the filter words are keywords that hand nothing up, and the shape's op carries the filter. The source is an EXPRESSIOn, as FOr's is, so a starred source arrives as its deref instruct. No order matters between them: each fails at the first word that is not its own
+    ITERATe
+        ITERBOTh    op="iterateBoth" iterate- LOOPEr attributes- members- on- EXPRESSIOn;
+        ITERATTRs   op="iterateAttrs" iterate- LOOPEr attributes- on- EXPRESSIOn;
+        ITERMEMBERs op="iterateMembers" iterate- LOOPEr members- on- EXPRESSIOn;
+        ITERPLAIn   op="iterateOn" iterate- LOOPEr on- EXPRESSIOn;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
@@ -143,7 +149,7 @@ define
         SemI;
         BLOCk;
         WARDEd;
-        ITERATe     iterate- ANYtoken attributes? members? on- ITERSOURCe;
+        ITERATe;
         XPRESs;
     STARt STATEMENt-+;
     // fileTop the new road's top level runs one statement at a time: TOPSTATEMENt runs each as it is built; STARt stays build-only (Tony, SEQ 495)
@@ -205,46 +211,6 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // ITERATe only builds (SEQ 486 R2): one instruct, op iterateOn, its operand a mint of [cursor, source, attributes 0/1, members 0/1]; opIterate makes the cursor an iterator when it RUNS (iterateSetup, shared with the old road)
-    ITERATe code={
-        :actionLabel ANYtoken attributes members ITERSOURCe;
-        cursor  := **ANYtoken;
-        // filterSlots the filters ride as two counts in fixed places, so opIterate reads them by position
-        aOn = 0;
-        if attributes.datA != 0;    aOn = 1;
-        mOn = 0;
-        if members.datA != 0;       mOn = 1;
-        :ITERSOURCe ANYtoken;
-        source  := **ANYtoken;
-        // sourceStar a star on the source is built, never dropped: the source becomes a deref instruct, which opIterate runs (2026-11-05)
-        if *ITERSOURCe["UnaryOPS"];
-            derefOp     := Operators["deref"];
-            miArgs      +% derefOp source;
-            source      := makeInstruct(miArgs);
-        // childRefused a cursor or source that handed up nothing refuses by name
-        if cursor.datA == 0;
-            cerr "REFUSED ITERATe -- its cursor handed up nothing":;
-            refusalSaid = 1;
-            clear(*actionLabel);
-            return *actionLabel;
-        if source.datA == 0;
-            cerr "REFUSED ITERATe -- its source handed up nothing":;
-            refusalSaid = 1;
-            clear(*actionLabel);
-            return *actionLabel;
-        iterArms    +% *cursor;
-        iterArms    +% *source;
-        aMint       := copyOf(aOn);
-        mMint       := copyOf(mOn);
-        iterArms    +% *aMint;
-        iterArms    +% *mMint;
-        op := Operators["iterateOn"];
-        armsMint    := copyOf(iterArms);
-        miArgs      +% op armsMint;
-        built       := makeInstruct(miArgs);
-        *actionLabel   := *built;
-        return  *actionLabel;
-        };
     // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1); the refusal lives here, so the loop's default action meets a slot that handed up nothing (SEQ 594 R2)
     LOOPRESTRICt code={
         cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
@@ -296,6 +262,11 @@ define
     // forIsTwoOperators FORBACk (op forBack) and FORWARd (op forLoop) take the default action; opForBack and opFor share forWalk (SEQ 594)
     FORBACk ruleMethod=OPERATOr;
     FORWARd ruleMethod=OPERATOr;
+    // iterateIsFourOperators ITERBOTh, ITERATTRs, ITERMEMBERs and ITERPLAIn take the default action; their four ops share iterateWalk (SEQ 601)
+    ITERBOTh ruleMethod=OPERATOr;
+    ITERATTRs ruleMethod=OPERATOr;
+    ITERMEMBERs ruleMethod=OPERATOr;
+    ITERPLAIn ruleMethod=OPERATOr;
     // ifIsAnOperator If and ELSEIf declare op="ifThen" and take the default action; the slots in order are the condition, the then statement and the else, absent when absent, the order opIf reads (SEQ 592)
     If ruleMethod=OPERATOr;
     ELSEIf ruleMethod=OPERATOr;
