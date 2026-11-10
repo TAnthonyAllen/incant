@@ -94,6 +94,8 @@ define
     stack immediateAction=setInternalType noPrint;
     stop=stopParsingInput immediateAction;
     system immediateAction=runSystem;
+    collect immediateAction=collectNow;
+    poisonProbe immediateAction=gcPoisonProbe;
     showBody immediateAction;
     testing immediateAction;
     testOP immediateAction;

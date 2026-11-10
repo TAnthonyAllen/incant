@@ -359,13 +359,3 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
   respell to `align` when the form is reworked under kant, or with the next touch of the file.
 - **Seen:** 2026-11-03 (forms afternoon track, A1).
 
-### `GroupItem::dispatch()` -- a GCD door with no callers
-- **What/where:** `GroupItem.twk:476` (`void dispatch()`), generated at `GroupItem.mm:757`; hands `this` to
-  `GroupControl::groupController->dispatchQ` with `dispatch_async_f`.
-- **Why it looks deletable:** no caller in any `.twk`, `.rtn`, `.mm`, `incant/` or `IncantForms/` file, and no command
-  registers it. Under GC it is also a hazard if revived: it would run engine code off the main thread, where the
-  single-threaded collector cannot go (F-152) and whose stack it does not scan (docs/gcRecon.md section 3c).
-- **Confirm:** `grep -rn "dispatch()" --include=*.twk --include=*.rtn --include=*.mm . incant IncantForms` -- only the
-  definition and its generated copy (population: the whole tracked tree plus kant files; a call through dlsym would need
-  a registration in `incant/setup`, and there is none).
-- **Seen:** 2026-11-10 (GC recon, SEQ 586).

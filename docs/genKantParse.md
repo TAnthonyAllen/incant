@@ -104,7 +104,7 @@ and **ticks 3 on fire 2** (both run), one compile, no recompile between fires, e
 > return SUCCESS on that row.** A harness asserting the verdict would have certified the eager one.
 >
 > **WHAT IS NOT RETIRED.** ⚠ **The symbol forms**, where this section's argument now stands
-> *measured* rather than argued (`docs/knownErrors.md` KE-5/KE-6, both amended the same day; `&&`
+> *measured* rather than argued (`docs/knownErrors.md` KE-7/KE-6 (KE-7 was KE-5 until 2026-11-10), both amended the same day; `&&`
 > over calls does not answer wrongly, it **kills the parse at 139 with zero output**). And ⚠ **the
 > if-chain template below is NOT deleted** — it is certified, it is the fallback, and it is what the
 > AND chain was measured against. **Which spelling v1 emits is Tony's call, not this file's.**

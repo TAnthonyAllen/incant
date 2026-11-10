@@ -465,7 +465,9 @@ deliberately, since the expected values are exactly what this entry asks Tony to
 
 ---
 
-# KE-5 — `&&` ANSWERS `true && true` AS **false**. The symbol form of AND is not a truth table.
+# KE-7 — `&&` ANSWERS `true && true` AS **false**. The symbol form of AND is not a truth table.
+
+*Numbered KE-5 until 2026-11-10, when the name was found on two entries; renumbered by Tony's ruling (SEQ 588 R5): the collector keeps KE-5. Dated records that say KE-5 for this entry (seals, the 2026-08 wakeup vintages) are left as written.*
 
 **Filed 2026-08-11**, during the AND/OR rung, on Clay's SEQ 32 instruction to file rather than
 widen. **Deliberately NOT repaired** — the rung is scoped to the **word** forms, and widening
@@ -551,7 +553,7 @@ evaluation semantics is a trap in waiting** — a right arm with a side effect b
 depending on which spelling the author reached for, and nothing announces it.
 
 **Repair rung:** drawer item, unscheduled, wants its own charter — and it should be taken
-**together with KE-5**, since both are the same question (do the symbol forms join tier 3) asked
+**together with KE-7** (numbered KE-5 when this was written), since both are the same question (do the symbol forms join tier 3) asked
 about the two different words.
 
 ## ⚠⚠ AMENDED 2026-08-11 (SEQ 49) — **THE DIVERGENCE IS NOT COSMETIC. `||` CONSUMES INPUT NO OPTION MATCHED.**
@@ -576,7 +578,7 @@ consumes input, so an eagerly-evaluated right arm advances the mark past text th
 matched"*). That refusal was right about eager operators and is **retired for the word forms**,
 which now short-circuit; it **stands, and is now measured rather than argued, for the symbols.**
 
-**So the symbols rung's target is tier 3, not `operateMethod`** — see KE-5's amendment, which
+**So the symbols rung's target is tier 3, not `operateMethod`** — see KE-7's amendment (then KE-5), which
 reaches the same conclusion from the other word.
 
 ---

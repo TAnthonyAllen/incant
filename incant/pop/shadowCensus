@@ -43,7 +43,7 @@ define
         alternative to it. `binTypE` is deliberately the same test addGroup
         writes under, so this reader cannot drift from that writer.
         Three sequential ifs and no `&&`: the symbol form of AND answers
-        `true && true` as false on this build (knownErrors KE-5).  */
+        `true && true` as false on this build (knownErrors KE-7).  */
     scDcol code={
         scHas = 0;
         if datA != 0;       scHas = 1;

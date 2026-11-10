@@ -1,0 +1,54 @@
+Start();
+include(utilities);
+registry(GcT);
+define
+    gcV = "copyMe";
+    gcM;
+    gcN = 0;
+    gcFound;
+    gcLoop code={
+        while gcN < 20000;
+            gcM := copyOf(gcV);
+            gcN += 1;
+        };
+    skV = "stakKept";
+    skK stack;
+    skGot;
+    skAgain;
+    skFound;
+    skPush code={
+        skK += copyOf(skV);
+        };
+    gcPoison;
+    ;
+search GcT Utilities list;
+gcLoop();
+gcFound := collect();
+print "GC-1 a copy loop of 20000, then collect: objects found unreachable [" gcFound "]":;
+skPush();
+gcN = 0;
+gcLoop();
+skFound := collect();
+skGot := --skK;
+skAgain := --skK;
+print "GC-2 a node held only on a Stak, after a collection: popped [" skGot "] then [" skAgain "], found [" skFound "]":;
+gcPoison := poisonProbe();
+print "GC-3 poisonProbe, the known-bad end: blocks filled [" gcPoison "] of 16":;
+print "GCT SENTINEL":;
+stop();
+
+gcT -- SEQ 588 (GC stroke 1, Tony, 2026-11-10): the GC instruments' rows, pinned at today's value. pop.sh runs it under
+GCSTRESS=0: the poison armed, no forced collections. Nothing is collectable today (KE-5), so nothing is found.
+
+GC-1  the freeing baseline: 20000 copyOf mints, each garbage after the next pass, then one collect(). collect answers how
+      many poisoned objects the collection found unreachable -- objects, not bytes (gcThreads.mm, gcCollectOnce, says
+      why both byte measures failed). Today 0. BORN TO MOVE on the branch (stroke 2): the node classes register the
+      poison, so the count is the copies the collector found; the H7 is removing the base, which returns it to 0.
+GC-2  a copyOf mint pushed onto a stack field inside an action, so when the action returns nothing but the Stak's calloc'd
+      array holds it; a second loop allocates, collect() runs, then the stack is popped twice. Today "stakKept" then
+      nothing (a tag echo: the stack held one node), found 0. BORN TO MOVE on the branch BEFORE R4: the node is found
+      unreachable, filled with the poison, and the pop reads garbage or faults where it is used. AFTER R4 (Stak arrays
+      allocated uncollectable, so scanned) it reads "stakKept" again -- that pair is R4's H7.
+GC-3  poisonProbe validates the poison and collect's counter against a known-bad end (H16): 16 collectable blocks held
+      only by hidden pointers, one collection through the same counter collect uses; answers how many came back filled.
+      16 today, and it stays 16 on the branch. Its stderr line names what the counter found.

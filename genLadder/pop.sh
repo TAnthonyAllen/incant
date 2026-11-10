@@ -9504,6 +9504,21 @@ _ofeq "systemT a file-writing command answers 1" "$(grep '^ST write ' "$T/st.o" 
 _ofeq "systemT the file it wrote reads back" "$(cat "$T/st.file" 2>/dev/null)" "systemT-wrote"
 else echo "  FAIL  systemT MISSING"; fail=1; fi
 
+#  ⚑ gcT -- SEQ 588 (GC stroke 1, Tony, 2026-11-10): the GC instruments, pinned at today's value. Run under GCSTRESS=0 (the
+#  poison armed, no forced collections). Nothing is collectable (KE-5), so nothing is found. BORN TO MOVE on the stroke-2
+#  branch: GC-1 (the copies found) and GC-2 (before R4 the Stak-only node is poisoned; after R4 it reads stakKept again).
+#  GC-3 is the instrument's own known-bad end and stays 16 everywhere.
+_gcF=$(ip gcT)
+if [ -f "$_gcF" ]; then
+GCSTRESS=0 perl -e 'alarm 30; exec @ARGV' "$B" "$_gcF" > "$T/gc.o" 2> "$T/gc.e"; echo $? > "$T/gc.x"
+_gcv () { sed -n "s/^$1 .*\[ *\([^] ]*\) *\].*/\1/p" "$T/gc.o" | head -1; }
+_ofeq "gcT exit, sentinel" "$(cat "$T/gc.x") $(grep -c '^GCT SENTINEL' "$T/gc.o")" "0 1"
+_ofeq "gcT GC-1 copy loop then collect: objects found (0 today; moves on the stroke-2 branch)" "$(_gcv GC-1)" "0"
+_ofeq "gcT GC-2 Stak-only node after a collection: popped, popped again, found (moves on the branch before R4)" "$(sed -n 's/^GC-2 .*popped \[ *\([^] ]*\) *\] then \[ *\([^] ]*\) *\], found \[ *\([^] ]*\) *\].*/\1 \2 \3/p' "$T/gc.o")" "stakKept skAgain 0"
+_ofeq "gcT GC-3 poisonProbe fills 16 of 16 (the known-bad end; stays 16)" "$(_gcv GC-3)" "16"
+_ofeq "gcT GC-3 collect's counter found the 16 (the counter collect answers with)" "$(grep -c '^=== poisonProbe: of 16 unreachable blocks, collect.s counter found 16, 16 filled ===' "$T/gc.e")" "1"
+else echo "  FAIL  gcT MISSING"; fail=1; fi
+
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then
     exec 2>&3 3>&-

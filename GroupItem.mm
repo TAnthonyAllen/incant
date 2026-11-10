@@ -753,6 +753,11 @@ int 				inDrive = 0;
 /*****************************************************************************
                                 dispatch
 	Run a group method in the dispatch Q
+	PARKED, not dead (Tony, SEQ 588 R0): a feature Tony has used and will use
+	again. A revival must keep engine allocation on the main thread: off it,
+	the collector is unlocked (F-152) and the stack is not scanned
+	(docs/gcRecon.md 3c), so the queued work must hand back to main before it
+	makes or holds a field.
 *****************************************************************************/
 void GroupItem::dispatch()
 {

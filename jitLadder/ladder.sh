@@ -1715,6 +1715,22 @@ jnv=$(sed -n 's/^JN  *\([^ ]*\)  *kind.*/\1/p' "$T/jitJN")
 if [ "$jnv" = "3.25" ]; then echo "  ok    JN compiled = 3.25 (the slots carry the number)"; green=$((green+1))
 else echo "  FAIL  JN compiled '$jnv', want 3.25 (born red SEQ 524: 4 -- i32 slots)"; fail=1; fi
 
+#  JGC -- SEQ 588 (GC stroke 1, 2026-11-10): compile, collect, fire from the cache. After `jitter;` gjCount compiles into
+#  gJitCache at its first call; collect() runs between that and two cached calls. Its iterate bakes an emit-time mint
+#  (iterNode, docs/gcRecon.md 3a). Run under GCSTRESS=0 (poison armed). Today nothing is collectable: GJ-2 0, GJ-3 9 9.
+#  ON THE STROKE-2 BRANCH: GJ-2 moves; GJ-3 must stay 9 9 with R3's per-slot pin list, and removing the list is R3's H7.
+echo "--- rung JGC: compile, collect, fire from the cache"
+GCSTRESS=0 $B "$(ip gcJitT)" > "$T/gcJitT" 2>&1; check "JGC runs" 0 $?
+sentinel "JGC sentinel" "$T/gcJitT" "GCJIT SENTINEL"
+_gjv () { sed -n "s/^$1 .*\[ *\([^] ]*\) *\].*\[ *\([^] ]*\) *\].*/\1 \2/p; s/^$1 [^[]*\[ *\([^] ]*\) *\] *$/\1/p" "$T/gcJitT" | head -1; }
+for _gj in "GJ-1|3 2|first call" "GJ-2|0|objects found unreachable (0 today; moves on the branch)" "GJ-3|9 9|two cached calls after the collection"; do
+    _gk=${_gj%%|*}; _gr=${_gj#*|}; _gw=${_gr%%|*}; _gl=${_gr#*|}
+    if [ "$(_gjv "$_gk")" = "$_gw" ]; then echo "  ok    JGC $_gk $_gl = $_gw"; green=$((green+1))
+    else echo "  FAIL  JGC $_gk $_gl: got '$(_gjv "$_gk")', want $_gw"; fail=1; fi
+done
+if grep -q '^=== jitter: gjCount built 1 called 3 ===' "$T/gcJitT"; then echo "  ok    JGC witness: gjCount built 1 called 3 (the later calls came from the cache)"; green=$((green+1))
+else echo "  FAIL  JGC witness: no 'gjCount built 1 called 3' -- the cached road was not taken"; fail=1; fi
+
 #  A CAPPED FIXTURE FAILS THE LADDER BY NAME, even if every row it fed happened to read green:
 #  its capture is truncated, so nothing read from it is evidence (H5).
 if [ -s "$JITCAPLOG" ]; then
@@ -1727,7 +1743,7 @@ for _mf in "$T"/.missingFixture.*; do
     echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
 done
 rm -f "$JITCAPLOG"
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JD JN + J-R THE PROOF + SLOT: JM1 JM2)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JD JN JGC + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

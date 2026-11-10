@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(GcJitT);
+define
+    gjN=0;
+    gjAcc=0;
+    gjList
+        gjA;
+        gjB;
+        gjC;
+    gjCount code={
+        iterate gjCur on gjList;
+        while ++gjCur;
+            gjN = gjN + 1;
+        gjAcc += argument;
+        };
+    gjFreed;
+    ;
+jitter;
+gjCount(2);
+print "GJ-1 first call, compiled into the cache: gjN [" gjN "] gjAcc [" gjAcc "]":;
+gjFreed := collect();
+print "GJ-2 collect between compile and refire, objects found unreachable [" gjFreed "]":;
+gjCount(3);
+gjCount(4);
+print "GJ-3 two calls fired from the cache after the collection: gjN [" gjN "] gjAcc [" gjAcc "]":;
+print "GCJIT SENTINEL":;
+stop();
+
+gcJitT -- SEQ 588 (GC stroke 1, Tony, 2026-11-10): a JIT rung that compiles, collects, and fires from the cache.
+
+After `jitter;` gjCount compiles at its first call into gJitCache, and every later call fires the cached function.
+Between the compile and the later calls, collect() runs one collection. The iterate bakes a node minted at emit time
+(jitEmitIterStep's iterNode) -- the class of baked address docs/gcRecon.md 3a names the real hazard, because once
+LLVM drops the IR module nothing the collector scans holds it.
+
+GJ-1  first call: three members walked, gjAcc 2.
+GJ-2  objects the collection found unreachable: 0 today (nothing is collectable). Run under GCSTRESS=0 (poison armed,
+      no forced collections); on the branch (stroke 2) it moves.
+GJ-3  two cached calls after the collection: gjN 9, gjAcc 9. Today this holds because nothing is collectable. On the
+      branch, without R3's per-slot pin list, a freed iterNode would be read by the cached code -- under GCSTRESS's
+      poison that faults; with the pin list it holds 9 / 9 again. That is the row R3's H7 reads.
+
+pop.sh also reads the jitter's own exit line (gjCount built 1 called 3), so the row cannot pass on interpreted calls.

@@ -28,8 +28,8 @@ When that happens, the dangerous roots are the JIT's baked addresses, the `Stak`
 
   So the collector runs and frees nothing, which is KE-5 (docs/knownErrors.md, the collector entry)
   measured again.
-  ⚠ **The KE-5 name is taken twice in docs/knownErrors.md**: line 468 is the `&&` truth table,
-  line 914 the collector. Nothing here renames either; flagged for Tony.
+  ⚠ **The KE-5 name was taken twice in docs/knownErrors.md** (the `&&` truth table and the collector).
+  **Ruled SEQ 588 R5: the collector keeps KE-5; the `&&` entry is KE-7.**
 - `GCTHREADS_REPORT=1` on `firstPdfT`: off-main new 1847, off-main delete 1571, collector blocks leaked
   0, main delete of a system block 275. On `oneTest`: all 0. Off-main allocation only happens once
   Apple's PDF and Core Text code runs.
@@ -171,7 +171,9 @@ the safe direction. Their **calloc'd arrays** are the opposite problem (§3c).
   opens while the JIT runs. Under relayout (the GC road's own reason, R2) both will happen together.
 - **Thread stacks other than main**: not scanned (single-threaded libgc). Safe only while no engine
   code runs off-main, the same condition as §2. `GroupItem::dispatch()` (`GroupItem.mm:757`) hands
-  `this` to a GCD queue and **has no callers**. It is on the cleanup list (2026-11-10), not touched.
+  `this` to a GCD queue and **has no callers**. ~~It is on the cleanup list (2026-11-10), not touched.~~
+  **Parked, not dead (Tony, SEQ 588 R0)**: a feature he has used and will use again. Its header in
+  `GroupItem.twk` now says a revival must keep engine allocation on the main thread.
 - **The collector's own blind spot for interior and disguised pointers**: tok code that keeps an
   address as an `int` or `long`, or as `char*` into a node. Only the bake sites were found; not
   searched further.
@@ -237,4 +239,4 @@ The aim is a missed root that crashes **near its cause** instead of later at ran
 2. **Base**: gc_cpp's `gc`, or a `gcEngine` of our own that refuses off-main (§2).
 3. **JIT**: pin baked addresses per cached function (i), or load them from a root table (ii) (§3a).
 4. **Stacks**: allocate the `Stak` / `GroupStak` arrays uncollectable (Frame is the support repo) (§3c).
-5. **KE-5 is two entries** in knownErrors.md; which one keeps the name.
+5. ~~**KE-5 is two entries** in knownErrors.md; which one keeps the name.~~ Ruled (SEQ 588 R5): the collector keeps KE-5, the `&&` entry is KE-7.
