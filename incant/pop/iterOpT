@@ -61,16 +61,19 @@ dh1 := dsrc;
 dh2 := dh1;
 stop();
 
-iterOpT -- SEQ 601 (Tony, 2026-11-10): ITERATe is the parent of four fixed shapes, each an operator built by the default
-action: ITERPLAIn (op iterateOn), ITERATTRs (iterateAttrs), ITERMEMBERs (iterateMembers), ITERBOTh (iterateBoth). Each has
-two slots, the cursor and the source; the filter words hand nothing up and the shape's op carries the filter. The source
+iterOpT -- SEQ 601, SEQ 604 (Tony, 2026-11-10): ITERATe is the parent of three fixed shapes, each an operator built by the
+default action: ITERBOTh (op iterateOn, no filter word: the whole list), ITERATTRs (iterateAttrs), ITERMEMBERs
+(iterateMembers). SEQ 604: a list's entries are each an attribute or a member, so "attributes members" asked for the whole
+list and the plain spelling already says that; the two-word spelling is no shape now, and ITERPLAIn and op iterateBoth are
+gone. Each has two slots, the cursor and the source; the filter words hand nothing up and the shape's op carries the filter. The source
 is an EXPRESSIOn, so a starred source is its deref instruct, and an operator in the source is read as part of the source.
 
 Not run alone: pop.sh appends the row's statements and a sentinel; one process per row under an alarm. Each value reads:
 [stdout, lines joined by |] r<REFUSED lines> adj<the adjacent-operands wording> pre<the prefix-position wording>
 plus<Operator + cannot apply> x<exit> s<sentinel>.
 
-IO-1  both filter words: TODAY walks the attributes only. INTENDED (Tony, SEQ 602 R3): attributes and members. BORN RED, NOT CURED.
+IO-1  the plain walk over a list holding attributes and members: all five, attributes first (SEQ 604; until then this row
+      spelled both filter words and was pinned red at the attributes only).
 IO-2  a filter with a starred source.
 IO-3  an operator before the source: refused today as a list of adjacent operands, then as an operator in a prefix
       position (the source is an EXPRESSIOn now); either way the loop refuses and the next statement runs.
@@ -82,9 +85,11 @@ IO-7  no cursor: TODAY "on" is read as the cursor and nothing refuses. INTENDED 
       next statement runs. BORN RED, NOT CURED.
 IO-8  top level through FILe, a members walk across two calls.
 IO-9  a new-road action body: a members walk, then 6.
+IO-10 both filter words are no shape (SEQ 604): the statement is not an iterate and ++ refuses, as IO-6. Until the build
+      they walked the attributes only.
 
 ROWS, separated by ^ -- id ^ statements ^ value today ^ value intended
-IO-1^it1 = STARt("iterate ic attributes members on fm; while ++ic; print *ic:;"); testOP(it1); print 9:;^[7 |8 |9 |] r0 adj0 pre0 plus0 x0 s1^[7 |8 |4 |5 |6 |9 |] r0 adj0 pre0 plus0 x0 s1
+IO-1^it1 = STARt("iterate ic on fm; while ++ic; print *ic:;"); testOP(it1); print 9:;^[7 |8 |4 |5 |6 |9 |] r0 adj0 pre0 plus0 x0 s1^[7 |8 |4 |5 |6 |9 |] r0 adj0 pre0 plus0 x0 s1
 IO-2^it1 = STARt("iterate ic attributes on *hs; while ++ic; print *ic:;"); testOP(it1); print 9:;^[1 |2 |3 |9 |] r0 adj0 pre0 plus0 x0 s1^[1 |2 |3 |9 |] r0 adj0 pre0 plus0 x0 s1
 IO-3^it1 = STARt("iterate ic on / fsrc; while ++ic; print *ic:;"); testOP(it1); print 9:;^[9 |] r2 adj1 pre0 plus0 x0 s1^[9 |] r2 adj0 pre1 plus0 x0 s1
 IO-4^it1 = STARt("iterate ic on fsrc + 1; while ++ic; print *ic:;"); testOP(it1); print 9:;^[1 |2 |3 |9 |] r1 adj0 pre1 plus0 x0 s1^[9 |] r1 adj0 pre0 plus1 x0 s1
@@ -93,3 +98,4 @@ IO-6^it1 = STARt("iterate ic members attributes on fm; while ++ic; print *ic:;")
 IO-7^it1 = STARt("iterate on fsrc; print 5:;"); testOP(it1); print 9:;^[5 |9 |] r0 adj0 pre0 plus0 x0 s1^[5 |9 |] r1 adj0 pre0 plus0 x0 s1
 IO-8^it1 = FILe("iterate ic members on fm;"); it1 = FILe("while ++ic; print 4:;"); print 9:;^[4 |4 |4 |9 |] r1 adj0 pre0 plus0 x0 s1^[4 |4 |4 |9 |] r1 adj0 pre0 plus0 x0 s1
 IO-9^ioNew(ioN); ioN(); print 9:;^[4 |5 |6 |6 |9 |] r0 adj0 pre0 plus0 x0 s1^[4 |5 |6 |6 |9 |] r0 adj0 pre0 plus0 x0 s1
+IO-10^it1 = STARt("iterate ic attributes members on fm; while ++ic; print *ic:;"); testOP(it1); print 9:;^[7 |8 |9 |] r0 adj0 pre0 plus0 x0 s1^[9 |] r1 adj0 pre0 plus0 x0 s1

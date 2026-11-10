@@ -1127,7 +1127,8 @@ done < "$T/bo.list"
 _ofeq "branchOpT rows ran (5 of 5)" "$_bon" "5"
 else echo "  FAIL  branchOpT MISSING"; fail=1; fi
 
-#  ⚑ iterOpT -- SEQ 601 (Tony, 2026-11-10): ITERATe as four fixed shapes, each an operator built by the default action. One process per
+#  ⚑ iterOpT -- SEQ 601 (Tony, 2026-11-10): ITERATe as fixed shapes, each an operator built by the default action; three since SEQ 604
+#  (ITERBOTh is the plain walk; both filter words are no shape, IO-10). One process per
 #  row under an alarm; value = [stdout] r<REFUSED lines> adj / pre / plus <three wordings> x<exit> s<sentinel>; today beside intended.
 _ioF=$(ip iterOpT)
 if [ -f "$_ioF" ]; then
@@ -1140,7 +1141,7 @@ while IFS='^' read -r _id _st _tv _iv; do
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/io.$_id.k" > "$T/io.$_id.o" 2> "$T/io.$_id.e"; _iox=$?
     fdRow "iterOpT $_id" "[$(grep -v '^stop: \|^Search list: \|^Assign at end\|^===\|^ *$' "$T/io.$_id.o" | tr '\n' '|')] r$(grep -c '^REFUSED' "$T/io.$_id.e") adj$(grep -c 'a list of adjacent operands' "$T/io.$_id.e") pre$(grep -c 'in a prefix position with no target' "$T/io.$_id.e") plus$(grep -c 'Operator + -- cannot apply' "$T/io.$_id.e") x$_iox s$(grep -c 'IO SENTINEL' "$T/io.$_id.e")" "$_tv" "$_iv"
 done < "$T/io.list"
-_ofeq "iterOpT rows ran (9 of 9)" "$_ion" "9"
+_ofeq "iterOpT rows ran (10 of 10)" "$_ion" "10"
 else echo "  FAIL  iterOpT MISSING"; fail=1; fi
 
 #  ⚑ notBuiltT -- SEQ 599 A0 (Tony, 2026-11-10): the ten reserved Operators entries refuse by name between two operands, both roads,
@@ -8011,15 +8012,17 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  Operators' entries, and forBack (the reverse for's own op) is one more.
 #  REGISTERED SEQ 603 (Tony, 2026-11-10): four entries (breakSignal, continueSignal, returnValue, returnSignal) replace branchSignal, three more:
 #  276 for 273 and 74 for 71. A count of the registry, not behaviour.
+#  REGISTERED SEQ 604 (Tony, 2026-11-10): iterateBoth leaves Operators (ITERBOTh is the plain walk, op iterateOn), one fewer: 275 for 276
+#  and 73 for 74. A count of the registry, not behaviour.
 #  REGISTERED SEQ 601 (Tony, 2026-11-10): three more Operators entries (iterateAttrs, iterateMembers, iterateBoth), so every walk of
 #  Operators reads 273 for 270 (itRT, jitCursorLifeT, itBackRT) and its length 71 for 68 (opEntryT). A count of the registry, not behaviour.
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "273" "276"
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "276" "275"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "273" "276"
+fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "276" "275"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -8035,8 +8038,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "273 6" "276 6"
-fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "273" "276"
+fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "276 6" "275 6"
+fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "276" "275"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -8052,12 +8055,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "273" "276"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "276" "275"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "273" "276"
+fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "276" "275"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -9274,7 +9277,7 @@ sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
 #  RE-PINNED 2026-10-30 (SEQ 492 R2, branch command-call): 63 -> 64 -- call is registered in Operators (SEQ 492).
 #  OE-R RE-PINNED 2026-10-31 (SEQ 496): 64 -> 66 -- cerrList and coutList are registered in Operators
 #  OE-R RE-PINNED 2026-11-03 (SEQ 516): 66 -> 67 -- bodySeq is registered in Operators (control: the bodySeq line removed, 66 again)
-fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "71" "74"
+fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "74" "73"
 kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
 kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
