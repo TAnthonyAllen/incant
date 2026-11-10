@@ -125,12 +125,11 @@ define
     FOr
         FORBACk     op="forBack" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         FORWARd     op="forLoop" for- followedBy LOOPEr in- EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
-    // iterateShapes a rule's slots never vary (Tony, SEQ 594, SEQ 601): ITERATe is the parent of four fixed shapes, each cursor then source; the filter words are keywords that hand nothing up, and the shape's op carries the filter. The source is an EXPRESSIOn, as FOr's is, so a starred source arrives as its deref instruct. No order matters between them: each fails at the first word that is not its own
+    // iterateShapes a rule's slots never vary (Tony, SEQ 594, SEQ 601): ITERATe is the parent of three fixed shapes, each cursor then source; the filter words are keywords that hand nothing up, and the shape's op carries the filter. ITERBOTh is the walk with no filter word (SEQ 604): a list's entries are each an attribute or a member, so both is the whole list, and writing both words is no shape. The source is an EXPRESSIOn, as FOr's is, so a starred source arrives as its deref instruct. No order matters between them: each fails at the first word that is not its own
     ITERATe
-        ITERBOTh    op="iterateBoth" iterate- LOOPEr attributes- members- on- EXPRESSIOn;
+        ITERBOTh    op="iterateOn" iterate- LOOPEr on- EXPRESSIOn;
         ITERATTRs   op="iterateAttrs" iterate- LOOPEr attributes- on- EXPRESSIOn;
         ITERMEMBERs op="iterateMembers" iterate- LOOPEr members- on- EXPRESSIOn;
-        ITERPLAIn   op="iterateOn" iterate- LOOPEr on- EXPRESSIOn;
     // branchShapes a rule's slots never vary (Tony, SEQ 594, SEQ 603): BRANCh is the parent of four fixed shapes; the keyword hands nothing up and the shape's op carries the signal. break, continue and a bare return have no slot; return with a value has one, the value. The two return shapes land right in either order: each fails where the other matches
     BRANCh
         BREAk       op="breakSignal" break- SemI-;
@@ -273,11 +272,10 @@ define
     CONTINUe ruleMethod=OPERATOr;
     RETURNVALUe ruleMethod=OPERATOr;
     RETURn ruleMethod=OPERATOr;
-    // iterateIsFourOperators ITERBOTh, ITERATTRs, ITERMEMBERs and ITERPLAIn take the default action; their four ops share iterateWalk (SEQ 601)
+    // iterateIsThreeOperators ITERBOTh, ITERATTRs and ITERMEMBERs take the default action; their three ops share iterateWalk (SEQ 601, SEQ 604)
     ITERBOTh ruleMethod=OPERATOr;
     ITERATTRs ruleMethod=OPERATOr;
     ITERMEMBERs ruleMethod=OPERATOr;
-    ITERPLAIn ruleMethod=OPERATOr;
     // ifIsAnOperator If and ELSEIf declare op="ifThen" and take the default action; the slots in order are the condition, the then statement and the else, absent when absent, the order opIf reads (SEQ 592)
     If ruleMethod=OPERATOr;
     ELSEIf ruleMethod=OPERATOr;

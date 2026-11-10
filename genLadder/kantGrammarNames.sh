@@ -25,7 +25,7 @@ ctl TOKENize found; ctl if found; ctl If absent
 #  the renamed rules + the registry's own name: none may be found
 NEW="EXPRESSIOn STATEMENt ELSe SHORTCUt ANYSTRINg BLOCk BRANCHEs PRECISIOn FORMAt PRINTXp PRINTFIELd ITERSOURCe INVOKEARg
 BRACEd PARENs ANYORNUm TOKEn STRINGXp SCOPEFIELd LOOPEr LOOPRESTRICt BASICELSe ELSEIf WARDEd DEBUg DEf Do If FOr WHILe
-PRINt CERr COUt SEARCh BRANCh SCOPEXp XPRESs ITERATe ITERBOTh ITERATTRs ITERMEMBERs ITERPLAIn BREAk CONTINUe RETURNVALUe RETURn STARt KantGrammar"
+PRINt CERr COUt SEARCh BRANCh SCOPEXp XPRESs ITERATe ITERBOTh ITERATTRs ITERMEMBERs BREAk CONTINUe RETURNVALUe RETURn STARt KantGrammar"
 nn=0; nc=0
 for n in $NEW; do nn=$((nn+1)); w=$(where "$n"); [ -n "$w" ] && { echo "  FAIL  COLLISION $n in $w"; nc=$((nc+1)); fail=1; }
     grep -qE "^(KGNEW|KGKID) +$n *$" "$T/load" || [ "$n" = KantGrammar ] || { echo "  FAIL  $n not registered by the load"; fail=1; }; done

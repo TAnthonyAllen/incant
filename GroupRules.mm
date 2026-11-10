@@ -10463,7 +10463,7 @@ extern "C" int opIsShortCircuit(GroupItem *op)
 	return 0;
 }
 
-// opIterate the iterateOn instruct's unary op, ITERPLAIn's (SEQ 486 R2; SEQ 601): every entry of the source's list
+// opIterate the iterateOn instruct's unary op, ITERBOTh's (SEQ 486 R2; SEQ 601; SEQ 604): every entry of the source's list, attributes and members
 extern "C" GroupItem *opIterate(GroupItem *arms)
 {
 	return ::iterateWalk(arms,0,0);
@@ -10473,12 +10473,6 @@ extern "C" GroupItem *opIterate(GroupItem *arms)
 extern "C" GroupItem *opIterateAttrs(GroupItem *arms)
 {
 	return ::iterateWalk(arms,1,0);
-}
-
-// opIterateBoth the iterateBoth instruct's unary op, ITERBOTh's (SEQ 601): both filter words written; iterateSetup is handed both, as the hand action handed it both
-extern "C" GroupItem *opIterateBoth(GroupItem *arms)
-{
-	return ::iterateWalk(arms,1,1);
 }
 
 // opIterateMembers the iterateMembers instruct's unary op, ITERMEMBERs's (SEQ 601): the members only

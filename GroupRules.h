@@ -429,7 +429,6 @@ extern "C" int opIsOR(GroupItem *op);
 extern "C" int opIsShortCircuit(GroupItem *op);
 extern "C" GroupItem *opIterate(GroupItem *arms);
 extern "C" GroupItem *opIterateAttrs(GroupItem *arms);
-extern "C" GroupItem *opIterateBoth(GroupItem *arms);
 extern "C" GroupItem *opIterateMembers(GroupItem *arms);
 extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target);

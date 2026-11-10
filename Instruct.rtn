@@ -1287,7 +1287,7 @@ GroupItem   cursor = arms[1],
 }
 
 
-// opIterate the iterateOn instruct's unary op, ITERPLAIn's (SEQ 486 R2; SEQ 601): every entry of the source's list
+// opIterate the iterateOn instruct's unary op, ITERBOTh's (SEQ 486 R2; SEQ 601; SEQ 604): every entry of the source's list, attributes and members
 extern GroupItem opIterate(GroupItem arms)
 {
     return iterateWalk(arms,0,0);
@@ -1305,13 +1305,6 @@ extern GroupItem opIterateAttrs(GroupItem arms)
 extern GroupItem opIterateMembers(GroupItem arms)
 {
     return iterateWalk(arms,0,1);
-}
-
-
-// opIterateBoth the iterateBoth instruct's unary op, ITERBOTh's (SEQ 601): both filter words written; iterateSetup is handed both, as the hand action handed it both
-extern GroupItem opIterateBoth(GroupItem arms)
-{
-    return iterateWalk(arms,1,1);
 }
 
 
