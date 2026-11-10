@@ -443,7 +443,7 @@ DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as
     6  setFrame finished -- Tony's 2026-11-07 design: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, and a resize re-runs it from the revised top frame. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (The 2026-11-07 SECOND RUN and SECOND-RUN DESIGN items above point here.)
     7  Runs inside text -- {style: text}, {name} insertion, a paragraph poured into a field, one fresh layout context per pass, in kant. The first typesetting step.
          Moved here (open question 4): emphasis inside a paragraph whose style comes from its framing field.
-    8  The descriptions form as a PDF layout test.
+    8  The descriptions form as a PDF layout test. STARTED 2026-11-10 (SEQ 606 recon, 607-609): the form is respelled and draws -- heading, two images side by side (displayImage, fit fill: cover, centred, cropped), describeHelp showing its describe attribute; an image field's text is its description and is not drawn. Not built: the click that shows a picture's text (needs selection and windows, step 10), an attribute naming a fit, the image in a PDF as a row.
     9  Rounded fields; a side on a rounded field is decided here.
          Moved here (open question 8, Tony, 2026-11-04): a side on a rounded field stays OPEN until a side can be drawn on one. 7 of the 12 side-asking fields are also rounded, and Bot drew sides only when the field was neither rounded nor bordered (Bot/PDF.twk, read, not run).
     10 Windows -- assess and plan first; images and field actions come with it.

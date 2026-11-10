@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2090544 bytes  Nov 10 15:19
+  bin   2091040 bytes  Nov 10 15:55
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -104,5 +104,26 @@
   ok    firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify points = [centred edge edge short]
   ok    firstPdfT PD-9 the read-back: ok's ink centred top to bottom in its frame = [centred]
   ok    firstPdfT PD-10 the PDF agrees with the bitmap on ok's first and last ink rows, within 1 = [agree]
+-- the descriptions form: forms step 8, baby steps.
+  ok    descT exit / sentinel = [0 1]
+  ok    descT DE-1 ACROSS: saber and trees side by side, each half of second (flex is gone, across is written) = [250x275 at 500,250 / 250x275 at 750,250]
+  ok    descT DE-2 the heading's text: titleFont, white, centred both ways (font:= color:= align valign) = [font Palatino 24 1 color r255 g255 b255 valign center align center]
+  ok    descT DE-3 FILLS (fill:=): first lightGreen (10,10), describeHelp lightGreen (100,550) = [r175 g211 b120 a255/r175 g211 b120 a255]
+  ok    descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' left (250,300), describeHelp's top (100,325), black = [r0 g0 b0 a255/r0 g0 b0 a255/r0 g0 b0 a255]
+  ok    descT DE-5 no refusal and no colour error (the form includes styles itself) = [0]
+  ok    descT DE-6 the registry's saber after the form's define (R1: one field, the form's text) = [Saber from Fate Stay Night]
+  ok    descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text = [61 of 61]
+  ok    descT DE-8 IMAGE TEXT: displayText is called for describeHead and describeHelp, never for saber or trees = [describeHead describeHelp]
+  ok    tester's six describe lines across the move to utilities (R6), md5 = [556d248688d4ae5418d9c134712a5f6a 6]
+  ok    descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray = [saber fit fill trees fit fill / image image]
+-- the first image: forms step 8.
+  ok    imageT exit / sentinel = [0 1]
+  ok    imageT IM-1 FILL: imSquare shows the image's middle -- red (30,60), blue (90,60), and no green at its edges (12,60) (107,60) = [red blue red blue]
+  ok    imageT IM-2 UPRIGHT: the image's white rows at the top (60,20), colour at the bottom (30,100) = [white red]
+  ok    imageT IM-3 CLIPPED at the frame: (5,60) and (60,112) read the top's white = [white white]
+  ok    imageT IM-4 a wide frame crops top and bottom: green red blue green at y=22; the border drawn over the image (170,10) = [green red blue green black]
+  ok    imageT IM-5 the trace: imSquare 40x20 drawn 200x100 at -40,10; imWide drawn 100x50 at 120,-2.5 = [imSquare pixels 40x20 fit fill drawn 200x100 at -40,10;imWide pixels 40x20 fit fill drawn 100x50 at 120,-2.5;]
+  ok    imageT IM-6 REFUSALS by name: an unreadable file, an unknown fit, no display (count of each), and imMissing's own fill still drawn = [1 1 1 r241 g241 b241]
+  ok    imageT IM-7 an image field's text is not drawn: displayText calls = [0]
 
-FORMS POP FAILED -- 94 green, see above
+FORMS POP FAILED -- 113 green, see above
