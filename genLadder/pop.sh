@@ -1026,6 +1026,26 @@ done < "$T/fo.list"
 _ofeq "forOpT rows ran (9 of 9)" "$_fon" "9"
 else echo "  FAIL  forOpT MISSING"; fail=1; fi
 
+#  ⚑ arrowExprT -- SEQ 595 R2 (Tony, 2026-11-10): PINNED, NOT CURED. A <- with no target inside an ordinary expression: the old road
+#  refuses by name, the new road drops it silently and uses the operand. One process per row per road; intended = the old road.
+_axF=$(ip arrowExprT)
+if [ -f "$_axF" ]; then
+sed '/^stop();/,$d' "$_axF" > "$T/ax.pre"
+grep '^AX-[0-9]*\^' "$_axF" > "$T/ax.list"
+_axn=0
+_axv () { echo "$(grep -v '^stop: \|^Search list: \|^ *$' "$1.o" | tr '\n' '|') / $(grep -c '^REFUSED <- ' "$1.e")"; }
+while IFS='^' read -r _id _st _oo _or _no _nr; do
+    _axn=$((_axn+1))
+    { cat "$T/ax.pre"; printf '%s\nprint "Q":;\ncerr "AX SENTINEL":;\nstop();\n' "$_st"; } > "$T/ax.$_id.o.k"
+    { cat "$T/ax.pre"; printf 'it1 = FILe("%s");\nprint "Q":;\ncerr "AX SENTINEL":;\nstop();\n' "$_st"; } > "$T/ax.$_id.n.k"
+    for _r in o n; do perl -e 'alarm 20; exec @ARGV' "$B" "$T/ax.$_id.$_r.k" > "$T/ax.$_id.$_r.o" 2> "$T/ax.$_id.$_r.e"; echo $? > "$T/ax.$_id.$_r.x"; done
+    _ofeq "arrowExprT $_id exit, sentinel, old | new" "$(cat "$T/ax.$_id.o.x") $(grep -c '^AX SENTINEL' "$T/ax.$_id.o.e") | $(cat "$T/ax.$_id.n.x") $(grep -c '^AX SENTINEL' "$T/ax.$_id.n.e")" "0 1 | 0 1"
+    _ofeq "arrowExprT $_id old road (control): stdout / REFUSED <- lines" "$(_axv "$T/ax.$_id.o")" "$_oo / $_or"
+    fdRow "arrowExprT $_id new road: stdout / REFUSED <- lines (intended: the old road's)" "$(_axv "$T/ax.$_id.n")" "$_no / $_nr" "$_oo / $_or"
+done < "$T/ax.list"
+_ofeq "arrowExprT rows ran (5 of 5)" "$_axn" "5"
+else echo "  FAIL  arrowExprT MISSING"; fail=1; fi
+
 #  ============================================================================
 #  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through
 #  the rule door. Per row one process interpreted and one with jitterRule(<rule>);. Value, exit and sentinel compiled = interpreted
@@ -1056,7 +1076,9 @@ else echo "  FAIL  ruleXpresT MISSING"; fail=1; fi
 #  SEQ 594 REGISTERED: FOr becomes the parent of FORBACk and FORWARd, and a parent has no body for the door to compile (jitterRule(FOr)
 #  reads "built 0 fired 0", measured in the dry run). _rfArm is the compiled arm's opt-in line: pinned here at jitterRule(FOr);, and the
 #  cure sets it to the two rules. The door rows read the fired counts SUMMED over the two; the walk line is OPERATOr's, once per rule.
-_rfArm="jitterRule(FORBACk); jitterRule(FORWARd);"
+#  SEQ 595 R0 REGISTERED: jitterRule on a parent with no body opts in each child rule, so the arm goes back to jitterRule(FOr); and its
+#  built and fired counts equal the two-rule spelling's. On trunk today a parent builds nothing: the door and walk rows are born red at 0.
+_rfArm="jitterRule(FOr);"
 #  CORRECTED AT THE CURE (two slips in the rows commit, 941b3905): the sum used \| inside sed, which macOS sed does not take (it read 0);
 #  and the walk line was registered at 2 per row, but a rule's walk line prints when that rule first FIRES, so a row reads one line per
 #  rule it fired -- 2 on RF-8 (backwards then forwards), 1 on every other row.
@@ -1080,9 +1102,9 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     _ofeq "ruleForT $_id interpreted value" "$(_rdv "$T/rf.$_id.i.o")" "${_pin}NEXT |"
     _ofeq "ruleForT $_id compiled = interpreted, stdout" "$(_rdv "$T/rf.$_id.c.o")" "$(_rdv "$T/rf.$_id.i.o")"
     _ofeq "ruleForT $_id compiled = interpreted, stderr" "$(_rfe "$T/rf.$_id.c.e")" "$(_rfe "$T/rf.$_id.i.e")"
-    fdRow "ruleForT $_id through the door: FOr built 1 fired $_f | FORBACk and FORWARd fired, summed" "$(grep -c "^=== jitter rule: FOr built 1 fired $_f ===" "$T/rf.$_id.c.e") | $(_rfsum "$T/rf.$_id.c.e")" "1 | 0" "0 | $_f"
+    fdRow "ruleForT $_id through the door, jitterRule(FOr): FORBACk and FORWARd fired, summed" "$(_rfsum "$T/rf.$_id.c.e")" "0" "$_f"
     _rfk=1; [ "$_id" = RF-8 ] && _rfk=2
-    fdRow "ruleForT $_id walk line: FOr native 9 handed 9 | native 3 handed 8, one line per rule fired" "$(grep -c '^=== jitter rule walk: FOr native 9 handed 9 ===' "$T/rf.$_id.c.e") | $(grep -c '^=== jitter rule walk: FOR\(BACk\|WARd\) native 3 handed 8 ===' "$T/rf.$_id.c.e")" "1 | 0" "0 | $_rfk"
+    fdRow "ruleForT $_id walk line native 3 handed 8, one line per rule fired" "$(grep -c '^=== jitter rule walk: FOR\(BACk\|WARd\) native 3 handed 8 ===' "$T/rf.$_id.c.e")" "0" "$_rfk"
     #  F-146 REGISTERED (SEQ 567 R2): the guard goes, so every row's intended is 0; RF-O reads 1 today
     fdRow "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g" "0"
     #  SEQ 594 REGISTERED: RF-S and RF-O move to FORWARd's slot names; RF-R keeps today's wording (LOOPRESTRICt's own action) and the
@@ -1095,6 +1117,11 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     esac
 done < "$T/rf.list"
 _ofeq "ruleForT rows ran (12 of 12)" "$_rfn" "12"
+#  SEQ 595 R0: the parent itself is not opted (no line for FOr at exit); and a rule with neither a body nor child rules refuses by name
+#  (today it is opted silently and reports built 0 fired 0)
+fdRow "ruleForT jitterRule(FOr): exit lines naming FOr itself | FORBACk | FORWARd (RF-1)" "$(grep -c '^=== jitter rule: FOr built' "$T/rf.RF-1.c.e") | $(grep -c '^=== jitter rule: FORBACk built' "$T/rf.RF-1.c.e") | $(grep -c '^=== jitter rule: FORWARd built' "$T/rf.RF-1.c.e")" "1 | 0 | 0" "0 | 1 | 1"
+_rfrun nb "jitterRule(BASICELSe);" 'print 5:;'
+fdRow "ruleForT jitterRule on a rule with neither a body nor child rules: refused by name | its exit line | the next statement" "$(grep -c '^REFUSED BASICELSe -- jitterRule: a rule with neither a body nor child rules' "$T/rf.nb.e") | $(grep -c '^=== jitter rule: BASICELSe built' "$T/rf.nb.e") | $(_rdv "$T/rf.nb.o")" "0 | 1 | 5 |NEXT |" "1 | 0 | 5 |NEXT |"
 #  SEQ 559: what the fire ADOPTS when the source arm refuses: nothing, on both arms. A value row cannot see it: a native +% that did not end the rule adopted its label with the same stdout
 _rfs='it1 = "untouched"; it1 = FOr("for lp in qa qb + 1; print 1:;"); dumpContents(it1);'
 _rfrun adI "" "$_rfs"; _rfrun adC "jitterRule(FOr);" "$_rfs"

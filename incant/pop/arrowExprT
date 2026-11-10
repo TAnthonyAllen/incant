@@ -1,0 +1,44 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ArrowExprT);
+define
+    qa=2;
+    qb=3;
+    qr=0;
+    it1;
+    ;
+search ArrowExprT Utilities UnitTests list;
+stop();
+
+arrowExprT -- SEQ 595 R2 (Tony, 2026-11-10): PIN, DO NOT CURE. A <- with nothing on its left, inside an ordinary
+expression. The old road refuses it by name ("an operator in a prefix position with no target", SEQ 347 R4) and the
+statement stores or prints nothing. The new road drops the <- silently and uses the operand: this is why FORBACk must
+sit before FORWARd (a forward for would take `<- source` as its source and run forwards). Intended on the new road:
+refused by name, the old road's value. The cure is its own later stroke. Rows prefixed AX-.
+
+Not run alone: pop.sh runs each row twice, one process each: on the old road (the statements at top level) and on the
+new road (the same statements through FILe), then print "Q" and a sentinel. Each reads exit and sentinel, stdout
+(lines joined by |), and the count of REFUSED lines naming <-.
+
+AX-1  an assignment's right side.        AX-2  a print item.        AX-3  a condition (neither arm on the old road).
+AX-4  after another operand, still with no target of its own.
+AX-5  control: an ordinary rebind, x <- y, is not refused on either road.
+
+ROWS, separated by ^ -- id ^ statements ^ old road stdout ^ old road REFUSED <- lines ^ new road stdout today ^ new road REFUSED <- lines today
+AX-1^qr = <- qb; print qr:;^0 |Q |^1^3 |Q |^0
+AX-2^print <- qb:;^Q |^1^3 |Q |^0
+AX-3^if <- qa; print 1:; else print 2:;^Q |^1^1 |Q |^0
+AX-4^qr = qa + <- qb; print qr:;^0 |Q |^1^5 |Q |^0
+AX-5^qr <- qb; print *qr:;^3 |Q |^0^3 |Q |^0
