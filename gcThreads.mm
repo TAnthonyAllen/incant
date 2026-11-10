@@ -194,3 +194,9 @@ extern "C" GroupItem *gcPoisonProbe(GroupItem *)
     answer->setCount(filled);
     return answer;
 }
+
+//  heapBase GC_base for jitContext.h's pin list (GC stroke 2, R3): the start of the collector block p points into, or 0
+extern "C" void *gcHeapBase(void *p)
+{
+    return GC_base(p);
+}

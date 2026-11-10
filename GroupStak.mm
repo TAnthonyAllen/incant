@@ -1,7 +1,6 @@
 #include <Cocoa/Cocoa.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "OCroutines.h"
 #include "GroupItem.h"
 #include "GroupList.h"
@@ -19,11 +18,15 @@ GroupStak::GroupStak(GroupItem *g)
 	length = 0;
 	size = 0;
 	entry = 0;
+	start = 0;
 	stakSource = g;
 	if ( !g->groupBody->groupList || !g->groupBody->groupList->listLength )
 		size = 100;
 	else	size = g->groupBody->groupList->listLength + 10;
-	start = (GroupItem**)::calloc(size,sizeof(GroupItem*));
+	
+	start = (GroupItem**)::operator new(size * sizeof(GroupItem*));
+	::memset(start,0,size * sizeof(GroupItem*));
+	
 	end = start;
 	if ( g->groupBody->groupList )
 		resetStak();
@@ -216,8 +219,15 @@ GroupItem 	*part = 0;
 *****************************************************************************/
 void GroupStak::resize()
 {
+	
+	int oldSize = size;
 	size = stakSource->groupBody->groupList->listLength + 10;
-	start = (GroupItem**)::reallocf((void*)start,size * sizeof(void*));
+	GroupItem **grown = (GroupItem**)::operator new(size * sizeof(GroupItem*));
+	::memset(grown,0,size * sizeof(GroupItem*));
+	::memcpy(grown,start,(oldSize < size ? oldSize : size) * sizeof(GroupItem*));
+	::operator delete(start);
+	start = grown;
+	
 	end = start + length;
 	*end = 0;
 	entry = 0;

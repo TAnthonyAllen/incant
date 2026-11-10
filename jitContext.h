@@ -580,8 +580,42 @@ inline llvm::Function *jitFnMapFind(GroupBody *b) {
 // (docs/jitterRecon.md (d), re-measured 2026-10-19). If redefinition ever lands, this
 // cache owes it an answer. Keyed on GroupBody, like the map above; written only by
 // jitRunAction, after the lookup succeeds.
-struct JitCacheSlot { GroupBody *body; std::string name; int (*fn)(GroupItem*); };
+//
+// THE PIN LIST (GC stroke 2, R3, SEQ 589). `pins` holds every collector object the slot's code bakes in as an
+// address: once LLVM drops the module, the immediate in the machine code is the only reference to an emit-time mint
+// (docs/gcRecon.md 3a), and the collector does not scan code. The vector's storage comes from gcThreads.mm's new, so
+// on the main thread it is uncollectable and scanned, and what it lists lives as long as the slot -- for the life of
+// the process. Filled by jitPinsOf before addIRModule moves the module away: every 64-bit integer constant in the
+// function, ConstantExprs opened, kept when GC_base finds it inside a collector block (the block's base is kept, so
+// an address into a body pins the body). A constant that only happens to look like a heap address pins one block
+// too many, which is the safe direction. Function addresses are not collector blocks and are dropped.
+struct JitCacheSlot { GroupBody *body; std::string name; int (*fn)(GroupItem*); std::vector<void*> pins; };
 inline std::vector<JitCacheSlot> gJitCache;
+
+//  heapBase gcThreads.mm's GC_base, so this header needs no collector include
+extern "C" void *gcHeapBase(void *p);
+
+inline void jitPinConstant(llvm::Constant *c, std::set<void*> &out, std::set<llvm::Constant*> &seen) {
+    if (!seen.insert(c).second) return;
+    if (auto *ci = llvm::dyn_cast<llvm::ConstantInt>(c)) {
+        if (ci->getBitWidth() == 64)
+            if (void *b = gcHeapBase((void*)(uintptr_t)ci->getZExtValue())) out.insert(b);
+        return; }
+    if (llvm::isa<llvm::GlobalValue>(c)) return;
+    for (llvm::Use &u : c->operands())
+        if (auto *k = llvm::dyn_cast<llvm::Constant>(u.get())) jitPinConstant(k, out, seen);
+}
+
+//  pinsOf the collector objects one function's code bakes in (see THE PIN LIST above)
+inline std::vector<void*> jitPinsOf(llvm::Function *f) {
+    std::set<void*> out;
+    std::set<llvm::Constant*> seen;
+    for (llvm::BasicBlock &bb : *f)
+        for (llvm::Instruction &in : bb)
+            for (llvm::Use &u : in.operands())
+                if (auto *k = llvm::dyn_cast<llvm::Constant>(u.get())) jitPinConstant(k, out, seen);
+    return std::vector<void*>(out.begin(), out.end());
+}
 
 inline JitCacheSlot *jitCacheFind(GroupBody *b) {
     for (JitCacheSlot &s : gJitCache) if (s.body == b) return &s;

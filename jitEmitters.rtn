@@ -4698,6 +4698,10 @@ extern int jitRunAction(GroupItem action)
     for (JitFnSlot &s : gJitFnMap)
         if (!s.fn->isDeclaration()) defined.push_back({s.body, s.fn->getName().str()});
     defined.push_back({action->groupBody, driverName});
+    //  pinList what each defined function bakes in, read now -- the module moves into the JIT below (GC stroke 2, R3)
+    std::map<std::string,std::vector<void*>> pinsByName;
+    for (auto &d : defined)
+        if (llvm::Function *pf = mod->getFunction(d.second)) pinsByName[d.second] = jitPinsOf(pf);
 
     if (auto err = jit->addIRModule(
             llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
@@ -4731,7 +4735,10 @@ extern int jitRunAction(GroupItem action)
         if (jitCacheFind(d.first)) continue;
         auto ds = jit->lookup(d.second);
         if (!ds) { llvm::consumeError(ds.takeError()); continue; }
-        gJitCache.push_back({d.first, d.second, ds->toPtr<int(*)(GroupItem*)>()}); }
+        gJitCache.push_back({d.first, d.second, ds->toPtr<int(*)(GroupItem*)>(), pinsByName[d.second]});
+        //  pinReport INCANT_JIT_PINS=1: how many collector objects each new slot keeps alive; unset, nothing printed
+        if (::getenv("INCANT_JIT_PINS"))
+            ::fprintf(stderr,"=== jitPins: %s keeps %zu ===\n", d.second.c_str(), gJitCache.back().pins.size()); }
     int r = gJitCompileOnly ? 0 : fp(jitBodyField(action));
     printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
     //  Reported UNCONDITIONALLY and with its value, so a rung can assert it.

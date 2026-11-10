@@ -2,6 +2,9 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 
 /*****************************************************************************
 	A simple stack that will resize if it runs out of room.
+    The array comes from operator new, never calloc (GC stroke 2, R4, SEQ 589):
+    gcThreads.mm's new makes it uncollectable on the main thread, so the
+    collector scans it and a node held only here stays alive.
 *****************************************************************************/
 class GroupStak
 {
@@ -21,7 +24,10 @@ GroupStak(GroupItem g)
     stakSource  = g;
     if !groupList || !listLength        size = 100;
 	else    size = listLength + 10;
-	start	= (GroupItem**)calloc(size,sizeof(GroupItem*));
+-%
+	start = (GroupItem**)::operator new(size * sizeof(GroupItem*));
+	::memset(start,0,size * sizeof(GroupItem*));
+%-
 	end		= start;
     if groupList    resetStak();
 }
@@ -177,8 +183,15 @@ use stakSource
 *****************************************************************************/
 void resize()
 {
-	size    = listLength + 10;
-	start	= (GroupItem**)reallocf((void*)start,size * sizeof(void*));
+-%
+	int oldSize = size;
+	size = stakSource->groupBody->groupList->listLength + 10;
+	GroupItem **grown = (GroupItem**)::operator new(size * sizeof(GroupItem*));
+	::memset(grown,0,size * sizeof(GroupItem*));
+	::memcpy(grown,start,(oldSize < size ? oldSize : size) * sizeof(GroupItem*));
+	::operator delete(start);
+	start = grown;
+%-
 	end		= start + length;
 	*end	= 0;
     entry   = null;
