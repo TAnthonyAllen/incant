@@ -236,6 +236,11 @@ FIRST PROOF BUILT 2026-11-09 (SEQ 580, branch op-default, not merged): WHILe dec
 op="whileLoop", its hand action is deleted, and OPERATOr builds its instruct from its label;
 whileLoop carries the trait ownsBody. Same answers on both roads; the buy is Tony's.
 
+SECOND RULE 2026-11-10 (SEQ 591, on trunk): Do declares op="doLoop", its hand action is
+deleted, and OPERATOr builds it; doLoop carries ownsBody. The label's slots are the
+statement then the condition, the order opDo reads, so opDo did not change. Its two
+refusals now name the slot. Works at top level through FILe and in a new-road action body.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
