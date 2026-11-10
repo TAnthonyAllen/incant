@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2074016 bytes  Nov 10 15:06
+  bin   2090544 bytes  Nov 10 15:19
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -52,7 +52,7 @@
   ok    textT TX-3 WRAP: words' second line inks: y=70, x 4..203 = [ink]
   ok    textT TX-4 WRAP, no indent: first ink of line 1 (y 49..58) and line 2 (y 64..73) at the same x, within 2, at most 7 = [flush]
   ok    textT TX-5 ORIENTATION: the T of This, bar rows y 49..51 outweigh stem rows y 55..57, x 3..12 = [upright]
-  ok    textT TX-6 ok's text inks: y=176, x 342..397, not lightGreen = [ink]
+  ok    textT TX-6 ok's text inks: y=180, x 342..397, not lightGreen = [ink]
   ok    textT TX-7 tOver's second line inks: y=37, x 14..125 = [ink]
   ok    textT TX-8 a line that does not fit is not drawn: below tOver's second line, y 46..49, x 14..125, clean (pair: TX-7) = [clean]
   ok    textT TX-9 SPACE-CLIP: tOver's second line ends inside the inset, last ink x at most 125 (y 31..44, x 100..129) = [inside]
@@ -66,12 +66,12 @@
   ok    textT TX-C4 heading's own color:=green wins over firstLight's blue = [r0 g158 b15]
   ok    textT TX-K1 heading's ink is green: its darkest ink pixel's strongest channel (y=18, x 4..203) = [g]
   ok    textT TX-K2 words' ink is blue, inherited (y=55, x 4..203) = [b]
-  ok    textT TX-K3 ok's ink is blue, inherited through bar (y=176, x 342..397) = [b]
+  ok    textT TX-K3 ok's ink is blue, inherited through bar (y=180, x 342..397) = [b]
   ok    textT TX-C2 tOver's own color:=blue (pair: TX-C1) = [r0 g81 b186]
   ok    textT TX-C3 tLong inherits tForm's color:=red = [r239 g43 b45]
   ok    textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green) = [Palatino 24 1 r0 g158 b15]
   ok    textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end) = [2 space / 1 end]
-  ok    textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tRight tKid tKidL tBad tPlain]
+  ok    textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain]
   ok    textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else = [tOver tLong]
   ok    textT AL-1 CENTER: heading's ink centred in its frame (x 0..399, y 10..28) = [centred]
   ok    textT AL-2 CENTER: ok's ink centred in its frame (x 340..399; scanned 342..397, y 168..196) = [centred]
@@ -82,6 +82,12 @@
   ok    textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left = [1]
   ok    textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad = [center justify center right center left left]
   ok    textT no refusal = [0]
+  ok    textT VA-1 CENTER: ok's ink centred top to bottom in its frame (y 165..199; scanned inside the border, 167..197, x 342..397) = [centred]
+  ok    textT VA-2 CENTER: tVOwn (its own valign=center) centred in its frame (y 60..119) = [centred]
+  ok    textT VA-3 BOTTOM: tVBot's last ink at its frame's bottom less the inset (y 55); tVTwo's three lines end at y 115, the first starts below the middle = [bottom bottom low]
+  ok    textT VA-4 INHERIT: tVKid (no valign) centred under tVTop's valign=center; tVSty (style valign=top) at the top = [centred top]
+  ok    textT VA-5 REFUSAL: tVBad's valign=middle refused by name, drawn at the top (not the inherited centre) = [1 top]
+  ok    textT VA-6 the valign each field drew with: heading ok tVKid tVBot tVSty tVBad tVTwo tVOwn = [top center center bottom top top bottom center]
   ok    textTopT a top with its own text: exit / sentinel = [0 1]
   ok    textTopT ... refused by name, its text slot holds the display = [1]
 -- the first PDF: step 4.
@@ -96,5 +102,7 @@
   ok    firstPdfT PD-6 the PDF agrees with the bitmap on the same points (textT's classes) = [ink ink ink flush upright ink]
   ok    firstPdfT PD-7 the read-back: heading centred, words lines 1 and 2 at the edge, line 3 short = [centred edge edge short]
   ok    firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify points = [centred edge edge short]
+  ok    firstPdfT PD-9 the read-back: ok's ink centred top to bottom in its frame = [centred]
+  ok    firstPdfT PD-10 the PDF agrees with the bitmap on ok's first and last ink rows, within 1 = [agree]
 
-FORMS POP FAILED -- 86 green, see above
+FORMS POP FAILED -- 94 green, see above
