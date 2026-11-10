@@ -24,25 +24,7 @@ define
 search dESCRIPTIONs list;
 registry(TestStuff);
 define
-    /*****************************************************************************
-        describe is used to supply descriptions in forms by adding it as a form
-        attribute with a text value of the field being described. The describe
-        text is initialized as either the tag of a field in the form that has
-        a corresponding entry with the same tag in the dESCRIPTIONs registry, or
-        as whatever descriptive text the form designer wants to show when the
-        form first fires. describe is a dynamic attribute with an action
-        When a form field is clicked on selection.group is set to the first selectable
-        field found after searching up the parent hierarchy starting with the
-        field clicked on. And if the selected field has a describe attribute the
-        describe action sets the describe.text for the form layout to display.
-        
-        See the tabs or descriptions forms in IncantForms/Windows for an example
-        of how to define a form that uses descriptions.
-    *****************************************************************************/
-    describe=dESCRIPT code={
-        if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
-        or describe.isGrouP;    describe = dESCRIPTIONs[describe];
-        };
+    // describe lives in incant/utilities now (SEQ 608 R6), so a form can find it; the lines below still drive it
     /*****************************************************************************
         Debugging routines. listChain lists out an instruction chain: op, argument, target
     *****************************************************************************/
@@ -84,6 +66,7 @@ define
             print ";":;
         };
     ;
+describe = dESCRIPT;
 describe();
 print "With no initial description set:" ``describe:;
 describe="some description not the default";

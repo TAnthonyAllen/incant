@@ -163,12 +163,41 @@ define
         field holds a group, that group's (*argument, one level). A field with
         no text costs a call and draws nothing (displayText skips it).
     ***************************************************************************/
+    /***************************************************************************
+        describe is used to supply descriptions in forms by adding it as a form
+        attribute with a text value of the field being described. The describe
+        text is initialized as either the tag of a field in the form that has
+        a corresponding entry with the same tag in the dESCRIPTIONs registry, or
+        as whatever descriptive text the form designer wants to show when the
+        form first fires. describe is a dynamic attribute with an action
+        When a form field is clicked on selection.group is set to the first selectable
+        field found after searching up the parent hierarchy starting with the
+        field clicked on. And if the selected field has a describe attribute the
+        describe action sets the describe.text for the form layout to display.
+        
+        Moved here from tester (SEQ 608 R6) so a form can find it: forms include utilities.
+        drawText does not call it yet -- it shows a field's describe attribute as written (R2);
+        no listener or selection is built.
+
+        See the tabs or descriptions forms in IncantForms/Windows for an example
+        of how to define a form that uses descriptions.
+    ***************************************************************************/
+    describe code={
+        if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
+        or describe.isGrouP;    describe = dESCRIPTIONs[describe];
+        };
     textReq field source font color align valign;
     drawText code={
         textReq.field := argument;
         dtG = argument.isGrouP;
         if dtG == 1;    textReq.source := *argument;
         else            textReq.source := argument;
+        // describeShown a field with a describe attribute shows that attribute's text (SEQ 608 R2)
+        dtSelf := argument;
+        if *dtSelf["describe"];     textReq.source := *dtSelf["describe"];
+        // imageText an image field's text is its description, never drawn over the image (SEQ 608 R2)
+        dtDraw = 1;
+        if *dtSelf["image"];        dtDraw = 0;
         textReq.font = 0;
         textReq.color = 0;
         textReq.align = 0;
@@ -223,7 +252,7 @@ define
             // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
             dtCur := *dtCur.parenT;
             dtHops += 1;
-        displayText(textReq);
+        if dtDraw == 1;     displayText(textReq);
         };
     drawFill code={
         if argument["fill"];    displayFill(argument);
