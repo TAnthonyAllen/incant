@@ -240,3 +240,43 @@ The aim is a missed root that crashes **near its cause** instead of later at ran
 3. **JIT**: pin baked addresses per cached function (i), or load them from a root table (ii) (§3a).
 4. **Stacks**: allocate the `Stak` / `GroupStak` arrays uncollectable (Frame is the support repo) (§3c).
 5. ~~**KE-5 is two entries** in knownErrors.md; which one keeps the name.~~ Ruled (SEQ 588 R5): the collector keeps KE-5, the `&&` entry is KE-7.
+
+## The stroke-2 dispatch, as forwarded (Tony, 2026-11-10) -- the next session opens here
+
+Recorded verbatim at the shutdown of seal 420, so the fresh session takes it from the tree. SEQ is Clod's to assign (589).
+
+```
+DISPATCH -- SEQ (Clod assigns) -- GC STROKE 2: THE FIVE NODE CLASSES COLLECTABLE, ON A BRANCH. NOT MERGED.
+
+RULINGS (Tony, 2026-11-10; R1-R4 as ruled on docs/gcRecon.md)
+R1  GroupItem, GroupBody, GroupList, RuleStuff, ParseActivation become collectable together.
+R2  Through a base class of ours, gcThreads.mm's style: collectable on the main thread, refuses by name off it.
+    The gc_cpp.h include must reach every header that needs it; the class-line row checks the include too.
+R3  Each gJitCache slot keeps the list of nodes its code bakes in.
+R4  Stak and GroupStak arrays allocated uncollectable (support Frame/Stak.C; GroupStak.twk here).
+R5  KE-3 and KE-4's duplicate names get fixed the way KE-5's was, citations repointed. Docs only.
+R6  Windows: Layout->base and openWindow's static-scan switch are named in the report -- fixed if small,
+    otherwise docketed. Windows is not yet a target; do not certify a window run.
+
+THE ORDER, on branch gc-collect, each part its own commit:
+1. R4 and R3 first. Both are inert while nothing is collectable: fleet and ladder row for row.
+2. R2 and R1 last: the part that moves rows.
+
+CERTIFICATE (pre-registered from stroke 1's rows):
+- gcT GC-1 moves off 0 (the copy loop frees). GC-2 reads stakKept. GC-3 stays 16 of 16.
+- JGC: the count moves; the cached answers stay 9 and 9.
+- Fleet and ladder row for row but those, with GCSTRESS unset AND at GCSTRESS=1000 (address lines aside).
+  Any other mover is a finding: report it, do not re-pin it.
+- H7s: Stak arrays back to calloc -> GC-2 fails (0xDE or a crash); the pinned-node list removed -> JGC
+  fails. For R2's off-main refusal, say how it is witnessed, or why no row can reach it.
+
+The buy is Tony's.
+```
+
+Notes for the opener, from strokes 1 and the recon (not rulings):
+- ParseActivation has 0 heap sites today (it lives on the C stack), so R1 for it means the base class on the struct
+  in GroupRules.twk; bear-trap #58 and SEQ 235/237 (a ParseActivation change carries a full bare-tokall diff) apply.
+- tok writes `: public X` for `extends X` but no #include (scratch probe, recon section 2); the base must be in scope
+  before every generated .h that names it.
+- The poison registers only while GCSTRESS is set; gcT and JGC run under GCSTRESS=0 for that reason.
+- The stroke-1 baseline: pop.sh 3353 green, FAIL rows = docs/sealCaptures/pop.fails.txt (72); jitLadder exit 0.
