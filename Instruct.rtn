@@ -1220,17 +1220,13 @@ GroupItem   body = arms[1],
 }
 
 
-// opFor the forLoop instruct's unary op (SEQ 482 R2): its operand list holds the cursor, the source and the statement, and a fourth entry when `<-` asked for reverse; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509); retires when a kant action of the same name passes the same rows (forT)
-extern GroupItem opFor(GroupItem arms)
+// forWalk the walk opFor and opForBack share (SEQ 594): the operand list holds the cursor, the source and the statement; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn, last to first when backward; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509)
+extern GroupItem forWalk(GroupItem arms,int backward)
 {
 GroupItem   cursor = arms[1],
             source = arms[2],
-            body = arms[3],
-            reverse = arms[4];
-int         backward;
+            body = arms[3];
     if !cursor || !source || !body  return null;
-    // usedOutside the passthrough reads backward, not reverse: tok prunes a local only the passthrough names (bear-trap 13)
-    if reverse  backward = 1;
     -%
     GroupRules *forRuler = GroupControl::groupController->groupRules;
     GroupItem *loopOn = source;
@@ -1257,6 +1253,20 @@ int         backward;
     if ( forRuler->branchKind == 3 ) return bodyResult;
     %-
     return null;
+}
+
+
+// opFor the forLoop instruct's unary op (SEQ 482 R2): forWalk, first to last; retires when a kant action of the same name passes the same rows (forT)
+extern GroupItem opFor(GroupItem arms)
+{
+    return forWalk(arms,0);
+}
+
+
+// opForBack the forBack instruct's unary op (SEQ 594): forWalk, last to first -- the reverse rule's own op, so no operand carries the direction
+extern GroupItem opForBack(GroupItem arms)
+{
+    return forWalk(arms,1);
 }
 
 

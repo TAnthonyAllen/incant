@@ -110,19 +110,25 @@ define
         ANYtoken;
         NumbeR;
     LOOPEr=ANYtoken;
-    LOOPRESTRICt
+    // restrictRule LOOPRESTRICt is a rule over the two words so its action fires; an action on the bin of words itself did not (measured SEQ 594)
+    LOOPKINd
         loopOnAttributes="attributes";
         loopOnMembers="members";
+    LOOPRESTRICt    LOOPKINd;
     // noDefer the new road only builds, so no child waits for its parent: defer is off If, BASICELSe, Do, WHILe and FOr (Tony, SEQ 473 R0), and off BLOCk and BRANCh (SEQ 476 R2), and off ITERATe (SEQ 486 R2), and off ELSEIf, PRINt, CERr, COUt, SCOPEXp, XPRESs and STRINGXp (Tony, offline 2026-10-30; fleet unmoved); ELSEIf builds its own instruct (SEQ 491)
     ELSe
         BASICELSe   else- followedBy STATEMENt@;
         ELSEIf      op="ifThen" or- EXPRESSIOn SemI- STATEMENt ELSe?;
+    // forShapes a rule's slots never vary (Tony, SEQ 594): FOr is the parent of two fixed shapes, each cursor, source, statement; the <- is a keyword that hands nothing up. FORBACk is first: FORWARd would take `<- source` as its own source and run it forwards (measured)
+    FOr
+        FORBACk     op="forBack" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
+        FORWARd     op="forLoop" for- followedBy LOOPEr in- EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
     WARDEd
         DEBUg       debug- followedBy rules?=NamE+ SemI-;
         DEf         def-="define" followedBy define^;
         Do          op="doLoop" do- followedBy STATEMENt while- EXPRESSIOn SemI-;
         If          op="ifThen" if- followedBy EXPRESSIOn SemI- STATEMENt ELSe?;
-        FOr         for- followedBy LOOPEr in- reversE?="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
+        FOr;
         WHILe       op="whileLoop" while- followedBy EXPRESSIOn SemI-? STATEMENt;
         PRINt       print- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
         CERr        cerr- followedBy PRINTing- stuff=PRINTXp+ SemI- ;
@@ -233,38 +239,11 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // FOr only builds (SEQ 482 R0): one instruct, op forLoop, its operand a mint of [cursor, source, statement] and the reverse mark when `<-` is present; opFor binds the cursor to each member when the loop RUNS
-    FOr code={
-        :actionLabel LOOPEr EXPRESSIOn LOOPRESTRICt STATEMENt reversE;
-        // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1)
-        if LOOPRESTRICt.datA != 0;
-            cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
-            clear(*actionLabel);
-            return *actionLabel;
-        cursor  := **LOOPEr;
-        source  := **EXPRESSIOn;
-        body    := **STATEMENt;
-        // bodyRefused a statement that handed up no instruct refuses by name, as WHILe's (SEQ 476 R6)
-        bodyM   := *body.methoD;
-        if bodyM == 0;
-            cerr "REFUSED FOr -- its statement handed up no instruct":;
-            clear(*actionLabel);
-            return *actionLabel;
-        forArms +% *cursor;
-        forArms +% *source;
-        forArms +% *body;
-        // reverseMark `<-` rides as a fourth operand; its presence is the meaning
-        if reversE.datA != 0;
-            revMark := copyOf(*reversE);
-            forArms +% *revMark;
-        op := Operators["forLoop"];
-        armsMint    := copyOf(forArms);
-        miArgs      +% op armsMint;
-        built       := makeInstruct(miArgs);
-        // ownsItsBody the loop walks DOWN its own body and rebinds each seq it owns to bodySeq, so a break there passes up to it (SEQ 516)
-        loopOwnsBody(*built);
-        *actionLabel   := *built;
-        return  *actionLabel;
+    // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1); the refusal lives here, so the loop's default action meets a slot that handed up nothing (SEQ 594 R2)
+    LOOPRESTRICt code={
+        cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
+        clear(*actionLabel);
+        return *actionLabel;
         };
     // OPERATOr the default action (SEQ 580): a rule declared with op= builds one instruct, op the declared Operators entry, operand a mint of its label's entries in order
     OPERATOr code={
@@ -304,6 +283,9 @@ define
     WHILe ruleMethod=OPERATOr;
     // doIsAnOperator Do declares op= and takes the default action; its slots in order are the statement then the condition, the order opDo reads (SEQ 591)
     Do ruleMethod=OPERATOr;
+    // forIsTwoOperators FORBACk (op forBack) and FORWARd (op forLoop) take the default action; opForBack and opFor share forWalk (SEQ 594)
+    FORBACk ruleMethod=OPERATOr;
+    FORWARd ruleMethod=OPERATOr;
     // ifIsAnOperator If and ELSEIf declare op="ifThen" and take the default action; the slots in order are the condition, the then statement and the else, absent when absent, the order opIf reads (SEQ 592)
     If ruleMethod=OPERATOr;
     ELSEIf ruleMethod=OPERATOr;

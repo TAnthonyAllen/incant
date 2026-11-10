@@ -136,7 +136,8 @@ define
     branchSignal    unary ruleMethod=opBranch;
     whileLoop       unary ruleMethod=opWhile  ownsBody;
     doLoop          unary ruleMethod=opDo  ownsBody;
-    forLoop         unary ruleMethod=opFor;
+    forLoop         unary ruleMethod=opFor  ownsBody;
+    forBack         unary ruleMethod=opForBack  ownsBody;
     iterateOn       unary ruleMethod=opIterate;
     call            operateMethod=opCallTest  assignTier;
     runRule         unary ruleMethod=opRunRule;

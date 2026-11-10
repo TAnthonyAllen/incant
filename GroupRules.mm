@@ -2999,6 +2999,42 @@ extern "C" GroupItem *followArgument(GroupItem *operand)
 	
 }
 
+// forWalk the walk opFor and opForBack share (SEQ 594): the operand list holds the cursor, the source and the statement; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn, last to first when backward; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509)
+extern "C" GroupItem *forWalk(GroupItem *arms, int backward)
+{
+GroupItem 	*cursor = arms->get(1);
+GroupItem 	*source = arms->get(2);
+GroupItem 	*body = arms->get(3);
+	if ( !cursor || !source || !body )
+		return 0;
+	
+	GroupRules *forRuler = GroupControl::groupController->groupRules;
+	GroupItem *loopOn = source;
+	if ( (void*)source->groupBody->gMethod == (void*)&testOP ) loopOn = ::testOP(source);
+	if ( !loopOn ) return 0;
+	GroupItem *listed = 0;
+	while ( isGROUP(loopOn->groupBody->flags.data) && loopOn->getGroup() ) {
+	loopOn = loopOn->getGroup();
+	if ( loopOn->groupBody->groupList ) listed = loopOn; }
+	if ( !loopOn->groupBody->groupList && listed ) loopOn = listed;
+	cursor->clear();
+	GroupItem *member = 0, *bodyResult = 0;
+	while ( (member = backward ? loopOn->prior(member) : loopOn->next(member)) ) {
+	cursor->setGroup(member);
+	forRuler->branchKind = 0;
+	bodyResult = 0;
+	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
+	if ( forRuler->refused && !forRuler->jitting ) break;
+	int forKind = forRuler->branchKind;
+	if ( forKind == 1 ) { forRuler->branchKind = 0; break; }
+	if ( forKind == 2 ) { forRuler->branchKind = 0; continue; }
+	if ( forKind ) break;
+	}
+	if ( forRuler->branchKind == 3 ) return bodyResult;
+	
+	return 0;
+}
+
 // frameFind read-only twin of frameStak -- null when no frame child exists, so restore can tell never saved from saved nothing without minting one
 extern "C" GroupItem *frameFind(GroupItem *action)
 {
@@ -8034,7 +8070,7 @@ extern "C" int jitScanArmsChain(GroupItem *n, int d)
 	if ( op->groupBody->flags.isUnary ) {
 	bool isIf = op->groupBody->tag && !::strcmp(op->groupBody->tag, "ifThen");
 	//  loopCursor a for's or iterate's cursor is a holder, as on the old road: no scalar slot (SEQ 526 S4)
-	if ( op->groupBody->tag && (!::strcmp(op->groupBody->tag, "forLoop") || !::strcmp(op->groupBody->tag, "iterateOn")) && a->groupBody->groupList ) {
+	if ( op->groupBody->tag && (!::strcmp(op->groupBody->tag, "forLoop") || !::strcmp(op->groupBody->tag, "forBack") || !::strcmp(op->groupBody->tag, "iterateOn")) && a->groupBody->groupList ) {
 	GroupItem *cur = a->get(1);
 	if ( cur ) ::jitNoteWriter(0, (isGROUP(cur->groupBody->flags.data) && cur->getGroup()) ? cur->getGroup() : cur, 0); }
 	if ( (void*)a->groupBody->gMethod == (void*)&testOP ) { ::jitScanArmsChain(a, d+1); return 0; }
@@ -10180,45 +10216,16 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 	return 0;
 }
 
-// opFor the forLoop instruct's unary op (SEQ 482 R2): its operand list holds the cursor, the source and the statement, and a fourth entry when `<-` asked for reverse; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509); retires when a kant action of the same name passes the same rows (forT)
+// opFor the forLoop instruct's unary op (SEQ 482 R2): forWalk, first to last; retires when a kant action of the same name passes the same rows (forT)
 extern "C" GroupItem *opFor(GroupItem *arms)
 {
-GroupItem 	*cursor = arms->get(1);
-GroupItem 	*source = arms->get(2);
-GroupItem 	*body = arms->get(3);
-GroupItem 	*reverse = arms->get(4);
-int 		backward = 0;
-	if ( !cursor || !source || !body )
-		return 0;
-	// usedOutside the passthrough reads backward, not reverse: tok prunes a local only the passthrough names (bear-trap 13)
-	if ( reverse )
-		backward = 1;
-	
-	GroupRules *forRuler = GroupControl::groupController->groupRules;
-	GroupItem *loopOn = source;
-	if ( (void*)source->groupBody->gMethod == (void*)&testOP ) loopOn = ::testOP(source);
-	if ( !loopOn ) return 0;
-	GroupItem *listed = 0;
-	while ( isGROUP(loopOn->groupBody->flags.data) && loopOn->getGroup() ) {
-	loopOn = loopOn->getGroup();
-	if ( loopOn->groupBody->groupList ) listed = loopOn; }
-	if ( !loopOn->groupBody->groupList && listed ) loopOn = listed;
-	cursor->clear();
-	GroupItem *member = 0, *bodyResult = 0;
-	while ( (member = backward ? loopOn->prior(member) : loopOn->next(member)) ) {
-	cursor->setGroup(member);
-	forRuler->branchKind = 0;
-	bodyResult = 0;
-	if ( (void*)body->groupBody->gMethod == (void*)&testOP ) bodyResult = ::testOP(body);
-	if ( forRuler->refused && !forRuler->jitting ) break;
-	int forKind = forRuler->branchKind;
-	if ( forKind == 1 ) { forRuler->branchKind = 0; break; }
-	if ( forKind == 2 ) { forRuler->branchKind = 0; continue; }
-	if ( forKind ) break;
-	}
-	if ( forRuler->branchKind == 3 ) return bodyResult;
-	
-	return 0;
+	return ::forWalk(arms,0);
+}
+
+// opForBack the forBack instruct's unary op (SEQ 594): forWalk, last to first -- the reverse rule's own op, so no operand carries the direction
+extern "C" GroupItem *opForBack(GroupItem *arms)
+{
+	return ::forWalk(arms,1);
 }
 
 // opGE the >= operator, on opEQ's shape

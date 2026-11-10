@@ -34,7 +34,7 @@ define
         dv7 := *doQ;
         cerr "DO-6 DesignDocs compile= " dv7:;
         doGL := Grokking["LoopRestrict"];
-        doKL := KantGrammar["LOOPRESTRICt"];
+        doKL := KantGrammar["LOOPKINd"];
         doGA := *doGL["loopOnAttributes"];
         doKA := *doKL["loopOnAttributes"];
         doGM := *doGL["loopOnMembers"];
@@ -85,7 +85,7 @@ through. Recon: docs/objectModelRecon.md section 27.
   DO-2  UnitTests' counter -- its own 0, a count (data 5), on both
   DO-3/4  cOMMANDs stop / compile -- today they carry DesignDocs' prose (data 13); intended no data (0)
   DO-5/6  DesignDocs' stop / compile entries keep their prose, on both
-  DO-7/8  KantGrammar's LOOPRESTRICt loopOnAttributes / loopOnMembers -- same value as Grokking's on both; today the SAME BODY
+  DO-7/8  KantGrammar's LOOPKINd (LOOPRESTRICt until SEQ 594) loopOnAttributes / loopOnMembers -- same value as Grokking's on both; today the SAME BODY
           (the define wrote into Grokking's), intended their own body
   DO-9  KantGrammar's ANYORNUm member NumbeR is a bare reference to Grokking's NumbeR -- the same body on both
   DO-10 GroupFields' taG accessor -- today DoTagT's taG="ENCLOSING" writes into it (cursorReadTb's shape); intended no data

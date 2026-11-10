@@ -1056,8 +1056,11 @@ else echo "  FAIL  ruleXpresT MISSING"; fail=1; fi
 #  SEQ 594 REGISTERED: FOr becomes the parent of FORBACk and FORWARd, and a parent has no body for the door to compile (jitterRule(FOr)
 #  reads "built 0 fired 0", measured in the dry run). _rfArm is the compiled arm's opt-in line: pinned here at jitterRule(FOr);, and the
 #  cure sets it to the two rules. The door rows read the fired counts SUMMED over the two; the walk line is OPERATOr's, once per rule.
-_rfArm="jitterRule(FOr);"
-_rfsum () { sed -n 's/^=== jitter rule: FOR\(BACk\|WARd\) built 1 fired \([0-9]*\) ===$/\2/p' "$1" | awk '{n+=$1} END {print n+0}'; }
+_rfArm="jitterRule(FORBACk); jitterRule(FORWARd);"
+#  CORRECTED AT THE CURE (two slips in the rows commit, 941b3905): the sum used \| inside sed, which macOS sed does not take (it read 0);
+#  and the walk line was registered at 2 per row, but a rule's walk line prints when that rule first FIRES, so a row reads one line per
+#  rule it fired -- 2 on RF-8 (backwards then forwards), 1 on every other row.
+_rfsum () { grep '^=== jitter rule: FOR[BW]A[CR][kd] built 1 fired [0-9]* ===' "$1" | awk '{n+=$8} END {print n+0}'; }
 _rfF=$(ip ruleForT)
 _rfe () { grep -v '^=== jitter rule\|^RF SENTINEL\|a compiled rule handed back a count\|^ *$' "$1" | tr '\n' '|'; }
 _rfrun () {  # name  arm-line  statements
@@ -1078,7 +1081,8 @@ while IFS='|' read -r _id _f _g _ref _st _pin; do
     _ofeq "ruleForT $_id compiled = interpreted, stdout" "$(_rdv "$T/rf.$_id.c.o")" "$(_rdv "$T/rf.$_id.i.o")"
     _ofeq "ruleForT $_id compiled = interpreted, stderr" "$(_rfe "$T/rf.$_id.c.e")" "$(_rfe "$T/rf.$_id.i.e")"
     fdRow "ruleForT $_id through the door: FOr built 1 fired $_f | FORBACk and FORWARd fired, summed" "$(grep -c "^=== jitter rule: FOr built 1 fired $_f ===" "$T/rf.$_id.c.e") | $(_rfsum "$T/rf.$_id.c.e")" "1 | 0" "0 | $_f"
-    fdRow "ruleForT $_id walk line: FOr native 9 handed 9 | FORBACk and FORWARd native 3 handed 8" "$(grep -c '^=== jitter rule walk: FOr native 9 handed 9 ===' "$T/rf.$_id.c.e") | $(grep -c '^=== jitter rule walk: FOR\(BACk\|WARd\) native 3 handed 8 ===' "$T/rf.$_id.c.e")" "1 | 0" "0 | 2"
+    _rfk=1; [ "$_id" = RF-8 ] && _rfk=2
+    fdRow "ruleForT $_id walk line: FOr native 9 handed 9 | native 3 handed 8, one line per rule fired" "$(grep -c '^=== jitter rule walk: FOr native 9 handed 9 ===' "$T/rf.$_id.c.e") | $(grep -c '^=== jitter rule walk: FOR\(BACk\|WARd\) native 3 handed 8 ===' "$T/rf.$_id.c.e")" "1 | 0" "0 | $_rfk"
     #  F-146 REGISTERED (SEQ 567 R2): the guard goes, so every row's intended is 0; RF-O reads 1 today
     fdRow "ruleForT $_id guard lines" "$(grep -c '^REFUSED FOr -- a compiled rule handed back a count' "$T/rf.$_id.c.e")" "$_g" "0"
     #  SEQ 594 REGISTERED: RF-S and RF-O move to FORWARd's slot names; RF-R keeps today's wording (LOOPRESTRICt's own action) and the
