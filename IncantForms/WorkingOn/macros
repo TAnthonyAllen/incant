@@ -255,6 +255,12 @@ forwards. opForBack and opFor share one walk. LOOPRESTRICt is a rule over the tw
 (LOOPKINd) with its own refusing action. A parent has no body, so the rule door takes
 FORBACk and FORWARd by name; jitterRule(FOr) builds nothing.
 
+2026-11-10 (SEQ 595): the rule door takes a parent -- jitterRule(FOr) opts in FORBACk and
+FORWARd (a parent's member rules, one level); a rule with neither a body nor child rules
+refuses by name. PINNED, NOT CURED: a <- with no target in an ordinary expression is
+dropped silently on the new road (the old road refuses it by name); incant/pop/arrowExprT.
+NOT BUILT: one refusal per statement -- kant cannot see that a slot's own rule refused.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
