@@ -1,8 +1,8 @@
 Start();
 include(unitTests);
 include(utilities);
-search dESCRIPTIONs list;
-
+include(styles);
+search cOLOr fONTs;
 register(dESCRIPTIONs);
 define
     describeHead="Using descriptions (help text or descriptions associated with display blocks) involves two components:
@@ -22,17 +22,18 @@ Note: The describe attribute implies text.";
     trees="Standing between a couple of funky trees at the beach in Santa Monica. Trees on acid, so not straight and the deep groove bark adds to the weirdity.";
     describeHelp="Descriptions are available for the two images and a description appears in the help box when you click on one of the images. For a description of how it works, select the heading.";
     ;
+search dESCRIPTIONs list;
 register(FORMs);
 define
-    webViewExample window closable resize width=500 height=600 x=500 y=200 fill=wall minimumHeight=100 title='Description Test'
+    webViewExample window closable resize width=500 height=600 x=500 y=200 fill:=wall title='Description Test'
         body
-            wrap mRight=15 mBottom=15
-                first height=50 fill=lightGreen bordered
-                    describeHead="Using Descriptions" flex center titleFont color=white shadow;
-                second flex normalFont
-                    saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" bordered fill=paleGray;
-                    trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" bordered fill=paleGray;
-                describeHelp describe="This is the default text description when nothing is selected" bordered normalFont fill=lightGreen;
+            wrap
+                first height=50 fill:=lightGreen border
+                    describeHead="Using Descriptions" font:=titleFont color:=white align=center valign=center;
+                second across font:=normalFont
+                    saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Wallpaper/Saber.jpg" border fill:=paleGray;
+                    trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" border fill:=paleGray;
+                describeHelp describe="This is the default text description when nothing is selected" border font:=normalFont fill:=lightGreen;
     ;
 
 stop();
