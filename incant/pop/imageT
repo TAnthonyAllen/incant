@@ -1,0 +1,78 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs;
+register(ImageT);
+define
+    imX = 0;
+    imY = 0;
+    imAt code={
+        px = imX;
+        py = imY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    imBadFit="stretch";
+    imBadReq field source fit;
+    imAsk code={
+        imBadReq.field := argument;
+        imSelf := argument;
+        imBadReq.source := *imSelf["image"];
+        imBadReq.fit = 0;
+        displayImage(imBadReq);
+        };
+    imAskBad code={
+        imBadReq.field := argument;
+        imSelf := argument;
+        imBadReq.source := *imSelf["image"];
+        imBadReq.fit := imBadFit;
+        displayImage(imBadReq);
+        };
+    ;
+search ImageT FORMs UnitTests Utilities cOLOr fONTs list;
+define
+    imTop x=0 y=0 width=340 height=120 fill:=white
+        imSquare="Bands, described" image="IncantForms/Images/bands.png" x=10 y=10 width=100 height=100;
+        imWide="Bands again" image="IncantForms/Images/bands.png" x=120 y=10 width=100 height=25 border;
+        imMissing="No such file" image="IncantForms/Images/noSuchFile.png" x=230 y=10 width=100 height=100 fill:=paleGray;
+    imDark x=0 y=0 width=50 height=50
+        imNoShow="Nowhere" image="IncantForms/Images/bands.png" x=0 y=0 width=50 height=50;
+    ;
+makeDisplay(imTop);
+drawWalk(imTop);
+cerr "IM-1 imSquare, fill: the 40x20 image covers 100x100 at 5x, so only its middle shows -- red (30,60) and blue (90,60), no green at the edges (12,60) (107,60)":;
+imX = 30; imY = 60; imAt(imTop);
+imX = 90; imAt(imTop);
+imX = 12; imAt(imTop);
+imX = 107; imAt(imTop);
+cerr "IM-2 upright: the image's white top rows at (60,20), colour at the bottom (30,100)":;
+imX = 60; imY = 20; imAt(imTop);
+imX = 30; imY = 100; imAt(imTop);
+cerr "IM-3 clipped at the frame: (5,60) and (60,112) read the top's white":;
+imX = 5; imY = 60; imAt(imTop);
+imX = 60; imY = 112; imAt(imTop);
+cerr "IM-4 imWide, 100x25: the image covers at 2.5x, cropped top and bottom -- green red blue green across at y=22: (125,22) (155,22) (185,22) (215,22); its border on top at (170,10)":;
+imY = 22; imX = 125; imAt(imTop);
+imX = 155; imAt(imTop);
+imX = 185; imAt(imTop);
+imX = 215; imAt(imTop);
+imX = 170; imY = 10; imAt(imTop);
+cerr "IM-5 imMissing: refused by name, its fill still drawn at (280,60)":;
+imX = 280; imY = 60; imAt(imTop);
+cerr "IM-6 an unknown fit, a request built by hand":;
+imAskBad(imTop["imSquare"]);
+cerr "IM-7 no display: imDark was never opened":;
+imAsk(imDark["imNoShow"]);
+cerr "IMAGET SENTINEL":;
+stop();
+
+imageT -- forms step 8, the first image (Tony, 2026-11-10, SEQ 609). Rows in genLadder/formsPop.sh, registered before the
+build. IncantForms/Images/bands.png is the test image kept in the tree: 40 x 20 pixels, the top 5 rows white, below them
+four vertical bands 10 wide -- green, red, blue, green. The fit is fill: scaled to cover the frame, centred, cropped.
+imSquare (100 x 100) scales it 5x to 200 x 100, so the green bands are cropped away and red and blue each fill half; a
+stretch would show green at both edges, and a whole-image fit would leave the top's white above and below. imWide
+(100 x 25) scales 2.5x to 100 x 50, so all four bands show and the white top rows are cropped. An image field's text is
+its description and is not drawn (SEQ 608). imMissing names no file: refused by name, the field's fill and nothing else.

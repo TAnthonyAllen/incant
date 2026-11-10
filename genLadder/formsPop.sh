@@ -385,7 +385,9 @@ _det () { grep -h "^=== displayText $1 " "$T/de.o" | head -1 | sed "s/^=== displ
 _ofeq "descT exit / sentinel" "$_dex $(grep -c '^DESCT SENTINEL' "$T/de.e")" "0 1"
 fdRow "descT DE-1 ACROSS: saber and trees side by side, each half of second (flex is gone, across is written)" "$(_deFr saber) / $(_deFr trees)" "500x138 at 500,250 / 500x137 at 500,388" "250x275 at 500,250 / 250x275 at 750,250"
 fdRow "descT DE-2 the heading's text: titleFont, white, centred both ways (font:= color:= align valign)" "$(_det describeHead)" "font Helvetica 12 0 color r0 g0 b0 valign top align left" "font Palatino 24 1 color r255 g255 b255 valign center align center"
-fdRow "descT DE-3 FILLS (fill:=): first lightGreen (10,10), saber paleGray (100,300), trees paleGray (350,300), describeHelp lightGreen (100,550)" "$(_dep 10,10)/$(_dep 100,300)/$(_dep 350,300)/$(_dep 100,550)" "r0 g0 b0 a131/r0 g0 b0 a0/r0 g0 b0 a0/r0 g0 b0 a0" "r175 g211 b120 a255/r241 g241 b241 a255/r241 g241 b241 a255/r175 g211 b120 a255"
+#  RE-AIM (SEQ 609): saber's and trees' points sit under their images once images draw, so DE-3 keeps the two fills nothing covers; pinned at
+#  the values those two points read already. The image fields' points are DE-9's.
+fdRow "descT DE-3 FILLS (fill:=): first lightGreen (10,10), describeHelp lightGreen (100,550)" "$(_dep 10,10)/$(_dep 100,550)" "r175 g211 b120 a255/r175 g211 b120 a255" "r175 g211 b120 a255/r175 g211 b120 a255"
 fdRow "descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' left (250,300), describeHelp's top (100,325), black" "$(_dep 0,300)/$(_dep 250,300)/$(_dep 100,325)" "r0 g0 b0 a0/r0 g0 b0 a0/r0 g0 b0 a0" "r0 g0 b0 a255/r0 g0 b0 a255/r0 g0 b0 a255"
 fdRow "descT DE-5 no refusal and no colour error (the form includes styles itself)" "$(grep -c 'REFUS\|ERROR' "$T/de.e")" "11" "0"
 #  DE-6 MEASURED, NOT CHOSEN: with dESCRIPTIONs on the search list during the form's define (R1), the form's saber IS the registry's saber, so
@@ -398,6 +400,24 @@ fdRow "descT DE-8 IMAGE TEXT: displayText is called for describeHead and describ
 #  tester's describe lines, a control across the move: the six lines tester prints from describe() must not change.
 perl -e 'alarm 30; exec @ARGV' "$B" IncantForms/WorkingOn/tester > "$T/tsd.o" 2> "$T/tsd.e"
 _ofeq "tester's six describe lines across the move to utilities (R6), md5" "$(grep 'initial description\|mock ' "$T/tsd.o" | md5 -q) $(grep -c 'initial description\|mock ' "$T/tsd.o")" "556d248688d4ae5418d9c134712a5f6a 6"
+#  ⚑ SEQ 609: the form's two images draw (the files are Tony's own pictures, named by absolute path, so the row pins that each drew with
+#  fit fill and that its point is no longer the field's paleGray; the pixel values are imageT's business).
+fdRow "descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray" "$(grep -h '^=== displayImage ' "$T/de.o" | awk '{print $3, $8, $9}' | xargs) / $([ "$(_dep 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ "$(_dep 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" " / fill fill" "saber fit fill trees fit fill / image image"
+
+echo "-- the first image: forms step 8."
+#  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is
+#  IncantForms/Images/bands.png, 40 x 20: 5 white rows, then green red blue green bands 10 wide. REGISTERED BEFORE THE BUILD.
+_imF=$(ip imageT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_imF" > "$T/im.o" 2> "$T/im.e"; _imx=$?
+_imp () { for _pt in "$@"; do grep -h "^=== pixelAt imTop ($_pt) " "$T/im.o" | head -1 | sed 's/.*= r\([0-9]*\) g\([0-9]*\) b\([0-9]*\) a.*/\1,\2,\3/' | awk -F, '{ if ($1 > 200 && $2 > 200 && $3 > 200) print "white"; else if ($1 > 200 && $2 < 80) print "red"; else if ($3 > 200 && $1 < 80) print "blue"; else if ($2 > 120 && $1 < 80 && $3 < 80) print "green"; else if ($1 < 40 && $2 < 40 && $3 < 40) print "black"; else print "other" }'; done | xargs; }
+fdRow "imageT exit / sentinel" "$_imx $(grep -c '^IMAGET SENTINEL' "$T/im.e")" "0 1" "0 1"
+fdRow "imageT IM-1 FILL: imSquare shows the image's middle -- red (30,60), blue (90,60), and no green at its edges (12,60) (107,60)" "$(_imp 30,60 90,60 12,60 107,60)" "white white white white" "red blue red blue"
+fdRow "imageT IM-2 UPRIGHT: the image's white rows at the top (60,20), colour at the bottom (30,100)" "$(_imp 60,20 30,100)" "white white" "white red"
+fdRow "imageT IM-3 CLIPPED at the frame: (5,60) and (60,112) read the top's white" "$(_imp 5,60 60,112)" "white white" "white white"
+fdRow "imageT IM-4 a wide frame crops top and bottom: green red blue green at y=22; the border drawn over the image (170,10)" "$(_imp 125,22 155,22 185,22 215,22 170,10)" "white white white white black" "green red blue green black"
+fdRow "imageT IM-5 the trace: imSquare 40x20 drawn 200x100 at -40,10; imWide drawn 100x50 at 120,-2.5" "$(grep -h '^=== displayImage ' "$T/im.o" | sed 's/^=== displayImage //; s/ file [^ ]*//; s/ ===$//' | tr '\n' ';')" "" "imSquare pixels 40x20 fit fill drawn 200x100 at -40,10;imWide pixels 40x20 fit fill drawn 100x50 at 120,-2.5;"
+fdRow "imageT IM-6 REFUSALS by name: an unreadable file, an unknown fit, no display (count of each), and imMissing's own fill still drawn" "$(grep -c '^displayImage: REFUSING imMissing -- cannot read an image from' "$T/im.e") $(grep -c "^displayImage: REFUSING imSquare's fit=stretch" "$T/im.e") $(grep -c '^displayImage: REFUSING imNoShow -- no display' "$T/im.e") $(grep -h '^=== pixelAt imTop (280,60) ' "$T/im.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1/')" "0 0 0 r241 g241 b241" "1 1 1 r241 g241 b241"
+fdRow "imageT IM-7 an image field's text is not drawn: displayText calls" "$(grep -c '^=== displayText ' "$T/im.o")" "0" "0"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
