@@ -26,6 +26,7 @@
 #   At the end of your report, say whether you'd rather shut down or continue.
 #
 #   ## NOTES FOR THE OPENER: align's stroke is SEQ 582 R4 and SEQ 584 (seals 412-413 and the day's drawing seals); IncantForms/WorkingOn/forms, DRAWING STEPS 5a, carries its ruling text. formsPop's banked state is docs/sealCaptures/formsPop.txt, with F-149 red as banked. The state to open from is seal 437's, just below: pop.sh 3720 green, FAIL 67 by name, canary 460.
+#   ## AFTER valign, TONY'S NOTE (2026-11-10, after shutdown; a direction, NOT a dispatch -- nothing is ruled until he forwards one): the descriptions form could follow -- a simple layout with images, and a real test of making descriptions work in a form. It agrees with the forms order already in macros (firstLight draws to PDF; descriptions is next). The valign dispatch says seal and stop after it unless Tony says otherwise, so this waits for his word.
 #   ## STILL OWED TO TONY'S HANDS: `git branch -D arrow-retire` and `git push origin --delete arrow-retire`.
 #
 
