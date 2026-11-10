@@ -244,6 +244,7 @@ The aim is a missed root that crashes **near its cause** instead of later at ran
 ## The stroke-2 dispatch, as forwarded (Tony, 2026-11-10) -- the next session opens here
 
 Recorded verbatim at the shutdown of seal 420, so the fresh session takes it from the tree. SEQ is Clod's to assign (589).
+**Built as SEQ 589 on branch gc-collect, seal 421 (docs/wakeup.md); not merged.**
 
 ```
 DISPATCH -- SEQ (Clod assigns) -- GC STROKE 2: THE FIVE NODE CLASSES COLLECTABLE, ON A BRANCH. NOT MERGED.
