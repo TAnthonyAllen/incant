@@ -31,7 +31,7 @@ define
         cerr "== ARM B1  copyOf TWIN -- write the TWIN, read the ORIGINAL ==":;
         cerr "   original:":;
         probeNode(rtB);
-        rtTwin <- copyOf(rtB);
+        rtTwin := copyOf(rtB);
         cerr "   twin:":;
         probeNode(rtTwin);
         rtTwin :. noPrinT;

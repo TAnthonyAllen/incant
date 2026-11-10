@@ -1044,8 +1044,14 @@ while IFS='^' read -r _id _st _oo _or _no _nr; do
     { cat "$T/ax.pre"; printf 'it1 = FILe("%s");\nprint "Q":;\ncerr "AX SENTINEL":;\nstop();\n' "$_st"; } > "$T/ax.$_id.n.k"
     for _r in o n; do perl -e 'alarm 20; exec @ARGV' "$B" "$T/ax.$_id.$_r.k" > "$T/ax.$_id.$_r.o" 2> "$T/ax.$_id.$_r.e"; echo $? > "$T/ax.$_id.$_r.x"; done
     _ofeq "arrowExprT $_id exit, sentinel, old | new" "$(cat "$T/ax.$_id.o.x") $(grep -c '^AX SENTINEL' "$T/ax.$_id.o.e") | $(cat "$T/ax.$_id.n.x") $(grep -c '^AX SENTINEL' "$T/ax.$_id.n.e")" "0 1 | 0 1"
-    _ofeq "arrowExprT $_id old road (control): stdout / REFUSED <- lines" "$(_axv "$T/ax.$_id.o")" "$_oo / $_or"
-    fdRow "arrowExprT $_id new road: stdout / REFUSED <- lines (intended: the old road's)" "$(_axv "$T/ax.$_id.n")" "$_no / $_nr" "$_oo / $_or"
+    if [ "$_id" = AX-5 ]; then
+        #  SEQ 597 R0 REGISTERED: <- retires as an operator, so the ordinary rebind AX-5 stops being the control and refuses by name on both roads
+        fdRow "arrowExprT $_id old road: x <- y, stdout / REFUSED <- lines (retired: refused by name)" "$(_axv "$T/ax.$_id.o")" "$_oo / $_or" "Q | / 1"
+        fdRow "arrowExprT $_id new road: x <- y, stdout / REFUSED <- lines (retired: refused by name)" "$(_axv "$T/ax.$_id.n")" "$_no / $_nr" "Q | / 1"
+    else
+        _ofeq "arrowExprT $_id old road (control): stdout / REFUSED <- lines" "$(_axv "$T/ax.$_id.o")" "$_oo / $_or"
+        fdRow "arrowExprT $_id new road: stdout / REFUSED <- lines (intended: the old road's)" "$(_axv "$T/ax.$_id.n")" "$_no / $_nr" "$_oo / $_or"
+    fi
 done < "$T/ax.list"
 _ofeq "arrowExprT rows ran (5 of 5)" "$_axn" "5"
 else echo "  FAIL  arrowExprT MISSING"; fail=1; fi
@@ -1079,6 +1085,25 @@ while IFS='	' read -r _id _op _cl _oa _na _opr _npr; do
 done < "$T/px.list"
 _ofeq "prefixOpT rows ran (68 of 68)" "$_pxn" "68"
 else echo "  FAIL  prefixOpT MISSING"; fail=1; fi
+
+#  ⚑ arrowRetiredT -- SEQ 597 R0 (Tony, 2026-11-10): <- retires as an operator and refuses by name on both roads, interpreted and compiled.
+#  One process per row; value = stdout / retired <its wording> other <other REFUSED lines> x<exit> s<sentinel>; today beside intended.
+#  REGISTERED TO RETIRE BY MAPPING AT THE BUILD, each a row that tests <- itself and has a := twin or a new home here:
+#    argBindT "'<-' refusal NAMED"  -> its := twin (the same loop) and AR-6;   percentT "<- through" -> its "PR := through" column;
+#    storeT wRebind ("SW <-", 103)  -> its := twin wSetGroup (102);            opPrefixT "rebind <-" (one token, not < then -) -> AR-1.
+_arF=$(ip arrowRetiredT)
+if [ -f "$_arF" ]; then
+sed '/^stop();/,$d' "$_arF" > "$T/ar.pre"
+grep '^AR-[0-9]*\^' "$_arF" > "$T/ar.list"
+_arn=0
+while IFS='^' read -r _id _st _tv _iv; do
+    _arn=$((_arn+1))
+    { cat "$T/ar.pre"; printf '%s\nprint "Q":;\ncerr "AR SENTINEL":;\nstop();\n' "$_st"; } > "$T/ar.$_id.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ar.$_id.k" > "$T/ar.$_id.o" 2> "$T/ar.$_id.e"; _arx=$?
+    fdRow "arrowRetiredT $_id" "$(grep -v '^stop: \|^Search list: \|^===\|^ *$' "$T/ar.$_id.o" | tr '\n' '|') / retired $(grep -c '^REFUSED <- -- retired as an operator -- write :=' "$T/ar.$_id.e") other $(grep '^REFUSED' "$T/ar.$_id.e" | grep -vc 'retired as an operator') x$_arx s$(grep -c 'AR SENTINEL' "$T/ar.$_id.e")" "$_tv" "$_iv"
+done < "$T/ar.list"
+_ofeq "arrowRetiredT rows ran (8 of 8)" "$_arn" "8"
+else echo "  FAIL  arrowRetiredT MISSING"; fail=1; fi
 
 #  ============================================================================
 #  ⚑ ruleXpresT -- F-146's certificate (SEQ 567 R2, registered on trunk before the cure): XPRESs, TOPSTATEMENt and INVOKEr through

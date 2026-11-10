@@ -1,0 +1,80 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(ArrowRetiredT);
+define
+    qa=2;
+    qb=3;
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    hr;
+    it1;
+    lp;
+    arCaller=5;
+    arElse=9;
+    arAct code={ la := qa; la <- qb; print *la:; print 6:; };
+    arTwin code={ lt := qa; lt := qb; print *lt:; print 6:; };
+    arArg code={ argument <- arElse; print 6:; };
+    arN code={
+        ln := qa;
+        ln <- qb;
+        print *ln:;
+        print 6:;
+        };
+    nlReqN owner source result rule;
+    arNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    ;
+search ArrowRetiredT Utilities UnitTests list;
+fsrc +% fa fb fc;
+stop();
+
+arrowRetiredT -- SEQ 597 R0 (Tony, 2026-11-10): <- retires as an operator. It did nothing := cannot. A <- written as an
+operator refuses by name on both roads, "REFUSED <- -- retired as an operator -- write := (SEQ 597)", and stores
+nothing. The <- inside a for loop is grammar text, not the operator, and still loops backwards. Rows prefixed AR-.
+
+Not run alone: pop.sh appends the row, print "Q", a sentinel; one process per row. Each value reads: stdout (lines joined
+by |) / retired <lines with the retired wording> other <other REFUSED lines> x<exit> s<sentinel>.
+
+AR-1  old road, top level: the target keeps its 2; the statements after it run.
+AR-2  new road, through FILe: refused when the statement runs; the rest of that FILe call does not run (an engine
+      refusal ends its unit), the statement after the call does.
+AR-3  an old-road action, interpreted: refused, and the action ends there (6 is not printed).
+AR-4  the same action compiled (testing()).
+AR-5  a new-road action body.
+AR-6  an argument target: today it refuses as a rebind of the binding (one other REFUSED line); retired, it refuses as
+      retired. The caller is unmoved either way.
+AR-7  control: the := twin holds 3, in an action and at top level.
+AR-8  control: for .. in <- .. loops backwards on both roads.
+
+ROWS, separated by ^ -- id ^ statements ^ value today ^ value intended
+AR-1^hr := qa; hr <- qb; print *hr:; print 7:;^3 |7 |Q | / retired 0 other 0 x0 s1^2 |7 |Q | / retired 1 other 0 x0 s1
+AR-2^it1 = FILe("hr := qa; hr <- qb; print *hr:;"); print 7:;^3 |7 |Q | / retired 0 other 0 x0 s1^7 |Q | / retired 1 other 0 x0 s1
+AR-3^arAct(); print 7:;^3 |6 |7 |Q | / retired 0 other 0 x0 s1^7 |Q | / retired 1 other 0 x0 s1
+AR-4^testing(arAct); print 7:;^3 |6 |7 |Q | / retired 0 other 0 x0 s1^7 |Q | / retired 1 other 0 x0 s1
+AR-5^arNew(arN); arN(); print 7:;^3 |6 |7 |Q | / retired 0 other 0 x0 s1^7 |Q | / retired 1 other 0 x0 s1
+AR-6^arArg(arCaller); print arCaller:; print 7:;^5 |7 |Q | / retired 0 other 1 x0 s1^5 |7 |Q | / retired 1 other 0 x0 s1
+AR-7^arTwin(); hr := qa; hr := qb; print *hr:; print 7:;^3 |6 |3 |7 |Q | / retired 0 other 0 x0 s1^3 |6 |3 |7 |Q | / retired 0 other 0 x0 s1
+AR-8^for lp in <- fsrc; print *lp:; it1 = FILe("for lp in <- fsrc; print *lp:;"); print 7:;^3 |2 |1 |3 |2 |1 |7 |Q | / retired 0 other 0 x0 s1^3 |2 |1 |3 |2 |1 |7 |Q | / retired 0 other 0 x0 s1
