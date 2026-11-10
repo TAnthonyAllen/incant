@@ -241,6 +241,12 @@ deleted, and OPERATOr builds it; doLoop carries ownsBody. The label's slots are 
 statement then the condition, the order opDo reads, so opDo did not change. Its two
 refusals now name the slot. Works at top level through FILe and in a new-road action body.
 
+THIRD AND FOURTH 2026-11-10 (SEQ 592, on trunk): If and ELSEIf declare op="ifThen" and take
+OPERATOr; If's hand action (which ELSEIf shared) is deleted. Slots arrive as condition,
+then, else, an absent else absent; opIf and OPERATOr did not change. Refusals name the
+slot, and an or arm's now say ELSEIf. Compiled through the rule door the walk line is
+OPERATOr's (native 3 handed 8, was 5 / 10); values and fired counts unmoved.
+
 ADDED 2026-11-09 -- rule as operator, and the jitter (NOT RULED, NOT SCHEDULED)
 1. Impact on jitting, measured before any compiled rule (ITERATe, FOr, If) loses its hand
    action: a default action is generic (walks the label), so native counts may fall; and one
