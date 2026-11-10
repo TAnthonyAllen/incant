@@ -34,6 +34,10 @@ intended value here. A second mention of += in setup (its member block) is one e
 
 Not run alone: pop.sh builds four inputs per row. Fields are separated by TABS (operators use | and ^).
 
+PX-18 (branchSignal) RETIRED BY MAPPING, SEQ 603: the entry is gone; its question -- the branch op in a prefix position, pinned at
+today's value -- is asked of the four ops that replace it, PX-69 breakSignal, PX-70 continueSignal, PX-71 returnValue, PX-72
+returnSignal. One thing differs and is pinned: on the new road each sets its signal with no keyword to read, so the top level refuses it (r1).
+
 ROWS -- id, op, class, old road assignment, new road assignment, old road print item, new road print item
 PX-1	~=	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[qb |Q |] r0 p0 x0 s1
 PX-2	||	n	[0 |Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1
@@ -52,7 +56,6 @@ PX-14	printShortcut	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0
 PX-15	seq	u	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
 PX-16	bodySeq	u	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1	[3 |Q |] r0 p0 x0 s1
 PX-17	ifThen	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
-PX-18	branchSignal	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
 PX-19	whileLoop	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
 PX-20	doLoop	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
 PX-21	forLoop	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
@@ -103,3 +106,7 @@ PX-65	&	n	[0 |Q |] r1 p1 x0 s1	[0 |Q |] r1 p0 x0 s1	[Q |] r1 p1 x0 s1	[& 3 |Q |]
 PX-66	%	n	[0 |Q |] r1 p1 x0 s1	[] r0 p0 x139 s0	[Q |] r1 p1 x0 s1	[] r0 p0 x139 s0
 PX-67	!=	n	[0 |Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1	[Q |] r1 p1 x0 s1	[1 |Q |] r0 p0 x0 s1
 PX-68	!	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r0 p0 x0 s1
+PX-69	breakSignal	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r1 p0 x0 s1
+PX-70	continueSignal	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r1 p0 x0 s1
+PX-71	returnValue	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r1 p0 x0 s1
+PX-72	returnSignal	u	[qr |Q |] r0 p0 x0 s1	[qr |Q |] r1 p0 x0 s1	[Q |] r0 p0 x0 s1	[Q |] r1 p0 x0 s1

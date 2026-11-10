@@ -1,0 +1,63 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(BranchOpT);
+define
+    qa=2;
+    qb=3;
+    qr=0;
+    it1;
+    qz=0;
+    boV code={
+        print 1:;
+        return 5;
+        print 2:;
+        };
+    boR code={
+        print 1:;
+        return;
+        print 2:;
+        };
+    nlReqN owner source result rule;
+    boNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    ;
+search BranchOpT Utilities UnitTests list;
+stop();
+
+branchOpT -- SEQ 603 (Tony, 2026-11-10): BRANCh is the parent of four fixed shapes, each an operator built by the default
+action: BREAk (op breakSignal), CONTINUe (continueSignal), RETURn (returnSignal) and RETURNVALUe (returnValue). The
+keyword hands nothing up; the shape's op carries the signal; return's value is the one slot of its shape.
+
+Not run alone: pop.sh runs each row twice, plain and with jitterRule(BRANCh); ahead of it, one process each under an
+alarm. Each value reads: [stdout, lines joined by |] r<REFUSED lines> x<exit> s<sentinel>. The compiled arm must equal the
+plain arm, and its door line is read beside it: built and fired summed over the four shapes.
+
+BO-1  break in a block in a while.
+BO-2  continue in a while.
+BO-3  return with a value, in a new-road action body: 2 is not printed and the caller gets 5.
+BO-4  a bare return, in a new-road action body: 2 is not printed.
+BO-5  top level through FILe: break, continue and return each refuse by name and the next statement runs (R2).
+
+ROWS, separated by ^ -- id ^ statements ^ value ^ built fired summed over the four shapes, compiled
+BO-1^it1 = STARt("while 1; { print 1:; break; }"); testOP(it1); print 9:;^[1 |9 |] r0 x0 s1^1 1
+BO-2^it1 = STARt("while qz < 3; { qz = qz + 1; if qz == 2; continue; print qz:; }"); testOP(it1); print 9:;^[1 |3 |9 |] r0 x0 s1^1 1
+BO-3^boNew(boV); qr = boV(); print qr:; print 9:;^[1 |5 |9 |] r0 x0 s1^1 1
+BO-4^boNew(boR); boR(); print 9:;^[1 |9 |] r0 x0 s1^1 1
+BO-5^it1 = FILe("break;"); it1 = FILe("continue;"); it1 = FILe("return 5;"); it1 = FILe("return;"); print 9:;^[9 |] r4 x0 s1^4 4

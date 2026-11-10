@@ -877,7 +877,8 @@ _ofeq "ruleDoorT rows ran (9 of 9)" "$_rdn" "9"
 #  jitter; ALONE does not open a rule fire (R1): BRANCh, opted in and never fired, proves the report printed; ITERATe has no line
 _rdrun jA 'jitter; jitterRule(BRANCh);' 'it1 = STARt("iterate ic attributes on fm; while ++ic; print *ic:;"); testOP(it1);'
 _ofeq "ruleDoorT jitter; alone: value" "$(_rdv "$T/rd.jA.o")" "7 |8 |"
-_ofeq "ruleDoorT jitter; alone: the report printed, nothing fired" "$(grep -c '^=== jitter rule: BRANCh built 0 fired 0 ===' "$T/rd.jA.e")" "1"
+#  SEQ 603 REGISTERED: BRANCh is a parent, so the opt-in names its four shapes; the report prints one line for each, none built, none fired
+fdRow "ruleDoorT jitter; alone: the report printed for BRANCh's four shapes, nothing built or fired" "$(grep -cE '^=== jitter rule: (BREAk|CONTINUe|RETURNVALUe|RETURn) built 0 fired 0 ===' "$T/rd.jA.e")" "0" "4"
 _ofeq "ruleDoorT jitter; alone: ITERATe did not go through the door" "$(grep -c 'ITERATe' "$T/rd.jA.e")" "0"
 #  the opt-in refuses what is not a rule, by name, and the run goes on
 _rdrun nR 'jitterRule(fa);' 'print "next":;'
@@ -950,6 +951,10 @@ while IFS='|' read -r _id _st _nm; do
     elif [ "$_id" = RC-Do ]; then
         #  SEQ 591 REGISTERED: Do's default action refuses its condition slot by the slot's label, before any attach
         fdRow "refusedCondT $_id the default action's slot line | REFUSED lines in all (SEQ 596 R1: one refusal per statement)" "$(grep -c '^REFUSED Do -- its EXPRESSIOn handed up nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED' "$T/rc.$_id.e")" "1 | 2" "0 | 1"
+    elif [ "$_id" = RC-Branch ] || [ "$_id" = RC-sBranch ]; then
+        #  SEQ 603 REGISTERED: the return-with-a-value shape's default action meets a value slot that handed up nothing; the hand action's
+        #  attach into retArms, and its second refusal line, are gone (one refusal per statement, SEQ 596 R1)
+        fdRow "refusedCondT $_id the retArms attach line | REFUSED lines in all (SEQ 596 R1: one refusal per statement)" "$(grep -c '^REFUSED retArms -- Operator +% -- an operand that is nothing' "$T/rc.$_id.e") | $(grep -c '^REFUSED' "$T/rc.$_id.e")" "1 | 2" "0 | 1"
     else
         _ofeq "refusedCondT $_id the attach's refusal names $_nm" "$(grep -c "^REFUSED $_nm -- Operator +% -- an operand that is nothing" "$T/rc.$_id.e")" "1"
     fi
@@ -1095,8 +1100,32 @@ while IFS='	' read -r _id _op _cl _oa _na _opr _npr; do
         _ofeq "prefixOpT $_id $_op (a unary, pinned) old | new assignment, old | new print item" "$_v1 | $_v2 | $_v3 | $_v4" "$_oa | $_na | $_opr | $_npr"
     fi
 done < "$T/px.list"
-_ofeq "prefixOpT rows ran (68 of 68)" "$_pxn" "68"
+#  SEQ 603: PX-18 (branchSignal) retired by mapping to PX-69..72, the four ops that replace it: 68 - 1 + 4.
+_ofeq "prefixOpT rows ran (71 of 71)" "$_pxn" "71"
 else echo "  FAIL  prefixOpT MISSING"; fail=1; fi
+
+#  ⚑ branchOpT -- SEQ 603 (Tony, 2026-11-10): BRANCh as four fixed shapes. Per row one process plain and one with jitterRule(BRANCh);
+#  the value by value, compiled against plain, and the door: built and fired summed over the four shapes (was "BRANCh built 1 fired N").
+_boF=$(ip branchOpT)
+if [ -f "$_boF" ]; then
+sed '/^stop();/,$d' "$_boF" > "$T/bo.pre"
+grep '^BO-[0-9]*\^' "$_boF" > "$T/bo.list"
+_bon=0
+_borun () {  # name  arm-line  statements
+    { cat "$T/bo.pre"; [ -n "$2" ] && printf '%s\n' "$2"; printf '%s\ncerr "BO SENTINEL":;\nstop();\n' "$3"; } > "$T/bo.$1.k"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/bo.$1.k" > "$T/bo.$1.o" 2> "$T/bo.$1.e"; _box=$?
+    _bov="[$(grep -v '^stop: \|^Search list: \|^===\|^ *$' "$T/bo.$1.o" | tr '\n' '|')] r$(grep -c '^REFUSED' "$T/bo.$1.e") x$_box s$(grep -c 'BO SENTINEL' "$T/bo.$1.e")"
+}
+while IFS='^' read -r _id _st _v _d; do
+    _bon=$((_bon+1))
+    _borun "$_id.i" "" "$_st"; _boi="$_bov"
+    _borun "$_id.c" "jitterRule(BRANCh);" "$_st"
+    _ofeq "branchOpT $_id value" "$_boi" "$_v"
+    _ofeq "branchOpT $_id compiled = plain" "$_bov" "$_boi"
+    fdRow "branchOpT $_id through the door: built, fired summed over BRANCh's four shapes" "$(grep -E '^=== jitter rule: (BREAk|CONTINUe|RETURNVALUe|RETURn) built [0-9]+ fired [0-9]+ ===$' "$T/bo.$_id.c.e" | awk '{b+=$6; f+=$8} END {print b+0, f+0}')" "0 0" "$_d"
+done < "$T/bo.list"
+_ofeq "branchOpT rows ran (5 of 5)" "$_bon" "5"
+else echo "  FAIL  branchOpT MISSING"; fail=1; fi
 
 #  ⚑ iterOpT -- SEQ 601 (Tony, 2026-11-10): ITERATe as four fixed shapes, each an operator built by the default action. One process per
 #  row under an alarm; value = [stdout] r<REFUSED lines> adj / pre / plus <three wordings> x<exit> s<sentinel>; today beside intended.
@@ -7980,15 +8009,17 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  262 RE-PINNED 2026-11-03 (SEQ 516, branch top-refuse): 261 -> 262 on this row and its five siblings -- bodySeq is registered in Operators (SEQ 516) (control: the bodySeq line removed from incant/setup, all six read 261 again on the same binary).
 #  SEQ 594 REGISTERED, 269 -> 270 on the six sibling rows (itRT, jitCursorLifeT, itBackRT) and 67 -> 68 on opEntryT OE-R: the walk counts
 #  Operators' entries, and forBack (the reverse for's own op) is one more.
+#  REGISTERED SEQ 603 (Tony, 2026-11-10): four entries (breakSignal, continueSignal, returnValue, returnSignal) replace branchSignal, three more:
+#  276 for 273 and 74 for 71. A count of the registry, not behaviour.
 #  REGISTERED SEQ 601 (Tony, 2026-11-10): three more Operators entries (iterateAttrs, iterateMembers, iterateBoth), so every walk of
 #  Operators reads 273 for 270 (itRT, jitCursorLifeT, itBackRT) and its length 71 for 68 (opEntryT). A count of the registry, not behaviour.
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "270" "273"
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "273" "276"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "270" "273"
+fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "273" "276"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -8004,8 +8035,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "270 6" "273 6"
-fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "270" "273"
+fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "273 6" "276 6"
+fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "273" "276"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -8021,12 +8052,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "270" "273"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "273" "276"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "270" "273"
+fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "273" "276"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -9243,7 +9274,7 @@ sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
 #  RE-PINNED 2026-10-30 (SEQ 492 R2, branch command-call): 63 -> 64 -- call is registered in Operators (SEQ 492).
 #  OE-R RE-PINNED 2026-10-31 (SEQ 496): 64 -> 66 -- cerrList and coutList are registered in Operators
 #  OE-R RE-PINNED 2026-11-03 (SEQ 516): 66 -> 67 -- bodySeq is registered in Operators (control: the bodySeq line removed, 66 again)
-fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "68" "71"
+fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "71" "74"
 kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
 kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
