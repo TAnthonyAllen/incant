@@ -21,7 +21,6 @@ Aside/
 BackupIncant/
 BeforeRefactor/
 BeforeSave/
-XML/BackupXML/
 NewPLG/
 
 # Offline conversion-to-incant workspace (skeleton mirrors XML/; not tracked)
@@ -63,9 +62,6 @@ DerivedData/
 
 # Test alias dir — symlinks back to parent sources, not tracked
 Tests/
-
-# Personal working scratchpad — clipboard file, not source
-XML/WorkingOn/incant++
 
 # Walkie-talkie IPC — Clay<->Clod channel. TRACKED as of 2026-08-10 (Tony's
 # ruling): git buys Clay read-reach via clone and buys history. It buys ZERO
