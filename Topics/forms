@@ -73,6 +73,49 @@ The line between forms and drawing is the floor request: forms owns attributes, 
     The drawing language moves into kant when the jitter allows (A5). A small drawing language is a parked design question; it may not be needed if colour and font stay with styles (SEQ 582 R6).
     Evidence: IncantForms/WorkingOn/drawing; docs/bindingmethods.md.
 
+THE FLOOR CENSUS (SEQ 618, 2026-11-11; read-only, no build). What the 21 forms ask for that nothing draws today, ordered by forms unblocked. This is the drawing plan.
+    Counted over each form's live region (above bail / stop), strings, prose and the converter's '# TODO: review' lines stripped, the field's own name skipped. "forms / fields" = how many forms and how many fields ask.
+    Each line: the attribute; forms / fields; the Core Graphics or Core Text call; the request shape; kant or floor; a foreign call's shape if it were made direct; what it waits on.
+    A   NEEDS THE FLOOR
+    1   rounded, rounded=N           13 / 60 (6 give a radius, in 4 forms). CGPathCreateWithRoundedRect, CGContextAddPath, then FillPath or StrokePath (the Drawing registry's rounded entry names no function; this is it).
+                                     Request: no new method -- a radius read by displayFillRT and displayBorder beside what they read now. Foreign: 4 arguments, a CGRect (a struct kant lacks) and a path that must be released.
+                                     Waits on: the default radius (old GUI 5, Bot 8) and whether radius lives in style. Plain rounded waits on nothing else. 7 fields in 3 forms (layout, list, scroll) also ask a side: Waiting on Tony 5.
+    2   shadow                       6 / 6, every one a heading. CGContextSetShadowWithColor inside a save / restore around the fill or the text.
+                                     Request: no new method -- a shadow slot on the fill read and on textReq. Foreign: 4 arguments, a CGSize and a CGColorRef (both lacking).
+                                     Waits on Tony: the old GUI never read shadow, so what it means (the box or the text; offset, blur, colour) has no ruling.
+    3   image placements             4 / 6 (bigify, descriptions, keyStroke, layout). fit fill is built. Not built:
+                                     a rounded image, 2 forms / 3 fields: CGContextAddPath + CGContextClip before CGContextDrawImage; a radius on imageReq; comes with line 1.
+                                     zoom, shrink, centre on the click point, 1 form: an offset and a scale on imageReq; the floor already calls TranslateCTM and ScaleCTM. Waits on step 10 (the click).
+                                     a grid of pictures from a directory, 1 form (bigify): fit fill as built; kant over a source. Waits on the listener.
+                                     Waits on Tony: a name for the fit attribute (Waiting on Tony 3). The image in a PDF still has no row.
+    4   fit (the layout attribute)   4 / 10 (fit, inspector, list, sheet; fit=text in layout and menu is dropped). Layout, in kant, in setFrame -- but fitting round text needs the text's height.
+                                     Request: no new method -- displayText writes lines and height into textReq and can be asked to measure without drawing (today it only prints them). No new foreign call.
+                                     Waits on: step 6 (setFrame finished).
+    5   drawPath / draw=, perforation, perfColor   3 / 6 (draw, inspector, wraplist). BeginPath, MoveToPoint, AddLineToPoint, AddCurveToPoint, ClosePath, FillPath / EOFillPath / StrokePath, RotateCTM, ScaleCTM, TranslateCTM; arc and oval were never implemented.
+                                     Request: ONE new method, displayPath(pathReq): the points and operators already resolved in kant (percent, relative, direction), the floor only replays them. This is the yardstick's one new method.
+                                     Foreign: every call is the context plus doubles (up to 7 arguments for a curve); no struct. The registry's signatures (v:pdY) already say so.
+                                     Waits on: the small drawing language, a parked design question.
+    6   scrolling                    3 / 5 (scroll, where it is implied by content that overflows; list scrollWith; wraplist doNotScroll). Children clipped to the parent's frame and shifted: CGContextClipToRect and TranslateCTM held across a subtree's floor calls.
+                                     Request: today every clip opens and closes inside one floor call, so this needs a new pair (pushClip(clipReq), popClip) -- or the walk hands each child its clip. Foreign: one CGRect.
+                                     Waits on: step 6 (noRoom) and step 10 (scroll events).
+    7   italic                       2 / 2 (layout, menu). CTFontCreateCopyWithSymbolicTraits. The text floor reads family, size and bold; nothing reads italic. No new method; no ruling needed. caps is the same change; no form asks it.
+    8   a gradient fill              2 / 2 (fill=radialGreen lighten, in inspector and keyAction). CGGradientCreateWithColorComponents, CGContextDrawRadialGradient. Draws flat today: styles holds radialGreen as a plain colour.
+                                     Foreign: 7 arguments, a gradient ref and two CGPoints. Waits on Tony: gradient and angle are on the drop list ("revisit with drawing").
+    B   PURE KANT ON TODAY'S FLOOR (a respell or a choice in the walk; no floor change)
+    9   border=off                   12 / 33. Border is not inherited, so the respell is to delete it.
+    10  label                        9 / 20. The old text spelling; respelled to a text field.
+    11  old side names               6 / 12 (top bottom left right, left=2). Respelled topBorder ... on displayBorder. 5 fields in 4 forms are free now; the other 7 are rounded (line 1).
+    12  bordered                     6 / 51. A template; respelled border.
+    13  border=colour                4 / 7. Respelled border strokeColor:=.
+    14  layers, overlay              3 / 3. Draw order in the walk; the painter is forward-only, so order is all it takes.
+    15  selectFill                   2 / 6. The walk picks the fill by selection. Waits on step 10.
+    16  fill=off, fill=#hex          1 / 1 and 1 / 2. Nothing to do: off is no fill; setColor already skips the #.
+    C   NOT DRAWING, listed so nobody looks again: tip (1 form, a window tooltip, no reader ever); style=matrixBG (2 forms; no such style in Controls/styles); fontSize (2 forms, dropped); hide; percent (Waiting on Tony 4).
+    WHAT IT ADDS UP TO   Line 1 alone is asked by 13 of the 19 undrawn forms, and is two existing methods plus one path call. Only line 5 needs a new floor method (line 6 may need a pair).
+                                     This counts drawing only: most of those forms also wait on things that are not drawing (the listener, sources, windows, events).
+    FOR THE JITTER'S FOREIGN-CALL WORK (shape C)   The types kant lacks, by first need: CGRect (1, 6), CGSize and CGColorRef (2), CGPoint and a gradient ref (8), a path ref with a release (1, 3).
+                                     Only line 5's calls are context-plus-doubles, so the path replay is the first floor method a typed direct call could retire.
+
 /*****************************************************************************
     Typesetting (sub-topic) -- see Topics/typesetting
 *****************************************************************************/
@@ -178,6 +221,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    449  SEQ 618   the floor census: what the 21 forms ask that nothing draws, written into Drawing as its plan (16 lines, ordered by forms). Read-only; no build.
     443  SEQ 614   this file made; typesetting split out; the forms history files retired.
     441  SEQ 607-609   descriptions respelled and drawn: the search line moved, describe shown, displayImage (one argument, fit fill).
     440  SEQ 606   descriptions recon: the attribute map, images and the click in the old GUI, flex confirmed as also meaning across.
