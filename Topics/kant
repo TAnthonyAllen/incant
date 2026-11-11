@@ -54,6 +54,7 @@ To come, from IncantForms/WorkingOn/macros.
 /*****************************************************************************
     Issues (open lines, verbatim from the seal that recorded them)
 *****************************************************************************/
+    seal 456 (forms):  a := capture written at a fixture's top level does not hold: `laid := setFrame(req);` then `printDefinition(*laid);` printed nothing, where the same two lines inside an action work. Fixtures hold the copy in a declared field set by a one-line action. Not chased.
     seal 453 (forms; moved here by ruling, Tony, 2026-11-11, SEQ 624 R1; a kant bug, not chased):  a while loop written at the top level of a fixture (not inside an action) never ended: opacityT's first draft hung until killed; the same loop inside an action runs.
     seal 441:  "OPEN, each named in its seal: incant/grammar still takes `attributes members` (seal 438) · heading in firstLight would sit about 3 points lower with valign=center, not applied (439) · the recon's lines Tony has not ruled: the bare font names' table row, margin's own ruling (440) · iterOpT IO-7 pinned red · F-149."
     seal 437:  "OPEN FROM THIS SESSION, each named in its seal: the ten keep the prefix wording in a prefix position (ruled, no re-pin) · iterOpT IO-1 and IO-7 pinned red, not cured (both filter words; iterate with no cursor) · ITERSOURCe on docs/cleanupList.md · a break and a continue inside a handed-over if under jitter; measured, not pinned as rows (seal 436) · genLadder/kantGrammarNames.sh fails, on no checklist."

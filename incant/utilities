@@ -433,7 +433,7 @@ define
          Should modify to check for noRoom and bail if there aint none
     ***************************************************************************/
     frameMembers code={
-        =:argument across down width height x y;
+        =:argument across down overlay width height x y;
         if across.datA != 0;
             if down.datA != 0;
                 bothDirections(argument);
@@ -446,6 +446,11 @@ define
         pY          = y;
         upOut       = 0;
         sideOut     = 0;
+        // overlayNamed a parent that names overlay (and neither down nor across) overlays its children: each fills the parent's box unless it declares its own width, height, x or y. A parent naming no direction stacks them, as down does: the old GUI's default, and what descriptions and unitTests' sample rely on (SEQ 626 W3; the default is Tony's to re-rule)
+        laysOver    = 0;
+        if overlay.datA != 0;
+            if across.datA == 0;
+                if down.datA == 0;  laysOver = 1;
         if down.datA != 0;
             tARGET="height";
             dIRECTion="down";
@@ -478,6 +483,9 @@ define
             or across.datA != 0;
                 height = pHeight;
                 *grup :% copyOf(height);
+            or laysOver == 1;
+                height = pHeight;
+                *grup :% copyOf(height);
             else
                 upOut       +/ *grup;
                 ++upOut;
@@ -506,14 +514,23 @@ define
     /***************************************************************************
              Set x and y in frame
     ***************************************************************************/
+        // fromTheParent under an overlaying parent a child's declared x and y are measured from the parent's origin (R4); under down or across they are not read, as before
         for grup in argument; members
             =:grup width height x y;
-            y = pY;
+            placeY = pY;
+            placeX = pX;
+            if laysOver == 1;
+                if y.datA != 0;     placeY = pY + y;
+            if laysOver == 1;
+                if x.datA != 0;     placeX = pX + x;
+            y = placeY;
             *grup :% copyOf(y);
-            x = pX;
+            x = placeX;
             *grup :% copyOf(x);
-            if across.datA == 0;    pY += height;
-            else                    pX += width;
+            if laysOver == 0;
+                if across.datA == 0;    pY += height;
+            if laysOver == 0;
+                if across.datA != 0;    pX += width;
         for grup in argument; members
             if *grup.hasMemberS;
                 frameMembers(*grup);

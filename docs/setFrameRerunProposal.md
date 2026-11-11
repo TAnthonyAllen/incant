@@ -1,6 +1,6 @@
 # setFrame's rerun (forms step 6): proposed strokes (SEQ 625 W1, 2026-11-11). Read-only; nothing built.
 
-**RULED 2026-11-11 (Tony, SEQ 626 R1-R5): the five points at the foot are answered in Topics/forms, "setFrame's rerun". Stroke 1 built at seal 456, stroke 2 at seal 457 (with copyDeep: copyOf's copy was not deep enough). The text below is the proposal as written.**
+**RULED 2026-11-11 (Tony, SEQ 626 R1-R5): the five points at the foot are answered in Topics/forms, "setFrame's rerun". Stroke 1 built at seal 456, stroke 2 at seal 457 (with copyDeep: copyOf's copy was not deep enough), stroke 3 at seal 458 for a NAMED overlay only (see the correction under "What is true today"). The text below is the proposal as written.**
 
 **Plain line: the rerun itself needs no listening. Three strokes build it on what is already ruled; Tony's frame-and-listener
 idea is a fourth, and it is the only one that waits on listening. Five points need a ruling; they are listed at the foot.**
@@ -17,8 +17,12 @@ updateListeners, and the listenT and defineRefT rows in `genLadder/pop.sh`. Meas
 - **A first run is right**, percent included (roundedT RD-8). Only a rerun is wrong.
 - **A child's own x and y are always overwritten.** The x/y pass is unconditional (`x = pX; y = pY`). A parent with neither
   down nor across is treated as down: its children are stacked from its origin, whatever x and y they declare (found at
-  seal 452, shadowT). In the old GUI a parent with no direction took the overlay case: a child fills the parent's box
-  unless it fixes its own x, y, width or height (`GUI/Details.twk`, setFrame's default case). So today differs from the old GUI here.
+  seal 452, shadowT). ~~In the old GUI a parent with no direction took the overlay case: a child fills the parent's box
+  unless it fixes its own x, y, width or height (`GUI/Details.twk`, setFrame's default case). So today differs from the old GUI here.~~
+  **WRONG, corrected 2026-11-11 at seal 458.** I read the layout switch and not where the orientation is set. `GUI/Details.twk`
+  initialize ends `or !flexed down = true`: a parent naming no direction is DOWN. Only a parent naming overlay, cards or layers
+  overlays. Ruling R3 took its "as the old GUI did" from the struck sentence. Built at seal 458: overlay when NAMED; the default
+  is back with Tony (`Topics/forms`, Waiting on Tony 8).
 - **Listening today:** `listenTo:=` arms when the listener is defined. On EVERY write to the notifier the listener copies
   the notifier's VALUE, at once (updateListeners is called from each setter, tok). None of the notifier's attributes
   arrive (listenT LN-2). There is no onNotify, and no way to hold a notification back until a command.
