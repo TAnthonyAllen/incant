@@ -8,7 +8,9 @@ and any number that moved. One seal sequence and one SEQ sequence across topics,
 **447, 2026-11-11, SHUTDOWN, topic: clean up, SEQ 615-616 closed.** The kitchen pass run; every check as banked.
 The session: 445 (clean up, SEQ 615) this page split out of the old wakeup, Topics/kant and Topics/cleanup made;
 446 (documentation, SEQ 616) Topics/documentation made.
-Last SEQ: 616. Next: Tony's word. Each topic file's Plan names its own next step; kant's plan is a planning pass.
+Last SEQ: 616. **NEXT -- OPEN ON THIS:** the two-question dispatch Tony pasted after the shutdown, recorded verbatim in
+`Topics/cleanup` under "Recorded dispatches -- THE NEXT OPENER" (SEQ 617; read-only; it also rules SEQ 616's points 1-3
+as done). After it, each topic file's Plan names its own next step; kant's plan is a planning pass.
 
 ## The numbers (as run at shutdown seal 447; binary md5 957c445b..., the same bytes since seal 441)
 | instrument | reads |
@@ -37,7 +39,7 @@ Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 | `Topics/kant` | 121 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/forms` | 196 | forms, with drawing as a section. |
 | `Topics/typesetting` | 80 | sub-topic of forms until forms step 7. |
-| `Topics/cleanup` | 90 | clean up; the recorded census and split dispatches. |
+| `Topics/cleanup` | 108 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 73 | lookup with no index; the documenter. Nothing built. |
 | `Topics/features` | 48 | the parking list; not a session topic. |
 

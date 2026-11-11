@@ -81,6 +81,24 @@ Under shutdown seal 444 (2026-11-11), the split of docs/wakeup.md; run as SEQ 61
 #     4  SEQ 610-614 are recorded.
 #     NOTE FOR THE OPENER: both older vintage files were deleted at seal 442 as history rows (git 2144dde6), so the new vintage file is the only one. This file is about 11,400 lines; estimate the read up front. After the split: topic files for kant, documentation and clean up.
 
+THE NEXT OPENER. Pasted by Tony after shutdown seal 447 (2026-11-11), to open the next session; NOT RUN. SEQ is Clod's to assign (617). Its Q1 is documentation's, its Q2 clean up's:
+
+DISPATCH -- SEQ (Clod assigns) -- TWO QUESTIONS, READ-ONLY. NO FILE CHANGES BUT THE TOPIC FILES NAMED.
+
+RULINGS (Tony, 2026-11-11)
+R0  SEQ 616's points 1-3 stand as you did them: seals 373-444 in git only, seal 372 in the vintage,
+    442 and 444 digested in Topics/cleanup.
+
+Q1  incant/lookup: what is it, who wrote it and when, what lookuP, tombstone and lookupIndex do, and
+    whether anything loads or calls it (harness, include, setup, fILEs). One short paragraph, then your
+    lean: respell it into lookup / lookupAll / lookupIn, retire it, or keep it under another name beside
+    them. Record the answer under Open in Topics/documentation.
+Q2  The line budget (Topics/cleanup, Plan item 1): propose a budget per topic file and for the shared
+    page, from today's sizes and what each file has to hold. Say how a seal prints it and what happens
+    when a file goes over. Record the proposal under Plan item 1, marked "proposed, not ruled".
+
+At the end of your report, say whether you'd rather shut down or continue.
+
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
 *****************************************************************************/
