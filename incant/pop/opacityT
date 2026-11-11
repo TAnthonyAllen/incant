@@ -34,6 +34,14 @@ define
         opStyled x=0 y=0 width=30 height=30 style:=opSt;
         opOwn x=30 y=0 width=30 height=30 style:=opSt opacity=1;
         opBad x=0 y=30 width=30 height=30 fill=black opacity=3;
+    opZeroSt opacity=0 fillColor="blue";
+    opZ x=0 y=0 width=60 height=60 fill=white
+        opZfill x=0 y=0 width=30 height=30 fill=black opacity=0;
+        opZstyle x=30 y=0 width=30 height=30 style:=opZeroSt;
+        opZline x=0 y=30 width=30 height=30 border=4 opacity=0;
+        opZsame x=30 y=30 width=30 height=30 fill=black;
+    opZwordTop x=0 y=0 width=120 height=40 fill=white
+        opZword="Opacity" x=0 y=0 width=120 height=40 font:=titleFont opacity=0;
     opWordTop x=0 y=0 width=120 height=40 fill=white
         opWord="Opacity" x=0 y=0 width=120 height=40 font:=titleFont opacity=0.5;
     opBareTop x=0 y=0 width=120 height=40 fill=white
@@ -70,6 +78,15 @@ opY = 18;
 opRow(opWordTop);
 drawWalk(opBareTop);
 opRow(opBareTop);
+cerr "OP-6 opacity=0 is fully clear, not read as absent: a fill (15,15) white; from a style (45,15) white; a border (1,45) white; the same fill with no opacity (45,45) black; then text at 0, row y=18":;
+drawWalk(opZ);
+opX = 15; opY = 15; opAt(opZ); pixelAt(opZ);
+opX = 45; opAt(opZ); pixelAt(opZ);
+opX = 1; opY = 45; opAt(opZ); pixelAt(opZ);
+opX = 45; opAt(opZ); pixelAt(opZ);
+drawWalk(opZwordTop);
+opY = 18;
+opRow(opZwordTop);
 cerr "OP-5 opForm to a PDF, read back: red alone (60,70), blue alone (200,150), where they overlap (130,110), the wall (20,180)":;
 pdfReq :% copyOf(opForm["width"]);
 pdfReq :% copyOf(opForm["height"]);

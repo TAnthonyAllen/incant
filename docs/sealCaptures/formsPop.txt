@@ -163,6 +163,8 @@
   ok    opacityT OP-2 opacity does not reach a child: the parent at 0.5 (45,45); its child with none of its own (20,20) = [grey black]
   ok    opacityT OP-3 opacity from the style (15,15); the field's own opacity=1 over the style's (45,15); opacity=3 refused by name (count) and drawn opaque (15,45) = [halfBlue blue black 1]
   ok    opacityT OP-4 text at 0.5: the darkest pixel on row y=18 is r127 where the same text with none reaches r0 (120 read of each) = [127 0 120 120]
+  ok    opacityT OP-6 opacity=0 is fully clear: a fill (15,15), from a style (45,15), a border (1,45); the same fill with none (45,45) = [white white white black]
+  ok    opacityT OP-6 text at opacity=0 leaves no ink: the darkest pixel on row y=18 (120 read), beside the plain word's r0 = [255 120 0]
   ok    opacityT OP-5 opForm as a PDF, read back: red alone, blue alone, their overlap and the wall are four different colours; red alone is not full red; the wall is the wall = [4 0 r247 g232 b170 a255]
 
 -- italic (italicT).
@@ -174,4 +176,4 @@
   ok    italicT IT-5 a font with no italic face warns by name (count) and draws upright = [1 upright]
   ok    italicT IT-6 itForm as a PDF: one page, and the faces of its heading, upright line, italic line and the italic field's child = [pages 1 size 300x150 upright upright italic italic]
 
-FORMS POP FAILED -- 151 green, see above
+FORMS POP FAILED -- 153 green, see above

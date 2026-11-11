@@ -5,20 +5,20 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**454, 2026-11-11, topic: forms, SEQ 624.** `style="name"` retired: `style:=` is the only spelling, the floor refuses
-a style that is not held, by name, and ten fixtures were respelled. Italic built as a text property
-(`incant/pop/italicT`; its form's PDF is `IncantForms/PDF/output.pdf`). The top-level `while` issue moved to
-`Topics/kant`. `Topics/forms` trimmed by the budget rule. Before it this session: 451 (SEQ 621) rounded; 452 (SEQ 622)
-shadow, `simple`'s percent, the mock-click goal (G1); 453 (SEQ 623) the inheritance rule, opacity.
-Last SEQ: 624. **NEXT:** nothing in forms waits on a new ruling from this session; `Topics/forms`' Plan, its floor census
-and G1 name the next steps. `Topics/cleanup` is over its budget and opens its next session with the trim.
+**455, 2026-11-11, topic: forms, SEQ 625.** `italic=off` ruled as interim. `opacity=0` checked: fully clear, two rows,
+nothing to cure. The line budget is an objective, not a hard rule (`Topics/cleanup`, CLAUDE.md). Read-only: the strokes
+for setFrame's rerun proposed, with five points to rule (`docs/setFrameRerunProposal.md`). No binary change. Before it
+this session: 451 rounded; 452 shadow, `simple`'s percent, the mock-click goal (G1); 453 the inheritance rule, opacity;
+454 `style:=` the only spelling, italic.
+Last SEQ: 625. **NEXT:** Tony's rulings on the rerun proposal's five points, and on whether drawing becomes its own
+topic file (Clod's report is in seal 455's commit message: yes). `Topics/cleanup` is over its budget.
 
-## The numbers (as run at seal 454; binary md5 b21ef29c..., rebuilt 2026-11-11 14:41 with italic and the held-style read in GroupDraw)
+## The numbers (as run at seal 455; binary md5 b21ef29c..., rebuilt 2026-11-11 14:41, unchanged since seal 454)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3728 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 151 green (144 + italicT's seven); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 153 green (151 + opacityT's two OP-6 rows); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
@@ -38,10 +38,10 @@ Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 51 / 60 | this page. |
-| `Topics/forms` | 265 / 280 | forms, with drawing as a section. |
+| `Topics/forms` | 267 / 280 | forms, with drawing as a section. |
 | `Topics/kant` | 122 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/typesetting` | 80 / 120 | sub-topic of forms until forms step 7. |
-| `Topics/cleanup` | 128 / 120 OVER by 8 | clean up; the recorded census and split dispatches. |
+| `Topics/cleanup` | 130 / 120 OVER by 10 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 86 / 120 | lookup with no index; the documenter. Nothing built. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 

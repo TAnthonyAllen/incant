@@ -15,12 +15,12 @@ A form is a define block: a tree of fields (window, body, panels, controls) whos
 Tony is the form designer: once the attributes are fleshed out he finishes the IncantForms forms himself, using the tools.
 
 /*****************************************************************************
-    State (seal 454, 2026-11-11)
+    State (seal 455, 2026-11-11)
 *****************************************************************************/
     draws        firstLight, descriptions, simple (bitmap and PDF). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
     built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles; rounded (fill and plain border); shadow; opacity (fill, border, text); italic; percent on a first run.
     not built    a side or an image on a rounded field; opacity on an image; runs inside text; setFrame's second run and resize (a percent does not survive the first run); windows, selection, click; margin. (fit as a layout attribute is parked: Topics/features 33.)
-    formsPop     151 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
+    formsPop     153 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
 
 /*****************************************************************************
     Where things live
@@ -34,7 +34,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         formsRecon      Parts 1-2 what the old GUI did (file, method, line); Part 3 the forms notes as they stood at seal 442
         drawing         the Drawing registry: Core Graphics names and signatures
         firstLightRead  reads firstLight back
-    docs/           setFrameSpec.md, setFrameSecondRun.md, setFrameSecondRunDesign.md, firstLightPdfRecon.md, m5Recon.md, percentRecon.md, bindingmethods.md
+    docs/           setFrameSpec.md, setFrameSecondRun.md, setFrameSecondRunDesign.md, setFrameRerunProposal.md, firstLightPdfRecon.md, m5Recon.md, percentRecon.md, bindingmethods.md
     Old GUI         Groups/GUI/ (tracked) and InProcess/Bot/ (not a repo; slightly newer). formsRecon Part 3, "Where the old GUI lives".
 
 /*****************************************************************************
@@ -62,7 +62,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     5   Text in a field's frame, wrapped, clipped; fixed 4-point inset. DONE (412-413)
     5a  align = left / center / right / justify.                       DONE (SEQ 582, 584)
     5b  valign = top / center / bottom.                                DONE (439)
-    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md)
+    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md; the proposed strokes, with what waits on listening and the five points to rule: docs/setFrameRerunProposal.md)
     7   Runs inside text: the first typesetting step. See Topics/typesetting.
     8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
     9   Rounded fields.                                                DONE for the fill and a plain border (451). A side on a rounded field is still open (Waiting on Tony 5); a rounded image is not built.
@@ -139,13 +139,14 @@ Inheritance, one rule (2026-11-11, SEQ 623 R0; narrows SEQ 622 R2 to box propert
 style:= is the only spelling (2026-11-11, SEQ 624 R0)
     style="name" (quoted) is retired. The floor refuses a style that is not held, by name, and the field then has no style. The fixtures were respelled.
 Italic (2026-11-11, SEQ 624 W1)
-    A text property: a bare italic on a field or in its style draws the font's italic face, and it inherits. italic=off turns it off below (Clod's spelling, after border=off; a 0 cannot be told from absent in the climb).
+    A text property: a bare italic on a field or in its style draws the font's italic face, and it inherits. italic=off turns it off below: RULED AS INTERIM (Tony, 2026-11-11, SEQ 625 R0) -- it stands until typesetting's {style: text} runs exist, when it is revisited. (A 0 cannot be told from absent in kant's climb.)
     A font with no italic face warns by name and draws upright. The old GUI: italic was a font-style mask (traits: italic=1) that converted the field's font (GUI/Stylish.twk, fONTstyle); Bot's PDF road looked for a font file named Italic.
 Shadow (2026-11-11, SEQ 622 R3)
     A field attribute, applied wherever a form names it. The old Stylish values: 2 right, 2 down, blur 3, black at 30%. One shadow per field (ruled, SEQ 623 R1): its fill if it has one, else its border, else its text.
     A fill's shadow falls outside the frame, so a neighbour drawn later can cover it. No attribute changes the values yet; no form asks.
 Opacity (2026-11-11, SEQ 623)
     opacity=n, a number from 0 (clear) to 1 (opaque), a box property: the field's own fill, border and text are drawn at it. A value outside 0 to 1 refuses by name and draws opaque. An image is not covered yet.
+    opacity=0 draws fully clear, on a fill, a border, text, and from a style (measured, SEQ 625 C1; opacityT OP-6): the floor asks whether the attribute exists, not whether its value is true. Nothing to cure.
     No form spells opacity. The layers form is Windows/cards ("Cards and Layers"); its third card says "Layers not enabled for now" and names layers, nothing else.
     The old GUI's spelling was transparency=n on a field or a colour entry, handed straight to the fill colour as its alpha (GUI/Stuff/Filler.twk); no form uses that either.
     layers and overlay are layout orientations: the members share the parent's full box (old GUI Details.twk). That is why the census lists them under pure kant -- placement and draw order, no floor change.
@@ -251,6 +252,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    455  SEQ 625   italic=off ruled as interim. opacity=0 checked: fully clear, two rows (OP-6), nothing to cure. The line budget recorded as an objective (Topics/cleanup). Read-only: the strokes for setFrame's rerun proposed (docs/setFrameRerunProposal.md). Clod's report on drawing as its own file: in the seal's commit message.
     454  SEQ 624   style="name" retired and refused by name; ten fixtures respelled to style:=. Italic built as a text property (italicT; PDF of itForm). The top-level while issue moved to Topics/kant. This file trimmed by the budget rule (digest folded, closed lines gone).
     453  SEQ 623   inheritance ruled as one rule (text properties inherit, box properties don't) and measured; Waiting on Tony 8-10 closed. Opacity built on the three floor methods (opacityT; PDF of opForm). Rows: SH-6, SS-5 to SS-7, OP-1 to OP-5.
     452  SEQ 622   simple's width=50% and second text field restored; percent measured to lay out on a first run. The style ruling recorded and measured (styleScopeT). Shadow built on the three floor methods (shadowT; PDF of shForm). Listening and the mock-click goal recorded.

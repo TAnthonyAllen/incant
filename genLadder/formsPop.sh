@@ -514,6 +514,10 @@ _ofeq "opacityT OP-1 a fill at 0.5 (15,15), the same fill with none (45,15), a b
 _ofeq "opacityT OP-2 opacity does not reach a child: the parent at 0.5 (45,45); its child with none of its own (20,20)" "$(_opp opB 1 2)" "grey black"
 _ofeq "opacityT OP-3 opacity from the style (15,15); the field's own opacity=1 over the style's (45,15); opacity=3 refused by name (count) and drawn opaque (15,45)" "$(_opp opC 1 3) $(grep -c "^opacityOf: REFUSING opBad -- opacity's value is not a number from 0 to 1" "$T/op.e")" "halfBlue blue black 1"
 _ofeq "opacityT OP-4 text at 0.5: the darkest pixel on row y=18 is r127 where the same text with none reaches r0 (120 read of each)" "$(_opd opWordTop) $(_opd opBareTop) $(grep -hc '^=== pixelAt opWordTop ' "$T/op.o") $(grep -hc '^=== pixelAt opBareTop ' "$T/op.o")" "127 0 120 120"
+#  OP-6 (SEQ 625 C1, 2026-11-11): opacity=0 must draw CLEAR, not read as absent and draw opaque. The floor asks whether the attribute exists
+#  (get), never whether its value is true, so a 0 is a value. The fourth pixel is the control: the same fill with no opacity is black.
+_ofeq "opacityT OP-6 opacity=0 is fully clear: a fill (15,15), from a style (45,15), a border (1,45); the same fill with none (45,45)" "$(_opp opZ 1 4)" "white white white black"
+_ofeq "opacityT OP-6 text at opacity=0 leaves no ink: the darkest pixel on row y=18 (120 read), beside the plain word's r0" "$(_opd opZwordTop) $(grep -hc '^=== pixelAt opZwordTop ' "$T/op.o") $(_opd opBareTop)" "255 120 0"
 _ofeq "opacityT OP-5 opForm as a PDF, read back: red alone, blue alone, their overlap and the wall are four different colours; red alone is not full red; the wall is the wall" "$(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed 's/.*= //; s/ ===.*//' | sort -u | wc -l | tr -d ' ') $(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed -n 1p | grep -c 'r239 g43 b45') $(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed -n 4p | sed 's/.*= //; s/ ===.*//')" "4 0 r247 g232 b170 a255"
 
 #  ⚑ italicT -- italic, a text property (Tony, 2026-11-11, SEQ 624 W1): bare italic on a field or in its held style draws the font's italic face

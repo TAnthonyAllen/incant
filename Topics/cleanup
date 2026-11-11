@@ -21,6 +21,7 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
 *****************************************************************************/
     1   A line budget per topic file, its size printed against the budget at every seal. RULED AS PROPOSED (Tony, 2026-11-11, SEQ 621 R1): the numbers below stand, with the seal's printed line and the trim rule.
         The seal's line is printed by genLadder/topicBudget.sh (written at seal 451). This file is over; its trim happens at the next clean-up session, not before.
+        AN OBJECTIVE, NOT A HARD RULE (Tony, 2026-11-11, SEQ 625 R1): trim only what is honestly stale, never force a file under its number. A file that is over with nothing stale in it stays over, and the seal says so.
         Sizes, no budget set: on the shared page (docs/wakeup.md), reprinted at every seal.
         THE BUDGET (proposed SEQ 617 Q2, ruled SEQ 621 R1). Lines by wc -l; lines at seal 449 / budget:
             docs/wakeup.md          51 /  60    one screen: last seal, the numbers, repos, lanes, this table, where old seals are. It holds no history, so it should never grow.
@@ -119,6 +120,7 @@ At the end of your report, say whether you'd rather shut down or continue.
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
 *****************************************************************************/
+    455  SEQ 625   R1 recorded (from a forms seal): the line budget is an objective, not a hard rule.
     451  SEQ 621   R1 recorded: the line budget ruled as proposed; genLadder/topicBudget.sh written. This file's trim waits for the next clean-up session.
     450  SEQ 617-620 closed   shutdown. SEQ 620: Tony's Xcode tidy of the TOK project (318 references to files deleted at seal 442; none names a file still on disk) committed with GroupRules.mm's four references restored; built, GroupRules.mm compiled and linked, the binary byte-identical. The kitchen pass run; every check as banked.
     448  SEQ 617, 619   the two questions answered: incant/lookup described with a lean (Topics/documentation, Open 3); a line budget proposed, not ruled (Plan 1). 3D flats recorded as Topics/features item 32. No code.

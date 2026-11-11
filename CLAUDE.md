@@ -3070,6 +3070,8 @@ direction the campaign might take, it is a state the machinery must report as a 
 > ⚠⚠ **EVERY SEAL PRINTS `genLadder/topicBudget.sh` (Tony, 2026-11-11, SEQ 621 R1):** one line per topic file, lines against
 > its budget, copied into `docs/wakeup.md`'s topic table. Report tier: it always exits 0 and a file that is over never
 > fails a seal; the next session on that topic opens with the trim (`Topics/cleanup`, Plan 1). Clod never raises a budget.
+> **The budget is an objective, not a hard rule (Tony, 2026-11-11, SEQ 625 R1): trim only what is honestly stale, never
+> force a file under its number.**
 >
 > ⚠⚠ **AND TWO HYGIENE-TIER INSTRUMENTS THAT ARE NOT ON THAT CHECKLIST AND MUST NOT BE —
 > `genLadder/alphaLint.sh` AND `genLadder/codeOnly.py`.** Standing instruments as of
