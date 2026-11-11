@@ -41,6 +41,9 @@ define
         shWord="Shadow" x=0 y=0 width=120 height=40 font:=titleFont shadow;
     shBareTop x=0 y=0 width=120 height=40 fill=white
         shBare="Shadow" x=0 y=0 width=120 height=40 font:=titleFont;
+    shKidTop x=0 y=0 width=60 height=60 fill=white
+        shDad x=10 y=10 width=30 height=30 fill=red shadow
+            shKid x=15 y=15 width=10 height=10 fill=blue;
     shForm window x=0 y=0 width=300 height=200 down fill:=wall
         shHead="Shadow Example" text height=50 font:=titleFont align=center valign=center shadow;
         shGap height=20;
@@ -81,6 +84,12 @@ shX0 = 0; shX1 = 120; shY0 = 0; shY1 = 40;
 shBand(shWordTop);
 drawWalk(shBareTop);
 shBand(shBareTop);
+cerr "SH-6 a shadow does not reach a child: the parent's own shadow (42,25) shaded; the child (20,20) blue; just below right of the child (26,26) and (27,20) the parent's red, unshaded":;
+drawWalk(shKidTop);
+shX = 42; shY = 25; shAt(shKidTop); pixelAt(shKidTop);
+shX = 20; shY = 20; shAt(shKidTop); pixelAt(shKidTop);
+shX = 26; shY = 26; shAt(shKidTop); pixelAt(shKidTop);
+shX = 27; shY = 20; shAt(shKidTop); pixelAt(shKidTop);
 cerr "SH-5 shForm to a PDF, read back: card (60,100) white, its shadow below right (142,162) not wall; ring's border (180,115) black; wall (20,100)":;
 setFrame(shForm);
 pdfReq :% copyOf(shForm["width"]);

@@ -475,6 +475,7 @@ _ofeq "shadowT SH-1 a fill's shadow falls right and down: inside (20,20), below 
 _ofeq "shadowT SH-2 the same box with no shadow: (41,41) (42,25) (25,42)" "$(_shc shPlainTop 1 3)" "white white white"
 _ofeq "shadowT SH-3 a border with no fill carries the shadow: the line (10,25), outside right (42,25), inside the left line (13,25), outside left (7,25)" "$(_shc shLineTop 1 4)" "black shade shade white"
 _ofeq "shadowT SH-4 text with no fill and no border carries the shadow: more non-white pixels than the same word with none (4800 read of each)" "$([ "$(_shn shWordTop)" -gt "$(_shn shBareTop)" ] && [ "$(_shn shBareTop)" -gt 0 ] && echo more || echo "not more: $(_shn shWordTop) $(_shn shBareTop)") $(grep -hc '^=== pixelAt shWordTop ' "$T/sh.o") $(grep -hc '^=== pixelAt shBareTop ' "$T/sh.o")" "more 4800 4800"
+_ofeq "shadowT SH-6 a shadow does not reach a child (SEQ 623 R1): the parent's shadow (42,25), the child (20,20), then beside the child (26,26) (27,20) the parent's own red, exact" "$(_shc shKidTop 1 1) $(grep -h '^=== pixelAt shKidTop ' "$T/sh.o" | sed -n '2,4p' | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/')" "shade r0 g81 b186 a255/r239 g43 b45 a255/r239 g43 b45 a255/"
 _ofeq "shadowT SH-5 shForm as a PDF, read back: the card (60,100), its shadow on the wall (142,162), the ring's border (180,115), the wall (20,100)" "$(_shc pdfRead 1 4)" "white shadedWall black wall"
 
 #  ⚑ styleScopeT -- the style ruling (Tony, 2026-11-11, SEQ 622 R2): the style applies as the leftmost attribute; an attribute after it applies to
@@ -489,7 +490,31 @@ _ofeq "styleScopeT exit / sentinel" "$_ssx $(grep -c '^STYLESCOPE SENTINEL' "$T/
 _ofeq "styleScopeT SS-1 a field's fill, border and rounded do not reach its child: the kid's edges (30,10) (10,30) show the parent's fill" "$(_ssc ssA 1 2)" "red red"
 _ofeq "styleScopeT SS-2 a field's style does not reach its child: the leaf's border (11,30), its square corner (10,10), its inside (30,30)" "$(_ssc ssB 1 3)" "black black blue"
 _ofeq "styleScopeT SS-3 an attribute after the style overrides it on that field: fill (30,30), border (1,30), square corner (0,0)" "$(_ssc ssC 1 3)" "red green green"
-_ofeq "styleScopeT SS-4 TODAY, not as ruled: the kid's text takes the parent's own font, color and align" "$(grep -h '^=== displayText ssKid ' "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*align \([a-z]*\) ===/\1 \2 \3/')" "Palatino 24 1 r0 g158 b15 center"
+_sst () { grep -h "^=== displayText $1 " "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*valign \([a-z]*\) align \([a-z]*\) ===/\1 \2 \3 \4/'; }
+#  SEQ 623 R0 (Tony, 2026-11-11): text properties inherit, box properties do not, whether set as an attribute or in a style. SS-4 is therefore AS RULED
+#  (its label was "TODAY, not as ruled" at seal 452; the value is unchanged). SS-5 and SS-7: a held style's (style:=) text properties reach the children.
+#  SS-6 pins a gap as it reads today: a style named by a quoted name (style="x") is read by the fill and border floor but not by drawText, so its text
+#  properties reach nobody. No form spells a style that way; the ruled spelling is style:=.
+_ofeq "styleScopeT SS-5 a held style's font, color, valign and align reach a child two levels down; its fillColor paints the field itself (1,1)" "$(_sst ssDkid) $(_ssc ssD 1 1)" "Palatino 24 1 r0 g158 b15 bottom center blue"
+_ofeq "styleScopeT SS-6 TODAY, a gap: a style named by a quoted name fills its field (1,1) but its text properties reach no child" "$(_sst ssEkid) $(_ssc ssE 1 1)" "Helvetica 12 0 r0 g0 b0 top left blue"
+_ofeq "styleScopeT SS-7 a child's own color wins over the inherited style's; the style's font, valign and align still arrive" "$(_sst ssFkid)" "Palatino 24 1 r239 g43 b45 bottom center"
+_ofeq "styleScopeT SS-4 text properties inherit (SEQ 623 R0): the kid's text takes the parent's own font, color and align" "$(grep -h '^=== displayText ssKid ' "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*align \([a-z]*\) ===/\1 \2 \3/')" "Palatino 24 1 r0 g158 b15 center"
+
+#  ⚑ opacityT -- opacity, a box property (Tony, 2026-11-11, SEQ 623): a number 0..1 on a field or its style; the field's own fill, border and text
+#  are drawn at it (CGContextSetAlpha inside each floor method's saved state); it does not reach a child. Black at 0.5 on white is r127, exact
+#  arithmetic, so the bitmap rows pin values. The PDF row compares its four points with each other, not with numbers (the read-back is rasterised).
+echo ""
+echo "-- opacity (opacityT)."
+_opF=$(ip opacityT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_opF" > "$T/op.o" 2> "$T/op.e"; _opx=$?
+_opp () { grep -h "^=== pixelAt $1 " "$T/op.o" | sed -n "$2,$3p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | sed -e 's/r127 g127 b127 a255/grey/' -e 's/r0 g0 b0 a255/black/' -e 's/r255 g255 b255 a255/white/' -e 's/r0 g81 b186 a255/blue/' -e 's/r127 g168 b220 a255/halfBlue/' | tr '\n' ' ' | sed 's/ $//'; }
+_opd () { grep -h "^=== pixelAt $1 " "$T/op.o" | sed 's/.*= r\([0-9]*\) .*/\1/' | sort -n | head -1; }
+_ofeq "opacityT exit / sentinel" "$_opx $(grep -c '^OPACITY SENTINEL' "$T/op.e")" "0 1"
+_ofeq "opacityT OP-1 a fill at 0.5 (15,15), the same fill with none (45,15), a border at 0.5 (1,45), a fill at 0 (45,45)" "$(_opp opA 1 4)" "grey black grey white"
+_ofeq "opacityT OP-2 opacity does not reach a child: the parent at 0.5 (45,45); its child with none of its own (20,20)" "$(_opp opB 1 2)" "grey black"
+_ofeq "opacityT OP-3 opacity from the style (15,15); the field's own opacity=1 over the style's (45,15); opacity=3 refused by name (count) and drawn opaque (15,45)" "$(_opp opC 1 3) $(grep -c "^opacityOf: REFUSING opBad -- opacity's value is not a number from 0 to 1" "$T/op.e")" "halfBlue blue black 1"
+_ofeq "opacityT OP-4 text at 0.5: the darkest pixel on row y=18 is r127 where the same text with none reaches r0 (120 read of each)" "$(_opd opWordTop) $(_opd opBareTop) $(grep -hc '^=== pixelAt opWordTop ' "$T/op.o") $(grep -hc '^=== pixelAt opBareTop ' "$T/op.o")" "127 0 120 120"
+_ofeq "opacityT OP-5 opForm as a PDF, read back: red alone, blue alone, their overlap and the wall are four different colours; red alone is not full red; the wall is the wall" "$(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed 's/.*= //; s/ ===.*//' | sort -u | wc -l | tr -d ' ') $(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed -n 1p | grep -c 'r239 g43 b45') $(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed -n 4p | sed 's/.*= //; s/ ===.*//')" "4 0 r247 g232 b170 a255"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do

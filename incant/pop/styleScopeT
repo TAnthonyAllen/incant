@@ -21,6 +21,14 @@ define
         ssMid x=0 y=0 width=60 height=60 style="ssSt"
             ssLeaf x=10 y=10 width=40 height=40 border=3;
     ssC x=0 y=0 width=60 height=60 style="ssSt" fill=red rounded=0 border=3 strokeColor=green;
+    ssTx font:=titleFont color:=green align="center" valign="bottom" fillColor="blue";
+    ssD x=0 y=0 width=120 height=60 style:=ssTx
+        ssDmid x=0 y=0 width=120 height=60
+            ssDkid="Kid" x=0 y=0 width=120 height=60;
+    ssE x=0 y=0 width=120 height=60 style="ssTx"
+        ssEkid="Kid" x=0 y=0 width=120 height=60;
+    ssF x=0 y=0 width=120 height=60 style:=ssTx
+        ssFkid="Kid" x=0 y=0 width=120 height=60 color:=red;
     ;
 search StyleScopeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 cerr "SS-1 a field's fill, border and rounded do not reach its child: the kid's top edge (30,10) and left edge (10,30) read the parent's red, not a border":;
@@ -37,10 +45,20 @@ drawWalk(ssC);
 ssX = 30; ssY = 30; ssAt(ssC); pixelAt(ssC);
 ssX = 1; ssY = 30; ssAt(ssC); pixelAt(ssC);
 ssX = 0; ssY = 0; ssAt(ssC); pixelAt(ssC);
+cerr "SS-5 a style's font, color, align and valign reach the field's children, two levels down, with the style held by style:=; the style's fillColor paints the field itself (1,1)":;
+drawWalk(ssD);
+ssX = 1; ssY = 1; ssAt(ssD); pixelAt(ssD);
+cerr "SS-6 the same with the style named by style= and a quoted name":;
+drawWalk(ssE);
+ssX = 1; ssY = 1; ssAt(ssE); pixelAt(ssE);
+cerr "SS-7 a child's own color wins over the inherited style's":;
+drawWalk(ssF);
 cerr "STYLESCOPE SENTINEL":;
 stop();
 
-styleScopeT -- the style ruling of 2026-11-11 (Tony, SEQ 622 R2): the style applies as the leftmost attribute; an attribute after
-it applies to the field only and does not reach the field's children. Rows in genLadder/formsPop.sh. SS-1 to SS-3 pin fill,
-border, strokeColor and rounded, which behave so. SS-4 pins what does NOT yet: the kid's text takes the parent's own font:=,
-color:= and align (drawText climbs the enclosing fields). It is pinned as it reads today, to be re-pinned when that is ruled.
+styleScopeT -- inheritance, one rule (Tony, 2026-11-11, SEQ 623 R0, narrowing SEQ 622 R2): text properties inherit, box properties
+do not, whether set as an attribute or in a style. Text: font, color, align, valign. Box: fill, border, strokeColor, rounded,
+shadow, opacity. Rows in genLadder/formsPop.sh. SS-1 to SS-3: box properties stay on their field. SS-4, SS-5, SS-7: text properties
+reach the children, from an attribute and from a held style (style:=). SS-6 pins a gap as it reads today: a style named by a quoted
+name (style="x") is read by the fill and border floor but not by drawText. shadow's and opacity's own rows are in shadowT and opacityT.
+The frames are written by hand and setFrame is not called.

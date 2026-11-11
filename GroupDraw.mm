@@ -118,8 +118,12 @@ char 		*value = 0;
 	CGFloat cr = 0, cg = 0, cb = 0, ca = 1;
 	if (comp) [colour getRed:&cr green:&cg blue:&cb alpha:&ca];
 	//  shadowWholeBorder a border that carries the field's shadow is drawn inside one saved state; every return below restores it
-	int shaded = shadowPart(field) == 2;
-	if (shaded) { CGContextSaveGState(ctx); castShadow(field); }
+	int     shaded = shadowPart(field) == 2;
+	CGFloat alpha  = opacityOf(field);
+	int     saved  = shaded || alpha < 1;
+	if (saved)  CGContextSaveGState(ctx);
+	if (alpha < 1) CGContextSetAlpha(ctx, alpha);
+	if (shaded) castShadow(field);
 	CGContextSetRGBStrokeColor(ctx, cr, cg, cb, ca);
 	CGContextSetLineCap(ctx, kCGLineCapButt);
 	CGFloat x0 = framed.origin.x, y0 = framed.origin.y;
@@ -137,7 +141,7 @@ char 		*value = 0;
 	CGContextAddPath(ctx, path);
 	CGContextStrokePath(ctx);
 	CGPathRelease(path);
-	if (shaded) CGContextRestoreGState(ctx);
+	if (saved) CGContextRestoreGState(ctx);
 	return field; }
 	//  insideTheFrame each side's line is inset by half its width, and runs the frame's whole length (R2)
 	auto side = [&](CGFloat w, CGFloat ax, CGFloat ay, CGFloat bx, CGFloat by) {
@@ -150,7 +154,7 @@ char 		*value = 0;
 	if (b > 0) side(wB, x0, y1 - wB / 2, x1, y1 - wB / 2);
 	if (l > 0) side(wL, x0 + wL / 2, y0, x0 + wL / 2, y1);
 	if (r > 0) side(wR, x1 - wR / 2, y0, x1 - wR / 2, y1);
-	if (shaded) CGContextRestoreGState(ctx);
+	if (saved) CGContextRestoreGState(ctx);
 	
 	return field;
 }
@@ -198,7 +202,11 @@ char 		*value = 0;
 	CGRect  box    = CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height);
 	CGFloat radius = roundedOf(field);
 	int     shaded = shadowPart(field) == 1;
-	if (shaded) { CGContextSaveGState(ctx); castShadow(field); }
+	CGFloat alpha  = opacityOf(field);
+	int     saved  = shaded || alpha < 1;
+	if (saved)  CGContextSaveGState(ctx);
+	if (alpha < 1) CGContextSetAlpha(ctx, alpha);
+	if (shaded) castShadow(field);
 	//  halfTheShortSide a radius past half the short side is drawn at half: Core Graphics asserts on a larger one
 	if (radius > box.size.width / 2)    radius = box.size.width / 2;
 	if (radius > box.size.height / 2)   radius = box.size.height / 2;
@@ -208,7 +216,7 @@ char 		*value = 0;
 	CGContextFillPath(ctx);
 	CGPathRelease(path); }
 	else CGContextFillRect(ctx, box);
-	if (shaded) CGContextRestoreGState(ctx);
+	if (saved) CGContextRestoreGState(ctx);
 	
 	return field;
 }
@@ -466,6 +474,9 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	CGContextSetRGBFillColor(ctx, cr, cg, cb, ca);
 	//  textShadow a field that names shadow and draws no fill and no border shadows its text (SEQ 622 R3); the restore below ends it
 	if (shadowPart(field) == 3) castShadow(field);
+	//  textOpacity the field's own opacity, as its fill and border take it; the restore below ends it
+	CGFloat alpha = opacityOf(field);
+	if (alpha < 1) CGContextSetAlpha(ctx, alpha);
 	//  uprightGlyphs the top's context is flipped (y down); this turns the glyphs the right way up, and only them
 	CGContextSetTextMatrix(ctx, CGAffineTransformMakeScale(1, -1));
 	while (start < len) {
@@ -597,6 +608,62 @@ extern "C" GroupItem *makeDisplay(GroupItem *field)
 	
 	::handDisplay(field,field);
 	return field;
+}
+
+/*****************************************************************************
+    castShadow -- shadow, a field attribute (Tony, 2026-11-11, SEQ 622 R3). A
+    field that names shadow draws ONE of its parts with a shadow: its fill if
+    it has one (its own or its style's), else its border, else its text. The
+    values are the old Stylish defaults: 2 points right, 2 down, blur 3, black
+    at 30%. No attribute changes them yet; no form asks.
+    shadowPart says which part (0 none, 1 fill, 2 border, 3 text). castShadow
+    sets the shadow in the field's context; the caller saves the graphics
+    state before and restores it after, so the shadow ends with that part.
+    The offset is in the context's base space, which the top's flip does not
+    turn: y is up there, so 2 down is -2.
+*****************************************************************************/
+/*****************************************************************************
+    opacityOf -- opacity, a box property (Tony, 2026-11-11, SEQ 623). A number
+    from 0 (clear) to 1 (opaque) that the field's own fill, border and text
+    are drawn at. Read from the field's own attribute first, then its style's;
+    it does not reach the field's children. None named is 1. A value that is
+    not a number from 0 to 1 refuses by name and draws opaque. Each floor
+    method sets it inside its own saved state (CGContextSetAlpha), so it ends
+    with that field's part. An image is not covered yet.
+*****************************************************************************/
+double opacityOf(GroupItem *field)
+{
+GroupItem 	*comp = 0;
+GroupItem 	*style = 0;
+GroupItem 	*node = 0;
+double 		alpha = 1.0;
+	if ( !field )
+		return 1.0;
+	comp = field->get("opacity");
+	if ( !comp )
+		{
+		style = field->get("style");
+		if ( style )
+			{
+			if ( isGROUP(style->groupBody->flags.data) )
+				node = style->getGroup();
+			else	node = GroupControl::groupController->locate(style->getText());
+			if ( node )
+				comp = node->get("opacity");
+			}
+		}
+	if ( !comp )
+		return 1.0;
+	
+	unsigned int d = comp->groupBody->flags.data;
+	if (isCOUNT(d))         alpha = comp->getCount();
+	else if (isNUMBER(d))   alpha = comp->getNumber();
+	else                    alpha = -1;
+	if (alpha < 0 || alpha > 1) {
+	::fprintf(stderr,"opacityOf: REFUSING %s -- opacity's value is not a number from 0 to 1; drawn opaque\n", field->groupBody->tag);
+	alpha = 1.0; }
+	
+	return alpha;
 }
 
 /*****************************************************************************
@@ -773,18 +840,6 @@ double 		radius = 0.0;
 	return radius;
 }
 
-/*****************************************************************************
-    castShadow -- shadow, a field attribute (Tony, 2026-11-11, SEQ 622 R3). A
-    field that names shadow draws ONE of its parts with a shadow: its fill if
-    it has one (its own or its style's), else its border, else its text. The
-    values are the old Stylish defaults: 2 points right, 2 down, blur 3, black
-    at 30%. No attribute changes them yet; no form asks.
-    shadowPart says which part (0 none, 1 fill, 2 border, 3 text). castShadow
-    sets the shadow in the field's context; the caller saves the graphics
-    state before and restores it after, so the shadow ends with that part.
-    The offset is in the context's base space, which the top's flip does not
-    turn: y is up there, so 2 down is -2.
-*****************************************************************************/
 int shadowPart(GroupItem *field)
 {
 GroupItem 	*style = 0;

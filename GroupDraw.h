@@ -20,6 +20,7 @@ extern "C" GroupItem *displayText(GroupItem *request);
 extern "C" NSRect getFrame(GroupItem *item);
 void handDisplay(GroupItem *field, GroupItem *top);
 extern "C" GroupItem *makeDisplay(GroupItem *field);
+double opacityOf(GroupItem *field);
 extern "C" GroupItem *openPDF(GroupItem *request);
 extern "C" GroupItem *pixelAt(GroupItem *field);
 extern "C" GroupItem *readPDF(GroupItem *request);

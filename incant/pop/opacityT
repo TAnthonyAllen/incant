@@ -1,0 +1,90 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(OpacityT);
+define
+    opX = 0;
+    opY = 0;
+    opAt code={
+        px = opX;
+        py = opY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    opRow code={
+        opX = 0;
+        while opX < 120;
+            opAt(argument);
+            pixelAt(argument);
+            opX += 1;
+        };
+    opSt opacity=0.5 fillColor="blue";
+    opA x=0 y=0 width=60 height=60 fill=white
+        opHalf x=0 y=0 width=30 height=30 fill=black opacity=0.5;
+        opFull x=30 y=0 width=30 height=30 fill=black;
+        opLine x=0 y=30 width=30 height=30 border=4 opacity=0.5;
+        opNone x=30 y=30 width=30 height=30 fill=black opacity=0;
+    opB x=0 y=0 width=60 height=60 fill=white
+        opDad x=0 y=0 width=60 height=60 fill=black opacity=0.5
+            opKid x=10 y=10 width=20 height=20 fill=black;
+    opC x=0 y=0 width=60 height=60 fill=white
+        opStyled x=0 y=0 width=30 height=30 style="opSt";
+        opOwn x=30 y=0 width=30 height=30 style="opSt" opacity=1;
+        opBad x=0 y=30 width=30 height=30 fill=black opacity=3;
+    opWordTop x=0 y=0 width=120 height=40 fill=white
+        opWord="Opacity" x=0 y=0 width=120 height=40 font:=titleFont opacity=0.5;
+    opBareTop x=0 y=0 width=120 height=40 fill=white
+        opBare="Opacity" x=0 y=0 width=120 height=40 font:=titleFont;
+    opForm window x=0 y=0 width=300 height=200 fill:=wall
+        opHead="Opacity Example" x=0 y=0 width=300 height=40 font:=headerFont align=center valign=center;
+        opRed x=40 y=50 width=120 height=90 fill:=red rounded opacity=0.5;
+        opBlue x=100 y=80 width=120 height=90 fill:=blue rounded opacity=0.5;
+        opGreen="Half there" x=160 y=50 width=110 height=60 fill:=green border=3 rounded=10 opacity=0.5 align=center valign=center;
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ;
+search OpacityT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    pdfReq path="IncantForms/PDF/output.pdf" form:=opForm;
+    ;
+cerr "OP-1 a fill at opacity=0.5 on white: (15,15) grey; the same fill with none (45,15) black; a border at 0.5 (1,45) grey; opacity=0 (45,45) white":;
+drawWalk(opA);
+opX = 15; opY = 15; opAt(opA); pixelAt(opA);
+opX = 45; opAt(opA); pixelAt(opA);
+opX = 1; opY = 45; opAt(opA); pixelAt(opA);
+opX = 45; opAt(opA); pixelAt(opA);
+cerr "OP-2 opacity does not reach a child: the parent at 0.5 (45,45) grey; its child, no opacity of its own, (20,20) darker than the parent and not grey-on-grey":;
+drawWalk(opB);
+opX = 45; opY = 45; opAt(opB); pixelAt(opB);
+opX = 20; opY = 20; opAt(opB); pixelAt(opB);
+cerr "OP-3 opacity from the style (15,15) light blue; the field's own opacity=1 over the style's (45,15) full blue; opacity=3 refuses by name and draws opaque (15,45) black":;
+drawWalk(opC);
+opX = 15; opY = 15; opAt(opC); pixelAt(opC);
+opX = 45; opAt(opC); pixelAt(opC);
+opX = 15; opY = 45; opAt(opC); pixelAt(opC);
+cerr "OP-4 text at opacity=0.5, then the same text with none: row y=18, x 0..119 of each":;
+drawWalk(opWordTop);
+opY = 18;
+opRow(opWordTop);
+drawWalk(opBareTop);
+opRow(opBareTop);
+cerr "OP-5 opForm to a PDF, read back: red alone (60,70), blue alone (200,150), where they overlap (130,110), the wall (20,180)":;
+pdfReq :% copyOf(opForm["width"]);
+pdfReq :% copyOf(opForm["height"]);
+openPDF(pdfReq);
+drawWalk(opForm);
+closePDF(pdfReq);
+readPDF(pdfRead);
+opX = 60; opY = 70; opAt(pdfRead); pixelAt(pdfRead);
+opX = 200; opY = 150; opAt(pdfRead); pixelAt(pdfRead);
+opX = 130; opY = 110; opAt(pdfRead); pixelAt(pdfRead);
+opX = 20; opY = 180; opAt(pdfRead); pixelAt(pdfRead);
+cerr "OPACITY SENTINEL":;
+stop();
+
+opacityT -- opacity, a box property (Tony, 2026-11-11, SEQ 623): a number from 0 to 1 on a field or its style; the field's own
+fill, border and text are drawn at it; it does not reach the field's children. Rows are in genLadder/formsPop.sh.
+The frames here are written by hand and setFrame is not called: setFrame lays children out and would move them.
+OP-5 draws this fixture's own form, opForm, to IncantForms/PDF/output.pdf: no form asks for opacity (cards, the layers form, never spelled it).

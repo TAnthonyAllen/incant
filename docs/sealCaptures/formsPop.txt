@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2092064 bytes  Nov 11 14:20
+  bin   2092272 bytes  Nov 11 14:28
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -144,6 +144,7 @@
   ok    shadowT SH-2 the same box with no shadow: (41,41) (42,25) (25,42) = [white white white]
   ok    shadowT SH-3 a border with no fill carries the shadow: the line (10,25), outside right (42,25), inside the left line (13,25), outside left (7,25) = [black shade shade white]
   ok    shadowT SH-4 text with no fill and no border carries the shadow: more non-white pixels than the same word with none (4800 read of each) = [more 4800 4800]
+  ok    shadowT SH-6 a shadow does not reach a child (SEQ 623 R1): the parent's shadow (42,25), the child (20,20), then beside the child (26,26) (27,20) the parent's own red, exact = [shade r0 g81 b186 a255/r239 g43 b45 a255/r239 g43 b45 a255/]
   ok    shadowT SH-5 shForm as a PDF, read back: the card (60,100), its shadow on the wall (142,162), the ring's border (180,115), the wall (20,100) = [white shadedWall black wall]
 
 -- style scope (styleScopeT).
@@ -151,6 +152,17 @@
   ok    styleScopeT SS-1 a field's fill, border and rounded do not reach its child: the kid's edges (30,10) (10,30) show the parent's fill = [red red]
   ok    styleScopeT SS-2 a field's style does not reach its child: the leaf's border (11,30), its square corner (10,10), its inside (30,30) = [black black blue]
   ok    styleScopeT SS-3 an attribute after the style overrides it on that field: fill (30,30), border (1,30), square corner (0,0) = [red green green]
-  ok    styleScopeT SS-4 TODAY, not as ruled: the kid's text takes the parent's own font, color and align = [Palatino 24 1 r0 g158 b15 center]
+  ok    styleScopeT SS-5 a held style's font, color, valign and align reach a child two levels down; its fillColor paints the field itself (1,1) = [Palatino 24 1 r0 g158 b15 bottom center blue]
+  ok    styleScopeT SS-6 TODAY, a gap: a style named by a quoted name fills its field (1,1) but its text properties reach no child = [Helvetica 12 0 r0 g0 b0 top left blue]
+  ok    styleScopeT SS-7 a child's own color wins over the inherited style's; the style's font, valign and align still arrive = [Palatino 24 1 r239 g43 b45 bottom center]
+  ok    styleScopeT SS-4 text properties inherit (SEQ 623 R0): the kid's text takes the parent's own font, color and align = [Palatino 24 1 r0 g158 b15 center]
 
-FORMS POP FAILED -- 134 green, see above
+-- opacity (opacityT).
+  ok    opacityT exit / sentinel = [0 1]
+  ok    opacityT OP-1 a fill at 0.5 (15,15), the same fill with none (45,15), a border at 0.5 (1,45), a fill at 0 (45,45) = [grey black grey white]
+  ok    opacityT OP-2 opacity does not reach a child: the parent at 0.5 (45,45); its child with none of its own (20,20) = [grey black]
+  ok    opacityT OP-3 opacity from the style (15,15); the field's own opacity=1 over the style's (45,15); opacity=3 refused by name (count) and drawn opaque (15,45) = [halfBlue blue black 1]
+  ok    opacityT OP-4 text at 0.5: the darkest pixel on row y=18 is r127 where the same text with none reaches r0 (120 read of each) = [127 0 120 120]
+  ok    opacityT OP-5 opForm as a PDF, read back: red alone, blue alone, their overlap and the wall are four different colours; red alone is not full red; the wall is the wall = [4 0 r247 g232 b170 a255]
+
+FORMS POP FAILED -- 144 green, see above
