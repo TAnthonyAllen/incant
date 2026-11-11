@@ -174,4 +174,4 @@ if __name__ == "__main__":
 # C-155, 2026-09-04. Certified per rule H7 by driving it on a name known retired
 # in full (tokenize) and one known live (compile endCompile); they grade
 # differently, and the grade predicted injection on all nine armed entries of the
-# pre-cut file with no exceptions. See docs/c155Cull.md §2.
+# pre-cut file with no exceptions. See docs/c155Cull.md (retired 2026-11-11, git 2144dde6) §2.

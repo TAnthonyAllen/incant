@@ -7,7 +7,7 @@
 B=${B:?}; O=${OUT:?}; L=$(dirname $0)/results/genlist2
 rm -rf $O; mkdir -p $O/plain $O/jit
 mask () { sed -e "s#$O/plain/#X/#g" -e "s#$O/jit/#X/#g" -e 's/0x[0-9a-fA-F]*/0x/g' -e 's/i64 [0-9][0-9]*/i64 N/g'; }
-# named masks (SEQ 418 R1) -- each is an exact pattern for one class of INSTRUMENT text that docs/gen26Recon.md measured
+# named masks (SEQ 418 R1) -- each is an exact pattern for one class of INSTRUMENT text that docs/gen26Recon.md (retired 2026-11-11, git 2144dde6) measured
 # moving for a reason that is not a value (SEQ 416). nmask <in> <out> <counts>: writes "W1 W2 W3" line counts.
 #   W1  the process-wide jit counters, which the jitter's own compiles inflate: the NUMBER in the degrade / compile / slot
 #       count lines, and built / REUSED in a jitRunAction callee line. The line stays; only the number or word goes.

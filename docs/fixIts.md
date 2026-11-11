@@ -845,7 +845,7 @@ ATTEMPT LOG
   1. NO-PROGRESS STOPS: parseLoop runs `while kount < max` with none -- it stops silently at max (100 for `+`) and
      succeeds; the old road's parse loops to maxRepeat with none and names it (reportRepeatLimit). The leaf loops (Any,
      Character, Set) advance the mark on every pass, so only those two can repeat without progress. Recorded in
-     docs/parseSiblings.md. Not changed.
+     docs/parseSiblings.md (retired 2026-11-11, git 2144dde6). Not changed.
   2. `or isRule || (jitting && hasNewParse)` -- interpreted dispatch unchanged; under jitting a bin with a generated parse
      emits a term call, and jitTermCallRT's runOP then takes the same isMethod arm at run time the interpreted road takes.
      -> `%` and `: bb cc` agree on every field, both jitted fires, degrade 0; abc, 42 rest, the iterate line unchanged.
@@ -1263,7 +1263,7 @@ ATTEMPT LOG
      because Token reaches NumbeR before TokenXP. Not fixed: WHERE the new road should compute what
      getWhatFollows computes is a ruling.
   11. SIBLING CENSUS of Generate.rtn's parse* methods, read-only, 2026-09-24 -- the table is in the
-     2026-09-24 report and in docs/parseSiblings.md. Nothing fixed from it.
+     2026-09-24 report and in docs/parseSiblings.md (retired 2026-11-11, git 2144dde6). Nothing fixed from it.
   12. SITE 3 FIXED (Tony's ruling, 2026-09-24). setTargetFlag (Generate.rtn) is a NEW-road function that
      computes isTarget and nothing else -- getWhatFollows' target rule, never its onFail/onGroup/hasMacro/
      testMatch -- called from setParseWalk on every face with rStuff, before the installed/re-entry exits.
@@ -1287,7 +1287,7 @@ ATTEMPT LOG
   14. parseLoop DECIDES ON THE COUNT (Tony, 2026-09-24; SEQ 195's countNotFlag). `if sukcess return
      trueResult;` is REMOVED. Evidence that no measured row could move: a temporary probe for the only
      case where it decided anything -- flag set, kount < min -- fired 0 times over 171 pop.sh captures,
-     the jit ladder and 52 station-2 drives (docs/parseSiblings.md). A permanent trace-only witness,
+     the jit ladder and 52 station-2 drives (docs/parseSiblings.md (retired 2026-11-11, git 2144dde6)). A permanent trace-only witness,
      measureLoopVerdict, prints the flag beside the count at every verdict; pop.sh's loopVerdict row pins
      DISAGREE at 0 over 48 witnessed verdicts in the native drives, with the total as anti-vacuity.
      ⚠ THE ROW IS UNCONTROLLED UNTIL REACHABLE (the kant8N precedent): no fixture produces a stale flag
@@ -1406,7 +1406,7 @@ ATTEMPT LOG
   24. A RULING OWED AT A PAUSE (Tony, 2026-09-24): parseLoop's silent success at max. A term that succeeds without
      consuming repeats to max (100 for `+`) and the loop returns success with nothing said -- F-123's 100 fires were this.
      The old road names the limit (reportRepeatLimit). The choice: REPORT a zero-progress pass, or REFUSE it. Not changed;
-     docs/parseSiblings.md carries the measurement.
+     docs/parseSiblings.md (retired 2026-11-11, git 2144dde6) carries the measurement.
   25. THE CHAIN STILL CYCLES, MEASURED FLEET-WIDE (2026-10-01, stroke 5.5a's tap, SEQ 243 R3). A tap walking the
      parentStuff chain on EVERY deferredAbove call (not only where deferredAbove uses it) hung deferNatT dfSub, dfCall,
      dfPrint, probeDoorT, sweepT and oldRoad column do; bounded at 100k steps it found 458 walks that never end, in 10
@@ -2399,7 +2399,7 @@ pair breaks. Not repeat-use — two drives back to back both complete. Keyword-i
 do not, which is `NamE`'s job.
 
 ⚠ **TWO REGISTERS ARE WRONG ABOUT THE WRITERS AND WILL MISLEAD THE NEXT READER.** designDocs
-`runAction.mint` says *"runAction IS THE SINGLE WRITER OF isArgument"*; `docs/wrapperPlan.md` §2.3
+`runAction.mint` says *"runAction IS THE SINGLE WRITER OF isArgument"*; `docs/wrapperPlan.md` (retired 2026-11-11, git 2144dde6) §2.3
 cites `ruleActions.rtn:446` as *"the flag's only setter"*. **Both false today** —
 `grep -rn "isArgument = true" --include=*.rtn .` returns **two**, `GroupActions.rtn:883` (runAction)
 and `Generate.rtn:213` (parseRule), and none in `ruleActions.rtn`. wrapperPlan §2.3's
@@ -2863,7 +2863,7 @@ than a refusal. Bare `debug;` still toggles `debugAllRules` exactly as it always
 ⚠ **THE FLAG HAS NO READER ON A BARE BUILD, AND THAT IS NOT A DEFECT.** Census over every `.mm`
 in the tree plus the out-of-repo `groups.ext`: `debugged` has two writes and zero reads, and so
 does `debugGuard`. Their readers were **directive-injected and culled by C-155** —
-`docs/c155Cull.md` carries all four, `aCTionDebuG` ×3 on `debugged` and a `getGuard` pair on
+`docs/c155Cull.md` (retired 2026-11-11, git 2144dde6) carries all four, `aCTionDebuG` ×3 on `debugged` and a `getGuard` pair on
 `debugGuard`. So this is a **marking channel an instrumented build reads**, which is why the
 fixture asserts the count rather than the flags.
 
@@ -6434,7 +6434,7 @@ be chased. **Owner:** Tony.
 ### F-8 — `aCTionDebuG`'s three stacked directives — ✅ **DISCHARGED 2026-09-04, ruled by Tony**
 **Verdict by C-155's report.** ⚠ **The subject does not exist: `aCTionDebuG` has ZERO mentions in
 any source** — `*.twk`, `*.rtn`, `*.mm`, `*.h`, repo-wide. The three entries were graded
-FUNCTION GONE, cut, and archived verbatim in `docs/c155Cull.md` §4b. The row's premise — that
+FUNCTION GONE, cut, and archived verbatim in `docs/c155Cull.md` (retired 2026-11-11, git 2144dde6) §4b. The row's premise — that
 arming two would silently fire only the first — is **also** superseded: bear-trap #30 is amended,
 one directive per matching statement *point*, and two anchors on one function both fire.
 **Nothing is owed. Kept as a dated tombstone rather than deleted**, because the row is cited from

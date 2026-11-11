@@ -105,49 +105,49 @@ define
             definition="Weighting a design brief -- structural claims tend to hold, claims about what is in the tree get checked; take the distinctions, check the attributions.";
             source="DICTATED";
 
-    /*  ---- WT RULES, minted from docs/walkieTalkie.md ------------------- */
+    /*  ---- WT RULES, minted from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6) ------------------- */
         WT1
             definition="Walkie talkie is a shared conversation surface, not Clay reaching into the tree.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT2
             definition="Tony is removed from transcription, not from the loop -- he reads everything.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT3
             definition="SUPERSEDED BY WT9. Was: Clay gets read, writes stay dictate-and-transcribe.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT4
             definition="Model choice does not affect this -- the limit is product tooling, not capability.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT5
             definition="Four mechanisms carry the channel -- the write direction is proven and free, the read direction is not solved yet.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT6
             definition="Every Clay error on 2026-07-29 was a compression error, and one was expensive.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT7
             definition="OPEN. The exchange is turn-shaped, not stream-shaped, and the read boundary is not settled.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT8
             definition="OPEN. Two same-model seats agreeing is weak evidence, and a channel makes agreeing cheaper.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT9
             definition="Direct write is proven and adopted, but it removes a second close reader, so it is per-artifact rather than blanket.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT10
             definition="The trigger is Tony downloading atop clay-to-clod.md, and Clod polls that one path.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT11
             definition="No silent overwrite -- a Clay write carries the whole file, prior history included.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT12
             definition="Freshness must be readable, not inferred -- STATUS carries a sequence number and a date.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT13
             definition="The channel is asymmetric -- Clod can poll and Clay cannot, so Tony is Clay's interrupt.";
-            source="PULLED from docs/walkieTalkie.md";
+            source="PULLED from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6)";
         WT14
             definition="A ratification dispatch opens with a decode line covering its shorthand, and an undefined term in a decode line fails loud and mints the missing entry on the spot.";
-            source="DICTATED, new with this dispatch. Registered in docs/walkieTalkie.md.";
+            source="DICTATED, new with this dispatch. Registered in docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6).";
 
     /*  ---- EARNED BY THE V0 PASS --------------------------------------- */
         ownedRed

@@ -54,7 +54,7 @@ define
 
         NOTHING LIVE MOVED when the line went. displayIfVisible is LATENT --
         defined here and called from nowhere in the tree, measured again on
-        2026-09-01 and agreeing with docs/andOrRung.md and incant/andProbe.
+        2026-09-01 and agreeing with docs/andOrRung.md (retired 2026-11-11, git 2144dde6) and incant/andProbe.
     ***************************************************************************/
     displayIfVisible code={
         px  = x;

@@ -1,14 +1,14 @@
 # The kant corpus
 
 *What a round of minion A knows about writing kant. **This is the only surface the loop
-may write to.** It starts empty by design — see `docs/minionAHarness.md`.*
+may write to.** It starts empty by design — see `docs/minionAHarness.md` (retired 2026-11-11, git 2144dde6).*
 
-**If you are a round of A:** read this first, then `docs/minionAbrief.md`. Everything here
+**If you are a round of A:** read this first, then `docs/minionAbrief.md` (retired 2026-11-11, git 2144dde6). Everything here
 was drafted by an earlier round that has no way to tell you anything except through this
 file. If you need something that is not here, **that is the finding** — record it, do not
 work around it silently.
 
-Format is `docs/minionAbrief.md`'s claim record. Grade on your **own** provenance, never
+Format is `docs/minionAbrief.md` (retired 2026-11-11, git 2144dde6)'s claim record. Grade on your **own** provenance, never
 on a neighbour's — adjacency is not provenance.
 
 | confidence | a reader should |
@@ -23,7 +23,7 @@ on a neighbour's — adjacency is not provenance.
 glance. REASONED and ASSUMED are the challenge queue — a finite, named worklist rather
 than a re-read of everything.
 
-**THREE SHAPES, not two** (added 2026-07-30, `docs/minion-corpus-format.md`): **CLAIM** is
+**THREE SHAPES, not two** (added 2026-07-30, `docs/minion-corpus-format.md` (retired 2026-11-11, git 2144dde6)): **CLAIM** is
 knowledge, **BLOCKED** is a road that does not go through and the evidence why, **OPEN** is
 *work* — a real question with what is established, what is not, and what it would cost to
 settle. The tell that you want OPEN: **the entry's most useful sentence describes something
@@ -73,7 +73,7 @@ scope:       Covers bare and short-qualified reads in tok. Says nothing about
              whether the rebind itself is wrong -- in every case here it was
              intended; only the LATER line was reading the wrong node.
 ```
-**Same family as `CLAIM TOK-5`** (`docs/tokClaims.md`): in `ruleMethod`, `use input`
+**Same family as `CLAIM TOK-5`** (`docs/tokClaims.md` (retired 2026-11-11, git 2144dde6)): in `ruleMethod`, `use input`
 followed by `grup = parent` makes a bare `method =` bind to **`grup`**, not `input`.
 Two instances now, one in generated code and one in hand-written bootstrap.
 
@@ -726,7 +726,7 @@ reading the result) both change a function on the interpreter's hot path.
 > above are its measured population.
 >
 > **R2 / R3 recorded elsewhere:** KE-4's ruling in `docs/knownErrors.md`; the `i32`-by-rule fence in
-> `docs/attributesTemplate.md` §6, frozen with the template shapes.
+> `docs/attributesTemplate.md` (retired 2026-11-11, git 2144dde6) §6, frozen with the template shapes.
 >
 > **TWO CLAY CLAIMS DIE IN THIS RULING AND BOTH ARE LEDGERED WITH THE MISSES** (his own instruction):
 > the **detach pick** fell to M2's walker measurement — the cost calculus rested on an unmeasured
@@ -1248,7 +1248,7 @@ scope:       COMPLETES the KANT-5/6/7/8 knot — read all five together.
 ### OPEN KANT-20 — `0` vs `falseResult` is inconsistent, and the "latent bugs" inference does NOT follow
 > **RESHAPED 2026-07-30 from CLAIM to OPEN**, and it is the entry that caused the shape to
 > exist. Its own scope line already had to warn that it was *"an open item wearing a claim's
-> clothes"*; `docs/minion-corpus-format.md` now carries OPEN as a first-class shape, so the
+> clothes"*; `docs/minion-corpus-format.md` (retired 2026-11-11, git 2144dde6) now carries OPEN as a first-class shape, so the
 > warning becomes the label. **ID deliberately unchanged** — it is cited elsewhere, and
 > renumbering to tidy a shape change would break the trail the format exists to keep.
 > **What it blocks:** nothing today. **What it would cost to settle:** one grep, sized below.
@@ -1326,7 +1326,7 @@ scope:       ⚠ THIS WAS LOAD-BEARING AND UNRECORDED FOR A FULL ROUND. Round 1
 > and building it there would be speculative design.
 >
 > Same family as KANT-16, and the same lesson: take the structural distinction, then CHECK THE
-> CLAIM ABOUT THE TREE. The language half stands unchanged. See `docs/genParseArcMap.md`.
+> CLAIM ABOUT THE TREE. The language half stands unchanged. See `docs/genParseArcMap.md` (retired 2026-11-11, git 2144dde6).
 ```
 statement:   TODAY, no kant action can hold a value in a LOCAL across its own
              recursive call. There are exactly two ways to recurse and both fail:
@@ -1579,7 +1579,7 @@ loss-of-unwritten-work hazard: one writer, no file at all.** Different failure,
 different cure; WT-11 addresses overwrite and has nothing to say here.
 
 `docs/minionfire.md` **does not exist in the tree** (checked). The harness doctrine
-lives in `docs/minionAHarness.md`, and that is where any line would go. Flagged
+lives in `docs/minionAHarness.md` (retired 2026-11-11, git 2144dde6), and that is where any line would go. Flagged
 rather than created, because inventing a file to hold a recommendation that this
 audit recommends against would be the wrong artifact twice over.
 
@@ -1911,7 +1911,7 @@ scope:       ⚠ STRUCTURAL, NOT AN OVERSIGHT. An operateMethod receives operand
              expecting a guard against an expensive or unsafe right arm.
 
 ⚠ DATED RETIREMENT NOTE, 2026-08-11 -- PARTIAL. The AND/OR rung landed
-  (docs/andOrRung.md). This claim SPLITS, and it is not rewritten, because it
+  (docs/andOrRung.md (retired 2026-11-11, git 2144dde6)). This claim SPLITS, and it is not rewritten, because it
   records what was true and why:
 
     THE STATEMENT STILL HOLDS FOR THE SYMBOL FORMS. `a || b` still evaluates
@@ -2347,7 +2347,7 @@ scope:       Covers a double-quoted string as the VALUE on a define line, leaf
 
 - **`CLAUDE.md` bear traps** — tok and build hazards. Best-evidenced claims in the tree;
   they carry real error output. Input, not corpus.
-- **`docs/tokClaims.md`** — the B0 tok-claim sweep, in this same format. Input, not corpus.
+- **`docs/tokClaims.md` (retired 2026-11-11, git 2144dde6)** — the B0 tok-claim sweep, in this same format. Input, not corpus.
   Note **CLAIM TOK-1**: a recorded limitation was disproved by shipping code three
   functions away that nobody had looked at. That is the failure mode this corpus is
   built to avoid.

@@ -279,7 +279,7 @@ walkRules are item 2's signature, not chased.
 
 Ruled: an emitter's choice of a value's kind is a run-time fact; read at build, it is item 3's class. R0 is
 `incant/pop/jitterKindT` (born red on trunk 3d3d7f5). The cure and its certificate are on branch `jit-kind-handover`,
-in docs/kindHandover.md.
+in docs/kindHandover.md (retired 2026-11-11, git 2144dde6).
 
 ### R1 census -- every emitter that picks a load, store or call by an operand's kind at build (trunk 3d3d7f5, read)
 
@@ -532,7 +532,7 @@ the whole population. Constructed, both roads clobber on trunk: the re-aimed fix
 0x0000000100000007, twin 0 (the cursor must be a declared field, or the net refuses the action on it first).
 
 **SEQ 390 R2 is on branch jit-for-cursor** (83f5da78 pre-registration, 071afb50 cure, 5b752e41 certificate), in
-docs/forCursor.md there. Not merged; the buy is Tony's.
+docs/forCursor.md (retired 2026-11-11, git 2144dde6) there. Not merged; the buy is Tony's.
 
 ## SEQ 391 -- jit-for-cursor bought; aCTionScopeXP returns a GroupItem; the build-time-read recon (2026-10-21)
 
@@ -629,7 +629,7 @@ outermost statement ends with no hand-over):
 **So S6 is the only site that breaks its promise, and no other site makes a fleet row wrong: no STOP.** The rest (9,095)
 were in statements handed to run time.
 
-**R1, S6 on branch jit-list-handover** (b7d376fe pre-registration, f299e40a cure, 7493608f certificate; docs/listHandover.md
+**R1, S6 on branch jit-list-handover** (b7d376fe pre-registration, f299e40a cure, 7493608f certificate; docs/listHandover.md (retired 2026-11-11, git 2144dde6)
 there): the print witnesses are cured (jitArgListT, PI-0, W1, printDefinition(sample)); **lefty and baselineTestsNew's
 predictions are FALSIFIED** by a mechanism the pre-registration did not foresee -- a handed-over `return`. Pinned on trunk as
 `incant/pop/jitReturnListT` (717c72f3): trunk exit 139; the branch exit 0 with the interpreted caller's block truncated and

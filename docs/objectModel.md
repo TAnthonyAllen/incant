@@ -295,7 +295,7 @@ design is in flux and it is taking a few design iterations to sort out.*
 ### A5. Execution: two steps, each a try-and-buy (RULED 2026-10-03, SEQ 272 R1)
 
 **A5 is ruled (SEQ 272); the whole amendment was ruled on 2026-10-03 (SEQ 274).** The redesign's step 1
-goes **before** the PTF step-1 rebuild (OR-1..OR-8, stroke 1.1); once step 1 is sealed, `docs/ptfStep1Plan.md` is
+goes **before** the PTF step-1 rebuild (OR-1..OR-8, stroke 1.1); once step 1 is sealed, `docs/ptfStep1Plan.md` (retired 2026-11-11, git 2144dde6) is
 re-read against the new activation before any PTF stroke (SEQ 272 R3). Stroke 1.1 gets its own dispatch after Tony
 rules on the amendment (R4).
 

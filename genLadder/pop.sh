@@ -2102,7 +2102,7 @@ fi
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
-#  Added 2026-08-30 with the bind-by-body build plan (docs/wrapperPlan.md §4).
+#  Added 2026-08-30 with the bind-by-body build plan (docs/wrapperPlan.md (retired 2026-11-11, git 2144dde6) §4).
 #
 #  A write through an action's argument REACHES THE CALLER'S FIELD today -- R2
 #  reads 5. That is delivered by the AUTO-UNWRAP, which the migration removes:
@@ -4805,7 +4805,7 @@ echo "  ..    paReachT faces classified = $_pat, of them parseAction = $_paa"
 if [ "$_pat" -gt 0 ]; then echo "  ok    paReachT anti-vacuity: generation classified $_pat faces"; green=$((green+1))
 else echo "  FAIL  paReachT anti-vacuity: no PARSECLASS lines -- the instrument saw nothing"; fail=1; fi
 if [ "$_paa" -eq 0 ]; then echo "  ok    paReachT parseAction faces = 0"; green=$((green+1))
-else echo "  FAIL  paReachT: something now reaches parseAction -- apply clear-only-on-failure (docs/parseSiblings.md) and add a value row"
+else echo "  FAIL  paReachT: something now reaches parseAction -- apply clear-only-on-failure (docs/parseSiblings.md (retired 2026-11-11, git 2144dde6)) and add a value row"
      awk '/^PA BEGIN/{f=1} /^PA END/{f=0} f' "$T/par.e" | grep "method=parseAction" | sed 's/^/          /'; fail=1; fi
 
 #  ---- unaryNatT: F-114 site 3, a LEADING UNARY, driven natively ----
@@ -8722,6 +8722,23 @@ perl -e 'alarm 10; exec @ARGV' "$B" "$(ip ruleReturnOpT)" > "$T/rro" 2>&1; _rrx=
 #  RR-2T re-pinned 0 5 -> 0 3 (SEQ 414 R3): 2 - 3 + 4 folds left to 3; the 5 pinned at SEQ 411 R0 was testOP's swapped
 #  operands, cured by Tony's testOP / opCallTest order fix (2026-10-24).
 fdRow "ruleReturnOpT RR-2T road ii: testOP(**ret) runs the chain -- exit, value" "$_rrx $(awk '$1=="RR-2T" && $2=="value" {print $3; exit}' "$T/rro")" "139 " "0 3"
+
+#  ⚑ fireSeatT -- REJOINED 2026-11-11 (SEQ 613 R4, Tony): the witness for "a coded rule's action fires ONCE, at one seat,
+#  AFTER its terms attach, on both roads", three fill shapes, six rules. Built red before the buy (2026-09-19) and never
+#  wired when the buy landed; no other row counts the seat per coded rule. PINNED AT TODAY'S VALUES. FS-4's LEN reads 0 on
+#  BOTH roads where the fixture's header predicted 3: pinned as measured, not blessed (entries.listLengtH inside the code).
+_fsR="fsOldRule fsNewRule fsFieldOld fsFieldNew fsArrayOld fsArrayNew"
+run1 fireSeatT "$T/fst";   check "fireSeatT runs" 0 $?
+sentinel "fireSeatT sentinel" "$T/fst" "FIRESEAT SENTINEL"
+_fsA=""; _fsO=""; for _r in $_fsR; do
+    _fsA="$_fsA$(grep -c "ACTFIRE fireLabelMethod $_r\$" "$T/fst") "
+    _fl=$(grep -n "attachLabel .*pRule=$_r\$" "$T/fst" | head -1 | cut -d: -f1); _al=$(grep -n "ACTFIRE fireLabelMethod $_r\$" "$T/fst" | head -1 | cut -d: -f1)
+    if [ -n "$_fl" ] && [ -n "$_al" ] && [ "$_fl" -lt "$_al" ]; then _fsO="${_fsO}1 "; else _fsO="${_fsO}0 "; fi
+done
+_ofeq "fireSeatT FS-1 the seat fires each coded rule once (old, new x 3 shapes)" "$_fsA" "1 1 1 1 1 1 "
+_ofeq "fireSeatT FS-2 each body runs once" "$(for _m in FSOLD FSNEW FSFLDO FSFLDN FSARRO FSARRN; do printf '%s ' "$(grep -c "^$_m-MARK action entered" "$T/fst")"; done)" "1 1 1 1 1 1 "
+_ofeq "fireSeatT FS-3 a term attaches before the seat fires, every rule" "$_fsO" "1 1 1 1 1 1 "
+_ofeq "fireSeatT FS-4 the values read inside the code, old then new (LEN 0 as measured; DATA the non-zero sibling)" "$(grep -E '^FS(OLD|NEW)-LEN|^FSFLD[ON]-DATA' "$T/fst" | sed 's/ *$//' | tr '\n' ' ')" "FSOLD-LEN 0 FSNEW-LEN 0 FSFLDO-DATA 6 FSFLDN-DATA 6 "
 
 #  ⚑ xpLocT -- F-129's fleet row (SEQ 394 R0, Tony): a bare-name statement in an action body crashes aCTionXpress on its
 #  SECOND run; under `jitter;` the net's refused compile walk (-8, xLoc has no writer) is the first. PINNED AT TODAY'S VALUE

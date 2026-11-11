@@ -84,7 +84,7 @@ inline std::vector<llvm::BasicBlock*> gLoopExitBlocks;
 // a do's targets body. Pushed/popped in lockstep with the other two.
 inline std::vector<llvm::BasicBlock*> gLoopBodyBlocks;
 
-// SHORT-CIRCUIT TOPOLOGY (2026-08-11, the AND/OR rung -- docs/andOrRung.md
+// SHORT-CIRCUIT TOPOLOGY (2026-08-11, the AND/OR rung -- docs/andOrRung.md (retired 2026-11-11, git 2144dde6)
 // section 3 part 2). Two blocks, not three, and ONE SLOT:
 //
 //   <left arm emits into the current block>
@@ -577,7 +577,7 @@ inline llvm::Function *jitFnMapFind(GroupBody *b) {
 // anyway: names are jit_<tag> and the JIT keeps every symbol, so a second definition
 // is refused as a duplicate. NO INVALIDATION, measured rather than assumed: a second
 // `define` replaces neither an action's code nor its callee's, interpreted or compiled
-// (docs/jitterRecon.md (d), re-measured 2026-10-19). If redefinition ever lands, this
+// (docs/jitterRecon.md (retired 2026-11-11, git 2144dde6) (d), re-measured 2026-10-19). If redefinition ever lands, this
 // cache owes it an answer. Keyed on GroupBody, like the map above; written only by
 // jitRunAction, after the lookup succeeds.
 //

@@ -102,7 +102,7 @@ covering for it". Read at the site:
 Both act on `target` -- the operand the operator was handed -- and neither mints,
 copies or unwraps anything on the way. Both are BARE tok-resolved spellings, so
 a field moving from GroupBody to GroupItem re-points BOTH on the next retok, by
-the same mechanism docs/groupBodySplit.md section 1 measures. AT THE SOURCE
+the same mechanism docs/groupBodySplit.md (retired 2026-11-11, git 2144dde6) section 1 measures. AT THE SOURCE
 LEVEL THE SETTER AND THE READER CANNOT COME APART.
 
 So if ARM A fails under the split, the divergence is NOT between the two
@@ -114,7 +114,7 @@ row 2 routes to, which is why the check comes before the scoring.
 SECOND -- `copyOf` IS NOT THE SHARING ROAD, SO ARM B1 ALONE WOULD ASSERT
 NOTHING. The brief's mechanism sentence says "the copy constructor shares
 groupBody", and that is right; but the arm it specifies uses `copyOf`, which
-COPIES the body. docs/groupBodySplit.md's own second-attempt census is explicit
+COPIES the body. docs/groupBodySplit.md (retired 2026-11-11, git 2144dde6)'s own second-attempt census is explicit
 about the two roads and which does which. A write through a copyOf twin should
 fail to reach the original under BOTH layouts, so that arm cannot discriminate
 bare from split -- it is a control, not a probe. ARM B2 is therefore added, on
@@ -197,7 +197,7 @@ node X cannot be read back from node Y; the naming road is independent of where
 flags live, so no layout change alters it. noPrint therefore CANNOT meet its
 gate, and C4's own clause applies: a flag that fails the gate STAYS in the body
 and gets a register row naming the row it hit. That row is written in
-docs/groupBodySplit.md.
+docs/groupBodySplit.md (retired 2026-11-11, git 2144dde6).
 
 ⚠ ARM C READING `noPrinT` IS THE CORRECT FALSE READING, NOT A DEFECT. opDot mints
 `product = new(tag)` and only sets `product.count` when the flag is on, so a

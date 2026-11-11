@@ -21,7 +21,7 @@ search PrintFormatT Utilities UnitTests list;
 righty = 7;
 stop();
 
-shortcutOpT -- SEQ 461 (Tony, 2026-10-29): SHORTCUt's own build-only action (Shape S, docs/shortcutRecon.md), pre-registered
+shortcutOpT -- SEQ 461 (Tony, 2026-10-29): SHORTCUt's own build-only action (Shape S, docs/shortcutRecon.md (retired 2026-11-11, git 2144dde6)), pre-registered
 on trunk. Not run alone: pop.sh builds two inputs per row from everything above this stop() -- the OLD road (the statement as
 it is) and the NEW grammar (`pf1 = PRINt("<statement>"); testOP(pf1);`) -- one process each, because + and - move a global
 indent that outlives a print. A row compares the two stdouts, less noise lines, newlines as |, tabs as ^I.

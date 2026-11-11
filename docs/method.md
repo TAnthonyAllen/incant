@@ -18,7 +18,7 @@ The separation is adversarial by construction. Clay's claims must survive Clod's
 
 **Dispatches arrive pasted into Clod's session and are recorded in commits and seals** (since SEQ 429; ruled 2026-11-09,
 SEQ 570 R3). The walkie-talkie files `ipc/clay-to-clod.md` and `ipc/clod-to-clay.md` are retired and deleted; the last
-commit holding them is `76e547e9`. `docs/walkieTalkie.md` is kept as the history of that channel. What survives of it is
+commit holding them is `76e547e9`. `docs/walkieTalkie.md` (retired 2026-11-11, git 2144dde6) is kept as the history of that channel. What survives of it is
 the dispatch shape: a `RULINGS` block, one ruling per line, and nothing in the body counts as ruled unless listed there.
 
 ## 3. The claim discipline

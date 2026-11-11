@@ -557,7 +557,7 @@ bitmap looks wrong, print the same form to text and diff it. Build them as one
 walk and the diagnostic is free.
 
 Independent motivation, from a direction nobody planned: genParse's §6.5 harness
-(`genParseSpec.md`) needs to diff two parse trees, and the text form of a form is
+(`genParseSpec.md` (retired 2026-11-11, git 2144dde6)) needs to diff two parse trees, and the text form of a form is
 exactly the thing you diff. `incant/json1` is already that harness in prototype.
 
 ### 10.8 Deliberately not designed yet

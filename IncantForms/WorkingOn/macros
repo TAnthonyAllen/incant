@@ -397,13 +397,13 @@ OPEN, THE LANGUAGE:
     iterate ++g on x; (and --g): one statement, always from the first member; recon only, nothing built, Clay decides the build. Record: docs/iterLoopRecord; rulings in the pre-trim text (SEQ 550).
     The two-line iterate resumes after a break and does not reach a new source; and a ; does not end while ++g; -- docketed, own stroke, recon first (SEQ 550 R2; docs/iterLoopRecord).
     The ten reserved operators (| ^ GO ? >> << :> :< :- &) refuse "is not built yet" (SEQ 599). | is ruled as x | f meaning f(x), looser than arithmetic; not scheduled.
-    A cast: three reading accessors (s.lengtH, s.numbeR, n.texT), shape ruled SEQ 537, not built; a name census first (docs/clayBrief-2026-11-06.md).
-    Warnings on/off: one switch per warning in a Warnings registry, shape ruled SEQ 537, not built (docs/clayBrief-2026-11-06.md).
+    A cast: three reading accessors (s.lengtH, s.numbeR, n.texT), shape ruled SEQ 537, not built; a name census first (docs/clayBrief-2026-11-06.md (retired 2026-11-11, git 2144dde6)).
+    Warnings on/off: one switch per warning in a Warnings registry, shape ruled SEQ 537, not built (docs/clayBrief-2026-11-06.md (retired 2026-11-11, git 2144dde6)).
     Kant compares are a continuing issue: !across is not across.datA == 1 in an if (Tony, 2026-11-06); not measured, on no order.
     Error messages should point better at the line that raised them: REFUSED carries [line N], ERROR getNumber carries none (Tony, 2026-11-05); on no order.
     Decide what a refusal should carry, for a future kant debugger; a design question, last (docs/fixIts.md).
     chainOP: testOP written in kant, in two steps, an isInstruct flag first (Tony, 2026-11-03; shape SEQ 515 R1; docs/jitterWalkRecon.md).
-    printDefinition is due for a rewrite (Tony, 2026-11-06; docs/clayBrief-2026-11-06.md); on no order.
+    printDefinition is due for a rewrite (Tony, 2026-11-06; docs/clayBrief-2026-11-06.md (retired 2026-11-11, git 2144dde6)); on no order.
     defineCapture B2: ruled in principle (SEQ 507), its value-capture fix first when reached (TODO.md).
     checkSkip as a kant rule (SKIp): ruled 2026-11-01, the build parked behind the jitter walk (docs/checkSKIP.md section 8).
     fire(label), parked: returns only if a rung needs parse-then-fire (SEQ 440).

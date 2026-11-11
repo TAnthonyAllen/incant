@@ -9,7 +9,7 @@ four corpus operations all need traversal. Audience: Tony, Clay, Clod.*
 
 ## 1. Why this exists
 
-Every one of the four corpus operations (`docs/minion-corpus-format.md` §"four operations")
+Every one of the four corpus operations (`docs/minion-corpus-format.md` (retired 2026-11-11, git 2144dde6) §"four operations")
 is a **traverse → access → test → maybe-mutate** pass over the `minion` GroupItem tree:
 
 | op | traversal | access | mutate |
@@ -195,4 +195,4 @@ collect apply — the whole read half — against a real corpus, mapping onto `g
 ```
 
 *Deferred per the four-ops-first rule until 2026-06-29; Clay activated it while the machinery
-is warm. Pairs with `docs/minion-corpus-format.md` (the trees fieldNav walks).*
+is warm. Pairs with `docs/minion-corpus-format.md` (retired 2026-11-11, git 2144dde6) (the trees fieldNav walks).*

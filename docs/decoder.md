@@ -79,7 +79,7 @@ file is registered by hand in `incant/setup`'s `fILEs` registry (`grammar`, `uti
    minted by whoever coined it, **transcribed by Clod either way**. Cost is near zero at mint time
    and **unpayable six weeks later**.
 2. ✅ **RATIFICATION DISPATCHES NAME THEIR TERMS — this is now `WT-14`**, registered in
-   `docs/walkieTalkie.md`. Anything headed for Tony's signature carries a **decode line** covering
+   `docs/walkieTalkie.md` (retired 2026-11-11, git 2144dde6). Anything headed for Tony's signature carries a **decode line** covering
    its shorthand. **An undefined term in a decode line FAILS LOUD and mints the missing entry on
    the spot** — a missing definition is **a finding, not a shrug**. Enforced in code, not
    documented: `decodeOne`'s else-arm prints `decode UNDEFINED TERM <name> -- FAILS LOUD, mint the
@@ -96,7 +96,7 @@ file is registered by hand in `incant/setup`'s `fILEs` registry (`grammar`, `uti
   campaign nouns            5   firstLight gapB vigram endGoalCycle blastRadius
   doctrine one-liners       3   degradeAssertsOccurrence citationLosesToMeasurement
                                 structuralVsCausal
-  WT1 .. WT14              14   minted from docs/walkieTalkie.md; WT14 is new today
+  WT1 .. WT14              14   minted from docs/walkieTalkie.md (retired 2026-11-11, git 2144dde6); WT14 is new today
   earned by the V0 pass     1   ownedRed
   HELD                      1   parked          <- unratified slot, §8
   RESERVED                  1   byteIdentical   <- waits on vigram O4, §9

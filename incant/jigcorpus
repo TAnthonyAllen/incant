@@ -4,7 +4,7 @@
     Pure data, no actions (the unitTests pattern). Included by `jiquery`, which
     runs queries against it. NO Start()/stop() wrapper — this is a registry file,
     not an execution file. CANONICAL: this is the source-of-truth JIT Igor corpus.
-    See docs/minion-corpus-format.md.
+    See docs/minion-corpus-format.md (retired 2026-11-11, git 2144dde6).
 
     ============================================================================
     RE-BAKED 2026-07-31 from the CONSOLIDATED docs (docs/jit.md = what is true,

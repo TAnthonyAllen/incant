@@ -8,5 +8,5 @@ STATUS:   cleared        # fresh = parked/unread | working = picked up, in progr
 WRITTEN:  2026-08-03  -  Clod (channel opened, empty -- minion NOT yet fired)
 -------------------------------------------------------------------
 
-CHANNEL OPENED 2026-08-03. See ipc/support-to-clod.md's header for the split
+CHANNEL OPENED 2026-08-03. See ipc/support-to-clod.md (retired 2026-11-11, git 2144dde6)'s header for the split
 rationale and standing rules.

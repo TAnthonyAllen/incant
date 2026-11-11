@@ -9,6 +9,6 @@ WRITTEN:  2026-08-03  -  Clod (channel opened, empty -- minion NOT yet fired)
 -------------------------------------------------------------------
 
 CHANNEL OPENED 2026-08-03, ahead of the forms minion. See
-ipc/support-to-clod.md's header for why the channel is split per minion and
+ipc/support-to-clod.md (retired 2026-11-11, git 2144dde6)'s header for why the channel is split per minion and
 for the standing rules that bind here (WT-11 no silent overwrite; NO GRINDING
 means pause and ask here rather than struggle solo).

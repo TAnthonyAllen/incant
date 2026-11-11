@@ -1,7 +1,7 @@
 # CLAUDE.md — Incant Repository
 
 This file orients Claude Code (Clod) when working in this repository.
-Read `projectBible.md` for the full ecosystem context (PLG/TAWK/Incant).
+Read `projectBible.md` (retired 2026-11-11, git 2144dde6) for the full ecosystem context (PLG/TAWK/Incant).
 
 ---
 
@@ -42,10 +42,11 @@ Groups/
 ├── incant/                 — Active incant source files (setup, grammar, generate (reference only),
 │                              directives, oneTest, unitTests, utilities). Promoted from
 │                              XML/WorkingOn/ on 2026-05-29.
-├── XML/                    — Window-definition DSL files. 12 subdirs of GUI material
-│                              staged for later conversion-to-incant work.
+├── IncantForms/            — The forms: Windows/ (the form incantations), Controls/ (styles, templates,
+│                              attributes, traits), WorkingOn/ (notes and WIP), PDF/, Images/.
+├── topics/                 — One file per session topic (Tony, 2026-11-11); features.md is the parking list.
 ├── Maps/                   — Symlink → ~/data/support/Maps (BitMAP, Segment).
-└── projectBible.md, TODO.md, CLAUDE.md
+└── projectBible.md (retired 2026-11-11, git 2144dde6), TODO.md, CLAUDE.md
 ```
 
 **Symlinked support classes** (Frame, Include, KeyTable, Maps) live once in
@@ -252,21 +253,11 @@ One method per field by design. Sub-attribute pattern for second invokable behav
 
 ---
 
-## XML Directory
+## XML Directory -- RETIRED 2026-11-11 (SEQ 613 R2, git 2144dde6)
 
-`XML/` is a window-definition DSL — XML-flavored declarative incant. Tags
-are GroupItem field declarations; attributes are sub-fields; bodies can be
-content, nested fields, or — when an attribute names an event (e.g.
-`onLayout`) — incant action code. Closing-tag conventions are lax (one `</tag>`
-can pop several opens).
-
-The 11 `XML/` subdirectories (`Windows/`, `Controls/`, `Notions/`, `NotGUI/`,
-`Tests/`, `HTML/`, `LLVM/`, `Generating/`, `Stash/`, `Groups/`, `WorkingOn/`,
-`BackupXML/`-gitignored) are GUI-arc material — staged for the
-conversion-to-incant work that's part of the long-term GUI thread. The
-active incant source files (setup, grammar, generate, bytecode, directives,
-oneTest, unitTests, utilities) now live at the top-level `incant/` directory
-(2026-05-29 promotion); see "Repository Structure" above.
+`XML/` is deleted from the tree: 22 of its 26 kant files were byte-identical to their `IncantForms/` twins and the
+rest were stale. With it went `IncantForms/` BackupXML, Generating, Groups, LLVM, NotGUI, Notions and Stash. The forms
+live in `IncantForms/Windows/`. `XML/BackupXML/` and `XML/WorkingOn/incant++` are gitignored and were left on disk.
 
 ---
 
@@ -1267,7 +1258,7 @@ so a method's doc is **queryable rather than scrolled past**.
   an entry, every entry has a live key — and it **waits for evidence it is needed.** That is
   measure-before-building applied to the process itself.
 - **A light tally at the seal**: entries written, and **lookups Clod actually made**, in
-  `docs/commentTrial.md`. ⚠ **The tally is the trial's whole point** — if the pointer is never
+  `docs/commentTrial.md` (retired 2026-11-11, git 2144dde6). ⚠ **The tally is the trial's whole point** — if the pointer is never
   followed, the short line was all anyone needed and the doc half can go. If it is followed and the
   entry is missing, *that* is the "deal with it then", and the dangling-pointer row earns its place.
 - **When a pointer is followed and the entry is absent: log it and move on.** Do not stop to build
@@ -1645,7 +1636,7 @@ Hard-won lessons. Each one has cost real debugging time.
     don't use tok macros for anything beyond `testMacro`'s existing shape. Write plain `extern`
     functions instead — they're expressions by construction, so `&&`/`||` composition works
     natively with zero substitution machinery, and multiple calls in one function are just
-    ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
+    ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md` (retired 2026-11-11, git 2144dde6).)
     **ATTRIBUTION — RULED 2026-09-16 (Tony): CLOSED AS UNKNOWN, AND THE FOUR CANDIDATES ARE
     STRUCK.** *Cause not isolated; not pursued — would require tok work. Do not use tok macros
     outside `testMacro`'s existing shape.* Settling it means tok maintenance, and nothing in the
@@ -2033,7 +2024,7 @@ Hard-won lessons. Each one has cost real debugging time.
     split.** `getGuard` is now a two-line pure read (`GroupItem.twk:493`) with its machinery moved
     to `ensureGuard()`, and **three armed directives were attaching to it and injecting nothing**
     — `tok` reported `getGuard() has directives` while the generated body stayed three lines long.
-    Silently dead since the split; cut by C-155 and archived verbatim in `docs/c155Cull.md`.
+    Silently dead since the split; cut by C-155 and archived verbatim in `docs/c155Cull.md` (retired 2026-11-11, git 2144dde6).
     **The original text follows, struck only where the amendment says so.**
 
     **THE DIRECTIVE CONTRACT: `groupDirectives` APPLIES AT MOST ONE DIRECTIVE PER TARGET FUNCTION —
@@ -3478,7 +3469,7 @@ statement.
 **Dispatches arrive PASTED into the session, and are recorded in commits and seals** -- the practice since SEQ 429,
 ruled 2026-11-09 (SEQ 570 R3). `ipc/clay-to-clod.md` and `ipc/clod-to-clay.md` are **retired and deleted**; the last
 commit that holds them is `76e547e9`, so a citation of the form *"clod-to-clay SEQ n"* in a dated record resolves there.
-`docs/walkieTalkie.md` stays as history. ~~The STATUS header, `grep -H '^STATUS:' ipc/*.md`, and polling the file~~ are
+`docs/walkieTalkie.md` was kept as history until 2026-11-11, then retired (git 2144dde6). ~~The STATUS header, `grep -H '^STATUS:' ipc/*.md`, and polling the file~~ are
 retired with them. **When the dispatch leaves SEQ to Clod, Clod assigns the next number and the seal says so.**
 ⚠ The other files under `ipc/` (the forms, skip and support minion channels) are not named by that ruling and stay.
 
@@ -3492,4 +3483,4 @@ that reads like a ruling and is not in the block is a **proposal**; say so rathe
 
 ⚠⚠ **A DISPATCH THAT TOUCHES GRAMMAR NAMES WHICH GRAMMAR THE CHANGE MUST REACH AND WHERE IT MUST WORK (top level, an action body, a form). Tony, standing, 2026-11-06 (SEQ 552 R5).** Action bodies and forms parse on `incant/grammar`, so a change made only in `incant/kantGrammar` can't be reached there. **If a dispatch doesn't say, ask before building.**
 
-See `projectBible.md` for full glossary, HWF protocol, and ecosystem context.
+See `projectBible.md` (retired 2026-11-11, git 2144dde6) for full glossary, HWF protocol, and ecosystem context.

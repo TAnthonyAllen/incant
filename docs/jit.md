@@ -83,7 +83,7 @@ grows. The candidate answer — **degrade to the oracle LOUDLY** — already exi
 - **Scope: actions only** for the first cut. Parse bodies (the `builtinParseR` carriers) are the next rung.
 - **Spelling: `jitter;` alone** -- jit at first call from then on. No off switch and no `jitter(name)` for now.
   `if jitter;` is unsupported (bear-trap #34: a truth test fires the command), and nothing is designed around it.
-  The recon these answer: `docs/jitterRecon.md`.
+  The recon these answer: `docs/jitterRecon.md` (retired 2026-11-11, git 2144dde6).
 
 ### ⚠⚠ RULED 2026-10-19 (Tony, SEQ 386 R1) -- the `jitter;` command, first cut
 - **`jitter;` turns on jit at first call from that point in the run onward.** Actions only. No off switch, no
@@ -910,7 +910,7 @@ measured on either spelling.** Columns 2–5 were handed back precisely because 
 they now have a denominator, and it is not the one they were written against.
 
 ⚠ **BUILDING A GRAPH CENSUS ON AN UNVERIFIED POPULATION IS THE T-0 SHAPE**, and this campaign
-corrected the third instance of it **the same day** — `docs/kantParseTemplates.md`'s `ref · ref`
+corrected the third instance of it **the same day** — `docs/kantParseTemplates.md` (retired 2026-11-11, git 2144dde6)'s `ref · ref`
 rows for `Xpress` and `UnaryXP`, wrong on a byte-identical binary, exposed by one command. An SCC
 walk is precision classification whose errors are **silent**: an undercount reads as a simpler graph
 and an overcount as a more tangled one, and **neither reads as a broken instrument.**

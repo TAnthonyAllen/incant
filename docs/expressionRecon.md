@@ -784,7 +784,7 @@ fixture-name count); standing in CLAUDE.md -- a deletion stroke pre-registers th
 canary 343; ~/bin/incant rebuilt Oct 14 10:32, no "will never be executed". **Row for row with the clone's k355:** pop.sh
 1285 (the one mover the fixture-name count, R1) · jitLadder PASSED, 0 movers · printPop, ddPop = clone · decodePop PASSED
 (binary line refreshed) · frontier = capture · dirCheck 53 / 57 = capture, tree bare. expr-delete deleted (clone, live,
-GitHub, both repos). R4: the not-declared listing's 34 -> 22 is docs/tokClaims.md CLAIM TOK-6, a symptom, not chased.
+GitHub, both repos). R4: the not-declared listing's 34 -> 22 is docs/tokClaims.md (retired 2026-11-11, git 2144dde6) CLAIM TOK-6, a symptom, not chased.
 
 #### ⚠⚠ STROKE 2: THE OLD BUILDER DELETED -- BUILT ON expr-delete (Groups 333eda6, support 4b261f4), NOT MERGED (SEQ 355, Clod, 2026-10-14)
 
@@ -991,7 +991,7 @@ paragraph, H9's UnaryXP note; incant/designDocs (~23 entries): GroupActions.runS
 DotRightIsEvaluated / ShortCircuitIsASpelling / AndOrAreCSpellings / ModifierTwoClasses / NeverSelectBySpelling,
 Instruct.opAND / opDeref, jitEmitters.allocaInEntryBlock / crashTradedForSilence, UtilitiesIncantation.tokenXPshapes /
 ParserModifierSeam, GroupItem.attachLabel.rung2bRed, ruleActions.degradeByDefault.FALLS; docs/expressionRecon.md (the whole
-arc), docs/kantCorpus.md KANT-43 (:2032), docs/unaryPlacement.md, docs/dotChain.md, docs/andOrRung.md, docs/grammarCorpus.md,
+arc), docs/kantCorpus.md KANT-43 (:2032), docs/unaryPlacement.md, docs/dotChain.md, docs/andOrRung.md (retired 2026-11-11, git 2144dde6), docs/grammarCorpus.md (retired 2026-11-11, git 2144dde6),
 docs/fixIts.md (67 mentions), TODO.md. Historical wakeup vintages stay as written. **KANT-43's dated retirement note is
 DRAFTED, NOT COMMITTED** (Clod's scratchpad, kant43draft.md; quoted in the seal report).
 
@@ -1412,7 +1412,7 @@ jitted drivers, both switches; all 21 entered jitRunAction. **The on/jit column 
 interpreted road agrees with it cell for cell.** The IR shows it structurally: the inlined callee's counter add sits inside
 `scRhs`, which the left operand's `br` skips (INCANT_JIT_DUMP=2; both switches reach jitEmitShortCircuitSlots -- the
 tree emitter unpacks into it). Switch off also exits early: `&&` / `||` carry `shortCircuit` (incant/setup:100,102; KANT-34's
-both-arms line was retired, docs/andOrRung.md). **The only red is m1 switch off, all six cells: the old road's
+both-arms line was retired, docs/andOrRung.md (retired 2026-11-11, git 2144dde6)). **The only red is m1 switch off, all six cells: the old road's
 right-to-left fold, a || (b && c) (KANT-43)** -- given that fold it short-circuits correctly (a decides, b and c skipped). Born
 red (R2); retires when the switch flips. H7: the x column read from scNa -- all 12 control rows red by value on both
 switches (x 1 -> 0), the deciding rows stayed green (which is why the control is required); restored md5-identical.

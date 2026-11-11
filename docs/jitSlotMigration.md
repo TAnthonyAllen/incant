@@ -148,7 +148,7 @@ precondition for the next being measurable.
 
 **(i) `andOr` REACHABILITY — short-circuit under the JIT for a generated body.** ⚠ **AND THE
 ARCHAEOLOGY ANSWERS "LANDED", NOT "DESIGNED AND NEVER BUILT" — WHICH CHANGES WHAT THIS RUNG IS.**
-`docs/andOrRung.md` is in the tree and its rung shipped: `3483167` *"AND/OR promoted to tier 3:
+`docs/andOrRung.md` (retired 2026-11-11, git 2144dde6) is in the tree and its rung shipped: `3483167` *"AND/OR promoted to tier 3:
 short-circuit in both engines, all six parts"*, sealed `1c46324`. **`jitEmitShortCircuit` exists**
 (`GroupRules.mm:4907`) and is reached **not through the `jitEmitter=` slot but through an in-body
 gate** — `runShortCircuit`'s `if (jitting) return jitEmitShortCircuit(field);`

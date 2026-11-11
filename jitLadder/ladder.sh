@@ -1337,7 +1337,7 @@ echo "-- JXD  AND/OR UNDER THE JIT. GRADUATED 2026-08-11 FROM PINS TO CERTIFYING
 #    JXD-1 -- `AND` under jit exited 139, and printed NO degrade line at all: it
 #    died before the counter every other rung asserts at zero could see it. CAUSE
 #    OF THE REPAIR: AND/OR were promoted out of the operator category (tier 3,
-#    docs/andOrRung.md S6). runOP resolved both operands before dispatching, so
+#    docs/andOrRung.md (retired 2026-11-11, git 2144dde6) S6). runOP resolved both operands before dispatching, so
 #    the crash was reached through a path that no longer exists -- interpretXP
 #    now binds runShortCircuit, and the JIT arm reaches jitEmitShortCircuit.
 #

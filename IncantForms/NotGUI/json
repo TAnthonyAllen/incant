@@ -1,5 +1,0 @@
-#registry GUI;
-<jsonTest json file="/Volumes/IOmega/test.json"/>
-#load jsonTest;
-#print menu;
-

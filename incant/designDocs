@@ -578,8 +578,8 @@ define
                 variable to the branch-target node, and aCTionFOR advances its OWN C++
                 cursor so a body := cannot steer the iteration. nextGroup is stateless, so
                 a plain cursor relocates to an arbitrary branch-target member cleanly.
-                The reasoning trail is docs/branch-mechanism.md; the resolution is
-                docs/branch-dispatch-findings.md.
+                The reasoning trail is docs/branch-mechanism.md (retired 2026-11-11, git 2144dde6); the resolution is
+                docs/branch-dispatch-findings.md (retired 2026-11-11, git 2144dde6).
 
                 runByteFn returns the branch-target stream member on a taken branch and
                 null on every non-branch op, which is why the loop relocates by tag on a
@@ -1213,7 +1213,7 @@ define
                     also measured green and was REJECTED ON PRINCIPLE: over 216 attachLabel
                     calls in one full run, ZERO fell in the cell where the two spellings
                     differ, so its green was a pass on a case that never occurs.
-                    Ruling verbatim: docs/parseCodeMeasurements.md addendum (j).#);
+                    Ruling verbatim: docs/parseCodeMeasurements.md (retired 2026-11-11, git 2144dde6) addendum (j).#);
                 attachGuardHere=(⚠ THE ATTACH CASES ARE GUARDED, AND leaveRule ALREADY KNEW THIS. Its
                     line was `if into  into +% label` -- and `into` IS pStuff.label.
                     Extracting the body without the guard cost a fleet-wide SIGSEGV the
@@ -1232,7 +1232,7 @@ define
                     ScafOUT coming back childless. Where no parent label exists there is no
                     subtree at risk, so the consult is permitted, and that cell is IA-2's.
                     PC-1's rationale stands; its letter is trimmed to the rationale's reach.
-                    See the IA-2 block below and docs/parseCodeMeasurements.md addendum (j)
+                    See the IA-2 block below and docs/parseCodeMeasurements.md (retired 2026-11-11, git 2144dde6) addendum (j)
                     for the ruling verbatim and the trial it rests on.#);
                 promoteUnguarded=(PROMOTION IS AN ASSIGN AND IS NOT GUARDED ON THE DESTINATION -- a parent
                     with no label yet is the NORMAL case here, and this is what gives it
@@ -1281,7 +1281,7 @@ define
                 numberCompare=(A NUMBER AGAINST A NUMBER, COUNT OR STRING COMPARES THE VALUES, as doubles,
                     in all three arms. Never (int)(a - b), which read numbers less than 1 apart as equal,
                     and never a getCount read of a right-hand number, which rounds it. SEQ 417;
-                    docs/numberCompare.md.#);
+                    docs/numberCompare.md (retired 2026-11-11, git 2144dde6).#);
             definingRule=(RETIRED 2026-09-30 (stroke 4.4a): the method is deleted and instanceRule() answers
                 instead -- the registered original for a copy of one, else the node. Kept as the record.
 
@@ -1668,7 +1668,7 @@ define
                     forbidding it.#);
             opAND=(THE STRICT FALLBACK, NOT THE SHORT-CIRCUIT. runOP evaluates both operands BEFORE it
                 dispatches, so by the time this is entered the right arm has already run, side
-                effects included (docs/andOrRung.md section 1a). runAccAnd / runAccOr in GroupActions.rtn
+                effects included (docs/andOrRung.md (retired 2026-11-11, git 2144dde6) section 1a). runAccAnd / runAccOr in GroupActions.rtn
                 are where AND/OR are reached from (runShortCircuit was, until the old builder was deleted 2026-10-14).
                 This remains for any path that reaches the operator table directly, brought up to
                 the ruling: 1 or 0, never null, both operands through truthOf. Before 2026-08-11 it
@@ -1717,7 +1717,7 @@ define
                     of 111. The shared rule is GroupActions storeRuling.#);
             opCerr=(THE STDERR SINK, added 2026-08-01. opPrint is a two-arm choice (diverted buffer,
                 else stdout) with no third arm to select; that absence is what grammar-minion round
-                1 refused on (docs/grammarCorpus.md CLAIM GRAM-4), and what held minionA round 2,
+                1 refused on (docs/grammarCorpus.md (retired 2026-11-11, git 2144dde6) CLAIM GRAM-4), and what held minionA round 2,
                 since genParse's emitters write their PRODUCT via cerr. A SIBLING, NOT A THIRD ARM,
                 for two reasons: Tony's own precedent (aCTionStringXP was split out of print rather
                 than folded in), and it does not preempt `sink=`, an open design item Tony owns
@@ -1830,7 +1830,7 @@ define
                     writer through the flag channel would let a fixture set the very flag it
                     observes -- an instrument that can fake its own reading. IT IS AN INSTRUMENT,
                     NOT A FIX: `debugged` has no reader in the tree (its consumers were directive-
-                    injected and culled by C-155, docs/c155Cull.md), so on a bare build `debug ALL
+                    injected and culled by C-155, docs/c155Cull.md (retired 2026-11-11, git 2144dde6)), so on a bare build `debug ALL
                     X` is invisible. This makes the question askable.#);
                 isGrouPNoWriteHalf=(READ-ONLY, AND NOT THE case 41 SHAPE. isGROUP is a VALUE of GroupBody's 5-bit
                     `data` enum, beside isCOUNT and isSTRING, not a boolean flag -- so no write half
@@ -2007,7 +2007,7 @@ define
                     what isAction() tests and what processCode writes when it commissions a parsed
                     body, so flag and artifact are the same integer and cannot disagree.#);
             truthOf=(THE OPERAND TRUTHINESS CONTRACT. Ruled 2026-08-11 by Tony, carried by Clay (SEQ 32);
-                spec docs/andOrRung.md section 3 part 1. Normative for both engines and both word
+                spec docs/andOrRung.md (retired 2026-11-11, git 2144dde6) section 3 part 1. Normative for both engines and both word
                 forms, and in ONE place on purpose -- a contract duplicated at three call sites is
                 the one-channel-one-meaning failure waiting for its second reader.#):
                 layered=(LAYERED: presence decides only when no value exists to decide by. Row 1, absent
@@ -2667,7 +2667,7 @@ define
                 With no emitter, runShortCircuit ran at EMIT time and folded its value --
                 jitXand2 and jitXor both wanted 1 on fire 2 and returned 0, AT DEGRADE COUNT 0.
                 Trading a crash for the dangerous-one is not progress, and this function is what
-                makes the promotion honest. 2026-08-11, docs/andOrRung.md §3 part 2, ruling
+                makes the promotion honest. 2026-08-11, docs/andOrRung.md (retired 2026-11-11, git 2144dde6) §3 part 2, ruling
                 SEQ 32.#):
                 CodeSite="jitEmitters.rtn:jitEmitShortCircuitSlots";
             unboxedCannotSee=(WHAT jitEmitShortCircuitSlots CAN AND CANNOT SEE, stated precisely
@@ -4717,7 +4717,7 @@ define
                     measured on Braced and Parens: exit 0, no warning, the
                     CodE
                     attached and read by nobody. See
-                    docs/parseCodeMeasurements.md.
+                    docs/parseCodeMeasurements.md (retired 2026-11-11, git 2144dde6).
 
                     Second, the order only discriminates for a rule that is
                     BOTH coded
@@ -5072,7 +5072,7 @@ define
                 THROUGH and runs interpreted, so behaviour is unchanged and
                 the gap is
                 COUNTED rather than invisible.
-                docs/gateCensus.md: one of the five. The WALK MACHINERY
+                docs/gateCensus.md (retired 2026-11-11, git 2144dde6): one of the five. The WALK MACHINERY
                 (interpretXPaccum
                 et al.; aCTionExpressioN until 2026-10-14) is deliberately NOT in this set -- degrading the
                 emit walk would
@@ -5120,7 +5120,7 @@ define
                     be worth less than an honest gap. Found 2026-09-03 by
                     the sweep's own dangling-pointer check -- the first two
                     instances the comment trial has produced, and the
-                    evidence its docs/commentTrial.md says the
+                    evidence its docs/commentTrial.md (retired 2026-11-11, git 2144dde6) says the
                     dangling-pointer fleet row was waiting for.#);
                 refusalBoundary=(A refusal raised while defining is terminal
                     for THE DEFINITION: it is not installed, and the arm is cleared here so

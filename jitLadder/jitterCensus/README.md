@@ -2,7 +2,7 @@
 
 A measuring instrument, not a fleet member: nothing here runs at a seal. It answers "what would a jitter command meet"
 by jitting EVERY action at its first call and comparing each fixture against its tap-off run.
-Results and clusters: `docs/jitterRecon.md` (SEQ 383) and `docs/noSideEffects.md` (SEQ 384).
+Results and clusters: `docs/jitterRecon.md` (retired 2026-11-11, git 2144dde6) (SEQ 383) and `docs/noSideEffects.md` (SEQ 384).
 
 **Run it ONLY in a branch-build clone** (CLAUDE.md's clone recipe), never the live tree: the taps edit engine source.
 

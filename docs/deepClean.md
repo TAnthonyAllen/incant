@@ -68,7 +68,7 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 - **Finding (rule F2: reported, not minted):** a rule action's read of a declared Frontier global comes through data-less, and afterwards the global reads as its tag. Reproducible with the scratch probe; not chased.
 
 **D-2 · `carrierT` CT-5 and F-83 -- FIX (re-pin with a sentence, close F-83).**
-- **Evidence:** the same win as D-1, read as a failure in the fleet: `docs/redList.md` already says "the label gap is GONE ... re-pin ... close F-83".
+- **Evidence:** the same win as D-1, read as a failure in the fleet: `docs/redList.md` (retired 2026-11-11, git 2144dde6) already says "the label gap is GONE ... re-pin ... close F-83".
 - **Size:** one pop.sh pin plus its sentence (H6). **Risk:** none.
 
 **D-3 · `genLadder/decodePop.sh` -- FIX (3 lines in 2 files), plus the same void test in `incant/lookup`.**
@@ -267,7 +267,7 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 | E. kant's generic flag | opSetFlag case 12 | opDot case 12 |
 
 **Three pointable, unrun paths:**
-1. **C -> D:** Braced's label keeps fLAG=1 in `rStuff.label`, so the next Braced match recycles the node already attached as the previous subscript (`a[0] + b[1]`). Not covered by `genParseShape.md` §1.9, which names only parse()'s promote as a writer. Depends on whether F-122's `defer` on Xpress delays aCTionTokenXP.
+1. **C -> D:** Braced's label keeps fLAG=1 in `rStuff.label`, so the next Braced match recycles the node already attached as the previous subscript (`a[0] + b[1]`). Not covered by `genParseShape.md` (retired 2026-11-11, git 2144dde6) §1.9, which names only parse()'s promote as a writer. Depends on whether F-122's `defer` on Xpress delays aCTionTokenXP.
 2. **B <- E:** Instruct.rtn:1176 reads the poison for EVERY `++` operand, so `x :. flaG; x++;` silently does not increment. This is F-7's surviving copy (:1176 dominates, :1212 is dead), still letting the run flag steer the emit walk.
 3. **A <- B/C/D/E:** e.g. `x :. flaG; register(x)` silently redirects to `x.parent`.
 
@@ -359,8 +359,8 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 
 **D-33 · `docs/wakeup.md` trim -- REFACTOR (a move, verbatim).**
 - 2,188 lines, 47 seals (09-20 .. 10-02). The 12 seals older than 7 days are lines 1165-2185 (~1,021 lines, 47%).
-- **Precedent:** `docs/wakeupVintage-to-2026-09-19.md`.
-- Move them verbatim to `docs/wakeupVintage-2026-09-20-to-09-24.md` and extend the footer pointer; wakeup.md drops to ~1,167 lines.
+- **Precedent:** `docs/wakeupVintage-to-2026-09-19.md` (retired 2026-11-11, git 2144dde6).
+- Move them verbatim to `docs/wakeupVintage-2026-09-20-to-09-24.md` (retired 2026-11-11, git 2144dde6) and extend the footer pointer; wakeup.md drops to ~1,167 lines.
 
 **D-34 · Clod's six fixits.**
 

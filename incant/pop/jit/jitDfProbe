@@ -14,7 +14,7 @@
     verbatim -- gate included -- and jitEmitSelfCall brackets the call in
     runAction's own order: bind, save, call, restore.
 
-    ⚠ CORRECTION 2026-08-16 (B0 gate census, docs/gateCensus.md; confirmed by
+    ⚠ CORRECTION 2026-08-16 (B0 gate census, docs/gateCensus.md (retired 2026-11-11, git 2144dde6); confirmed by
     Tony). FINDING 1 BELOW IS NOW FALSE ON ITS FACE, and it is corrected HERE
     rather than in place, because the 08-04 block is provenance and rewriting it
     would falsify what was actually measured that day.

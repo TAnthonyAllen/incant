@@ -451,7 +451,7 @@ kant seam, which goes through `runAction`**: `incant/genEmit`'s `leaf` (the spel
 `:847` as `result.text eq "1"`). **So the kant speller and manier are KE-4's customers the moment
 they are jitted** — which is what makes refuse-at-emit worth its one line now rather than later.
 
-**Fence in force meanwhile:** `docs/attributesTemplate.md` §6 carries the rule, frozen with the
+**Fence in force meanwhile:** `docs/attributesTemplate.md` (retired 2026-11-11, git 2144dde6) §6 carries the rule, frozen with the
 template shapes — **template locals are `i32` by rule, not by habit, until this is repaired rather
 than refused.**
 
@@ -575,7 +575,7 @@ having eaten one more token than it matched. ⚠ **Both spellings return the sam
 rows** — they differ only in how much input they consumed, so **a harness asserting the rule's
 verdict would certify the eager spelling as correct.** Only the cursor tells them apart.
 
-**This is the harm `docs/genKantParse.md` §1 refused the AND spelling over** (*"a parse term
+**This is the harm `docs/genKantParse.md` (retired 2026-11-11, git 2144dde6) §1 refused the AND spelling over** (*"a parse term
 consumes input, so an eagerly-evaluated right arm advances the mark past text the rule never
 matched"*). That refusal was right about eager operators and is **retired for the word forms**,
 which now short-circuit; it **stands, and is now measured rather than argued, for the symbols.**
@@ -928,7 +928,7 @@ pinned at 4. Both halves are live fleet checks and neither is a pinned defect.
 - GroupItem and GroupBody have no base class today. grep of .mm, .h and .twk for `public gc`, `new (GC)`, `gc_cleanup`: 0. `new GroupItem(`: 96 sites in GroupRules.mm and GroupItem.mm.
 - `class GroupItem : public gc` and `#include "gc/gc_cpp.h"` came in with da9f701a (2026-04-26, Phase 0) and went out with a15471ce (2026-05-14). That commit's message is about CodE parsing and never mentions them, and bear-trap #5 says a retok drops includes, so this may be an accident of a retok: read, not run, and not established. So GroupItem has been uncollectable for about six months, on all of today's work.
 
-**So CLAUDE.md's "Boehm-GC managed (inherits from `gc`)", line 176, and docs/gc.md's "collected automatically" do not describe today's binary.** Corrected by this entry, not by editing them, until this is ruled.
+**So CLAUDE.md's "Boehm-GC managed (inherits from `gc`)", line 176, and docs/gc.md (retired 2026-11-11, git 2144dde6)'s "collected automatically" do not describe today's binary.** Corrected by this entry, not by editing them, until this is ruled.
 
 **Cost:** setFrame on 110 fields keeps about 300KB a layout, 4.2GB after about 16,500 (docs/setFrameSpec.md). Each collection scans it all, which fits a layout slowing as it runs (fits, not shown).
 

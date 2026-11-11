@@ -21,8 +21,8 @@
   actually free, genParse-without-code waiting at the end of the same logic.
 
 - [ ] **incant setup command reference** — document the commands registered at startup: what each does, calling convention, where it lives. Wiki candidate. Clay's task. **Now more urgent:** `setMark` and `getMarkLineAt` added 2026-06-15 and need entries.
-- [x] **`modedOP.taG` recon** — done. See `docs/modedOP-taG-recon.md`. Bottom line: `.taG` is the parser match key, not a free slot. Alias must live in a sub-attribute (`modedOP.boundTo`), set via `interpret`-child pattern. Runtime rebinding must route through `operateMethod/setOperat` — `=` won't rebind `gOp` (poochifier). Three tar babies documented.
-- [ ] **`modedOP.boundTo` alias design** — morning Clay+Tony design pass. Read `docs/modedOP-taG-recon.md` first. Three open questions: is `gText` free on operators; which "alias" we mean (second-name vs current-binding-label); incant syntax for setting `boundTo` at rebind time. Output: a spec for Clod to implement.
+- [x] **`modedOP.taG` recon** — done. See `docs/modedOP-taG-recon.md` (retired 2026-11-11, git 2144dde6). Bottom line: `.taG` is the parser match key, not a free slot. Alias must live in a sub-attribute (`modedOP.boundTo`), set via `interpret`-child pattern. Runtime rebinding must route through `operateMethod/setOperat` — `=` won't rebind `gOp` (poochifier). Three tar babies documented.
+- [ ] **`modedOP.boundTo` alias design** — morning Clay+Tony design pass. Read `docs/modedOP-taG-recon.md` (retired 2026-11-11, git 2144dde6) first. Three open questions: is `gText` free on operators; which "alias" we mean (second-name vs current-binding-label); incant syntax for setting `boundTo` at rebind time. Output: a spec for Clod to implement.
 - [ ] **`modedOP.boundTo` implementation** — Clod execution task, follows the design pass above. Thin C++ + setup registration, same pattern as `interpret` child on bytecode ops.
 - [ ] **Terse `!` merge-control suffix — its own conversation (Clay/Grammar Igor).** Found in the legacy `XML/Windows/sheet.xml` DSL: `someList!` / `stuff!` used a trailing `!` to turn merging *off* on an attribute reference. Tony likes the terseness. Two gates before any restore: (1) **polarity** — old `!` meant merge-off because merge was the *default*; today merge is opt-IN via the `mergeOn` flag (`merge` modifier `Commands.rtn:414`, `:.` toggle `Instruct.rtn:669`, gated by `grup.mergeOn && mergeOn` `GroupItem.twk:98`), so a restored `!` must be *redefined* (e.g. force-no-merge override), not literally restored; (2) **collision** — `!` is currently `banged`/negation in the rule-modifier set (`RuleStuff.twk:23`), so the grammar must disambiguate by position. Decision so far: **stay with the verbose `mergeOn` model for now** (explicit/greppable; no capability lost). Parked, not lost. Don't let it derail corpus work.
 
@@ -157,7 +157,7 @@ without parens is a change to rule-invocation grammar, not to the iterator. Own 
 everywhere — `followingMember`, `setMacroValue`, `testAttributes`, `testOptions`, `testUpTo`
 (`RuleStuff.twk`), `aCTionFOR` (`ruleActions.rtn`), `for grup in argument` (`incant/utilities`),
 Clod's new `allAttributesOptional` helper, and the `many…` helpers genParse is about to emit
-(`genParseSpec.md` §3.3). The loop variable is called `grup` in nearly all of them.
+(`genParseSpec.md` (retired 2026-11-11, git 2144dde6) §3.3). The loop variable is called `grup` in nearly all of them.
 
 **Banked, not now:** if `++` dispatch ever profiles hot, rebind the node's `gOp` to the specialized
 method on first execution — an inline cache. `gOp` is already pass-by-reference across all 29
@@ -197,7 +197,7 @@ unique-label emit (`bcLabel<n>` via `:=` + `labelIndex`) and the `byRef`/`:=` po
 semantics landed, the cleaned-up **incant** `interpretBC` (`incant/generate`) takes the
 branch: `testByteCode` true→26 / **false→11**, `testIfElse`→26/7. The C++ `interpretBC` in
 `Bytecode.twk` was **never written and is not needed** — the interpreter stays in incant.
-`docs/branch-mechanism.md` is superseded (kept as historical reasoning).
+`docs/branch-mechanism.md` (retired 2026-11-11, git 2144dde6) is superseded (kept as historical reasoning).
 
 Still done + in the build (keep): `byRef` flag + `:=` pointer semantics (opSetGroup/opAssign/
 setGroup), `opDot` reference unwrap (case 401-404 + deref-loop `&& target.group` stop), `gIF`
@@ -458,7 +458,7 @@ don't drive match. Text-substrate path works. `statementMatches` / `matchSpanInL
 **🚧 generateRules class-body/extern split.** `plg Tawk.g → Tawk.twk` runs clean but output
 does not tok: generateRules dumps class field declarations at file scope. tok → `ERROR
 Inheritance`. Fix: split class-body material from extern bodies. Full writeup in
-projectBible.md "Phase Generate Tawk".
+projectBible.md (retired 2026-11-11, git 2144dde6) "Phase Generate Tawk".
 
 ---
 
@@ -611,14 +611,14 @@ projectBible.md "Phase Generate Tawk".
   `insertBefore`). But `getFile` reads AND parses (`pushInput`) what it loads, so
   loading the file re-executes it. Needs a load-without-parse path (cf. the
   `getFile` suppress-parse item under Directive work). Full context:
-  `docs/grammarOnTheFly-findings.md`.
+  `docs/grammarOnTheFly-findings.md` (retired 2026-11-11, git 2144dde6).
 - [ ] **grammarOnTheFly cleanup (next session)** — strip scaffolding (M1/M2/M3,
   WRITE-2 placeholder, `dumpContents`) back to clean `oneTest` shape; rewrite the
   payload comments to match reality (keeping the no-literal-`#)` constraint); slot
   what was built into the wiki piece. One clean rebuild pending to bind
-  `flushBuffer` (zero-error startup). See `docs/grammarOnTheFly-findings.md`.
+  `flushBuffer` (zero-error startup). See `docs/grammarOnTheFly-findings.md` (retired 2026-11-11, git 2144dde6).
 - [ ] **printTO / opPrint buffer-diversion unit test** — confirmed working, no test
-  exists. Add one (`docs/grammarOnTheFly-findings.md`).
+  exists. Add one (`docs/grammarOnTheFly-findings.md` (retired 2026-11-11, git 2144dde6)).
 - [ ] **Tar 5: gXpress operator-asymmetry** — moot per 2026-06-04 verification. ruleActions
   pre-transforms `=` → `bcStoreField`; gXpress never sees `=` or tgt token. Dead code if added.
   TODO entry closed.
@@ -810,7 +810,7 @@ projectBible.md "Phase Generate Tawk".
 - [ ] **PLGset.init() stub** — dead code, retained for API compatibility. Remove in cleanup pass.
 - [ ] **TOK Xcode project yaml** — no project.yml. Reverse-engineer from .pbxproj. Rename target incantGUI → incant.
 - [ ] **plg xcode link cleanup + yaml refresh** — post-flatten cosmetic work.
-- [ ] **projectBible.md directory map** — update to reflect unitTests relocation.
+- [ ] **projectBible.md (retired 2026-11-11, git 2144dde6) directory map** — update to reflect unitTests relocation.
 
 
 ---
@@ -868,7 +868,7 @@ projectBible.md "Phase Generate Tawk".
   `GroupItem &target`. `setOperat` reshaped to `void setOperat(void *m)`; dlsym binding goes through an
   explicit `setOperat(dlsym(name))` call with the one unavoidable cast in a `-% … %-` CodePass inside
   the body (tok can't render the by-ref fnptr cast — see Pending/`FormatC.twk`). Recon + full writeup:
-  `docs/gOp-byref-recon.md`. `groups.ext` (in `support/Include/`) committed separately. `gMethod` and
+  `docs/gOp-byref-recon.md` (retired 2026-11-11, git 2144dde6). `groups.ext` (in `support/Include/`) committed separately. `gMethod` and
   the non-operator return-target methods (`loadDirectory`/`setInternalType`/`makeDataType`) left for a
   later pass — not on the gOp path.
 

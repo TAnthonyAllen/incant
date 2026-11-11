@@ -63,5 +63,5 @@ Nothing here is owed a fix -- every row is green and is meant to stay green. The
 ruling this file serves is the wrapper flip: ruleArg.group = argument, the four
 unwrap lines and the && !arg.isArgument exemptions retire in ONE stroke. This
 file is one of that stroke's certifications, pre-registered in
-docs/wrapperPlan.md section 4. If R2 goes red on the flip, the two-half law was
+docs/wrapperPlan.md (retired 2026-11-11, git 2144dde6) section 4. If R2 goes red on the flip, the two-half law was
 violated -- half the stroke landed.

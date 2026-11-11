@@ -1,6 +1,6 @@
 # PLG Delimited-File Parsing Recon — 2026-05-29
 
-**Scope.** Follow-on to `plg-file-manipulation-recon-2026-05-29.md` (which
+**Scope.** Follow-on to `plg-file-manipulation-recon-2026-05-29.md` (retired 2026-11-11, git 2144dde6) (which
 concluded "the delimited-file capability isn't in `Parse/BeforeRefactor/`").
 Tony surfaced that PLG generated a class called `ParseXML` that did the
 work; archived copies exist in `OLDtawkDoNotTouch/Groups/` and

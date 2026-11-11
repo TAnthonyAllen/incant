@@ -25,7 +25,7 @@ shape is designed with step 2.
 | Branch commits not on trunk | `parse-then-fire` 24 non-merge, `p6-held-class` 3 more; `git cherry`: **27 of 27** not patch-equivalent to anything on trunk |
 | Done on trunk by other means | the srDot and P1 drive-census `pop.sh` rows (`02ca6cf`, `26f499c`), 860047e's `pop.sh` half, P4's inert `branchKind` declaration |
 | Obsolete | the C-form code (440ee54; 1b49e47's code half) -- ruled out in P8. Every `parentStuff` chain arm in the ptf code -- strokes 5.5b/5.8/5.9 retired the chain. Every bare `gParseActive` / `->floor` -- 5.1 moved the list into GroupRules and renamed `isFloor` |
-| Still needed | the step-1 engine (58ab827, 3f48ff2, cf2c768, 0f77486, a9d637b, 860047e's code, 5e30f2a, e2b1e6c); measureRetire (0512109); **P4** (e181681, 333c331 -- home now ruled); P6's work in progress (57f3e7a, 700c884, da782ce); the record docs (2aac1f8, 4502e41, the P5/P6 stop notes); `docs/overlapCensus.md`, which exists only on the branch |
+| Still needed | the step-1 engine (58ab827, 3f48ff2, cf2c768, 0f77486, a9d637b, 860047e's code, 5e30f2a, e2b1e6c); measureRetire (0512109); **P4** (e181681, 333c331 -- home now ruled); P6's work in progress (57f3e7a, 700c884, da782ce); the record docs (2aac1f8, 4502e41, the P5/P6 stop notes); `docs/overlapCensus.md` (retired 2026-11-11, git 2144dde6), which exists only on the branch |
 | `deferred` | **2 writers, 8 readers** in tok (plan 3 / 11, 09-25); 10 generated lines; 15 `defer` rules in incant/grammar (unchanged); 6 fixture lines |
 | `deferredAbove` | **20 lines, 1 caller** (fireLabelMethod), list-only to the first floor (5.5b), reads the activation's face (5.3); 4 witness calls; **4 pop.sh rows** (the plan named 2, so 2 more are owed a mapping) |
 | The yield channel | **1 adoption seat** (GroupItem.twk fireLabelMethod), 5 readers (2 exempt), 2 attach seats, **5 yieldOrValue splits** (aCTionDO, aCTionFOR, aCTionIF, aCTionWhilE, aCTionXpress) -- unchanged |
@@ -64,7 +64,7 @@ not on trunk: `isBranch` is still stamped and read at 17 lines.
 
 ### The overlap census, on trunk (item 3)
 
-`docs/overlapCensus.md` is branch-only. The cause assigned to each row was reconstructed by the agent so that every
+`docs/overlapCensus.md` (retired 2026-11-11, git 2144dde6) is branch-only. The cause assigned to each row was reconstructed by the agent so that every
 count matches the 09-24 wakeup's totals; it is not the census author's.
 
 | cause | then | now | status | what changed it |

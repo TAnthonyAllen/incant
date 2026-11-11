@@ -168,7 +168,7 @@ campaign moved off it: the live road hangs the body on the rule itself, and sinc
 in a noPrint builtinParseR attribute instead. The old ladder was still dying at
 its own station 5 -- "compile the twin" -- which is a question nobody is asking
 any more. An instrument pointing at a retired question reads as a frontier and is
-not one. The superseded readings are in docs/frontierHistory.md, unchanged.
+not one. The superseded readings are in docs/frontierHistory.md (retired 2026-11-11, git 2144dde6), unchanged.
 
 THE SUBJECT IS A RULE THIS FILE OWNS, not a grammar rule, and that is new:
 frRule is isRule, carries members AND a code body, and lives in the Frontier

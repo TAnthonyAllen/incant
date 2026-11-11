@@ -209,7 +209,7 @@ cull deliberately, which took the top-level `groupDirectives` from 70 entries to
 expected outcome is the shitcan, after a recon that makes sure that is the right call** —
 not a cull, because nothing here is presumed worth keeping. `genLadder/directiveCensus.py`
 runs against it unchanged (`python3 genLadder/directiveCensus.py GUI/groupDirectives`), and
-`docs/c155Cull.md` §1 carries the file grammar the recon needs.
+`docs/c155Cull.md` (retired 2026-11-11, git 2144dde6) §1 carries the file grammar the recon needs.
 
 ---
 

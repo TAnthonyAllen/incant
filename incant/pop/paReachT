@@ -12,7 +12,7 @@ stop();
 paReachT -- NOTHING ON THE NEW ROAD REACHES parseAction, AND THIS PINS IT (Tony, 2026-09-24).
 
 Generate.rtn's parseAction still clears its label after a SUCCESSFUL action -- the one parse* sibling
-left without clear-only-on-failure (docs/parseSiblings.md). It is neither fixed nor deleted, because
+left without clear-only-on-failure (docs/parseSiblings.md (retired 2026-11-11, git 2144dde6)). It is neither fixed nor deleted, because
 no face reaches it: the only rule the grammar names with parseAction=, PRINTing, has processFlags
 bound directly as its parse method, and setParseWalk skips it as installed.
 

@@ -229,7 +229,7 @@ both authors — which is why the commit cannot be split along file lines.
 | `Instruct.rtn` | Clod | `getMarkLineAt`'s no-match arm |
 | `incant/directives` | Clod | definitions-only split, three operator fixes |
 | `genLadder/pop.sh` | Clod | bail rows, directives rows, two graduated pins |
-| `docs/fixIts.md`, `docs/commentTrial.md`, `docs/minionModel.md` | Clod | capture |
+| `docs/fixIts.md`, `docs/commentTrial.md` (retired 2026-11-11, git 2144dde6), `docs/minionModel.md` | Clod | capture |
 | `incant/pop/bailT`, `bailInc`, `dirT` | Clod | new fixtures, untracked |
 | **support repo** `groups.ext` | Clod | `measureStopCaller` mirror line |
 | **TOK repo** `project.pbxproj`, `Groups.xcscheme` | Tony | Xcode navigator and scheme toggles |

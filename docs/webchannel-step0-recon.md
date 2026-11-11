@@ -45,7 +45,7 @@ extern GroupItem setFileOp(GroupItem argument, GroupItem target)
 ```
 It is bound via `incant/setup:87`: `modedOP operateMethod=setFileOp;` — this rebinds the
 **gOp function-pointer slot of the `modedOP` operator** (via `setOperat(dlsym(...))`,
-per `docs/modedOP-taG-recon.md`), not a named-command dispatch table entry. It's invoked
+per `docs/modedOP-taG-recon.md` (retired 2026-11-11, git 2144dde6)), not a named-command dispatch table entry. It's invoked
 with **operator syntax**: `doc modedOP "path"` calls `setFileOp(argument="path",
 target=doc)` — the `(argument, target)` shape shared by `opAssign` and the other binary
 op methods, not a normal `funcName(args)` call.

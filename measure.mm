@@ -598,7 +598,7 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 	return field;
 }
 
-// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
+// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md (retired 2026-11-11, git 2144dde6))
 extern "C" GroupItem *measureParseClass(GroupItem *field)
 {
 	
