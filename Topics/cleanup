@@ -1,0 +1,89 @@
+/*****************************************************************************
+    cleanup -- the clean up topic file. Not an incantation; notes only.
+    Wake-up read for a clean up session: this file, then docs/wakeup.md (the shared state page).
+*****************************************************************************/
+ONE LINE: clean up keeps the tree short enough to read: history goes to git, cruft goes on a list Tony rules, and topic files stay inside a line budget.
+
+/*****************************************************************************
+    Description
+*****************************************************************************/
+Clean up is a session topic of its own (Tony, 2026-11-11). Its work is census, ruling, deletion: Clod counts and lists, Tony rules the list ("when in doubt, throw it out"), and what goes is tracked and pushed first, so git holds it.
+The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns up something that looks deletable, add an entry to docs/cleanupList.md and keep going; never act on it in flight. An entry names it and where, why it looks deletable, the census or measurement that would confirm it, and the date seen. Tony decides the cuts, one cleanup pass at a time.
+
+/*****************************************************************************
+    State (seal 444, 2026-11-11)
+*****************************************************************************/
+    done    the md, incantation and HWF censuses (SEQ 612), ruled and cut (SEQ 613: 253 files); XML/ gone; the forms history files digested and deleted (SEQ 614); docs/wakeup.md split (SEQ 615).
+    lists   docs/cleanupList.md (cruft seen in flight); docs/deepClean.md (the deep clean, stroke by stroke); Topics/features (the parking list, not a session topic).
+
+/*****************************************************************************
+    Plan
+*****************************************************************************/
+    1   A line budget per topic file, its size printed against the budget at every seal. Ruled in principle 2026-11-11; the numbers are Tony's.
+        Sizes at seal 445, no budget set: see the shared page.
+
+/*****************************************************************************
+    Issues (open lines, verbatim from the seal that recorded them)
+*****************************************************************************/
+    seal 444:  "OPEN, each named in its seal: Topics/forms "Waiting on Tony", seven items (443) · fireSeatT FS-4 pins entries.listLengtH at 0 where 3 was predicted (442) · Windows/ bigify, db, inspector include deleted XML paths (442) · this file's older dated lines still name retired paths, by choice (442, 443) · everything open at seal 441."
+    seal 442:  "OPEN: everything open at seal 441 · the three kept-for-now groups of R6 · MEMORY and TODO.md still describe projectBible.md and the bytecode era in places (TODO.md's lines are tagged retired, not rewritten)."
+    seal 442:  "LEFT ON DISK, NOT DELETED: XML/BackupXML/ and XML/WorkingOn/incant++ are gitignored, so they were never tracked and R0 does not cover them. Tony's to remove."   (closed at seal 443: both folders committed once and deleted)
+    seal 442:  "NOW DANGLING, NOT FIXED: Windows/ bigify, db and inspector include XML/HTML/traits.xml and XML/Controls/templates.xml by absolute path, and those files are gone. None is run by any harness; each is fixed when its form comes up for repair. A comment in jitEmitters.rtn still names XML/LLVM/codeGenerator."
+    seal 437:  "genLadder/kantGrammarNames.sh fails, on no checklist."
+
+/*****************************************************************************
+    Tasks, Moved by other topics. None yet.
+*****************************************************************************/
+/*****************************************************************************
+    Recorded dispatches (verbatim, as they stood in docs/wakeup.md)
+*****************************************************************************/
+Under shutdown seal 437 (2026-11-10); held, numbered SEQ 610, run as SEQ 612:
+
+#   DISPATCH -- SEQ (Clod assigns) -- CLEANUP CENSUSES: THE md FILES, UNUSED INCANTATIONS, AND HWF IDEAS. READ-ONLY.
+#
+#   RULINGS (Tony, 2026-11-10)
+#   R0  md census: every .md under Groups (docs/ and elsewhere), one line each -- live (something cites it,
+#       or its campaign is open) or history (its campaign closed; nothing live cites it). wakeup.md gets a
+#       proposed trim line too. Nothing moved or deleted: Tony rules the list ("when in doubt, throw it out").
+#   R1  HWF harvest, during the same read: any idea or notion in an md file that was never scheduled or
+#       ruled and is not on the HWF list below. One line each: the idea, the file, its date.
+#   R2  Unused incantations: every kant file nothing loads -- no pop.sh row, no ladder rung, no include,
+#       not tester, kantGrammar, macros or Tony's WIP under IncantForms. One line each, with what it seems
+#       to be for. Nothing deleted.
+#   R3  Write the HWF list into macros as its own short section, marked "HWF, not scheduled", one line each,
+#       plus anything R1 finds:
+#         1 parse-then-fire, possibly finished by the back door (the new road builds, testOP fires)
+#         2 the kant mirror of setParse / compile / processCode
+#         3 the containers idea
+#         4 rStuff folding into the instance
+#         5 component flavors, fewer bitfields
+#         6 the listener and $, firing on command
+#         7 multi-processing and a web channel -- possibly one shape: processes exchanging fields as
+#           messages, dispatch() as the sender
+#         8 EXPRESSIOn as operators: each Operators entry becomes a grammar rule whose operands are
+#           expressions, so the grammar that parses expressions is built from the operators it parses.
+#           Tiers become nested repetition (a sum is a product, then any number of + product) -- never
+#           left recursion, which a top-down parse loops on. SEQ 578's recon: an infix-only EXPRESSIOn
+#           keeps about two-thirds of today's shape; prefix runs leave. The natural next campaign once the
+#           control rules are done.
+#       This is the only file change.
+#
+#   At the end of your report, say whether you'd rather shut down or continue.
+#
+#   ## NOTES FOR THE OPENER (so nothing is re-derived): R0's "live" needs a citation search over the WHOLE tree, not docs/ alone -- CLAUDE.md, TODO.md, projectBible.md, pop.sh comments, incant/designDocs and IncantForms/WorkingOn/macros and forms all cite docs by path. docs/wakeup.md is 11,000+ lines; every seal is in git, so a trim line can name a cut point by seal number. R2's population is every extensionless file under incant/ and IncantForms/ plus XML/; `ip()` in pop.sh and the fILEs registry in incant/setup are the two load paths besides include(). Estimate the read up front and say so (the standing rule on long runs).
+
+Under shutdown seal 444 (2026-11-11), the split of docs/wakeup.md; run as SEQ 615:
+
+#   ## NEXT -- OPEN ON THIS (Tony, 2026-11-11, the shutdown dispatch): THE SPLIT OF docs/wakeup.md.
+#     1  This file becomes the SHORT SHARED-STATE PAGE: the last seal's number and topic, the fleet numbers, canary, repos, fixit lanes, the checklist's banked state, and one pointer line per topic file. Every topic's wake-up reads it after its own Topics/ file.
+#     2  THE CUT is at about seal 375 (the last shutdown seal before the forms drawing work, about 2026-11-07; the exact line is the split stroke's to find). Everything older goes to ONE new vintage file.
+#     3  Each LIVE seal's OPEN lines move VERBATIM into the owning topic file's issues (Topics/forms exists; kant, documentation and clean up have no topic file yet -- the stroke says where their lines wait).
+#     4  SEQ 610-614 are recorded.
+#     NOTE FOR THE OPENER: both older vintage files were deleted at seal 442 as history rows (git 2144dde6), so the new vintage file is the only one. This file is about 11,400 lines; estimate the read up front. After the split: topic files for kant, documentation and clean up.
+
+/*****************************************************************************
+    Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
+*****************************************************************************/
+    445  SEQ 615   docs/wakeup.md split: the short shared state page; seals 372 and older moved verbatim to docs/wakeupVintage-to-2026-11-07.md; Topics/kant and this file made; seals are written into their topic file and their commit message from here on.
+    444  SEQ 610-614 closed   shutdown; the kitchen pass run; every check as banked.
+    442  SEQ 610-613   sessions go by topic; the census ran and was ruled; 253 files deleted (107 md, XML/ whole, seven IncantForms folders, 9 probes); Topics/features is the parking list; fireSeatT rejoined the fleet (six rows).

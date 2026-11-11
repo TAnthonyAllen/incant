@@ -3,6 +3,18 @@
 This file orients Claude Code (Clod) when working in this repository.
 Read `projectBible.md` (retired 2026-11-11, git 2144dde6) for the full ecosystem context (PLG/TAWK/Incant).
 
+## Waking Up (Tony, 2026-11-11, SEQ 615)
+
+**Wake on `Topics/<topic>` -- the topic Tony names -- then read `docs/wakeup.md`, the short shared state page.** The
+topic files are `Topics/kant`, `Topics/forms` (drawing a section; `Topics/typesetting` its sub-topic), `Topics/cleanup`
+and `Topics/documentation`; `Topics/features` is the parking list, not a session topic.
+**A seal is written into its topic file's seal digest (one paragraph, newest first) and in full into its commit
+message; the shared page gets the new last-seal line and any number that moved.** One seal sequence and one SEQ
+sequence across topics, each seal tagged by topic. Wherever this file says a thing goes "in the seal", that is where.
+**The old seals:** 373-444 in full are `git show cf9522cb:docs/wakeup.md`; 372 (2026-11-07) and older are verbatim in
+`docs/wakeupVintage-to-2026-11-07.md`. A dated line below that cites `docs/wakeup.md` for something older than this split means one of
+those two.
+
 ---
 
 ## What Incant Is
@@ -44,7 +56,7 @@ Groups/
 │                              XML/WorkingOn/ on 2026-05-29.
 ├── IncantForms/            — The forms: Windows/ (the form incantations), Controls/ (styles, templates,
 │                              attributes, traits), WorkingOn/ (notes and WIP), PDF/, Images/.
-├── Topics/                 — One file per session topic, no suffix (Tony, 2026-11-11): forms, typesetting; features is the parking list.
+├── Topics/                 — One file per session topic, no suffix (Tony, 2026-11-11): kant, forms, typesetting, cleanup, documentation; features is the parking list.
 ├── Maps/                   — Symlink → ~/data/support/Maps (BitMAP, Segment).
 └── projectBible.md (retired 2026-11-11, git 2144dde6), TODO.md, CLAUDE.md
 ```
@@ -122,7 +134,7 @@ for a build**, and the check is one `ls`:
 ⚠⚠ **CORRECTED 2026-09-15, SAME DAY, AND THE CORRECTION IS THE USUAL FAMILY.** This entry
 first read *"nothing has ever been built through the workspace"* — inferred from *"no
 `Build/Products` today"*, which is not the same claim. **It is falsified by this project's
-own record**: `docs/wakeup.md`'s run recipe of **2026-06-30** (`095bcb1`) names
+own record**: the old `docs/wakeup.md`'s run recipe of **2026-06-30** (`095bcb1`) names
 `xcodebuild -workspace InProcess.xcworkspace -scheme Groups` and gives the binary as
 `DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/…/Groups`. So the workspace **can**
 build it and **did**; that product tree has since been cleaned. An absence measured today
@@ -269,7 +281,7 @@ live in `IncantForms/Windows/`. `XML/BackupXML/` and `XML/WorkingOn/incant++` ar
 - The object-model redesign's stroke 5 is complete: no site hunts for a parent (`docs/objectModel.md`).
 
 ### In Progress / Next
-- The deep clean (`docs/deepClean.md`), stroke by stroke; the current opener is always `docs/wakeup.md`'s top seal.
+- The deep clean (`docs/deepClean.md`), stroke by stroke; the current opener is in the topic file (Waking Up, above).
 - The bytecode road is retired (see Phase JIT above); nothing in this section depends on it any more.
 
 ---
@@ -1064,7 +1076,7 @@ again, so the count is now a **matched pair on the same generated number**, and 
 skippable or hand-typed.
 
 **The step, at session open, before any new business:** run `genLadder/fixitNag.sh` **from the repo
-root** and put its line at the **top of the wakeup exchange**. Generated, never typed — same
+root** and put its line at the **top of the wake-up exchange** (the shared page, `docs/wakeup.md`, carries the last one). Generated, never typed — same
 discipline as the seal line, same reason.
 
 **⚠ AND THE FRAMING IS A QUESTION, NOT A STATUS.** The queue is Tony's, so the pass asks:
@@ -1728,7 +1740,7 @@ Hard-won lessons. Each one has cost real debugging time.
     passes no directives file either.)
     ⚠ **CROSS-ANNOTATION, 2026-08-05 — THIS ENTRY AND THE 08-02 RULING POINT OPPOSITE WAYS, AND
     THE FORK HAS NOW COST TWO REBUILDS (one in each direction).** This trap says *name the
-    directives file or lose your directives*; `docs/wakeup.md`'s 08-02 section says *the `.mm` are
+    directives file or lose your directives*; the old wakeup's 08-02 section (a vintage retired 2026-11-11, git 2144dde6) says *the `.mm` are
     retok'd **without** directives at Tony's word*. **Both are true, and they answer different
     questions.** Read the discriminator before you type the command:
     | you want | the invocation | what you get |
@@ -2685,7 +2697,7 @@ Hard-won lessons. Each one has cost real debugging time.
     the switch was flipped, a test was run, the SOURCE was flipped back, and **no rebuild
     followed**. The fleet read **141 green against a sealed 197**, which reads as a catastrophic
     overnight regression and is nothing of the kind.
-    ⚠ **THE STANDING CHECK COULD NOT SEE IT, AND THAT IS THE POINT.** `docs/wakeup.md` prescribes
+    ⚠ **THE STANDING CHECK COULD NOT SEE IT, AND THAT IS THE POINT.** The wakeup of that day (now `docs/wakeupVintage-to-2026-11-07.md`) prescribed
     `grep -n 'static int gNoUnwrap' jitContext.h` before believing a red — and that grep reads
     **the source**, which was correct. The binary was also correct about itself. **Only the PAIR
     was wrong, and nothing in the tree compared them.** Same family as the stale-DerivedData hang
@@ -2931,8 +2943,8 @@ direction the campaign might take, it is a state the machinery must report as a 
 > `Mark 3` (producer asserts the invariant)
 >
 > **The gloss is assigned AT MINTING, in the register where the id is born**, and registers gain a
-> gloss field; when entries reach DesignDocs it joins the lowercase field set. `docs/wakeup.md`
-> carries the gloss block — one compact `id → gloss` line each, **live ids only**, maintained as
+> gloss field; when entries reach DesignDocs it joins the lowercase field set. The wakeup of that day (now
+> `docs/wakeupVintage-to-2026-11-07.md`) carried the gloss block — one compact `id → gloss` line each, **live ids only**, maintained as
 > ordinary register upkeep.
 >
 > ⚠ **THE CONSTRAINT IS A COMPREHENSION CHECK, NOT A STYLE RULE: a row that cannot be named in two
@@ -3077,7 +3089,7 @@ direction the campaign might take, it is a state the machinery must report as a 
 > than tidiness: **the baseline stops carrying an exception**, and an exception in a baseline is
 > the thing nobody re-examines. Drop the clause from every kitchen pass, from the register's
 > commit-check line, and from any brief template that repeats it.
-> ⚠ **Historical seals in `docs/wakeup.md` KEEP the clause** — it was true when written, and
+> ⚠ **Historical seals (now in `docs/wakeupVintage-to-2026-11-07.md` and git) KEEP the clause** — it was true when written, and
 > rewriting a dated record to match a later convention falsifies it.
 >
 > ⚠ **AND A SECOND LESSON FROM THE SAME LANDING, about reading a red row rather than counting it:

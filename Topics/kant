@@ -1,0 +1,121 @@
+/*****************************************************************************
+    kant -- the kant topic file (the language, its grammar in kant, and the jitter inside it). Not an incantation; notes only.
+    Wake-up read for a kant session: this file, then docs/wakeup.md (the shared state page).
+*****************************************************************************/
+ONE LINE: kant is being rewritten in kant -- rules whose actions build instructs, on a new road (incant/kantGrammar) beside the old one (incant/grammar) -- and compiled by the jitter rule by rule.
+
+/*****************************************************************************
+    Description
+*****************************************************************************/
+Two roads. The old road is incant/grammar with C++ rule actions; action bodies and forms still parse on it. The new road is incant/kantGrammar: each rule's action is kant and builds an instruct, which runs later.
+The jitter compiles a rule through the rule door (jitterRule), one rule per stroke; a compiled rule must answer as the interpreted one does on every row.
+A regular rule names its operator (op="...") and the shared default action builds it; no control rule keeps a hand-written action (seal 436).
+The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant: the plan").
+
+/*****************************************************************************
+    State (seal 444, 2026-11-11; nothing in kant has moved since seal 438)
+*****************************************************************************/
+    operators by the default action   WHILe, Do, If, ELSEIf, FORBACk / FORWARd, ITERATe's three shapes, BRANCh's four.
+    compiled through the rule door    ITERATe, FOr (both rules), If; +%, := and copyOf native in opted-in rules.
+    refuses by name, new road         a keyword inside an expression; a < b < c; an operator in a prefix position that is no prefix operator; the ten reserved operators; a prefix <-.
+    retired                           <- (respelled := everywhere live; a tombstone entry refuses by name); the walkie-talkie.
+    collector                         GroupItem, GroupBody, GroupList and RuleStuff are collected, in all three repos (seals 421-422).
+    fleet                             pop.sh 3728 green, FAIL 66 by name; jitLadder exit 0. The numbers of record are on the shared page.
+
+/*****************************************************************************
+    Where things live
+*****************************************************************************/
+    incant/kantGrammar              the new road's grammar and its kant actions
+    incant/grammar                  the old road; action bodies and forms parse on it
+    incant/setup                    Operators and the registries
+    IncantForms/WorkingOn/macros    the plan and its reasoning (Clod keeps it current)
+    IncantForms/WorkingOn/tester    Tony's driver
+    Instruct.rtn, Generate.rtn, ruleActions.rtn, jitEmitters.rtn, jitContext.h   the engine and the jitter
+    docs/           jit.md, jitDesign.md, objectModel.md, deepClean.md, gcRecon.md, f146Recon.md, ruleJitCensus.md, operatorRungRecon.md, operatorStroke2Census.md, fixIts.md, knownErrors.md, cleanupList.md
+
+/*****************************************************************************
+    The instruments that read this topic
+*****************************************************************************/
+    genLadder/pop.sh        the fleet; fixtures in incant/pop/. FAIL rows banked by name in docs/sealCaptures/pop.fails.txt.
+    jitLadder/ladder.sh     the jit road.
+    genLadder/printPop.sh, decodePop.sh, ddPop.sh; incant/frontier.
+    The full checklist runs at every landing whatever the topic (CLAUDE.md, rule H12).
+
+/*****************************************************************************
+    Plan
+*****************************************************************************/
+To come, from IncantForms/WorkingOn/macros.
+
+/*****************************************************************************
+    Waiting on Tony
+*****************************************************************************/
+    Nothing is recorded as waiting beyond the Issues below. (The arrow-retire delete, owed at seals 432-437, was done by Tony offline, 2026-11-10.)
+
+/*****************************************************************************
+    Issues (open lines, verbatim from the seal that recorded them)
+*****************************************************************************/
+    seal 441:  "OPEN, each named in its seal: incant/grammar still takes `attributes members` (seal 438) · heading in firstLight would sit about 3 points lower with valign=center, not applied (439) · the recon's lines Tony has not ruled: the bare font names' table row, margin's own ruling (440) · iterOpT IO-7 pinned red · F-149."
+    seal 437:  "OPEN FROM THIS SESSION, each named in its seal: the ten keep the prefix wording in a prefix position (ruled, no re-pin) · iterOpT IO-1 and IO-7 pinned red, not cured (both filter words; iterate with no cursor) · ITERSOURCe on docs/cleanupList.md · a break and a continue inside a handed-over if under jitter; measured, not pinned as rows (seal 436) · genLadder/kantGrammarNames.sh fails, on no checklist."
+    seal 432:  "R1 NOT CURED, 5 ROWS, MEASURED (a token print in EXPRESSIOn, removed, md5-identical): the new-road print items of :- :+ :. +* and + . The shared PRINTing flag reader takes : + and - before EXPRESSIOn runs: `print :+ qb` and `print :- qb` and `print + qb` hand EXPRESSIOn only qb (prints 3); `print :. qb` hands it . qb and `print +* qb` hands it * qb, both legal prefixes. PRINTing is incant/grammar's rule with the engine's processFlags, so by R1 this is the STOP: not built. Three of the five (+* + :.) are the same entries the old road does not refuse either; :- and :+ are the two where the roads differ (the old road refuses them; why its flag reader does not take them was not chased)."
+    seal 425:  "NOT DONE, NOT ASKED: a present ELSe that handed up a value that is no instruct is not checked by the default (only STATEMENt slots are); no statement was found that produces one (IO-8, a bare name, builds an instruct). macros gains the SEQ 592 paragraph."
+    seal 417:  "FINDINGS: gc_cpp's operator new has no thread check (a base of our own is recommended, not ruled); no engine delete, no destructor anywhere; ~152 bake sites (95 direct + 57 via bake lambdas), emit-time mints (jitEmitIterStep's result, gJitReturnLabel) the hazard, alive only while the IR Module lives; openWindow's GC_set_no_dls(1) hides every static but the controller; KE-5 is the name of two knownErrors entries."
+    seal 406:  "ONE PLAIN LINE: the read-through is one loop, getLabelGroup, that follows a chain of references to its end instead of stopping at the first; today's behaviour is now pinned by 12 rows so any change shows; nothing in the forms or tester meets it; the cure waits, as ruled."
+    Not checked line by line against later seals: a line above may name something a later seal closed (seal 438 took IO-1, both filter words). Each is as its seal wrote it.
+
+/*****************************************************************************
+    Tasks (minion-ready shape: fence / rulings / rows / certificate / H7 / stop). None written yet.
+*****************************************************************************/
+/*****************************************************************************
+    Moved by other topics (strokes of another topic that touched a kant row, by seal). None yet.
+*****************************************************************************/
+/*****************************************************************************
+    Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
+*****************************************************************************/
+    438  SEQ 604, 2026-11-10.  ITERBOTh is the plain walk: iterate has three shapes instead of four. No filter word walks the whole list, and writing both "attributes members" is refused on the new road instead of quietly walking the attributes only. ITERPLAIn, op iterateBoth and opIterateBoth retired; canary 460 to 459. Tony deleted arrow-retire offline.
+    437  SEQ 598-603 closed, 2026-11-10, shutdown.  The day closed clean: <- retired on trunk, no operator in a prefix position crashes the new road, the ten reserved operators refuse by name, ITERATe and BRANCh are operators built by the default action, so no control rule keeps a hand action. It recorded the cleanup-census dispatch (now in Topics/cleanup) and the session's open lines (Issues, above).
+    436  SEQ 603.  BRANCh is the parent of four fixed shapes -- break, continue, return, return with a value -- each built by the default action; its hand action is gone. Every answer is unchanged, interpreted and compiled; the signal is read from which operator it is, in the interpreter and in the compiler's two places.
+    435  SEQ 602.  BRANCh as operators stopped at the recon gate, nothing built: the compiler has two places of its own that read break / continue / return from the keyword inside the instruct, more than the gate allowed. Two iterate rows pinned red. Tony then allowed the two jitter sites (436).
+    434  SEQ 601.  ITERATe is the parent of four fixed shapes, each built by the default action; its hand action is gone. One change for writers: the source is a whole expression, so `iterate ic on fsrc + 1` refuses where it used to walk fsrc.
+    433  SEQ 599, 600.  The ten reserved operators (| ^ GO ? >> << :> :< :- &) share one refusing method: "is not built yet", between two operands, on both roads, and the statement does nothing. The features list in macros trimmed from 139 lines to 38.
+    432  SEQ 598.  arrow-retire bought. On the new road an operator in a prefix position that is not a prefix operator refuses by name and the next statement runs; the sixteen that crashed the run no longer do. Five new-road print-item rows are not cured: print's flag reader takes : + and - before the expression sees them (Issues).
+    431  SEQ 591-597 closed, shutdown.  Do, If, ELSEIf and FOr are operators built by the default action; the rule door takes a parent; a refused statement prints one refusal; <- respelled to := everywhere live, its retirement waiting on branch arrow-retire.
+    430  SEQ 597.  <- respelled to := across the fleet, nothing moved by value. Every prefix operator pinned (prefixOpT, 272 runs): on the new road sixteen operators in a prefix position crashed the run at exit 139. The retirement itself built on arrow-retire with a tombstone: the Operators entry cannot be removed, because without it `x <- y` silently becomes `x < -y`.
+    429  SEQ 596.  A prefix <- refuses by name on the new road as on the old; a refused statement prints one refusal, not two or three (refusalSaid); read-only answer: <- does only two things := does not -- it leaves its target alone when the right side is nothing, and it does not compile natively.
+    428  SEQ 595.  The rule door takes a parent: jitterRule(FOr) compiles both of FOr's rules. A prefix <- pinned as silently dropped on the new road (arrowExprT, four rows red on purpose). One refusal per statement stopped before building.
+    427  SEQ 594.  FOr split into FORBACk and FORWARd, each an operator with the default action; its hand action is gone; refusals name the rule and slot.
+    426  SEQ 593.  FOr as an operator: the recon gate failed, nothing built -- the default action refuses a `<-` loop outright.
+    425  SEQ 592.  If and ELSEIf are operators with the default action, op="ifThen"; If's hand action is gone. Refusals name the slot that refused; an or arm's say ELSEIf.
+    424  SEQ 591.  Do is an operator with the default action, op="doLoop" (WHILe's shape); opDo did not change.
+    423  SEQ 589-590 closed, shutdown.  GC stroke 2 built and bought; the four node classes are collected on trunk in all three repos. It recorded the Do dispatch.
+    422  SEQ 590.  gc-collect bought in Groups, support and TOK; GC-3's counter re-pinned; ParseActivation and the force-include settled.
+    421  SEQ 589, on branch gc-collect.  GC stroke 2: GroupItem, GroupBody, GroupList and RuleStuff really collected -- the copy loop frees, cached JIT code still answers, a node held only on a stack survives. Under forced collections the fleet and the ladder moved only by the named rows. ParseActivation could not take the base and does not need it.
+    420  SEQ 586-588 closed, shutdown.  The morning's close: the GC recon, runSystem, GC stroke 1.
+    419  SEQ 588.  GC stroke 1, the instruments: force collections, mark freed objects so a missed root crashes where it is read, count what a collection finds. Nothing made collectable.
+    418  SEQ 587.  runSystem restored: system("cmd") runs the command and answers 1 on success, 0 otherwise. Skim will not reload a rewritten PDF on its own.
+    417  SEQ 586.  GC recon, read-only (docs/gcRecon.md): `GroupItem extends gc` alone would free almost nothing; the node classes go together, and the JIT's emit-time baked nodes, the calloc'd Stak / GroupStak arrays and Layout->base are the roots a try would miss.
+    410  2026-11-09, shutdown.  op-default bought: WHILe is an operator on trunk.
+    409  SEQ 580, on branch op-default.  WHILe says which operator it is, op="whileLoop", and one shared default action builds it; its hand action is gone; its two refusals name the slot that refused.
+    408  SEQ 579.  A keyword inside an expression refuses by name on the new road: `qr = if qa; 1 else 2;` used to drop that statement and everything after it in silence.
+    407  SEQ 578.  Design recon, a rule as an operator, read-only: up to eight regular rules could lose their hand actions and refusals would name the right thing; the irregular ones keep theirs.
+    406  SEQ 577.  The holder read-through's line found: getLabelGroup follows a chain of references to its end instead of stopping at the first. Today's cells pinned by 12 rows as tripwires; the cure parked, as ruled.
+    405  SEQ 576.  The top-level clear measure, read-only: the gap is build-time name binding, on every old-road call built after the holder's bind, not "top level". The new road is already right.
+    404  f151-cure bought, fast-forwarded (112ada47).
+    403  SEQ 575, on branch f151-cure.  F-151 cured (option E): compiled EXPRESSIOn assigns what interpreted does on all eight shapes, and the same trap in an ordinary compiled action (a memory address read as a number) is closed.
+    402  SEQ 574.  F-151 recon, read-only: compiled EXPRESSIOn builds the right expression and loses it on its last step, an = that copies a number where it should copy a reference.
+    401  f152-cure bought in Groups and TOK.
+    400  SEQ 573, on branch f152-cure.  F-152 cured (option b): macOS's background threads get memory from the system instead of from the collector; the PDF test crashes 0 in 120 runs, from 24 in 40.
+    399  SEQ 572.  F-152's cause measured, nothing built: macOS starts a background thread when it reads a PDF, and that thread allocated through a collector built for one thread.
+    398  SEQ 571.  Stacked prefixes nest on the new road: - - qv reads 3 at any depth, as on the old road. Finding: F-152, firstPdfT crashes about 4 runs in 10.
+    397  SEQ 570.  a < b < c refused by name on the new road, as on the old, instead of silently reading 1. The walkie-talkie retired: the two Clay / Clod channel files are gone.
+    396  rule-if bought, fast-forwarded (5abf7a8b).
+    395  SEQ 569, on branch rule-if.  If compiled through the rule door, the same answers as interpreted on every row.
+    388  2026-11-08.  F-146 bought, f146-cure fast-forwarded (8d6c13de). The flag recording how a body ended is a per-function stack slot published to a global in jitContext.h, not a ruler slot.
+    387  SEQ 568 R1, on branch f146-cure.  F-146's build: a compiled rule ends the way the interpreted one does. EXPRESSIOn still wrong compiled, docketed F-151.
+    386  SEQ 568, shutdown.  Seal 386 made a shutdown seal; the kitchen pass run; nothing built.
+    386  SEQ 567.  F-146's returns landed (714168e3) and moved nothing; its movers registered with their intended values. Paused before the build at a clean edge, Clod's choice: mechanical slips were adding up.
+    385  SEQ 566.  F-146's fixture-rule census stopped for a ruling: 15 fixture rules in 10 files run off their end, beside FELLOFf.
+    384  SEQ 565.  F-146's census stopped for a ruling: unitTests' `list` also runs off its end, beside TOPSTATEMENt.
+    383  SEQ 564.  rule-operators-2 bought and merged (a2922c4f); F-146 recon, docs/f146Recon.md: how a rule that runs off its end should behave was Tony's call.
+    382  SEQ 563.  Operator rung stroke 2 built on rule-operators-2: +%, := and copyOf compile natively everywhere with the same answers; nh stays interpreted by name.
+    381  SEQ 562.  jitterT-cure bought and merged (de2a8905), F-150 closed; main = trunk again (and joins the checklist); EXPRESSIOn described in prose in kantGrammar. Findings: the double prefix and a < b < c disagree between the roads (cured at 398 and 397).
+    380  SEQ 561.  jitterT's cure built on jitterT-cure: a real trunk bug, an inlined call could see its argument's old value.

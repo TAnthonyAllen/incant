@@ -1,6 +1,6 @@
 /*****************************************************************************
     forms -- the forms topic file. Not an incantation; notes only.
-    Wake-up read for a forms session: this file, after the top of docs/wakeup.md.
+    Wake-up read for a forms session: this file, then docs/wakeup.md (the shared state page).
     Sub-topics: drawing (a section below); typesetting (its own file, Topics/typesetting).
 *****************************************************************************/
 ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 2 of 21 forms draw.
@@ -176,12 +176,21 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     IncantForms/WorkingOn/formsPlan a pointer to the forms notes, retired 2026-11-04.
 
 /*****************************************************************************
-    Seal digest, newest first (the seals are in docs/wakeup.md and git)
+    Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
     443  SEQ 614   this file made; typesetting split out; the forms history files retired.
     441  SEQ 607-609   descriptions respelled and drawn: the search line moved, describe shown, displayImage (one argument, fit fill).
     440  SEQ 606   descriptions recon: the attribute map, images and the click in the old GUI, flex confirmed as also meaning across.
     439  SEQ 605   valign; firstLight's ok centred both ways.
+    437+ (opener amended, 2026-11-10)   the valign dispatch recorded after shutdown seal 437; it ran as SEQ 605 (seal 439).
+    416  SEQ 585   shutdown: align bought; text-floor and align deleted; the editing request recorded.
+    414-415  SEQ 584   align's recon stopped until text-floor was bought (414); then text-floor bought and step 5a, alignment, built on branch align (415).
     412-413  SEQ 581-584   the text floor and align; font and colour resolved in kant.
-    393-394  the first PDF.   391-392  borders.   389-390  the draw walk.   376-377  fills, the right way up.
+    411  SEQ 581   the drawing plan written into the forms notes; step 5 stopped: the font and the text colour had no source.
+    393-394  the first PDF.   391-392  borders.   389-390  the draw walk.
+    378-379  formsPop.sh joined the seal checklist, F-149 banked red by name (378); drawing rows live in formsPop only, fillPageT's nine rows moved from pop.sh by mapping (379).
+    376-377  fills, the right way up.
+    375  the setFrame second-run design recorded (docs/setFrameSecondRunDesign.md); build after the first PDF.
+    374  probe lines out of utilities' setFrame; the firstLight-to-PDF recon (docs/firstLightPdfRecon.md).
+    373  setFrame moved to utilities; the forms order recorded; the second-run recon (docs/setFrameSecondRun.md).
     Before the drawing steps (2026-11-03 to 11-07): the recon and table (A1, A3), firstLight on paper (A4), := in a define, the parse-label parent, colours and fonts (M5), the fill reader (M3). formsRecon Part 3 has each.
