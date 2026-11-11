@@ -47,6 +47,10 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
 
 32. 3D flats. Expand 2D drawing into 3D: the lines, rectangles and paths of drawing placed in 3D space (each piece a flat with a depth and tilt), with a movable camera producing the 2D result. No triangle meshes, no GPU pipeline: project the path points, sort pieces back to front (painter's order, matching the forward-only painter), and draw through today's floor. Circles project to ellipses; Bézier curves are split a few times under perspective. Shading from gradients and layering, as in old GUI drawing; gradients projected through their end points. First target: Tony's panel paintings as flats in space, giving parallax as the camera moves. Portraits later, with an anime-like target, not Rembrandt: layered cels give volume for small camera moves, and big turns are drawn again, as anime does. Projection math is small enough to be kant.
 
+## Parked by ruling (Tony, 2026-11-11, SEQ 621 R4)
+
+33. fit, the layout attribute: a field sized to fit its members or its text. Parked: Tony is not sure the old GUI's fit is wanted. The census (Topics/forms, floor census line 4): 4 forms / 10 fields ask (fit, inspector, list, sheet; fit=text in layout and menu is dropped). It is layout, in kant, in setFrame, but fitting round text needs the text's height: no new floor method -- displayText would write lines and height into textReq and measure without drawing. It would wait on forms step 6 (setFrame finished).
+
 ## Not harvested, and why
 
 The typesetting language and the small drawing language are in the forms notes and belong to the forms topic. The collector freeing nothing (KE-5) is a known error with a recon (docs/gcRecon.md), not an idea. The cross-platform shell-out question is in Clod's memory only, not in a tracked file.

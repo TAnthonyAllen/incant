@@ -166,7 +166,7 @@ margin (+ sides) layout       no   no   setInnerBox                    none     
 border         layout         no   no   setInnerBox, draw              draw             keep
                  not inheritable (it never was)
 bordered       define         no   no   template                       draw             respell
-rounded        layout         no   no   draw                           draw             keep
+rounded        layout         no   no   draw (roundedOf, seal 451)     draw             keep
 radius         layout         no   no   rounded                        draw             respell
                  move into style, as the notes suggest
 fill           layout         no   no   cOLOr registry                 draw             keep (ruled)

@@ -27,7 +27,7 @@ One way in: lookup, with NO index.
                 dESCRIPTIONs, registered by the forms that use it (IncantForms/Windows/descriptions and others) and read by describe in incant/utilities.
     exists      incant/lookup, the older verb: lookuP(name) prints a term's decoder line and its problem record, tombstone(name), lookupIndex().
                 It searches Grokking DesignDocs Decoder UnitTests Utilities and DEFINES its actions in a registry of its own (LookuP).
-                How it stands beside the three actions above is not ruled; Open 3 has the facts and a lean.
+                RULED (Tony, 2026-11-11, SEQ 621 R0): the tombstone half is kept as incant/tombstone; lookuP retires when plan step 1 is built. Open 3 has the facts.
 
 /*****************************************************************************
     Plan, smallest first
@@ -43,7 +43,8 @@ One way in: lookup, with NO index.
 *****************************************************************************/
     1   Plain terminal output only, or more.
     2   Commands and operators described now, or as each is touched.
-    3   incant/lookup (SEQ 617 Q1, 2026-11-11; answered, not ruled).
+    3   CLOSED (Tony, 2026-11-11, SEQ 621 R0): the lean below is taken. The tombstone half (tombstone and the record list) is kept as incant/tombstone; lookuP retires when plan step 1 is built, and the file name incant/lookup is freed then.
+        incant/lookup (SEQ 617 Q1, 2026-11-11), the facts as answered:
         WHAT IT IS   A 111-line run-by-hand incantation: one reader over the decoder (one sentence per term) and ProblemRecords (the history of a problem). Clod wrote it on 2026-08-23 (git 0486234e) to Clay's brief, ratified by Tony, as part of the ProblemRecords register; two small edits since (09-05, 10-02).
                      lookuP(names) prints each name's decoder line and its full problem record, or says it is in neither. tombstone(name) prints the record with its description shed -- what a trim would leave; CLAUDE.md's "render before you commit". lookupIndex() lists every record: name, gloss, status.
                      It registers LookuP and defines seven actions and one counter there; it ends with its own lookup line (lookuP(bt32), the index) and a sentinel.
@@ -80,5 +81,6 @@ One way in: lookup, with NO index.
 /*****************************************************************************
     Seal digest, newest first (full text: the seal's commit message)
 *****************************************************************************/
+    451  SEQ 621   R0 recorded: the lookup lean taken; Open 3 closed. Nothing built.
     448  SEQ 617   Q1 answered under Open 3: what incant/lookup is, that nothing loads it, that lookupIndex prints wrong rows today, and a lean (keep the tombstone half under another name; lookup replaces lookuP).
     446  SEQ 616   this file made, as ruled 2026-11-11. Read-only, for plan step 3: incant cannot take an argument from the shell today -- main reads argv[1] as the file and ignores the rest. Smallest ways: no engine change, a shell wrapper that writes a three-line incantation (include the lookup file, call lookup(<name>), stop) and runs it; or one small change in main that puts argv[2] onward into a kant field before the parse.

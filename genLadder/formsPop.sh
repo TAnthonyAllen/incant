@@ -419,6 +419,34 @@ fdRow "imageT IM-5 the trace: imSquare 40x20 drawn 200x100 at -40,10; imWide dra
 fdRow "imageT IM-6 REFUSALS by name: an unreadable file, an unknown fit, no display (count of each), and imMissing's own fill still drawn" "$(grep -c '^displayImage: REFUSING imMissing -- cannot read an image from' "$T/im.e") $(grep -c "^displayImage: REFUSING imSquare's fit=stretch" "$T/im.e") $(grep -c '^displayImage: REFUSING imNoShow -- no display' "$T/im.e") $(grep -h '^=== pixelAt imTop (280,60) ' "$T/im.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1/')" "0 0 0 r241 g241 b241" "1 1 1 r241 g241 b241"
 fdRow "imageT IM-7 an image field's text is not drawn: displayText calls" "$(grep -c '^=== displayText ' "$T/im.o")" "0" "0"
 
+#  ⚑ roundedT -- forms step 9 (Tony, 2026-11-11, SEQ 621 R2): rounded on displayFillRT and displayBorder. rounded is the corner radius in
+#  points, on a field or its style; a bare rounded takes defaultStyle's (5). A pixel on a curve is anti-aliased, so every pixel is read
+#  as a CLASS (H3: an exact value there would move with the rasteriser, not with the answer). Each white corner sits beside a painted
+#  pixel of the same field. H7 (run 2026-11-11): the fixture with every rounded removed reads RD-1 "red red red red" -- the corner fills.
+echo ""
+echo "-- rounded (roundedT)."
+_rdF=$(ip roundedT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_rdF" > "$T/rd.o" 2> "$T/rd.e"; _rdx=$?
+#  _rdc <node> <from> <to>: the classes of that node's pixelAt lines from..to, in order
+_rdc () { grep -h "^=== pixelAt $1 " "$T/rd.o" | sed -n "$2,$3p" | sed 's/.*= r\([0-9]*\) g\([0-9]*\) b\([0-9]*\) a\([0-9]*\) ===.*/\1 \2 \3 \4/' | awk '
+    { c = "other"
+      if ($4 == 0) c = "clear"
+      else if ($1 >= 250 && $2 >= 250 && $3 >= 250) c = "white"
+      else if ($1 >= 200 && $2 <= 80 && $3 <= 80) c = "red"
+      else if ($1 <= 40 && $2 <= 110 && $3 >= 150) c = "blue"
+      else if ($1 == 175 && $2 == 211 && $3 == 120) c = "green"
+      printf "%s%s", (NR > 1 ? " " : ""), c } END { print "" }'; }
+_ofeq "roundedT exit / sentinel" "$_rdx $(grep -c '^ROUNDED SENTINEL' "$T/rd.e")" "0 1"
+_ofeq "roundedT RD-1 bare rounded, the default radius 5: corner (0,0), then (2,2), edge middle (20,0), centre (20,10)" "$(_rdc rdPlain 1 4)" "white red red red"
+_ofeq "roundedT RD-2 rounded=10.0: (2,22) white where radius 5 paints, (3,23) red, the four corners white" "$(_rdc rdPlain 5 10)" "white red white white white white"
+_ofeq "roundedT RD-3 a plain border on a rounded field follows the corner: (0,0), edge (20,0), inside (20,2), on the arc (3,3), inside it (6,6)" "$(_rdc rdEdge 1 5)" "white blue green blue green"
+_ofeq "roundedT RD-4 rounded from the style (rounded=8): (0,0), (1,1), (4,4), centre (20,10)" "$(_rdc rdMore 1 4)" "white white blue blue"
+_ofeq "roundedT RD-5 no rounded stays square: corner (0,20)" "$(_rdc rdMore 5 5)" "red"
+_ofeq "roundedT RD-6 a radius past half the side draws at half: (0,0), (2,2), centre (10,10), edge middle (10,0)" "$(_rdc rdBigTop 1 4)" "white white red red"
+_ofeq "roundedT RD-7 a value that is not a number refuses by name (count) and draws square: corner (0,0)" "$(grep -c "^roundedOf: REFUSING rdBad -- rounded's value is not a radius" "$T/rd.e") $(_rdc rdBadTop 1 1)" "1 red"
+_ofeq "roundedT RD-8 the simple form as a PDF, read back: fourth's corner (0,140), (2,142), centre (200,170), wrap (100,135), two (220,70)" "$(_rdc pdfRead 1 5)" "clear green green white red"
+_ofeq "roundedT RD-8 the PDF is one page, simple's frame" "$(grep -h '^=== readPDF pdfRead' "$T/rd.o" | sed 's/.*pdfRead //; s/ ===.*//')" "pages 1 size 400x200"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

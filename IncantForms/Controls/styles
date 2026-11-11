@@ -1,4 +1,4 @@
-/*  styles -- the colours and fonts, from the old forms (Tony, 2026-11-05, M5). Not on the
+/*  styles -- the colours, fonts and the default style, from the old forms (Tony, 2026-11-05, M5). Not on the
     default search list until defineCapture B2 lands. A reader includes this file and then
     names cOLOr and fONTs in its own search. See docs/m5Recon.md.  */
 registry(cOLOr);
@@ -27,4 +27,10 @@ define
     copperFont family='Copperplate' size=12;
     defaultFont family='Helvetica' size=10;
     EBgaramondFont family='EB Garamond' size=18 bold;
+    ;
+/*  The default style (Tony, 2026-11-11, SEQ 621 R2). rounded is the corner radius, in points, that a bare
+    rounded draws: 5, the old GUI's default (GUI/Control.twk). A reader names sTYLEs in its search.  */
+registry(sTYLEs);
+define
+    defaultStyle rounded=5;
     ;

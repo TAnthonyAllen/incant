@@ -5,21 +5,20 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**450, 2026-11-11, SHUTDOWN, topic: clean up, SEQ 617-620 closed.** The kitchen pass run; every check as banked.
-The session: 448 (clean up, SEQ 617 and 619) the two questions answered -- `incant/lookup` described with a lean
-(`Topics/documentation`, Open 3), a line budget proposed, not ruled (`Topics/cleanup`, Plan 1) -- and 3D flats recorded
-as `Topics/features` item 32; 449 (forms, SEQ 618) the floor census, written into `Topics/forms` (Drawing) as its plan;
-450 (clean up, SEQ 620) the TOK project: Tony's tidy committed with `GroupRules.mm` restored to the Groups target.
-Last SEQ: 620. **NEXT:** three things wait on Tony's rulings -- the lookup lean, the line budget's numbers, and the
-census's Waiting-on-Tony lines (the default radius, what shadow means, the fit attribute's name). After them, each topic
-file's Plan names its own next step; kant's plan is a planning pass.
+**451, 2026-11-11, topic: forms, SEQ 621.** Rounded built on the fill and border floor (`roundedOf`; the default radius 5
+lives in `defaultStyle`, `IncantForms/Controls/styles`); `IncantForms/Windows/simple` respelled and drawn, its PDF in
+`IncantForms/PDF/output.pdf`; ten rows (`incant/pop/roundedT`). Rulings recorded: the lookup lean taken
+(`Topics/documentation`, Open 3 closed), the line budget ruled (`Topics/cleanup`, Plan 1; `genLadder/topicBudget.sh`
+prints it), fit parked (`Topics/features` 33). Shadow's old-GUI facts reported, not ruled (`Topics/forms`, floor census line 2).
+Last SEQ: 621. **NEXT:** shadow waits on Tony's ruling; a side on a rounded field is still open; `Topics/cleanup` is over
+its budget and opens its next session with the trim. Each topic file's Plan names its own next step.
 
-## The numbers (as run at shutdown seal 450; binary md5 957c445b..., rebuilt 2026-11-11 13:34 from the repaired TOK project, the same bytes since seal 441)
+## The numbers (as run at seal 451; binary md5 d095e599..., rebuilt 2026-11-11 13:57 with rounded in GroupDraw)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3728 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 113 green; F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 123 green (113 + roundedT's ten); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
@@ -35,15 +34,16 @@ Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Be
 Tony's fixit incantations waiting: 0
 Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 
-## Topic files (lines at seal 450; a budget is proposed, not ruled -- Topics/cleanup, Plan 1)
-| file | lines | what |
+## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
+| file | lines / budget | what |
 |---|---|---|
-| `Topics/kant` | 121 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
-| `Topics/forms` | 240 | forms, with drawing as a section. |
-| `Topics/typesetting` | 80 | sub-topic of forms until forms step 7. |
-| `Topics/cleanup` | 126 | clean up; the recorded census and split dispatches. |
-| `Topics/documentation` | 84 | lookup with no index; the documenter. Nothing built. |
-| `Topics/features` | 52 | the parking list; not a session topic. |
+| `docs/wakeup.md` | 51 / 60 | this page. |
+| `Topics/forms` | 247 / 280 | forms, with drawing as a section. |
+| `Topics/kant` | 121 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
+| `Topics/typesetting` | 80 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/cleanup` | 128 / 120 OVER by 8 | clean up; the recorded census and split dispatches. |
+| `Topics/documentation` | 86 / 120 | lookup with no index; the documenter. Nothing built. |
+| `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are
 - Seals 373-444, in full: `git show cf9522cb:docs/wakeup.md`. Each is digested in its topic file.

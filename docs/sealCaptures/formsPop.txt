@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2091040 bytes  Nov 11 13:34
+  bin   2091472 bytes  Nov 11 13:57
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -126,4 +126,16 @@
   ok    imageT IM-6 REFUSALS by name: an unreadable file, an unknown fit, no display (count of each), and imMissing's own fill still drawn = [1 1 1 r241 g241 b241]
   ok    imageT IM-7 an image field's text is not drawn: displayText calls = [0]
 
-FORMS POP FAILED -- 113 green, see above
+-- rounded (roundedT).
+  ok    roundedT exit / sentinel = [0 1]
+  ok    roundedT RD-1 bare rounded, the default radius 5: corner (0,0), then (2,2), edge middle (20,0), centre (20,10) = [white red red red]
+  ok    roundedT RD-2 rounded=10.0: (2,22) white where radius 5 paints, (3,23) red, the four corners white = [white red white white white white]
+  ok    roundedT RD-3 a plain border on a rounded field follows the corner: (0,0), edge (20,0), inside (20,2), on the arc (3,3), inside it (6,6) = [white blue green blue green]
+  ok    roundedT RD-4 rounded from the style (rounded=8): (0,0), (1,1), (4,4), centre (20,10) = [white white blue blue]
+  ok    roundedT RD-5 no rounded stays square: corner (0,20) = [red]
+  ok    roundedT RD-6 a radius past half the side draws at half: (0,0), (2,2), centre (10,10), edge middle (10,0) = [white white red red]
+  ok    roundedT RD-7 a value that is not a number refuses by name (count) and draws square: corner (0,0) = [1 red]
+  ok    roundedT RD-8 the simple form as a PDF, read back: fourth's corner (0,140), (2,142), centre (200,170), wrap (100,135), two (220,70) = [clear green green white red]
+  ok    roundedT RD-8 the PDF is one page, simple's frame = [pages 1 size 400x200]
+
+FORMS POP FAILED -- 123 green, see above

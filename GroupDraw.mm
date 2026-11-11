@@ -42,6 +42,9 @@ extern "C" GroupItem *closePDF(GroupItem *request)
     COLOUR: strokeColor, the field's own first, then its style's, else black.
     PLACE: width sits INSIDE the frame -- each line is inset by half its width,
     so a field's drawing never spills onto a neighbour (R2).
+    ROUNDED (step 9, SEQ 621): a plain border on a rounded field strokes the
+    rounded outline, radius from roundedOf. Named sides on a rounded field are
+    drawn straight, as before: that case is open (Tony, 2026-11-04).
 *****************************************************************************/
 extern "C" GroupItem *displayBorder(GroupItem *field)
 {
@@ -93,8 +96,10 @@ char 		*value = 0;
 	if (bad) {
 	::fprintf(stderr,"displayBorder: REFUSING %s -- %s's value is not a width\n", field->groupBody->tag, bad);
 	return 0; }
+	int plain = 0;
 	if (!t && !b && !l && !r) {
 	if (all <= 0) return field;
+	plain = 1;
 	t = b = l = r = 1;
 	wT = wB = wL = wR = wAll; }
 	//  asFillDoes a named colour's components go in as displayFillRT hands its own; no colour named is black
@@ -104,6 +109,20 @@ char 		*value = 0;
 	CGContextSetLineCap(ctx, kCGLineCapButt);
 	CGFloat x0 = framed.origin.x, y0 = framed.origin.y;
 	CGFloat x1 = x0 + framed.size.width, y1 = y0 + framed.size.height;
+	//  roundedPlainOnly a plain border on a rounded field follows the corners, inside the frame; named sides stay straight (open, Tony 2026-11-04)
+	CGFloat radius = plain ? roundedOf(field) : 0;
+	if (radius > framed.size.width / 2)     radius = framed.size.width / 2;
+	if (radius > framed.size.height / 2)    radius = framed.size.height / 2;
+	if (radius > 0 && framed.size.width > wAll && framed.size.height > wAll) {
+	CGRect  box   = CGRectMake(x0 + wAll / 2, y0 + wAll / 2, framed.size.width - wAll, framed.size.height - wAll);
+	CGFloat inner = radius - wAll / 2;
+	if (inner < 0) inner = 0;
+	CGPathRef path = CGPathCreateWithRoundedRect(box, inner, inner, NULL);
+	CGContextSetLineWidth(ctx, wAll);
+	CGContextAddPath(ctx, path);
+	CGContextStrokePath(ctx);
+	CGPathRelease(path);
+	return field; }
 	//  insideTheFrame each side's line is inset by half its width, and runs the frame's whole length (R2)
 	auto side = [&](CGFloat w, CGFloat ax, CGFloat ay, CGFloat bx, CGFloat by) {
 	CGContextSetLineWidth(ctx, w);
@@ -159,8 +178,17 @@ char 		*value = 0;
 	CGFloat r = 0, g = 0, b = 0, a = 0;
 	[colour getRed:&r green:&g blue:&b alpha:&a];
 	CGContextSetRGBFillColor(ctx, r, g, b, a);
-	CGContextFillRect(ctx, CGRectMake(framed.origin.x, framed.origin.y,
-	framed.size.width, framed.size.height));
+	CGRect  box    = CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height);
+	CGFloat radius = roundedOf(field);
+	//  halfTheShortSide a radius past half the short side is drawn at half: Core Graphics asserts on a larger one
+	if (radius > box.size.width / 2)    radius = box.size.width / 2;
+	if (radius > box.size.height / 2)   radius = box.size.height / 2;
+	if (radius > 0) {
+	CGPathRef path = CGPathCreateWithRoundedRect(box, radius, radius, NULL);
+	CGContextAddPath(ctx, path);
+	CGContextFillPath(ctx);
+	CGPathRelease(path); }
+	else CGContextFillRect(ctx, box);
 	
 	return field;
 }
@@ -665,6 +693,62 @@ extern "C" GroupItem *readPDF(GroupItem *request)
 	request->setPointer((void*)ctx);
 	
 	return request;
+}
+
+/*****************************************************************************
+    roundedOf -- forms step 9 (Tony, 2026-11-11, SEQ 621 R2). The corner radius
+    a field asks for, in points; 0 is square. rounded is read from the field's
+    own attribute first, then from its style's (style:= holding the style, or
+    style="name"). rounded=n is the radius; a bare rounded takes the default
+    radius, which lives in the default style (defaultStyle, in
+    IncantForms/Controls/styles). Not inherited from the enclosing field, as
+    fill is not. A value that is not a number refuses by name and draws square.
+*****************************************************************************/
+double roundedOf(GroupItem *field)
+{
+GroupItem 	*comp = 0;
+GroupItem 	*style = 0;
+GroupItem 	*node = 0;
+double 		radius = 0.0;
+	if ( !field )
+		return 0.0;
+	comp = field->get("rounded");
+	if ( !comp )
+		{
+		style = field->get("style");
+		if ( style )
+			{
+			if ( isGROUP(style->groupBody->flags.data) )
+				node = style->getGroup();
+			else	node = GroupControl::groupController->locate(style->getText());
+			if ( node )
+				comp = node->get("rounded");
+			}
+		}
+	if ( !comp )
+		return 0.0;
+	if ( !comp->groupBody->flags.data )
+		{
+		node = GroupControl::groupController->locate("defaultStyle");
+		comp = 0;
+		if ( node )
+			comp = node->get("rounded");
+		if ( !comp )
+			{
+			::fprintf(stderr,"roundedOf: %s asks a bare rounded and no defaultStyle with a rounded resolves -- drawn square\n",field->groupBody->tag);
+			return 0.0;
+			}
+		}
+	
+	unsigned int d = comp->groupBody->flags.data;
+	if (isCOUNT(d))         radius = comp->getCount();
+	else if (isNUMBER(d))   radius = comp->getNumber();
+	else {
+	::fprintf(stderr,"roundedOf: REFUSING %s -- rounded's value is not a radius; drawn square\n", field->groupBody->tag);
+	radius = 0.0; }
+	if (radius < 0) radius = 0.0;
+	
+	return radius;
 }
 
 /*****************************************************************************

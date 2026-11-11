@@ -19,9 +19,10 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
 /*****************************************************************************
     Plan
 *****************************************************************************/
-    1   A line budget per topic file, its size printed against the budget at every seal. Ruled in principle 2026-11-11; the numbers are Tony's.
+    1   A line budget per topic file, its size printed against the budget at every seal. RULED AS PROPOSED (Tony, 2026-11-11, SEQ 621 R1): the numbers below stand, with the seal's printed line and the trim rule.
+        The seal's line is printed by genLadder/topicBudget.sh (written at seal 451). This file is over; its trim happens at the next clean-up session, not before.
         Sizes, no budget set: on the shared page (docs/wakeup.md), reprinted at every seal.
-        PROPOSED, NOT RULED (SEQ 617 Q2, 2026-11-11). Lines by wc -l; lines at seal 449 / proposed budget:
+        THE BUDGET (proposed SEQ 617 Q2, ruled SEQ 621 R1). Lines by wc -l; lines at seal 449 / budget:
             docs/wakeup.md          51 /  60    one screen: last seal, the numbers, repos, lanes, this table, where old seals are. It holds no history, so it should never grow.
             Topics/forms           240 / 280    the largest by need: two sub-topics, the rulings of record, the floor census.
             Topics/kant            121 / 200    room for the plan still to come from macros.
@@ -30,7 +31,7 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
             Topics/documentation    84 / 120
             Topics/features         52 /  80    one line per item; a parking list grows slowly.
         WHAT A FILE HAS TO HOLD: the one line, description, state, where things live, instruments, plan, rulings, waiting on Tony, issues, and a digest. The three things that grow without limit are the digest, verbatim dispatches, and closed issues.
-        HOW A SEAL PRINTS IT: a small script (genLadder/topicBudget.sh, not written) prints one line per file -- name, lines, budget, and OVER by how many -- and the shared page's topic table carries the same three columns. Generated, never typed, like the fixit line.
+        HOW A SEAL PRINTS IT: a small script (genLadder/topicBudget.sh) prints one line per file -- name, lines, budget, and OVER by how many -- and the shared page's topic table carries the same three columns. Generated, never typed, like the fixit line.
         WHEN A FILE GOES OVER: the seal still lands (report tier, like alphaLint: a size can never fail the correctness gate), and names the file as over. The next session on that topic opens with a trim before new work, in this order:
             1  a dispatch that has run is replaced by one line: its SEQ, its seal, and the commit that holds its text.
             2  digest lines older than the newest ten fold into one line naming the seal range and where the full text is.
@@ -118,6 +119,7 @@ At the end of your report, say whether you'd rather shut down or continue.
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
 *****************************************************************************/
+    451  SEQ 621   R1 recorded: the line budget ruled as proposed; genLadder/topicBudget.sh written. This file's trim waits for the next clean-up session.
     450  SEQ 617-620 closed   shutdown. SEQ 620: Tony's Xcode tidy of the TOK project (318 references to files deleted at seal 442; none names a file still on disk) committed with GroupRules.mm's four references restored; built, GroupRules.mm compiled and linked, the binary byte-identical. The kitchen pass run; every check as banked.
     448  SEQ 617, 619   the two questions answered: incant/lookup described with a lean (Topics/documentation, Open 3); a line budget proposed, not ruled (Plan 1). 3D flats recorded as Topics/features item 32. No code.
     447  SEQ 615-616 closed   shutdown, Clod's choice at a clean edge (everything next opens with a planning pass or a ruling); the kitchen pass run; every check as banked.

@@ -22,6 +22,7 @@ extern "C" GroupItem *makeDisplay(GroupItem *field);
 extern "C" GroupItem *openPDF(GroupItem *request);
 extern "C" GroupItem *pixelAt(GroupItem *field);
 extern "C" GroupItem *readPDF(GroupItem *request);
+double roundedOf(GroupItem *field);
 extern "C" GroupItem *styleComponent(GroupItem *field, char *component);
 char *toString(NSPoint p);
 char *toString(NSRect f);
