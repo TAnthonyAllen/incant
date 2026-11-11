@@ -56,7 +56,6 @@ Here is a list form attributes along with an explanation of what each attribute 
 /*****************************************************************************
     Design Issues
 *****************************************************************************/
-    design decision pending: do we need a vertical align? Thinking no. Can use a space field
     use of font: thinking only way to refer to a font is by its tag as defined in the Fonts registry. That means fontSize is not a valid attribute
     some form attributes implicitly update style
     if a form attribute has a method/action when does it fire? Methinks the default is on click; action attributes are processed in left to right order
@@ -74,7 +73,7 @@ Here is a list form attributes along with an explanation of what each attribute 
     fit         most of the figuring involves figuring out how the fit attribute does what it does
     layout      was intended as a form to show what forms can be. It includes references to trait and key attributes that need figuring.
     list        a form that needs some serious figuring out just to figure out what it does, much less how it does it
-    sheet       a form that builds an interactive drill down/across spread sheet. Involves a lot of BitMAP merging. Rewriting BitMAP will be a challenge in kant since it leans heavily into bitmap ops. A task needing assessing.
+    sheet       a form that builds an interactive drill down/across spread sheet. Involves a lot of BitMAP merging. Rewriting BitMAP will be a challenge in kant since it leans heavily into bitmap ops. On the other hand, CPUs are a lot faster now. May not need to use BitMAPs. A task needing assessing.
 
 /*****************************************************************************
     Comments to be folded in
