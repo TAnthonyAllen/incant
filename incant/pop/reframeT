@@ -22,6 +22,15 @@ define
         cell across
             lA;
             lB;
+    pDeep x=0 y=0 width=200 height=120 down
+        dOne across
+            dTwo
+                dThree
+                    dFour width=50%;
+                    dFive;
+            dSide width=40;
+        dFoot height=20;
+    pDeepReq form:=pDeep;
     pSimpleReq form:=pSimple;
     pSumpleReq form:=pSumple;
     pPctReq form:=pPct;
@@ -29,6 +38,29 @@ define
     pStarReq form:=pStar;
     pNestReq form:=pNest;
     pNoForm other=1;
+    pPct400 across x=10 y=20 width=400 height=100
+        half width=50%;
+        rest;
+    pPct400Req form:=pPct400;
+    wide x=10 y=20 width=400 height=100;
+    pPctWideReq form:=pPct frame:=wide;
+    zeroAt x=0 y=0 width=300 height=60;
+    pPctZeroReq form:=pPct400 frame:=zeroAt;
+    short width=400 height=100;
+    pPctShortReq form:=pPct frame:=short;
+    rfFrame code={
+        rfReq := argument;
+        rfForm := *rfReq["form"];
+        rfA := setFrame(argument);
+        print "RF-FRAME1" argument.taG:;
+        tsfLine(*rfA);
+        rfB := setFrame(argument);
+        print "RF-FRAME2" argument.taG:;
+        tsfLine(*rfB);
+        print "RF-FRAMEDEF" argument.taG:;
+        printDefinition(**rfForm);
+        print "RF-FRAMEEND" argument.taG:;
+        };
     rfRun code={
         rfReq := argument;
         rfForm := *rfReq["form"];
@@ -56,7 +88,12 @@ rfRun(pPctReq);
 rfRun(pTriReq);
 rfRun(pStarReq);
 rfRun(pNestReq);
+rfRun(pDeepReq);
 rfNone(pNoForm);
+rfFrame(pPct400Req);
+rfFrame(pPctWideReq);
+rfFrame(pPctZeroReq);
+rfNone(pPctShortReq);
 cerr "REFRAME SENTINEL":;
 stop();
 
@@ -64,4 +101,9 @@ reframeT -- forms step 6, stroke 1 (SEQ 626 W1): setFrame takes a request holdin
 form's definition is never written. Six shapes (the six of docs/setFrameProbes/secondRun.sh), each printed before, laid out
 twice, and printed after. Rows in genLadder/pop.sh: the definition reads the same before and after (and still says 50%);
 the second run's frames equal the first's; down=3 gives 6 cells both times, not 18; a request with no form refuses by name.
-Stroke 2's rows (a revised frame, a resize) are in the same fixture when that stroke lands.
+Stroke 2 (W2): the request may hold frame:= a field of its own with x y width height. pPctWideReq lays pPct (declared 200 wide
+at 0,0) out in the frame of pPct400 (400 wide at 10,20): a resize must read like a fresh run of a form declared at that size,
+and twice like once, with pPct's definition still reading 200. pPctZeroReq's frame is at 0,0: a zero is a value, not an absence.
+pPctShortReq's frame lacks x and y and is refused by name.
+pDeep is five levels deep: copyOf's copy shares bodies below its second level, so setFrame on it wrote frames into the definition's
+own deep fields (found by resizeT, where simple's text kept its first frame after a resize). setFrame copies with copyDeep.

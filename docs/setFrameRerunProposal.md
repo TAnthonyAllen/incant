@@ -1,6 +1,6 @@
 # setFrame's rerun (forms step 6): proposed strokes (SEQ 625 W1, 2026-11-11). Read-only; nothing built.
 
-**RULED 2026-11-11 (Tony, SEQ 626 R1-R5): the five points at the foot are answered in Topics/forms, "setFrame's rerun". Stroke 1 built at seal 456. The text below is the proposal as written.**
+**RULED 2026-11-11 (Tony, SEQ 626 R1-R5): the five points at the foot are answered in Topics/forms, "setFrame's rerun". Stroke 1 built at seal 456, stroke 2 at seal 457 (with copyDeep: copyOf's copy was not deep enough). The text below is the proposal as written.**
 
 **Plain line: the rerun itself needs no listening. Three strokes build it on what is already ruled; Tony's frame-and-listener
 idea is a fourth, and it is the only one that waits on listening. Five points need a ruling; they are listed at the foot.**

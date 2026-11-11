@@ -2347,6 +2347,52 @@ extern "C" char *concatText(char *left, char *right)
 }
 
 /*******************************************************************************
+	copyDeep() copies the field passed in and everything under it: every
+    attribute and member, at every depth, gets a body of its own. copyOf's
+    copy is not that: its entries are faces that share the source's bodies, so
+    a write far enough down the copy lands in the source (measured 2026-11-11:
+    setFrame on a copyOf of a form wrote frames into the form's own fields
+    three levels down). A holder is copied as a holder: what it holds is not
+    copied, so fill:=wall still holds wall. A field's properties (CodE, BlocK)
+    are shared, on a property list of the copy's own. setFrame lays out a
+    copyDeep of the form (forms step 6, SEQ 626).
+*******************************************************************************/
+extern "C" GroupItem *copyDeep(GroupItem *grup)
+{
+GroupItem 	*entry = 0;
+GroupItem 	*fresh = 0;
+GroupItem 	*block = new GroupItem();
+	if ( !grup )
+		return 0;
+	*block->groupBody = *grup->groupBody;
+	block->groupBody->flags.isLocal = 0;
+	block->groupBody->flags.isVirtual = 0;
+	if ( grup->groupBody->groupList )
+		{
+		block->groupBody->groupList = new GroupList();
+		while ( entry = grup->next(entry) )
+			{
+			fresh = ::copyDeep(entry);
+			if ( isAttribute(entry->options.affiliation) )
+				block->addAttribute(fresh);
+			else	block->addMember(fresh);
+			}
+		}
+	// ownProperties the body copy brought the source's property list by pointer; the copy takes a list of its own holding the same properties, so a property added to the copy (display) never lands on the source
+	if ( grup->groupBody->propertyList )
+		{
+		block->groupBody->propertyList = 0;
+		entry = grup->groupBody->propertyList->firstInList;
+		while ( entry )
+			{
+			block->addProperty(entry);
+			entry = entry->nextInParent;
+			}
+		}
+	return block;
+}
+
+/*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
     If source is not isVirtual the copy list will be distinct but will have

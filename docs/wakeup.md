@@ -5,26 +5,26 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**456, 2026-11-11, topic: forms, SEQ 626 (stroke 1).** `Topics/drawing` split out of `Topics/forms` (budget 160). setFrame
-now takes a request (`form:=`), lays out a COPY and returns it: the definition is never written, a second run reads like
-the first, a percent survives (`incant/pop/reframeT`, seven rows in `pop.sh`). Eleven callers respelled to draw the copy;
-no other row moved. The rerun's five points are ruled (`Topics/forms`, "setFrame's rerun"). Earlier this session: 451
-rounded; 452 shadow, the mock-click goal; 453 inheritance, opacity; 454 `style:=` only, italic; 455 the rerun proposal.
-Last SEQ: 626. **NEXT:** strokes 2 (a revised frame, the mock resize) and 3 (a child's own x and y) of
-`docs/setFrameRerunProposal.md`. `Topics/cleanup` is over its budget.
+**457, 2026-11-11, topic: forms, SEQ 626 (stroke 2).** setFrame's request takes `frame:=` (a field of its own, outside the
+form); `redrawForm(request)` is the first resize, a plain call that lays out afresh and writes the PDF
+(`incant/pop/resizeT`, `simple` at 400 and at 600). Found and cured: `copyOf`'s copy shares bodies below its second level,
+so stroke 1 still wrote the definition's deep fields; setFrame copies with the new `copyDeep` (canary 459 -> 460,
+`groups.ext` committed). Before it: 456 stroke 1 and `Topics/drawing`; 451-455 rounded, shadow, opacity, italic, the proposal.
+Last SEQ: 626. **NEXT:** stroke 3 (a child's own x and y under a parent with no direction), then the shutdown.
+`Topics/cleanup` is over its budget.
 
-## The numbers (as run at seal 456; binary md5 b21ef29c..., rebuilt 2026-11-11 14:41, unchanged since seal 454)
+## The numbers (as run at seal 457; binary md5 ea25eed5..., rebuilt 2026-11-11 with copyDeep in Commands.rtn)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3735 green (3728 + reframeT's seven), FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3740 green (3735 + five), FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 153 green; F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 159 green (153 + resizeT's six); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
 | `genLadder/dirCheck.sh` (shutdown seals only) | at 450: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
-| extern canary | 459 (`grep -c '^extern' GroupRules.h`) |
+| extern canary | 460 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
@@ -38,7 +38,7 @@ Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 52 / 60 | this page. |
-| `Topics/forms` | 198 / 280 | forms, with drawing as a section. |
+| `Topics/forms` | 200 / 280 | forms, with drawing as a section. |
 | `Topics/kant` | 122 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 80 / 120 | sub-topic of forms until forms step 7. |

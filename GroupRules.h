@@ -174,6 +174,7 @@ extern "C" int closeFile(GroupItem *bufField);
 extern "C" GroupItem *compile(GroupItem *field);
 extern "C" GroupItem *compileIn(GroupItem *input);
 extern "C" char *concatText(char *left, char *right);
+extern "C" GroupItem *copyDeep(GroupItem *grup);
 extern "C" GroupItem *copyOf(GroupItem *grup);
 extern "C" char *dataName(int d);
 extern "C" void debugRuleNamed(char *name);

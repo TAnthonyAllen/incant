@@ -1,0 +1,71 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    simpleFile File='IncantForms/Windows/simple';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(simpleFile);
+register(ResizeT);
+define
+    rzX = 0;
+    rzY = 0;
+    rzAt code={
+        px = rzX;
+        py = rzY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rzRead code={
+        rzAt(argument);
+        pixelAt(argument);
+        };
+    big x=300 y=450 width=600 height=300;
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ;
+search ResizeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    smReq path="IncantForms/PDF/output.pdf" form:=simple;
+    bigReq path="IncantForms/PDF/output.pdf" form:=simple frame:=big;
+    ;
+cerr "RZ-1 simple as declared, 400x200: wrap (98,70) white, two (150,70) red, three's leftBorder at 50% (200,70) black, three (300,70) white, fourth (200,170) lightGreen":;
+redrawForm(smReq);
+readPDF(pdfRead);
+rzX = 98; rzY = 70; rzRead(pdfRead);
+rzX = 150; rzRead(pdfRead);
+rzX = 200; rzRead(pdfRead);
+rzX = 300; rzRead(pdfRead);
+rzX = 200; rzY = 170; rzRead(pdfRead);
+cerr "RZ-2 the same form, the same definition, the same points after a resize and back (run 3 below reads these again)":;
+cerr "RZ-3 resized to 600x300 by a frame: wrap (148,100) white, two (225,100) red, three's leftBorder at 50% (300,100) black, three (450,100) white, fourth (300,270) lightGreen, where three was (200,100) red":;
+redrawForm(bigReq);
+readPDF(pdfRead);
+rzX = 148; rzY = 100; rzRead(pdfRead);
+rzX = 225; rzRead(pdfRead);
+rzX = 300; rzRead(pdfRead);
+rzX = 450; rzRead(pdfRead);
+rzX = 300; rzY = 270; rzRead(pdfRead);
+rzX = 200; rzY = 100; rzRead(pdfRead);
+cerr "RZ-4 the definition after the resize":;
+printDefinition(simple);
+cerr "RZ-5 back with no frame: the declared size again, the first run's five points":;
+redrawForm(smReq);
+readPDF(pdfRead);
+rzX = 98; rzY = 70; rzRead(pdfRead);
+rzX = 150; rzRead(pdfRead);
+rzX = 200; rzRead(pdfRead);
+rzX = 300; rzRead(pdfRead);
+rzX = 200; rzY = 170; rzRead(pdfRead);
+cerr "RZ-6 the resized form once more, left as the PDF to open":;
+redrawForm(bigReq);
+cerr "RESIZE SENTINEL":;
+stop();
+
+resizeT -- forms step 6, stroke 2 (SEQ 626 W2): the first resize, as a plain call. redrawForm(request) lays the form out
+afresh through setFrame and writes the PDF; a request with frame:= is a resize. The form is IncantForms/Windows/simple, whose
+three is width=50%: at 400 wide its leftBorder sits at x=200, at 600 wide at x=300. Rows in genLadder/formsPop.sh: the PDF's
+page size follows the frame; the percent follows the new width; the run after the resize reads exactly as the first; the
+definition still reads width=400. The last call leaves the 600x300 page in IncantForms/PDF/output.pdf.

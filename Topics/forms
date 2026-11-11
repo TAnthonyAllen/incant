@@ -15,11 +15,12 @@ A form is a define block: a tree of fields (window, body, panels, controls) whos
 Tony is the form designer: once the attributes are fleshed out he finishes the IncantForms forms himself, using the tools.
 
 /*****************************************************************************
-    State (seal 456, 2026-11-11)
+    State (seal 457, 2026-11-11)
 *****************************************************************************/
     draws        firstLight, descriptions, simple (bitmap and PDF). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
-    layout       setFrame lays out a COPY and returns it (stroke 1, seal 456): the definition is never written, a second run reads like the first, a percent survives.
-    not built    a resize (stroke 2) and a child's own x and y (stroke 3) of docs/setFrameRerunProposal.md; noRoom, isHidden; windows, selection, click; margin; listening (Tony's). (fit is parked: Topics/features 33.)
+    layout       setFrame(request) lays out a DEEP COPY and returns it (strokes 1-2, seals 456-457): the definition is never written at any depth, a second run reads like the first, a percent survives.
+                 The request may hold frame:= a field of its own; redrawForm(request) is the first resize, a plain call that lays out afresh and writes the PDF.
+    not built    a child's own x and y (stroke 3 of docs/setFrameRerunProposal.md); the resize arriving by listening (stroke 4, waits on Tony); noRoom, isHidden; windows, selection, click; margin; listening (Tony's). (fit is parked: Topics/features 33.)
     drawing      what is drawn and not drawn, and formsPop's count: Topics/drawing, State.
 
 /*****************************************************************************
@@ -41,7 +42,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     The instruments that read this topic
 *****************************************************************************/
     genLadder/formsPop.sh and its fixtures   the drawing rows: Topics/drawing. Two of its fixtures are forms' own: descT (the descriptions form joined to a driver), styleScopeT (inheritance).
-    incant/pop/reframeT (rows in pop.sh)     setFrame's copy and its second run (RF-1 to RF-6).
+    incant/pop/reframeT (rows in pop.sh)     setFrame's copy, its second run and the revised frame (RF-1 to RF-11).          incant/pop/resizeT (rows in formsPop)   the mock resize to a PDF (RZ-1 to RZ-5).
     pop.sh                      setFrame's rows (testSetFrame), := in a define (traitGridT), the parent chain (parentChainT), flags in a define (flagAttrT, flagNearT)
     The full checklist runs at every landing whatever the topic.
 
@@ -62,7 +63,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     5   Text in a field's frame, wrapped, clipped; fixed 4-point inset. DONE (412-413)
     5a  align = left / center / right / justify.                       DONE (SEQ 582, 584)
     5b  valign = top / center / bottom.                                DONE (439)
-    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. STROKE 1 DONE (456): a copy is laid out and returned. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md; the proposed strokes, with what waits on listening and the five points to rule: docs/setFrameRerunProposal.md)
+    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. STROKES 1-2 DONE (456, 457): a deep copy is laid out and returned; a frame in the request resizes; redrawForm is the mock resize. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md; the proposed strokes, with what waits on listening and the five points to rule: docs/setFrameRerunProposal.md)
     7   Runs inside text: the first typesetting step. See Topics/typesetting.
     8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
     9   Rounded fields.                                                DONE for the fill and a plain border (451). A side on a rounded field is still open (Waiting on Tony 5); a rounded image is not built.
@@ -187,6 +188,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
     455  SEQ 625   italic=off ruled as interim. opacity=0 checked: fully clear, two rows (OP-6), nothing to cure. The line budget recorded as an objective (Topics/cleanup). Read-only: the strokes for setFrame's rerun proposed (docs/setFrameRerunProposal.md). Clod's report on drawing as its own file: in the seal's commit message.
+    457  SEQ 626   stroke 2: setFrame's request takes frame:=; redrawForm lays out afresh and writes the PDF (resizeT, simple at 400 and at 600). FOUND AND CURED: copyOf's copy shares bodies below its second level, so stroke 1 still wrote the definition's deep fields; setFrame now copies with copyDeep (new command, Commands.rtn). Rows RF-7 to RF-11, RZ-1 to RZ-5, and pDeep in RF-1 to RF-3.
     456  SEQ 626   Topics/drawing split out (R0). Stroke 1 of the rerun: setFrame takes a request (form:=), lays out a copy and returns it; eleven callers respelled to draw the copy; nothing moved in either harness; seven rows (reframeT). Rulings R1-R5 recorded under "setFrame's rerun".
     449-455  the drawing seals (the floor census, rounded, shadow, opacity, italic): digested in Topics/drawing. Forms' own parts of them: simple respelled and its percent kept (451, 452); the mock-click goal G1 (452); inheritance as one rule (453); style:= the only spelling (454); italic=off interim, the rerun proposal (455).
     443  SEQ 614   this file made; typesetting split out; the forms history files retired.

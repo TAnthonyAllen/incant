@@ -9593,19 +9593,28 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_rfF" > "$T/rf.o" 2> "$T/rf.e"; _rfx=$?
 _rfb () { sed -n "/^RF-$1 $3 /,/^RF-$2 $3 /p" "$T/rf.o" | sed '1d;$d'; }
 _ofeq "reframeT exit / sentinel" "$_rfx $(grep -c '^REFRAME SENTINEL' "$T/rf.e")" "0 1"
 _rfSame=""; _rfTwice=""; _rfLaid=""
-for _rfs in pSimple pSumple pPct pTri pStar pNest; do
+for _rfs in pSimple pSumple pPct pTri pStar pNest pDeep; do
     _rfd1=$(_rfb DEF-BEFORE RUN1 ${_rfs}Req); _rfd2=$(_rfb DEF-AFTER END ${_rfs}Req)
     _rfr1=$(_rfb RUN1 RUN2 ${_rfs}Req); _rfr2=$(_rfb RUN2 DEF-AFTER ${_rfs}Req)
     [ -n "$_rfd1" ] && [ "$_rfd1" = "$_rfd2" ] && _rfSame="$_rfSame$_rfs "
     [ -n "$_rfr1" ] && [ "$_rfr1" = "$_rfr2" ] && _rfTwice="$_rfTwice$_rfs "
     printf '%s' "$_rfr1" | grep -q 'w=[0-9]' && [ "$_rfr1" != "$_rfd1" ] && _rfLaid="$_rfLaid$_rfs "
 done
-_ofeq "reframeT RF-1 the definition reads the same before and after two runs (shapes that agree)" "$_rfSame" "pSimple pSumple pPct pTri pStar pNest "
-_ofeq "reframeT RF-2 a second run reads like the first (shapes whose two runs agree)" "$_rfTwice" "pSimple pSumple pPct pTri pStar pNest "
-_ofeq "reframeT RF-3 anti-vacuity: the returned copy carries frames (shapes whose run prints a width)" "$_rfLaid" "pSimple pSumple pPct pTri pStar pNest "
+_ofeq "reframeT RF-1 the definition reads the same before and after two runs (shapes that agree)" "$_rfSame" "pSimple pSumple pPct pTri pStar pNest pDeep "
+_ofeq "reframeT RF-2 a second run reads like the first (shapes whose two runs agree)" "$_rfTwice" "pSimple pSumple pPct pTri pStar pNest pDeep "
+_ofeq "reframeT RF-3 anti-vacuity: the returned copy carries frames (shapes whose run prints a width)" "$_rfLaid" "pSimple pSumple pPct pTri pStar pNest pDeep "
 _ofeq "reframeT RF-4 down=3 gives 6 cells on the first run and 6 on the second, not 18" "$(_rfb RUN1 RUN2 pTriReq | grep -c '^	t[AB] ') $(_rfb RUN2 DEF-AFTER pTriReq | grep -c '^	t[AB] ')" "6 6"
 _ofeq "reframeT RF-5 a declared 50% is still a percent for the second run: half is 100 of 200 both times" "$(_rfb RUN1 RUN2 pPctReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/') $(_rfb RUN2 DEF-AFTER pPctReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/')" "100 100"
-_ofeq "reframeT RF-6 a request with no form refuses by name" "$(grep -c '^setFrame: REFUSING pNoForm -- its request holds no form' "$T/rf.e") $(grep -c '^RF-NONE done' "$T/rf.o")" "1 1"
+_ofeq "reframeT RF-6 a request with no form refuses by name" "$(grep -c '^setFrame: REFUSING pNoForm -- its request holds no form' "$T/rf.e") $(grep -c '^RF-NONE done' "$T/rf.o")" "1 2"
+#  RE-PIN of RF-6 and the three shape lists (SEQ 626 W2, same day): the fixture gained pDeep and a second refused request, so "RF-NONE done" prints twice
+#  and the lists gain pDeep. pDeep is five levels deep and is the row for copyDeep: on copyOf's copy the definition's own deep fields were framed.
+#  STROKE 2 (W2): the request may hold frame:= a field of its own. The oracle for a resize is a FRESH RUN of a form declared at that size (pPct400).
+_rff () { sed -n "/^RF-$1 $3 /,/^RF-$2 $3 /p" "$T/rf.o" | sed '1d;$d' | sed 's/^pPct400 /pPct /'; }
+_ofeq "reframeT RF-7 a resize reads like a fresh run: pPct (declared 200 at 0,0) in a frame of 400 at 10,20 equals pPct400 laid out as declared" "$([ -n "$(_rff FRAME1 FRAME2 pPctWideReq)" ] && [ "$(_rff FRAME1 FRAME2 pPctWideReq)" = "$(_rff FRAME1 FRAME2 pPct400Req)" ] && echo same || echo differ) $(_rff FRAME1 FRAME2 pPctWideReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/')" "same 200"
+_ofeq "reframeT RF-8 a second run with the frame reads like the first, and the definition still reads 200 wide at 0,0" "$([ "$(_rff FRAME1 FRAME2 pPctWideReq)" = "$(_rff FRAME2 FRAMEDEF pPctWideReq)" ] && echo same || echo differ) $(_rff FRAMEDEF FRAMEEND pPctWideReq | head -1)" "same pPct across x=0 y=0 width=200 height=100"
+_ofeq "reframeT RF-9 a frame at 0,0 is a value, not an absence: pPct400 (declared at 10,20) in a frame of 300x60 at 0,0 puts rest at x=150, not 160" "$(_rff FRAME1 FRAME2 pPctZeroReq | grep '^	rest ' | sed 's/.*x=\([0-9-]*\) .*w=\([0-9]*\) h=\([0-9]*\).*/\1 \2 \3/')" "150 150 60"
+_ofeq "reframeT RF-10 no frame given: the declared four stand (pPct400 at 10,20, 400 wide)" "$(_rff FRAME1 FRAME2 pPct400Req | head -1 | xargs)" "pPct x=10 y=20 w=400 h=100"
+_ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setFrame: REFUSING pPctShortReq -- its frame needs x, y, width and height' "$T/rf.e")" "1"
 #  ⚑ percentT, percentJitT -- a % after a value is a unit on that value (SEQ 538, SEQ 551 recon, SEQ 552 R0-R4). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The 100-against-200 row is in docs/setFrameSpec.md (R4).
 _pcF=$(ip percentT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcx=$?

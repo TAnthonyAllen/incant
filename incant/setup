@@ -36,6 +36,7 @@ define
     compileIn immediateAction;
     condition immediateAction=processFlags noPrint;
     copyOf immediateAction;
+    copyDeep immediateAction;
     defer immediateAction=processFlags noPrint;
     definersOf immediateAction;
     closePDF immediateAction=closePDF;

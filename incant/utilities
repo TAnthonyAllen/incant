@@ -519,15 +519,29 @@ define
                 frameMembers(*grup);
         };
     /***************************************************************************
-        setFrame -- forms step 6, stroke 1 (Tony, 2026-11-07 design; SEQ 626).
-        ONE argument, a request holding form:= the form. setFrame copies the
-        form, lays out the copy and returns it. The form's definition is never
-        written, so a declared percent, a down=3 and the member set are all
-        still there for the next run, and every run is a fresh run. The caller
-        holds the returned copy (laid := setFrame(req)) and draws that; no
-        laid-out result is saved anywhere. A request with no form refuses by
-        name and returns nothing.
+        setFrame -- forms step 6 (Tony's design of 2026-11-07; SEQ 626).
+        ONE argument, a request holding form:= the form and, optionally,
+        frame:= a field of its own, outside the form, holding x y width height.
+        setFrame copies the form, lays out the copy and returns it. The form's
+        definition is never written, so a declared percent, a down=3 and the
+        member set are all still there for the next run, and every run is a
+        fresh run. With a frame the copy's top takes the frame's four values;
+        with none it keeps the form's declared four. Only the top is gated:
+        every child is laid out from its parent, so a percent follows the new
+        size. The caller holds the returned copy (laid := setFrame(req)) and
+        draws that; no laid-out result is saved anywhere.
+        Refuses by name and returns nothing: a request with no form; a frame
+        that lacks any of x y width height (frameWhole).
     ***************************************************************************/
+    fwOk = 0;
+    frameWhole code={
+        =:argument x y width height;
+        fwOk = 1;
+        if x.datA == 0;         fwOk = 0;
+        if y.datA == 0;         fwOk = 0;
+        if width.datA == 0;     fwOk = 0;
+        if height.datA == 0;    fwOk = 0;
+        };
     setFrame code={
         sfReq := argument;
         sfHas = 0;
@@ -535,10 +549,51 @@ define
         if sfHas == 0;
             cerr "setFrame: REFUSING" argument.taG "-- its request holds no form; write form:=theForm":;
             return;
+        sfUse = 0;
+        if *sfReq["frame"];     sfUse = 1;
+        if sfUse == 1;
+            sfFrame := *sfReq["frame"];
+            frameWhole(**sfFrame);
+            if fwOk == 0;
+                cerr "setFrame: REFUSING" argument.taG "-- its frame needs x, y, width and height":;
+                return;
         sfForm := *sfReq["form"];
-        sfLaid := copyOf(**sfForm);
+        // deepCopy copyOf shares bodies below the second level, so a deep form would be written (measured, SEQ 626)
+        sfLaid := copyDeep(**sfForm);
+        if sfUse == 1;
+            *sfLaid :% copyOf(**sfFrame["x"]);
+            *sfLaid :% copyOf(**sfFrame["y"]);
+            *sfLaid :% copyOf(**sfFrame["width"]);
+            *sfLaid :% copyOf(**sfFrame["height"]);
         frameMembers(*sfLaid);
         return *sfLaid;
+        };
+    /***************************************************************************
+        redrawForm -- the first resize, as a plain call (SEQ 626 W2). ONE
+        argument, setFrame's own request with a path added: form:=, frame:=
+        (optional), path= the PDF to write. It lays the form out afresh through
+        setFrame, draws the copy to that PDF and returns the copy. This is what
+        Layout calls on a resize, with the new frame in the request, until the
+        frame arrives by listening (stroke 4). It keeps nothing: the caller
+        holds the returned copy if it wants it. A refused setFrame draws nothing.
+    ***************************************************************************/
+    pageReq path form width height;
+    redrawForm code={
+        rdReq := argument;
+        rdLaid := setFrame(argument);
+        rdGot = 0;
+        if *rdLaid.listLengtH;     rdGot = 1;
+        if rdGot == 0;
+            cerr "redrawForm: nothing laid out for" argument.taG "-- no PDF written":;
+            return;
+        pageReq :% copyOf(*rdReq["path"]);
+        pageReq :% copyOf(*rdLaid["width"]);
+        pageReq :% copyOf(*rdLaid["height"]);
+        pageReq.form := *rdLaid;
+        openPDF(pageReq);
+        drawWalk(*rdLaid);
+        closePDF(pageReq);
+        return *rdLaid;
         };
     // quoteIfNeeded obituary: never called; set arm exercised by inArmsT, 2026-09-08
     /***************************************************************************

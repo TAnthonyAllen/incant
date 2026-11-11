@@ -538,6 +538,21 @@ _ofeq "italicT IT-4 a child's italic=off turns it off under an italic parent" "$
 _ofeq "italicT IT-5 a font with no italic face warns by name (count) and draws upright" "$(grep -c '^displayText: WARNING itNone -- its font has no italic face; drawn upright' "$T/it.e") $(_itt itNone)" "1 upright"
 _ofeq "italicT IT-6 itForm as a PDF: one page, and the faces of its heading, upright line, italic line and the italic field's child" "$(grep -h '^=== readPDF pdfRead' "$T/it.o" | sed 's/.*pdfRead //; s/ ===.*//') $(_itt itHead itUp itSl itIn)" "pages 1 size 300x150 upright upright italic italic"
 
+#  ⚑ resizeT -- forms step 6, stroke 2 (SEQ 626 W2, 2026-11-11): the first resize, as a plain call. redrawForm(request) lays the form out afresh
+#  through setFrame and writes the PDF; frame:= in the request is the resize. The form is Windows/simple, whose three is width=50%: its leftBorder
+#  sits at x=200 of 400 and at x=300 of 600. RZ-3 reads the declared size again after the resize: a rerun must read like a fresh run.
+echo ""
+echo "-- the mock resize (resizeT)."
+_rzF=$(ip resizeT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_rzF" > "$T/rz.o" 2> "$T/rz.e"; _rzx=$?
+_rzp () { grep -h '^=== pixelAt pdfRead ' "$T/rz.o" | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | sed -e 's/r255 g255 b255 a255/white/' -e 's/r239 g43 b45 a255/red/' -e 's/r0 g0 b0 a255/black/' -e 's/r175 g211 b120 a255/green/' | tr '\n' ' ' | sed 's/ $//'; }
+_ofeq "resizeT exit / sentinel" "$_rzx $(grep -c '^RESIZE SENTINEL' "$T/rz.e")" "0 1"
+_ofeq "resizeT RZ-1 as declared, 400x200: wrap (98,70), two (150,70), three's leftBorder at 50% (200,70), three (300,70), fourth (200,170)" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 1p | sed 's/.*size //; s/ ===//') $(_rzp 1 5)" "400x200 white red black white green"
+_ofeq "resizeT RZ-2 resized by a frame to 600x300: the page follows, and the percent: wrap (148,100), two (225,100), three's leftBorder (300,100), three (450,100), fourth (300,270); (200,100), the old border, is two's red" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rzp 6 11)" "600x300 white red black white green red"
+_ofeq "resizeT RZ-3 back with no frame: the run after a resize reads exactly as the first" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 3p | sed 's/.*size //; s/ ===//') $(_rzp 12 16)" "400x200 white red black white green"
+_ofeq "resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600" "$(grep -h '^=== displayText one ' "$T/rz.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | tr '\n' ' ' | sed 's/ $//')" "181 266 181 266"
+_ofeq "resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame" "$(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | head -1 | xargs) / $(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | grep 'stuff' | xargs)" "simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
