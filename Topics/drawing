@@ -1,0 +1,140 @@
+/*****************************************************************************
+    drawing -- the drawing topic file, a sub-topic of forms as typesetting is (Tony, 2026-11-11, SEQ 626 R0). Not an incantation; notes only.
+    Wake-up read for a drawing session: Topics/forms, this file, then docs/wakeup.md (the shared state page).
+*****************************************************************************/
+ONE LINE: drawing is what happens under a floor request: a short C++ floor (GroupDraw.twk) that fills, strokes, sets text and places images into one context, a bitmap or a PDF.
+
+/*****************************************************************************
+    Description
+*****************************************************************************/
+The line between forms and drawing is the floor request: forms owns attributes, layout and the walk; drawing owns what happens under a floor method.
+A ruling that sits on that line (inheritance; style:= as the only spelling) lives in Topics/forms; this file points at it.
+
+/*****************************************************************************
+    State (seal 456, 2026-11-11)
+*****************************************************************************/
+    built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles; rounded (fill and plain border); shadow; opacity (fill, border, text); italic.
+    not built    a side or an image on a rounded field; opacity on an image; runs inside text (Topics/typesetting); a path, a gradient, scrolling (the floor census below).
+    formsPop     153 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
+
+/*****************************************************************************
+    Where things live
+*****************************************************************************/
+    GroupDraw.twk                   the floor: displayFillRT, displayBorder, displayText, displayImage, openPDF, closePDF, readPDF, pixelAt; and what they read through: styleOf, roundedOf, opacityOf, shadowPart, castShadow
+    incant/utilities                the walk that calls the floor (drawWalk, drawKids, drawFill, drawBorder, drawText, drawImage); it is forms' side of the line
+    IncantForms/Controls/styles     the colours, the fonts and defaultStyle          IncantForms/PDF/output.pdf   what Tony opens          IncantForms/Images/bands.png   the test image
+    IncantForms/WorkingOn/drawing   the Drawing registry: Core Graphics names and signatures          docs/bindingmethods.md, docs/firstLightPdfRecon.md, docs/m5Recon.md
+
+/*****************************************************************************
+    The instruments that read this topic
+*****************************************************************************/
+    genLadder/formsPop.sh       the ONLY home of drawing rows (Tony, 2026-11-07). Capture: docs/sealCaptures/formsPop.txt.
+    fixtures, incant/pop/       roundedT, shadowT, opacityT, italicT, styleScopeT, textT, imageT, descT (joins the descriptions form to a driver), firstPdfT, drawWalkT, stylesT, fillHeldT
+    The full checklist runs at every landing whatever the topic.
+
+/*****************************************************************************
+    The floor: its rules, and the floor census, which is the drawing plan
+*****************************************************************************/
+The line between forms and drawing is the floor request: forms owns attributes, layout and the walk; drawing owns what happens under a floor method.
+    C++ is only the short drawing floor. Each floor method takes ONE argument, a request group built fresh per call (textReq, imageReq); results are written into the request; a failure refuses by name and draws nothing.
+    The yardstick: each step adds at most one floor method, and prefers retiring to adding.
+    Core Text measures and Core Graphics draws, to the screen and to PDF. No libharu.
+    Foreign calls, shape (C) (Tony, 2026-11-07): groups.ext records each floor method's typed parameters so the jitter can later emit a direct typed call. No multi-argument call syntax.
+    The drawing language moves into kant when the jitter allows (A5). A small drawing language is a parked design question; it may not be needed if colour and font stay with styles (SEQ 582 R6).
+    Evidence: IncantForms/WorkingOn/drawing; docs/bindingmethods.md.
+
+THE FLOOR CENSUS (SEQ 618, 2026-11-11; read-only, no build). What the 21 forms ask for that nothing draws today, ordered by forms unblocked. This is the drawing plan.
+    Counted over each form's live region (above bail / stop), strings, prose and the converter's '# TODO: review' lines stripped, the field's own name skipped. "forms / fields" = how many forms and how many fields ask.
+    Each line: the attribute; forms / fields; the Core Graphics or Core Text call; the request shape; kant or floor; a foreign call's shape if it were made direct; what it waits on.
+    A   NEEDS THE FLOOR
+    1   rounded, rounded=N           13 / 60 (6 give a radius, in 4 forms). CGPathCreateWithRoundedRect, CGContextAddPath, then FillPath or StrokePath (the Drawing registry's rounded entry names no function; this is it).
+                                     Request: no new method -- a radius read by displayFillRT and displayBorder beside what they read now. Foreign: 4 arguments, a CGRect (a struct kant lacks) and a path that must be released.
+                                     BUILT (seal 451, SEQ 621 R2): roundedOf in GroupDraw.twk; the default radius is 5, in defaultStyle. 7 fields in 3 forms (layout, list, scroll) also ask a side: Waiting on Tony 5.
+    2   shadow                       6 / 6, every one a heading. BUILT (seal 452, SEQ 622 R3): shadowPart and castShadow in GroupDraw.twk; CGContextSetShadowWithColor inside a save / restore. No new method.
+                                     The old GUI: a Shadow slot in Stylish that nothing sets or reads; the last code that set it is Aside/Stylish.twk at git 9db8ca6f (sHADOW), whose defaults are the values built.
+    3   image placements             4 / 6 (bigify, descriptions, keyStroke, layout). fit fill is built. Not built:
+                                     a rounded image, 2 forms / 3 fields: CGContextAddPath + CGContextClip before CGContextDrawImage; a radius on imageReq; comes with line 1.
+                                     zoom, shrink, centre on the click point, 1 form: an offset and a scale on imageReq; the floor already calls TranslateCTM and ScaleCTM. Waits on step 10 (the click).
+                                     a grid of pictures from a directory, 1 form (bigify): fit fill as built; kant over a source. Waits on the listener.
+                                     Waits on Tony: a name for the fit attribute (Waiting on Tony 3). The image in a PDF still has no row.
+    4   fit (the layout attribute)   4 / 10. PARKED (Tony, 2026-11-11, SEQ 621 R4): Topics/features item 33 holds the line.
+    5   drawPath / draw=, perforation, perfColor   3 / 6 (draw, inspector, wraplist). BeginPath, MoveToPoint, AddLineToPoint, AddCurveToPoint, ClosePath, FillPath / EOFillPath / StrokePath, RotateCTM, ScaleCTM, TranslateCTM; arc and oval were never implemented.
+                                     Request: ONE new method, displayPath(pathReq): the points and operators already resolved in kant (percent, relative, direction), the floor only replays them. This is the yardstick's one new method.
+                                     Foreign: every call is the context plus doubles (up to 7 arguments for a curve); no struct. The registry's signatures (v:pdY) already say so.
+                                     Waits on: the small drawing language, a parked design question.
+    6   scrolling                    3 / 5 (scroll, where it is implied by content that overflows; list scrollWith; wraplist doNotScroll). Children clipped to the parent's frame and shifted: CGContextClipToRect and TranslateCTM held across a subtree's floor calls.
+                                     Request: today every clip opens and closes inside one floor call, so this needs a new pair (pushClip(clipReq), popClip) -- or the walk hands each child its clip. Foreign: one CGRect.
+                                     Waits on: step 6 (noRoom) and step 10 (scroll events).
+    7   italic                       2 / 2 (layout, menu: a bare italic beside font=normal). BUILT (seal 454): the italic face by trait (CTFontCreateCopyWithSymbolicTraits) in displayText; no new method. caps is the same change; no form asks it.
+    8   a gradient fill              2 / 2 (fill=radialGreen lighten, in inspector and keyAction). CGGradientCreateWithColorComponents, CGContextDrawRadialGradient. Draws flat today: styles holds radialGreen as a plain colour.
+                                     Foreign: 7 arguments, a gradient ref and two CGPoints. Waits on Tony: gradient and angle are on the drop list ("revisit with drawing").
+    B   PURE KANT ON TODAY'S FLOOR (a respell or a choice in the walk; no floor change)
+    9   border=off                   12 / 33. Border is not inherited, so the respell is to delete it.
+    10  label                        9 / 20. The old text spelling; respelled to a text field.
+    11  old side names               6 / 12 (top bottom left right, left=2). Respelled topBorder ... on displayBorder. 5 fields in 4 forms are free now; the other 7 are rounded (line 1).
+    12  bordered                     6 / 51. A template; respelled border.
+    13  border=colour                4 / 7. Respelled border strokeColor:=.
+    14  layers, overlay              3 / 3. Draw order in the walk; the painter is forward-only, so order is all it takes.
+    15  selectFill                   2 / 6. The walk picks the fill by selection. Waits on step 10.
+    16  fill=off, fill=#hex          1 / 1 and 1 / 2. Nothing to do: off is no fill; setColor already skips the #.
+    C   NOT DRAWING, listed so nobody looks again: tip (1 form, a window tooltip, no reader ever); style=matrixBG (2 forms; no such style in Controls/styles); fontSize (2 forms, dropped); hide; percent (Waiting on Tony 4).
+    WHAT IT ADDS UP TO   Line 1 alone is asked by 13 of the 19 undrawn forms, and is two existing methods plus one path call. Only line 5 needs a new floor method (line 6 may need a pair).
+                                     This counts drawing only: most of those forms also wait on things that are not drawing (the listener, sources, windows, events).
+    FOR THE JITTER'S FOREIGN-CALL WORK (shape C)   The types kant lacks, by first need: CGRect (1, 6), CGSize and CGColorRef (2), CGPoint and a gradient ref (8), a path ref with a release (1, 3).
+                                     Only line 5's calls are context-plus-doubles, so the path replay is the first floor method a typed direct call could retire.
+
+/*****************************************************************************
+    Rulings of record (all Tony)
+*****************************************************************************/
+Inheritance and style:= -- in Topics/forms ("Inheritance, one rule"; "style:= is the only spelling"): text properties inherit, box properties do not; the floor refuses a style that is not held.
+Italic (2026-11-11, SEQ 624 W1)
+    A text property: a bare italic on a field or in its style draws the font's italic face, and it inherits. italic=off turns it off below: RULED AS INTERIM (Tony, 2026-11-11, SEQ 625 R0) -- it stands until typesetting's {style: text} runs exist, when it is revisited. (A 0 cannot be told from absent in kant's climb.)
+    A font with no italic face warns by name and draws upright. The old GUI: italic was a font-style mask (traits: italic=1) that converted the field's font (GUI/Stylish.twk, fONTstyle); Bot's PDF road looked for a font file named Italic.
+Shadow (2026-11-11, SEQ 622 R3)
+    A field attribute, applied wherever a form names it. The old Stylish values: 2 right, 2 down, blur 3, black at 30%. One shadow per field (ruled, SEQ 623 R1): its fill if it has one, else its border, else its text.
+    A fill's shadow falls outside the frame, so a neighbour drawn later can cover it. No attribute changes the values yet; no form asks.
+Opacity (2026-11-11, SEQ 623)
+    opacity=n, a number from 0 (clear) to 1 (opaque), a box property: the field's own fill, border and text are drawn at it. A value outside 0 to 1 refuses by name and draws opaque. An image is not covered yet.
+    opacity=0 draws fully clear, on a fill, a border, text, and from a style (measured, SEQ 625 C1; opacityT OP-6): the floor asks whether the attribute exists, not whether its value is true. Nothing to cure.
+    No form spells opacity. The layers form is Windows/cards ("Cards and Layers"); its third card says "Layers not enabled for now" and names layers, nothing else.
+    The old GUI's spelling was transparency=n on a field or a colour entry, handed straight to the fill colour as its alpha (GUI/Stuff/Filler.twk); no form uses that either.
+    layers and overlay are layout orientations: the members share the parent's full box (old GUI Details.twk). That is why the census lists them under pure kant -- placement and draw order, no floor change.
+Text, colours and fonts (2026-11-05 to 2026-11-10)
+    A field takes font and color from its own attribute, else its style, else its enclosing fields. color falls back to black, the font to Helvetica 12.
+    A field's text is its own string value; if it holds a group, the group's text, one level only. A describe attribute, when present, is the text drawn.
+    Text that does not fit is clipped between words, with a warning naming the field.
+    IncantForms/Controls/styles holds the 14 colours and 7 fonts; tests load it explicitly. setColor skips a leading #.
+    A fill reader takes the held field, never its name. No colour cache.
+Images (2026-11-10)
+    image="path". The only fit is fill: cover the frame keeping the shape, centred, cropped. An image field's text is its description and is never drawn.
+Box attributes
+    rounded (2026-11-11, SEQ 621 R2): a number in points, the corner radius, on a field or its style like any other style attribute. A bare rounded takes the default, which lives in the default style
+        (defaultStyle in IncantForms/Controls/styles, registry sTYLEs): 5, the old GUI's default (GUI/Control.twk; Bot's PDF road used 8). Built so: the field's own rounded, else its style's; not inherited
+        from the enclosing field (as fill is not); a radius past half the short side draws at half; a value that is not a number refuses by name and draws square.
+    Border sides: topBorder, bottomBorder, leftBorder, rightBorder; bare is width 1, =number sets it; naming any side draws only the named sides.
+    fill is not inherited. A bare number is in points (1/72 inch).
+
+/*****************************************************************************
+    Waiting on Tony
+*****************************************************************************/
+    1  Bare font names (titleFont written bare): formsTable says keep; the text floor reads only font:=.
+    2  A name for the image fit attribute: `fit` is already a layout attribute in formsTable (that layout attribute is parked, Topics/features 33).
+    3  A side on a rounded field (step 9). 7 of the 12 side-asking fields are also rounded. Today a named side on a rounded field is drawn straight, as before.
+    4  heading in firstLight would sit about 3 points lower with valign=center. Not applied.
+
+/*****************************************************************************
+    Issues, Tasks, Moved by other topics
+*****************************************************************************/
+    seal 441:  "The image in a PDF still has no row." (from the forms issues line of that seal)
+    Task candidate: rows for the image in a PDF.
+
+/*****************************************************************************
+    Seal digest, newest first (full text: the seal's commit message; seals 373-444: git show cf9522cb:docs/wakeup.md)
+*****************************************************************************/
+    456  SEQ 626   this file made from Topics/forms (R0): the Drawing section, the drawing-side rulings and the drawing digest lines moved here; the lines that sit between the two stay in forms.
+    454  SEQ 624   style="name" retired and refused by name; ten fixtures respelled to style:=. Italic built as a text property (italicT; PDF of itForm). The top-level while issue moved to Topics/kant. This file trimmed by the budget rule (digest folded, closed lines gone).
+    453  SEQ 623   inheritance ruled as one rule (text properties inherit, box properties don't) and measured; Waiting on Tony 8-10 closed. Opacity built on the three floor methods (opacityT; PDF of opForm). Rows: SH-6, SS-5 to SS-7, OP-1 to OP-5.
+    452  SEQ 622   simple's width=50% and second text field restored; percent measured to lay out on a first run. The style ruling recorded and measured (styleScopeT). Shadow built on the three floor methods (shadowT; PDF of shForm). Listening and the mock-click goal recorded.
+    451  SEQ 621   rounded built on the fill and border floor (roundedOf; default radius 5 in defaultStyle); simple respelled and drawn, PDF in IncantForms/PDF/output.pdf; ten rows (roundedT). Shadow's old-GUI facts reported; fit parked (features 33).
+    449  SEQ 618   the floor census: what the 21 forms ask that nothing draws, written into Drawing as its plan (16 lines, ordered by forms). Read-only; no build.
+    Before it: the drawing steps 1 to 5b and 8 (fills, the walk, borders, the first PDF, text, align, valign, the first image) are in Topics/forms' plan and digest (seals 376-441).

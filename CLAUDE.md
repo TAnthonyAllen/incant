@@ -6,7 +6,7 @@ Read `projectBible.md` (retired 2026-11-11, git 2144dde6) for the full ecosystem
 ## Waking Up (Tony, 2026-11-11, SEQ 615)
 
 **Wake on `Topics/<topic>` -- the topic Tony names -- then read `docs/wakeup.md`, the short shared state page.** The
-topic files are `Topics/kant`, `Topics/forms` (drawing a section; `Topics/typesetting` its sub-topic), `Topics/cleanup`
+topic files are `Topics/kant`, `Topics/forms` (`Topics/drawing` and `Topics/typesetting` its sub-topics, each its own file; drawing since 2026-11-11, SEQ 626), `Topics/cleanup`
 and `Topics/documentation`; `Topics/features` is the parking list, not a session topic.
 **A seal is written into its topic file's seal digest (one paragraph, newest first) and in full into its commit
 message; the shared page gets the new last-seal line and any number that moved.** One seal sequence and one SEQ
@@ -56,7 +56,7 @@ Groups/
 │                              XML/WorkingOn/ on 2026-05-29.
 ├── IncantForms/            — The forms: Windows/ (the form incantations), Controls/ (styles, templates,
 │                              attributes, traits), WorkingOn/ (notes and WIP), PDF/, Images/.
-├── Topics/                 — One file per session topic, no suffix (Tony, 2026-11-11): kant, forms, typesetting, cleanup, documentation; features is the parking list.
+├── Topics/                 — One file per session topic, no suffix (Tony, 2026-11-11): kant, forms, drawing, typesetting, cleanup, documentation; features is the parking list.
 ├── Maps/                   — Symlink → ~/data/support/Maps (BitMAP, Segment).
 └── projectBible.md (retired 2026-11-11, git 2144dde6), TODO.md, CLAUDE.md
 ```

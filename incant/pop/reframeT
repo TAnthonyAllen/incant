@@ -1,0 +1,67 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(ReframeT);
+define
+    pSimple across x=100 y=100 width=250 height=212
+        quinto width=150;
+        sexto height=12;
+        fifth;
+    pSumple="long string" height=200 width=250 x=100 y=100 down=* across=2
+        crossing height=50;
+    pPct across x=0 y=0 width=200 height=100
+        half width=50%;
+        rest;
+    pTri x=0 y=0 width=90 height=90 down=3
+        tA;
+        tB;
+    pStar x=0 y=0 width=200 height=100 down=*
+        row height=50;
+    pNest x=0 y=0 width=100 height=90 down=3
+        cell across
+            lA;
+            lB;
+    pSimpleReq form:=pSimple;
+    pSumpleReq form:=pSumple;
+    pPctReq form:=pPct;
+    pTriReq form:=pTri;
+    pStarReq form:=pStar;
+    pNestReq form:=pNest;
+    pNoForm other=1;
+    rfRun code={
+        rfReq := argument;
+        rfForm := *rfReq["form"];
+        print "RF-DEF-BEFORE" argument.taG:;
+        printDefinition(**rfForm);
+        rfA := setFrame(argument);
+        print "RF-RUN1" argument.taG:;
+        tsfLine(*rfA);
+        rfB := setFrame(argument);
+        print "RF-RUN2" argument.taG:;
+        tsfLine(*rfB);
+        print "RF-DEF-AFTER" argument.taG:;
+        printDefinition(**rfForm);
+        print "RF-END" argument.taG:;
+        };
+    rfNone code={
+        rfN := setFrame(argument);
+        print "RF-NONE done":;
+        };
+    ;
+search ReframeT UnitTests Utilities list;
+rfRun(pSimpleReq);
+rfRun(pSumpleReq);
+rfRun(pPctReq);
+rfRun(pTriReq);
+rfRun(pStarReq);
+rfRun(pNestReq);
+rfNone(pNoForm);
+cerr "REFRAME SENTINEL":;
+stop();
+
+reframeT -- forms step 6, stroke 1 (SEQ 626 W1): setFrame takes a request holding form:=, lays out a COPY and returns it; the
+form's definition is never written. Six shapes (the six of docs/setFrameProbes/secondRun.sh), each printed before, laid out
+twice, and printed after. Rows in genLadder/pop.sh: the definition reads the same before and after (and still says 50%);
+the second run's frames equal the first's; down=3 gives 6 cells both times, not 18; a request with no form refuses by name.
+Stroke 2's rows (a revised frame, a resize) are in the same fixture when that stroke lands.

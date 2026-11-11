@@ -426,12 +426,13 @@ define
         argument = bothStuff;
         };
     /***************************************************************************
-         Set frames for members of the group passed in. It must have x y width
-         and height attributes.
-         
+         frameMembers sets frames for the members of the group passed in. It must
+         have x y width and height attributes. It WRITES the group it is handed,
+         so only setFrame calls it, and only on a copy.
+
          Should modify to check for noRoom and bail if there aint none
     ***************************************************************************/
-    setFrame code={
+    frameMembers code={
         =:argument across down width height x y;
         if across.datA != 0;
             if down.datA != 0;
@@ -515,7 +516,29 @@ define
             else                    pX += width;
         for grup in argument; members
             if *grup.hasMemberS;
-                setFrame(*grup);
+                frameMembers(*grup);
+        };
+    /***************************************************************************
+        setFrame -- forms step 6, stroke 1 (Tony, 2026-11-07 design; SEQ 626).
+        ONE argument, a request holding form:= the form. setFrame copies the
+        form, lays out the copy and returns it. The form's definition is never
+        written, so a declared percent, a down=3 and the member set are all
+        still there for the next run, and every run is a fresh run. The caller
+        holds the returned copy (laid := setFrame(req)) and draws that; no
+        laid-out result is saved anywhere. A request with no form refuses by
+        name and returns nothing.
+    ***************************************************************************/
+    setFrame code={
+        sfReq := argument;
+        sfHas = 0;
+        if *sfReq["form"];      sfHas = 1;
+        if sfHas == 0;
+            cerr "setFrame: REFUSING" argument.taG "-- its request holds no form; write form:=theForm":;
+            return;
+        sfForm := *sfReq["form"];
+        sfLaid := copyOf(**sfForm);
+        frameMembers(*sfLaid);
+        return *sfLaid;
         };
     // quoteIfNeeded obituary: never called; set arm exercised by inArmsT, 2026-09-08
     /***************************************************************************

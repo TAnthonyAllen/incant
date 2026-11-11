@@ -42,12 +42,18 @@ search FirstPdf FORMs UnitTests Utilities cOLOr fONTs list;
 define
     pdfReq path="IncantForms/PDF/output.pdf" form:=firstLight;
     ;
-setFrame(firstLight);
-pdfReq :% copyOf(firstLight["width"]);
-pdfReq :% copyOf(firstLight["height"]);
+define
+    laid;
+    layIt code={ laid := setFrame(argument); };
+    firstLightReq form:=firstLight;
+    ;
+layIt(firstLightReq);
+pdfReq :% copyOf(*laid["width"]);
+pdfReq :% copyOf(*laid["height"]);
 cerr "PDF open":;
+pdfReq.form := *laid;
 openPDF(pdfReq);
-drawWalk(firstLight);
+drawWalk(*laid);
 closePDF(pdfReq);
 cerr "PDF closed":;
 readPDF(pdfRead);

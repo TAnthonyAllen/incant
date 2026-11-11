@@ -98,11 +98,17 @@ define
     skimReq path="IncantForms/PDF/output.pdf" form:=firstLight;
     skimOpened;
     ;
-setFrame(firstLight);
-skimReq :% copyOf(firstLight["width"]);
-skimReq :% copyOf(firstLight["height"]);
+define
+    laid;
+    layIt code={ laid := setFrame(argument); };
+    firstLightReq form:=firstLight;
+    ;
+layIt(firstLightReq);
+skimReq :% copyOf(*laid["width"]);
+skimReq :% copyOf(*laid["height"]);
+skimReq.form := *laid;
 openPDF(skimReq);
-drawWalk(firstLight);
+drawWalk(*laid);
 closePDF(skimReq);
 //  Skim no longer opened on every run (Tony, 2026-11-10: it kept popping up). To look: open -a Skim IncantForms/PDF/output.pdf
 print "SENTINEL tester driver end":;

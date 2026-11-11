@@ -27,7 +27,12 @@ define
             help describe=tabFORM bordered height=100 fill=lightGreen;
     ;
 
-setFrame(tabFORM);
+define
+    laid;
+    layIt code={ laid := setFrame(argument); };
+    tabFORMReq form:=tabFORM;
+    ;
+layIt(tabFORMReq);
 stop();
 
 Note the value of the tabs attribute in the tabBAR block above is set to tabTwo. That sets the initially selected tab to be tabTwo. If the tabs attribute has no value, the default will use the first tab block (tabOne in this case) as the initially selected tab.

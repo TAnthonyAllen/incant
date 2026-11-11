@@ -351,11 +351,13 @@ define
         print "testSetFrame" argument.taG "children with no frame:" tsfNone "of" tsfAll:;
         tsfLine(argument);
         };
+    tsfSimpleReq form:=simple;
+    tsfSampleReq form:=sample;
     testSetFrame code={
-        setFrame(simple);
-        tsfTrace(simple);
-        setFrame(sample);
-        tsfTrace(sample);
+        tsfLaid := setFrame(tsfSimpleReq);
+        tsfTrace(*tsfLaid);
+        tsfLaid := setFrame(tsfSampleReq);
+        tsfTrace(*tsfLaid);
         print "testSetFrame end":;
         };
 

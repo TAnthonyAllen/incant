@@ -9585,6 +9585,27 @@ fdRow "fillReadT R1 a child's own fill draws its own" "$(_frp frKidOwn)" "r0 g0 
 _ofeq "fillReadT a draw leaves the copied value readable" "$(grep '^FR copy readable' "$T/fr.o" | xargs)" "FR copy readable after a draw, kind 14 value #ff0000"
 fdRow "fillReadT after a write to the source: fill:= follows it" "$(_frp frMoveHeld)" "r0 g0 b0 a0/r0 g0 b0 a0/" "r255 g0 b0 a255/r0 g0 b255 a255/"
 fdRow "fillReadT after a write to the source: plain fill= stays the copy" "$(_frp frMoveCopy)" "r0 g0 b0 a0/r0 g0 b0 a0/" "r255 g0 b0 a255/r255 g0 b0 a255/"
+#  ⚑ reframeT -- forms step 6, stroke 1 (Tony's design of 2026-11-07; SEQ 626 W1, 2026-11-11): setFrame takes a request holding form:=, lays out a COPY
+#  and returns it; the definition is never written, so every run is a fresh run. Six shapes, the six of docs/setFrameProbes/secondRun.sh, where a second
+#  in-place run multiplied down=3 (6 cells -> 18) and a percent was overwritten. Layout rows, so they live here, not in formsPop.
+_rfF=$(ip reframeT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_rfF" > "$T/rf.o" 2> "$T/rf.e"; _rfx=$?
+_rfb () { sed -n "/^RF-$1 $3 /,/^RF-$2 $3 /p" "$T/rf.o" | sed '1d;$d'; }
+_ofeq "reframeT exit / sentinel" "$_rfx $(grep -c '^REFRAME SENTINEL' "$T/rf.e")" "0 1"
+_rfSame=""; _rfTwice=""; _rfLaid=""
+for _rfs in pSimple pSumple pPct pTri pStar pNest; do
+    _rfd1=$(_rfb DEF-BEFORE RUN1 ${_rfs}Req); _rfd2=$(_rfb DEF-AFTER END ${_rfs}Req)
+    _rfr1=$(_rfb RUN1 RUN2 ${_rfs}Req); _rfr2=$(_rfb RUN2 DEF-AFTER ${_rfs}Req)
+    [ -n "$_rfd1" ] && [ "$_rfd1" = "$_rfd2" ] && _rfSame="$_rfSame$_rfs "
+    [ -n "$_rfr1" ] && [ "$_rfr1" = "$_rfr2" ] && _rfTwice="$_rfTwice$_rfs "
+    printf '%s' "$_rfr1" | grep -q 'w=[0-9]' && [ "$_rfr1" != "$_rfd1" ] && _rfLaid="$_rfLaid$_rfs "
+done
+_ofeq "reframeT RF-1 the definition reads the same before and after two runs (shapes that agree)" "$_rfSame" "pSimple pSumple pPct pTri pStar pNest "
+_ofeq "reframeT RF-2 a second run reads like the first (shapes whose two runs agree)" "$_rfTwice" "pSimple pSumple pPct pTri pStar pNest "
+_ofeq "reframeT RF-3 anti-vacuity: the returned copy carries frames (shapes whose run prints a width)" "$_rfLaid" "pSimple pSumple pPct pTri pStar pNest "
+_ofeq "reframeT RF-4 down=3 gives 6 cells on the first run and 6 on the second, not 18" "$(_rfb RUN1 RUN2 pTriReq | grep -c '^	t[AB] ') $(_rfb RUN2 DEF-AFTER pTriReq | grep -c '^	t[AB] ')" "6 6"
+_ofeq "reframeT RF-5 a declared 50% is still a percent for the second run: half is 100 of 200 both times" "$(_rfb RUN1 RUN2 pPctReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/') $(_rfb RUN2 DEF-AFTER pPctReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/')" "100 100"
+_ofeq "reframeT RF-6 a request with no form refuses by name" "$(grep -c '^setFrame: REFUSING pNoForm -- its request holds no form' "$T/rf.e") $(grep -c '^RF-NONE done' "$T/rf.o")" "1 1"
 #  ⚑ percentT, percentJitT -- a % after a value is a unit on that value (SEQ 538, SEQ 551 recon, SEQ 552 R0-R4). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The 100-against-200 row is in docs/setFrameSpec.md (R4).
 _pcF=$(ip percentT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcx=$?
