@@ -36,7 +36,7 @@ define
     dwEnd = 0;
     dwThick x=0 y=0 width=20 height=20 fill=white border=3 strokeColor=blue;
     dwSt strokeColor="red";
-    dwStyled x=0 y=0 width=10 height=10 fill=white border style="dwSt";
+    dwStyled x=0 y=0 width=10 height=10 fill=white border style:=dwSt;
     ;
 search DrawWalk FORMs UnitTests Utilities cOLOr fONTs list;
 setFrame(firstLight);

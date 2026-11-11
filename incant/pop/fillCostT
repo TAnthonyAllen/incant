@@ -6,7 +6,7 @@ register(FillCostT);
 define
     fcWall=#f7e8aa;
     fcStyle fillColor="fcWall";
-    fcCanvas x=0 y=0 width=8 height=8 style="fcStyle";
+    fcCanvas x=0 y=0 width=8 height=8 style:=fcStyle;
     fcI=0;
     fcLoop code={
         fcI = 0;

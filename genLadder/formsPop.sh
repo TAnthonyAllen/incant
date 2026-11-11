@@ -493,10 +493,10 @@ _ofeq "styleScopeT SS-3 an attribute after the style overrides it on that field:
 _sst () { grep -h "^=== displayText $1 " "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*valign \([a-z]*\) align \([a-z]*\) ===/\1 \2 \3 \4/'; }
 #  SEQ 623 R0 (Tony, 2026-11-11): text properties inherit, box properties do not, whether set as an attribute or in a style. SS-4 is therefore AS RULED
 #  (its label was "TODAY, not as ruled" at seal 452; the value is unchanged). SS-5 and SS-7: a held style's (style:=) text properties reach the children.
-#  SS-6 pins a gap as it reads today: a style named by a quoted name (style="x") is read by the fill and border floor but not by drawText, so its text
-#  properties reach nobody. No form spells a style that way; the ruled spelling is style:=.
+#  SS-6 (SEQ 624 R0, 2026-11-11): style="name" is RETIRED; style:= is the only spelling. The quoted form is refused by name and the field has no
+#  style: no fill, and nothing for its children. The row that pinned the old gap (the quoted style filled its field, blue) went with the ruling.
 _ofeq "styleScopeT SS-5 a held style's font, color, valign and align reach a child two levels down; its fillColor paints the field itself (1,1)" "$(_sst ssDkid) $(_ssc ssD 1 1)" "Palatino 24 1 r0 g158 b15 bottom center blue"
-_ofeq "styleScopeT SS-6 TODAY, a gap: a style named by a quoted name fills its field (1,1) but its text properties reach no child" "$(_sst ssEkid) $(_ssc ssE 1 1)" "Helvetica 12 0 r0 g0 b0 top left blue"
+_ofeq "styleScopeT SS-6 a quoted style name is refused by name (at least once) and gives the field no style: its child's text is the default, its own (1,1) unpainted" "$([ "$(grep -c '^styleOf: REFUSING ssE -- its style is not held; write style:=name' "$T/ss.e")" -gt 0 ] && echo refused || echo silent) $(_sst ssEkid) $(grep -h '^=== pixelAt ssE ' "$T/ss.o" | sed 's/.*= //; s/ ===.*//')" "refused Helvetica 12 0 r0 g0 b0 top left r0 g0 b0 a0"
 _ofeq "styleScopeT SS-7 a child's own color wins over the inherited style's; the style's font, valign and align still arrive" "$(_sst ssFkid)" "Palatino 24 1 r239 g43 b45 bottom center"
 _ofeq "styleScopeT SS-4 text properties inherit (SEQ 623 R0): the kid's text takes the parent's own font, color and align" "$(grep -h '^=== displayText ssKid ' "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*align \([a-z]*\) ===/\1 \2 \3/')" "Palatino 24 1 r0 g158 b15 center"
 
@@ -515,6 +515,24 @@ _ofeq "opacityT OP-2 opacity does not reach a child: the parent at 0.5 (45,45); 
 _ofeq "opacityT OP-3 opacity from the style (15,15); the field's own opacity=1 over the style's (45,15); opacity=3 refused by name (count) and drawn opaque (15,45)" "$(_opp opC 1 3) $(grep -c "^opacityOf: REFUSING opBad -- opacity's value is not a number from 0 to 1" "$T/op.e")" "halfBlue blue black 1"
 _ofeq "opacityT OP-4 text at 0.5: the darkest pixel on row y=18 is r127 where the same text with none reaches r0 (120 read of each)" "$(_opd opWordTop) $(_opd opBareTop) $(grep -hc '^=== pixelAt opWordTop ' "$T/op.o") $(grep -hc '^=== pixelAt opBareTop ' "$T/op.o")" "127 0 120 120"
 _ofeq "opacityT OP-5 opForm as a PDF, read back: red alone, blue alone, their overlap and the wall are four different colours; red alone is not full red; the wall is the wall" "$(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed 's/.*= //; s/ ===.*//' | sort -u | wc -l | tr -d ' ') $(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed -n 1p | grep -c 'r239 g43 b45') $(grep -h '^=== pixelAt pdfRead ' "$T/op.o" | sed -n 4p | sed 's/.*= //; s/ ===.*//')" "4 0 r247 g232 b170 a255"
+
+#  ⚑ italicT -- italic, a text property (Tony, 2026-11-11, SEQ 624 W1): bare italic on a field or in its held style draws the font's italic face
+#  (by trait); it inherits as font and color do; italic=off turns it off below. The trace line ends " italic" only when the face DRAWN has the
+#  trait, so a row reads the font that was used, not the request. IT-1 also compares the pixels of the slanted and the upright word.
+echo ""
+echo "-- italic (italicT)."
+_itF=$(ip italicT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_itF" > "$T/it.o" 2> "$T/it.e"; _itx=$?
+_itt () { for _n in "$@"; do _l=$(grep -h "^=== displayText $_n " "$T/it.o"); case "$_l" in "") printf 'missing ';; *" italic ===") printf 'italic ';; *) printf 'upright ';; esac; done | sed 's/ $//'; }
+_itp () { grep -h "^=== pixelAt $1 " "$T/it.o" | sed 's/.*= //'; }
+_ofeq "italicT exit / sentinel" "$_itx $(grep -c '^ITALIC SENTINEL' "$T/it.e")" "0 1"
+_ofeq "italicT IT-1 a field's own italic, beside the same text with none: the faces drawn" "$(_itt itOwn itPlain)" "italic upright"
+_itp itOwnTop > "$T/it.a"; _itp itPlainTop > "$T/it.b"
+_ofeq "italicT IT-1 the two words do not paint the same pixels (4800 read of each; some differ, and each has ink)" "$(wc -l < "$T/it.a" | tr -d ' ') $(wc -l < "$T/it.b" | tr -d ' ') $([ "$(paste "$T/it.a" "$T/it.b" | awk -F'\t' '$1 != $2' | wc -l)" -gt 0 ] && echo differ || echo same) $([ "$(grep -vc 'r255 g255 b255' "$T/it.a")" -gt 0 ] && [ "$(grep -vc 'r255 g255 b255' "$T/it.b")" -gt 0 ] && echo ink || echo blank)" "4800 4800 differ ink"
+_ofeq "italicT IT-2 italic inherits from an enclosing field's attribute, two levels down; IT-3 from a held style" "$(_itt itKid itStKid)" "italic italic"
+_ofeq "italicT IT-4 a child's italic=off turns it off under an italic parent" "$(_itt itOff)" "upright"
+_ofeq "italicT IT-5 a font with no italic face warns by name (count) and draws upright" "$(grep -c '^displayText: WARNING itNone -- its font has no italic face; drawn upright' "$T/it.e") $(_itt itNone)" "1 upright"
+_ofeq "italicT IT-6 itForm as a PDF: one page, and the faces of its heading, upright line, italic line and the italic field's child" "$(grep -h '^=== readPDF pdfRead' "$T/it.o" | sed 's/.*pdfRead //; s/ ===.*//') $(_itt itHead itUp itSl itIn)" "pages 1 size 300x150 upright upright italic italic"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do

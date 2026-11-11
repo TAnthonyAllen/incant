@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2092272 bytes  Nov 11 14:28
+  bin   2092512 bytes  Nov 11 14:41
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -153,7 +153,7 @@
   ok    styleScopeT SS-2 a field's style does not reach its child: the leaf's border (11,30), its square corner (10,10), its inside (30,30) = [black black blue]
   ok    styleScopeT SS-3 an attribute after the style overrides it on that field: fill (30,30), border (1,30), square corner (0,0) = [red green green]
   ok    styleScopeT SS-5 a held style's font, color, valign and align reach a child two levels down; its fillColor paints the field itself (1,1) = [Palatino 24 1 r0 g158 b15 bottom center blue]
-  ok    styleScopeT SS-6 TODAY, a gap: a style named by a quoted name fills its field (1,1) but its text properties reach no child = [Helvetica 12 0 r0 g0 b0 top left blue]
+  ok    styleScopeT SS-6 a quoted style name is refused by name (at least once) and gives the field no style: its child's text is the default, its own (1,1) unpainted = [refused Helvetica 12 0 r0 g0 b0 top left r0 g0 b0 a0]
   ok    styleScopeT SS-7 a child's own color wins over the inherited style's; the style's font, valign and align still arrive = [Palatino 24 1 r239 g43 b45 bottom center]
   ok    styleScopeT SS-4 text properties inherit (SEQ 623 R0): the kid's text takes the parent's own font, color and align = [Palatino 24 1 r0 g158 b15 center]
 
@@ -165,4 +165,13 @@
   ok    opacityT OP-4 text at 0.5: the darkest pixel on row y=18 is r127 where the same text with none reaches r0 (120 read of each) = [127 0 120 120]
   ok    opacityT OP-5 opForm as a PDF, read back: red alone, blue alone, their overlap and the wall are four different colours; red alone is not full red; the wall is the wall = [4 0 r247 g232 b170 a255]
 
-FORMS POP FAILED -- 144 green, see above
+-- italic (italicT).
+  ok    italicT exit / sentinel = [0 1]
+  ok    italicT IT-1 a field's own italic, beside the same text with none: the faces drawn = [italic upright]
+  ok    italicT IT-1 the two words do not paint the same pixels (4800 read of each; some differ, and each has ink) = [4800 4800 differ ink]
+  ok    italicT IT-2 italic inherits from an enclosing field's attribute, two levels down; IT-3 from a held style = [italic italic]
+  ok    italicT IT-4 a child's italic=off turns it off under an italic parent = [upright]
+  ok    italicT IT-5 a font with no italic face warns by name (count) and draws upright = [1 upright]
+  ok    italicT IT-6 itForm as a PDF: one page, and the faces of its heading, upright line, italic line and the italic field's child = [pages 1 size 300x150 upright upright italic italic]
+
+FORMS POP FAILED -- 151 green, see above

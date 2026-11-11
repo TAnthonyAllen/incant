@@ -155,7 +155,7 @@ define
         };
     /***************************************************************************
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
-        font, color, align (step 5a, SEQ 584) and valign (step 5b, SEQ 605) in kant and hands displayText one request, textReq,
+        font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands displayText one request, textReq,
         written afresh on every call. Each of font and color comes from the
         field's own attribute, else its style's (style:= names the style field),
         else the enclosing field's, walking up to the top (the field holding the
@@ -187,7 +187,7 @@ define
         if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
         or describe.isGrouP;    describe = dESCRIPTIONs[describe];
         };
-    textReq field source font color align valign;
+    textReq field source font color align valign italic;
     drawText code={
         textReq.field := argument;
         dtG = argument.isGrouP;
@@ -203,6 +203,8 @@ define
         textReq.color = 0;
         textReq.align = 0;
         textReq.valign = 0;
+        textReq.italic = 0;
+        dtItalic = 0;
         dtFont = 0;
         dtColor = 0;
         dtAlign = 0;
@@ -226,8 +228,17 @@ define
                 if *dtCur["valign"];
                     textReq.valign := *dtCur["valign"];
                     dtValign = 1;
+            // italicInherits a text property (SEQ 624): the nearest field naming italic decides, its own attribute before its style's
+            if dtItalic == 0;
+                if *dtCur["italic"];
+                    textReq.italic := *dtCur["italic"];
+                    dtItalic = 1;
             if *dtCur["style"];
                 dtStyle := *dtCur["style"];
+                if dtItalic == 0;
+                    if **dtStyle["italic"];
+                        textReq.italic := **dtStyle["italic"];
+                        dtItalic = 1;
                 if dtFont == 0;
                     if **dtStyle["font"];
                         textReq.font := **dtStyle["font"];
@@ -249,7 +260,8 @@ define
             if dtFont == 1;
                 if dtColor == 1;
                     if dtAlign == 1;
-                        if dtValign == 1;   dtHops = 32;
+                        if dtValign == 1;
+                            if dtItalic == 1;   dtHops = 32;
             // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
             dtCur := *dtCur.parenT;
             dtHops += 1;

@@ -27,5 +27,6 @@ extern "C" GroupItem *readPDF(GroupItem *request);
 double roundedOf(GroupItem *field);
 int shadowPart(GroupItem *field);
 extern "C" GroupItem *styleComponent(GroupItem *field, char *component);
+GroupItem *styleOf(GroupItem *field);
 char *toString(NSPoint p);
 char *toString(NSRect f);

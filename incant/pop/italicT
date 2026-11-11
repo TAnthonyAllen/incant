@@ -1,0 +1,83 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(ItalicT);
+define
+    itX = 0;
+    itY = 0;
+    itAt code={
+        px = itX;
+        py = itY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    itX1 = 0;
+    itY1 = 0;
+    itBand code={
+        itY = 0;
+        while itY < itY1;
+            itX = 0;
+            while itX < itX1;
+                itAt(argument);
+                pixelAt(argument);
+                itX += 1;
+            itY += 1;
+        };
+    itSt italic font:=normalFont;
+    itOwnTop x=0 y=0 width=120 height=40 fill=white
+        itOwn="Slanted" x=0 y=0 width=120 height=40 font:=titleFont italic;
+    itPlainTop x=0 y=0 width=120 height=40 fill=white
+        itPlain="Slanted" x=0 y=0 width=120 height=40 font:=titleFont;
+    itDad x=0 y=0 width=120 height=30 fill=white font:=normalFont italic
+        itMid x=0 y=0 width=120 height=30
+            itKid="inherits" x=0 y=0 width=120 height=30;
+    itStyled x=0 y=0 width=120 height=30 fill=white style:=itSt
+        itStKid="from a style" x=0 y=0 width=120 height=30;
+    itOffDad x=0 y=0 width=120 height=30 fill=white font:=normalFont italic
+        itOff="upright" x=0 y=0 width=120 height=30 italic=off;
+    itNoneTop x=0 y=0 width=120 height=30 fill=white
+        itNone="no face" x=0 y=0 width=120 height=30 font:=copperFont italic;
+    itForm window x=0 y=0 width=300 height=150 fill:=wall font:=normalFont
+        itHead="Italic Example" x=0 y=0 width=300 height=40 font:=titleFont align=center valign=center;
+        itUp="This line is upright." x=20 y=50 width=260 height=25;
+        itSl="This line is italic." x=20 y=80 width=260 height=25 italic;
+        itBox x=20 y=110 width=260 height=30 fill:=white italic
+            itIn="A child of an italic field inherits it." x=20 y=110 width=260 height=30;
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ;
+search ItalicT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    pdfReq path="IncantForms/PDF/output.pdf" form:=itForm;
+    ;
+cerr "IT-1 a field's own italic, then the same text with none: the trace, and every pixel of x 0..119, y 0..39 of each":;
+drawWalk(itOwnTop);
+itX1 = 120; itY1 = 40;
+itBand(itOwnTop);
+drawWalk(itPlainTop);
+itBand(itPlainTop);
+cerr "IT-2 italic inherits from an enclosing field's attribute, two levels down":;
+drawWalk(itDad);
+cerr "IT-3 italic inherits from a held style":;
+drawWalk(itStyled);
+cerr "IT-4 a child's italic=off turns it off":;
+drawWalk(itOffDad);
+cerr "IT-5 a font with no italic face warns by name and draws upright":;
+drawWalk(itNoneTop);
+cerr "IT-6 itForm to a PDF":;
+pdfReq :% copyOf(itForm["width"]);
+pdfReq :% copyOf(itForm["height"]);
+openPDF(pdfReq);
+drawWalk(itForm);
+closePDF(pdfReq);
+readPDF(pdfRead);
+cerr "ITALIC SENTINEL":;
+stop();
+
+italicT -- italic, a text property (Tony, 2026-11-11, SEQ 624 W1): bare italic (or any value but off) on a field or in its style
+draws the font's italic face; it inherits as font and color do, and italic=off turns it off below. Rows are in genLadder/formsPop.sh.
+The trace line ends " italic" only when the face drawn has the italic trait. IT-1 also compares pixels: the slanted word and the
+upright word do not paint the same pixels. The frames are written by hand and setFrame is not called.
+IT-6 draws this fixture's own form, itForm, to IncantForms/PDF/output.pdf: the two forms that ask for italic (layout, menu) do not draw yet.

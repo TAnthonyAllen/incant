@@ -23,13 +23,13 @@ define
         is what makes the recipe carry to a second command without inventing a
         second convention.  */
     dsStyle  fillColor="dsRed" strokeColor="dsBlue";
-    dsCanvas x=0 y=0 width=8 height=8 style="dsStyle" px=2 py=2;
+    dsCanvas x=0 y=0 width=8 height=8 style:=dsStyle px=2 py=2;
     /*  H7 NEGATIVE CONTROL. A style that names a strokeColor and NO fillColor.
         If seam 3 were still reading the style's own text -- or reading any
         component it happens to find -- this would fill anyway and the
         conversion would be asserted by nothing. It must REFUSE, BY NAME.  */
     dsStyleNoFill strokeColor="dsBlue";
-    dsNoFill x=0 y=0 width=8 height=8 style="dsStyleNoFill" px=2 py=2;
+    dsNoFill x=0 y=0 width=8 height=8 style:=dsStyleNoFill px=2 py=2;
     ;
 
 makeDisplay(dsCanvas);

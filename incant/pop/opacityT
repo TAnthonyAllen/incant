@@ -31,8 +31,8 @@ define
         opDad x=0 y=0 width=60 height=60 fill=black opacity=0.5
             opKid x=10 y=10 width=20 height=20 fill=black;
     opC x=0 y=0 width=60 height=60 fill=white
-        opStyled x=0 y=0 width=30 height=30 style="opSt";
-        opOwn x=30 y=0 width=30 height=30 style="opSt" opacity=1;
+        opStyled x=0 y=0 width=30 height=30 style:=opSt;
+        opOwn x=30 y=0 width=30 height=30 style:=opSt opacity=1;
         opBad x=0 y=30 width=30 height=30 fill=black opacity=3;
     opWordTop x=0 y=0 width=120 height=40 fill=white
         opWord="Opacity" x=0 y=0 width=120 height=40 font:=titleFont opacity=0.5;

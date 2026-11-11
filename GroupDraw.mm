@@ -431,6 +431,20 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	field->groupBody->tag, named ? named : ""); }
 	int valignKind = !::strcmp(valign,"center") ? 1 : !::strcmp(valign,"bottom") ? 2 : 0;
 	CTFontRef ct = (CTFontRef)font;
+	//  italicTrait italic is a text property kant resolved (SEQ 624): the nearest field naming it decides; italic=off is off, anything else is on. The family's italic face, by trait; a family with none warns by name and draws upright
+	GroupItem *italicNode = heldBy(request->get("italic"));
+	int italic = 0;
+	CTFontRef slanted = 0;
+	if (italicNode) {
+	unsigned int d = italicNode->groupBody->flags.data;
+	char *word = (isSTRING(d) || isTOKEN(d)) ? italicNode->getText() : 0;
+	italic = !(word && !::strcmp(word,"off")); }
+	if (italic) {
+	slanted = CTFontCreateCopyWithSymbolicTraits(ct, 0, NULL, kCTFontItalicTrait, kCTFontItalicTrait);
+	if (slanted) ct = slanted;
+	else {
+	italic = 0;
+	::fprintf(stderr,"displayText: WARNING %s -- its font has no italic face; drawn upright\n", field->groupBody->tag); } }
 	NSString *str = [NSString stringWithUTF8String:text];
 	NSDictionary *attrs = @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorFromContextAttributeName: @YES };
 	NSAttributedString *as = [[NSAttributedString alloc] initWithString:str attributes:attrs];
@@ -519,11 +533,14 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	tooWide ? "a word wider than its frame is clipped at the frame" : "its text does not fit its frame", (long)start, (long)len);
 	int bold = (CTFontGetSymbolicTraits(ct) & kCTFontBoldTrait) ? 1 : 0;
 	CFStringRef family = CTFontCopyFamilyName(ct);
-	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s ===\n",
+	//  italicSuffix the trace says italic only when the drawn face has the trait, so every other line reads as it did
+	int slant = (CTFontGetSymbolicTraits(ct) & kCTFontItalicTrait) ? 1 : 0;
+	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s%s ===\n",
 	field->groupBody->tag, [(NSString*)family UTF8String], (double)CTFontGetSize(ct), bold,
-	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, (long)start, (long)len, next, valign, align);
+	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, (long)start, (long)len, next, valign, align, slant ? " italic" : "");
 	::fflush(stdout);
 	CFRelease(family);
+	if (slanted) CFRelease(slanted);
 	
 	return request;
 }
@@ -642,15 +659,9 @@ double 		alpha = 1.0;
 	comp = field->get("opacity");
 	if ( !comp )
 		{
-		style = field->get("style");
-		if ( style )
-			{
-			if ( isGROUP(style->groupBody->flags.data) )
-				node = style->getGroup();
-			else	node = GroupControl::groupController->locate(style->getText());
-			if ( node )
-				comp = node->get("opacity");
-			}
+		node = ::styleOf(field);
+		if ( node )
+			comp = node->get("opacity");
 		}
 	if ( !comp )
 		return 1.0;
@@ -787,8 +798,7 @@ extern "C" GroupItem *readPDF(GroupItem *request)
 /*****************************************************************************
     roundedOf -- forms step 9 (Tony, 2026-11-11, SEQ 621 R2). The corner radius
     a field asks for, in points; 0 is square. rounded is read from the field's
-    own attribute first, then from its style's (style:= holding the style, or
-    style="name"). rounded=n is the radius; a bare rounded takes the default
+    own attribute first, then from its style's (style:=). rounded=n is the radius; a bare rounded takes the default
     radius, which lives in the default style (defaultStyle, in
     IncantForms/Controls/styles). Not inherited from the enclosing field, as
     fill is not. A value that is not a number refuses by name and draws square.
@@ -804,15 +814,9 @@ double 		radius = 0.0;
 	comp = field->get("rounded");
 	if ( !comp )
 		{
-		style = field->get("style");
-		if ( style )
-			{
-			if ( isGROUP(style->groupBody->flags.data) )
-				node = style->getGroup();
-			else	node = GroupControl::groupController->locate(style->getText());
-			if ( node )
-				comp = node->get("rounded");
-			}
+		node = ::styleOf(field);
+		if ( node )
+			comp = node->get("rounded");
 		}
 	if ( !comp )
 		return 0.0;
@@ -868,6 +872,14 @@ GroupItem 	*style = 0;
 	return 3;
 }
 
+extern "C" GroupItem *styleComponent(GroupItem *field, char *component)
+{
+GroupItem 	*node = ::styleOf(field);
+	if ( !node )
+		return 0;
+	return node->get(component);
+}
+
 /*****************************************************************************
     displayFillRT — THE SPECIMEN, and the runtime half of it.
 
@@ -880,19 +892,20 @@ GroupItem 	*style = 0;
     the alias table the moment both were live in one pass, mis-generating into
     an Apple selector with no diagnostic until the C++ compile.
 *****************************************************************************/
-extern "C" GroupItem *styleComponent(GroupItem *field, char *component)
+/*  styleOf the style a field holds. style:= is the only spelling (Tony, 2026-11-11, SEQ 624 R0): a style written
+    as a quoted name, or as any value that is not a held field, is refused by name and the field has no style.  */
+GroupItem *styleOf(GroupItem *field)
 {
-GroupItem 	*style = field->get("style");
-GroupItem 	*node = 0;
+GroupItem 	*style = 0;
+	if ( !field )
+		return 0;
+	style = field->get("style");
 	if ( !style )
 		return 0;
-	node = GroupControl::groupController->locate(style->getText());
-	if ( !node )
-		{
-		::fprintf(stderr,"styleComponent: %s names style %s which does not resolve\n",field->groupBody->tag,style->getText());
-		return 0;
-		}
-	return node->get(component);
+	if ( isGROUP(style->groupBody->flags.data) )
+		return style->getGroup();
+	::fprintf(stderr,"styleOf: REFUSING %s -- its style is not held; write style:=name (a quoted or copied style name is retired)\n",field->groupBody->tag);
+	return 0;
 }
 
 /*****************************************************************************

@@ -26,7 +26,7 @@ define
     rdEdge x=0 y=0 width=40 height=40 fill=white
         rdLine x=0 y=0 width=40 height=40 fill=lightGreen rounded=10 border=2 strokeColor=blue;
     rdMore x=0 y=0 width=40 height=40 fill=white
-        rdStyled x=0 y=0 width=40 height=20 style="rdSt";
+        rdStyled x=0 y=0 width=40 height=20 style:=rdSt;
         rdSquare x=0 y=20 width=20 height=20 fill=red;
     rdBigTop x=0 y=0 width=20 height=20 fill=white
         rdBig x=0 y=0 width=20 height=20 fill=red rounded=500;

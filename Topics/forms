@@ -15,12 +15,12 @@ A form is a define block: a tree of fields (window, body, panels, controls) whos
 Tony is the form designer: once the attributes are fleshed out he finishes the IncantForms forms himself, using the tools.
 
 /*****************************************************************************
-    State (seal 453, 2026-11-11)
+    State (seal 454, 2026-11-11)
 *****************************************************************************/
     draws        firstLight, descriptions, simple (bitmap and PDF). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
-    built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles; rounded (fill and plain border); shadow; opacity (fill, border, text); percent on a first run.
+    built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles; rounded (fill and plain border); shadow; opacity (fill, border, text); italic; percent on a first run.
     not built    a side or an image on a rounded field; opacity on an image; runs inside text; setFrame's second run and resize (a percent does not survive the first run); windows, selection, click; margin. (fit as a layout attribute is parked: Topics/features 33.)
-    formsPop     144 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
+    formsPop     151 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
 
 /*****************************************************************************
     Where things live
@@ -41,7 +41,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     The instruments that read this topic
 *****************************************************************************/
     genLadder/formsPop.sh       the ONLY home of drawing rows (Tony, 2026-11-07). Capture: docs/sealCaptures/formsPop.txt.
-    fixtures, incant/pop/       roundedT, shadowT, opacityT, styleScopeT, textT, imageT, descT (joins the descriptions form to a driver), firstPdfT, drawWalkT, stylesT, fillHeldT
+    fixtures, incant/pop/       roundedT, shadowT, opacityT, italicT, styleScopeT, textT, imageT, descT (joins the descriptions form to a driver), firstPdfT, drawWalkT, stylesT, fillHeldT
     pop.sh                      setFrame's rows (testSetFrame), := in a define (traitGridT), the parent chain (parentChainT), flags in a define (flagAttrT, flagNearT)
     The full checklist runs at every landing whatever the topic.
 
@@ -102,7 +102,7 @@ THE FLOOR CENSUS (SEQ 618, 2026-11-11; read-only, no build). What the 21 forms a
     6   scrolling                    3 / 5 (scroll, where it is implied by content that overflows; list scrollWith; wraplist doNotScroll). Children clipped to the parent's frame and shifted: CGContextClipToRect and TranslateCTM held across a subtree's floor calls.
                                      Request: today every clip opens and closes inside one floor call, so this needs a new pair (pushClip(clipReq), popClip) -- or the walk hands each child its clip. Foreign: one CGRect.
                                      Waits on: step 6 (noRoom) and step 10 (scroll events).
-    7   italic                       2 / 2 (layout, menu). CTFontCreateCopyWithSymbolicTraits. The text floor reads family, size and bold; nothing reads italic. No new method; no ruling needed. caps is the same change; no form asks it.
+    7   italic                       2 / 2 (layout, menu: a bare italic beside font=normal). BUILT (seal 454): the italic face by trait (CTFontCreateCopyWithSymbolicTraits) in displayText; no new method. caps is the same change; no form asks it.
     8   a gradient fill              2 / 2 (fill=radialGreen lighten, in inspector and keyAction). CGGradientCreateWithColorComponents, CGContextDrawRadialGradient. Draws flat today: styles holds radialGreen as a plain colour.
                                      Foreign: 7 arguments, a gradient ref and two CGPoints. Waits on Tony: gradient and angle are on the drop list ("revisit with drawing").
     B   PURE KANT ON TODAY'S FLOOR (a respell or a choice in the walk; no floor change)
@@ -133,9 +133,14 @@ What a form is (2026-11-05)
     A forward reference in := refuses by name until a form needs one.
 Inheritance, one rule (2026-11-11, SEQ 623 R0; narrows SEQ 622 R2 to box properties, which superseded the 2026-11-09 "fill, borders and such change the style in effect")
     Text properties inherit, box properties don't -- whether set as an attribute or in a style.
-    Inherit: font, color, align, valign.      Field only: fill, border, strokeColor, rounded, shadow, opacity.
+    Inherit: font, color, align, valign, italic.      Field only: fill, border, strokeColor, rounded, shadow, opacity.
     The style applies as the leftmost attribute; a box attribute after it overrides the style on that field only.
     MEASURED (styleScopeT, shadowT SH-6, opacityT OP-2): every one behaves so. A held style's (style:=) text properties reach children two levels down, and a child's own wins.
+style:= is the only spelling (2026-11-11, SEQ 624 R0)
+    style="name" (quoted) is retired. The floor refuses a style that is not held, by name, and the field then has no style. The fixtures were respelled.
+Italic (2026-11-11, SEQ 624 W1)
+    A text property: a bare italic on a field or in its style draws the font's italic face, and it inherits. italic=off turns it off below (Clod's spelling, after border=off; a 0 cannot be told from absent in the climb).
+    A font with no italic face warns by name and draws upright. The old GUI: italic was a font-style mask (traits: italic=1) that converted the field's font (GUI/Stylish.twk, fONTstyle); Bot's PDF road looked for a font file named Italic.
 Shadow (2026-11-11, SEQ 622 R3)
     A field attribute, applied wherever a form names it. The old Stylish values: 2 right, 2 down, blur 3, black at 30%. One shadow per field (ruled, SEQ 623 R1): its fill if it has one, else its border, else its text.
     A fill's shadow falls outside the frame, so a neighbour drawn later can cover it. No attribute changes the values yet; no form asks.
@@ -189,17 +194,13 @@ Form files (from docs/forms.md, retired into this file)
     3  A name for the image fit attribute: `fit` is already a layout attribute in formsTable (that layout attribute is parked, Topics/features 33).
     4  Percent (width=50%): it lays out on a first run (measured, roundedT RD-8). setFrame then writes the laid-out width over it, so a rerun has no percent to read: written to the body, or read from the instance (formsRecon Part 3, M1).
     5  A side on a rounded field (step 9). 7 of the 12 side-asking fields are also rounded. Today a named side on a rounded field is drawn straight, as before.
-    8-10  CLOSED (SEQ 623 R0-R2): one shadow per field, as built; text properties inherit and box properties do not; so a style's box properties do not reach children and its text properties do.
-    11 A style named by a quoted name (style="x") is read by the fill and border floor but not by drawText, so its font, color, align and valign reach nobody (styleScopeT SS-6). The ruled spelling style:= works. No form uses the quoted one; fixtures do.
 
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
 *****************************************************************************/
-    seal 453:  a while loop written at the top level of a fixture (not inside an action) never ended: opacityT's first draft hung until killed; the same loop inside an action runs. Kant's, not forms'; not chased.
     seal 452:  setFrame overrides a child's own x and y: a child written x=10 y=10 under a parent with no down or across is laid out at the parent's origin (shadowT, before its setFrame calls were removed). Not chased.
     seal 451:  drawText does not inherit font three levels down: in simple, one (under wrap, under third) drew Helvetica 12 where simple names font:=normalFont; a field one or two levels down inherits (probe, 2026-11-11). Not chased.
     seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled. Rounded corners are step 9. The image in a PDF has no row."
-    seal 441:  "drawKids keeps its own call list (it does not call drawWalk), so adding drawImage to drawWalk alone drew nothing for any child. Both lists carry it now."
     seal 439:  "M8 (a value naming a registered field copies that field's text) was not met by these three names, and was not tested against a registry that holds a field called top or bottom."
     seal 438:  "incant/grammar (the old road, which action bodies and forms parse on) still reads `attributes? members?`, so both words are still taken there and still walk the attributes only."
     parseLabelParent:  "A warning when a field is placed twice is a candidate for later. NOT BUILT."
@@ -250,6 +251,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    454  SEQ 624   style="name" retired and refused by name; ten fixtures respelled to style:=. Italic built as a text property (italicT; PDF of itForm). The top-level while issue moved to Topics/kant. This file trimmed by the budget rule (digest folded, closed lines gone).
     453  SEQ 623   inheritance ruled as one rule (text properties inherit, box properties don't) and measured; Waiting on Tony 8-10 closed. Opacity built on the three floor methods (opacityT; PDF of opForm). Rows: SH-6, SS-5 to SS-7, OP-1 to OP-5.
     452  SEQ 622   simple's width=50% and second text field restored; percent measured to lay out on a first run. The style ruling recorded and measured (styleScopeT). Shadow built on the three floor methods (shadowT; PDF of shForm). Listening and the mock-click goal recorded.
     451  SEQ 621   rounded built on the fill and border floor (roundedOf; default radius 5 in defaultStyle); simple respelled and drawn, PDF in IncantForms/PDF/output.pdf; ten rows (roundedT). Shadow's old-GUI facts reported; fit parked (features 33).
@@ -259,14 +261,5 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     440  SEQ 606   descriptions recon: the attribute map, images and the click in the old GUI, flex confirmed as also meaning across.
     439  SEQ 605   valign; firstLight's ok centred both ways.
     437+ (opener amended, 2026-11-10)   the valign dispatch recorded after shutdown seal 437; it ran as SEQ 605 (seal 439).
-    416  SEQ 585   shutdown: align bought; text-floor and align deleted; the editing request recorded.
-    414-415  SEQ 584   align's recon stopped until text-floor was bought (414); then text-floor bought and step 5a, alignment, built on branch align (415).
-    412-413  SEQ 581-584   the text floor and align; font and colour resolved in kant.
-    411  SEQ 581   the drawing plan written into the forms notes; step 5 stopped: the font and the text colour had no source.
-    393-394  the first PDF.   391-392  borders.   389-390  the draw walk.
-    378-379  formsPop.sh joined the seal checklist, F-149 banked red by name (378); drawing rows live in formsPop only, fillPageT's nine rows moved from pop.sh by mapping (379).
-    376-377  fills, the right way up.
-    375  the setFrame second-run design recorded (docs/setFrameSecondRunDesign.md); build after the first PDF.
-    374  probe lines out of utilities' setFrame; the firstLight-to-PDF recon (docs/firstLightPdfRecon.md).
-    373  setFrame moved to utilities; the forms order recorded; the second-run recon (docs/setFrameSecondRun.md).
+    373-416  folded (the trim, seal 454): setFrame to utilities and the second-run design (373-375), fills (376-377), formsPop joins the seal (378-379), the draw walk, borders, the first PDF (389-394), the text floor and align (411-416). Full text: git show cf9522cb:docs/wakeup.md.
     Before the drawing steps (2026-11-03 to 11-07): the recon and table (A1, A3), firstLight on paper (A4), := in a define, the parse-label parent, colours and fonts (M5), the fill reader (M3). formsRecon Part 3 has each.

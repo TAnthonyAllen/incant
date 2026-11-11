@@ -29,7 +29,7 @@ define
     djBlue  = "0000ff";
     djStyle  fillColor="djRed"  strokeColor="djBlue";
     djStyle2 fillColor="djTeal" strokeColor="djBlue";
-    djCanvas x=0 y=0 width=8 height=8 style="djStyle" px=2 py=2;
+    djCanvas x=0 y=0 width=8 height=8 style:=djStyle px=2 py=2;
     djFill code={ displayFill(djCanvas); };
     ;
 
@@ -42,7 +42,7 @@ print "-- fire 1, compiled, style=djStyle (want r255 g0 b0 a255) --":;
 pixelAt(djCanvas);
 
 /*  ⚠ NO RECOMPILE BELOW THIS LINE. Only the colour changes.  */
-djCanvas.style = "djStyle2";
+djCanvas.style := djStyle2;
 jitRefire();
 print "-- fire 2, NO recompile, style=djStyle2 (want r0 g128 b128 a255) --":;
 pixelAt(djCanvas);

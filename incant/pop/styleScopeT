@@ -18,9 +18,9 @@ define
     ssA x=0 y=0 width=60 height=60 fill=red border=3 strokeColor=blue rounded=10 font:=titleFont color:=green align=center
         ssKid="Kid" x=10 y=10 width=40 height=40;
     ssB x=0 y=0 width=60 height=60 fill=white
-        ssMid x=0 y=0 width=60 height=60 style="ssSt"
+        ssMid x=0 y=0 width=60 height=60 style:=ssSt
             ssLeaf x=10 y=10 width=40 height=40 border=3;
-    ssC x=0 y=0 width=60 height=60 style="ssSt" fill=red rounded=0 border=3 strokeColor=green;
+    ssC x=0 y=0 width=60 height=60 style:=ssSt fill=red rounded=0 border=3 strokeColor=green;
     ssTx font:=titleFont color:=green align="center" valign="bottom" fillColor="blue";
     ssD x=0 y=0 width=120 height=60 style:=ssTx
         ssDmid x=0 y=0 width=120 height=60
@@ -48,7 +48,7 @@ ssX = 0; ssY = 0; ssAt(ssC); pixelAt(ssC);
 cerr "SS-5 a style's font, color, align and valign reach the field's children, two levels down, with the style held by style:=; the style's fillColor paints the field itself (1,1)":;
 drawWalk(ssD);
 ssX = 1; ssY = 1; ssAt(ssD); pixelAt(ssD);
-cerr "SS-6 the same with the style named by style= and a quoted name":;
+cerr "SS-6 a quoted style name is retired: refused by name, the field has no style":;
 drawWalk(ssE);
 ssX = 1; ssY = 1; ssAt(ssE); pixelAt(ssE);
 cerr "SS-7 a child's own color wins over the inherited style's":;
@@ -59,6 +59,6 @@ stop();
 styleScopeT -- inheritance, one rule (Tony, 2026-11-11, SEQ 623 R0, narrowing SEQ 622 R2): text properties inherit, box properties
 do not, whether set as an attribute or in a style. Text: font, color, align, valign. Box: fill, border, strokeColor, rounded,
 shadow, opacity. Rows in genLadder/formsPop.sh. SS-1 to SS-3: box properties stay on their field. SS-4, SS-5, SS-7: text properties
-reach the children, from an attribute and from a held style (style:=). SS-6 pins a gap as it reads today: a style named by a quoted
-name (style="x") is read by the fill and border floor but not by drawText. shadow's and opacity's own rows are in shadowT and opacityT.
+reach the children, from an attribute and from a held style (style:=). SS-6: a quoted style name (style="x") is retired (SEQ 624 R0); it is
+refused by name and the field has no style. shadow's and opacity's own rows are in shadowT and opacityT.
 The frames are written by hand and setFrame is not called.

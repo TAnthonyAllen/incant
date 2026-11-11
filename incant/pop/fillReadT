@@ -25,18 +25,18 @@ define
     sHex    fillColor=#00ff00;
     sMiss   fillColor=frNoSuch;
     sBlue   fillColor=#0000ff;
-    frHeldS  x=0 y=0 width=8 height=8 px=2 py=2 style="sHeld";
-    frQuoteS x=0 y=0 width=8 height=8 px=2 py=2 style="sQuote";
-    frLateS  x=0 y=0 width=8 height=8 px=2 py=2 style="sLate";
-    frCopyS  x=0 y=0 width=8 height=8 px=2 py=2 style="sCopy";
-    frHexS   x=0 y=0 width=8 height=8 px=2 py=2 style="sHex";
-    frMissS  x=0 y=0 width=8 height=8 px=2 py=2 style="sMiss";
-    frBoth   x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00 style="sBlue";
-    frStyleOnly x=0 y=0 width=8 height=8 px=2 py=2 style="sBlue";
+    frHeldS  x=0 y=0 width=8 height=8 px=2 py=2 style:=sHeld;
+    frQuoteS x=0 y=0 width=8 height=8 px=2 py=2 style:=sQuote;
+    frLateS  x=0 y=0 width=8 height=8 px=2 py=2 style:=sLate;
+    frCopyS  x=0 y=0 width=8 height=8 px=2 py=2 style:=sCopy;
+    frHexS   x=0 y=0 width=8 height=8 px=2 py=2 style:=sHex;
+    frMissS  x=0 y=0 width=8 height=8 px=2 py=2 style:=sMiss;
+    frBoth   x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00 style:=sBlue;
+    frStyleOnly x=0 y=0 width=8 height=8 px=2 py=2 style:=sBlue;
     frNeither x=0 y=0 width=8 height=8 px=2 py=2;
     frMom x=0 y=0 width=8 height=8 px=2 py=2 fill=#ff0000
         frKid x=0 y=0 width=8 height=8 px=2 py=2;
-        frKidStyled x=0 y=0 width=8 height=8 px=2 py=2 style="sBlue";
+        frKidStyled x=0 y=0 width=8 height=8 px=2 py=2 style:=sBlue;
         frKidOwn x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00;
     frDraw code={
         makeDisplay(argument);
@@ -62,7 +62,7 @@ register(FillReadColours);
 define
     frWhiteF x=0 y=0 width=8 height=8 px=2 py=2 fill=white;
     sWhite   fillColor=white;
-    frWhiteS x=0 y=0 width=8 height=8 px=2 py=2 style="sWhite";
+    frWhiteS x=0 y=0 width=8 height=8 px=2 py=2 style:=sWhite;
     ;
 search reset stack Grokking FillRead FillReadColours cOLOr UnitTests Utilities list;
 print "FR kind held" frHeldF["fill"].datA "quoted" frQuoteF["fill"].datA "late" frLateF["fill"].datA "copy" frCopyF["fill"].datA "hex" frHexF["fill"].datA "white" frWhiteF["fill"].datA:;

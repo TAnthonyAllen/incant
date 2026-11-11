@@ -6,13 +6,13 @@ register(FillHeldFar);
 define
     wall=#ff0000;
     fhHeld fillColor:=wall;
-    fhCanvas x=0 y=0 width=8 height=8 style="fhHeld" px=2 py=2;
+    fhCanvas x=0 y=0 width=8 height=8 style:=fhHeld px=2 py=2;
     fhNamed=#00ff00;
     fhByName fillColor="fhNamed";
-    fhNameCanvas x=0 y=0 width=8 height=8 style="fhByName" px=2 py=2;
+    fhNameCanvas x=0 y=0 width=8 height=8 style:=fhByName px=2 py=2;
     fhPre=#0000ff;
     fhPreStyle fillColor:=fhPre;
-    fhPreCanvas x=0 y=0 width=8 height=8 style="fhPreStyle" px=2 py=2;
+    fhPreCanvas x=0 y=0 width=8 height=8 style:=fhPreStyle px=2 py=2;
     fhHear=1 listenTo:=fhPre;
     fhWrite code={ wall = argument; };
     ;
