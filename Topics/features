@@ -43,6 +43,10 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
 30. A language designed to evolve; "create" as an imaginary operator. (IncantForms/Notions/HWF, 2026-06-14) -- a musing, kept because the file is named for this list.
 31. A data topic: long text and query data (what a DB query returns, indexing, rows poured into repeated fields). Ruled out of typesetting 2026-11-11; tables stay with forms. (Topics/typesetting; formsRecon Part 3, THE DATA RECON) -- item 29 is the same ground.
 
+## Recorded by ruling (Tony, 2026-11-11, SEQ 619)
+
+32. 3D flats. Expand 2D drawing into 3D: the lines, rectangles and paths of drawing placed in 3D space (each piece a flat with a depth and tilt), with a movable camera producing the 2D result. No triangle meshes, no GPU pipeline: project the path points, sort pieces back to front (painter's order, matching the forward-only painter), and draw through today's floor. Circles project to ellipses; Bézier curves are split a few times under perspective. Shading from gradients and layering, as in old GUI drawing; gradients projected through their end points. First target: Tony's panel paintings as flats in space, giving parallax as the camera moves. Portraits later, with an anime-like target, not Rembrandt: layered cels give volume for small camera moves, and big turns are drawn again, as anime does. Projection math is small enough to be kant.
+
 ## Not harvested, and why
 
 The typesetting language and the small drawing language are in the forms notes and belong to the forms topic. The collector freeing nothing (KE-5) is a known error with a recon (docs/gcRecon.md), not an idea. The cross-platform shell-out question is in Clod's memory only, not in a tracked file.

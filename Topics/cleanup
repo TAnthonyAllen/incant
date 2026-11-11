@@ -21,6 +21,22 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
 *****************************************************************************/
     1   A line budget per topic file, its size printed against the budget at every seal. Ruled in principle 2026-11-11; the numbers are Tony's.
         Sizes, no budget set: on the shared page (docs/wakeup.md), reprinted at every seal.
+        PROPOSED, NOT RULED (SEQ 617 Q2, 2026-11-11). Lines by wc -l; lines at seal 449 / proposed budget:
+            docs/wakeup.md          53 /  60    one screen: last seal, the numbers, repos, lanes, this table, where old seals are. It holds no history, so it should never grow.
+            Topics/forms           240 / 280    the largest by need: two sub-topics, the rulings of record, the floor census.
+            Topics/kant            121 / 200    room for the plan still to come from macros.
+            Topics/typesetting      80 / 120
+            Topics/cleanup         125 / 120    over today, on purpose of the example: three run dispatches are still held verbatim (see the trim, below).
+            Topics/documentation    84 / 120
+            Topics/features         52 /  80    one line per item; a parking list grows slowly.
+        WHAT A FILE HAS TO HOLD: the one line, description, state, where things live, instruments, plan, rulings, waiting on Tony, issues, and a digest. The three things that grow without limit are the digest, verbatim dispatches, and closed issues.
+        HOW A SEAL PRINTS IT: a small script (genLadder/topicBudget.sh, not written) prints one line per file -- name, lines, budget, and OVER by how many -- and the shared page's topic table carries the same three columns. Generated, never typed, like the fixit line.
+        WHEN A FILE GOES OVER: the seal still lands (report tier, like alphaLint: a size can never fail the correctness gate), and names the file as over. The next session on that topic opens with a trim before new work, in this order:
+            1  a dispatch that has run is replaced by one line: its SEQ, its seal, and the commit that holds its text.
+            2  digest lines older than the newest ten fold into one line naming the seal range and where the full text is.
+            3  issues that a later seal closed are deleted (the closing seal's digest line says so).
+            If the file is still over after that, the content has outgrown the number and the budget is Tony's to raise. Clod never raises one.
+        ONE WEAKNESS: a line count says nothing about line length, and these files run long lines. If lines start being joined to fit, the count moves to words.
 
 /*****************************************************************************
     Issues (open lines, verbatim from the seal that recorded them)
@@ -81,7 +97,7 @@ Under shutdown seal 444 (2026-11-11), the split of docs/wakeup.md; run as SEQ 61
 #     4  SEQ 610-614 are recorded.
 #     NOTE FOR THE OPENER: both older vintage files were deleted at seal 442 as history rows (git 2144dde6), so the new vintage file is the only one. This file is about 11,400 lines; estimate the read up front. After the split: topic files for kant, documentation and clean up.
 
-THE NEXT OPENER. Pasted by Tony after shutdown seal 447 (2026-11-11), to open the next session; NOT RUN. SEQ is Clod's to assign (617). Its Q1 is documentation's, its Q2 clean up's:
+THE NEXT OPENER. Pasted by Tony after shutdown seal 447 (2026-11-11), to open the next session; RUN as SEQ 617 (seal 448). SEQ was Clod's to assign. Its Q1 is documentation's, its Q2 clean up's:
 
 DISPATCH -- SEQ (Clod assigns) -- TWO QUESTIONS, READ-ONLY. NO FILE CHANGES BUT THE TOPIC FILES NAMED.
 
@@ -102,6 +118,7 @@ At the end of your report, say whether you'd rather shut down or continue.
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
 *****************************************************************************/
+    448  SEQ 617, 619   the two questions answered: incant/lookup described with a lean (Topics/documentation, Open 3); a line budget proposed, not ruled (Plan 1). 3D flats recorded as Topics/features item 32. No code.
     447  SEQ 615-616 closed   shutdown, Clod's choice at a clean edge (everything next opens with a planning pass or a ruling); the kitchen pass run; every check as banked.
     445  SEQ 615   docs/wakeup.md split: the short shared state page; seals 372 and older moved verbatim to docs/wakeupVintage-to-2026-11-07.md; Topics/kant and this file made; seals are written into their topic file and their commit message from here on.
     444  SEQ 610-614 closed   shutdown; the kitchen pass run; every check as banked.
