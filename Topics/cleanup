@@ -11,7 +11,7 @@ Clean up is a session topic of its own (Tony, 2026-11-11). Its work is census, r
 The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns up something that looks deletable, add an entry to docs/cleanupList.md and keep going; never act on it in flight. An entry names it and where, why it looks deletable, the census or measurement that would confirm it, and the date seen. Tony decides the cuts, one cleanup pass at a time.
 
 /*****************************************************************************
-    State (seal 447, 2026-11-11)
+    State (seal 450, 2026-11-11)
 *****************************************************************************/
     done    the md, incantation and HWF censuses (SEQ 612), ruled and cut (SEQ 613: 253 files); XML/ gone; the forms history files digested and deleted (SEQ 614); docs/wakeup.md split (SEQ 615).
     lists   docs/cleanupList.md (cruft seen in flight); docs/deepClean.md (the deep clean, stroke by stroke); Topics/features (the parking list, not a session topic).
@@ -22,11 +22,11 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
     1   A line budget per topic file, its size printed against the budget at every seal. Ruled in principle 2026-11-11; the numbers are Tony's.
         Sizes, no budget set: on the shared page (docs/wakeup.md), reprinted at every seal.
         PROPOSED, NOT RULED (SEQ 617 Q2, 2026-11-11). Lines by wc -l; lines at seal 449 / proposed budget:
-            docs/wakeup.md          53 /  60    one screen: last seal, the numbers, repos, lanes, this table, where old seals are. It holds no history, so it should never grow.
+            docs/wakeup.md          51 /  60    one screen: last seal, the numbers, repos, lanes, this table, where old seals are. It holds no history, so it should never grow.
             Topics/forms           240 / 280    the largest by need: two sub-topics, the rulings of record, the floor census.
             Topics/kant            121 / 200    room for the plan still to come from macros.
             Topics/typesetting      80 / 120
-            Topics/cleanup         125 / 120    over today, on purpose of the example: three run dispatches are still held verbatim (see the trim, below).
+            Topics/cleanup         126 / 120    over today, on purpose of the example: three run dispatches are still held verbatim (see the trim, below).
             Topics/documentation    84 / 120
             Topics/features         52 /  80    one line per item; a parking list grows slowly.
         WHAT A FILE HAS TO HOLD: the one line, description, state, where things live, instruments, plan, rulings, waiting on Tony, issues, and a digest. The three things that grow without limit are the digest, verbatim dispatches, and closed issues.
@@ -118,6 +118,7 @@ At the end of your report, say whether you'd rather shut down or continue.
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
 *****************************************************************************/
+    450  SEQ 617-620 closed   shutdown. SEQ 620: Tony's Xcode tidy of the TOK project (318 references to files deleted at seal 442; none names a file still on disk) committed with GroupRules.mm's four references restored; built, GroupRules.mm compiled and linked, the binary byte-identical. The kitchen pass run; every check as banked.
     448  SEQ 617, 619   the two questions answered: incant/lookup described with a lean (Topics/documentation, Open 3); a line budget proposed, not ruled (Plan 1). 3D flats recorded as Topics/features item 32. No code.
     447  SEQ 615-616 closed   shutdown, Clod's choice at a clean edge (everything next opens with a planning pass or a ruling); the kitchen pass run; every check as banked.
     445  SEQ 615   docs/wakeup.md split: the short shared state page; seals 372 and older moved verbatim to docs/wakeupVintage-to-2026-11-07.md; Topics/kant and this file made; seals are written into their topic file and their commit message from here on.
