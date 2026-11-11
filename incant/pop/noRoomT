@@ -1,0 +1,102 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(NoRoomT);
+define
+    nrForm x=300 y=400 width=200 height=100 down fill:=white
+        nRow height=40 across
+            nBox width=100 overlay
+                nIn x=10 y=5 width=30 height=30 fill:=red;
+                nPart x=80 y=5 width=40 height=30 fill:=lightGreen;
+                nOut x=150 y=5 width=30 height=30 fill:=red
+                    nOutKid fill:=red;
+            nRest;
+        nH height=30 fill:=red isHiddeN
+            nHkid fill:=red;
+        nB height=30 fill:=lightGreen;
+        nC height=40 fill:=red;
+        nD height=20 fill:=red
+            nDkid height=10;
+    nrPlain x=300 y=400 width=200 height=100 down fill:=white
+        pA height=30 fill:=red;
+        pB height=30 fill:=lightGreen;
+        pC height=40 fill:=red;
+    nrX = 0;
+    nrY = 0;
+    nrAt code={
+        px = nrX;
+        py = nrY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    nrRead code={
+        nrAt(argument);
+        pixelAt(argument);
+        };
+    nrLine code={
+        :argument x y width height;
+        if argument["x"];       tx = string $"x=" x;
+        else                    tx = "x=-";
+        if argument["y"];       ty = string $"y=" y;
+        else                    ty = "y=-";
+        if argument["width"];   tw = string $"w=" width;
+        else                    tw = "w=-";
+        if argument["height"];  th = string $"h=" height;
+        else                    th = "h=-";
+        nh = argument.isHiddeN;
+        nr = argument.noRooM;
+        print ~taG tx ty tw th "hidden" nh "noRoom" nr:;
+        if argument.listLengtH;
+            print +;
+            for grup in argument; members
+                nrLine(*grup);
+            print $-;
+        };
+    nrRun code={
+        nrArg := argument;
+        nrForm0 := *nrArg["form"];
+        nrA := setFrame(argument);
+        print "NR-RUN1" argument.taG:;
+        nrLine(*nrA);
+        nrB := setFrame(argument);
+        print "NR-RUN2" argument.taG:;
+        nrLine(*nrB);
+        print "NR-DEF" argument.taG:;
+        nrLine(**nrForm0);
+        print "NR-END" argument.taG:;
+        };
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ;
+search NoRoomT UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    nrReq path="IncantForms/PDF/output.pdf" form:=nrForm;
+    nrPlainReq path="IncantForms/PDF/output.pdf" form:=nrPlain;
+    ;
+nrRun(nrReq);
+nrRun(nrPlainReq);
+cerr "NR-PDF nrForm drawn: nIn (25,20) red; nPart, partly outside nBox (110,20) green; where nOut would be (165,20) white; nB, moved up past the hidden nH (100,55) green; nC, partly off the page (100,90) red":;
+redrawForm(nrReq);
+readPDF(pdfRead);
+nrX = 25; nrY = 20; nrRead(pdfRead);
+nrX = 110; nrRead(pdfRead);
+nrX = 165; nrRead(pdfRead);
+nrX = 100; nrY = 55; nrRead(pdfRead);
+nrY = 90; nrRead(pdfRead);
+cerr "NOROOM SENTINEL":;
+stop();
+
+noRoomT -- forms step 6, the rest (Tony's ruling of 2026-11-07; SEQ 627 W1): noRoom means only "does not fit"; isHidden is its own
+author-declared flag. Two flags, two facts.
+nrForm, 200 by 100, down:
+    nRow    an across row; nBox is a 100-wide overlay box in it. nIn fits. nPart starts inside and ends outside: partly outside is drawn.
+            nOut starts past nBox's right edge: wholly outside, so layout flags it noRoom, it is not drawn, and nOutKid gets no frame.
+    nH      written isHiddeN: it takes no room and gets no frame, nor does nHkid; nB sits directly under nRow, at y=40.
+    nC      40 high from y=70: it runs off the foot of the form. Partly outside, so drawn.
+    nD      would start at y=110, below the form: noRoom; nDkid gets no frame.
+nrPlain is the control: three fields that all fit. No flag is set on any of them.
+Each form is laid out twice and its definition printed after: noRoom is written on the laid-out copy only, so the definition reads
+noRoom 0 everywhere and the second run reads like the first. isHidden is the author's and reads 1 on nH in the definition and in the copy.
+Rows: the layout in genLadder/pop.sh, the PDF's five points in genLadder/formsPop.sh.

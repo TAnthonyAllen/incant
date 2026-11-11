@@ -93,7 +93,9 @@ boolean bools {
     hasNewParse
     parseWalked
     hasTraits
-    isAccessorProduct } flags;
+    isAccessorProduct
+    isHidden
+    noRoom } flags;
 	
 /*****************************************************************************
 	Constructors uses default constructor

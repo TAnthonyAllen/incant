@@ -10183,6 +10183,13 @@ GroupItem 	*minted = 0;
 					break;
 				case 48:
 					product->setCount((int)target->groupBody->flags.isPointer);
+					// answersZero like 48 these answer 0 as well as 1, so a captured read compares against 0 (setFrame's noRoom pass, forms step 6)
+					break;
+				case 49:
+					product->setCount((int)target->groupBody->flags.isHidden);
+					break;
+				case 50:
+					product->setCount((int)target->groupBody->flags.noRoom);
 					break;
 				case 401:
 					if ( !target->nextInParent )
@@ -13588,6 +13595,12 @@ int 		on = 0;
 			break;
 		case 47:
 			target->groupBody->flags.isMacro = on;
+			break;
+		case 49:
+			target->groupBody->flags.isHidden = on;
+			break;
+		case 50:
+			target->groupBody->flags.noRoom = on;
 			// isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
 			break;
 		case 408:

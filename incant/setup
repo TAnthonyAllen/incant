@@ -308,6 +308,7 @@ define
     isConditioN;
     isFilE;
     isGrouP=43;
+    isHiddeN=49;
     isIndexeD;
     isInitializeD;
     isLiteraL=17;
@@ -324,6 +325,7 @@ define
     mergeON=26;
     noLabeL=28;
     noPrinT=29;
+    noRooM=50;
     noSkiP;
     byReF=31;
     hasNewParsE=41;

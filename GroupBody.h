@@ -53,6 +53,8 @@ struct bools
 	unsigned int parseWalked:1;
 	unsigned int hasTraits:1;
 	unsigned int isAccessorProduct:1;
+	unsigned int isHidden:1;
+	unsigned int noRoom:1;
 	};
 #define isGROUP(button) (button == 6)
 #define isANY(button) (button == 1)

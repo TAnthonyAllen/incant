@@ -553,6 +553,18 @@ _ofeq "resizeT RZ-3 back with no frame: the run after a resize reads exactly as 
 _ofeq "resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600" "$(grep -h '^=== displayText one ' "$T/rz.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | tr '\n' ' ' | sed 's/ $//')" "181 266 181 266"
 _ofeq "resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame" "$(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | head -1 | xargs) / $(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | grep 'stuff' | xargs)" "simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;"
 
+#  ⚑ noRoomT -- forms step 6, the rest (SEQ 627 W1, 2026-11-11): what is DRAWN under isHidden and noRoom. The layout rows are in pop.sh. nrForm is
+#  200 by 100. H7 (run 2026-11-11): with drawKids' skip removed, (165,20) reads red (nOut is drawn) and NP-1 goes red.
+echo ""
+echo "-- isHidden and noRoom, drawn (noRoomT)."
+_npF=$(ip noRoomT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_npF" > "$T/np.o" 2> "$T/np.e"; _npx=$?
+_npp () { grep -h '^=== pixelAt pdfRead ' "$T/np.o" | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | sed -e 's/r255 g255 b255 a255/white/' -e 's/r239 g43 b45 a255/red/' -e 's/r0 g0 b0 a255/black/' -e 's/r175 g211 b120 a255/green/' | tr '\n' ' ' | sed 's/ $//'; }
+_ofeq "noRoomT exit / sentinel / page" "$_npx $(grep -c '^NOROOM SENTINEL' "$T/np.e") $(grep -h '^=== readPDF pdfRead' "$T/np.o" | sed 's/.*size //; s/ ===//')" "0 1 200x100"
+_ofeq "noRoomT NP-1 a noRoom field is not drawn: where nOut (red) would be, (165,20), is the form's white; beside it nIn (25,20) is drawn red" "$(_npp 3 3) $(_npp 1 1)" "white red"
+_ofeq "noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red" "$(_npp 2 2) $(_npp 5 5)" "green red"
+_ofeq "noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red" "$(_npp 4 4)" "green"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

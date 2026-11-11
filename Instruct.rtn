@@ -416,6 +416,9 @@ use argument
                 case 47:    if target.isMacro       product.count = 1;
                 // isPointeRReadOnly READ-ONLY: setPointer is the writer; drawWalk asks whether the top already holds a context, so it answers 0 as well as 1 (forms step 4)
                 case 48:    product.count   = target.isPointer;
+                // answersZero like 48 these answer 0 as well as 1, so a captured read compares against 0 (setFrame's noRoom pass, forms step 6)
+                case 49:    product.count   = target.isHidden;
+                case 50:    product.count   = target.noRoom;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;
@@ -1641,6 +1644,8 @@ int         on = 0;
             case 41:    target.hasNewParse  = on;
             case 46:    target.fLAG         = on;
             case 47:    target.isMacro      = on;
+            case 49:    target.isHidden     = on;
+            case 50:    target.noRoom       = on;
             // isActionWrite the write half of opDot case 408, as a LITERAL -- `target.isAction = true` would be right here only by coincidence
             case 408:   if on   target.actionType = 1;
                         or target.actionType == 1   target.actionType = 0;

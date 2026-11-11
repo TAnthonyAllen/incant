@@ -297,11 +297,16 @@ define
         };
     drawKids code={
         for grup in argument; members
-            drawFill(*grup);
-            drawImage(*grup);
-            drawBorder(*grup);
-            drawText(*grup);
-            if *grup.hasMemberS;    drawKids(*grup);
+            // skipsHiddenAndNoRoom neither an isHidden field nor a noRoom one is drawn, nor anything under it (forms step 6)
+            dkSkip = *grup.isHiddeN;
+            dkGone = *grup.noRooM;
+            if dkGone == 1;     dkSkip = 1;
+            if dkSkip == 0;
+                drawFill(*grup);
+                drawImage(*grup);
+                drawBorder(*grup);
+                drawText(*grup);
+                if *grup.hasMemberS;    drawKids(*grup);
         };
     listed;
     /***************************************************************************
@@ -430,7 +435,16 @@ define
          have x y width and height attributes. It WRITES the group it is handed,
          so only setFrame calls it, and only on a copy.
 
-         Should modify to check for noRoom and bail if there aint none
+         isHidden and noRoom (forms step 6, Tony's ruling of 2026-11-07; built
+         SEQ 627). Two flags, two facts. isHidden is the author's: a field
+         written isHiddeN takes no room, gets no frame, and neither it nor
+         anything under it is laid out or drawn. noRoom is layout's and means
+         only "does not fit": after a parent's members are placed, a member
+         wholly outside the parent's box on either axis (or left with no width
+         or no height) is flagged noRooM; it is not drawn and nothing under it
+         is laid out. A member partly outside is drawn. Nothing is shrunk and
+         layout does not stop. noRoom is written on the laid-out copy only, so
+         every run decides it afresh.
     ***************************************************************************/
     frameMembers code={
         =:argument across down overlay width height x y;
@@ -444,6 +458,10 @@ define
         pHeight     = height;
         pX          = x;
         pY          = y;
+        boxX        = x;
+        boxY        = y;
+        boxR        = x + width;
+        boxB        = y + height;
         upOut       = 0;
         sideOut     = 0;
         // overlayNamed a parent that names overlay (and neither down nor across) overlays its children: each fills the parent's box unless it declares its own width, height, x or y. A parent naming no direction stacks them, as down does: the old GUI's default, and what descriptions and unitTests' sample rely on (SEQ 626 W3; the default is Tony's to re-rule)
@@ -463,32 +481,35 @@ define
                  Create frame and set width and height
     ***************************************************************************/
         for grup in argument; members
-            =:grup width height;
-            if width.isPercenT;
-                width = pWidth * width / 100;
-                *grup :% copyOf(width);
-            if height.isPercenT;
-                height = pHeight * height / 100;
-                *grup :% copyOf(height);
-            if width.datA != 0;
-                sideRoom    -= width;
-            or across.datA == 0;
-                width = pWidth;
-                *grup :% copyOf(width);
-            else
-                sideOut     +/ *grup;
-                ++sideOut;
-            if height.datA != 0;
-                headRoom    -= height;
-            or across.datA != 0;
-                height = pHeight;
-                *grup :% copyOf(height);
-            or laysOver == 1;
-                height = pHeight;
-                *grup :% copyOf(height);
-            else
-                upOut       +/ *grup;
-                ++upOut;
+            // hiddenTakesNoRoom an isHidden member is not sized, so it joins no share
+            fmHid = *grup.isHiddeN;
+            if fmHid == 0;
+                =:grup width height;
+                if width.isPercenT;
+                    width = pWidth * width / 100;
+                    *grup :% copyOf(width);
+                if height.isPercenT;
+                    height = pHeight * height / 100;
+                    *grup :% copyOf(height);
+                if width.datA != 0;
+                    sideRoom    -= width;
+                or across.datA == 0;
+                    width = pWidth;
+                    *grup :% copyOf(width);
+                else
+                    sideOut     +/ *grup;
+                    ++sideOut;
+                if height.datA != 0;
+                    headRoom    -= height;
+                or across.datA != 0;
+                    height = pHeight;
+                    *grup :% copyOf(height);
+                or laysOver == 1;
+                    height = pHeight;
+                    *grup :% copyOf(height);
+                else
+                    upOut       +/ *grup;
+                    ++upOut;
         if upOut > 0;
             shareN = 0;
             shareUsed = 0;
@@ -516,24 +537,39 @@ define
     ***************************************************************************/
         // fromTheParent under an overlaying parent a child's declared x and y are measured from the parent's origin (R4); under down or across they are not read, as before
         for grup in argument; members
-            =:grup width height x y;
-            placeY = pY;
-            placeX = pX;
-            if laysOver == 1;
-                if y.datA != 0;     placeY = pY + y;
-            if laysOver == 1;
-                if x.datA != 0;     placeX = pX + x;
-            y = placeY;
-            *grup :% copyOf(y);
-            x = placeX;
-            *grup :% copyOf(x);
-            if laysOver == 0;
-                if across.datA == 0;    pY += height;
-            if laysOver == 0;
-                if across.datA != 0;    pX += width;
+            fmHid = *grup.isHiddeN;
+            if fmHid == 0;
+                =:grup width height x y;
+                placeY = pY;
+                placeX = pX;
+                if laysOver == 1;
+                    if y.datA != 0;     placeY = pY + y;
+                if laysOver == 1;
+                    if x.datA != 0;     placeX = pX + x;
+                y = placeY;
+                *grup :% copyOf(y);
+                x = placeX;
+                *grup :% copyOf(x);
+                // doesNotFit noRoom means only this: wholly outside the parent's box on an axis, or no extent on one (Tony, 2026-11-07). Partly outside is drawn.
+                fmRight = placeX + width;
+                fmFoot  = placeY + height;
+                fmOut   = 0;
+                if placeX >= boxR;      fmOut = 1;
+                if fmRight <= boxX;     fmOut = 1;
+                if placeY >= boxB;      fmOut = 1;
+                if fmFoot <= boxY;      fmOut = 1;
+                if fmOut == 1;          *grup :. noRooM;
+                if laysOver == 0;
+                    if across.datA == 0;    pY += height;
+                if laysOver == 0;
+                    if across.datA != 0;    pX += width;
         for grup in argument; members
-            if *grup.hasMemberS;
-                frameMembers(*grup);
+            fmSkip = *grup.isHiddeN;
+            fmGone = *grup.noRooM;
+            if fmGone == 1;     fmSkip = 1;
+            if fmSkip == 0;
+                if *grup.hasMemberS;
+                    frameMembers(*grup);
         };
     /***************************************************************************
         setFrame -- forms step 6 (Tony's design of 2026-11-07; SEQ 626).

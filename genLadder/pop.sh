@@ -9623,6 +9623,24 @@ _ofeq "reframeT RF-14 a parent naming NO direction stacks its children as down d
 _ofeq "reframeT RF-12 overlay, parent at 100,200 300x150: a bare child fills it; x=10 y=20 lands at 110,220; x=0 y=0 at the origin; width=50% y=100; a child of a placed child is measured from that child" "$(_rfl pOverReq)" "pOver x=100 y=200 w=300 h=150/oFull x=100 y=200 w=300 h=150/oPlaced x=110 y=220 w=50 h=40/oZero x=100 y=200 w=30 h=30/oWide x=100 y=300 w=150 h=150/oInner x=300 y=205 w=80 h=80/oKid x=303 y=209 w=10 h=10/"
 _ofeq "reframeT RF-13 the control: under down, declared x and y are not read and the children stack" "$(_rfl pStackReq)" "pStack x=100 y=200 w=300 h=150/sA x=100 y=200 w=300 h=40/sB x=100 y=240 w=300 h=110/"
 _ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setFrame: REFUSING pPctShortReq -- its frame needs x, y, width and height' "$T/rf.e")" "1"
+
+#  ⚑ noRoomT -- forms step 6, the rest (Tony's ruling of 2026-11-07; SEQ 627 W1, 2026-11-11): noRoom means only "does not fit"; isHidden is its own
+#  author-declared flag. Two GroupBody flags (isHiddeN 49, noRooM 50). An isHidden member takes no room and gets no frame, nor does anything under it.
+#  After a parent's members are placed, one wholly outside the parent's box on an axis is flagged noRoom on the laid-out COPY; nothing under it is laid
+#  out. Partly outside is not flagged. The PDF rows (what is drawn) are in formsPop.sh. H7 (run 2026-11-11): with the `*grup :. noRooM` line removed
+#  NR-2 reads nOut 0 / nD 0 and NR-4's nOutKid and nDkid gain frames.
+_nrF=$(ip noRoomT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_nrF" > "$T/nr.o" 2> "$T/nr.e"; _nrx=$?
+_nrb () { sed -n "/^NR-$1 $3/,/^NR-$2 $3/p" "$T/nr.o" | sed '1d;$d'; }
+_nrv () { _nrb RUN1 RUN2 nrReq | sed 's/^[	 ]*//' | grep "^$1 " | sed 's/ *$//'; }
+_ofeq "noRoomT exit / sentinel" "$_nrx $(grep -c '^NOROOM SENTINEL' "$T/nr.e")" "0 1"
+_ofeq "noRoomT NR-1 isHidden takes no room: nH has no frame and nB sits directly under nRow (y=440, not 470)" "$(_nrv nH) / $(_nrv nB)" "nH x=- y=- w=- h=30 hidden 1 noRoom 0 / nB x=300 y=440 w=200 h=30 hidden 0 noRoom 0"
+_ofeq "noRoomT NR-2 noRoom is wholly outside: nOut (starts past nBox's right edge) 1, nD (starts below the form) 1" "$(_nrv nOut | sed 's/.*noRoom //') $(_nrv nD | sed 's/.*noRoom //')" "1 1"
+_ofeq "noRoomT NR-3 partly outside is not noRoom: nPart (ends past nBox) 0, nC (runs off the foot) 0; and a field that fits, nIn, 0" "$(_nrv nPart | sed 's/.*noRoom //') $(_nrv nC | sed 's/.*noRoom //') $(_nrv nIn | sed 's/.*noRoom //')" "0 0 0"
+_ofeq "noRoomT NR-4 nothing under a hidden or a noRoom field is laid out: nHkid, nOutKid, nDkid" "$(_nrv nHkid) / $(_nrv nOutKid) / $(_nrv nDkid)" "nHkid x=- y=- w=- h=- hidden 0 noRoom 0 / nOutKid x=- y=- w=- h=- hidden 0 noRoom 0 / nDkid x=- y=- w=- h=10 hidden 0 noRoom 0"
+_ofeq "noRoomT NR-5 the second run reads like the first, and the run is not empty (lines)" "$([ -n "$(_nrb RUN1 RUN2 nrReq)" ] && [ "$(_nrb RUN1 RUN2 nrReq)" = "$(_nrb RUN2 DEF nrReq)" ] && echo same || echo differ) $(_nrb RUN1 RUN2 nrReq | wc -l | xargs)" "same 14"
+_ofeq "noRoomT NR-6 the definition after two runs: noRoom is on the copy only (count of noRoom 1: 0), isHidden is the author's (count of hidden 1: 1, nH)" "$(_nrb DEF END nrReq | grep -c 'noRoom 1') $(_nrb DEF END nrReq | grep -c 'hidden 1') $(_nrb DEF END nrReq | wc -l | xargs)" "0 1 14"
+_ofeq "noRoomT NR-7 the control, three fields that fit: no flag anywhere, and the three stack at y=400, 430, 460" "$(_nrb RUN1 RUN2 nrPlainReq | grep -c 'hidden 1\|noRoom 1') $(_nrb RUN1 RUN2 nrPlainReq | sed 's/^[	 ]*//' | grep '^p[ABC] ' | sed 's/.* y=\([0-9]*\) .*/\1/' | tr '\n' ' ' | sed 's/ $//')" "0 400 430 460"
 #  ⚑ percentT, percentJitT -- a % after a value is a unit on that value (SEQ 538, SEQ 551 recon, SEQ 552 R0-R4). PINNED ON TRUNK, BORN RED, BEFORE THE BUILD. The 100-against-200 row is in docs/setFrameSpec.md (R4).
 _pcF=$(ip percentT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcx=$?
