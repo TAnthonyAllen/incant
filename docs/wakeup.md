@@ -5,11 +5,12 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**445, 2026-11-11, topic: clean up, SEQ 615.** docs/wakeup.md split into this page; Topics/kant and Topics/cleanup made.
-No shutdown. Last shutdown seal: 444 (2026-11-11). Last SEQ: 615.
-Next: Topics/documentation (SEQ 616).
+**446, 2026-11-11, topic: documentation, SEQ 616.** Topics/documentation made. Before it, 445 (clean up, SEQ 615): this
+page split out of the old wakeup; Topics/kant and Topics/cleanup made.
+No shutdown. Last shutdown seal: 444 (2026-11-11). Last SEQ: 616.
+Next: Tony's word. Each topic file's Plan names its own next step.
 
-## The numbers (as run at seal 445; binary md5 957c445b..., unchanged since seal 441)
+## The numbers (as run at seal 445, nothing run-affecting changed at 446; binary md5 957c445b..., unchanged since seal 441)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3728 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
@@ -30,13 +31,14 @@ Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Be
 Tony's fixit incantations waiting: 0
 Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 
-## Topic files (lines at seal 445; no budget set yet -- Topics/cleanup, Plan 1)
+## Topic files (lines at seal 446; no budget set yet -- Topics/cleanup, Plan 1)
 | file | lines | what |
 |---|---|---|
 | `Topics/kant` | 121 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/forms` | 196 | forms, with drawing as a section. |
 | `Topics/typesetting` | 80 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 89 | clean up; the recorded census and split dispatches. |
+| `Topics/documentation` | 73 | lookup with no index; the documenter. Nothing built. |
 | `Topics/features` | 48 | the parking list; not a session topic. |
 
 ## Where the old seals are

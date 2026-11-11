@@ -1,0 +1,73 @@
+/*****************************************************************************
+    documentation -- the documentation topic file. Not an incantation; notes only.
+    Wake-up read for a documentation session: this file, then docs/wakeup.md (the shared state page).
+*****************************************************************************/
+ONE LINE: one way in to everything written down about kant -- lookup, with no index. Nothing of the plan below is built.
+
+/*****************************************************************************
+    Description (as ruled 2026-11-11, Tony)
+*****************************************************************************/
+Kinds
+    DesignDocs      record the why, mostly for AI.
+    documentation   records the what, Javadoc-like.
+    describe        kant describes itself through describe.
+One way in: lookup, with NO index.
+    The lookup incantation sets its own search list over the description registries and lets kant resolve names.
+    It defines nothing: a define with those registries searched risks capture (DE-6, Topics/forms "Waiting on Tony" 6).
+    Three actions:
+        lookup(name)        the first match
+        lookupAll(name)     every match, part-name matches included
+        lookupIn(request)   only in the named registry
+
+/*****************************************************************************
+    State (seal 446, 2026-11-11)
+*****************************************************************************/
+    built       nothing of the plan below.
+    exists      incant/designDocs (the DesignDocs and ProblemRecords registries, about 4,660 lines); incant/decoder (one sentence per term);
+                dESCRIPTIONs, registered by the forms that use it (IncantForms/Windows/descriptions and others) and read by describe in incant/utilities.
+    exists      incant/lookup, the older verb: lookuP(name) prints a term's decoder line and its problem record, tombstone(name), lookupIndex().
+                It searches Grokking DesignDocs Decoder UnitTests Utilities and DEFINES its actions in a registry of its own (LookuP).
+                How it stands beside the three actions above is not ruled (Open, 3).
+
+/*****************************************************************************
+    Plan, smallest first
+*****************************************************************************/
+    1   The three actions over DesignDocs and dESCRIPTIONs.
+    2   More sources: describe attributes on form fields; descriptions for commands and operators.
+    3   The command line: incant lookup <name>.
+    4   The documenter: a .twk file to a multi-page PDF, through Topics/typesetting (its step 7).
+    5   The form, once windows exist (forms step 10).
+
+/*****************************************************************************
+    Open
+*****************************************************************************/
+    1   Plain terminal output only, or more.
+    2   Commands and operators described now, or as each is touched.
+    3   (Clod, seal 446, not ruled) incant/lookup already holds lookuP, tombstone and lookupIndex, and defines them: is it the file the three actions go in, respelled, or does it stay beside them.
+    4   (Clod, seal 446, measured read-only) incant takes no argument from the shell today: main (groups.twk:20) reads argv[1] as the file to run and nothing after it. Step 3 needs a way in; the two smallest are in seal 446's digest line.
+
+/*****************************************************************************
+    Where things live
+*****************************************************************************/
+    incant/designDocs       DesignDocs (TokFiles -> File -> method -> slug) and ProblemRecords
+    incant/decoder          one present-tense sentence per term
+    incant/lookup           the older verb (State, above)
+    incant/utilities        the describe action
+    IncantForms/Windows/descriptions   the form that shows dESCRIPTIONs; draws (Topics/forms, step 8)
+    CLAUDE.md               the conventions: long method comments go to DesignDocs; the problem records; the gloss
+
+/*****************************************************************************
+    The instruments that read it
+*****************************************************************************/
+    genLadder/ddPop.sh      designDocs loads, the trim gate, its H7. 5 green / 1 red as banked.
+    genLadder/decodePop.sh  the decoder. Red as banked; capture docs/sealCaptures/decodePop.txt.
+    formsPop's descT rows   the descriptions form and describe (DE-1 to DE-9).
+
+/*****************************************************************************
+    Issues, Tasks, Moved by other topics. None yet.
+*****************************************************************************/
+
+/*****************************************************************************
+    Seal digest, newest first (full text: the seal's commit message)
+*****************************************************************************/
+    446  SEQ 616   this file made, as ruled 2026-11-11. Read-only, for plan step 3: incant cannot take an argument from the shell today -- main reads argv[1] as the file and ignores the rest. Smallest ways: no engine change, a shell wrapper that writes a three-line incantation (include the lookup file, call lookup(<name>), stop) and runs it; or one small change in main that puts argv[2] onward into a kant field before the parse.
