@@ -15,12 +15,12 @@ A form is a define block: a tree of fields (window, body, panels, controls) whos
 Tony is the form designer: once the attributes are fleshed out he finishes the IncantForms forms himself, using the tools.
 
 /*****************************************************************************
-    State (seal 451, 2026-11-11)
+    State (seal 452, 2026-11-11)
 *****************************************************************************/
     draws        firstLight, descriptions, simple (bitmap and PDF). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
-    built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles; rounded (fill and plain border).
-    not built    a side or an image on a rounded field; runs inside text; setFrame's second run and resize; percent; windows, selection, click; margin; shadow. (fit as a layout attribute is parked: Topics/features 33.)
-    formsPop     123 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
+    built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles; rounded (fill and plain border); shadow; percent on a first run.
+    not built    a side or an image on a rounded field; runs inside text; setFrame's second run and resize (a percent does not survive the first run); windows, selection, click; margin. (fit as a layout attribute is parked: Topics/features 33.)
+    formsPop     134 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
 
 /*****************************************************************************
     Where things live
@@ -41,9 +41,16 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     The instruments that read this topic
 *****************************************************************************/
     genLadder/formsPop.sh       the ONLY home of drawing rows (Tony, 2026-11-07). Capture: docs/sealCaptures/formsPop.txt.
-    fixtures, incant/pop/       roundedT, textT, imageT, descT (joins the descriptions form to a driver), firstPdfT, drawWalkT, stylesT, fillHeldT
+    fixtures, incant/pop/       roundedT, shadowT, styleScopeT, textT, imageT, descT (joins the descriptions form to a driver), firstPdfT, drawWalkT, stylesT, fillHeldT
     pop.sh                      setFrame's rows (testSetFrame), := in a define (traitGridT), the parent chain (parentChainT), flags in a define (flagAttrT, flagNearT)
     The full checklist runs at every landing whatever the topic.
+
+/*****************************************************************************
+    Goals
+*****************************************************************************/
+    G1  MOCK CLICK (Tony, 2026-11-11, SEQ 622; recorded, no build). Click a named field (not a point) in tester; the click selects the field, fires onClick, then its attribute actions left to right;
+        the form is re-laid out by setFrame and redrawn to a PDF, in one call or step by step. Only the actions that are ready are tested; each one skipped is named in the output ("not run: onNotify").
+        Steps toward it: setFrame's second run, event firing, := in a define, listeners and onNotify. Victory line: the first PDF of a clicked form.
 
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
@@ -80,12 +87,8 @@ THE FLOOR CENSUS (SEQ 618, 2026-11-11; read-only, no build). What the 21 forms a
     1   rounded, rounded=N           13 / 60 (6 give a radius, in 4 forms). CGPathCreateWithRoundedRect, CGContextAddPath, then FillPath or StrokePath (the Drawing registry's rounded entry names no function; this is it).
                                      Request: no new method -- a radius read by displayFillRT and displayBorder beside what they read now. Foreign: 4 arguments, a CGRect (a struct kant lacks) and a path that must be released.
                                      BUILT (seal 451, SEQ 621 R2): roundedOf in GroupDraw.twk; the default radius is 5, in defaultStyle. 7 fields in 3 forms (layout, list, scroll) also ask a side: Waiting on Tony 5.
-    2   shadow                       6 / 6, every one a heading. CGContextSetShadowWithColor inside a save / restore around the fill or the text.
-                                     Request: no new method -- a shadow slot on the fill read and on textReq. Foreign: 4 arguments, a CGSize and a CGColorRef (both lacking).
-                                     Not ruled (SEQ 621 R3). What the old GUI had (read-only, 2026-11-11): the live GUI and Bot hold a Shadow slot in Stylish that nothing sets or reads.
-                                     The last code that set it is Aside/Stylish.twk at the first commit (git 9db8ca6f, sHADOW): an NSShadow kept on the style -- offset 2 right and 2 down, blur 3, colour black at 30% --
-                                     with shadowOffset, shadowX / shadowY, shadowBlur and shadowColor to change them. No code in any tree applies that shadow to a box or to text, so "on what" is not recorded.
-                                     The HTML road's template (Controls/templates) turns shadow into a CSS text-shadow: a 1-pixel black outline on the text's four sides. All 6 fields that ask are headings.
+    2   shadow                       6 / 6, every one a heading. BUILT (seal 452, SEQ 622 R3): shadowPart and castShadow in GroupDraw.twk; CGContextSetShadowWithColor inside a save / restore. No new method.
+                                     The old GUI: a Shadow slot in Stylish that nothing sets or reads; the last code that set it is Aside/Stylish.twk at git 9db8ca6f (sHADOW), whose defaults are the values built.
     3   image placements             4 / 6 (bigify, descriptions, keyStroke, layout). fit fill is built. Not built:
                                      a rounded image, 2 forms / 3 fields: CGContextAddPath + CGContextClip before CGContextDrawImage; a radius on imageReq; comes with line 1.
                                      zoom, shrink, centre on the click point, 1 form: an offset and a scale on imageReq; the floor already calls TranslateCTM and ScaleCTM. Waits on step 10 (the click).
@@ -128,6 +131,21 @@ What a form is (2026-11-05)
     Attributes are a little language. fill is a drawing command wearing an attribute dress: at layout, not at define, its method sets the fill colour.
     An attribute that names a field is spelled := (fill:=wall, font:=titleFont, color:=white, onClick:=). Plain = in a define is a value copy. Each form gets its := when it comes up for repair (SEQ 534).
     A forward reference in := refuses by name until a form needs one.
+Style and attributes (2026-11-11, SEQ 622 R2; supersedes the 2026-11-09 "fill, borders and such change the style in effect" in the lines under it)
+    The style applies as the leftmost attribute; any attribute after it applies to the field only. It does not change the style, so it does not reach the field's children.
+    rounded follows this: it overrides the style's radius on that field.
+    MEASURED 2026-11-11 (styleScopeT): fill, border, strokeColor, rounded and shadow behave so -- none reaches a child, and each overrides the style on its own field.
+    They do NOT yet: font, color, align and valign. drawText climbs the enclosing fields and takes their OWN attributes, so a parent's font:= reaches its children. firstLight and textT's inherit rows rely on it. Not changed; Waiting on Tony 9.
+    Also measured: a field's style reaches nothing below it on the floor -- a child with no style of its own gets no fillColor, strokeColor or rounded from its parent's style.
+Shadow (2026-11-11, SEQ 622 R3)
+    A field attribute, applied wherever a form names it. The old Stylish values: 2 right, 2 down, blur 3, black at 30%. Built so: one part of the field carries the shadow -- its fill, else its border, else its text.
+    A fill's shadow falls outside the frame, so a neighbour drawn later can cover it. No attribute changes the values yet; no form asks.
+Listening (2026-11-11, SEQ 622 R4)
+    field=$other is respelled field=other (no $) in time, but listening is Tony's to sort out. Recorded; nothing changed.
+Form issues (2026-11-11, SEQ 622 R1)
+    Nothing is respelled out of existence pending an issue's resolution. A form's issues are noted below the bail() on that form.
+Percent (2026-11-11, SEQ 622 R0)
+    Percent stays: a setFrame rerun after a resize depends on it.
 Style (2026-11-03, 2026-11-09)
     Style attributes may go directly on fields. A field starts with a copy of its enclosing field's style; its attributes are processed left to right, each changing the style in effect; the change is scoped to the subtree.
     By convention style:= comes first on the line. Attributes never change style implicitly.
@@ -165,15 +183,18 @@ Form files (from docs/forms.md, retired into this file)
     1  Bare font names (titleFont written bare): formsTable says keep; the text floor reads only font:=.
     2  margin (mRight, mBottom ...): no ruling of its own since pad was dropped. "Decided once the forms can be seen drawn."
     3  A name for the image fit attribute: `fit` is already a layout attribute in formsTable (that layout attribute is parked, Topics/features 33).
-    4  Percent (width=50%): written to the body, or read from the instance. Both options in formsRecon Part 3, M1.
+    4  Percent (width=50%): it lays out on a first run (measured, roundedT RD-8). setFrame then writes the laid-out width over it, so a rerun has no percent to read: written to the body, or read from the instance (formsRecon Part 3, M1).
     5  A side on a rounded field (step 9). 7 of the 12 side-asking fields are also rounded. Today a named side on a rounded field is drawn straight, as before.
-    8  Shadow (SEQ 621 R3): what it draws. The old GUI's facts are in the floor census, line 2.
+    8  Shadow: built (seal 452). Which part carries it (fill, else border, else text) was Clod's choice; say if text should shadow on a filled field too.
+    9  Text and the style ruling (SEQ 622 R2): font, color, align and valign on a field still reach its children. Changing it re-pins textT's inherit rows and means firstLight names a style.
+    10 Does a field's style reach its children? Today it does not, for fill, border and rounded (styleScopeT SS-2).
     6  DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
     7  heading in firstLight would sit about 3 points lower with valign=center. Not applied.
 
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
 *****************************************************************************/
+    seal 452:  setFrame overrides a child's own x and y: a child written x=10 y=10 under a parent with no down or across is laid out at the parent's origin (shadowT, before its setFrame calls were removed). Not chased.
     seal 451:  drawText does not inherit font three levels down: in simple, one (under wrap, under third) drew Helvetica 12 where simple names font:=normalFont; a field one or two levels down inherits (probe, 2026-11-11). Not chased.
     seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled. Rounded corners are step 9. The image in a PDF has no row."
     seal 441:  "drawKids keeps its own call list (it does not call drawWalk), so adding drawImage to drawWalk alone drew nothing for any child. Both lists carry it now."
@@ -227,6 +248,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    452  SEQ 622   simple's width=50% and second text field restored; percent measured to lay out on a first run. The style ruling recorded and measured (styleScopeT). Shadow built on the three floor methods (shadowT; PDF of shForm). Listening and the mock-click goal recorded.
     451  SEQ 621   rounded built on the fill and border floor (roundedOf; default radius 5 in defaultStyle); simple respelled and drawn, PDF in IncantForms/PDF/output.pdf; ten rows (roundedT). Shadow's old-GUI facts reported; fit parked (features 33).
     449  SEQ 618   the floor census: what the 21 forms ask that nothing draws, written into Drawing as its plan (16 lines, ordered by forms). Read-only; no build.
     443  SEQ 614   this file made; typesetting split out; the forms history files retired.

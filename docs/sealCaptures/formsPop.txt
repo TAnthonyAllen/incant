@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2091472 bytes  Nov 11 13:57
+  bin   2092064 bytes  Nov 11 14:20
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -135,7 +135,22 @@
   ok    roundedT RD-5 no rounded stays square: corner (0,20) = [red]
   ok    roundedT RD-6 a radius past half the side draws at half: (0,0), (2,2), centre (10,10), edge middle (10,0) = [white white red red]
   ok    roundedT RD-7 a value that is not a number refuses by name (count) and draws square: corner (0,0) = [1 red]
-  ok    roundedT RD-8 the simple form as a PDF, read back: fourth's corner (0,140), (2,142), centre (200,170), wrap (100,135), two (220,70) = [clear green green white red]
+  ok    roundedT RD-8 the simple form as a PDF, read back: fourth's corner (0,140), (2,142), centre (200,170), wrap (98,70), two (150,70), three's leftBorder at 50% (200,70), three (300,70) = [clear green green white red black white]
   ok    roundedT RD-8 the PDF is one page, simple's frame = [pages 1 size 400x200]
 
-FORMS POP FAILED -- 123 green, see above
+-- shadow (shadowT).
+  ok    shadowT exit / sentinel = [0 1]
+  ok    shadowT SH-1 a fill's shadow falls right and down: inside (20,20), below right (41,41), right (42,25), below (25,42), then above left (7,7), left (7,25), above (25,7) = [red shade shade shade white white white]
+  ok    shadowT SH-2 the same box with no shadow: (41,41) (42,25) (25,42) = [white white white]
+  ok    shadowT SH-3 a border with no fill carries the shadow: the line (10,25), outside right (42,25), inside the left line (13,25), outside left (7,25) = [black shade shade white]
+  ok    shadowT SH-4 text with no fill and no border carries the shadow: more non-white pixels than the same word with none (4800 read of each) = [more 4800 4800]
+  ok    shadowT SH-5 shForm as a PDF, read back: the card (60,100), its shadow on the wall (142,162), the ring's border (180,115), the wall (20,100) = [white shadedWall black wall]
+
+-- style scope (styleScopeT).
+  ok    styleScopeT exit / sentinel = [0 1]
+  ok    styleScopeT SS-1 a field's fill, border and rounded do not reach its child: the kid's edges (30,10) (10,30) show the parent's fill = [red red]
+  ok    styleScopeT SS-2 a field's style does not reach its child: the leaf's border (11,30), its square corner (10,10), its inside (30,30) = [black black blue]
+  ok    styleScopeT SS-3 an attribute after the style overrides it on that field: fill (30,30), border (1,30), square corner (0,0) = [red green green]
+  ok    styleScopeT SS-4 TODAY, not as ruled: the kid's text takes the parent's own font, color and align = [Palatino 24 1 r0 g158 b15 center]
+
+FORMS POP FAILED -- 134 green, see above

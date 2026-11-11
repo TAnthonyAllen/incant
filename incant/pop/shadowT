@@ -1,0 +1,104 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(ShadowT);
+define
+    shX = 0;
+    shY = 0;
+    shAt code={
+        px = shX;
+        py = shY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    shX0 = 0;
+    shX1 = 0;
+    shY0 = 0;
+    shY1 = 0;
+    shRow code={
+        shX = shX0;
+        while shX < shX1;
+            shAt(argument);
+            pixelAt(argument);
+            shX += 1;
+        };
+    shBand code={
+        shY = shY0;
+        while shY < shY1;
+            shRow(argument);
+            shY += 1;
+        };
+    shBoxTop x=0 y=0 width=60 height=60 fill=white
+        shBox x=10 y=10 width=30 height=30 fill=red shadow;
+    shPlainTop x=0 y=0 width=60 height=60 fill=white
+        shPlain x=10 y=10 width=30 height=30 fill=red;
+    shLineTop x=0 y=0 width=60 height=60 fill=white
+        shLine x=10 y=10 width=30 height=30 border=2 shadow;
+    shWordTop x=0 y=0 width=120 height=40 fill=white
+        shWord="Shadow" x=0 y=0 width=120 height=40 font:=titleFont shadow;
+    shBareTop x=0 y=0 width=120 height=40 fill=white
+        shBare="Shadow" x=0 y=0 width=120 height=40 font:=titleFont;
+    shForm window x=0 y=0 width=300 height=200 down fill:=wall
+        shHead="Shadow Example" text height=50 font:=titleFont align=center valign=center shadow;
+        shGap height=20;
+        shBar across height=90
+            shPadA width=40;
+            shCard="A filled field with a shadow." text width=100 fill:=white rounded shadow;
+            shPadB width=40;
+            shRing="A border with a shadow." text width=100 border rounded=10 shadow;
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ;
+search ShadowT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    pdfReq path="IncantForms/PDF/output.pdf" form:=shForm;
+    ;
+cerr "SH-1 a fill with a shadow, box at 10..39: inside (20,20) red; below right (41,41) shaded; right (42,25) shaded; below (25,42) shaded; above left (7,7) white; left (7,25) white; above (25,7) white":;
+drawWalk(shBoxTop);
+shX = 20; shY = 20; shAt(shBoxTop); pixelAt(shBoxTop);
+shX = 41; shY = 41; shAt(shBoxTop); pixelAt(shBoxTop);
+shX = 42; shY = 25; shAt(shBoxTop); pixelAt(shBoxTop);
+shX = 25; shY = 42; shAt(shBoxTop); pixelAt(shBoxTop);
+shX = 7; shY = 7; shAt(shBoxTop); pixelAt(shBoxTop);
+shY = 25; shAt(shBoxTop); pixelAt(shBoxTop);
+shX = 25; shY = 7; shAt(shBoxTop); pixelAt(shBoxTop);
+cerr "SH-2 the same box with no shadow: (41,41) (42,25) (25,42) white":;
+drawWalk(shPlainTop);
+shX = 41; shY = 41; shAt(shPlainTop); pixelAt(shPlainTop);
+shX = 42; shY = 25; shAt(shPlainTop); pixelAt(shPlainTop);
+shX = 25; shY = 42; shAt(shPlainTop); pixelAt(shPlainTop);
+cerr "SH-3 a border with a shadow and no fill: on the border (10,25) black; its shadow outside (42,25) shaded and inside, right of the left line (13,25) shaded; (7,25) white":;
+drawWalk(shLineTop);
+shX = 10; shY = 25; shAt(shLineTop); pixelAt(shLineTop);
+shX = 42; shAt(shLineTop); pixelAt(shLineTop);
+shX = 13; shAt(shLineTop); pixelAt(shLineTop);
+shX = 7; shAt(shLineTop); pixelAt(shLineTop);
+cerr "SH-4 text with a shadow, then the same text with none: every pixel of x 0..119, y 0..39 of each":;
+drawWalk(shWordTop);
+shX0 = 0; shX1 = 120; shY0 = 0; shY1 = 40;
+shBand(shWordTop);
+drawWalk(shBareTop);
+shBand(shBareTop);
+cerr "SH-5 shForm to a PDF, read back: card (60,100) white, its shadow below right (142,162) not wall; ring's border (180,115) black; wall (20,100)":;
+setFrame(shForm);
+pdfReq :% copyOf(shForm["width"]);
+pdfReq :% copyOf(shForm["height"]);
+openPDF(pdfReq);
+drawWalk(shForm);
+closePDF(pdfReq);
+printDefinition(shForm);
+readPDF(pdfRead);
+shX = 60; shY = 100; shAt(pdfRead); pixelAt(pdfRead);
+shX = 142; shY = 162; shAt(pdfRead); pixelAt(pdfRead);
+shX = 180; shY = 115; shAt(pdfRead); pixelAt(pdfRead);
+shX = 20; shY = 100; shAt(pdfRead); pixelAt(pdfRead);
+cerr "SHADOW SENTINEL":;
+stop();
+
+shadowT -- shadow, a field attribute (Tony, 2026-11-11, SEQ 622 R3). A field that names shadow draws one part with a shadow:
+its fill if it has one, else its border, else its text. 2 points right, 2 down, blur 3, black at 30% (the old Stylish values).
+Rows are in genLadder/formsPop.sh. A shaded pixel is read as a class (grey, not white), never as an exact value.
+SH-4 counts ink: the shadowed word has more non-white pixels than the same word with none.
+SH-5 draws this fixture's own form, shForm, to IncantForms/PDF/output.pdf: no form that draws today asks for shadow.

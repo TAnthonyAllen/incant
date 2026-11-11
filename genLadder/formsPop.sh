@@ -435,6 +435,9 @@ _rdc () { grep -h "^=== pixelAt $1 " "$T/rd.o" | sed -n "$2,$3p" | sed 's/.*= r\
       else if ($1 >= 200 && $2 <= 80 && $3 <= 80) c = "red"
       else if ($1 <= 40 && $2 <= 110 && $3 >= 150) c = "blue"
       else if ($1 == 175 && $2 == 211 && $3 == 120) c = "green"
+      else if ($1 == 0 && $2 == 158 && $3 == 15) c = "green2"
+      else if ($1 == 0 && $2 == 0 && $3 == 0) c = "black"
+      else if ($1 == $2 && $2 == $3 && $1 >= 150) c = "shade"
       printf "%s%s", (NR > 1 ? " " : ""), c } END { print "" }'; }
 _ofeq "roundedT exit / sentinel" "$_rdx $(grep -c '^ROUNDED SENTINEL' "$T/rd.e")" "0 1"
 _ofeq "roundedT RD-1 bare rounded, the default radius 5: corner (0,0), then (2,2), edge middle (20,0), centre (20,10)" "$(_rdc rdPlain 1 4)" "white red red red"
@@ -444,8 +447,49 @@ _ofeq "roundedT RD-4 rounded from the style (rounded=8): (0,0), (1,1), (4,4), ce
 _ofeq "roundedT RD-5 no rounded stays square: corner (0,20)" "$(_rdc rdMore 5 5)" "red"
 _ofeq "roundedT RD-6 a radius past half the side draws at half: (0,0), (2,2), centre (10,10), edge middle (10,0)" "$(_rdc rdBigTop 1 4)" "white white red red"
 _ofeq "roundedT RD-7 a value that is not a number refuses by name (count) and draws square: corner (0,0)" "$(grep -c "^roundedOf: REFUSING rdBad -- rounded's value is not a radius" "$T/rd.e") $(_rdc rdBadTop 1 1)" "1 red"
-_ofeq "roundedT RD-8 the simple form as a PDF, read back: fourth's corner (0,140), (2,142), centre (200,170), wrap (100,135), two (220,70)" "$(_rdc pdfRead 1 5)" "clear green green white red"
+#  RE-PIN (SEQ 622 R0, R1, 2026-11-11): simple's width=50% and its second text field restored, so the points moved: was "wrap (100,135), two (220,70)"
+#  reading "clear green green white red". three is 50% of 400, so its leftBorder sits at x=200: that pixel is the percent row.
+_ofeq "roundedT RD-8 the simple form as a PDF, read back: fourth's corner (0,140), (2,142), centre (200,170), wrap (98,70), two (150,70), three's leftBorder at 50% (200,70), three (300,70)" "$(_rdc pdfRead 1 7)" "clear green green white red black white"
 _ofeq "roundedT RD-8 the PDF is one page, simple's frame" "$(grep -h '^=== readPDF pdfRead' "$T/rd.o" | sed 's/.*pdfRead //; s/ ===.*//')" "pages 1 size 400x200"
+
+#  ⚑ shadowT -- shadow, a field attribute (Tony, 2026-11-11, SEQ 622 R3): one part of the field is drawn with a shadow -- its fill, else its
+#  border, else its text -- 2 right, 2 down, blur 3, black at 30%. A shaded pixel is a CLASS (an even grey, not white): its exact value is the
+#  rasteriser's. SH-2 is the control beside SH-1: the same box with no shadow reads white at the same three points.
+echo ""
+echo "-- shadow (shadowT)."
+_shF=$(ip shadowT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_shF" > "$T/sh.o" 2> "$T/sh.e"; _shx=$?
+_shc () { grep -h "^=== pixelAt $1 " "$T/sh.o" | sed -n "$2,$3p" | sed 's/.*= r\([0-9]*\) g\([0-9]*\) b\([0-9]*\) a\([0-9]*\) ===.*/\1 \2 \3 \4/' | awk '
+    { c = "other"
+      if ($4 == 0) c = "clear"
+      else if ($1 >= 250 && $2 >= 250 && $3 >= 250) c = "white"
+      else if ($1 >= 200 && $2 <= 80 && $3 <= 80) c = "red"
+      else if ($1 == 0 && $2 == 0 && $3 == 0) c = "black"
+      else if ($1 == 247 && $2 == 232 && $3 == 170) c = "wall"
+      else if ($1 == $2 && $2 == $3 && $1 >= 150) c = "shade"
+      else if ($1 < 247 && $1 >= 200 && $2 < 232 && $2 >= 190 && $3 <= 170 && $3 >= 130) c = "shadedWall"
+      printf "%s%s", (NR > 1 ? " " : ""), c } END { print "" }'; }
+_shn () { grep -h "^=== pixelAt $1 " "$T/sh.o" | grep -vc 'r255 g255 b255 a255'; }
+_ofeq "shadowT exit / sentinel" "$_shx $(grep -c '^SHADOW SENTINEL' "$T/sh.e")" "0 1"
+_ofeq "shadowT SH-1 a fill's shadow falls right and down: inside (20,20), below right (41,41), right (42,25), below (25,42), then above left (7,7), left (7,25), above (25,7)" "$(_shc shBoxTop 1 7)" "red shade shade shade white white white"
+_ofeq "shadowT SH-2 the same box with no shadow: (41,41) (42,25) (25,42)" "$(_shc shPlainTop 1 3)" "white white white"
+_ofeq "shadowT SH-3 a border with no fill carries the shadow: the line (10,25), outside right (42,25), inside the left line (13,25), outside left (7,25)" "$(_shc shLineTop 1 4)" "black shade shade white"
+_ofeq "shadowT SH-4 text with no fill and no border carries the shadow: more non-white pixels than the same word with none (4800 read of each)" "$([ "$(_shn shWordTop)" -gt "$(_shn shBareTop)" ] && [ "$(_shn shBareTop)" -gt 0 ] && echo more || echo "not more: $(_shn shWordTop) $(_shn shBareTop)") $(grep -hc '^=== pixelAt shWordTop ' "$T/sh.o") $(grep -hc '^=== pixelAt shBareTop ' "$T/sh.o")" "more 4800 4800"
+_ofeq "shadowT SH-5 shForm as a PDF, read back: the card (60,100), its shadow on the wall (142,162), the ring's border (180,115), the wall (20,100)" "$(_shc pdfRead 1 4)" "white shadedWall black wall"
+
+#  ⚑ styleScopeT -- the style ruling (Tony, 2026-11-11, SEQ 622 R2): the style applies as the leftmost attribute; an attribute after it applies to
+#  the field only and does not reach its children. SS-1 to SS-3 hold today. SS-4 pins what does NOT: text's font, colour and align still come
+#  from the enclosing field's own attributes (drawText's climb). Pinned as it reads, to be re-pinned when ruled; firstLight relies on it.
+echo ""
+echo "-- style scope (styleScopeT)."
+_ssF=$(ip styleScopeT)
+perl -e 'alarm 20; exec @ARGV' "$B" "$_ssF" > "$T/ss.o" 2> "$T/ss.e"; _ssx=$?
+_ssc () { grep -h "^=== pixelAt $1 " "$T/ss.o" | sed -n "$2,$3p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | sed -e 's/r239 g43 b45 a255/red/' -e 's/r0 g81 b186 a255/blue/' -e 's/r0 g158 b15 a255/green/' -e 's/r0 g0 b0 a255/black/' -e 's/r255 g255 b255 a255/white/' | tr '\n' ' ' | sed 's/ $//'; }
+_ofeq "styleScopeT exit / sentinel" "$_ssx $(grep -c '^STYLESCOPE SENTINEL' "$T/ss.e")" "0 1"
+_ofeq "styleScopeT SS-1 a field's fill, border and rounded do not reach its child: the kid's edges (30,10) (10,30) show the parent's fill" "$(_ssc ssA 1 2)" "red red"
+_ofeq "styleScopeT SS-2 a field's style does not reach its child: the leaf's border (11,30), its square corner (10,10), its inside (30,30)" "$(_ssc ssB 1 3)" "black black blue"
+_ofeq "styleScopeT SS-3 an attribute after the style overrides it on that field: fill (30,30), border (1,30), square corner (0,0)" "$(_ssc ssC 1 3)" "red green green"
+_ofeq "styleScopeT SS-4 TODAY, not as ruled: the kid's text takes the parent's own font, color and align" "$(grep -h '^=== displayText ssKid ' "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*align \([a-z]*\) ===/\1 \2 \3/')" "Palatino 24 1 r0 g158 b15 center"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do

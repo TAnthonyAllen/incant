@@ -333,6 +333,47 @@ double      radius = 0.0;
     return radius;
 }
 
+/*****************************************************************************
+    castShadow -- shadow, a field attribute (Tony, 2026-11-11, SEQ 622 R3). A
+    field that names shadow draws ONE of its parts with a shadow: its fill if
+    it has one (its own or its style's), else its border, else its text. The
+    values are the old Stylish defaults: 2 points right, 2 down, blur 3, black
+    at 30%. No attribute changes them yet; no form asks.
+    shadowPart says which part (0 none, 1 fill, 2 border, 3 text). castShadow
+    sets the shadow in the field's context; the caller saves the graphics
+    state before and restores it after, so the shadow ends with that part.
+    The offset is in the context's base space, which the top's flip does not
+    turn: y is up there, so 2 down is -2.
+*****************************************************************************/
+int shadowPart(GroupItem field)
+{
+GroupItem   style;
+    if !field   return 0;
+    if !field["shadow"]     return 0;
+    if field["fill"]        return 1;
+    style = field["style"];
+    if style {
+        if styleComponent(field,"fillColor")    return 1; }
+    if field["border"]          return 2;
+    if field["topBorder"]       return 2;
+    if field["bottomBorder"]    return 2;
+    if field["leftBorder"]      return 2;
+    if field["rightBorder"]     return 2;
+    return 3;
+}
+
+void castShadow(GroupItem field)
+{
+    -%
+    GroupItem   *top = displayOf(field);
+    CGContextRef ctx = top ? (CGContextRef)top->getPointer() : 0;
+    if (!ctx) return;
+    CGColorRef shade = CGColorCreateGenericRGB(0, 0, 0, 0.3);
+    CGContextSetShadowWithColor(ctx, CGSizeMake(2, -2), 3, shade);
+    CGColorRelease(shade);
+    %-
+}
+
 extern GroupItem displayFillRT(GroupItem field)
 {
 GroupItem   comp;
@@ -366,6 +407,8 @@ String      value;
     CGContextSetRGBFillColor(ctx, r, g, b, a);
     CGRect  box    = CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height);
     CGFloat radius = roundedOf(field);
+    int     shaded = shadowPart(field) == 1;
+    if (shaded) { CGContextSaveGState(ctx); castShadow(field); }
     //  halfTheShortSide a radius past half the short side is drawn at half: Core Graphics asserts on a larger one
     if (radius > box.size.width / 2)    radius = box.size.width / 2;
     if (radius > box.size.height / 2)   radius = box.size.height / 2;
@@ -375,6 +418,7 @@ String      value;
         CGContextFillPath(ctx);
         CGPathRelease(path); }
     else CGContextFillRect(ctx, box);
+    if (shaded) CGContextRestoreGState(ctx);
     %-
     return field;
 }
@@ -445,6 +489,9 @@ String      value;
     //  asFillDoes a named colour's components go in as displayFillRT hands its own; no colour named is black
     CGFloat cr = 0, cg = 0, cb = 0, ca = 1;
     if (comp) [colour getRed:&cr green:&cg blue:&cb alpha:&ca];
+    //  shadowWholeBorder a border that carries the field's shadow is drawn inside one saved state; every return below restores it
+    int shaded = shadowPart(field) == 2;
+    if (shaded) { CGContextSaveGState(ctx); castShadow(field); }
     CGContextSetRGBStrokeColor(ctx, cr, cg, cb, ca);
     CGContextSetLineCap(ctx, kCGLineCapButt);
     CGFloat x0 = framed.origin.x, y0 = framed.origin.y;
@@ -462,6 +509,7 @@ String      value;
         CGContextAddPath(ctx, path);
         CGContextStrokePath(ctx);
         CGPathRelease(path);
+        if (shaded) CGContextRestoreGState(ctx);
         return field; }
     //  insideTheFrame each side's line is inset by half its width, and runs the frame's whole length (R2)
     auto side = [&](CGFloat w, CGFloat ax, CGFloat ay, CGFloat bx, CGFloat by) {
@@ -474,6 +522,7 @@ String      value;
     if (b > 0) side(wB, x0, y1 - wB / 2, x1, y1 - wB / 2);
     if (l > 0) side(wL, x0 + wL / 2, y0, x0 + wL / 2, y1);
     if (r > 0) side(wR, x1 - wR / 2, y0, x1 - wR / 2, y1);
+    if (shaded) CGContextRestoreGState(ctx);
     %-
     return field;
 }
@@ -607,6 +656,8 @@ extern GroupItem displayText(GroupItem request)
     //  clipAtFrame a word wider than the frame is cut at the frame's edge, never beyond it (R1)
     CGContextClipToRect(ctx, CGRectMake(framed.origin.x, framed.origin.y, framed.size.width, framed.size.height));
     CGContextSetRGBFillColor(ctx, cr, cg, cb, ca);
+    //  textShadow a field that names shadow and draws no fill and no border shadows its text (SEQ 622 R3); the restore below ends it
+    if (shadowPart(field) == 3) castShadow(field);
     //  uprightGlyphs the top's context is flipped (y down); this turns the glyphs the right way up, and only them
     CGContextSetTextMatrix(ctx, CGAffineTransformMakeScale(1, -1));
     while (start < len) {

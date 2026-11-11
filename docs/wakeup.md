@@ -5,20 +5,20 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**451, 2026-11-11, topic: forms, SEQ 621.** Rounded built on the fill and border floor (`roundedOf`; the default radius 5
-lives in `defaultStyle`, `IncantForms/Controls/styles`); `IncantForms/Windows/simple` respelled and drawn, its PDF in
-`IncantForms/PDF/output.pdf`; ten rows (`incant/pop/roundedT`). Rulings recorded: the lookup lean taken
-(`Topics/documentation`, Open 3 closed), the line budget ruled (`Topics/cleanup`, Plan 1; `genLadder/topicBudget.sh`
-prints it), fit parked (`Topics/features` 33). Shadow's old-GUI facts reported, not ruled (`Topics/forms`, floor census line 2).
-Last SEQ: 621. **NEXT:** shadow waits on Tony's ruling; a side on a rounded field is still open; `Topics/cleanup` is over
-its budget and opens its next session with the trim. Each topic file's Plan names its own next step.
+**452, 2026-11-11, topic: forms, SEQ 622.** `simple`'s `width=50%` and second text field restored; percent lays out on a
+first run (measured). The style ruling recorded and measured (`incant/pop/styleScopeT`): fill, border, rounded and shadow
+stay on their field; font, color, align and valign still reach children. Shadow built on the three floor methods
+(`incant/pop/shadowT`; its form's PDF is `IncantForms/PDF/output.pdf`). Listening and the mock-click goal (G1) recorded
+in `Topics/forms`. Before it, 451 (forms, SEQ 621): rounded built, the lookup lean, the line budget and fit's parking recorded.
+Last SEQ: 622. **NEXT:** `Topics/forms`, Waiting on Tony 8-10 (which part carries a shadow; text and the style ruling;
+whether a style reaches children). `Topics/cleanup` is over its budget and opens its next session with the trim.
 
-## The numbers (as run at seal 451; binary md5 d095e599..., rebuilt 2026-11-11 13:57 with rounded in GroupDraw)
+## The numbers (as run at seal 452; binary md5 ce997b2b..., rebuilt 2026-11-11 14:20 with shadow in GroupDraw)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3728 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 123 green (113 + roundedT's ten); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 134 green (123 + shadowT's six + styleScopeT's five); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
@@ -38,7 +38,7 @@ Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 51 / 60 | this page. |
-| `Topics/forms` | 247 / 280 | forms, with drawing as a section. |
+| `Topics/forms` | 269 / 280 | forms, with drawing as a section. |
 | `Topics/kant` | 121 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/typesetting` | 80 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 128 / 120 OVER by 8 | clean up; the recorded census and split dispatches. |

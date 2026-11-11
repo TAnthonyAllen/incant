@@ -4,12 +4,13 @@
 *****************************************************************************/
 register(FORMs);
 define
-    simple window x=300 y=450 width=400 height=200 down rounded font:=normalFont
+    simple window x=300 y=450 width=400 height=200 down rounded
         third across fill:=wall
             wrap fill:=white
                 one="This is a whole lot of text that I am using to test out text views, scrolling, and isn't it nice that the xcode text editor wraps lines and indents auto-magically. The base rule is you have to specify everything you want, nothing implied except styles are inherited." text;
-            two fill:=red leftBorder=2 width=40;
-            three fill:=white leftBorder=2 width=160;
+            two fill:=red leftBorder=2;
+            three fill:=white width=50.0% leftBorder=2
+                stuff text=one;
         fourth rounded fill:=lightGreen height=60;
     ;
 bail();
@@ -17,12 +18,19 @@ bail();
 The old form, respelled by the forms rulings (Topics/forms). What changed, and why:
     the preamble       Start, the includes, initFORMs and printDefinition are gone: a form is define-only (initFORMs stops a run silently, F-73)
     down               added: third and fourth stack, as they did
-    fill=, font        respelled fill:= and font:= (an attribute naming a field is :=)
+    fill=              respelled fill:= (an attribute naming a field is :=)
     pad, border=off    dropped by ruling; border is not inherited, so border=off is deleted
     left=2             respelled leftBorder=2
     register           dropped (the drop list)
-    width=50.0%        percent has no ruling (Waiting on Tony 4); three is 160 points and two is 40 until it does
-    stuff text=one     one field showing another's text is the listener's family, parked; three is empty
+    width=50.0%        kept (Tony, 2026-11-11, SEQ 622 R0). It lays out: three is 200 of simple's 400 points (measured; 25% gives 100).
+    stuff text=one     kept (SEQ 622 R1). See the issues below.
     onLayout code={}   dropped by ruling; nothing fires
     height=60          added to fourth, so third keeps most of the form
+    pad=5 on stuff, border=off on stuff     dropped with the others above
     rounded            kept on simple and on fourth. simple names no fill and no border, so its rounded draws nothing; fourth draws at the default radius, 5.
+
+Issues with this form (form issues are noted here, on each form; Tony, 2026-11-11, SEQ 622 R1):
+    stuff text=one     draws nothing. One field showing another field's text is listening, which is Tony's to sort out (Topics/forms, Listening). Nothing reads text=one today.
+    one                does not fit: wrap is 100 points wide beside two and three, so 181 of its 266 characters are drawn and the run warns by name. The old form had the same widths.
+    two                names no width, so it shares what three's 50% leaves with wrap: 100 points each.
+    width=50.0%        setFrame writes the laid-out width (200) over the 50% in the definition, so a second run after a resize has no percent left to read. That is forms step 6 (setFrame finished), not built.

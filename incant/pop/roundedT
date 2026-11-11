@@ -80,7 +80,7 @@ cerr "RD-7 a value that is not a number refuses by name and draws square: corner
 setFrame(rdBadTop);
 drawWalk(rdBadTop);
 rdX = 0; rdY = 0; rdAt(rdBadTop); pixelAt(rdBadTop);
-cerr "RD-8 the simple form to a PDF, read back: fourth's corner (0,140) unpainted, (2,142) lightGreen, centre (200,170) lightGreen, wrap (100,135) white, two (220,70) red":;
+cerr "RD-8 the simple form to a PDF, read back: fourth's corner (0,140) unpainted, (2,142) lightGreen, centre (200,170) lightGreen, wrap (98,70) white, two (150,70) red; three is 50% of 400: its leftBorder (200,70) black, inside (300,70) white":;
 setFrame(simple);
 pdfReq :% copyOf(simple["width"]);
 pdfReq :% copyOf(simple["height"]);
@@ -91,8 +91,10 @@ readPDF(pdfRead);
 rdX = 0; rdY = 140; rdAt(pdfRead); pixelAt(pdfRead);
 rdX = 2; rdY = 142; rdAt(pdfRead); pixelAt(pdfRead);
 rdX = 200; rdY = 170; rdAt(pdfRead); pixelAt(pdfRead);
-rdX = 100; rdY = 135; rdAt(pdfRead); pixelAt(pdfRead);
-rdX = 220; rdY = 70; rdAt(pdfRead); pixelAt(pdfRead);
+rdX = 98; rdY = 70; rdAt(pdfRead); pixelAt(pdfRead);
+rdX = 150; rdAt(pdfRead); pixelAt(pdfRead);
+rdX = 200; rdAt(pdfRead); pixelAt(pdfRead);
+rdX = 300; rdAt(pdfRead); pixelAt(pdfRead);
 cerr "ROUNDED SENTINEL":;
 stop();
 

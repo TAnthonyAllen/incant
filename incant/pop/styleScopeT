@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(StyleScopeT);
+define
+    ssX = 0;
+    ssY = 0;
+    ssAt code={
+        px = ssX;
+        py = ssY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    ssSt fillColor="blue" strokeColor="red" rounded=8;
+    ssA x=0 y=0 width=60 height=60 fill=red border=3 strokeColor=blue rounded=10 font:=titleFont color:=green align=center
+        ssKid="Kid" x=10 y=10 width=40 height=40;
+    ssB x=0 y=0 width=60 height=60 fill=white
+        ssMid x=0 y=0 width=60 height=60 style="ssSt"
+            ssLeaf x=10 y=10 width=40 height=40 border=3;
+    ssC x=0 y=0 width=60 height=60 style="ssSt" fill=red rounded=0 border=3 strokeColor=green;
+    ;
+search StyleScopeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+cerr "SS-1 a field's fill, border and rounded do not reach its child: the kid's top edge (30,10) and left edge (10,30) read the parent's red, not a border":;
+drawWalk(ssA);
+ssX = 30; ssY = 10; ssAt(ssA); pixelAt(ssA);
+ssX = 10; ssY = 30; ssAt(ssA); pixelAt(ssA);
+cerr "SS-2 a field's style does not reach its child: the leaf's border (11,30) is black, not the style's red; its corner (10,10) is square; its inside (30,30) is the mid's blue":;
+drawWalk(ssB);
+ssX = 11; ssY = 30; ssAt(ssB); pixelAt(ssB);
+ssX = 10; ssY = 10; ssAt(ssB); pixelAt(ssB);
+ssX = 30; ssY = 30; ssAt(ssB); pixelAt(ssB);
+cerr "SS-3 an attribute after the style overrides it on that field: fill (30,30) red, border (1,30) green, corner (0,0) square and green":;
+drawWalk(ssC);
+ssX = 30; ssY = 30; ssAt(ssC); pixelAt(ssC);
+ssX = 1; ssY = 30; ssAt(ssC); pixelAt(ssC);
+ssX = 0; ssY = 0; ssAt(ssC); pixelAt(ssC);
+cerr "STYLESCOPE SENTINEL":;
+stop();
+
+styleScopeT -- the style ruling of 2026-11-11 (Tony, SEQ 622 R2): the style applies as the leftmost attribute; an attribute after
+it applies to the field only and does not reach the field's children. Rows in genLadder/formsPop.sh. SS-1 to SS-3 pin fill,
+border, strokeColor and rounded, which behave so. SS-4 pins what does NOT yet: the kid's text takes the parent's own font:=,
+color:= and align (drawText climbs the enclosing fields). It is pinned as it reads today, to be re-pinned when that is ruled.
