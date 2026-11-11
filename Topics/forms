@@ -15,13 +15,14 @@ A form is a define block: a tree of fields (window, body, panels, controls) whos
 Tony is the form designer: once the attributes are fleshed out he finishes the IncantForms forms himself, using the tools.
 
 /*****************************************************************************
-    State (seal 458, 2026-11-11)
+    State (seal 459, 2026-11-11)
 *****************************************************************************/
     draws        firstLight, descriptions, simple (bitmap and PDF). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
     layout       setFrame(request) lays out a DEEP COPY and returns it (strokes 1-2, seals 456-457): the definition is never written at any depth, a second run reads like the first, a percent survives.
                  The request may hold frame:= a field of its own; redrawForm(request) is the first resize, a plain call that lays out afresh and writes the PDF.
-                 A parent that NAMES overlay places each child from its own x and y, measured from the parent (stroke 3, seal 458). A parent naming no direction still stacks.
-    not built    the resize arriving by listening (stroke 4, waits on Tony); noRoom, isHidden; windows, selection, click; margin; listening (Tony's). (fit is parked: Topics/features 33.)
+                 A parent that NAMES overlay places each child from its own x and y, measured from the parent (stroke 3, seal 458). A parent naming no direction stacks, as down: ruled (SEQ 627 R0).
+                 isHidden and noRoom are built (seal 459): two flags. A field written isHiddeN takes no room and is not drawn; a field wholly outside its parent's box is flagged noRooM on the laid-out copy and is not drawn.
+    not built    the resize arriving by listening (stroke 4, waits on Tony); windows, selection, click; margin; listening (Tony's). (fit is parked: Topics/features 33.)
     drawing      what is drawn and not drawn, and formsPop's count: Topics/drawing, State.
 
 /*****************************************************************************
@@ -43,7 +44,8 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     The instruments that read this topic
 *****************************************************************************/
     genLadder/formsPop.sh and its fixtures   the drawing rows: Topics/drawing. Two of its fixtures are forms' own: descT (the descriptions form joined to a driver), styleScopeT (inheritance).
-    incant/pop/reframeT (rows in pop.sh)     setFrame's copy, its second run and the revised frame (RF-1 to RF-11).          incant/pop/resizeT (rows in formsPop)   the mock resize to a PDF (RZ-1 to RZ-5).
+    incant/pop/reframeT (rows in pop.sh)     setFrame's copy, its second run and the revised frame (RF-1 to RF-14).   incant/pop/noRoomT   isHidden and noRoom: layout rows in pop.sh (NR-1 to NR-7), drawn rows in formsPop (NP-1 to NP-3).
+             incant/pop/resizeT (rows in formsPop)   the mock resize to a PDF (RZ-1 to RZ-5).
     pop.sh                      setFrame's rows (testSetFrame), := in a define (traitGridT), the parent chain (parentChainT), flags in a define (flagAttrT, flagNearT)
     The full checklist runs at every landing whatever the topic.
 
@@ -64,7 +66,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     5   Text in a field's frame, wrapped, clipped; fixed 4-point inset. DONE (412-413)
     5a  align = left / center / right / justify.                       DONE (SEQ 582, 584)
     5b  valign = top / center / bottom.                                DONE (439)
-    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. STROKES 1-3 DONE (456-458): a deep copy is laid out and returned; a frame in the request resizes; redrawForm is the mock resize; a named overlay keeps a child's x and y. Left: noRoom, isHidden, and the default below (Waiting on Tony 8). Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md; the proposed strokes, with what waits on listening and the five points to rule: docs/setFrameRerunProposal.md)
+    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. STROKES 1-3 DONE (456-458): a deep copy is laid out and returned; a frame in the request resizes; redrawForm is the mock resize; a named overlay keeps a child's x and y. noRoom and isHidden DONE (459). Left: stroke 4, the resize arriving by listening (waits on Tony). Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md; the proposed strokes, with what waits on listening and the five points to rule: docs/setFrameRerunProposal.md)
     7   Runs inside text: the first typesetting step. See Topics/typesetting.
     8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
     9   Rounded fields.                                                DONE for the fill and a plain border (451). A side on a rounded field is still open (Waiting on Tony 5); a rounded image is not built.
@@ -97,11 +99,17 @@ style:= is the only spelling (2026-11-11, SEQ 624 R0)
 setFrame's rerun (2026-11-11, SEQ 626 R1-R5; the strokes are in docs/setFrameRerunProposal.md)
     The frame's home is a field of its own outside the form, passed in setFrame's request. The definition is never written.
     With no frame given, the top field's declared x, y, width and height are the default (as ruled 2026-11-07).
-    A parent with no down or across overlays its children, as the old GUI did. A child's declared x and y are measured from its parent.
-    CORRECTION (Clod, seal 458): "as the old GUI did" came from Clod's proposal and is WRONG. In the old GUI a parent naming no direction is DOWN (GUI/Details.twk initialize: "or !flexed down = true");
-        only a parent naming overlay, cards or layers overlays. Built as ruled first, it moved the descriptions form (descT DE-1, DE-4) and unitTests' sample, which rely on stacking.
-        So what is built: overlay when the parent NAMES overlay; no direction still stacks. Whether no direction should overlay anyway is back with Tony (Waiting on Tony 8).
+    A parent naming no direction defaults to DOWN, as the old GUI did and as Tony assumes when designing forms (SEQ 627 R0, 2026-11-11; supersedes R3). Overlay, cards and layers overlay only when named.
+        STRUCK, the old R3: "A parent with no down or across overlays its children, as the old GUI did." Its premise was Clod's error (the old GUI's default is down: GUI/Details.twk initialize, "or !flexed down = true").
+        What is built agrees with R0 and did before it: pinned by reframeT RF-14 (no direction stacks) beside RF-12 (a named overlay) and RF-13 (down).
+    A child's declared x and y are measured from its parent, under a parent that names overlay (R4, built at seal 458). Under down and across they are not read: Waiting on Tony 8.
     Stroke 4 (layoutFrame and the listener) waits until Tony sorts out listening.
+noRoom and isHidden (ruled 2026-11-07; built 2026-11-11, SEQ 627 W1, seal 459)
+    noRoom means only "does not fit"; isHidden is its own author-declared flag. Two GroupBody flags, read and written in kant as noRooM and isHiddeN.
+    isHidden: the author writes isHiddeN on a field. It is not sized or placed, joins no share, gets no frame, and neither it nor anything under it is laid out or drawn.
+    noRoom: layout's own. After a parent's members are placed, a member wholly outside the parent's box on either axis (or with no width or height left) is flagged; it is not drawn and nothing under it is laid out.
+        A member partly outside is drawn. Nothing is shrunk and layout does not stop. It is written on the laid-out copy only, so the definition never holds it and every run decides it afresh.
+    Not built, and not ruled: the old GUI also marked the parent scrollable; the top field's own isHidden is not read (drawWalk draws the top); an isHidden member is still counted by down=* / down=3 (fillDownAcross).
 Listening (2026-11-11, SEQ 622 R4)
     field=$other is respelled field=other (no $) in time, but listening is Tony's to sort out. Recorded; nothing changed.
 Form issues (2026-11-11, SEQ 622 R1)
@@ -133,15 +141,32 @@ Form files (from docs/forms.md, retired into this file)
     (1, 3, 5 and 7 are drawing's and moved to Topics/drawing, Waiting on Tony, at seal 456. The numbers left here are unchanged.)
     2  margin (mRight, mBottom ...): no ruling of its own since pad was dropped. "Decided once the forms can be seen drawn."
     4  Percent (width=50%): it lays out on a first run (measured, roundedT RD-8). setFrame then writes the laid-out width over it, so a rerun has no percent to read: written to the body, or read from the instance (formsRecon Part 3, M1).
-    8  No direction named: stack (today, and the old GUI) or overlay (SEQ 626 R3, ruled on a wrong premise of Clod's)? If overlay: descriptions and unitTests' sample get a written down, and the flag in frameMembers is one line.
-       Also the old GUI kept a child's declared x or y under down and across too (fixX, fixY); today they are read only under a named overlay.
+    8  A child's declared x or y under down and across (SEQ 627 Q1; read in GUI/Details.twk, initialize :358-371 and setFrame :541-579; read, not run). Today they are read only under a named overlay.
+       What the old GUI did: a field that wrote x= kept that x and one that wrote y= kept that y, under EVERY direction (fixX, fixY); only an axis not written was set by the parent. Windows and panels were exempt (their x and y place the window).
+           declared y under down     kept as written. The field still added its height to the running position, so the fields after it stacked as if it were in line: it left a gap where it would have been.
+           declared x under down     kept as written, instead of the parent's left edge.
+           declared x under across   kept as written; it still added its width to the running position, so later fields left a gap.
+           declared y under across   kept as written, instead of the parent's top edge.
+           overlay, cards, layers    both kept; an axis not written took the parent's inner corner.
+       The kept value was used as written: nothing in that code adds the parent's origin to it (today's overlay measures from the parent, R4). A written x=0 counted as written.
+       Forms that rely on it: NONE found. Searched IncantForms/Windows (all 21), IncantForms/Controls and incant/unitTests for x= or y=: every hit is on a window or a top field (20 forms, plus unitTests' four test tops). No child field in any form writes x or y.
+       To rule: read a child's x and y under down and across too (and, if so, does it still leave its gap), or leave them unread there.
     6  DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
 
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
 *****************************************************************************/
-    seal 458:  IncantForms/Windows/tabs exits 139 with no output, before and after this session's strokes. No row reads its exit status.
-    seal 452:  setFrame overrides a child's own x and y: a child written x=10 y=10 under a parent with no down or across is laid out at the parent's origin (shadowT). Seal 458: kept under a parent naming overlay; under no direction it is still so (Waiting on Tony 8).
+    seal 459:  IncantForms/Windows/tabs exits 139 with no output (SEQ 627 W2; found, not cured). The chain, by backtrace: tabs line 4, include(drawing), parses IncantForms/WorkingOn/drawing. That file opens
+               "define / Drawing registry; / align; ..." with the entries indented under a line that ends in a semicolon. In a define, the indent step writes a ':' (the member marker) in front of the deeper line,
+               so the text reads ":align;". The entry before it already ended at its ';', so the statement rule reads ":align;" as a SCOPE statement (rule ScopeXP) and fires aCTionScopeXP at the top level.
+               aCTionScopeXP reads the action that is running (currentMETHOD.group); at the top level there is none, and it reads through the null (ruleActions.rtn:928, "if action.isRule"). Stack: parseOnFloor, Start, StatemenT, WardeD, ScopeXP.
+               Controls: a file holding only the includes crashes the same way; a bare ":align;" at the top level crashes the same way; tabs without include(drawing) exits 0 and its setFrame lays out all 14 fields.
+               Without the semicolon after "Drawing registry" the same define parses and Drawing holds its members. pop.sh already pins the bare case: bridgeT BR-4 ("a top-level scope dies", x139).
+               NOT the cause: setFrame. It is never reached before the crash, and its scope statements are the value scope "=:" (aCTionScopeValue, a different method); run alone on tabs it prints no "holds a group" warning.
+               Two cures are open and neither is taken: drop the semicolon in drawing (only tabs includes it), or have a top-level scope statement refuse by name instead of reading through null. No row reads tabs' exit status.
+    seal 459:  the value scope "=:" (frameMembers, bothDirections, frameWhole use it) is in incant/grammar only (ScopeValue, added 2026-11-06, 9a8369f4). incant/kantGrammar has the ":" scope (SCOPEXp) and has never had "=:"
+               (git log -S on every branch, with a positive control). Action bodies parse on incant/grammar today, so setFrame runs; it will not build on the kant grammar until "=:" is added there. Tony noted it, 2026-11-11.
+    seal 452:  setFrame overrides a child's own x and y: a child written x=10 y=10 under a parent with no down or across is laid out at the parent's origin (shadowT). Kept under a parent naming overlay (458); under down, across or no direction they are not read (Waiting on Tony 8).
     seal 451:  drawText does not inherit font three levels down: in simple, one (under wrap, under third) drew Helvetica 12 where simple names font:=normalFont; a field one or two levels down inherits (probe, 2026-11-11). Not chased.
     seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled. Rounded corners are step 9. The image in a PDF has no row."
     seal 439:  "M8 (a value naming a registered field copies that field's text) was not met by these three names, and was not tested against a registry that holds a field called top or bottom."
@@ -194,6 +219,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    459  SEQ 627   SHUTDOWN. R0: no direction defaults to down; the old R3 struck. W1: isHidden and noRoom built as two flags (GroupBody, cases 49 and 50), frameMembers and drawKids read them; rows NR-1 to NR-7 (pop.sh), NP-1 to NP-3 (formsPop); three H7s red. Q1: the old GUI's fixX / fixY reported (Waiting on Tony 8); no form relies on it. W2: tabs' crash traced to include(drawing) and a top-level scope statement (Issues). The kitchen pass run.
     455  SEQ 625   italic=off ruled as interim. opacity=0 checked: fully clear, two rows (OP-6), nothing to cure. The line budget recorded as an objective (Topics/cleanup). Read-only: the strokes for setFrame's rerun proposed (docs/setFrameRerunProposal.md). Clod's report on drawing as its own file: in the seal's commit message.
     458  SEQ 626   SHUTDOWN. Stroke 3: a parent naming overlay places children from their own x and y, from the parent (RF-12 to RF-14). R3's premise corrected: the old GUI's default is down, so no direction still stacks and the default is back with Tony. The kitchen pass run.
     457  SEQ 626   stroke 2: setFrame's request takes frame:=; redrawForm lays out afresh and writes the PDF (resizeT, simple at 400 and at 600). FOUND AND CURED: copyOf's copy shares bodies below its second level, so stroke 1 still wrote the definition's deep fields; setFrame now copies with copyDeep (new command, Commands.rtn). Rows RF-7 to RF-11, RZ-1 to RZ-5, and pDeep in RF-1 to RF-3.

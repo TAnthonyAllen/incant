@@ -3,13 +3,13 @@ include(unitTests);
 include(utilities);
 include(drawing);
 search reset stack Grokking;
-search UnitTests Utilities cOLORs fONTs list;
 
 register(dESCRIPTIONs);
 define
     tabFORM=(In this example, there are two key components to a tabFORM interface, the tabBAR (a block with a tabs attribute containing tab blocks). The second component is a block of body panels, with each panel associated with a tab. Each tab block must include a tab attribute whose value is the tag of the body block associated with the tab. The body panel blocks must have unique name and must all be registered in the current registry (done here via the register attribute). This implies the current registry must be set (in this case, it is set as the FORMs registry).#);
     tabBAR=(When you select a tab on the tabBAR, the body shown in the bodies block becomes the card named in the tab selected: so if tabOne is selected, the firstCard becomes the body, the other two card bodies are hidden. Note the use of selectFill to set the background color of the tab when a tab is selected. Here the selected tab color is matched to the color of the associated body panel but it does not have to be.#);
     ;
+search UnitTests Utilities dESCRIPTIONs cOLORs fONTs list;
 register(FORMs);
 define
     tabFORM window closable resize x=400 y=400 width=360 height=400 fill=wall title="Using Tabs"
@@ -36,4 +36,13 @@ layIt(tabFORMReq);
 stop();
 
 Note the value of the tabs attribute in the tabBAR block above is set to tabTwo. That sets the initially selected tab to be tabTwo. If the tabs attribute has no value, the default will use the first tab block (tabOne in this case) as the initially selected tab.
+
+Issues with this form (form issues are noted here, on each form; Tony, 2026-11-11, SEQ 622 R1):
+    exits 139 with no output (found 2026-11-11, SEQ 627 W2; not cured). The chain:
+        line 4, include(drawing), parses IncantForms/WorkingOn/drawing.
+        That file opens "define / Drawing registry; / align; ...": its entries are indented under a line that ends in a semicolon.
+        In a define the indent step writes a ':' in front of the deeper line, so the text reads ":align;", and since the entry before it ended at its ';' the statement rule reads it as a scope statement (ScopeXP).
+        aCTionScopeXP then fires at the top level, where no action is running, and reads through the null (ruleActions.rtn:928).
+    Nothing in this form calls it: not setFrame (its scopes are the value scope, =:, a different method), not a tab, not an attribute. With the include(drawing) line removed this file exits 0 and setFrame lays out all 14 fields.
+    The full record, with the controls: Topics/forms, Issues, seal 459.
 

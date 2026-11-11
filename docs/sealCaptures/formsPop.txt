@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2092656 bytes  Nov 11 15:12
+  bin   2092656 bytes  Nov 11 16:44
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -184,4 +184,10 @@
   ok    resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600 = [181 266 181 266]
   ok    resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame = [simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;]
 
-FORMS POP FAILED -- 159 green, see above
+-- isHidden and noRoom, drawn (noRoomT).
+  ok    noRoomT exit / sentinel / page = [0 1 200x100]
+  ok    noRoomT NP-1 a noRoom field is not drawn: where nOut (red) would be, (165,20), is the form's white; beside it nIn (25,20) is drawn red = [white red]
+  ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
+  ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
+
+FORMS POP FAILED -- 163 green, see above
