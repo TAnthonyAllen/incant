@@ -419,10 +419,10 @@ OPEN, FORMS:
     setFrame, both directions on one field: docs/setFrameSpec.md. fillDownAcross cannot handle a field with both down and across (Tony, 2026-11-05; no design yet).
     The second run and a resize: design ruled, build after the first PDF (docs/setFrameSecondRun.md, docs/setFrameSecondRunDesign.md).
     Foreign calls, shape (C): kant calls a C++ floor method with one request group; first built with the PDF stroke (TODO.md, docs/firstLightPdfRecon.md).
-    onNotify is not built; design of record is one onNotify per listener, its handler handed the notifier (Tony, 2026-11-05; IncantForms/WorkingOn/forms; fleet incant/pop/listenT).
-    One listenTo per field works today; a second on the same field: the last wins (IncantForms/WorkingOn/forms).
-    The setFont / getFont cache: parked, unruled (SEQ 543 R1); fonts resolve at definition, a stashed font holds its own retain (docs/font-recon.md).
-    Typesetting: one style vocabulary for fields, paragraphs and runs; whether a change can end inside a paragraph is undecided (TODO.md, IncantForms/WorkingOn/forms).
-    A bare number in a form is in points, 1/72 inch (TODO.md, IncantForms/WorkingOn/forms).
+    onNotify is not built; design of record is one onNotify per listener, its handler handed the notifier (Tony, 2026-11-05; Topics/forms; fleet incant/pop/listenT).
+    One listenTo per field works today; a second on the same field: the last wins (Topics/forms).
+    The setFont / getFont cache: parked, unruled (SEQ 543 R1); fonts resolve at definition, a stashed font holds its own retain (docs/font-recon.md (retired 2026-11-11, git c3180398)).
+    Typesetting: one style vocabulary for fields, paragraphs and runs; whether a change can end inside a paragraph is undecided (TODO.md, Topics/forms).
+    A bare number in a form is in points, 1/72 inch (TODO.md, Topics/forms).
     fill= forms not respelled: 160 plain fill= uses, fill=off, $perfColor and purple are fixed as each form is repaired (SEQ 547).
     The data recon (old GUI data files, DB results, the sheets indexing): WITHDRAWN until a form needs it (Tony, 2026-11-07); Clay's six asks are in the pre-trim text.

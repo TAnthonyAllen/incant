@@ -9495,7 +9495,7 @@ int 		made = 0;
 
 /*******************************************************************************
     A member's children point at the field the parse built. When addGroup adds a
-    copy, they point at the copy instead (Tony, 2026-11-05; docs/parseLabelParent.md).
+    copy, they point at the copy instead (Tony, 2026-11-05; docs/parseLabelParent.md (retired 2026-11-11, git c3180398)).
     A child whose parent is anything else is left alone.
 *******************************************************************************/
 extern "C" void memberRehome(GroupItem *source, GroupItem *copy)

@@ -44,7 +44,7 @@ Groups/
 │                              XML/WorkingOn/ on 2026-05-29.
 ├── IncantForms/            — The forms: Windows/ (the form incantations), Controls/ (styles, templates,
 │                              attributes, traits), WorkingOn/ (notes and WIP), PDF/, Images/.
-├── topics/                 — One file per session topic (Tony, 2026-11-11); features.md is the parking list.
+├── Topics/                 — One file per session topic, no suffix (Tony, 2026-11-11): forms, typesetting; features is the parking list.
 ├── Maps/                   — Symlink → ~/data/support/Maps (BitMAP, Segment).
 └── projectBible.md (retired 2026-11-11, git 2144dde6), TODO.md, CLAUDE.md
 ```
@@ -1239,7 +1239,7 @@ turns a standing improvement into a one-day event that nobody maintains afterwar
 invariant without the doc. This one asks whether a reader could **finish the entry** — if the
 answer is no, the argument has outgrown the marker and owes a `docs/` file.
 
-⚠⚠ **AND `#` IS THE ONLY DELIMITER — `docs/forms.md` used to promise an escape hatch that does not
+⚠⚠ **AND `#` IS THE ONLY DELIMITER — `docs/forms.md` (retired 2026-11-11, git c3180398) used to promise an escape hatch that does not
 exist, and it is corrected there with the matrix.** `@)`, `*)`, `%)`, `~)`, `/)` and `.)` all fail;
 only `#)` parses. **If a body genuinely contains `#)`, restructure the prose** — there is no second
 delimiter to reach for. (The `Modifier`-set hypothesis was raised and falsified in the same run;
@@ -3319,7 +3319,7 @@ for by where it is.
 manifest that a file has to appear on to be legitimate**, and a file's absence from it says only
 that it arrived after the ledger was written. **Committing it and flagging it are two different
 acts, and only the first is owed.**
-⚠ **Paid for on the day the rule was written:** `IncantForms/WorkingOn/forms` — Tony's notes on
+⚠ **Paid for on the day the rule was written:** `IncantForms/WorkingOn/forms` (since 2026-11-11 `Topics/forms`) — Tony's notes on
 form attributes, created that morning, sibling of the already-tracked `docs` — was committed
 correctly and then **raised as something for Tony to rule on**. The commit was right; the flag was
 noise, and noise in a report is how the signals in it get discounted.

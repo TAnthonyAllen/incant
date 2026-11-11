@@ -35,12 +35,13 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
 22. EXPRESSIOn's pending slots as one tier-ordered list closed by one loop. Banked until the grammar settles; item 8 may replace it. (TODO.md, SEQ 448 R6, 2026-10-28)
 23. Parse error handling: a failed statement abandons the rest of the file at exit 0. No design. (projectBible.md (retired 2026-11-11, git 2144dde6), "HWF Session 6", 2026-05)
 24. Locals as frames, with recursion as the forcing case: where a recursive frame's storage comes from in a language with no declarations. (docs/jitDesign.md, recorded 2026-07-31, "not scheduled")
-25. An incant-to-HTML transpiler as a bridge to non-Apple platforms. (docs/layout-recon.md, docs/gui.md, 2026-06-22)
+25. An incant-to-HTML transpiler as a bridge to non-Apple platforms. (docs/layout-recon.md (retired 2026-11-11, git c3180398), docs/gui.md (retired 2026-11-11, git c3180398), 2026-06-22)
 26. Generating C or C++ from kant as an alternative to interpreting. (IncantForms/Controls/dev, 2026-06-14) -- the jitter may have overtaken it.
 27. An editor: pins as invisible fields, used as breakpoints and as goto marks. (IncantForms/Notions/editor, 2026-06-14)
 28. The fungi model: every group a node with a listener, each reacting in its own thread. (IncantForms/Notions/fungits, 2026-06-14) -- items 6 and 7 seen together.
 29. Data sources with indexed attributes, feeding repeated rows. (IncantForms/Notions/display, 2026-06-14) -- the withdrawn data recon in the forms notes is the same ground.
 30. A language designed to evolve; "create" as an imaginary operator. (IncantForms/Notions/HWF, 2026-06-14) -- a musing, kept because the file is named for this list.
+31. A data topic: long text and query data (what a DB query returns, indexing, rows poured into repeated fields). Ruled out of typesetting 2026-11-11; tables stay with forms. (Topics/typesetting; formsRecon Part 3, THE DATA RECON) -- item 29 is the same ground.
 
 ## Not harvested, and why
 

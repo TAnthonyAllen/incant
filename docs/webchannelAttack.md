@@ -1,6 +1,6 @@
 # webChannel — Plan of Attack
 *Clay, 2026-07-02. Successor to HWF mode. Inputs: wakeup.md (2026-06-30 LATE),
-docs/bot-recon.md verdict, docs/wiki-recon.md (verdicts as summarized in wakeup;
+docs/bot-recon.md (retired 2026-11-11, git c3180398) verdict, docs/wiki-recon.md (verdicts as summarized in wakeup;
 items marked VERIFY should be cross-checked against the recon docs themselves).*
 *Self-contained; written to survive a month of hibernation.*
 
@@ -38,7 +38,7 @@ The real proven text→GroupItem mechanism is the **JSON parser's push/pop input
 
 **Forward note — `/eval` mutating the live tree.** `/eval` runs arbitrary incant on the tree-owning
 thread (quiescent by construction at v1, good) but a handler can delete a field Layout holds a
-pointer into. A reconcile/redraw after `/eval` may be needed; ties into guiDesign.md's reconcile
+pointer into. A reconcile/redraw after `/eval` may be needed; ties into guiDesign.md (retired 2026-11-11, git c3180398)'s reconcile
 pass. Bank now, address when the GUI reconcile lands.
 
 **THE CONVERGENCE (highest-leverage recon for next session).** Step 1's open question — does a
@@ -106,7 +106,7 @@ Incant's handler returns a response GroupItem:
 response status=200 type="text/html" body=<text>
 ```
 C++ serializes that back to HTTP bytes. Incant never sees a socket; C++ never
-sees a route. This mirrors handleEvent in the GUI event design (guiDesign.md §7)
+sees a route. This mirrors handleEvent in the GUI event design (guiDesign.md (retired 2026-11-11, git c3180398) §7)
 — same one-entry-point seam discipline: `handleRequest(request)`.
 
 ### D4. Evaluation shape (the BotClient salvage)

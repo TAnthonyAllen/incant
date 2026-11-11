@@ -68,7 +68,7 @@ tok, registered the same way" — not "goes through the modedOP operator path."
 
 ## 3. BotClient's text→GroupItem entry — PUSHBACK: it doesn't exist, it's a TODO
 
-`docs/bot-recon.md` (already thorough) says this directly, in its own words (lines
+`docs/bot-recon.md` (retired 2026-11-11, git c3180398) (already thorough) says this directly, in its own words (lines
 189-219): **`BotClient.run(String text)` does NOT parse its argument.** It returns a
 hardcoded literal (`"BotClient test string"`, `BotClient.twk:15`) — "no GroupItem, no
 incant" crosses the wire today. The recon doc explicitly flags this as unfinished, with

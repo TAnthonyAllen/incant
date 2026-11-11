@@ -1,0 +1,80 @@
+/*****************************************************************************
+    typesetting -- a sub-topic file of forms until runs in text (forms step 7). Not an incantation; notes only.
+    Wake-up read: Topics/forms first, then this file.
+*****************************************************************************/
+ONE LINE: typesetting pours text into the frames a form lays out. Nothing of it is built beyond plain text in one field (forms step 5).
+
+/*****************************************************************************
+    Description (as ruled 2026-11-03 to 2026-11-11, Tony)
+*****************************************************************************/
+Model
+    A paragraph is content poured into a field; headings are form fields.
+    Style resolves as a tree in a pre-pass; the painter is a forward-only stream.
+    State lives in one fresh layout context per pass, in kant: a group built when a layout starts, handed to every pour and to each inserted action, and thrown away at the pass's end. It holds the pour cursor, the break record and the counters (page, page count, footnotes). It is never stored on the frames.
+Text
+    Text by default, commands as the exception. Paragraphs are separated by a blank line.
+    A run is {style: text}, closing at its mark or at the paragraph's end. Runs nest, each starting from its outer run's style. An unknown style name warns by name and prints the text plain. {{ is a literal brace.
+    {name} inserts a named field's text. A field whose action produces text fires on every pour; it must give the same answer for the same state, since a pour runs more than once. A missing name refuses by name. Files are reached through a field that reads them.
+    One style vocabulary for fields, paragraphs and runs. A style change ends at its paragraph's end, never at a line end, and never crosses a paragraph.
+Breaking
+    Greedy. Whole-paragraph breaking is parked. Justify per line, the last line left.
+Hyphenation
+    Never by default, never from a dictionary. Only at an author's soft-hyphen mark, or to break a word wider than the line.
+Pages
+    The two-line rule: at least two lines at the foot of a page and two at the top of the next, moving only the lines needed. A heading keeps with its first two lines.
+Customers
+    The documenter first: a .twk file typeset to a multi-page PDF. Long prose second.
+Not typesetting
+    Tables are forms. Long text and query data belong to a future data topic, parked in Topics/features.
+
+/*****************************************************************************
+    State (seal 442, 2026-11-11)
+*****************************************************************************/
+    built       plain text in one field: wrapped greedily, clipped between words with a warning, align (justify included) and valign, a fixed 4-point inset. That is forms step 5, in displayText.
+    not built   paragraphs, runs, insertions, the layout context, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter.
+
+/*****************************************************************************
+    Plan, smallest first
+*****************************************************************************/
+    1  Paragraphs in one field.
+    2  Runs.
+    3  Insertions.
+    4  Flow across frames.
+    5  Pages.
+    6  Tabs, indents and lists.
+    7  The documenter.
+Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
+
+/*****************************************************************************
+    Open questions
+*****************************************************************************/
+    1  Can a style change end inside a paragraph other than at a run's closing mark? ("To be decided", 2026-11-07.)
+    2  The pour's floor request: Clay's draft (text, font, size, colour, box, inset in; fit and used written back) is to be confirmed when the stroke opens.
+    3  The pour cursor and break record: one Buffer mark is enough for one flat buffer poured in order, and not for a tree of runs, re-flow on resize, or a frame read twice. Proposal: a cursor (run, offset) plus a break record kept out of the source tree.
+    4  Whitespace-only text carries no data in kant, so spaces between runs must be glue, never string runs.
+    5  A failed parse abandons the rest of the input at exit 0; for a document that is a silently lost chapter, so the text mode must fail loudly or carry an end sentinel.
+    6  Checks owed when the stroke opens: who calls getText today and whether any caller relied on its following a held group; whether a held group holds another group in practice.
+
+/*****************************************************************************
+    Where things live
+*****************************************************************************/
+    GroupDraw.twk displayText       the text floor (Core Text measures, Core Graphics draws).
+    incant/utilities drawText       resolves font, color, align and valign in kant and builds textReq.
+    incant/designDocs               DisplayDesignHTML / StreamModel / StyleResolution: the painting and style-resolution rulings.
+    IncantForms/WorkingOn/formsRecon, Part 3   "Typesetting notes -- DRAFT" (the sketch, and Clod's reply on prose mode, the cursor and glue) and "THE TYPESETTING SUBSET FOR FIRST LIGHT" (the 2026-11-07 rulings in full).
+    Frame/Buffer.h                  the Buffer and its one mark.
+
+/*****************************************************************************
+    The instrument that reads it
+*****************************************************************************/
+    genLadder/formsPop.sh, through incant/pop/textT (the TX and VA rows) and firstPdfT (the PD rows). New rows go there.
+
+/*****************************************************************************
+    Issues, Tasks, Moved by other topics. None yet.
+*****************************************************************************/
+
+/*****************************************************************************
+    Seal digest
+*****************************************************************************/
+    443  SEQ 614   this file made from the forms notes and the 2026-11-11 rulings.
+    439  SEQ 605   valign.      412-413  SEQ 581-584   the text floor and align.

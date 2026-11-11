@@ -79,7 +79,7 @@ evTwo();
 cerr "PC SENTINEL":;
 stop();
 
- parentChainT: a member's parent is its enclosing field (Tony, 2026-11-05, R1, R2, R3; docs/parseLabelParent.md).
+ parentChainT: a member's parent is its enclosing field (Tony, 2026-11-05, R1, R2, R3; docs/parseLabelParent.md (retired 2026-11-11, git c3180398)).
  The question each row asks is H13's "is this the same FIELD", so it reads the field column: the stale twin shares its body with the right field, and only the field column tells them apart.
  Field numbers are first-seen in the run, so pop.sh compares the walk up to the walk down, tag and number together. A row that names a tag cannot pass by a shallow walk.
  Born red on trunk: UP 1 is the stale evDeep, UP 2 MemberS, UP 3 DefinE, UP 4 MemberS. The depth-1 control is right on both builds.

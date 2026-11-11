@@ -1,0 +1,187 @@
+/*****************************************************************************
+    forms -- the forms topic file. Not an incantation; notes only.
+    Wake-up read for a forms session: this file, after the top of docs/wakeup.md.
+    Sub-topics: drawing (a section below); typesetting (its own file, Topics/typesetting).
+*****************************************************************************/
+ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 2 of 21 forms draw.
+
+/*****************************************************************************
+    Description
+*****************************************************************************/
+A form is a define block: a tree of fields (window, body, panels, controls) whose attributes are a little language, not assignments. Nothing fires at define.
+    Layout   setFrame gives every field a frame from x y width height, down, across and space.
+    Draw     the walk draws each field in the order fill, image, border, text; one floor call each.
+    Event    a click selects the field, fires its action, then its attribute actions left to right; bubbling goes up the enclosing fields. Not built.
+Tony is the form designer: once the attributes are fleshed out he finishes the IncantForms forms himself, using the tools.
+
+/*****************************************************************************
+    State (seal 442, 2026-11-11)
+*****************************************************************************/
+    draws        firstLight, descriptions (bitmap and PDF). The other 19 forms under IncantForms/Windows are old spellings, not yet repaired.
+    built        fill; borders and named sides; text, wrapped and clipped; align; valign; image (fit fill); the PDF; fonts and colours through styles.
+    not built    rounded; runs inside text; setFrame's second run and resize; percent; windows, selection, click; margin; shadow; fit as a layout attribute.
+    formsPop     113 green; F-149 red as banked (dsFillJ's degrade count; docs/fixIts.md).
+
+/*****************************************************************************
+    Where things live
+*****************************************************************************/
+    IncantForms/Windows/            the 21 forms               IncantForms/Controls/   styles, templates, attributes, traits
+    IncantForms/Images/bands.png    the test image             IncantForms/PDF/output.pdf   what Tony opens
+    incant/utilities                setFrame, fillDownAcross, drawWalk, drawKids, drawText, drawImage, describe
+    GroupDraw.twk                   the floor: displayFillRT, displayBorder, displayText, displayImage, openPDF, closePDF
+    Evidence files, IncantForms/WorkingOn/:
+        formsTable      one row per attribute: moment, inherited, has action, depends on, status; the drop list at its foot
+        formsRecon      Parts 1-2 what the old GUI did (file, method, line); Part 3 the forms notes as they stood at seal 442
+        drawing         the Drawing registry: Core Graphics names and signatures
+        firstLightRead  reads firstLight back
+    docs/           setFrameSpec.md, setFrameSecondRun.md, setFrameSecondRunDesign.md, firstLightPdfRecon.md, m5Recon.md, percentRecon.md, bindingmethods.md
+    Old GUI         Groups/GUI/ (tracked) and InProcess/Bot/ (not a repo; slightly newer). formsRecon Part 3, "Where the old GUI lives".
+
+/*****************************************************************************
+    The instruments that read this topic
+*****************************************************************************/
+    genLadder/formsPop.sh       the ONLY home of drawing rows (Tony, 2026-11-07). Capture: docs/sealCaptures/formsPop.txt.
+    fixtures, incant/pop/       textT, imageT, descT (joins the descriptions form to a driver), firstPdfT, drawWalkT, stylesT, fillHeldT
+    pop.sh                      setFrame's rows (testSetFrame), := in a define (traitGridT), the parent chain (parentChainT), flags in a define (flagAttrT, flagNearT)
+    The full checklist runs at every landing whatever the topic.
+
+/*****************************************************************************
+    Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
+*****************************************************************************/
+    1   Fills into one context, the right way up.                      DONE (seals 376-377)
+    2   The draw walk: the whole form drawn from kant.                 DONE (389-390)
+    3   Borders: a frame or named sides, with a colour.                DONE (391-392)
+    4   The first PDF: firstLight as IncantForms/PDF/output.pdf.       DONE (393-394)
+    5   Text in a field's frame, wrapped, clipped; fixed 4-point inset. DONE (412-413)
+    5a  align = left / center / right / justify.                       DONE (SEQ 582, 584)
+    5b  valign = top / center / bottom.                                DONE (439)
+    6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md)
+    7   Runs inside text: the first typesetting step. See Topics/typesetting.
+    8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
+    9   Rounded fields; a side on a rounded field is decided here.
+    10  Windows: assess and plan first; images' zoom and field actions come with it.
+Forms order: firstLight, then descriptions, then form by form. Old spellings are respelled form by form, never as a sweep.
+
+/*****************************************************************************
+    Drawing (sub-topic)
+*****************************************************************************/
+The line between forms and drawing is the floor request: forms owns attributes, layout and the walk; drawing owns what happens under a floor method.
+    C++ is only the short drawing floor. Each floor method takes ONE argument, a request group built fresh per call (textReq, imageReq); results are written into the request; a failure refuses by name and draws nothing.
+    The yardstick: each step adds at most one floor method, and prefers retiring to adding.
+    Core Text measures and Core Graphics draws, to the screen and to PDF. No libharu.
+    Foreign calls, shape (C) (Tony, 2026-11-07): groups.ext records each floor method's typed parameters so the jitter can later emit a direct typed call. No multi-argument call syntax.
+    The drawing language moves into kant when the jitter allows (A5). A small drawing language is a parked design question; it may not be needed if colour and font stay with styles (SEQ 582 R6).
+    Evidence: IncantForms/WorkingOn/drawing; docs/bindingmethods.md.
+
+/*****************************************************************************
+    Typesetting (sub-topic) -- see Topics/typesetting
+*****************************************************************************/
+
+/*****************************************************************************
+    Rulings of record (all Tony; the full wording is in formsRecon Part 3 under the same headings)
+*****************************************************************************/
+What a form is (2026-11-05)
+    Attributes are a little language. fill is a drawing command wearing an attribute dress: at layout, not at define, its method sets the fill colour.
+    An attribute that names a field is spelled := (fill:=wall, font:=titleFont, color:=white, onClick:=). Plain = in a define is a value copy. Each form gets its := when it comes up for repair (SEQ 534).
+    A forward reference in := refuses by name until a form needs one.
+Style (2026-11-03, 2026-11-09)
+    Style attributes may go directly on fields. A field starts with a copy of its enclosing field's style; its attributes are processed left to right, each changing the style in effect; the change is scoped to the subtree.
+    By convention style:= comes first on the line. Attributes never change style implicitly.
+    Drawing happens after every attribute is processed. What is built is a lookup (own, style, enclosing) that gives the same answers wherever the convention holds.
+    Style resolution is written in jittable kant; it resolves as a tree in a pre-pass and paints as a forward-only stream (incant/designDocs, DisplayDesignHTML / StreamModel / StyleResolution).
+Text, colours and fonts (2026-11-05 to 2026-11-10)
+    A field takes font and color from its own attribute, else its style, else its enclosing fields. color falls back to black, the font to Helvetica 12.
+    A field's text is its own string value; if it holds a group, the group's text, one level only. A describe attribute, when present, is the text drawn.
+    Text that does not fit is clipped between words, with a warning naming the field.
+    IncantForms/Controls/styles holds the 14 colours and 7 fonts; tests load it explicitly. setColor skips a leading #.
+    A fill reader takes the held field, never its name. No colour cache.
+Images (2026-11-10)
+    image="path". The only fit is fill: cover the frame keeping the shape, centred, cropped. An image field's text is its description and is never drawn.
+Attributes
+    Naming: camelCase, no dashes; the qualifier first and the thing last (topBorder, strokeColor, fillColor); a plain name is the default case.
+    Border sides: topBorder, bottomBorder, leftBorder, rightBorder; bare is width 1, =number sets it; naming any side draws only the named sides.
+    fill is not inherited. A bare number is in points (1/72 inch).
+    Dropped: pad, onLayout, flex, center, fit=text, and the drop list at the foot of formsTable. Anything dropped and wanted later comes back then.
+    flex also meant across: a form that drops flex writes across where it relied on it.
+Events (2026-11-04) -- ruled on paper, not built
+    Click actions use onClick:=. A click selects the field first. Own action, then attribute actions left to right. Bubbling stays; a member's parent is its enclosing field (built, merge 24beb5f0).
+    Layout's mouseUp calls a kant extern. Firing is proved with a synthetic point and no window.
+Form files (from docs/forms.md, retired into this file)
+    A form is define-only, with stop() or bail() and free prose below it; IncantForms/Windows/tree is the reference shape.
+    Long text uses the (...#) literal. Comments are // text, with no braces in an action body.
+    initFORMs is gone: a form that still calls it stops silently at exit 0 (F-73). Its replacement is the two search lines; a correctly scrubbed form produces output.
+    Help text lives in the dESCRIPTIONs registry; a field names its entry with describe.
+
+/*****************************************************************************
+    Waiting on Tony
+*****************************************************************************/
+    1  Bare font names (titleFont written bare): formsTable says keep; the text floor reads only font:=.
+    2  margin (mRight, mBottom ...): no ruling of its own since pad was dropped. "Decided once the forms can be seen drawn."
+    3  A name for the image fit attribute: `fit` is already a layout attribute in formsTable.
+    4  Percent (width=50%): written to the body, or read from the instance. Both options in formsRecon Part 3, M1.
+    5  A side on a rounded field (step 9). 7 of the 12 side-asking fields are also rounded.
+    6  DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
+    7  heading in firstLight would sit about 3 points lower with valign=center. Not applied.
+
+/*****************************************************************************
+    Issues (open lines, verbatim from where they were recorded)
+*****************************************************************************/
+    seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled. Rounded corners are step 9. The image in a PDF has no row."
+    seal 441:  "drawKids keeps its own call list (it does not call drawWalk), so adding drawImage to drawWalk alone drew nothing for any child. Both lists carry it now."
+    seal 439:  "M8 (a value naming a registered field copies that field's text) was not met by these three names, and was not tested against a registry that holds a field called top or bottom."
+    seal 438:  "incant/grammar (the old road, which action bodies and forms parse on) still reads `attributes? members?`, so both words are still taken there and still walk the attributes only."
+    parseLabelParent:  "A warning when a field is placed twice is a candidate for later. NOT BUILT."
+    parseLabelParent:  "Children live in the shared body and each has ONE parent. ... So a walk up is sound for one instance of a form and not for two. If forms ever need the same definition placed twice, bubbling should carry its path down from the hit test (a stack built on the way to the hit) instead of reading parents."
+    unknownFlagRecon:  "`isGROUP` in tabs stays, warns, and is respelled when that form comes up for repair."
+    forms notes:  "list and wraplist, the forms with =\"*\", do not parse: XML-era text."
+    forms notes:  "MEMORY IS THE ONE REAL COST: the miss run's resident size grew 64MB over 2M parses, 32 bytes a parse ... Not chased." (setColor; formsRecon Part 3, M3)
+    seal 442:  Windows/ bigify, db and inspector include XML/HTML/traits.xml and XML/Controls/templates.xml by absolute path, and those files are gone.
+    The listener (A2) is parked: every LISTENER row in formsTable waits on it. The data recon is withdrawn until a form needs it.
+
+LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expected, and a tag -- form or engine. Taken one or two per session, never fixed inside another stroke.
+    Windows/tabs: the run warns that isGROUP looks like a flag and keeps it as an attribute; expected no warning -- form.
+
+/*****************************************************************************
+    Tasks (minion-ready shape: fence / rulings / rows / certificate / H7 / stop). None written yet.
+*****************************************************************************/
+    Candidates, each needing only kant and a form (no rebuild): respell one form to today's spellings; a checker that lists a form's attributes nothing reads; rows for the image in a PDF.
+
+/*****************************************************************************
+    Moved by other topics (kant strokes that touched a forms row, by seal). None yet.
+*****************************************************************************/
+
+/*****************************************************************************
+    Digest of retired files (retired 2026-11-11, git c3180398; one line each)
+*****************************************************************************/
+    docs/forms.md                   form-file conventions for the XML-to-incant conversion; what still holds is under "Form files" above.
+    docs/gui.md, gui-brief.md       the June GUI one-stop and its brief for Clay: first window 2026-06-22; incant owns the model, Layout the pixels.
+    docs/guiDesign.md               July spec: Layout / Stylish review, fonts, colours, events; its subview text model was superseded.
+    docs/displayDesign.md           superseded 2026-08-11 by DisplayDesignHTML in incant/designDocs.
+    docs/note-to-clay-style.md      the ask that produced displayDesign.
+    docs/formsRecon.md              August: the drawing surface measured, and the first drawing specimen. (Not WorkingOn/formsRecon.)
+    docs/layout-recon.md            June read of the old Layout.twk; the HTML-transpiler idea (Topics/features 25).
+    docs/gui-sheet-xml-lifecycle-recon-2026-05-29.md   how sheet.xml became a window in the old GUI.
+    docs/setWindow-plan.md          July: what the old GUI's windows, panels and popups did; a try-and-buy setWindow. Input to step 10.
+    docs/bot-recon.md               the Bot two-process experiment, read as a head start for the web channel.
+    docs/font-recon.md              June font and colour archaeology; superseded by docs/m5Recon.md.
+    docs/jsonTest-googlefonts-probe.md   jsonTest fed the Google fonts JSON: partial clean bill, one choke.
+    docs/bordersRecon.md            step 3's recon: nothing stroked a side from kant; one floor method and a colour ruling unblocked it.
+    docs/firstPdfRecon.md           step 4's recon: a PDF context rides the handed-down display as the bitmap does.
+    docs/textRecon.md               step 5's recon: stopped because font and text colour had no source; led to SEQ 582.
+    docs/flagAttrRecon.md           flag names as attributes in a define; built (flagAttrT).
+    docs/unknownFlagRecon.md        a near-miss flag name warns and stays an attribute; built (flagNearT).
+    docs/traitRefRecon.md           what a define's attribute holds, and := in a define; built (merge 294d2087, traitGridT).
+    docs/parseLabelParent.md        a member's parent is its enclosing field; built (merge 24beb5f0, parentChainT).
+    ipc/clod-to-forms.md, forms-to-clod.md   the forms minion's channel, opened 2026-08-03, never used.
+    IncantForms/WorkingOn/formsPlan a pointer to the forms notes, retired 2026-11-04.
+
+/*****************************************************************************
+    Seal digest, newest first (the seals are in docs/wakeup.md and git)
+*****************************************************************************/
+    443  SEQ 614   this file made; typesetting split out; the forms history files retired.
+    441  SEQ 607-609   descriptions respelled and drawn: the search line moved, describe shown, displayImage (one argument, fit fill).
+    440  SEQ 606   descriptions recon: the attribute map, images and the click in the old GUI, flex confirmed as also meaning across.
+    439  SEQ 605   valign; firstLight's ok centred both ways.
+    412-413  SEQ 581-584   the text floor and align; font and colour resolved in kant.
+    393-394  the first PDF.   391-392  borders.   389-390  the draw walk.   376-377  fills, the right way up.
+    Before the drawing steps (2026-11-03 to 11-07): the recon and table (A1, A3), firstLight on paper (A4), := in a define, the parse-label parent, colours and fonts (M5), the fill reader (M3). formsRecon Part 3 has each.

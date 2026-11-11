@@ -3944,7 +3944,7 @@ are inline at 5-6, it runs, it produces output. Its dead-region prose still desc
 
 **Done when:** the eight are converted to the define-only shape `Windows/tree` demonstrates, each
 run once to see it produce output; `tabs`' stale prose goes with them; `BackupXML/oneTest`'s second
-`stop()` is ruled on. `docs/forms.md` §1 is rewritten in that stroke — it still documents
+`stop()` is ruled on. `docs/forms.md` (retired 2026-11-11, git c3180398) §1 is rewritten in that stroke — it still documents
 `changeDatA()` as live and cites `utilities:233` for it, now dangling.
 **Grade:** CONFIRMED — three arms, and a census matched on the call rather than the name.
 **Size:** eight files, plus whatever the preamble's new home costs.
@@ -5527,8 +5527,8 @@ than one line reading "off".
 **Owner:** whoever writes the next seal. **Size:** two lines of housekeeping. **Off-repo subject,
 in-repo record — none of it is repo material and that is exactly why it needs saying once, well.**
 
-### F-4 — `docs/gui.md` cites files a fresh clone no longer receives
-**Where:** `docs/gui.md:729` and `:818`, citing `Aside/WithJIT/ParseXML.rtn` as the verified
+### F-4 — `docs/gui.md` (retired 2026-11-11, git c3180398) cites files a fresh clone no longer receives
+**Where:** `docs/gui.md (retired 2026-11-11, git c3180398):729` and `:818`, citing `Aside/WithJIT/ParseXML.rtn` as the verified
 track-builder to "bring in before porting". Also `docs/plg-*-recon-2026-05-29.md` citing
 `Aside/BeforeSimple/ParseXML.*`.
 **What:** `Aside/` and `BackupIncant/` were ignored and untracked 2026-08-16 (`b1482ff`, `2364b05`).

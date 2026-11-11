@@ -39,7 +39,7 @@ simple and pct survive a second run only because neither has a fill. Their sizes
 
 ## Who reads a frame today
 
-Searched: utilities in full, and the forms plan (`IncantForms/WorkingOn/forms`). In utilities, only setFrame itself and
+Searched: utilities in full, and the forms plan (`Topics/forms`). In utilities, only setFrame itself and
 `displayIfVisible` (:35) read x, y, width and height. `bigifyLayout` writes them as percents for setFrame to read. In
 the plan, only the window's own frame is read (`getFrame`, forms :291); nothing draws yet. **So no reader yet depends
 on where computed sizes live, and the choice is still cheap.**

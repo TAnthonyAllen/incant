@@ -475,7 +475,7 @@ projectBible.md (retired 2026-11-11, git 2144dde6) "Phase Generate Tawk".
 - [ ] **DOCKET (Tony, 2026-11-09, SEQ 582 R7), not built: a misspelt form attribute does nothing today.** A near-miss warning
   against formsTable's attribute list, in nearFlag's shape (ruleActions.rtn, nearFlag).
 - [ ] **DOCKET (Tony, 2026-11-09, SEQ 584 R5), not built: a warning naming a field whose style:= sits to the right of an attribute
-  that style sets** (THE STYLE IN EFFECT, IncantForms/WorkingOn/forms: style:= comes first by convention).
+  that style sets** (THE STYLE IN EFFECT, Topics/forms: style:= comes first by convention).
 - [ ] **DOCKET (Tony, 2026-11-09, SEQ 584 W3): text on a top field is refused because the drawing surface shares the top's text slot;
   cure when windows need a titled top.** (GroupDraw.displayText's topText refusal; incant/pop/textTopT.)
 - [ ] **PARKED (Tony, 2026-10-23, SEQ 413): should a rule's own name inside its code mean its label?** Design question,

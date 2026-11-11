@@ -76,4 +76,4 @@ faTable();
 cerr "FA SENTINEL":;
 stop();
 
- flagAttrT: an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1). docs/flagAttrRecon.md.
+ flagAttrT: an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1). docs/flagAttrRecon.md (retired 2026-11-11, git c3180398).

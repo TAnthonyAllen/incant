@@ -839,3 +839,482 @@ Bot/PDFs/drawing.pdf, drawTest.pdf
 STOPPED: 2026-11-03, Part 2 complete -- every row in the dispatch's four
 groups written. Nothing left in hand. A3 can build from this file.
 =============================================================================
+
+
+=============================================================================
+PART 3 -- THE FORMS NOTES AS THEY STOOD AT SEAL 442 (moved here 2026-11-11, SEQ 614)
+IncantForms/WorkingOn/forms became Topics/forms, the forms topic file, and was cut short. This is its
+full text before the cut, unchanged, kept as evidence. Topics/forms and Topics/typesetting point into
+it by heading. Where the two disagree, the topic file is current and this is the record.
+=============================================================================
+
+/*****************************************************************************
+    This file is not an incantation, just notes on form design
+*****************************************************************************/
+The form incantations in IncantForms need to be reworked to work under kant; and the attributes referenced in those forms may need figuring out and may need a method/action written for them to work as intended. Old GUI used these; does not mean kant needs to do it the same way. When I say recon into old GUI required below, means will require a recon thru old GUI to see how it used to work as first step to figuring out how it will work in kant.
+Here is a list form attributes along with an explanation of what each attribute does. The list is derived from attributes in old GUI forms. Some of the attributes are part of the little drawing language (see drawing incantation). Attributes defined in templates tend to be mergeContainers that contain attributes that get merged into the mergeContainers parent on definition. I may have missed some attributes. A recon needed thru all the IncantForms incantations to make sure all the attributes therein appear on the list below.
+
+    across              form field members will be laid out horizontally
+    action              in old GUI seems to provide an onClick functionality but action will probably not make the transition from old GUI to kant where every attribute can have a method/action and we need to figure out how and when those get fired
+    align               aligns text in the frame; allowed values: left center right;
+    valign              places the block of text lines top to bottom in the frame; allowed values: top center bottom; no valign is top (step 5b, SEQ 605)
+    border              prints a rectangular border around the field; if border value is number that is used for its width;
+                        an off value says no border but that is only relevant if border is inherited and probably it should not be inheritable
+    button              a form component that acts as a button; has to have a method/action to fire when it gets clicked on (that implies a form component action works like an onClick action)
+    cards               specifies that its parent contains cards that on display are layered on over the next with only one showing. The cards can be shuffled thru using arrow keys
+    closable            makes a window or panel closable; should only work on windows or panels
+    describe            used to link a field to its description in the dESCRIPTIONs registry. See descriptions incantation for how it works.
+    doNotScroll         scroll block search goes bottom up looking for a scrollable block; doNotScroll means keep searching up
+    down                form field members will be laid out vertically
+    drawPath            says the attributes that follow it are drawing commands. Needs design and fleshing out.
+    expander            references expandable and expanded attributes defined in templates. old GUI recon needed to figure out how expander works
+    fit                 Wraps a container around its contents. A recon into old GUI (probably in Details.twk) needed to figure out how it works, and if we decide to keep it, how do we transfer its functionality to kant. Not a simple little attribute.
+    flex                not sure what this does. Recon into old GUI needed to figure it out
+    font                value is a font defined in the Fonts registry. updates current style
+    key                 not sure what it does but it is used in layout (a forms incantation that needs figuring out)
+    keyAction           says its container field has an action fired when the field is selected and a key is entered
+    keyStroke           used to specify a keyStroke set; see IncantForms/Windows/keyStroke incantation. Some figuring out required.
+    image               specifies the url or file path of an image to be loaded
+    matrix              requires an old GUI recon to figure out what it does. There are a number of matrix attributes defined in templates
+    minimums            minimumHeight and minimumWidth constrain layout when checking if a component fits in its parent
+    pad                 not planned to be supported in layout
+    panel               like window but defines a panel to be displayed
+    perforation         draws a perforated border on its parent using incant little drawing language
+                            depth gap perfRight perfLeft perfTop perfBottom and stride are attributes used by perforation as parameters (they have default settings)
+    popup               defines a popup box. How it works needs figuring. Recon into old GUI required.
+    pullDown            fires a pull down menu. How it works needs figuring. Recon into old GUI required.
+    radius              defines the radius used by rounded
+    resize              makes a window or panel resizeable; should only work on windows or panels
+    rounded             like border but puts up a rounded rectangle; the rounding radius should probably go into style
+    selectable          flags its parent (a form component) as being selectable
+    sort                takes a value that is the parent attribute to be sorted on??? Applies when multiple members involved to sort those members (the ones being displayed, not the source itself). sort will require a method/action to do the sorting. Needs recon thru old GUI.
+    table attributes    defined in templates; include: tableBody tableCell tableHead tableLabel tableRow
+    text                prints the form field text into its frame applying the current style
+    title               as in title="Some Text" an attribute but title implies a different style; how to supply that implied style (presumably when title is defined, without the text data that get applied in a later redefinition when title is added to some field as an attribute). Does title have a method/action? If so what does it do?
+    toggled             used in inspector form. recon into old GUI required to figure out what it does. May not transfer to kant.
+    trait               interacts w/source. Used in IncantForms/Windows/layout incantation. Old GUI recon required.
+    window              essentially the outermost field in a forms definition
+
+/*****************************************************************************
+    Form fields (not attributes) with special meaning
+*****************************************************************************/
+    form            is defined in templates; it probably should be renamed. Its design and use is interesting. The IncantForms/Windows/menu incantation makes use of it and warrants a look see to work thru.
+    space           a form field that can have a numeric value; if its parent orientation is across, the value is its width; otherwise its height.
+                    Typically, has no content. If has no value, its size is determined as its share of any residual space in its parent.
+    comments        In old GUI form comments were flagged as ?text? We need a kant equivalent and can probably use normal quotes like // text
+
+/*****************************************************************************
+    Design Issues
+*****************************************************************************/
+    use of font: thinking only way to refer to a font is by its tag as defined in the Fonts registry. That means fontSize is not a valid attribute
+    some form attributes implicitly update style
+    if a form attribute has a method/action when does it fire? Methinks the default is on click; action attributes are processed in left to right order
+    pouring text into a form. A form component can have a frame and a style and a source (of text being poured in). The process:
+        form runs thru setFrame to define its shape
+        if we opt for a print driven layout (makes sense if we are printing to pdf), print form; would have to be able to draw the form, component by component as it goes, dealing with borders colors font and determining how much source text fits in the space each component provides such that first component gets a block of text from the source, all it can fit. It leaves source (which is a buffer) mark at the end of the source it draws from. The next component with the same source will read in its text starting at mark, and on we go.
+        adding a print ability to handle forms looks to be calling for a print language, a little, maybe not so little, language currently wearing a PrintXP dress like the one Cinderella was wearing before all the bippity boppity boo gets applied (bottom line: we need some little language design magic here). The print language and the drawing language may be the same thing, or interact like they are.
+        more on the print language. I think of it as a typesetting language, like Latex but simpler, kant like, and able to draw on kant capabilities. Designing the typesetting language will be lots of fun.
+    thinking to change print grammar to a form like: print reset? this to there; where the default for there is stdout and there could be a buffer, a buffer possibly linked to a window or an html file or a pdf file. The to there would be picked up by the next print and you need to add reset as the first field on a print line to turn it off
+
+/*****************************************************************************
+    Forms Needing Figuring Out. Recon into old GUI probably required
+*****************************************************************************/
+    draw        an old GUI form that draws but updating it to work in kant will require decisions on how the little drawing language works
+    fit         most of the figuring involves figuring out how the fit attribute does what it does
+    layout      was intended as a form to show what forms can be. It includes references to trait and key attributes that need figuring.
+    list        a form that needs some serious figuring out just to figure out what it does, much less how it does it
+    sheet       a form that builds an interactive drill down/across spread sheet. Involves a lot of BitMAP merging. Rewriting BitMAP will be a challenge in kant since it leans heavily into bitmap ops. On the other hand, CPUs are a lot faster now. May not need to use BitMAPs. A task needing assessing.
+
+/*****************************************************************************
+    Comments to be folded in
+*****************************************************************************/
+This is a solid inventory. The most useful thing it does is separate "we know what this does" from "needs old-GUI recon," and that split is most of what a charter needs. A few things stood out.
+
+1. When a form attribute fires is the central question, and parse-then-fire has already answered its shape. You ask when a form attribute's method fires. The parse campaign's answer maps over almost directly: definition builds a tree and fires nothing, then later passes fire parent-driven, and each action decides whether its components fire. For forms that looks like three moments:
+
+Define time: templates, mergeContainers merging into the parent. This is the define-family exemption again.
+Layout time: setFrame, fit, space, minimums, across/down.
+Event time: button, action, keyAction, selectable, sort.
+
+If every attribute on your list gets a column saying which moment it belongs to, "when does it fire" becomes a table lookup instead of a design question each time. Most of your list sorts cleanly. The ones that won't sort are exactly the recon items.
+
+2. "Some attributes implicitly update style" collides with the stream model. The display design ruled output a forward-only stream: a named style replaces state wholesale, and there is no restore by construction. So font on one child changes the current style for everything after it, siblings included. You need either scoping (a component's style ends at its frame) or an explicit rule that style attributes only ever name whole styles. title implying a different style points toward the second: title's definition carries a named style, and the text arrives later as data. That fits "style is a slot, replaced wholesale."
+
+3. Pouring text is the parser's mark problem again. A source buffer with a mark, each component taking what fits and leaving the mark for the next: that's the input cursor, with "fits in the frame" in place of "matches the rule." The Buffer mark already exists. It's the one the parse notes flagged as a false friend for atRuleMark, which makes it the right friend here. It's worth checking before designing anything new.
+
+4. Inheritance needs its own column. border already raises it ("off only matters if inherited, and probably shouldn't be inheritable"). font, align and doNotScroll all carry an implicit inherit-or-not answer. Make that explicit per attribute now, or it gets decided accidentally by whichever implementation lands first.
+
+5. The recon items could be one charter. fit, flex, expander, matrix, popup, pullDown, toggled, key, trait, plus the list and layout forms, all start with reading old GUI (Details.twk and friends). That's a single read-only minion task: for each attribute, what it did, where, and whether it earns a place in kant. It's the kind of fenced recon that has gone well before. I'd guess flex and valueless space may turn out to be the same mechanism, but that's a guess, not a finding.
+
+Two smaller notes:
+
+// text for comments is fine. The standing caution still applies: no braces inside a comment in an action body until checkSKIP lands.
+Dropping vertical align in favour of a space field is consistent with space taking residual space. I agree.
+
+The typesetting language is a lovely destination. Points 1 and 2 are the parts that shape everything before it.
+
+/*******************************************************************************
+	The forms plan of record (SEQ 531, 2026-11-04)
+*******************************************************************************/
+STATE: A1, A3 and A4 on paper are done, with the side spelling ruled; A2 answered NO and is parked behind SEQ 530. Event firing is ruled on paper; its proof waits on M1, := and the parent fix. Nothing built.
+Evidence files: IncantForms/WorkingOn/formsRecon (what the old GUI did: file, method, line) and
+IncantForms/WorkingOn/formsTable (the lookup: one row per attribute). formsPlan is now only a pointer here.
+
+/*******************************************************************************
+	Rulings of record
+*******************************************************************************/
+Standing (forms plan, 2026-11-03): afternoons produce recon and documents only, never trunk code. A finding that needs
+code becomes a morning docket item. Mornings stay on the kant docket.
+
+Style (Tony via Clay, 2026-11-03; formsTable, needs-Tony items 1 and 2)
+    Style-setting attributes may go directly on fields.
+    A style change is scoped to the field's subtree. Each field starts from a copy of its parent's style, and any field
+    may override by naming its own style or change.
+    Attributes never change style implicitly. title names its style in its own definition (forms notes, 2026-11-03).
+    StreamModel governs painting, not style resolution. Style resolves as a tree in the typesetting pre-pass; the painter
+    sets each run's resolved style wholesale (incant/designDocs: DisplayDesignHTML / StreamModel / StyleResolution).
+Attributes (Tony via Clay, 2026-11-03; formsTable, needs-Tony items 4 and 5)
+    The drop list at the foot of formsTable is confirmed as listed. Anything dropped and wanted later comes back then.
+    pad is DROPPED (Tony, 2026-11-04, SEQ 532). It joins the drop list.
+    Border sides (Tony, 2026-11-04) are spelled topBorder, bottomBorder, leftBorder, rightBorder. A bare name gives width 1 and
+    =number sets the width. Naming any side draws only the named sides. Plain border stays four-sided.
+    The 12 Windows fields below are converted when forms work converts them, not now.
+    fill is not inherited.
+    fit=text is dropped.
+Native floor (Tony via Clay, 2026-11-03)
+    Core Text measures and Core Graphics draws, to the screen and to PDF (CGPDFContext). No libharu.
+    libharu TextRect's fill-and-report is the pour primitive: fill this frame and report how much was used. The count is
+    KEPT, as the next frame's start.
+Event firing (Tony, 2026-11-04)
+    Click actions use onClick, an attribute naming the action. It needs := (SEQ 530): today onClick=action hands over a copy.
+    Bubbling stays, and a member's parent must be its enclosing field. The parse-label parent is a morning docket item, recon first (macros).
+    A field fires its own action, then its attribute actions left to right, as the old GUI did.
+    Click comes first. onLayout is dropped; it joins the drop list.
+    A click selects the field first, as the old GUI did.
+    Layout's mouseUp calls a kant extern.
+    Firing is proved with a synthetic point and no window, after frames exist (M1).
+What a form is (Tony, offline status, 2026-11-05; the worked example is sample in incant/unitTests)
+    A form field's attributes are a little language, not assignments. fill=wall is a definition, not an expression assigning a value.
+    fill is a drawing command wearing an attribute dress: at layout, not at define, the layout process sees fill and fires its method to set the field's fill colour.
+    wall stays a field the user can change between layouts, so the colour changes without redefining the form. Look and feel: dark and light are fields, each holding its own wall (one of them on the search list), or actions that change wall.
+    Forms are dynamic and can change on layout: a window resize changes every dimension when setFrame runs.
+    Form fields can have methods or actions, fired on layout in left to right order.
+    The old GUI's somefield=$simpleValue did this binding at layout time; the new road seems to be evolving away from macros.
+    MEASURED 2026-11-05 (kant, tester delta, wall read back with .datA): the define does not yet keep this. wall=5 then walled fill=wall holds the value 5 and still reads 5 after wall=6. With wall empty at define, fill holds the name lateWall as text, which layout could locate. So fill=wall means two things, depending on whether wall holds a value when the define runs (docs/traitRefRecon.md G6, G7).
+    RULED (Tony, 2026-11-05, SEQ 534 R1, R2): the spelling is fill:=wall, as onClick:=, which retires the two meanings. Plain = in a define stays a value copy. No global respell and no census: each form, in unitTests (sample too) or IncantForms, gets its := when it comes up for repair on a forms afternoon.
+Colours and fonts (Tony, 2026-11-05, M5; docs/m5Recon.md)
+    setColor skips a leading #. Fonts are written as attributes: titleFont family='Palatino' size=24 bold;
+    IncantForms/Controls/styles holds the 14 colours and 7 fonts. It is not on the default search list until defineCapture B2 lands; tests load it explicitly.
+    fill=purple is fixed when sample comes up for repair.
+Where style code lives (Tony, 2026-11-05)
+    Style resolution is written in jittable kant. C++ is only the drawing floor (setColor, Core Text, Core Graphics), and each floor method stays short and does one thing.
+    Style code runs interpreted until S6 compiles calls, and is S6's natural proving ground after that.
+From the forms notes (forms plan, 2026-11-03)
+    Vertical align is dropped in favour of space.
+    Comments in a form are // text, with no braces in action bodies.
+    The Buffer mark is the first thing to check for pouring text.
+
+/*******************************************************************************
+	The steps
+*******************************************************************************/
+A1  Recon charter, the old GUI, read only. DONE 2026-11-03: formsRecon, Part 1 (inventory) and Part 2 (per-attribute).
+    Findings that bear on later steps: Groups/GUI drew through a web view (HTML canvas) and Bot through PDF, so Bot already
+    is the print-driven layout; style is per field, copied from the parent (scoped); flex is a CSS hint, and the real
+    repeater is across="*"; minimumHeight / minimumWidth were never read.
+A2  Listener probe: does a field listen to another field, and receive on change? ANSWERED NO ON BOTH ROADS, 2026-11-03.
+    PARKED by Tony 2026-11-04 (SEQ 531 R2, stands after SEQ 533 R0): waits on := in a define, because TraiTdata hands a define's attribute a value,
+    not the field. Every LISTENER row in formsTable waits on it. The measurements are in macros, under PARKED.
+A3  Attribute table, one row per attribute: moment (define / layout / event), inherited, has action, depends on, status.
+    DONE 2026-11-03: formsTable, 135 rows, built from formsRecon. Its needs-Tony list is ruled but for event-time firing.
+A4  The first-light form, ON PAPER: the smallest form touching all three moments -- a window, down, border, text, one
+    button. WALKED 2026-11-04 (SEQ 532): IncantForms/Windows/firstLight, cut from simple; read back by
+    IncantForms/WorkingOn/firstLightRead. The walk and the side count are below. The side spelling is RULED (2026-11-04).
+    Event firing goes after A4, through A4's button. RECON DONE and RULED 2026-11-04; its proof waits on frames (M1), := and the parent fix.
+A5  The foreign-call design, paper only until the jitter settles: a C++ method with several arguments or non-kant types
+    is reached through a declared signature; the jitter emits a glue body that reads the field's members and calls the
+    C++, so kant keeps one signature.
+Later: the drawing language, then print / typesetting.
+
+/*******************************************************************************
+	Open questions
+*******************************************************************************/
+1  CLOSED 2026-11-04: event-time firing is ruled (rulings above). Its conflict is closed too (Tony, SEQ 533 R0): SEQ 532 R2 is superseded,
+   and := in a define is built for onClick, ahead of the listener, which stays parked. Its own rule with its own :=, refused in a rule host.
+2  The listener's spelling, UNPARKED 2026-11-05: `b listenTo:=a` copies a's value to b on each write. onNotify is not built; see macros, THE LISTENER.
+3  CLOSED 2026-11-04: the border-side spelling is ruled (rulings above), and pad is dropped.
+6  CLOSED FOR NOW 2026-11-04 (Tony): margin stays. Whether kant needs it is decided once the forms can be seen drawn.
+   (4, 5, 7 and 8 moved 2026-11-09 under the Drawing steps at the foot of this file: 4 to step 7, 8 to step 9, 7 to step 5,
+   5 to the directions.)
+/*******************************************************************************
+	Typesetting notes -- DRAFT, NOT RULED (2026-11-03)
+*******************************************************************************/
+The sketch (Tony and Clay, as relayed by Clay)
+    Three jobs: describe (markup), lay out (break and place), render (backend).
+    Drawing is absolute placement (draw here); typesetting is flowing placement (wherever it fits next). Both sit on one
+    thin C++ floor: measure text, draw glyphs and lines.
+    Take TeX's engine, not its language: boxes and glue, whole-paragraph line breaking, flow into frames. Kant rules and
+    actions replace TeX's macro expansion.
+    Forms are half of it already: down / across are box lists, a valueless space is glue, fit is shrink-wrap.
+    Two trees: a source tree (the what: document, paragraphs, runs) is poured into a frame tree (the where: form fields).
+    Test: if it can break across frames it is flow; a fixed place makes it a form field.
+    Emphasis: marked text becomes its own run; its style is its parent's plus a named change, scoped to the run. Markup
+    names the meaning; the framing style says what it looks like. A wholesale named style is the case where the change
+    sets everything.
+    Prose is written in the typesetting language: text by default, commands as the exception. noSkip ^ and dtext^= are
+    prior art. print source to frame becomes the pour command.
+Clod's reply
+    Text by default fits as a prose MODE, not a grammar-wide default. The closer prior art is the (...#) literal, already
+    text by default with one exit. Where it hurts: every rule skips leading space unless ^, so the whole prose path must be
+    noSkip; checkSkip's indent adoption would read an indented paragraph as nesting; comments are parsed, not skipped
+    (bear-traps 4, 29, 53), so // in a URL bites; whitespace-only text has no data (bear-trap 28), so spaces must be glue
+    nodes, never string runs; and a failed parse abandons the rest of the input at exit 0, which for a document is a
+    silently lost chapter, so prose mode must fail loudly or carry an end sentinel. Pick one rare escape character; # is
+    taken.
+    The pour cursor and break record: the live Buffer has ONE mark (Frame/Buffer.h; the mark stack is in Buffer.new,
+    unbuilt). That is enough for one flat buffer poured in order. It is not enough for a tree of runs (position is run +
+    offset), whole-paragraph breaking (decides after seeing the paragraph), re-flow on resize (needs each frame's START), or
+    a frame read twice. Proposal: a pour cursor (run, offset) plus a BREAK RECORD -- where each frame's text begins and ends
+    -- as the pour's output, kept out of the source tree. The Buffer mark stays as the leaf (a position inside one run). Old
+    GUI's source= / next= is the same cursor at record grain, with listeners (A2).
+    The phase split: parent copy plus named change matches old GUI (Details setStyle) and contradicted the WORDING of
+    StreamModel ("not a scope tree"). Reconciled by phase: resolve as a tree in the pre-pass, paint as a forward-only stream.
+    That half is now RULED (above). Build with lazy resolution (pointer to parent style + delta) and := / copyOf, never =
+    (bear-traps 1, 2). Meaning-to-look lookup walks the enclosing frames like findAttribute; keep it separate from the copy.
+    Additions: a third kind for the flow/field test -- a fixed box carried BY the flow (inline image, figure, unsplittable
+    row); forms' space is stretch-only equal-weight glue, so move forms to the same glue model when typesetting adopts it
+    (one mechanism); measure once per run in the pre-pass, through the one measure method the Display ruling reserves;
+    frames name their successor (old GUI next=, text=Name); read Bot's PDF renderer before designing the backend (formsRecon,
+    PDF recon); defer hyphenation, widows / orphans, floats.
+
+/*******************************************************************************
+	Where the old GUI lives (A1 Part 1)
+*******************************************************************************/
+Groups/GUI/                 tracked in Groups; 8,251 lines of .twk/.rtn/.act/.g. The attribute dispatch table is Bwana.twk
+                            registerMethods (mapMethod); the attribute methods are Map.rtn; layout, fit and flex are
+                            Control.twk and Details.twk; sheet / matrix is Stuff/Sheet.rtn.
+InProcess/Bot/              not a git repo; a variant of the same GUI, dated 2021-03-24 against Groups/GUI's 2021-03-09,
+                            so slightly newer. Same file set plus BotClient/BotServer/PDF/RunBot; about 1,900 differing
+                            lines across Actions, Control, Details, DrawPoint, Layout, Map, Stylish. Bot/GUI is a symlink
+                            to Groups/GUI.
+Groups/Layout.twk, Stylish.twk, GroupDraw.twk   the 2026-07 rewrite, not old GUI; read only for comparison.
+IncantForms/Controls/       templates, attributes, traits: the form side's own registries (tEMPLATEs, pROPERTIEs, sTYLEs,
+                            cOLOr, fONTs).
+
+/*******************************************************************************
+	A4: the count, the proposal, the walk (SEQ 532, 2026-11-04)
+*******************************************************************************/
+How IncantForms/Windows asks for an incomplete border. Population: all 22 forms' live regions, attribute position only.
+12 fields in 6 forms, 25 side words. Control: simple:14 and simple:15, known beforehand, both appear.
+    combination       fields   where
+    left alone          4      simple 14, 15; layout 34, 35
+    left right          2      layout 28; wraplist 15
+    top left right      3      layout 25; list 11; scroll 18
+    bottom left right   1      inspector 18
+    top bottom          1      layout 29
+    top bottom left     1      layout 30
+    Never asked: top alone, bottom alone, right alone, top + left, all four.
+    Spelling: always the bare side names. Bot's internal topBorder / bottomBorder / leftBorder / rightBorder: 0 uses.
+    Value: bare in 7 fields; left=2 in 4; left=5 right=5 in 1 (wraplist, which may mean spacing and not a border).
+    No side field also carries border or bordered. Whole borders: bordered 47, border 3, border=colour 7, border=off 37.
+Old GUI (Tony's pointer, 2026-11-04): border and pad handling is GUI/Details.twk setInnerBox 594-656, plus Details.rtn. Read there:
+pad, margin and the whole border each shrink the inner box. The side names have no reader in that function; Bot/Details.twk reads topBorder and its kin.
+Excluded by reading: draw 39 and 41 are prose; side words as field names, 13 rows in keyAction, layout, menu, tree; side
+words as values, align=left 11, align=right 2.
+
+PROPOSED bare top / bottom / left / right; NOT TAKEN. RULED (Tony, 2026-11-04): topBorder, bottomBorder, leftBorder, rightBorder, as in the
+rulings above, which is Bot's name for them. The count above is of the old spelling, so it is also the conversion list.
+    Today's form:    first height=50 fill=white top left right rounded          (layout 25, converted later)
+    firstLight:      heading="First Light" text height=30 font=title align=center bottomBorder;
+
+One hazard, measured on the old spelling: a side word collides with a field of that name IN A SEARCHED REGISTRY. There a bare top
+takes that field's attributes (list length 2), right=5 overwrites the field itself (read back as 5), and align=right copies the
+field's text ("Nothing in here"). A MEMBER named right does not collide. The ruled names leave side words free as field names;
+align=right and align=left still read a registered field of that name, which is M8.
+
+The walk. "Kant today" is whether the define expresses it and a reader gets the value; every attribute below parses and
+reads back. Nothing below draws until the morning items are built.
+    field / attribute   should draw                   floor call                         kant today
+    window              a window holding the form     Cocoa NSWindow (guiHost openWindow) marks only; openWindow strokes one frame
+    x y width height    the window's frame            none (numbers)                     YES; getFrame reads them
+    down                children stacked              none (arithmetic)                  reads; NO layout pass
+    fill=wall           wall colour across the frame  CG CGContextFillRect               reads as text; NO reader of fill
+    font=normal         font for the subtree          CT CTFontCreateWithFontDescriptor  reads; NO fONTs registry, NO tree
+    heading text        one line of text              CT CTLineDraw                      reads; NO text drawing
+    height=30           fixed height in the stack     none                               reads; NO layout pass
+    font=title          overrides by name, subtree    CT as font                         reads; NO scope
+    align=center        centres the line              CT CTLineGetTypographicBounds      reads; NO reader
+    bottomBorder        a line along the bottom edge  CG MoveTo, AddLineToPoint, StrokePath  reads as presence; NO reader
+    words text          text poured into its frame    CT CTFramesetterCreateFrame, CTFrameGetVisibleStringRange (the count)  reads; NO pour
+    fill=white          white behind the text         CG CGContextFillRect               as fill
+    bar across          children side by side         none                               reads; NO layout pass
+    space               takes the leftover width      none (checkStretch's job)          reads; NO layout pass
+    ok text             one line, in A4's button shape  CT CTLineDraw                    reads; NO text drawing; fires nothing (R1)
+    width=60            fixed width in the row        none                               reads; NO layout pass
+    border              four sides at width 1         CG CGContextStrokeRect             reads as presence; NO reader
+    fill=lightGreen     green behind the text         CG CGContextFillRect               as fill
+
+Candidate morning items (none ruled):
+    M1 Layout pass: a kant walk that gives every field a frame from down, across, width, height and space. getFrame reads a
+       field's own attributes only, so a child has no frame.
+       setFrame HEALTH (recon, Tony, SEQ 535, 2026-11-05). setFrame and fillDownAcross are KANT, in incant/utilities, read through the old road. Callers: setFrame itself, recursively, and setFrame calls fillDownAcross; then only testUnitTests' testSetFrame. IncantForms/Windows/tabs and incant/pop/oneTest name it below their stop, dead. Before today no fleet row reached it. GUI/Details.twk's setFrame is a different, C++ function and is not in the binary (nm: 0 Details symbols); Layout's are AppKit calls.
+       IT RUNS AND FRAMES NOTHING: exit 0, no crash, but no child of simple (3 of 3) or sample (9 of 9) gets a frame, and sumple (down=*) gets none. REFUSALS BY NAME: ++memberCount (never assigned, fillDownAcross), sideRoom -= width and pX += width where width or the cursor holds no number, sideOut += grup ("holds a group; say *"), ++sideOut (never assigned). A refusal ends the action, so simple stops at its first pass and sample's recursion never starts. The idioms are the language having tightened; it does not need the frame model or M1 to run at all, so no campaign STOP fired.
+       list and wraplist, the forms with ="*", do not parse: XML-era text. firstLight parses and frames nothing, the same way.
+       PINNED: testSetFrame, UNBLESSED, at today's wrong values; a trace for Tony's eye. Tony's reading becomes its intended values. Also wrong on its face: width=50% reads w=50, the % lost. Nothing fixed.
+       THE % FINDING (recon, 2026-11-05; recorded at shutdown, nothing built). width=50% stores in the instance's modPercent; the body bit isPercent stays 0; kant cannot read either: .isPercenT answers "not supported yet", and setFrame's own width.isPercent (utilities:253, height :263) is a lookup of an attribute named isPercent, so it reads false on a real percent. The value is a count of 50, the modifier stripped. Stroke 1 (f7e0f499, 2026-09-28) moved the modifier from the bit to modPercent, but the loss predates it: at 14044dcc (2026-09-04) the bit read 0 and width=50% under a 200-wide parent got 50. That dates goldenDrift's width half (`width=50%` -> `width=50`) to between 33206bb6 (06-27, the golden still printing 50%) and 09-04, 708 commits, the commit not named. Not established: whether the read ever worked, and the 09-04 read itself (only its bit and result were measured).
+       BOTH OPTIONS OPEN, FOR TONY'S RULING, WHICH COMES WITH HIS OFFLINE STATUS:
+       (Body; Clay and Clod lean) % after a value is a unit on the value, so it is written to the body bit, split from the rule-term % (instance, stroke 1) by position. Needs an opDot read case for isPercenT and a row born red reading 100 against a 200-wide parent.
+       (Instance) Stroke 1 stands, kant gets a modPercent accessor, and a copied member probably loses it (copyOf copies the body, not rStuff, per Ruling D of 2026-08-22; not re-measured).
+       setFrame IS TONY'S, OFFLINE. THE FORMS AFTERNOON TRACK WAITS ON IT.
+    M2 Text floor: no Core Text anywhere in the tree. One measure method and one pour command, keeping the count.
+    M3 Fill: displayFillRT reads a style's fillColor; fill= has no reader (measured: it refuses a field that has only fill=).
+       A READER FOR fill= BOUGHT (SEQ 549, merge 54287f99), superseding the line above: the field's own fill, then its style's fillColor; # parsed where it sits; a name looked up at draw; not inherited.
+       RULED FOR M3 (Tony, 2026-11-05): setColor's per-field cache must not outlive a change to the value it came from; decide its shape when fill is built.
+       M3 RECON (Tony's dispatch, 2026-11-05, afternoon; paper only, measured in kant on the bare binary, no trunk code; no STOP fired: no shape needs a new GroupItem field or touches the frame model).
+       RECOMMENDATION, FOR TONY'S RULING: (a), no cache. The lean said (c) only if (a) costs anything noticeable, and it does not.
+
+       WHAT M5'S setColor CACHES TODAY. Not on the fill host and not a static: on the COLOUR NODE's body, as its value. setObject writes gObject and sets the data kind to isOBJECT. There is no key; the kind IS the test (getColor: if !isOBJECT setColor). The sole reader is getColor's item.object, and getColor's sole caller is displayFillRT.
+       THE RULING IS ALREADY MET FOR A WRITE: a write sets a new kind, so the next read re-parses. wall "#ff0000" between two draws read f7e8aa then ff0000, and setColor's hit count was 1001 over 1000 write-and-draw loops. Copying a realised colour (wall=otherC) copies the kind and the pointer, draws correctly, and parses nothing.
+       BUT THE CACHE DOES HARM, and this is what decides it. It REPLACES the value:
+         wall before realising: #f7e8aa, kind 14. After: "data type has no toString() method", kind 10. So one draw makes a colour unreadable, and fill:=wall reads the same through its holder.
+         A listener hears it: realising a listened-to colour runs setObject's updateListeners, so a draw changes the LISTENER too. lcHear went from 1, kind 5, to no readable value, kind 10.
+
+       HOW fill:=wall REACHES setColor AT LAYOUT: IT DOES NOT, TWO WAYS. There is no layout pass (M1) and no reader of fill= (M3 itself). The nearest road is a style's fillColor through displayFillRT, so the two "layouts" below are two draws.
+         fill:=wall holds the field, and reads wall's current value through the holder: #f7e8aa, then #ff0000 after the write (kind 6 on the attribute, DR-1 pins it).
+         fillColor:=wall draws the current value: f7e8aa, then ff0000. BUT IT GETS THERE BY NAME: displayFillRT reads comp.text, getText on a holder returns the held field's TAG, and getColor locates that name.
+         (CORRECTED 2026-11-06, SEQ 542: with the far registry on the search list a second wall= REWRITES the far field and mints nothing, defineCapture, so this measurement may have read one wall, not two. The defect is real on two fields, fillHeldT with the far registry off the list while the near one is defined.)
+         MEASURED DEFECT: with a nearer field also named wall (blue), fillColor:=wall drew BLUE, r0 g0 b255, the wrong wall. M3's reader must take the held field and never its name. M5's note above said this was M3's to change.
+
+       COST OF NO CACHE (2,000,000 loops, each run twice, agreeing to 0.02s; an 8x8 fill):
+         empty loop 0.25s, write only 0.34s, draw on a cache hit 1.10s, write and draw (a miss) 1.54s. So a parse costs about 175ns, and a draw on a hit about 425ns of which most is its two locates and the fill. A parse is cheaper than the draw it serves.
+         Fills per form, by count of fill= in the source: firstLight 3, cards 6, simple 5, layout 11; 140 across IncantForms/Windows. So one layout of the largest sample parses for about 2 microseconds. Nothing has a layout pass to measure directly, so this is a count times a measured cost.
+         MEMORY IS THE ONE REAL COST: the miss run's resident size grew 64MB over 2M parses, 32 bytes a parse, while the hit run did not grow. Not chased. setColor calls truncateString twice and may own all of it; a no-pool NSColor is the other suspect. It matters only if a form re-lays out continuously (11 fills at 60 layouts a second is about 21KB/s) and it should be cured in the stroke.
+
+       THE THREE SHAPES:
+       (a) No cache. setColor returns the colour and writes nothing; the reader takes a field. COST: about 175ns a fill, and the 32 bytes to cure. GAIN: wall stays readable, a draw stops notifying listeners, and there is no state to go stale. Touches setColor, getColor and displayFillRT, and stylesT's pixel rows pin the result. getColor's by-name door goes or stays for styles' "name" spelling, for the stroke to say. setColor's only caller is getColor.
+       (b) Listener drops the cache. Waits on onNotify's four changes, and arms a new hazard: realising fires setObject's notify, so a colour's cache fill notifies its own listeners unless that is cut first. Every fill host becomes a listener to save 175ns. No.
+       (c) Check on read. On the colour node it is redundant, because the kind already drops on a write; that is today's cache, and it keeps the harm. On the fill host it needs two noPrint attributes per filled field, the colour and its source text (no new GroupItem field, so no STOP), and reading wall's text means undoing the kind overwrite anyway. A strcmp saved against a 175ns parse. No.
+
+       FLOOR OR KANT (this morning's ruling): under (a) the question closes: nothing is cached. Kant resolves: the fill holder gives the field, and it hands that field to the floor, which returns or draws a colour and keeps nothing. That is the ruling's own split, and stateless is what jitting wants. If a cache is ever earned, it goes in the floor on the colour node, one per colour rather than one per fill, because an NSColor is no kant value; and it must sit beside the value, not replace it.
+
+       NOT MEASURED: a real layout (M1); the leak's owner; getFont and setFont, which read as the same shape, but a font's value is its attributes, so the harm may not apply. Probes are scratch, not in the tree; a stroke turns them into rows.
+    M4 Stroke floor: no command strokes a rect or a side from kant. Layout.drawRect strokes one frame, in C++.
+    M5 Colours and fonts: no cOLOr or fONTs registry loads; IncantForms/Controls/attributes is XML-era text. And with
+       wall searchable, fill=wall copies the hex (f7e8aa), while getColor locates by NAME (read, not run). Same family as SEQ 530.
+       BOUGHT 2026-11-05, 27b9df52; docs/m5Recon.md. fontReport stays. fill:=wall is ruled (above), so getColor by name is M3's to change.
+    M6 Style tree: getStyle returns the first style found up the parents; there is no copy per field, and sTYLEs does not
+       exist. The rulings want a pre-pass.
+    M7 A surface to look at: makeDisplay's bitmap has no y-flip, nothing shows it in a window or writes it to a file (pixelAt
+       is the only reader), and no PDF context exists.
+    M8 align=right (or =left) with a field of that name registered: the value copies the field's text, as above (defineCapture's family;
+       the attribute-name half, right=5 writing through to the field, was measured on the old spelling and goes with it for sides).
+    M9 A percentage: width=50.0% reads the number 50. The % goes to Modifier.
+    M10 Forms that still call initFORMs stop silently at exit 0 (F-73): simple printed no form. A form's own name can also merge
+       into an existing field: with initFORMs swapped for its two search lines, simple merged into UnitTests' simple.
+
+/*******************************************************************************
+	Event firing: the recon behind the rulings (2026-11-04)
+*******************************************************************************/
+Old GUI (GUI/Layout.twk fireAction 160-218; formsRecon's head and its action row). A native mouseUp, rightMouseUp or key event finds
+the field with blockContaining (GUI/Details.rtn), selects it, then walks up through parents. At each level it runs the field's
+own method, then every attribute with a deferred method whose right-click and key flags match, left to right, and it stops at the
+first level that fired. Attributes got their actions through setAction, which is not in any source we have. A "button" was any field
+with a click action. Own attribute actions came from the Actions.twk table; action=fire only prints.
+
+Census, IncantForms/Windows, live regions, attribute position. Controls: simple's onLayout, keyAction's jit=keyAction and layout's action=fire
+were known beforehand and all appear.
+    click (action, jit, button)  16 uses in 8 forms: descriptions, inspector, keyAction, keyStroke, layout, menu, scroll, wraplist
+    key                          keyStroke 2 (keyStroke form), jit=keyAction 1 (keyAction form)
+    right click                  0
+    layout hook (onLayout)       1, in simple only; old GUI never honoured it
+    named event families         menu / popup 14, select 12, sort 10, toggle 8, tree 8, cards / tabs 7
+    code={ on a field            5 in 4 forms: keyStroke 2, simple, tabs, tree
+    No event attribute at all: accounts, bigify, date, drag, draw.
+
+Measured on today's binary, no window:
+    A field's own code= fires when called, keeps its text, and gets its argument. So does a coded member (click code={ }) reached by
+    subscript. A parent's own code fires the same way.
+    onClick=evFire does not hand over the action: the attribute reads kind 0, a copy (the SEQ 530 family).
+    A member's parent is the parse's label, not the enclosing field: evDeep -> evBody -> MemberS -> DefinE -> MemberS. So a
+    walk up parents does not reach evWin. Subscripts going down do.
+Read: Layout.twk has no event methods, only a comment naming keyUp, mouseUp, rightMouseUp and scrollWheel. blockContaining and contains
+are C++ with a Point argument, not kant commands. deferredAction is gone from the live class.
+
+The smallest event for firstLight's OK: one left mouseUp, one level, no bubbling. It needs (a) ok to carry an action, which it does not
+today; (b) a mouseUp method on Layout; (c) the point mapped to ok, which needs frames (M1) and blockContaining; (d) the fire, which already works.
+
+THE TYPESETTING SUBSET FOR FIRST LIGHT, under the PDF goal (recorded 2026-11-07). Nothing is built now. It shapes the PDF stroke.
+RULED by Tony, 2026-11-07:
+    Text source. A field's text is its own string value. If the field holds a group, the text is that group's text, read by an explicit check in kant as *field. One level only: a group that holds another group refuses by name. getText is unchanged; today it returns the held group's tag.
+    Overflow. Text that doesn't fit its box is clipped between words, with a warning naming the field. No flag is set; noRoom means only "the field doesn't fit its parent". A single word wider than the box is clipped at the box edge, with the same warning.
+    Units. A bare number in a form is in points (1/72 inch).
+    Typesetting (Tony, 2026-11-07): one style vocabulary for fields, paragraphs and runs. A field's style is its paragraphs' style until the text changes style. A style change in text ends at the end of its paragraph, never at a line end, and never crosses a paragraph. Whether a change can end earlier, inside a paragraph, is to be decided.
+    Runs (Tony, 2026-11-07). A style change inside a paragraph is a bracketed run, {styleName: text}. It ends at its closing mark, or at the paragraph's end. Runs nest, each starting from its outer run's style. An unknown style name warns by name and prints the text plain. A literal brace is doubled.
+    Insertions (Tony, 2026-11-07). {name} with no colon inserts a named field's text. A field whose action produces text fires on every pour, and its answer is inserted. Inserted actions must give the same answer for the same state, since a pour runs more than once. Counting across a layout belongs to typesetting's state, not to field actions. A missing name refuses by name. Files are reached through a field that reads them.
+    Layout context (Tony, 2026-11-07). Typesetting state lives in one layout context per pass: a kant group built fresh when a layout starts, handed to every pour and to each inserted action as its argument, and thrown away at the pass's end. It holds the pour cursor, the break record, and the counters (page, page count, footnotes). It is never stored on the frames.
+CLAY'S DRAFT, to be confirmed when the PDF stroke opens:
+    Style. Resolved by the style tree pre-pass, with one font, size and colour per field.
+    The pour. One floor request in shape (C). In the request: text, font, size, colour, box (x, y, w, h), the fixed text inset, and left alignment. The floor wraps with Core Text's framesetter. It writes back req.fit (characters placed) and req.used (height used).
+    Paint order. Parents first, and for each field: fill, then stroke, then text.
+    The page. The top field's frame is the page. The floor flips coordinates once, at page setup.
+    Missing fonts. A missing font warns by name and falls back.
+    Left out: emphasis inside a run, text flowing between fields, paragraphs as nodes, pagination, hyphenation, right and centre alignment, and more than one style per field.
+CHECKS for when the PDF stroke opens: who calls getText today, and whether any caller relied on the old following behaviour; whether a held group can hold another group in practice.
+
+THE DATA RECON (proposed by Tony, agreed by Clay, 2026-11-07; recon and a docs/ md only, never trunk code; Tony guides; follows the setFrame second-run recon, one recon in flight at a time): the old GUI's handling of data files, the sort a DB query returns, and the indexing used in the sheets form. Clay's six asks: (1) where it lived and whether it ran: seal 330 found Sheet.rtn (matrix, sum, bigify's builder) was never compiled, its include commented out in both copies, so separate what worked from what was only written; (2) how data was held: fields, lists or a C++ structure of its own, and what a row and a column looked like, which decides how much folds into kant as plain groups; (3) the indexing, its own section: what it indexed, by what key, which forms relied on it; (4) the link to repeats: down="*" and across="*" already repeat in setFrame, and a query's rows pouring into a repeated row looks like the meeting point, so note where the old GUI joined them; (5) C++ floor versus kant, per piece, matching the style ruling; (6) size: large result sets touch the collector's KE-5, worth a line.
+Points. Tony, 2026-11-07: a bare number in a form is in points (1/72 inch), on PDF and in Apple windows alike.
+The order. Tony, 2026-11-07, for rule compiling: F-147's cure, then FOr, then a jitter rung compiling +%, := and copyOf natively, then a measurement of the six loop rules, then the census order resumes. The certificate keeps "native above 0".
+Rule-door bought. Tony, 2026-11-07: rule-door (70ec82dd) is bought, so ITERATe runs compiled through jitterRule, and the morning goal is reached. F-146 is the gate to the rest of the grammar, EXPRESSIOn first. Whether both roads should refuse a rule that runs off its end belongs to F-146's cure.
+One rule at a time. Tony, 2026-11-07: rule compiling widens one rule per stroke, safest first, in the order the census sets (docs/ruleJitCensus.md). No dispatch offers an open option to compile more than it names.
+Foreign calls, shape (C). Tony, 2026-11-07, with the details left to Clay and Clod: kant calls a C++ floor method with one request group, on both roads. groups.ext records each floor method's typed parameters as it is built, so the jitter can read them later and emit a direct typed call. A request is built fresh per call and carries no state between calls. Results are written into the request (for example req.fit); the call answers true or false, and a failure refuses by name. There is no multi-argument call syntax; f(a, b) stays with the comma docket item. Nothing is built for this now: the first floor methods written this way come with the PDF stroke.
+
+FORMS ORDER (Tony, offline status 2026-11-07, via Clay, R2): firstLight drawn to PDF, then the descriptions form. descriptions has a relatively simple layout and tries to explain how it is supposed to work; if the explanation is unclear, fix it. THE DATA RECON ABOVE IS WITHDRAWN until a form needs it.
+
+setFrame IN utilities (Tony, 2026-11-07): tester's fillDownAcross, bothDirections and setFrame replaced utilities' definitions, verbatim. The second-run recon reads utilities, not tester (R3).
+
+ORDER (SEQ 533 R1, 2026-11-04, matching macros): := in a define -> the parse-label parent -> M5 colours and fonts -> M3 fill -> M4 stroke, each in its morning slot. Event firing's proof waits on frames (M1), which is not on the order yet. A5 follows. The listener stays parked.
+SECOND RUN, DEFERRED (Tony, 2026-11-07, R0): A or B is not chosen. The first PDF lays out the original form once. How a second run and a resize are addressed is discussed with Clay and comes back as its own dispatch. The PDF steps: docs/firstLightPdfRecon.md, Tony picks the first.
+    NOW DRAWING STEP 6 (2026-11-09): this item is no longer a separate dispatch; see the Drawing steps at the foot of this file.
+SECOND-RUN DESIGN (Tony, 2026-11-07, via Clay; build after the first PDF): setFrame takes a request (form plus an optional revised frame), gates only the top field, copies the form, lays out the copy and returns it; the engine keeps the returned layout and on a resize lays out the original again and drops the old. fillDownAcross takes one request group. Full text and the OWED measurement: docs/setFrameSecondRun.md. A returned laid-out copy arrives whole (interpreted, measured). It is DRAWING STEP 6 (2026-11-09).
+
+LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expected, and a tag -- form if the incantation needs rearranging, engine if it is drawn wrongly. Clod keeps it current. Items are taken one or two per afternoon session and never fixed inside another stroke.
+    Windows/tabs: the run warns that isGROUP looks like a flag (nearFlag) and keeps it as an attribute; expected no warning -- form, the incantation's isGROUP needs respelling when that form comes up for repair (docs/unknownFlagRecon.md; moved from macros, SEQ 601 rider).
+
+DRAWING STEPS -- a starting plan (Tony, 2026-11-09). It is expected to evolve as IncantForms is worked through; Tony has ideas still to come.
+    1  Fills into one context, the right way up (fill-page; seals 376-377).
+    2  The draw walk: the whole form drawn into its bitmap from kant (draw-walk; seals 389-390).
+    3  Borders: a field's frame or named sides, with a colour (borders; seals 391-392).
+    4  The first PDF: firstLight as IncantForms/PDF/output.pdf (first-pdf; seals 393-394).
+    5  Text -- plain text in a field's frame, wrapped, clipped. DONE (text-floor, seals 412-413, bought 2026-11-09).
+         Moved here (open question 7, closed 2026-11-04, Tony): text is inset by a fixed default in the text floor (M2), with no attribute until a form needs one.
+    5a Alignment (Tony, 2026-11-09, SEQ 582 R4; SEQ 584): align=left / center / right / justify inside a field's frame, inside the 4-point inset; no align is left; justify stretches every line but the paragraph's last; any other value refuses by name and draws left. Built on branch align (SEQ 584).
+    5b Vertical alignment (Tony, 2026-11-10, SEQ 605): valign=top / center / bottom, resolved as align is (own, style, enclosing); the lines that fit are counted, then the block is moved down as one inside the 4-point inset; no valign is top; any other value refuses by name and draws at the top. firstLight's ok is valign=center. This reverses the earlier notes above that dropped vertical align in favour of a space field. Built on trunk.
+    Layout pass (Tony, 2026-11-09, SEQ 584 R5): build the style in effect left to right once per field, in kant (see THE STYLE IN EFFECT below). Today's lookup (own, style, enclosing) gives the same answers wherever the convention holds.
+    6  setFrame finished -- Tony's 2026-11-07 design: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, and a resize re-runs it from the revised top frame. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (The 2026-11-07 SECOND RUN and SECOND-RUN DESIGN items above point here.)
+    7  Runs inside text -- {style: text}, {name} insertion, a paragraph poured into a field, one fresh layout context per pass, in kant. The first typesetting step.
+         Moved here (open question 4): emphasis inside a paragraph whose style comes from its framing field.
+    8  The descriptions form as a PDF layout test. STARTED 2026-11-10 (SEQ 606 recon, 607-609): the form is respelled and draws -- heading, two images side by side (displayImage, fit fill: cover, centred, cropped), describeHelp showing its describe attribute; an image field's text is its description and is not drawn. Not built: the click that shows a picture's text (needs selection and windows, step 10), an attribute naming a fit, the image in a PDF as a row.
+    9  Rounded fields; a side on a rounded field is decided here.
+         Moved here (open question 8, Tony, 2026-11-04): a side on a rounded field stays OPEN until a side can be drawn on one. 7 of the 12 side-asking fields are also rounded, and Bot drew sides only when the field was neither rounded nor bordered (Bot/PDF.twk, read, not run).
+    10 Windows -- assess and plan first; images and field actions come with it.
+         FEATURE REQUEST (Tony, 2026-11-09, SEQ 585 R2), recorded, not ruled for build:
+           move start to cursor: the field's displayed text (possibly part of a larger text source) restarts at the beginning of the
+             word the cursor is in, or the next word if the cursor is between words, then redisplays;
+           move end to cursor: the mirror -- the displayed text ends after the word the cursor is in, or the previous word if between words;
+           try it and adjust;
+           editing commands are reached by a short selection pop-up rather than memorised keys; a pop-up is itself a form (select a
+             command, its action fires).
+  Directions every step keeps (not steps):
+    C++ is only the short drawing floor, one argument per method, until shape C's foreign calls exist.
+    The drawing language moves into kant when the jitter allows.
+         Moved here (open question 5): the drawing language in kant needs multi-argument C++ calls, so it comes after the jitter (A5).
+    Old spellings (border=off ...) are respelled form by form, never as a sweep.
+    The yardstick: each step adds at most one floor method, and prefers retiring to adding.
+    A small drawing language: parked design question; may not be needed, and simpler if colour and font stay with styles (Tony, 2026-11-09, SEQ 582 R6).
+  THE STYLE IN EFFECT (Tony, 2026-11-09, SEQ 584 R5):
+    A field starts with a copy of its enclosing field's style.
+    Its attributes are processed left to right, each changing the style in effect; every style attribute inherits this way, align included.
+    By convention style:= comes first on the line, so later attributes override it; a style out of place is the author's mistake.
+    Drawing happens after every attribute is processed: fill, then borders, then text.
+    What is built (a lookup: own, style, enclosing) gives the same answers wherever the convention holds, so no code changes for it now.
+  Naming (Tony, 2026-11-09, SEQ 582 R5): form attributes are camelCase, no dashes, no capital last; the qualifier first and the thing last (topBorder, strokeColor, fillColor); a plain name (color, border) is the default case.
+  Text (Tony, 2026-11-09, SEQ 582 R0-R3): a field takes font and color from its own attribute, else its style, else its enclosing field, walking up; resolved in kant, and displayText reads only the field it is handed. color falls back to black, and the font to Helvetica 12, when nothing up the chain names one (Tony, 2026-11-09, SEQ 583 R1). An attribute that names a field is spelled := (firstLight: fill:=, font:=). The inset is a fixed 4 points in the text floor.

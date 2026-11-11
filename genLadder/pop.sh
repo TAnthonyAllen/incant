@@ -9669,7 +9669,7 @@ _ofeq "argRoadsT AR-J3 under jitter; bare argument, new road" "$(_arjv 'Minus ne
 #  compiled, by name, today's state with the intended beside it; and their values under jitter; = plain, which must hold across the flip.
 fdRow "argRoadsT under jitter; nMid oStarSrc nStarSrc nStar: built (1) or NOT JITTABLE (0)" "$(for _a in nMid oStarSrc nStarSrc nStar; do printf '%s %s;' $_a $(cat "$T/arj.o" "$T/arj.e" | grep -c "^=== jitter: $_a built 1 called "); done)" "nMid 0;oStarSrc 0;nStarSrc 0;nStar 0;" "nMid 1;oStarSrc 1;nStarSrc 1;nStar 1;"
 _ofeq "argRoadsT under jitter; the four actions' values = plain" "$(_arjv 'StarHeld new x=')/$(_arjv 'StarSrc old n=')/$(_arjv 'StarSrc new n=')/$(_arjv 'Star new hz=')" "$(_arv 'StarHeld new x=')/$(_arv 'StarSrc old n=')/$(_arv 'StarSrc new n=')/$(_arv 'Star new hz=')"
-#  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
+#  parentChainT -- a member's parent is its enclosing field (Tony, 2026-11-05, R1-R3; docs/parseLabelParent.md (retired 2026-11-11, git c3180398)). Reads the FIELD column (H13: the stale twin shares its body). Born red on trunk: PC-1 to PC-4. H7: the repoint removed.
 _pcF=$(ip parentChainT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_pcF" > "$T/pc.o" 2> "$T/pc.e"; _pcX=$?
 _ofeq "parentChainT exit status" "$_pcX" "0"
@@ -9683,7 +9683,7 @@ _ofeq "parentChainT PC-5 control: depth 1 was already right" "$(_pcf 'CONTROL ev
 _ofeq "parentChainT PC-6 a field placed in two hosts: a copy per host, each with its own host" "$(_pcf 'TWO inA parent' | cut -d' ' -f1) $(_pcf 'TWO inB parent' | cut -d' ' -f1)" "evHostA evHostB"
 _ofeq "parentChainT PC-7 its one child, reached three ways, is one field" "$(_pcf 'TWO kid via A') $(_pcf 'TWO kid via B')" "$(_pcf 'TWO kid via entry') $(_pcf 'TWO kid via entry')"
 _ofeq "parentChainT PC-8 PINNED TODAY, intended NOT RULED: that child's parent is the registry entry, in neither host" "$(_pcf 'TWO kid parent')" "$(_pcf 'TWO entry')"
-#  flagAttrT -- an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1; docs/flagAttrRecon.md).
+#  flagAttrT -- an attribute whose name is a GroupFields flag goes through setGroupField on the field being defined and is not added (Tony, SEQ 533 R1; docs/flagAttrRecon.md (retired 2026-11-11, git c3180398)).
 #  FA-1 is the non-zero siblings' zero. FA-9 PINS A KNOWN DEFECT, NOT A WANT: noPrinT=0 writes the registry's own field number, because aCTionTraiT writes the value onto the entry (the value-capture half of incant/fixits/defineCapture). The cure moves that row.
 _faF=$(ip flagAttrT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_faF" > "$T/fa.o" 2> "$T/fa.e"; _faX=$?
@@ -9724,7 +9724,7 @@ _fnC=""; for _f in $(git ls-files incant IncantForms | grep -vE 'attic/|BackupXM
     _w=$(perl -e 'alarm 4; exec @ARGV' "$B" "$_f" 2>&1 </dev/null | grep -c 'looks like flag'); [ "$_w" -gt 0 ] && _fnC="$_fnC$_f=$_w "; done
 _ofeq "flagNearT the corpus: no warnings" "$_fnC" ""
 #  defineRefT -- := in a define (Tony, 2026-11-05, SEQ 534 R1, R3): a form attribute that means a field is spelled :=. Plain = stays a value copy (traitGridT).
-#  N rows go through FILe. A row whose value is a later change's is paired with the same field's row before the change. H7s are in docs/traitRefRecon.md.
+#  N rows go through FILe. A row whose value is a later change's is paired with the same field's row before the change. H7s are in docs/traitRefRecon.md (retired 2026-11-11, git c3180398).
 _drF=$(ip defineRefT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_drF" > "$T/dr.o" 2> "$T/dr.e"; _drX=$?
 _ofeq "defineRefT exit status" "$_drX" "0"
