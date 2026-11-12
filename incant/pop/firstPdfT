@@ -38,7 +38,7 @@ define
             fpdY += 1;
         };
     ;
-search FirstPdf FORMs UnitTests Utilities cOLOr fONTs list;
+search FirstPdf FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     pdfReq path="IncantForms/PDF/output.pdf" form:=firstLight;
     ;

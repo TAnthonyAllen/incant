@@ -445,40 +445,154 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	else {
 	italic = 0;
 	::fprintf(stderr,"displayText: WARNING %s -- its font has no italic face; drawn upright\n", field->groupBody->tag); } }
-	NSString *str = [NSString stringWithUTF8String:text];
+	//  paragraphsAndRuns typesetting's first slice (Tony, 2026-11-12): the text is read once into paragraphs, split at a blank line; a single
+	//  line end inside a paragraph is a space. A run is {styleName: text}: it ends at its closing mark or at its paragraph's end, runs nest, and
+	//  {{ is a literal brace. A brace with a name and no colon is an insertion, which waits: it is left as written. The style is looked up in the
+	//  request's styles slot, the one vocabulary kant handed over; a name it does not hold warns by name and the text prints plain.
+	struct RunSpan { CFIndex from, to; GroupItem *style; };
+	//  fixedRoom plain arrays: 48 paragraphs and 24 runs a paragraph; text past either is dropped with a warning (this generated file carries no container header)
+	enum { maxParas = 48, maxRuns = 24 };
+	struct Para { NSMutableString *str; RunSpan runs[maxRuns]; int nRuns; NSMutableAttributedString *as; CTTypesetterRef ts; };
+	static Para paras[maxParas];
+	int nParas = 0, dropped = 0;
+	GroupItem *styleBook = heldBy(request->get("styles"));
+	int runCount = 0;
+	{
+	NSString *whole = [NSString stringWithUTF8String:text];
+	if (!whole) whole = @"";
+	CFIndex wl = [whole length], i = 0;
+	Para cur; cur.str = [NSMutableString string]; cur.as = nil; cur.ts = 0; cur.nRuns = 0;
+	int opened[maxRuns], nOpen = 0;
+	auto closePara = [&]() {
+	for (int k = 0; k < nOpen; k++) cur.runs[opened[k]].to = [cur.str length];
+	nOpen = 0;
+	while ([cur.str length] && [cur.str characterAtIndex:[cur.str length] - 1] == ' ') [cur.str deleteCharactersInRange:NSMakeRange([cur.str length] - 1, 1)];
+	if ([cur.str length]) { if (nParas < maxParas) paras[nParas++] = cur; else dropped = 1; }
+	cur.str = [NSMutableString string]; cur.nRuns = 0; };
+	while (i < wl) {
+	unichar c = [whole characterAtIndex:i];
+	if (c == '\n' || c == '\r') {
+	int ends = 0;
+	while (i < wl) {
+	unichar w = [whole characterAtIndex:i];
+	if (w == '\n') ends++;
+	else if (w != ' ' && w != '\t' && w != '\r') break;
+	i++; }
+	if (ends > 1) closePara();
+	else if ([cur.str length] && [cur.str characterAtIndex:[cur.str length] - 1] != ' ') [cur.str appendString:@" "];
+	continue; }
+	if (c == '{') {
+	if (i + 1 < wl && [whole characterAtIndex:i + 1] == '{') { [cur.str appendString:@"{"]; i += 2; continue; }
+	CFIndex j = i + 1;
+	while (j < wl && [[NSCharacterSet alphanumericCharacterSet] characterIsMember:[whole characterAtIndex:j]]) j++;
+	if (j > i + 1 && j < wl && [whole characterAtIndex:j] == ':' && cur.nRuns < maxRuns) {
+	NSString *name = [whole substringWithRange:NSMakeRange(i + 1, j - i - 1)];
+	GroupItem *style = styleBook ? styleBook->get((char*)[name UTF8String]) : 0;
+	if (!style) ::fprintf(stderr,"displayText: WARNING %s -- its text names the style %s, which is not a style; that run is printed plain\n", field->groupBody->tag, [name UTF8String]);
+	RunSpan span; span.from = [cur.str length]; span.to = -1; span.style = style;
+	opened[nOpen++] = cur.nRuns;
+	cur.runs[cur.nRuns++] = span;
+	runCount++;
+	i = j + 1;
+	if (i < wl && [whole characterAtIndex:i] == ' ') i++;
+	continue; } }
+	if (c == '}' && nOpen) {
+	cur.runs[opened[--nOpen]].to = [cur.str length];
+	i++;
+	continue; }
+	[cur.str appendFormat:@"%C", c];
+	i++; }
+	closePara();
+	}
+	if (dropped) ::fprintf(stderr,"displayText: WARNING %s -- more than 48 paragraphs; the rest are not drawn\n", field->groupBody->tag);
+	if (!nParas) { if (slanted) CFRelease(slanted); return request; }
+	CGColorSpaceRef runSpace = CGColorSpaceCreateDeviceRGB();
 	NSDictionary *attrs = @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorFromContextAttributeName: @YES };
-	NSAttributedString *as = [[NSAttributedString alloc] initWithString:str attributes:attrs];
-	CTTypesetterRef ts = CTTypesetterCreateWithAttributedString((CFAttributedStringRef)as);
+	for (int p = 0; p < nParas; p++) {
+	Para &pa = paras[p];
+	pa.as = [[NSMutableAttributedString alloc] initWithString:pa.str attributes:attrs];
+	//  ownColour a paragraph holding a run carries the field's colour as its own attribute: drawing a coloured run leaves the context's fill colour changed, and text that takes its colour from the context would then be drawn in the run's
+	if (pa.nRuns) {
+	CGFloat base[4] = {cr, cg, cb, ca};
+	CGColorRef baseColour = CGColorCreate(runSpace, base);
+	NSRange all = NSMakeRange(0, [pa.str length]);
+	[pa.as removeAttribute:(id)kCTForegroundColorFromContextAttributeName range:all];
+	[pa.as addAttribute:(id)kCTForegroundColorAttributeName value:(id)baseColour range:all];
+	CGColorRelease(baseColour); }
+	//  outerFirst runs are kept in the order they opened, so an inner run is applied after its outer one and starts from it
+	for (int r = 0; r < pa.nRuns; r++) {
+	RunSpan &span = pa.runs[r];
+	if (!span.style || span.to <= span.from) continue;
+	NSRange range = NSMakeRange(span.from, span.to - span.from);
+	//  heldOrOwn a style's font or colour is the field it holds (font:=titleFont), or its own value (color=#ef2b2d)
+	auto heldOrOwn = [&](GroupItem *slot) -> GroupItem* {
+	GroupItem *held = heldBy(slot);
+	return held ? held : (slot && slot->groupBody->flags.data ? slot : 0); };
+	GroupItem *runFontNode = heldOrOwn(span.style->get("font")), *runColorNode = heldOrOwn(span.style->get("color")), *runItalic = span.style->get("italic");
+	CTFontRef runFont = runFontNode ? (CTFontRef)::getFont(runFontNode) : 0;
+	if (!runFont) runFont = (CTFontRef)[pa.as attribute:(id)kCTFontAttributeName atIndex:span.from effectiveRange:NULL];
+	int wantItalic = italic;
+	if (runItalic) {
+	unsigned int d = runItalic->groupBody->flags.data;
+	char *word = (isSTRING(d) || isTOKEN(d)) ? runItalic->getText() : 0;
+	wantItalic = !(word && !::strcmp(word,"off")); }
+	if (runFontNode || runItalic) {
+	CTFontRef made = wantItalic ? CTFontCreateCopyWithSymbolicTraits(runFont, 0, NULL, kCTFontItalicTrait, kCTFontItalicTrait)
+	: CTFontCreateCopyWithSymbolicTraits(runFont, 0, NULL, 0, kCTFontItalicTrait);
+	if (made) { [pa.as addAttribute:(id)kCTFontAttributeName value:(id)made range:range]; CFRelease(made); }
+	else {
+	[pa.as addAttribute:(id)kCTFontAttributeName value:(id)runFont range:range];
+	if (wantItalic) ::fprintf(stderr,"displayText: WARNING %s -- the font of a run has no italic face; drawn upright\n", field->groupBody->tag); } }
+	if (runColorNode) {
+	char *value = runColorNode->getText();
+	NSColor *rc = (value && *value == '#') ? ::setColor(runColorNode) : ::getColor(value);
+	if (rc) {
+	CGFloat comps[4] = {0, 0, 0, 1};
+	[rc getRed:&comps[0] green:&comps[1] blue:&comps[2] alpha:&comps[3]];
+	CGColorRef cgc = CGColorCreate(runSpace, comps);
+	[pa.as removeAttribute:(id)kCTForegroundColorFromContextAttributeName range:range];
+	[pa.as addAttribute:(id)kCTForegroundColorAttributeName value:(id)cgc range:range];
+	CGColorRelease(cgc); } } }
+	pa.ts = CTTypesetterCreateWithAttributedString((CFAttributedStringRef)pa.as); }
+	CGColorSpaceRelease(runSpace);
 	NSRect  framed = ::getFrame(field);
 	CGFloat inset = 4;
 	CGFloat x0 = framed.origin.x + inset, width = framed.size.width - 2 * inset;
 	CGFloat bottom = framed.origin.y + framed.size.height - inset;
 	CGFloat asc = CTFontGetAscent(ct), desc = CTFontGetDescent(ct), lineH = asc + desc + CTFontGetLeading(ct);
 	CGFloat baseline = framed.origin.y + inset + asc;
-	CFIndex len = [str length], start = 0;
-	int lines = 0, tooWide = 0;
+	int lines = 0, tooWide = 0, clipped = 0;
+	long drawn = 0, total = 0;
+	for (int p = 0; p < nParas; p++) total += [paras[p].str length];
 	//  lineBreak the characters of the line that starts here: a word boundary that fits the width, or a whole word with no space to break at
-	auto lineBreak = [&](CFIndex from) -> CFIndex {
-	CFIndex n = CTTypesetterSuggestLineBreak(ts, from, width);
+	auto lineBreak = [&](Para &pa, CFIndex from) -> CFIndex {
+	CFIndex len = [pa.str length];
+	CFIndex n = CTTypesetterSuggestLineBreak(pa.ts, from, width);
 	if (n < 1) n = 1;
 	BOOL spaced = NO;
-	for (CFIndex i = from; i < from + n; i++) if ([str characterAtIndex:i] == ' ') { spaced = YES; break; }
-	if (!spaced && from + n < len && [str characterAtIndex:from + n - 1] != '-') {
+	for (CFIndex i = from; i < from + n; i++) if ([pa.str characterAtIndex:i] == ' ') { spaced = YES; break; }
+	if (!spaced && from + n < len && [pa.str characterAtIndex:from + n - 1] != '-') {
 	CFIndex e = from + n;
-	while (e < len && [str characterAtIndex:e] != ' ') e++;
+	while (e < len && [pa.str characterAtIndex:e] != ' ') e++;
 	n = e - from; }
 	return n; };
-	//  blockFirst center and bottom count the lines that fit, then move the whole block down inside the inset; the same lines fit after the move
+	//  blockFirst center and bottom count the lines that fit, then move the whole block down inside the inset; the same lines fit after the move.
+	//  A blank line stands between two paragraphs and counts as a line of the block
 	if (valignKind) {
-	int fit = 0;
-	CFIndex at = 0;
+	int fit = 0, full = 0;
 	CGFloat line0 = baseline;
+	for (int p = 0; p < nParas && !full; p++) {
+	Para &pa = paras[p];
+	CFIndex len = [pa.str length], at = 0;
+	int inPara = 0;
+	if (p && fit) { line0 += lineH; fit++; }
 	while (at < len) {
-	if (fit) while (at < len && [str characterAtIndex:at] == ' ') at++;
-	if (at >= len || line0 + desc > bottom) break;
-	at += lineBreak(at);
-	fit++;
-	line0 += lineH; }
+	if (inPara) while (at < len && [pa.str characterAtIndex:at] == ' ') at++;
+	if (at >= len) break;
+	if (line0 + desc > bottom) { full = 1; break; }
+	at += lineBreak(pa, at);
+	fit++; inPara++;
+	line0 += lineH; } }
 	if (fit) {
 	CGFloat spare = (framed.size.height - 2 * inset) - ((fit - 1) * lineH + asc + desc);
 	if (spare > 0) baseline += (valignKind == 1) ? spare / 2 : spare; } }
@@ -493,19 +607,34 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	if (alpha < 1) CGContextSetAlpha(ctx, alpha);
 	//  uprightGlyphs the top's context is flipped (y down); this turns the glyphs the right way up, and only them
 	CGContextSetTextMatrix(ctx, CGAffineTransformMakeScale(1, -1));
+	//  afterLastWord what follows the last word drawn: a space, the end of the text, more of the same word, or a paragraph not begun
+	const char *next = "end";
+	int parasDrawn = 0;
+	for (int p = 0; p < nParas && !clipped; p++) {
+	Para &pa = paras[p];
+	CFIndex len = [pa.str length], start = 0;
+	int inPara = 0;
+	//  blankLineBetween one line's height stands between two paragraphs
+	if (p && lines) baseline += lineH;
 	while (start < len) {
 	//  noIndent a wrapped line starts at its first character that is not a space
-	if (lines) while (start < len && [str characterAtIndex:start] == ' ') start++;
+	if (inPara) while (start < len && [pa.str characterAtIndex:start] == ' ') start++;
 	if (start >= len) break;
 	//  wholeLines a line that does not fit the frame's height is not drawn
-	if (baseline + desc > bottom) break;
-	CFIndex n = lineBreak(start);
-	CTLineRef line = CTTypesetterCreateLine(ts, CFRangeMake(start, n));
-	if (CTLineGetTypographicBounds(line, 0, 0, 0) - CTLineGetTrailingWhitespaceWidth(line) > width) tooWide = 1;
-	//  alignLine within the inset: center and right flush the line; justify stretches every line but the paragraph's last (R1)
+	if (baseline + desc > bottom) { clipped = 1; break; }
+	CFIndex n = lineBreak(pa, start);
+	CTLineRef line = CTTypesetterCreateLine(pa.ts, CFRangeMake(start, n));
+	//  tallRun a line holding a run in a taller font is moved down by the difference, so it does not sit on the line above
+	CGFloat lineAsc = 0, lineDesc = 0, lineLead = 0;
+	double lineWide = CTLineGetTypographicBounds(line, &lineAsc, &lineDesc, &lineLead);
+	if (pa.nRuns && lineAsc > asc) {
+	baseline += lineAsc - asc;
+	if (baseline + desc > bottom) { CFRelease(line); clipped = 1; break; } }
+	if (lineWide - CTLineGetTrailingWhitespaceWidth(line) > width) tooWide = 1;
+	//  alignLine within the inset: center and right flush the line; justify stretches every line but its paragraph's last (R1)
 	CGFloat offset = 0;
 	CFIndex rest = start + n;
-	while (rest < len && [str characterAtIndex:rest] == ' ') rest++;
+	while (rest < len && [pa.str characterAtIndex:rest] == ' ') rest++;
 	if (alignKind == 3 && rest < len) {
 	CTLineRef justified = CTLineCreateJustifiedLine(line, 1.0, width);
 	if (justified) { CFRelease(line); line = justified; } }
@@ -515,29 +644,37 @@ extern "C" GroupItem *displayText(GroupItem *request)
 	CGContextSetTextPosition(ctx, x0 + offset, baseline);
 	CTLineDraw(line, ctx);
 	CFRelease(line);
-	lines++;
+	lines++; inPara++;
 	start += n;
 	baseline += lineH;
 	}
-	CGContextRestoreGState(ctx);
-	CFRelease(ts);
-	[as release];
-	//  afterLastWord what follows the last word drawn: a space, the end of the text, or more of the same word
-	const char *next = "end";
+	drawn += start;
+	if (inPara) parasDrawn++;
 	if (start < len) {
+	clipped = 1;
+	//  a paragraph none of which was drawn: the text stopped at the blank line before it
+	if (!start) next = "paragraph";
+	else {
 	CFIndex k = start - 1;
-	while (k >= 0 && [str characterAtIndex:k] == ' ') k--;
-	next = ([str characterAtIndex:k + 1] == ' ') ? "space" : "word"; }
-	if (start < len || tooWide)
+	while (k >= 0 && [pa.str characterAtIndex:k] == ' ') k--;
+	next = ([pa.str characterAtIndex:k + 1] == ' ') ? "space" : "word"; } }
+	}
+	CGContextRestoreGState(ctx);
+	int paraCount = nParas;
+	for (int p = 0; p < nParas; p++) { CFRelease(paras[p].ts); [paras[p].as release]; }
+	if (drawn < total || tooWide)
 	::fprintf(stderr,"displayText: WARNING %s -- %s; %ld of %ld characters drawn\n", field->groupBody->tag,
-	tooWide ? "a word wider than its frame is clipped at the frame" : "its text does not fit its frame", (long)start, (long)len);
+	tooWide ? "a word wider than its frame is clipped at the frame" : "its text does not fit its frame", drawn, total);
 	int bold = (CTFontGetSymbolicTraits(ct) & kCTFontBoldTrait) ? 1 : 0;
 	CFStringRef family = CTFontCopyFamilyName(ct);
 	//  italicSuffix the trace says italic only when the drawn face has the trait, so every other line reads as it did
 	int slant = (CTFontGetSymbolicTraits(ct) & kCTFontItalicTrait) ? 1 : 0;
-	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s%s ===\n",
+	//  typesetSuffix paragraphs and runs are said only when the text has more than one paragraph or any run, so every other line reads as it did
+	char typeset[64] = "";
+	if (paraCount > 1 || runCount) ::snprintf(typeset, sizeof typeset, " paragraphs %d of %d runs %d", parasDrawn, paraCount, runCount);
+	::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s%s%s ===\n",
 	field->groupBody->tag, [(NSString*)family UTF8String], (double)CTFontGetSize(ct), bold,
-	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, (long)start, (long)len, next, valign, align, slant ? " italic" : "");
+	(int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, drawn, total, next, valign, align, slant ? " italic" : "", typeset);
 	::fflush(stdout);
 	CFRelease(family);
 	if (slanted) CFRelease(slanted);

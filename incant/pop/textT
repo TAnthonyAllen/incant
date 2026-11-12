@@ -42,7 +42,7 @@ define
     tPlainTop x=0 y=0 width=100 height=30 fill:=white
         tPlain="Plain" x=0 y=0 width=100 height=30;
     ;
-search TextT FORMs UnitTests Utilities cOLOr fONTs list;
+search TextT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     tForm x=0 y=0 width=200 height=110 fill:=white color:=red font:=normalFont
         tOver="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height." x=10 y=10 width=120 height=40 fill:=lightBlue color:=blue;

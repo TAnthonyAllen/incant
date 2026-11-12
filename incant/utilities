@@ -122,7 +122,7 @@ define
         if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
         or describe.isGrouP;    describe = dESCRIPTIONs[describe];
         };
-    textReq field source font color align valign italic;
+    textReq field source font color align valign italic styles;
     /***************************************************************************
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
         font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands displayText one request, textReq,
@@ -211,6 +211,8 @@ define
             // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
             dtCur := *dtCur.parenT;
             dtHops += 1;
+        // runStyles the style vocabulary a {styleName: text} run in the text is looked up in (typesetting's first slice, 2026-11-12); the floor reads it and resolves nothing else
+        textReq.styles := sTYLEs;
         if dtDraw == 1;     displayText(textReq);
         };
     /***************************************************************************

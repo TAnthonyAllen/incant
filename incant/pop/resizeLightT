@@ -28,7 +28,7 @@ define
     rgBig x=300 y=450 width=600 height=300;
     rgSmall x=300 y=450 width=400 height=200;
     ;
-search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs list;
+search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     rgFresh path="IncantForms/PDF/output.pdf" form:=firstLight;
     rgFreshBig path="IncantForms/PDF/output.pdf" form:=firstLight frame:=rgBig;
@@ -80,7 +80,7 @@ The mock resize is the one statement Layout's write amounts to: layoutFrame = rg
 That one write carries all four values and fires onResize once.
 
 RG-1  before: firstLight as declared, 400x200, by a plain call. Four points, firstPdfT's PD-1.
-RG-2  the resize to 600x300: one run of the listener; the page is 600x300; heading, words, space and ok are at their new
+RG-2  the resize to 600x300: one run of the listener; the page is 600x300; words re-flows from 4 lines to 3; heading, words, space and ok are at their new
       places, and where ok was at 400x200, (390,190), is now words' white.
 RG-3  A RESIZE READS LIKE A FRESH RUN: the same form laid out at 600x300 by a plain call with the frame in the request,
       no listening. The page and the five points are RG-2's exactly, and the text drawn is the same count.

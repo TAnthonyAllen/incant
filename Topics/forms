@@ -285,6 +285,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    466  SEQ 631   typesetting's first slice, in firstLight: words holds two paragraphs and one {emphasis: ...} run (Topics/typesetting; typesetT, nine rows). resizeLightT's line counts re-pinned for the new paragraph.
     465  SEQ 631   stroke 4's last piece: Layout writes layoutFrame as one whole write; firstLight resized by listening, PDF before and after, reading like a fresh run (resizeLightT, six rows). THE LISTENING GAP IT FOUND: a whole-list write into a listened-to field fired nothing and wiped the listener list; GroupItem.setContent now keeps the list and tells the listeners once (listenT LN-6).
     464  SEQ 631   the seal's three choices ruled: utilities loads forms; the 28 stand; the drawing fields are virtual, Addendum 2 retired. PoinT, ArC, CurvE and the five perforation templates unparked and pinned (drawFieldsT DF-5, DF-6); PoinT's old action not carried.
     463  SEQ 630   ruling 3: jitted writes fire once per write. The compiled = and ++ / -- stored straight into the field and told nobody; they now call jitNotifyRT, which tests hasListeners at run time (jitEmitters.rtn; notifyT NT-5 green at four writes). Every instrument unmoved.

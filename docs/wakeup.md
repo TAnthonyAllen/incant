@@ -5,19 +5,19 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**465, 2026-11-12, topic: forms, SEQ 631 (assigned by Clod).** The drawing fields are virtual and the perforation
-templates, PoinT, ArC and CurvE are unparked (464). Stroke 4 is done: Layout writes `layoutFrame` as one whole write and
-firstLight resizes by listening, reading like a fresh run (`resizeLightT`). A whole-list write into a listened-to field
-now keeps its listeners and tells them once (`GroupItem.setContent`).
-**NEXT:** the first typesetting slice in firstLight (two paragraphs in one field, one `{styleName: text}` run).
+**466, 2026-11-12, topic: forms, SEQ 631 (assigned by Clod).** Tony's second dispatch of the day, all of it built.
+The drawing fields are virtual; the perforation templates, PoinT, ArC and CurvE are unparked (464). Stroke 4 is done:
+Layout writes `layoutFrame` as one whole write and firstLight resizes by listening (465). Typesetting's first slice:
+firstLight's words holds two paragraphs and one `{emphasis: text}` run, drawn by `displayText` (466, `Topics/typesetting`).
+**NEXT, Tony's:** the slice's choices (the gap between paragraphs; where paragraphs and runs should live). Insertions wait.
 Later: measure the jitted store helper's cost in a hot loop. `Topics/cleanup` is over its budget and opens with a trim.
 
-## The numbers (as run at seal 465; binary rebuilt 2026-11-12 with setContent's kept listeners)
+## The numbers (as run at seal 466; binary rebuilt 2026-11-12 with paragraphs and runs in displayText)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3768 green (3767 + listenT LN-6), FAIL rows identical by name to the bank (66, re-banked without NT-3; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 182 green (174 + DF-5, DF-6 + resizeLightT's 6); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 191 green (182 + typesetT's 9); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |

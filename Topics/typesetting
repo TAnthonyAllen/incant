@@ -2,7 +2,7 @@
     typesetting -- a sub-topic file of forms until runs in text (forms step 7). Not an incantation; notes only.
     Wake-up read: Topics/forms first, then this file.
 *****************************************************************************/
-ONE LINE: typesetting pours text into the frames a form lays out. Nothing of it is built beyond plain text in one field (forms step 5).
+ONE LINE: typesetting pours text into the frames a form lays out. Built: plain text in one field (forms step 5), and the first slice -- paragraphs in one field and {styleName: text} runs (seal 466).
 
 /*****************************************************************************
     Description (as ruled 2026-11-03 to 2026-11-11, Tony)
@@ -28,16 +28,21 @@ Not typesetting
     Tables are forms. Long text and query data belong to a future data topic, parked in Topics/features.
 
 /*****************************************************************************
-    State (seal 442, 2026-11-11)
+    State (seal 466, 2026-11-12)
 *****************************************************************************/
-    built       plain text in one field: wrapped greedily, clipped between words with a warning, align (justify included) and valign, a fixed 4-point inset. That is forms step 5, in displayText.
-    not built   paragraphs, runs, insertions, the layout context, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter.
+    built       plain text in one field: wrapped greedily, clipped between words with a warning, align (justify included) and valign, a fixed 4-point inset (forms step 5, displayText).
+                THE FIRST SLICE (seal 466), all in displayText: paragraphs split at a blank line, one line's height between them, justify leaving each paragraph's last line left; a single line end inside a paragraph is a space.
+                Runs: {styleName: text}, ending at the closing mark or the paragraph's end, nesting, {{ a literal brace. The style is looked up in the request's styles slot (kant's drawText hands over sTYLEs); it may give font, color and italic. An unknown name warns by name and prints plain.
+                firstLight's words is the specimen: two paragraphs, one {emphasis: ...} run (emphasis is in IncantForms/Controls/styles). A form's fixture must name sTYLEs in its search for a run to resolve.
+    choices made in building, Tony's to change: the gap between paragraphs is one line of the field's font. A style's colour may be a value (color=#ef2b2d) as well as a held field, because cOLOr is not searched while styles is defined. Paragraphs and runs live in the floor for now, not in a kant pre-pass: there is no layout context yet.
+    limits      48 paragraphs a field and 24 runs a paragraph (the rest are dropped with a warning). A run's style gives font, colour and italic only. A line holding a taller run is moved down by the difference; lines are otherwise the field font's height.
+    not built   insertions ({name}, left as written), the layout context, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter.
 
 /*****************************************************************************
     Plan, smallest first
 *****************************************************************************/
-    1  Paragraphs in one field.
-    2  Runs.
+    1  Paragraphs in one field.          DONE (seal 466)
+    2  Runs.                             DONE for font, colour and italic (seal 466)
     3  Insertions.
     4  Flow across frames.
     5  Pages.
@@ -48,7 +53,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Open questions
 *****************************************************************************/
-    1  Can a style change end inside a paragraph other than at a run's closing mark? ("To be decided", 2026-11-07.)
+    1  ANSWERED (Tony, 2026-11-12): no. The 11-07 ruling covers it: a run ends at its closing mark or at the paragraph's end, whichever comes first.
     2  The pour's floor request: Clay's draft (text, font, size, colour, box, inset in; fit and used written back) is to be confirmed when the stroke opens.
     3  The pour cursor and break record: one Buffer mark is enough for one flat buffer poured in order, and not for a tree of runs, re-flow on resize, or a frame read twice. Proposal: a cursor (run, offset) plus a break record kept out of the source tree.
     4  Whitespace-only text carries no data in kant, so spaces between runs must be glue, never string runs.
@@ -68,6 +73,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
     The instrument that reads it
 *****************************************************************************/
     genLadder/formsPop.sh, through incant/pop/textT (the TX and VA rows) and firstPdfT (the PD rows). New rows go there.
+    incant/pop/typesetT (TY-1 to TY-10): the first slice, read from firstLight's PDF by bands, and the edge rules on a second form.
 
 /*****************************************************************************
     Issues, Tasks, Moved by other topics. None yet.
@@ -76,5 +82,6 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Seal digest
 *****************************************************************************/
+    466  SEQ 631   the first slice: paragraphs and runs in displayText, firstLight's words the specimen, typesetT.
     443  SEQ 614   this file made from the forms notes and the 2026-11-11 rulings.
     439  SEQ 605   valign.      412-413  SEQ 581-584   the text floor and align.

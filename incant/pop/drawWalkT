@@ -38,7 +38,7 @@ define
     dwSt strokeColor="red";
     dwStyled x=0 y=0 width=10 height=10 fill=white border style:=dwSt;
     ;
-search DrawWalk FORMs UnitTests Utilities cOLOr fONTs list;
+search DrawWalk FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     laid;
     layIt code={ laid := setFrame(argument); };

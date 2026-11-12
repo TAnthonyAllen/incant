@@ -29,8 +29,11 @@ define
     EBgaramondFont family='EB Garamond' size=18 bold;
     ;
 /*  The default style (Tony, 2026-11-11, SEQ 621 R2). rounded is the corner radius, in points, that a bare
-    rounded draws: 5, the old GUI's default (GUI/Control.twk). A reader names sTYLEs in its search.  */
+    rounded draws: 5, the old GUI's default (GUI/Control.twk). A reader names sTYLEs in its search.
+    emphasis is the first style a run in text names, {emphasis: text} (typesetting's first slice, 2026-11-12): red and italic.
+    Its colour is written as a value: cOLOr is not on the search list while this file is being defined, so color:=red refuses here.  */
 registry(sTYLEs);
 define
     defaultStyle rounded=5;
+    emphasis color=#ef2b2d italic;
     ;

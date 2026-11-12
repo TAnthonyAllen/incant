@@ -27,7 +27,7 @@ define
         fpBand height=10 fill=lightGreen;
         fpRest;
     ;
-search FillPage FORMs UnitTests Utilities cOLOr fONTs list;
+search FillPage FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     laid;
     layIt code={ laid := setFrame(argument); };

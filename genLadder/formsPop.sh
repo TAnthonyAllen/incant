@@ -299,7 +299,8 @@ fdRow "textT AL-4 RIGHT: tRight's last ink at its frame edge less the inset, x 1
 fdRow "textT AL-5 LEFT: tOver, no align, draws as before -- first ink within 6 of x 10" "$(_txLeft "$T/tx.o" tForm 10 40 15 28 "$_txBlue" 10)" "left" "left"
 fdRow "textT AL-6 INHERIT: tKid (no align) centred under tCenterTop; tKidL (style align=left) left; tBad (align=leftl) left" "$(_txCentre "$T/tx.o" tCenterTop 0 119 5 26 "$_txWhite" 0 119) $(_txLeft "$T/tx.o" tCenterTop 0 119 35 56 "$_txWhite" 0) $(_txLeft "$T/tx.o" tCenterTop 0 119 65 86 "$_txWhite" 0)" "off 4 99 left left" "centred left left"
 fdRow "textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left" "$(grep -c "^displayText: REFUSING tBad's align=leftl" "$T/tx.e")" "0" "1"
-fdRow "textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad" "$(for _f in heading words ok tRight tKid tKidL tBad; do grep -h "^=== displayText $_f " "$T/tx.o" | head -1 | sed -n 's/.* align \([a-z]*\) ===$/\1/p'; done | xargs)" "" "center justify center right center left left"
+#  AL-8's reader takes the word after align whether or not the typesetting suffix follows it (words carries one since 2026-11-12: paragraphs 2 of 2 runs 1)
+fdRow "textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad" "$(for _f in heading words ok tRight tKid tKidL tBad; do grep -h "^=== displayText $_f " "$T/tx.o" | head -1 | sed -n 's/.* align \([a-z]*\)\( paragraphs .*\)\{0,1\} ===$/\1/p'; done | xargs)" "" "center justify center right center left left"
 #  "no refusal" counts every refusal but AL-7's, which is expected (SEQ 584): the row's question is unchanged
 _ofeq "textT no refusal" "$(grep 'REFUS' "$T/tx.e" | grep -vc "align=leftl\|valign=middle")" "0"
 #  ⚑ STEP 5b, VERTICAL ALIGNMENT (Tony, 2026-11-10, SEQ 605). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value
@@ -581,11 +582,32 @@ _rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/
 #  one block per PDF read: the page size, its points, and the words field's line count drawn just before it
 _rgb () { awk -v n="$1" '/displayText words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
 _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
-_ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 3 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x200 lines 3 wall white wall green"
-_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x300, words in 2 lines; the four fields at their new places; where ok was is words' white" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 300 / 600x300 lines 2 wall white wall green white"
+#  RG-1 / RG-2 RE-PINNED 2026-11-12 (the typesetting slice): words holds a second paragraph of one line, so it draws 4 lines at 400 wide and 3 at 600, where it drew 3 and 2
+_ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 4 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x200 lines 4 wall white wall green"
+_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x300, words in 3 lines; the four fields at their new places; where ok was is words' white" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 300 / 600x300 lines 3 wall white wall green white"
 _ofeq "resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value" "$(grep '^RG-3' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 3)" "runs 1 / $(_rgb 2)"
 _ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 400 height 200 / $(_rgb 1)"
 _ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 400x200" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=400 height=200"
+
+#  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
+#  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
+#  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one
+#  paragraph with the braces printed.
+echo ""
+echo "-- paragraphs and one run in firstLight (typesetT)."
+_tyF=$(ip typesetT)
+perl -e 'alarm 120; exec @ARGV' "$B" "$_tyF" > "$T/ty.o" 2> "$T/ty.e"; _tyx=$?
+_tyb () { awk -v want="$1" '/^TY BAND/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= r/,"",s); split(s,a,/[ rgba=]+/); if(a[1]>180&&a[2]<140&&a[3]<140) red++; if(a[3]>120&&a[1]<120) blue++; if(!(a[1]>240&&a[2]>240&&a[3]>240)) ink++; n++ } END{ printf "%s %s %s", (ink?"ink":"none"), (red?"red":"nored"), (blue?"blue":"noblue") }' "$T/ty.o"; }
+_tyl () { grep -h "^=== displayText $1 " "$T/ty.o" | sed 's/.* lines /lines /; s/ valign.*align [a-z]*//; s/ ===//' | xargs; }
+_ofeq "typesetT exit / sentinel" "$_tyx $(grep -c '^TYPESET SENTINEL' "$T/ty.e")" "0 1"
+_ofeq "typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in four lines" "$(_tyl words)" "lines 4 drawn 205 of 205 next end paragraphs 2 of 2 runs 1"
+_ofeq "typesetT TY-2 THE BLANK LINE: no ink across the field between the paragraphs (y 98..102); the line below it has ink" "$(_tyb gap) / $(_tyb before)" "none nored noblue / ink nored blue"
+_ofeq "typesetT TY-3 THE RUN: its band is red with no blue; before it and after it the ink is blue with no red" "$(_tyb run) / $(_tyb before) / $(_tyb after)" "ink red noblue / ink nored blue / ink nored blue"
+_ofeq "typesetT TY-4 {{ is a literal brace: five characters, no run" "$(_tyl tsLit)" "lines 1 drawn 5 of 5 next end"
+_ofeq "typesetT TY-5 an unknown style warns by name and prints plain" "$(_tyl tsBad) / $(grep -c '^displayText: WARNING tsBad -- its text names the style nosuch, which is not a style' "$T/ty.e")" "lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / 1"
+_ofeq "typesetT TY-6 a run with no closing mark ends at its paragraph's end: two paragraphs, one run, no warning for it" "$(_tyl tsOpen) / $(grep -c 'WARNING tsOpen' "$T/ty.e")" "lines 2 drawn 8 of 8 next end paragraphs 2 of 2 runs 1 / 0"
+_ofeq "typesetT TY-7 runs nest; TY-8 an insertion waits and is left as written; TY-10 a single line end is a space" "$(_tyl tsNest) / $(_tyl tsIns) / $(_tyl tsWrapped)" "lines 1 drawn 9 of 9 next end paragraphs 1 of 1 runs 2 / lines 1 drawn 15 of 15 next end / lines 1 drawn 25 of 25 next end"
+_ofeq "typesetT TY-9 three paragraphs in a field with room for one line: one drawn, the stop is at a paragraph, and the field is named" "$(_tyl tsThree) / $(grep -c '^displayText: WARNING tsThree -- its text does not fit its frame; 3 of 11 characters drawn' "$T/ty.e")" "lines 1 drawn 3 of 11 next paragraph paragraphs 1 of 3 runs 0 / 1"
 
 #  ⚑ drawFieldsT -- SEQ 629 (2026-11-12): the drawing fields, spelled capital first and last, defined in FORMs at the top of Topics/forms.
 #  DF-3 is why the spelling: an attribute spelled exactly like a FORMs field is the registry's one field. H7 (run 2026-11-12): without
