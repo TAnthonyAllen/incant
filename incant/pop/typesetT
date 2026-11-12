@@ -11,7 +11,7 @@ search cOLOr fONTs sTYLEs;
 include(firstLightFile);
 register(FORMs);
 define
-    tsForm window x=0 y=0 width=300 height=600 down fill:=white font:=normalFont color:=blue
+    tsForm window x=0 y=0 width=300 height=700 down fill:=white font:=normalFont color:=blue
         tsLit="a {{ b" text height=30;
         tsBad="x {nosuch: y} z" text height=30;
         tsOpen="p {emphasis: q r\n\ns t" text height=80;
@@ -24,11 +24,17 @@ define
         tsAfter="{emphasis: y} z {emphasis: w }v" text height=30;
         tsNarrow="{plainer: a b} c" text height=40;
         tsWide="{wide: a b} c" text height=60;
+        tsPct="{pct: a b} c" text height=60;
+        tsSame="{same: a b} c" text height=60;
+        tsHex="p {hexed: q} r" text height=30;
     ;
 registry(sTYLEs);
 define
     plainer italic=off;
     wide space=280;
+    pct space=20000%;
+    same space=300%;
+    hexed color=#ef2b2d;
     ;
 register(TypesetT);
 define
@@ -76,6 +82,10 @@ cout "TY BAND before":;
 tyX0 = 4; tyX1 = 160; tyY0 = 106; tyY1 = 122; tyBand(pdfRead);
 cout "TY BAND end":;
 redrawForm(tyEdges);
+readPDF(pdfRead);
+cout "TY BAND hex":;
+tyX0 = 4; tyX1 = 120; tyY0 = 584; tyY1 = 602; tyBand(pdfRead);
+cout "TY BAND end2":;
 cerr "TYPESET SENTINEL":;
 stop();
 
@@ -108,5 +118,8 @@ Every row above reads as it did on the C++ slice but TY-5's warning, which kant 
          before or after a closing mark is one gap after the span before it ("y z w v", 7 characters).
   TY-13  tsWide beside tsNarrow  the gap's width comes from the style's space: with space=280 in a 300-point field each gap wraps,
          three lines where the same text in a style with no space is one.
+  TY-14  tsPct beside tsSame  space=N% is a percent of the font's own space width (Tony, 2026-11-12): 20000% wraps at each gap,
+         300% is three spaces wide and stays on one line -- read as points, 300 would wrap as tsWide's 280 does, so the pair fails either way the unit is misread.
+  TY-15  tsHex  a run's style holding its colour by value (hexed color=#ef2b2d) colours the run: the band read back has red ink.
 H7 (2026-11-12, after the commit): with typeset's colour line removed TY-3 goes red; with its paragraph test off TY-1 reads one paragraph.
 

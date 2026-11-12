@@ -739,7 +739,7 @@ extern GroupItem drawSpans(GroupItem request)
             NSAttributedString *part = [[NSAttributedString alloc] initWithString:pieceStr attributes:attrs];
             [pa.as appendAttributedString:part];
             [part release];
-            //  spaceAfter the gap after a span is one space in the span's own style; a width in points (a style's space) is reached by kerning that space
+            //  spaceAfter the gap after a span is one space in the span's own style; a style's space (points, or a percent of that space) is reached by kerning it
             GroupItem *spaceSlot = span->get("space");
             if (spaceSlot && span->nextInParent) {
                 GroupItem *wide = heldBy(spaceSlot);
@@ -751,6 +751,8 @@ extern GroupItem drawSpans(GroupItem request)
                         CTFontGetGlyphsForCharacters(gapFont, &sp, &glyph, 1);
                         CTFontGetAdvancesForGlyphs(gapFont, kCTFontOrientationHorizontal, &glyph, &adv, 1);
                         double want = isCOUNT(wide->groupBody->flags.data) ? (double)wide->getCount() : wide->getNumber();
+                        //  spaceUnits spelled like the form attribute (Tony, 2026-11-12): a bare number is points, N% is a percent of the font's own space width; none set is that width, 100%
+                        if (wide->groupBody->flags.isPercent) want = adv.width * want / 100.0;
                         attrs[(id)kCTKernAttributeName] = @(want - adv.width); }
                     NSAttributedString *gapPart = [[NSAttributedString alloc] initWithString:@" " attributes:attrs];
                     [pa.as appendAttributedString:gapPart];

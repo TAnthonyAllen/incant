@@ -611,6 +611,8 @@ _ofeq "typesetT TY-9 three paragraphs in a field with room for one line: one dra
 _ofeq "typesetT TY-11 a run of spaces is one gap (T1): a, four spaces, b draws three characters" "$(_tyl tsCollapse)" "lines 1 drawn 3 of 3 next end"
 _ofeq "typesetT TY-12 a mark takes no room: xyz; the space by a closing mark is one gap after the span before it" "$(_tyl tsGlue) / $(_tyl tsAfter)" "lines 1 drawn 3 of 3 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 7 of 7 next end paragraphs 1 of 1 runs 2"
 _ofeq "typesetT TY-13 the gap's width is the style's space: space=280 wraps at each gap, the same text in a style with none is one line" "$(_tyl tsWide) / $(_tyl tsNarrow)" "lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1"
+_ofeq "typesetT TY-14 space=N% is a percent of the font's own space: 20000% wraps at each gap, 300% is one line (as points it would wrap)" "$(_tyl tsPct) / $(_tyl tsSame)" "lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1"
+_ofeq "typesetT TY-15 a run's style holding a colour by value (color=#ef2b2d): its band has red ink beside the field's blue" "$(_tyb hex)" "ink red blue"
 
 #  ⚑ drawFieldsT -- SEQ 629 (2026-11-12): the drawing fields, spelled capital first and last, defined in FORMs at the top of Topics/forms.
 #  DF-3 is why the spelling: an attribute spelled exactly like a FORMs field is the registry's one field. H7 (run 2026-11-12): without

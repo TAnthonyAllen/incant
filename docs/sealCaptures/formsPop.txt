@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2094656 bytes  Nov 12 17:01
+  bin   2094656 bytes  Nov 12 17:16
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -213,6 +213,8 @@
   ok    typesetT TY-11 a run of spaces is one gap (T1): a, four spaces, b draws three characters = [lines 1 drawn 3 of 3 next end]
   ok    typesetT TY-12 a mark takes no room: xyz; the space by a closing mark is one gap after the span before it = [lines 1 drawn 3 of 3 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 7 of 7 next end paragraphs 1 of 1 runs 2]
   ok    typesetT TY-13 the gap's width is the style's space: space=280 wraps at each gap, the same text in a style with none is one line = [lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1]
+  ok    typesetT TY-14 space=N% is a percent of the font's own space: 20000% wraps at each gap, 300% is one line (as points it would wrap) = [lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1]
+  ok    typesetT TY-15 a run's style holding a colour by value (color=#ef2b2d): its band has red ink beside the field's blue = [ink red blue]
 
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
@@ -229,4 +231,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 194 green, see above
+FORMS POP FAILED -- 196 green, see above

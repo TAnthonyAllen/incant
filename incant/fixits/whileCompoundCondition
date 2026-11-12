@@ -1,0 +1,68 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(WhileCompoundCondition);
+define
+    wcA code={
+        wa = 0; wk = 3; wn = 0;
+        while wk > 0;
+            wk = wk - 1;
+            wn = wn + 1;
+            if wn > 20;     wk = 0;
+        print "PIN one test:          while wk > 0             -> turns " wn " (want 3)":;
+        };
+    wcB code={
+        wa = 0; wk = 3; wn = 0;
+        while wa == 0 && wk > 0;
+            wk = wk - 1;
+            wn = wn + 1;
+            if wn > 20;     wa = 1;
+            if wn > 20;     wk = 0;
+            if wn > 40;     break;
+        print "PIN two tests:         while wa == 0 && wk > 0  -> turns " wn " (want 3)":;
+        };
+    wcC code={
+        wa = 0; wk = 3; wn = 0;
+        while wk > 0 && wa == 0;
+            wk = wk - 1;
+            wn = wn + 1;
+            if wn > 20;     wa = 1;
+            if wn > 20;     wk = 0;
+            if wn > 40;     break;
+        print "PIN two tests, swapped: while wk > 0 && wa == 0 -> turns " wn " (want 3)":;
+        };
+    wcD code={
+        wa = 0; wk = 3; wn = 0;
+        if wa == 0 && wk > 0;   wn = 1;
+        print "PIN the same test in an if, both true  -> " wn " (want 1)":;
+        wk = 0; wn = 0;
+        if wa == 0 && wk > 0;   wn = 1;
+        print "PIN the same test in an if, second false -> " wn " (want 0)":;
+        };
+    ;
+cerr "ANCHOR whileCompoundCondition -- a while whose condition is two tests joined by &&":;
+wcA();
+wcB();
+wcC();
+wcD();
+fixWhileCompoundConditionHere = 0;
+cerr "SENTINEL whileCompoundCondition reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (Tony, shutdown dispatch of 2026-11-12, SEQ 637; severity WRONG -- the loop never ends, silently)
+
+whileCompoundCondition -- a while whose condition joins two tests with && does not end: the condition reads true on
+every turn, whatever the two tests are. The same condition in an if reads right, and a while on one test ends.
+Found 2026-11-12 building typeset (Topics/typesetting): its look-ahead loop ran until it was stopped by hand.
+MEASURED 2026-11-12, kant, old road, in an action: `while wa == 0 && wk > 0` with wk counting down from 3 runs 41
+turns (the break at 41 ends it; setting wa = 1 and wk = 0 at turn 21 does not). Either order of the two tests.
+Each loop here is bounded by a break, so this file ends.
+
+Not measured: the new road (kantGrammar's WHILe); || ; a compound condition on do-while; what the condition node
+holds when the loop re-tests it.
+
+NEXT: OPEN -- dump what aCTionWhilE re-evaluates on the second turn (the acAnd node, or its cached result), beside
+what aCTionIF evaluates for the same text. Taken: the two-test lines read 3. Not taken: they read 41.

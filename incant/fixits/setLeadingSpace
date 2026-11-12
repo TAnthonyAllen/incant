@@ -1,0 +1,60 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(SetLeadingSpace);
+define
+    slTail isRule a=[ab]+ c^=[, ]+ d=[ab]+;
+    slLead isRule a=[ab]+ c^=[ ,]+ d=[ab]+;
+    slSrc="ab , ab";
+    slCount code={
+        slN = 0;
+        slU := *argument.firsT;
+        while slU.datA != 0;
+            slN = slN + 1;
+            slU := *slU.nexT;
+        return slN;
+        };
+    slGoTail code={
+        slN = 0;
+        slR := slTail(argument);
+        slU := *slR.firsT;
+        while slU.datA != 0;
+            slN = slN + 1;
+            slU := *slU.nexT;
+        print "PIN the set written [, ] (space last)  -> terms matched " slN " (want 3)":;
+        };
+    slGoLead code={
+        slN = 0;
+        slQ := slLead(argument);
+        slV := *slQ.firsT;
+        while slV.datA != 0;
+            slN = slN + 1;
+            slV := *slV.nexT;
+        print "PIN the set written [ ,] (space first) -> terms matched " slN " (want 3)":;
+        };
+    ;
+cerr "ANCHOR setLeadingSpace -- the same set of two characters, written with the space last and with the space first":;
+slGoLead(slSrc);
+slGoTail(slSrc);
+fixSetLeadingSpaceHere = 0;
+cerr "SENTINEL setLeadingSpace reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Tony, shutdown dispatch of 2026-11-12, SEQ 637; severity WRONG -- the set silently loses a member)
+
+setLeadingSpace -- a character set written with a space as its FIRST member loses the space: [ ,] behaves as [,].
+The same two characters written [, ] keep both. Found 2026-11-12 building typeset's grammar (Topics/typesetting), where
+sp=[ \t] never matched a space and sp=[\t\r ] did.
+MEASURED 2026-11-12, kant, a rule a=[ab]+ c^=[..]+ d=[ab]+ driven on four texts: with [, ] all four match; with [ ,]
+"ab,ab" matches (no space is needed) and "ab , ab", "ab  , ab" and "ab ,ab" fail. The text here is "ab , ab".
+The first note of this said the set "matches nothing". That was wrong: it matches its other members.
+
+Not measured: where the space goes. No lexer reads a set, so the obvious suspect is the skip before the set's first
+member is read.
+
+NEXT: OPEN -- read how a set's text is taken (the skip at the bracket), in tok's set reader and in the define's value
+reader, and say which one drops the space. Taken: both lines read 3. Not taken: the space-first line reads 0.

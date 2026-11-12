@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(CopyOfSharesAttributes);
+define
+    csProto depth;
+    csGo code={
+        csProto.depth = 1;
+        csOne := copyOf(csProto);
+        csProto.depth = 2;
+        csTwo := copyOf(csProto);
+        csA := *csOne["depth"];
+        csB := *csTwo["depth"];
+        print "PIN copyOf:   the first copy's depth " csA " (want 1), the second's " csB " (want 2)":;
+        csProto.depth = 1;
+        csOne := copyDeep(csProto);
+        csProto.depth = 2;
+        csTwo := copyDeep(csProto);
+        csA := *csOne["depth"];
+        csB := *csTwo["depth"];
+        print "PIN copyDeep: the first copy's depth " csA " (want 1), the second's " csB " (want 2)":;
+        };
+    ;
+cerr "ANCHOR copyOfSharesAttributes -- a field with one attribute, copied, the attribute rewritten, copied again":;
+csGo();
+fixCopyOfSharesAttributesHere = 0;
+cerr "SENTINEL copyOfSharesAttributes reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (Tony, shutdown dispatch of 2026-11-12, SEQ 637; a QUESTION for Tony: by design?)
+
+copyOfSharesAttributes -- copyOf(field) gives a new field whose attributes are the source's own: writing the
+source's attribute afterwards changes what the copy reads. copyDeep gives the copy its own.
+Found 2026-11-12 building typeset (Topics/typesetting): every span read the last span's space, and every run entry
+the last depth written, until both were minted with copyDeep.
+MEASURED 2026-11-12, kant: a field with one attribute, depth. Set 1, copyOf; set 2, copyOf. Both copies read 2.
+The same with copyDeep reads 1 and 2. Seal 457 recorded that copyOf shares bodies below its second level; this
+is one level higher than that note says: the copy's own attribute, level two, is shared.
+
+THE QUESTION: is a copyOf that shares its attributes the design (a stamp: one body, many faces) or a defect? If it
+is the design, the cure is a line where copyOf is described and nothing else. kantGrammar's actions rely on
+copyOf(instruct) followed by clear(instruct), which works because clear drops the list and does not write into it.
+
+NEXT: OPEN -- Tony's answer. Taken (if a defect): the copyOf line reads 1 and 2. Not taken: it reads 2 and 2.
