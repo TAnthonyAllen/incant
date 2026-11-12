@@ -576,14 +576,17 @@ echo ""
 echo "-- the drawing fields in FORMs (drawFieldsT)."
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip drawFieldsT)" > "$T/df.o" 2> "$T/df.e"; _dfx=$?
 _ofeq "drawFieldsT exit / sentinel" "$_dfx $(grep -c '^DRAWFIELDS SENTINEL' "$T/df.e")" "0 1"
-_ofeq "drawFieldsT DF-1 FORMs holds the 35 drawing fields, the 28 form attributes and this file's two forms" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "65"
+_ofeq "drawFieldsT DF-1 FORMs holds 35 drawing fields, 28 form attributes, 7 unparked drawing entries and this file's three" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "73"
 _ofeq "drawFieldsT DF-2 LinE carries its Core Graphics call, once; X is defined" "$(grep -c '^	LinE function=CGContextAddLineToPoint signature=v:pdY;' "$T/df.o") $(grep -c '^	X;' "$T/df.o")" "1 1"
-#  DF-4 (Tony, 2026-11-12, wakeup dispatch ruling 1): the form attributes live in FORMs under their plain names, virtual. After dfA, dfKid and dfB wrote
-#  width= (and dfA fill=), the registry's own width and fill still print with no value: each field got a copy. Its control is DF-3's second half, where
-#  the same writes to a field that is not virtual (WidtH) all land in the registry's one field. The cure's own control: with every fixture loading
-#  these definitions and resolveName's virtualInCode lines absent, this script read 128 green (2026-11-12, and seal 460-461's recon).
-_ofeq "drawFieldsT DF-4 the registry's width and fill keep no value: every form's width= and fill= is its own copy" "$(grep -c '^	width;' "$T/df.o") $(grep -c '^	fill;' "$T/df.o") $(grep -c '^	\(fill\|width\)=' "$T/df.o")" "1 1 0"
-_ofeq "drawFieldsT DF-3 a form's width= is its own (100, 300); WidtH=, spelled as the drawing field, is the registry's one field (300, 300)" "$(grep '^DF-3' "$T/df.e" | sed 's/.*: //' | xargs)" "dfA width 100 dfB width 300 dfA WidtH 300 dfB WidtH 300"
+#  DF-3 / DF-4 (Tony, 2026-11-12, rulings 1 and then 3 of the next dispatch): every FORMs field a form writes is virtual, the drawing fields included, so each
+#  write is the writing field's own copy and the registry's definition keeps no value. The control is dfShared, defined in the fixture and NOT virtual: the same
+#  three writes all land in the registry's one field (300 300). The cure's own control: with every fixture loading these definitions and resolveName's
+#  virtualInCode lines absent, this script read 128 green (2026-11-12, and seal 460-461's recon).
+_ofeq "drawFieldsT DF-3 width= and WidtH= are each field's own (100, 300); dfShared=, not virtual, is the registry's one field (300, 300)" "$(grep '^DF-3' "$T/df.e" | sed 's/.*: //' | xargs)" "dfA width 100 dfB width 300 dfA WidtH 100 dfB WidtH 300 dfA dfShared 300 dfB dfShared 300"
+_ofeq "drawFieldsT DF-4 the registry's width, fill and WidtH keep no value; dfShared holds the last write" "$(grep -c '^	width;' "$T/df.o") $(grep -c '^	fill;' "$T/df.o") $(grep -c '^	WidtH function=CGContextSetLineWidth signature=v:pd;' "$T/df.o") $(grep -c '^	dfShared=300;' "$T/df.o")" "1 1 1 1"
+#  DF-5 the unparked perforation templates: a template naming one field several times keeps each value (before virtual each write landed in the one definition)
+_ofeq "drawFieldsT DF-5 PerfRighT keeps its two DowN apart; PerforatioN's PerfLefT=5 is its own and the registry's PerfLefT keeps no value" "$(grep -c '^	PerfRighT DowN=GaP LefT=DeptH DowN=StridE RighT=DeptH;' "$T/df.o") $(grep '^DF-5' "$T/df.e" | awk '{print $NF}') $(grep -c '^	PerfLefT RighT=DeptH UP=StridE LefT=DeptH UP=GaP;' "$T/df.o") $(grep -c '^	DowN;' "$T/df.o")" "1 5 1 1"
+_ofeq "drawFieldsT DF-6 PoinT, ArC and CurvE are defined as rule shapes" "$(grep -c '^	PoinT toX toY;' "$T/df.o") $(grep -c '^	ArC from to RadiuS;' "$T/df.o") $(grep -c '^	CurvE function=CGContextAddCurveToPoint signature=? target control1 control2;' "$T/df.o")" "1 1 1"
 
 #  ⚑ noRoomT -- forms step 6, the rest (SEQ 627 W1, 2026-11-11): what is DRAWN under isHidden and noRoom. The layout rows are in pop.sh. nrForm is
 #  200 by 100. H7 (run 2026-11-11): with drawKids' skip removed, (165,20) reads red (nOut is drawn) and NP-1 goes red.

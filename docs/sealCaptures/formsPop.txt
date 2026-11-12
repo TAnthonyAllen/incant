@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2092768 bytes  Nov 12 13:34
+  bin   2093008 bytes  Nov 12 13:52
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -194,10 +194,12 @@
 
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
-  ok    drawFieldsT DF-1 FORMs holds the 35 drawing fields, the 28 form attributes and this file's two forms = [65]
+  ok    drawFieldsT DF-1 FORMs holds 35 drawing fields, 28 form attributes, 7 unparked drawing entries and this file's three = [73]
   ok    drawFieldsT DF-2 LinE carries its Core Graphics call, once; X is defined = [1 1]
-  ok    drawFieldsT DF-4 the registry's width and fill keep no value: every form's width= and fill= is its own copy = [1 1 0]
-  ok    drawFieldsT DF-3 a form's width= is its own (100, 300); WidtH=, spelled as the drawing field, is the registry's one field (300, 300) = [dfA width 100 dfB width 300 dfA WidtH 300 dfB WidtH 300]
+  ok    drawFieldsT DF-3 width= and WidtH= are each field's own (100, 300); dfShared=, not virtual, is the registry's one field (300, 300) = [dfA width 100 dfB width 300 dfA WidtH 100 dfB WidtH 300 dfA dfShared 300 dfB dfShared 300]
+  ok    drawFieldsT DF-4 the registry's width, fill and WidtH keep no value; dfShared holds the last write = [1 1 1 1]
+  ok    drawFieldsT DF-5 PerfRighT keeps its two DowN apart; PerforatioN's PerfLefT=5 is its own and the registry's PerfLefT keeps no value = [1 5 1 1]
+  ok    drawFieldsT DF-6 PoinT, ArC and CurvE are defined as rule shapes = [1 1 1]
 
 -- isHidden and noRoom, drawn (noRoomT).
   ok    noRoomT exit / sentinel / page = [0 1 200x100]
@@ -205,4 +207,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 174 green, see above
+FORMS POP FAILED -- 176 green, see above

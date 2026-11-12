@@ -7,47 +7,55 @@
 *****************************************************************************/
 register(FORMs);
 define
-    AligN;
-    BordeR;
-    CliP        function="CGContextClip" signature="v:p";
-    ClosePatH   function="CGContextClosePath" signature="v:p";
-    CurvE       function="CGContextAddCurveToPoint" signature="?";
-    DowN;
-    EndPatH;
-    FilL;
-    HeighT;
-    HomE;
-    InverT;
-    LefT;
-    LinE        function="CGContextAddLineToPoint" signature="v:pdY";
-    MovE        function="CGContextMoveToPoint" signature="v:pdY";
-    OvaL;
-    PatH        function="CGContextBeginPath" signature="?";
-    PercenT;
-    RadiuS;
-    RectanglE   function="CGContextAddRect" signature="?";
-    RelativE;
-    RighT;
-    RoundeD;
-    RotatE      function="CGContextRotateCTM" signature="v:pd";
-    SavE        function="CGContextSaveGState" signature="v:p";
-    ScalE       function="CGContextScaleCTM" signature="?";
-    ShifT       function="CGContextTranslateCTM" signature="?";
-    StrokE;
-    UP;
-    WidtH       function="CGContextSetLineWidth" signature="v:pd";
-    WritE;
-    X;
-    Y;
-    StridE;
-    GaP;
-    DeptH;
+    AligN virtual;
+    BordeR virtual;
+    CliP        function="CGContextClip" signature="v:p" virtual;
+    ClosePatH   function="CGContextClosePath" signature="v:p" virtual;
+    CurvE       function="CGContextAddCurveToPoint" signature="?" virtual;
+    DowN virtual;
+    EndPatH virtual;
+    FilL virtual;
+    HeighT virtual;
+    HomE virtual;
+    InverT virtual;
+    LefT virtual;
+    LinE        function="CGContextAddLineToPoint" signature="v:pdY" virtual;
+    MovE        function="CGContextMoveToPoint" signature="v:pdY" virtual;
+    OvaL virtual;
+    PatH        function="CGContextBeginPath" signature="?" virtual;
+    PercenT virtual;
+    RadiuS virtual;
+    RectanglE   function="CGContextAddRect" signature="?" virtual;
+    RelativE virtual;
+    RighT virtual;
+    RoundeD virtual;
+    RotatE      function="CGContextRotateCTM" signature="v:pd" virtual;
+    SavE        function="CGContextSaveGState" signature="v:p" virtual;
+    ScalE       function="CGContextScaleCTM" signature="?" virtual;
+    ShifT       function="CGContextTranslateCTM" signature="?" virtual;
+    StrokE virtual;
+    UP virtual;
+    WidtH       function="CGContextSetLineWidth" signature="v:pd" virtual;
+    WritE virtual;
+    X virtual;
+    Y virtual;
+    StridE virtual;
+    GaP virtual;
+    DeptH virtual;
     /*  The form attributes, under their plain names (Tony, 2026-11-12). Each is virtual: a form field that writes one
         (width=400, fill:=wall) gets its own copy, and a name in an action body is never one of these.  */
     x virtual; y virtual; width virtual; height virtual; across virtual; down virtual; overlay virtual;
     space virtual; fill virtual; border virtual; topBorder virtual; bottomBorder virtual; leftBorder virtual; rightBorder virtual;
     strokeColor virtual; font virtual; color virtual; align virtual; valign virtual; italic virtual; rounded virtual;
     shadow virtual; opacity virtual; style virtual; text virtual; image virtual; fit virtual; onClick virtual;
+    PoinT isRule toX=NumbeR toY=NumbeR;
+    ArC isRule from=PoinT to=PoinT RadiuS=NumbeR;
+    CurvE isRule target=PoinT control1=PoinT control2=PoinT;
+    PerfRighT virtual DowN=GaP LefT=DeptH DowN=StridE RighT=DeptH;
+    PerfLefT virtual RighT=DeptH UP=StridE LefT=DeptH UP=GaP;
+    PerfToP virtual UP=DeptH RighT=GaP DowN=DeptH RighT=StridE;
+    PerfBottoM virtual UP=DeptH LefT=StridE DowN=DeptH LefT=GaP;
+    PerforatioN StridE=6 GaP=12 DeptH=2 BordeR HomE LinE PercenT UP=8 PerfLefT=5 PerfToP=5 UP=DeptH RighT=10 DowN=2 PerfRighT=5 DowN=8 LefT=10 PerfBottoM=5;
     ;
 bail();
 
@@ -56,13 +64,13 @@ bail();
 *****************************************************************************/
 A drawing field is spelled capital first and last (FilL, LinE; one or two letters all capitals: X, Y, UP) so that no form attribute can be it (Tony, 2026-11-12).
 Form attributes keep their spelling (fill:=wall, width=400). There is NO mapping between the two: they are two vocabularies (Clod's ruling, handed over by Tony, SEQ 629).
-WHY THE SPELLING: a form attribute spelled exactly like a field findable in FORMs is not the form's own -- every form that writes it shares ONE body with the registry's field (measured: two forms and a child writing 100, 200, 300 all read 300). Pinned: drawFieldsT DF-3.
+VIRTUAL (Tony, 2026-11-12, SEQ 631): every drawing field is virtual, so a field or template that writes one gets its own copy. Addendum 2 (authors writing FilL:=wall) is RETIRED: authors never write drawing-field spellings. A FORMs field that is not virtual is still one field for everything that writes it (drawFieldsT DF-3, dfShared).
 What each field is for (from the retired WorkingOn/drawing, git ede70292):
     AligN center left right, or c l r . BordeR needs an action . FilL StrokE WritE can take a colour . HeighT "does not belong here; drawing does not change the frame"
     DowN LefT RighT UP move the current point by their count . X Y set it . HomE the frame's origin . PercenT RelativE set the two modes . RadiuS for RoundeD or OvaL . EndPatH ends a path without closing
     function= and signature= name the Core Graphics call (docs/bindingmethods.md). StridE GaP DeptH are perforation's parameters.
-PARKED, NOT DEFINED (the small drawing language is a parked design question, Topics/drawing): the rules PoinT, ArC and CurvE-as-a-rule, and the templates PerfRighT PerfLefT PerfToP PerfBottoM PerforatioN.
-    A template lists the same field several times with different values (DowN=GaP LefT=DeptH DowN=StridE ...), and by the measurement above each of those writes lands in the one definition. Their text is in git ede70292, IncantForms/WorkingOn/drawing.
+UNPARKED (SEQ 631): PoinT, ArC and CurvE-as-a-rule are defined as rule shapes; PerfRighT PerfLefT PerfToP PerfBottoM and PerforatioN are defined. A template naming one field several times (DowN=GaP ... DowN=StridE) keeps each value, now that the fields are virtual (DF-5).
+    NOT CARRIED: PoinT's action. It is written in the old drawing spellings (scope currentFRAME~, isPERCENT); its text is in git ede70292^, IncantForms/WorkingOn/drawing. Nothing draws from these entries yet: the small drawing language is still a design question (Topics/drawing).
 
 ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 3 of 21 forms draw.
 
@@ -219,7 +227,7 @@ Form files (from docs/forms.md, retired into this file)
     Issues (open lines, verbatim from where they were recorded)
 *****************************************************************************/
     seal 462:  VIRTUAL IS CLEAN (Tony's ruling 1, 2026-11-12). The 28 form attributes are defined in FORMs under their plain names, each virtual, and utilities loads them. Cause of the old failure (formsPop 128): an action body's names are resolved at run time, outside a define, so a body naming width got the registry's one field, shared by every action and never cleared. Cure: in an action body a virtual is never bound; the name mints its own local (resolveName). drawFieldsT DF-4.
-               A field in FORMs that is NOT virtual is still the one field for every form that writes it (DF-3), which is why the drawing fields keep their capital-first-and-last spelling. ADDENDUM 2 (FilL:=wall) is still not built; whether the drawing fields become virtual too is Tony's.
+               Ruled the same day (SEQ 631): loading through utilities stays; the list of 28 stands; the drawing fields are virtual too and Addendum 2 is retired.
                Names in the list: x y width height across down overlay space fill border, the four side borders, strokeColor font color align valign italic rounded shadow opacity style text image fit onClick. An attribute not on the list behaves as before.
     seal 462:  -= subtracts on a valued field whatever attributes it holds (ruling 2; notifyT NT-3 green). The remove-attribute operator, minus then percent, is the opposite of +% (minusAttrT, minusAttrNewT; both grammars, top level and action body).
                JITTED WRITES FIRE ONCE PER WRITE (ruling 3, seal 463): a compiled store straight into a field calls jitNotifyRT at run time (notifyT NT-5: four writes, four fires, jitted and interpreted). A postfix x++; does nothing: filed, incant/fixits/postfixIncrementNothing.
@@ -277,6 +285,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    464  SEQ 631   the seal's three choices ruled: utilities loads forms; the 28 stand; the drawing fields are virtual, Addendum 2 retired. PoinT, ArC, CurvE and the five perforation templates unparked and pinned (drawFieldsT DF-5, DF-6); PoinT's old action not carried.
     463  SEQ 630   ruling 3: jitted writes fire once per write. The compiled = and ++ / -- stored straight into the field and told nobody; they now call jitNotifyRT, which tests hasListeners at run time (jitEmitters.rtn; notifyT NT-5 green at four writes). Every instrument unmoved.
     462  SEQ 630   Tony's wakeup dispatch, rulings 1, 2 and 4. -= subtracts on a valued field (opMinusEQ asks for members); the remove-attribute operator; NT-3 green, the bank 66. postfix x++; filed as a fixit; topicBudget counts prose lines only. VIRTUAL CLEAN: the 28 form attributes in FORMs under plain names, loaded by utilities; the cure is in resolveName (Issues).
     461  SEQ 629   SHUTDOWN (the kitchen pass run). The drawing fields, spelled capital first and last, defined in FORMs above this file's bail; WorkingOn/drawing retired; no mapping (two vocabularies); drawFieldsT. Arithmetic writes notify and updateListeners guards re-entry (notifyT; -= pinned red). Addendum 2's FilL:=wall not built (Issues); the virtual recon (Issues).
