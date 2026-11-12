@@ -573,30 +573,34 @@ String      value;
 }
 
 /*****************************************************************************
-    displayText -- forms step 5. Draws a field's text in its frame, into the
+    drawSpans -- the text floor (forms step 5; typesetting T1, 2026-11-12,
+    Clay's pre-pass design). Draws a field's text in its frame, into the
     display its top handed down. ONE argument, a request kant's drawText fills
     afresh on every call (utilities): field:= the field (frame and display),
-    source:= the field whose own string is the text (the field, or *field one
-    level down), font:= and color:= as kant resolved them -- own, style, then
-    the enclosing field (Tony, SEQ 582 R1). A slot written `= 0` holds no
-    group and means none: the font is then Helvetica 12, the colour black.
-    The floor resolves nothing; it reads the request.
+    source:= the field whose own string is the text, spans:= the span list
+    kant's typeset built from that text, runs = how many runs it opened, and
+    font:= color:= align:= valign:= italic:= as kant resolved them for the
+    field. A slot written `= 0` holds no group and means none: the font is
+    then Helvetica 12, the colour black.
+    THE FLOOR RESOLVES NOTHING AND PARSES NOTHING. The span list is
+    paragraphs, each a list of spans; a span is its text plus the font,
+    colour and italic kant resolved for it (a slot at 0 means the field's)
+    and space: 0 for none, 1 for a gap after it, or a holder to a width in
+    points (a style's space). The source is read only to refuse.
 
     WRAP at word boundaries, wrapped lines not indented; a line that does not
     fit the frame's height is not drawn, so the last line drawn ends on a
     space; a single word wider than the frame is kept whole and clipped at the
     frame edge (R1). Either case warns once, naming the field. The inset is a
-    fixed 4 points (R3). align (step 5a, SEQ 584): left, center, right or
-    justify, read from the request's align slot; each line is flushed or
-    justified on its own inside the inset, and justify leaves the paragraph's
-    last line left (Core Text's own meaning). valign (step 5b, SEQ 605): top,
-    center or bottom, read from the request's valign slot; the block of lines
-    that fit is counted first, then moved down as one inside the inset.
+    fixed 4 points (R3). align: left, center, right or justify; justify leaves
+    a paragraph's last line left. valign: top, center or bottom; the block of
+    lines that fit is counted first, then moved down as one inside the inset.
+    One line's height stands between two paragraphs.
     A line per call on stdout says what was used -- font, colour, lines drawn,
     characters drawn, and what follows the last drawn word -- so a row
     compares values (H4).
 *****************************************************************************/
-extern GroupItem displayText(GroupItem request)
+extern GroupItem drawSpans(GroupItem request)
 {
     -%
     if (!request) return 0;
@@ -610,24 +614,24 @@ extern GroupItem displayText(GroupItem request)
     GroupItem *field  = (fieldSlot && isGROUP(fieldSlot->groupBody->flags.data)) ? fieldSlot->getGroup() : 0;
     GroupItem *source = (sourceSlot && isGROUP(sourceSlot->groupBody->flags.data)) ? sourceSlot->getGroup() : 0;
     if (!field || !source) {
-        ::fprintf(stderr,"displayText: REFUSING %s -- needs field:= and source:=\n", request->groupBody->tag);
+        ::fprintf(stderr,"drawSpans: REFUSING %s -- needs field:= and source:=\n", request->groupBody->tag);
         return 0; }
     unsigned int kind = source->groupBody->flags.data;
     //  oneLevel the text is the source's own string; a source that holds a group is a group inside a group
     if (isGROUP(kind)) {
-        ::fprintf(stderr,"displayText: REFUSING %s -- its text is a group holding a group; one level only\n", field->groupBody->tag);
+        ::fprintf(stderr,"drawSpans: REFUSING %s -- its text is a group holding a group; one level only\n", field->groupBody->tag);
         return 0; }
     if (!isSTRING(kind) && !isTOKEN(kind)) return request;
     //  topText a top's pointer slot shares its union with the text slot, so a top that holds a display and a string has lost the string
     if (source->groupBody->flags.isPointer) {
-        ::fprintf(stderr,"displayText: REFUSING %s -- a top keeps its display in its text slot; put the text on a child\n", source->groupBody->tag);
+        ::fprintf(stderr,"drawSpans: REFUSING %s -- a top keeps its display in its text slot; put the text on a child\n", source->groupBody->tag);
         return 0; }
     char *text = source->getText();
     if (!text || !*text) return request;
     GroupItem   *top = displayOf(field);
     CGContextRef ctx = top ? (CGContextRef)top->getPointer() : 0;
     if (!ctx) {
-        ::fprintf(stderr,"displayText: REFUSING %s -- no display; call makeDisplay first\n", field->groupBody->tag);
+        ::fprintf(stderr,"drawSpans: REFUSING %s -- no display; call makeDisplay first\n", field->groupBody->tag);
         return 0; }
     GroupItem *fontNode = heldBy(request->get("font")), *colorNode = heldBy(request->get("color"));
     NSFont *font = fontNode ? ::getFont(fontNode) : 0;
@@ -646,7 +650,7 @@ extern GroupItem displayText(GroupItem request)
         char *named = alignNode->getText();
         if (named && (!::strcmp(named,"left") || !::strcmp(named,"center") || !::strcmp(named,"right") || !::strcmp(named,"justify")))
             align = named;
-        else ::fprintf(stderr,"displayText: REFUSING %s's align=%s -- not left, center, right or justify; drawn left\n",
+        else ::fprintf(stderr,"drawSpans: REFUSING %s's align=%s -- not left, center, right or justify; drawn left\n",
             field->groupBody->tag, named ? named : ""); }
     int alignKind = !::strcmp(align,"center") ? 1 : !::strcmp(align,"right") ? 2 : !::strcmp(align,"justify") ? 3 : 0;
     //  valignOf top, center or bottom as kant resolved it; none is top; any other value is refused by name and drawn top (SEQ 605 R1)
@@ -656,7 +660,7 @@ extern GroupItem displayText(GroupItem request)
         char *named = valignNode->getText();
         if (named && (!::strcmp(named,"top") || !::strcmp(named,"center") || !::strcmp(named,"bottom")))
             valign = named;
-        else ::fprintf(stderr,"displayText: REFUSING %s's valign=%s -- not top, center or bottom; drawn top\n",
+        else ::fprintf(stderr,"drawSpans: REFUSING %s's valign=%s -- not top, center or bottom; drawn top\n",
             field->groupBody->tag, named ? named : ""); }
     int valignKind = !::strcmp(valign,"center") ? 1 : !::strcmp(valign,"bottom") ? 2 : 0;
     CTFontRef ct = (CTFontRef)font;
@@ -673,117 +677,92 @@ extern GroupItem displayText(GroupItem request)
         if (slanted) ct = slanted;
         else {
             italic = 0;
-            ::fprintf(stderr,"displayText: WARNING %s -- its font has no italic face; drawn upright\n", field->groupBody->tag); } }
-    //  paragraphsAndRuns typesetting's first slice (Tony, 2026-11-12): the text is read once into paragraphs, split at a blank line; a single
-    //  line end inside a paragraph is a space. A run is {styleName: text}: it ends at its closing mark or at its paragraph's end, runs nest, and
-    //  {{ is a literal brace. A brace with a name and no colon is an insertion, which waits: it is left as written. The style is looked up in the
-    //  request's styles slot, the one vocabulary kant handed over; a name it does not hold warns by name and the text prints plain.
-    struct RunSpan { CFIndex from, to; GroupItem *style; };
-    //  fixedRoom plain arrays: 48 paragraphs and 24 runs a paragraph; text past either is dropped with a warning (this generated file carries no container header)
-    enum { maxParas = 48, maxRuns = 24 };
-    struct Para { NSMutableString *str; RunSpan runs[maxRuns]; int nRuns; NSMutableAttributedString *as; CTTypesetterRef ts; };
+            ::fprintf(stderr,"drawSpans: WARNING %s -- its font has no italic face; drawn upright\n", field->groupBody->tag); } }
+    //  spansOnly typesetting T1 (2026-11-12): kant's typeset split the text into paragraphs and spans and resolved each span's style; the floor
+    //  joins a paragraph's spans into one attributed string, a space after each span that carries one, and breaks and paints it
+    //  fixedRoom a plain array: 48 paragraphs; text past that is dropped with a warning (this generated file carries no container header)
+    enum { maxParas = 48 };
+    struct Para { NSString *str; NSMutableAttributedString *as; CTTypesetterRef ts; int styled; };
     static Para paras[maxParas];
     int nParas = 0, dropped = 0;
-    GroupItem *styleBook = heldBy(request->get("styles"));
-    int runCount = 0;
-    {
-        NSString *whole = [NSString stringWithUTF8String:text];
-        if (!whole) whole = @"";
-        CFIndex wl = [whole length], i = 0;
-        Para cur; cur.str = [NSMutableString string]; cur.as = nil; cur.ts = 0; cur.nRuns = 0;
-        int opened[maxRuns], nOpen = 0;
-        auto closePara = [&]() {
-            for (int k = 0; k < nOpen; k++) cur.runs[opened[k]].to = [cur.str length];
-            nOpen = 0;
-            while ([cur.str length] && [cur.str characterAtIndex:[cur.str length] - 1] == ' ') [cur.str deleteCharactersInRange:NSMakeRange([cur.str length] - 1, 1)];
-            if ([cur.str length]) { if (nParas < maxParas) paras[nParas++] = cur; else dropped = 1; }
-            cur.str = [NSMutableString string]; cur.nRuns = 0; };
-        while (i < wl) {
-            unichar c = [whole characterAtIndex:i];
-            if (c == '\n' || c == '\r') {
-                int ends = 0;
-                while (i < wl) {
-                    unichar w = [whole characterAtIndex:i];
-                    if (w == '\n') ends++;
-                    else if (w != ' ' && w != '\t' && w != '\r') break;
-                    i++; }
-                if (ends > 1) closePara();
-                else if ([cur.str length] && [cur.str characterAtIndex:[cur.str length] - 1] != ' ') [cur.str appendString:@" "];
-                continue; }
-            if (c == '{') {
-                if (i + 1 < wl && [whole characterAtIndex:i + 1] == '{') { [cur.str appendString:@"{"]; i += 2; continue; }
-                CFIndex j = i + 1;
-                while (j < wl && [[NSCharacterSet alphanumericCharacterSet] characterIsMember:[whole characterAtIndex:j]]) j++;
-                if (j > i + 1 && j < wl && [whole characterAtIndex:j] == ':' && cur.nRuns < maxRuns) {
-                    NSString *name = [whole substringWithRange:NSMakeRange(i + 1, j - i - 1)];
-                    GroupItem *style = styleBook ? styleBook->get((char*)[name UTF8String]) : 0;
-                    if (!style) ::fprintf(stderr,"displayText: WARNING %s -- its text names the style %s, which is not a style; that run is printed plain\n", field->groupBody->tag, [name UTF8String]);
-                    RunSpan span; span.from = [cur.str length]; span.to = -1; span.style = style;
-                    opened[nOpen++] = cur.nRuns;
-                    cur.runs[cur.nRuns++] = span;
-                    runCount++;
-                    i = j + 1;
-                    if (i < wl && [whole characterAtIndex:i] == ' ') i++;
-                    continue; } }
-            if (c == '}' && nOpen) {
-                cur.runs[opened[--nOpen]].to = [cur.str length];
-                i++;
-                continue; }
-            [cur.str appendFormat:@"%C", c];
-            i++; }
-        closePara();
-    }
-    if (dropped) ::fprintf(stderr,"displayText: WARNING %s -- more than 48 paragraphs; the rest are not drawn\n", field->groupBody->tag);
-    if (!nParas) { if (slanted) CFRelease(slanted); return request; }
+    GroupItem *spanList = heldBy(request->get("spans"));
+    GroupItem *runsSlot = request->get("runs");
+    int runCount = (runsSlot && isCOUNT(runsSlot->groupBody->flags.data)) ? (int)runsSlot->getCount() : 0;
+    //  heldOrNone a span's style slot holds the field kant resolved, or 0 for none
+    auto slotOf = [&](GroupItem *span, const char *name) -> GroupItem* { return heldBy(span->get((char*)name)); };
     CGColorSpaceRef runSpace = CGColorSpaceCreateDeviceRGB();
-    NSDictionary *attrs = @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorFromContextAttributeName: @YES };
-    for (int p = 0; p < nParas; p++) {
-        Para &pa = paras[p];
-        pa.as = [[NSMutableAttributedString alloc] initWithString:pa.str attributes:attrs];
-        //  ownColour a paragraph holding a run carries the field's colour as its own attribute: drawing a coloured run leaves the context's fill colour changed, and text that takes its colour from the context would then be drawn in the run's
-        if (pa.nRuns) {
-            CGFloat base[4] = {cr, cg, cb, ca};
-            CGColorRef baseColour = CGColorCreate(runSpace, base);
-            NSRange all = NSMakeRange(0, [pa.str length]);
-            [pa.as removeAttribute:(id)kCTForegroundColorFromContextAttributeName range:all];
-            [pa.as addAttribute:(id)kCTForegroundColorAttributeName value:(id)baseColour range:all];
-            CGColorRelease(baseColour); }
-        //  outerFirst runs are kept in the order they opened, so an inner run is applied after its outer one and starts from it
-        for (int r = 0; r < pa.nRuns; r++) {
-            RunSpan &span = pa.runs[r];
-            if (!span.style || span.to <= span.from) continue;
-            NSRange range = NSMakeRange(span.from, span.to - span.from);
-            //  heldOrOwn a style's font or colour is the field it holds (font:=titleFont), or its own value (color=#ef2b2d)
-            auto heldOrOwn = [&](GroupItem *slot) -> GroupItem* {
-                GroupItem *held = heldBy(slot);
-                return held ? held : (slot && slot->groupBody->flags.data ? slot : 0); };
-            GroupItem *runFontNode = heldOrOwn(span.style->get("font")), *runColorNode = heldOrOwn(span.style->get("color")), *runItalic = span.style->get("italic");
-            CTFontRef runFont = runFontNode ? (CTFontRef)::getFont(runFontNode) : 0;
-            if (!runFont) runFont = (CTFontRef)[pa.as attribute:(id)kCTFontAttributeName atIndex:span.from effectiveRange:NULL];
-            int wantItalic = italic;
-            if (runItalic) {
-                unsigned int d = runItalic->groupBody->flags.data;
-                char *word = (isSTRING(d) || isTOKEN(d)) ? runItalic->getText() : 0;
-                wantItalic = !(word && !::strcmp(word,"off")); }
-            if (runFontNode || runItalic) {
-                CTFontRef made = wantItalic ? CTFontCreateCopyWithSymbolicTraits(runFont, 0, NULL, kCTFontItalicTrait, kCTFontItalicTrait)
-                                            : CTFontCreateCopyWithSymbolicTraits(runFont, 0, NULL, 0, kCTFontItalicTrait);
-                if (made) { [pa.as addAttribute:(id)kCTFontAttributeName value:(id)made range:range]; CFRelease(made); }
+    CGFloat baseComps[4] = {cr, cg, cb, ca};
+    CGColorRef baseColour = CGColorCreate(runSpace, baseComps);
+    for (GroupItem *paraNode = (spanList && spanList->groupBody->groupList) ? spanList->nextGroup(0) : 0; paraNode; paraNode = paraNode->nextInParent) {
+        if (!paraNode->groupBody->groupList) continue;
+        if (nParas >= maxParas) { dropped = 1; break; }
+        Para pa; pa.ts = 0; pa.styled = 0;
+        for (GroupItem *span = paraNode->nextGroup(0); span; span = span->nextInParent)
+            if (slotOf(span,"font") || slotOf(span,"color") || slotOf(span,"italic")) pa.styled = 1;
+        //  ownColour a paragraph holding a styled span carries the field's colour as its own attribute: drawing a coloured span leaves the context's fill colour changed, and text that takes its colour from the context would then be drawn in the span's
+        NSDictionary *plain = pa.styled ? @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorAttributeName: (id)baseColour }
+                                        : @{ (id)kCTFontAttributeName: (id)ct, (id)kCTForegroundColorFromContextAttributeName: @YES };
+        pa.as = [[NSMutableAttributedString alloc] init];
+        for (GroupItem *span = paraNode->nextGroup(0); span; span = span->nextInParent) {
+            unsigned int sd = span->groupBody->flags.data;
+            char *piece = (isSTRING(sd) || isTOKEN(sd)) ? span->getText() : 0;
+            if (!piece || !*piece) continue;
+            NSString *pieceStr = [NSString stringWithUTF8String:piece];
+            if (!pieceStr) continue;
+            NSMutableDictionary *attrs = [NSMutableDictionary dictionaryWithDictionary:plain];
+            GroupItem *spanFontNode = slotOf(span,"font"), *spanColorNode = slotOf(span,"color"), *spanItalic = slotOf(span,"italic");
+            if (spanFontNode || spanItalic) {
+                //  spanFace the span's font, or the field's upright one; italic as the span says, else as the field does
+                CTFontRef face = spanFontNode ? (CTFontRef)::getFont(spanFontNode) : 0;
+                if (!face) face = (CTFontRef)font;
+                int wantItalic = italic;
+                if (spanItalic) {
+                    unsigned int d = spanItalic->groupBody->flags.data;
+                    char *word = (isSTRING(d) || isTOKEN(d)) ? spanItalic->getText() : 0;
+                    wantItalic = !(word && !::strcmp(word,"off")); }
+                CTFontRef made = wantItalic ? CTFontCreateCopyWithSymbolicTraits(face, 0, NULL, kCTFontItalicTrait, kCTFontItalicTrait)
+                                            : CTFontCreateCopyWithSymbolicTraits(face, 0, NULL, 0, kCTFontItalicTrait);
+                if (made) { attrs[(id)kCTFontAttributeName] = (id)made; CFRelease(made); }
                 else {
-                    [pa.as addAttribute:(id)kCTFontAttributeName value:(id)runFont range:range];
-                    if (wantItalic) ::fprintf(stderr,"displayText: WARNING %s -- the font of a run has no italic face; drawn upright\n", field->groupBody->tag); } }
-            if (runColorNode) {
-                char *value = runColorNode->getText();
-                NSColor *rc = (value && *value == '#') ? ::setColor(runColorNode) : ::getColor(value);
+                    attrs[(id)kCTFontAttributeName] = (id)face;
+                    if (wantItalic) ::fprintf(stderr,"drawSpans: WARNING %s -- the font of a run has no italic face; drawn upright\n", field->groupBody->tag); } }
+            if (spanColorNode) {
+                char *value = spanColorNode->getText();
+                NSColor *rc = (value && *value == '#') ? ::setColor(spanColorNode) : ::getColor(value);
                 if (rc) {
                     CGFloat comps[4] = {0, 0, 0, 1};
                     [rc getRed:&comps[0] green:&comps[1] blue:&comps[2] alpha:&comps[3]];
                     CGColorRef cgc = CGColorCreate(runSpace, comps);
-                    [pa.as removeAttribute:(id)kCTForegroundColorFromContextAttributeName range:range];
-                    [pa.as addAttribute:(id)kCTForegroundColorAttributeName value:(id)cgc range:range];
-                    CGColorRelease(cgc); } } }
-        pa.ts = CTTypesetterCreateWithAttributedString((CFAttributedStringRef)pa.as); }
+                    [attrs removeObjectForKey:(id)kCTForegroundColorFromContextAttributeName];
+                    attrs[(id)kCTForegroundColorAttributeName] = (id)cgc;
+                    CGColorRelease(cgc); } }
+            NSAttributedString *part = [[NSAttributedString alloc] initWithString:pieceStr attributes:attrs];
+            [pa.as appendAttributedString:part];
+            [part release];
+            //  spaceAfter the gap after a span is one space in the span's own style; a width in points (a style's space) is reached by kerning that space
+            GroupItem *spaceSlot = span->get("space");
+            if (spaceSlot && span->nextInParent) {
+                GroupItem *wide = heldBy(spaceSlot);
+                int gap = wide ? 1 : (isCOUNT(spaceSlot->groupBody->flags.data) && spaceSlot->getCount() != 0);
+                if (gap) {
+                    if (wide && (isCOUNT(wide->groupBody->flags.data) || isNUMBER(wide->groupBody->flags.data))) {
+                        CTFontRef gapFont = (CTFontRef)attrs[(id)kCTFontAttributeName];
+                        UniChar sp = ' '; CGGlyph glyph = 0; CGSize adv = CGSizeZero;
+                        CTFontGetGlyphsForCharacters(gapFont, &sp, &glyph, 1);
+                        CTFontGetAdvancesForGlyphs(gapFont, kCTFontOrientationHorizontal, &glyph, &adv, 1);
+                        double want = isCOUNT(wide->groupBody->flags.data) ? (double)wide->getCount() : wide->getNumber();
+                        attrs[(id)kCTKernAttributeName] = @(want - adv.width); }
+                    NSAttributedString *gapPart = [[NSAttributedString alloc] initWithString:@" " attributes:attrs];
+                    [pa.as appendAttributedString:gapPart];
+                    [gapPart release]; } } }
+        if (![pa.as length]) { [pa.as release]; continue; }
+        pa.str = [pa.as string];
+        pa.ts = CTTypesetterCreateWithAttributedString((CFAttributedStringRef)pa.as);
+        paras[nParas++] = pa; }
+    CGColorRelease(baseColour);
     CGColorSpaceRelease(runSpace);
+    if (dropped) ::fprintf(stderr,"drawSpans: WARNING %s -- more than 48 paragraphs; the rest are not drawn\n", field->groupBody->tag);
+    if (!nParas) { if (slanted) CFRelease(slanted); return request; }
     NSRect  framed = ::getFrame(field);
     CGFloat inset = 4;
     CGFloat x0 = framed.origin.x + inset, width = framed.size.width - 2 * inset;
@@ -856,7 +835,7 @@ extern GroupItem displayText(GroupItem request)
             //  tallRun a line holding a run in a taller font is moved down by the difference, so it does not sit on the line above
             CGFloat lineAsc = 0, lineDesc = 0, lineLead = 0;
             double lineWide = CTLineGetTypographicBounds(line, &lineAsc, &lineDesc, &lineLead);
-            if (pa.nRuns && lineAsc > asc) {
+            if (pa.styled && lineAsc > asc) {
                 baseline += lineAsc - asc;
                 if (baseline + desc > bottom) { CFRelease(line); clipped = 1; break; } }
             if (lineWide - CTLineGetTrailingWhitespaceWidth(line) > width) tooWide = 1;
@@ -892,7 +871,7 @@ extern GroupItem displayText(GroupItem request)
     int paraCount = nParas;
     for (int p = 0; p < nParas; p++) { CFRelease(paras[p].ts); [paras[p].as release]; }
     if (drawn < total || tooWide)
-        ::fprintf(stderr,"displayText: WARNING %s -- %s; %ld of %ld characters drawn\n", field->groupBody->tag,
+        ::fprintf(stderr,"drawSpans: WARNING %s -- %s; %ld of %ld characters drawn\n", field->groupBody->tag,
             tooWide ? "a word wider than its frame is clipped at the frame" : "its text does not fit its frame", drawn, total);
     int bold = (CTFontGetSymbolicTraits(ct) & kCTFontBoldTrait) ? 1 : 0;
     CFStringRef family = CTFontCopyFamilyName(ct);
@@ -901,7 +880,7 @@ extern GroupItem displayText(GroupItem request)
     //  typesetSuffix paragraphs and runs are said only when the text has more than one paragraph or any run, so every other line reads as it did
     char typeset[64] = "";
     if (paraCount > 1 || runCount) ::snprintf(typeset, sizeof typeset, " paragraphs %d of %d runs %d", parasDrawn, paraCount, runCount);
-    ::printf("=== displayText %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s%s%s ===\n",
+    ::printf("=== drawSpans %s font %s %g %d color r%d g%d b%d lines %d drawn %ld of %ld next %s valign %s align %s%s%s ===\n",
         field->groupBody->tag, [(NSString*)family UTF8String], (double)CTFontGetSize(ct), bold,
         (int)lrint(cr * 255), (int)lrint(cg * 255), (int)lrint(cb * 255), lines, drawn, total, next, valign, align, slant ? " italic" : "", typeset);
     ::fflush(stdout);

@@ -122,26 +122,190 @@ define
         if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
         or describe.isGrouP;    describe = dESCRIPTIONs[describe];
         };
-    textReq field source font color align valign italic styles;
+    textReq field source font color align valign italic spans runs;
+    /***************************************************************************
+        typeset -- typesetting T1 (2026-11-12; Clay's pre-pass design, Tony's go).
+        The kant pre-pass: it takes a field's text apart into paragraphs and
+        spans and resolves each span's style, and the floor (drawSpans) only
+        measures, breaks lines and paints. argument is the field whose own
+        string is the text; the result is tsOut, a list of para groups, each a
+        list of spans, and tsRunCount, the runs opened.
+        The text is read by a small grammar, tsText. A tsUnit is one piece (a
+        word, {{, an opening {style:, a lone brace, a closing brace) and the
+        white space after it, one tsSp a space and one tsLine a line end; two
+        line ends or more end the paragraph and every open run with it.
+        A span is a copy of tsSpan: its own string is the piece; font, color
+        and italic hold what the open runs' styles give, outermost first, or 0
+        for the field's own; space is 1 when white space follows the span (a
+        run of it is one gap), or holds a style's space, a width in points.
+        A gap after a closing mark belongs to the span before the mark; a gap
+        after an opening mark is dropped. A closing brace with no run open is
+        text. A style name sTYLEs does not hold warns by name and the run
+        prints plain. An insertion, {name}, waits: it is left as written.
+    ***************************************************************************/
+    tsSp isRule sp^-=[\t\r ];
+    tsNl isRule nl^-=[\n];
+    tsLine isRule tsNl^ tsSp^*;
+    tsWord isRule word^=[^\t\n\r{} ]+;
+    tsLit isRule lit^="{" more^-="{";
+    tsOpen isRule open^="{" style^=[a-zA-Z0-9]+ colon^=":";
+    tsBrace isRule brace^="{";
+    tsClose isRule close^="}";
+    tsPiece isRule
+        tsWord^;
+        tsLit^;
+        tsOpen^;
+        tsBrace^;
+        tsClose^;
+    tsUnit isRule tsPiece^ tsSp^* tsLine^*;
+    tsText isRule tsUnit+;
+    tsRun style depth;
+    tsRuns;
+    tsSpan space font color italic;
+    tsOut;
+    tsRunCount;
+    tsWho;
+    typeset code={
+        tyTree := tsText(argument);
+        clear(tsOut);
+        clear(tsRuns);
+        tsRunCount = 0;
+        tyOpen = 0;
+        tyHave = 0;
+        tyUnit := *tyTree.firsT;
+        while tyUnit.datA != 0;
+            tyPiece := *tyUnit.firsT;
+            tyLeaf := *tyPiece.firsT;
+            tyKind := *tyLeaf.taG;
+            tyGaps = 0;
+            tyLines = 0;
+            tyG := *tyPiece.nexT;
+            while tyG.datA != 0;
+                tyGaps = tyGaps + 1;
+                if *tyG.taG == "tsLine";    tyLines = tyLines + 1;
+                tyG := *tyG.nexT;
+            tyIsSpan = 1;
+            if *tyKind == "open";
+                tyIsSpan = 0;
+                tySl := *tyLeaf.nexT;
+                tyNm := *tySl.texT;
+                tyOpen = tyOpen + 1;
+                tsRunCount = tsRunCount + 1;
+                tsRun.depth = tyOpen;
+                tsRun.style = 0;
+                if sTYLEs[*tyNm];   tsRun.style := sTYLEs[*tyNm];
+                else
+                    tyFt := *tsWho.taG;
+                    cerr "drawSpans: WARNING" tyFt "-- its text names the style" tyNm "-- not a style; that run is printed plain":;
+                // ownEntry copyDeep, never copyOf: copyOf shares the depth attribute, and every entry then reads the last depth written
+                tyE := copyDeep(tsRun);
+                tsRuns +% *tyE;
+            if *tyKind == "close";
+                if tyOpen > 0;
+                    tyOpen = tyOpen - 1;
+                    tyIsSpan = 0;
+            if tyIsSpan == 1;
+                if tyHave == 0;
+                    tyPara := new("para");
+                    tsOut +% *tyPara;
+                    tyHave = 1;
+                tyTxt := *tyLeaf.texT;
+                tsSpan = *tyTxt;
+                tsSpan.font = 0;
+                tsSpan.color = 0;
+                tsSpan.italic = 0;
+                tsSpan.space = 0;
+                tySpace = 0;
+                // liveRuns the run open at each depth is the LAST entry written with that depth; the styles apply outermost first, so an inner run starts from its outer one
+                tyD = 1;
+                while tyD <= tyOpen;
+                    tyPos = 0;
+                    tyAt = 0;
+                    tyE := tsRuns.firsT;
+                    while tyE.datA != 0;
+                        tyPos = tyPos + 1;
+                        tyDp := *tyE["depth"];
+                        if *tyDp == tyD;    tyAt = tyPos;
+                        tyE := *tyE.nexT;
+                    tyPos = 0;
+                    tyE := tsRuns.firsT;
+                    while tyE.datA != 0;
+                        tyPos = tyPos + 1;
+                        if tyPos == tyAt;
+                            tyEs := *tyE["style"];
+                            if **tyEs["font"];      tsSpan.font := **tyEs["font"];
+                            if **tyEs["color"];     tsSpan.color := **tyEs["color"];
+                            if **tyEs["italic"];    tsSpan.italic := **tyEs["italic"];
+                            if **tyEs["space"];     tySpace = tyPos;
+                        tyE := *tyE.nexT;
+                    tyD = tyD + 1;
+                // spaceAfter white space after the span, or after the closing marks that follow it directly
+                tySp = 0;
+                if tyGaps > 0;      tySp = 1;
+                tyK = tyOpen;
+                tyLook = 1;
+                if tySp == 1;       tyLook = 0;
+                tyNxt := *tyUnit.nexT;
+                while tyLook == 1;
+                    if tyK == 0;            tyLook = 0;
+                    if tyNxt.datA == 0;     tyLook = 0;
+                    if tyLook == 1;
+                        tyNp := *tyNxt.firsT;
+                        tyNl := *tyNp.firsT;
+                        tyIsClose = 0;
+                        if *tyNl.taG == "close";    tyIsClose = 1;
+                        if tyIsClose == 0;  tyLook = 0;
+                        if tyIsClose == 1;
+                            tyK = tyK - 1;
+                            tyNg := *tyNp.nexT;
+                            if tyNg.datA != 0;
+                                tySp = 1;
+                                tyLook = 0;
+                            tyNxt := *tyNxt.nexT;
+                tsSpan.space = tySp;
+                // styleSpace the gap's width comes from the innermost open style that names space (Tony, 2026-11-12)
+                if tySp == 1;
+                    if tySpace > 0;
+                        tyPos = 0;
+                        tyE := tsRuns.firsT;
+                        while tyE.datA != 0;
+                            tyPos = tyPos + 1;
+                            if tyPos == tySpace;
+                                tyEs := *tyE["style"];
+                                tsSpan.space := **tyEs["space"];
+                            tyE := *tyE.nexT;
+                // ownSpan copyDeep, never copyOf: copyOf shares the four slots, and every span then reads the last one's
+                tyNew := copyDeep(tsSpan);
+                *tyPara +% *tyNew;
+            if tyLines > 1;
+                tyHave = 0;
+                clear(tsRuns);
+                tyOpen = 0;
+            tyUnit := *tyUnit.nexT;
+        };
     /***************************************************************************
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
-        font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands displayText one request, textReq,
+        font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands drawSpans one request, textReq,
         written afresh on every call. Each of font and color comes from the
         field's own attribute, else its style's (style:= names the style field),
         else the enclosing field's, walking up to the top (the field holding the
-        display). Nothing found leaves the slot at 0: displayText then draws
+        display). Nothing found leaves the slot at 0: drawSpans then draws
         Helvetica 12 in black, left-aligned. The text is the field's own string, or, when the
         field holds a group, that group's (*argument, one level). A field with
-        no text costs a call and draws nothing (displayText skips it).
+        no text costs a call and draws nothing (drawSpans skips it).
     ***************************************************************************/
     drawText code={
         textReq.field := argument;
         dtG = argument.isGrouP;
         if dtG == 1;    textReq.source := *argument;
         else            textReq.source := argument;
+        // sourceHeld the same choice kept in a local, for the pre-pass below: a slot of textReq cannot be starred through a dot
+        if dtG == 1;    dtSrc := *argument;
+        else            dtSrc := argument;
         // describeShown a field with a describe attribute shows that attribute's text (SEQ 608 R2)
         dtSelf := argument;
         if *dtSelf["describe"];     textReq.source := *dtSelf["describe"];
+        if *dtSelf["describe"];     dtSrc := *dtSelf["describe"];
         // imageText an image field's text is its description, never drawn over the image (SEQ 608 R2)
         dtDraw = 1;
         if *dtSelf["image"];        dtDraw = 0;
@@ -211,9 +375,21 @@ define
             // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
             dtCur := *dtCur.parenT;
             dtHops += 1;
-        // runStyles the style vocabulary a {styleName: text} run in the text is looked up in (typesetting's first slice, 2026-11-12); the floor reads it and resolves nothing else
-        textReq.styles := sTYLEs;
-        if dtDraw == 1;     displayText(textReq);
+        // prePass kant's typeset builds the span list from a source that holds its own string; the floor refuses every other source by name, as it did (typesetting T1, 2026-11-12)
+        textReq.spans = 0;
+        textReq.runs = 0;
+        if dtDraw == 1;
+            tsWho := argument;
+            dtHas = *dtSrc.datA;
+            dtHeld = *dtSrc.isGrouP;
+            dtTopText = *dtSrc.isPointeR;
+            if dtHeld == 1;     dtHas = 0;
+            if dtTopText == 1;  dtHas = 0;
+            if dtHas != 0;
+                typeset(*dtSrc);
+                textReq.spans := tsOut;
+                textReq.runs = tsRunCount;
+            drawSpans(textReq);
         };
     /***************************************************************************
         drawImage -- forms step 8 (Tony, 2026-11-10, SEQ 609). A field with an

@@ -41,7 +41,7 @@ define
     definersOf immediateAction;
     closePDF immediateAction=closePDF;
     displayBorder immediateAction=displayBorder;
-    displayText immediateAction=displayText;
+    drawSpans immediateAction=drawSpans;
     displayImage immediateAction=displayImage;
     displayFill immediateAction=displayFill;
     displayFillRT immediateAction=displayFillRT;

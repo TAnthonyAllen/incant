@@ -11,7 +11,7 @@ search cOLOr fONTs sTYLEs;
 include(firstLightFile);
 register(FORMs);
 define
-    tsForm window x=0 y=0 width=300 height=400 down fill:=white font:=normalFont color:=blue
+    tsForm window x=0 y=0 width=300 height=600 down fill:=white font:=normalFont color:=blue
         tsLit="a {{ b" text height=30;
         tsBad="x {nosuch: y} z" text height=30;
         tsOpen="p {emphasis: q r\n\ns t" text height=80;
@@ -19,10 +19,16 @@ define
         tsIns="see {name} here" text height=30;
         tsThree="one\n\ntwo\n\nthree" text height=40;
         tsWrapped="first line\nsame paragraph" text height=30;
+        tsCollapse="a    b" text height=30;
+        tsGlue="x{emphasis: y}z" text height=30;
+        tsAfter="{emphasis: y} z {emphasis: w }v" text height=30;
+        tsNarrow="{plainer: a b} c" text height=40;
+        tsWide="{wide: a b} c" text height=60;
     ;
 registry(sTYLEs);
 define
     plainer italic=off;
+    wide space=280;
     ;
 register(TypesetT);
 define
@@ -94,3 +100,13 @@ TY-7  runs nest: 9 characters, 2 runs.
 TY-8  an insertion, {name} with no colon, waits: it is left as written, 15 characters, no run.
 TY-9  three paragraphs in a field too short for them: what fits is drawn, the rest is reported by name.
 TY-10 a single line end inside a paragraph is a space: one paragraph, 25 characters.
+
+T1 (2026-11-12): the text is taken apart by kant's typeset (incant/utilities) and the floor, drawSpans, reads only the span list.
+Every row above reads as it did on the C++ slice but TY-5's warning, which kant now words. Rows added with T1:
+  TY-11  tsCollapse  a run of spaces is one gap: "a    b" draws 3 characters.
+  TY-12  tsGlue, tsAfter  a mark takes no room: x{emphasis: y}z is xyz; the space after an opening mark is dropped, and the space
+         before or after a closing mark is one gap after the span before it ("y z w v", 7 characters).
+  TY-13  tsWide beside tsNarrow  the gap's width comes from the style's space: with space=280 in a 300-point field each gap wraps,
+         three lines where the same text in a style with no space is one.
+H7 (2026-11-12, after the commit): with typeset's colour line removed TY-3 goes red; with its paragraph test off TY-1 reads one paragraph.
+

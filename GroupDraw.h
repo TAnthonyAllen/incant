@@ -16,7 +16,7 @@ extern "C" GroupItem *displayBorder(GroupItem *field);
 extern "C" GroupItem *displayFillRT(GroupItem *field);
 extern "C" GroupItem *displayImage(GroupItem *request);
 GroupItem *displayOf(GroupItem *field);
-extern "C" GroupItem *displayText(GroupItem *request);
+extern "C" GroupItem *drawSpans(GroupItem *request);
 extern "C" NSRect getFrame(GroupItem *item);
 void handDisplay(GroupItem *field, GroupItem *top);
 extern "C" GroupItem *makeDisplay(GroupItem *field);

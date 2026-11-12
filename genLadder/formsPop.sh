@@ -198,7 +198,7 @@ _ofeq "drawWalkT DW-12 x past the width refuses by name, and no pixel line for i
 fdRow "drawWalkT a field with no fill is skipped, not refused: refusals during the walk, beside words' pixel (anti-vacuity)" "$(sed -n '/^DW walk begins/,/^DW walk ends/p' "$T/dw.e" | grep -c 'REFUS') $(_dwp words)" "0 r0 g0 b0 a0/" "0 r255 g255 b255 a255/"
 
 echo "-- the text: forms step 5."
-#  ⚑ textT -- forms step 5 (Tony, 2026-11-09, SEQ 582): displayText draws a field's own string in its frame, wrapped at word
+#  ⚑ textT -- forms step 5 (Tony, 2026-11-09, SEQ 582): drawSpans draws a field's own string in its frame, wrapped at word
 #  boundaries, not indented, a line that does not fit not drawn, a too-wide word clipped at the frame; font and color resolved
 #  in kant (own, style, enclosing field; color falls back to black). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at
 #  today's value (no text is drawn), the intended beside it. Pixels are read BY COORDINATE (the first read of each point).
@@ -241,8 +241,8 @@ _txOrient () { if [ "$1" -eq 0 ] && [ "$2" -eq 0 ]; then echo none; elif [ "$1" 
 _txClasses () {
     echo "$(_txInk $(_txs "$1" "$2" 4 203 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 55 55 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 70 70 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 49 58 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 64 73 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 49 51 "$_txWhite" count) $(_txs "$1" "$2" 3 12 55 57 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 342 397 180 180 "$_txGreen" count))"
 }
-#  _txTrace <tag> <field>: a field of displayText's line for that field (font / color / lines / next)
-_txTrace () { grep -h "^=== displayText $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | head -1 | sed "s/^=== displayText $1 //; s/ ===\$//" | awk -v want="$2" '
+#  _txTrace <tag> <field>: a field of drawSpans's line for that field (font / color / lines / next)
+_txTrace () { grep -h "^=== drawSpans $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | head -1 | sed "s/^=== drawSpans $1 //; s/ ===\$//" | awk -v want="$2" '
     { for (i = 1; i <= NF; i++) { if ($i == "font") f = $(i+1) " " $(i+2) " " $(i+3); if ($i == "color") c = $(i+1) " " $(i+2) " " $(i+3)
       if ($i == "lines") l = $(i+1); if ($i == "next") nx = $(i+1) } }
     END { if (want == "font") print f; else if (want == "color") print c; else if (want == "lines") print l " " nx }'; }
@@ -276,8 +276,8 @@ fdRow "textT TX-ST tStyled takes font and color from its style tsStyle (titleFon
 fdRow "textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end)" "$(_txTrace tOver lines) / $(_txTrace tLong lines)" "  /  " "2 space / 1 end"
 #  RE-PIN (SEQ 584): textT gained tRight, tKid, tKidL, tBad for step 5a, so the call list grows by those four; nothing else changed.
 #  RE-PIN (SEQ 605): textT gained tVTop's six children for step 5b, so the call list grows by those six; nothing else changed.
-fdRow "textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text)" "$(grep -h '^=== displayText ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain"
-fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^displayText: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "heading tOver tLong" "tOver tLong"
+fdRow "textT TX-N drawSpans calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text)" "$(grep -h '^=== drawSpans ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain"
+fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^drawSpans: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "heading tOver tLong" "tOver tLong"
 #  ⚑ STEP 5a, ALIGNMENT (Tony, 2026-11-09, SEQ 584). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value (everything
 #  draws left), the intended beside it. TOLERANCES: centred = the ink's distances to the frame's two edges differ by at most 2 px; at the
 #  edge = the last ink within 2 px of the frame edge less the 4-point inset; left = the first ink at most 6 px inside the frame edge.
@@ -298,9 +298,9 @@ fdRow "textT AL-3 JUSTIFY: words' lines 1 and 2 end at x 395 (396 less a pixel),
 fdRow "textT AL-4 RIGHT: tRight's last ink at its frame edge less the inset, x 185 (190 - 4, less a pixel)" "$(_txEdge "$T/tx.o" tForm 140 189 64 85 "$_txBlue" 185)" "short" "edge"
 fdRow "textT AL-5 LEFT: tOver, no align, draws as before -- first ink within 6 of x 10" "$(_txLeft "$T/tx.o" tForm 10 40 15 28 "$_txBlue" 10)" "left" "left"
 fdRow "textT AL-6 INHERIT: tKid (no align) centred under tCenterTop; tKidL (style align=left) left; tBad (align=leftl) left" "$(_txCentre "$T/tx.o" tCenterTop 0 119 5 26 "$_txWhite" 0 119) $(_txLeft "$T/tx.o" tCenterTop 0 119 35 56 "$_txWhite" 0) $(_txLeft "$T/tx.o" tCenterTop 0 119 65 86 "$_txWhite" 0)" "off 4 99 left left" "centred left left"
-fdRow "textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left" "$(grep -c "^displayText: REFUSING tBad's align=leftl" "$T/tx.e")" "0" "1"
+fdRow "textT AL-7 REFUSAL: tBad's align=leftl refused by name, drawn left" "$(grep -c "^drawSpans: REFUSING tBad's align=leftl" "$T/tx.e")" "0" "1"
 #  AL-8's reader takes the word after align whether or not the typesetting suffix follows it (words carries one since 2026-11-12: paragraphs 2 of 2 runs 1)
-fdRow "textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad" "$(for _f in heading words ok tRight tKid tKidL tBad; do grep -h "^=== displayText $_f " "$T/tx.o" | head -1 | sed -n 's/.* align \([a-z]*\)\( paragraphs .*\)\{0,1\} ===$/\1/p'; done | xargs)" "" "center justify center right center left left"
+fdRow "textT AL-8 the alignment each field drew with: heading words ok tRight tKid tKidL tBad" "$(for _f in heading words ok tRight tKid tKidL tBad; do grep -h "^=== drawSpans $_f " "$T/tx.o" | head -1 | sed -n 's/.* align \([a-z]*\)\( paragraphs .*\)\{0,1\} ===$/\1/p'; done | xargs)" "" "center justify center right center left left"
 #  "no refusal" counts every refusal but AL-7's, which is expected (SEQ 584): the row's question is unchanged
 _ofeq "textT no refusal" "$(grep 'REFUS' "$T/tx.e" | grep -vc "align=leftl\|valign=middle")" "0"
 #  ⚑ STEP 5b, VERTICAL ALIGNMENT (Tony, 2026-11-10, SEQ 605). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value
@@ -328,19 +328,19 @@ _tyCentre () { _t=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" miny); _b=$(_tys "$1" "$2" $
 _tyBottom () { _b=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" maxy); if [ "$_b" = none ]; then echo none; elif [ $_b -ge $(( $8 - 2 )) ] && [ $_b -le $(( $8 + 2 )) ]; then echo bottom; else echo "short $_b"; fi; }
 #  _tyTop <file> <tag> <box> <bg> <frame top>: the first ink at most 6 px down
 _tyTop () { _t=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" miny); if [ "$_t" = none ]; then echo none; elif [ $_t -le $(( $8 + 6 )) ]; then echo top; else echo "down $(( _t - $8 ))"; fi; }
-_vaOf () { grep -h "^=== displayText $1 " "$T/tx.o" | head -1 | sed -n 's/.* valign \([a-z]*\) align [a-z]* ===$/\1/p'; }
+_vaOf () { grep -h "^=== drawSpans $1 " "$T/tx.o" | head -1 | sed -n 's/.* valign \([a-z]*\) align [a-z]* ===$/\1/p'; }
 fdRow "textT VA-1 CENTER: ok's ink centred top to bottom in its frame (y 165..199; scanned inside the border, 167..197, x 342..397)" "$(_tyCentre "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" 165 199)" "off 5 18" "centred"
 fdRow "textT VA-2 CENTER: tVOwn (its own valign=center) centred in its frame (y 60..119)" "$(_tyCentre "$T/tx.o" tVTop 0 59 60 119 "$_txWhite" 60 119)" "off 4 43" "centred"
 fdRow "textT VA-3 BOTTOM: tVBot's last ink at its frame's bottom less the inset (y 55); tVTwo's three lines end at y 115, the first starts below the middle" "$(_tyBottom "$T/tx.o" tVTop 60 119 0 59 "$_txWhite" 55) $(_tyBottom "$T/tx.o" tVTop 240 299 0 119 "$_txWhite" 115) $([ "$(_tys "$T/tx.o" tVTop 240 299 0 119 "$_txWhite" miny)" -ge 60 ] && echo low || echo high)" "short 16 short 40 high" "bottom bottom low"
 fdRow "textT VA-4 INHERIT: tVKid (no valign) centred under tVTop's valign=center; tVSty (style valign=top) at the top" "$(_tyCentre "$T/tx.o" tVTop 0 59 0 59 "$_txWhite" 0 59) $(_tyTop "$T/tx.o" tVTop 120 179 0 59 "$_txWhite" 0)" "off 4 43 top" "centred top"
-fdRow "textT VA-5 REFUSAL: tVBad's valign=middle refused by name, drawn at the top (not the inherited centre)" "$(grep -c "^displayText: REFUSING tVBad's valign=middle" "$T/tx.e") $(_tyTop "$T/tx.o" tVTop 180 239 0 59 "$_txWhite" 0)" "0 top" "1 top"
+fdRow "textT VA-5 REFUSAL: tVBad's valign=middle refused by name, drawn at the top (not the inherited centre)" "$(grep -c "^drawSpans: REFUSING tVBad's valign=middle" "$T/tx.e") $(_tyTop "$T/tx.o" tVTop 180 239 0 59 "$_txWhite" 0)" "0 top" "1 top"
 fdRow "textT VA-6 the valign each field drew with: heading ok tVKid tVBot tVSty tVBad tVTwo tVOwn" "$(for _f in heading ok tVKid tVBot tVSty tVBad tVTwo tVOwn; do _vaOf $_f; done | xargs)" "" "top center center bottom top top bottom center"
-#  ⚑ textTopT (SEQ 583): a top's text slot holds its display (the pointer / text union), so a top's own text is not drawable; displayText
+#  ⚑ textTopT (SEQ 583): a top's text slot holds its display (the pointer / text union), so a top's own text is not drawable; drawSpans
 #  read the context's bytes as text and threw (exit 134). Pinned: refused by name, exit 0.
 _ttF=$(ip textTopT)
 perl -e 'alarm 20; exec @ARGV' "$B" "$_ttF" > "$T/tt.o" 2> "$T/tt.e"; _ttx=$?
 fdRow "textTopT a top with its own text: exit / sentinel" "$_ttx $(grep -c '^TEXTTOPT SENTINEL' "$T/tt.e")" "134 0" "0 1"
-fdRow "textTopT ... refused by name, its text slot holds the display" "$(grep -c '^displayText: REFUSING ttTop -- a top keeps its display in its text slot' "$T/tt.e")" "0" "1"
+fdRow "textTopT ... refused by name, its text slot holds the display" "$(grep -c '^drawSpans: REFUSING ttTop -- a top keeps its display in its text slot' "$T/tt.e")" "0" "1"
 
 echo "-- the first PDF: step 4."
 #  ⚑ firstPdfT -- forms step 4 (Tony, 2026-11-08): openPDF / drawWalk / closePDF, then readPDF draws page 1 into a bitmap
@@ -382,7 +382,7 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$T/de.k" > "$T/de.o" 2> "$T/de.e"; _dex=$?
 _dep () { grep -h "^=== pixelAt webViewExample ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
 #  _deFr <field>: the field's frame from the definition printed after setFrame, as "WxH at X,Y"
 _deFr () { grep -h "^[[:space:]]*$1=" "$T/de.o" | tail -1 | awk '{ for (i = 1; i <= NF; i++) { split($i, kv, "="); gsub(/;/, "", kv[2]); if (kv[1] == "width") w = kv[2]; if (kv[1] == "height") h = kv[2]; if (kv[1] == "x") x = kv[2]; if (kv[1] == "y") y = kv[2] } } END { print w "x" h " at " x "," y }'; }
-_det () { grep -h "^=== displayText $1 " "$T/de.o" | head -1 | sed "s/^=== displayText $1 //; s/ lines .* next [a-z]*//; s/ ===\$//"; }
+_det () { grep -h "^=== drawSpans $1 " "$T/de.o" | head -1 | sed "s/^=== drawSpans $1 //; s/ lines .* next [a-z]*//; s/ ===\$//"; }
 _ofeq "descT exit / sentinel" "$_dex $(grep -c '^DESCT SENTINEL' "$T/de.e")" "0 1"
 fdRow "descT DE-1 ACROSS: saber and trees side by side, each half of second (flex is gone, across is written)" "$(_deFr saber) / $(_deFr trees)" "500x138 at 500,250 / 500x137 at 500,388" "250x275 at 500,250 / 250x275 at 750,250"
 fdRow "descT DE-2 the heading's text: titleFont, white, centred both ways (font:= color:= align valign)" "$(_det describeHead)" "font Helvetica 12 0 color r0 g0 b0 valign top align left" "font Palatino 24 1 color r255 g255 b255 valign center align center"
@@ -396,8 +396,8 @@ fdRow "descT DE-5 no refusal and no colour error (the form includes styles itsel
 fdRow "descT DE-6 the registry's saber after the form's define (R1: one field, the form's text)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor" "Saber from Fate Stay Night"
 #  ⚑ SEQ 608 (R2, R6): describeHelp shows its describe attribute's text; an image field's text is its description and is not drawn; the
 #  describe action moved from tester to incant/utilities. REGISTERED BEFORE THE BUILD.
-fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== displayText describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"
-fdRow "descT DE-8 IMAGE TEXT: displayText is called for describeHead and describeHelp, never for saber or trees" "$(grep -h '^=== displayText ' "$T/de.o" | awk '{print $3}' | xargs)" "describeHead saber trees describeHelp" "describeHead describeHelp"
+fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== drawSpans describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"
+fdRow "descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees" "$(grep -h '^=== drawSpans ' "$T/de.o" | awk '{print $3}' | xargs)" "describeHead saber trees describeHelp" "describeHead describeHelp"
 #  The describe action's six lines. Until 2026-11-12 this row ran Tony's tester; he parked its describe driver below stop() that day, so the
 #  driver lives in incant/pop/describeT, verbatim (retired by mapping: one assertion, same md5, same count).
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip describeT)" > "$T/tsd.o" 2> "$T/tsd.e"; _tsx=$?
@@ -420,7 +420,7 @@ fdRow "imageT IM-3 CLIPPED at the frame: (5,60) and (60,112) read the top's whit
 fdRow "imageT IM-4 a wide frame crops top and bottom: green red blue green at y=22; the border drawn over the image (170,10)" "$(_imp 125,22 155,22 185,22 215,22 170,10)" "white white white white black" "green red blue green black"
 fdRow "imageT IM-5 the trace: imSquare 40x20 drawn 200x100 at -40,10; imWide drawn 100x50 at 120,-2.5" "$(grep -h '^=== displayImage ' "$T/im.o" | sed 's/^=== displayImage //; s/ file [^ ]*//; s/ ===$//' | tr '\n' ';')" "" "imSquare pixels 40x20 fit fill drawn 200x100 at -40,10;imWide pixels 40x20 fit fill drawn 100x50 at 120,-2.5;"
 fdRow "imageT IM-6 REFUSALS by name: an unreadable file, an unknown fit, no display (count of each), and imMissing's own fill still drawn" "$(grep -c '^displayImage: REFUSING imMissing -- cannot read an image from' "$T/im.e") $(grep -c "^displayImage: REFUSING imSquare's fit=stretch" "$T/im.e") $(grep -c '^displayImage: REFUSING imNoShow -- no display' "$T/im.e") $(grep -h '^=== pixelAt imTop (280,60) ' "$T/im.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1/')" "0 0 0 r241 g241 b241" "1 1 1 r241 g241 b241"
-fdRow "imageT IM-7 an image field's text is not drawn: displayText calls" "$(grep -c '^=== displayText ' "$T/im.o")" "0" "0"
+fdRow "imageT IM-7 an image field's text is not drawn: drawSpans calls" "$(grep -c '^=== drawSpans ' "$T/im.o")" "0" "0"
 
 #  ⚑ roundedT -- forms step 9 (Tony, 2026-11-11, SEQ 621 R2): rounded on displayFillRT and displayBorder. rounded is the corner radius in
 #  points, on a field or its style; a bare rounded takes defaultStyle's (5). A pixel on a curve is anti-aliased, so every pixel is read
@@ -493,7 +493,7 @@ _ofeq "styleScopeT exit / sentinel" "$_ssx $(grep -c '^STYLESCOPE SENTINEL' "$T/
 _ofeq "styleScopeT SS-1 a field's fill, border and rounded do not reach its child: the kid's edges (30,10) (10,30) show the parent's fill" "$(_ssc ssA 1 2)" "red red"
 _ofeq "styleScopeT SS-2 a field's style does not reach its child: the leaf's border (11,30), its square corner (10,10), its inside (30,30)" "$(_ssc ssB 1 3)" "black black blue"
 _ofeq "styleScopeT SS-3 an attribute after the style overrides it on that field: fill (30,30), border (1,30), square corner (0,0)" "$(_ssc ssC 1 3)" "red green green"
-_sst () { grep -h "^=== displayText $1 " "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*valign \([a-z]*\) align \([a-z]*\) ===/\1 \2 \3 \4/'; }
+_sst () { grep -h "^=== drawSpans $1 " "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*valign \([a-z]*\) align \([a-z]*\) ===/\1 \2 \3 \4/'; }
 #  SEQ 623 R0 (Tony, 2026-11-11): text properties inherit, box properties do not, whether set as an attribute or in a style. SS-4 is therefore AS RULED
 #  (its label was "TODAY, not as ruled" at seal 452; the value is unchanged). SS-5 and SS-7: a held style's (style:=) text properties reach the children.
 #  SS-6 (SEQ 624 R0, 2026-11-11): style="name" is RETIRED; style:= is the only spelling. The quoted form is refused by name and the field has no
@@ -501,7 +501,7 @@ _sst () { grep -h "^=== displayText $1 " "$T/ss.o" | sed 's/.*font \(.*\) color 
 _ofeq "styleScopeT SS-5 a held style's font, color, valign and align reach a child two levels down; its fillColor paints the field itself (1,1)" "$(_sst ssDkid) $(_ssc ssD 1 1)" "Palatino 24 1 r0 g158 b15 bottom center blue"
 _ofeq "styleScopeT SS-6 a quoted style name is refused by name (at least once) and gives the field no style: its child's text is the default, its own (1,1) unpainted" "$([ "$(grep -c '^styleOf: REFUSING ssE -- its style is not held; write style:=name' "$T/ss.e")" -gt 0 ] && echo refused || echo silent) $(_sst ssEkid) $(grep -h '^=== pixelAt ssE ' "$T/ss.o" | sed 's/.*= //; s/ ===.*//')" "refused Helvetica 12 0 r0 g0 b0 top left r0 g0 b0 a0"
 _ofeq "styleScopeT SS-7 a child's own color wins over the inherited style's; the style's font, valign and align still arrive" "$(_sst ssFkid)" "Palatino 24 1 r239 g43 b45 bottom center"
-_ofeq "styleScopeT SS-4 text properties inherit (SEQ 623 R0): the kid's text takes the parent's own font, color and align" "$(grep -h '^=== displayText ssKid ' "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*align \([a-z]*\) ===/\1 \2 \3/')" "Palatino 24 1 r0 g158 b15 center"
+_ofeq "styleScopeT SS-4 text properties inherit (SEQ 623 R0): the kid's text takes the parent's own font, color and align" "$(grep -h '^=== drawSpans ssKid ' "$T/ss.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*align \([a-z]*\) ===/\1 \2 \3/')" "Palatino 24 1 r0 g158 b15 center"
 
 #  ⚑ opacityT -- opacity, a box property (Tony, 2026-11-11, SEQ 623): a number 0..1 on a field or its style; the field's own fill, border and text
 #  are drawn at it (CGContextSetAlpha inside each floor method's saved state); it does not reach a child. Black at 0.5 on white is r127, exact
@@ -530,7 +530,7 @@ echo ""
 echo "-- italic (italicT)."
 _itF=$(ip italicT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_itF" > "$T/it.o" 2> "$T/it.e"; _itx=$?
-_itt () { for _n in "$@"; do _l=$(grep -h "^=== displayText $_n " "$T/it.o"); case "$_l" in "") printf 'missing ';; *" italic ===") printf 'italic ';; *) printf 'upright ';; esac; done | sed 's/ $//'; }
+_itt () { for _n in "$@"; do _l=$(grep -h "^=== drawSpans $_n " "$T/it.o"); case "$_l" in "") printf 'missing ';; *" italic ===") printf 'italic ';; *) printf 'upright ';; esac; done | sed 's/ $//'; }
 _itp () { grep -h "^=== pixelAt $1 " "$T/it.o" | sed 's/.*= //'; }
 _ofeq "italicT exit / sentinel" "$_itx $(grep -c '^ITALIC SENTINEL' "$T/it.e")" "0 1"
 _ofeq "italicT IT-1 a field's own italic, beside the same text with none: the faces drawn" "$(_itt itOwn itPlain)" "italic upright"
@@ -538,7 +538,7 @@ _itp itOwnTop > "$T/it.a"; _itp itPlainTop > "$T/it.b"
 _ofeq "italicT IT-1 the two words do not paint the same pixels (4800 read of each; some differ, and each has ink)" "$(wc -l < "$T/it.a" | tr -d ' ') $(wc -l < "$T/it.b" | tr -d ' ') $([ "$(paste "$T/it.a" "$T/it.b" | awk -F'\t' '$1 != $2' | wc -l)" -gt 0 ] && echo differ || echo same) $([ "$(grep -vc 'r255 g255 b255' "$T/it.a")" -gt 0 ] && [ "$(grep -vc 'r255 g255 b255' "$T/it.b")" -gt 0 ] && echo ink || echo blank)" "4800 4800 differ ink"
 _ofeq "italicT IT-2 italic inherits from an enclosing field's attribute, two levels down; IT-3 from a held style" "$(_itt itKid itStKid)" "italic italic"
 _ofeq "italicT IT-4 a child's italic=off turns it off under an italic parent" "$(_itt itOff)" "upright"
-_ofeq "italicT IT-5 a font with no italic face warns by name (count) and draws upright" "$(grep -c '^displayText: WARNING itNone -- its font has no italic face; drawn upright' "$T/it.e") $(_itt itNone)" "1 upright"
+_ofeq "italicT IT-5 a font with no italic face warns by name (count) and draws upright" "$(grep -c '^drawSpans: WARNING itNone -- its font has no italic face; drawn upright' "$T/it.e") $(_itt itNone)" "1 upright"
 _ofeq "italicT IT-6 itForm as a PDF: one page, and the faces of its heading, upright line, italic line and the italic field's child" "$(grep -h '^=== readPDF pdfRead' "$T/it.o" | sed 's/.*pdfRead //; s/ ===.*//') $(_itt itHead itUp itSl itIn)" "pages 1 size 300x150 upright upright italic italic"
 
 #  ⚑ resizeT -- forms step 6, stroke 2 (SEQ 626 W2, 2026-11-11): the first resize, as a plain call. redrawForm(request) lays the form out afresh
@@ -553,7 +553,7 @@ _ofeq "resizeT exit / sentinel" "$_rzx $(grep -c '^RESIZE SENTINEL' "$T/rz.e")" 
 _ofeq "resizeT RZ-1 as declared, 400x200: wrap (98,70), two (150,70), three's leftBorder at 50% (200,70), three (300,70), fourth (200,170)" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 1p | sed 's/.*size //; s/ ===//') $(_rzp 1 5)" "400x200 white red black white green"
 _ofeq "resizeT RZ-2 resized by a frame to 600x300: the page follows, and the percent: wrap (148,100), two (225,100), three's leftBorder (300,100), three (450,100), fourth (300,270); (200,100), the old border, is two's red" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rzp 6 11)" "600x300 white red black white green red"
 _ofeq "resizeT RZ-3 back with no frame: the run after a resize reads exactly as the first" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 3p | sed 's/.*size //; s/ ===//') $(_rzp 12 16)" "400x200 white red black white green"
-_ofeq "resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600" "$(grep -h '^=== displayText one ' "$T/rz.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | tr '\n' ' ' | sed 's/ $//')" "181 266 181 266"
+_ofeq "resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600" "$(grep -h '^=== drawSpans one ' "$T/rz.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | tr '\n' ' ' | sed 's/ $//')" "181 266 181 266"
 _ofeq "resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame" "$(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | head -1 | xargs) / $(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | grep 'stuff' | xargs)" "simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;"
 
 #  ⚑ resizeListenT -- forms step 6, stroke 4 (2026-11-12): the resize arriving by listening. layoutFrame is the request's frame:=; onResize
@@ -568,7 +568,7 @@ _ofeq "resizeListenT exit / sentinel" "$_rlx $(grep -c '^RESIZELISTEN SENTINEL' 
 _ofeq "resizeListenT RL-1 writing the frame's width and height lays nothing out (the values did land: 600, 300)" "$(grep '^RL-1 after' "$T/rl.e" | sed 's/.*: //' | xargs)" "runs 0 width 600 height 300"
 _ofeq "resizeListenT RL-2 one write to layoutFrame fires one layout; the page and resizeT's five points at 600x300" "$(grep '^RL-2' "$T/rl.e" | sed 's/.*: //' | xargs) $(grep -h '^=== readPDF pdfRead' "$T/rl.o" | sed -n 1p | sed 's/.*size //; s/ ===//') $(_rlp 1 5)" "runs 1 600x300 white red black white green"
 _ofeq "resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run" "$(grep '^RL-3' "$T/rl.e" | sed 's/.*: //' | xargs) $(grep -h '^=== readPDF pdfRead' "$T/rl.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rlp 6 10)" "runs 2 400x200 white red black white green"
-_ofeq "resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200" "$(grep -h '^=== displayText one ' "$T/rl.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | xargs) / $(grep '^simple x=300' "$T/rl.o" | head -1 | xargs)" "266 181 / simple x=300 y=450 width=400 height=200 down rounded"
+_ofeq "resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200" "$(grep -h '^=== drawSpans one ' "$T/rl.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | xargs) / $(grep '^simple x=300' "$T/rl.o" | head -1 | xargs)" "266 181 / simple x=300 y=450 width=400 height=200 down rounded"
 
 #  ⚑ resizeLightT -- forms step 6, stroke 4's last piece (Tony, 2026-11-12): Layout writes layoutFrame as ONE WHOLE WRITE (layoutFrame = a field holding
 #  x y width height), on firstLight: PDF before, resize, PDF after. A resize must read like a fresh run, so RG-3 lays the same frame out by a plain call
@@ -580,7 +580,7 @@ _rgF=$(ip resizeLightT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rgF" > "$T/rg.o" 2> "$T/rg.e"; _rgx=$?
 _rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/g' -e 's/r175 g211 b120 a255/green/g'; }
 #  one block per PDF read: the page size, its points, and the words field's line count drawn just before it
-_rgb () { awk -v n="$1" '/displayText words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
+_rgb () { awk -v n="$1" '/drawSpans words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
 _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
 #  RG-1 / RG-2 RE-PINNED 2026-11-12 (the typesetting slice): words holds a second paragraph of one line, so it draws 4 lines at 400 wide and 3 at 600, where it drew 3 and 2
 _ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 4 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x200 lines 4 wall white wall green"
@@ -598,16 +598,19 @@ echo "-- paragraphs and one run in firstLight (typesetT)."
 _tyF=$(ip typesetT)
 perl -e 'alarm 120; exec @ARGV' "$B" "$_tyF" > "$T/ty.o" 2> "$T/ty.e"; _tyx=$?
 _tyb () { awk -v want="$1" '/^TY BAND/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= r/,"",s); split(s,a,/[ rgba=]+/); if(a[1]>180&&a[2]<140&&a[3]<140) red++; if(a[3]>120&&a[1]<120) blue++; if(!(a[1]>240&&a[2]>240&&a[3]>240)) ink++; n++ } END{ printf "%s %s %s", (ink?"ink":"none"), (red?"red":"nored"), (blue?"blue":"noblue") }' "$T/ty.o"; }
-_tyl () { grep -h "^=== displayText $1 " "$T/ty.o" | sed 's/.* lines /lines /; s/ valign.*align [a-z]*//; s/ ===//' | xargs; }
+_tyl () { grep -h "^=== drawSpans $1 " "$T/ty.o" | sed 's/.* lines /lines /; s/ valign.*align [a-z]*//; s/ ===//' | xargs; }
 _ofeq "typesetT exit / sentinel" "$_tyx $(grep -c '^TYPESET SENTINEL' "$T/ty.e")" "0 1"
 _ofeq "typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in four lines" "$(_tyl words)" "lines 4 drawn 205 of 205 next end paragraphs 2 of 2 runs 1"
 _ofeq "typesetT TY-2 THE BLANK LINE: no ink across the field between the paragraphs (y 98..102); the line below it has ink" "$(_tyb gap) / $(_tyb before)" "none nored noblue / ink nored blue"
 _ofeq "typesetT TY-3 THE RUN: its band is red with no blue; before it and after it the ink is blue with no red" "$(_tyb run) / $(_tyb before) / $(_tyb after)" "ink red noblue / ink nored blue / ink nored blue"
 _ofeq "typesetT TY-4 {{ is a literal brace: five characters, no run" "$(_tyl tsLit)" "lines 1 drawn 5 of 5 next end"
-_ofeq "typesetT TY-5 an unknown style warns by name and prints plain" "$(_tyl tsBad) / $(grep -c '^displayText: WARNING tsBad -- its text names the style nosuch, which is not a style' "$T/ty.e")" "lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / 1"
+_ofeq "typesetT TY-5 an unknown style warns by name and prints plain" "$(_tyl tsBad) / $(grep -c '^drawSpans: WARNING tsBad -- its text names the style nosuch -- not a style' "$T/ty.e")" "lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / 1"
 _ofeq "typesetT TY-6 a run with no closing mark ends at its paragraph's end: two paragraphs, one run, no warning for it" "$(_tyl tsOpen) / $(grep -c 'WARNING tsOpen' "$T/ty.e")" "lines 2 drawn 8 of 8 next end paragraphs 2 of 2 runs 1 / 0"
 _ofeq "typesetT TY-7 runs nest; TY-8 an insertion waits and is left as written; TY-10 a single line end is a space" "$(_tyl tsNest) / $(_tyl tsIns) / $(_tyl tsWrapped)" "lines 1 drawn 9 of 9 next end paragraphs 1 of 1 runs 2 / lines 1 drawn 15 of 15 next end / lines 1 drawn 25 of 25 next end"
-_ofeq "typesetT TY-9 three paragraphs in a field with room for one line: one drawn, the stop is at a paragraph, and the field is named" "$(_tyl tsThree) / $(grep -c '^displayText: WARNING tsThree -- its text does not fit its frame; 3 of 11 characters drawn' "$T/ty.e")" "lines 1 drawn 3 of 11 next paragraph paragraphs 1 of 3 runs 0 / 1"
+_ofeq "typesetT TY-9 three paragraphs in a field with room for one line: one drawn, the stop is at a paragraph, and the field is named" "$(_tyl tsThree) / $(grep -c '^drawSpans: WARNING tsThree -- its text does not fit its frame; 3 of 11 characters drawn' "$T/ty.e")" "lines 1 drawn 3 of 11 next paragraph paragraphs 1 of 3 runs 0 / 1"
+_ofeq "typesetT TY-11 a run of spaces is one gap (T1): a, four spaces, b draws three characters" "$(_tyl tsCollapse)" "lines 1 drawn 3 of 3 next end"
+_ofeq "typesetT TY-12 a mark takes no room: xyz; the space by a closing mark is one gap after the span before it" "$(_tyl tsGlue) / $(_tyl tsAfter)" "lines 1 drawn 3 of 3 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 7 of 7 next end paragraphs 1 of 1 runs 2"
+_ofeq "typesetT TY-13 the gap's width is the style's space: space=280 wraps at each gap, the same text in a style with none is one line" "$(_tyl tsWide) / $(_tyl tsNarrow)" "lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1"
 
 #  ⚑ drawFieldsT -- SEQ 629 (2026-11-12): the drawing fields, spelled capital first and last, defined in FORMs at the top of Topics/forms.
 #  DF-3 is why the spelling: an attribute spelled exactly like a FORMs field is the registry's one field. H7 (run 2026-11-12): without
