@@ -1,3 +1,13 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
 register(TesterChainT);
 define
     qa=2; qb=3; qc=4;
@@ -5,17 +15,19 @@ define
     fId code={ return argument; };
     fNest code={ return argument + 1; };
     ;
-search TesterChainT TestStuff Utilities UnitTests list;
+search TesterChainT Utilities UnitTests list;
 righty = 0;
 stop();
 
 testerChainT -- SEQ 427 R0 (2026-10-26): tester's instruction chain against kant's own value for the same expression.
 
 qa, qb, qc live here since 2026-11-06: Tony moved them out of tester's define block, and a row's operands must not depend on tester's churn (they are tester's old values, so no row's value moves).
-This file is not run alone. pop.sh builds one input per row: Tony's LIVE IncantForms/WorkingOn/tester up to the end of
-its define block (the last line `    ;` before the first `stop();`), then everything above this file's `stop();`, then the
-row. One process per row, so a crash costs only its own row. COUPLED to tester's shape: if tester's define stops ending in
-a `    ;` line before its first `stop();`, pop.sh's assembly breaks and says so.
+This file is not run alone. pop.sh builds one input per row: everything above this file's `stop();`, then the row. One
+process per row, so a crash costs only its own row.
+RE-AIMED 2026-11-12: until then each input opened with Tony's LIVE IncantForms/WorkingOn/tester, up to the end of its define
+block. Tony moved tester's kantGrammar include below its stop() that day (tester now drives the listen test), so 15 chain
+rows read the tag whatsIt. The ten lines at the top of this file are tester's old head, verbatim; TestStuff (tester's old
+registry, which held no row's operand) left the search line. No row's pinned value moved.
 
 Each row prints kant's value first (the statement run on the interpreted road), then the chain's (EXPRESSIOn builds it -- xpListTest until SEQ 440 --
 testOP runs it). Modes: v = the expression's value; t = its truth (`if EX; kt = 1;` -- a false compare read as a value

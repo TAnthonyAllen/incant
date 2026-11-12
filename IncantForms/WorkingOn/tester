@@ -23,39 +23,6 @@ simpleValue=33;
 print "SENTINEL tester driver end":;
 stop();
 
-/*******************************************************************************
-    Clod, SEQ 587 R2: firstLight to output.pdf. The system("open -a Skim ...")
-    that followed is gone (2026-11-10, it popped Skim up on every run). Never a fleet row.
-*******************************************************************************/
-define
-    kantGrammar File='incant/kantGrammar';
-    ;
-include(kantGrammar);
-search reset stack KantGrammar Grokking;
-registry(fILEs);
-define
-    firstLightFile File='IncantForms/Windows/firstLight';
-    ;
-include(styles);
-search cOLOr fONTs;
-include(firstLightFile);
-search FORMs cOLOr fONTs list;
-define
-    skimReq path="IncantForms/PDF/output.pdf" form:=firstLight;
-    skimOpened;
-    laid;
-    layIt code={ laid := setFrame(argument); };
-    firstLightReq form:=firstLight;
-    ;
-layIt(firstLightReq);
-skimReq :% copyOf(*laid["width"]);
-skimReq :% copyOf(*laid["height"]);
-skimReq.form := *laid;
-openPDF(skimReq);
-drawWalk(*laid);
-closePDF(skimReq);
-//  Skim no longer opened on every run (Tony, 2026-11-10: it kept popping up). To look: open -a Skim IncantForms/PDF/output.pdf
-
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/

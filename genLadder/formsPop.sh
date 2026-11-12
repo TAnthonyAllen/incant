@@ -397,9 +397,11 @@ fdRow "descT DE-6 the registry's saber after the form's define (R1: one field, t
 #  describe action moved from tester to incant/utilities. REGISTERED BEFORE THE BUILD.
 fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== displayText describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"
 fdRow "descT DE-8 IMAGE TEXT: displayText is called for describeHead and describeHelp, never for saber or trees" "$(grep -h '^=== displayText ' "$T/de.o" | awk '{print $3}' | xargs)" "describeHead saber trees describeHelp" "describeHead describeHelp"
-#  tester's describe lines, a control across the move: the six lines tester prints from describe() must not change.
-perl -e 'alarm 30; exec @ARGV' "$B" IncantForms/WorkingOn/tester > "$T/tsd.o" 2> "$T/tsd.e"
-_ofeq "tester's six describe lines across the move to utilities (R6), md5" "$(grep 'initial description\|mock ' "$T/tsd.o" | md5 -q) $(grep -c 'initial description\|mock ' "$T/tsd.o")" "556d248688d4ae5418d9c134712a5f6a 6"
+#  The describe action's six lines. Until 2026-11-12 this row ran Tony's tester; he parked its describe driver below stop() that day, so the
+#  driver lives in incant/pop/describeT, verbatim (retired by mapping: one assertion, same md5, same count).
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip describeT)" > "$T/tsd.o" 2> "$T/tsd.e"; _tsx=$?
+_ofeq "describeT exit / sentinel" "$_tsx $(grep -c '^DESCRIBET SENTINEL' "$T/tsd.e")" "0 1"
+_ofeq "describeT: describe's six lines (was tester's, across the move to utilities, R6), md5" "$(grep 'initial description\|mock ' "$T/tsd.o" | md5 -q) $(grep -c 'initial description\|mock ' "$T/tsd.o")" "556d248688d4ae5418d9c134712a5f6a 6"
 #  ⚑ SEQ 609: the form's two images draw (the files are Tony's own pictures, named by absolute path, so the row pins that each drew with
 #  fit fill and that its point is no longer the field's paleGray; the pixel values are imageT's business).
 fdRow "descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray" "$(grep -h '^=== displayImage ' "$T/de.o" | awk '{print $3, $8, $9}' | xargs) / $([ "$(_dep 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ "$(_dep 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" " / fill fill" "saber fit fill trees fit fill / image image"

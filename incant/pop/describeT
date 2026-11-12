@@ -1,0 +1,90 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search UnitTests Utilities;
+
+/*******************************************************************************
+    The dESCRIPTIONs registry is used in forms to make them self describing
+*******************************************************************************/
+register(dESCRIPTIONs);
+define
+    dESCRIPT="this is the default description";
+    listChain="mock listChain description";
+    ;
+search dESCRIPTIONs list;
+registry(TestStuff);
+define
+    // describe lives in incant/utilities now (SEQ 608 R6), so a form can find it; the lines below still drive it
+    /*****************************************************************************
+        Debugging routines. listChain lists out an instruction chain: op, argument, target
+    *****************************************************************************/
+    listChain code={
+        if listLengtH != 0;
+            op      := argument[1];
+            target  := argument[2];
+            arg     := argument[3];
+            print *op.taG;
+            if *arg.taG == "instruct";
+                print ,:+~ "argument is:";
+                listChain(*arg);
+                print ,-;
+            else    print *arg.taG;
+            if *target.taG == "instruct";
+                print ,:+~ "target is:";
+                listChain(*target);
+                print ,-;
+            else    print *target.taG;
+        };
+    /***************************************************************************
+        print out incant definition for the group passed in.
+    ***************************************************************************/
+    printDef code={
+        if datA != 0;  print ~$taG "=" argument$;
+        else    print ~$taG$;
+        if hasAttributeS;
+            for grup in argument; attributes
+                if datA != 0;
+                    print $_taG "=" grup$;
+                else    print $_taG$;
+        if hasMemberS;
+            print :;
+            for grup in argument; members
+                print +;
+                printDef(*grup);
+                print ,-;
+        else
+            print ";":;
+        };
+    ;
+describe = dESCRIPT;
+describe();
+print "With no initial description set:" ``describe:;
+describe="some description not the default";
+describe();
+print "After initial description provided:" `describe:;
+describe();
+print "After initial description unchanged:" `describe:;
+selection := listChain;
+describe();
+print "After a mock selection of listChain:" `describe:;
+describe();
+print "After a mock selection unchanged:" ``describe:;
+selection := dESCRIPT;
+describe();
+print "After mock deselect and set dESCRIPT:"`describe:;
+cerr "DESCRIBET SENTINEL":;
+stop();
+
+describeT -- the describe action (incant/utilities) driven six times: no description set, one provided, unchanged, a mock
+selection, unchanged, a mock deselect. formsPop.sh pins the six printed lines by md5 and count.
+
+RETIRED BY MAPPING, 2026-11-12. These lines were IncantForms/WorkingOn/tester's live driver (its head through the last
+describe line, verbatim, as of git 970449ad), and formsPop ran tester itself for the row "tester's six describe lines
+across the move to utilities (R6)". Tony parked the describe driver below tester's stop() that day, so the row read zero
+lines. The row's one assertion (the six lines' md5 and count) now reads this file; the pinned md5 is unchanged.

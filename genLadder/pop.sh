@@ -8173,15 +8173,15 @@ fdRow "ifSeedT SN-2 jitted: if *h == 0; snA = snA + 1" "$(_isv "$T/ist" SN-2 snA
 #  per expression. One process per row, each its own 20 s alarm. Row input = tester through its define block + the fixture's
 #  prelude + the row (see the fixture's prose). Born at today's values: TC-3 / TC-8 / TC-9 / TC-10 crash (exit 139);
 #  TC-3c and TC-4b mis-group (the compare and logic tiers). # intended: every chain = its kant value, exit 0.
-_tcS=IncantForms/WorkingOn/tester; _tcF=$(ip testerChainT)
-if [ ! -f "$_tcS" ]; then echo "  FAIL  testerChainT: $_tcS MISSING"; fail=1; else
-_tcN=$(awk '/^stop\(\);/{exit} /^    ;$/{n=NR} END{print n}' "$_tcS")
-if [ -z "$_tcN" ]; then echo "  FAIL  testerChainT: tester's define block end not found (the fixture is coupled to its shape)"; fail=1; fi
+#  RE-AIMED 2026-11-12: the fixture carries tester's old head itself (Start, the includes, kantGrammar); tester is no longer read. Tony moved
+#  tester's kantGrammar include below its stop() that day, and 15 chain rows read the tag whatsIt. No pinned value moved.
+_tcF=$(ip testerChainT)
+if [ ! -f "$_tcF" ]; then fail=1; else
 _tcv () { sed -n "s/^$2 $3 \[ *\([^ ]*\) *\].*/\1/p" "$1"; }
 #  id | kant | chain today | exit today [| intended, where it is not kant's value -- TC-10, SEQ 434]
 while IFS='|' read -r _id _kv _ct _ex _in; do
     _row=$(grep "^$_id|" "$_tcF"); _md=$(echo "$_row" | cut -d'|' -f2); _xp=$(echo "$_row" | cut -d'|' -f3-)
-    { head -n "$_tcN" "$_tcS"; sed '/^stop();/,$d' "$_tcF"
+    { sed '/^stop();/,$d' "$_tcF"
       case $_md in
       v) printf 'kv = %s;\ncerr "%s kant [" kv "]":;\nwhatsIt = EXPRESSIOn("%s");\ncerr "%s chain [" testOP(whatsIt) "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
       t) printf 'kt = 0;\nif %s;    kt = 1;\ncerr "%s kant [" kt "]":;\nwhatsIt = EXPRESSIOn("%s");\nct = 0;\nif testOP(whatsIt);    ct = 1;\ncerr "%s chain [" ct "]":;\n' "$_xp" "$_id" "$_xp" "$_id" ;;
