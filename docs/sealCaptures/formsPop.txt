@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2092656 bytes  Nov 11 16:44
+  bin   2092656 bytes  Nov 12 11:12
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -114,7 +114,8 @@
   ok    descT DE-6 the registry's saber after the form's define (R1: one field, the form's text) = [Saber from Fate Stay Night]
   ok    descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text = [61 of 61]
   ok    descT DE-8 IMAGE TEXT: displayText is called for describeHead and describeHelp, never for saber or trees = [describeHead describeHelp]
-  ok    tester's six describe lines across the move to utilities (R6), md5 = [556d248688d4ae5418d9c134712a5f6a 6]
+  ok    describeT exit / sentinel = [0 1]
+  ok    describeT: describe's six lines (was tester's, across the move to utilities, R6), md5 = [556d248688d4ae5418d9c134712a5f6a 6]
   ok    descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray = [saber fit fill trees fit fill / image image]
 -- the first image: forms step 8.
   ok    imageT exit / sentinel = [0 1]
@@ -184,10 +185,17 @@
   ok    resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600 = [181 266 181 266]
   ok    resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame = [simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;]
 
+-- the resize by listening (resizeListenT).
+  ok    resizeListenT exit / sentinel = [0 1]
+  ok    resizeListenT RL-1 writing the frame's width and height lays nothing out (the values did land: 600, 300) = [runs 0 width 600 height 300]
+  ok    resizeListenT RL-2 one write to layoutFrame fires one layout; the page and resizeT's five points at 600x300 = [runs 1 600x300 white red black white green]
+  ok    resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run = [runs 2 400x200 white red black white green]
+  ok    resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200 = [266 181 / simple x=300 y=450 width=400 height=200 down rounded]
+
 -- isHidden and noRoom, drawn (noRoomT).
   ok    noRoomT exit / sentinel / page = [0 1 200x100]
   ok    noRoomT NP-1 a noRoom field is not drawn: where nOut (red) would be, (165,20), is the form's white; beside it nIn (25,20) is drawn red = [white red]
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 163 green, see above
+FORMS POP FAILED -- 169 green, see above

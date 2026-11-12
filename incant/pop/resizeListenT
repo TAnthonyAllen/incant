@@ -1,0 +1,84 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    simpleFile File='IncantForms/Windows/simple';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(simpleFile);
+register(ResizeListenT);
+define
+    rlX = 0;
+    rlY = 0;
+    rlAt code={
+        px = rlX;
+        py = rlY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rlRead code={
+        rlAt(argument);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/output.pdf";
+    layoutFrame x=300 y=450 width=400 height=200;
+    rlRuns = 0;
+    ;
+search ResizeListenT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    rlReq path="IncantForms/PDF/output.pdf" form:=simple frame:=layoutFrame;
+    onResize listenTo:=layoutFrame code={
+        rlRuns = rlRuns + 1;
+        redrawForm(rlReq);
+        };
+    rlSize code={
+        width  = rlW;
+        height = rlH;
+        layoutFrame :% copyOf(width);
+        layoutFrame :% copyOf(height);
+        };
+    rlW = 0;
+    rlH = 0;
+    ;
+cerr "RL-1 the four values are written and nothing is laid out: runs" rlRuns:;
+rlW = 600; rlH = 300; rlSize();
+cerr "RL-1 after writing width and height: runs" rlRuns " width" layoutFrame.width " height" layoutFrame.height:;
+layoutFrame = 1;
+cerr "RL-2 after the one write to layoutFrame itself: runs" rlRuns:;
+readPDF(pdfRead);
+rlX = 148; rlY = 100; rlRead(pdfRead);
+rlX = 225; rlRead(pdfRead);
+rlX = 300; rlRead(pdfRead);
+rlX = 450; rlRead(pdfRead);
+rlX = 300; rlY = 270; rlRead(pdfRead);
+rlW = 400; rlH = 200; rlSize();
+layoutFrame = 2;
+cerr "RL-3 back to 400x200 by the same road: runs" rlRuns:;
+readPDF(pdfRead);
+rlX = 98; rlY = 70; rlRead(pdfRead);
+rlX = 150; rlRead(pdfRead);
+rlX = 200; rlRead(pdfRead);
+rlX = 300; rlRead(pdfRead);
+rlX = 200; rlY = 170; rlRead(pdfRead);
+cerr "RL-4 the definition after two resizes":;
+printDefinition(simple);
+cerr "RESIZELISTEN SENTINEL":;
+stop();
+
+resizeListenT -- forms step 6, stroke 4 (2026-11-12): the resize arriving by listening. Kant only; no engine change beyond
+Tony's runNotified of that day (a listener's own action fires when its notifier is written).
+
+The shape: layoutFrame is a field outside the form holding x y width height -- the request's frame:=. onResize listens to
+it, and its action calls redrawForm(request), which lays the form out afresh through setFrame and writes the PDF.
+    Writing the frame's width and height (:% replaces an attribute) notifies nobody: an attribute is its own field, and
+    layoutFrame's listeners hang on layoutFrame. So the four values can be written one by one and the form is not laid out
+    four times.
+    One write to layoutFrame's own value (layoutFrame = 1) is the command: it fires onResize once.
+That second line is a choice made here to get a first run, not a ruling: "fire on demand" is Tony's to design.
+
+Rows in genLadder/formsPop.sh. The form is IncantForms/Windows/simple and the points are resizeT's, so the two roads can be
+read against each other: a resize by listening must read as resizeT's plain call does.
+H7 (run 2026-11-12): with listenTo:=layoutFrame taken off onResize, RL-2 reads "0 1 runs 0" and no page is read.
