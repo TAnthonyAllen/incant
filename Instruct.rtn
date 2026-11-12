@@ -685,6 +685,7 @@ use target
             case isSTRING:
             case isTOKEN:   text = headToCount(text,gCount - argument.count);
             default:        result = 0; }
+        if result && (isCOUNT || isNUMBER) && hasListeners  updateListeners();
         if !result  cerr "ERROR Operator -= failed on",tag,"and",argument.tag:; }
     or argument.isLIST
         while result = argument.next(result)
@@ -724,8 +725,10 @@ GroupRules  ruler = groupRules;
     }
     // zeroIsNotAbsent a field never assigned refuses by name; there is no pop arm -- removing a member is remove's job
     if !data     return refuse(result,"Operator -- -- this field has no value to step; a field assigned 0 is a count and steps to -1, one never assigned is absent");
-    or isCOUNT   gCount--;
-    or isNUMBER  gNumber -= 1.0;
+    or isCOUNT   {  gCount--;
+                    if hasListeners     updateListeners(); }
+    or isNUMBER  {  gNumber -= 1.0;
+                    if hasListeners     updateListeners(); }
     or isSTRING || isTOKEN
         if isPointer {
             gText--;
@@ -778,6 +781,7 @@ use target
         if isCOUNT  {   tempField.number = number * argument.number;
                         gCount  = tempField.count; }
         or isNUMBER gNumber *= argument.number;
+        if (isCOUNT || isNUMBER) && hasListeners    updateListeners();
         result  = target;
         if !result  cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
     or argument.isLIST
@@ -902,6 +906,8 @@ use target
     if argument.isLIST || !argument.data    return plusEQshapeRefusal("isCOUNT",argument,target);
     tempField.number = number + argument.number;
     gCount  = tempField.count;
+    // arithmeticNotifies an in-place count or number write tells the listeners, as the setters do (Tony, 2026-11-12, SEQ 629); a field with none pays the flag test
+    if hasListeners     updateListeners();
     return target;
 }
 
@@ -919,6 +925,7 @@ use target
         return target; }
     if argument.isLIST || !argument.data    return plusEQshapeRefusal("isNUMBER",argument,target);
     gNumber += argument.number;
+    if hasListeners     updateListeners();
     return target;
 }
 
@@ -1015,8 +1022,10 @@ GroupRules  ruler = groupRules;
     measurePlusPlusWrite(result);
     // zeroIsNotAbsent a field assigned 0 is a count and bumps to 1; one never assigned is absent and refuses by name
     if !data        return refuse(result,"Operator ++ -- this field has no value to bump; a field assigned 0 is a count and bumps to 1, one never assigned is absent");
-    or isCOUNT      gCount++;
-    or isNUMBER     gNumber++;
+    or isCOUNT      {   gCount++;
+                        if hasListeners     updateListeners(); }
+    or isNUMBER     {   gNumber++;
+                        if hasListeners     updateListeners(); }
     or isSTRING || isTOKEN
         if gCount == 0 text = 0;
         else {

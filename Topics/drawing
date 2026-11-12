@@ -23,7 +23,7 @@ A ruling that sits on that line (inheritance; style:= as the only spelling) live
     GroupDraw.twk                   the floor: displayFillRT, displayBorder, displayText, displayImage, openPDF, closePDF, readPDF, pixelAt; and what they read through: styleOf, roundedOf, opacityOf, shadowPart, castShadow
     incant/utilities                the walk that calls the floor (drawWalk, drawKids, drawFill, drawBorder, drawText, drawImage); it is forms' side of the line
     IncantForms/Controls/styles     the colours, the fonts and defaultStyle          IncantForms/PDF/output.pdf   what Tony opens          IncantForms/Images/bands.png   the test image
-    IncantForms/WorkingOn/drawing   the Drawing registry: Core Graphics names and signatures          docs/bindingmethods.md, docs/firstLightPdfRecon.md, docs/m5Recon.md
+    Topics/forms (above its bail)   the drawing fields in FORMs: Core Graphics names and signatures          docs/bindingmethods.md, docs/firstLightPdfRecon.md, docs/m5Recon.md
 
 /*****************************************************************************
     The instruments that read this topic
@@ -41,7 +41,7 @@ The line between forms and drawing is the floor request: forms owns attributes, 
     Core Text measures and Core Graphics draws, to the screen and to PDF. No libharu.
     Foreign calls, shape (C) (Tony, 2026-11-07): groups.ext records each floor method's typed parameters so the jitter can later emit a direct typed call. No multi-argument call syntax.
     The drawing language moves into kant when the jitter allows (A5). A small drawing language is a parked design question; it may not be needed if colour and font stay with styles (SEQ 582 R6).
-    Evidence: IncantForms/WorkingOn/drawing; docs/bindingmethods.md.
+    Evidence: the drawing fields at the top of Topics/forms (WorkingOn/drawing retired 2026-11-12, git ede70292); docs/bindingmethods.md.
 
 THE FLOOR CENSUS (SEQ 618, 2026-11-11; read-only, no build). What the 21 forms ask for that nothing draws today, ordered by forms unblocked. This is the drawing plan.
     Counted over each form's live region (above bail / stop), strings, prose and the converter's '# TODO: review' lines stripped, the field's own name skipped. "forms / fields" = how many forms and how many fields ask.

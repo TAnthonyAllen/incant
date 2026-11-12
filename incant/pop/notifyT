@@ -1,0 +1,79 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(NotifyT);
+define
+    np=0;
+    nSrc=10;
+    nNum=1.5;
+    nTxt="abc";
+    nOther=3;
+    nHold;
+    hC listenTo:=nSrc code={ np = np + 1; };
+    hN listenTo:=nNum code={ np = np + 1; };
+    hT listenTo:=nTxt code={ np = np + 1; };
+    hG listenTo:=nHold code={ np = np + 1; };
+    inActPlus code={ nSrc += 1; };
+    rSrc=1;
+    rFired=0;
+    rL listenTo:=rSrc code={ rFired = rFired + 1; rSrc = rSrc + 8; };
+    qSrc=1;
+    qFired=0;
+    qL listenTo:=qSrc code={ qFired = qFired + 1; qSrc += 8; };
+    jSrc=1;
+    jFired=0;
+    jL listenTo:=jSrc code={ jFired = jFired + 1; };
+    jWrite code={ jSrc = 5; jSrc += 2; };
+    ;
+np = 0; nSrc = 22;          cerr "NT fires count =" np:;
+np = 0; nSrc += 8;          cerr "NT fires count +=" np:;
+np = 0; nSrc *= 2;          cerr "NT fires count *=" np:;
+np = 0; nSrc /= 2;          cerr "NT fires count /=" np:;
+np = 0; ++nSrc;             cerr "NT fires count ++" np:;
+np = 0; --nSrc;             cerr "NT fires count --" np:;
+np = 0; inActPlus();        cerr "NT fires count += in an action" np:;
+np = 0; nNum = 2.5;         cerr "NT fires number =" np:;
+np = 0; nNum += 1.0;        cerr "NT fires number +=" np:;
+np = 0; nNum *= 2.0;        cerr "NT fires number *=" np:;
+np = 0; nTxt = "xyz";       cerr "NT fires text =" np:;
+np = 0; nTxt += "q";        cerr "NT fires text +=" np:;
+np = 0; nHold := nOther;    cerr "NT fires holder :=" np:;
+np = 0; nHold +% nOther;    cerr "NT quiet attach +%" np:;
+np = 0; nSrc :. noPrinT;    cerr "NT quiet flag :." np:;
+cerr "NT value nSrc" nSrc " nNum" nNum:;
+np = 0; nSrc -= 2;          cerr "NT minus count -= fired" np " value" nSrc:;
+rSrc = 22;
+cerr "NT reentry = : fired" rFired " value" rSrc:;
+rSrc = 40;
+cerr "NT reentry = again: fired" rFired " value" rSrc:;
+qSrc = 22;
+cerr "NT reentry += : fired" qFired " value" qSrc:;
+testing(jWrite);
+cerr "NT jitted = then +=: fired" jFired " value" jSrc:;
+jSrc = 1; jFired = 0;
+jitRefire();
+cerr "NT jitted refire: fired" jFired " value" jSrc:;
+jSrc = 1; jFired = 0;
+jWrite();
+cerr "NT interpreted twin: fired" jFired " value" jSrc:;
+cerr "NOTIFYT SENTINEL":;
+stop();
+
+notifyT -- which writes tell a field's listeners (Tony, 2026-11-12, SEQ 629: arithmetic writes notify, guarded, with a
+re-entry guard). One listener per notifier; each listener's action bumps a counter, zeroed before each write.
+
+fires     every write that changes a value: =, +=, *=, /=, ++ and -- (prefix), on a count and on a number; text = and +=;
+          := on a holder. Before this stroke count += *= ++ -- and number += *= fired nothing: they write the raw count
+          or number, and only the setters called updateListeners.
+quiet     +% (an attach) and :. (a flag) change no value and fire nothing.
+minus     PINNED AT TODAY'S VALUE, NOT CURED: -= on a listened-to field does not subtract and so does not fire. opMinusEQ
+          asks first whether the target holds a list, and the listener list is an attribute, so it takes the
+          remove-a-member arm. The same happens to any valued field with an attribute. Intended: 1 fire, value 8 lower.
+reentry   a listener whose action writes its own notifier (with = and with +=) fires once per outside write and the run
+          ends: updateListeners takes hasListeners down for its walk. H7 (run under an alarm, 2026-11-12): in the commit.
+jitted    MEASURED, NOT RULED: a jitted action that writes a listened-to field twice (= then +=) fires the listener ONCE a
+          run, on its first run and on a refire; the interpreted twin fires twice. The value is right on both. Which of the
+          two writes tells the listener was not chased.

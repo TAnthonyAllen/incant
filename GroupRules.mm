@@ -10687,6 +10687,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			default:
 				result = 0;
 			}
+		if ( result && (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && target->groupBody->flags.hasListeners )
+			target->updateListeners();
 		if ( !result )
 			::fprintf(stderr,"ERROR Operator -= failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 		}
@@ -10740,10 +10742,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return ::refuse(result,"Operator -- -- this field has no value to step; a field assigned 0 is a count and steps to -1, one never assigned is absent");
 	else
 	if ( isCOUNT(result->groupBody->flags.data) )
+		{
 		result->groupBody->gCount--;
+		if ( result->groupBody->flags.hasListeners )
+			result->updateListeners();
+		}
 	else
 	if ( isNUMBER(result->groupBody->flags.data) )
+		{
 		result->groupBody->gNumber -= 1.0;
+		if ( result->groupBody->flags.hasListeners )
+			result->updateListeners();
+		}
 	else
 	if ( isSTRING(result->groupBody->flags.data) || isTOKEN(result->groupBody->flags.data) )
 		if ( result->groupBody->flags.isPointer )
@@ -10821,6 +10831,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		else
 		if ( isNUMBER(target->groupBody->flags.data) )
 			target->groupBody->gNumber *= argument->getNumber();
+		if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && target->groupBody->flags.hasListeners )
+			target->updateListeners();
 		result = target;
 		if ( !result )
 			::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
@@ -10986,6 +10998,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return plusEQshapeRefusal("isCOUNT",argument,target);
 	ruler->tempField->setNumber(target->getNumber() + argument->getNumber());
 	target->groupBody->gCount = ruler->tempField->getCount();
+	// arithmeticNotifies an in-place count or number write tells the listeners, as the setters do (Tony, 2026-11-12, SEQ 629); a field with none pays the flag test
+	if ( target->groupBody->flags.hasListeners )
+		target->updateListeners();
 	return target;
 }
 
@@ -11005,6 +11020,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
 		return plusEQshapeRefusal("isNUMBER",argument,target);
 	target->groupBody->gNumber += argument->getNumber();
+	if ( target->groupBody->flags.hasListeners )
+		target->updateListeners();
 	return target;
 }
 
@@ -11127,10 +11144,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		return ::refuse(result,"Operator ++ -- this field has no value to bump; a field assigned 0 is a count and bumps to 1, one never assigned is absent");
 	else
 	if ( isCOUNT(result->groupBody->flags.data) )
+		{
 		result->groupBody->gCount++;
+		if ( result->groupBody->flags.hasListeners )
+			result->updateListeners();
+		}
 	else
 	if ( isNUMBER(result->groupBody->flags.data) )
+		{
 		result->groupBody->gNumber++;
+		if ( result->groupBody->flags.hasListeners )
+			result->updateListeners();
+		}
 	else
 	if ( isSTRING(result->groupBody->flags.data) || isTOKEN(result->groupBody->flags.data) )
 		if ( result->groupBody->gCount == 0 )

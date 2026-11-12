@@ -569,6 +569,17 @@ _ofeq "resizeListenT RL-2 one write to layoutFrame fires one layout; the page an
 _ofeq "resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run" "$(grep '^RL-3' "$T/rl.e" | sed 's/.*: //' | xargs) $(grep -h '^=== readPDF pdfRead' "$T/rl.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rlp 6 10)" "runs 2 400x200 white red black white green"
 _ofeq "resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200" "$(grep -h '^=== displayText one ' "$T/rl.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | xargs) / $(grep '^simple x=300' "$T/rl.o" | head -1 | xargs)" "266 181 / simple x=300 y=450 width=400 height=200 down rounded"
 
+#  ⚑ drawFieldsT -- SEQ 629 (2026-11-12): the drawing fields, spelled capital first and last, defined in FORMs at the top of Topics/forms.
+#  DF-3 is why the spelling: an attribute spelled exactly like a FORMs field is the registry's one field. H7 (run 2026-11-12): without
+#  include(forms) DF-1 reads 2 and DF-3's second half reads 100 300.
+echo ""
+echo "-- the drawing fields in FORMs (drawFieldsT)."
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip drawFieldsT)" > "$T/df.o" 2> "$T/df.e"; _dfx=$?
+_ofeq "drawFieldsT exit / sentinel" "$_dfx $(grep -c '^DRAWFIELDS SENTINEL' "$T/df.e")" "0 1"
+_ofeq "drawFieldsT DF-1 FORMs holds the 35 drawing fields and this file's two forms" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "37"
+_ofeq "drawFieldsT DF-2 LinE carries its Core Graphics call; X is defined; no lower-case fill or width field in FORMs" "$(grep -c '^	LinE function=CGContextAddLineToPoint signature=v:pdY;' "$T/df.o") $(grep -c '^	X;' "$T/df.o") $(grep -c '^	\(fill\|width\)[ =;]' "$T/df.o")" "1 1 0"
+_ofeq "drawFieldsT DF-3 a form's width= is its own (100, 300); WidtH=, spelled as the drawing field, is the registry's one field (300, 300)" "$(grep '^DF-3' "$T/df.e" | sed 's/.*: //' | xargs)" "dfA width 100 dfB width 300 dfA WidtH 300 dfB WidtH 300"
+
 #  ⚑ noRoomT -- forms step 6, the rest (SEQ 627 W1, 2026-11-11): what is DRAWN under isHidden and noRoom. The layout rows are in pop.sh. nrForm is
 #  200 by 100. H7 (run 2026-11-11): with drawKids' skip removed, (165,20) reads red (nOut is drawn) and NP-1 goes red.
 echo ""

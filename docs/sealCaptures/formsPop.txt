@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2092656 bytes  Nov 12 11:12
+  bin   2092656 bytes  Nov 12 11:42
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -192,10 +192,16 @@
   ok    resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run = [runs 2 400x200 white red black white green]
   ok    resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200 = [266 181 / simple x=300 y=450 width=400 height=200 down rounded]
 
+-- the drawing fields in FORMs (drawFieldsT).
+  ok    drawFieldsT exit / sentinel = [0 1]
+  ok    drawFieldsT DF-1 FORMs holds the 35 drawing fields and this file's two forms = [37]
+  ok    drawFieldsT DF-2 LinE carries its Core Graphics call; X is defined; no lower-case fill or width field in FORMs = [1 1 0]
+  ok    drawFieldsT DF-3 a form's width= is its own (100, 300); WidtH=, spelled as the drawing field, is the registry's one field (300, 300) = [dfA width 100 dfB width 300 dfA WidtH 300 dfB WidtH 300]
+
 -- isHidden and noRoom, drawn (noRoomT).
   ok    noRoomT exit / sentinel / page = [0 1 200x100]
   ok    noRoomT NP-1 a noRoom field is not drawn: where nOut (red) would be, (165,20), is the form's white; beside it nIn (25,20) is drawn red = [white red]
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 169 green, see above
+FORMS POP FAILED -- 173 green, see above

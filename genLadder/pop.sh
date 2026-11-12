@@ -9815,6 +9815,18 @@ _ofeq "listenT LN-4 the copy never reports set group to itself" "$(grep -c 'trie
 #  H7 (run 2026-11-12): with the else removed the first line reads "fired= 1 own= 77" -- the copy overwrote the listener's own 5.
 _ofeq "listenT LN-5 a listener with an action fires once per write and keeps its own value (5, not the notifier's 77)" "$(grep '^LN action' "$T/ln.e" | xargs)" "LN action fired= 1 own= 5 LN action fired= 2"
 
+#  ⚑ notifyT -- which writes tell a field's listeners (Tony, 2026-11-12, SEQ 629): arithmetic writes notify, with a re-entry guard.
+#  BEFORE the stroke (measured the same day, same probe): count += *= ++ -- and number += fired 0. H7 for the guard, run on this fixture
+#  alone under an alarm: with updateListeners' two hasListeners lines removed, a listener writing its own notifier never ends (exit 138/142).
+_ntF=$(ip notifyT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_ntF" > "$T/nt.o" 2> "$T/nt.e"; _ntX=$?
+_ofeq "notifyT exit / sentinel" "$_ntX $(grep -c '^NOTIFYT SENTINEL' "$T/nt.e")" "0 1"
+_ofeq "notifyT NT-1 every value write fires once: count = += *= /= ++ --, += in an action; number = += *=; text = +=; holder :=" "$(grep '^NT fires' "$T/nt.e" | awk '{print $NF}' | xargs)" "1 1 1 1 1 1 1 1 1 1 1 1 1"
+_ofeq "notifyT NT-2 an attach (+%) and a flag (:.) change no value and fire nothing; the arithmetic itself is right (nSrc 31, nNum 7)" "$(grep '^NT quiet' "$T/nt.e" | awk '{print $NF}' | xargs) / $(grep '^NT value' "$T/nt.e" | xargs)" "0 0 / NT value nSrc 31 nNum 7"
+fdRow "notifyT NT-3 -= on a listened-to count (PINNED, NOT CURED: the listener list is an attribute, so -= takes its remove-a-member arm and does not subtract)" "$(grep '^NT minus' "$T/nt.e" | sed 's/.*-= //' | xargs)" "fired 0 value 31" "fired 1 value 29"
+_ofeq "notifyT NT-4 RE-ENTRY: a listener writing its own notifier fires once per outside write and ends (= twice, then +=)" "$(grep '^NT reentry' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs)" "fired 1 value 30 fired 2 value 48 fired 1 value 30"
+_ofeq "notifyT NT-5 JITTED, measured and not ruled: an action's = then += fires its listener once a run (first run, refire); interpreted, once a write (2)" "$(grep '^NT jitted\|^NT interpreted' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs) / degrade $(grep -c 'jitDegrade count = 0' "$T/nt.o")" "fired 1 value 7 fired 1 value 7 fired 2 value 7 / degrade 1"
+
 #  traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04): what a define's attribute holds once the define is done, pinned
 #  at today's values on both roads (N rows go through FILe). Columns: kind, list length, value. Rows read kind 6 only where the
 #  value names a rule or carries a modifier that makes it one (ruleActions.rtn:1155; + writes isRule on the target, the sideEffect rows).

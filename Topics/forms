@@ -1,8 +1,63 @@
 /*****************************************************************************
-    forms -- the forms topic file. Not an incantation; notes only.
+    forms -- the forms incantation and the forms topic file (Tony, 2026-11-12).
+    Above bail(): the drawing fields, defined in FORMs. Below it: notes only.
     Wake-up read for a forms session: this file, then docs/wakeup.md (the shared state page).
     Sub-topics, each its own file: drawing (Topics/drawing), typesetting (Topics/typesetting).
+    Load the definitions with include(forms) (setup's fILEs names this file).
 *****************************************************************************/
+register(FORMs);
+define
+    AligN;
+    BordeR;
+    CliP        function="CGContextClip" signature="v:p";
+    ClosePatH   function="CGContextClosePath" signature="v:p";
+    CurvE       function="CGContextAddCurveToPoint" signature="?";
+    DowN;
+    EndPatH;
+    FilL;
+    HeighT;
+    HomE;
+    InverT;
+    LefT;
+    LinE        function="CGContextAddLineToPoint" signature="v:pdY";
+    MovE        function="CGContextMoveToPoint" signature="v:pdY";
+    OvaL;
+    PatH        function="CGContextBeginPath" signature="?";
+    PercenT;
+    RadiuS;
+    RectanglE   function="CGContextAddRect" signature="?";
+    RelativE;
+    RighT;
+    RoundeD;
+    RotatE      function="CGContextRotateCTM" signature="v:pd";
+    SavE        function="CGContextSaveGState" signature="v:p";
+    ScalE       function="CGContextScaleCTM" signature="?";
+    ShifT       function="CGContextTranslateCTM" signature="?";
+    StrokE;
+    UP;
+    WidtH       function="CGContextSetLineWidth" signature="v:pd";
+    WritE;
+    X;
+    Y;
+    StridE;
+    GaP;
+    DeptH;
+    ;
+bail();
+
+/*****************************************************************************
+    The drawing fields (above the bail)
+*****************************************************************************/
+A drawing field is spelled capital first and last (FilL, LinE; one or two letters all capitals: X, Y, UP) so that no form attribute can be it (Tony, 2026-11-12).
+Form attributes keep their spelling (fill:=wall, width=400). There is NO mapping between the two: they are two vocabularies (Clod's ruling, handed over by Tony, SEQ 629).
+WHY THE SPELLING: a form attribute spelled exactly like a field findable in FORMs is not the form's own -- every form that writes it shares ONE body with the registry's field (measured: two forms and a child writing 100, 200, 300 all read 300). Pinned: drawFieldsT DF-3.
+What each field is for (from the retired WorkingOn/drawing, git ede70292):
+    AligN center left right, or c l r . BordeR needs an action . FilL StrokE WritE can take a colour . HeighT "does not belong here; drawing does not change the frame"
+    DowN LefT RighT UP move the current point by their count . X Y set it . HomE the frame's origin . PercenT RelativE set the two modes . RadiuS for RoundeD or OvaL . EndPatH ends a path without closing
+    function= and signature= name the Core Graphics call (docs/bindingmethods.md). StridE GaP DeptH are perforation's parameters.
+PARKED, NOT DEFINED (the small drawing language is a parked design question, Topics/drawing): the rules PoinT, ArC and CurvE-as-a-rule, and the templates PerfRighT PerfLefT PerfToP PerfBottoM PerforatioN.
+    A template lists the same field several times with different values (DowN=GaP LefT=DeptH DowN=StridE ...), and by the measurement above each of those writes lands in the one definition. Their text is in git ede70292, IncantForms/WorkingOn/drawing.
+
 ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 3 of 21 forms draw.
 
 /*****************************************************************************
@@ -36,7 +91,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     Evidence files, IncantForms/WorkingOn/:
         formsTable      one row per attribute: moment, inherited, has action, depends on, status; the drop list at its foot
         formsRecon      Parts 1-2 what the old GUI did (file, method, line); Part 3 the forms notes as they stood at seal 442
-        drawing         the Drawing registry: Core Graphics names and signatures
+        (drawing retired 2026-11-12: its fields are defined at the top of this file)
         firstLightRead  reads firstLight back
     docs/           setFrameSpec.md, setFrameSecondRun.md, setFrameSecondRunDesign.md, setFrameRerunProposal.md, firstLightPdfRecon.md, m5Recon.md, percentRecon.md, bindingmethods.md
     Old GUI         Groups/GUI/ (tracked) and InProcess/Bot/ (not a repo; slightly newer). formsRecon Part 3, "Where the old GUI lives".
@@ -157,13 +212,12 @@ Form files (from docs/forms.md, retired into this file)
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
 *****************************************************************************/
-    seal 459:  tabs exited 139 on its include(drawing). CURED at 460: the include is gone (tabs exits 0). The cause stands: a top-level ":" scope statement reads through a null (ruleActions.rtn:928; pinned by bridgeT BR-4); the full trace is in seal 459's commit message.
-    seal 460:  THE REGISTRY MERGE DID NOT GO (SEQ 628 item 3; measured, not built). A FORMs field named like a valued attribute breaks every form that writes it: formsPop 164 green falls to 117 with width alone, 135 fill, 151 x, 154 align, 94 with all 27 plain names.
-               Bare flags did not move a row (border, down, rounded), nor the eight names no form uses. The trial was a define in FORMs at the foot of utilities, reverted. WorkingOn/drawing and its define are untouched. Back with Tony.
-    seal 460:  WHICH WRITES NOTIFY (recon, measured in kant): = (literal, field, inside an action), := on a holder, text +=, count /=, and += on an empty target fire the listener. count += -= *= ++ --, number += -=, +% and :. do not.
-               Why (tok): the first group writes through a setter (setCount, setText, setGroup, copyData), each of which calls updateListeners; the second writes gCount or gNumber directly. A jitted store was not measured.
-    seal 459:  the value scope "=:" (frameMembers, bothDirections, frameWhole use it) is in incant/grammar only (ScopeValue, added 2026-11-06, 9a8369f4). incant/kantGrammar has the ":" scope (SCOPEXp) and has never had "=:"
-               (git log -S on every branch, with a positive control). Action bodies parse on incant/grammar today, so setFrame runs; it will not build on the kant grammar until "=:" is added there. Tony noted it, 2026-11-11.
+    seal 460-461:  A FORMs FIELD NAMED LIKE A FORM ATTRIBUTE IS THAT ATTRIBUTE, for every form at once (one body; drawFieldsT DF-3). Plain names in FORMs: formsPop 164 falls to 94; width alone 117, fill 135, x 151, align 154.
+               So the drawing fields went in spelled capital first and last (seal 461), which no form writes. ADDENDUM 2 (authors write FilL:=wall, with FilL defined in FORMs) is NOT BUILT: by DF-3 every field's FilL would be the one registry field. Back with Tony.
+               RECON, bind-own-first (Addendum 2 item 3): the engine already copies a definition per use when it is marked virtual (resolveName, ruleActions.rtn:2160). Alone it works: three fields writing 100, 200, 300 each keep their own.
+               With the real forms it is not clean: x y width height virtual in FORMs, formsPop 173 falls to 128; fill 171; font color strokeColor 172; the flags and = valued terms 172. Cause not isolated (action bodies also name x y width height). Not cheap as it stands.
+    seal 461:  WHICH WRITES NOTIFY: every value write now does (notifyT NT-1). Still open: -= on a field holding an attribute does not subtract at all -- it takes its remove-a-member arm, and a listened-to field always holds one (NT-3, pinned red).
+               A jitted action writing a listened-to field twice fires its listener once a run, where the interpreter fires twice (NT-5, measured, not ruled). A postfix x++; as a statement changes nothing (prefix ++x; works); seen, not chased.
     seal 452:  setFrame overrides a child's own x and y: a child written x=10 y=10 under a parent with no down or across is laid out at the parent's origin (shadowT). Kept under a parent naming overlay (458); under down, across or no direction they are not read (Waiting on Tony 8).
     seal 451:  drawText does not inherit font three levels down: in simple, one (under wrap, under third) drew Helvetica 12 where simple names font:=normalFont; a field one or two levels down inherits (probe, 2026-11-11). Not chased.
     seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled. Rounded corners are step 9. The image in a PDF has no row."
@@ -192,6 +246,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Digest of retired files (retired 2026-11-11, git c3180398; one line each)
 *****************************************************************************/
+    IncantForms/WorkingOn/drawing   (retired 2026-11-12, git ede70292) the Drawing registry, now the drawing fields above; old Colors and Fonts registries (styles is the live one); the old one-letter path language and the June drawing plan.
     docs/forms.md                   form-file conventions for the XML-to-incant conversion; what still holds is under "Form files" above.
     docs/gui.md, gui-brief.md       the June GUI one-stop and its brief for Clay: first window 2026-06-22; incant owns the model, Layout the pixels.
     docs/guiDesign.md               July spec: Layout / Stylish review, fonts, colours, events; its subview text model was superseded.
@@ -217,6 +272,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    461  SEQ 629   The drawing fields, spelled capital first and last, defined in FORMs above this file's bail; WorkingOn/drawing retired; no mapping (two vocabularies); drawFieldsT. Arithmetic writes notify and updateListeners guards re-entry (notifyT; -= pinned red). Addendum 2's FilL:=wall not built (Issues); the virtual recon (Issues).
     460  SEQ 628   Tony's offline runNotified committed, then the copy made the fallback (listenT LN-5; H7 red). tester freed from two fleet rows (testerChainT carries its own head; describeT). firstLight's driver below its bail; displayIfVisible retired. The registry merge measured and stopped (Issues). The notify recon (Issues). tabs cured. Stroke 4 first run: resizeListenT, RL-1 to RL-4 (H7 red).
     459  SEQ 627   SHUTDOWN. R0: no direction defaults to down; the old R3 struck. W1: isHidden and noRoom built as two flags (GroupBody, cases 49 and 50), frameMembers and drawKids read them; rows NR-1 to NR-7 (pop.sh), NP-1 to NP-3 (formsPop); three H7s red. Q1: the old GUI's fixX / fixY reported (Waiting on Tony 8); no form relies on it. W2: tabs' crash traced to include(drawing) and a top-level scope statement (Issues). The kitchen pass run.
     455  SEQ 625   italic=off ruled as interim. opacity=0 checked: fully clear, two rows (OP-6), nothing to cure. The line budget recorded as an objective (Topics/cleanup). Read-only: the strokes for setFrame's rerun proposed (docs/setFrameRerunProposal.md). Clod's report on drawing as its own file: in the seal's commit message.

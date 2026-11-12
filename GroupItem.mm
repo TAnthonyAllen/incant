@@ -2600,9 +2600,12 @@ void GroupItem::updateListeners()
 {
 GroupItem 	*grup = 0;
 GroupItem 	*listener = 0;
+	// reentryGuard a write to this field from inside one of its own listeners does not fire them again: every caller tests hasListeners, so it is down for the walk
+	groupBody->flags.hasListeners = 0;
 	if ( listener = getAttribute("notifyLIST") )
 		while ( grup = listener->next(grup) )
 			runNotified(grup);
+	groupBody->flags.hasListeners = 1;
 }
 
 /***************************************************************************

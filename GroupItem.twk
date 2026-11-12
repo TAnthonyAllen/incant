@@ -2015,9 +2015,12 @@ void updateContentFlags()
 void updateListeners()
 {
 GroupItem	grup,listener;
+    // reentryGuard a write to this field from inside one of its own listeners does not fire them again: every caller tests hasListeners, so it is down for the walk
+    hasListeners = false;
 	if listener = getAttribute("notifyLIST")
 		while grup = listener.next(grup)
             runNotified(grup);
+    hasListeners = true;
 }
 
 /***************************************************************************

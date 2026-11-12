@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(utilities);
+include(forms);
+search reset stack Grokking;
+search FORMs UnitTests Utilities list;
+register(FORMs);
+define
+    dfA window width=100 fill="red" WidtH=100
+        dfKid width=200 WidtH=200;
+    dfB window width=300 WidtH=300;
+    ;
+cerr "DF-1 FORMs holds" FORMs.listLengtH:;
+cerr "DF-2 definitions":;
+printDefinition(FORMs);
+cerr "DF-3 a form attribute keeps its own value: dfA width" dfA.width " dfB width" dfB.width:;
+cerr "DF-3 an attribute spelled as a drawing field is the registry's one field: dfA WidtH" dfA.WidtH " dfB WidtH" dfB.WidtH:;
+cerr "DRAWFIELDS SENTINEL":;
+stop();
+
+drawFieldsT -- the drawing fields at the top of Topics/forms (the forms incantation), loaded by include(forms). SEQ 629,
+2026-11-12.
+
+DF-1  FORMs holds the 35 drawing fields and the two top-level forms defined here (37).
+DF-2  three definitions as printed: LinE and WidtH carry their Core Graphics function and signature, X is there.
+      (WidtH prints the 300 the forms below wrote into it: that is DF-3's fact, seen from the registry.)
+DF-3  why the fields are spelled capital first and last. A form attribute written width= is the form's own: 100 and 300.
+      One written WidtH= -- spelled exactly as a field findable in FORMs -- is the registry's field itself, so two forms
+      and a child writing 100, 200 and 300 all read the last write, 300. The pair is the control: the same forms, the same
+      values, only the spelling differs.
+H7 (run 2026-11-12): with include(forms) removed there is no registry field to share, and DF-3's second line reads 100 300.

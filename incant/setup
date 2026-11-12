@@ -349,7 +349,7 @@ registry(fILEs);
 define
     grammar File='incant/grammar';
     directives File='incant/directives';
-    drawing File='IncantForms/WorkingOn/drawing';
+    forms File='Topics/forms';
     utilities File='incant/utilities';
     styles File='IncantForms/Controls/styles';
     unitTests File='incant/unitTests';
