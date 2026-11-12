@@ -9817,7 +9817,7 @@ _ofeq "listenT LN-5 a listener with an action fires once per write and keeps its
 
 #  ⚑ notifyT -- which writes tell a field's listeners (Tony, 2026-11-12, SEQ 629): arithmetic writes notify, with a re-entry guard.
 #  BEFORE the stroke (measured the same day, same probe): count += *= ++ -- and number += fired 0. H7 for the guard, run on this fixture
-#  alone under an alarm: with updateListeners' two hasListeners lines removed, a listener writing its own notifier never ends (exit 138/142).
+#  alone under an alarm: with updateListeners' two hasListeners lines removed, a listener writing its own notifier recurses until the run dies: exit 139, no re-entry row, no sentinel.
 _ntF=$(ip notifyT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_ntF" > "$T/nt.o" 2> "$T/nt.e"; _ntX=$?
 _ofeq "notifyT exit / sentinel" "$_ntX $(grep -c '^NOTIFYT SENTINEL' "$T/nt.e")" "0 1"
