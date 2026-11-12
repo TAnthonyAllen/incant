@@ -1,0 +1,45 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(PostfixIncrementNothing);
+define
+    piPre=5;
+    piPost=5;
+    piActPre=5;
+    piActPost=5;
+    piDown=5;
+    piBump code={
+        ++piActPre;
+        piActPost++;
+        };
+    ;
+cerr "ANCHOR postfixIncrementNothing -- `x++;` as a statement; every line should read 6 (the last one 4)":;
+++piPre;
+piPost++;
+piDown--;
+piBump();
+print "PIN top-level ++x; -> " piPre " (want 6)":;
+print "PIN top-level x++; -> " piPost " (want 6)":;
+print "PIN in-action ++x; -> " piActPre " (want 6)":;
+print "PIN in-action x++; -> " piActPost " (want 6)":;
+print "PIN top-level x--; -> " piDown " (want 4)":;
+fixPostfixIncrementNothingHere = 0;
+cerr "SENTINEL postfixIncrementNothing reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (Tony, wakeup dispatch of 2026-11-12, ruling 4; severity WRONG -- the statement silently does nothing)
+
+postfixIncrementNothing -- a postfix `x++;` written as a statement changes nothing, with no refusal and no message;
+the prefix `++x;` works. First seen at seal 461 while building notifyT (Topics/forms, Issues), not chased then.
+MEASURED 2026-11-12: at top level and in an action alike, `x++;` leaves 5 and `++x;` gives 6; `x--;` also leaves 5.
+
+Not measured: what the statement parses as. ++ and -- are registered unary in incant/setup (ruleMethod=opPlusPlus,
+opMinusMinus) and sit in the UnaryOPS bin, which the grammars read as a PREFIX slot, so a name followed by ++ may
+parse as the name alone with the operator left for the next term.
+
+NEXT: OPEN -- print what `x++;` builds (dumpContents on the statement, old road and kantGrammar's EXPRESSIOn), which
+says whether the ++ is dropped, read as a prefix of the semicolon's nothing, or refused silently. Then it is Tony's
+whether a postfix ++ is a spelling the language has (and increments) or one it refuses by name.
