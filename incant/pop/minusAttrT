@@ -1,0 +1,43 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(MinusAttrT);
+define
+    maA=1;
+    maB=2;
+    maC=3;
+    maBox;
+    maVal=10;
+    maMem;
+    maM1=7;
+    maM2=8;
+    maInAct code={ maBox -% maB; };
+    ;
+maBox +% maA maB maC;
+cerr "MA start attributes" maBox.listLengtH:;
+maBox -% maA;
+cerr "MA top level -% one: attributes" maBox.listLengtH " first" maBox[1].taG:;
+maInAct();
+cerr "MA action body -% one: attributes" maBox.listLengtH " first" maBox[1].taG:;
+maBox -% maA;
+cerr "MA absent name: attributes" maBox.listLengtH:;
+maBox +% maA maB;
+maBox -% maA maC;
+cerr "MA list -% two: attributes" maBox.listLengtH " first" maBox[1].taG:;
+maVal +% maA;
+maVal -= 3;         cerr "MA valued field with an attribute -= 3: value" maVal:;
+cerr "MA its attribute stays: attributes" maVal.listLengtH:;
+maVal -% maA;
+cerr "MA then -% it: attributes" maVal.listLengtH " value" maVal:;
+maMem +/ maM1 maM2;
+maMem -= maM1;      cerr "MA members: -= removes a member, length" maMem.listLengtH " first" maMem[1].taG:;
+cerr "MINUSATTRT SENTINEL":;
+stop();
+
+minusAttrT -- the remove-attribute operator, and -= on a valued field (Tony, 2026-11-12, wakeup dispatch ruling 2).
+The remove-attribute operator (minus then percent) is the opposite of the add-attribute one. It is one entry in setup's
+Operators registry, which both incant/grammar and incant/kantGrammar read, so it works at top level and in an action body.
+-= subtracts on a valued field whatever attributes it holds; only members make -= remove by name.

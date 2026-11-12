@@ -458,6 +458,7 @@ extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opPrintList(GroupItem *items);
 extern "C" GroupItem *opPrintShortcut(GroupItem *shortcut);
 extern "C" GroupItem *opRem(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opRemoveAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opReturnSignal(GroupItem *arms);

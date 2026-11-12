@@ -69,9 +69,9 @@ fires     every write that changes a value: =, +=, *=, /=, ++ and -- (prefix), o
           := on a holder. Before this stroke count += *= ++ -- and number += *= fired nothing: they write the raw count
           or number, and only the setters called updateListeners.
 quiet     +% (an attach) and :. (a flag) change no value and fire nothing.
-minus     PINNED AT TODAY'S VALUE, NOT CURED: -= on a listened-to field does not subtract and so does not fire. opMinusEQ
-          asks first whether the target holds a list, and the listener list is an attribute, so it takes the
-          remove-a-member arm. The same happens to any valued field with an attribute. Intended: 1 fire, value 8 lower.
+minus     CURED 2026-11-12 (Tony): -= on a listened-to field subtracts and fires once. opMinusEQ used to ask whether the
+          target held any list, and the listener list is an attribute, so it took the remove-a-member arm. It now asks
+          for members only. Before the cure this line read: fired 0, value 31.
 reentry   a listener whose action writes its own notifier (with = and with +=) fires once per outside write and the run
           ends: updateListeners takes hasListeners down for its walk. H7 (run under an alarm, 2026-11-12): with the two hasListeners lines out of updateListeners the run dies, exit 139, before any reentry line.
 jitted    MEASURED, NOT RULED: a jitted action that writes a listened-to field twice (= then +=) fires the listener ONCE a

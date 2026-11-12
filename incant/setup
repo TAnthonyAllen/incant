@@ -179,6 +179,7 @@ define
     '.'     operateMethod=opDot;
     ':.'    operateMethod=opSetFlag  assignTier;
     '-='    operateMethod=opMinusEQ  assignTier;
+    '-%'    operateMethod=opRemoveAttribute  assignTier;
     '--'    unary ruleMethod=opMinusMinus;
 
     '$$'    unary ruleMethod=opDebug;

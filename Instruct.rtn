@@ -673,7 +673,8 @@ GroupRules  ruler = groupRules;
         -% return jitEmitAssign(jitEmitBinary(argument, target, jitSub), target); %-
     }
 use target
-    if groupList  result = remove(argument.tag);
+    // membersOnly only MEMBERS make a field a list here: its attributes, the listener list among them, are not its content (Tony, 2026-11-12); removing an attribute is opRemoveAttribute's
+    if hasMembers  result = remove(argument.tag);
     or data && argument.data {
         result = target;
         switch(data) {
@@ -1420,6 +1421,29 @@ GroupRules  ruler = groupRules;
     // a refusal, never a data-less tempField that reads back as its own tag (promoted from sentinel-as-data, 2026-09-05)
     if !tempField.data  return refuse(target,"Operator % -- cannot apply to these operands");
     return tempField;
+}
+
+
+// opRemoveAttribute the remove-attribute operator, the opposite of the add-attribute one: take off target the attribute named as the argument, or as each item of a list argument; a name target does not hold is left alone
+extern GroupItem opRemoveAttribute(GroupItem argument,GroupItem target)
+{
+GroupItem   grup,
+            found;
+GroupRules  ruler = groupRules;
+    // storeRuling an armed statement stores nothing
+    if ruler.refused    return null;
+    if !argument    return refuse(target,"Operator remove-attribute -- an operand that is nothing");
+    // listHolderUnwraps a list entry that is a holder names its CONTENT, as the add-attribute list arm attaches it
+    if argument.isLIST
+        while grup = argument.next(grup) {
+            if grup.isGROUP && grup.group   found = target.getAttribute(grup.group.tag);
+            else                            found = target.getAttribute(grup.tag);
+            if found    found.remove(); }
+    else {
+        found = target.getAttribute(argument.tag);
+        if found    found.remove(); }
+    target.updateContentFlags();
+    return target;
 }
 
 

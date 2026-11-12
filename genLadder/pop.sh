@@ -8016,13 +8016,15 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  and 73 for 74. A count of the registry, not behaviour.
 #  REGISTERED SEQ 601 (Tony, 2026-11-10): three more Operators entries (iterateAttrs, iterateMembers, iterateBoth), so every walk of
 #  Operators reads 273 for 270 (itRT, jitCursorLifeT, itBackRT) and its length 71 for 68 (opEntryT). A count of the registry, not behaviour.
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "276" "275"
+#  REGISTERED 2026-11-12 (Tony, wakeup dispatch ruling 2): the remove-attribute operator is one more Operators entry: 276 for 275 on the six
+#  sibling rows and 74 for 73 on opEntryT OE-R. A count of the registry, not behaviour.
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "275" "276"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "276" "275"
+fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "275" "276"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -8038,8 +8040,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "276 6" "275 6"
-fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "276" "275"
+fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "275 6" "276 6"
+fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "275" "276"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -8055,12 +8057,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "276" "275"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "275" "276"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "276" "275"
+fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "275" "276"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -9294,7 +9296,8 @@ sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
 #  RE-PINNED 2026-10-30 (SEQ 492 R2, branch command-call): 63 -> 64 -- call is registered in Operators (SEQ 492).
 #  OE-R RE-PINNED 2026-10-31 (SEQ 496): 64 -> 66 -- cerrList and coutList are registered in Operators
 #  OE-R RE-PINNED 2026-11-03 (SEQ 516): 66 -> 67 -- bodySeq is registered in Operators (control: the bodySeq line removed, 66 again)
-fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "74" "73"
+#  OE-R REGISTERED 2026-11-12 (Tony, wakeup dispatch ruling 2): 73 -> 74 -- the remove-attribute operator is registered in Operators
+fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "73" "74"
 kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
 kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
@@ -9823,9 +9826,29 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_ntF" > "$T/nt.o" 2> "$T/nt.e"; _ntX=$?
 _ofeq "notifyT exit / sentinel" "$_ntX $(grep -c '^NOTIFYT SENTINEL' "$T/nt.e")" "0 1"
 _ofeq "notifyT NT-1 every value write fires once: count = += *= /= ++ --, += in an action; number = += *=; text = +=; holder :=" "$(grep '^NT fires' "$T/nt.e" | awk '{print $NF}' | xargs)" "1 1 1 1 1 1 1 1 1 1 1 1 1"
 _ofeq "notifyT NT-2 an attach (+%) and a flag (:.) change no value and fire nothing; the arithmetic itself is right (nSrc 31, nNum 7)" "$(grep '^NT quiet' "$T/nt.e" | awk '{print $NF}' | xargs) / $(grep '^NT value' "$T/nt.e" | xargs)" "0 0 / NT value nSrc 31 nNum 7"
-fdRow "notifyT NT-3 -= on a listened-to count (PINNED, NOT CURED: the listener list is an attribute, so -= takes its remove-a-member arm and does not subtract)" "$(grep '^NT minus' "$T/nt.e" | sed 's/.*-= //' | xargs)" "fired 0 value 31" "fired 1 value 29"
+#  NT-3 CURED 2026-11-12 (Tony, wakeup dispatch ruling 2): opMinusEQ asks hasMembers, so a field's attributes -- the listener list among them -- are not its content.
+#  Its control is this row's own reading on the binary before the change: fired 0 value 31, pinned red at seal 461.
+_ofeq "notifyT NT-3 -= on a listened-to count subtracts and fires once" "$(grep '^NT minus' "$T/nt.e" | sed 's/.*-= //' | xargs)" "fired 1 value 29"
 _ofeq "notifyT NT-4 RE-ENTRY: a listener writing its own notifier fires once per outside write and ends (= twice, then +=)" "$(grep '^NT reentry' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs)" "fired 1 value 30 fired 2 value 48 fired 1 value 30"
 _ofeq "notifyT NT-5 JITTED, measured and not ruled: an action's = then += fires its listener once a run (first run, refire); interpreted, once a write (2)" "$(grep '^NT jitted\|^NT interpreted' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs) / degrade $(grep -c 'jitDegrade count = 0' "$T/nt.o")" "fired 1 value 7 fired 1 value 7 fired 2 value 7 / degrade 1"
+
+#  ⚑ minusAttrT / minusAttrNewT -- the remove-attribute operator (minus then percent; Tony, 2026-11-12, wakeup dispatch ruling 2), the opposite of +%,
+#  and -= on a valued field holding an attribute. One Operators entry, read by incant/grammar (minusAttrT: top level and an action body) and by
+#  incant/kantGrammar (minusAttrNewT: EXPRESSIOn + testOP). Every count row has a non-zero sibling: the start row.
+_maF=$(ip minusAttrT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_maF" > "$T/ma.o" 2> "$T/ma.e"; _maX=$?
+_mav () { grep "^MA $1" "$T/ma.e" | sed 's/.*: *//' | xargs; }
+_ofeq "minusAttrT exit / sentinel" "$_maX $(grep -c '^MINUSATTRT SENTINEL' "$T/ma.e")" "0 1"
+_ofeq "minusAttrT MA-1 three attributes attached, then one removed at top level" "$(grep '^MA start' "$T/ma.e" | awk '{print $NF}') / $(_mav 'top level')" "3 / attributes 2 first maB"
+_ofeq "minusAttrT MA-2 one removed in an action body" "$(_mav 'action body')" "attributes 1 first maC"
+_ofeq "minusAttrT MA-3 a name the field does not hold is left alone; a list argument removes each it holds" "$(_mav 'absent name') / $(_mav 'list')" "attributes 1 / attributes 1 first maB"
+_ofeq "minusAttrT MA-4 a valued field holding an attribute: -= subtracts and the attribute stays; then the remover takes it and the value stays" "$(_mav 'valued field') / $(_mav 'its attribute') / $(_mav 'then')" "value 7 / attributes 1 / attributes 0 value 7"
+_ofeq "minusAttrT MA-5 members: -= still removes a member by name" "$(grep '^MA members' "$T/ma.e" | sed 's/.*length //' | xargs)" "1 first maM2"
+_mnF=$(ip minusAttrNewT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_mnF" > "$T/mn.o" 2> "$T/mn.e"; _mnX=$?
+_ofeq "minusAttrNewT exit / sentinel" "$_mnX $(grep -c '^MINUSATTRNEWT SENTINEL' "$T/mn.e")" "0 1"
+_ofeq "minusAttrNewT MN-1 the new road removes one of two attributes" "$(grep '^MN start' "$T/mn.e" | awk '{print $NF}') / $(grep '^MN new road -% one' "$T/mn.e" | sed 's/.*: //' | xargs)" "2 / attributes 1 first mnB"
+_ofeq "minusAttrNewT MN-2 the new road: -= on a valued field holding an attribute subtracts" "$(grep '^MN new road -= ' "$T/mn.e" | sed 's/.*: //' | xargs)" "value 7 attributes 1"
 
 #  traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04): what a define's attribute holds once the define is done, pinned
 #  at today's values on both roads (N rows go through FILe). Columns: kind, list length, value. Rows read kind 6 only where the

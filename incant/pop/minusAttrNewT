@@ -1,0 +1,39 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(Operators);
+define
+    call    operateMethod=opCallTest  assignTier;
+    ;
+registry(MinusAttrNewT);
+define
+    mnA=1; mnB=2; mnBox; mnVal=10;
+    mn1;
+    ;
+search MinusAttrNewT Utilities UnitTests list;
+mnBox +% mnA;
+mnBox +% mnB;
+mnVal +% mnA;
+cerr "MN start attributes" mnBox.listLengtH:;
+mn1 = EXPRESSIOn("mnBox -% mnA");
+testOP(mn1);
+cerr "MN new road -% one: attributes" mnBox.listLengtH " first" mnBox[1].taG:;
+mn1 = EXPRESSIOn("mnVal -= 3");
+testOP(mn1);
+cerr "MN new road -= on a valued field with an attribute: value" mnVal " attributes" mnVal.listLengtH:;
+cerr "MINUSATTRNEWT SENTINEL":;
+stop();
+
+minusAttrNewT -- minusAttrT's two questions on the new road: the statement parsed by incant/kantGrammar's EXPRESSIOn and
+run by testOP. The remove-attribute operator is read from setup's Operators registry there too.

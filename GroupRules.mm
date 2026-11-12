@@ -10660,7 +10660,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitAssign(jitEmitBinary(argument, target, jitSub), target); 
 		}
-	if ( target->groupBody->groupList )
+	// membersOnly only MEMBERS make a field a list here: its attributes, the listener list among them, are not its content (Tony, 2026-11-12); removing an attribute is opRemoveAttribute's
+	if ( target->groupBody->flags.hasMembers )
 		result = target->remove(argument->groupBody->tag);
 	else
 	if ( target->groupBody->flags.data && argument->groupBody->flags.data )
@@ -11225,6 +11226,36 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !ruler->tempField->groupBody->flags.data )
 		return ::refuse(target,"Operator % -- cannot apply to these operands");
 	return ruler->tempField;
+}
+
+// opRemoveAttribute the remove-attribute operator, the opposite of the add-attribute one: take off target the attribute named as the argument, or as each item of a list argument; a name target does not hold is left alone
+extern "C" GroupItem *opRemoveAttribute(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*grup = 0;
+GroupItem 	*found = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// storeRuling an armed statement stores nothing
+	if ( ruler->refused )
+		return 0;
+	if ( !argument )
+		return ::refuse(target,"Operator remove-attribute -- an operand that is nothing");
+	// listHolderUnwraps a list entry that is a holder names its CONTENT, as the add-attribute list arm attaches it
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( grup = argument->next(grup) )
+			{
+			if ( isGROUP(grup->groupBody->flags.data) && grup->getGroup() )
+				found = target->getAttribute(grup->getGroup()->groupBody->tag);
+			else	found = target->getAttribute(grup->groupBody->tag);
+			if ( found )
+				found->remove();
+			}
+	else {
+		found = target->getAttribute(argument->groupBody->tag);
+		if ( found )
+			found->remove();
+		}
+	target->updateContentFlags();
+	return target;
 }
 
 // opReplaceAttribute the :% operator: replace target's component of the same tag with the argument, or each list item, as an attribute
