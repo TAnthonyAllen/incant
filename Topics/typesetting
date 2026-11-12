@@ -42,6 +42,16 @@ Not typesetting
 /*****************************************************************************
     Plan, smallest first
 *****************************************************************************/
+THE PRE-PASS DESIGN (Clay, 2026-11-12; forwarded by Tony; no ruling needed to start T1). Style and run resolution move from the C++ floor into kant; the floor keeps measuring, line breaking and painting until the jitter can take more.
+    kant pre-pass   splits a field's text into paragraphs at blank lines; parses each into runs ({style: text}, nesting, {{); resolves insertions; resolves each run's style from the field's text style, pushing and popping run styles; warns by name on an unknown style and prints it plain.
+    C++ floor       measures text in a font, breaks lines to the frame width (two-line rule later), clips overflow on a space, paints each line. It never looks up a style.
+    hand-over       ONE floor call per field, drawSpans(field, spans), one request group. The span list is paragraphs, each a list of spans; a span is text plus its resolved font, colour and italic. It is dropped after drawing.
+    layout context  fresh for each pass, in kant: the style stack, the current paragraph, the warnings.
+    T1  the kant pre-pass builds the span list and the floor's run parsing gives way to drawSpans. Test: firstLight's PDF matches the C++ slice's by value, every typesetting row green.
+    T2  retire the C++ run-parsing and style-lookup code (same session if small).      T3  insertions.      Later, after the jitter: line breaking and the two-line rule move to kant.
+    T1'S OPENER, measured at seal 469 (a probe, not built): kant has no accessor that takes a string apart by position, so the pre-pass is a small kant grammar driven by tell. Four rules --
+        tsPlain isRule plain^=[^{}]+;   tsRun isRule "{"- style=[a-zA-Z0-9]+ ":"- body^=[^{}]+ "}"-;   tsPiece isRule tsRun; tsPlain;   tsPara isRule tsPiece+;
+        -- matched all 39 characters of "one two {emphasis: three four} five six" and returned tsPara holding three pieces (plain, run, plain). NOT yet measured: whether the spaces at a piece's edges survive (open question 4), nesting, {{, and the blank-line split.
     1  Paragraphs in one field.          DONE (seal 466)
     2  Runs.                             DONE for font, colour and italic (seal 466)
     3  Insertions.
@@ -83,6 +93,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Seal digest
 *****************************************************************************/
+    469  SEQ 634   SHUTDOWN. Clay's pre-pass design recorded (Plan); T1 not begun. Its opener measured: a four-rule kant grammar splits a paragraph into plain, run, plain.
     467  SEQ 632   the slice's choices ruled; typesetting HOLDS until Clay's kant pre-pass design lands. The styles file searches its own colours and fonts; emphasis respelled color:=red.
     466  SEQ 631   the first slice: paragraphs and runs in displayText, firstLight's words the specimen, typesetT.
     443  SEQ 614   this file made from the forms notes and the 2026-11-11 rulings.

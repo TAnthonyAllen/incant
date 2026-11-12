@@ -5,14 +5,16 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**468, 2026-11-12, topic: cleanup, SEQ 633 (assigned by Clod).** `Topics/cleanup` trimmed by its own rule, 130 lines to 72:
-three run dispatches to one line each, one closed issue deleted. No code. Before it, the same day, on forms (seals 462-467):
-virtual is clean and the form attributes and drawing fields live in FORMs; `-=` subtracts and a new operator removes an
-attribute; jitted writes notify per write; Layout writes `layoutFrame` as one whole write; typesetting's first slice is in firstLight.
-**TYPESETTING HOLDS:** build nothing further on the C++ version; Clay drafts the kant pre-pass design first.
-**NEXT:** nothing queued; Tony names it. Later: measure the jitted store helper's cost in a hot loop.
+**469, 2026-11-12, SHUTDOWN, topic: forms (typesetting), SEQ 634 (assigned by Clod).** The kitchen pass run. Clay's
+typesetting pre-pass design is recorded in `Topics/typesetting` (Plan): style and run resolution move into a kant pre-pass,
+and the floor is handed a span list in one call, drawSpans. T1 is NOT begun. Its opener is measured: a four-rule kant
+grammar, driven by tell, splits a paragraph into plain text, a run and plain text.
+**NEXT:** T1, opening on that probe (do the spaces at a piece's edges survive; nesting; `{{`; the blank-line split), then drawSpans.
+The same day, seals 462-468: virtual clean and FORMs holding the form attributes and drawing fields; `-=` and the remove-attribute
+operator; jitted writes notify per write; `layoutFrame` by one whole write; typesetting's first slice in firstLight; the cleanup trim.
+Later: measure the jitted store helper's cost in a hot loop.
 
-## The numbers (as run at seal 468; the binary is seal 466's, with paragraphs and runs in displayText)
+## The numbers (as run at seal 469; the binary is seal 466's, with paragraphs and runs in displayText)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3768 green (3767 + listenT LN-6), FAIL rows identical by name to the bank (66, re-banked without NT-3; `docs/sealCaptures/pop.fails.txt`) |
@@ -22,7 +24,7 @@ attribute; jitted writes notify per write; Layout writes `layoutFrame` as one wh
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | at 461: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | at 469: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 462 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -36,11 +38,11 @@ Clod's fixit incantations waiting: 7 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 51 / 60 | this page. |
+| `docs/wakeup.md` | 53 / 60 | this page. |
 | `Topics/forms` | 248 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 123 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/typesetting` | 89 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/typesetting` | 100 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 86 / 120 | lookup with no index; the documenter. Nothing built. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
