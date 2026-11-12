@@ -49,7 +49,7 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
 
 ## Parked by ruling (Tony, 2026-11-11, SEQ 621 R4)
 
-33. fit, the layout attribute: a field sized to fit its members or its text. Parked (Tony, 2026-11-12: still parked; Clod may try it in kant, reading the old GUI's fit first; the hard part was the length of a string in a font). The census (Topics/forms, floor census line 4): 4 forms / 10 fields ask (fit, inspector, list, sheet; fit=text in layout and menu is dropped). It is layout, in kant, in setFrame, but fitting round text needs the text's height: no new floor method -- displayText would write lines and height into textReq and measure without drawing. It would wait on forms step 6 (setFrame finished).
+33. fit, the layout attribute: a field sized to fit its members or its text. Parked (Tony, 2026-11-12: still parked; Clod may try it in kant, reading the old GUI's fit first; the hard part was the length of a string in a font). The census (Topics/forms, floor census line 4): 4 forms / 10 fields ask (fit, inspector, list, sheet; fit=text in layout and menu is dropped). It is layout, in kant, in setFrame, but fitting round text needs the text's height: no new floor method -- drawSpans (then displayText) would write lines and height into textReq and measure without drawing. It would wait on forms step 6 (setFrame finished).
 
 ## Not harvested, and why
 

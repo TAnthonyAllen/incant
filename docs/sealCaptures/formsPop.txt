@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2094560 bytes  Nov 12 16:40
+  bin   2094656 bytes  Nov 12 17:01
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -71,7 +71,7 @@
   ok    textT TX-C3 tLong inherits tForm's color:=red = [r239 g43 b45]
   ok    textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green) = [Palatino 24 1 r0 g158 b15]
   ok    textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end) = [2 space / 1 end]
-  ok    textT TX-N displayText calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain]
+  ok    textT TX-N drawSpans calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain]
   ok    textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else = [tOver tLong]
   ok    textT AL-1 CENTER: heading's ink centred in its frame (x 0..399, y 10..28) = [centred]
   ok    textT AL-2 CENTER: ok's ink centred in its frame (x 340..399; scanned 342..397, y 168..196) = [centred]
@@ -113,7 +113,7 @@
   ok    descT DE-5 no refusal and no colour error (the form includes styles itself) = [0]
   ok    descT DE-6 the registry's saber after the form's define (R1: one field, the form's text) = [Saber from Fate Stay Night]
   ok    descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text = [61 of 61]
-  ok    descT DE-8 IMAGE TEXT: displayText is called for describeHead and describeHelp, never for saber or trees = [describeHead describeHelp]
+  ok    descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees = [describeHead describeHelp]
   ok    describeT exit / sentinel = [0 1]
   ok    describeT: describe's six lines (was tester's, across the move to utilities, R6), md5 = [556d248688d4ae5418d9c134712a5f6a 6]
   ok    descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray = [saber fit fill trees fit fill / image image]
@@ -125,7 +125,7 @@
   ok    imageT IM-4 a wide frame crops top and bottom: green red blue green at y=22; the border drawn over the image (170,10) = [green red blue green black]
   ok    imageT IM-5 the trace: imSquare 40x20 drawn 200x100 at -40,10; imWide drawn 100x50 at 120,-2.5 = [imSquare pixels 40x20 fit fill drawn 200x100 at -40,10;imWide pixels 40x20 fit fill drawn 100x50 at 120,-2.5;]
   ok    imageT IM-6 REFUSALS by name: an unreadable file, an unknown fit, no display (count of each), and imMissing's own fill still drawn = [1 1 1 r241 g241 b241]
-  ok    imageT IM-7 an image field's text is not drawn: displayText calls = [0]
+  ok    imageT IM-7 an image field's text is not drawn: drawSpans calls = [0]
 
 -- rounded (roundedT).
   ok    roundedT exit / sentinel = [0 1]
@@ -210,6 +210,9 @@
   ok    typesetT TY-6 a run with no closing mark ends at its paragraph's end: two paragraphs, one run, no warning for it = [lines 2 drawn 8 of 8 next end paragraphs 2 of 2 runs 1 / 0]
   ok    typesetT TY-7 runs nest; TY-8 an insertion waits and is left as written; TY-10 a single line end is a space = [lines 1 drawn 9 of 9 next end paragraphs 1 of 1 runs 2 / lines 1 drawn 15 of 15 next end / lines 1 drawn 25 of 25 next end]
   ok    typesetT TY-9 three paragraphs in a field with room for one line: one drawn, the stop is at a paragraph, and the field is named = [lines 1 drawn 3 of 11 next paragraph paragraphs 1 of 3 runs 0 / 1]
+  ok    typesetT TY-11 a run of spaces is one gap (T1): a, four spaces, b draws three characters = [lines 1 drawn 3 of 3 next end]
+  ok    typesetT TY-12 a mark takes no room: xyz; the space by a closing mark is one gap after the span before it = [lines 1 drawn 3 of 3 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 7 of 7 next end paragraphs 1 of 1 runs 2]
+  ok    typesetT TY-13 the gap's width is the style's space: space=280 wraps at each gap, the same text in a style with none is one line = [lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1]
 
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
@@ -226,4 +229,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 191 green, see above
+FORMS POP FAILED -- 194 green, see above

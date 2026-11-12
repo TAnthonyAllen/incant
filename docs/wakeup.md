@@ -5,18 +5,18 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**470, 2026-11-12, topic: kant (with forms), SEQ 635 (assigned by Clod).** Tony's offline answers acted on. Postfix `x++` and
-`x--` now work on both roads, with the prefix form's value (no C++ difference); postfixT, 31 rows. A span's space is the
-`space` form attribute (Topics/typesetting, open question 4). fit and onClick stay parked.
-**NEXT:** T1 (Topics/typesetting, Plan), opening on the seal-469 probe, then drawSpans.
-Seal 469 (shutdown, the same day): Clay's pre-pass design recorded; T1's opener measured. Later: the jitted store helper's cost in a hot loop.
+**471, 2026-11-12, topic: forms (typesetting), SEQ 636 (assigned by Clod).** T1 and T2 done on Tony's go. A kant pre-pass,
+`typeset` in incant/utilities, takes a field's text apart into paragraphs and spans and resolves each span's style; the
+floor's call is `drawSpans`, which parses nothing. A span carries `space`; a style's `space` sets the gap's width.
+**NEXT:** T3, insertions (`{name}`), Topics/typesetting Plan.
+Seal 470 (the same day): postfix `x++` and `x--` on both roads. Later: the jitted store helper's cost in a hot loop.
 
-## The numbers (as run at seal 470; the binary is seal 470's)
+## The numbers (as run at seal 471; the binary is seal 471's)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3799 green (3768 + postfixT's 31), FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 191 green (182 + typesetT's 9); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 194 green (191 + typesetT's TY-11 to TY-13); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
@@ -36,10 +36,10 @@ Clod's fixit incantations waiting: 6 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 50 / 60 | this page. |
-| `Topics/forms` | 249 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 250 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 124 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/typesetting` | 102 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/typesetting` | 95 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 86 / 120 | lookup with no index; the documenter. Nothing built. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |

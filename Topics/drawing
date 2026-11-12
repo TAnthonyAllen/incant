@@ -20,7 +20,7 @@ A ruling that sits on that line (inheritance; style:= as the only spelling) live
 /*****************************************************************************
     Where things live
 *****************************************************************************/
-    GroupDraw.twk                   the floor: displayFillRT, displayBorder, displayText, displayImage, openPDF, closePDF, readPDF, pixelAt; and what they read through: styleOf, roundedOf, opacityOf, shadowPart, castShadow
+    GroupDraw.twk                   the floor: displayFillRT, displayBorder, drawSpans (displayText until seal 471), displayImage, openPDF, closePDF, readPDF, pixelAt; and what they read through: styleOf, roundedOf, opacityOf, shadowPart, castShadow
     incant/utilities                the walk that calls the floor (drawWalk, drawKids, drawFill, drawBorder, drawText, drawImage); it is forms' side of the line
     IncantForms/Controls/styles     the colours, the fonts and defaultStyle          IncantForms/PDF/output.pdf   what Tony opens          IncantForms/Images/bands.png   the test image
     Topics/forms (above its bail)   the drawing fields in FORMs: Core Graphics names and signatures          docs/bindingmethods.md, docs/firstLightPdfRecon.md, docs/m5Recon.md

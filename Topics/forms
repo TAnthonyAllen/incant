@@ -101,7 +101,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     IncantForms/Windows/            the 21 forms               IncantForms/Controls/   styles, templates, attributes, traits
     IncantForms/Images/bands.png    the test image             IncantForms/PDF/output.pdf   what Tony opens
     incant/utilities                setFrame, fillDownAcross, drawWalk, drawKids, drawText, drawImage, describe
-    GroupDraw.twk                   the floor: displayFillRT, displayBorder, displayText, displayImage, openPDF, closePDF
+    GroupDraw.twk                   the floor: displayFillRT, displayBorder, drawSpans (displayText until seal 471), displayImage, openPDF, closePDF
     Evidence files, IncantForms/WorkingOn/:
         formsTable      one row per attribute: moment, inherited, has action, depends on, status; the drop list at its foot
         formsRecon      Parts 1-2 what the old GUI did (file, method, line); Part 3 the forms notes as they stood at seal 442
@@ -285,6 +285,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    471  SEQ 636   typesetting T1 and T2 (Topics/typesetting): the text floor is drawSpans and reads a span list kant's typeset builds; formsPop 194 green.
     470  SEQ 635   Tony's offline answers: fit and onClick stay parked on the list of 28 (a click fires the field's attribute actions; onClick is there for familiarity). fit in kant is Clod's to try if wanted (Topics/features 33). The span's space: Topics/typesetting, open question 4.
     467  SEQ 632   rulings on the slice (Topics/typesetting): typesetting holds for Clay's kant pre-pass design. IncantForms/Controls/styles searches cOLOr and fONTs itself; emphasis is color:=red; stylesT ST-1 re-pinned (loaded-but-not-searched no longer exists).
     466  SEQ 631   typesetting's first slice, in firstLight: words holds two paragraphs and one {emphasis: ...} run (Topics/typesetting; typesetT, nine rows). resizeLightT's line counts re-pinned for the new paragraph.

@@ -2,7 +2,7 @@
     typesetting -- a sub-topic file of forms until runs in text (forms step 7). Not an incantation; notes only.
     Wake-up read: Topics/forms first, then this file.
 *****************************************************************************/
-ONE LINE: typesetting pours text into the frames a form lays out. Built: plain text in one field (forms step 5), and the first slice -- paragraphs in one field and {styleName: text} runs (seal 466).
+ONE LINE: typesetting pours text into the frames a form lays out. Built: plain text in one field (forms step 5); paragraphs and {styleName: text} runs, taken apart and styled by a kant pre-pass and painted by the floor from a span list (T1 and T2, seal 471).
 
 /*****************************************************************************
     Description (as ruled 2026-11-03 to 2026-11-11, Tony)
@@ -28,32 +28,24 @@ Not typesetting
     Tables are forms. Long text and query data belong to a future data topic, parked in Topics/features.
 
 /*****************************************************************************
-    State (seal 466, 2026-11-12)
+    State (seal 471, 2026-11-12)
 *****************************************************************************/
-    built       plain text in one field: wrapped greedily, clipped between words with a warning, align (justify included) and valign, a fixed 4-point inset (forms step 5, displayText).
-                THE FIRST SLICE (seal 466), all in displayText: paragraphs split at a blank line, one line's height between them, justify leaving each paragraph's last line left; a single line end inside a paragraph is a space.
-                Runs: {styleName: text}, ending at the closing mark or the paragraph's end, nesting, {{ a literal brace. The style is looked up in the request's styles slot (kant's drawText hands over sTYLEs); it may give font, color and italic. An unknown name warns by name and prints plain.
-                firstLight's words is the specimen: two paragraphs, one {emphasis: ...} run (emphasis is in IncantForms/Controls/styles). A form's fixture must name sTYLEs in its search for a run to resolve.
-    RULED 2026-11-12 (Tony): the gap of one line of the field's font stands for now and becomes a style property later. Paragraphs and runs in the C++ floor are accepted AS A FIRST SLICE ONLY: the 11-05 ruling holds (style resolution is kant, C++ only paints). BUILD NO FURTHER TYPESETTING ON THE C++ VERSION. The next step moves run and style resolution into a kant pre-pass, and Clay drafts that design first.
-                The styles file searches cOLOr and fONTs itself, so a style holds a colour by name: emphasis is color:=red.
-    limits      48 paragraphs a field and 24 runs a paragraph (the rest are dropped with a warning). A run's style gives font, colour and italic only. A line holding a taller run is moved down by the difference; lines are otherwise the field font's height.
-    not built   insertions ({name}, left as written), the layout context, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter.
+    built       THE PRE-PASS IS KANT (T1 and T2, seal 471; Clay's design, Tony's go). incant/utilities typeset takes a field's text apart and resolves every span's style; the floor, drawSpans, parses nothing and looks up no style.
+                typeset   reads the text with the grammar tsText: a tsUnit is one piece (a word, {{, {style:, a lone brace, a closing brace) and the white space after it. It builds tsOut: paragraphs (two line ends or more split them), each a list of spans.
+                a span    its own string is the piece; font, color and italic hold what the open runs' styles give, outermost first, or 0 for the field's; space is 1 when white space follows (a run of it is one gap), or holds the style's space, a width in points (Tony, 2026-11-12).
+                marks     take no room: x{emphasis: y}z is xyz. A gap after a closing mark belongs to the span before it; a gap after an opening mark is dropped. A closing brace with no run open is text; {name} is left as written. An unknown style warns by name and prints plain.
+                drawSpans joins a paragraph's spans, one space after each span that carries one (kerned to the style's width), then wraps greedily, clips between words with a warning, aligns (justify leaves a paragraph's last line left), valigns, 4-point inset, one line's height between paragraphs.
+                drawText calls typeset only for a source that holds its own string. firstLight's words is the specimen. A form's fixture must name sTYLEs in its search for a run to resolve.
+    limits      48 paragraphs a field. A run's style gives font, colour, italic and space only; a style holding a colour by value (color=#hex, not color:=) is not read by typeset, as drawText does not read one. A line holding a taller run is moved down by the difference.
+    kant facts  found building it: tell's message stops at a line end (typeset drives tsText directly). A labelled term matching only white space fails; an unlabelled one-character set under no-skip (sp^-=[\t\r ]) matches, one label a character. A set written with a leading space matches nothing. copyOf shares a copy's attributes with its source: spans and run entries are minted with copyDeep. A while with a compound condition did not end.
+    not built   insertions ({name}), the layout context as its own group, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter. Line breaking and the two-line rule stay in the floor until the jitter can take them.
 
 /*****************************************************************************
     Plan, smallest first
 *****************************************************************************/
-THE PRE-PASS DESIGN (Clay, 2026-11-12; forwarded by Tony; no ruling needed to start T1). Style and run resolution move from the C++ floor into kant; the floor keeps measuring, line breaking and painting until the jitter can take more.
-    kant pre-pass   splits a field's text into paragraphs at blank lines; parses each into runs ({style: text}, nesting, {{); resolves insertions; resolves each run's style from the field's text style, pushing and popping run styles; warns by name on an unknown style and prints it plain.
-    C++ floor       measures text in a font, breaks lines to the frame width (two-line rule later), clips overflow on a space, paints each line. It never looks up a style.
-    hand-over       ONE floor call per field, drawSpans(field, spans), one request group. The span list is paragraphs, each a list of spans; a span is text plus its resolved font, colour and italic. It is dropped after drawing.
-    layout context  fresh for each pass, in kant: the style stack, the current paragraph, the warnings.
-    T1  the kant pre-pass builds the span list and the floor's run parsing gives way to drawSpans. Test: firstLight's PDF matches the C++ slice's by value, every typesetting row green.
-    T2  retire the C++ run-parsing and style-lookup code (same session if small).      T3  insertions.      Later, after the jitter: line breaking and the two-line rule move to kant.
-    T1'S OPENER, measured at seal 469 (a probe, not built): kant has no accessor that takes a string apart by position, so the pre-pass is a small kant grammar driven by tell. Four rules --
-        tsPlain isRule plain^=[^{}]+;   tsRun isRule "{"- style=[a-zA-Z0-9]+ ":"- body^=[^{}]+ "}"-;   tsPiece isRule tsRun; tsPlain;   tsPara isRule tsPiece+;
-        -- matched all 39 characters of "one two {emphasis: three four} five six" and returned tsPara holding three pieces (plain, run, plain). NOT yet measured: whether the spaces at a piece's edges survive (open question 4), nesting, {{, and the blank-line split.
-    1  Paragraphs in one field.          DONE (seal 466)
-    2  Runs.                             DONE for font, colour and italic (seal 466)
+    T1, T2  DONE (seal 471): the kant pre-pass and drawSpans; the C++ run parsing and style lookup deleted.      T3  insertions (step 3).
+    1  Paragraphs in one field.          DONE (seal 466; in kant since 471)
+    2  Runs.                             DONE for font, colour, italic and space (471)
     3  Insertions.
     4  Flow across frames.
     5  Pages.
@@ -68,15 +60,15 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
     2  The pour's floor request: Clay's draft (text, font, size, colour, box, inset in; fit and used written back) is to be confirmed when the stroke opens.
     3  The pour cursor and break record: one Buffer mark is enough for one flat buffer poured in order, and not for a tree of runs, re-flow on resize, or a frame read twice. Proposal: a cursor (run, offset) plus a break record kept out of the source tree.
     4  Whitespace-only text carries no data in kant, so spaces between runs must be glue, never string runs.
-       ANSWERED (Tony, 2026-11-12): use the space form attribute. Clod's reading, to be corrected if wrong: a span never holds a bare space; a span that is followed by one carries space (the form attribute already in the 28), and the floor adds the gap after it.
+       ANSWERED (Tony, 2026-11-12) and built (471): a span followed by white space carries space; the gap's width comes from the style's space; a run of spaces is one gap.
     5  A failed parse abandons the rest of the input at exit 0; for a document that is a silently lost chapter, so the text mode must fail loudly or carry an end sentinel.
     6  Checks owed when the stroke opens: who calls getText today and whether any caller relied on its following a held group; whether a held group holds another group in practice.
 
 /*****************************************************************************
     Where things live
 *****************************************************************************/
-    GroupDraw.twk displayText       the text floor (Core Text measures, Core Graphics draws).
-    incant/utilities drawText       resolves font, color, align and valign in kant and builds textReq.
+    GroupDraw.twk drawSpans         the text floor (Core Text measures, Core Graphics draws); displayText until seal 471.
+    incant/utilities typeset        the kant pre-pass and its grammar; drawText resolves the field's font, color, align and valign and builds textReq.
     incant/designDocs               DisplayDesignHTML / StreamModel / StyleResolution: the painting and style-resolution rulings.
     IncantForms/WorkingOn/formsRecon, Part 3   "Typesetting notes -- DRAFT" (the sketch, and Clod's reply on prose mode, the cursor and glue) and "THE TYPESETTING SUBSET FOR FIRST LIGHT" (the 2026-11-07 rulings in full).
     Frame/Buffer.h                  the Buffer and its one mark.
@@ -85,7 +77,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
     The instrument that reads it
 *****************************************************************************/
     genLadder/formsPop.sh, through incant/pop/textT (the TX and VA rows) and firstPdfT (the PD rows). New rows go there.
-    incant/pop/typesetT (TY-1 to TY-10): the first slice, read from firstLight's PDF by bands, and the edge rules on a second form.
+    incant/pop/typesetT (TY-1 to TY-13): firstLight's PDF read by bands, the edge rules on a second form, and T1's span rules (TY-11 to TY-13).
 
 /*****************************************************************************
     Issues, Tasks, Moved by other topics. None yet.
@@ -94,6 +86,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Seal digest
 *****************************************************************************/
+    471  SEQ 636   T1 and T2: kant's typeset builds the span list and drawSpans paints it; the floor's run parsing deleted. Every typesetting row as before, three added; two H7s red.
     470  SEQ 635   Tony's offline answers: a span's space is the space form attribute (open question 4). T1 not begun.
     469  SEQ 634   SHUTDOWN. Clay's pre-pass design recorded (Plan); T1 not begun. Its opener measured: a four-rule kant grammar splits a paragraph into plain, run, plain.
     467  SEQ 632   the slice's choices ruled; typesetting HOLDS until Clay's kant pre-pass design lands. The styles file searches its own colours and fonts; emphasis respelled color:=red.
