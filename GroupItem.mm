@@ -1482,6 +1482,15 @@ char 	*junkText = 0;
 	return junkText;
 }
 
+void GroupItem::giveListeners(GroupItem *list)
+{
+	if ( !list )
+		return;
+	addAttribute(list);
+	groupBody->flags.hasListeners = 1;
+	updateListeners();
+}
+
 /***************************************************************************
                                 instanceRule
     The rule this node is an instance of: its ruleOf when that is a REGISTERED
@@ -2261,12 +2270,20 @@ void GroupItem::setCharacterSet(PLGset *set)
 *****************************************************************************/
 void GroupItem::setContent(GroupItem *item)
 {
+GroupItem 	*listeners = 0;
+int 		listening = 0;
 	if ( item )
 		{
 		if ( groupBody != item->groupBody )
 			if ( !item->contents() )
 				setText(item->groupBody->tag);
 			else {
+				// listenersStay a field that is listened to and takes a whole list (a frame's four values in one write) keeps its listener list, which the list copy would replace, and tells its listeners once, after everything has arrived (Tony, 2026-11-12, stroke 4)
+				if ( item->groupBody->groupList && groupBody->flags.hasListeners )
+					{
+					listening = 1;
+					listeners = takeListeners();
+					}
 				if ( item->groupBody->groupList )
 					copyListFrom(item);
 				if ( isGROUP(item->groupBody->flags.data) )
@@ -2277,6 +2294,8 @@ void GroupItem::setContent(GroupItem *item)
 				else
 				if ( item->groupBody->flags.data )
 					copyData(item);
+				if ( listening )
+					giveListeners(listeners);
 				}
 		else	::fprintf(stderr,"setContent: tried to set group to itself %s\n",groupBody->tag);
 		}
@@ -2551,6 +2570,21 @@ moveForward:
 		return;
 		}
 	::fprintf(stderr,"GroupBody sort: must set isSorted first\n");
+}
+
+/*****************************************************************************
+                                takeListeners / giveListeners
+	setContent's two halves around a list copy. takeListeners unlinks the
+    listener list and lowers hasListeners, so nothing fires while the content
+    arrives; giveListeners puts the list back and tells the listeners once.
+*****************************************************************************/
+GroupItem *GroupItem::takeListeners()
+{
+GroupItem 	*list = getAttribute("notifyLIST");
+	groupBody->flags.hasListeners = 0;
+	if ( list )
+		list->remove();
+	return list;
 }
 
 /*******************************************************************************

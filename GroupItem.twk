@@ -1731,16 +1731,45 @@ void setCharacterSet(PLGset set)
 *****************************************************************************/
 void setContent(GroupItem item)
 {
+GroupItem   listeners;
+int         listening = 0;
     if item {
         if groupBody != item.groupBody
             if !item.contents() text = item.tag;
             else {
+                // listenersStay a field that is listened to and takes a whole list (a frame's four values in one write) keeps its listener list, which the list copy would replace, and tells its listeners once, after everything has arrived (Tony, 2026-11-12, stroke 4)
+                if item.groupList && hasListeners {
+                    listening   = 1;
+                    listeners   = takeListeners(); }
                 if item.groupList   copyListFrom(item);
                 if item.isGROUP     group = item.gGroup;
                 or item.isBUFFER    text = item.text;
-                or item.data        copyData(item); }
+                or item.data        copyData(item);
+                if listening        giveListeners(listeners); }
         else    cerr "setContent: tried to set group to itself",tag:; }
     else clearData();
+}
+
+/*****************************************************************************
+                                takeListeners / giveListeners
+	setContent's two halves around a list copy. takeListeners unlinks the
+    listener list and lowers hasListeners, so nothing fires while the content
+    arrives; giveListeners puts the list back and tells the listeners once.
+*****************************************************************************/
+GroupItem takeListeners()
+{
+GroupItem   list = getAttribute("notifyLIST");
+    hasListeners = false;
+    if list     list.remove();
+    return list;
+}
+
+void giveListeners(GroupItem list)
+{
+    if !list    return;
+    addAttribute(list);
+    hasListeners = true;
+    updateListeners();
 }
 
 void setCount(int i)

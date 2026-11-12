@@ -1,0 +1,93 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs;
+include(firstLightFile);
+register(ResizeLightT);
+define
+    rgX = 0;
+    rgY = 0;
+    rgAt code={
+        px = rgX;
+        py = rgY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rgRead code={
+        rgAt(argument);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/output.pdf";
+    rgRuns = 0;
+    rgBig x=300 y=450 width=600 height=300;
+    rgSmall x=300 y=450 width=400 height=200;
+    ;
+search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs list;
+define
+    rgFresh path="IncantForms/PDF/output.pdf" form:=firstLight;
+    rgFreshBig path="IncantForms/PDF/output.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="IncantForms/PDF/output.pdf" form:=firstLight frame:=layoutFrame;
+    onResize listenTo:=layoutFrame code={
+        rgRuns = rgRuns + 1;
+        redrawForm(rgReq);
+        };
+    rgSmallPts code={
+        rgX = 300; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 100; rgRead(pdfRead);
+        rgX = 100; rgY = 180; rgRead(pdfRead);
+        rgX = 390; rgY = 190; rgRead(pdfRead);
+        };
+    rgBigPts code={
+        rgX = 450; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 150; rgRead(pdfRead);
+        rgX = 100; rgY = 280; rgRead(pdfRead);
+        rgX = 590; rgY = 290; rgRead(pdfRead);
+        rgX = 390; rgY = 190; rgRead(pdfRead);
+        };
+    ;
+cerr "RG-1 before: a fresh run, as declared: runs" rgRuns:;
+redrawForm(rgFresh);
+readPDF(pdfRead);
+rgSmallPts();
+layoutFrame = rgBig;
+cerr "RG-2 the resize, one whole write: runs" rgRuns " width" layoutFrame.width " height" layoutFrame.height:;
+readPDF(pdfRead);
+rgBigPts();
+cerr "RG-3 a fresh run at the same frame, no listening: runs" rgRuns:;
+redrawForm(rgFreshBig);
+readPDF(pdfRead);
+rgBigPts();
+layoutFrame = rgSmall;
+cerr "RG-4 resized back, one whole write: runs" rgRuns " width" layoutFrame.width " height" layoutFrame.height:;
+readPDF(pdfRead);
+rgSmallPts();
+cerr "RG-5 the definition after two resizes":;
+printDefinition(firstLight);
+cerr "RESIZELIGHT SENTINEL":;
+stop();
+
+resizeLightT -- forms step 6, stroke 4's last piece (Tony, 2026-11-12): Layout writes layoutFrame as ONE WHOLE WRITE, on
+firstLight, with a mock resize: PDF before, resize, PDF after. Rows in genLadder/formsPop.sh.
+
+layoutFrame is utilities' field. The form's request names it as frame:=, and onResize listens to it and calls redrawForm.
+The mock resize is the one statement Layout's write amounts to: layoutFrame = rgBig, a field holding x y width height.
+That one write carries all four values and fires onResize once.
+
+RG-1  before: firstLight as declared, 400x200, by a plain call. Four points, firstPdfT's PD-1.
+RG-2  the resize to 600x300: one run of the listener; the page is 600x300; heading, words, space and ok are at their new
+      places, and where ok was at 400x200, (390,190), is now words' white.
+RG-3  A RESIZE READS LIKE A FRESH RUN: the same form laid out at 600x300 by a plain call with the frame in the request,
+      no listening. The page and the five points are RG-2's exactly, and the text drawn is the same count.
+RG-4  resized back to 400x200 by the same road: a second run, and the page and points are RG-1's exactly.
+RG-5  the definition still declares 400x200.
+
+WHAT THE LISTENING WORK NEEDED TO PASS (found here, cured in GroupItem.setContent): a whole-field assignment into a
+listened-to field copied the list over the field's listener list -- so the listener was gone after one write -- and told
+nobody, because only a value write notified. setContent now keeps the listener list across the list copy and tells the
+listeners once, after all four values have arrived. Before the cure RG-2 read runs 0.

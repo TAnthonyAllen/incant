@@ -10,6 +10,12 @@ search reset stack KantGrammar Grokking;
 search Utilities UnitTests list;
 registry(ListenStuff);
 define
+    lwF x=1 y=2 width=400 height=200;
+    lwRuns=0;
+    lwSeen=0;
+    lwL listenTo:=lwF code={ lwRuns = lwRuns + 1; lwSeen = lwF.width; };
+    lwA x=1 y=2 width=600 height=300;
+    lwB x=1 y=2 width=800 height=500;
     lnSrc=10;
     lnHear=1 listenTo:=lnSrc;
     lnTalk=10 lnExtra=7;
@@ -37,6 +43,10 @@ lnD=77;
 cerr "LN action fired=" lnFired " own=" lnAct:;
 lnD=78;
 cerr "LN action fired=" lnFired:;
+lwF = lwA;
+cerr "LN whole first: fired=" lwRuns " saw=" lwSeen " width=" lwF.width:;
+lwF = lwB;
+cerr "LN whole second: fired=" lwRuns " saw=" lwSeen " width=" lwF.width:;
 cerr "LN SENTINEL":;
 stop();
 
@@ -55,3 +65,7 @@ Not covered here on purpose, because none of it is built: onNotify, and more tha
 is listed twice). macros, THE LISTENER.
 
 H7s in the commit after this file's: setContent put back goes red on LN-2, LN-3, LN-4; the road before Tony's hunk goes red on LN-1.
+  LN-6 A WHOLE WRITE (Tony, 2026-11-12, stroke 4): assigning a field that holds a list -- a frame's x y width height -- to a
+       listened-to field carries the four values and fires the listener ONCE, after all four have arrived (it sees the new
+       width), and the listener is still there for the second write. Before GroupItem.setContent kept the listener list
+       across the list copy, both lines read fired= 0: the copy replaced the list the listeners hang on.

@@ -5,19 +5,19 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**463, 2026-11-12, topic: forms, SEQ 630 (assigned by Clod).** Tony's wakeup dispatch, all four rulings built.
-`-=` subtracts on a valued field whatever attributes it holds; a new operator, minus then percent, removes an attribute.
-Virtual is clean: the 28 form attributes are defined in FORMs under their plain names (top of `Topics/forms`) and
-`incant/utilities` loads them; the cure is in `resolveName`. A jitted write tells a field's listeners once per write.
-**NEXT:** stroke 4's last piece, Layout writing layoutFrame. Whether the drawing fields become virtual too (Addendum 2,
-`FilL:=wall`) is Tony's. `Topics/cleanup` is over its budget and opens with a trim.
+**465, 2026-11-12, topic: forms, SEQ 631 (assigned by Clod).** The drawing fields are virtual and the perforation
+templates, PoinT, ArC and CurvE are unparked (464). Stroke 4 is done: Layout writes `layoutFrame` as one whole write and
+firstLight resizes by listening, reading like a fresh run (`resizeLightT`). A whole-list write into a listened-to field
+now keeps its listeners and tells them once (`GroupItem.setContent`).
+**NEXT:** the first typesetting slice in firstLight (two paragraphs in one field, one `{styleName: text}` run).
+Later: measure the jitted store helper's cost in a hot loop. `Topics/cleanup` is over its budget and opens with a trim.
 
-## The numbers (as run at seal 463; binary rebuilt 2026-11-12 with the remove-attribute operator, the virtual cure and the jitted notify)
+## The numbers (as run at seal 465; binary rebuilt 2026-11-12 with setContent's kept listeners)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3767 green (3757 + NT-3 cured + 9 for the remove-attribute operator), FAIL rows identical by name to the bank (66, re-banked without NT-3; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3768 green (3767 + listenT LN-6), FAIL rows identical by name to the bank (66, re-banked without NT-3; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 174 green (173 + drawFieldsT DF-4); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 182 green (174 + DF-5, DF-6 + resizeLightT's 6); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |

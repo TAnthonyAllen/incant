@@ -9821,6 +9821,9 @@ _ofeq "listenT LN-4 the copy never reports set group to itself" "$(grep -c 'trie
 #  H7 (run 2026-11-12): with the else removed the first line reads "fired= 1 own= 77" -- the copy overwrote the listener's own 5.
 _ofeq "listenT LN-5 a listener with an action fires once per write and keeps its own value (5, not the notifier's 77)" "$(grep '^LN action' "$T/ln.e" | xargs)" "LN action fired= 1 own= 5 LN action fired= 2"
 
+#  LN-6 a whole write (Tony, 2026-11-12, stroke 4): control, measured before setContent's listenersStay lines: fired= 0 on both writes, and the listener list gone
+_ofeq "listenT LN-6 a whole-list write to a listened-to field fires once with all values arrived, and the listener survives it" "$(grep '^LN whole' "$T/ln.e" | sed 's/.*: //' | tr '\n' ' ' | xargs)" "fired= 1 saw= 600 width= 600 fired= 2 saw= 800 width= 800"
+
 #  ⚑ notifyT -- which writes tell a field's listeners (Tony, 2026-11-12, SEQ 629): arithmetic writes notify, with a re-entry guard.
 #  BEFORE the stroke (measured the same day, same probe): count += *= ++ -- and number += fired 0. H7 for the guard, run on this fixture
 #  alone under an alarm: with updateListeners' two hasListeners lines removed, a listener writing its own notifier recurses until the run dies: exit 139, no re-entry row, no sentinel.

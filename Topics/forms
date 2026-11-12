@@ -91,8 +91,8 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
                  The request may hold frame:= a field of its own; redrawForm(request) is the first resize, a plain call that lays out afresh and writes the PDF.
                  A parent that NAMES overlay places each child from its own x and y, measured from the parent (stroke 3, seal 458). A parent naming no direction stacks, as down: ruled (SEQ 627 R0).
                  isHidden and noRoom are built (seal 459): two flags. A field written isHiddeN takes no room and is not drawn; a field wholly outside its parent's box is flagged noRooM on the laid-out copy and is not drawn.
-    stroke 4     a FIRST RUN (seal 460): the resize arrives by listening in kant (resizeListenT). layoutFrame is the request's frame:=; a listener's action calls redrawForm; one write to layoutFrame itself is the command. How "fire on demand" is spelled is Tony's.
-    not built    Layout writing layoutFrame; windows, selection, click; margin. (fit is parked: Topics/features 33.)
+    stroke 4     DONE (seal 465). layoutFrame is utilities' field and a request's frame:=. Layout writes it as ONE WHOLE WRITE (layoutFrame = a field holding x y width height): the four values arrive and its listeners are told once; a form's listener calls redrawForm. Pinned on firstLight (resizeLightT RG-1 to RG-5): a resize reads like a fresh run. Writing one of the four alone tells nobody (resizeListenT). What calls it for real is windows, step 10.
+    not built    windows, selection, click; margin. (fit is parked: Topics/features 33.)
     drawing      what is drawn and not drawn, and formsPop's count: Topics/drawing, State.
 
 /*****************************************************************************
@@ -285,6 +285,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    465  SEQ 631   stroke 4's last piece: Layout writes layoutFrame as one whole write; firstLight resized by listening, PDF before and after, reading like a fresh run (resizeLightT, six rows). THE LISTENING GAP IT FOUND: a whole-list write into a listened-to field fired nothing and wiped the listener list; GroupItem.setContent now keeps the list and tells the listeners once (listenT LN-6).
     464  SEQ 631   the seal's three choices ruled: utilities loads forms; the 28 stand; the drawing fields are virtual, Addendum 2 retired. PoinT, ArC, CurvE and the five perforation templates unparked and pinned (drawFieldsT DF-5, DF-6); PoinT's old action not carried.
     463  SEQ 630   ruling 3: jitted writes fire once per write. The compiled = and ++ / -- stored straight into the field and told nobody; they now call jitNotifyRT, which tests hasListeners at run time (jitEmitters.rtn; notifyT NT-5 green at four writes). Every instrument unmoved.
     462  SEQ 630   Tony's wakeup dispatch, rulings 1, 2 and 4. -= subtracts on a valued field (opMinusEQ asks for members); the remove-attribute operator; NT-3 green, the bank 66. postfix x++; filed as a fixit; topicBudget counts prose lines only. VIRTUAL CLEAN: the 28 form attributes in FORMs under plain names, loaded by utilities; the cure is in resolveName (Issues).

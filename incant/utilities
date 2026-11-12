@@ -576,6 +576,16 @@ define
         frame arrives by listening (stroke 4). It keeps nothing: the caller
         holds the returned copy if it wants it. A refused setFrame draws nothing.
     ***************************************************************************/
+    /***************************************************************************
+        layoutFrame -- the frame Layout hands the form on a resize (stroke 4,
+        Tony 2026-11-12). It holds x y width height and is a request's frame:=.
+        Layout writes it as ONE whole write, layoutFrame = newFrame, where
+        newFrame holds the four values: that one write carries all four and
+        tells layoutFrame's listeners once. A form's resize listener
+        (listenTo:=layoutFrame) calls redrawForm with its request. Writing one
+        of the four on its own (layoutFrame :% ...) tells nobody.
+    ***************************************************************************/
+    layoutFrame x=0 y=0 width=0 height=0;
     pageReq path form width height;
     redrawForm code={
         rdReq := argument;

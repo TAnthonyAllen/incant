@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2093008 bytes  Nov 12 13:52
+  bin   2093296 bytes  Nov 12 14:01
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -192,6 +192,14 @@
   ok    resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run = [runs 2 400x200 white red black white green]
   ok    resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200 = [266 181 / simple x=300 y=450 width=400 height=200 down rounded]
 
+-- firstLight resized by one whole write to layoutFrame (resizeLightT).
+  ok    resizeLightT exit / sentinel = [0 1]
+  ok    resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 3 lines; heading wall, words white, space wall, ok green = [runs 0 / 400x200 lines 3 wall white wall green]
+  ok    resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x300, words in 2 lines; the four fields at their new places; where ok was is words' white = [runs 1 width 600 height 300 / 600x300 lines 2 wall white wall green white]
+  ok    resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value = [runs 1 / 600x300 lines 2 wall white wall green white]
+  ok    resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value = [runs 2 width 400 height 200 / 400x200 lines 3 wall white wall green]
+  ok    resizeLightT RG-5 four pages were read, and firstLight still declares 400x200 = [4 / firstLight x=300 y=450 width=400 height=200]
+
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
   ok    drawFieldsT DF-1 FORMs holds 35 drawing fields, 28 form attributes, 7 unparked drawing entries and this file's three = [73]
@@ -207,4 +215,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 176 green, see above
+FORMS POP FAILED -- 182 green, see above

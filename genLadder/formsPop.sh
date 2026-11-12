@@ -569,6 +569,24 @@ _ofeq "resizeListenT RL-2 one write to layoutFrame fires one layout; the page an
 _ofeq "resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run" "$(grep '^RL-3' "$T/rl.e" | sed 's/.*: //' | xargs) $(grep -h '^=== readPDF pdfRead' "$T/rl.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rlp 6 10)" "runs 2 400x200 white red black white green"
 _ofeq "resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200" "$(grep -h '^=== displayText one ' "$T/rl.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | xargs) / $(grep '^simple x=300' "$T/rl.o" | head -1 | xargs)" "266 181 / simple x=300 y=450 width=400 height=200 down rounded"
 
+#  ⚑ resizeLightT -- forms step 6, stroke 4's last piece (Tony, 2026-11-12): Layout writes layoutFrame as ONE WHOLE WRITE (layoutFrame = a field holding
+#  x y width height), on firstLight: PDF before, resize, PDF after. A resize must read like a fresh run, so RG-3 lays the same frame out by a plain call
+#  and is compared with RG-2 by value. Control (measured 2026-11-12, before GroupItem.setContent kept and told the listeners on a whole-list write):
+#  the one write fired nothing (runs 0) and removed layoutFrame's listener list.
+echo ""
+echo "-- firstLight resized by one whole write to layoutFrame (resizeLightT)."
+_rgF=$(ip resizeLightT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_rgF" > "$T/rg.o" 2> "$T/rg.e"; _rgx=$?
+_rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/g' -e 's/r175 g211 b120 a255/green/g'; }
+#  one block per PDF read: the page size, its points, and the words field's line count drawn just before it
+_rgb () { awk -v n="$1" '/displayText words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
+_ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
+_ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 3 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x200 lines 3 wall white wall green"
+_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x300, words in 2 lines; the four fields at their new places; where ok was is words' white" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 300 / 600x300 lines 2 wall white wall green white"
+_ofeq "resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value" "$(grep '^RG-3' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 3)" "runs 1 / $(_rgb 2)"
+_ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 400 height 200 / $(_rgb 1)"
+_ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 400x200" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=400 height=200"
+
 #  ⚑ drawFieldsT -- SEQ 629 (2026-11-12): the drawing fields, spelled capital first and last, defined in FORMs at the top of Topics/forms.
 #  DF-3 is why the spelling: an attribute spelled exactly like a FORMs field is the registry's one field. H7 (run 2026-11-12): without
 #  include(forms) DF-1 reads 2 and DF-3's second half reads 100 300.
