@@ -6,25 +6,82 @@ Start();
 include(unitTests);
 include(utilities);
 registry(fILEs);
+search UnitTests Utilities;
+
+registry(TESTing);
+define
+    simpleValue=10 ;
+    listenTEST listenTo:=simpleValue code={ print `"listenTEST: simpleValue is now" ,simpleValue += 8:; };
+    ;
+    /*******************************************************************************
+                                Listen tests
+        A field that has listeners, (the listener, listenTEST in this example) fires its updateListeners() when the fields it listens to change. A changed field is refered to here as the notifier. updateListeners() then fires runNotified(notifier). That may be modified in future to fire runNotified() on demand, as in after a series of changes to a notifier, not on every change; mechanism to fire on demand yet to be designed). If the listener has a method or action, that action gets fired when a notifier changes. That is what we are testing below.
+        What has not been tested yet is a field with multiple notifiers. Also not tested is using listening to resolve the setFrame re-run issue, altho that is what the runNotified() changes made to GroupItem are intended to address. That is, if instead of listenTEST, the listener is frame, its action would update width height x and y in its parent.
+    *******************************************************************************/
+simpleValue=22;
+simpleValue=33;
+print "SENTINEL tester driver end":;
+stop();
+
+/*******************************************************************************
+    Clod, SEQ 587 R2: firstLight to output.pdf. The system("open -a Skim ...")
+    that followed is gone (2026-11-10, it popped Skim up on every run). Never a fleet row.
+*******************************************************************************/
 define
     kantGrammar File='incant/kantGrammar';
     ;
 include(kantGrammar);
 search reset stack KantGrammar Grokking;
-search UnitTests Utilities;
-
-/*******************************************************************************
-    The dESCRIPTIONs registry is used in forms to make them self describing
-*******************************************************************************/
-register(dESCRIPTIONs);
+registry(fILEs);
 define
-    dESCRIPT="this is the default description";
-    listChain="mock listChain description";
+    firstLightFile File='IncantForms/Windows/firstLight';
     ;
-search dESCRIPTIONs list;
-registry(TestStuff);
+include(styles);
+search cOLOr fONTs;
+include(firstLightFile);
+search FORMs cOLOr fONTs list;
 define
-    // describe lives in incant/utilities now (SEQ 608 R6), so a form can find it; the lines below still drive it
+    skimReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    skimOpened;
+    laid;
+    layIt code={ laid := setFrame(argument); };
+    firstLightReq form:=firstLight;
+    ;
+layIt(firstLightReq);
+skimReq :% copyOf(*laid["width"]);
+skimReq :% copyOf(*laid["height"]);
+skimReq.form := *laid;
+openPDF(skimReq);
+drawWalk(*laid);
+closePDF(skimReq);
+//  Skim no longer opened on every run (Tony, 2026-11-10: it kept popping up). To look: open -a Skim IncantForms/PDF/output.pdf
+
+/***************************************************************************
+    Everything below is left here for cut and paste modifications as needed
+***************************************************************************/
+    // definitions
+    qa=2;
+    qb=3;
+    qc=4;
+
+    // Clod, A2 listener probe fields (driver near the foot)
+    la=1;
+    lb=$la;
+    lc listenTo=la;
+    lpReq owner source result rule;
+    lpNew code={
+        lpSrc := argument.CodE;
+        lpReq.owner  := argument;
+        lpReq.source := lpSrc;
+        lpReq.rule   := KantGrammar["STARt"];
+        if compileIn(lpReq);
+            lpBlock = lpReq.result;
+            *lpBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *lpBlock;
+        };
+    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
+
     /*****************************************************************************
         Debugging routines. listChain lists out an instruction chain: op, argument, target
     *****************************************************************************/
@@ -46,111 +103,29 @@ define
             else    print *target.taG;
         };
     /***************************************************************************
-        print out incant definition for the group passed in.
+        The following code was used for testing descriptions. Parked for now
     ***************************************************************************/
-    printDef code={
-        if datA != 0;  print ~$taG "=" argument$;
-        else    print ~$taG$;
-        if hasAttributeS;
-            for grup in argument; attributes
-                if datA != 0;
-                    print $_taG "=" grup$;
-                else    print $_taG$;
-        if hasMemberS;
-            print :;
-            for grup in argument; members
-                print +;
-                printDef(*grup);
-                print ,-;
-        else
-            print ";":;
-        };
-    ;
-describe = dESCRIPT;
-describe();
-print "With no initial description set:" ``describe:;
-describe="some description not the default";
-describe();
-print "After initial description provided:" `describe:;
-describe();
-print "After initial description unchanged:" `describe:;
-selection := listChain;
-describe();
-print "After a mock selection of listChain:" `describe:;
-describe();
-print "After a mock selection unchanged:" ``describe:;
-selection := dESCRIPT;
-describe();
-print "After mock deselect and set dESCRIPT:"`describe:;
-/*******************************************************************************
-    Clod, SEQ 587 R2: firstLight to output.pdf. The system("open -a Skim ...")
-    that followed is gone (2026-11-10, it popped Skim up on every run). Never a fleet row.
-*******************************************************************************/
-registry(fILEs);
-define
-    firstLightFile File='IncantForms/Windows/firstLight';
-    ;
-include(styles);
-search cOLOr fONTs;
-include(firstLightFile);
-search FORMs cOLOr fONTs list;
-define
-    skimReq path="IncantForms/PDF/output.pdf" form:=firstLight;
-    skimOpened;
-    ;
-define
-    laid;
-    layIt code={ laid := setFrame(argument); };
-    firstLightReq form:=firstLight;
-    ;
-layIt(firstLightReq);
-skimReq :% copyOf(*laid["width"]);
-skimReq :% copyOf(*laid["height"]);
-skimReq.form := *laid;
-openPDF(skimReq);
-drawWalk(*laid);
-closePDF(skimReq);
-//  Skim no longer opened on every run (Tony, 2026-11-10: it kept popping up). To look: open -a Skim IncantForms/PDF/output.pdf
-print "SENTINEL tester driver end":;
-stop();
-
-/***************************************************************************
-    Everything below is left here for cut and paste modifications as needed
-***************************************************************************/
-    // definitions
-    qa=2;
-    qb=3;
-    qc=4;
-    simpleValue=10;
-    listenTEST=simpleValue listenTo:=simpleValue code={ print `"listenTEST: value is" listenTEST:; };
-
-    // Clod, A2 listener probe fields (driver near the foot)
-    la=1;
-    lb=$la;
-    lc listenTo=la;
-    lpReq owner source result rule;
-    lpNew code={
-        lpSrc := argument.CodE;
-        lpReq.owner  := argument;
-        lpReq.source := lpSrc;
-        lpReq.rule   := KantGrammar["STARt"];
-        if compileIn(lpReq);
-            lpBlock = lpReq.result;
-            *lpBlock :. noPrinT;
-            argument :. isActioN;
-            argument +< *lpBlock;
-        };
-    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
+    describe = dESCRIPT;
+    describe();
+    print "With no initial description set:" ``describe:;
+    describe="some description not the default";
+    describe();
+    print "After initial description provided:" `describe:;
+    describe();
+    print "After initial description unchanged:" `describe:;
+    selection := listChain;
+    describe();
+    print "After a mock selection of listChain:" `describe:;
+    describe();
+    print "After a mock selection unchanged:" ``describe:;
+    selection := dESCRIPT;
+    describe();
+    print "After mock deselect and set dESCRIPT:"`describe:;
 // actions
 setFrame(sample);
 printDef(sample);
 setFrame(sumple);
 printDef(sumple);
-listenTEST();
-simpleValue=22;
-listenTEST();
-simpleValue=33;
-listenTEST();
 
 print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
 la = 5;

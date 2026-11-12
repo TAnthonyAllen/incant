@@ -220,7 +220,7 @@ define
         examine the value of argument by putting a break in opDebug() while
         debugging. incant does not have a debugger like xcode ... yet.
     ***************************************************************************/
-    printDefinition recurse code={
+    printDefinition code={
         if datA != 0;  print ~$taG "=" argument$;
         else    print ~$taG$;
         if hasAttributeS;

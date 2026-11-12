@@ -1638,11 +1638,9 @@ String resolvedTag()
 ***************************************************************************/
 GroupItem runNotified(GroupItem notified)
 {
-GroupItem onNotify = get("onNotify");
-GroupItem action;
-    if onNotify {
-        if action = locate(onNotify.text)   return action.method(notified); }
-    else                                    notified.copyData(this);
+    if notified.method      notified.method(notified);
+    or notified.actionType  processAction(notified);
+    notified.copyData(this);
     return this;
 }
 

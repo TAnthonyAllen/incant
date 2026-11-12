@@ -2145,14 +2145,12 @@ char *GroupItem::resolvedTag()
 ***************************************************************************/
 GroupItem *GroupItem::runNotified(GroupItem *notified)
 {
-GroupItem 	*onNotify = get("onNotify");
-GroupItem 	*action = 0;
-	if ( onNotify )
-		{
-		if ( action = GroupControl::groupController->locate(onNotify->getText()) )
-			return action->groupBody->gMethod(notified);
-		}
-	else	notified->copyData(this);
+	if ( notified->groupBody->gMethod )
+		notified->groupBody->gMethod(notified);
+	else
+	if ( notified->groupBody->flags.actionType )
+		::processAction(notified);
+	notified->copyData(this);
 	return this;
 }
 

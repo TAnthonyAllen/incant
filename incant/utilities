@@ -75,19 +75,21 @@ define
                 goodToGo = yh > py && yh < pyh;
         if goodToGo; print "OK to display" argument.taG; };
     /***************************************************************************
-        JSON rules invoked as JSONblock("json string or json file name");
+        JSON rules invoked as JSONblock("json string or json file name"); These
+        rules are work in process.
         
         Note: true and false are added as rule options to JSONtoken as
         quoted literals so they get picked up instead of the true=1 and false=0
         fields in the pROPERTIEs base registry (which are probably fine for
         incant purposes but look strange on print out since they print as
         numbers 1 and 0 and not the names true and false.
-    ***************************************************************************/
-    /*  FORWARD DECLARATIONS (2026-08-02). JSONtoken and JSONvalue reference
+
+        FORWARD DECLARATIONS (2026-08-02). JSONtoken and JSONvalue reference
         JSONblock and JSONarray, which are defined BELOW them -- and a reference
         term resolves by sharing the definer's child list, so a name that does
         not exist yet mints an empty stub that never becomes a reference.
-        Naming them first, then fleshing them out below, is the trodden path.  */
+        Naming them first, then fleshing them out below, is the trodden path.
+    ***************************************************************************/
     JSONblock isRule;
     JSONarray isRule;
 
@@ -154,17 +156,6 @@ define
         drawKids(argument);
         };
     /***************************************************************************
-        drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
-        font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands displayText one request, textReq,
-        written afresh on every call. Each of font and color comes from the
-        field's own attribute, else its style's (style:= names the style field),
-        else the enclosing field's, walking up to the top (the field holding the
-        display). Nothing found leaves the slot at 0: displayText then draws
-        Helvetica 12 in black, left-aligned. The text is the field's own string, or, when the
-        field holds a group, that group's (*argument, one level). A field with
-        no text costs a call and draws nothing (displayText skips it).
-    ***************************************************************************/
-    /***************************************************************************
         describe is used to supply descriptions in forms by adding it as a form
         attribute with a text value of the field being described. The describe
         text is initialized as either the tag of a field in the form that has
@@ -175,10 +166,6 @@ define
         field found after searching up the parent hierarchy starting with the
         field clicked on. And if the selected field has a describe attribute the
         describe action sets the describe.text for the form layout to display.
-        
-        Moved here from tester (SEQ 608 R6) so a form can find it: forms include utilities.
-        drawText does not call it yet -- it shows a field's describe attribute as written (R2);
-        no listener or selection is built.
 
         See the tabs or descriptions forms in IncantForms/Windows for an example
         of how to define a form that uses descriptions.
@@ -188,6 +175,17 @@ define
         or describe.isGrouP;    describe = dESCRIPTIONs[describe];
         };
     textReq field source font color align valign italic;
+    /***************************************************************************
+        drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
+        font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands displayText one request, textReq,
+        written afresh on every call. Each of font and color comes from the
+        field's own attribute, else its style's (style:= names the style field),
+        else the enclosing field's, walking up to the top (the field holding the
+        display). Nothing found leaves the slot at 0: displayText then draws
+        Helvetica 12 in black, left-aligned. The text is the field's own string, or, when the
+        field holds a group, that group's (*argument, one level). A field with
+        no text costs a call and draws nothing (displayText skips it).
+    ***************************************************************************/
     drawText code={
         textReq.field := argument;
         dtG = argument.isGrouP;
