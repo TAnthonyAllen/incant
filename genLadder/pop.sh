@@ -9833,7 +9833,9 @@ _ofeq "notifyT NT-2 an attach (+%) and a flag (:.) change no value and fire noth
 #  Its control is this row's own reading on the binary before the change: fired 0 value 31, pinned red at seal 461.
 _ofeq "notifyT NT-3 -= on a listened-to count subtracts and fires once" "$(grep '^NT minus' "$T/nt.e" | sed 's/.*-= //' | xargs)" "fired 1 value 29"
 _ofeq "notifyT NT-4 RE-ENTRY: a listener writing its own notifier fires once per outside write and ends (= twice, then +=)" "$(grep '^NT reentry' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs)" "fired 1 value 30 fired 2 value 48 fired 1 value 30"
-_ofeq "notifyT NT-5 JITTED, measured and not ruled: an action's = then += fires its listener once a run (first run, refire); interpreted, once a write (2)" "$(grep '^NT jitted\|^NT interpreted' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs) / degrade $(grep -c 'jitDegrade count = 0' "$T/nt.o")" "fired 1 value 7 fired 1 value 7 fired 2 value 7 / degrade 1"
+#  NT-5 CURED 2026-11-12 (Tony, wakeup dispatch ruling 3): a compiled store straight into a field calls jitNotifyRT, so a jitted write fires once per
+#  write. The action now makes four writes (= += -= ++). Its control is this row before the cure, same binary otherwise: = then += fired 1 where the twin fired 2.
+_ofeq "notifyT NT-5 JITTED: an action's four writes (= += -= ++) fire its listener four times, on the first run, on a refire, and interpreted" "$(grep '^NT jitted\|^NT interpreted' "$T/nt.e" | sed 's/.*: //' | tr '\n' ' ' | xargs) / degrade $(grep -c 'jitDegrade count = 0' "$T/nt.o")" "fired 4 value 7 fired 4 value 7 fired 4 value 7 / degrade 1"
 
 #  ⚑ minusAttrT / minusAttrNewT -- the remove-attribute operator (minus then percent; Tony, 2026-11-12, wakeup dispatch ruling 2), the opposite of +%,
 #  and -= on a valued field holding an attribute. One Operators entry, read by incant/grammar (minusAttrT: top level and an action body) and by

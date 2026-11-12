@@ -4886,6 +4886,11 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	//  storeIsTheValue the slot now holds v, so the target's build value is v: left as the seed's load, a later read
 	//  in the same build -- an inlined callee's argument, followed to this field -- read the value from BEFORE the store
 	target->jitData->jitValue = v;
+	//  notifyPerWrite a store straight into a FIELD (no frame slot, not the function's argument) tells its listeners at run time, and the
+	//  build value is reloaded after: a listener may write its own notifier (Tony, 2026-11-12; notifyT NT-5)
+	if (!tfs && target->jitData->jitSlot != gJitArgSlot) {
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(cctx), {pT}, false), bake64((void*)&jitNotifyRT, "notifyFn"), {bake64((void*)target, "notifyField")});
+	target->jitData->jitValue = b->CreateLoad(slotT, target->jitData->jitSlot, "notifyReload"); }
 	}
 	}
 	//  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given
@@ -6365,6 +6370,13 @@ extern "C" GroupItem *jitEmitUnary(GroupItem *target, int op)
 	}
 	target->jitData->setJitter(res);
 	if (target->jitData->jitSlot)   b->CreateStore(res, target->jitData->jitSlot);
+	//  notifyPerWrite ++ and -- straight into a FIELD tell its listeners at run time, as jitEmitAssign's store does (Tony, 2026-11-12)
+	if (target->jitData->jitSlot && target->jitData->jitSlot != gJitArgSlot
+	&& !jitFrameFind((void*)&(target->groupBody->gCount)) && !jitFrameFind((void*)&(target->groupBody->gNumber))) {
+	llvm::LLVMContext &nctx = b->getContext();
+	llvm::Type *nptr = llvm::PointerType::getUnqual(nctx);
+	auto nbake = [&](void *p, const char *nm) { return b->CreateIntToPtr(llvm::ConstantInt::get(llvm::Type::getInt64Ty(nctx), (uint64_t)p), nptr, nm); };
+	b->CreateCall(llvm::FunctionType::get(llvm::Type::getVoidTy(nctx), {nptr}, false), nbake((void*)&jitNotifyRT, "notifyFn"), {nbake((void*)target, "notifyField")}); }
 	{
 	JitFrameSlot *fsw = jitFrameFind((void*)&(target->groupBody->gCount));
 	if (!fsw)     fsw = jitFrameFind((void*)&(target->groupBody->gNumber));
@@ -7070,6 +7082,14 @@ extern "C" int jitNoteWriter(GroupItem *op, GroupItem *target, GroupItem *arg)
     An operator emits only if its function carries a jitting gate (the list below); a unary the same; a call emits for a
     rule (the term call) or an action (inlined), and for a command only if the command is jit-aware. Anything not on the
     list is handed over -- a new operator defaults to running at run time, never at build.  */
+/*  jitNotifyRT -- run time, after a compiled store straight into a field: tell the field's listeners, as the interpreted write
+    does (Tony, 2026-11-12: a jitted write fires once per write). The test of hasListeners is here, at run time, because a
+    listener may be attached after the action was compiled. updateListeners guards its own re-entry.  */
+extern "C" void jitNotifyRT(GroupItem *field)
+{
+	 if ( field && field->groupBody->flags.hasListeners ) field->updateListeners(); 
+}
+
 extern "C" int jitOpEmits(GroupItem *op, GroupItem *target)
 {
 	

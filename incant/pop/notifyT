@@ -26,7 +26,7 @@ define
     jSrc=1;
     jFired=0;
     jL listenTo:=jSrc code={ jFired = jFired + 1; };
-    jWrite code={ jSrc = 5; jSrc += 2; };
+    jWrite code={ jSrc = 5; jSrc += 2; jSrc -= 1; ++jSrc; };
     ;
 np = 0; nSrc = 22;          cerr "NT fires count =" np:;
 np = 0; nSrc += 8;          cerr "NT fires count +=" np:;
@@ -52,7 +52,7 @@ cerr "NT reentry = again: fired" rFired " value" rSrc:;
 qSrc = 22;
 cerr "NT reentry += : fired" qFired " value" qSrc:;
 testing(jWrite);
-cerr "NT jitted = then +=: fired" jFired " value" jSrc:;
+cerr "NT jitted four writes: fired" jFired " value" jSrc:;
 jSrc = 1; jFired = 0;
 jitRefire();
 cerr "NT jitted refire: fired" jFired " value" jSrc:;
@@ -74,6 +74,6 @@ minus     CURED 2026-11-12 (Tony): -= on a listened-to field subtracts and fires
           for members only. Before the cure this line read: fired 0, value 31.
 reentry   a listener whose action writes its own notifier (with = and with +=) fires once per outside write and the run
           ends: updateListeners takes hasListeners down for its walk. H7 (run under an alarm, 2026-11-12): with the two hasListeners lines out of updateListeners the run dies, exit 139, before any reentry line.
-jitted    MEASURED, NOT RULED: a jitted action that writes a listened-to field twice (= then +=) fires the listener ONCE a
-          run, on its first run and on a refire; the interpreted twin fires twice. The value is right on both. Which of the
-          two writes tells the listener was not chased.
+jitted    CURED 2026-11-12 (Tony: a jitted write fires once per write, as the interpreter's does). jWrite makes four writes,
+          = += -= and ++, and its listener fires four times jitted, on a refire, and interpreted. Before the cure the
+          compiled = stored straight into the field and told nobody; only the += (which runs the operator) fired.

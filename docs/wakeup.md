@@ -5,14 +5,14 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**462, 2026-11-12, topic: forms, SEQ 630 (assigned by Clod).** Tony's wakeup dispatch, rulings 1, 2 and 4 built.
+**463, 2026-11-12, topic: forms, SEQ 630 (assigned by Clod).** Tony's wakeup dispatch, all four rulings built.
 `-=` subtracts on a valued field whatever attributes it holds; a new operator, minus then percent, removes an attribute.
 Virtual is clean: the 28 form attributes are defined in FORMs under their plain names (top of `Topics/forms`) and
-`incant/utilities` loads them; the cure is four lines in `resolveName`.
-**NEXT:** ruling 3, jitted writes fire once per write (Clod's lane, not urgent, not built). Then stroke 4's last piece,
-Layout writing layoutFrame. `Topics/cleanup` is over its budget and opens with a trim.
+`incant/utilities` loads them; the cure is in `resolveName`. A jitted write tells a field's listeners once per write.
+**NEXT:** stroke 4's last piece, Layout writing layoutFrame. Whether the drawing fields become virtual too (Addendum 2,
+`FilL:=wall`) is Tony's. `Topics/cleanup` is over its budget and opens with a trim.
 
-## The numbers (as run at seal 462; binary rebuilt 2026-11-12 with the remove-attribute operator and the virtual cure)
+## The numbers (as run at seal 463; binary rebuilt 2026-11-12 with the remove-attribute operator, the virtual cure and the jitted notify)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3767 green (3757 + NT-3 cured + 9 for the remove-attribute operator), FAIL rows identical by name to the bank (66, re-banked without NT-3; `docs/sealCaptures/pop.fails.txt`) |
@@ -23,7 +23,7 @@ Layout writing layoutFrame. `Topics/cleanup` is over its budget and opens with a
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
 | `genLadder/dirCheck.sh` (shutdown seals only) | at 461: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
-| extern canary | 461 (`grep -c '^extern' GroupRules.h`) |
+| extern canary | 462 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
