@@ -9811,6 +9811,9 @@ _ofeq "listenT LN-2 before a notify: its own attribute, none of the notifier's" 
 _ofeq "listenT LN-2 after a notify: the value moved, its own attribute stays, none of the notifier's arrives" "$(grep '^LN attrs after' "$T/ln.e" | xargs)" "LN attrs after mine= 5 extra= 0 len= 1 val= 22"
 _ofeq "listenT LN-3 one write to a reaches c through b" "$(grep '^LN chain' "$T/ln.e" | xargs)" "LN chain a= 9 b= 9 c= 9"
 _ofeq "listenT LN-4 the copy never reports set group to itself" "$(grep -c 'tried to set group to itself' "$T/ln.e")" "0"
+#  LN-5 (Tony, 2026-11-12): runNotified fires a listener's method, else its action, and copies the notifier's value only when it has neither.
+#  H7 (run 2026-11-12): with the else removed the first line reads "fired= 1 own= 77" -- the copy overwrote the listener's own 5.
+_ofeq "listenT LN-5 a listener with an action fires once per write and keeps its own value (5, not the notifier's 77)" "$(grep '^LN action' "$T/ln.e" | xargs)" "LN action fired= 1 own= 5 LN action fired= 2"
 
 #  traitGridT -- SEQ 530 amended step 2 (Tony via Clay, 2026-11-04): what a define's attribute holds once the define is done, pinned
 #  at today's values on both roads (N rows go through FILe). Columns: kind, list length, value. Rows read kind 6 only where the

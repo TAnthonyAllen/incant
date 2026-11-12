@@ -9271,11 +9271,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     changes, it runs updateListeners(), which runs notifier.runNotified(listener)
     to deal with the notification.
     
-    The GroupItem method runNotified: a listener with no onNotify copies the
-    notifier's value only, with copyData, so its own attributes stay (Tony,
-    2026-11-05). onNotify is not built: as written it looks on the notifier, and
-    the design of record is one onNotify:= per listener, handed the notifier.
-    See macros.
+    The GroupItem method runNotified (Tony, 2026-11-12): a listener with a method
+    fires it, else one with an action fires that, each handed the listener; a
+    listener with neither copies the notifier's value only, with copyData, so its
+    own attributes stay. There is no onNotify attribute.
 
     Note: the listener does not remember the field or fields it listens to.
 *******************************************************************************/

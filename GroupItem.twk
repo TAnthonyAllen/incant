@@ -1640,7 +1640,7 @@ GroupItem runNotified(GroupItem notified)
 {
     if notified.method      notified.method(notified);
     or notified.actionType  processAction(notified);
-    notified.copyData(this);
+    else                    notified.copyData(this);
     return this;
 }
 

@@ -2150,7 +2150,7 @@ GroupItem *GroupItem::runNotified(GroupItem *notified)
 	else
 	if ( notified->groupBody->flags.actionType )
 		::processAction(notified);
-	notified->copyData(this);
+	else	notified->copyData(this);
 	return this;
 }
 

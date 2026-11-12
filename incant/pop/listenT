@@ -17,6 +17,9 @@ define
     lnA=1;
     lnB=2 listenTo:=lnA;
     lnC=3 listenTo:=lnB;
+    lnD=1;
+    lnFired=0;
+    lnAct=5 listenTo:=lnD code={ lnFired = lnFired + 1; };
     ;
 cerr "LN writes" lnHear:;
 lnSrc=22;
@@ -30,6 +33,10 @@ lnTalk=22;
 cerr "LN attrs after mine=" lnOwn.lnMine " extra=" lnOwn.lnExtra " len=" lnOwn.listLengtH " val=" lnOwn:;
 lnA=9;
 cerr "LN chain a=" lnA " b=" lnB " c=" lnC:;
+lnD=77;
+cerr "LN action fired=" lnFired " own=" lnAct:;
+lnD=78;
+cerr "LN action fired=" lnFired:;
 cerr "LN SENTINEL":;
 stop();
 
@@ -41,6 +48,8 @@ Row by row, in pop.sh:
   LN-2 the listener's own attribute survives a notify, and none of the notifier's arrives, with the value moved beside them.
   LN-3 one write to lnA reaches lnC through lnB.
   LN-4 the copy never reports "set group to itself".
+  LN-5 (2026-11-12) a listener that has an action fires it on each write to its notifier and is NOT handed the notifier's
+       value: runNotified's copy is the fallback for a listener with neither a method nor an action.
 
 Not covered here on purpose, because none of it is built: onNotify, and more than one listenTo on a field (the last wins and
 is listed twice). macros, THE LISTENER.
