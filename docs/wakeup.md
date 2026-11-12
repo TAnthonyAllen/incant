@@ -5,16 +5,14 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**467, 2026-11-12, topic: forms, SEQ 631-632 (assigned by Clod).** Tony's second dispatch of the day, all of it built.
-The drawing fields are virtual; the perforation templates, PoinT, ArC and CurvE are unparked (464). Stroke 4 is done:
-Layout writes `layoutFrame` as one whole write and firstLight resizes by listening (465). Typesetting's first slice:
-firstLight's words holds two paragraphs and one `{emphasis: text}` run, drawn by `displayText` (466, `Topics/typesetting`).
-**467, SEQ 632:** the slice's choices are ruled. TYPESETTING HOLDS: build nothing further on the C++ version; the next step is
-a kant pre-pass for run and style resolution, and Clay drafts that design first. The styles file searches its own colours.
-**NEXT:** nothing queued on forms; Tony names it.
-Later: measure the jitted store helper's cost in a hot loop. `Topics/cleanup` is over its budget and opens with a trim.
+**468, 2026-11-12, topic: cleanup, SEQ 633 (assigned by Clod).** `Topics/cleanup` trimmed by its own rule, 130 lines to 72:
+three run dispatches to one line each, one closed issue deleted. No code. Before it, the same day, on forms (seals 462-467):
+virtual is clean and the form attributes and drawing fields live in FORMs; `-=` subtracts and a new operator removes an
+attribute; jitted writes notify per write; Layout writes `layoutFrame` as one whole write; typesetting's first slice is in firstLight.
+**TYPESETTING HOLDS:** build nothing further on the C++ version; Clay drafts the kant pre-pass design first.
+**NEXT:** nothing queued; Tony names it. Later: measure the jitted store helper's cost in a hot loop.
 
-## The numbers (as run at seal 466; binary rebuilt 2026-11-12 with paragraphs and runs in displayText)
+## The numbers (as run at seal 468; the binary is seal 466's, with paragraphs and runs in displayText)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3768 green (3767 + listenT LN-6), FAIL rows identical by name to the bank (66, re-banked without NT-3; `docs/sealCaptures/pop.fails.txt`) |
@@ -39,11 +37,11 @@ Clod's fixit incantations waiting: 7 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 51 / 60 | this page. |
-| `Topics/forms` | 243 / 280 (prose lines only, since 462) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 248 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 123 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/typesetting` | 80 / 120 | sub-topic of forms until forms step 7. |
-| `Topics/cleanup` | 130 / 120 OVER by 10 | clean up; the recorded census and split dispatches. |
+| `Topics/typesetting` | 89 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 86 / 120 | lookup with no index; the documenter. Nothing built. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 

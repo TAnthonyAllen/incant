@@ -11,7 +11,7 @@ Clean up is a session topic of its own (Tony, 2026-11-11). Its work is census, r
 The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns up something that looks deletable, add an entry to docs/cleanupList.md and keep going; never act on it in flight. An entry names it and where, why it looks deletable, the census or measurement that would confirm it, and the date seen. Tony decides the cuts, one cleanup pass at a time.
 
 /*****************************************************************************
-    State (seal 450, 2026-11-11)
+    State (seal 468, 2026-11-12)
 *****************************************************************************/
     done    the md, incantation and HWF censuses (SEQ 612), ruled and cut (SEQ 613: 253 files); XML/ gone; the forms history files digested and deleted (SEQ 614); docs/wakeup.md split (SEQ 615).
     lists   docs/cleanupList.md (cruft seen in flight); docs/deepClean.md (the deep clean, stroke by stroke); Topics/features (the parking list, not a session topic).
@@ -20,15 +20,14 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
     Plan
 *****************************************************************************/
     1   A line budget per topic file, its size printed against the budget at every seal. RULED AS PROPOSED (Tony, 2026-11-11, SEQ 621 R1): the numbers below stand, with the seal's printed line and the trim rule.
-        The seal's line is printed by genLadder/topicBudget.sh (written at seal 451). This file is over; its trim happens at the next clean-up session, not before.
+        The seal's line is printed by genLadder/topicBudget.sh (written at seal 451). It counts prose lines only: a topic file that is also an incantation is counted from the line after its bail() or stop() (Tony, 2026-11-12). This file was over (130) and was trimmed at seal 468.
         AN OBJECTIVE, NOT A HARD RULE (Tony, 2026-11-11, SEQ 625 R1): trim only what is honestly stale, never force a file under its number. A file that is over with nothing stale in it stays over, and the seal says so.
-        Sizes, no budget set: on the shared page (docs/wakeup.md), reprinted at every seal.
         THE BUDGET (proposed SEQ 617 Q2, ruled SEQ 621 R1). Lines by wc -l; lines at seal 449 / budget:
             docs/wakeup.md          51 /  60    one screen: last seal, the numbers, repos, lanes, this table, where old seals are. It holds no history, so it should never grow.
             Topics/forms           240 / 280    the largest by need: two sub-topics, the rulings of record, the floor census.
             Topics/kant            121 / 200    room for the plan still to come from macros.
             Topics/typesetting      80 / 120
-            Topics/cleanup         126 / 120    over today, on purpose of the example: three run dispatches are still held verbatim (see the trim, below).
+            Topics/cleanup         126 / 120    over at seal 449 (three run dispatches held verbatim); trimmed at seal 468.
             Topics/documentation    84 / 120
             Topics/features         52 /  80    one line per item; a parking list grows slowly.
         WHAT A FILE HAS TO HOLD: the one line, description, state, where things live, instruments, plan, rulings, waiting on Tony, issues, and a digest. The three things that grow without limit are the digest, verbatim dispatches, and closed issues.
@@ -45,7 +44,6 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
 *****************************************************************************/
     seal 444:  "OPEN, each named in its seal: Topics/forms "Waiting on Tony", seven items (443) · fireSeatT FS-4 pins entries.listLengtH at 0 where 3 was predicted (442) · Windows/ bigify, db, inspector include deleted XML paths (442) · this file's older dated lines still name retired paths, by choice (442, 443) · everything open at seal 441."
     seal 442:  "OPEN: everything open at seal 441 · the three kept-for-now groups of R6 · MEMORY and TODO.md still describe projectBible.md and the bytecode era in places (TODO.md's lines are tagged retired, not rewritten)."
-    seal 442:  "LEFT ON DISK, NOT DELETED: XML/BackupXML/ and XML/WorkingOn/incant++ are gitignored, so they were never tracked and R0 does not cover them. Tony's to remove."   (closed at seal 443: both folders committed once and deleted)
     seal 442:  "NOW DANGLING, NOT FIXED: Windows/ bigify, db and inspector include XML/HTML/traits.xml and XML/Controls/templates.xml by absolute path, and those files are gone. None is run by any harness; each is fixed when its form comes up for repair. A comment in jitEmitters.rtn still names XML/LLVM/codeGenerator."
     seal 437:  "genLadder/kantGrammarNames.sh fails, on no checklist."
 
@@ -53,73 +51,17 @@ The standing clean-as-you-go rule (CLAUDE.md): when a stroke of any topic turns 
     Tasks, Moved by other topics. None yet.
 *****************************************************************************/
 /*****************************************************************************
-    Recorded dispatches (verbatim, as they stood in docs/wakeup.md)
+    Recorded dispatches (run; one line each)
 *****************************************************************************/
-Under shutdown seal 437 (2026-11-10); held, numbered SEQ 610, run as SEQ 612:
-
-#   DISPATCH -- SEQ (Clod assigns) -- CLEANUP CENSUSES: THE md FILES, UNUSED INCANTATIONS, AND HWF IDEAS. READ-ONLY.
-#
-#   RULINGS (Tony, 2026-11-10)
-#   R0  md census: every .md under Groups (docs/ and elsewhere), one line each -- live (something cites it,
-#       or its campaign is open) or history (its campaign closed; nothing live cites it). wakeup.md gets a
-#       proposed trim line too. Nothing moved or deleted: Tony rules the list ("when in doubt, throw it out").
-#   R1  HWF harvest, during the same read: any idea or notion in an md file that was never scheduled or
-#       ruled and is not on the HWF list below. One line each: the idea, the file, its date.
-#   R2  Unused incantations: every kant file nothing loads -- no pop.sh row, no ladder rung, no include,
-#       not tester, kantGrammar, macros or Tony's WIP under IncantForms. One line each, with what it seems
-#       to be for. Nothing deleted.
-#   R3  Write the HWF list into macros as its own short section, marked "HWF, not scheduled", one line each,
-#       plus anything R1 finds:
-#         1 parse-then-fire, possibly finished by the back door (the new road builds, testOP fires)
-#         2 the kant mirror of setParse / compile / processCode
-#         3 the containers idea
-#         4 rStuff folding into the instance
-#         5 component flavors, fewer bitfields
-#         6 the listener and $, firing on command
-#         7 multi-processing and a web channel -- possibly one shape: processes exchanging fields as
-#           messages, dispatch() as the sender
-#         8 EXPRESSIOn as operators: each Operators entry becomes a grammar rule whose operands are
-#           expressions, so the grammar that parses expressions is built from the operators it parses.
-#           Tiers become nested repetition (a sum is a product, then any number of + product) -- never
-#           left recursion, which a top-down parse loops on. SEQ 578's recon: an infix-only EXPRESSIOn
-#           keeps about two-thirds of today's shape; prefix runs leave. The natural next campaign once the
-#           control rules are done.
-#       This is the only file change.
-#
-#   At the end of your report, say whether you'd rather shut down or continue.
-#
-#   ## NOTES FOR THE OPENER (so nothing is re-derived): R0's "live" needs a citation search over the WHOLE tree, not docs/ alone -- CLAUDE.md, TODO.md, projectBible.md, pop.sh comments, incant/designDocs and IncantForms/WorkingOn/macros and forms all cite docs by path. docs/wakeup.md is 11,000+ lines; every seal is in git, so a trim line can name a cut point by seal number. R2's population is every extensionless file under incant/ and IncantForms/ plus XML/; `ip()` in pop.sh and the fILEs registry in incant/setup are the two load paths besides include(). Estimate the read up front and say so (the standing rule on long runs).
-
-Under shutdown seal 444 (2026-11-11), the split of docs/wakeup.md; run as SEQ 615:
-
-#   ## NEXT -- OPEN ON THIS (Tony, 2026-11-11, the shutdown dispatch): THE SPLIT OF docs/wakeup.md.
-#     1  This file becomes the SHORT SHARED-STATE PAGE: the last seal's number and topic, the fleet numbers, canary, repos, fixit lanes, the checklist's banked state, and one pointer line per topic file. Every topic's wake-up reads it after its own Topics/ file.
-#     2  THE CUT is at about seal 375 (the last shutdown seal before the forms drawing work, about 2026-11-07; the exact line is the split stroke's to find). Everything older goes to ONE new vintage file.
-#     3  Each LIVE seal's OPEN lines move VERBATIM into the owning topic file's issues (Topics/forms exists; kant, documentation and clean up have no topic file yet -- the stroke says where their lines wait).
-#     4  SEQ 610-614 are recorded.
-#     NOTE FOR THE OPENER: both older vintage files were deleted at seal 442 as history rows (git 2144dde6), so the new vintage file is the only one. This file is about 11,400 lines; estimate the read up front. After the split: topic files for kant, documentation and clean up.
-
-THE NEXT OPENER. Pasted by Tony after shutdown seal 447 (2026-11-11), to open the next session; RUN as SEQ 617 (seal 448). SEQ was Clod's to assign. Its Q1 is documentation's, its Q2 clean up's:
-
-DISPATCH -- SEQ (Clod assigns) -- TWO QUESTIONS, READ-ONLY. NO FILE CHANGES BUT THE TOPIC FILES NAMED.
-
-RULINGS (Tony, 2026-11-11)
-R0  SEQ 616's points 1-3 stand as you did them: seals 373-444 in git only, seal 372 in the vintage,
-    442 and 444 digested in Topics/cleanup.
-
-Q1  incant/lookup: what is it, who wrote it and when, what lookuP, tombstone and lookupIndex do, and
-    whether anything loads or calls it (harness, include, setup, fILEs). One short paragraph, then your
-    lean: respell it into lookup / lookupAll / lookupIn, retire it, or keep it under another name beside
-    them. Record the answer under Open in Topics/documentation.
-Q2  The line budget (Topics/cleanup, Plan item 1): propose a budget per topic file and for the shared
-    page, from today's sizes and what each file has to hold. Say how a seal prints it and what happens
-    when a file goes over. Record the proposal under Plan item 1, marked "proposed, not ruled".
-
-At the end of your report, say whether you'd rather shut down or continue.
+    Trimmed at seal 468 (2026-11-12) to one line each, as Plan 1's trim rule says. Their full text: git show c4f86e94:Topics/cleanup.
+    SEQ 610, run as SEQ 612 (seal 442)   the cleanup censuses, read-only: every md live or history, the HWF harvest, unused incantations; the HWF list written into macros.
+    SEQ 615 (seal 445)                   the split of docs/wakeup.md: the short shared page, one vintage file for seal 372 and older, each live seal's OPEN lines moved to its topic file.
+    SEQ 617 (seal 448)                   two read-only questions: what incant/lookup is (documentation's), and a line budget per topic file (this file's Plan 1).
 
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md)
 *****************************************************************************/
+    468  SEQ 633   this file's trim, the first under Plan 1's rule: three run dispatches to one line each, one closed issue (442's left-on-disk line, closed at 443) deleted, two stale lines corrected. Every open issue was checked and is still true. 130 lines to 72.
     455  SEQ 625   R1 recorded (from a forms seal): the line budget is an objective, not a hard rule.
     451  SEQ 621   R1 recorded: the line budget ruled as proposed; genLadder/topicBudget.sh written. This file's trim waits for the next clean-up session.
     450  SEQ 617-620 closed   shutdown. SEQ 620: Tony's Xcode tidy of the TOK project (318 references to files deleted at seal 442; none names a file still on disk) committed with GroupRules.mm's four references restored; built, GroupRules.mm compiled and linked, the binary byte-identical. The kitchen pass run; every check as banked.
