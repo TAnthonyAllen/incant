@@ -2157,7 +2157,10 @@ extern GroupItem resolveName(String arg, GroupItem owner)
     if ( inCode && owner )   result = owner->getAttribute(arg);
     if ( !result )                          result = GroupControl::groupController->locate(arg);
     if ( result && result->parent == owner )    return result;
-    if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
+    //  virtualInCode a virtual field is a definition shared by the fields that use it as an attribute; a name in an action body is never bound to it and mints its own local, as it does when nothing of that name is found
+    if ( result && result->groupBody->flags.isVirtual ) {
+        if ( inCode )               result = 0;
+        else if ( ruler->defining ) result = ::copyOf(result); }
     grup = new GroupItem(arg);
     if ( ruler->alphaSet->contains(*arg) && inCode && owner )
         if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
