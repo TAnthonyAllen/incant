@@ -54,7 +54,7 @@ displayFillRT(stPreCanvas);
 pixelAt(stPreCanvas);
 include(styles);
 register(StylesT);
-cerr "ST loaded, not searched: wall":;
+cerr "ST loaded (the styles file searches cOLOr and fONTs itself, since 2026-11-12): wall":;
 makeDisplay(stPre2Canvas);
 displayFillRT(stPre2Canvas);
 pixelAt(stPre2Canvas);

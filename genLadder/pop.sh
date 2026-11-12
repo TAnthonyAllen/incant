@@ -9508,7 +9508,10 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_stF" > "$T/st.o" 2> "$T/st.e"; _stX=$?
 _ofeq "stylesT exit status" "$_stX" "0"
 _ofeq "stylesT sentinel" "$(grep -c '^ST SENTINEL' "$T/st.e")" "1"
 _stp () { grep "^=== pixelAt $1 " "$T/st.o" | sed 's/.* = //; s/ ===.*//'; }
-_ofeq "stylesT ST-1 not loaded, and loaded but not searched: wall is not found, nothing drawn" "$(_stp stPreCanvas) / $(_stp stPre2Canvas) $(grep -c '^getColor: ERROR could not find wall' "$T/st.e")" "r0 g0 b0 a0 / r0 g0 b0 a0 2"
+#  ST-1 RE-PINNED 2026-11-12 (Tony's ruling of that day): the styles file searches cOLOr and fONTs itself, so a style can hold a colour by name (color:=red).
+#  "Loaded but not searched" therefore no longer exists: once styles is included, wall is found and drawn. Before: r0 g0 b0 a0 on both canvases and 2 errors.
+#  The not-loaded half is unchanged and is the control: nothing drawn, and the one error names wall.
+_ofeq "stylesT ST-1 not loaded: wall is not found, nothing drawn; once styles is included wall is found and drawn (the file searches its own colours)" "$(_stp stPreCanvas) / $(_stp stPre2Canvas) $(grep -c '^getColor: ERROR could not find wall' "$T/st.e")" "r0 g0 b0 a0 / r247 g232 b170 a255 1"
 _ofeq "stylesT ST-2 searched explicitly, the registries hold 14 and 7" "$(grep '^ST counts' "$T/st.e" | xargs)" "ST counts colours= 14 fonts= 7"
 _ofeq "stylesT ST-3 setColor: a bare hex and a # hex realise alike" "$(_stp stBareCanvas) / $(_stp stHashCanvas)" "r255 g0 b0 a255 / r255 g0 b0 a255"
 _ofeq "stylesT ST-4 five hex characters after the # still refuse: the skip takes the #, nothing more" "$(_stp stBadCanvas) $(grep -c '^ERROR: expected a six character hex string not:12345' "$T/st.o")" "r0 g0 b0 a0 1"

@@ -5,11 +5,13 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**466, 2026-11-12, topic: forms, SEQ 631 (assigned by Clod).** Tony's second dispatch of the day, all of it built.
+**467, 2026-11-12, topic: forms, SEQ 631-632 (assigned by Clod).** Tony's second dispatch of the day, all of it built.
 The drawing fields are virtual; the perforation templates, PoinT, ArC and CurvE are unparked (464). Stroke 4 is done:
 Layout writes `layoutFrame` as one whole write and firstLight resizes by listening (465). Typesetting's first slice:
 firstLight's words holds two paragraphs and one `{emphasis: text}` run, drawn by `displayText` (466, `Topics/typesetting`).
-**NEXT, Tony's:** the slice's choices (the gap between paragraphs; where paragraphs and runs should live). Insertions wait.
+**467, SEQ 632:** the slice's choices are ruled. TYPESETTING HOLDS: build nothing further on the C++ version; the next step is
+a kant pre-pass for run and style resolution, and Clay drafts that design first. The styles file searches its own colours.
+**NEXT:** nothing queued on forms; Tony names it.
 Later: measure the jitted store helper's cost in a hot loop. `Topics/cleanup` is over its budget and opens with a trim.
 
 ## The numbers (as run at seal 466; binary rebuilt 2026-11-12 with paragraphs and runs in displayText)
