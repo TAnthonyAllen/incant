@@ -1679,6 +1679,14 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
             if expectOperand {
                 pend +% term;
                 continue; }
+            // postfixToo x++ and x-- after an operand, with nothing or an operator next, are the prefix forms written after: same instruct, same value (Tony, 2026-11-12); an operand next keeps the old reading: a binary ++, refused by name at run time (postfixT PX-K1)
+            if opIsPostfixToo(term) {
+                j = 1;
+                if right
+                    if right.registry != ruler.opFields || right.isREGISTRY     j = 0;
+                if j {
+                    cur = interpretXPaccumU(term,cur);
+                    continue; } }
             if term.tag eq "." {
                 if i > n    return refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
                 right = seq[i];
@@ -2192,6 +2200,19 @@ GroupItem   reg;
     reg = ruler.opFields[unary.tag];
     if !reg                 return 0;
     if reg["accessClass"]   return 1;
+    return 0;
+}
+
+
+// opIsPostfixToo a unary that may also be written after its operand: the postfixToo mark on ++ and -- in incant/setup   A HAND, NOT A WITNESS
+extern int opIsPostfixToo(GroupItem op)
+{
+GroupRules  ruler = groupRules;
+GroupItem   reg;
+    if !op                  return 0;
+    reg = ruler.opFields[op.tag];
+    if !reg                 return 0;
+    if reg["postfixToo"]    return 1;
     return 0;
 }
 

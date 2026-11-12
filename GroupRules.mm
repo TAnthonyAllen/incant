@@ -3525,6 +3525,19 @@ GroupItem 	*right = 0;
 				pend->addAttribute(term);
 				continue;
 				}
+			// postfixToo x++ and x-- after an operand, with nothing or an operator next, are the prefix forms written after: same instruct, same value (Tony, 2026-11-12); an operand next keeps the old reading: a binary ++, refused by name at run time (postfixT PX-K1)
+			if ( ::opIsPostfixToo(term) )
+				{
+				j = 1;
+				if ( right )
+					if ( right->groupBody->registry != ruler->opFields || isREGISTRY(right->groupBody->flags.binType) )
+						j = 0;
+				if ( j )
+					{
+					cur = interpretXPaccumU(term,cur);
+					continue;
+					}
+				}
 			if ( ::compare(term->groupBody->tag,".") == 0 )
 				{
 				if ( i > n )
@@ -10519,6 +10532,21 @@ extern "C" int opIsOR(GroupItem *op)
 	return 0;
 }
 
+// opIsPostfixToo a unary that may also be written after its operand: the postfixToo mark on ++ and -- in incant/setup   A HAND, NOT A WITNESS
+extern "C" int opIsPostfixToo(GroupItem *op)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*reg = 0;
+	if ( !op )
+		return 0;
+	reg = ruler->opFields->get(op->groupBody->tag);
+	if ( !reg )
+		return 0;
+	if ( reg->get("postfixToo") )
+		return 1;
+	return 0;
+}
+
 /*  opIsShortCircuit -- TIER-3 MEMBERSHIP. opIsOR -- WHICH WAY IT SKIPS. Two questions,
     two attributes on the operator in incant/setup, and NO SPELLING IN EITHER ACTION.
     ⚠ THEY REPLACED TWO LISTS, NOT ONE: interpretXP chose the tier-3 binding by tag AND
@@ -14613,6 +14641,7 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	clearRefusal(GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	interpretXPaccumWrap(GroupItem*,GroupItem*)
+	interpretXPaccumU(GroupItem*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)
 	jitHandOver(char*,GroupItem*)

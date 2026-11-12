@@ -1,0 +1,117 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(PostfixT);
+define
+    pxReq owner source result rule;
+    it1;
+    qv=3;
+    qa=10;
+    r;
+    pxNew code={
+        pxSrc := argument.CodE;
+        pxReq.owner  := argument;
+        pxReq.source := pxSrc;
+        pxReq.rule   := KantGrammar["STARt"];
+        if compileIn(pxReq);
+            pxBlock = pxReq.result;
+            *pxBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *pxBlock;
+        };
+    pxO1 code={ qv = 3; r = "pre"; qv++; r = qv; print "PX-1 old" r qv:; };
+    pxA1 code={ qv = 3; r = "pre"; qv++; r = qv; print "PX-1 act" r qv:; };
+    pxO2 code={ qv = 3; r = "pre"; qv--; r = qv; print "PX-2 old" r qv:; };
+    pxA2 code={ qv = 3; r = "pre"; qv--; r = qv; print "PX-2 act" r qv:; };
+    pxO3 code={ qv = 3; r = "pre"; r = qv++;  print "PX-3 old" r qv:; };
+    pxA3 code={ qv = 3; r = "pre"; r = qv++;  print "PX-3 act" r qv:; };
+    pxO4 code={ qv = 3; r = "pre"; r = qa + qv++;  print "PX-4 old" r qv:; };
+    pxA4 code={ qv = 3; r = "pre"; r = qa + qv++;  print "PX-4 act" r qv:; };
+    pxO5 code={ qv = 3; r = "pre"; r = qv++ + qa;  print "PX-5 old" r qv:; };
+    pxA5 code={ qv = 3; r = "pre"; r = qv++ + qa;  print "PX-5 act" r qv:; };
+    pxO6 code={ qv = 3; r = "pre"; r = - qv++;  print "PX-6 old" r qv:; };
+    pxA6 code={ qv = 3; r = "pre"; r = - qv++;  print "PX-6 act" r qv:; };
+    pxO7 code={ qv = 3; r = "pre"; ++qv; r = qv; print "PX-7 old" r qv:; };
+    pxA7 code={ qv = 3; r = "pre"; ++qv; r = qv; print "PX-7 act" r qv:; };
+    pxO8 code={ qv = 3; r = "pre"; r = qa - qv--;  print "PX-8 old" r qv:; };
+    pxA8 code={ qv = 3; r = "pre"; r = qa - qv--;  print "PX-8 act" r qv:; };
+    pxO9 code={ qv = 3; r = "pre"; r = qv++ == 4;  print "PX-9 old" r qv:; };
+    pxA9 code={ qv = 3; r = "pre"; r = qv++ == 4;  print "PX-9 act" r qv:; };
+    pxRP code={ print "PX RP" "[" 7 #5d "]":; };
+    pxK1 code={ qv = 3; print "PX-K1 old" "n" ++qv:; };
+    ;
+search PostfixT Utilities UnitTests list;
+pxNew(pxRP);
+pxRP();
+pxK1();
+pxO1();
+qv = 3; r = "pre"; it1 = STARt("qv++; r = qv;"); testOP(it1); print "PX-1 top" r qv:;
+pxNew(pxA1);
+pxA1();
+pxO2();
+qv = 3; r = "pre"; it1 = STARt("qv--; r = qv;"); testOP(it1); print "PX-2 top" r qv:;
+pxNew(pxA2);
+pxA2();
+pxO3();
+qv = 3; r = "pre"; it1 = STARt("r = qv++; "); testOP(it1); print "PX-3 top" r qv:;
+pxNew(pxA3);
+pxA3();
+pxO4();
+qv = 3; r = "pre"; it1 = STARt("r = qa + qv++; "); testOP(it1); print "PX-4 top" r qv:;
+pxNew(pxA4);
+pxA4();
+pxO5();
+qv = 3; r = "pre"; it1 = STARt("r = qv++ + qa; "); testOP(it1); print "PX-5 top" r qv:;
+pxNew(pxA5);
+pxA5();
+pxO6();
+qv = 3; r = "pre"; it1 = STARt("r = - qv++; "); testOP(it1); print "PX-6 top" r qv:;
+pxNew(pxA6);
+pxA6();
+pxO7();
+qv = 3; r = "pre"; it1 = STARt("++qv; r = qv;"); testOP(it1); print "PX-7 top" r qv:;
+pxNew(pxA7);
+pxA7();
+pxO8();
+qv = 3; r = "pre"; it1 = STARt("r = qa - qv--; "); testOP(it1); print "PX-8 top" r qv:;
+pxNew(pxA8);
+pxA8();
+pxO9();
+qv = 3; r = "pre"; it1 = STARt("r = qv++ == 4; "); testOP(it1); print "PX-9 top" r qv:;
+pxNew(pxA9);
+pxA9();
+print "PX SENTINEL":;
+stop();
+
+postfixT -- Tony, 2026-11-12 (SEQ 635): x++ and x-- may be written after the operand. No C++ difference: the postfix form is the
+prefix form written after, so it increments and yields the NEW value. Rows prefixed PX-. Interpreted only.
+
+One process, three lines a row, as prefixNestT: "old" an incant/grammar action (interpretXPaccum's postfixToo arm), "top" STARt at
+top level on kantGrammar, "act" an action body built through kantGrammar (PX RP proves that road). Each line prints r then qv; qv is
+reset to 3 and r to "pre" before each. The mark is postfixToo on ++ and -- in incant/setup, read by both roads.
+The rule: after an operand, ++ or -- followed by NOTHING OR AN OPERATOR is a postfix on that operand. Followed by an operand it keeps
+the old reading, which is a binary ++ refused by name at run time: PX-K1 ("n" ++qv in a print list, old road) pins that one refusal on stderr.
+PX-6: a prefix wraps the postfix instruct, - qv++ is -(qv++). PX-7 is the prefix control. PX-9: a postfix before a comparison.
+H7 (2026-11-12): with the postfixToo mark removed from setup, PX-1 to PX-6, PX-8 and PX-9 go red on all three columns.
+
+ROWS, separated by ^ -- id ^ statement ^ r and qv, all three columns
+PX-1^qv++;^4 4
+PX-2^qv--;^2 2
+PX-3^r = qv++;^4 4
+PX-4^r = qa + qv++;^14 4
+PX-5^r = qv++ + qa;^14 4
+PX-6^r = - qv++;^-4 4
+PX-7^++qv;^4 4
+PX-8^r = qa - qv--;^8 2
+PX-9^r = qv++ == 4;^1 4

@@ -1355,6 +1355,26 @@ done < "$T/cc.list"
 _ofeq "chainCmpT rows ran (13 of 13)" "$_ccn" "13"
 else echo "  FAIL  chainCmpT MISSING"; fail=1; fi
 
+#  ⚑ postfixT -- SEQ 635 (Tony, 2026-11-12): x++ and x-- written after the operand, the prefix form's value, on both roads (the
+#  postfixToo mark in incant/setup; interpretXPaccum's arm and kantGrammar EXPRESSIOn's). One process, three columns a row.
+_pxF=$(ip postfixT)
+if [ -f "$_pxF" ]; then
+perl -e 'alarm 30; exec @ARGV' "$B" "$_pxF" > "$T/px.o" 2> "$T/px.e"; echo $? > "$T/px.x"
+_ofeq "postfixT exit, sentinel, stderr lines (PX-K1's one refusal)" "$(cat "$T/px.x") $(grep -c '^PX SENTINEL' "$T/px.o") $(grep -c . "$T/px.e")" "0 1 1"
+_ofeq "postfixT road proof: the act column is built on the new road" "$(grep '^PX RP' "$T/px.o" | sed 's/ *$//')" "PX RP [ 7 ]"
+_ofeq "postfixT PX-K1 an operand after ++ keeps the old reading: binary, refused by name" "$(grep -c '^REFUSED xl1 -- Operator ++ ' "$T/px.e")" "1"
+_pxv () { grep "^$1 $2 " "$T/px.o" | head -1 | sed "s/^$1 $2 //; s/ *\$//"; }
+grep '^PX-[0-9]*\^' "$_pxF" > "$T/px.list"
+_pxn=0
+while IFS='^' read -r _id _ex _want; do
+    _pxn=$((_pxn+1))
+    _ofeq "postfixT $_id old road: $_ex" "$(_pxv "$_id" old)" "$_want"
+    _ofeq "postfixT $_id new road, top level: $_ex" "$(_pxv "$_id" top)" "$_want"
+    _ofeq "postfixT $_id new road, action body: $_ex" "$(_pxv "$_id" act)" "$_want"
+done < "$T/px.list"
+_ofeq "postfixT rows ran (9 of 9)" "$_pxn" "9"
+else echo "  FAIL  postfixT MISSING"; fail=1; fi
+
 #  ⚑ prefixNestT -- SEQ 571 (Tony, 2026-11-09): stacked prefixes nest inside-out on the NEW road (kantGrammar EXPRESSIOn), as on the
 #  old road. One process; per row the old road (the reference, pinned unmoved), the new road at top level and in an action built through
 #  kantGrammar (fdRow, today beside intended = the old road's value). Interpreted only (F-151).

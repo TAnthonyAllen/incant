@@ -403,9 +403,27 @@ define
             else
                 prevOp = 0;
                 wrapped = 0;
+                // postfixToo x++ and x-- with nothing or an operator next are the prefix forms written after: the same instruct, built before any prefix wraps it, so - x++ is -(x++); an operand next keeps the old reading (Tony, 2026-11-12)
+                pfIs = 0;
+                pf := *cur.nexT;
+                if pf.datA != 0;
+                    if *pf["postfixToo"];
+                        pfIs = 1;
+                        pfN := *pf.nexT;
+                        if pfN.datA != 0;
+                            if *pfN.instructTypE == 0;  pfIs = 0;
+                if pfIs == 1;
+                    pfOp = pf;
+                    pfBase := *cur;
+                    instruct    +% pfOp pfBase;
+                    instruct.methoD = "testOP";
+                    postI       := copyOf(instruct);
+                    clear(instruct);
+                    clear(pfOp);
                 if pre.datA != 0;
                     // prefixesNest walk back from the operand over the counted run: the nearest prefix wraps first, so - - qv reads 3 (SEQ 571 R0)
                     opnd := *cur;
+                    if pfIs == 1;   opnd := *postI;
                     pp := *cur.prioR;
                     while npre > 0;
                         pOp = pp;
@@ -434,6 +452,11 @@ define
                     clear(pre);
                     wrapped = 1;
                 else    opnd = cur;
+                // postfixSkip the postfix instruct stands in for the operand and the cursor steps onto the ++, so the walk goes on from what follows it
+                if pfIs == 1;
+                    if wrapped == 0;    opnd := *postI;
+                    wrapped = 1;
+                    cur := *pf;
                 // INVOKEr's call arrives as an instruct without its method; it gets it here, never at INVOKEr's return
                 if *cur.taG == "instruct";  *cur.methoD = "testOP";
                 // callRefused a call or subscript whose argument is a run (INVOKEd's EXPRESSIOn handed up an ADJACENt list) refuses by name, as an operator does (SEQ 468 R0)

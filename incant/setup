@@ -180,7 +180,7 @@ define
     ':.'    operateMethod=opSetFlag  assignTier;
     '-='    operateMethod=opMinusEQ  assignTier;
     '-%'    operateMethod=opRemoveAttribute  assignTier;
-    '--'    unary ruleMethod=opMinusMinus;
+    '--'    unary ruleMethod=opMinusMinus  postfixToo;
 
     '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
@@ -193,7 +193,7 @@ define
         '+=isBUFFER' operateMethod=opPlusEQisBUFFER;
         '+=isSTAK'   operateMethod=opPlusEQisSTAK;
         '+=struct'   operateMethod=opPlusEQstruct;
-    '++'    unary ruleMethod=opPlusPlus;
+    '++'    unary ruleMethod=opPlusPlus  postfixToo;
     '+*'    operateMethod=opAddPointer  assignTier;
     '+%'    operateMethod=opAddAttribute  assignTier;
     '+<'    operateMethod=opAddProperty  assignTier;
