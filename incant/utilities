@@ -735,3 +735,9 @@ define
 /*  utilitiesIncludesParser  INTERIM, ruled 2026-09-17 -- so parser and generateParse resolve
     wherever a first-use install fires, without moving definitions while the shape settles  */
 include(parser);
+
+/*  utilitiesIncludesForms  the form attributes and the drawing fields (Topics/forms, registry FORMs) come with utilities,
+    so every form has them (Tony, 2026-11-12). The register line puts the current registry back: files that define
+    straight after include(utilities) rely on it being Utilities  */
+include(forms);
+register(Utilities);

@@ -28,6 +28,8 @@ FRONTIER ran-census: stations that RAN  6 of  6 declared
 FRONTIER SENTINEL -- the ladder reached its foot 
 
 stop: ending input divert
+
+stop: ending input divert
 Search list: Grokking UnitTests Utilities
 Generating parse code for frRule 
 frRule = CodE { 

@@ -576,8 +576,13 @@ echo ""
 echo "-- the drawing fields in FORMs (drawFieldsT)."
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip drawFieldsT)" > "$T/df.o" 2> "$T/df.e"; _dfx=$?
 _ofeq "drawFieldsT exit / sentinel" "$_dfx $(grep -c '^DRAWFIELDS SENTINEL' "$T/df.e")" "0 1"
-_ofeq "drawFieldsT DF-1 FORMs holds the 35 drawing fields and this file's two forms" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "37"
-_ofeq "drawFieldsT DF-2 LinE carries its Core Graphics call; X is defined; no lower-case fill or width field in FORMs" "$(grep -c '^	LinE function=CGContextAddLineToPoint signature=v:pdY;' "$T/df.o") $(grep -c '^	X;' "$T/df.o") $(grep -c '^	\(fill\|width\)[ =;]' "$T/df.o")" "1 1 0"
+_ofeq "drawFieldsT DF-1 FORMs holds the 35 drawing fields, the 28 form attributes and this file's two forms" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "65"
+_ofeq "drawFieldsT DF-2 LinE carries its Core Graphics call, once; X is defined" "$(grep -c '^	LinE function=CGContextAddLineToPoint signature=v:pdY;' "$T/df.o") $(grep -c '^	X;' "$T/df.o")" "1 1"
+#  DF-4 (Tony, 2026-11-12, wakeup dispatch ruling 1): the form attributes live in FORMs under their plain names, virtual. After dfA, dfKid and dfB wrote
+#  width= (and dfA fill=), the registry's own width and fill still print with no value: each field got a copy. Its control is DF-3's second half, where
+#  the same writes to a field that is not virtual (WidtH) all land in the registry's one field. The cure's own control: with every fixture loading
+#  these definitions and resolveName's virtualInCode lines absent, this script read 128 green (2026-11-12, and seal 460-461's recon).
+_ofeq "drawFieldsT DF-4 the registry's width and fill keep no value: every form's width= and fill= is its own copy" "$(grep -c '^	width;' "$T/df.o") $(grep -c '^	fill;' "$T/df.o") $(grep -c '^	\(fill\|width\)=' "$T/df.o")" "1 1 0"
 _ofeq "drawFieldsT DF-3 a form's width= is its own (100, 300); WidtH=, spelled as the drawing field, is the registry's one field (300, 300)" "$(grep '^DF-3' "$T/df.e" | sed 's/.*: //' | xargs)" "dfA width 100 dfB width 300 dfA WidtH 300 dfB WidtH 300"
 
 #  ⚑ noRoomT -- forms step 6, the rest (SEQ 627 W1, 2026-11-11): what is DRAWN under isHidden and noRoom. The layout rows are in pop.sh. nrForm is

@@ -1,7 +1,6 @@
 Start();
 include(unitTests);
 include(utilities);
-include(forms);
 search reset stack Grokking;
 search FORMs UnitTests Utilities list;
 register(FORMs);
@@ -21,11 +20,14 @@ stop();
 drawFieldsT -- the drawing fields at the top of Topics/forms (the forms incantation), loaded by include(forms). SEQ 629,
 2026-11-12.
 
-DF-1  FORMs holds the 35 drawing fields and the two top-level forms defined here (37).
+DF-1  FORMs holds the 35 drawing fields, the 28 form attributes and the two top-level forms defined here (65).
+      (utilities loads Topics/forms; including it here as well would define every field twice.)
 DF-2  three definitions as printed: LinE and WidtH carry their Core Graphics function and signature, X is there.
       (WidtH prints the 300 the forms below wrote into it: that is DF-3's fact, seen from the registry.)
 DF-3  why the fields are spelled capital first and last. A form attribute written width= is the form's own: 100 and 300.
       One written WidtH= -- spelled exactly as a field findable in FORMs -- is the registry's field itself, so two forms
       and a child writing 100, 200 and 300 all read the last write, 300. The pair is the control: the same forms, the same
       values, only the spelling differs.
-H7 (run 2026-11-12): with include(forms) removed there is no registry field to share, and DF-3's second line reads 100 300.
+DF-4  (2026-11-12) the form attributes are defined in FORMs under their plain names, virtual: the registry's width and
+      fill print with no value after three fields wrote width= and one wrote fill=, so each field got its own copy.
+H7 (run 2026-11-12, when this file included forms itself): with include(forms) removed there is no registry field to share, and DF-3's second line reads 100 300.

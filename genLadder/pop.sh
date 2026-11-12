@@ -377,7 +377,10 @@ if grep -q "^setParse ended and that ends compileRules" "$T/baseN"; then
 else
     echo "  FAIL  baselineTestsNew BN-2 no generation trace -- parser(Start) did not run; BN-3/BN-4 would compare the old road with itself"; fail=1
 fi
-_bnfilt () { grep -v "^stop:\|^Search list\|^$\|rules should not have data and a list\|BASELINENEW SENTINEL"; }
+#  blankLines 2026-11-12: the ^$ inside the alternation never matched under /bin/sh's grep, so blank lines were kept and the heads agreed only while
+#  both roads printed the same number ahead of the first test. An include added to utilities (forms) prints one more on the old road alone (the
+#  new road's are cut with its generation trace), and BN-3 read differ on that line. Blank lines now go in their own grep; nothing else is filtered.
+_bnfilt () { grep -v "^stop:\|^Search list\|rules should not have data and a list\|BASELINENEW SENTINEL" | grep -v '^$'; }
 sed '1,/^setParse ended and that ends compileRules/d' "$T/baseN" > "$T/baseN.run"
 #  jitRecurOwnRow SEQ 381 R1: testRecursion's JIT block -- from its first jitRunAction to the "testRecursion jitted:" line -- is
 #  cut from BOTH heads by name and asserted on its own row below. Measured 2026-10-18: on the new road testing() compiles each
