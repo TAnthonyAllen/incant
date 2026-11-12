@@ -68,6 +68,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
     2  The pour's floor request: Clay's draft (text, font, size, colour, box, inset in; fit and used written back) is to be confirmed when the stroke opens.
     3  The pour cursor and break record: one Buffer mark is enough for one flat buffer poured in order, and not for a tree of runs, re-flow on resize, or a frame read twice. Proposal: a cursor (run, offset) plus a break record kept out of the source tree.
     4  Whitespace-only text carries no data in kant, so spaces between runs must be glue, never string runs.
+       ANSWERED (Tony, 2026-11-12): use the space form attribute. Clod's reading, to be corrected if wrong: a span never holds a bare space; a span that is followed by one carries space (the form attribute already in the 28), and the floor adds the gap after it.
     5  A failed parse abandons the rest of the input at exit 0; for a document that is a silently lost chapter, so the text mode must fail loudly or carry an end sentinel.
     6  Checks owed when the stroke opens: who calls getText today and whether any caller relied on its following a held group; whether a held group holds another group in practice.
 
@@ -93,6 +94,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Seal digest
 *****************************************************************************/
+    470  SEQ 635   Tony's offline answers: a span's space is the space form attribute (open question 4). T1 not begun.
     469  SEQ 634   SHUTDOWN. Clay's pre-pass design recorded (Plan); T1 not begun. Its opener measured: a four-rule kant grammar splits a paragraph into plain, run, plain.
     467  SEQ 632   the slice's choices ruled; typesetting HOLDS until Clay's kant pre-pass design lands. The styles file searches its own colours and fonts; emphasis respelled color:=red.
     466  SEQ 631   the first slice: paragraphs and runs in displayText, firstLight's words the specimen, typesetT.
