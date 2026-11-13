@@ -53,6 +53,7 @@ HOW IT WORKS. Every piece is one built today (Topics/forms G2; Topics/typesettin
     a form inside a field     ibPageField form:=ibPage. ibPage is a field of its own that holds the page form.
     the swap                  writing ibPage (ibPage := ibFields) tells its listener, which calls redrawForm.
     the click                 click(request) on toFields fires its onClick, showFields, which writes ibPage.
+    IBkantText                is a registry defined in IncantForms/IBkant/text;
     words by name             a page body is {IBkantText.fields}: the passage is poured from the text file, with its own paragraphs and runs.
 To add a page: its passage in IncantForms/IBkant/text; a page form, a show action and a contents entry here.
 Not here yet: a real click (windows, forms step 10); which entry is selected is not shown.

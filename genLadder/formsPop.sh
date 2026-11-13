@@ -483,7 +483,7 @@ _ofeq "ibkantT IB-2 a click on toFields: selected, onClick fired showFields, one
 _ofeq "ibkantT IB-3 a click on toForms: two runs, the page is Forms" "$(_ibr IB-3) / $(_ibt forms)" "runs 2 selected toForms / ibTitle toWelcome toFields toForms ibFormsHead ibFormsBody"
 _ofeq "ibkantT IB-4 a click on toWelcome: three runs, and the body reads as on the first page" "$(_ibr IB-4) / $(_ibb welcome ibWelcomeBody)" "runs 3 selected toWelcome / $(_ibb first ibWelcomeBody)"
 _ofeq "ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its ONE passage (length counted from the file, marks out), in the passage's own two paragraphs; nothing left as written" "$(_ibb first ibWelcomeBody) / $(_ibb fields ibFieldsBody) / $(_ibb forms ibFormsBody) / $(grep -c 'left as written' "$T/ib.e")" "drawn $(_ibn welcome) of $(_ibn welcome) paragraphs 2 of 2 / drawn $(_ibn fields) of $(_ibn fields) paragraphs 2 of 2 / drawn $(_ibn forms) of $(_ibn forms) paragraphs 2 of 2 / 0"
-_ofeq "ibkantT IB-6 (gap 1) THE PASSAGE'S OWN RUNS: welcome 1, fields 2, forms 1; and the counts above are numbers, not a missing passage" "$(_ibu first ibWelcomeBody) / $(_ibu fields ibFieldsBody) / $(_ibu forms ibFormsBody) / $(_ibn welcome) $(_ibn fields) $(_ibn forms)" "runs 1 / runs 2 / runs 1 / 410 443 416"
+_ofeq "ibkantT IB-6 (gap 1) THE PASSAGE'S OWN RUNS: welcome 1, fields 2, forms 1; and the counts above are numbers, not a missing passage" "$(_ibu first ibWelcomeBody) / $(_ibu fields ibFieldsBody) / $(_ibu forms ibFormsBody) / $(_ibn welcome) $(_ibn fields) $(_ibn forms)" "runs 1 / runs 2 / runs 1 / 438 460 416"
 
 echo ""
 echo "-- a passage carries its own paragraphs and runs: IBkant gap 1 (passageT)."

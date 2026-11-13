@@ -5,30 +5,24 @@
 Start();
 include(unitTests);
 include(utilities);
-search UnitTests Utilities;
+include(styles);
 
 registry(fILEs);
 define
-    firstDef;
-    anyfield;
-    whatRegistry code={
-        currentReg := registrY;
-        $$currentReg;
-        };
-    descriptionsFile File="IncantForms/Windows/descriptions";
+    ibkantFile File='IncantForms/Windows/IBkant';
     ;
-whatRegistry();
+include(ibkantFile);
+search reset Grokking FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    ibReq path="IncantForms/PDF/output.pdf" form:=IBkant;
+    ibHears listenTo:=ibPage code={ redrawForm(ibReq); };
+    ibClickFields form:=IBkant field="toFields";
+    ;
+redrawForm(ibReq);
+click(ibClickFields);
 print "SENTINEL tester driver end":;
 stop();
 
-include(styles);
-search cOLOr fONTs sTYLEs;
-include(descriptionsFile);
-search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-    define
-        descriptionsReq path="IncantForms/PDF/output.pdf" form:=firstLight;
-    ;
-//redrawForm(descriptionsReq);
 TO FIRE a pdf form: from "Firing a form by hand" in Topics/forms
 /*****************************************************************************
     Firing a form by hand (the one home, Tony 2026-11-13, SEQ 646)

@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2094656 bytes  Nov 13 14:36
+  bin   2094656 bytes  Nov 13 14:49
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -146,9 +146,9 @@
   ok    ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run = [runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody]
   ok    ibkantT IB-2 a click on toFields: selected, onClick fired showFields, one run, and the page is Fields = [runs 1 selected toFields / IBkant toFields selected / IBkant toFields fired onClick showFields / ibTitle toWelcome toFields toForms ibFieldsHead ibFieldsBody]
   ok    ibkantT IB-3 a click on toForms: two runs, the page is Forms = [runs 2 selected toForms / ibTitle toWelcome toFields toForms ibFormsHead ibFormsBody]
-  ok    ibkantT IB-4 a click on toWelcome: three runs, and the body reads as on the first page = [runs 3 selected toWelcome / drawn 410 of 410 paragraphs 2 of 2]
-  ok    ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its ONE passage (length counted from the file, marks out), in the passage's own two paragraphs; nothing left as written = [drawn 410 of 410 paragraphs 2 of 2 / drawn 443 of 443 paragraphs 2 of 2 / drawn 416 of 416 paragraphs 2 of 2 / 0]
-  ok    ibkantT IB-6 (gap 1) THE PASSAGE'S OWN RUNS: welcome 1, fields 2, forms 1; and the counts above are numbers, not a missing passage = [runs 1 / runs 2 / runs 1 / 410 443 416]
+  ok    ibkantT IB-4 a click on toWelcome: three runs, and the body reads as on the first page = [runs 3 selected toWelcome / drawn 438 of 438 paragraphs 2 of 2]
+  ok    ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its ONE passage (length counted from the file, marks out), in the passage's own two paragraphs; nothing left as written = [drawn 438 of 438 paragraphs 2 of 2 / drawn 460 of 460 paragraphs 2 of 2 / drawn 416 of 416 paragraphs 2 of 2 / 0]
+  ok    ibkantT IB-6 (gap 1) THE PASSAGE'S OWN RUNS: welcome 1, fields 2, forms 1; and the counts above are numbers, not a missing passage = [runs 1 / runs 2 / runs 1 / 438 460 416]
 
 -- a passage carries its own paragraphs and runs: IBkant gap 1 (passageT).
   ok    passageT exit / sentinel / nothing clipped = [0 1 0]
