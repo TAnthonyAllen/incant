@@ -19,7 +19,7 @@ define
         argument :% copyOf(px);
         argument :% copyOf(py);
         };
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     fpdX0 = 0;
     fpdX1 = 0;
     fpdY0 = 0;
@@ -40,7 +40,7 @@ define
     ;
 search FirstPdf FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    pdfReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    pdfReq path="IncantForms/PDF/test.pdf" form:=firstLight;
     ;
 define
     laid;
@@ -94,7 +94,7 @@ firstPdfT -- forms step 4, the first PDF (Tony, 2026-11-08). openPDF(pdfReq) ope
 its page the request's width and height (copied from firstLight's own), and puts it in the top's pointer slot as
 makeDisplay does a bitmap, handing it down; drawWalk then draws exactly as it draws into the bitmap, opening no bitmap of
 its own because the top already holds a context; closePDF(pdfReq) ends the page and closes the file. readPDF(pdfRead)
-draws page 1 into a bitmap on pdfRead, so pixelAt reads it. The file goes to IncantForms/PDF/output.pdf, gitignored,
+draws page 1 into a bitmap on pdfRead, so pixelAt reads it. The file goes to IncantForms/PDF/test.pdf, gitignored,
 overwritten each run (Tony, R1); formsPop deletes it before the run, so a stale file cannot pass.
 Rows (genLadder/formsPop.sh): the file exists and begins %PDF; readPDF reports 1 page of 400x200 (firstLight's frame);
 PD-1 to PD-4 read the page back at today's bitmap rows' coordinates, the fills, ok's border, heading's line and the

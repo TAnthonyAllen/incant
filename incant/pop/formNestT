@@ -37,11 +37,11 @@ define
         argument :% copyOf(py);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/output.pdf";
-    npReq path="IncantForms/PDF/output.pdf" form:=npOuter;
-    npTwoReq path="IncantForms/PDF/output.pdf" form:=npTwo;
-    npSelfReq path="IncantForms/PDF/output.pdf" form:=npSelf;
-    npLightReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    pdfRead path="IncantForms/PDF/test.pdf";
+    npReq path="IncantForms/PDF/test.pdf" form:=npOuter;
+    npTwoReq path="IncantForms/PDF/test.pdf" form:=npTwo;
+    npSelfReq path="IncantForms/PDF/test.pdf" form:=npSelf;
+    npLightReq path="IncantForms/PDF/test.pdf" form:=firstLight;
     npLaid;
     npGo code={ npLaid := redrawForm(argument); };
     ;

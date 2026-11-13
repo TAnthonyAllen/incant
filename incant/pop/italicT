@@ -46,11 +46,11 @@ define
         itSl="This line is italic." x=20 y=80 width=260 height=25 italic;
         itBox x=20 y=110 width=260 height=30 fill:=white italic
             itIn="A child of an italic field inherits it." x=20 y=110 width=260 height=30;
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     ;
 search ItalicT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    pdfReq path="IncantForms/PDF/output.pdf" form:=itForm;
+    pdfReq path="IncantForms/PDF/test.pdf" form:=itForm;
     ;
 cerr "IT-1 a field's own italic, then the same text with none: the trace, and every pixel of x 0..119, y 0..39 of each":;
 drawWalk(itOwnTop);
@@ -80,4 +80,4 @@ italicT -- italic, a text property (Tony, 2026-11-11, SEQ 624 W1): bare italic (
 draws the font's italic face; it inherits as font and color do, and italic=off turns it off below. Rows are in genLadder/formsPop.sh.
 The trace line ends " italic" only when the face drawn has the italic trait. IT-1 also compares pixels: the slanted word and the
 upright word do not paint the same pixels. The frames are written by hand and setFrame is not called.
-IT-6 draws this fixture's own form, itForm, to IncantForms/PDF/output.pdf: the two forms that ask for italic (layout, menu) do not draw yet.
+IT-6 draws this fixture's own form, itForm, to IncantForms/PDF/test.pdf: the two forms that ask for italic (layout, menu) do not draw yet.

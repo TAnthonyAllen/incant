@@ -348,7 +348,7 @@ echo "-- the first PDF: step 4."
 #  for pixelAt. REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value, the intended beside it. The file is
 #  deleted first, so a stale one cannot pass. H7 (the walk skipped): the file rows hold, the page reads blank.
 _pdF=$(ip firstPdfT)
-_pdO=IncantForms/PDF/output.pdf
+_pdO=IncantForms/PDF/test.pdf
 rm -f "$_pdO"
 perl -e 'alarm 20; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
 _pdp () { grep -h '^=== pixelAt pdfRead ' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }

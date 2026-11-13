@@ -52,11 +52,11 @@ define
             shCard="A filled field with a shadow." text width=100 fill:=white rounded shadow;
             shPadB width=40;
             shRing="A border with a shadow." text width=100 border rounded=10 shadow;
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     ;
 search ShadowT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    pdfReq path="IncantForms/PDF/output.pdf" form:=shForm;
+    pdfReq path="IncantForms/PDF/test.pdf" form:=shForm;
     ;
 cerr "SH-1 a fill with a shadow, box at 10..39: inside (20,20) red; below right (41,41) shaded; right (42,25) shaded; below (25,42) shaded; above left (7,7) white; left (7,25) white; above (25,7) white":;
 drawWalk(shBoxTop);
@@ -116,4 +116,4 @@ shadowT -- shadow, a field attribute (Tony, 2026-11-11, SEQ 622 R3). A field tha
 its fill if it has one, else its border, else its text. 2 points right, 2 down, blur 3, black at 30% (the old Stylish values).
 Rows are in genLadder/formsPop.sh. A shaded pixel is read as a class (grey, not white), never as an exact value.
 SH-4 counts ink: the shadowed word has more non-white pixels than the same word with none.
-SH-5 draws this fixture's own form, shForm, to IncantForms/PDF/output.pdf: no form that draws today asks for shadow.
+SH-5 draws this fixture's own form, shForm, to IncantForms/PDF/test.pdf: no form that draws today asks for shadow.

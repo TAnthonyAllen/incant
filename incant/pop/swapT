@@ -31,9 +31,9 @@ define
         swX = 200; swY = 390; swAt(pdfRead);
         swX = 390; swY = 190; swAt(pdfRead);
         };
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     swRuns = 0;
-    swReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    swReq path="IncantForms/PDF/test.pdf" form:=firstLight;
     onSwap listenTo:=insideForm code={
         swRuns = swRuns + 1;
         redrawForm(swReq);

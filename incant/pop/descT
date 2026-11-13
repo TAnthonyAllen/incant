@@ -28,8 +28,8 @@ define
     laid;
     layIt code={ laid := setFrame(argument); };
     descriptionsReq form:=descriptions;
-    dePdfReq path="IncantForms/PDF/output.pdf" form:=descriptions;
-    pdfRead path="IncantForms/PDF/output.pdf";
+    dePdfReq path="IncantForms/PDF/test.pdf" form:=descriptions;
+    pdfRead path="IncantForms/PDF/test.pdf";
     ;
 layIt(descriptionsReq);
 printDefinition(*laid);

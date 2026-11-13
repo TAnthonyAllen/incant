@@ -23,16 +23,16 @@ define
         rgAt(argument);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     rgRuns = 0;
     rgBig x=300 y=450 width=600 height=600;
     rgSmall x=300 y=450 width=400 height=400;
     ;
 search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    rgFresh path="IncantForms/PDF/output.pdf" form:=firstLight;
-    rgFreshBig path="IncantForms/PDF/output.pdf" form:=firstLight frame:=rgBig;
-    rgReq path="IncantForms/PDF/output.pdf" form:=firstLight frame:=layoutFrame;
+    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
+    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=layoutFrame;
     onResize listenTo:=layoutFrame code={
         rgRuns = rgRuns + 1;
         redrawForm(rgReq);

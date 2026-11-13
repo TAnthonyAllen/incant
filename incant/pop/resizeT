@@ -24,12 +24,12 @@ define
         pixelAt(argument);
         };
     big x=300 y=450 width=600 height=300;
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     ;
 search ResizeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    smReq path="IncantForms/PDF/output.pdf" form:=simple;
-    bigReq path="IncantForms/PDF/output.pdf" form:=simple frame:=big;
+    smReq path="IncantForms/PDF/test.pdf" form:=simple;
+    bigReq path="IncantForms/PDF/test.pdf" form:=simple frame:=big;
     ;
 cerr "RZ-1 simple as declared, 400x200: wrap (98,70) white, two (150,70) red, three's leftBorder at 50% (200,70) black, three (300,70) white, fourth (200,170) lightGreen":;
 redrawForm(smReq);
@@ -68,4 +68,4 @@ resizeT -- forms step 6, stroke 2 (SEQ 626 W2): the first resize, as a plain cal
 afresh through setFrame and writes the PDF; a request with frame:= is a resize. The form is IncantForms/Windows/simple, whose
 three is width=50%: at 400 wide its leftBorder sits at x=200, at 600 wide at x=300. Rows in genLadder/formsPop.sh: the PDF's
 page size follows the frame; the percent follows the new width; the run after the resize reads exactly as the first; the
-definition still reads width=400. The last call leaves the 600x300 page in IncantForms/PDF/output.pdf.
+definition still reads width=400. The last call leaves the 600x300 page in IncantForms/PDF/test.pdf.

@@ -23,13 +23,13 @@ define
         rlAt(argument);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     layoutFrame x=300 y=450 width=400 height=200;
     rlRuns = 0;
     ;
 search ResizeListenT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    rlReq path="IncantForms/PDF/output.pdf" form:=simple frame:=layoutFrame;
+    rlReq path="IncantForms/PDF/test.pdf" form:=simple frame:=layoutFrame;
     onResize listenTo:=layoutFrame code={
         rlRuns = rlRuns + 1;
         redrawForm(rlReq);

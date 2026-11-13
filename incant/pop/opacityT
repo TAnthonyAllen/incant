@@ -51,11 +51,11 @@ define
         opRed x=40 y=50 width=120 height=90 fill:=red rounded opacity=0.5;
         opBlue x=100 y=80 width=120 height=90 fill:=blue rounded opacity=0.5;
         opGreen="Half there" x=160 y=50 width=110 height=60 fill:=green border=3 rounded=10 opacity=0.5 align=center valign=center;
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     ;
 search OpacityT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    pdfReq path="IncantForms/PDF/output.pdf" form:=opForm;
+    pdfReq path="IncantForms/PDF/test.pdf" form:=opForm;
     ;
 cerr "OP-1 a fill at opacity=0.5 on white: (15,15) grey; the same fill with none (45,15) black; a border at 0.5 (1,45) grey; opacity=0 (45,45) white":;
 drawWalk(opA);
@@ -104,4 +104,4 @@ stop();
 opacityT -- opacity, a box property (Tony, 2026-11-11, SEQ 623): a number from 0 to 1 on a field or its style; the field's own
 fill, border and text are drawn at it; it does not reach the field's children. Rows are in genLadder/formsPop.sh.
 The frames here are written by hand and setFrame is not called: setFrame lays children out and would move them.
-OP-5 draws this fixture's own form, opForm, to IncantForms/PDF/output.pdf: no form asks for opacity (cards, the layers form, never spelled it).
+OP-5 draws this fixture's own form, opForm, to IncantForms/PDF/test.pdf: no form asks for opacity (cards, the layers form, never spelled it).

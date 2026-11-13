@@ -68,38 +68,5 @@ until event firing comes through it. The word button stays out because nothing r
 
 Read it with IncantForms/WorkingOn/firstLightRead.
 
-/*****************************************************************************
-    The driver: firstLight laid out and drawn to IncantForms/PDF/output.pdf.
-    Moved here from IncantForms/WorkingOn/tester (Tony, 2026-11-12). It is below
-    bail(), so nothing runs it: four fleet fixtures include this file and must
-    not draw. To run it, paste the lines below into tester above its stop(),
-    after tester's own Start() and includes. To look: open -a Skim IncantForms/PDF/output.pdf
-    (the system("open -a Skim ...") line is gone, 2026-11-10: it popped Skim up on every run).
-*****************************************************************************/
-define
-    kantGrammar File='incant/kantGrammar';
-    ;
-include(kantGrammar);
-search reset stack KantGrammar Grokking;
-registry(fILEs);
-define
-    firstLightFile File='IncantForms/Windows/firstLight';
-    ;
-include(styles);
-search cOLOr fONTs;
-include(firstLightFile);
-search FORMs cOLOr fONTs list;
-define
-    skimReq path="IncantForms/PDF/output.pdf" form:=firstLight;
-    skimOpened;
-    laid;
-    layIt code={ laid := setFrame(argument); };
-    firstLightReq form:=firstLight;
-    ;
-layIt(firstLightReq);
-skimReq :% copyOf(*laid["width"]);
-skimReq :% copyOf(*laid["height"]);
-skimReq.form := *laid;
-openPDF(skimReq);
-drawWalk(*laid);
-closePDF(skimReq);
+TO FIRE IT: the lines are in Topics/forms, under "Firing a form by hand" (and dormant in IncantForms/WorkingOn/tester, below its stop()).
+The driver that sat here (moved from tester 2026-11-12) went 2026-11-13; fleet fixtures include this file and must not draw.

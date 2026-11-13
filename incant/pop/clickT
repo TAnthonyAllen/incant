@@ -36,9 +36,9 @@ define
         ckX = 200; ckY = 390; ckAt(pdfRead);
         ckX = 390; ckY = 190; ckAt(pdfRead);
         };
-    pdfRead path="IncantForms/PDF/output.pdf";
+    pdfRead path="IncantForms/PDF/test.pdf";
     ckRuns = 0;
-    ckReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    ckReq path="IncantForms/PDF/test.pdf" form:=firstLight;
     onSwap listenTo:=insideForm code={
         ckRuns = ckRuns + 1;
         redrawForm(ckReq);
