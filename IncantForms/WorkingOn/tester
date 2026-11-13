@@ -8,15 +8,15 @@ include(utilities);
 search UnitTests Utilities;
 
 registry(fILEs);
-    define
-        firstDef;
-        anyfield;
-        whatRegistry code={
-            currentReg := registrY;
-            $$currentReg;
-            };
-        descriptionsFile File="IncantForms/Windows/descriptions";
-        ;
+define
+    firstDef;
+    anyfield;
+    whatRegistry code={
+        currentReg := registrY;
+        $$currentReg;
+        };
+    descriptionsFile File="IncantForms/Windows/descriptions";
+    ;
 whatRegistry();
 print "SENTINEL tester driver end":;
 stop();
