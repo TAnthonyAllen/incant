@@ -322,6 +322,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
     479  SEQ 644   SHUTDOWN. Seals 477 and 478 bought. Fixit codedFlagClears filed (Clod's, latent). The kitchen pass run.
+    480  SEQ 646-647   (documentation) fleet PDFs write IncantForms/PDF/test.pdf, output.pdf is Tony's; Firing a form by hand, above; IBkant gap 1 (Topics/documentation). formsPop 239 green.
     478  SEQ 643   (documentation) the IBkant skeleton uses G2 whole: IncantForms/Windows/IBkant (Topics/documentation). formsPop 228 green.
     477  SEQ 642   G2 stroke 3, the mock click (G1): click(request) selects a named field and fires its own action, then its attribute actions; firstLight's ok swaps the form in inside (clickT, six rows). This file trimmed. formsPop 222 green.
     476  SEQ 641   G2 stroke 2, the swap: firstLight's inside names insideForm; one write to it and a listener's redrawForm show another form (swapT, four rows). The caption control rerun, red as it should be. formsPop 215 green.
