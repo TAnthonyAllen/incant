@@ -24,23 +24,30 @@ Note: The describe attribute implies text.";
     trees="Standing between a couple of funky trees at the beach in Santa Monica. Trees on acid, so not straight and the deep groove bark adds to the weirdity.";
     describeHelp="Descriptions are available for the two images and a description appears in the help box when you click on one of the images. For a description of how it works, select the heading.";
     ;
-search dESCRIPTIONs list;
 register(FORMs);
+define
+    describeHead="Using Descriptions";
+    saber="Saber from Fate Stay Night";
+    trees="Beach trees in Santa Monica";
+    ;
+search dESCRIPTIONs list;
 define
     descriptions window closable resize width=500 height=600 x=500 y=200 fill:=wall title='Description Test'
         body
             wrap
                 first height=50 fill:=lightGreen border
-                    describeHead="Using Descriptions" font:=titleFont color:=white align=center valign=center;
+                    describeHead font:=titleFont color:=white align=center valign=center;
                 second across font:=normalFont
-                    saber="Saber from Fate Stay Night" image="/Users/anthony/Pictures/Saber.jpg" border fill:=paleGray;
-                    trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" border fill:=paleGray;
+                    saber image="/Users/anthony/Pictures/Saber.jpg" border fill:=paleGray;
+                    trees image="/Users/anthony/Pictures/BetweenTrees.jpg" border fill:=paleGray;
                 describeHelp describe="This is the default text description when nothing is selected" border font:=normalFont fill:=lightGreen;
     ;
 bail();
 
-The search line stays where it is (Tony, 2026-11-13): dESCRIPTIONs is searched while the form is defined, so a form field
-with a registry entry's name is that entry (Topics/forms, Rulings: Descriptions).
+CAPTIONS (Tony's fix, 2026-11-13). A caption that shares its name with a registry entry (describeHead, saber, trees) is
+defined on its own in FORMs, before the search line, with dESCRIPTIONs not searched. The form then names it with no text.
+The current registry is searched first (GroupControl locate), so the form's bare saber is the caption, and the registry's
+saber keeps its long text. describeHelp has no caption: the form's describeHelp is still the registry's entry.
 Layout only for now: the describe action and the images' click actions wait for windows (forms step 10).
 
 /*****************************************************************************

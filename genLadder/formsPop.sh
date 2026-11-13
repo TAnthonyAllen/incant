@@ -395,7 +395,10 @@ fdRow "descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' lef
 fdRow "descT DE-5 no refusal and no colour error (the form includes styles itself)" "$(grep -c 'REFUS\|ERROR' "$T/de.e")" "11" "0"
 #  DE-6 MEASURED, NOT CHOSEN: with dESCRIPTIONs on the search list during the form's define (R1), the form's saber IS the registry's saber, so
 #  the registry entry's text becomes the form field's text. R2 reads the same way (an image field's text is its description).
-fdRow "descT DE-6 the registry's saber after the form's define (R1: one field, the form's text)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor" "Saber from Fate Stay Night"
+#  CURED 2026-11-13 (Tony's fix): the captions are defined on their own in FORMs before the search line, and the form names them with no text.
+#  The current registry is searched first (GroupControl locate), so the form's saber is the caption and the registry's saber keeps its long text.
+_ofeq "descT DE-12 THE FORM'S saber and describeHead read their captions (the laid-out definition), while DE-6 has the registry's long text" "$(grep -h '^[[:space:]]*saber=' "$T/de.o" | head -1 | sed 's/^[[:space:]]*//; s/ image=.*//') / $(grep -h '^[[:space:]]*describeHead=' "$T/de.o" | head -1 | sed 's/^[[:space:]]*//; s/ font=.*//')" "saber=Saber from Fate Stay Night / describeHead=Using Descriptions"
+fdRow "descT DE-6 the registry's saber after the form's define keeps its long text (it read the form's caption until 2026-11-13)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor" "Saber from Fate Stay Night"
 #  ⚑ SEQ 608 (R2, R6): describeHelp shows its describe attribute's text; an image field's text is its description and is not drawn; the
 #  describe action moved from tester to incant/utilities. REGISTERED BEFORE THE BUILD.
 fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== drawSpans describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"

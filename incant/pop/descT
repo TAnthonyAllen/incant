@@ -63,3 +63,7 @@ The form is named descriptions (it was webViewExample). Stroke 1a: the form is a
 same seven points are read back from the page (DE-10, DE-11). Rows in formsPop. Coordinates are page coordinates (the top's x and y are the
 origin). The DED lines read the descriptions registry after the form is defined: with dESCRIPTIONs on the search list
 during the form's define (R1), a form field of the same name is the registry's entry, not a second field.
+
+2026-11-13 (Tony's fix for the capture): the form's captions (describeHead, saber, trees) are plain FORMs definitions made
+before dESCRIPTIONs is searched, and the form names them with no text. DE-6 now reads the registry's long text; DE-12 reads
+the captions off the laid-out form. H7: with the three captions put back on the form's own lines DE-6 reads the caption again.
