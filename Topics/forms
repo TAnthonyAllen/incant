@@ -72,7 +72,7 @@ What each field is for (from the retired WorkingOn/drawing, git ede70292):
 UNPARKED (SEQ 631): PoinT, ArC and CurvE-as-a-rule are defined as rule shapes; PerfRighT PerfLefT PerfToP PerfBottoM and PerforatioN are defined. A template naming one field several times (DowN=GaP ... DowN=StridE) keeps each value, now that the fields are virtual (DF-5).
     NOT CARRIED: PoinT's action. It is written in the old drawing spellings (scope currentFRAME~, isPERCENT); its text is in git ede70292^, IncantForms/WorkingOn/drawing. Nothing draws from these entries yet: the small drawing language is still a design question (Topics/drawing).
 
-ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 3 of 21 forms draw.
+ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 3 of 21 forms draw. A field can hold another form (form:=other).
 
 /*****************************************************************************
     Description
@@ -129,7 +129,11 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         and what the field refers to can be changed by a button, a dialog or anything kant can do. The old GUI had pop-ups and panels and no nested forms.
         RULED (Tony, 2026-11-13, via Clay): the spelling is form:=other; the referenced form is descriptions. Stroke 1 splits: 1a descriptions laid out and drawn to a PDF on its own, layout only (describe's action and the images' actions wait for windows);
         1b form:=descriptions in a firstLight field, with the refusal by name for a form that holds itself, resizeLightT re-pinned. Waiting on Tony 6 is ruled before 1a. Proposed, not ruled: 2 the reference rewritten and redrawn by listening; 3 the click chooses (G1).
-        1a DONE (seal 474): the form is named descriptions (it was webViewExample) and its file is definitions only, shaped like firstLight; descT includes it, draws it to a PDF and reads it back (DE-10, DE-11). NEXT: 1b.
+        1a DONE (seal 474): the form is named descriptions (it was webViewExample) and its file is definitions only, shaped like firstLight; descT includes it, draws it to a PDF and reads it back (DE-10, DE-11). 
+        1b DONE (seal 475): incant/utilities placeForm. Once a field written form:=other has its frame, frameMembers lays that form out through setFrame with the field as the request's frame and hangs the laid-out copy under the field; the draw walk is unchanged. Each field gets its own copy (formNestT NF-3).
+           setFrame keeps the names of the forms being laid out (sfChain) and refuses one met again, by name; the field is left empty (NF-4). A := in a define cannot name its own form (not yet defined, the define refuses), so a form holds itself only by a later write.
+           firstLight: inside form:=descriptions height=50%, below bar; the form is 400x400 so heading, words and bar keep their frames; the file includes the descriptions form itself. Text properties reach the held form from its host (the climb passes through the field).
+           NOT BUILT: the held form's own declared size is not read (the field's frame is its frame); a field holding a form lays out no members of its own.
         PARKED, a later step (Tony, 2026-11-13): a form reference whose attribute action runs a whole incantation, instead of a reference to a form that is definitions only.
 
 /*****************************************************************************
@@ -227,7 +231,8 @@ Form files (from docs/forms.md, retired into this file)
        The kept value was used as written: nothing in that code adds the parent's origin to it (today's overlay measures from the parent, R4). A written x=0 counted as written.
        Forms that rely on it: NONE found. Searched IncantForms/Windows (all 21), IncantForms/Controls and incant/unitTests for x= or y=: every hit is on a window or a top field (20 forms, plus unitTests' four test tops). No child field in any form writes x or y.
        To rule: read a child's x and y under down and across too (and, if so, does it still leave its gap), or leave them unread there.
-    6  RULED NOT A PROBLEM (Tony, 2026-11-13, via Clay): descriptions worked when Tony tested it; what the form overwrites is describe, which can be made virtual if that matters. No search-line move.
+    6  RESOLVED BY TONY'S FIX (2026-11-13, built at seal 475): the captions that share a name with a registry entry (describeHead, saber, trees) are plain FORMs definitions made before dESCRIPTIONs is searched; the form names them with no text. The current registry is searched first (GroupControl locate: a registry of that name, then the current registry, then the search list, then the base registries), so the form's saber is the caption and the registry's saber keeps its long text (descT DE-6, DE-12). describeHelp has no caption and is still the registry's entry.
+       Earlier the same day: ruled not a problem, no search-line move.
        The reading asked for, with the search line where it is: dESCRIPTIONs["saber"] after the form's define reads "Saber from Fate Stay Night" (the form's caption), not "Fate Stay Night is a favorite anime..." (descT DE-6, pinned at that value). Shown to Tony at seal 474; nothing built on it.
        DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
 
@@ -293,6 +298,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    475  SEQ 640   G2 stroke 1b: a form inside a field (placeForm; firstLight holds descriptions; formNestT NF-1 to NF-5; a self-holding form refused by name). Tony's caption fix for Waiting on Tony 6 (DE-6, DE-12). formsPop 210 green.
     474  SEQ 639   G2 stroke 1a: descriptions renamed, reshaped like firstLight, drawn to a PDF (DE-10, DE-11; DE-8 and DE-9 re-pinned, the form is drawn twice). Waiting on Tony 6 ruled not a problem. {registry.name} inserts (Topics/typesetting). formsPop 203 green.
     473  SEQ 638   typesetting T3 (Topics/typesetting): {name} inserts a form field's text; formsPop 199 green. Goal G2 recorded (a form inside a field).
     472  SEQ 637   SHUTDOWN (typesetting): space in points or percent, the hex-colour row, three kant fixits; formsPop 196 green. The kitchen pass run.

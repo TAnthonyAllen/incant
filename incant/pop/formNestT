@@ -1,0 +1,94 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs;
+include(firstLightFile);
+register(FORMs);
+define
+    npOuter window x=0 y=0 width=400 height=400 down fill:=wall font:=normalFont
+        npHead="outer" text height=40;
+        npHost form:=descriptions;
+        npFoot="foot" text height=40 fill:=white;
+    ;
+define
+    npTwo window x=0 y=0 width=400 height=300 across fill:=wall font:=normalFont
+        npLeft form:=descriptions;
+        npRight form:=descriptions;
+    ;
+define
+    npSelf window x=0 y=0 width=300 height=300 down fill:=wall
+        npIn form:=descriptions;
+    ;
+register(NestT);
+search NestT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    npX = 0;
+    npY = 0;
+    npAt code={
+        px = npX;
+        py = npY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/output.pdf";
+    npReq path="IncantForms/PDF/output.pdf" form:=npOuter;
+    npTwoReq path="IncantForms/PDF/output.pdf" form:=npTwo;
+    npSelfReq path="IncantForms/PDF/output.pdf" form:=npSelf;
+    npLightReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    npLaid;
+    npGo code={ npLaid := redrawForm(argument); };
+    ;
+cout "NF PAGE outer":;
+npGo(npReq);
+printDefinition(*npLaid);
+readPDF(pdfRead);
+npX = 10; npY = 50; npAt(pdfRead);
+npX = 10; npY = 380; npAt(pdfRead);
+cout "NF PAGE outer2":;
+npGo(npReq);
+printDefinition(*npLaid);
+cout "NF PAGE two":;
+npGo(npTwoReq);
+printDefinition(*npLaid);
+readPDF(pdfRead);
+npX = 10; npY = 10; npAt(pdfRead);
+npX = 210; npY = 10; npAt(pdfRead);
+cout "NF PAGE self":;
+npSelf["npIn"].form := npSelf;
+npGo(npSelfReq);
+readPDF(pdfRead);
+npX = 10; npY = 10; npAt(pdfRead);
+cerr "NF chain left" sfChain.listLengtH:;
+cout "NF PAGE light":;
+npGo(npLightReq);
+readPDF(pdfRead);
+npX = 300; npY = 15; npAt(pdfRead);
+npX = 10; npY = 210; npAt(pdfRead);
+npX = 390; npY = 190; npAt(pdfRead);
+cout "NF PAGE end":;
+cerr "NESTT SENTINEL":;
+stop();
+
+formNestT -- a form inside a field, G2 stroke 1b (Tony, 2026-11-13). Rows in genLadder/formsPop.sh.
+A field written form:=other is the frame for that form: layout gives the field its frame, lays the form out in it
+(incant/utilities placeForm, through setFrame) and hangs the laid-out copy under the field; the draw walk draws it there.
+
+NF-1  npOuter: npHost sits between a 40-point head and a 40-point foot, so its frame is 400x320 at 0,40, and the
+      descriptions form laid out inside it has exactly that frame. On the page (10,50) is the held form's lightGreen
+      heading field and (10,380) is npFoot's white.
+NF-2  a second run reads as the first: the same frame for the held form.
+NF-3  TWO FIELDS, ONE FORM: npLeft and npRight both hold descriptions; each gets its own copy, 200 wide, at x 0 and x 200,
+      and both draw (lightGreen at (10,10) and (210,10)). One shared copy could sit in only one of the two places.
+NF-4  A FORM THAT HOLDS ITSELF is refused by name at layout and its field is left empty: npIn is rewritten to hold npSelf
+      (a := in a define cannot name its own form: the name is not defined yet, and the define refuses it). The page is
+      still drawn (npSelf's wall at (10,10)), and the list of forms being laid out is empty afterwards.
+NF-5  firstLight holds descriptions in its lower half: heading's wall at (300,15), the held form's lightGreen heading
+      field at (10,210), ok's green at (390,190).
+H7: with placeForm's call removed from frameMembers, NF-1, NF-3 and NF-5 go red.

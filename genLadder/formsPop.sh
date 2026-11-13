@@ -398,7 +398,7 @@ fdRow "descT DE-5 no refusal and no colour error (the form includes styles itsel
 #  CURED 2026-11-13 (Tony's fix): the captions are defined on their own in FORMs before the search line, and the form names them with no text.
 #  The current registry is searched first (GroupControl locate), so the form's saber is the caption and the registry's saber keeps its long text.
 _ofeq "descT DE-12 THE FORM'S saber and describeHead read their captions (the laid-out definition), while DE-6 has the registry's long text" "$(grep -h '^[[:space:]]*saber=' "$T/de.o" | head -1 | sed 's/^[[:space:]]*//; s/ image=.*//') / $(grep -h '^[[:space:]]*describeHead=' "$T/de.o" | head -1 | sed 's/^[[:space:]]*//; s/ font=.*//')" "saber=Saber from Fate Stay Night / describeHead=Using Descriptions"
-fdRow "descT DE-6 the registry's saber after the form's define keeps its long text (it read the form's caption until 2026-11-13)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor" "Saber from Fate Stay Night"
+_ofeq "descT DE-6 the registry's saber after the form's define keeps its long text (it read the form's caption until 2026-11-13)" "$(sed -n 's/^DED saber \[ \(.*\) \]/\1/p' "$T/de.e" | cut -c1-26)" "Fate Stay Night is a favor"
 #  ⚑ SEQ 608 (R2, R6): describeHelp shows its describe attribute's text; an image field's text is its description and is not drawn; the
 #  describe action moved from tester to incant/utilities. REGISTERED BEFORE THE BUILD.
 fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== drawSpans describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"
@@ -417,19 +417,19 @@ _depp () { grep -h "^=== pixelAt pdfRead ($1) " "$T/de.o" | head -1 | sed 's/.*=
 _ofeq "descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top)" "$(grep -h '^=== readPDF pdfRead' "$T/de.o" | sed 's/^=== readPDF pdfRead //; s/ ===$//' | xargs) / $(_depp 10,10) $(_depp 100,550) $(_depp 0,300) $(_depp 250,300) $(_depp 100,325)" "pages 1 size 500x600 / $(_dep 10,10) $(_dep 100,550) $(_dep 0,300) $(_dep 250,300) $(_dep 100,325)"
 _ofeq "descT DE-11 THE IMAGES IN THE PDF: saber's and trees' points (100,300) (350,300) are not the field's paleGray" "$([ -n "$(_depp 100,300)" ] && [ "$(_depp 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ -n "$(_depp 350,300)" ] && [ "$(_depp 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" "image image"
 
-echo "-- a form inside a field: G2 stroke 1b (nestT)."
-#  ⚑ nestT -- a form inside a field (Tony, 2026-11-13): a field written form:=other is the frame for that form. Pages are read back from the PDF.
+echo "-- a form inside a field: G2 stroke 1b (formNestT)."
+#  ⚑ formNestT -- a form inside a field (Tony, 2026-11-13): a field written form:=other is the frame for that form. Pages are read back from the PDF.
 #  Controls: NF-3's two fields holding one form (one shared copy could be in only one place); NF-4's page still drawn beside its refusal.
-_nfF=$(ip nestT)
+_nfF=$(ip formNestT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_nfF" > "$T/nf.o" 2> "$T/nf.e"; _nfx=$?
 _nfp () { awk -v want="$1" '/^NF PAGE/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/nf.o"; }
 _nff () { awk -v want="$1" '/^NF PAGE/{b=$3} /descriptions closable/ && b==want { for (i = 1; i <= NF; i++) { split($i, kv, "="); if (kv[1]=="x") x=kv[2]; if (kv[1]=="y") y=kv[2]; if (kv[1]=="width") w=kv[2]; if (kv[1]=="height") h=kv[2] } printf "%s%sx%s at %s,%s", sep, w, h, x, y; sep=" / " }' "$T/nf.o"; }
-_ofeq "nestT exit / sentinel" "$_nfx $(grep -c '^NESTT SENTINEL' "$T/nf.e")" "0 1"
-_ofeq "nestT NF-1 the held form takes its field's frame (400x320 at 0,40, between a 40-point head and foot); on the page its lightGreen heading field (10,50), the foot's white (10,380)" "$(_nff outer) / $(_nfp outer)" "400x320 at 0,40 / r175 g211 b120 a255 / r255 g255 b255 a255"
-_ofeq "nestT NF-2 a second run reads as the first" "$(_nff outer2)" "$(_nff outer)"
-_ofeq "nestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at x 0 and x 200, and both draw (10,10) (210,10)" "$(_nff two) / $(_nfp two)" "200x300 at 0,0 / 200x300 at 200,0 / r175 g211 b120 a255 / r175 g211 b120 a255"
-_ofeq "nestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out" "$(grep -c '^setFrame: REFUSING placeReq -- the form npSelf holds itself' "$T/nf.e") / $(_nfp self) / $(sed -n 's/^NF chain left \([0-9]*\).*/\1/p' "$T/nf.e")" "1 / r247 g232 b170 a255 / 0"
-_ofeq "nestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190)" "$(_nfp light)" "r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
+_ofeq "formNestT exit / sentinel" "$_nfx $(grep -c '^NESTT SENTINEL' "$T/nf.e")" "0 1"
+_ofeq "formNestT NF-1 the held form takes its field's frame (400x320 at 0,40, between a 40-point head and foot); on the page its lightGreen heading field (10,50), the foot's white (10,380)" "$(_nff outer) / $(_nfp outer)" "400x320 at 0,40 / r175 g211 b120 a255 / r255 g255 b255 a255"
+_ofeq "formNestT NF-2 a second run reads as the first" "$(_nff outer2)" "$(_nff outer)"
+_ofeq "formNestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at x 0 and x 200, and both draw (10,10) (210,10)" "$(_nff two) / $(_nfp two)" "200x300 at 0,0 / 200x300 at 200,0 / r175 g211 b120 a255 / r175 g211 b120 a255"
+_ofeq "formNestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out" "$(grep -c '^setFrame: REFUSING placeReq -- the form npSelf holds itself' "$T/nf.e") / $(_nfp self) / $(sed -n 's/^NF chain left \([0-9]*\).*/\1/p' "$T/nf.e")" "1 / r247 g232 b170 a255 / 0"
+_ofeq "formNestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190)" "$(_nfp light)" "r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
 
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is

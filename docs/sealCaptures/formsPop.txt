@@ -71,7 +71,7 @@
   ok    textT TX-C3 tLong inherits tForm's color:=red = [r239 g43 b45]
   ok    textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green) = [Palatino 24 1 r0 g158 b15]
   ok    textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end) = [2 space / 1 end]
-  ok    textT TX-N drawSpans calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text) = [heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain]
+  ok    textT TX-N drawSpans calls: heading words ok (and the held form's describeHead describeHelp), then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text) = [heading words ok describeHead describeHelp tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain]
   ok    textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else = [tOver tLong]
   ok    textT AL-1 CENTER: heading's ink centred in its frame (x 0..399, y 10..28) = [centred]
   ok    textT AL-2 CENTER: ok's ink centred in its frame (x 340..399; scanned 342..397, y 168..196) = [centred]
@@ -93,7 +93,7 @@
 -- the first PDF: step 4.
   ok    firstPdfT exit / sentinel = [0 1]
   ok    firstPdfT the file exists and begins %PDF = [%PDF]
-  ok    firstPdfT readPDF: one page, firstLight's frame (400 x 200 points) = [pages 1 size 400x200]
+  ok    firstPdfT readPDF: one page, firstLight's frame (400 x 400 points) = [pages 1 size 400x400]
   ok    firstPdfT PD-1 read back: heading (300,15) wall, words (5,100) white, space (100,180) wall, ok (390,190) lightGreen = [r247 g232 b170 a255/r255 g255 b255 a255/r247 g232 b170 a255/r175 g211 b120 a255/]
   ok    firstPdfT PD-2 read back: ok's border left (340,180) red / (339,180) wall, top (360,165) red / (360,164) white = [r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/]
   ok    firstPdfT PD-3 read back: heading's bottom line (5,42) black, (5,43) white = [r0 g0 b0 a255/r255 g255 b255 a255/]
@@ -111,7 +111,8 @@
   ok    descT DE-3 FILLS (fill:=): first lightGreen (10,10), describeHelp lightGreen (100,550) = [r175 g211 b120 a255/r175 g211 b120 a255]
   ok    descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' left (250,300), describeHelp's top (100,325), black = [r0 g0 b0 a255/r0 g0 b0 a255/r0 g0 b0 a255]
   ok    descT DE-5 no refusal and no colour error (the form includes styles itself) = [0]
-  ok    descT DE-6 the registry's saber after the form's define (R1: one field, the form's text) = [Saber from Fate Stay Night]
+  ok    descT DE-12 THE FORM'S saber and describeHead read their captions (the laid-out definition), while DE-6 has the registry's long text = [saber=Saber from Fate Stay Night / describeHead=Using Descriptions]
+  ok    descT DE-6 the registry's saber after the form's define keeps its long text (it read the form's caption until 2026-11-13) = [Fate Stay Night is a favor]
   ok    descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text = [61 of 61]
   ok    descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees (twice since 2026-11-13: the bitmap, then the PDF) = [describeHead describeHelp describeHead describeHelp]
   ok    describeT exit / sentinel = [0 1]
@@ -119,6 +120,13 @@
   ok    descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray = [saber fit fill trees fit fill saber fit fill trees fit fill / image image]
   ok    descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top) = [pages 1 size 500x600 / r175 g211 b120 a255 r175 g211 b120 a255 r0 g0 b0 a255 r0 g0 b0 a255 r0 g0 b0 a255]
   ok    descT DE-11 THE IMAGES IN THE PDF: saber's and trees' points (100,300) (350,300) are not the field's paleGray = [image image]
+-- a form inside a field: G2 stroke 1b (formNestT).
+  ok    formNestT exit / sentinel = [0 1]
+  ok    formNestT NF-1 the held form takes its field's frame (400x320 at 0,40, between a 40-point head and foot); on the page its lightGreen heading field (10,50), the foot's white (10,380) = [400x320 at 0,40 / r175 g211 b120 a255 / r255 g255 b255 a255]
+  ok    formNestT NF-2 a second run reads as the first = [400x320 at 0,40]
+  ok    formNestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at x 0 and x 200, and both draw (10,10) (210,10) = [200x300 at 0,0 / 200x300 at 200,0 / r175 g211 b120 a255 / r175 g211 b120 a255]
+  ok    formNestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out = [1 / r247 g232 b170 a255 / 0]
+  ok    formNestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190) = [r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255]
 -- the first image: forms step 8.
   ok    imageT exit / sentinel = [0 1]
   ok    imageT IM-1 FILL: imSquare shows the image's middle -- red (30,60), blue (90,60), and no green at its edges (12,60) (107,60) = [red blue red blue]
@@ -196,11 +204,11 @@
 
 -- firstLight resized by one whole write to layoutFrame (resizeLightT).
   ok    resizeLightT exit / sentinel = [0 1]
-  ok    resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 4 lines; heading wall, words white, space wall, ok green = [runs 0 / 400x200 lines 4 wall white wall green]
-  ok    resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x300, words in 3 lines; the four fields at their new places; where ok was is words' white = [runs 1 width 600 height 300 / 600x300 lines 3 wall white wall green white]
-  ok    resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value = [runs 1 / 600x300 lines 3 wall white wall green white]
-  ok    resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value = [runs 2 width 400 height 200 / 400x200 lines 4 wall white wall green]
-  ok    resizeLightT RG-5 four pages were read, and firstLight still declares 400x200 = [4 / firstLight x=300 y=450 width=400 height=200]
+  ok    resizeLightT RG-1 before, as declared: no listener run; 400x400, words in 4 lines; heading wall, words white, space wall, ok green = [runs 0 / 400x400 lines 4 wall white wall green]
+  ok    resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x600, words in 3 lines; the four fields at their new places; where ok was is words' white = [runs 1 width 600 height 600 / 600x600 lines 3 wall white wall green white]
+  ok    resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value = [runs 1 / 600x600 lines 3 wall white wall green white]
+  ok    resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value = [runs 2 width 400 height 400 / 400x400 lines 4 wall white wall green]
+  ok    resizeLightT RG-5 four pages were read, and firstLight still declares 400x400 = [4 / firstLight x=300 y=450 width=400 height=400]
 
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
@@ -238,4 +246,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 203 green, see above
+FORMS POP FAILED -- 210 green, see above

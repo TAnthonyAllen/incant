@@ -5,24 +5,24 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**474, 2026-11-13, topic: forms (with typesetting), SEQ 639 (assigned by Clod).** Tony's rulings via Clay: T3 bought; a
-missing insert name keeps printing as written; action-produced text waits; Waiting on Tony 6 is not a problem and the
-search line stays. Built, all in kant: `{registry.name}` inserts from that registry only (TY-18, TY-19); G2 stroke 1a, the
-descriptions form renamed from webViewExample, reshaped like firstLight and drawn to a PDF (DE-10, DE-11).
-**NEXT:** G2 stroke 1b: `form:=descriptions` in a firstLight field, the refusal by name for a form that holds itself,
-resizeLightT re-pinned. The same day, seal 473: T3. Later: typeset's state into its own layout context.
+**475, 2026-11-13, topic: forms, SEQ 640 (assigned by Clod).** G2 stroke 1b built, all in kant: a field written
+`form:=other` is filled by that form, laid out in the field's frame (`placeForm`); firstLight holds descriptions in its
+lower half and is 400x400. A form that holds itself is refused by name. Tony's caption fix built: descriptions' captions
+are plain FORMs definitions, so the registry's saber keeps its long text. Rows: formNestT NF-1 to NF-5, descT DE-12.
+**NEXT:** Tony's to choose: G2 stroke 2 (the reference rewritten and redrawn by listening), or IBkant's first page.
+The same day, seals 473-474: T3, `{registry.name}`, descriptions to a PDF. Later: typeset's state into its own layout context.
 
-## The numbers (as run at seal 474; the binary is seal 472's)
+## The numbers (as run at seal 475; the binary is seal 472's)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3799 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 203 green (199 + TY-18, TY-19, DE-10, DE-11); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 210 green (203 + formNestT's six, DE-12); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 or 474 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 to 475 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -37,7 +37,7 @@ Clod's fixit incantations waiting: 9 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 51 / 60 | this page. |
-| `Topics/forms` | 261 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 267 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 124 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 101 / 120 | sub-topic of forms until forms step 7. |
