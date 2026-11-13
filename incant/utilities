@@ -147,6 +147,9 @@ define
         split at white space, one span a word, each in the style of the runs
         open at the insert; nothing inside it is read as a mark. A name no
         field has warns by name and is left as written. tsFind is the search.
+        {registry.name} (Tony, 2026-11-13) inserts that registry's entry and
+        looks nowhere else; {name} looks in the form and nowhere else. A
+        registry or an entry that is not there warns by name, left as written.
     ***************************************************************************/
     tsSp isRule sp^-=[\t\r ];
     tsNl isRule nl^-=[\n];
@@ -154,6 +157,7 @@ define
     tsWord isRule word^=[^\t\n\r{} ]+;
     tsLit isRule lit^="{" more^-="{";
     tsOpen isRule open^="{" style^=[a-zA-Z0-9]+ colon^=":";
+    tsQual isRule qins^="{" reg^=[a-zA-Z0-9]+ dot^="." name^=[a-zA-Z0-9]+ end^="}";
     tsIns isRule ins^="{" name^=[a-zA-Z0-9]+ end^="}";
     tsBrace isRule brace^="{";
     tsClose isRule close^="}";
@@ -161,6 +165,7 @@ define
         tsWord^;
         tsLit^;
         tsOpen^;
+        tsQual^;
         tsIns^;
         tsBrace^;
         tsClose^;
@@ -209,7 +214,32 @@ define
             tyIsSpan = 1;
             tyMode = 0;
             // insertFound mode 1: no field of that name, the three pieces print as written; 2: the field's words; 3: a field with no text of its own, nothing
-            if *tyKind == "ins";
+            tyIns = 0;
+            if *tyKind == "ins";    tyIns = 1;
+            if *tyKind == "qins";   tyIns = 2;
+            // registryOnly a qualified insert looks in the named registry and nowhere else (Tony, 2026-11-13); registries holds every registry by name
+            if tyIns == 2;
+                tyRl := *tyLeaf.nexT;
+                tyRg := *tyRl.texT;
+                tyDl := *tyRl.nexT;
+                tySl := *tyDl.nexT;
+                tyNm := *tySl.texT;
+                tyMode = 1;
+                tsHit = 0;
+                tyRegOk = 0;
+                if registries[*tyRg];
+                    tyRegOk = 1;
+                    tyRegH := registries[*tyRg];
+                    if *tyRegH[*tyNm];
+                        tsFound := *tyRegH[*tyNm];
+                        tsHit = 1;
+                tyFt := *tsWho.taG;
+                if tyRegOk == 0;
+                    cerr "drawSpans: WARNING" tyFt "-- its text inserts from" tyRg "-- not a registry; left as written":;
+                if tyRegOk == 1;
+                    if tsHit == 0;
+                        cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "from" tyRg "-- that registry has no such entry; left as written":;
+            if tyIns == 1;
                 tySl := *tyLeaf.nexT;
                 tyNm := *tySl.texT;
                 tyMode = 1;
@@ -231,6 +261,7 @@ define
                 if tsHit == 0;
                     tyFt := *tsWho.taG;
                     cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "-- no field of that name in the form; left as written":;
+            if tyIns > 0;
                 if tsHit == 1;
                     tyMode = 3;
                     tyFh = *tsFound.datA;

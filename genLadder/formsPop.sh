@@ -377,9 +377,9 @@ echo "-- the descriptions form: forms step 8, baby steps."
 #  the form up to its stop() joined to the driver incant/pop/descT. REGISTERED BEFORE THE FORM CHANGE: each row pinned at the old form's
 #  value, the intended beside it. Pixels are page coordinates.
 _deF=$(ip descT)
-awk '/^stop\(\);$/{exit} {print}' IncantForms/Windows/descriptions > "$T/de.k"; cat "$_deF" >> "$T/de.k"
-perl -e 'alarm 30; exec @ARGV' "$B" "$T/de.k" > "$T/de.o" 2> "$T/de.e"; _dex=$?
-_dep () { grep -h "^=== pixelAt webViewExample ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
+#  2026-11-13 (G2 stroke 1a): the form is definitions only and named descriptions, so descT includes it and is run as it stands (the join is gone).
+perl -e 'alarm 30; exec @ARGV' "$B" "$_deF" > "$T/de.o" 2> "$T/de.e"; _dex=$?
+_dep () { grep -h "^=== pixelAt descriptions ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
 #  _deFr <field>: the field's frame from the definition printed after setFrame, as "WxH at X,Y"
 _deFr () { grep -h "^[[:space:]]*$1=" "$T/de.o" | tail -1 | awk '{ for (i = 1; i <= NF; i++) { split($i, kv, "="); gsub(/;/, "", kv[2]); if (kv[1] == "width") w = kv[2]; if (kv[1] == "height") h = kv[2]; if (kv[1] == "x") x = kv[2]; if (kv[1] == "y") y = kv[2] } } END { print w "x" h " at " x "," y }'; }
 _det () { grep -h "^=== drawSpans $1 " "$T/de.o" | head -1 | sed "s/^=== drawSpans $1 //; s/ lines .* next [a-z]*//; s/ ===\$//"; }
@@ -397,7 +397,7 @@ fdRow "descT DE-6 the registry's saber after the form's define (R1: one field, t
 #  ⚑ SEQ 608 (R2, R6): describeHelp shows its describe attribute's text; an image field's text is its description and is not drawn; the
 #  describe action moved from tester to incant/utilities. REGISTERED BEFORE THE BUILD.
 fdRow "descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text" "$(grep -h '^=== drawSpans describeHelp ' "$T/de.o" | head -1 | sed -n 's/.* drawn \([0-9]* of [0-9]*\) .*/\1/p')" "179 of 179" "61 of 61"
-fdRow "descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees" "$(grep -h '^=== drawSpans ' "$T/de.o" | awk '{print $3}' | xargs)" "describeHead saber trees describeHelp" "describeHead describeHelp"
+fdRow "descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees (twice since 2026-11-13: the bitmap, then the PDF)" "$(grep -h '^=== drawSpans ' "$T/de.o" | awk '{print $3}' | xargs)" "describeHead saber trees describeHelp" "describeHead describeHelp describeHead describeHelp"
 #  The describe action's six lines. Until 2026-11-12 this row ran Tony's tester; he parked its describe driver below stop() that day, so the
 #  driver lives in incant/pop/describeT, verbatim (retired by mapping: one assertion, same md5, same count).
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip describeT)" > "$T/tsd.o" 2> "$T/tsd.e"; _tsx=$?
@@ -405,7 +405,12 @@ _ofeq "describeT exit / sentinel" "$_tsx $(grep -c '^DESCRIBET SENTINEL' "$T/tsd
 _ofeq "describeT: describe's six lines (was tester's, across the move to utilities, R6), md5" "$(grep 'initial description\|mock ' "$T/tsd.o" | md5 -q) $(grep -c 'initial description\|mock ' "$T/tsd.o")" "556d248688d4ae5418d9c134712a5f6a 6"
 #  ⚑ SEQ 609: the form's two images draw (the files are Tony's own pictures, named by absolute path, so the row pins that each drew with
 #  fit fill and that its point is no longer the field's paleGray; the pixel values are imageT's business).
-fdRow "descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray" "$(grep -h '^=== displayImage ' "$T/de.o" | awk '{print $3, $8, $9}' | xargs) / $([ "$(_dep 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ "$(_dep 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" " / fill fill" "saber fit fill trees fit fill / image image"
+#  RE-PINNED 2026-11-13 (stroke 1a): descT draws the form twice, the bitmap and then the PDF, so displayImage runs for each image twice.
+fdRow "descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray" "$(grep -h '^=== displayImage ' "$T/de.o" | awk '{print $3, $8, $9}' | xargs) / $([ "$(_dep 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ "$(_dep 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" " / fill fill" "saber fit fill trees fit fill saber fit fill trees fit fill / image image"
+#  ⚑ G2 stroke 1a (Tony, 2026-11-13): descriptions drawn to a PDF on its own, layout only. The same points read back from the page.
+_depp () { grep -h "^=== pixelAt pdfRead ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
+_ofeq "descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top)" "$(grep -h '^=== readPDF pdfRead' "$T/de.o" | sed 's/^=== readPDF pdfRead //; s/ ===$//' | xargs) / $(_depp 10,10) $(_depp 100,550) $(_depp 0,300) $(_depp 250,300) $(_depp 100,325)" "pages 1 size 500x600 / $(_dep 10,10) $(_dep 100,550) $(_dep 0,300) $(_dep 250,300) $(_dep 100,325)"
+_ofeq "descT DE-11 THE IMAGES IN THE PDF: saber's and trees' points (100,300) (350,300) are not the field's paleGray" "$([ -n "$(_depp 100,300)" ] && [ "$(_depp 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ -n "$(_depp 350,300)" ] && [ "$(_depp 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" "image image"
 
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is
@@ -616,6 +621,8 @@ _ofeq "typesetT TY-15 a run's style holding a colour by value (color=#ef2b2d): i
 _ofeq "typesetT TY-8b (T3) an insert naming no field of the form warns by name, once" "$(grep -c '^drawSpans: WARNING tsIns -- its text inserts name -- no field of that name in the form; left as written' "$T/ty.e")" "1"
 _ofeq "typesetT TY-16 (T3) {name} inserts a field's text, twice in one text: see alpha beta and alpha beta here, 34 characters; the source field draws its own 10" "$(_tyl tsGot) / $(_tyl tsSrc)" "lines 1 drawn 34 of 34 next end / lines 1 drawn 10 of 10 next end"
 _ofeq "typesetT TY-17 (T3) an insert inside a run takes the run's style: 14 characters, one run, and its band has red ink beside the field's blue" "$(_tyl tsRunIns) / $(_tyb insrun)" "lines 1 drawn 14 of 14 next end paragraphs 1 of 1 runs 1 / ink red blue"
+_ofeq "typesetT TY-18 {registry.name} looks in that registry only and {name} in the form only: two fields named tsSrc with different texts, 28 and 19 characters" "$(_tyl tsQ) / $(_tyl tsQform)" "lines 1 drawn 28 of 28 next end / lines 1 drawn 19 of 19 next end"
+_ofeq "typesetT TY-19 a name that is not a registry, and an entry the registry lacks: each left as written (21, 25) and each warned by name" "$(_tyl tsQnoReg) / $(_tyl tsQnoEnt) / $(grep -c '^drawSpans: WARNING tsQnoReg -- its text inserts from nosuchReg -- not a registry; left as written' "$T/ty.e") $(grep -c '^drawSpans: WARNING tsQnoEnt -- its text inserts nosuch from dESCRIPTIONs -- that registry has no such entry; left as written' "$T/ty.e")" "lines 1 drawn 21 of 21 next end / lines 1 drawn 25 of 25 next end / 1 1"
 
 #  ⚑ drawFieldsT -- SEQ 629 (2026-11-12): the drawing fields, spelled capital first and last, defined in FORMs at the top of Topics/forms.
 #  DF-3 is why the spelling: an attribute spelled exactly like a FORMs field is the registry's one field. H7 (run 2026-11-12): without

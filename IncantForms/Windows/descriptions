@@ -1,8 +1,10 @@
-Start();
-include(unitTests);
-include(utilities);
-include(styles);
-search cOLOr fONTs;
+/*****************************************************************************
+    descriptions -- the descriptions form and its registry of help texts. Definitions only,
+    shaped like IncantForms/Windows/firstLight (Tony, 2026-11-13): the driver is below bail().
+    The form is named descriptions (it was webViewExample), so a field of another form
+    can hold it with form:=descriptions. The includer loads utilities and styles and
+    searches cOLOr and fONTs before including this file.
+*****************************************************************************/
 register(dESCRIPTIONs);
 define
     describeHead="Using descriptions (help text or descriptions associated with display blocks) involves two components:
@@ -25,7 +27,7 @@ Note: The describe attribute implies text.";
 search dESCRIPTIONs list;
 register(FORMs);
 define
-    webViewExample window closable resize width=500 height=600 x=500 y=200 fill:=wall title='Description Test'
+    descriptions window closable resize width=500 height=600 x=500 y=200 fill:=wall title='Description Test'
         body
             wrap
                 first height=50 fill:=lightGreen border
@@ -35,5 +37,27 @@ define
                     trees="Beach trees in Santa Monica" image="/Users/anthony/Pictures/BetweenTrees.jpg" border fill:=paleGray;
                 describeHelp describe="This is the default text description when nothing is selected" border font:=normalFont fill:=lightGreen;
     ;
+bail();
 
-stop();
+The search line stays where it is (Tony, 2026-11-13): dESCRIPTIONs is searched while the form is defined, so a form field
+with a registry entry's name is that entry (Topics/forms, Rulings: Descriptions).
+Layout only for now: the describe action and the images' click actions wait for windows (forms step 10).
+
+/*****************************************************************************
+    The driver: descriptions laid out and drawn to IncantForms/PDF/output.pdf.
+    It is below bail(), so nothing runs it. To run it, paste the lines below into
+    tester above its stop(), after tester's own Start() and includes.
+    To look: open -a Skim IncantForms/PDF/output.pdf
+*****************************************************************************/
+registry(fILEs);
+define
+    descriptionsFile File='IncantForms/Windows/descriptions';
+    ;
+include(styles);
+search cOLOr fONTs;
+include(descriptionsFile);
+search FORMs cOLOr fONTs list;
+define
+    descriptionsReq path="IncantForms/PDF/output.pdf" form:=descriptions;
+    ;
+redrawForm(descriptionsReq);

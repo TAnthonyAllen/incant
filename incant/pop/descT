@@ -1,3 +1,13 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search cOLOr fONTs;
+registry(fILEs);
+define
+    descriptionsFile File='IncantForms/Windows/descriptions';
+    ;
+include(descriptionsFile);
 register(DescT);
 define
     deX = 0;
@@ -17,9 +27,11 @@ cerr "DED describeHelp [" dESCRIPTIONs["describeHelp"] "]":;
 define
     laid;
     layIt code={ laid := setFrame(argument); };
-    webViewExampleReq form:=webViewExample;
+    descriptionsReq form:=descriptions;
+    dePdfReq path="IncantForms/PDF/output.pdf" form:=descriptions;
+    pdfRead path="IncantForms/PDF/output.pdf";
     ;
-layIt(webViewExampleReq);
+layIt(descriptionsReq);
 printDefinition(*laid);
 makeDisplay(*laid);
 drawWalk(*laid);
@@ -32,11 +44,22 @@ cerr "DE borders: saber's left (0,300), trees' left (250,300), describeHelp's to
 deX = 0; deY = 300; deAt(*laid);
 deX = 250; deAt(*laid);
 deX = 100; deY = 325; deAt(*laid);
+cerr "DE the PDF (stroke 1a): the same seven points read back from the page":;
+redrawForm(dePdfReq);
+readPDF(pdfRead);
+deX = 10; deY = 10; deAt(pdfRead);
+deX = 100; deY = 300; deAt(pdfRead);
+deX = 350; deAt(pdfRead);
+deX = 100; deY = 550; deAt(pdfRead);
+deX = 0; deY = 300; deAt(pdfRead);
+deX = 250; deAt(pdfRead);
+deX = 100; deY = 325; deAt(pdfRead);
 cerr "DESCT SENTINEL":;
 stop();
 
-descT -- the descriptions form's driver (SEQ 607, Tony, 2026-11-10). NOT RUN ALONE: IncantForms/Windows/descriptions is a
-whole incantation (its own Start and includes), so it cannot be included; genLadder/formsPop.sh joins the form, up to its
-stop(), to this driver and runs the result. Rows in formsPop. Coordinates are page coordinates (the top's x and y are the
+descT -- the descriptions form's driver (SEQ 607, Tony, 2026-11-10). RUN ALONE since 2026-11-13: IncantForms/Windows/descriptions
+is definitions only and this file includes it (until then formsPop joined the form, up to its stop(), to this driver).
+The form is named descriptions (it was webViewExample). Stroke 1a: the form is also drawn to a PDF by redrawForm and the
+same seven points are read back from the page (DE-10, DE-11). Rows in formsPop. Coordinates are page coordinates (the top's x and y are the
 origin). The DED lines read the descriptions registry after the form is defined: with dESCRIPTIONs on the search list
 during the form's define (R1), a form field of the same name is the registry's entry, not a second field.

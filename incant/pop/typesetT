@@ -11,7 +11,7 @@ search cOLOr fONTs sTYLEs;
 include(firstLightFile);
 register(FORMs);
 define
-    tsForm window x=0 y=0 width=300 height=700 down fill:=white font:=normalFont color:=blue
+    tsForm window x=0 y=0 width=300 height=820 down fill:=white font:=normalFont color:=blue
         tsLit="a {{ b" text height=30;
         tsBad="x {nosuch: y} z" text height=30;
         tsOpen="p {emphasis: q r\n\ns t" text height=80;
@@ -30,6 +30,14 @@ define
         tsSrc="alpha beta" text height=30;
         tsGot="see {tsSrc} and {tsSrc} here" text height=30;
         tsRunIns="p {emphasis: {tsSrc}} q" text height=30;
+        tsQ="see {dESCRIPTIONs.tsSrc} here" text height=30;
+        tsQform="see {tsSrc} here" text height=30;
+        tsQnoReg="a {nosuchReg.tsSrc} b" text height=30;
+        tsQnoEnt="a {dESCRIPTIONs.nosuch} b" text height=30;
+    ;
+register(dESCRIPTIONs);
+define
+    tsSrc="gamma delta epsilon";
     ;
 registry(sTYLEs);
 define
@@ -132,3 +140,9 @@ T3 (2026-11-13): {name} inserts the text of the form's field of that name (incan
   TY-16  tsGot  two inserts of tsSrc in one text: "see alpha beta and alpha beta here", 34 characters. Each word of the inserted text is a span of its own.
   TY-17  tsRunIns  an insert inside a run takes the run's style (Tony, 2026-11-12): "p alpha beta q" with alpha beta red. Unstyled, the band would hold no red.
 The three fields sit below tsHex so that no earlier field moves.
+
+Point 1 (Tony, 2026-11-13): {registry.name} inserts that registry's entry and looks nowhere else; {name} looks in the form only.
+  TY-18  tsQ beside tsQform  the registry dESCRIPTIONs and the form both hold a tsSrc, with different texts: {dESCRIPTIONs.tsSrc} draws
+         "see gamma delta epsilon here" (28) and {tsSrc} draws "see alpha beta here" (19). Either looking in the other's place fails its count.
+  TY-19  tsQnoReg, tsQnoEnt  a registry that is not one, and an entry the registry does not hold: each warns by name and is left as written (21, 25).
+tsForm is 820 high for the four fields; they sit below tsRunIns so that no earlier field moves.
