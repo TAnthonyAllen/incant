@@ -498,7 +498,7 @@ _ofeq "passageT exit / sentinel / nothing clipped" "$_pgx $(grep -c '^PASSAGE SE
 _ofeq "passageT PG-1 a passage's blank line splits paragraphs: 15 and 11 characters, two paragraphs" "$(_pgl pgTwo)" "drawn 26 of 26 paragraphs 2 of 2 runs 0"
 _ofeq "passageT PG-2 a passage's run is a run: 21 characters (the marks take no room), one run" "$(_pgl pgRun)" "drawn 21 of 21 paragraphs 1 of 1 runs 1"
 _ofeq "passageT PG-3 a run open at the insert ends at the passage's paragraph break; its closing brace is then text: 17 and 14" "$(_pgl pgHost)" "drawn 31 of 31 paragraphs 2 of 2 runs 1"
-_ofeq "passageT PG-4 a run the passage leaves open ends with the passage: a b c d, one run" "$(_pgl pgOpen)" "drawn 7 of 7 paragraphs 1 of 1 runs 1"
+_ofeq "passageT PG-4 a run the passage leaves open ends with the passage: a b c d, one run; and a closing brace after it is text, 10 characters (9 if the run were still open; H7 2026-11-13)" "$(_pgl pgOpen) / $(_pgl pgEnded)" "drawn 7 of 7 paragraphs 1 of 1 runs 1 / drawn 10 of 10 paragraphs 1 of 1 runs 1"
 _ofeq "passageT PG-5 a passage's closing brace never closes the holder's run: it is text, 11 characters" "$(_pgl pgBrace)" "drawn 11 of 11 paragraphs 1 of 1 runs 1"
 _ofeq "passageT PG-6 an insert inside a passage is left as written (17, not the 16 of alpha beta) and warned by name, once" "$(_pgl pgNest) / $(grep -c '^drawSpans: WARNING pgNest -- inserted text holds an insert of its own; left as written' "$T/pg.e") $(grep -c 'holds an insert of its own' "$T/pg.e")" "drawn 17 of 17 / 1 1"
 _ofeq "passageT PG-7 a form field's text is read the same way ({name}): m n o with one run; the control, a plain passage, is unchanged at 14" "$(_pgl pgField) / $(_pgl pgPlain)" "drawn 5 of 5 paragraphs 1 of 1 runs 1 / drawn 14 of 14"

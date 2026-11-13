@@ -19,11 +19,12 @@ four five#);
     ;
 register(FORMs);
 define
-    pgForm window x=0 y=0 width=300 height=590 down fill:=white font:=normalFont color:=blue
+    pgForm window x=0 y=0 width=300 height=620 down fill:=white font:=normalFont color:=blue
         pgTwo="{PassageTextT.two}" text height=60;
         pgRun="{PassageTextT.run}" text height=30;
         pgHost="k {emphasis: {PassageTextT.two}} z" text height=60;
         pgOpen="{PassageTextT.open} d" text height=30;
+        pgEnded="{PassageTextT.open} d} e" text height=30;
         pgBrace="p {emphasis: q {PassageTextT.brace} r" text height=30;
         pgNest="{PassageTextT.nest}" text height=30;
         pgSrc="alpha beta" text height=30;
