@@ -924,6 +924,10 @@ String      name;
     if jitting {
         jitHandOver("a scope statement -- it binds locals, so it runs at RUN time", input);
         return input; }
+    // outsideAction refused by name: at the top level there is no action to bind locals in
+    if !action {
+        cerr "aCTionScopeXP: ERROR a scope statement (: ...) outside an action; ignored":;
+        return input; }
     // ruleScopeLocals a rule's code locals live in its CodE, never on the rule (SEQ 401)
     if action.isRule {
         code = action.actionBody();

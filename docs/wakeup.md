@@ -17,7 +17,7 @@ Earlier the same day, seals 473-480: T3 and `{registry.name}`; G2, a form inside
 ## The numbers (as run at seal 481; the binary is seal 472's)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3799 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3802 green at 2026-11-13 after seal 481 (BR-4 cured), FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 239 green (228 + ibkantT IB-6 + passageT's ten); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |

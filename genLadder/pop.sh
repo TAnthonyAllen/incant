@@ -1553,7 +1553,9 @@ _brO () { _ofeq "bridgeT $1 old road (control, by value): $2" "$(_brv "$T/br.$1.
 _brO BR-1 "search between two prints" "1 |S|2 | R0 x0"
 _brO BR-2 "debug between two prints" "1 |2 | R0 x0"
 _brO BR-3 "define between two prints of qa" "2 |9 | R0 x0"
-_brO BR-4 "a top-level scope dies" " R0 x139"
+#  BR-4 RE-PINNED 2026-11-13: a top-level scope no longer dies. aCTionScopeXP refuses it by name (no action to bind locals in) and the run goes on; the row below counts the refusal line
+_brO BR-4 "a top-level scope is refused by name, the run goes on" "1 |2 | R0 x0"
+_ofeq "bridgeT BR-4 old road: the scope refusal on stderr" "$(grep -c '^aCTionScopeXP: ERROR a scope statement' "$T/br.BR-4.oe")" "1"
 _brO BR-5 "cerr between two prints (5 on stderr)" "1 |2 | R0 x0"
 _brO BR-6 "cout between two prints" "1 |5 |2 | R0 x0"
 _brO BR-7 "search in an untaken arm fires at parse" "S| R0 x0"

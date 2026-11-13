@@ -10,11 +10,10 @@
 # RE-BANKED 2026-11-10 at seal 438 (SEQ 604): 67 less iterOpT IO-1, now green as the plain walk (ITERBOTh) = 66.
 # RE-BANKED 2026-11-12 at seal 461 (SEQ 629): 66 + notifyT NT-3, born red and pinned, not cured (-= on a field with an attribute takes its remove-a-member arm) = 67.
 # RE-BANKED 2026-11-12 (wakeup dispatch ruling 2): notifyT NT-3 is cured and green (-= subtracts on a valued field); 67 - 1 = 66.
+# RE-BANKED 2026-11-13 (between seals): 66 less bridgeT BR-4's two new-road rows, cured and green (a top-level scope statement is refused by name by aCTionScopeXP, it no longer dies with 139) = 64.
 FAIL  ADDROF faSrc field=#3 body=#2 -- moved
 FAIL  anyOrNum.target (generated bodies + the parsed answer)
 FAIL  anyOrNumT census moved -- the isGROUP poison is back or generation changed
-FAIL  bridgeT BR-4 new road sentinel -- got [0] want [1]
-FAIL  bridgeT BR-4 new road: a top-level scope: the run ends, nothing refuses (no witness) MOVED: reads [ R0 x139], pinned today [1 |2 | R0 x0], intended [1 |2 | R0 x0]
 FAIL  carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
 FAIL  cmdCallT CC-6 new road: an action call, empty () (value / sentinel) born red (SEQ 345): today [ R0 x0 1], intended [8 |5 | R0 x0 1]
 FAIL  convDriveT CD-4 'does not understand' lines = 0, want 1 -- BORN RED 2026-09-23.

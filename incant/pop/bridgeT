@@ -35,7 +35,8 @@ no `list`, so every S comes from a row.
 THE OLD ROAD IS ALREADY MIXED (measured 2026-10-30): Search, DEBUG and DEF carry no defer, so they fire at parse; CerR,
 CouT and ScopeXP are deferred and fire in place. So the old road is the control by value, not the intended value: it
 prints S in an untaken arm (BR-7), prints S once for a three-pass loop (BR-8), and dies with exit 139 for search in a
-taken arm or an else arm (BR-9, BR-10) and for a top-level `:qa;` (BR-4).
+taken arm or an else arm (BR-9, BR-10). A top-level `:qa;` (BR-4) died the same way until 2026-11-13; aCTionScopeXP now
+refuses it by name and the run goes on.
 
 TODAY ON TRUNK (measured): the kant statement rules carry new names (SEARCh, DEBUg, CERr, ...), so the `aCTion`+name
 lookup binds no C++ method; STARt's seq skips them with no word (BR-1, BR-5, BR-6), and If refuses an arm that handed up

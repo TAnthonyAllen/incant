@@ -1213,6 +1213,12 @@ char 		*name = 0;
 		jitHandOver("a scope statement -- it binds locals, so it runs at RUN time",input);
 		return input;
 		}
+	// outsideAction refused by name: at the top level there is no action to bind locals in
+	if ( !action )
+		{
+		::fprintf(stderr,"aCTionScopeXP: ERROR a scope statement (: ...) outside an action; ignored\n");
+		return input;
+		}
 	// ruleScopeLocals a rule's code locals live in its CodE, never on the rule (SEQ 401)
 	if ( action->groupBody->flags.isRule )
 		{
