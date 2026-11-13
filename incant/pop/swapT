@@ -1,0 +1,73 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs;
+include(firstLightFile);
+register(FORMs);
+define
+    swOther window x=0 y=0 width=100 height=100 down fill:=red
+        swOtherText="the other form" text;
+    ;
+register(SwapT);
+search SwapT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    swX = 0;
+    swY = 0;
+    swAt code={
+        px = swX;
+        py = swY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    swPts code={
+        swX = 300; swY = 15;  swAt(pdfRead);
+        swX = 200; swY = 390; swAt(pdfRead);
+        swX = 390; swY = 190; swAt(pdfRead);
+        };
+    pdfRead path="IncantForms/PDF/output.pdf";
+    swRuns = 0;
+    swReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    onSwap listenTo:=insideForm code={
+        swRuns = swRuns + 1;
+        redrawForm(swReq);
+        };
+    ;
+cout "SW PAGE before":;
+redrawForm(swReq);
+readPDF(pdfRead);
+swPts();
+cerr "SW-1 before: runs" swRuns:;
+cout "SW PAGE swapped":;
+insideForm := swOther;
+readPDF(pdfRead);
+swPts();
+cerr "SW-2 swapped by one write: runs" swRuns:;
+cout "SW PAGE back":;
+insideForm := descriptions;
+readPDF(pdfRead);
+swPts();
+cerr "SW-3 written back: runs" swRuns:;
+cout "SW PAGE definition":;
+printDefinition(firstLight);
+cout "SW PAGE end":;
+cerr "SWAPT SENTINEL":;
+stop();
+
+swapT -- the swap, G2 stroke 2 (Tony, 2026-11-13). Rows in genLadder/formsPop.sh.
+firstLight's inside names insideForm, a field of its own that holds the form to show. One write to insideForm tells its
+listener, which calls redrawForm, and a different form appears in the field.
+
+Each page is read at three points: heading's wall (300,15), a point low in the held form (200,390), ok's green (390,190).
+SW-1  before: no listener run. (200,390) is the descriptions form's lightGreen describeHelp, and its two text fields are drawn.
+SW-2  ONE WRITE SWAPS: insideForm := swOther. One run of the listener; (200,390) is swOther's red and its text is drawn, not
+      descriptions'. heading and ok read as before.
+SW-3  written back: a second run, and the page is SW-1's by value.
+SW-4  the definition is not written by a swap: firstLight's inside still names insideForm.
+H7: with placeForm's step through the holding field removed, the held form is not found and SW-1 to SW-3 go red.

@@ -833,13 +833,21 @@ define
         holds a form gets its own copy. setFrame refuses a form that holds
         itself, directly or through other forms (sfChain holds the names of the
         forms being laid out); the field is then left empty.
+        The reference may name the form itself (form:=other) or a field of
+        its own that holds the form (shown := other; form:=shown). Writing
+        that field tells its listeners, so a listener that calls redrawForm
+        swaps the form shown in the field (G2 stroke 2).
     ***************************************************************************/
     placeReq form frame;
     sfChain;
     placeForm code={
         pfHost := argument;
         pfRef := *pfHost["form"];
-        placeReq.form := **pfRef;
+        // heldThroughAField the reference may name a field of its own that holds the form (shown := aForm); writing that field swaps the form (G2 stroke 2)
+        pfTarget := **pfRef;
+        pfVia = *pfTarget.isGrouP;
+        if pfVia == 1;      pfTarget := **pfTarget;
+        placeReq.form := *pfTarget;
         placeReq.frame := argument;
         pfLaid := setFrame(placeReq);
         pfGot = 0;

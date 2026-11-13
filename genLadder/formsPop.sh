@@ -431,6 +431,21 @@ _ofeq "formNestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at
 _ofeq "formNestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out" "$(grep -c '^setFrame: REFUSING placeReq -- the form npSelf holds itself' "$T/nf.e") / $(_nfp self) / $(sed -n 's/^NF chain left \([0-9]*\).*/\1/p' "$T/nf.e")" "1 / r247 g232 b170 a255 / 0"
 _ofeq "formNestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190)" "$(_nfp light)" "r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
 
+echo "-- the swap: G2 stroke 2 (swapT)."
+#  ⚑ swapT -- the swap (Tony, 2026-11-13): firstLight's inside names insideForm, a field of its own holding the form to show; one write to it tells
+#  its listener, which redraws, and a different form appears in the field. Controls: the swapped page beside the before page at the same point;
+#  heading and ok unmoved on every page.
+_swF=$(ip swapT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_swF" > "$T/sw.o" 2> "$T/sw.e"; _swx=$?
+_swp () { awk -v want="$1" '/^SW PAGE/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/sw.o"; }
+_swt () { awk -v want="$1" '/^SW PAGE/{b=$3} /^=== drawSpans/ && b==want { printf "%s%s", sep, $3; sep=" " }' "$T/sw.o"; }
+_swr () { grep "^$1" "$T/sw.e" | sed 's/.*: //' | xargs; }
+_ofeq "swapT exit / sentinel" "$_swx $(grep -c '^SWAPT SENTINEL' "$T/sw.e")" "0 1"
+_ofeq "swapT SW-1 before: no listener run; heading's wall, the descriptions form's lightGreen (200,390), ok's green; its two text fields drawn" "$(_swr SW-1) / $(_swp before) / $(_swt before)" "runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp"
+_ofeq "swapT SW-2 ONE WRITE SWAPS: one listener run; (200,390) is the other form's red and its text is drawn, descriptions' is not; heading and ok as before" "$(_swr SW-2) / $(_swp swapped) / $(_swt swapped)" "runs 1 / r247 g232 b170 a255 / r239 g43 b45 a255 / r175 g211 b120 a255 / heading words ok swOtherText"
+_ofeq "swapT SW-3 written back: a second run, and the page and text calls are SW-1's by value" "$(_swr SW-3) / $(_swp back) / $(_swt back)" "runs 2 / $(_swp before) / $(_swt before)"
+_ofeq "swapT SW-4 the definition is not written by a swap: firstLight's inside still names insideForm" "$(awk '/^SW PAGE/{b=$3} b=="definition" && /inside form=/ {print $2}' "$T/sw.o")" "form=insideForm"
+
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is
 #  IncantForms/Images/bands.png, 40 x 20: 5 white rows, then green red blue green bands 10 wide. REGISTERED BEFORE THE BUILD.
