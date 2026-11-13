@@ -934,6 +934,64 @@ define
         closePDF(pageReq);
         return *rdLaid;
         };
+    /***************************************************************************
+        click -- the mock click (goal G1; G2 stroke 3; Tony, 2026-11-13). ONE
+        argument, a request: form:= the form and field= the name of a field in
+        it. No point and no window: the field is named. The click selects the
+        field (selection), fires the field's own action if it has one, then
+        its attribute actions left to right: every attribute that holds an
+        action (onClick:=someAction, or any other name). Each is handed the
+        field. Nothing here redraws: an action that writes a field with a
+        listener (insideForm := another) is redrawn by that listener.
+        Refuses by name: a request with no form or no field name; a name the
+        form has no field for. Not built: bubbling to the enclosing fields.
+    ***************************************************************************/
+    ckFn;
+    ckNm;
+    clickFire code={
+        if argument["CodE"];
+            cout "=== click" ckFn ckNm "fired its own action ===":;
+            argument(argument);
+        for grup in argument; attributes
+            ckHeld = *grup.isGrouP;
+            ckActs = 0;
+            if ckHeld == 1;
+                if **grup["CodE"];      ckActs = 1;
+            // notItself a field with an action holds itself under the name this; that is the own action, already fired
+            ckAn := *grup.taG;
+            if *ckAn == "this";     ckActs = 0;
+            if ckActs == 1;
+                ckTo := **grup.taG;
+                cout "=== click" ckFn ckNm "fired" ckAn ckTo "===":;
+                **grup(argument);
+        };
+    click code={
+        ckReq := argument;
+        ckOk = 1;
+        if *ckReq["form"];      ckOk = ckOk + 1;
+        if *ckReq["field"];     ckOk = ckOk + 1;
+        if ckOk != 3;
+            cerr "click: REFUSING" argument.taG "-- its request needs form:=theForm and field=theName":;
+            return;
+        ckForm := *ckReq["form"];
+        ckAttr := *ckReq["field"];
+        ckNm := *ckAttr.texT;
+        ckFn := **ckForm.taG;
+        tsHit = 0;
+        tsWant := *ckNm;
+        if *ckFn == *ckNm;
+            tsFound := **ckForm;
+            tsHit = 1;
+        if tsHit == 0;      tsFind(**ckForm);
+        if tsHit == 0;
+            cerr "click: REFUSING" argument.taG "-- the form" ckFn "has no field named" ckNm:;
+            return;
+        // ownHolder the field is kept in a local: an action fired below may redraw, and the redraw's own search writes tsFound
+        ckField := *tsFound;
+        selection := *ckField;
+        cout "=== click" ckFn ckNm "selected ===":;
+        clickFire(*ckField);
+        };
     // quoteIfNeeded obituary: never called; set arm exercised by inArmsT, 2026-09-08
     /***************************************************************************
         Convert the hex string in the target passed in to a floating point number

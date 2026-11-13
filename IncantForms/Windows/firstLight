@@ -13,12 +13,26 @@ define
     ;
 insideForm := descriptions;
 define
+    okNote window x=0 y=0 width=400 height=200 down fill:=white font:=normalFont color:=blue
+        okNoteText="You clicked OK. Click it again and the descriptions form comes back." text align=center valign=center;
+    ;
+define
+    insideShown = 0;
+    okClick code={
+        ocWas = insideShown;
+        if ocWas == 0;      insideForm := okNote;
+        if ocWas == 0;      insideShown = 1;
+        if ocWas == 1;      insideForm := descriptions;
+        if ocWas == 1;      insideShown = 0;
+        };
+    ;
+define
     firstLight window x=300 y=450 width=400 height=400 down fill:=wall font:=normalFont color:=blue
         heading="First Light" text height=43 font:=titleFont color:=green align=center bottomBorder;
         words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit.\n\nA second paragraph holds {emphasis: one run} in a style of its own." text fill:=white align=justify;
         bar across height=35
             space;
-            ok="OK" text width=60 border strokeColor:=red fill:=lightGreen align=center valign=center;
+            ok="OK" text width=60 border strokeColor:=red fill:=lightGreen align=center valign=center onClick:=okClick;
         inside form:=insideForm height=50%;
     ;
 bail();
@@ -31,6 +45,9 @@ A form that holds itself is refused by name at layout (setFrame) and its field i
 THE SWAP (G2 stroke 2; Tony, 2026-11-13). inside names insideForm, a field of its own outside the form that holds the form to
 show: insideForm := descriptions. Writing it (insideForm := anotherForm) is one write, and it tells insideForm's listeners; a
 listener that calls redrawForm shows the other form in the field. firstLight's own definition is never written by a swap.
+THE CLICK (G2 stroke 3, the mock click; Tony, 2026-11-13). ok holds onClick:=okClick. okClick writes insideForm: the first
+click shows okNote in the field, the next brings descriptions back. A click is click(request) in incant/utilities, the
+request naming form:=firstLight and field="ok"; the redraw comes from insideForm's listener, not from the click.
 
 Spelled to the forms plan's rulings. Style attributes sit on fields and are scoped to the subtree: font=normal holds for
 everything under firstLight, and heading overrides it by naming font=title. fill is not inherited, so each field names its

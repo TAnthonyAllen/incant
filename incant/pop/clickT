@@ -1,0 +1,97 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs;
+include(firstLightFile);
+register(FORMs);
+define
+    ckOrder = 0;
+    ckFirst code={ ckOrder = ckOrder * 10 + 2; };
+    ckSecond code={ ckOrder = ckOrder * 10 + 3; };
+    ;
+define
+    ckBoth window x=0 y=0 width=100 height=100 down fill:=wall
+        ckOwn="own" text first:=ckFirst fill:=white second:=ckSecond code={ ckOrder = ckOrder * 10 + 1; };
+    ;
+register(ClickT);
+search ClickT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    ckX = 0;
+    ckY = 0;
+    ckAt code={
+        px = ckX;
+        py = ckY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    ckPts code={
+        ckX = 300; ckY = 15;  ckAt(pdfRead);
+        ckX = 200; ckY = 390; ckAt(pdfRead);
+        ckX = 390; ckY = 190; ckAt(pdfRead);
+        };
+    pdfRead path="IncantForms/PDF/output.pdf";
+    ckRuns = 0;
+    ckReq path="IncantForms/PDF/output.pdf" form:=firstLight;
+    onSwap listenTo:=insideForm code={
+        ckRuns = ckRuns + 1;
+        redrawForm(ckReq);
+        };
+    ckSay code={
+        ckSel := *selection.taG;
+        cerr argument "runs" ckRuns "selected" ckSel "order" ckOrder:;
+        };
+    ckOkClick form:=firstLight field="ok";
+    ckHeadClick form:=firstLight field="heading";
+    ckNoField form:=firstLight field="nosuch";
+    ckNoName form:=firstLight;
+    ckOwnClick form:=ckBoth field="ckOwn";
+    ;
+cout "CK PAGE before":;
+redrawForm(ckReq);
+readPDF(pdfRead);
+ckPts();
+ckSay("CK-1");
+cout "CK PAGE clicked":;
+click(ckOkClick);
+readPDF(pdfRead);
+ckPts();
+ckSay("CK-2");
+cout "CK PAGE again":;
+click(ckOkClick);
+readPDF(pdfRead);
+ckPts();
+ckSay("CK-3");
+cout "CK PAGE heading":;
+click(ckHeadClick);
+ckSay("CK-4");
+cout "CK PAGE refused":;
+click(ckNoField);
+click(ckNoName);
+ckSay("CK-5");
+cout "CK PAGE order":;
+click(ckOwnClick);
+ckSay("CK-6");
+cout "CK PAGE end":;
+cerr "CLICKT SENTINEL":;
+stop();
+
+clickT -- the mock click, G2 stroke 3 and goal G1 (Tony, 2026-11-13). Rows in genLadder/formsPop.sh.
+click(request) names a form and a field: it selects the field, fires the field's own action, then its attribute actions
+left to right. firstLight's ok holds onClick:=okClick, which writes insideForm; insideForm's listener redraws.
+
+Each page is read at heading's wall (300,15), a point low in the held form (200,390), and ok's green (390,190).
+CK-1  before: no listener run; (200,390) is the descriptions form's lightGreen.
+CK-2  THE CLICK: ok is selected, its onClick fired okClick, one listener run; (200,390) is okNote's white and its text is drawn.
+CK-3  a second click brings descriptions back: two runs, and the page is CK-1's by value.
+CK-4  a field with no action (heading): selected, nothing fired, no listener run.
+CK-5  a name the form has no field for, and a request with no field name: each refused by name; nothing selected anew, no run.
+CK-6  ORDER: ckOwn has its own action and two attribute actions with a plain attribute between them; the order digit by
+      digit is 1 (own), 2 (first), 3 (second): 123.
+H7: with the attribute loop's fire line removed, CK-2 and CK-3 show no swap and CK-6 reads 1.

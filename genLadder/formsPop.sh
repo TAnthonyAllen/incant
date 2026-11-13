@@ -446,6 +446,24 @@ _ofeq "swapT SW-2 ONE WRITE SWAPS: one listener run; (200,390) is the other form
 _ofeq "swapT SW-3 written back: a second run, and the page and text calls are SW-1's by value" "$(_swr SW-3) / $(_swp back) / $(_swt back)" "runs 2 / $(_swp before) / $(_swt before)"
 _ofeq "swapT SW-4 the definition is not written by a swap: firstLight's inside still names insideForm" "$(awk '/^SW PAGE/{b=$3} b=="definition" && /inside form=/ {print $2}' "$T/sw.o")" "form=insideForm"
 
+echo "-- the mock click: G2 stroke 3, goal G1 (clickT)."
+#  ⚑ clickT -- the mock click (Tony, 2026-11-13): click(request) names a form and a field, selects the field, fires its own action and then its
+#  attribute actions left to right. firstLight's ok holds onClick:=okClick, which writes insideForm; insideForm's listener redraws.
+#  Controls: CK-4 a field with no action (selected, nothing fired, no run); CK-6's plain attribute between two that hold actions.
+_ckF=$(ip clickT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_ckF" > "$T/ck.o" 2> "$T/ck.e"; _ckx=$?
+_ckp () { awk -v want="$1" '/^CK PAGE/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/ck.o"; }
+_ckt () { awk -v want="$1" '/^CK PAGE/{b=$3} /^=== drawSpans/ && b==want { printf "%s%s", sep, $3; sep=" " }' "$T/ck.o"; }
+_ckc () { awk -v want="$1" '/^CK PAGE/{b=$3} /^=== click/ && b==want { s=$0; sub(/^=== click /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/ck.o"; }
+_ckr () { grep "^$1 " "$T/ck.e" | sed "s/^$1 //" | xargs; }
+_ofeq "clickT exit / sentinel" "$_ckx $(grep -c '^CLICKT SENTINEL' "$T/ck.e")" "0 1"
+_ofeq "clickT CK-1 before: no listener run; (200,390) is the descriptions form's lightGreen" "$(_ckr CK-1 | cut -d' ' -f1-2) / $(_ckp before)" "runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
+_ofeq "clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,390) is the note form's white and its text is drawn; heading and ok unmoved" "$(_ckr CK-2 | cut -d' ' -f1-4) / $(_ckc clicked) / $(_ckp clicked) / $(_ckt clicked)" "runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r175 g211 b120 a255 / heading words ok okNoteText"
+_ofeq "clickT CK-3 a second click brings descriptions back: two runs, the page and text calls are CK-1's by value" "$(_ckr CK-3 | cut -d' ' -f1-2) / $(_ckp again) / $(_ckt again)" "runs 2 / $(_ckp before) / $(_ckt before)"
+_ofeq "clickT CK-4 a field with no action: heading is selected, nothing fired, no listener run" "$(_ckr CK-4 | cut -d' ' -f1-4) / $(_ckc heading)" "runs 2 selected heading / firstLight heading selected"
+_ofeq "clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was" "$(grep -c '^click: REFUSING ckNoField -- the form firstLight has no field named nosuch' "$T/ck.e") $(grep -c '^click: REFUSING ckNoName -- its request needs form:=theForm and field=theName' "$T/ck.e") / [$(_ckc refused)] / $(_ckr CK-5 | cut -d' ' -f1-4)" "1 1 / [] / runs 2 selected heading"
+_ofeq "clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123" "$(_ckr CK-6 | sed 's/.*order //') / $(_ckc order)" "123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond"
+
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is
 #  IncantForms/Images/bands.png, 40 x 20: 5 white rows, then green red blue green bands 10 wide. REGISTERED BEFORE THE BUILD.
