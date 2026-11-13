@@ -472,14 +472,38 @@ perl -e 'alarm 60; exec @ARGV' "$B" "$_ibF" > "$T/ib.o" 2> "$T/ib.e"; _ibx=$?
 _ibt () { awk -v want="$1" '/^IB PAGE/{b=$3} /^=== drawSpans/ && b==want { printf "%s%s", sep, $3; sep=" " }' "$T/ib.o"; }
 _ibc () { awk -v want="$1" '/^IB PAGE/{b=$3} /^=== click/ && b==want { s=$0; sub(/^=== click /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/ib.o"; }
 _ibb () { awk -v want="$1" -v f="$2" '/^IB PAGE/{b=$3} /^=== drawSpans/ && b==want && $3==f { s=$0; sub(/.* drawn /,"drawn ",s); sub(/ next .* paragraphs/," paragraphs",s); sub(/ runs.*/,"",s); print s }' "$T/ib.o"; }
-_ibn () { awk -v n="$1" -F'"' '$1 ~ "^    "n"(One|Two)=" { t+=length($2) } END { print t+0 }' IncantForms/IBkant/text; }
+#  _ibn <page>: the characters that page's passage should draw, counted from the text file itself: marks taken out, each paragraph's white space
+#  runs made one space, the paragraphs' lengths added. RE-PINNED 2026-11-13 (gap 1): a page is ONE passage holding its own paragraphs and runs.
+_ibn () { perl -0777 -e '$n=shift; $_=<>; /^    \Q$n\E=\((.*?)#\);/ms or do { print "nopassage"; exit }; $t=$1; $t=~s/\{[A-Za-z0-9]+:\s*//g; $t=~s/\}//g; $c=0; for (split /\n\s*\n/, $t){ s/\s+/ /g; s/^ | $//g; $c+=length } print $c' "$1" IncantForms/IBkant/text; }
+_ibu () { awk -v want="$1" -v f="$2" '/^IB PAGE/{b=$3} /^=== drawSpans/ && b==want && $3==f { s=$0; sub(/.* runs /,"runs ",s); sub(/ ===.*/,"",s); print s }' "$T/ib.o"; }
 _ibr () { grep "^$1 " "$T/ib.e" | sed "s/^$1 //" | xargs; }
 _ofeq "ibkantT exit / sentinel" "$_ibx $(grep -c '^IBKANTT SENTINEL' "$T/ib.e")" "0 1"
 _ofeq "ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run" "$(_ibr IB-1) / $(_ibt first)" "runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody"
 _ofeq "ibkantT IB-2 a click on toFields: selected, onClick fired showFields, one run, and the page is Fields" "$(_ibr IB-2) / $(_ibc fields) / $(_ibt fields)" "runs 1 selected toFields / IBkant toFields selected / IBkant toFields fired onClick showFields / ibTitle toWelcome toFields toForms ibFieldsHead ibFieldsBody"
 _ofeq "ibkantT IB-3 a click on toForms: two runs, the page is Forms" "$(_ibr IB-3) / $(_ibt forms)" "runs 2 selected toForms / ibTitle toWelcome toFields toForms ibFormsHead ibFormsBody"
 _ofeq "ibkantT IB-4 a click on toWelcome: three runs, and the body reads as on the first page" "$(_ibr IB-4) / $(_ibb welcome ibWelcomeBody)" "runs 3 selected toWelcome / $(_ibb first ibWelcomeBody)"
-_ofeq "ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its two passages (lengths counted from the file), in two paragraphs; nothing left as written" "$(_ibb first ibWelcomeBody) / $(_ibb fields ibFieldsBody) / $(_ibb forms ibFormsBody) / $(grep -c 'left as written' "$T/ib.e")" "drawn $(_ibn welcome) of $(_ibn welcome) paragraphs 2 of 2 / drawn $(_ibn fields) of $(_ibn fields) paragraphs 2 of 2 / drawn $(_ibn forms) of $(_ibn forms) paragraphs 2 of 2 / 0"
+_ofeq "ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its ONE passage (length counted from the file, marks out), in the passage's own two paragraphs; nothing left as written" "$(_ibb first ibWelcomeBody) / $(_ibb fields ibFieldsBody) / $(_ibb forms ibFormsBody) / $(grep -c 'left as written' "$T/ib.e")" "drawn $(_ibn welcome) of $(_ibn welcome) paragraphs 2 of 2 / drawn $(_ibn fields) of $(_ibn fields) paragraphs 2 of 2 / drawn $(_ibn forms) of $(_ibn forms) paragraphs 2 of 2 / 0"
+_ofeq "ibkantT IB-6 (gap 1) THE PASSAGE'S OWN RUNS: welcome 1, fields 2, forms 1; and the counts above are numbers, not a missing passage" "$(_ibu first ibWelcomeBody) / $(_ibu fields ibFieldsBody) / $(_ibu forms ibFormsBody) / $(_ibn welcome) $(_ibn fields) $(_ibn forms)" "runs 1 / runs 2 / runs 1 / 410 443 416"
+
+echo ""
+echo "-- a passage carries its own paragraphs and runs: IBkant gap 1 (passageT)."
+#  ⚑ passageT -- IBkant gap 1 (Tony, 2026-11-13): an insert's text is read as text, by typeset's own grammar. Its blank lines split paragraphs and its
+#  marks open and close runs. BORN RED, read on the tree before the build: PG-1 "drawn 27 of 27" (one paragraph), PG-2 "drawn 33 of 33" (the marks
+#  printed), PG-4 18, PG-7 17, PG-8 31 / 23, PG-9 32 in 2 paragraphs, PG-6's warning 0. PG-3's and PG-5's counts read the same before and after; PG-5 is
+#  the guard on a wrong build (a passage's brace closing the holder's run reads 10). H7 is in the seal.
+_pgF=$(ip passageT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_pgF" > "$T/pg.o" 2> "$T/pg.e"; _pgx=$?
+_pgl () { grep -h "^=== drawSpans $1 " "$T/pg.o" | sed 's/.* drawn /drawn /; s/ next end//; s/ valign.*align [a-z]*//; s/ ===//' | xargs; }
+_ofeq "passageT exit / sentinel / nothing clipped" "$_pgx $(grep -c '^PASSAGE SENTINEL' "$T/pg.e") $(grep -c 'does not fit' "$T/pg.e")" "0 1 0"
+_ofeq "passageT PG-1 a passage's blank line splits paragraphs: 15 and 11 characters, two paragraphs" "$(_pgl pgTwo)" "drawn 26 of 26 paragraphs 2 of 2 runs 0"
+_ofeq "passageT PG-2 a passage's run is a run: 21 characters (the marks take no room), one run" "$(_pgl pgRun)" "drawn 21 of 21 paragraphs 1 of 1 runs 1"
+_ofeq "passageT PG-3 a run open at the insert ends at the passage's paragraph break; its closing brace is then text: 17 and 14" "$(_pgl pgHost)" "drawn 31 of 31 paragraphs 2 of 2 runs 1"
+_ofeq "passageT PG-4 a run the passage leaves open ends with the passage: a b c d, one run" "$(_pgl pgOpen)" "drawn 7 of 7 paragraphs 1 of 1 runs 1"
+_ofeq "passageT PG-5 a passage's closing brace never closes the holder's run: it is text, 11 characters" "$(_pgl pgBrace)" "drawn 11 of 11 paragraphs 1 of 1 runs 1"
+_ofeq "passageT PG-6 an insert inside a passage is left as written (17, not the 16 of alpha beta) and warned by name, once" "$(_pgl pgNest) / $(grep -c '^drawSpans: WARNING pgNest -- inserted text holds an insert of its own; left as written' "$T/pg.e") $(grep -c 'holds an insert of its own' "$T/pg.e")" "drawn 17 of 17 / 1 1"
+_ofeq "passageT PG-7 a form field's text is read the same way ({name}): m n o with one run; the control, a plain passage, is unchanged at 14" "$(_pgl pgField) / $(_pgl pgPlain)" "drawn 5 of 5 paragraphs 1 of 1 runs 1 / drawn 14 of 14"
+_ofeq "passageT PG-8 text around a passage joins its first and last paragraphs (17 and 13); a (...#) literal's real blank line splits (13 and 9)" "$(_pgl pgGap) / $(_pgl pgLit)" "drawn 30 of 30 paragraphs 2 of 2 runs 0 / drawn 22 of 22 paragraphs 2 of 2 runs 0"
+_ofeq "passageT PG-9 the insert's own blank line still ends the paragraph after it: three paragraphs" "$(_pgl pgAfter)" "drawn 31 of 31 paragraphs 3 of 3 runs 0"
 
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is

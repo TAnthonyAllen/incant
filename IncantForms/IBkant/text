@@ -1,20 +1,24 @@
 /*****************************************************************************
     IBkant's text (Tony, 2026-11-13). Definitions only: one entry a passage, in the
-    registry IBkantText. A page pours a passage by name: {IBkantText.welcomeOne}.
-    A passage is one paragraph: an insert's line ends are spaces, so a page that
-    wants two paragraphs names two passages with a blank line between them.
+    registry IBkantText. A page pours a passage by name: {IBkantText.welcome}.
+    A passage carries its own paragraphs and runs (gap 1, 2026-11-13): a blank line
+    starts a new paragraph, and {emphasis: words} is a run in the style emphasis.
 *****************************************************************************/
 register(IBkantText);
 define
-    welcomeOne="I be kant. I am a language whose programs and data have one shape: the field. A field has a name, it may hold a value, and it may hold other fields. A rule is a field, an action is a field, and this page is a field.";
-    welcomeTwo="This wiki is a kant form describing kant. Each page is a form of its own, held in one field of the window, and its words are poured in by name from a file of definitions. Pick a page on the left.";
-    fieldsOne="Everything in kant is a field. A field is defined once, in a registry, and found again by name. Writing a = b copies what b holds into a. Writing a := b makes a hold b itself, so a becomes a way to reach b.";
-    fieldsTwo="A field that carries code is an action. Calling it hands it one argument. A field can listen to another: when the other is written, the listener is told. This page changed because a click wrote one field and a listener redrew the window.";
-    formsOne="A form is a tree of fields. Its attributes are a little language: width and height, down and across, fill and border, font and color. Layout gives every field a frame, and a walk draws each one: fill, image, border, text.";
-    formsTwo="A field can hold another form. Written form:=other, the field is the frame the other form is laid out in. That is how this page sits inside the window, and how the list on the left can change it.";
+    welcome=(I be kant. I am a language whose programs and data have one shape: the {emphasis: field}. A field has a name, it may hold a value, and it may hold other fields. A rule is a field, an action is a field, and this page is a field.
+
+This wiki is a kant form describing kant. Each page is a form of its own, held in one field of the window, and its words are poured in by name from a file of definitions. Pick a page on the left.#);
+    fields=(Everything in kant is a field. A field is defined once, in a registry, and found again by name. Writing {emphasis: a = b} copies what b holds into a. Writing {emphasis: a := b} makes a hold b itself, so a becomes a way to reach b.
+
+A field that carries code is an action. Calling it hands it one argument. A field can listen to another: when the other is written, the listener is told. This page changed because a click wrote one field and a listener redrew the window.#);
+    forms=(A form is a tree of fields. Its attributes are a little language: width and height, down and across, fill and border, font and color. Layout gives every field a frame, and a walk draws each one: fill, image, border, text.
+
+A field can hold another form. Written {emphasis: form:=other}, the field is the frame the other form is laid out in. That is how this page sits inside the window, and how the list on the left can change it.#);
     ;
 bail();
 
-Notes. Text in a quoted string takes no apostrophe and no double quote; long text can use the (...#) literal instead.
-Passages are named page first, then One, Two: welcomeOne, fieldsTwo. Add a page by adding its passages here and its page
-form in IncantForms/Windows/IBkant.
+Notes. A passage is written in the (...#) literal, so it may hold apostrophes, double quotes and line ends; it may not hold #).
+A passage must start with a word, not with white space. An insert inside a passage is not followed: it prints as written.
+Passages are named for their page: welcome, fields, forms. Add a page by adding its passage here and its page form in
+IncantForms/Windows/IBkant.

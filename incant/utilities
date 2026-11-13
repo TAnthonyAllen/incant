@@ -150,6 +150,13 @@ define
         {registry.name} (Tony, 2026-11-13) inserts that registry's entry and
         looks nowhere else; {name} looks in the form and nowhere else. A
         registry or an entry that is not there warns by name, left as written.
+        PASSAGES (IBkant gap 1, Tony 2026-11-13): an insert's text is read as
+        text, by the same grammar (tsInner). Its blank lines split paragraphs
+        and its marks open and close runs, starting from the runs open at the
+        insert. A run it opens ends with it; its closing brace never closes a
+        run of the text that holds it. An insert inside inserted text warns by
+        name and is left as written. This replaces T3's "nothing inside it is
+        read as a mark".
     ***************************************************************************/
     tsSp isRule sp^-=[\t\r ];
     tsNl isRule nl^-=[\n];
@@ -171,8 +178,7 @@ define
         tsClose^;
     tsUnit isRule tsPiece^ tsSp^* tsLine^*;
     tsText isRule tsUnit+;
-    tsIu isRule iw^=[^\t\n\r ]+ tsSp^* tsLine^*;
-    tsIt isRule tsIu+;
+    tsInner isRule tsUnit+;
     tsWant;
     tsFound;
     tsHit;
@@ -199,6 +205,8 @@ define
         tsRunCount = 0;
         tyOpen = 0;
         tyHave = 0;
+        tyInside = 0;
+        tyFloor = 0;
         tyUnit := *tyTree.firsT;
         while tyUnit.datA != 0;
             tyPiece := *tyUnit.firsT;
@@ -217,6 +225,14 @@ define
             tyIns = 0;
             if *tyKind == "ins";    tyIns = 1;
             if *tyKind == "qins";   tyIns = 2;
+            // noNested inside inserted text an insert is not followed: it warns by name and its pieces print as written
+            tyDive = 0;
+            if tyInside == 1;
+                if tyIns > 0;
+                    tyIns = 0;
+                    tyMode = 1;
+                    tyFt := *tsWho.taG;
+                    cerr "drawSpans: WARNING" tyFt "-- inserted text holds an insert of its own; left as written":;
             // registryOnly a qualified insert looks in the named registry and nowhere else (Tony, 2026-11-13); registries holds every registry by name
             if tyIns == 2;
                 tyRl := *tyLeaf.nexT;
@@ -268,9 +284,16 @@ define
                     tyFg = *tsFound.isGrouP;
                     if tyFg == 1;   tyFh = 0;
                     if tyFh != 0;
-                        tyIn := tsIt(*tsFound);
-                        tyIw := *tyIn.firsT;
-                        if tyIw.datA != 0;  tyMode = 2;
+                        tyInTree := tsInner(*tsFound);
+                        tyInFirst := *tyInTree.firsT;
+                        if tyInFirst.datA != 0;     tyMode = 2;
+            // dive mode 2: the insert's own units are walked next, by this same loop; tyFloor is the runs open at the insert, which its closing braces cannot close
+            if tyMode == 2;
+                tyDive = 1;
+                tyIsSpan = 0;
+                tyOutGaps = tyGaps;
+                tyOutLines = tyLines;
+                tyFloor = tyOpen;
             if *tyKind == "open";
                 tyIsSpan = 0;
                 tySl := *tyLeaf.nexT;
@@ -287,7 +310,7 @@ define
                 tyE := copyDeep(tsRun);
                 tsRuns +% *tyE;
             if *tyKind == "close";
-                if tyOpen > 0;
+                if tyOpen > tyFloor;
                     tyOpen = tyOpen - 1;
                     tyIsSpan = 0;
             if tyIsSpan == 1;
@@ -328,13 +351,30 @@ define
                 // spaceAfter white space after the span, or after the closing marks that follow it directly
                 tySp = 0;
                 if tyGaps > 0;      tySp = 1;
-                tyK = tyOpen;
+                tyK = tyOpen - tyFloor;
                 tyLook = 1;
                 if tySp == 1;       tyLook = 0;
                 tyNxt := *tyUnit.nexT;
+                tyOut = 0;
                 while tyLook == 1;
+                    // lookPastInsert at the end of inserted text the look goes on in the text that holds it: the insert's own gap, then that text's closing marks
+                    tyEnd = 0;
+                    if tyNxt.datA == 0;     tyEnd = 1;
+                    tySwitch = 0;
+                    if tyEnd == 1;
+                        if tyInside == 1;
+                            if tyOut == 0;      tySwitch = 1;
+                    if tySwitch == 1;
+                        tyOut = 1;
+                        tyEnd = 0;
+                        tyK = tyFloor;
+                        tyNxt := *tyBack.nexT;
+                        if tyNxt.datA == 0;     tyEnd = 1;
+                        if tyOutGaps > 0;
+                            tySp = 1;
+                            tyLook = 0;
                     if tyK == 0;            tyLook = 0;
-                    if tyNxt.datA == 0;     tyLook = 0;
+                    if tyEnd == 1;          tyLook = 0;
                     if tyLook == 1;
                         tyNp := *tyNxt.firsT;
                         tyNl := *tyNp.firsT;
@@ -359,9 +399,8 @@ define
                             tySpEs := *tyE["style"];
                             tyHasSp = 1;
                         tyE := *tyE.nexT;
-                // emitSpans one span for a piece; for an insert one a word, a gap after each, the last taking the piece's own gap
+                // emitSpans one span for a piece; an insert left as written prints its pieces, one span each, the last taking the gap
                 tyW := *tyLeaf;
-                if tyMode == 2;     tyW := *tyIw;
                 tyMore = 1;
                 if tyMode == 3;     tyMore = 0;
                 while tyMore == 1;
@@ -370,11 +409,7 @@ define
                     if tyWn.datA == 0;  tyLast = 1;
                     if tyMode == 0;     tyLast = 1;
                     tyTxt := *tyW.texT;
-                    if tyMode == 2;
-                        tyWl := *tyW.firsT;
-                        tyTxt := *tyWl.texT;
                     tyGapOn = 0;
-                    if tyMode == 2;     tyGapOn = 1;
                     if tyLast == 1;     tyGapOn = tySp;
                     tsSpan = *tyTxt;
                     tsSpan.space = tyGapOn;
@@ -385,11 +420,28 @@ define
                     *tyPara +% *tyNew;
                     if tyLast == 1;     tyMore = 0;
                     if tyLast == 0;     tyW := *tyWn;
-            if tyLines > 1;
-                tyHave = 0;
-                clear(tsRuns);
-                tyOpen = 0;
-            tyUnit := *tyUnit.nexT;
+            if tyDive == 0;
+                if tyLines > 1;
+                    tyHave = 0;
+                    clear(tsRuns);
+                    tyOpen = 0;
+                    tyFloor = 0;
+                tyUnit := *tyUnit.nexT;
+            if tyDive == 1;
+                tyBack := *tyUnit;
+                tyUnit := *tyInFirst;
+                tyInside = 1;
+            // surface the inserted text is done: the runs it opened end, and the insert's own blank line, if it had one, ends the paragraph
+            if tyInside == 1;
+                if tyUnit.datA == 0;
+                    tyInside = 0;
+                    tyOpen = tyFloor;
+                    tyFloor = 0;
+                    if tyOutLines > 1;
+                        tyHave = 0;
+                        clear(tsRuns);
+                        tyOpen = 0;
+                    tyUnit := *tyBack.nexT;
         };
     /***************************************************************************
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's

@@ -23,70 +23,7 @@ simpleValue=33;
 print "SENTINEL tester driver end":;
 stop();
 
-/***************************************************************************
-    FORM STANZAS (Clod, 2026-11-13, SEQ 645). Dormant: they are below stop().
-    To fire a form, cut ONE stanza (the lines between its two rules) to just
-    above the SENTINEL line, run tester, then: open -a Skim IncantForms/PDF/output.pdf
-    One at a time; the two were not run together. Each was run once in a copy
-    of this file and wrote the PDF (firstLight 400x400; IBkant 600x500, Fields page).
-***************************************************************************/
----- firstLight: laid out and drawn -------------------------------------
-registry(fILEs);
-define
-    firstLightFile File='IncantForms/Windows/firstLight';
-    ;
-include(styles);
-search cOLOr fONTs sTYLEs;
-include(firstLightFile);
-search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-define
-    flReq path="IncantForms/PDF/output.pdf" form:=firstLight;
-    ;
-redrawForm(flReq);
----- end firstLight ------------------------------------------------------
----- IBkant: drawn (Welcome), then the Fields page by a mock click -------
-registry(fILEs);
-define
-    ibkantFile File='IncantForms/Windows/IBkant';
-    ;
-include(styles);
-search cOLOr fONTs sTYLEs;
-include(ibkantFile);
-search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-define
-    ibReq path="IncantForms/PDF/output.pdf" form:=IBkant;
-    ibHears listenTo:=ibPage code={ redrawForm(ibReq); };
-    ibClickFields form:=IBkant field="toFields";
-    ;
-redrawForm(ibReq);
-click(ibClickFields);
----- end IBkant (drop the click line to stay on Welcome; field="toForms" shows Forms) ----
-
-/***************************************************************************
-    Everything below is left here for cut and paste modifications as needed
-***************************************************************************/
-    // definitions
-    qa=2;
-    qb=3;
-    qc=4;
-
-    // Clod, A2 listener probe fields (driver near the foot)
-    la=1;
-    lb=$la;
-    lc listenTo=la;
-    lpReq owner source result rule;
-    lpNew code={
-        lpSrc := argument.CodE;
-        lpReq.owner  := argument;
-        lpReq.source := lpSrc;
-        lpReq.rule   := KantGrammar["STARt"];
-        if compileIn(lpReq);
-            lpBlock = lpReq.result;
-            *lpBlock :. noPrinT;
-            argument :. isActioN;
-            argument +< *lpBlock;
-        };
-    lpChange code={ la = 7; print "A2 new road after la=7: la=" la " lb=" lb " lc=" lc:; };
+TO FIRE a pdf form: the lines are in Topics/forms, under "Firing a form by hand" (and dormant in IncantForms/WorkingOn/tester, below its stop()).
 
     /*****************************************************************************
         Debugging routines. listChain lists out an instruction chain: op, argument, target
@@ -132,13 +69,6 @@ setFrame(sample);
 printDef(sample);
 setFrame(sumple);
 printDef(sumple);
-
-print "A2 old road before: la=" la " lb=" lb " lc=" lc:;
-la = 5;
-print "A2 old road after la=5: la=" la " lb=" lb " lc=" lc:;
-lpNew(lpChange);
-lpChange();
-
 
 /***************************************************************************
     Current Status

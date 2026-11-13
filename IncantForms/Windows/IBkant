@@ -15,17 +15,17 @@ register(FORMs);
 define
     ibWelcome window x=0 y=0 width=440 height=440 down fill:=white font:=normalFont color:=blue
         ibWelcomeHead="I be kant" text height=44 font:=titleFont color:=green bottomBorder;
-        ibWelcomeBody="{IBkantText.welcomeOne}\n\n{IBkantText.welcomeTwo}" text align=justify;
+        ibWelcomeBody="{IBkantText.welcome}" text align=justify;
     ;
 define
     ibFields window x=0 y=0 width=440 height=440 down fill:=white font:=normalFont color:=blue
         ibFieldsHead="Fields" text height=44 font:=titleFont color:=green bottomBorder;
-        ibFieldsBody="{IBkantText.fieldsOne}\n\n{IBkantText.fieldsTwo}" text align=justify;
+        ibFieldsBody="{IBkantText.fields}" text align=justify;
     ;
 define
     ibForms window x=0 y=0 width=440 height=440 down fill:=white font:=normalFont color:=blue
         ibFormsHead="Forms" text height=44 font:=titleFont color:=green bottomBorder;
-        ibFormsBody="{IBkantText.formsOne}\n\n{IBkantText.formsTwo}" text align=justify;
+        ibFormsBody="{IBkantText.forms}" text align=justify;
     ;
 define
     ibPage;
@@ -53,8 +53,8 @@ HOW IT WORKS. Every piece is one built today (Topics/forms G2; Topics/typesettin
     a form inside a field     ibPageField form:=ibPage. ibPage is a field of its own that holds the page form.
     the swap                  writing ibPage (ibPage := ibFields) tells its listener, which calls redrawForm.
     the click                 click(request) on toFields fires its onClick, showFields, which writes ibPage.
-    words by name             a page body is {IBkantText.fieldsOne}: the passage is poured from the text file.
-To add a page: its passages in IncantForms/IBkant/text; a page form, a show action and a contents entry here.
-Not here yet: a real click (windows, forms step 10); which entry is selected is not shown; a passage is one paragraph.
+    words by name             a page body is {IBkantText.fields}: the passage is poured from the text file, with its own paragraphs and runs.
+To add a page: its passage in IncantForms/IBkant/text; a page form, a show action and a contents entry here.
+Not here yet: a real click (windows, forms step 10); which entry is selected is not shown.
 
 TO FIRE IT: the lines are in Topics/forms, under "Firing a form by hand" (and dormant in IncantForms/WorkingOn/tester, below its stop()).

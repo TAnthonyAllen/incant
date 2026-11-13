@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(PassageTextT);
+define
+    two="first para here\n\nsecond para";
+    run="plain {emphasis: red words} plain";
+    open="a {emphasis: b c";
+    brace="x } y";
+    nest="see {pgSrc} there";
+    plain="alpha beta";
+    lit=(one two
+three
+
+four five#);
+    ;
+register(FORMs);
+define
+    pgForm window x=0 y=0 width=300 height=590 down fill:=white font:=normalFont color:=blue
+        pgTwo="{PassageTextT.two}" text height=60;
+        pgRun="{PassageTextT.run}" text height=30;
+        pgHost="k {emphasis: {PassageTextT.two}} z" text height=60;
+        pgOpen="{PassageTextT.open} d" text height=30;
+        pgBrace="p {emphasis: q {PassageTextT.brace} r" text height=30;
+        pgNest="{PassageTextT.nest}" text height=30;
+        pgSrc="alpha beta" text height=30;
+        pgPlain="a {PassageTextT.plain} b" text height=30;
+        pgMarked="m {emphasis: n} o" text height=30;
+        pgField="{pgMarked}" text height=30;
+        pgGap="a {PassageTextT.two} b" text height=60;
+        pgLit="{PassageTextT.lit}" text height=60;
+        pgAfter="{PassageTextT.two}\n\nthird" text height=110;
+    ;
+register(PassageT);
+search PassageT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    pgReq path="IncantForms/PDF/test.pdf" form:=pgForm;
+    ;
+redrawForm(pgReq);
+cerr "PASSAGE SENTINEL":;
+stop();
+
+passageT -- IBkant gap 1 (Tony, 2026-11-13): a passage carries its own paragraphs and runs. An insert's text is read as text:
+its blank lines split paragraphs and its marks open and close runs. Rows in genLadder/formsPop.sh (PG-1 to PG-9), read from the
+drawSpans trace: characters drawn, paragraphs, runs. Before the build an insert was one paragraph of plain words.
