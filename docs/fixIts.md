@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-154 — OPEN, docketed 2026-11-13 (SEQ 650, Clay's dispatch; row only, no fix) — listenerNotItsArgument: a listener's action is not handed the listener as its `argument`
+
+**What:** `Commands.rtn:308` says a listener's method or action is "handed the listener". For an action that is not what the body sees: inside the listener's `code={ }`, `argument` is not the listener. A request that is also the listener (`ibReq path=... form:=IBkant listenTo:=ibPage code={ redrawForm(argument); }`) is refused by setFrame: "its request holds no form". So a request and its listener cannot be one field, and IBkant needs both `ibReq` and `ibHears`.
+**Where:** `GroupItem.twk:1639` runNotified, the action arm: `or notified.actionType  processAction(notified);`. processAction is handed the listener as the action to run; nothing on that line sets the action's argument. Read, not traced: which field `argument` is in that body was not measured.
+**Evidence:** measured 2026-11-13 (kant, trunk binary, a scratch copy of tester). The listener fired once on `click(ibClickFields)`; `argument.taG` printed `argument`; `redrawForm(argument)` and `redrawForm(*argument)` both gave `setFrame: REFUSING argument -- its request holds no form` and no PDF. The same request passed by name (`redrawForm(ibReq)`) draws.
+**Done when:** either the comment says what the action is handed, or a listener's action reads its own listener through `argument` and a formsPop row pins it: a field that is both request and listener redraws on one write, with an H7.
+**Owner:** Clod, when Tony rules which. **Size:** not measured.
+**Attempt log:** none.
+
 ### F-153 — OPEN, docketed 2026-11-10 (SEQ 589 R6) — windowHidesGlobals: once a window opens, the collector scans no global but the controller
 
 **What:** `openWindow` (`guiHost.mm`) calls `GC_set_no_dls(1)` to dodge AppKit's root-set limit, which stops libgc scanning EVERY image's data segment, ours included. It roots `GroupControl::groupController` and (SEQ 589) the form, nothing else. With the node classes collectable (GC stroke 2, branch gc-collect), any engine object held only by a raw-pointer global is then collected while the window is open: the JIT globals in `jitContext.h` (`gJitLastAction`, `gJitCurrentAction`, `gJitArgOrigin`, `gJitDotSeeded`, `gJitProbeCarrier`, `gChanPendGroup`, `gChanStkGroup[]`, docs/gcRecon.md 3a), `gParseActive` while its frames are off the stack, and any `static GroupItem*` in a .mm. The std::vector / map globals are safe (their storage is uncollectable and scanned).
