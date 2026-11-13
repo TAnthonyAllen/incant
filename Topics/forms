@@ -92,7 +92,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
                  A parent that NAMES overlay places each child from its own x and y, measured from the parent (stroke 3, seal 458). A parent naming no direction stacks, as down: ruled (SEQ 627 R0).
                  isHidden and noRoom are built (seal 459): two flags. A field written isHiddeN takes no room and is not drawn; a field wholly outside its parent's box is flagged noRooM on the laid-out copy and is not drawn.
     stroke 4     DONE (seal 465). layoutFrame is utilities' field and a request's frame:=. Layout writes it as ONE WHOLE WRITE (layoutFrame = a field holding x y width height): the four values arrive and its listeners are told once; a form's listener calls redrawForm. Pinned on firstLight (resizeLightT RG-1 to RG-5): a resize reads like a fresh run. Writing one of the four alone tells nobody (resizeListenT). What calls it for real is windows, step 10.
-    not built    windows, selection, click; margin. (fit is parked: Topics/features 33.)
+    not built    windows, a real click from a point, bubbling; margin. (fit is parked: Topics/features 33.) The mock click and selection by name are built (G1).
     drawing      what is drawn and not drawn, and formsPop's count: Topics/drawing, State.
 
 /*****************************************************************************
@@ -122,20 +122,18 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
 /*****************************************************************************
     Goals
 *****************************************************************************/
-    G1  MOCK CLICK (Tony, 2026-11-11, SEQ 622; recorded, no build). Click a named field (not a point) in tester; the click selects the field, fires onClick, then its attribute actions left to right;
-        the form is re-laid out by setFrame and redrawn to a PDF, in one call or step by step. Only the actions that are ready are tested; each one skipped is named in the output ("not run: onNotify").
-        Steps toward it: setFrame's second run, event firing, := in a define, listeners and onNotify. Victory line: the first PDF of a clicked form.
-    G2  A FORM INSIDE A FIELD (Tony, 2026-11-13, offline status; recorded, no build). A form field that is a reference to another form: that form is laid out in the field's frame and drawn there,
-        and what the field refers to can be changed by a button, a dialog or anything kant can do. The old GUI had pop-ups and panels and no nested forms.
-        RULED (Tony, 2026-11-13, via Clay): the spelling is form:=other; the referenced form is descriptions. Stroke 1 splits: 1a descriptions laid out and drawn to a PDF on its own, layout only (describe's action and the images' actions wait for windows);
-        1b form:=descriptions in a firstLight field, with the refusal by name for a form that holds itself, resizeLightT re-pinned. Waiting on Tony 6 is ruled before 1a. Proposed, not ruled: 3 the click chooses (G1).
-        1a DONE (seal 474): the form is named descriptions (it was webViewExample) and its file is definitions only, shaped like firstLight; descT includes it, draws it to a PDF and reads it back (DE-10, DE-11). 
-        1b DONE (seal 475): incant/utilities placeForm. Once a field written form:=other has its frame, frameMembers lays that form out through setFrame with the field as the request's frame and hangs the laid-out copy under the field; the draw walk is unchanged. Each field gets its own copy (formNestT NF-3).
-           setFrame keeps the names of the forms being laid out (sfChain) and refuses one met again, by name; the field is left empty (NF-4). A := in a define cannot name its own form (not yet defined, the define refuses), so a form holds itself only by a later write.
-           firstLight: inside form:=descriptions height=50%, below bar; the form is 400x400 so heading, words and bar keep their frames; the file includes the descriptions form itself. Text properties reach the held form from its host (the climb passes through the field).
-        2 DONE (seal 476), THE SWAP: the reference may name a field of its own that holds the form (insideForm := descriptions; inside form:=insideForm); placeForm steps through it. One write, insideForm := another, tells insideForm's listeners; a listener that calls redrawForm shows the other form (swapT SW-1 to SW-4). The definition is not written by a swap.
-           MEASURED on the way: a := to a plain field tells its listeners; a write to a field's attribute (host.form := other) tells nobody, and a listener cannot name a field inside a form. Hence the field of its own, as with layoutFrame.
-           NOT BUILT: the held form's own declared size is not read (the field's frame is its frame); a field holding a form lays out no members of its own.
+    G1  MOCK CLICK (Tony, 2026-11-11, SEQ 622). BUILT as click(request) at seal 477 (G2 stroke 3, below): a named field, not a point; it selects the field, fires its own action, then its attribute actions left to right.
+        Still open from the goal: bubbling to the enclosing fields; naming each action skipped ("not run: onNotify"); a real point and a window (step 10).
+    G2  A FORM INSIDE A FIELD (Tony, 2026-11-13). A field written form:=other is the frame for that form; what it refers to can be changed by a button, a dialog or anything kant can do. firstLight is the test bed.
+        1a (seal 474)  the form descriptions (it was webViewExample) is definitions only, shaped like firstLight, and draws to a PDF (descT DE-10, DE-11).
+        1b (seal 475)  incant/utilities placeForm: once the field has its frame, frameMembers lays the form out through setFrame with the field as the request's frame and hangs the copy under the field; the draw walk is unchanged. Each field gets its own copy.
+                       setFrame keeps the names of the forms being laid out (sfChain) and refuses one met again, by name. A := in a define cannot name its own form, so a form holds itself only by a later write. (formNestT NF-1 to NF-5)
+                       firstLight: inside, height=50%, below bar; the form is 400x400 (fine, Tony: sizing is easy to change later); the file includes descriptions itself. Text properties reach the held form from its host.
+        2  (seal 476)  THE SWAP: the reference names a field of its own that holds the form (insideForm := descriptions; inside form:=insideForm). One write to it tells its listeners; a listener calling redrawForm shows the other form (swapT).
+                       RULED (Tony, 2026-11-13): the holding field outside the form is the pattern for now, as layoutFrame is for the frame. Two gaps noted, not fixed: a write to a field's attribute tells nobody; a listener cannot name a field inside a form.
+        3  (seal 477)  THE CLICK: click(request), request form:= and field=. firstLight's ok holds onClick:=okClick, which writes insideForm (the note form okNote, then descriptions again); the listener redraws (clickT CK-1 to CK-6).
+                       An attribute fires when it holds a field that has an action (its CodE child is the test; isCodeD clears after a first run). A field with an action holds itself as this; click skips it.
+        NOT BUILT: the held form's own declared size is not read; a field holding a form lays out no members of its own.
         PARKED, a later step (Tony, 2026-11-13): a form reference whose attribute action runs a whole incantation, instead of a reference to a form that is definitions only.
 
 /*****************************************************************************
@@ -208,7 +206,7 @@ Attributes
     fill is not inherited. A bare number is in points (1/72 inch).
     Dropped: pad, onLayout, flex, center, fit=text, and the drop list at the foot of formsTable. Anything dropped and wanted later comes back then.
     flex also meant across: a form that drops flex writes across where it relied on it.
-Events (2026-11-04) -- ruled on paper, not built
+Events (2026-11-04) -- the mock click is built (G1, seal 477); the rest is on paper
     Click actions use onClick:=. A click selects the field first. Own action, then attribute actions left to right. Bubbling stays; a member's parent is its enclosing field (built, merge 24beb5f0).
     Layout's mouseUp calls a kant extern. Firing is proved with a synthetic point and no window.
 Form files (from docs/forms.md, retired into this file)
@@ -222,7 +220,6 @@ Form files (from docs/forms.md, retired into this file)
 *****************************************************************************/
     (1, 3, 5 and 7 are drawing's and moved to Topics/drawing, Waiting on Tony, at seal 456. The numbers left here are unchanged.)
     2  margin (mRight, mBottom ...): no ruling of its own since pad was dropped. "Decided once the forms can be seen drawn."
-    4  Percent (width=50%): it lays out on a first run (measured, roundedT RD-8). setFrame then writes the laid-out width over it, so a rerun has no percent to read: written to the body, or read from the instance (formsRecon Part 3, M1).
     8  A child's declared x or y under down and across (SEQ 627 Q1; read in GUI/Details.twk, initialize :358-371 and setFrame :541-579; read, not run). Today they are read only under a named overlay.
        What the old GUI did: a field that wrote x= kept that x and one that wrote y= kept that y, under EVERY direction (fixX, fixY); only an axis not written was set by the parent. Windows and panels were exempt (their x and y place the window).
            declared y under down     kept as written. The field still added its height to the running position, so the fields after it stacked as if it were in line: it left a gap where it would have been.
@@ -233,10 +230,8 @@ Form files (from docs/forms.md, retired into this file)
        The kept value was used as written: nothing in that code adds the parent's origin to it (today's overlay measures from the parent, R4). A written x=0 counted as written.
        Forms that rely on it: NONE found. Searched IncantForms/Windows (all 21), IncantForms/Controls and incant/unitTests for x= or y=: every hit is on a window or a top field (20 forms, plus unitTests' four test tops). No child field in any form writes x or y.
        To rule: read a child's x and y under down and across too (and, if so, does it still leave its gap), or leave them unread there.
-    6  RESOLVED BY TONY'S FIX (2026-11-13, built at seal 475): the captions that share a name with a registry entry (describeHead, saber, trees) are plain FORMs definitions made before dESCRIPTIONs is searched; the form names them with no text. The current registry is searched first (GroupControl locate: a registry of that name, then the current registry, then the search list, then the base registries), so the form's saber is the caption and the registry's saber keeps its long text (descT DE-6, DE-12). describeHelp has no caption and keeps the registry's entry (ruled, 2026-11-13). The control, rerun under the _ofeq row at seal 476: captions back on the form's lines, DE-6 red, reading the caption.
-       Earlier the same day: ruled not a problem, no search-line move.
-       The reading asked for, with the search line where it is: dESCRIPTIONs["saber"] after the form's define reads "Saber from Fate Stay Night" (the form's caption), not "Fate Stay Night is a favorite anime..." (descT DE-6, pinned at that value). Shown to Tony at seal 474; nothing built on it.
-       DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
+    6  RESOLVED (Tony's fix, built at seal 475): descriptions' captions that share a name with a registry entry (describeHead, saber, trees) are plain FORMs definitions made before dESCRIPTIONs is searched; the form names them with no text.
+       The current registry is searched before the search list (GroupControl locate), so the form's saber is the caption and the registry's keeps its long text (descT DE-6, DE-12; control red at seal 476). describeHelp keeps the registry's entry (ruled).
 
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
@@ -246,9 +241,8 @@ Form files (from docs/forms.md, retired into this file)
                Names in the list: x y width height across down overlay space fill border, the four side borders, strokeColor font color align valign italic rounded shadow opacity style text image fit onClick. An attribute not on the list behaves as before.
     seal 462:  -= subtracts on a valued field whatever attributes it holds (ruling 2; notifyT NT-3 green). The remove-attribute operator, minus then percent, is the opposite of +% (minusAttrT, minusAttrNewT; both grammars, top level and action body).
                JITTED WRITES FIRE ONCE PER WRITE (ruling 3, seal 463): a compiled store straight into a field calls jitNotifyRT at run time (notifyT NT-5: four writes, four fires, jitted and interpreted). A postfix x++; did nothing: CURED at seal 470 (Topics/kant).
-    seal 452:  setFrame overrides a child's own x and y: a child written x=10 y=10 under a parent with no down or across is laid out at the parent's origin (shadowT). Kept under a parent naming overlay (458); under down, across or no direction they are not read (Waiting on Tony 8).
     seal 451:  drawText does not inherit font three levels down: in simple, one (under wrap, under third) drew Helvetica 12 where simple names font:=normalFont; a field one or two levels down inherits (probe, 2026-11-11). Not chased.
-    seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled. Rounded corners are step 9. The image in a PDF has no row."
+    seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled." (The image in a PDF has its row since seal 474: descT DE-11.)
     seal 439:  "M8 (a value naming a registered field copies that field's text) was not met by these three names, and was not tested against a registry that holds a field called top or bottom."
     seal 438:  "incant/grammar (the old road, which action bodies and forms parse on) still reads `attributes? members?`, so both words are still taken there and still walk the attributes only."
     parseLabelParent:  "A warning when a field is placed twice is a candidate for later. NOT BUILT."
@@ -300,6 +294,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    477  SEQ 642   G2 stroke 3, the mock click (G1): click(request) selects a named field and fires its own action, then its attribute actions; firstLight's ok swaps the form in inside (clickT, six rows). This file trimmed. formsPop 222 green.
     476  SEQ 641   G2 stroke 2, the swap: firstLight's inside names insideForm; one write to it and a listener's redrawForm show another form (swapT, four rows). The caption control rerun, red as it should be. formsPop 215 green.
     475  SEQ 640   G2 stroke 1b: a form inside a field (placeForm; firstLight holds descriptions; formNestT NF-1 to NF-5; a self-holding form refused by name). Tony's caption fix for Waiting on Tony 6 (DE-6, DE-12). formsPop 210 green.
     474  SEQ 639   G2 stroke 1a: descriptions renamed, reshaped like firstLight, drawn to a PDF (DE-10, DE-11; DE-8 and DE-9 re-pinned, the form is drawn twice). Waiting on Tony 6 ruled not a problem. {registry.name} inserts (Topics/typesetting). formsPop 203 green.
@@ -307,19 +302,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     472  SEQ 637   SHUTDOWN (typesetting): space in points or percent, the hex-colour row, three kant fixits; formsPop 196 green. The kitchen pass run.
     471  SEQ 636   typesetting T1 and T2 (Topics/typesetting): the text floor is drawSpans and reads a span list kant's typeset builds; formsPop 194 green.
     470  SEQ 635   Tony's offline answers: fit and onClick stay parked on the list of 28 (a click fires the field's attribute actions; onClick is there for familiarity). fit in kant is Clod's to try if wanted (Topics/features 33). The span's space: Topics/typesetting, open question 4.
-    467  SEQ 632   rulings on the slice (Topics/typesetting): typesetting holds for Clay's kant pre-pass design. IncantForms/Controls/styles searches cOLOr and fONTs itself; emphasis is color:=red; stylesT ST-1 re-pinned (loaded-but-not-searched no longer exists).
-    466  SEQ 631   typesetting's first slice, in firstLight: words holds two paragraphs and one {emphasis: ...} run (Topics/typesetting; typesetT, nine rows). resizeLightT's line counts re-pinned for the new paragraph.
-    465  SEQ 631   stroke 4's last piece: Layout writes layoutFrame as one whole write; firstLight resized by listening, PDF before and after, reading like a fresh run (resizeLightT, six rows). THE LISTENING GAP IT FOUND: a whole-list write into a listened-to field fired nothing and wiped the listener list; GroupItem.setContent now keeps the list and tells the listeners once (listenT LN-6).
-    464  SEQ 631   the seal's three choices ruled: utilities loads forms; the 28 stand; the drawing fields are virtual, Addendum 2 retired. PoinT, ArC, CurvE and the five perforation templates unparked and pinned (drawFieldsT DF-5, DF-6); PoinT's old action not carried.
-    463  SEQ 630   ruling 3: jitted writes fire once per write. The compiled = and ++ / -- stored straight into the field and told nobody; they now call jitNotifyRT, which tests hasListeners at run time (jitEmitters.rtn; notifyT NT-5 green at four writes). Every instrument unmoved.
-    462  SEQ 630   Tony's wakeup dispatch, rulings 1, 2 and 4. -= subtracts on a valued field (opMinusEQ asks for members); the remove-attribute operator; NT-3 green, the bank 66. postfix x++; filed as a fixit; topicBudget counts prose lines only. VIRTUAL CLEAN: the 28 form attributes in FORMs under plain names, loaded by utilities; the cure is in resolveName (Issues).
-    461  SEQ 629   SHUTDOWN (the kitchen pass run). The drawing fields, spelled capital first and last, defined in FORMs above this file's bail; WorkingOn/drawing retired; no mapping (two vocabularies); drawFieldsT. Arithmetic writes notify and updateListeners guards re-entry (notifyT; -= pinned red). Addendum 2's FilL:=wall not built (Issues); the virtual recon (Issues).
-    460  SEQ 628   Tony's offline runNotified committed, then the copy made the fallback (listenT LN-5; H7 red). tester freed from two fleet rows (testerChainT carries its own head; describeT). firstLight's driver below its bail; displayIfVisible retired. The registry merge measured and stopped (Issues). The notify recon (Issues). tabs cured. Stroke 4 first run: resizeListenT, RL-1 to RL-4 (H7 red).
-    459  SEQ 627   SHUTDOWN. R0: no direction defaults to down; the old R3 struck. W1: isHidden and noRoom built as two flags (GroupBody, cases 49 and 50), frameMembers and drawKids read them; rows NR-1 to NR-7 (pop.sh), NP-1 to NP-3 (formsPop); three H7s red. Q1: the old GUI's fixX / fixY reported (Waiting on Tony 8); no form relies on it. W2: tabs' crash traced to include(drawing) and a top-level scope statement (Issues). The kitchen pass run.
-    455  SEQ 625   italic=off ruled as interim. opacity=0 checked: fully clear, two rows (OP-6), nothing to cure. The line budget recorded as an objective (Topics/cleanup). Read-only: the strokes for setFrame's rerun proposed (docs/setFrameRerunProposal.md). Clod's report on drawing as its own file: in the seal's commit message.
-    458  SEQ 626   SHUTDOWN. Stroke 3: a parent naming overlay places children from their own x and y, from the parent (RF-12 to RF-14). R3's premise corrected: the old GUI's default is down, so no direction still stacks and the default is back with Tony. The kitchen pass run.
-    457  SEQ 626   stroke 2: setFrame's request takes frame:=; redrawForm lays out afresh and writes the PDF (resizeT, simple at 400 and at 600). FOUND AND CURED: copyOf's copy shares bodies below its second level, so stroke 1 still wrote the definition's deep fields; setFrame now copies with copyDeep (new command, Commands.rtn). Rows RF-7 to RF-11, RZ-1 to RZ-5, and pDeep in RF-1 to RF-3.
-    456  SEQ 626   Topics/drawing split out (R0). Stroke 1 of the rerun: setFrame takes a request (form:=), lays out a copy and returns it; eleven callers respelled to draw the copy; nothing moved in either harness; seven rows (reframeT). Rulings R1-R5 recorded under "setFrame's rerun".
+    456-467  folded (the trim, seal 477): Topics/drawing split out and setFrame's rerun, strokes 1-4 (456-460, 465); isHidden and noRoom (459); the drawing fields in FORMs and virtual (461-464); typesetting's first slice and its hold (466-467). Full text: each seal's commit message.
     449-455  the drawing seals (the floor census, rounded, shadow, opacity, italic): digested in Topics/drawing. Forms' own parts of them: simple respelled and its percent kept (451, 452); the mock-click goal G1 (452); inheritance as one rule (453); style:= the only spelling (454); italic=off interim, the rerun proposal (455).
     443  SEQ 614   this file made; typesetting split out; the forms history files retired.
     441  SEQ 607-609   descriptions respelled and drawn: the search line moved, describe shown, displayImage (one argument, fit fill).
