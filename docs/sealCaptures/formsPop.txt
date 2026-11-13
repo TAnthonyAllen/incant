@@ -127,6 +127,12 @@
   ok    formNestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at x 0 and x 200, and both draw (10,10) (210,10) = [200x300 at 0,0 / 200x300 at 200,0 / r175 g211 b120 a255 / r175 g211 b120 a255]
   ok    formNestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out = [1 / r247 g232 b170 a255 / 0]
   ok    formNestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190) = [r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255]
+-- the swap: G2 stroke 2 (swapT).
+  ok    swapT exit / sentinel = [0 1]
+  ok    swapT SW-1 before: no listener run; heading's wall, the descriptions form's lightGreen (200,390), ok's green; its two text fields drawn = [runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp]
+  ok    swapT SW-2 ONE WRITE SWAPS: one listener run; (200,390) is the other form's red and its text is drawn, descriptions' is not; heading and ok as before = [runs 1 / r247 g232 b170 a255 / r239 g43 b45 a255 / r175 g211 b120 a255 / heading words ok swOtherText]
+  ok    swapT SW-3 written back: a second run, and the page and text calls are SW-1's by value = [runs 2 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp]
+  ok    swapT SW-4 the definition is not written by a swap: firstLight's inside still names insideForm = [form=insideForm]
 -- the first image: forms step 8.
   ok    imageT exit / sentinel = [0 1]
   ok    imageT IM-1 FILL: imSquare shows the image's middle -- red (30,60), blue (90,60), and no green at its edges (12,60) (107,60) = [red blue red blue]
@@ -246,4 +252,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 210 green, see above
+FORMS POP FAILED -- 215 green, see above
