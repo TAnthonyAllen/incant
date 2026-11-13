@@ -68,5 +68,5 @@ until event firing comes through it. The word button stays out because nothing r
 
 Read it with IncantForms/WorkingOn/firstLightRead.
 
-TO FIRE IT: the lines are in Topics/forms, under "Firing a form by hand" (and dormant in IncantForms/WorkingOn/tester, below its stop()).
+TO FIRE IT: the lines are in Topics/forms, under "Firing a form by hand".
 The driver that sat here (moved from tester 2026-11-12) went 2026-11-13; fleet fixtures include this file and must not draw.

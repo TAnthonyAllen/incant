@@ -114,7 +114,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     Firing a form by hand (the one home, Tony 2026-11-13, SEQ 646)
 *****************************************************************************/
     A form file is definitions only: loading it draws nothing. To fire one, put its lines in tester above the SENTINEL line, after tester's own
-    Start() and includes. tester carries both as dormant stanzas below its stop(): cut one up. One at a time. To look: open -a Skim IncantForms/PDF/output.pdf
+    Start() and includes. One form at a time. This heading is the only home for these lines (Tony, 2026-11-13). To look: open -a Skim IncantForms/PDF/output.pdf
     firstLight:
         registry(fILEs);
         define
@@ -128,6 +128,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
             flReq path="IncantForms/PDF/output.pdf" form:=firstLight;
             ;
         redrawForm(flReq);
+    descriptions: the same lines with descriptionsFile File='IncantForms/Windows/descriptions' and include(descriptionsFile); its request is descriptionsReq path="IncantForms/PDF/output.pdf" form:=descriptions; and its call redrawForm(descriptionsReq);
     IBkant: the same lines with ibkantFile File='IncantForms/Windows/IBkant' and include(ibkantFile); its last define and calls are
         define
             ibReq path="IncantForms/PDF/output.pdf" form:=IBkant;
@@ -322,6 +323,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
     479  SEQ 644   SHUTDOWN. Seals 477 and 478 bought. Fixit codedFlagClears filed (Clod's, latent). The kitchen pass run.
+    481  SEQ 648   SHUTDOWN (documentation). Firing a form by hand is the only home for the firing lines; descriptions' lines added and its driver replaced by the pointer. NEXT: trim this file (5 over), then IBkant gap 2.
     480  SEQ 646-647   (documentation) fleet PDFs write IncantForms/PDF/test.pdf, output.pdf is Tony's; Firing a form by hand, above; IBkant gap 1 (Topics/documentation). formsPop 239 green.
     478  SEQ 643   (documentation) the IBkant skeleton uses G2 whole: IncantForms/Windows/IBkant (Topics/documentation). formsPop 228 green.
     477  SEQ 642   G2 stroke 3, the mock click (G1): click(request) selects a named field and fires its own action, then its attribute actions; firstLight's ok swaps the form in inside (clickT, six rows). This file trimmed. formsPop 222 green.
