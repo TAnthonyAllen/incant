@@ -113,10 +113,12 @@
   ok    descT DE-5 no refusal and no colour error (the form includes styles itself) = [0]
   ok    descT DE-6 the registry's saber after the form's define (R1: one field, the form's text) = [Saber from Fate Stay Night]
   ok    descT DE-7 DESCRIBE: describeHelp draws its describe attribute's 61 characters, not its own text = [61 of 61]
-  ok    descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees = [describeHead describeHelp]
+  ok    descT DE-8 IMAGE TEXT: drawSpans is called for describeHead and describeHelp, never for saber or trees (twice since 2026-11-13: the bitmap, then the PDF) = [describeHead describeHelp describeHead describeHelp]
   ok    describeT exit / sentinel = [0 1]
   ok    describeT: describe's six lines (was tester's, across the move to utilities, R6), md5 = [556d248688d4ae5418d9c134712a5f6a 6]
-  ok    descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray = [saber fit fill trees fit fill / image image]
+  ok    descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray = [saber fit fill trees fit fill saber fit fill trees fit fill / image image]
+  ok    descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top) = [pages 1 size 500x600 / r175 g211 b120 a255 r175 g211 b120 a255 r0 g0 b0 a255 r0 g0 b0 a255 r0 g0 b0 a255]
+  ok    descT DE-11 THE IMAGES IN THE PDF: saber's and trees' points (100,300) (350,300) are not the field's paleGray = [image image]
 -- the first image: forms step 8.
   ok    imageT exit / sentinel = [0 1]
   ok    imageT IM-1 FILL: imSquare shows the image's middle -- red (30,60), blue (90,60), and no green at its edges (12,60) (107,60) = [red blue red blue]
@@ -218,6 +220,8 @@
   ok    typesetT TY-8b (T3) an insert naming no field of the form warns by name, once = [1]
   ok    typesetT TY-16 (T3) {name} inserts a field's text, twice in one text: see alpha beta and alpha beta here, 34 characters; the source field draws its own 10 = [lines 1 drawn 34 of 34 next end / lines 1 drawn 10 of 10 next end]
   ok    typesetT TY-17 (T3) an insert inside a run takes the run's style: 14 characters, one run, and its band has red ink beside the field's blue = [lines 1 drawn 14 of 14 next end paragraphs 1 of 1 runs 1 / ink red blue]
+  ok    typesetT TY-18 {registry.name} looks in that registry only and {name} in the form only: two fields named tsSrc with different texts, 28 and 19 characters = [lines 1 drawn 28 of 28 next end / lines 1 drawn 19 of 19 next end]
+  ok    typesetT TY-19 a name that is not a registry, and an entry the registry lacks: each left as written (21, 25) and each warned by name = [lines 1 drawn 21 of 21 next end / lines 1 drawn 25 of 25 next end / 1 1]
 
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
@@ -234,4 +238,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 199 green, see above
+FORMS POP FAILED -- 203 green, see above

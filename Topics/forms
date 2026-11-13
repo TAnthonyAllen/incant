@@ -86,7 +86,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
 /*****************************************************************************
     State (seal 459, 2026-11-11)
 *****************************************************************************/
-    draws        firstLight, descriptions, simple (bitmap and PDF). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
+    draws        firstLight, descriptions, simple (bitmap and PDF; descriptions' PDF since seal 474, G2 stroke 1a, layout only). The other 18 forms under IncantForms/Windows are old spellings, not yet repaired.
     layout       setFrame(request) lays out a DEEP COPY and returns it (strokes 1-2, seals 456-457): the definition is never written at any depth, a second run reads like the first, a percent survives.
                  The request may hold frame:= a field of its own; redrawForm(request) is the first resize, a plain call that lays out afresh and writes the PDF.
                  A parent that NAMES overlay places each child from its own x and y, measured from the parent (stroke 3, seal 458). A parent naming no direction stacks, as down: ruled (SEQ 627 R0).
@@ -129,6 +129,8 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         and what the field refers to can be changed by a button, a dialog or anything kant can do. The old GUI had pop-ups and panels and no nested forms.
         RULED (Tony, 2026-11-13, via Clay): the spelling is form:=other; the referenced form is descriptions. Stroke 1 splits: 1a descriptions laid out and drawn to a PDF on its own, layout only (describe's action and the images' actions wait for windows);
         1b form:=descriptions in a firstLight field, with the refusal by name for a form that holds itself, resizeLightT re-pinned. Waiting on Tony 6 is ruled before 1a. Proposed, not ruled: 2 the reference rewritten and redrawn by listening; 3 the click chooses (G1).
+        1a DONE (seal 474): the form is named descriptions (it was webViewExample) and its file is definitions only, shaped like firstLight; descT includes it, draws it to a PDF and reads it back (DE-10, DE-11). NEXT: 1b.
+        PARKED, a later step (Tony, 2026-11-13): a form reference whose attribute action runs a whole incantation, instead of a reference to a form that is definitions only.
 
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
@@ -225,7 +227,8 @@ Form files (from docs/forms.md, retired into this file)
        The kept value was used as written: nothing in that code adds the parent's origin to it (today's overlay measures from the parent, R4). A written x=0 counted as written.
        Forms that rely on it: NONE found. Searched IncantForms/Windows (all 21), IncantForms/Controls and incant/unitTests for x= or y=: every hit is on a window or a top field (20 forms, plus unitTests' four test tops). No child field in any form writes x or y.
        To rule: read a child's x and y under down and across too (and, if so, does it still leave its gap), or leave them unread there.
-    6  DUE BEFORE G2 STROKE 1a (options brought 2026-11-13, in the session; MEASURED there: with the search line moved below the form's define the registry keeps its long texts and the form draws the same).
+    6  RULED NOT A PROBLEM (Tony, 2026-11-13, via Clay): descriptions worked when Tony tested it; what the form overwrites is describe, which can be made virtual if that matters. No search-line move.
+       The reading asked for, with the search line where it is: dESCRIPTIONs["saber"] after the form's define reads "Saber from Fate Stay Night" (the form's caption), not "Fate Stay Night is a favorite anime..." (descT DE-6, pinned at that value). Shown to Tony at seal 474; nothing built on it.
        DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
 
 /*****************************************************************************
@@ -290,6 +293,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    474  SEQ 639   G2 stroke 1a: descriptions renamed, reshaped like firstLight, drawn to a PDF (DE-10, DE-11; DE-8 and DE-9 re-pinned, the form is drawn twice). Waiting on Tony 6 ruled not a problem. {registry.name} inserts (Topics/typesetting). formsPop 203 green.
     473  SEQ 638   typesetting T3 (Topics/typesetting): {name} inserts a form field's text; formsPop 199 green. Goal G2 recorded (a form inside a field).
     472  SEQ 637   SHUTDOWN (typesetting): space in points or percent, the hex-colour row, three kant fixits; formsPop 196 green. The kitchen pass run.
     471  SEQ 636   typesetting T1 and T2 (Topics/typesetting): the text floor is drawSpans and reads a span list kant's typeset builds; formsPop 194 green.

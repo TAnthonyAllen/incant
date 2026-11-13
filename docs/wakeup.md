@@ -5,24 +5,24 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**473, 2026-11-13, topic: forms (typesetting), SEQ 638 (assigned by Clod).** T3 built, all in kant (no rebuild): `{name}`
-inserts the text of the form's field of that name, one span a word, in the style of the runs open at the insert. A name no
-field has warns by name and is left as written. Rows TY-8b, TY-16, TY-17; H7 red on 16 and 17 with the search removed.
-Tony's two offline ideas recorded as goals, no build: a form inside a field (Topics/forms G2) and IBkant (Topics/documentation).
-**NEXT:** G2 stroke 1, a fixed form reference in firstLight, once Tony rules its spelling. T3's three open points are in
-Topics/typesetting, State. Later: typeset's state into its own layout context; the jitted store helper's cost.
+**474, 2026-11-13, topic: forms (with typesetting), SEQ 639 (assigned by Clod).** Tony's rulings via Clay: T3 bought; a
+missing insert name keeps printing as written; action-produced text waits; Waiting on Tony 6 is not a problem and the
+search line stays. Built, all in kant: `{registry.name}` inserts from that registry only (TY-18, TY-19); G2 stroke 1a, the
+descriptions form renamed from webViewExample, reshaped like firstLight and drawn to a PDF (DE-10, DE-11).
+**NEXT:** G2 stroke 1b: `form:=descriptions` in a firstLight field, the refusal by name for a form that holds itself,
+resizeLightT re-pinned. The same day, seal 473: T3. Later: typeset's state into its own layout context.
 
-## The numbers (as run at seal 473; the binary is seal 472's)
+## The numbers (as run at seal 474; the binary is seal 472's)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3799 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 199 green (196 + typesetT's TY-8b, TY-16, TY-17); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 203 green (199 + TY-18, TY-19, DE-10, DE-11); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 or 474 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -37,10 +37,10 @@ Clod's fixit incantations waiting: 9 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 51 / 60 | this page. |
-| `Topics/forms` | 256 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 261 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 124 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/typesetting` | 100 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/typesetting` | 101 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 89 / 120 | lookup with no index; the documenter; the goal, IBkant. Nothing built. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
