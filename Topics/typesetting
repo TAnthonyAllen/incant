@@ -2,7 +2,7 @@
     typesetting -- a sub-topic file of forms until runs in text (forms step 7). Not an incantation; notes only.
     Wake-up read: Topics/forms first, then this file.
 *****************************************************************************/
-ONE LINE: typesetting pours text into the frames a form lays out. Built: plain text in one field (forms step 5); paragraphs and {styleName: text} runs, taken apart and styled by a kant pre-pass and painted by the floor from a span list (T1 and T2, seal 471).
+ONE LINE: typesetting pours text into the frames a form lays out. Built: plain text in one field (forms step 5); paragraphs, {styleName: text} runs and {name} inserts, taken apart and styled by a kant pre-pass and painted by the floor from a span list (T1 and T2, seal 471; T3, seal 473).
 
 /*****************************************************************************
     Description (as ruled 2026-11-03 to 2026-11-11, Tony)
@@ -33,21 +33,23 @@ Not typesetting
     built       THE PRE-PASS IS KANT (T1 and T2, seal 471; Clay's design, Tony's go). incant/utilities typeset takes a field's text apart and resolves every span's style; the floor, drawSpans, parses nothing and looks up no style.
                 typeset   reads the text with the grammar tsText: a tsUnit is one piece (a word, {{, {style:, a lone brace, a closing brace) and the white space after it. It builds tsOut: paragraphs (two line ends or more split them), each a list of spans.
                 a span    its own string is the piece; font, color and italic hold what the open runs' styles give, outermost first, or 0 for the field's; space is 1 when white space follows (a run of it is one gap), or holds the style's space, spelled like the form attribute: space=10 is points, space=N% a percent of the font's own space width, none set is 100% (Tony, 2026-11-12; TY-13, TY-14).
-                marks     take no room: x{emphasis: y}z is xyz. A gap after a closing mark belongs to the span before it; a gap after an opening mark is dropped. A closing brace with no run open is text; {name} is left as written. An unknown style warns by name and prints plain.
+                marks     take no room: x{emphasis: y}z is xyz. A gap after a closing mark belongs to the span before it; a gap after an opening mark is dropped. A closing brace with no run open is text. An unknown style warns by name and prints plain.
+                inserts   T3 (seal 473): {name} inserts the text of the form's field of that name: the top field or any field under it, first found (tsFind). The text is split at white space, one span a word, a gap after each, the last taking the insert's own gap; each span takes the style of the runs open at the insert (TY-17). Nothing inside inserted text is read as a mark, and its line ends are spaces. A name no field has warns by name and is left as written (TY-8, TY-8b). A field with no text of its own inserts nothing.
+                NOT in T3, each waiting on a word from Tony: a name outside the form (a registry field, a file reader); a field whose action produces the text (fires on every pour); whether a missing name should print nothing instead of the name as written.
                 drawSpans joins a paragraph's spans, one space after each span that carries one (kerned to the style's width), then wraps greedily, clips between words with a warning, aligns (justify leaves a paragraph's last line left), valigns, 4-point inset, one line's height between paragraphs.
                 drawText calls typeset only for a source that holds its own string. firstLight's words is the specimen. A form's fixture must name sTYLEs in its search for a run to resolve.
     limits      48 paragraphs a field. A run's style gives font, colour (held or by value, TY-15), italic and space only. A line holding a taller run is moved down by the difference.
     kant facts  found building it: tell's message stops at a line end (typeset drives tsText directly). A labelled term matching only white space fails; an unlabelled one-character set under no-skip (sp^-=[\t\r ]) matches, one label a character. A set written with a leading space loses the space ([ ,] is [,]). copyOf shares a copy's attributes with its source: spans and run entries are minted with copyDeep. A while whose condition joins two tests with && does not end. The last three are fixits (setLeadingSpace, copyOfSharesAttributes, whileCompoundCondition).
     RULED (Tony, 2026-11-12): typeset's state (tsOut, tsRuns, tsRunCount, tsWho, tsSpan, tsRun) moves into its own layout context before any setFrame rerun reaches typesetting. For T3: a {name} insert inside a run takes the run's style.
-    not built   insertions ({name}), the layout context as its own group, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter. Line breaking and the two-line rule stay in the floor until the jitter can take them.
+    not built   the layout context as its own group, flow across frames, pages, soft hyphens, tabs, indents, lists, the documenter. Line breaking and the two-line rule stay in the floor until the jitter can take them.
 
 /*****************************************************************************
     Plan, smallest first
 *****************************************************************************/
-    T1, T2  DONE (seal 471): the kant pre-pass and drawSpans; the C++ run parsing and style lookup deleted.      T3  insertions (step 3).
+    T1, T2  DONE (seal 471): the kant pre-pass and drawSpans; the C++ run parsing and style lookup deleted.      T3  DONE (seal 473): insertions from the form's own fields.
     1  Paragraphs in one field.          DONE (seal 466; in kant since 471)
     2  Runs.                             DONE for font, colour, italic and space (471)
-    3  Insertions.
+    3  Insertions.                       DONE for a form field's text (473)
     4  Flow across frames.
     5  Pages.
     6  Tabs, indents and lists.
@@ -78,7 +80,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
     The instrument that reads it
 *****************************************************************************/
     genLadder/formsPop.sh, through incant/pop/textT (the TX and VA rows) and firstPdfT (the PD rows). New rows go there.
-    incant/pop/typesetT (TY-1 to TY-15): firstLight's PDF read by bands, the edge rules on a second form, and T1's span rules (TY-11 to TY-13).
+    incant/pop/typesetT (TY-1 to TY-17): firstLight's PDF read by bands, the edge rules on a second form, and T1's span rules (TY-11 to TY-13).
 
 /*****************************************************************************
     Issues, Tasks, Moved by other topics. None yet.
@@ -87,6 +89,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Seal digest
 *****************************************************************************/
+    473  SEQ 638   T3: {name} inserts a form field's text, in the open runs' style; rows TY-8b, TY-16, TY-17; H7 red on 16 and 17 with the search removed. All in kant, no rebuild.
     472  SEQ 637   SHUTDOWN. T1 and T2 bought. A style's space takes points or N% of the font's space (TY-14); a hex colour in a run pinned (TY-15, not dropped); three fixits filed; the layout-context and T3 rulings recorded (State).
     471  SEQ 636   T1 and T2: kant's typeset builds the span list and drawSpans paints it; the floor's run parsing deleted. Every typesetting row as before, three added; two H7s red.
     470  SEQ 635   Tony's offline answers: a span's space is the space form attribute (open question 4). T1 not begun.

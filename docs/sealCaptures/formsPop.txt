@@ -208,13 +208,16 @@
   ok    typesetT TY-4 {{ is a literal brace: five characters, no run = [lines 1 drawn 5 of 5 next end]
   ok    typesetT TY-5 an unknown style warns by name and prints plain = [lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / 1]
   ok    typesetT TY-6 a run with no closing mark ends at its paragraph's end: two paragraphs, one run, no warning for it = [lines 2 drawn 8 of 8 next end paragraphs 2 of 2 runs 1 / 0]
-  ok    typesetT TY-7 runs nest; TY-8 an insertion waits and is left as written; TY-10 a single line end is a space = [lines 1 drawn 9 of 9 next end paragraphs 1 of 1 runs 2 / lines 1 drawn 15 of 15 next end / lines 1 drawn 25 of 25 next end]
+  ok    typesetT TY-7 runs nest; TY-8 an insertion naming no field is left as written; TY-10 a single line end is a space = [lines 1 drawn 9 of 9 next end paragraphs 1 of 1 runs 2 / lines 1 drawn 15 of 15 next end / lines 1 drawn 25 of 25 next end]
   ok    typesetT TY-9 three paragraphs in a field with room for one line: one drawn, the stop is at a paragraph, and the field is named = [lines 1 drawn 3 of 11 next paragraph paragraphs 1 of 3 runs 0 / 1]
   ok    typesetT TY-11 a run of spaces is one gap (T1): a, four spaces, b draws three characters = [lines 1 drawn 3 of 3 next end]
   ok    typesetT TY-12 a mark takes no room: xyz; the space by a closing mark is one gap after the span before it = [lines 1 drawn 3 of 3 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 7 of 7 next end paragraphs 1 of 1 runs 2]
   ok    typesetT TY-13 the gap's width is the style's space: space=280 wraps at each gap, the same text in a style with none is one line = [lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1]
   ok    typesetT TY-14 space=N% is a percent of the font's own space: 20000% wraps at each gap, 300% is one line (as points it would wrap) = [lines 3 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1]
   ok    typesetT TY-15 a run's style holding a colour by value (color=#ef2b2d): its band has red ink beside the field's blue = [ink red blue]
+  ok    typesetT TY-8b (T3) an insert naming no field of the form warns by name, once = [1]
+  ok    typesetT TY-16 (T3) {name} inserts a field's text, twice in one text: see alpha beta and alpha beta here, 34 characters; the source field draws its own 10 = [lines 1 drawn 34 of 34 next end / lines 1 drawn 10 of 10 next end]
+  ok    typesetT TY-17 (T3) an insert inside a run takes the run's style: 14 characters, one run, and its band has red ink beside the field's blue = [lines 1 drawn 14 of 14 next end paragraphs 1 of 1 runs 1 / ink red blue]
 
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
@@ -231,4 +234,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 196 green, see above
+FORMS POP FAILED -- 199 green, see above

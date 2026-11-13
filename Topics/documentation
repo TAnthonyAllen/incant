@@ -3,6 +3,8 @@
     Wake-up read for a documentation session: this file, then docs/wakeup.md (the shared state page).
 *****************************************************************************/
 ONE LINE: one way in to everything written down about kant -- lookup, with no index. Nothing of the plan below is built.
+GOAL (Tony, 2026-11-13, offline status; recorded, no build): IBkant. The kant wiki is the goal of this topic, and the wiki is a kant form: kant describing itself, using nested forms (Topics/forms G2),
+    typesetting and every other form feature. All the IncantForms forms are its examples. Reached in little strokes, firstLight the test bed. It takes the place of plan step 5.
 
 /*****************************************************************************
     Description (as ruled 2026-11-11, Tony)
@@ -81,6 +83,7 @@ One way in: lookup, with NO index.
 /*****************************************************************************
     Seal digest, newest first (full text: the seal's commit message)
 *****************************************************************************/
+    473  SEQ 638   the goal recorded: IBkant, the kant wiki as a kant form. Nothing built.
     451  SEQ 621   R0 recorded: the lookup lean taken; Open 3 closed. Nothing built.
     448  SEQ 617   Q1 answered under Open 3: what incant/lookup is, that nothing loads it, that lookupIndex prints wrong rows today, and a lean (keep the tombstone half under another name; lookup replaces lookuP).
     446  SEQ 616   this file made, as ruled 2026-11-11. Read-only, for plan step 3: incant cannot take an argument from the shell today -- main reads argv[1] as the file and ignores the rest. Smallest ways: no engine change, a shell wrapper that writes a three-line incantation (include the lookup file, call lookup(<name>), stop) and runs it; or one small change in main that puts argv[2] onward into a kant field before the parse.

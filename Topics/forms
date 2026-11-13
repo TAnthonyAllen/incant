@@ -125,6 +125,10 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     G1  MOCK CLICK (Tony, 2026-11-11, SEQ 622; recorded, no build). Click a named field (not a point) in tester; the click selects the field, fires onClick, then its attribute actions left to right;
         the form is re-laid out by setFrame and redrawn to a PDF, in one call or step by step. Only the actions that are ready are tested; each one skipped is named in the output ("not run: onNotify").
         Steps toward it: setFrame's second run, event firing, := in a define, listeners and onNotify. Victory line: the first PDF of a clicked form.
+    G2  A FORM INSIDE A FIELD (Tony, 2026-11-13, offline status; recorded, no build). A form field that is a reference to another form: that form is laid out in the field's frame and drawn there,
+        and what the field refers to can be changed by a button, a dialog or anything kant can do. The old GUI had pop-ups and panels and no nested forms.
+        firstLight is the test bed, in little strokes. Proposed (Clod and Clay, not ruled): 1 a fixed reference, laid out by setFrame with the field's frame, with a refusal by name for a form that holds itself;
+        2 the reference rewritten and redrawn by listening; 3 the click chooses (G1). The spelling of the reference is Tony's to rule (Clod's lean: form:=other, as setFrame's request spells it).
 
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
@@ -285,6 +289,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    473  SEQ 638   typesetting T3 (Topics/typesetting): {name} inserts a form field's text; formsPop 199 green. Goal G2 recorded (a form inside a field).
     472  SEQ 637   SHUTDOWN (typesetting): space in points or percent, the hex-colour row, three kant fixits; formsPop 196 green. The kitchen pass run.
     471  SEQ 636   typesetting T1 and T2 (Topics/typesetting): the text floor is drawSpans and reads a span list kant's typeset builds; formsPop 194 green.
     470  SEQ 635   Tony's offline answers: fit and onClick stay parked on the list of 28 (a click fires the field's attribute actions; onClick is there for familiarity). fit in kant is Clod's to try if wanted (Topics/features 33). The span's space: Topics/typesetting, open question 4.

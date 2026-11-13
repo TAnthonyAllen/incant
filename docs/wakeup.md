@@ -5,25 +5,24 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**472, 2026-11-12, SHUTDOWN, topic: forms (typesetting), SEQ 637 (assigned by Clod).** The kitchen pass run. T1 and T2
-bought by Tony. A run style's `space` is spelled like the form attribute: `space=10` is points, `space=N%` a percent of the
-font's own space width. A hex colour in a run's style is pinned (it was never dropped). Three kant fixits filed:
-whileCompoundCondition, setLeadingSpace, copyOfSharesAttributes (a question for Tony: by design?).
-**NEXT:** T3, insertions: a `{name}` insert inside a run takes the run's style (Topics/typesetting, State and Plan).
-The same day, seals 470-471: postfix `x++` / `x--`; the kant pre-pass `typeset` and the floor's `drawSpans`.
-Later: typeset's state into its own layout context before a setFrame rerun reaches it; the jitted store helper's cost.
+**473, 2026-11-13, topic: forms (typesetting), SEQ 638 (assigned by Clod).** T3 built, all in kant (no rebuild): `{name}`
+inserts the text of the form's field of that name, one span a word, in the style of the runs open at the insert. A name no
+field has warns by name and is left as written. Rows TY-8b, TY-16, TY-17; H7 red on 16 and 17 with the search removed.
+Tony's two offline ideas recorded as goals, no build: a form inside a field (Topics/forms G2) and IBkant (Topics/documentation).
+**NEXT:** G2 stroke 1, a fixed form reference in firstLight, once Tony rules its spelling. T3's three open points are in
+Topics/typesetting, State. Later: typeset's state into its own layout context; the jitted store helper's cost.
 
-## The numbers (as run at seal 472; the binary is seal 472's)
+## The numbers (as run at seal 473; the binary is seal 472's)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3799 green (3768 + postfixT's 31), FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3799 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 196 green (194 + typesetT's TY-14, TY-15); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 199 green (196 + typesetT's TY-8b, TY-16, TY-17); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -37,13 +36,13 @@ Clod's fixit incantations waiting: 9 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 52 / 60 | this page. |
-| `Topics/forms` | 251 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `docs/wakeup.md` | 51 / 60 | this page. |
+| `Topics/forms` | 256 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 124 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/typesetting` | 97 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/typesetting` | 100 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
-| `Topics/documentation` | 86 / 120 | lookup with no index; the documenter. Nothing built. |
+| `Topics/documentation` | 89 / 120 | lookup with no index; the documenter; the goal, IBkant. Nothing built. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are
