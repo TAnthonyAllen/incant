@@ -1,0 +1,78 @@
+/*****************************************************************************
+    IBkant -- the kant wiki as a kant form: kant describing itself (Tony, 2026-11-13).
+    THE SKELETON. Definitions only, shaped like firstLight; the driver is below bail().
+    The includer loads utilities and styles and searches cOLOr, fONTs and sTYLEs first.
+    Three pages, each a form of its own. The window holds one of them in its page field
+    (form:=ibPage); a click on an entry of the contents writes ibPage, and ibPage's
+    listener redraws. The words are poured by name from IncantForms/IBkant/text.
+*****************************************************************************/
+registry(fILEs);
+define
+    ibkantTextFile File='IncantForms/IBkant/text';
+    ;
+include(ibkantTextFile);
+register(FORMs);
+define
+    ibWelcome window x=0 y=0 width=440 height=440 down fill:=white font:=normalFont color:=blue
+        ibWelcomeHead="I be kant" text height=44 font:=titleFont color:=green bottomBorder;
+        ibWelcomeBody="{IBkantText.welcomeOne}\n\n{IBkantText.welcomeTwo}" text align=justify;
+    ;
+define
+    ibFields window x=0 y=0 width=440 height=440 down fill:=white font:=normalFont color:=blue
+        ibFieldsHead="Fields" text height=44 font:=titleFont color:=green bottomBorder;
+        ibFieldsBody="{IBkantText.fieldsOne}\n\n{IBkantText.fieldsTwo}" text align=justify;
+    ;
+define
+    ibForms window x=0 y=0 width=440 height=440 down fill:=white font:=normalFont color:=blue
+        ibFormsHead="Forms" text height=44 font:=titleFont color:=green bottomBorder;
+        ibFormsBody="{IBkantText.formsOne}\n\n{IBkantText.formsTwo}" text align=justify;
+    ;
+define
+    ibPage;
+    ;
+ibPage := ibWelcome;
+define
+    showWelcome code={ ibPage := ibWelcome; };
+    showFields code={ ibPage := ibFields; };
+    showForms code={ ibPage := ibForms; };
+    ;
+define
+    IBkant window x=200 y=200 width=600 height=500 down fill:=wall font:=normalFont color:=blue
+        ibTitle="IBkant" text height=60 font:=titleFont color:=green align=center valign=center bottomBorder;
+        ibMain across
+            ibContents width=160 down
+                toWelcome="Welcome" text height=34 border fill:=lightGreen align=center valign=center onClick:=showWelcome;
+                toFields="Fields" text height=34 border fill:=lightGreen align=center valign=center onClick:=showFields;
+                toForms="Forms" text height=34 border fill:=lightGreen align=center valign=center onClick:=showForms;
+                ibRest;
+            ibPageField form:=ibPage;
+    ;
+bail();
+
+HOW IT WORKS. Every piece is one built today (Topics/forms G2; Topics/typesetting T3):
+    a form inside a field     ibPageField form:=ibPage. ibPage is a field of its own that holds the page form.
+    the swap                  writing ibPage (ibPage := ibFields) tells its listener, which calls redrawForm.
+    the click                 click(request) on toFields fires its onClick, showFields, which writes ibPage.
+    words by name             a page body is {IBkantText.fieldsOne}: the passage is poured from the text file.
+To add a page: its passages in IncantForms/IBkant/text; a page form, a show action and a contents entry here.
+Not here yet: a real click (windows, forms step 10); which entry is selected is not shown; a passage is one paragraph.
+
+/*****************************************************************************
+    The driver: IBkant laid out and drawn to IncantForms/PDF/output.pdf, then the Fields page by a mock click.
+    Below bail(), so nothing runs it. Paste into tester above its stop(), after tester's own Start() and includes.
+*****************************************************************************/
+registry(fILEs);
+define
+    ibkantFile File='IncantForms/Windows/IBkant';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(ibkantFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    ibReq path="IncantForms/PDF/output.pdf" form:=IBkant;
+    ibHears listenTo:=ibPage code={ redrawForm(ibReq); };
+    ibClickFields form:=IBkant field="toFields";
+    ;
+redrawForm(ibReq);
+click(ibClickFields);

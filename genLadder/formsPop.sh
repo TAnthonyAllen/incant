@@ -464,6 +464,23 @@ _ofeq "clickT CK-4 a field with no action: heading is selected, nothing fired, n
 _ofeq "clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was" "$(grep -c '^click: REFUSING ckNoField -- the form firstLight has no field named nosuch' "$T/ck.e") $(grep -c '^click: REFUSING ckNoName -- its request needs form:=theForm and field=theName' "$T/ck.e") / [$(_ckc refused)] / $(_ckr CK-5 | cut -d' ' -f1-4)" "1 1 / [] / runs 2 selected heading"
 _ofeq "clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123" "$(_ckr CK-6 | sed 's/.*order //') / $(_ckc order)" "123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond"
 
+echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
+#  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
+#  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.
+_ibF=$(ip ibkantT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_ibF" > "$T/ib.o" 2> "$T/ib.e"; _ibx=$?
+_ibt () { awk -v want="$1" '/^IB PAGE/{b=$3} /^=== drawSpans/ && b==want { printf "%s%s", sep, $3; sep=" " }' "$T/ib.o"; }
+_ibc () { awk -v want="$1" '/^IB PAGE/{b=$3} /^=== click/ && b==want { s=$0; sub(/^=== click /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/ib.o"; }
+_ibb () { awk -v want="$1" -v f="$2" '/^IB PAGE/{b=$3} /^=== drawSpans/ && b==want && $3==f { s=$0; sub(/.* drawn /,"drawn ",s); sub(/ next .* paragraphs/," paragraphs",s); sub(/ runs.*/,"",s); print s }' "$T/ib.o"; }
+_ibn () { awk -v n="$1" -F'"' '$1 ~ "^    "n"(One|Two)=" { t+=length($2) } END { print t+0 }' IncantForms/IBkant/text; }
+_ibr () { grep "^$1 " "$T/ib.e" | sed "s/^$1 //" | xargs; }
+_ofeq "ibkantT exit / sentinel" "$_ibx $(grep -c '^IBKANTT SENTINEL' "$T/ib.e")" "0 1"
+_ofeq "ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run" "$(_ibr IB-1) / $(_ibt first)" "runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody"
+_ofeq "ibkantT IB-2 a click on toFields: selected, onClick fired showFields, one run, and the page is Fields" "$(_ibr IB-2) / $(_ibc fields) / $(_ibt fields)" "runs 1 selected toFields / IBkant toFields selected / IBkant toFields fired onClick showFields / ibTitle toWelcome toFields toForms ibFieldsHead ibFieldsBody"
+_ofeq "ibkantT IB-3 a click on toForms: two runs, the page is Forms" "$(_ibr IB-3) / $(_ibt forms)" "runs 2 selected toForms / ibTitle toWelcome toFields toForms ibFormsHead ibFormsBody"
+_ofeq "ibkantT IB-4 a click on toWelcome: three runs, and the body reads as on the first page" "$(_ibr IB-4) / $(_ibb welcome ibWelcomeBody)" "runs 3 selected toWelcome / $(_ibb first ibWelcomeBody)"
+_ofeq "ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its two passages (lengths counted from the file), in two paragraphs; nothing left as written" "$(_ibb first ibWelcomeBody) / $(_ibb fields ibFieldsBody) / $(_ibb forms ibFormsBody) / $(grep -c 'left as written' "$T/ib.e")" "drawn $(_ibn welcome) of $(_ibn welcome) paragraphs 2 of 2 / drawn $(_ibn fields) of $(_ibn fields) paragraphs 2 of 2 / drawn $(_ibn forms) of $(_ibn forms) paragraphs 2 of 2 / 0"
+
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is
 #  IncantForms/Images/bands.png, 40 x 20: 5 white rows, then green red blue green bands 10 wide. REGISTERED BEFORE THE BUILD.

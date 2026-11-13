@@ -1,0 +1,55 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    ibkantFile File='IncantForms/Windows/IBkant';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(ibkantFile);
+register(IbkantT);
+search IbkantT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    ibRuns = 0;
+    ibReq path="IncantForms/PDF/output.pdf" form:=IBkant;
+    ibHears listenTo:=ibPage code={
+        ibRuns = ibRuns + 1;
+        redrawForm(ibReq);
+        };
+    ibSay code={
+        ibSel := *selection.taG;
+        cerr argument "runs" ibRuns "selected" ibSel:;
+        };
+    ibClickWelcome form:=IBkant field="toWelcome";
+    ibClickFields form:=IBkant field="toFields";
+    ibClickForms form:=IBkant field="toForms";
+    ;
+cout "IB PAGE first":;
+redrawForm(ibReq);
+cerr "IB-1 runs" ibRuns:;
+cout "IB PAGE fields":;
+click(ibClickFields);
+ibSay("IB-2");
+cout "IB PAGE forms":;
+click(ibClickForms);
+ibSay("IB-3");
+cout "IB PAGE welcome":;
+click(ibClickWelcome);
+ibSay("IB-4");
+cout "IB PAGE end":;
+cerr "IBKANTT SENTINEL":;
+stop();
+
+ibkantT -- the IBkant skeleton (Tony, 2026-11-13): the kant wiki as a kant form. Rows in genLadder/formsPop.sh.
+IncantForms/Windows/IBkant holds one page form in its page field (form:=ibPage); a contents entry's onClick writes ibPage;
+ibPage's listener redraws. Each page body pours two passages by name from IncantForms/IBkant/text.
+
+IB-1  the first page is Welcome: the title, the three contents entries, then the page's head and body are drawn, in that order.
+IB-2  a click on toFields: selected, its onClick fired showFields, one listener run, and the page is Fields.
+IB-3  a click on toForms: two runs, the page is Forms.
+IB-4  a click on toWelcome: three runs, and the body's line reads as IB-1's.
+IB-5  THE WORDS COME FROM THE TEXT FILE: each body draws every character, in two paragraphs, and the count is the two passages'
+      lengths added, counted by the harness from IncantForms/IBkant/text itself. No insert was left as written.
+H7: with the registry's name misspelled in one page body, IB-5 goes red for that page and the warning names it.
