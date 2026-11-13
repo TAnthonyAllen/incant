@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(CodedFlagClears);
+define
+    cfCount = 0;
+    cfAct code={ cfCount = cfCount + 1; };
+    cfHost onClick:=cfAct;
+    cfSee code={
+        for grup in argument; attributes
+            cfHeld = *grup.isGrouP;
+            cfFlag = 0;
+            cfChild = 0;
+            if cfHeld == 1;     cfFlag = **grup.isCodeD;
+            if cfHeld == 1;
+                if **grup["CodE"];      cfChild = 1;
+            print "PIN the held action: isCodeD " cfFlag " (want 1 both times)   CodE child " cfChild " (1 both times: the workaround)":;
+        };
+    ;
+cerr "ANCHOR codedFlagClears -- one action, read through the attribute that holds it, before and after its first run":;
+cfSee(cfHost);
+cfAct(cfHost);
+cfSee(cfHost);
+fixCodedFlagClearsHere = 0;
+cerr "SENTINEL codedFlagClears reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Tony, shutdown dispatch of 2026-11-13, SEQ 644; severity LATENT -- nothing reads the flag wrongly today)
+
+codedFlagClears -- an action's isCodeD reads 1 before its first run and 0 after it. So "does this field carry an action"
+cannot be asked of isCodeD once the action has run. Found 2026-11-13 building the mock click (incant/utilities clickFire),
+where the first click fired and the second found no action.
+MEASURED 2026-11-13, kant: a field cfAct code={...}; isCodeD 1; one direct call; isCodeD 0. hasActioN and isActioN read 0
+on the same field before and after. actionTypE read 2 by a direct print, and could not be compared after a capture (a tag echo).
+This is CLAUDE.md bear-trap #25's fact (an interpreted run consumes isCodeD) met from kant instead of from testing().
+
+THE WORKAROUND IN USE: the action's CodE child. A field with an action keeps a CodE child before and after it runs, and a
+plain field has none, so click tests **grup["CodE"] (clickT CK-2 and CK-3: the second click still fires).
+
+Not measured: why the flag is cleared (the cached BlocK is the obvious reason: once built, the code is not processed
+again), or whether anything else should read 1 for "is an action" -- hasActioN and isActioN look like the names for it.
+
+NEXT: OPEN -- read where isCodeD is lowered (processCode's first run) and what hasActioN and isActioN were meant to say;
+then either one of them says "carries an action" for good, or the CodE-child test is written down as the way.
+Taken: both lines read isCodeD 1. Not taken: the first reads 1 and the second 0.

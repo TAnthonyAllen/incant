@@ -9,7 +9,8 @@ GOAL (Tony, 2026-11-13, offline status; recorded, no build): IBkant. The kant wi
     THE SKELETON (seal 478, all kant): IncantForms/IBkant/text, registry IBkantText, one entry a passage. IncantForms/Windows/IBkant: three page forms (ibWelcome, ibFields, ibForms); ibPage, a field of its own, holds the page shown;
         the window's ibPageField is form:=ibPage; a contents entry's onClick writes ibPage and ibPage's listener redraws; a page body is {IBkantText.welcomeOne}, a blank line, {IBkantText.welcomeTwo}. Fixture incant/pop/ibkantT (IB-1 to IB-5, in formsPop).
         To add a page: its passages in the text file; a page form, a show action and a contents entry in the form file.
-        GAPS, each Tony's to rule: a passage is one paragraph (an insert's line ends are spaces, and no mark inside it is read); the selected entry is not shown; no page yet pours from DesignDocs, the decoder or dESCRIPTIONs; the click is the mock click.
+        GAPS, IN THE ORDER RULED (Tony, 2026-11-13): 1 NEXT, a passage carries its own paragraphs and runs (today an insert's line ends are spaces and no mark inside it is read); 2 show the selected entry; 3 pour from lookup (plan step 1). The click is the mock click.
+        The skeleton's page text is a placeholder: Tony will fill it from the wiki.
 
 /*****************************************************************************
     Description (as ruled 2026-11-11, Tony)
@@ -89,6 +90,7 @@ One way in: lookup, with NO index.
 /*****************************************************************************
     Seal digest, newest first (full text: the seal's commit message)
 *****************************************************************************/
+    479  SEQ 644   SHUTDOWN. Seal 478 bought; IBkant's gaps ordered (1 passages with paragraphs and runs, NEXT; 2 the selected entry; 3 lookup); the page text is a placeholder.
     478  SEQ 643   the IBkant skeleton: a window, three page forms in one field, a contents column that swaps the page by a mock click, bodies poured by name from a definitions file. formsPop IB-1 to IB-5.
     473  SEQ 638   the goal recorded: IBkant, the kant wiki as a kant form. Nothing built.
     451  SEQ 621   R0 recorded: the lookup lean taken; Open 3 closed. Nothing built.
