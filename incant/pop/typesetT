@@ -27,6 +27,9 @@ define
         tsPct="{pct: a b} c" text height=60;
         tsSame="{same: a b} c" text height=60;
         tsHex="p {hexed: q} r" text height=30;
+        tsSrc="alpha beta" text height=30;
+        tsGot="see {tsSrc} and {tsSrc} here" text height=30;
+        tsRunIns="p {emphasis: {tsSrc}} q" text height=30;
     ;
 registry(sTYLEs);
 define
@@ -85,6 +88,8 @@ redrawForm(tyEdges);
 readPDF(pdfRead);
 cout "TY BAND hex":;
 tyX0 = 4; tyX1 = 120; tyY0 = 584; tyY1 = 602; tyBand(pdfRead);
+cout "TY BAND insrun":;
+tyX0 = 4; tyX1 = 120; tyY0 = 674; tyY1 = 692; tyBand(pdfRead);
 cout "TY BAND end2":;
 cerr "TYPESET SENTINEL":;
 stop();
@@ -107,7 +112,7 @@ TY-5  an unknown style warns by name and the text prints plain: 5 characters, an
 TY-6  A RUN ENDS AT ITS PARAGRAPH'S END: "p {emphasis: q r" with no closing mark, a blank line, "s t": two paragraphs,
       one run, 8 characters, and no warning. (That the second paragraph is plain is the ruling; this row pins the count.)
 TY-7  runs nest: 9 characters, 2 runs.
-TY-8  an insertion, {name} with no colon, waits: it is left as written, 15 characters, no run.
+TY-8  an insertion, {name} with no colon, naming no field of the form: it is left as written, 15 characters, no run, and (T3, TY-8b) it warns by name.
 TY-9  three paragraphs in a field too short for them: what fits is drawn, the rest is reported by name.
 TY-10 a single line end inside a paragraph is a space: one paragraph, 25 characters.
 
@@ -123,3 +128,7 @@ Every row above reads as it did on the C++ slice but TY-5's warning, which kant 
   TY-15  tsHex  a run's style holding its colour by value (hexed color=#ef2b2d) colours the run: the band read back has red ink.
 H7 (2026-11-12, after the commit): with typeset's colour line removed TY-3 goes red; with its paragraph test off TY-1 reads one paragraph.
 
+T3 (2026-11-13): {name} inserts the text of the form's field of that name (incant/utilities typeset, tsFind).
+  TY-16  tsGot  two inserts of tsSrc in one text: "see alpha beta and alpha beta here", 34 characters. Each word of the inserted text is a span of its own.
+  TY-17  tsRunIns  an insert inside a run takes the run's style (Tony, 2026-11-12): "p alpha beta q" with alpha beta red. Unstyled, the band would hold no red.
+The three fields sit below tsHex so that no earlier field moves.

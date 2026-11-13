@@ -141,7 +141,12 @@ define
         A gap after a closing mark belongs to the span before the mark; a gap
         after an opening mark is dropped. A closing brace with no run open is
         text. A style name sTYLEs does not hold warns by name and the run
-        prints plain. An insertion, {name}, waits: it is left as written.
+        prints plain.
+        T3 (2026-11-13): {name} inserts the text of the form's field of that
+        name (the top field or any field under it, first found). The text is
+        split at white space, one span a word, each in the style of the runs
+        open at the insert; nothing inside it is read as a mark. A name no
+        field has warns by name and is left as written. tsFind is the search.
     ***************************************************************************/
     tsSp isRule sp^-=[\t\r ];
     tsNl isRule nl^-=[\n];
@@ -149,16 +154,33 @@ define
     tsWord isRule word^=[^\t\n\r{} ]+;
     tsLit isRule lit^="{" more^-="{";
     tsOpen isRule open^="{" style^=[a-zA-Z0-9]+ colon^=":";
+    tsIns isRule ins^="{" name^=[a-zA-Z0-9]+ end^="}";
     tsBrace isRule brace^="{";
     tsClose isRule close^="}";
     tsPiece isRule
         tsWord^;
         tsLit^;
         tsOpen^;
+        tsIns^;
         tsBrace^;
         tsClose^;
     tsUnit isRule tsPiece^ tsSp^* tsLine^*;
     tsText isRule tsUnit+;
+    tsIu isRule iw^=[^\t\n\r ]+ tsSp^* tsLine^*;
+    tsIt isRule tsIu+;
+    tsWant;
+    tsFound;
+    tsHit;
+    tsFind code={
+        for grup in argument; members
+            if tsHit == 0;
+                tfTag := *grup.taG;
+                if *tfTag == *tsWant;
+                    tsFound := *grup;
+                    tsHit = 1;
+            if tsHit == 0;
+                if *grup.hasMemberS;    tsFind(*grup);
+        };
     tsRun style depth;
     tsRuns;
     tsSpan space font color italic;
@@ -185,6 +207,39 @@ define
                 if *tyG.taG == "tsLine";    tyLines = tyLines + 1;
                 tyG := *tyG.nexT;
             tyIsSpan = 1;
+            tyMode = 0;
+            // insertFound mode 1: no field of that name, the three pieces print as written; 2: the field's words; 3: a field with no text of its own, nothing
+            if *tyKind == "ins";
+                tySl := *tyLeaf.nexT;
+                tyNm := *tySl.texT;
+                tyMode = 1;
+                tyTop := *tsWho;
+                tyHops = 0;
+                while tyHops < 32;
+                    tyIsTop = *tyTop.isPointeR;
+                    if tyIsTop == 1;    tyHops = 32;
+                    if tyIsTop == 0;    tyTop := *tyTop.parenT;
+                    tyHops += 1;
+                tsHit = 0;
+                tsWant := *tyNm;
+                tyTt := *tyTop.taG;
+                if *tyTt == *tyNm;
+                    tsFound := *tyTop;
+                    tsHit = 1;
+                if tsHit == 0;
+                    if *tyTop.hasMemberS;   tsFind(*tyTop);
+                if tsHit == 0;
+                    tyFt := *tsWho.taG;
+                    cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "-- no field of that name in the form; left as written":;
+                if tsHit == 1;
+                    tyMode = 3;
+                    tyFh = *tsFound.datA;
+                    tyFg = *tsFound.isGrouP;
+                    if tyFg == 1;   tyFh = 0;
+                    if tyFh != 0;
+                        tyIn := tsIt(*tsFound);
+                        tyIw := *tyIn.firsT;
+                        if tyIw.datA != 0;  tyMode = 2;
             if *tyKind == "open";
                 tyIsSpan = 0;
                 tySl := *tyLeaf.nexT;
@@ -262,21 +317,43 @@ define
                                 tySp = 1;
                                 tyLook = 0;
                             tyNxt := *tyNxt.nexT;
-                tsSpan.space = tySp;
                 // styleSpace the gap's width comes from the innermost open style that names space (Tony, 2026-11-12)
-                if tySp == 1;
-                    if tySpace > 0;
-                        tyPos = 0;
-                        tyE := tsRuns.firsT;
-                        while tyE.datA != 0;
-                            tyPos = tyPos + 1;
-                            if tyPos == tySpace;
-                                tyEs := *tyE["style"];
-                                tsSpan.space := **tyEs["space"];
-                            tyE := *tyE.nexT;
-                // ownSpan copyDeep, never copyOf: copyOf shares the four slots, and every span then reads the last one's
-                tyNew := copyDeep(tsSpan);
-                *tyPara +% *tyNew;
+                tyHasSp = 0;
+                if tySpace > 0;
+                    tyPos = 0;
+                    tyE := tsRuns.firsT;
+                    while tyE.datA != 0;
+                        tyPos = tyPos + 1;
+                        if tyPos == tySpace;
+                            tySpEs := *tyE["style"];
+                            tyHasSp = 1;
+                        tyE := *tyE.nexT;
+                // emitSpans one span for a piece; for an insert one a word, a gap after each, the last taking the piece's own gap
+                tyW := *tyLeaf;
+                if tyMode == 2;     tyW := *tyIw;
+                tyMore = 1;
+                if tyMode == 3;     tyMore = 0;
+                while tyMore == 1;
+                    tyWn := *tyW.nexT;
+                    tyLast = 0;
+                    if tyWn.datA == 0;  tyLast = 1;
+                    if tyMode == 0;     tyLast = 1;
+                    tyTxt := *tyW.texT;
+                    if tyMode == 2;
+                        tyWl := *tyW.firsT;
+                        tyTxt := *tyWl.texT;
+                    tyGapOn = 0;
+                    if tyMode == 2;     tyGapOn = 1;
+                    if tyLast == 1;     tyGapOn = tySp;
+                    tsSpan = *tyTxt;
+                    tsSpan.space = tyGapOn;
+                    if tyGapOn == 1;
+                        if tyHasSp == 1;    tsSpan.space := **tySpEs["space"];
+                    // ownSpan copyDeep, never copyOf: copyOf shares the four slots, and every span then reads the last one's
+                    tyNew := copyDeep(tsSpan);
+                    *tyPara +% *tyNew;
+                    if tyLast == 1;     tyMore = 0;
+                    if tyLast == 0;     tyW := *tyWn;
             if tyLines > 1;
                 tyHave = 0;
                 clear(tsRuns);
