@@ -127,8 +127,8 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         Steps toward it: setFrame's second run, event firing, := in a define, listeners and onNotify. Victory line: the first PDF of a clicked form.
     G2  A FORM INSIDE A FIELD (Tony, 2026-11-13, offline status; recorded, no build). A form field that is a reference to another form: that form is laid out in the field's frame and drawn there,
         and what the field refers to can be changed by a button, a dialog or anything kant can do. The old GUI had pop-ups and panels and no nested forms.
-        firstLight is the test bed, in little strokes. Proposed (Clod and Clay, not ruled): 1 a fixed reference, laid out by setFrame with the field's frame, with a refusal by name for a form that holds itself;
-        2 the reference rewritten and redrawn by listening; 3 the click chooses (G1). The spelling of the reference is Tony's to rule (Clod's lean: form:=other, as setFrame's request spells it).
+        RULED (Tony, 2026-11-13, via Clay): the spelling is form:=other; the referenced form is descriptions. Stroke 1 splits: 1a descriptions laid out and drawn to a PDF on its own, layout only (describe's action and the images' actions wait for windows);
+        1b form:=descriptions in a firstLight field, with the refusal by name for a form that holds itself, resizeLightT re-pinned. Waiting on Tony 6 is ruled before 1a. Proposed, not ruled: 2 the reference rewritten and redrawn by listening; 3 the click chooses (G1).
 
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
@@ -225,7 +225,8 @@ Form files (from docs/forms.md, retired into this file)
        The kept value was used as written: nothing in that code adds the parent's origin to it (today's overlay measures from the parent, R4). A written x=0 counted as written.
        Forms that rely on it: NONE found. Searched IncantForms/Windows (all 21), IncantForms/Controls and incant/unitTests for x= or y=: every hit is on a window or a top field (20 forms, plus unitTests' four test tops). No child field in any form writes x or y.
        To rule: read a child's x and y under down and across too (and, if so, does it still leave its gap), or leave them unread there.
-    6  DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
+    6  DUE BEFORE G2 STROKE 1a (options brought 2026-11-13, in the session; MEASURED there: with the search line moved below the form's define the registry keeps its long texts and the form draws the same).
+       DE-6, measured at SEQ 607: with dESCRIPTIONs searched during a form's define, a form field with a registry entry's name IS that entry, so the registry's long texts for saber, trees and describeHead are replaced by the form's short ones. If they were meant to survive, the search line's place decides it.
 
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
