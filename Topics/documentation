@@ -11,6 +11,12 @@ GOAL (Tony, 2026-11-13, offline status; recorded, no build): IBkant. The kant wi
         To add a page: its passage in the text file; a page form, a show action and a contents entry in the form file.
         GAPS, IN THE ORDER RULED (Tony, 2026-11-13): 1 DONE (seal 480), a passage carries its own paragraphs and runs: an insert's text is read as text (incant/utilities typeset; an insert inside it is left as written); 2 NEXT, show the selected entry; 3 pour from lookup (plan step 1). The click is the mock click.
         The skeleton's page text is a placeholder: Tony will fill it from the wiki.
+    RULED (Tony, 2026-11-13, SEQ 650, by forwarding Clay's dispatch; R2 as Tony revised it the same evening). Nothing built; the recon is in seal 483's commit message.
+        R1  a form is fired as show(form), a standard action in utilities that builds its own request; path is an attribute on the form, default IncantForms/PDF/output.pdf.
+        R2  an entry in IBkant/text holds its text one of two ways: a value, as now, for short text; or File= naming a plain text file, for long text. The insert loads the file when the entry has a File and no value. The definitions-file ruling stands.
+        R3  the sections are listed by a contents field: one line per section giving its name, its title and its File=. The order is the author's.
+        BUILD ORDER: after the Topics/forms trim, before gap 2. Strokes as sized: show (small); File= in the typeset insert (small; a missing file ends the run at exit 2 today, and an unloaded entry draws nothing with no warning); one page form pouring the current passage (medium, needs a probe: an insert through a holder is not measured).
+        MEASURED: a file's blank lines survive getFile (paragraphs 2 of 2; #) and quotes are fine in a file); a passage too long is cut at its field's foot and warned by name with the count drawn; F-154 (docs/fixIts.md): a listener's action does not get the listener as its argument, so a request and its listener stay two fields.
 
 /*****************************************************************************
     Description (as ruled 2026-11-11, Tony)
@@ -90,6 +96,7 @@ One way in: lookup, with NO index.
 /*****************************************************************************
     Seal digest, newest first (full text: the seal's commit message)
 *****************************************************************************/
+    483  SEQ 650   SHUTDOWN. Tony's offline IBkant text committed, IB-6 re-pinned to its lengths (438 460 416). R1-R3 ruled: show(form); File= on an entry for long text; a contents field lists the sections. Recon only: three probes, F-154 docketed. NEXT: the Topics/forms trim, then show, File=, the one page form, then gap 2.
     481  SEQ 648   SHUTDOWN. Seal 480 bought, gap 1 and its three limits included (raise one if a real page meets it). Tony cleared tester below its stop() himself; Firing a form by hand in Topics/forms is the only home, descriptions added. NEXT: the Topics/forms trim, then gap 2.
     480  SEQ 645-647   output.pdf at shutdown was typesetT's page, written by pop.sh's corpus loop: fleet PDFs moved to IncantForms/PDF/test.pdf; the firing lines have one home (Topics/forms). GAP 1 built: a passage carries its own paragraphs and runs; IBkant is one passage a page. formsPop 239.
     479  SEQ 644   SHUTDOWN. Seal 478 bought; IBkant's gaps ordered (1 passages with paragraphs and runs, NEXT; 2 the selected entry; 3 lookup); the page text is a placeholder.
