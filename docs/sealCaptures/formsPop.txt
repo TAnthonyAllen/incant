@@ -141,6 +141,13 @@
   ok    clickT CK-4 a field with no action: heading is selected, nothing fired, no listener run = [runs 2 selected heading / firstLight heading selected]
   ok    clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was = [1 1 / [] / runs 2 selected heading]
   ok    clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123 = [123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond]
+-- the IBkant skeleton: the kant wiki as a kant form (ibkantT).
+  ok    ibkantT exit / sentinel = [0 1]
+  ok    ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run = [runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody]
+  ok    ibkantT IB-2 a click on toFields: selected, onClick fired showFields, one run, and the page is Fields = [runs 1 selected toFields / IBkant toFields selected / IBkant toFields fired onClick showFields / ibTitle toWelcome toFields toForms ibFieldsHead ibFieldsBody]
+  ok    ibkantT IB-3 a click on toForms: two runs, the page is Forms = [runs 2 selected toForms / ibTitle toWelcome toFields toForms ibFormsHead ibFormsBody]
+  ok    ibkantT IB-4 a click on toWelcome: three runs, and the body reads as on the first page = [runs 3 selected toWelcome / drawn 410 of 410 paragraphs 2 of 2]
+  ok    ibkantT IB-5 THE WORDS COME FROM THE TEXT FILE: each body draws all of its two passages (lengths counted from the file), in two paragraphs; nothing left as written = [drawn 410 of 410 paragraphs 2 of 2 / drawn 443 of 443 paragraphs 2 of 2 / drawn 416 of 416 paragraphs 2 of 2 / 0]
 -- the first image: forms step 8.
   ok    imageT exit / sentinel = [0 1]
   ok    imageT IM-1 FILL: imSquare shows the image's middle -- red (30,60), blue (90,60), and no green at its edges (12,60) (107,60) = [red blue red blue]
@@ -260,4 +267,4 @@
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
 
-FORMS POP FAILED -- 222 green, see above
+FORMS POP FAILED -- 228 green, see above

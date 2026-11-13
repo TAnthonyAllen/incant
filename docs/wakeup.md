@@ -5,24 +5,25 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**477, 2026-11-13, topic: forms, SEQ 642 (assigned by Clod).** G2 stroke 3 built, all in kant: the mock click (goal G1).
-`click(request)` names a form and a field; it selects the field, fires its own action, then its attribute actions left to
-right. firstLight's `ok` holds `onClick:=okClick`, which writes `insideForm`; the listener redraws, so a click on ok swaps
-the form shown in `inside` (clickT CK-1 to CK-6). Stroke 2 bought; the holding field is the pattern for now. Topics/forms trimmed.
-**NEXT:** the IBkant skeleton (ruled): its text in definition-only incantation files, poured into pages by name.
-The same day, seals 473-476: T3, `{registry.name}`, descriptions to a PDF, a form inside a field, the caption fix, the swap.
+**478, 2026-11-13, topic: documentation (with forms), SEQ 643 (assigned by Clod).** The IBkant skeleton, all in kant and
+with no utilities change: `IncantForms/Windows/IBkant` is a window holding one of three page forms in a field
+(`form:=ibPage`); a contents entry's click writes `ibPage` and the listener redraws; each page body pours two passages by
+name from `IncantForms/IBkant/text` (registry IBkantText). Rows ibkantT IB-1 to IB-5. Stroke 3 was bought into seal 477.
+**NEXT:** Tony's to choose among IBkant's gaps (Topics/documentation, GAPS): a passage with paragraphs and runs of its
+own; showing the selected entry; pages poured from DesignDocs, the decoder or dESCRIPTIONs (lookup, plan step 1).
+The same day, seals 473-477: T3, `{registry.name}`, descriptions to a PDF, a form inside a field, the swap, the mock click.
 
-## The numbers (as run at seal 477; the binary is seal 472's)
+## The numbers (as run at seal 478; the binary is seal 472's)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3799 green, FAIL rows identical by name to the bank (66; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 222 green (215 + clickT's seven); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 228 green (222 + ibkantT's six); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 to 477 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 473 to 478 (not a shutdown seal); at 472: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -37,12 +38,12 @@ Clod's fixit incantations waiting: 9 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 51 / 60 | this page. |
-| `Topics/forms` | 253 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 254 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 124 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 101 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
-| `Topics/documentation` | 89 / 120 | lookup with no index; the documenter; the goal, IBkant. Nothing built. |
+| `Topics/documentation` | 96 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are

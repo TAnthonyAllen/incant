@@ -72,7 +72,7 @@ What each field is for (from the retired WorkingOn/drawing, git ede70292):
 UNPARKED (SEQ 631): PoinT, ArC and CurvE-as-a-rule are defined as rule shapes; PerfRighT PerfLefT PerfToP PerfBottoM and PerforatioN are defined. A template naming one field several times (DowN=GaP ... DowN=StridE) keeps each value, now that the fields are virtual (DF-5).
     NOT CARRIED: PoinT's action. It is written in the old drawing spellings (scope currentFRAME~, isPERCENT); its text is in git ede70292^, IncantForms/WorkingOn/drawing. Nothing draws from these entries yet: the small drawing language is still a design question (Topics/drawing).
 
-ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 3 of 21 forms draw. A field can hold another form (form:=other).
+ONE LINE: forms are kant fields laid out by setFrame and drawn by a kant walk over a short C++ floor, to a bitmap and to a PDF. 3 of 21 forms draw, and IBkant. A field can hold another form (form:=other).
 
 /*****************************************************************************
     Description
@@ -294,6 +294,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    478  SEQ 643   (documentation) the IBkant skeleton uses G2 whole: IncantForms/Windows/IBkant (Topics/documentation). formsPop 228 green.
     477  SEQ 642   G2 stroke 3, the mock click (G1): click(request) selects a named field and fires its own action, then its attribute actions; firstLight's ok swaps the form in inside (clickT, six rows). This file trimmed. formsPop 222 green.
     476  SEQ 641   G2 stroke 2, the swap: firstLight's inside names insideForm; one write to it and a listener's redrawForm show another form (swapT, four rows). The caption control rerun, red as it should be. formsPop 215 green.
     475  SEQ 640   G2 stroke 1b: a form inside a field (placeForm; firstLight holds descriptions; formNestT NF-1 to NF-5; a self-holding form refused by name). Tony's caption fix for Waiting on Tony 6 (DE-6, DE-12). formsPop 210 green.
