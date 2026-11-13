@@ -276,7 +276,8 @@ fdRow "textT TX-ST tStyled takes font and color from its style tsStyle (titleFon
 fdRow "textT TX-L tOver: 2 lines drawn, the next character a space; tLong: 1 line, the word ran on (next end)" "$(_txTrace tOver lines) / $(_txTrace tLong lines)" "  /  " "2 space / 1 end"
 #  RE-PIN (SEQ 584): textT gained tRight, tKid, tKidL, tBad for step 5a, so the call list grows by those four; nothing else changed.
 #  RE-PIN (SEQ 605): textT gained tVTop's six children for step 5b, so the call list grows by those six; nothing else changed.
-fdRow "textT TX-N drawSpans calls: heading words ok, then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text)" "$(grep -h '^=== drawSpans ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain"
+#  RE-PINNED 2026-11-13 (G2 stroke 1b): firstLight holds the descriptions form, so its two text fields are drawn after ok.
+fdRow "textT TX-N drawSpans calls: heading words ok (and the held form's describeHead describeHelp), then tOver tLong tStyled tRight, tCenterTop's three, tVTop's six, then tPlain (no call for a field with no text)" "$(grep -h '^=== drawSpans ' "$T/tx.o" | awk '{print $3}' | xargs)" "heading words ok tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain" "heading words ok describeHead describeHelp tOver tLong tStyled tRight tKid tKidL tBad tVKid tVBot tVSty tVBad tVTwo tVOwn tPlain"
 fdRow "textT TX-W a text that does not fit warns naming its field: tOver and tLong, nothing else" "$(grep -h '^drawSpans: WARNING ' "$T/tx.e" | awk '{print $3}' | xargs)" "heading tOver tLong" "tOver tLong"
 #  ⚑ STEP 5a, ALIGNMENT (Tony, 2026-11-09, SEQ 584). REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value (everything
 #  draws left), the intended beside it. TOLERANCES: centred = the ink's distances to the frame's two edges differ by at most 2 px; at the
@@ -353,7 +354,8 @@ perl -e 'alarm 20; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
 _pdp () { grep -h '^=== pixelAt pdfRead ' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
 _ofeq "firstPdfT exit / sentinel" "$_pdx $(grep -c '^FIRSTPDF SENTINEL' "$T/pd.e")" "0 1"
 fdRow "firstPdfT the file exists and begins %PDF" "$([ -s "$_pdO" ] && head -c 4 "$_pdO" || echo none)" "none" "%PDF"
-fdRow "firstPdfT readPDF: one page, firstLight's frame (400 x 200 points)" "$(grep '^=== readPDF pdfRead' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed 's/.*pdfRead //; s/ ===.*//')" "" "pages 1 size 400x200"
+#  RE-PINNED 2026-11-13 (G2 stroke 1b): firstLight is 400x400, its lower half holding the descriptions form.
+fdRow "firstPdfT readPDF: one page, firstLight's frame (400 x 400 points)" "$(grep '^=== readPDF pdfRead' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed 's/.*pdfRead //; s/ ===.*//')" "" "pages 1 size 400x400"
 #  RE-AIM (SEQ 582, forms step 5, 2026-11-09): text now draws in heading and ok, over (5,15) and (360,180). These rows ask about FILL, so the point
 #  moves off the text, to (300,15) and (390,190), where the same fill shows; pinned values unchanged.
 fdRow "firstPdfT PD-1 read back: heading (300,15) wall, words (5,100) white, space (100,180) wall, ok (390,190) lightGreen" "$(_pdp 1 4)" "" "r247 g232 b170 a255/r255 g255 b255 a255/r247 g232 b170 a255/r175 g211 b120 a255/"
@@ -411,6 +413,20 @@ fdRow "descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their poi
 _depp () { grep -h "^=== pixelAt pdfRead ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
 _ofeq "descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top)" "$(grep -h '^=== readPDF pdfRead' "$T/de.o" | sed 's/^=== readPDF pdfRead //; s/ ===$//' | xargs) / $(_depp 10,10) $(_depp 100,550) $(_depp 0,300) $(_depp 250,300) $(_depp 100,325)" "pages 1 size 500x600 / $(_dep 10,10) $(_dep 100,550) $(_dep 0,300) $(_dep 250,300) $(_dep 100,325)"
 _ofeq "descT DE-11 THE IMAGES IN THE PDF: saber's and trees' points (100,300) (350,300) are not the field's paleGray" "$([ -n "$(_depp 100,300)" ] && [ "$(_depp 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ -n "$(_depp 350,300)" ] && [ "$(_depp 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" "image image"
+
+echo "-- a form inside a field: G2 stroke 1b (nestT)."
+#  ⚑ nestT -- a form inside a field (Tony, 2026-11-13): a field written form:=other is the frame for that form. Pages are read back from the PDF.
+#  Controls: NF-3's two fields holding one form (one shared copy could be in only one place); NF-4's page still drawn beside its refusal.
+_nfF=$(ip nestT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_nfF" > "$T/nf.o" 2> "$T/nf.e"; _nfx=$?
+_nfp () { awk -v want="$1" '/^NF PAGE/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/nf.o"; }
+_nff () { awk -v want="$1" '/^NF PAGE/{b=$3} /descriptions closable/ && b==want { for (i = 1; i <= NF; i++) { split($i, kv, "="); if (kv[1]=="x") x=kv[2]; if (kv[1]=="y") y=kv[2]; if (kv[1]=="width") w=kv[2]; if (kv[1]=="height") h=kv[2] } printf "%s%sx%s at %s,%s", sep, w, h, x, y; sep=" / " }' "$T/nf.o"; }
+_ofeq "nestT exit / sentinel" "$_nfx $(grep -c '^NESTT SENTINEL' "$T/nf.e")" "0 1"
+_ofeq "nestT NF-1 the held form takes its field's frame (400x320 at 0,40, between a 40-point head and foot); on the page its lightGreen heading field (10,50), the foot's white (10,380)" "$(_nff outer) / $(_nfp outer)" "400x320 at 0,40 / r175 g211 b120 a255 / r255 g255 b255 a255"
+_ofeq "nestT NF-2 a second run reads as the first" "$(_nff outer2)" "$(_nff outer)"
+_ofeq "nestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at x 0 and x 200, and both draw (10,10) (210,10)" "$(_nff two) / $(_nfp two)" "200x300 at 0,0 / 200x300 at 200,0 / r175 g211 b120 a255 / r175 g211 b120 a255"
+_ofeq "nestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out" "$(grep -c '^setFrame: REFUSING placeReq -- the form npSelf holds itself' "$T/nf.e") / $(_nfp self) / $(sed -n 's/^NF chain left \([0-9]*\).*/\1/p' "$T/nf.e")" "1 / r247 g232 b170 a255 / 0"
+_ofeq "nestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190)" "$(_nfp light)" "r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
 
 echo "-- the first image: forms step 8."
 #  ⚑ imageT -- displayImage (Tony, 2026-11-10, SEQ 609): one argument, fit fill (cover, centred, cropped), refusals by name. The test image is
@@ -588,11 +604,11 @@ _rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/
 _rgb () { awk -v n="$1" '/drawSpans words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
 _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
 #  RG-1 / RG-2 RE-PINNED 2026-11-12 (the typesetting slice): words holds a second paragraph of one line, so it draws 4 lines at 400 wide and 3 at 600, where it drew 3 and 2
-_ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x200, words in 4 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x200 lines 4 wall white wall green"
-_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x300, words in 3 lines; the four fields at their new places; where ok was is words' white" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 300 / 600x300 lines 3 wall white wall green white"
+_ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x400, words in 4 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x400 lines 4 wall white wall green"
+_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x600, words in 3 lines; the four fields at their new places; where ok was is words' white" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 600 / 600x600 lines 3 wall white wall green white"
 _ofeq "resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value" "$(grep '^RG-3' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 3)" "runs 1 / $(_rgb 2)"
-_ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 400 height 200 / $(_rgb 1)"
-_ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 400x200" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=400 height=200"
+_ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 400 height 400 / $(_rgb 1)"
+_ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 400x400" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=400 height=400"
 
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none

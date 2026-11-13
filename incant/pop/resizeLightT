@@ -25,8 +25,8 @@ define
         };
     pdfRead path="IncantForms/PDF/output.pdf";
     rgRuns = 0;
-    rgBig x=300 y=450 width=600 height=300;
-    rgSmall x=300 y=450 width=400 height=200;
+    rgBig x=300 y=450 width=600 height=600;
+    rgSmall x=300 y=450 width=400 height=400;
     ;
 search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
@@ -91,3 +91,7 @@ WHAT THE LISTENING WORK NEEDED TO PASS (found here, cured in GroupItem.setConten
 listened-to field copied the list over the field's listener list -- so the listener was gone after one write -- and told
 nobody, because only a value write notified. setContent now keeps the listener list across the list copy and tells the
 listeners once, after all four values have arrived. Before the cure RG-2 read runs 0.
+
+RE-PINNED 2026-11-13 (G2 stroke 1b): firstLight holds the descriptions form in its lower half (inside, height=50%) and is declared
+400x400, so the two frames are 400x400 and 600x600 (they were 400x200 and 600x300). heading, words, bar and ok keep the frames
+they had at both sizes, so every point and line count above reads as it did; only the page sizes in the rows changed.

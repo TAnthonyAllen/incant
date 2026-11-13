@@ -800,8 +800,14 @@ define
             fmGone = *grup.noRooM;
             if fmGone == 1;     fmSkip = 1;
             if fmSkip == 0;
-                if *grup.hasMemberS;
-                    frameMembers(*grup);
+                // holdsAForm a field written form:=other is filled by that form, laid out in the field's frame (G2 stroke 1b); its own members, if any, are not laid out
+                fmHolds = 0;
+                fmSelf := *grup;
+                if *fmSelf["form"];     fmHolds = 1;
+                if fmHolds == 1;        placeForm(*grup);
+                if fmHolds == 0;
+                    if *grup.hasMemberS;
+                        frameMembers(*grup);
         };
     /***************************************************************************
         setFrame -- forms step 6 (Tony's design of 2026-11-07; SEQ 626).
@@ -818,6 +824,28 @@ define
         Refuses by name and returns nothing: a request with no form; a frame
         that lacks any of x y width height (frameWhole).
     ***************************************************************************/
+    /***************************************************************************
+        placeForm -- a form inside a field (G2 stroke 1b; Tony, 2026-11-13). A
+        field written form:=other is the frame for that form: once the field has
+        its own x y width height, the form is laid out by setFrame with the
+        field as the request's frame, and the laid-out copy becomes the field's
+        one member, so drawWalk draws it there with no change. Each field that
+        holds a form gets its own copy. setFrame refuses a form that holds
+        itself, directly or through other forms (sfChain holds the names of the
+        forms being laid out); the field is then left empty.
+    ***************************************************************************/
+    placeReq form frame;
+    sfChain;
+    placeForm code={
+        pfHost := argument;
+        pfRef := *pfHost["form"];
+        placeReq.form := **pfRef;
+        placeReq.frame := argument;
+        pfLaid := setFrame(placeReq);
+        pfGot = 0;
+        if *pfLaid.listLengtH;      pfGot = 1;
+        if pfGot == 1;              argument +/ *pfLaid;
+        };
     fwOk = 0;
     frameWhole code={
         =:argument x y width height;
@@ -843,6 +871,13 @@ define
                 cerr "setFrame: REFUSING" argument.taG "-- its frame needs x, y, width and height":;
                 return;
         sfForm := *sfReq["form"];
+        // holdsItself the names of the forms being laid out; one met again is a form inside itself, refused by name and not laid out
+        sfName := **sfForm.taG;
+        if sfChain[*sfName];
+            cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
+            return;
+        sfMark := new(*sfName);
+        sfChain +% *sfMark;
         // deepCopy copyOf shares bodies below the second level, so a deep form would be written (measured, SEQ 626)
         sfLaid := copyDeep(**sfForm);
         if sfUse == 1;
@@ -851,6 +886,7 @@ define
             *sfLaid :% copyOf(**sfFrame["width"]);
             *sfLaid :% copyOf(**sfFrame["height"]);
         frameMembers(*sfLaid);
+        sfChain -% *sfMark;
         return *sfLaid;
         };
     /***************************************************************************

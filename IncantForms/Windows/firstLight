@@ -2,16 +2,28 @@
     firstLight is A4's form, on paper: the smallest form worth drawing, cut down
     from IncantForms/Windows/simple. Nothing draws it yet. See the notes below bail().
 *****************************************************************************/
+registry(fILEs);
+define
+    descriptionsFile File='IncantForms/Windows/descriptions';
+    ;
+include(descriptionsFile);
 register(FORMs);
 define
-    firstLight window x=300 y=450 width=400 height=200 down fill:=wall font:=normalFont color:=blue
+    firstLight window x=300 y=450 width=400 height=400 down fill:=wall font:=normalFont color:=blue
         heading="First Light" text height=43 font:=titleFont color:=green align=center bottomBorder;
         words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit.\n\nA second paragraph holds {emphasis: one run} in a style of its own." text fill:=white align=justify;
         bar across height=35
             space;
             ok="OK" text width=60 border strokeColor:=red fill:=lightGreen align=center valign=center;
+        inside form:=descriptions height=50%;
     ;
 bail();
+
+A FORM INSIDE A FIELD (G2 stroke 1b; Tony, 2026-11-13). inside holds the descriptions form: form:=descriptions. Layout gives
+inside its frame (the lower half: height=50%), then lays descriptions out in that frame, and the draw walk draws it there.
+firstLight grew from 400x200 to 400x400 so that heading, words and bar keep the frames they had; inside sits below bar.
+This file includes IncantForms/Windows/descriptions itself, since a := names a field that must already be defined.
+A form that holds itself is refused by name at layout (setFrame) and its field is left empty.
 
 Spelled to the forms plan's rulings. Style attributes sit on fields and are scoped to the subtree: font=normal holds for
 everything under firstLight, and heading overrides it by naming font=title. fill is not inherited, so each field names its
