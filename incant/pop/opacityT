@@ -21,7 +21,7 @@ define
             pixelAt(argument);
             opX += 1;
         };
-    opSt opacity=0.5 fillColor="blue";
+    opSt opacity=0.5 fill="blue";
     opA x=0 y=0 width=60 height=60 fill=white
         opHalf x=0 y=0 width=30 height=30 fill=black opacity=0.5;
         opFull x=30 y=0 width=30 height=30 fill=black;
@@ -34,7 +34,7 @@ define
         opStyled x=0 y=0 width=30 height=30 style:=opSt;
         opOwn x=30 y=0 width=30 height=30 style:=opSt opacity=1;
         opBad x=0 y=30 width=30 height=30 fill=black opacity=3;
-    opZeroSt opacity=0 fillColor="blue";
+    opZeroSt opacity=0 fill="blue";
     opZ x=0 y=0 width=60 height=60 fill=white
         opZfill x=0 y=0 width=30 height=30 fill=black opacity=0;
         opZstyle x=30 y=0 width=30 height=30 style:=opZeroSt;
@@ -58,32 +58,39 @@ define
     pdfReq path="IncantForms/PDF/test.pdf" form:=opForm;
     ;
 cerr "OP-1 a fill at opacity=0.5 on white: (15,15) grey; the same fill with none (45,15) black; a border at 0.5 (1,45) grey; opacity=0 (45,45) white":;
+mergeStyles(opA);
 drawWalk(opA);
 opX = 15; opY = 15; opAt(opA); pixelAt(opA);
 opX = 45; opAt(opA); pixelAt(opA);
 opX = 1; opY = 45; opAt(opA); pixelAt(opA);
 opX = 45; opAt(opA); pixelAt(opA);
 cerr "OP-2 opacity does not reach a child: the parent at 0.5 (45,45) grey; its child, no opacity of its own, (20,20) darker than the parent and not grey-on-grey":;
+mergeStyles(opB);
 drawWalk(opB);
 opX = 45; opY = 45; opAt(opB); pixelAt(opB);
 opX = 20; opY = 20; opAt(opB); pixelAt(opB);
 cerr "OP-3 opacity from the style (15,15) light blue; the field's own opacity=1 over the style's (45,15) full blue; opacity=3 refuses by name and draws opaque (15,45) black":;
+mergeStyles(opC);
 drawWalk(opC);
 opX = 15; opY = 15; opAt(opC); pixelAt(opC);
 opX = 45; opAt(opC); pixelAt(opC);
 opX = 15; opY = 45; opAt(opC); pixelAt(opC);
 cerr "OP-4 text at opacity=0.5, then the same text with none: row y=18, x 0..119 of each":;
+mergeStyles(opWordTop);
 drawWalk(opWordTop);
 opY = 18;
 opRow(opWordTop);
+mergeStyles(opBareTop);
 drawWalk(opBareTop);
 opRow(opBareTop);
 cerr "OP-6 opacity=0 is fully clear, not read as absent: a fill (15,15) white; from a style (45,15) white; a border (1,45) white; the same fill with no opacity (45,45) black; then text at 0, row y=18":;
+mergeStyles(opZ);
 drawWalk(opZ);
 opX = 15; opY = 15; opAt(opZ); pixelAt(opZ);
 opX = 45; opAt(opZ); pixelAt(opZ);
 opX = 1; opY = 45; opAt(opZ); pixelAt(opZ);
 opX = 45; opAt(opZ); pixelAt(opZ);
+mergeStyles(opZwordTop);
 drawWalk(opZwordTop);
 opY = 18;
 opRow(opZwordTop);
@@ -91,6 +98,7 @@ cerr "OP-5 opForm to a PDF, read back: red alone (60,70), blue alone (200,150), 
 pdfReq :% copyOf(opForm["width"]);
 pdfReq :% copyOf(opForm["height"]);
 openPDF(pdfReq);
+mergeStyles(opForm);
 drawWalk(opForm);
 closePDF(pdfReq);
 readPDF(pdfRead);
@@ -105,3 +113,5 @@ opacityT -- opacity, a box property (Tony, 2026-11-11, SEQ 623): a number from 0
 fill, border and text are drawn at it; it does not reach the field's children. Rows are in genLadder/formsPop.sh.
 The frames here are written by hand and setFrame is not called: setFrame lays children out and would move them.
 OP-5 draws this fixture's own form, opForm, to IncantForms/PDF/test.pdf: no form asks for opacity (cards, the layers form, never spelled it).
+
+FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.

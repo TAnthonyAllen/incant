@@ -126,13 +126,13 @@ sentinel "dsFillJ sentinel (no truncation)" "$T/j.o" "DSFILLJ SENTINEL"
 hasmark "entered jitRunAction, not jitRunIfTest" "$T/j.o" \
         "=== jitRunAction: entering on djFill ==="
 pixel "before any fill"                        "$T/j.o" 1 djCanvas "r0 g0 b0 a0"
-pixel "fire 1 -- compiled, style djStyle"      "$T/j.o" 2 djCanvas "r255 g0 b0 a255"
+pixel "fire 1 -- compiled, fill from djStyle"  "$T/j.o" 2 djCanvas "r255 g0 b0 a255"
 #  ⚠ THE PROOF. Under jitting the interpreter runs the body FOR REAL at emit
 #  time, so a correct pixel after one fire proves nothing -- the emit-time pass
 #  could have painted it. Fire 2 recompiles NOTHING and the STYLE NODE was
 #  swapped after emission. If the pixel tracks it, the fill ran from compiled
 #  code. The two fires want DIFFERENT ANSWERS, not merely different inputs.
-pixel "fire 2 -- NO recompile, style swapped" "$T/j.o" 3 djCanvas "r0 g128 b128 a255"
+pixel "fire 2 -- NO recompile, fill rewritten" "$T/j.o" 3 djCanvas "r0 g128 b128 a255"
 #  H4: presence-with-value. Asserting "no degrade message appeared" would go
 #  green the day the message is deleted.
 #  RED SINCE 2026-10-19, KNOWN REGRESSION, docs/fixIts.md F-149: SEQ 384's jitOpEmits admits only jitTrace among

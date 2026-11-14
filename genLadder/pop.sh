@@ -9602,7 +9602,8 @@ fdRow "fillReadT fillColor=#00ff00 draws where it sits" "$(_frp frHexS)" "r0 g0 
 fdRow "fillReadT fillColor=white, the colour file on the list: a copy of the hex draws" "$(_frp frWhiteS)" "r0 g0 b0 a0/" "r255 g255 b255 a255/"
 _ofeq "fillReadT a miss on fill draws nothing and names the colour" "$(_frp frMissF) $(grep -c '^getColor: ERROR could not find frNoSuch$' "$T/fr.e")" "r0 g0 b0 a0/ 2"
 fdRow "fillReadT a miss on fill refuses as fill" "$(_frr frMissF)" "its style names no fillColor component" "fill names no colour that could be realised"
-_ofeq "fillReadT a miss on fillColor refuses as fillColor" "$(_frp frMissS) $(_frr frMissS)" "r0 g0 b0 a0/ fillColor names no colour that could be realised"
+#  RE-PINNED 2026-11-14 (SEQ 657, Tony R1): a style spells its fill fill and is merged into the field, so a miss through a style is refused under the name fill; "fillColor names no colour" was the retired spelling's wording.
+_ofeq "fillReadT a miss on a style's fill refuses as fill" "$(_frp frMissS) $(_frr frMissS)" "r0 g0 b0 a0/ fill names no colour that could be realised"
 fdRow "fillReadT fill=off refuses by name until its form is repaired (R3)" "$(_frp frOffF) $(_frr frOffF) $(grep -c '^getColor: ERROR could not find off$' "$T/fr.e")" "r0 g0 b0 a0/ its style names no fillColor component 0" "r0 g0 b0 a0/ fill names no colour that could be realised 1"
 fdRow "fillReadT a bare fill names no colour and refuses" "$(_frp frBareF) $(_frr frBareF)" "r0 g0 b0 a0/ its style names no fillColor component" "r0 g0 b0 a0/ fill names no colour that could be realised"
 _ofeq "fillReadT neither fill nor style refuses as before" "$(_frp frNeither) $(_frr frNeither)" "r0 g0 b0 a0/ its style names no fillColor component"

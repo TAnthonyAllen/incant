@@ -18,13 +18,13 @@ define
     frBareF    x=0 y=0 width=8 height=8 px=2 py=2 fill;
     frMoveHeld x=0 y=0 width=8 height=8 px=2 py=2 fill:=frMove;
     frMoveCopy x=0 y=0 width=8 height=8 px=2 py=2 fill=frMove;
-    sHeld   fillColor:=frWall;
-    sQuote  fillColor="frGreen";
-    sLate   fillColor=frLate;
-    sCopy   fillColor=frWall;
-    sHex    fillColor=#00ff00;
-    sMiss   fillColor=frNoSuch;
-    sBlue   fillColor=#0000ff;
+    sHeld   fill:=frWall;
+    sQuote  fill="frGreen";
+    sLate   fill=frLate;
+    sCopy   fill=frWall;
+    sHex    fill=#00ff00;
+    sMiss   fill=frNoSuch;
+    sBlue   fill=#0000ff;
     frHeldS  x=0 y=0 width=8 height=8 px=2 py=2 style:=sHeld;
     frQuoteS x=0 y=0 width=8 height=8 px=2 py=2 style:=sQuote;
     frLateS  x=0 y=0 width=8 height=8 px=2 py=2 style:=sLate;
@@ -39,6 +39,7 @@ define
         frKidStyled x=0 y=0 width=8 height=8 px=2 py=2 style:=sBlue;
         frKidOwn x=0 y=0 width=8 height=8 px=2 py=2 fill=#00ff00;
     frDraw code={
+        mergeStyles(argument);
         makeDisplay(argument);
         displayFillRT(argument);
         pixelAt(argument);
@@ -61,12 +62,12 @@ search reset stack Grokking FillRead cOLOr UnitTests Utilities list;
 register(FillReadColours);
 define
     frWhiteF x=0 y=0 width=8 height=8 px=2 py=2 fill=white;
-    sWhite   fillColor=white;
+    sWhite   fill=white;
     frWhiteS x=0 y=0 width=8 height=8 px=2 py=2 style:=sWhite;
     ;
 search reset stack Grokking FillRead FillReadColours cOLOr UnitTests Utilities list;
 print "FR kind held" frHeldF["fill"].datA "quoted" frQuoteF["fill"].datA "late" frLateF["fill"].datA "copy" frCopyF["fill"].datA "hex" frHexF["fill"].datA "white" frWhiteF["fill"].datA:;
-print "FR kind style held" sHeld["fillColor"].datA "quoted" sQuote["fillColor"].datA "late" sLate["fillColor"].datA "copy" sCopy["fillColor"].datA "hex" sHex["fillColor"].datA "white" sWhite["fillColor"].datA:;
+print "FR kind style held" sHeld["fill"].datA "quoted" sQuote["fill"].datA "late" sLate["fill"].datA "copy" sCopy["fill"].datA "hex" sHex["fill"].datA "white" sWhite["fill"].datA:;
 frDraw(frHeldF);
 frDraw(frQuoteF);
 frDraw(frLateF);
@@ -105,3 +106,5 @@ fillReadT -- a reader for fill= (SEQ 547 recon, SEQ 549 rulings). displayFillRT 
 Every spelling runs on fill and on fillColor, side by side. The move rows are the point of := against =: after a write to the source, the held draw changes and the copy does not.
 
 Pinned on trunk, born red, before the build. No form is respelled (SEQ 549 R3), so this fixture is the only user of the reader; fill=off and bare fill refuse by name.
+
+FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.

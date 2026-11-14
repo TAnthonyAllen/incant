@@ -14,14 +14,14 @@ define
         argument :% copyOf(px);
         argument :% copyOf(py);
         };
-    ssSt fillColor="blue" strokeColor="red" rounded=8;
+    ssSt fill="blue" strokeColor="red" rounded=8;
     ssA x=0 y=0 width=60 height=60 fill=red border=3 strokeColor=blue rounded=10 font:=titleFont color:=green align=center
         ssKid="Kid" x=10 y=10 width=40 height=40;
     ssB x=0 y=0 width=60 height=60 fill=white
         ssMid x=0 y=0 width=60 height=60 style:=ssSt
             ssLeaf x=10 y=10 width=40 height=40 border=3;
     ssC x=0 y=0 width=60 height=60 style:=ssSt fill=red rounded=0 border=3 strokeColor=green;
-    ssTx font:=titleFont color:=green align="center" valign="bottom" fillColor="blue";
+    ssTx font:=titleFont color:=green align="center" valign="bottom" fill="blue";
     ssD x=0 y=0 width=120 height=60 style:=ssTx
         ssDmid x=0 y=0 width=120 height=60
             ssDkid="Kid" x=0 y=0 width=120 height=60;
@@ -70,3 +70,4 @@ refused by name and the field has no style. shadow's and opacity's own rows are 
 The frames are written by hand and setFrame is not called.
 
 MERGE BY HAND (SEQ 652, stroke 2): a style is merged into its field by setFrame, at layout. This fixture frames its forms by hand and never calls setFrame, so it calls mergeStyles on each form itself before drawing it: ssA, ssB, ssC, ssD, ssE, ssF.
+FILL RESPELLED (SEQ 657): the styles here spell their fill fill; fillColor is retired.

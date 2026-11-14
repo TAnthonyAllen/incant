@@ -19,7 +19,7 @@ define
         argument :% copyOf(px);
         argument :% copyOf(py);
         };
-    rdSt rounded=8 fillColor="blue";
+    rdSt rounded=8 fill="blue";
     rdPlain x=0 y=0 width=40 height=40 fill=white
         rdBare x=0 y=0 width=40 height=20 fill=red rounded;
         rdTen x=0 y=20 width=40 height=20 fill=red rounded=10.0;
@@ -39,6 +39,7 @@ define
     pdfReq path="IncantForms/PDF/test.pdf" form:=simple;
     ;
 cerr "RD-1 bare rounded, default radius 5: corner (0,0) white, (2,2) red, edge middle (20,0) red, centre (20,10) red":;
+mergeStyles(rdPlain);
 drawWalk(rdPlain);
 rdX = 0; rdY = 0; rdAt(rdPlain); pixelAt(rdPlain);
 rdX = 2; rdY = 2; rdAt(rdPlain); pixelAt(rdPlain);
@@ -52,6 +53,7 @@ rdX = 39; rdAt(rdPlain); pixelAt(rdPlain);
 rdX = 0; rdY = 39; rdAt(rdPlain); pixelAt(rdPlain);
 rdX = 39; rdAt(rdPlain); pixelAt(rdPlain);
 cerr "RD-3 a plain border on a rounded field: corner (0,0) white, edge middle (20,0) blue, (20,2) lightGreen, on the arc (3,3) blue, inside it (6,6) lightGreen":;
+mergeStyles(rdEdge);
 drawWalk(rdEdge);
 rdX = 0; rdY = 0; rdAt(rdEdge); pixelAt(rdEdge);
 rdX = 20; rdAt(rdEdge); pixelAt(rdEdge);
@@ -59,6 +61,7 @@ rdY = 2; rdAt(rdEdge); pixelAt(rdEdge);
 rdX = 3; rdY = 3; rdAt(rdEdge); pixelAt(rdEdge);
 rdX = 6; rdY = 6; rdAt(rdEdge); pixelAt(rdEdge);
 cerr "RD-4 rounded from the style (rdSt rounded=8): corner (0,0) white, (1,1) white, (4,4) blue, centre (20,10) blue":;
+mergeStyles(rdMore);
 drawWalk(rdMore);
 rdX = 0; rdY = 0; rdAt(rdMore); pixelAt(rdMore);
 rdX = 1; rdY = 1; rdAt(rdMore); pixelAt(rdMore);
@@ -67,12 +70,14 @@ rdX = 20; rdY = 10; rdAt(rdMore); pixelAt(rdMore);
 cerr "RD-5 no rounded stays square: corner (0,20) red":;
 rdX = 0; rdY = 20; rdAt(rdMore); pixelAt(rdMore);
 cerr "RD-6 a radius past half the side is drawn at half (a circle): corner (0,0) white, (2,2) white where radius 5 is red, centre (10,10) red, edge middle (10,0) red":;
+mergeStyles(rdBigTop);
 drawWalk(rdBigTop);
 rdX = 0; rdY = 0; rdAt(rdBigTop); pixelAt(rdBigTop);
 rdX = 2; rdY = 2; rdAt(rdBigTop); pixelAt(rdBigTop);
 rdX = 10; rdY = 10; rdAt(rdBigTop); pixelAt(rdBigTop);
 rdY = 0; rdAt(rdBigTop); pixelAt(rdBigTop);
 cerr "RD-7 a value that is not a number refuses by name and draws square: corner (0,0) red":;
+mergeStyles(rdBadTop);
 drawWalk(rdBadTop);
 rdX = 0; rdY = 0; rdAt(rdBadTop); pixelAt(rdBadTop);
 cerr "RD-8 the simple form to a PDF, read back: fourth's corner (0,140) unpainted, (2,142) lightGreen, centre (200,170) lightGreen, wrap (98,70) white, two (150,70) red; three is 50% of 400: its leftBorder (200,70) black, inside (300,70) white":;
@@ -104,3 +109,5 @@ radius in points, on a field or its style; a bare rounded takes defaultStyle's (
 genLadder/formsPop.sh. Each corner row is paired with a painted pixel of the same field, so an undrawn field cannot pass. Pixels on a curve are
 anti-aliased, so the harness reads each pixel as a class (white, red, blue, green, clear), never as an exact value there.
 RD-8 draws IncantForms/Windows/simple to IncantForms/PDF/test.pdf and reads it back.
+
+FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.

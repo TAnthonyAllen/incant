@@ -5,19 +5,20 @@ search reset stack Grokking UnitTests Utilities list;
 register(FillHeldFar);
 define
     wall=#ff0000;
-    fhHeld fillColor:=wall;
+    fhHeld fill:=wall;
     fhCanvas x=0 y=0 width=8 height=8 style:=fhHeld px=2 py=2;
     fhNamed=#00ff00;
-    fhByName fillColor="fhNamed";
+    fhByName fill="fhNamed";
     fhNameCanvas x=0 y=0 width=8 height=8 style:=fhByName px=2 py=2;
     fhPre=#0000ff;
-    fhPreStyle fillColor:=fhPre;
+    fhPreStyle fill:=fhPre;
     fhPreCanvas x=0 y=0 width=8 height=8 style:=fhPreStyle px=2 py=2;
     fhHear=1 listenTo:=fhPre;
     fhWrite code={ wall = argument; };
     ;
 search FillHeldFar UnitTests Utilities list;
 fhWrite("#ff0000");
+mergeStyles(fhPreCanvas);
 makeDisplay(fhPreCanvas);
 print "FH pre kind" fhPre.datA "value" fhPre:;
 fhHear = 7;
@@ -26,6 +27,7 @@ print "FH pixel pre":;
 pixelAt(fhPreCanvas);
 print "FH readable after a draw, kind" fhPre.datA "value" fhPre:;
 print "FH listener after a draw" fhHear:;
+mergeStyles(fhNameCanvas);
 makeDisplay(fhNameCanvas);
 displayFillRT(fhNameCanvas);
 print "FH pixel by name":;
@@ -39,6 +41,7 @@ define
 search reset stack FillHeldNear Grokking FillHeldFar UnitTests Utilities list;
 print "FH two walls: near" FillHeldNear["wall"] "far" FillHeldFar["wall"]:;
 print "FH nearest wall by name" wall:;
+mergeStyles(fhCanvas);
 makeDisplay(fhCanvas);
 displayFillRT(fhCanvas);
 print "FH pixel held, a nearer wall in scope":;
@@ -52,3 +55,5 @@ print "FILLHELD SENTINEL":;
 stop();
 
 fillHeldT -- M3 (Tony, SEQ 535 R1, SEQ 542): fillColor:=wall draws the field := holds, never a lookup by name, and a colour is parsed when it is drawn, with no cache. The byName row is the control: a quoted name still looks up. FH readable and listener are the harm the cache did: one draw replaced the colour's value, and notified whoever listens.
+
+FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.

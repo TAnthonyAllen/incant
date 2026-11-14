@@ -22,7 +22,7 @@ define
         present and unused -- it is the slot `line` will read, and its presence
         is what makes the recipe carry to a second command without inventing a
         second convention.  */
-    dsStyle  fillColor="dsRed" strokeColor="dsBlue";
+    dsStyle  fill="dsRed" strokeColor="dsBlue";
     dsCanvas x=0 y=0 width=8 height=8 style:=dsStyle px=2 py=2;
     /*  H7 NEGATIVE CONTROL. A style that names a strokeColor and NO fillColor.
         If seam 3 were still reading the style's own text -- or reading any
@@ -32,6 +32,8 @@ define
     dsNoFill x=0 y=0 width=8 height=8 style:=dsStyleNoFill px=2 py=2;
     ;
 
+mergeStyles(dsCanvas);
+
 makeDisplay(dsCanvas);
 print "-- before the fill (want r0 g0 b0 a0) --":;
 pixelAt(dsCanvas);
@@ -39,8 +41,11 @@ displayFillRT(dsCanvas);
 print "-- after the fill (want r255 g0 b0 a255) --":;
 pixelAt(dsCanvas);
 print "-- H7 control: a style with no fillColor must REFUSE (want r0 g0 b0 a0) --":;
+mergeStyles(dsNoFill);
 makeDisplay(dsNoFill);
 displayFillRT(dsNoFill);
 pixelAt(dsNoFill);
 print "DSFILL SENTINEL":;
 stop();
+
+FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.

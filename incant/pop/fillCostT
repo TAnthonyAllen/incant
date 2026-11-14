@@ -5,7 +5,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(FillCostT);
 define
     fcWall=#f7e8aa;
-    fcStyle fillColor="fcWall";
+    fcStyle fill="fcWall";
     fcCanvas x=0 y=0 width=8 height=8 style:=fcStyle;
     fcI=0;
     fcLoop code={
@@ -16,9 +16,12 @@ define
             displayFillRT(fcCanvas);
         };
     ;
+mergeStyles(fcCanvas);
 makeDisplay(fcCanvas);
 fcLoop();
 print "FILLCOST SENTINEL":;
 stop();
 
 fillCostT -- M3 (SEQ 542 R2): bytes each colour parse costs, read by pop.sh as the difference in maximum resident size between this loop and the same loop with displayFillRT's line deleted, over the million. The write re-arms the parse on today's cached road, and is the loop's only other cost.
+
+FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.
