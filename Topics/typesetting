@@ -58,6 +58,15 @@ Not typesetting
 Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 
 /*****************************************************************************
+    Tab stops in a style (idea 1; Clay, forwarded by Tony 2026-11-14, SEQ 661; opinion only, nothing built or ruled)
+*****************************************************************************/
+THE IDEA: a style may set tab stops; a tab in typeset text skips to the next stop. Stops are measured from the field's left text edge, a bare number points, N% of the field's width. Past a stop, the next one; past the last, one space. Left stops first. A line holding a tab is not justified. Tabs inherit as text properties do. Short pieces on one line only: cells that wrap are a table (Topics/features 34). First customer: the Reference in a PDF.
+CLOD'S READING (from the code; not measured): the floor does not fight it. drawSpans hands Core Text one string a paragraph, and Core Text has tab stops of its own (a paragraph setting): left, right, centre and decimal, and "past this stop, the next" is its own behaviour. Justify is decided line by line in the floor, so "not justified when the line holds a tab" is one test there.
+    WHAT FIGHTS, all in kant's typeset: (1) its grammar reads a tab as white space (tsSp is tab, return or space) and a run of white space is one gap, so a tab is a space before the floor sees it; a tab needs a unit of its own and a span that says so. (2) one line end is white space too; only two end a paragraph. Rows arriving one a line would run together: a line end must close the row when tabs are set, or each row be its own paragraph.
+    NOT COVERED BY THE IDEA: past the last stop Core Text goes on at a default interval, not one space (to be measured); whether a tab survives a kant literal, a (...#) value and getFile is not measured; tabs would be a new form attribute, so it needs a definition in FORMs and a fact (the first in the typeset group);
+    the Reference is 28 rows and 5 headings, more than one page of IBkant at 14 points, and a passage too long is cut at its field's foot today (multi-page forms are outside the show dispatch); the walk prints to the terminal, so it must first build its rows as one text a field can hold.
+
+/*****************************************************************************
     Open questions
 *****************************************************************************/
     1  ANSWERED (Tony, 2026-11-12): no. The 11-07 ruling covers it: a run ends at its closing mark or at the paragraph's end, whichever comes first.
@@ -90,6 +99,7 @@ Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 /*****************************************************************************
     Seal digest
 *****************************************************************************/
+    492  SEQ 661   SHUTDOWN. Idea 1, tab stops in a style, recorded with Clod's reading (above); opinion only, nothing built.
     487  SEQ 655   a run's style through the look, and the box-attribute warning (State, looks); built under Topics/forms' styles build.
     474  SEQ 639   T3 bought and its points ruled; {registry.name} built (TY-18, TY-19; H7 red on 18 with the registry lookup removed).
     473  SEQ 638   T3: {name} inserts a form field's text, in the open runs' style; rows TY-8b, TY-16, TY-17; H7 red on 16 and 17 with the search removed. All in kant, no rebuild.

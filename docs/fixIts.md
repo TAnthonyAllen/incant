@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-159 — OPEN (nit), docketed 2026-11-14 (SEQ 661, Clay's dispatch; row only) — formatAfterOnly: in an action body a print format parses only after its expression
+
+**What:** (kant, the old grammar, `incant/grammar`) in an action body `print name #-13s:;` pads name, and `print #-13s name:;` does not parse: the whole action is lost (`ERROR processCode: <action> parse failed`). At top level on the kant grammar the rule is the other way round: a format applies to what follows it (SEQ 449 R4, `incant/pop/printFormatT`). So one spelling works in each place and neither works in both. A second fact from the same measurement: a format after an expression pads every item of that expression, so two items written side by side share it (`print "[" fa #-8s` pads both).
+**Where:** `incant/grammar:123`, `PrintField  ExpressioN FormaT?;` (the format is only tried after an expression). The kant grammar's PRINTXp takes a format as an item of its own.
+**Evidence:** measured 2026-11-14 (SEQ 659) writing `IncantForms/WorkingOn/reference`: the format-first row print failed with `ERROR processCode: refGroup parse failed`, five times, and the table printed 0 rows; format-after printed the padded table. pop.sh's reference rows run the format-after spelling.
+**Done when:** Tony rules which spelling an action body takes (format first, as the kant grammar; or both); then a pop.sh row prints one padded item from an action body in the ruled spelling, with the other spelling pinned as ruled, and an H7.
+**Owner:** Tony to rule; then Clod. **Size:** not measured; a grammar change, so the dispatch names which grammar (SEQ 552 R5).
+**Attempt log:** none.
+
 ### F-158 — OPEN, docketed 2026-11-14 (SEQ 656, Clay's dispatch; row only) — lookInSharedFields: typeset reads the look of the last layout from shared fields; its home is the layout context
 
 **What:** (kant) setLook writes the look a layout resolves through into four shared fields in `incant/utilities` (`lkLook`, `lkHas`, `lkBase`, `lkBaseHas`). mergeStyles reads them during that layout, and typeset reads them later, at draw, when a run opens. So a run is resolved through whichever form was laid out last. That is right while a form is laid out and drawn straight away (redrawForm), and wrong if two laid-out copies under different looks are ever drawn after both are laid out.

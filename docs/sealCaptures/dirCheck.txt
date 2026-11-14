@@ -89,7 +89,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   WARN dark  generateCode generating (parked, line 78 of Directives/GroupRules) -- method not found in any candidate file
   ok    INJECTS guard GroupItem (parked, line 83 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS guard clearData (parked, line 86 of Directives/GroupRules) -> GroupRules.twk +1
-  ok    INJECTS listenTo notifyList (armed, line 89 of Directives/GroupRules) -> GroupRules.twk +1
+  ok    INJECTS listenTo notifyList (parked, line 89 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS loadInputFromFile if before (parked, line 92 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS opDebug return before (parked, line 98 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS opDot product (parked, line 101 of Directives/GroupRules) -> GroupRules.twk +2
@@ -107,7 +107,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS processAction code (parked, line 204 of Directives/GroupRules) -> GroupRules.twk +2
   WARN dark  processCode processingCode (parked, line 207 of Directives/GroupRules) -- tok found processCode in GroupRules.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS processCode result (parked, line 212 of Directives/GroupRules) -> GroupRules.twk +2
-  ok    INJECTS rEGISTER currentRegistry (parked, line 215 of Directives/GroupRules) -> GroupRules.twk +2
+  ok    INJECTS rEGISTER currentRegistry (armed, line 215 of Directives/GroupRules) -> GroupRules.twk +2
   ok    INJECTS runAction if before (parked, line 219 of Directives/GroupRules) -> GroupRules.twk +2
   WARN dark  runOP starting (parked, line 223 of Directives/GroupRules) -- tok found runOP in GroupRules.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS runRule if (parked, line 226 of Directives/GroupRules) -> GroupRules.twk +2

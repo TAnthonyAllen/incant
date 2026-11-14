@@ -60,6 +60,8 @@ define
     ;
 bail();
 
+ISSUE (Tony, 2026-11-14, SEQ 661 R4; change nothing until this form is taken up): show is now a standard action in incant/utilities (show(form) fires a form). This form writes show as an attribute (row ... show; wrap bordered show=content). It will be respelled, or have its case changed, when the form is taken up.
+
 What to put in info if we had a JIT  # TODO: review
     bar/rune.text = selected ? "-" : "+";  # TODO: review
 Inspector Notes  # TODO: review
