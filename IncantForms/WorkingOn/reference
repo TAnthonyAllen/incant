@@ -1,0 +1,108 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+registry(fILEs);
+define
+    formFactsFile File='IncantForms/Controls/formFacts';
+    ;
+search reset stack Grokking;
+include(formFactsFile);
+registry(fORMfACTs);
+define
+    ghost group="box" values="none" inherits="no" status="none" does="a fact with no attribute behind it: the control for the check";
+    ;
+register(FORMs);
+define
+    lonely virtual;
+    ;
+register(ReferencE);
+search ReferencE fORMfACTs FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    refGroups layout box text typeset action;
+    refWant;
+    refRows = 0;
+    refInGroup = 0;
+    refFacts = 0;
+    refOrphans = 0;
+    refBare = 0;
+    refSkipped = 0;
+    refGroup code={
+        refInGroup = 0;
+        for grup in fORMfACTs;
+            rgName = *grup.taG;
+            rgSelf := *grup;
+            rgG := *rgSelf["group"];
+            rgGt = *rgG;
+            rgIs = 0;
+            if FORMs[rgName];   rgIs = 1;
+            rgMine = 0;
+            if rgGt == refWant;     rgMine = 1;
+            if rgIs == 0;           rgMine = 0;
+            if rgMine == 1;
+                rgV := *rgSelf["values"];
+                rgI := *rgSelf["inherits"];
+                rgS := *rgSelf["status"];
+                rgD := *rgSelf["does"];
+                rgVt = *rgV;
+                rgIt = *rgI;
+                rgSt = *rgS;
+                rgDt = *rgD;
+                if refInGroup == 0;
+                    print :;
+                    print refWant:;
+                    print "name | values | inherited | status | what it does":;
+                print rgName "|" rgVt "|" rgIt "|" rgSt "|" rgDt:;
+                refInGroup = refInGroup + 1;
+                refRows = refRows + 1;
+        };
+    refTable code={
+        for grup in refGroups;
+            refWant = *grup.taG;
+            refGroup();
+        };
+    refCheck code={
+        for grup in fORMfACTs;
+            rcName = *grup.taG;
+            refFacts = refFacts + 1;
+            rcIs = 0;
+            if FORMs[rcName];   rcIs = 1;
+            if rcIs == 0;
+                cerr "CHECK a fact with no attribute in FORMs:" rcName:;
+                refOrphans = refOrphans + 1;
+        for grup in FORMs;
+            rcName = *grup.taG;
+            rcData = *grup.datA;
+            rcList = *grup.listLengtH;
+            rcBare = 1;
+            if rcData != 0;     rcBare = 0;
+            if rcList != 0;     rcBare = 0;
+            // bySpelling a drawing field is spelled with a capital first (FilL, X, UP) and a form attribute never is: skipped, not reported. A name that sorts before the letter a starts with a capital; .numbeR on a name reads nothing (measured, SEQ 657)
+            rcDrawing = 0;
+            if rcName < "a";    rcDrawing = 1;
+            if rcBare == 1;
+                if rcDrawing == 1;  refSkipped = refSkipped + 1;
+            rcHas = 0;
+            if fORMfACTs[rcName];   rcHas = 1;
+            if rcBare == 1;
+                if rcDrawing == 0;
+                    if rcHas == 0;
+                        cerr "CHECK a form attribute with no fact:" rcName:;
+                        refBare = refBare + 1;
+        };
+    ;
+refTable();
+refCheck();
+cerr "REFERENCE rows" refRows "of" refFacts "facts; facts with no attribute" refOrphans "; attributes with no fact" refBare "; drawing fields skipped" refSkipped:;
+cerr "REFERENCE SENTINEL":;
+stop();
+
+reference -- the forms Reference, generated and never typed (Tony, 2026-11-14, SEQ 656 R1; SEQ 657 stroke B). Terminal only;
+it becomes a form after show(form) lands. Run:  incant IncantForms/WorkingOn/reference
+The facts are IncantForms/Controls/formFacts, one entry a form attribute. refTable prints them group by group (layout, box,
+text, typeset, action), by name inside a group, with a heading for each group that has a row. refCheck names a fact whose
+attribute is not in FORMs, and a form attribute in FORMs with no fact; a drawing field (a capital first) is skipped and counted.
+A fact is printed only when its attribute exists and its group is one of the five, so "rows N of M facts" shows any left out.
+TWO CONTROLS, defined here and not in formFacts: ghost is a fact with no attribute, and lonely is a bare lowercase definition in
+FORMs with no fact. The check names both, so a clean check is not an empty one. ghost is not printed: 28 rows of 29 facts.
+No group holds a typeset attribute yet: none of the 28 belongs to typeset alone. style is filed under text for now (Tony to say).

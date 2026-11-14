@@ -1,0 +1,37 @@
+/*  formFacts -- the facts the forms Reference is generated from (Tony, 2026-11-14, SEQ 656 R1, SEQ 657 R2). Definitions only.
+    One entry a form attribute, under the attribute's own name: group (layout, box, text, typeset or action), values,
+    inherits, status, does. The table is never typed: IncantForms/WorkingOn/reference walks this registry and prints it,
+    and names every attribute with no entry here and every entry with no attribute. Add an attribute to FORMs
+    (Topics/forms, above its bail) and that walk names it until its facts are written here.
+    Defined with only Grokking searched, so no entry's name is taken for the FORMs attribute of the same name.  */
+registry(fORMfACTs);
+define
+    x group="layout" values="points" inherits="no" status="built" does="where the field sits across; read on the top field, and on a child under a parent that names overlay";
+    y group="layout" values="points" inherits="no" status="built" does="where the field sits down; read as x is";
+    width group="layout" values="points, or N%" inherits="no" status="built" does="the field's width; a percent is of its parent";
+    height group="layout" values="points, or N%" inherits="no" status="built" does="the field's height; a percent is of its parent";
+    across group="layout" values="bare, a count, or *" inherits="no" status="built" does="lays the members out side by side";
+    down group="layout" values="bare, a count, or *" inherits="no" status="built" does="stacks the members; the default when no direction is named";
+    overlay group="layout" values="bare" inherits="no" status="built" does="places each member from its own x and y, measured from this field";
+    space group="layout" values="points, or N%" inherits="no" status="built" does="in a layout, an empty share; in a run's style, the gap after a word";
+    fill group="box" values="a held colour (fill:=wall), or #rrggbb" inherits="no" status="built" does="paints the field's box";
+    border group="box" values="bare, or a width" inherits="no" status="built" does="strokes all four sides, inside the frame";
+    topBorder group="box" values="bare, or a width" inherits="no" status="built" does="strokes the top side only";
+    bottomBorder group="box" values="bare, or a width" inherits="no" status="built" does="strokes the bottom side only";
+    leftBorder group="box" values="bare, or a width" inherits="no" status="built" does="strokes the left side only";
+    rightBorder group="box" values="bare, or a width" inherits="no" status="built" does="strokes the right side only";
+    strokeColor group="box" values="a held colour, or #rrggbb" inherits="no" status="built" does="the border's colour; black when none is named";
+    font group="text" values="a held font (font:=titleFont)" inherits="yes" status="built" does="the font the field's text is set in";
+    color group="text" values="a held colour, or #rrggbb" inherits="yes" status="built" does="the colour of the field's text";
+    align group="text" values="left center right justify" inherits="yes" status="built" does="where each line of text sits across";
+    valign group="text" values="top center bottom" inherits="yes" status="built" does="where the text sits down the frame";
+    italic group="text" values="bare, or off" inherits="yes" status="built" does="slants the text";
+    rounded group="box" values="bare, or a radius in points" inherits="no" status="built" does="rounds the corners of the fill and of a plain border";
+    shadow group="box" values="bare" inherits="no" status="built" does="shadows the fill, else the border, else the text";
+    opacity group="box" values="0 to 1" inherits="no" status="built" does="how opaque the field's fill, border and text are drawn";
+    style group="text" values="a held style (style:=name)" inherits="no" status="built" does="merges the style's attributes into the field at layout; the field's own always win";
+    text group="text" values="bare" inherits="no" status="built" does="draws the field's own string in its frame";
+    image group="box" values="a file path" inherits="no" status="built" does="draws the image in the frame, under the border";
+    fit group="box" values="none ruled" inherits="no" status="parked" does="how an image or text is fitted to the frame";
+    onClick group="action" values="a held action (onClick:=name)" inherits="no" status="mock click only" does="the action a click on the field fires";
+    ;

@@ -236,7 +236,7 @@ Percent (2026-11-11, SEQ 622 R0)
     Percent stays: a setFrame rerun after a resize depends on it.
 Style (2026-11-03, 2026-11-09)
     Style attributes may go directly on fields. A field starts with a copy of its enclosing field's style; its attributes are processed left to right, each changing the style in effect; the change is scoped to the subtree.
-    RULED (Tony, 2026-11-14, SEQ 652 R1): a style is applied by style:= and merged at layout, on setFrame's copy. The field's own attributes always win, wherever style:= sits; of two styles the earlier wins. "style:= comes first" is retired. Merge in a define composes styles from styles and looks from looks only (R4); a merged style is a deep copy first (R5). Built at seal 485. A form drawn without setFrame gets no style's text properties (three hand-framed fixtures call mergeStyles themselves); the floor still reads a held style's box properties itself.
+    RULED (Tony, 2026-11-14, SEQ 652 R1): a style is applied by style:= and merged at layout, on setFrame's copy. The field's own attributes always win, wherever style:= sits; of two styles the earlier wins. "style:= comes first" is retired. Merge in a define composes styles from styles and looks from looks only (R4); a merged style is a deep copy first (R5). Built at seal 485. A form drawn without setFrame gets no style's text properties (three hand-framed fixtures call mergeStyles themselves); a style spells its fill fill, fillColor is retired (SEQ 657 R1); on branch f156-floor-style, not yet bought, the floor reads a field's own box properties only (F-156).
     Drawing happens after every attribute is processed. What is built is a lookup (own, style, enclosing) that gives the same answers wherever the convention holds.
     Style resolution is written in jittable kant; it resolves as a tree in a pre-pass and paints as a forward-only stream (incant/designDocs, DisplayDesignHTML / StreamModel / StyleResolution).
 Attributes
@@ -298,7 +298,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     One task a tutorial chapter (the list is under "The forms tutorial"): write the passage and the example form, and pin the example form's PDF in formsPop.
         T-1 A form is a field . T-2 Layout . T-3 Boxes . T-4 Text in a field . T-7 Typeset text . T-8 Forms inside forms      may be drafted now: they describe what works.
         T-5 Styles . T-6 Look and feel      HELD until show(form) lands, so their examples are fired by show (Clay, 2026-11-14).     T-9 Actions and clicks      waits on bubbling and a real click.
-        T-10 Reference      FIRST (SEQ 656 R2): generated, not typed (Topics/documentation, GENERATE; specimen IncantForms/WorkingOn/referenceSpecimen); it waits on Tony's word on the table's shape.
+        T-10 Reference      FIRST: generated, not typed. Built for the terminal (SEQ 657): incant IncantForms/WorkingOn/reference, facts in IncantForms/Controls/formFacts (Topics/documentation). It becomes a form after show lands.
     Other candidates, kant and a form only: respell one form to today's spellings; a checker that lists a form's attributes nothing reads; rows for the image in a PDF.
 
 /*****************************************************************************
@@ -308,13 +308,13 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Digest of retired files (retired 2026-11-11, git c3180398; one line each)
 *****************************************************************************/
-    Folded 2026-11-14 (SEQ 651); the one-line digest of each of the 22 files is in git de72f239, this file. Still pointed at from here:
-    IncantForms/WorkingOn/drawing (git ede70292), the old drawing registry and PoinT's action; docs/forms.md, whose live part is "Form files" above;
+    Folded 2026-11-14 (SEQ 651); the one-line digest of each of the 22 files is in git de72f239, this file. Still pointed at from here: IncantForms/WorkingOn/drawing (git ede70292), the old drawing registry and PoinT's action; docs/forms.md, whose live part is "Form files" above;
     docs/setWindow-plan.md, input to step 10; docs/font-recon.md, superseded by docs/m5Recon.md; docs/layout-recon.md, the HTML idea (Topics/features 25).
 
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    488  SEQ 656-657   SHUTDOWN. F-156 stroke A: fillColor retired, ten fixtures merge before drawing (trunk); the floor's style read removed on branch f156-floor-style (lookT LK-8), the buy is Tony's. F-157, F-158 docketed. The Reference is generated (Topics/documentation). NEXT: buy the branch; the show dispatch.
     487  SEQ 655   stroke 4: runs' styles through the look, the look down to a held form, the box warning (runLookT RL-1 to RL-7); the both-directions warning and F-157 (climbT CL-6). The styles build is done. formsPop 271 green.
     486  SEQ 653-654   stroke 2b: a repeating parent (down=3, down=*) adds deep copies to itself, so repeats climb right and each owns its children (climbT CL-3 to CL-5). Stroke 3: placeholders and looks (lookT LK-1 to LK-7). F-156 docketed. formsPop 262 green.
     485  SEQ 652   stroke 2: styles by merge at layout (mergeStyles in setFrame; own attributes win on either side; of two styles the earlier); drawText's lookup is own, then enclosing. styleMergeT SM-1 to SM-7. formsPop 251 green.

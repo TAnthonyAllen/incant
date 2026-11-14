@@ -25,7 +25,7 @@ stop();
 
 REFERENCE SPECIMEN (Clod, 2026-11-14, SEQ 656; generate, don't type). Three attributes given their facts in a registry of their own,
 fORMfACTs, and the smallest walk that prints them as a table. To run it, put these lines in a file of their own, or in place of the
-driver above. All 28 attributes, with the check in both directions: incant IncantForms/WorkingOn/referenceSpecimen
+driver above. All 28 attributes, grouped, with the check in both directions (SEQ 657): incant IncantForms/WorkingOn/reference  (facts: IncantForms/Controls/formFacts)
     Start();
     include(unitTests);
     include(utilities);
