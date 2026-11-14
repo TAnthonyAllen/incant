@@ -165,15 +165,27 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         PARKED, a later step (Tony, 2026-11-13): a form reference whose attribute action runs a whole incantation, instead of a reference to a form that is definitions only.
 
 /*****************************************************************************
+    The forms tutorial (Tony, 2026-11-14, SEQ 651 R1)
+*****************************************************************************/
+    The tutorial is IBkant's Forms section. A chapter is a passage in IncantForms/IBkant/text (File= for a long one), listed by the contents field (Topics/documentation, SEQ 650 R3).
+    Every chapter has four parts: what you write; what you see, an example form that runs to a PDF and so is a test; the rule in a line or two; what is not built.
+        1   A form is a field        the define block, a window, definitions only, firing it        example: firstLight cut to two fields    not written
+        2   Layout                   width height percent down across overlay space isHidden noRoom example: simple                          not written
+        3   Boxes                    fill, border and sides, strokeColor, rounded, shadow, opacity, image    example: simple                 not written
+        4   Text in a field          text font color align valign italic, the inset                 example: firstLight                      not written
+        5   Styles                   what a style is, defining, applying, inheriting, order         example: new                             waits on a ruling
+        6   Look and feel            placeholders for colours and fonts, swapping a look            example: new                             waits on a ruling
+        7   Typeset text             paragraphs, {style: text}, {name}, {registry.name}, passages   example: firstLight's words, IBkant      not written
+        8   Forms inside forms       form:=, the holding field, the swap                            example: firstLight's inside             not written
+        9   Actions and clicks       onClick, attribute actions, listeners, redraw                  example: firstLight's ok                 waits (mock click only)
+        10  Reference                one table: attribute, values, inherited or not, status         from WorkingOn/formsTable                not written
+    RULED the same day (R2, R3): braces take a style name only, never bare attributes; a run naming a style that holds a box attribute warns by name (built with the styles stroke).
+        Forms name no explicit colour or font: they name placeholders spelled by role (pageFill, headingFont, accent), never by appearance and never one of the 28 attribute names.
+    NOT RULED (direction; the probes of SEQ 651 are in IncantForms/WorkingOn/styleProbes, their numbers in that seal's commit message): a style applied by merge, at layout, on setFrame's copy; a look carried in the request as look:=.
+/*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
 *****************************************************************************/
-    1   Fills into one context, the right way up.                      DONE (seals 376-377)
-    2   The draw walk: the whole form drawn from kant.                 DONE (389-390)
-    3   Borders: a frame or named sides, with a colour.                DONE (391-392)
-    4   The first PDF: firstLight as IncantForms/PDF/output.pdf.       DONE (393-394)
-    5   Text in a field's frame, wrapped, clipped; fixed 4-point inset. DONE (412-413)
-    5a  align = left / center / right / justify.                       DONE (SEQ 582, 584)
-    5b  valign = top / center / bottom.                                DONE (439)
+    1-5b  Fills, the draw walk, borders, the first PDF, text in a frame, align and valign.   DONE (seals 376-439; the steps one by one: git de72f239, this file)
     6   setFrame finished: the definition stays unchanged, setFrame returns a laid-out result that is used and dropped, a resize re-runs it. STROKES 1-3 DONE (456-458): a deep copy is laid out and returned; a frame in the request resizes; redrawForm is the mock resize; a named overlay keeps a child's x and y. noRoom and isHidden DONE (459). Stroke 4 FIRST RUN (460): the resize by listening, in kant; the firing command is Tony's to rule. Done when a second run reads as one run, a resize reads as a fresh run, and noRoom / isHidden are in. (docs/setFrameSecondRunDesign.md; the proposed strokes, with what waits on listening and the five points to rule: docs/setFrameRerunProposal.md)
     7   Runs inside text: the first typesetting step. See Topics/typesetting.
     8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
@@ -258,8 +270,6 @@ Form files (from docs/forms.md, retired into this file)
        The kept value was used as written: nothing in that code adds the parent's origin to it (today's overlay measures from the parent, R4). A written x=0 counted as written.
        Forms that rely on it: NONE found. Searched IncantForms/Windows (all 21), IncantForms/Controls and incant/unitTests for x= or y=: every hit is on a window or a top field (20 forms, plus unitTests' four test tops). No child field in any form writes x or y.
        To rule: read a child's x and y under down and across too (and, if so, does it still leave its gap), or leave them unread there.
-    6  RESOLVED (Tony's fix, built at seal 475): descriptions' captions that share a name with a registry entry (describeHead, saber, trees) are plain FORMs definitions made before dESCRIPTIONs is searched; the form names them with no text.
-       The current registry is searched before the search list (GroupControl locate), so the form's saber is the caption and the registry's keeps its long text (descT DE-6, DE-12; control red at seal 476). describeHelp keeps the registry's entry (ruled).
 
 /*****************************************************************************
     Issues (open lines, verbatim from where they were recorded)
@@ -285,9 +295,13 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     Windows/tabs: the run warns that isGROUP looks like a flag and keeps it as an attribute; expected no warning -- form.
 
 /*****************************************************************************
-    Tasks (minion-ready shape: fence / rulings / rows / certificate / H7 / stop). None written yet.
+    Tasks (minion-ready shape: fence / rulings / rows / certificate / H7 / stop)
 *****************************************************************************/
-    Candidates, each needing only kant and a form (no rebuild): respell one form to today's spellings; a checker that lists a form's attributes nothing reads; rows for the image in a PDF.
+    One task a tutorial chapter (the list is under "The forms tutorial"): write the passage and the example form, and pin the example form's PDF in formsPop.
+        T-1 A form is a field . T-2 Layout . T-3 Boxes . T-4 Text in a field . T-7 Typeset text . T-8 Forms inside forms      may be drafted now: they describe what works.
+        T-5 Styles . T-6 Look and feel      wait on Tony's ruling from the SEQ 651 probes.     T-9 Actions and clicks      waits on bubbling and a real click.
+        T-10 Reference      one table from WorkingOn/formsTable: attribute, values, inherited or not, status.
+    Other candidates, kant and a form only: respell one form to today's spellings; a checker that lists a form's attributes nothing reads; rows for the image in a PDF.
 
 /*****************************************************************************
     Moved by other topics (kant strokes that touched a forms row, by seal). None yet.
@@ -296,28 +310,9 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Digest of retired files (retired 2026-11-11, git c3180398; one line each)
 *****************************************************************************/
-    IncantForms/WorkingOn/drawing   (retired 2026-11-12, git ede70292) the Drawing registry, now the drawing fields above; old Colors and Fonts registries (styles is the live one); the old one-letter path language and the June drawing plan.
-    docs/forms.md                   form-file conventions for the XML-to-incant conversion; what still holds is under "Form files" above.
-    docs/gui.md, gui-brief.md       the June GUI one-stop and its brief for Clay: first window 2026-06-22; incant owns the model, Layout the pixels.
-    docs/guiDesign.md               July spec: Layout / Stylish review, fonts, colours, events; its subview text model was superseded.
-    docs/displayDesign.md           superseded 2026-08-11 by DisplayDesignHTML in incant/designDocs.
-    docs/note-to-clay-style.md      the ask that produced displayDesign.
-    docs/formsRecon.md              August: the drawing surface measured, and the first drawing specimen. (Not WorkingOn/formsRecon.)
-    docs/layout-recon.md            June read of the old Layout.twk; the HTML-transpiler idea (Topics/features 25).
-    docs/gui-sheet-xml-lifecycle-recon-2026-05-29.md   how sheet.xml became a window in the old GUI.
-    docs/setWindow-plan.md          July: what the old GUI's windows, panels and popups did; a try-and-buy setWindow. Input to step 10.
-    docs/bot-recon.md               the Bot two-process experiment, read as a head start for the web channel.
-    docs/font-recon.md              June font and colour archaeology; superseded by docs/m5Recon.md.
-    docs/jsonTest-googlefonts-probe.md   jsonTest fed the Google fonts JSON: partial clean bill, one choke.
-    docs/bordersRecon.md            step 3's recon: nothing stroked a side from kant; one floor method and a colour ruling unblocked it.
-    docs/firstPdfRecon.md           step 4's recon: a PDF context rides the handed-down display as the bitmap does.
-    docs/textRecon.md               step 5's recon: stopped because font and text colour had no source; led to SEQ 582.
-    docs/flagAttrRecon.md           flag names as attributes in a define; built (flagAttrT).
-    docs/unknownFlagRecon.md        a near-miss flag name warns and stays an attribute; built (flagNearT).
-    docs/traitRefRecon.md           what a define's attribute holds, and := in a define; built (merge 294d2087, traitGridT).
-    docs/parseLabelParent.md        a member's parent is its enclosing field; built (merge 24beb5f0, parentChainT).
-    ipc/clod-to-forms.md, forms-to-clod.md   the forms minion's channel, opened 2026-08-03, never used.
-    IncantForms/WorkingOn/formsPlan a pointer to the forms notes, retired 2026-11-04.
+    Folded 2026-11-14 (SEQ 651); the one-line digest of each of the 22 files is in git de72f239, this file. Still pointed at from here:
+    IncantForms/WorkingOn/drawing (git ede70292), the old drawing registry and PoinT's action; docs/forms.md, whose live part is "Form files" above;
+    docs/setWindow-plan.md, input to step 10; docs/font-recon.md, superseded by docs/m5Recon.md; docs/layout-recon.md, the HTML idea (Topics/features 25).
 
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)

@@ -1,0 +1,90 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset Grokking FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+register(ProbE);
+define
+    pBold merge font:=titleFont color:=red fill:=lightGreen italic;
+    pForm window x=0 y=0 width=400 height=300 down fill:=wall font:=normalFont color:=blue
+        a="alpha" text style:=pBold;
+        b="beta" text color:=green style:=pBold;
+        c="gamma" text style:=pBold color:=green;
+        d down style:=pBold
+            d1="delta one" text;
+            d2="delta two" text color:=black fill:=white
+                d3="three down" text;
+        e="plain" text;
+    pReq form:=pForm;
+    rsProp;
+    rsWord;
+    rsUseStyle = 0;
+    rsClimb = 1;
+    resolve code={
+        rvCur := argument;
+        rvHops = 0;
+        rvGot = 0;
+        rvOut = "none";
+        while rvHops < 32;
+            if rvGot == 0;
+                if *rvCur[rsProp];
+                    rvAt := *rvCur[rsProp];
+                    rvOut = **rvAt.taG;
+                    rvGot = 1;
+            if rvGot == 0;
+                if rsUseStyle == 1;
+                    if *rvCur["style"];
+                        rvStyle := *rvCur["style"];
+                        if **rvStyle[rsProp];
+                            rvAt := **rvStyle[rsProp];
+                            rvOut = **rvAt.taG;
+                            rvGot = 1;
+            rvName = *rvCur.taG;
+            if rvName == "pForm";   rvHops = 32;
+            if rvGot == 1;          rvHops = 32;
+            if rsClimb == 0;        rvHops = 32;
+            rvCur := *rvCur.parenT;
+            rvHops += 1;
+        print $_rsProp "=" rvOut$;
+        };
+    report code={
+        print ~rsWord taG$;
+        rsClimb = 1;
+        rsProp = "font";    resolve(argument);
+        rsProp = "color";   resolve(argument);
+        rsProp = "italic";  resolve(argument);
+        rsClimb = 0;
+        rsProp = "fill";    resolve(argument);
+        print :;
+        if hasMemberS;
+            for grup in argument; members
+                report(*grup);
+        };
+    msWalk code={
+        msSelf := argument;
+        msHas = 0;
+        if *msSelf["style"];    msHas = 1;
+        if msHas == 1;
+            msStyle := *msSelf["style"];
+            argument :. mergeON;
+            argument +% **msStyle;
+        if hasMemberS;
+            for grup in argument; members
+                msWalk(*grup);
+        };
+    pRun code={
+        prLaid := setFrame(argument);
+        rsWord = "ROW";
+        rsUseStyle = 1;
+        print "TODAY: own, style, enclosing; no merge":;
+        report(*prLaid);
+        prNew := setFrame(argument);
+        msWalk(*prNew);
+        rsUseStyle = 0;
+        print "MERGED: own, enclosing; style step removed":;
+        report(*prNew);
+        };
+    ;
+pRun(pReq);
+print "SENTINEL p3 end":;
+stop();

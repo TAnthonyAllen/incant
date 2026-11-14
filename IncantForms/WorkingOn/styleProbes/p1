@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset Grokking FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+register(ProbE);
+define
+    pStyle merge color:=red italic align=center;
+    pStyle2 merge color:=blue valign=bottom;
+    pNest merge pStyle font:=titleFont;
+    pLeft merge color:=green pStyle;
+    pRight merge pStyle color:=green;
+    pTwo merge pStyle pStyle2;
+    pTwoR merge pStyle2 pStyle;
+    pNested merge pNest;
+    pNoOpt pStyle color:=green;
+    ;
+cerr "== pStyle":;    printDefinition(pStyle);
+cerr "== pLeft (color:=green pStyle)":;    printDefinition(pLeft);
+cerr "== pRight (pStyle color:=green)":;    printDefinition(pRight);
+cerr "== pTwo (pStyle pStyle2)":;    printDefinition(pTwo);
+cerr "== pTwoR (pStyle2 pStyle)":;    printDefinition(pTwoR);
+cerr "== pNest (pStyle font)":;    printDefinition(pNest);
+cerr "== pNested (pNest)":;    printDefinition(pNested);
+cerr "== pNoOpt, no merge on the field (pStyle color:=green)":;    printDefinition(pNoOpt);
+cerr "== pStyle again":;    printDefinition(pStyle);
+cerr "SENTINEL p1 end":;
+stop();

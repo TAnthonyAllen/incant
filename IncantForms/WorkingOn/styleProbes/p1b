@@ -1,0 +1,29 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset Grokking FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+register(ProbE);
+define
+    pStyle merge color:=red fill:=wall zork=1 width=10;
+    pRight merge pStyle color:=green fill:=white zork=2 width=20;
+    pPlain color:=red color:=green zork=1 zork=2 fill:=white fill:=wall width=20 width=10;
+    readIt code={
+        riSelf := argument;
+        riC := *riSelf["color"];
+        riF := *riSelf["fill"];
+        riZ := *riSelf["zork"];
+        riW := *riSelf["width"];
+        riCv = **riC;
+        riFv = **riF;
+        riZv = *riZ;
+        riWv = *riW;
+        cerr "   subscript reads color" riCv "fill" riFv "zork" riZv "width" riWv:;
+        };
+    ;
+cerr "== pRight (pStyle color:=green fill:=white zork=2 width=20)":;    printDefinition(pRight);
+readIt(pRight);
+cerr "== pPlain, no style (color:=red color:=green zork=1 zork=2)":;    printDefinition(pPlain);
+readIt(pPlain);
+cerr "SENTINEL p1b end":;
+stop();

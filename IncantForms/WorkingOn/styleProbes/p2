@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset Grokking FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+register(ProbE);
+define
+    pBold merge font:=titleFont color:=red fill:=lightGreen align=center;
+    pForm window x=0 y=0 width=400 height=300 down fill:=wall font:=normalFont color:=blue
+        a="alpha" text style:=pBold;
+        b="beta" text color:=green style:=pBold;
+        c="gamma" text style:=pBold color:=green;
+        d down style:=pBold
+            d1="delta one" text;
+            d2="delta two" text color:=black fill:=white;
+        e="plain" text;
+    pReq form:=pForm;
+    pRun code={
+        prLaid := setFrame(argument);
+        msWalk(*prLaid);
+        print "RUN":;
+        printDefinition(*prLaid);
+        prAgain := setFrame(argument);
+        msWalk(*prAgain);
+        print "RUN":;
+        printDefinition(*prAgain);
+        };
+    msWalk code={
+        msSelf := argument;
+        msHas = 0;
+        if *msSelf["style"];    msHas = 1;
+        if msHas == 1;
+            msStyle := *msSelf["style"];
+            argument :. mergeON;
+            argument +% **msStyle;
+        if hasMemberS;
+            for grup in argument; members
+                msWalk(*grup);
+        };
+    ;
+print "DEF before":;
+printDefinition(pForm);
+print "STYLE before":;
+printDefinition(pBold);
+pRun(pReq);
+print "DEF after":;
+printDefinition(pForm);
+print "STYLE after":;
+printDefinition(pBold);
+print "SENTINEL p2 end":;
+stop();

@@ -23,6 +23,12 @@ click(ibClickFields);
 print "SENTINEL tester driver end":;
 stop();
 
+STYLE AND LOOK PROBES (Clod, 2026-11-14, SEQ 651): each is its own file, run from Groups as  incant IncantForms/WorkingOn/styleProbes/p1
+    p1 p1b      merge order in a define: left of the style, right of it, two styles, a style naming a style; which duplicate a subscript reads
+    p2          the merge at layout on setFrame's copy: definition and style print the same after; run 2 reads as run 1
+    p3          today's lookup (own, style, enclosing) beside own-then-enclosing on the merged copy; p3control climbs the definition and a bare deep copy
+    p4          looks: placeholders virtual, a look in the request, a look merging a base look; p4shared is the same with plain placeholders (every look reads the last one written)
+
 TO FIRE a pdf form: from "Firing a form by hand" in Topics/forms
 /*****************************************************************************
     Firing a form by hand (the one home, Tony 2026-11-13, SEQ 646)

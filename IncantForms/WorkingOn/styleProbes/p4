@@ -1,0 +1,74 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset Grokking FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+register(ProbE);
+define
+    accent virtual;
+    pageFill virtual;
+    headingFont virtual;
+    baseLook merge accent:=red pageFill:=wall headingFont:=titleFont;
+    nightLook merge accent:=lightBlue pageFill:=black headingFont:=courierFont;
+    oneOff merge accent:=green baseLook;
+    pHead merge font:=headingFont color:=accent;
+    pForm window x=0 y=0 width=400 height=300 down fill:=pageFill color:=accent
+        a="alpha" text font:=headingFont;
+        b="beta" text fill:=wall color:=blue;
+        c="gamma" text style:=pHead;
+    reqPlain form:=pForm;
+    reqBase form:=pForm look:=baseLook;
+    reqNight form:=pForm look:=nightLook;
+    reqOne form:=pForm look:=oneOff;
+    lkLook;
+    lkHas = 0;
+    lookWalk code={
+        lwSelf := argument;
+        if *lwSelf["style"];
+            lwStyle := *lwSelf["style"];
+            argument :. mergeON;
+            lwOwn := copyDeep(**lwStyle);
+            argument +% *lwOwn;
+        for grup in argument; attributes
+            lwHeld = *grup.isGrouP;
+            if lwHeld == 1;
+                lwName := **grup.taG;
+                lwSwap = 0;
+                if lkHas == 1;
+                    if *lkLook[*lwName];    lwSwap = 1;
+                if lwSwap == 1;
+                    lwTo := *lkLook[*lwName];
+                    *grup := **lwTo;
+                lwVia = **grup.isGrouP;
+                if lwVia == 1;      *grup := ***grup;
+        if hasMemberS;
+            for grup in argument; members
+                lookWalk(*grup);
+        };
+    pRun code={
+        prReq := argument;
+        lkHas = 0;
+        if *prReq["look"];      lkHas = 1;
+        if lkHas == 1;
+            prLook := *prReq["look"];
+            lkLook := **prLook;
+        prLaid := setFrame(argument);
+        lookWalk(*prLaid);
+        print "RUN" argument.taG:;
+        printDefinition(*prLaid);
+        };
+    ;
+print "LOOKS":;
+printDefinition(baseLook);
+printDefinition(nightLook);
+printDefinition(oneOff);
+pRun(reqPlain);
+pRun(reqBase);
+pRun(reqNight);
+pRun(reqOne);
+pRun(reqPlain);
+print "DEF after":;
+printDefinition(pForm);
+printDefinition(pHead);
+print "SENTINEL p4 end":;
+stop();
