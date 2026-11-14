@@ -817,6 +817,29 @@ _ofeq "runLookT RL-5 the held form's run follows the host's look too: red, then 
 _ofeq "runLookT RL-6 THE BOX WARNING: a run whose style holds fill and rounded is warned once for each, by name, and still takes its colour" "$(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute fill ' "$T/rl.e") $(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute rounded ' "$T/rl.e") $(grep -c 'holds the box attribute' "$T/rl.e") / $(_rls box)" "1 1 2 / a field boxy red run field"
 _ofeq "runLookT RL-7 a run's style naming a placeholder no look holds is refused by name, by drawSpans, once" "$(grep -c '^drawSpans: REFUSING rnLost -- its color names the placeholder rnOrphan and no look holds it' "$T/rl.e") $(grep -c 'REFUSING' "$T/rl.e")" "1 1"
 
+echo "-- show(form): a form fired by one call (showT)."
+#  ⚑ showT -- the show dispatch R2 (Tony, 2026-11-14), SEQ 660: show(form) builds its own request; the path is the form's own path=, else
+#  IncantForms/PDF/output.pdf; a form naming look:= is laid out under it. SH-4 writes output.pdf, which is Tony's: it is moved aside here and put back.
+#  H7 (SEQ 660): the look lines out of show -> SH-2 red (white page, Palatino); the own-path arm out -> SH-1 to SH-3 and SH-5 name output.pdf.
+_shF=$(ip showT)
+_shOut=IncantForms/PDF/output.pdf
+rm -f "$T/sh.keep"; [ -f "$_shOut" ] && mv "$_shOut" "$T/sh.keep"
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 60; exec @ARGV' "$B" "$_shF" > "$T/sh.o" 2> "$T/sh.e"; _shx=$?
+_shNew=0; [ -s "$_shOut" ] && _shNew=1
+[ -f "$T/sh.keep" ] && mv "$T/sh.keep" "$_shOut"
+_shb () { awk -v pg="$1" '/^SH PAGE/{b=$3; next} b==pg' "$T/sh.o"; }
+_shs () { _shb "$1" | grep '^=== show ' | sed 's/^=== show //; s/ ===.*//'; }
+_sht () { _shb "$1" | awk '$1=="===" && $2=="drawSpans"' | sed 's/.*drawSpans \([A-Za-z]*\) font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1 \2 \3/'; }
+_shp () { _shb "$1" | grep 'pixelAt pdfRead' | sed 's/.*= //; s/ ===.*//'; }
+_ofeq "showT exit / sentinel" "$_shx $(grep -c '^SHOWT SENTINEL' "$T/sh.e")" "0 1"
+_ofeq "showT SH-1 A FORM WITH path=: show names the form and its path, and the page is drawn there under defaultLook" "$(_shs plain) / $(_shp plain) / $(_sht plain)" "shPlain to IncantForms/PDF/test.pdf / r255 g255 b255 a255 / shA Palatino 24 1 r0 g0 b0"
+_ofeq "showT SH-2 A FORM NAMING look:=shNight is laid out under it: black page, Courier white" "$(_shs dark) / $(_shp dark) / $(_sht dark)" "shDark to IncantForms/PDF/test.pdf / r0 g0 b0 a255 / shB Courier New 24 1 r255 g255 b255"
+_ofeq "showT SH-3 the look does not stay in show's request: shPlain again reads as SH-1" "$(_shp plain2) / $(_sht plain2)" "$(_shp plain) / $(_sht plain)"
+_ofeq "showT SH-4 A FORM WITH NO path is written to IncantForms/PDF/output.pdf (line / a new file written)" "$(_shs home) / $_shNew" "shHome to IncantForms/PDF/output.pdf / 1"
+_ofeq "showT SH-5 show returns the laid-out copy: a list of 10 (its attributes and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 10 width 400"
+_ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form" "$(grep -c '^=== show IBkant to IncantForms/PDF/test.pdf ===' "$T/ib.o") $(grep -c '^=== show ' "$T/ib.o")" "4 4"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

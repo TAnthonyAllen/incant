@@ -1082,6 +1082,35 @@ define
         return *rdLaid;
         };
     /***************************************************************************
+        show -- fire a form (Tony, 2026-11-14, the show dispatch R2). ONE
+        argument, the form: show(firstLight). It builds its own request and
+        hands it to redrawForm, so the caller writes no request. The PDF's
+        path is the form's own path= attribute; a form with none is written
+        to showPath, IncantForms/PDF/output.pdf. A form that names a look
+        (look:=nightLook) is laid out under it. Says where it wrote, on one
+        line. Returns the laid-out copy, as redrawForm does.
+    ***************************************************************************/
+    showPath path="IncantForms/PDF/output.pdf";
+    showReq path form look;
+    show code={
+        shForm := argument;
+        shOwn = 0;
+        if *shForm["path"];     shOwn = 1;
+        if shOwn == 1;      showReq :% copyOf(*shForm["path"]);
+        if shOwn == 0;      showReq :% copyOf(showPath["path"]);
+        showReq.form := argument;
+        showReq.look = 0;
+        shLooks = 0;
+        if *shForm["look"];     shLooks = 1;
+        if shLooks == 1;
+            shLook := *shForm["look"];
+            showReq.look := **shLook;
+        shName := *shForm.taG;
+        shTo := showReq["path"];
+        cout "=== show" shName "to" shTo "===":;
+        return redrawForm(showReq);
+        };
+    /***************************************************************************
         click -- the mock click (goal G1; G2 stroke 3; Tony, 2026-11-13). ONE
         argument, a request: form:= the form and field= the name of a field in
         it. No point and no window: the field is named. The click selects the

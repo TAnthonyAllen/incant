@@ -123,20 +123,16 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         search cOLOr fONTs sTYLEs;
         include(firstLightFile);
         search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-        define
-            flReq path="IncantForms/PDF/output.pdf" form:=firstLight;
-            ;
-        redrawForm(flReq);
-    descriptions: the same lines with descriptionsFile File='IncantForms/Windows/descriptions' and include(descriptionsFile); its request is descriptionsReq path="IncantForms/PDF/output.pdf" form:=descriptions; and its call redrawForm(descriptionsReq);
+        show(firstLight);
+      show(form) builds the request itself and says where it wrote (SEQ 660). The PDF is the form's own path= attribute, else IncantForms/PDF/output.pdf; a form naming look:=aLook is laid out under it.
+    descriptions: the same lines with descriptionsFile File='IncantForms/Windows/descriptions' and include(descriptionsFile); its call is show(descriptions);
     IBkant: the same lines with ibkantFile File='IncantForms/Windows/IBkant' and include(ibkantFile); its last define and calls are
         define
-            ibReq path="IncantForms/PDF/output.pdf" form:=IBkant;
-            ibHears listenTo:=ibPage code={ redrawForm(ibReq); };
             ibClickFields form:=IBkant field="toFields";
             ;
-        redrawForm(ibReq);
+        show(IBkant);
         click(ibClickFields);
-      The redraw shows Welcome; the click shows Fields (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write test.pdf, never output.pdf.
+      show draws Welcome; the click shows Fields (IBkant's own listener, ibHears, calls show(IBkant)) (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write test.pdf, never output.pdf.
 /*****************************************************************************
     The instruments that read this topic
 *****************************************************************************/

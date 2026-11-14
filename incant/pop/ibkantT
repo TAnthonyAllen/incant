@@ -13,10 +13,9 @@ register(IbkantT);
 search IbkantT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     ibRuns = 0;
-    ibReq path="IncantForms/PDF/test.pdf" form:=IBkant;
-    ibHears listenTo:=ibPage code={
+    ibToTest path="IncantForms/PDF/test.pdf";
+    ibCounts listenTo:=ibPage code={
         ibRuns = ibRuns + 1;
-        redrawForm(ibReq);
         };
     ibSay code={
         ibSel := *selection.taG;
@@ -26,8 +25,9 @@ define
     ibClickFields form:=IBkant field="toFields";
     ibClickForms form:=IBkant field="toForms";
     ;
+IBkant :% copyOf(ibToTest["path"]);
 cout "IB PAGE first":;
-redrawForm(ibReq);
+show(IBkant);
 cerr "IB-1 runs" ibRuns:;
 cout "IB PAGE fields":;
 click(ibClickFields);

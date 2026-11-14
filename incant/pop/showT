@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(ShowT);
+search ShowT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    shNight pageFill:=black headingFont:=courierFont bodyFont:=normalFont textColor:=white accent:=lightBlue;
+    shPlain window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont color:=textColor path="IncantForms/PDF/test.pdf"
+        shA="alpha" text font:=headingFont;
+    shDark window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont color:=textColor path="IncantForms/PDF/test.pdf" look:=shNight
+        shB="beta" text font:=headingFont;
+    shHome window x=0 y=0 width=400 height=200 down fill:=wall font:=normalFont color:=blue
+        shC="gamma" text;
+    pdfRead path="IncantForms/PDF/test.pdf";
+    shPixel code={
+        readPDF(pdfRead);
+        px = 10;
+        py = 150;
+        pdfRead :% copyOf(px);
+        pdfRead :% copyOf(py);
+        pixelAt(pdfRead);
+        };
+    shBack code={
+        sbLaid := show(shPlain);
+        sbN = *sbLaid.listLengtH;
+        sbW := *sbLaid["width"];
+        sbWt = *sbW;
+        cerr "SH-5 list" sbN "width" sbWt:;
+        };
+    ;
+cout "SH PAGE plain":;  show(shPlain);  shPixel();
+cout "SH PAGE dark":;   show(shDark);   shPixel();
+cout "SH PAGE plain2":; show(shPlain);  shPixel();
+cout "SH PAGE home":;   show(shHome);
+cout "SH PAGE back":;   shBack();
+cout "SH PAGE end":;
+cerr "SHOWT SENTINEL":;
+stop();
+
+showT -- show(form), the show dispatch's first stroke (Tony, 2026-11-14; SEQ 660). Rows in genLadder/formsPop.sh.
+show is a standard action in incant/utilities: one argument, the form. It builds its own request and hands it to redrawForm.
+The PDF is the form's own path= attribute, else IncantForms/PDF/output.pdf. A form naming look:= is laid out under that look.
+It says where it wrote on one line, and returns the laid-out copy.
+
+SH-1  a form with path=: the line names the form and its path; the page is drawn there (defaultLook: white page, Palatino heading).
+SH-2  a form with look:=shNight: black page, Courier white. The look came from the form; no request was written.
+SH-3  the look does not stay in show's request: shPlain shown again reads as SH-1.
+SH-4  a form with NO path is written to IncantForms/PDF/output.pdf. That file is Tony's: formsPop moves it aside before the
+      run, checks a new one was written, and puts his back.
+SH-5  show returns the laid-out copy: a list of 10 (listLengtH counts its attributes and its one member, shA), and its width.
