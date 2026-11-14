@@ -750,7 +750,8 @@ _ofeq "noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is n
 
 echo "-- the parent chain after layout (climbT)."
 #  ⚑ climbT -- SEQ 652: a field three levels down climbs to its own laid-out parents. H7: with fillDownAcross's onlyWhenRepeating guard
-#  removed, CL-1 and CL-2 read "cd2 newStuff acA" and "ca2 newStuff acA". CL-0 is the definition, never laid out.
+#  removed, CL-1 and CL-2 read "cd2 newStuff acA" and "ca2 newStuff acA". CL-0 is the definition, never laid out. CL-3 to CL-5 (SEQ 653): under a
+#  repeating parent; H7 with seal 485's fillDownAcross: CL-3 and CL-4 climb to newStuff, and CL-5's kids all read y 200.
 _clF=$(ip climbT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
 _clr () { sed -n "s/^$1 *//p" "$T/cl.o" | xargs; }
@@ -758,6 +759,10 @@ _ofeq "climbT exit / sentinel" "$_clx $(grep -c '^CLIMBT SENTINEL' "$T/cl.e")" "
 _ofeq "climbT CL-0 control, the definition: cd3 climbs cd2, cd, clDown" "$(_clr CL-0)" "cd3 cd2 cd clDown"
 _ofeq "climbT CL-1 after layout under a down parent the climb is the same" "$(_clr CL-1)" "cd3 cd2 cd clDown"
 _ofeq "climbT CL-2 after layout under an across parent: ca3 climbs ca2, ca, clAcross" "$(_clr CL-2)" "ca3 ca2 ca clAcross"
+_clp () { awk -v pg="$1" '/^CL PAGE/{b=$3; next} b==pg' "$T/cl.o"; }
+_ofeq "climbT CL-3 UNDER A REPEAT, down=3: each of the three kids climbs crCell, crRep, clNum" "$(_clp num | sed -n 's/^CL-3 *//p' | xargs)" "crKid crCell crRep clNum crKid crCell crRep clNum crKid crCell crRep clNum"
+_ofeq "climbT CL-4 under down=\"*\": three rows fit, each leaf climbs crRow, crAll, clStar" "$(_clp star | sed -n 's/^CL-4 *//p' | xargs)" "crLeaf crRow crAll clStar crLeaf crRow crAll clStar crLeaf crRow crAll clStar"
+_ofeq "climbT CL-5 each repeat owns its child: the kids' y are 0 100 200 (down=3) and the leaves' the same (down=*); the parent's style font and colour reach all three kids" "$(_clp num | grep 'crKid=' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs) / $(_clp star | grep 'crLeaf=' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs) / $(_clp num | grep -c '^=== drawSpans crKid font Palatino 24 1 color r239 g43 b45 ')" "0 100 200 / 0 100 200 / 3"
 
 echo "-- styles by merge at layout (styleMergeT)."
 #  ⚑ styleMergeT -- SEQ 652 R1 (Tony, 2026-11-14): setFrame's mergeStyles merges a deep copy of every style:= into its field on the copy; own

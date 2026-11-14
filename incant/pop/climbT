@@ -17,6 +17,22 @@ define
             ca1="one" text;
             ca2
                 ca3="three down" text;
+    clStyle font:=titleFont color:=red fill:=white;
+    clNum window x=0 y=0 width=400 height=300 down font:=normalFont
+        crRep down=3 style:=clStyle
+            crCell
+                crKid="kid" text;
+    clStar window x=0 y=0 width=400 height=300 down font:=normalFont
+        crAll down="*" style:=clStyle
+            crRow height=100
+                crLeaf="leaf" text;
+    clReqNum path="IncantForms/PDF/test.pdf" form:=clNum;
+    clReqStar path="IncantForms/PDF/test.pdf" form:=clStar;
+    clDraw code={
+        clDrawn := redrawForm(argument);
+        climb(*clDrawn);
+        printDefinition(*clDrawn);
+        };
     clReqDown form:=clDown;
     clReqAcross form:=clAcross;
     clWant;
@@ -45,6 +61,11 @@ define
 clWord = "CL-0";  clWant = "cd3";  climb(clDown);
 clWord = "CL-1";  clWant = "cd3";  clRun(clReqDown);
 clWord = "CL-2";  clWant = "ca3";  clRun(clReqAcross);
+cout "CL PAGE num":;
+clWord = "CL-3";  clWant = "crKid";  clDraw(clReqNum);
+cout "CL PAGE star":;
+clWord = "CL-4";  clWant = "crLeaf";  clDraw(clReqStar);
+cout "CL PAGE end":;
 cerr "CLIMBT SENTINEL":;
 stop();
 
@@ -53,4 +74,7 @@ A field three levels down must climb to its own laid-out parents: text propertie
 Before the fix a field under a member of a field written down or across climbed to its old parent, then to fillDownAcross's
 scratch list newStuff, and never reached the top: the cause of the seal 451 issue (font not inherited three levels down).
 CL-0 is the control on the definition, never laid out. CL-1 a down parent, CL-2 an across parent.
-NOT FIXED, not pinned: a parent that repeats its members (down=3, down=*) still rebuilds them as shallow copies.
+CL-3 to CL-5 (SEQ 653, stroke 2b): a parent that repeats its members, down=3 (clNum) and down="*" (clStar). The repeats are deep
+copies added to the field itself: each climbs to the field and the top, each owns its child (the three kids are laid out at y 0, 100
+and 200, where the old shallow copies shared one kid, laid out three times at 200), and the parent's style reaches every kid's text.
+NOT FIXED, not pinned: a field written both down and across (bothDirections) still rebuilds its list in a scratch field.

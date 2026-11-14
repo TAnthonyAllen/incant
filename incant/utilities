@@ -652,21 +652,13 @@ define
         else
             if direct > 0;
                 valueCount = direct - 1;
-        // onlyWhenRepeating a bare down or across repeats nothing, so the members stay as they are: the rebuild hands back shallow copies whose children still name the old member as parent (SEQ 652)
-        fdMore = 0;
-        if valueCount > 0;      fdMore = 1;
-        if fdMore == 1;
-            clear(newStuff);
-            for grup in argument; attributes
-                newStuff +% *grup;
+        // repeatInPlace the repeats are deep copies added to the field itself, so every member keeps the field as its parent and each copy owns its children (SEQ 653). A bare down or across adds nothing. The old way rebuilt the list in a scratch field from shallow copies: a member's children climbed to the scratch field, and the copies shared one set of children, all laid out where the last one fell.
+        while valueCount > 0;
+            --valueCount;
+            fdSeen = 0;
             for grup in argument; members
-                newStuff +/ copyOf(*grup);
-            while valueCount > 0;
-                --valueCount;
-                for grup in argument; members
-                    newStuff +/ copyOf(*grup);
-            clear(argument);
-            argument = newStuff;
+                if fdSeen < memberCount;    argument +/ copyDeep(*grup);
+                ++fdSeen;
         };
     /***************************************************************************
         Both directions on one field (Clay's design, Tony 2026-11-06). The number
