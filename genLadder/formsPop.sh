@@ -748,6 +748,17 @@ _ofeq "noRoomT NP-1 a noRoom field is not drawn: where nOut (red) would be, (165
 _ofeq "noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red" "$(_npp 2 2) $(_npp 5 5)" "green red"
 _ofeq "noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red" "$(_npp 4 4)" "green"
 
+echo "-- the parent chain after layout (climbT)."
+#  ⚑ climbT -- SEQ 652: a field three levels down climbs to its own laid-out parents. H7: with fillDownAcross's onlyWhenRepeating guard
+#  removed, CL-1 and CL-2 read "cd2 newStuff acA" and "ca2 newStuff acA". CL-0 is the definition, never laid out.
+_clF=$(ip climbT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
+_clr () { sed -n "s/^$1 *//p" "$T/cl.o" | xargs; }
+_ofeq "climbT exit / sentinel" "$_clx $(grep -c '^CLIMBT SENTINEL' "$T/cl.e")" "0 1"
+_ofeq "climbT CL-0 control, the definition: cd3 climbs cd2, cd, clDown" "$(_clr CL-0)" "cd3 cd2 cd clDown"
+_ofeq "climbT CL-1 after layout under a down parent the climb is the same" "$(_clr CL-1)" "cd3 cd2 cd clDown"
+_ofeq "climbT CL-2 after layout under an across parent: ca3 climbs ca2, ca, clAcross" "$(_clr CL-2)" "ca3 ca2 ca clAcross"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

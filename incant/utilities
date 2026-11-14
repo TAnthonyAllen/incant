@@ -673,17 +673,21 @@ define
         else
             if direct > 0;
                 valueCount = direct - 1;
-        clear(newStuff);
-        for grup in argument; attributes
-            newStuff +% *grup;
-        for grup in argument; members
-            newStuff +/ copyOf(*grup);
-        while valueCount > 0;
-            --valueCount;
+        // onlyWhenRepeating a bare down or across repeats nothing, so the members stay as they are: the rebuild hands back shallow copies whose children still name the old member as parent (SEQ 652)
+        fdMore = 0;
+        if valueCount > 0;      fdMore = 1;
+        if fdMore == 1;
+            clear(newStuff);
+            for grup in argument; attributes
+                newStuff +% *grup;
             for grup in argument; members
                 newStuff +/ copyOf(*grup);
-        clear(argument);
-        argument = newStuff;
+            while valueCount > 0;
+                --valueCount;
+                for grup in argument; members
+                    newStuff +/ copyOf(*grup);
+            clear(argument);
+            argument = newStuff;
         };
     /***************************************************************************
         Both directions on one field (Clay's design, Tony 2026-11-06). The number

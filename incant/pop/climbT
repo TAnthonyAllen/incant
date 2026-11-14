@@ -1,0 +1,56 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(ClimbT);
+search ClimbT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    clDown window x=0 y=0 width=400 height=300 down font:=normalFont
+        cd down
+            cd1="one" text;
+            cd2="two" text
+                cd3="three down" text;
+        ce="plain" text;
+    clAcross window x=0 y=0 width=400 height=300 down font:=normalFont
+        ca across
+            ca1="one" text;
+            ca2
+                ca3="three down" text;
+    clReqDown form:=clDown;
+    clReqAcross form:=clAcross;
+    clWant;
+    clWord;
+    climb code={
+        clName = argument.taG;
+        if clName == clWant;
+            clCur := argument;
+            clHops = 0;
+            print ~clWord taG$;
+            while clHops < 3;
+                clCur := *clCur.parenT;
+                clUp = *clCur.taG;
+                print $_clUp$;
+                clHops += 1;
+            print :;
+        if hasMemberS;
+            for grup in argument; members
+                climb(*grup);
+        };
+    clRun code={
+        clLaid := setFrame(argument);
+        climb(*clLaid);
+        };
+    ;
+clWord = "CL-0";  clWant = "cd3";  climb(clDown);
+clWord = "CL-1";  clWant = "cd3";  clRun(clReqDown);
+clWord = "CL-2";  clWant = "ca3";  clRun(clReqAcross);
+cerr "CLIMBT SENTINEL":;
+stop();
+
+climbT -- the parent chain after layout (SEQ 652, Tony's stroke 1 of the styles build, 2026-11-14).
+A field three levels down must climb to its own laid-out parents: text properties are inherited by that climb (drawText).
+Before the fix a field under a member of a field written down or across climbed to its old parent, then to fillDownAcross's
+scratch list newStuff, and never reached the top: the cause of the seal 451 issue (font not inherited three levels down).
+CL-0 is the control on the definition, never laid out. CL-1 a down parent, CL-2 an across parent.
+NOT FIXED, not pinned: a parent that repeats its members (down=3, down=*) still rebuilds them as shallow copies.
