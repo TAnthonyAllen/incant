@@ -5,20 +5,23 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**490, 2026-11-14, topic: documentation, SEQ 659 (assigned by Clod).** The forms Reference's shape is settled (Tony) and
-pinned: style is a group of its own, a group with no attributes prints nothing, columns are padded to a fixed width, and
-eight `reference` rows in pop.sh pin it (three H7 controls red on copies). Kant and shell only; no build.
-Seal 489 the same day: branch `f156-floor-style` bought and merged, the floor reads a field's own box properties only.
-**OPEN (Tony):** carried from 482, whether an indented `define` should work.
-**NEXT:** the show dispatch (its R1-R5 are in seal 488's commit message): show(form); File= in the insert; a probe for the
-one page form (recon, report first); the one page form; IBkant gap 2, gap 3. Then chapters 5, 6.
+**491, 2026-11-14, topic: documentation, SEQ 660 (assigned by Clod).** The show dispatch, stroke 1: `show(form)` is built
+(incant/utilities). It builds its own request; the PDF is the form's `path=`, else IncantForms/PDF/output.pdf; a form naming
+`look:=` is laid out under it. IBkant's listener lives in the IBkant file and calls show(IBkant); tester and the firing lines
+(Topics/forms) are respelled. Kant and shell only; no build.
+Seals 489-490 the same day: branch f156-floor-style merged; the Reference's shape settled and pinned.
+**OPEN (Clay or Tony):** show cannot include the styles file itself (an include inside an action is read after the action
+returns; Topics/documentation). Should `path` and `look`, now form attributes, join the Reference? Carried from 482: an
+indented `define`.
+**NEXT:** the show dispatch, stroke 2: File= in the typeset insert (R3, R4). Then the probe for the one page form (recon,
+report first), the one page form, IBkant gap 2, gap 3. Then chapters 5, 6.
 
-## The numbers (as run at seal 490, on trunk; the binary is seal 489's, built from the merge)
+## The numbers (as run at seal 491, on trunk; the binary is seal 489's, built from the merge)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3810 green (the eight reference rows joined at 490), FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 272 green (lookT LK-8 joined at 489); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 279 green (showT's six rows and ibkantT IB-7 joined at 491); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
@@ -37,13 +40,13 @@ Clod's fixit incantations waiting: 10 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 52 / 60 | this page. |
-| `Topics/forms` | 281 / 280, over by 1 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `docs/wakeup.md` | 55 / 60 | this page. |
+| `Topics/forms` | 278 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 125 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 103 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
-| `Topics/documentation` | 116 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
+| `Topics/documentation` | 118 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are
