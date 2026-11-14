@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-156 — OPEN, docketed 2026-11-14 (SEQ 654, Clay's dispatch; row only, do not remove now) — floorReadsStyle: the floor's own read of a held style's box properties is redundant after the merge
+
+**What:** (tok) since seal 485 setFrame merges every `style:=` into its field on the laid-out copy, so a field's fill, border, rounded, shadow and opacity are its own attributes by the time it is drawn. The floor still looks in the held style itself when the field has none of its own. On a laid-out form that second look can only find what the merge already gave, or nothing.
+**Where:** `GroupDraw.twk:287` and `:391` (`style = field["style"]`), and kant's `drawFill` in `incant/utilities` (`or argument["style"]; displayFill(argument);`).
+**Evidence:** measured 2026-11-14 on `incant/pop/lookT` and `styleMergeT`: a field holding a style that names no fill, with no fill of its own, prints `displayFill: REFUSING lkC -- its style names no fillColor component` on every draw. That line is the redundant read firing. Not measured: whether any fixture draws a hand-framed form (no setFrame, no mergeStyles) and relies on the floor for a style's box properties; roundedT, shadowT and opacityT call drawWalk and were not read for this.
+**Done when:** the floor reads box properties from the field only, `drawFill` drops its style arm, the REFUSING line above is gone from lookT and styleMergeT, and every formsPop row reads as banked (hand-framed fixtures calling mergeStyles first, as textT, styleScopeT and italicT do). Engine code: on a branch.
+**Owner:** Clod, when Tony rules it. **Size:** not measured.
+**Attempt log:** none.
+
 ### F-155 — OPEN, docketed 2026-11-14 (SEQ 652, Clay's dispatch; row only, no fix; Tony rules it later) — repeatedAttribute: a define keeps a repeated attribute and reads the first
 
 **What:** (kant) a field written with one attribute name twice in a define keeps both, and every read by name gets the first. `pPlain color:=red color:=green zork=1 zork=2;` prints both of each and a subscript reads red and 1. Nothing warns. The proposed cure is a warning by name on a repeated attribute in a define.

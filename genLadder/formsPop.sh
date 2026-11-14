@@ -782,7 +782,7 @@ _ofeq "styleMergeT SM-7 a second run prints and draws as the first" "$(awk '/^SM
 
 echo "-- placeholders and looks (lookT)."
 #  ⚑ lookT -- SEQ 652 R2, R3 (Tony, 2026-11-14), built SEQ 654: a placeholder resolves through the request's look, else defaultLook; one in no look
-#  is refused by name. H7: with the setLook call removed from setFrame no look is known, so LK-1 to LK-3 and LK-6 go red; LK-4 (ordinary names) stays green.
+#  is refused by name. H7: with the setLook call removed from setFrame no look is known, so LK-1 to LK-4 and LK-6 go red (LK-4 on lkB's font, inherited from the form's unresolved bodyFont; its fill and colour stay). LK-5 and LK-7 stay green.
 _lkF=$(ip lookT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_lkF" > "$T/lk.o" 2> "$T/lk.e"; _lkx=$?
 _lkb () { awk -v pg="$1" '/^LK PAGE/{b=$3; next} b==pg' "$T/lk.o"; }

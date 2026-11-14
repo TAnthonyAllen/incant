@@ -284,6 +284,9 @@
   ok    climbT CL-0 control, the definition: cd3 climbs cd2, cd, clDown = [cd3 cd2 cd clDown]
   ok    climbT CL-1 after layout under a down parent the climb is the same = [cd3 cd2 cd clDown]
   ok    climbT CL-2 after layout under an across parent: ca3 climbs ca2, ca, clAcross = [ca3 ca2 ca clAcross]
+  ok    climbT CL-3 UNDER A REPEAT, down=3: each of the three kids climbs crCell, crRep, clNum = [crKid crCell crRep clNum crKid crCell crRep clNum crKid crCell crRep clNum]
+  ok    climbT CL-4 under down="*": three rows fit, each leaf climbs crRow, crAll, clStar = [crLeaf crRow crAll clStar crLeaf crRow crAll clStar crLeaf crRow crAll clStar]
+  ok    climbT CL-5 each repeat owns its child: the kids' y are 0 100 200 (down=3) and the leaves' the same (down=*); the parent's style font and colour reach all three kids = [0 100 200 / 0 100 200 / 3]
 -- styles by merge at layout (styleMergeT).
   ok    styleMergeT exit / sentinel / nothing clipped = [0 1 0]
   ok    styleMergeT SM-1 a style gives its field font, color and align: smA = [Palatino 24 1 r239 g43 b45 top center]
@@ -293,5 +296,14 @@
   ok    styleMergeT SM-5 no name lands twice on the laid-out copy: smC holds one color and one font = [1 1]
   ok    styleMergeT SM-6 the form's definition and the style print the same after two runs as before (11 lines) = [63f501db1fc81ab636f2db856701d55d 11]
   ok    styleMergeT SM-7 a second run prints and draws as the first = [b75c11c15deb6a05457fbff7f6cbe02a]
+-- placeholders and looks (lookT).
+  ok    lookT exit / sentinel = [0 1]
+  ok    lookT LK-1 NO LOOK IN THE REQUEST, defaultLook: the page white, lkA in headingFont and textColor, lkC (through a style) in headingFont and accent = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r239 g43 b45]
+  ok    lookT LK-2 THE SAME FORM UNDER look:=lkNight: the page black, lkA Courier white, lkC Courier lightBlue = [r0 g0 b0 a255 / Courier New 24 1 r255 g255 b255 / Courier New 24 1 r206 g255 b255]
+  ok    lookT LK-3 a look that merges defaultLook and writes accent: only lkC's colour changes (green) = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r0 g158 b15]
+  ok    lookT LK-4 an ordinary name falls through under every look: lkB's fill:=wall and color:=blue, four pages = [fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / ]
+  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [8475aa535c2369034bdac74851f15e1a 7]
+  ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [5488e14b31cf1a757da705649cac2b2a 9]
+  ok    lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written = [1 1]
 
-FORMS POP FAILED -- 251 green, see above
+FORMS POP FAILED -- 262 green, see above

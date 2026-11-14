@@ -105,7 +105,6 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     Evidence files, IncantForms/WorkingOn/:
         formsTable      one row per attribute: moment, inherited, has action, depends on, status; the drop list at its foot
         formsRecon      Parts 1-2 what the old GUI did (file, method, line); Part 3 the forms notes as they stood at seal 442
-        (drawing retired 2026-11-12: its fields are defined at the top of this file)
         firstLightRead  reads firstLight back
     docs/           setFrameSpec.md, setFrameSecondRun.md, setFrameSecondRunDesign.md, setFrameRerunProposal.md, firstLightPdfRecon.md, m5Recon.md, percentRecon.md, bindingmethods.md
     Old GUI         Groups/GUI/ (tracked) and InProcess/Bot/ (not a repo; slightly newer). formsRecon Part 3, "Where the old GUI lives".
@@ -181,7 +180,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         10  Reference                one table: attribute, values, inherited or not, status         from WorkingOn/formsTable                not written
     RULED the same day (R2, R3): braces take a style name only, never bare attributes; a run naming a style that holds a box attribute warns by name (built with the styles stroke).
         Forms name no explicit colour or font: they name placeholders spelled by role (pageFill, headingFont, accent), never by appearance and never one of the 28 attribute names.
-    THE BUILD (Clay's dispatch, SEQ 652; one stroke a seal): 1 the climb, DONE (seal 484). 2 DONE (seal 485): setFrame's mergeStyles merges a deep copy of each style:= into its field on the copy; drawText's lookup is own, then enclosing (styleMergeT). 3 virtual placeholders, look:= in the request, one default look, a placeholder in no look refused by name. 4 a run's style in typeset, the look passed to a held form, the box-attribute warning. Probes: IncantForms/WorkingOn/styleProbes (numbers in SEQ 651's commit).
+    THE BUILD (Clay's dispatches, SEQ 652-654): 1 the climb, DONE (484). 2 styles by merge, DONE (485). 2b the climb under a repeat, DONE (486). 3 DONE (486): placeholders (pageFill headingFont bodyFont textColor accent) and defaultLook live in IncantForms/Controls/styles; a request's look:= is read first, then defaultLook; a placeholder in neither is refused by name (lookT). Controls/styles is NOT loaded for every form: a driver includes it, as it must to name any colour or font; a form naming no placeholder never asks for a look. 4 NEXT: a run's style in typeset, the look passed to a held form, the box-attribute warning. Probes: IncantForms/WorkingOn/styleProbes.
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
 *****************************************************************************/
@@ -316,6 +315,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    486  SEQ 653-654   stroke 2b: a repeating parent (down=3, down=*) adds deep copies to itself, so repeats climb right and each owns its children (climbT CL-3 to CL-5). Stroke 3: placeholders and looks (lookT LK-1 to LK-7). F-156 docketed. formsPop 262 green.
     485  SEQ 652   stroke 2: styles by merge at layout (mergeStyles in setFrame; own attributes win on either side; of two styles the earlier); drawText's lookup is own, then enclosing. styleMergeT SM-1 to SM-7. formsPop 251 green.
     484  SEQ 651-652   the tutorial outline (IBkant's Forms section) and this file's trim; four style and look probes; own attributes always win (ruled). Stroke 1: the climb after layout cured in fillDownAcross (climbT). F-155 docketed. formsPop 243 green.
     479  SEQ 644   SHUTDOWN. Seals 477 and 478 bought. Fixit codedFlagClears filed (Clod's, latent). The kitchen pass run.
