@@ -801,7 +801,7 @@ _ofeq "lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as
 echo "-- a run's style through the look; the look goes down to a held form; the box warning (runLookT)."
 #  ⚑ runLookT -- stroke 4 (SEQ 655): a run's style is its own deep copy with its placeholders resolved through the last layout's look; a form held
 #  in a field is laid out under its host's look; a run whose style holds a box attribute is warned by name. H7, one variable each: with resolveLook
-#  removed from typeset RL-1, RL-2 and RL-5 go red; with placeForm's look line removed RL-4's held form reads white under the night look.
+#  removed from typeset RL-1, RL-2, RL-5, RL-6 (the colour) and RL-7 go red; with placeForm's look line removed RL-4 and RL-5 go red (the held form stays white and red under the night look).
 _rlF=$(ip runLookT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rlF" > "$T/rl.o" 2> "$T/rl.e"; _rlx=$?
 _rlb () { awk -v pg="$1" '/^RL PAGE/{b=$3; next} b==pg' "$T/rl.o"; }

@@ -5,26 +5,26 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**486, 2026-11-14, topic: forms, SEQ 653-654 (assigned by Clod).** Two strokes of the styles build, all kant. 2b: a parent
-that repeats its members (down=3, down=*) adds deep copies to itself, so repeats climb right and each owns its children.
-3: placeholders and looks. A form names placeholders by role; setFrame resolves each through the request's look:=, else
-defaultLook (IncantForms/Controls/styles), else refuses by name. Seals 484-485 the same day: the tutorial outline, own
-attributes always win, the climb, styles by merge at layout. F-155 and F-156 docketed.
+**487, 2026-11-14, topic: forms, SEQ 655 (assigned by Clod).** Stroke 4, the last of the styles build, all kant: a run's
+style resolves its placeholders through the look; a form held in a field is laid out under its host's look; a run whose
+style holds a box attribute warns by name. A field written both down and across warns by name (F-157 docketed).
+Seals 484-486 the same day: the tutorial outline, own attributes always win, styles by merge at layout, placeholders and
+looks, the climb after layout. F-155, F-156 docketed.
 **OPEN (Tony), carried from 482:** whether an indented `define` should work; that is a checkSkip change.
-**NEXT:** stroke 4: a run's style in typeset, the look passed to a held form, the box-attribute warning. Then chapters 5, 6.
-Carried from 483, not begun: show(form), File= in the insert, the one page form, IBkant gap 2.
+**NEXT:** draft the tutorial chapters (Topics/forms, Tasks; 5 and 6 are unblocked). Carried from 483, not begun:
+show(form), File= in the insert, the one page form, IBkant gap 2.
 
-## The numbers (as run at seal 486; the binary is seal 482's, 2026-11-13 14:49; no source changed)
+## The numbers (as run at seal 487; the binary is seal 482's, 2026-11-13 14:49; no source changed)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3802 green, FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 262 green (484-486 added climbT, styleMergeT and lookT: 23 rows); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 271 green (484-487 added climbT, styleMergeT, lookT and runLookT: 32 rows); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 486 (no source changed); at 482: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 487 (no source changed); at 482: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -42,7 +42,7 @@ Clod's fixit incantations waiting: 10 (oldest: defineCapture, since 2026-10-02)
 | `Topics/forms` | 280 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 125 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/typesetting` | 101 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/typesetting` | 103 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 107 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |

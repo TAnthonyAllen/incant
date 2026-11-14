@@ -180,7 +180,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         10  Reference                one table: attribute, values, inherited or not, status         from WorkingOn/formsTable                not written
     RULED the same day (R2, R3): braces take a style name only, never bare attributes; a run naming a style that holds a box attribute warns by name (built with the styles stroke).
         Forms name no explicit colour or font: they name placeholders spelled by role (pageFill, headingFont, accent), never by appearance and never one of the 28 attribute names.
-    THE BUILD (Clay's dispatches, SEQ 652-654): 1 the climb, DONE (484). 2 styles by merge, DONE (485). 2b the climb under a repeat, DONE (486). 3 DONE (486): placeholders (pageFill headingFont bodyFont textColor accent) and defaultLook live in IncantForms/Controls/styles; a request's look:= is read first, then defaultLook; a placeholder in neither is refused by name (lookT). Controls/styles is NOT loaded for every form: a driver includes it, as it must to name any colour or font; a form naming no placeholder never asks for a look. 4 NEXT: a run's style in typeset, the look passed to a held form, the box-attribute warning. Probes: IncantForms/WorkingOn/styleProbes.
+    THE BUILD (Clay's dispatches, SEQ 652-654): 1 the climb, DONE (484). 2 styles by merge, DONE (485). 2b the climb under a repeat, DONE (486). 3 DONE (486): placeholders (pageFill headingFont bodyFont textColor accent) and defaultLook live in IncantForms/Controls/styles; a request's look:= is read first, then defaultLook; a placeholder in neither is refused by name (lookT). Controls/styles is NOT loaded for every form: a driver includes it, as it must to name any colour or font; a form naming no placeholder never asks for a look. 4 DONE (487): a run's style is its own copy resolved through the look; a held form is laid out under its host's look; a run's box attribute warns by name (runLookT). The look typeset reads is the last layout's (two shared fields): it belongs in the layout context when that is built. A field written both down and across warns by name until F-157. Probes: IncantForms/WorkingOn/styleProbes.
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
 *****************************************************************************/
@@ -297,7 +297,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 *****************************************************************************/
     One task a tutorial chapter (the list is under "The forms tutorial"): write the passage and the example form, and pin the example form's PDF in formsPop.
         T-1 A form is a field . T-2 Layout . T-3 Boxes . T-4 Text in a field . T-7 Typeset text . T-8 Forms inside forms      may be drafted now: they describe what works.
-        T-5 Styles . T-6 Look and feel      wait on Tony's ruling from the SEQ 651 probes.     T-9 Actions and clicks      waits on bubbling and a real click.
+        T-5 Styles . T-6 Look and feel      may be drafted now: the build is done (seals 484-487).     T-9 Actions and clicks      waits on bubbling and a real click.
         T-10 Reference      one table from WorkingOn/formsTable: attribute, values, inherited or not, status.
     Other candidates, kant and a form only: respell one form to today's spellings; a checker that lists a form's attributes nothing reads; rows for the image in a PDF.
 
@@ -315,6 +315,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    487  SEQ 655   stroke 4: runs' styles through the look, the look down to a held form, the box warning (runLookT RL-1 to RL-7); the both-directions warning and F-157 (climbT CL-6). The styles build is done. formsPop 271 green.
     486  SEQ 653-654   stroke 2b: a repeating parent (down=3, down=*) adds deep copies to itself, so repeats climb right and each owns its children (climbT CL-3 to CL-5). Stroke 3: placeholders and looks (lookT LK-1 to LK-7). F-156 docketed. formsPop 262 green.
     485  SEQ 652   stroke 2: styles by merge at layout (mergeStyles in setFrame; own attributes win on either side; of two styles the earlier); drawText's lookup is own, then enclosing. styleMergeT SM-1 to SM-7. formsPop 251 green.
     484  SEQ 651-652   the tutorial outline (IBkant's Forms section) and this file's trim; four style and look probes; own attributes always win (ruled). Stroke 1: the climb after layout cured in fillDownAcross (climbT). F-155 docketed. formsPop 243 green.
@@ -332,7 +333,6 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     470  SEQ 635   Tony's offline answers: fit and onClick stay parked on the list of 28 (a click fires the field's attribute actions; onClick is there for familiarity). fit in kant is Clod's to try if wanted (Topics/features 33). The span's space: Topics/typesetting, open question 4.
     456-467  folded (the trim, seal 477): Topics/drawing split out and setFrame's rerun, strokes 1-4 (456-460, 465); isHidden and noRoom (459); the drawing fields in FORMs and virtual (461-464); typesetting's first slice and its hold (466-467). Full text: each seal's commit message.
     449-455  the drawing seals (the floor census, rounded, shadow, opacity, italic): digested in Topics/drawing. Forms' own parts of them: simple respelled and its percent kept (451, 452); the mock-click goal G1 (452); inheritance as one rule (453); style:= the only spelling (454); italic=off interim, the rerun proposal (455).
-    443  SEQ 614   this file made; typesetting split out; the forms history files retired.
     441  SEQ 607-609   descriptions respelled and drawn: the search line moved, describe shown, displayImage (one argument, fit fill).
     440  SEQ 606   descriptions recon: the attribute map, images and the click in the old GUI, flex confirmed as also meaning across.
     439  SEQ 605   valign; firstLight's ok centred both ways.

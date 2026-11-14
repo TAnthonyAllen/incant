@@ -287,6 +287,7 @@
   ok    climbT CL-3 UNDER A REPEAT, down=3: each of the three kids climbs crCell, crRep, clNum = [crKid crCell crRep clNum crKid crCell crRep clNum crKid crCell crRep clNum]
   ok    climbT CL-4 under down="*": three rows fit, each leaf climbs crRow, crAll, clStar = [crLeaf crRow crAll clStar crLeaf crRow crAll clStar crLeaf crRow crAll clStar]
   ok    climbT CL-5 each repeat owns its child: the kids' y are 0 100 200 (down=3) and the leaves' the same (down=*); the parent's style font and colour reach all three kids = [0 100 200 / 0 100 200 / 3]
+  ok    climbT CL-6 a field written both down and across is warned by name, once (F-157); no other form here is warned = [1 1]
 -- styles by merge at layout (styleMergeT).
   ok    styleMergeT exit / sentinel / nothing clipped = [0 1 0]
   ok    styleMergeT SM-1 a style gives its field font, color and align: smA = [Palatino 24 1 r239 g43 b45 top center]
@@ -305,5 +306,14 @@
   ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [8475aa535c2369034bdac74851f15e1a 7]
   ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [5488e14b31cf1a757da705649cac2b2a 9]
   ok    lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written = [1 1]
+-- a run's style through the look; the look goes down to a held form; the box warning (runLookT).
+  ok    runLookT exit / sentinel = [0 1]
+  ok    runLookT RL-1 a run's style naming a placeholder (color:=accent), no look: the run's span holds defaultLook's red; the spans beside it hold none of their own = [plain field run red end field]
+  ok    runLookT RL-2 the same text under look:=rnNight: the run holds lightBlue; and with no look again, red = [plain field run lightBlue end field / plain field run red end field]
+  ok    runLookT RL-3 the style and the form print the same after seven layouts as before (3 lines) = [69355ea6f70e35e461cce3495837927a 3]
+  ok    runLookT RL-4 THE LOOK GOES DOWN: a form held in a field is white under no look and black under its host's look:=rnNight = [fill=white font=normalFont color=black / fill=black font=normalFont color=white]
+  ok    runLookT RL-5 the held form's run follows the host's look too: red, then lightBlue = [plain field run red end field / plain field run lightBlue end field]
+  ok    runLookT RL-6 THE BOX WARNING: a run whose style holds fill and rounded is warned once for each, by name, and still takes its colour = [1 1 2 / a field boxy red run field]
+  ok    runLookT RL-7 a run's style naming a placeholder no look holds is refused by name, by drawSpans, once = [1 1]
 
-FORMS POP FAILED -- 262 green, see above
+FORMS POP FAILED -- 271 green, see above
