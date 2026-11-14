@@ -279,5 +279,10 @@
   ok    noRoomT NP-1 a noRoom field is not drawn: where nOut (red) would be, (165,20), is the form's white; beside it nIn (25,20) is drawn red = [white red]
   ok    noRoomT NP-2 partly outside is drawn: nPart past nBox's edge (110,20) green; nC running off the foot (100,90) red = [green red]
   ok    noRoomT NP-3 a hidden field is not drawn and takes no room: (100,55) is nB's green, where the hidden nH would have left nRow's white or its own red = [green]
+-- the parent chain after layout (climbT).
+  ok    climbT exit / sentinel = [0 1]
+  ok    climbT CL-0 control, the definition: cd3 climbs cd2, cd, clDown = [cd3 cd2 cd clDown]
+  ok    climbT CL-1 after layout under a down parent the climb is the same = [cd3 cd2 cd clDown]
+  ok    climbT CL-2 after layout under an across parent: ca3 climbs ca2, ca, clAcross = [ca3 ca2 ca clAcross]
 
-FORMS POP FAILED -- 239 green, see above
+FORMS POP FAILED -- 243 green, see above

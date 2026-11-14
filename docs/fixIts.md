@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-155 — OPEN, docketed 2026-11-14 (SEQ 652, Clay's dispatch; row only, no fix; Tony rules it later) — repeatedAttribute: a define keeps a repeated attribute and reads the first
+
+**What:** (kant) a field written with one attribute name twice in a define keeps both, and every read by name gets the first. `pPlain color:=red color:=green zork=1 zork=2;` prints both of each and a subscript reads red and 1. Nothing warns. The proposed cure is a warning by name on a repeated attribute in a define.
+**Where:** the define's attribute add (aCTionDefinE, `ruleActions.rtn`); not read for this row. GroupItem's merge is not the cause: it skips a name already there (`GroupItem.twk` mergeAttributes).
+**Evidence:** measured 2026-11-14, `IncantForms/WorkingOn/styleProbes/p1b`: `pPlain color=red color=green zork=1 zork=2 fill=white fill=wall width=20 width=10;` and `subscript reads color #ef2b2d fill #ffffff zork 1 width 20`. Virtual and plain names behave the same. Templates rely on repeats (Topics/forms: `DowN=GaP ... DowN=StridE` keeps each value, drawFieldsT DF-5), so a warning must spare them or be ruled against them.
+**Done when:** Tony rules it; if a warning, a pop.sh row pins the warning by name and a second row pins that a drawing template's repeats do not warn (or do, as ruled), with an H7.
+**Owner:** Tony to rule; then Clod. **Size:** not measured.
+**Attempt log:** none.
+
 ### F-154 — OPEN, docketed 2026-11-13 (SEQ 650, Clay's dispatch; row only, no fix) — listenerNotItsArgument: a listener's action is not handed the listener as its `argument`
 
 **What:** `Commands.rtn:308` says a listener's method or action is "handed the listener". For an action that is not what the body sees: inside the listener's `code={ }`, `argument` is not the listener. A request that is also the listener (`ibReq path=... form:=IBkant listenTo:=ibPage code={ redrawForm(argument); }`) is refused by setFrame: "its request holds no form". So a request and its listener cannot be one field, and IBkant needs both `ibReq` and `ibHears`.

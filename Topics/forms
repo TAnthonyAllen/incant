@@ -181,7 +181,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         10  Reference                one table: attribute, values, inherited or not, status         from WorkingOn/formsTable                not written
     RULED the same day (R2, R3): braces take a style name only, never bare attributes; a run naming a style that holds a box attribute warns by name (built with the styles stroke).
         Forms name no explicit colour or font: they name placeholders spelled by role (pageFill, headingFont, accent), never by appearance and never one of the 28 attribute names.
-    NOT RULED (direction; the probes of SEQ 651 are in IncantForms/WorkingOn/styleProbes, their numbers in that seal's commit message): a style applied by merge, at layout, on setFrame's copy; a look carried in the request as look:=.
+    THE BUILD (Clay's dispatch, SEQ 652; one stroke a seal): 1 the climb, DONE (seal 484). 2 one pass in setFrame on the copy merges a deep copy of each style:=; drawText's lookup shrinks to own, then enclosing. 3 virtual placeholders, look:= in the request, one default look, a placeholder in no look refused by name. 4 a run's style in typeset, the look passed to a held form, the box-attribute warning. Probes: IncantForms/WorkingOn/styleProbes (numbers in SEQ 651's commit).
 /*****************************************************************************
     Plan -- the drawing steps (Tony, 2026-11-09; expected to evolve)
 *****************************************************************************/
@@ -238,7 +238,7 @@ Percent (2026-11-11, SEQ 622 R0)
     Percent stays: a setFrame rerun after a resize depends on it.
 Style (2026-11-03, 2026-11-09)
     Style attributes may go directly on fields. A field starts with a copy of its enclosing field's style; its attributes are processed left to right, each changing the style in effect; the change is scoped to the subtree.
-    By convention style:= comes first on the line. Attributes never change style implicitly.
+    RULED (Tony, 2026-11-14, SEQ 652 R1): a style is applied by style:= and merged at layout, on setFrame's copy. The field's own attributes always win, wherever style:= sits; of two styles the earlier wins. "style:= comes first" is retired. Merge in a define composes styles from styles and looks from looks only (R4); a merged style is a deep copy first (R5). Not built yet.
     Drawing happens after every attribute is processed. What is built is a lookup (own, style, enclosing) that gives the same answers wherever the convention holds.
     Style resolution is written in jittable kant; it resolves as a tree in a pre-pass and paints as a forward-only stream (incant/designDocs, DisplayDesignHTML / StreamModel / StyleResolution).
 Attributes
@@ -279,7 +279,7 @@ Form files (from docs/forms.md, retired into this file)
                Names in the list: x y width height across down overlay space fill border, the four side borders, strokeColor font color align valign italic rounded shadow opacity style text image fit onClick. An attribute not on the list behaves as before.
     seal 462:  -= subtracts on a valued field whatever attributes it holds (ruling 2; notifyT NT-3 green). The remove-attribute operator, minus then percent, is the opposite of +% (minusAttrT, minusAttrNewT; both grammars, top level and action body).
                JITTED WRITES FIRE ONCE PER WRITE (ruling 3, seal 463): a compiled store straight into a field calls jitNotifyRT at run time (notifyT NT-5: four writes, four fires, jitted and interpreted). A postfix x++; did nothing: CURED at seal 470 (Topics/kant).
-    seal 451:  drawText does not inherit font three levels down: in simple, one (under wrap, under third) drew Helvetica 12 where simple names font:=normalFont; a field one or two levels down inherits (probe, 2026-11-11). Not chased.
+    seal 451:  CURED (seal 484). Font was not inherited three levels down: fillDownAcross rebuilt a down or across field's members as shallow copies, so their children climbed to the old member and then to its scratch list. Now only a field that repeats its members (down=3, down=*) is rebuilt; under one of those the climb is still wrong. climbT CL-0 to CL-2.
     seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled." (The image in a PDF has its row since seal 474: descT DE-11.)
     seal 439:  "M8 (a value naming a registered field copies that field's text) was not met by these three names, and was not tested against a registry that holds a field called top or bottom."
     seal 438:  "incant/grammar (the old road, which action bodies and forms parse on) still reads `attributes? members?`, so both words are still taken there and still walk the attributes only."
@@ -317,6 +317,7 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    484  SEQ 651-652   the tutorial outline (IBkant's Forms section) and this file's trim; four style and look probes; own attributes always win (ruled). Stroke 1: the climb after layout cured in fillDownAcross (climbT). F-155 docketed. formsPop 243 green.
     479  SEQ 644   SHUTDOWN. Seals 477 and 478 bought. Fixit codedFlagClears filed (Clod's, latent). The kitchen pass run.
     481  SEQ 648   SHUTDOWN (documentation). Firing a form by hand is the only home for the firing lines; descriptions' lines added and its driver replaced by the pointer. NEXT: trim this file (5 over), then IBkant gap 2.
     480  SEQ 646-647   (documentation) fleet PDFs write IncantForms/PDF/test.pdf, output.pdf is Tony's; Firing a form by hand, above; IBkant gap 1 (Topics/documentation). formsPop 239 green.
@@ -335,6 +336,5 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
     441  SEQ 607-609   descriptions respelled and drawn: the search line moved, describe shown, displayImage (one argument, fit fill).
     440  SEQ 606   descriptions recon: the attribute map, images and the click in the old GUI, flex confirmed as also meaning across.
     439  SEQ 605   valign; firstLight's ok centred both ways.
-    437+ (opener amended, 2026-11-10)   the valign dispatch recorded after shutdown seal 437; it ran as SEQ 605 (seal 439).
     373-416  folded (the trim, seal 454): setFrame to utilities and the second-run design (373-375), fills (376-377), formsPop joins the seal (378-379), the draw walk, borders, the first PDF (389-394), the text floor and align (411-416). Full text: git show cf9522cb:docs/wakeup.md.
     Before the drawing steps (2026-11-03 to 11-07): the recon and table (A1, A3), firstLight on paper (A4), := in a define, the parse-label parent, colours and fonts (M5), the fill reader (M3). formsRecon Part 3 has each.

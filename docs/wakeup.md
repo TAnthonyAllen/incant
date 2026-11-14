@@ -5,25 +5,26 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**483, 2026-11-13, SHUTDOWN, topic: documentation, SEQ 650 (assigned by Clod).** No code changed. Tony's offline edits
-to IBkant's text and tester are committed; ibkantT IB-6 is re-pinned to the new passage lengths. Ruled (Topics/documentation):
-R1 a form is fired as show(form); R2 an IBkant text entry holds a value, or File= naming a plain text file that the insert
-loads; R3 a contents field lists the sections. Recon only: file text keeps its paragraphs; a passage too long is cut at
-its field's foot and warned by name; F-154 docketed (a listener's action does not get the listener as its argument).
+**484, 2026-11-14, topic: forms, SEQ 651-652 (assigned by Clod).** The forms tutorial is IBkant's Forms section: ten chapters,
+listed with their tasks in Topics/forms, which is trimmed to budget. Ruled (Tony): a style is applied by style:= and merged at
+layout on setFrame's copy, the field's own attributes always winning; placeholders by role, looks in the request (Topics/forms).
+Stroke 1 of four built, all kant: a field three levels down climbs to its own parents after layout (fillDownAcross; climbT;
+the seal 451 font issue). F-155 docketed (a define keeps a repeated attribute and reads the first).
 **OPEN (Tony), carried from 482:** whether an indented `define` should work; that is a checkSkip change.
-**NEXT (Tony):** the Topics/forms trim (5 over), then show, File= in the insert, the one page form, then IBkant gap 2.
+**NEXT:** stroke 2, the style merge pass in setFrame and drawText's shorter lookup; then 3 looks, 4 typeset and held forms.
+Carried from 483, not begun: show(form), File= in the insert, the one page form, IBkant gap 2.
 
-## The numbers (as run at seal 483; the binary is seal 482's, rebuilt 14:49 the same day)
+## The numbers (as run at seal 484; the binary is seal 482's, 2026-11-13 14:49; no source changed)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3802 green, FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 239 green; IB-6 re-pinned at 483; F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 243 green (climbT's four rows added at 484); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 483 (no source changed); at 482: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 484 (no source changed); at 482: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -38,7 +39,7 @@ Clod's fixit incantations waiting: 10 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 52 / 60 | this page. |
-| `Topics/forms` | 285 / 280, OVER by 5 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 280 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 125 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 101 / 120 | sub-topic of forms until forms step 7. |
