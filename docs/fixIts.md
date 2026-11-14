@@ -111,7 +111,7 @@ where it stands. Nothing else is backfilled.
 **Owner:** Clod, when Tony rules it. **Size:** small, by the single-direction fix; not measured.
 **Attempt log:** none.
 
-### F-156 — OPEN, docketed 2026-11-14 (SEQ 654, Clay's dispatch; row only, do not remove now) — floorReadsStyle: the floor's own read of a held style's box properties is redundant after the merge
+### F-156 — DONE 2026-11-14: branch f156-floor-style bought (Tony, via Clay) and merged at seal 489; docketed 2026-11-14 (SEQ 654, Clay's dispatch; row only, do not remove now) — floorReadsStyle: the floor's own read of a held style's box properties is redundant after the merge
 
 **What:** (tok) since seal 485 setFrame merges every `style:=` into its field on the laid-out copy, so a field's fill, border, rounded, shadow and opacity are its own attributes by the time it is drawn. The floor still looks in the held style itself when the field has none of its own. On a laid-out form that second look can only find what the merge already gave, or nothing.
 **Where:** `GroupDraw.twk:287` and `:391` (`style = field["style"]`), and kant's `drawFill` in `incant/utilities` (`or argument["style"]; displayFill(argument);`).
@@ -120,6 +120,7 @@ where it stands. Nothing else is backfilled.
 **Owner:** Clod, when Tony rules it. **Size:** not measured.
 **Attempt log:**
 - 2026-11-14 (SEQ 656) STOPPED BEFORE BUILDING, on the dispatch's own condition (a banked row would move). Read, not built, no branch made. Two things. (1) THE READ IS NOT REDUNDANT FOR A FILL: a style spells its fill `fillColor` and a field spells it `fill` (`GroupDraw.twk:422`, `comp = field["fill"]; if !comp comp = styleComponent(field,"fillColor")`), so the merge puts `fillColor` on the field and the floor's read of the held style is still what paints it. For strokeColor, rounded and opacity the names agree and the read is redundant on a laid-out form. (2) EIGHT FIXTURES take a style's box properties through the floor with no layout and no merge: fillReadT, fillHeldT, stylesT, fillCostT (pop.sh, 64 lines name them), dsFill, dsFillJ, opacityT, roundedT (formsPop). fillReadT pins the read by ruling (SEQ 549 R0, R1: own fill first, then the style's fillColor). To rule: does a style spell its fill `fill` (fillColor retired), or does the floor read the field's own `fillColor` after the merge; and are those fixtures respelled to merge first.
+- 2026-11-14 (SEQ 657) RULED (Tony): a style spells its fill `fill`; fillColor retires. BUILT, the engine half on branch `f156-floor-style`. Fixture half (trunk): ten fixtures respell and merge before drawing (the eight, styleScopeT, and drawWalkT, found by its row moving); dsFillJ's second fire rewrites the field's own fill. Engine half: `GroupDraw.twk` reads a field's own fill, strokeColor, rounded and opacity only; `drawFill` drops its style arm; the unheld-style refusal moved to mergeStyles. Re-pinned for wording: fillReadT's two no-fill rows and its miss-through-a-style row, formsPop's dsNoFill marker ("it names no fill"). Certified by lookT LK-8: lkC, a style with no fill, 0 refusals; lkBad 1.
 
 ### F-155 — OPEN, docketed 2026-11-14 (SEQ 652, Clay's dispatch; row only, no fix; Tony rules it later) — repeatedAttribute: a define keeps a repeated attribute and reads the first
 

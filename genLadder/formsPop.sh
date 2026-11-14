@@ -112,9 +112,10 @@ echo "-- SEAM 3 IS A NAMED-COMPONENT READ (SG). The H7 control."
 #  A style carrying strokeColor and NO fillColor. If seam 3 read the style's own
 #  text -- the degenerate slot this replaced -- or took whatever component it
 #  found, this would fill anyway and the conversion would be asserted by nothing.
-pixel   "no fillColor -> nothing drawn" "$T/f.o" 1 dsNoFill "r0 g0 b0 a0"
-hasmark "no fillColor -> REFUSES BY NAME" "$T/f.e" \
-        "displayFill: REFUSING dsNoFill -- its style names no fillColor component"
+pixel   "no fill -> nothing drawn" "$T/f.o" 1 dsNoFill "r0 g0 b0 a0"
+#  RE-PINNED 2026-11-14 (SEQ 657, F-156): the wording, with the floor's style read gone
+hasmark "no fill -> REFUSES BY NAME" "$T/f.e" \
+        "displayFill: REFUSING dsNoFill -- it names no fill"
 
 echo "-- displayFill, JITTED (dsFillJ). Compiled once, fired twice."
 run2 dsFillJ "$T/j.o" "$T/j.e"
@@ -797,6 +798,7 @@ _ofeq "lookT LK-4 an ordinary name falls through under every look: lkB's fill:=w
 _ofeq "lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines)" "$(_lkb after | md5 -q) $(_lkb after | grep -c .)" "$(_lkb before | md5 -q) 7"
 _ofeq "lookT LK-6 with no look again the page reads as LK-1 (9 lines each)" "$(_lkb none2 | md5 -q) $(_lkb none2 | grep -c .)" "$(_lkb none | md5 -q) 9"
 _ofeq "lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written" "$(grep -c '^setFrame: REFUSING lkBad -- its fill names the placeholder orphan and no look holds it' "$T/lk.e") $(_lkb bad | grep -c 'fill=orphan')" "1 1"
+_ofeq "lookT LK-8 A STYLE WITH NO FILL DRAWS WITH NO REFUSAL (F-156): lkC, whose style holds font and colour only, 0 displayFill refusals on four pages; the one refusal in the run is lkBad's unresolved fill" "$(grep -c '^displayFill: REFUSING lkC ' "$T/lk.e") $(grep -c '^displayFill: REFUSING lkBad ' "$T/lk.e") $(grep -c '^displayFill: REFUSING' "$T/lk.e")" "0 1 1"
 
 echo "-- a run's style through the look; the look goes down to a held form; the box warning (runLookT)."
 #  ⚑ runLookT -- stroke 4 (SEQ 655): a run's style is its own deep copy with its placeholders resolved through the last layout's look; a form held

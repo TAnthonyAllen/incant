@@ -67,8 +67,6 @@ char 		*value = 0;
 		return 0;
 	// ownThenStyle the field's own strokeColor first, then its style's; none at all is black (forms step 3 R1)
 	comp = field->get("strokeColor");
-	if ( !comp )
-		comp = ::styleComponent(field,"strokeColor");
 	if ( comp )
 		{
 		value = comp->getText();
@@ -169,10 +167,8 @@ char 		*value = 0;
 	// ownFill the field's own fill first, never a parent's: fill is not inherited (SEQ 549 R0, R1)
 	comp = field->get("fill");
 	if ( !comp )
-		comp = ::styleComponent(field,"fillColor");
-	if ( !comp )
 		{
-		::fprintf(stderr,"displayFill: REFUSING %s -- its style names no fillColor component\n",field->groupBody->tag);
+		::fprintf(stderr,"displayFill: REFUSING %s -- it names no fill\n",field->groupBody->tag);
 		return 0;
 		}
 	// heldNotName := draws the field it holds; a # value is parsed where it sits; any other value is a name, looked up at draw (Tony, SEQ 535 R1, SEQ 549 R0)
@@ -776,12 +772,6 @@ double 		alpha = 1.0;
 		return 1.0;
 	comp = field->get("opacity");
 	if ( !comp )
-		{
-		node = ::styleOf(field);
-		if ( node )
-			comp = node->get("opacity");
-		}
-	if ( !comp )
 		return 1.0;
 	
 	unsigned int d = comp->groupBody->flags.data;
@@ -931,12 +921,6 @@ double 		radius = 0.0;
 		return 0.0;
 	comp = field->get("rounded");
 	if ( !comp )
-		{
-		node = ::styleOf(field);
-		if ( node )
-			comp = node->get("rounded");
-		}
-	if ( !comp )
 		return 0.0;
 	if ( !comp->groupBody->flags.data )
 		{
@@ -964,19 +948,12 @@ double 		radius = 0.0;
 
 int shadowPart(GroupItem *field)
 {
-GroupItem 	*style = 0;
 	if ( !field )
 		return 0;
 	if ( !field->get("shadow") )
 		return 0;
 	if ( field->get("fill") )
 		return 1;
-	style = field->get("style");
-	if ( style )
-		{
-		if ( ::styleComponent(field,"fillColor") )
-			return 1;
-		}
 	if ( field->get("border") )
 		return 2;
 	if ( field->get("topBorder") )
@@ -1010,7 +987,10 @@ GroupItem 	*node = ::styleOf(field);
     the alias table the moment both were live in one pass, mis-generating into
     an Apple selector with no diagnostic until the C++ compile.
 *****************************************************************************/
-/*  styleOf the style a field holds. style:= is the only spelling (Tony, 2026-11-11, SEQ 624 R0): a style written
+/*  NOT CALLED since F-156 (2026-11-14): a style is merged into its field at layout (setFrame's mergeStyles), so the floor reads
+    a field's own attributes only. styleOf and styleComponent stay defined because styleComponent is an extern mirrored in
+    groups.ext, which a branch does not change; docs/cleanupList.md has them.
+    styleOf the style a field holds. style:= is the only spelling (Tony, 2026-11-11, SEQ 624 R0): a style written
     as a quoted name, or as any value that is not a held field, is refused by name and the field has no style.  */
 GroupItem *styleOf(GroupItem *field)
 {
@@ -1045,3 +1025,4 @@ char 	*text = 0;
 /*	Warning: the following methods were referenced but not declared
 	getColor(char*)
 */
+// Ignoring declaration of unused variable style in method: shadowPart(GroupItem*)
