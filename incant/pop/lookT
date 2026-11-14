@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(LookT);
+search LookT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    orphan virtual;
+    lkNight pageFill:=black headingFont:=courierFont bodyFont:=normalFont textColor:=white accent:=lightBlue;
+    lkGreen merge accent:=green defaultLook;
+    lkHead font:=headingFont color:=accent;
+    lkForm window x=0 y=0 width=400 height=300 down fill:=pageFill font:=bodyFont color:=textColor
+        lkA="alpha" text font:=headingFont;
+        lkB="beta" text fill:=wall color:=blue;
+        lkC="gamma" text style:=lkHead;
+    lkBad window x=0 y=0 width=400 height=100 down fill:=orphan
+        lkBadText="orphan" text;
+    rqNone path="IncantForms/PDF/test.pdf" form:=lkForm;
+    rqNight path="IncantForms/PDF/test.pdf" form:=lkForm look:=lkNight;
+    rqGreen path="IncantForms/PDF/test.pdf" form:=lkForm look:=lkGreen;
+    rqBad path="IncantForms/PDF/test.pdf" form:=lkBad;
+    pdfRead path="IncantForms/PDF/test.pdf";
+    lkRun code={
+        lkLaid := redrawForm(argument);
+        printDefinition(*lkLaid);
+        readPDF(pdfRead);
+        px = 10;
+        py = 10;
+        pdfRead :% copyOf(px);
+        pdfRead :% copyOf(py);
+        pixelAt(pdfRead);
+        };
+    ;
+cout "LK PAGE before":;   printDefinition(lkForm); printDefinition(lkHead); printDefinition(defaultLook); printDefinition(lkNight);
+cout "LK PAGE none":;     lkRun(rqNone);
+cout "LK PAGE night":;    lkRun(rqNight);
+cout "LK PAGE green":;    lkRun(rqGreen);
+cout "LK PAGE none2":;    lkRun(rqNone);
+cout "LK PAGE bad":;      lkRun(rqBad);
+cout "LK PAGE after":;    printDefinition(lkForm); printDefinition(lkHead); printDefinition(defaultLook); printDefinition(lkNight);
+cout "LK PAGE end":;
+cerr "LOOKT SENTINEL":;
+stop();
+
+lookT -- placeholders and looks (Tony, 2026-11-14, SEQ 652 R2, R3; stroke 3, SEQ 654). A form names placeholders by role
+(fill:=pageFill, font:=headingFont); setFrame re-points each one, on the laid-out copy, at what the request's look holds, else at
+what defaultLook (IncantForms/Controls/styles) holds. lkForm is drawn with no look, under lkNight, under lkGreen (a look that
+merges defaultLook and changes accent), and with no look again. lkB names an ordinary colour and is the control: it reads the same
+on every page. lkC takes its placeholders through a style. lkBad names orphan, a placeholder no look holds: refused by name.
+The pixel read is (10,10), inside lkA, which has no fill of its own: the page fill.

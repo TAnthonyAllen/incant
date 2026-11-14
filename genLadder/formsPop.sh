@@ -780,6 +780,23 @@ _ofeq "styleMergeT SM-5 no name lands twice on the laid-out copy: smC holds one 
 _ofeq "styleMergeT SM-6 the form's definition and the style print the same after two runs as before (11 lines)" "$(_smb after | md5 -q) $(_smb after | grep -c .)" "$(_smb before | md5 -q) 11"
 _ofeq "styleMergeT SM-7 a second run prints and draws as the first" "$(awk '/^SM PAGE/{b=$3; next} b=="run2"' "$T/sm.o" | md5 -q)" "$(awk '/^SM PAGE/{b=$3; next} b=="run1"' "$T/sm.o" | md5 -q)"
 
+echo "-- placeholders and looks (lookT)."
+#  ⚑ lookT -- SEQ 652 R2, R3 (Tony, 2026-11-14), built SEQ 654: a placeholder resolves through the request's look, else defaultLook; one in no look
+#  is refused by name. H7: with the setLook call removed from setFrame no look is known, so LK-1 to LK-3 and LK-6 go red; LK-4 (ordinary names) stays green.
+_lkF=$(ip lookT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_lkF" > "$T/lk.o" 2> "$T/lk.e"; _lkx=$?
+_lkb () { awk -v pg="$1" '/^LK PAGE/{b=$3; next} b==pg' "$T/lk.o"; }
+_lkt () { _lkb "$1" | awk -v f="$2" '$1=="===" && $2=="drawSpans" && $3==f' | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1 \2/'; }
+_lkp () { _lkb "$1" | grep 'pixelAt pdfRead' | sed 's/.*= //; s/ ===.*//'; }
+_ofeq "lookT exit / sentinel" "$_lkx $(grep -c '^LOOKT SENTINEL' "$T/lk.e")" "0 1"
+_ofeq "lookT LK-1 NO LOOK IN THE REQUEST, defaultLook: the page white, lkA in headingFont and textColor, lkC (through a style) in headingFont and accent" "$(_lkp none) / $(_lkt none lkA) / $(_lkt none lkC)" "r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r239 g43 b45"
+_ofeq "lookT LK-2 THE SAME FORM UNDER look:=lkNight: the page black, lkA Courier white, lkC Courier lightBlue" "$(_lkp night) / $(_lkt night lkA) / $(_lkt night lkC)" "r0 g0 b0 a255 / Courier New 24 1 r255 g255 b255 / Courier New 24 1 r206 g255 b255"
+_ofeq "lookT LK-3 a look that merges defaultLook and writes accent: only lkC's colour changes (green)" "$(_lkp green) / $(_lkt green lkA) / $(_lkt green lkC)" "r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r0 g158 b15"
+_ofeq "lookT LK-4 an ordinary name falls through under every look: lkB's fill:=wall and color:=blue, four pages" "$(for _p in none night green none2; do printf '%s %s / ' "$(_lkb $_p | grep 'lkB=' | grep -o 'fill=[a-zA-Z]*')" "$(_lkt $_p lkB)"; done)" "fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / "
+_ofeq "lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines)" "$(_lkb after | md5 -q) $(_lkb after | grep -c .)" "$(_lkb before | md5 -q) 7"
+_ofeq "lookT LK-6 with no look again the page reads as LK-1 (9 lines each)" "$(_lkb none2 | md5 -q) $(_lkb none2 | grep -c .)" "$(_lkb none | md5 -q) 9"
+_ofeq "lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written" "$(grep -c '^setFrame: REFUSING lkBad -- its fill names the placeholder orphan and no look holds it' "$T/lk.e") $(_lkb bad | grep -c 'fill=orphan')" "1 1"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

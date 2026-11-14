@@ -900,6 +900,28 @@ define
         definition and the style are never written. A style:= inside a style
         is not followed: styles are composed from styles by merge in a define.
     ***************************************************************************/
+    lkLook;
+    lkHas = 0;
+    lkBase;
+    lkBaseHas = 0;
+    /***************************************************************************
+        setLook -- which looks a layout resolves placeholders through (SEQ 654).
+        argument is setFrame's request. Its look:= is the first place looked;
+        defaultLook (IncantForms/Controls/styles) is the second, when the styles
+        file is loaded. mergeStyles reads the four fields this writes.
+    ***************************************************************************/
+    setLook code={
+        slReq := argument;
+        lkHas = 0;
+        if *slReq["look"];      lkHas = 1;
+        if lkHas == 1;
+            slLook := *slReq["look"];
+            lkLook := **slLook;
+        lkBaseHas = 0;
+        slBase := sTYLEs["defaultLook"];
+        if *slBase.listLengtH;  lkBaseHas = 1;
+        if lkBaseHas == 1;      lkBase := *slBase;
+        };
     mergeStyles code={
         for grup in argument; attributes
             msTag = *grup.taG;
@@ -912,6 +934,36 @@ define
                 *msOwn :. mergeON;
                 argument :. mergeON;
                 argument +% *msOwn;
+        // placeholders an attribute that holds a placeholder (fill:=pageFill) is re-pointed, on the copy, at what the request's look holds under that name, else at what defaultLook holds; found in neither, it is refused by name and left as written (SEQ 652 R2, R3)
+        for grup in argument; attributes
+            msHolds = *grup.isGrouP;
+            // emptyHeldField kant cannot read the virtual flag, so a placeholder is known by what it is: a held field with no value, no list and nothing held. A colour has a value, a font and an action have a list, a holder holds
+            msPh = 0;
+            if msHolds == 1;
+                msPh = 1;
+                msData = **grup.datA;
+                msList = **grup.listLengtH;
+                msVia = **grup.isGrouP;
+                if msData != 0;     msPh = 0;
+                if msList != 0;     msPh = 0;
+                if msVia != 0;      msPh = 0;
+            if msPh == 1;
+                msName := **grup.taG;
+                msDone = 0;
+                if lkHas == 1;
+                    if *lkLook[*msName];
+                        msTo := *lkLook[*msName];
+                        *grup := **msTo;
+                        msDone = 1;
+                if msDone == 0;
+                    if lkBaseHas == 1;
+                        if *lkBase[*msName];
+                            msTo := *lkBase[*msName];
+                            *grup := **msTo;
+                            msDone = 1;
+                if msDone == 0;
+                    msAttr = *grup.taG;
+                    cerr "setFrame: REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
         if hasMemberS;
             for grup in argument; members
                 mergeStyles(*grup);
@@ -946,6 +998,7 @@ define
             *sfLaid :% copyOf(**sfFrame["y"]);
             *sfLaid :% copyOf(**sfFrame["width"]);
             *sfLaid :% copyOf(**sfFrame["height"]);
+        setLook(argument);
         mergeStyles(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;

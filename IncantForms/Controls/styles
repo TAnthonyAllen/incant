@@ -35,6 +35,20 @@ define
     or a font by name (color:=red; Tony, 2026-11-12). It stays on the reader's list afterwards.  */
 search cOLOr fONTs;
 registry(sTYLEs);
+/*  Placeholders and the default look (Tony, 2026-11-14, SEQ 652 R2, R3; built SEQ 654). A form names no explicit colour
+    or font: it names a placeholder, spelled by role (fill:=pageFill, font:=headingFont). A placeholder is a virtual
+    field, so each look that writes one holds its own. A look is a field holding placeholders; it travels in a form's
+    request as look:=, and setFrame resolves every placeholder on the laid-out copy through it. defaultLook is the one
+    look used when a request carries none, and the one place it is named. A look of your own that changes one
+    placeholder merges this one: myLook merge accent:=green defaultLook;  */
+define
+    pageFill virtual;
+    headingFont virtual;
+    bodyFont virtual;
+    textColor virtual;
+    accent virtual;
+    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red;
+    ;
 define
     defaultStyle rounded=5;
     emphasis color:=red italic;
