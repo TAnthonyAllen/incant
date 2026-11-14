@@ -5,18 +5,18 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**489, 2026-11-14, topic: forms, SEQ 658 (assigned by Clod).** Branch `f156-floor-style` bought (Tony, via Clay) and merged
-to trunk: the floor reads a field's own box properties only, never a held style (F-156 done; lookT LK-8). Rebuilt from the
-merge; every instrument as banked but formsPop, 271 -> 272 green (LK-8).
-Seal 488 the same day: fillColor retired, the forms Reference generated (Topics/documentation).
+**490, 2026-11-14, topic: documentation, SEQ 659 (assigned by Clod).** The forms Reference's shape is settled (Tony) and
+pinned: style is a group of its own, a group with no attributes prints nothing, columns are padded to a fixed width, and
+eight `reference` rows in pop.sh pin it (three H7 controls red on copies). Kant and shell only; no build.
+Seal 489 the same day: branch `f156-floor-style` bought and merged, the floor reads a field's own box properties only.
 **OPEN (Tony):** carried from 482, whether an indented `define` should work.
-**NEXT:** the Reference stroke (style its own group, empty groups silent, fixed column widths, a fleet row); then the show
-dispatch (its R1-R5 are in seal 488's commit message).
+**NEXT:** the show dispatch (its R1-R5 are in seal 488's commit message): show(form); File= in the insert; a probe for the
+one page form (recon, report first); the one page form; IBkant gap 2, gap 3. Then chapters 5, 6.
 
-## The numbers (as run at seal 489, on trunk, binary built from the merge)
+## The numbers (as run at seal 490, on trunk; the binary is seal 489's, built from the merge)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3802 green, FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3810 green (the eight reference rows joined at 490), FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 272 green (lookT LK-8 joined at 489); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
@@ -43,7 +43,7 @@ Clod's fixit incantations waiting: 10 (oldest: defineCapture, since 2026-10-02)
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 103 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
-| `Topics/documentation` | 115 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
+| `Topics/documentation` | 116 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are

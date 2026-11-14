@@ -1,5 +1,5 @@
 /*  formFacts -- the facts the forms Reference is generated from (Tony, 2026-11-14, SEQ 656 R1, SEQ 657 R2). Definitions only.
-    One entry a form attribute, under the attribute's own name: group (layout, box, text, typeset or action), values,
+    One entry a form attribute, under the attribute's own name: group (layout, box, text, style, typeset or action), values,
     inherits, status, does. The table is never typed: IncantForms/WorkingOn/reference walks this registry and prints it,
     and names every attribute with no entry here and every entry with no attribute. Add an attribute to FORMs
     (Topics/forms, above its bail) and that walk names it until its facts are written here.
@@ -29,7 +29,7 @@ define
     rounded group="box" values="bare, or a radius in points" inherits="no" status="built" does="rounds the corners of the fill and of a plain border";
     shadow group="box" values="bare" inherits="no" status="built" does="shadows the fill, else the border, else the text";
     opacity group="box" values="0 to 1" inherits="no" status="built" does="how opaque the field's fill, border and text are drawn";
-    style group="text" values="a held style (style:=name)" inherits="no" status="built" does="merges the style's attributes into the field at layout; the field's own always win";
+    style group="style" values="a held style (style:=name)" inherits="no" status="built" does="merges the style's attributes into the field at layout; the field's own always win";
     text group="text" values="bare" inherits="no" status="built" does="draws the field's own string in its frame";
     image group="box" values="a file path" inherits="no" status="built" does="draws the image in the frame, under the border";
     fit group="box" values="none ruled" inherits="no" status="parked" does="how an image or text is fitted to the frame";

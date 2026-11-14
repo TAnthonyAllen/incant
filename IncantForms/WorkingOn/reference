@@ -19,7 +19,7 @@ define
 register(ReferencE);
 search ReferencE fORMfACTs FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    refGroups layout box text typeset action;
+    refGroups layout box text style typeset action;
     refWant;
     refRows = 0;
     refInGroup = 0;
@@ -51,8 +51,8 @@ define
                 if refInGroup == 0;
                     print :;
                     print refWant:;
-                    print "name | values | inherited | status | what it does":;
-                print rgName "|" rgVt "|" rgIt "|" rgSt "|" rgDt:;
+                    print "name" #-13s "values" #-39s "inherited" #-10s "status" #-16s "what it does":;
+                print rgName #-13s rgVt #-39s rgIt #-10s rgSt #-16s rgDt:;
                 refInGroup = refInGroup + 1;
                 refRows = refRows + 1;
         };
@@ -100,9 +100,16 @@ stop();
 reference -- the forms Reference, generated and never typed (Tony, 2026-11-14, SEQ 656 R1; SEQ 657 stroke B). Terminal only;
 it becomes a form after show(form) lands. Run:  incant IncantForms/WorkingOn/reference
 The facts are IncantForms/Controls/formFacts, one entry a form attribute. refTable prints them group by group (layout, box,
-text, typeset, action), by name inside a group, with a heading for each group that has a row. refCheck names a fact whose
+text, style, typeset, action), by name inside a group. A group with no attributes prints nothing, its heading included (Tony,
+2026-11-14, SEQ 659): typeset is silent today.
+COLUMNS are padded to a fixed width, so the rows line up (Tony, SEQ 659): name 13, values 39, inherited 10, status 16, each
+followed by print's one space; what it does is last and not padded. The widths are typed in the two print lines of refGroup
+(heading and row) and must be widened there, both lines, when a longer name or value arrives. The spelling is the old
+grammar's, a format AFTER its expression (name #-13s); a format before the expression does not parse in an action body. refCheck names a fact whose
 attribute is not in FORMs, and a form attribute in FORMs with no fact; a drawing field (a capital first) is skipped and counted.
-A fact is printed only when its attribute exists and its group is one of the five, so "rows N of M facts" shows any left out.
+A fact is printed only when its attribute exists and its group is one of the six, so "rows N of M facts" shows any left out.
 TWO CONTROLS, defined here and not in formFacts: ghost is a fact with no attribute, and lonely is a bare lowercase definition in
 FORMs with no fact. The check names both, so a clean check is not an empty one. ghost is not printed: 28 rows of 29 facts.
-No group holds a typeset attribute yet: none of the 28 belongs to typeset alone. style is filed under text for now (Tony to say).
+No group holds a typeset attribute yet: none of the 28 belongs to typeset alone. style is a group of its own (Tony, SEQ 659).
+PINNED by pop.sh's "reference" rows (SEQ 659): the group order, the heading line, one row byte for byte, every row's columns
+starting where the heading's do, the row count and the two controls.
