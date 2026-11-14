@@ -763,6 +763,7 @@ _clp () { awk -v pg="$1" '/^CL PAGE/{b=$3; next} b==pg' "$T/cl.o"; }
 _ofeq "climbT CL-3 UNDER A REPEAT, down=3: each of the three kids climbs crCell, crRep, clNum" "$(_clp num | sed -n 's/^CL-3 *//p' | xargs)" "crKid crCell crRep clNum crKid crCell crRep clNum crKid crCell crRep clNum"
 _ofeq "climbT CL-4 under down=\"*\": three rows fit, each leaf climbs crRow, crAll, clStar" "$(_clp star | sed -n 's/^CL-4 *//p' | xargs)" "crLeaf crRow crAll clStar crLeaf crRow crAll clStar crLeaf crRow crAll clStar"
 _ofeq "climbT CL-5 each repeat owns its child: the kids' y are 0 100 200 (down=3) and the leaves' the same (down=*); the parent's style font and colour reach all three kids" "$(_clp num | grep 'crKid=' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs) / $(_clp star | grep 'crLeaf=' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs) / $(_clp num | grep -c '^=== drawSpans crKid font Palatino 24 1 color r239 g43 b45 ')" "0 100 200 / 0 100 200 / 3"
+_ofeq "climbT CL-6 a field written both down and across is warned by name, once (F-157); no other form here is warned" "$(grep -c '^setFrame: WARNING clBoth -- it is written both down and across' "$T/cl.e") $(grep -c '^setFrame: WARNING' "$T/cl.e")" "1 1"
 
 echo "-- styles by merge at layout (styleMergeT)."
 #  ⚑ styleMergeT -- SEQ 652 R1 (Tony, 2026-11-14): setFrame's mergeStyles merges a deep copy of every style:= into its field on the copy; own
@@ -796,6 +797,23 @@ _ofeq "lookT LK-4 an ordinary name falls through under every look: lkB's fill:=w
 _ofeq "lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines)" "$(_lkb after | md5 -q) $(_lkb after | grep -c .)" "$(_lkb before | md5 -q) 7"
 _ofeq "lookT LK-6 with no look again the page reads as LK-1 (9 lines each)" "$(_lkb none2 | md5 -q) $(_lkb none2 | grep -c .)" "$(_lkb none | md5 -q) 9"
 _ofeq "lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written" "$(grep -c '^setFrame: REFUSING lkBad -- its fill names the placeholder orphan and no look holds it' "$T/lk.e") $(_lkb bad | grep -c 'fill=orphan')" "1 1"
+
+echo "-- a run's style through the look; the look goes down to a held form; the box warning (runLookT)."
+#  ⚑ runLookT -- stroke 4 (SEQ 655): a run's style is its own deep copy with its placeholders resolved through the last layout's look; a form held
+#  in a field is laid out under its host's look; a run whose style holds a box attribute is warned by name. H7, one variable each: with resolveLook
+#  removed from typeset RL-1, RL-2 and RL-5 go red; with placeForm's look line removed RL-4's held form reads white under the night look.
+_rlF=$(ip runLookT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_rlF" > "$T/rl.o" 2> "$T/rl.e"; _rlx=$?
+_rlb () { awk -v pg="$1" '/^RL PAGE/{b=$3; next} b==pg' "$T/rl.o"; }
+_rls () { _rlb "$1" | sed -n 's/^SPAN //p' | xargs; }
+_ofeq "runLookT exit / sentinel" "$_rlx $(grep -c '^RUNLOOKT SENTINEL' "$T/rl.e")" "0 1"
+_ofeq "runLookT RL-1 a run's style naming a placeholder (color:=accent), no look: the run's span holds defaultLook's red; the spans beside it hold none of their own" "$(_rls plain)" "plain field run red end field"
+_ofeq "runLookT RL-2 the same text under look:=rnNight: the run holds lightBlue; and with no look again, red" "$(_rls night) / $(_rls plain2)" "plain field run lightBlue end field / plain field run red end field"
+_ofeq "runLookT RL-3 the style and the form print the same after seven layouts as before (3 lines)" "$(_rlb after | md5 -q) $(_rlb after | grep -c .)" "$(_rlb before | md5 -q) 3"
+_ofeq "runLookT RL-4 THE LOOK GOES DOWN: a form held in a field is white under no look and black under its host's look:=rnNight" "$(_rlb host | grep 'rnForm down' | grep -o 'fill=[a-zA-Z]* font=[a-zA-Z]* color=[a-zA-Z]*') / $(_rlb hostnight | grep 'rnForm down' | grep -o 'fill=[a-zA-Z]* font=[a-zA-Z]* color=[a-zA-Z]*')" "fill=white font=normalFont color=black / fill=black font=normalFont color=white"
+_ofeq "runLookT RL-5 the held form's run follows the host's look too: red, then lightBlue" "$(_rls host) / $(_rls hostnight)" "plain field run red end field / plain field run lightBlue end field"
+_ofeq "runLookT RL-6 THE BOX WARNING: a run whose style holds fill and rounded is warned once for each, by name, and still takes its colour" "$(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute fill ' "$T/rl.e") $(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute rounded ' "$T/rl.e") $(grep -c 'holds the box attribute' "$T/rl.e") / $(_rls box)" "1 1 2 / a field boxy red run field"
+_ofeq "runLookT RL-7 a run's style naming a placeholder no look holds is refused by name, by drawSpans, once" "$(grep -c '^drawSpans: REFUSING rnLost -- its color names the placeholder rnOrphan and no look holds it' "$T/rl.e") $(grep -c 'REFUSING' "$T/rl.e")" "1 1"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do

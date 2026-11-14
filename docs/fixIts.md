@@ -92,6 +92,16 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-157 — OPEN, docketed 2026-11-14 (SEQ 655, Clay's rider; row and a warning, no fix) — bothDirectionsShallow: a field written both down and across still rebuilds its members as shallow copies
+
+**What:** (kant) `bothDirections` in `incant/utilities` builds a cell, fills it in the scratch field `bothStuff` from the field's members (`bothStuff +/ ...`), then `clear(argument); argument = bothStuff;`. That is the shape `fillDownAcross` had until seals 484 and 486: members rebuilt through a scratch field, so a field under one of them climbs to the scratch field and not to its parent, and copies made from them may share one set of children.
+**Where:** `incant/utilities`, `bothDirections` (the `bothStuff isList;` block above `frameMembers`); called from `frameMembers` when a field holds both `across` and `down` values.
+**Evidence:** read, not measured: no fixture has a field three levels down under a both-directions parent. The single-direction case was measured (climbT CL-1 to CL-5, with their H7s) and cured by adding deep copies to the field itself.
+**Until fixed:** setFrame warns by name when it meets one: `setFrame: WARNING <field> -- it is written both down and across; ...` (climbT CL-6).
+**Done when:** bothDirections builds its cell in the field itself from deep copies; a climbT row shows a field three levels down under a both-directions parent climbing to its own parents and laid out once per copy, with an H7; the warning and CL-6 retire by mapping to that row.
+**Owner:** Clod, when Tony rules it. **Size:** small, by the single-direction fix; not measured.
+**Attempt log:** none.
+
 ### F-156 — OPEN, docketed 2026-11-14 (SEQ 654, Clay's dispatch; row only, do not remove now) — floorReadsStyle: the floor's own read of a held style's box properties is redundant after the merge
 
 **What:** (tok) since seal 485 setFrame merges every `style:=` into its field on the laid-out copy, so a field's fill, border, rounded, shadow and opacity are its own attributes by the time it is drawn. The floor still looks in the held style itself when the field has none of its own. On a laid-out form that second look can only find what the merge already gave, or nothing.

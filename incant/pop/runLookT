@@ -1,0 +1,71 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+search cOLOr fONTs sTYLEs;
+registry(sTYLEs);
+define
+    rnOrphan virtual;
+    rnAccent color:=accent;
+    rnBoxy color:=accent fill:=wall rounded=3;
+    rnLost color:=rnOrphan;
+    ;
+register(RunLookT);
+search RunLookT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    rnNight pageFill:=black headingFont:=courierFont bodyFont:=normalFont textColor:=white accent:=lightBlue;
+    rnForm window x=0 y=0 width=300 height=100 down fill:=pageFill font:=bodyFont color:=textColor
+        rnText="plain {rnAccent: run} end" text;
+    rnBoxForm window x=0 y=0 width=300 height=100 down fill:=pageFill font:=bodyFont color:=textColor
+        rnBoxText="a {rnBoxy: boxy} run" text;
+    rnLostForm window x=0 y=0 width=300 height=100 down fill:=pageFill font:=bodyFont color:=textColor
+        rnLostText="a {rnLost: lost} run" text;
+    rnHost window x=0 y=0 width=300 height=200 down fill:=pageFill font:=bodyFont color:=textColor
+        rnHead="host" text height=100;
+        rnInside form:=rnForm;
+    rqPlain path="IncantForms/PDF/test.pdf" form:=rnForm;
+    rqNight path="IncantForms/PDF/test.pdf" form:=rnForm look:=rnNight;
+    rqBox path="IncantForms/PDF/test.pdf" form:=rnBoxForm;
+    rqLost path="IncantForms/PDF/test.pdf" form:=rnLostForm;
+    rqHost path="IncantForms/PDF/test.pdf" form:=rnHost;
+    rqHostNight path="IncantForms/PDF/test.pdf" form:=rnHost look:=rnNight;
+    rnPara code={
+        for grup in argument;
+            rpWord = *grup;
+            rpInk = "field";
+            rpAt := *grup["color"];
+            rpHeld = *rpAt.isGrouP;
+            if rpHeld == 1;     rpInk = ***rpAt.taG;
+            print "SPAN" rpWord rpInk:;
+        };
+    rnSpans code={
+        for grup in tsOut;
+            rnPara(*grup);
+        };
+    rnRun code={
+        rnLaid := redrawForm(argument);
+        rnSpans();
+        printDefinition(*rnLaid);
+        };
+    ;
+cout "RL PAGE before":;     printDefinition(rnAccent); printDefinition(rnForm);
+cout "RL PAGE plain":;      rnRun(rqPlain);
+cout "RL PAGE night":;      rnRun(rqNight);
+cout "RL PAGE plain2":;     rnRun(rqPlain);
+cout "RL PAGE box":;        rnRun(rqBox);
+cout "RL PAGE lost":;       rnRun(rqLost);
+cout "RL PAGE host":;       rnRun(rqHost);
+cout "RL PAGE hostnight":;  rnRun(rqHostNight);
+cout "RL PAGE after":;      printDefinition(rnAccent); printDefinition(rnForm);
+cout "RL PAGE end":;
+cerr "RUNLOOKT SENTINEL":;
+stop();
+
+runLookT -- stroke 4 of the styles build (SEQ 655; Clay's dispatch, Tony 2026-11-14). Three things.
+A RUN'S STYLE THROUGH THE LOOK: a run {rnAccent: text} takes its own deep copy of the style, and a placeholder in it (color:=accent)
+is resolved through the look of the last layout. SPAN lines print each span of the last text field drawn and the colour it holds
+(field means none of its own). The style's definition is never written.
+THE LOOK GOES DOWN: rnHost holds rnForm in a field. Under look:=rnNight the held form is laid out under rnNight too.
+THE BOX WARNING: rnBoxy holds fill and rounded; a run naming it is warned once for each, and still takes its colour.
+rnLost names a placeholder no look holds: refused by name, by drawSpans, and the run prints in the field's colour.

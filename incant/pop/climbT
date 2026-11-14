@@ -33,6 +33,9 @@ define
         climb(*clDrawn);
         printDefinition(*clDrawn);
         };
+    clBoth window x=0 y=0 width=250 height=200 down="*" across=2
+        clCross height=50;
+    clReqBoth form:=clBoth;
     clReqDown form:=clDown;
     clReqAcross form:=clAcross;
     clWant;
@@ -65,6 +68,8 @@ cout "CL PAGE num":;
 clWord = "CL-3";  clWant = "crKid";  clDraw(clReqNum);
 cout "CL PAGE star":;
 clWord = "CL-4";  clWant = "crLeaf";  clDraw(clReqStar);
+cout "CL PAGE both":;
+clWord = "CL-6";  clWant = "none";  clRun(clReqBoth);
 cout "CL PAGE end":;
 cerr "CLIMBT SENTINEL":;
 stop();
@@ -77,4 +82,5 @@ CL-0 is the control on the definition, never laid out. CL-1 a down parent, CL-2 
 CL-3 to CL-5 (SEQ 653, stroke 2b): a parent that repeats its members, down=3 (clNum) and down="*" (clStar). The repeats are deep
 copies added to the field itself: each climbs to the field and the top, each owns its child (the three kids are laid out at y 0, 100
 and 200, where the old shallow copies shared one kid, laid out three times at 200), and the parent's style reaches every kid's text.
-NOT FIXED, not pinned: a field written both down and across (bothDirections) still rebuilds its list in a scratch field.
+CL-6 (SEQ 655): a field written both down and across (clBoth) still rebuilds its list in a scratch field (F-157). Until that is
+fixed setFrame warns by name when it meets one; a field written one direction (every other form here) is not warned.

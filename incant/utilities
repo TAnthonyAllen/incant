@@ -193,6 +193,18 @@ define
                 if *grup.hasMemberS;    tsFind(*grup);
         };
     tsRun style depth;
+    tsBoxNames fill border topBorder bottomBorder leftBorder rightBorder strokeColor rounded shadow opacity;
+    tsRunName;
+    // boxWarn its own action because a for loop walks an argument's attributes and not a starred holder's (measured, SEQ 655)
+    tsBoxWarn code={
+        for grup in argument; attributes
+            bwTag := *grup.taG;
+            bwHit = 0;
+            if tsBoxNames[*bwTag];      bwHit = 1;
+            if bwHit == 1;
+                bwField := *tsWho.taG;
+                cerr "drawSpans: WARNING" bwField "-- its text names the style" tsRunName "which holds the box attribute" bwTag "-- a run takes font, color, italic and space only":;
+        };
     tsRuns;
     tsSpan space font color italic;
     tsOut;
@@ -302,10 +314,20 @@ define
                 tsRunCount = tsRunCount + 1;
                 tsRun.depth = tyOpen;
                 tsRun.style = 0;
-                if sTYLEs[*tyNm];   tsRun.style := sTYLEs[*tyNm];
-                else
+                tyIsStyle = 0;
+                if sTYLEs[*tyNm];   tyIsStyle = 1;
+                if tyIsStyle == 0;
                     tyFt := *tsWho.taG;
                     cerr "drawSpans: WARNING" tyFt "-- its text names the style" tyNm "-- not a style; that run is printed plain":;
+                // runsOwnStyle the run holds its own deep copy of the style, with its placeholders resolved through the look of the last layout (SEQ 655, stroke 4); a box attribute in it is warned by name and does nothing in a run
+                if tyIsStyle == 1;
+                    tyOwn := copyDeep(sTYLEs[*tyNm]);
+                    rlSays = "drawSpans:";
+                    resolveLook(*tyOwn);
+                    rlSays = "setFrame:";
+                    tsRun.style := *tyOwn;
+                    tsRunName = *tyNm;
+                    tsBoxWarn(*tyOwn);
                 // ownEntry copyDeep, never copyOf: copyOf shares the depth attribute, and every entry then reads the last depth written
                 tyE := copyDeep(tsRun);
                 tsRuns +% *tyE;
@@ -709,6 +731,8 @@ define
         =:argument across down overlay width height x y;
         if across.datA != 0;
             if down.datA != 0;
+                // warnsBoth until F-157 is fixed: the cell bothDirections builds holds shallow copies in a scratch field
+                cerr "setFrame: WARNING" argument.taG "-- it is written both down and across; its members are rebuilt as shallow copies, so a field under one of them may be laid out and inherit wrongly (F-157)":;
                 bothDirections(argument);
                 =:argument across down;
         sideRoom    = width;
@@ -865,7 +889,7 @@ define
         that field tells its listeners, so a listener that calls redrawForm
         swaps the form shown in the field (G2 stroke 2).
     ***************************************************************************/
-    placeReq form frame;
+    placeReq form frame look;
     sfChain;
     placeForm code={
         pfHost := argument;
@@ -876,6 +900,9 @@ define
         if pfVia == 1;      pfTarget := **pfTarget;
         placeReq.form := *pfTarget;
         placeReq.frame := argument;
+        // lookGoesDown the held form is laid out under its host's look (SEQ 655, stroke 4)
+        placeReq.look = 0;
+        if lkHas == 1;      placeReq.look := *lkLook;
         pfLaid := setFrame(placeReq);
         pfGot = 0;
         if *pfLaid.listLengtH;      pfGot = 1;
@@ -922,18 +949,14 @@ define
         if *slBase.listLengtH;  lkBaseHas = 1;
         if lkBaseHas == 1;      lkBase := *slBase;
         };
-    mergeStyles code={
-        for grup in argument; attributes
-            msTag = *grup.taG;
-            msIs = 0;
-            if msTag == "style";    msIs = 1;
-            msHeld = *grup.isGrouP;
-            if msHeld == 0;         msIs = 0;
-            if msIs == 1;
-                msOwn := copyDeep(**grup);
-                *msOwn :. mergeON;
-                argument :. mergeON;
-                argument +% *msOwn;
+    rlSays = "setFrame:";
+    /***************************************************************************
+        resolveLook -- placeholders through the look (SEQ 652 R2, R3). argument
+        is a field on a laid-out copy, or a run's own copy of its style (typeset).
+        Its attributes are re-pointed; nothing under it is walked. rlSays is the
+        word the refusal opens with: setFrame's, or drawSpans' for a run.
+    ***************************************************************************/
+    resolveLook code={
         // placeholders an attribute that holds a placeholder (fill:=pageFill) is re-pointed, on the copy, at what the request's look holds under that name, else at what defaultLook holds; found in neither, it is refused by name and left as written (SEQ 652 R2, R3)
         for grup in argument; attributes
             msHolds = *grup.isGrouP;
@@ -963,7 +986,21 @@ define
                             msDone = 1;
                 if msDone == 0;
                     msAttr = *grup.taG;
-                    cerr "setFrame: REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
+                    cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
+        };
+    mergeStyles code={
+        for grup in argument; attributes
+            msTag = *grup.taG;
+            msIs = 0;
+            if msTag == "style";    msIs = 1;
+            msHeld = *grup.isGrouP;
+            if msHeld == 0;         msIs = 0;
+            if msIs == 1;
+                msOwn := copyDeep(**grup);
+                *msOwn :. mergeON;
+                argument :. mergeON;
+                argument +% *msOwn;
+        resolveLook(argument);
         if hasMemberS;
             for grup in argument; members
                 mergeStyles(*grup);
