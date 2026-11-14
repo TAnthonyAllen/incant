@@ -11,8 +11,10 @@ style holds a box attribute warns by name. A field written both down and across 
 Seals 484-486 the same day: the tutorial outline, own attributes always win, styles by merge at layout, placeholders and
 looks, the climb after layout. F-155, F-156 docketed.
 **OPEN (Tony), carried from 482:** whether an indented `define` should work; that is a checkSkip change.
-**NEXT:** draft the tutorial chapters (Topics/forms, Tasks; 5 and 6 are unblocked). Carried from 483, not begun:
-show(form), File= in the insert, the one page form, IBkant gap 2.
+**After 487, no seal (SEQ 656):** generate, don't type ruled and its specimen made (Topics/documentation); F-156 STOPPED,
+not built: a style's fill is spelled fillColor, so the floor's read is not redundant, and eight fixtures rely on it
+(docs/fixIts.md, F-156 attempt log); F-158 docketed. **NEXT:** Tony's word on the Reference table's shape and on F-156;
+show(form), then chapters 5 and 6; File= in the insert, the one page form, IBkant gap 2.
 
 ## The numbers (as run at seal 487; the binary is seal 482's, 2026-11-13 14:49; no source changed)
 | instrument | reads |
@@ -44,7 +46,7 @@ Clod's fixit incantations waiting: 10 (oldest: defineCapture, since 2026-10-02)
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 103 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
-| `Topics/documentation` | 107 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
+| `Topics/documentation` | 114 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 56 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are

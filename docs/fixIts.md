@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-158 — OPEN, docketed 2026-11-14 (SEQ 656, Clay's dispatch; row only) — lookInSharedFields: typeset reads the look of the last layout from shared fields; its home is the layout context
+
+**What:** (kant) setLook writes the look a layout resolves through into four shared fields in `incant/utilities` (`lkLook`, `lkHas`, `lkBase`, `lkBaseHas`). mergeStyles reads them during that layout, and typeset reads them later, at draw, when a run opens. So a run is resolved through whichever form was laid out last. That is right while a form is laid out and drawn straight away (redrawForm), and wrong if two laid-out copies under different looks are ever drawn after both are laid out.
+**Where:** `incant/utilities`: setLook, resolveLook, and typeset's `runsOwnStyle` block.
+**Evidence:** read; the failing order (lay out A, lay out B, draw A) is not built anywhere today and was not run.
+**Done when:** the look rides in the layout context (Topics/typesetting, RULED 2026-11-12: typeset's state moves into its own layout context), handed to typeset with the text; a row lays out two copies under two looks, draws the first after the second is laid out, and reads the first's look in its run; H7.
+**Owner:** Clod, with the layout context stroke. **Size:** not measured.
+**Attempt log:** none.
+
 ### F-157 — OPEN, docketed 2026-11-14 (SEQ 655, Clay's rider; row and a warning, no fix) — bothDirectionsShallow: a field written both down and across still rebuilds its members as shallow copies
 
 **What:** (kant) `bothDirections` in `incant/utilities` builds a cell, fills it in the scratch field `bothStuff` from the field's members (`bothStuff +/ ...`), then `clear(argument); argument = bothStuff;`. That is the shape `fillDownAcross` had until seals 484 and 486: members rebuilt through a scratch field, so a field under one of them climbs to the scratch field and not to its parent, and copies made from them may share one set of children.
@@ -109,7 +118,8 @@ where it stands. Nothing else is backfilled.
 **Evidence:** measured 2026-11-14 on `incant/pop/lookT` and `styleMergeT`: a field holding a style that names no fill, with no fill of its own, prints `displayFill: REFUSING lkC -- its style names no fillColor component` on every draw. That line is the redundant read firing. Not measured: whether any fixture draws a hand-framed form (no setFrame, no mergeStyles) and relies on the floor for a style's box properties; roundedT, shadowT and opacityT call drawWalk and were not read for this.
 **Done when:** the floor reads box properties from the field only, `drawFill` drops its style arm, the REFUSING line above is gone from lookT and styleMergeT, and every formsPop row reads as banked (hand-framed fixtures calling mergeStyles first, as textT, styleScopeT and italicT do). Engine code: on a branch.
 **Owner:** Clod, when Tony rules it. **Size:** not measured.
-**Attempt log:** none.
+**Attempt log:**
+- 2026-11-14 (SEQ 656) STOPPED BEFORE BUILDING, on the dispatch's own condition (a banked row would move). Read, not built, no branch made. Two things. (1) THE READ IS NOT REDUNDANT FOR A FILL: a style spells its fill `fillColor` and a field spells it `fill` (`GroupDraw.twk:422`, `comp = field["fill"]; if !comp comp = styleComponent(field,"fillColor")`), so the merge puts `fillColor` on the field and the floor's read of the held style is still what paints it. For strokeColor, rounded and opacity the names agree and the read is redundant on a laid-out form. (2) EIGHT FIXTURES take a style's box properties through the floor with no layout and no merge: fillReadT, fillHeldT, stylesT, fillCostT (pop.sh, 64 lines name them), dsFill, dsFillJ, opacityT, roundedT (formsPop). fillReadT pins the read by ruling (SEQ 549 R0, R1: own fill first, then the style's fillColor). To rule: does a style spell its fill `fill` (fillColor retired), or does the floor read the field's own `fillColor` after the merge; and are those fixtures respelled to merge first.
 
 ### F-155 — OPEN, docketed 2026-11-14 (SEQ 652, Clay's dispatch; row only, no fix; Tony rules it later) — repeatedAttribute: a define keeps a repeated attribute and reads the first
 

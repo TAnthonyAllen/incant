@@ -23,6 +23,43 @@ click(ibClickFields);
 print "SENTINEL tester driver end":;
 stop();
 
+REFERENCE SPECIMEN (Clod, 2026-11-14, SEQ 656; generate, don't type). Three attributes given their facts in a registry of their own,
+fORMfACTs, and the smallest walk that prints them as a table. To run it, put these lines in a file of their own, or in place of the
+driver above. All 28 attributes, with the check in both directions: incant IncantForms/WorkingOn/referenceSpecimen
+    Start();
+    include(unitTests);
+    include(utilities);
+    include(styles);
+    search reset stack Grokking;
+    registry(fORMfACTs);
+    define
+        fill values="a held colour (fill:=wall), or #rrggbb" inherits="no" status="built" does="paints the field's box";
+        font values="a held font (font:=titleFont)" inherits="yes" status="built" does="the font the field's text is set in";
+        rounded values="bare, or a radius in points" inherits="no" status="built" does="rounds the corners of the fill and of a plain border";
+        ;
+    register(RefThree);
+    search RefThree fORMfACTs FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+    define
+        refTable code={
+            print "name | values | inherited | status | what it does":;
+            for grup in argument;
+                rtName = *grup.taG;
+                rtSelf := *grup;
+                rtV := *rtSelf["values"];
+                rtI := *rtSelf["inherits"];
+                rtS := *rtSelf["status"];
+                rtD := *rtSelf["does"];
+                rtVt = *rtV;
+                rtIt = *rtI;
+                rtSt = *rtS;
+                rtDt = *rtD;
+                print rtName "|" rtVt "|" rtIt "|" rtSt "|" rtDt:;
+            };
+        ;
+    refTable(fORMfACTs);
+    print "SENTINEL reference specimen end":;
+    stop();
+
 STYLE AND LOOK PROBES (Clod, 2026-11-14, SEQ 651): each is its own file, run from Groups as  incant IncantForms/WorkingOn/styleProbes/p1
     p1 p1b      merge order in a define: left of the style, right of it, two styles, a style naming a style; which duplicate a subscript reads
     p2          the merge at layout on setFrame's copy: definition and style print the same after; run 2 reads as run 1

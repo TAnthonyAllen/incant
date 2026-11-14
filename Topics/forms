@@ -297,8 +297,8 @@ LOOKS RIGHT (Tony, 2026-11-08). One line per item: what Tony sees, what he expec
 *****************************************************************************/
     One task a tutorial chapter (the list is under "The forms tutorial"): write the passage and the example form, and pin the example form's PDF in formsPop.
         T-1 A form is a field . T-2 Layout . T-3 Boxes . T-4 Text in a field . T-7 Typeset text . T-8 Forms inside forms      may be drafted now: they describe what works.
-        T-5 Styles . T-6 Look and feel      may be drafted now: the build is done (seals 484-487).     T-9 Actions and clicks      waits on bubbling and a real click.
-        T-10 Reference      one table from WorkingOn/formsTable: attribute, values, inherited or not, status.
+        T-5 Styles . T-6 Look and feel      HELD until show(form) lands, so their examples are fired by show (Clay, 2026-11-14).     T-9 Actions and clicks      waits on bubbling and a real click.
+        T-10 Reference      FIRST (SEQ 656 R2): generated, not typed (Topics/documentation, GENERATE; specimen IncantForms/WorkingOn/referenceSpecimen); it waits on Tony's word on the table's shape.
     Other candidates, kant and a form only: respell one form to today's spellings; a checker that lists a form's attributes nothing reads; rows for the image in a PDF.
 
 /*****************************************************************************
