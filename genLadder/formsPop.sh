@@ -759,6 +759,22 @@ _ofeq "climbT CL-0 control, the definition: cd3 climbs cd2, cd, clDown" "$(_clr 
 _ofeq "climbT CL-1 after layout under a down parent the climb is the same" "$(_clr CL-1)" "cd3 cd2 cd clDown"
 _ofeq "climbT CL-2 after layout under an across parent: ca3 climbs ca2, ca, clAcross" "$(_clr CL-2)" "ca3 ca2 ca clAcross"
 
+echo "-- styles by merge at layout (styleMergeT)."
+#  ⚑ styleMergeT -- SEQ 652 R1 (Tony, 2026-11-14): setFrame's mergeStyles merges a deep copy of every style:= into its field on the copy; own
+#  attributes win on either side of style:=, of two styles the earlier wins. H7: with the mergeStyles call removed from setFrame, SM-1 to SM-5 go red.
+_smF=$(ip styleMergeT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_smF" > "$T/sm.o" 2> "$T/sm.e"; _smx=$?
+_smt () { awk -v pg="$1" -v f="$2" '/^SM PAGE/{b=$3} b==pg && $1=="===" && $2=="drawSpans" && $3==f' "$T/sm.o" | sed 's/.*font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*valign \([a-z]*\) align \([a-z]*\) ===/\1 \2 \3 \4/'; }
+_smb () { awk -v pg="$1" '/^SM PAGE/{b=$3; next} b==pg && !/^=== /' "$T/sm.o"; }
+_ofeq "styleMergeT exit / sentinel / nothing clipped" "$_smx $(grep -c '^STYLEMERGE SENTINEL' "$T/sm.e") $(grep -c 'does not fit' "$T/sm.e")" "0 1 0"
+_ofeq "styleMergeT SM-1 a style gives its field font, color and align: smA" "$(_smt run1 smA)" "Palatino 24 1 r239 g43 b45 top center"
+_ofeq "styleMergeT SM-2 OWN WINS ON EITHER SIDE: color:=green left of style:= (smB) and right of it (smC) both draw green in the style's font" "$(_smt run1 smB) / $(_smt run1 smC)" "Palatino 24 1 r0 g158 b15 top center / Palatino 24 1 r0 g158 b15 top center"
+_ofeq "styleMergeT SM-3 of two styles the earlier wins: smT is the first's red and the second's bottom" "$(_smt run1 smT)" "Palatino 24 1 r239 g43 b45 bottom center"
+_ofeq "styleMergeT SM-4 a style's text properties reach three levels down, and a nearer own colour wins: smD1, smD3 (black from smD2); smE has no style" "$(_smt run1 smD1) / $(_smt run1 smD3) / $(_smt run1 smE)" "Palatino 24 1 r239 g43 b45 top center / Palatino 24 1 r0 g0 b0 top center / Palatino 14 0 r0 g81 b186 top left"
+_ofeq "styleMergeT SM-5 no name lands twice on the laid-out copy: smC holds one color and one font" "$(_smb run1 | grep 'smC=' | grep -o 'color=' | wc -l | tr -d ' ') $(_smb run1 | grep 'smC=' | grep -o 'font=' | wc -l | tr -d ' ')" "1 1"
+_ofeq "styleMergeT SM-6 the form's definition and the style print the same after two runs as before (11 lines)" "$(_smb after | md5 -q) $(_smb after | grep -c .)" "$(_smb before | md5 -q) 11"
+_ofeq "styleMergeT SM-7 a second run prints and draws as the first" "$(awk '/^SM PAGE/{b=$3; next} b=="run2"' "$T/sm.o" | md5 -q)" "$(awk '/^SM PAGE/{b=$3; next} b=="run1"' "$T/sm.o" | md5 -q)"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

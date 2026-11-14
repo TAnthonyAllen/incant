@@ -92,6 +92,7 @@ txX0 = 0; txY0 = 80; txY1 = 91; txBand(*laid);
 cerr "VA-1 ok's frame inside its border: y 167..197, x 342..397 (step 5b)":;
 txX0 = 342; txX1 = 398; txY0 = 167; txY1 = 198; txBand(*laid);
 cerr "TX tForm, the bitmap":;
+mergeStyles(tForm);
 makeDisplay(tForm);
 drawWalk(tForm);
 cerr "TX-7 tOver line 2 ink: y=37, x 14..125":;
@@ -109,6 +110,7 @@ txX0 = 140; txX1 = 190; txY0 = 64; txY1 = 86; txBand(tForm);
 cerr "AL-5 tOver's first line, left end: y 15..28, x 10..40":;
 txX0 = 10; txX1 = 41; txY0 = 15; txY1 = 29; txBand(tForm);
 cerr "AL tCenterTop, the bitmap: tKid inherits center, tKidL's style says left, tBad's align=leftl is refused":;
+mergeStyles(tCenterTop);
 makeDisplay(tCenterTop);
 drawWalk(tCenterTop);
 cerr "AL-6 tKid, tKidL, tBad lines: y 5..26, 35..56, 65..86, x 0..119":;
@@ -116,11 +118,13 @@ txX0 = 0; txX1 = 120; txY0 = 5; txY1 = 27; txBand(tCenterTop);
 txY0 = 35; txY1 = 57; txBand(tCenterTop);
 txY0 = 65; txY1 = 87; txBand(tCenterTop);
 cerr "VA tVTop, the bitmap: tVKid inherits center, tVBot bottom, tVSty's style says top, tVBad's valign=middle is refused, tVTwo two lines at the bottom, tVOwn its own center":;
+mergeStyles(tVTop);
 makeDisplay(tVTop);
 drawWalk(tVTop);
 cerr "VA every pixel of tVTop: x 0..299, y 0..119":;
 txX0 = 0; txX1 = 300; txY0 = 0; txY1 = 120; txBand(tVTop);
 cerr "TX tPlainTop, the bitmap: tPlain names no color and no font, nor does its top":;
+mergeStyles(tPlainTop);
 makeDisplay(tPlainTop);
 drawWalk(tPlainTop);
 cerr "TEXTT SENTINEL":;
@@ -155,3 +159,5 @@ reads tForm's white).
 
 The scans are read by coordinate in formsPop (the first read of each point), so their order does not matter there.
 TX-5, the orientation row, reads TX-4's first band: the T of This, top rows y 49..51 against bottom rows y 55..57, x 3..12.
+
+MERGE BY HAND (SEQ 652, stroke 2): a style is merged into its field by setFrame, at layout. This fixture frames its forms by hand and never calls setFrame, so it calls mergeStyles on each form itself before drawing it: tCenterTop, tForm, tPlainTop, tVTop.

@@ -447,9 +447,10 @@ define
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
         font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands drawSpans one request, textReq,
         written afresh on every call. Each of font and color comes from the
-        field's own attribute, else its style's (style:= names the style field),
-        else the enclosing field's, walking up to the top (the field holding the
-        display). Nothing found leaves the slot at 0: drawSpans then draws
+        field's own attribute, else the enclosing field's, walking up to the top
+        (the field holding the display). A style is not looked up here: setFrame's
+        mergeStyles has already merged every style:= into its field on the copy
+        (SEQ 652 R1), so a form drawn without setFrame gets no style's text properties. Nothing found leaves the slot at 0: drawSpans then draws
         Helvetica 12 in black, left-aligned. The text is the field's own string, or, when the
         field holds a group, that group's (*argument, one level). A field with
         no text costs a call and draws nothing (drawSpans skips it).
@@ -498,33 +499,11 @@ define
                 if *dtCur["valign"];
                     textReq.valign := *dtCur["valign"];
                     dtValign = 1;
-            // italicInherits a text property (SEQ 624): the nearest field naming italic decides, its own attribute before its style's
+            // italicInherits a text property (SEQ 624): the nearest field naming italic decides
             if dtItalic == 0;
                 if *dtCur["italic"];
                     textReq.italic := *dtCur["italic"];
                     dtItalic = 1;
-            if *dtCur["style"];
-                dtStyle := *dtCur["style"];
-                if dtItalic == 0;
-                    if **dtStyle["italic"];
-                        textReq.italic := **dtStyle["italic"];
-                        dtItalic = 1;
-                if dtFont == 0;
-                    if **dtStyle["font"];
-                        textReq.font := **dtStyle["font"];
-                        dtFont = 1;
-                if dtColor == 0;
-                    if **dtStyle["color"];
-                        textReq.color := **dtStyle["color"];
-                        dtColor = 1;
-                if dtAlign == 0;
-                    if **dtStyle["align"];
-                        textReq.align := **dtStyle["align"];
-                        dtAlign = 1;
-                if dtValign == 0;
-                    if **dtStyle["valign"];
-                        textReq.valign := **dtStyle["valign"];
-                        dtValign = 1;
             dtTop = *dtCur.isPointeR;
             if dtTop == 1;      dtHops = 32;
             if dtFont == 1;
@@ -919,6 +898,32 @@ define
         if width.datA == 0;     fwOk = 0;
         if height.datA == 0;    fwOk = 0;
         };
+    /***************************************************************************
+        mergeStyles -- styles by merge at layout (Tony, 2026-11-14, SEQ 652 R1).
+        Run by setFrame on the copy, before frameMembers. Every style:= a field
+        holds is merged into that field: a deep copy of the style (R5), by
+        GroupItem's merge, which adds an attribute only where the field has
+        none of that name. So the field's own attributes always win, wherever
+        style:= sits on the line, and of two styles the earlier wins. The
+        definition and the style are never written. A style:= inside a style
+        is not followed: styles are composed from styles by merge in a define.
+    ***************************************************************************/
+    mergeStyles code={
+        for grup in argument; attributes
+            msTag = *grup.taG;
+            msIs = 0;
+            if msTag == "style";    msIs = 1;
+            msHeld = *grup.isGrouP;
+            if msHeld == 0;         msIs = 0;
+            if msIs == 1;
+                msOwn := copyDeep(**grup);
+                *msOwn :. mergeON;
+                argument :. mergeON;
+                argument +% *msOwn;
+        if hasMemberS;
+            for grup in argument; members
+                mergeStyles(*grup);
+        };
     setFrame code={
         sfReq := argument;
         sfHas = 0;
@@ -949,6 +954,7 @@ define
             *sfLaid :% copyOf(**sfFrame["y"]);
             *sfLaid :% copyOf(**sfFrame["width"]);
             *sfLaid :% copyOf(**sfFrame["height"]);
+        mergeStyles(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;

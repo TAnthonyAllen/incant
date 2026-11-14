@@ -32,26 +32,32 @@ define
     ;
 search StyleScopeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 cerr "SS-1 a field's fill, border and rounded do not reach its child: the kid's top edge (30,10) and left edge (10,30) read the parent's red, not a border":;
+mergeStyles(ssA);
 drawWalk(ssA);
 ssX = 30; ssY = 10; ssAt(ssA); pixelAt(ssA);
 ssX = 10; ssY = 30; ssAt(ssA); pixelAt(ssA);
 cerr "SS-2 a field's style does not reach its child: the leaf's border (11,30) is black, not the style's red; its corner (10,10) is square; its inside (30,30) is the mid's blue":;
+mergeStyles(ssB);
 drawWalk(ssB);
 ssX = 11; ssY = 30; ssAt(ssB); pixelAt(ssB);
 ssX = 10; ssY = 10; ssAt(ssB); pixelAt(ssB);
 ssX = 30; ssY = 30; ssAt(ssB); pixelAt(ssB);
 cerr "SS-3 an attribute after the style overrides it on that field: fill (30,30) red, border (1,30) green, corner (0,0) square and green":;
+mergeStyles(ssC);
 drawWalk(ssC);
 ssX = 30; ssY = 30; ssAt(ssC); pixelAt(ssC);
 ssX = 1; ssY = 30; ssAt(ssC); pixelAt(ssC);
 ssX = 0; ssY = 0; ssAt(ssC); pixelAt(ssC);
 cerr "SS-5 a style's font, color, align and valign reach the field's children, two levels down, with the style held by style:=; the style's fillColor paints the field itself (1,1)":;
+mergeStyles(ssD);
 drawWalk(ssD);
 ssX = 1; ssY = 1; ssAt(ssD); pixelAt(ssD);
 cerr "SS-6 a quoted style name is retired: refused by name, the field has no style":;
+mergeStyles(ssE);
 drawWalk(ssE);
 ssX = 1; ssY = 1; ssAt(ssE); pixelAt(ssE);
 cerr "SS-7 a child's own color wins over the inherited style's":;
+mergeStyles(ssF);
 drawWalk(ssF);
 cerr "STYLESCOPE SENTINEL":;
 stop();
@@ -62,3 +68,5 @@ shadow, opacity. Rows in genLadder/formsPop.sh. SS-1 to SS-3: box properties sta
 reach the children, from an attribute and from a held style (style:=). SS-6: a quoted style name (style="x") is retired (SEQ 624 R0); it is
 refused by name and the field has no style. shadow's and opacity's own rows are in shadowT and opacityT.
 The frames are written by hand and setFrame is not called.
+
+MERGE BY HAND (SEQ 652, stroke 2): a style is merged into its field by setFrame, at layout. This fixture frames its forms by hand and never calls setFrame, so it calls mergeStyles on each form itself before drawing it: ssA, ssB, ssC, ssD, ssE, ssF.

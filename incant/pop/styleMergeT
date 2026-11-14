@@ -1,0 +1,45 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(StyleMergeT);
+search StyleMergeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    smBold font:=titleFont color:=red fill:=lightGreen align=center;
+    smSoft color:=blue valign=bottom;
+    smForm window x=0 y=0 width=400 height=480 down fill:=wall font:=normalFont color:=blue
+        smA="alpha" text style:=smBold;
+        smB="beta" text color:=green style:=smBold;
+        smC="gamma" text style:=smBold color:=green;
+        smT="two" text style:=smBold style:=smSoft;
+        smD down height=160 style:=smBold
+            smD1="delta" text;
+            smD2 color:=black fill:=white
+                smD3="three" text;
+        smE="plain" text;
+    smReq path="IncantForms/PDF/test.pdf" form:=smForm;
+    smRun code={
+        smLaid := redrawForm(argument);
+        printDefinition(*smLaid);
+        };
+    ;
+cout "SM PAGE before":;
+printDefinition(smForm);
+printDefinition(smBold);
+cout "SM PAGE run1":;
+smRun(smReq);
+cout "SM PAGE run2":;
+smRun(smReq);
+cout "SM PAGE after":;
+printDefinition(smForm);
+printDefinition(smBold);
+cout "SM PAGE end":;
+cerr "STYLEMERGE SENTINEL":;
+stop();
+
+styleMergeT -- styles by merge at layout (Tony, 2026-11-14, SEQ 652 R1; stroke 2). setFrame's mergeStyles merges a deep copy of every
+style:= into its field on the laid-out copy; the field's own attributes win wherever style:= sits, and of two styles the earlier wins.
+smB writes its colour left of the style and smC right of it: both draw green in the style's font. smT holds two styles: red from the
+first, bottom from the second. smD3 is three levels down under smD's style: it draws the style's font and smD2's own black.
+The definition and the style print the same before and after, and the second run prints as the first.

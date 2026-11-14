@@ -53,23 +53,30 @@ define
     pdfReq path="IncantForms/PDF/test.pdf" form:=itForm;
     ;
 cerr "IT-1 a field's own italic, then the same text with none: the trace, and every pixel of x 0..119, y 0..39 of each":;
+mergeStyles(itOwnTop);
 drawWalk(itOwnTop);
 itX1 = 120; itY1 = 40;
 itBand(itOwnTop);
+mergeStyles(itPlainTop);
 drawWalk(itPlainTop);
 itBand(itPlainTop);
 cerr "IT-2 italic inherits from an enclosing field's attribute, two levels down":;
+mergeStyles(itDad);
 drawWalk(itDad);
 cerr "IT-3 italic inherits from a held style":;
+mergeStyles(itStyled);
 drawWalk(itStyled);
 cerr "IT-4 a child's italic=off turns it off":;
+mergeStyles(itOffDad);
 drawWalk(itOffDad);
 cerr "IT-5 a font with no italic face warns by name and draws upright":;
+mergeStyles(itNoneTop);
 drawWalk(itNoneTop);
 cerr "IT-6 itForm to a PDF":;
 pdfReq :% copyOf(itForm["width"]);
 pdfReq :% copyOf(itForm["height"]);
 openPDF(pdfReq);
+mergeStyles(itForm);
 drawWalk(itForm);
 closePDF(pdfReq);
 readPDF(pdfRead);
@@ -81,3 +88,5 @@ draws the font's italic face; it inherits as font and color do, and italic=off t
 The trace line ends " italic" only when the face drawn has the italic trait. IT-1 also compares pixels: the slanted word and the
 upright word do not paint the same pixels. The frames are written by hand and setFrame is not called.
 IT-6 draws this fixture's own form, itForm, to IncantForms/PDF/test.pdf: the two forms that ask for italic (layout, menu) do not draw yet.
+
+MERGE BY HAND (SEQ 652, stroke 2): a style is merged into its field by setFrame, at layout. This fixture frames its forms by hand and never calls setFrame, so it calls mergeStyles on each form itself before drawing it: itDad, itForm, itNoneTop, itOffDad, itOwnTop, itPlainTop, itStyled.
