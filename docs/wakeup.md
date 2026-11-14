@@ -5,26 +5,25 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**484, 2026-11-14, topic: forms, SEQ 651-652 (assigned by Clod).** The forms tutorial is IBkant's Forms section: ten chapters,
-listed with their tasks in Topics/forms, which is trimmed to budget. Ruled (Tony): a style is applied by style:= and merged at
-layout on setFrame's copy, the field's own attributes always winning; placeholders by role, looks in the request (Topics/forms).
-Stroke 1 of four built, all kant: a field three levels down climbs to its own parents after layout (fillDownAcross; climbT;
-the seal 451 font issue). F-155 docketed (a define keeps a repeated attribute and reads the first).
+**485, 2026-11-14, topic: forms, SEQ 652 (assigned by Clod).** Stroke 2 of the styles build, all kant: setFrame merges a deep
+copy of every style:= into its field on the laid-out copy (mergeStyles); the field's own attributes win on either side of
+style:=, and of two styles the earlier. drawText's lookup is own, then enclosing. firstLight, descriptions and IBkant draw
+as before (their rows unmoved). Seal 484 the same day: the tutorial outline, the rulings, stroke 1 (the climb), F-155.
 **OPEN (Tony), carried from 482:** whether an indented `define` should work; that is a checkSkip change.
-**NEXT:** stroke 2, the style merge pass in setFrame and drawText's shorter lookup; then 3 looks, 4 typeset and held forms.
+**NEXT:** stroke 3, virtual placeholders and look:= with one default look; then 4, typeset's run styles and held forms.
 Carried from 483, not begun: show(form), File= in the insert, the one page form, IBkant gap 2.
 
-## The numbers (as run at seal 484; the binary is seal 482's, 2026-11-13 14:49; no source changed)
+## The numbers (as run at seal 485; the binary is seal 482's, 2026-11-13 14:49; no source changed)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 3802 green, FAIL rows identical by name to the bank (64; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 243 green (climbT's four rows added at 484); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 251 green (climbT's four rows at 484, styleMergeT's eight at 485); F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture, red as banked (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red |
 | `incant/frontier` | = its capture, re-banked at 462: one more `stop: ending input divert`, the forms include (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 484 (no source changed); at 482: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 485 (no source changed); at 482: exit 0, 116 directives, 108 inject, 8 parked dark; tree bare |
 | extern canary | 463 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
