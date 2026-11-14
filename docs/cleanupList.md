@@ -370,3 +370,6 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Seen:** 2026-11-10 (SEQ 589 / 590).
 
 - **ITERSOURCe in incant/kantGrammar** (the line `ITERSOURCe      UnaryOPS? ANYtoken;`, and its name in genLadder/kantGrammarNames.sh). Why deletable: since SEQ 601 no kantGrammar rule uses it; ITERATe's four shapes take an EXPRESSIOn source. To confirm: grep kantGrammar and incant/pop for ITERSOURCe; removing a rule moves the registry-count rows (itRT, jitCursorLifeT, itBackRT, termCountT). Seen 2026-11-10.
+
+- **`styleOf` and `styleComponent`, `GroupDraw.twk` (the block above `roundedOf`)** — seen 2026-11-14 (SEQ 657, F-156). Not called since the floor stopped reading a held style: a style is merged into its field at layout. Kept because `styleComponent` is an extern, and deleting an extern is a `groups.ext` change that a branch does not make. Confirm with `grep -n "styleOf\|styleComponent" *.twk *.rtn` (only their own definitions) and the mirror line in `groups.ext`; a deletion moves the extern canary by one and pop.sh's mirror-arity row.
+- **`newStuff isList;`, `incant/utilities` (above `fillDownAcross`)** — seen 2026-11-14 (SEQ 653). Unused since fillDownAcross adds its repeats to the field itself. Confirm with `grep -n newStuff incant/utilities`.

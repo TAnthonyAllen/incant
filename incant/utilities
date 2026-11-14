@@ -571,7 +571,6 @@ define
         };
     drawFill code={
         if argument["fill"];    displayFill(argument);
-        or argument["style"];   displayFill(argument);
         };
     drawBorder code={
         if argument["border"];          displayBorder(argument);
@@ -994,6 +993,10 @@ define
             msIs = 0;
             if msTag == "style";    msIs = 1;
             msHeld = *grup.isGrouP;
+            // notHeld style:= is the only spelling (SEQ 624 R0): a quoted or copied style name is refused by name, here since F-156 took the floor's own style read away, and the field has no style
+            if msIs == 1;
+                if msHeld == 0;
+                    cerr "styleOf: REFUSING" argument.taG "-- its style is not held; write style:=name (a quoted or copied style name is retired)":;
             if msHeld == 0;         msIs = 0;
             if msIs == 1;
                 msOwn := copyDeep(**grup);
