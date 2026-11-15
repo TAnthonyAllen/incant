@@ -1,0 +1,18 @@
+Start();
+registry(TESTing);
+define
+    kount=0;
+    returnsZero code={
+        return 0;
+        };
+    ;
+cerr "PROBE A: bare literal 0 condition":;
+kount = 0;
+while 0; ++kount; if kount > 5; break;
+cerr "PROBE A done, kount=" kount:;
+cerr "PROBE B: call-expression returning 0 as condition":;
+kount = 0;
+while returnsZero(); ++kount; if kount > 5; break;
+cerr "PROBE B done, kount=" kount:;
+print "SENTINEL loopProbe end":;
+stop();

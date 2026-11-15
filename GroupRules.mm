@@ -12004,6 +12004,22 @@ extern "C" GroupItem *plusEQshapeRefusal(char *kind, GroupItem *argument, GroupI
 	
 }
 
+/*******************************************************************************
+	Reverts input to whatever was diverted by a prior pushInputField() --
+    GroupRules's own pushInput/popInput pair, named differently here so an
+    incant-level command can't collide with the ruler methods it wraps
+    (bear-traps #42/#57/#58: a second symbol sharing a bare name silently
+    re-aims every existing bare call to that name). Pairs with
+    pushInputField(); argument is ignored, kept so the zero-arg call shape
+    matches stop().
+*******************************************************************************/
+extern "C" GroupItem *popInputField(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	ruler->popInput();
+	return input;
+}
+
 // printField print the field passed in to the buffer passed in, in its data type's default format, or in the format handed in
 extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 {
@@ -12527,6 +12543,28 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 			}
 	else	::fprintf(stderr,"processFlags: no command provided\n");
 	return ruler->trueResult;
+}
+
+/*******************************************************************************
+	Diverts input to the field passed in -- GroupRules's own pushInput, wrapped
+    under a different name so this incant-level command can't collide with
+    the ruler method it calls (see popInputField's header). Lets an action
+    explicitly pull a rule's input from source instead of from whatever is
+    presently being parsed; pop the divert with popInputField() when done.
+    loadInputFromFile (behind the include command) already wraps this same
+    ruler method for the whole-file-of-definitions case; this is the same
+    divert for callers who parse pieces of the input themselves.
+*******************************************************************************/
+extern "C" GroupItem *pushInputField(GroupItem *source)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !source )
+		{
+		::fprintf(stderr,"pushInputField: no source provided\n");
+		return 0;
+		}
+	ruler->pushInput(source);
+	return source;
 }
 
 /*******************************************************************************

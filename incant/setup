@@ -81,6 +81,8 @@ define
     parseClassify immediateAction;
     pixelAt immediateAction=pixelAt;
     printTO immediateAction=printToBuffer;
+    pushInputField immediateAction;
+    popInputField immediateAction;
     probeNode immediateAction;
     quoted  immediateAction;
     regex immediateAction=setInternalType noPrint;

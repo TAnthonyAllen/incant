@@ -414,6 +414,23 @@ GroupItem   form = input.parent;
 }
 
 /*******************************************************************************
+	Reverts input to whatever was diverted by a prior pushInputField() --
+    GroupRules's own pushInput/popInput pair, named differently here so an
+    incant-level command can't collide with the ruler methods it wraps
+    (bear-traps #42/#57/#58: a second symbol sharing a bare name silently
+    re-aims every existing bare call to that name). Pairs with
+    pushInputField(); argument is ignored, kept so the zero-arg call shape
+    matches stop().
+*******************************************************************************/
+extern GroupItem popInputField(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+use ruler
+    popInput();
+    return  input;
+}
+
+/*******************************************************************************
 	The incant printTO command runs this to set toBUFFER to the buffer in
     bufferField. toBUFFER gets reset. If there is no bufferField toBUFFER
     is set to null. If toBUFFER is not null, opPrint(), invoked by the
@@ -487,6 +504,27 @@ GroupItem   target  = item.fLAG ? item.parent : item;
             default:    cerr "processFlag: invalid argument",command:; }
     else    cerr "processFlags: no command provided":;
     return trueResult;
+}
+
+/*******************************************************************************
+	Diverts input to the field passed in -- GroupRules's own pushInput, wrapped
+    under a different name so this incant-level command can't collide with
+    the ruler method it calls (see popInputField's header). Lets an action
+    explicitly pull a rule's input from source instead of from whatever is
+    presently being parsed; pop the divert with popInputField() when done.
+    loadInputFromFile (behind the include command) already wraps this same
+    ruler method for the whole-file-of-definitions case; this is the same
+    divert for callers who parse pieces of the input themselves.
+*******************************************************************************/
+extern GroupItem pushInputField(GroupItem source)
+{
+GroupRules  ruler = groupRules;
+    if !source {
+        cerr "pushInputField: no source provided":;
+        return null; }
+use ruler
+    pushInput(source);
+    return  source;
 }
 
 /*******************************************************************************
