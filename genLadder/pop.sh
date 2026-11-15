@@ -6994,11 +6994,16 @@ _dcGot=$(for _f in "$_dcDir"/*.twk "$_dcDir"/*.rtn; do python3 genLadder/codeOnl
 #  RE-PINNED 6 -> 5, 2026-09-26 (SEQ 189, ruling 3a): demoRprime was DELETED.
 #  RE-PINNED 5 -> 4, BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel: processCode LEFT the list -- a compile is a driveStep drive now
 #  (F-128), so it is no longer a seat of its own.
-_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupMain.twk:bootstrapper jitEmitters.rtn:jitProbeDrive "
+#  RE-PINNED 4 -> 5, 2026-11-15 (Clod, tester's comma-delimited-file draft): Commands.rtn:pushInputField
+#  JOINED the list -- a new incant command wrapping GroupRules::pushInput so an action can divert
+#  input to a field explicitly and pop it back later, same category as loadInputFromFile (divert),
+#  just callable from anywhere instead of only from the include command. Classed divert, not drive:
+#  it wraps pushInput for a caller outside driveStep, exactly as loadInputFromFile already does.
+_dcWant="Commands.rtn:loadInputFromFile Commands.rtn:pushInputField GroupActions.rtn:driveStep GroupMain.twk:bootstrapper jitEmitters.rtn:jitProbeDrive "
 if [ -n "$_dcGot" ] && [ "$_dcGot" = "$_dcWant" ]; then
-    echo "  ok    drive census: pushInput's callers are the 4 named seats"; green=$((green+1))
+    echo "  ok    drive census: pushInput's callers are the 5 named seats"; green=$((green+1))
 else
-    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 4 named seats; class every newcomer"
+    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 5 named seats; class every newcomer"
     echo "          actual:   ${_dcGot:-(none -- the extractor read nothing)}"
     echo "          expected: $_dcWant"
     fail=1
