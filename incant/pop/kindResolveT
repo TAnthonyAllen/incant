@@ -1,0 +1,135 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(KindResolveT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kq=5;
+    nj1 code={ x1 = 3 + 4; print x1:; };
+    nj2 code={ y2 = 5; if y2 > 2; print 1:; };
+    nj3 code={
+        n3 = 0;
+        while n3 < 5;
+            n3 = n3 + 1;
+            if n3 == 3;     break;
+        print n3:;
+        };
+    nj4 code={ a4 = 3; b4 = a4 + 4; c4 = b4 * 2; print c4:; };
+    nj5 code={ a5 = 3.5; b5 = a5 + 1; print b5:; };
+    nj6 code={ m6 = 2; if m6 > 0; m6 = 7; print m6:; n6 = m6 * 3; print n6:; };
+    nj7 code={
+        m7 = 2;
+        if m7 > 0 && m7 < 5;
+            m7 = 7;
+        print m7:;
+        n7 = m7 * 3;
+        print n7:;
+        };
+    krNum code={ a = 1.5; b = a * 2.5; if b > 3.5; print b:; c = b / 0.5; print c:; };
+    krDiv code={ a = 7; b = a / 2; print b:; };
+    krTypeless code={ t = u + 1; print 1:; };
+    krOutside code={ o = kq + 1; p = o * 2; print p:; };
+    krTwoKind code={ w = 3; x = w + 1; w = 2.5; y = w * 2; print x:; };
+    krNest code={ a = 2; b = 3; c = a + b * a; print c:; };
+    krOpData code={
+        kodOp := Operators[argument];
+        kodM  := *kodOp.hasMemberS;
+        kodC = "none";
+        kodN = "none";
+        if *kodOp["irCOUNT"];   kodC = *kodOp["irCOUNT"];
+        if *kodOp["irNUMBER"];  kodN = *kodOp["irNUMBER"];
+        cerr "KD" argument "members" kodM "|" kodC "|" kodN:;
+        };
+    ;
+search KindResolveT;
+njNew(nj1);
+njNew(nj2);
+njNew(nj3);
+njNew(nj4);
+njNew(nj5);
+njNew(nj6);
+njNew(nj7);
+njNew(krNum);
+njNew(krDiv);
+njNew(krTypeless);
+njNew(krOutside);
+njNew(krTwoKind);
+njNew(krNest);
+krResolve(nj1);
+krResolve(nj2);
+krResolve(nj3);
+krResolve(nj4);
+krResolve(nj5);
+krResolve(nj6);
+krResolve(nj7);
+krResolve(krNum);
+krResolve(krDiv);
+krResolve(krTypeless);
+krResolve(krOutside);
+krResolve(krTwoKind);
+krResolve(krNest);
+krResolve(nj4);
+krShow(nj1);
+krShow(nj2);
+krShow(nj3);
+krShow(nj4);
+krShow(nj5);
+krShow(nj6);
+krShow(nj7);
+krShow(krNum);
+krShow(krDiv);
+krShow(krTypeless);
+krShow(krOutside);
+krShow(krTwoKind);
+krShow(krNest);
+krOpData("+");
+krOpData("-");
+krOpData("*");
+krOpData("/");
+krOpData("<");
+krOpData(">");
+krOpData("<=");
+krOpData(">=");
+krOpData("==");
+krOpData("!=");
+krOpData("=");
+cerr "KINDRESOLVET SENTINEL":;
+stop();
+
+kindResolveT -- SEQ 670 (Tony's ruling of 2026-11-16), the kant jitter's step 3a: the kind-resolve pass, alone.
+krResolve(action), in incant/kantJitter, marks each two-operand instruct of the action's chain with the per-kind IR
+attribute of its operator (KinD = irCOUNT or irNUMBER) when it is sure of the kind, and writes no IR. krShow prints the
+chain's two-operand instructs, one KR line each, with the mark and the IR text it names, or "unmarked".
+pop.sh compares every KR and KD line with genLadder/kindResolveT.kr.txt and reads these by name:
+    nj4         its + and its * are marked irCOUNT; resolved twice, it still reads 2 (the second call does nothing)
+    nj5         3.5 + 1 is a number with a count: the table shows a conversion, so nothing is marked
+    krNum       number with number: * > and / are marked irNUMBER
+    krDiv       count / count gives a number (7 / 2 is 3.5): unmarked, and / carries no irCOUNT
+    krTypeless  u is never written: u + 1 is unmarked
+    krOutside   kq is a field from outside the action: kq + 1 is unmarked, and so is o * 2, since o's kind is then not known
+    krTwoKind   w is written as a count and as a number: every op that touches it is unmarked
+    krNest      a + b * a builds (a + b) * a: both are marked, the outer through the inner's result kind
+    nj2 nj3 nj6 nj7   the insides of if and while are walked (nj3's < + and ==; nj7's > and < under &&, which has no kind)
+KD lines (R2): the ten operators carry irCOUNT and irNUMBER as attributes, and hasMembers reads 0 for each, so the
+engine's per-kind pick (pickKindOP, which looks only at an operator with members) is not entered for them. `=` has none.
+The compares give no kind to what they are assigned to: a true compare is a count 1 and a false one is nothing.

@@ -8852,15 +8852,60 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_kwF" > "$T/kw.o" 2> "$T/kw.e"; _kwx=$?
 perl -e 'alarm 30; exec @ARGV' "$B" "$_kwF" > "$T/kw2.o" 2> "$T/kw2.e"
 sed '/^kwCompile(/d;/^kwRan(/d' "$_kwF" > "$T/kw.twin"
 perl -e 'alarm 30; exec @ARGV' "$B" "$T/kw.twin" > "$T/kwt.o" 2> "$T/kwt.e"; _kwtx=$?
-_kwWant="KW S1 |7 |1 |3 |14 |4.5 |7 |21 |7 |21 |KW ROW2 a return in the middle |r1 |got 42 |KW ROW3 a break that reaches the top |b1 |loop 1 |b1 |loop 2 |after loop |KW ROW4 a refusal in the middle |1 |caller went on |KW END |"
+_kwWant="KW S1 |7 |1 |3 |14 |4.5 |7 |21 |7 |21 |KW ROW2 a return in the middle |r1 |got 42 |KW ROW3 a break that reaches the top |b1 |loop 1 |b1 |loop 2 |after loop |KW ROW4 a refusal in the middle |1 |caller went on |KW ROW5 a member that is no instruct |n1 |n2 |KW END |"
 _ofeq "kantJitWalkT twin (nothing compiled): the seven, a return, a break, a refusal (stdout / exit / sentinel / compiles / refusals of hz)" "$(_kjv "$T/kwt.o" 'KW S1' 'KW END') x$_kwtx s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwt.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kwt.e") R$(grep -c '^REFUSED hz -- Operator - ' "$T/kwt.e")" "$_kwWant x0 s1 c0 R1"
-_ofeq "kantJitWalkT walked, ordinary calls = the twin (stdout / exit / sentinel / compiles / refusals of hz)" "$(_kjv "$T/kw.o" 'KW S1' 'KW END') x$_kwx s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kw.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kw.e") R$(grep -c '^REFUSED hz -- Operator - ' "$T/kw.e")" "$_kwWant x0 s1 c10 R1"
+_ofeq "kantJitWalkT walked, ordinary calls = the twin (stdout / exit / sentinel / compiles / refusals of hz)" "$(_kjv "$T/kw.o" 'KW S1' 'KW END') x$_kwx s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kw.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kw.e") R$(grep -c '^REFUSED hz -- Operator - ' "$T/kw.e")" "$_kwWant x0 s1 c11 R1"
 _ofeq "kantJitWalkT the seven ran every statement: the text's count = the chain's length, per action" "$(grep '^KW RAN nj' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "$(grep '^KW LEN nj' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')"
 _ofeq "kantJitWalkT the seven's lengths are real numbers (anti-vacuity for the row above)" "$(grep '^KW LEN nj' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "nj1 2;nj2 2;nj3 3;nj4 4;nj5 3;nj6 5;nj7 5;"
-_ofeq "kantJitWalkT early endings, statements run of length: return 2 of 3, break 4 of 3 over two calls, refusal 3 of 4" "$(grep '^KW RAN kw' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}') $(grep '^KW LEN kw' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "kwr 2;kwb 4;kwf 3; kwr 3;kwb 3;kwf 4;"
+_ofeq "kantJitWalkT early endings, statements run of length: return 2 of 3, break 4 of 3 over two calls, refusal 3 of 4" "$(grep '^KW RAN kw[rbf]' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}') $(grep '^KW LEN kw[rbf]' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "kwr 2;kwb 4;kwf 3; kwr 3;kwb 3;kwf 4;"
+#  R4 (SEQ 670): a statement-list member that is not an instruct (kwn's bare 7) gets no testOP call, as the interpreter's walk skips it. H7: without the gate in kwCompile the text runs 3 of 3.
+_ofeq "kantJitWalkT ROW5 a member that is no instruct is skipped by the text: statements run of length" "$(grep '^KW RAN kwn' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}') $(grep '^KW LEN kwn' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "kwn 2; kwn 3;"
 sed -n '/^KW TEXT BEGIN/,/^KW TEXT END/p' "$T/kw.e"  | sed -e '1d' -e '$d' > "$T/kw.t1"
 sed -n '/^KW TEXT BEGIN/,/^KW TEXT END/p' "$T/kw2.e" | sed -e '1d' -e '$d' > "$T/kw.t2"
 _ofeq "kantJitWalkT kwr's walked text is the pinned text (genLadder/kantJitWalkT.kwr.ll), and two runs write the same bytes" "$(cmp -s "$T/kw.t1" genLadder/kantJitWalkT.kwr.ll && echo pinned) $([ -s "$T/kw.t1" ] && cmp -s "$T/kw.t1" "$T/kw.t2" && echo same)" "pinned same"
+
+#  ⚑ kindTableT / kindResolveT -- SEQ 670 (Tony's ruling of 2026-11-16): THE KANT JITTER, STEP 3a -- the kind-resolve pass, alone.
+#  The jitter has its own incantation, incant/kantJitter (R0), which the fixtures include: the walk from 2c and krResolve, a
+#  kant pass that marks each two-operand instruct with its operator's per-kind IR attribute (KinD = irCOUNT / irNUMBER) when it
+#  is sure of the kind. No IR is written. kindTableT is R1's measured table (what kind + - * / and the compares give on the new
+#  road); kindResolveT prints the marked chains (KR) and the operators' data (KD, R2). Then every 2b and 2c row is run again on
+#  actions the pass has marked, twin and compiled: unchanged.
+_ktF=$(ip kindTableT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_ktF" > "$T/kt.o" 2> "$T/kt.e"; _ktx=$?
+grep -v '^stop: \|^Search list: \|^ *$' "$T/kt.o" | awk '/^R1 /{if(l!="")print l; l=$2; next} {l=l" "$1} END{if(l!="")print l}' > "$T/kt.txt"
+_ofeq "kindTableT R1: the measured kind table = the pinned table (genLadder/kindTableT.txt), 40 rows (pinned / rows / exit / sentinel / stderr lines)" "$(cmp -s "$T/kt.txt" genLadder/kindTableT.txt && echo pinned) $(wc -l < "$T/kt.txt" | tr -d ' ') x$_ktx s$(grep -c '^KINDTABLET SENTINEL' "$T/kt.e") e$(grep -vc '^stop: \|^KINDTABLET SENTINEL\|^ *$' "$T/kt.e")" "pinned 40 x0 s1 e0"
+_ofeq "kindTableT + - * give a count from two counts and a number otherwise; / gives a number even from two counts (add cc / add cn / div cc)" "$(grep '^r1addcc \|^r1addcn \|^r1divcc ' "$T/kt.txt" | tr '\n' ';')" "r1addcc 5 5 5 9;r1addcn 5 9 9 9.5;r1divcc 5 5 9 3.5;"
+_ofeq "kindTableT a true compare is a count 1 and a false one is nothing, whatever the operands (gt nn / lt nn)" "$(grep '^r1gtnn \|^r1ltnn ' "$T/kt.txt" | tr '\n' ';')" "r1ltnn 9 9 0 rr;r1gtnn 9 9 5 1;"
+_krF=$(ip kindResolveT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_krF" > "$T/kr.o" 2> "$T/kr.e"; _krx=$?
+grep '^KR \|^KD ' "$T/kr.e" | sed 's/ *$//' > "$T/kr.txt"
+_krm () { grep "^KR $1 " "$T/kr.txt" | grep -v ' marked ' | grep -v "^KR $1 = " | sed "s/^KR $1 //" | tr '\n' ';'; }
+_ofeq "kindResolveT every printed chain and the operators' data = the pinned text (genLadder/kindResolveT.kr.txt) (pinned / exit / sentinel / refusals)" "$(cmp -s "$T/kr.txt" genLadder/kindResolveT.kr.txt && echo pinned) x$_krx s$(grep -c '^KINDRESOLVET SENTINEL' "$T/kr.e") R$(grep -c 'REFUSED\|ERROR' "$T/kr.e")" "pinned x0 s1 R0"
+_ofeq "kindResolveT nj4 marks its + and its * as count, and a second krResolve does nothing (still 2)" "$(_krm nj4) $(grep '^KR nj4 marked' "$T/kr.txt")" "+ a4 4 -> irCOUNT = add i32;* b4 2 -> irCOUNT = mul i32; KR nj4 marked 2"
+_ofeq "kindResolveT nj5, a number with a count: the table shows a conversion, nothing marked" "$(_krm nj5) $(grep '^KR nj5 marked' "$T/kr.txt")" "+ a5 1 -> unmarked; KR nj5 marked 0"
+_ofeq "kindResolveT number with number is marked irNUMBER (krNum: * > /)" "$(_krm krNum)" "* a 2.5 -> irNUMBER = fmul double;> b 3.5 -> irNUMBER = fcmp ogt double;/ b 0.5 -> irNUMBER = fdiv double;"
+_ofeq "kindResolveT count / count is unmarked: it gives a number (krDiv)" "$(_krm krDiv) $(grep '^KR krDiv marked' "$T/kr.txt")" "/ a 2 -> unmarked; KR krDiv marked 0"
+_ofeq "kindResolveT a typeless local in arithmetic is unmarked (krTypeless)" "$(_krm krTypeless) $(grep '^KR krTypeless marked' "$T/kr.txt")" "+ u 1 -> unmarked; KR krTypeless marked 0"
+_ofeq "kindResolveT a field from outside the action is unmarked, and what is computed from it (krOutside)" "$(_krm krOutside) $(grep '^KR krOutside marked' "$T/kr.txt")" "+ kq 1 -> unmarked;* o 2 -> unmarked; KR krOutside marked 0"
+_ofeq "kindResolveT a local with writers of two kinds is unmarked with every op that touches it (krTwoKind)" "$(_krm krTwoKind) $(grep '^KR krTwoKind marked' "$T/kr.txt")" "+ w 1 -> unmarked;* w 2 -> unmarked; KR krTwoKind marked 0"
+_ofeq "kindResolveT the insides of a while and an if are walked (nj3: < + ==), and a nested expression takes its inner result's kind (krNest)" "$(_krm nj3) $(_krm krNest)" "< n3 5 -> irCOUNT = icmp slt i32;+ n3 1 -> irCOUNT = add i32;== n3 3 -> irCOUNT = icmp eq i32; * (+)a -> irCOUNT = mul i32;+ a b -> irCOUNT = add i32;"
+_ofeq "kindResolveT R2: the ten operators carry their IR as attributes and none has members, so the engine's per-kind pick is not entered (operators / with members)" "$(grep -c '^KD ' "$T/kr.txt") $(grep '^KD ' "$T/kr.txt" | grep -vc ' members 0 ')" "11 0"
+#  ROW 3: every 2b and 2c row again, on actions the pass has marked (krResolve and krShow inserted after each njNew)
+for _v in kc kw; do
+    if [ $_v = kc ]; then _src="$_kcF"; _del='/^kjCompile(/d;/^kjFired(/d'; else _src="$_kwF"; _del='/^kwCompile(/d;/^kwRan(/d'; fi
+    perl -pe 's/^njNew\((\w+)\);$/njNew($1);\nkrResolve($1);\nkrShow($1);/' "$_src" > "$T/$_v.res"
+    sed "$_del" "$T/$_v.res" > "$T/$_v.restwin"
+    perl -e 'alarm 30; exec @ARGV' "$B" "$T/$_v.res"     > "$T/${_v}r.o"  2> "$T/${_v}r.e";  echo $? > "$T/${_v}r.x"
+    perl -e 'alarm 30; exec @ARGV' "$B" "$T/$_v.restwin" > "$T/${_v}rt.o" 2> "$T/${_v}rt.e"; echo $? > "$T/${_v}rt.x"
+done
+_krsum () { grep '^KR .* marked ' "$1" | awk '{n+=$4} END{print n+0}'; }
+_ofeq "kindResolveT row 3, 2b marked: twin = the unmarked want (rows 1-4 / exit / sentinel / instructs marked)" "$(_kjv "$T/kcrt.o" 'KC ROW1' 'KC END') x$(cat "$T/kcrt.x") s$(grep -c '^KANTJITCALLT SENTINEL' "$T/kcrt.e") m$(_krsum "$T/kcrt.e")" "$_kcWant x0 s1 m$(_krsum "$T/kcr.e")"
+_ofeq "kindResolveT row 3, 2b marked: compiled = the unmarked want, one fire per call (rows 1-4 / exit / sentinel / fires)" "$(_kjv "$T/kcr.o" 'KC ROW1' 'KC END') x$(cat "$T/kcr.x") s$(grep -c '^KANTJITCALLT SENTINEL' "$T/kcr.e") $(grep '^KJ FIRED ' "$T/kcr.e" | awk '{printf "%s %s;", $3, $4}')" "$_kcWant x0 s1 nl3an 3;kl 2;kd 3;kc 1;kr 1;"
+_ofeq "kindResolveT row 3, 2c marked: twin = the unmarked want (stdout / exit / sentinel)" "$(_kjv "$T/kwrt.o" 'KW S1' 'KW END') x$(cat "$T/kwrt.x") s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwrt.e")" "$_kwWant x0 s1"
+_ofeq "kindResolveT row 3, 2c marked: walked = the unmarked want, and the statement counts are the unmarked run's (stdout / exit / sentinel / KW RAN)" "$(_kjv "$T/kwr.o" 'KW S1' 'KW END') x$(cat "$T/kwr.x") s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwr.e") $(grep '^KW RAN ' "$T/kwr.e" | awk '{printf "%s %s;", $3, $4}')" "$_kwWant x0 s1 $(grep '^KW RAN ' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')"
+#  2b's actions all compute from `argument`, whose kind the pass cannot know, so it marks none of them; nl3an and kd call themselves,
+#  which the walk must not follow into the callee (before krInside the pass never ended on them: exit 139).
+_ofeq "kindResolveT row 3 is not vacuous: the pass ran on every action (2b: 9 actions, 0 marked, two self-calls; 2c: 11 actions, 12 marked)" "$(grep -c '^KR .* marked ' "$T/kcr.e") $(_krsum "$T/kcr.e") $(grep -c '^KR .* marked ' "$T/kwr.e") $(_krsum "$T/kwr.e")" "9 0 11 12"
 
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends

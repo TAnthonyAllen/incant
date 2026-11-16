@@ -92,7 +92,25 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-160 — BUILT on branch f160-cure 2026-11-16 (SEQ 669), waiting on Tony's buy; docketed 2026-11-15 (Clod, found building tester's comma-delimited draft) — loopConditionNoTruthOf: `while <call>;` never re-tests the callee's return value for truthiness
+### F-162 — OPEN, docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadRuleCall: a rule cannot be called from the new road
+
+**What:** (kant, the new road, `incant/kantGrammar`) a call of a rule written in a new-road text, `it1 = If("if ctX = ctBare(ctAb); ctR = 5;"); testOP(it1);`, prints `opCallTest: ctBarehas no method` and the call hands back nothing. A rule that carries `code={ }` fails differently: `ERROR processCode: ctVal parse failed ... reached end of input`. On the old road the same calls run the rule on the argument's text and hand back its label.
+**Where:** `Instruct.rtn` `opCallTest` (it runs `target.actionType` through runAction, else `target.method`; a rule is neither).
+**Evidence:** measured 2026-11-16 (SEQ 669) building `incant/pop/callTruthT`; its four direct-rule rows (CT-5D..CT-8D) are old road only for this reason.
+**Done when:** Tony rules what a rule call means on the new road; then a callTruthT-shaped row calls a rule from a new-road text and reads its label, with an H7.
+**Owner:** Tony to rule; then Clod. **Size:** not measured.
+**Attempt log:** none. Not to be used in step 3a's fixtures (dispatch of 2026-11-16).
+
+### F-161 — OPEN, docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadEmptyCall: on the new road `f()` with empty parentheses drops its statement in silence
+
+**What:** (kant, the new road, `incant/kantGrammar`) `it1 = STARt("ctX = ctThree(); ctR = 5;"); testOP(it1);` leaves ctX and ctR untouched: no refusal, no error, exit 0. With an argument, `ctThree(ctR)`, both statements run (ctX 3, ctR 5). In an If text, `if ctThree(); ctR = 1;` reads false. At the top level and in an action body (the old road) `f()` is an ordinary call.
+**Where:** `incant/kantGrammar:94`, `INVOKEd  startBox=[([] EXPRESSIOn endParen-?=")" ...` -- the expression inside the parentheses is not optional.
+**Evidence:** measured 2026-11-16 (SEQ 669) building `incant/pop/callTruthT`; every call in that fixture carries an argument for this reason.
+**Done when:** Tony rules: it runs as a call with no argument, or it refuses by name. Then a row for the ruled behaviour on the new road, with an H7.
+**Owner:** Tony to rule; then Clod. **Size:** not measured; a kantGrammar change (SEQ 552 R5: the new grammar only).
+**Attempt log:** none. Not to be used in step 3a's fixtures (dispatch of 2026-11-16).
+
+### F-160 — CLOSED 2026-11-16 (SEQ 669; bought and merged, 1565ddfe); docketed 2026-11-15 (Clod, found building tester's comma-delimited draft) — loopConditionNoTruthOf: `while <call>;` never re-tests the callee's return value for truthiness
 
 **What:** (kant) `loopCondition` (`ruleActions.rtn:456`) only calls `truthOf(cond)` when `cond` has NO `gMethod`. Every `ExpressioN` carries `gMethod=aCTionXpress`, so a call-expression condition always takes the `cond.gMethod(cond)` branch instead, and whatever that call returns is handed straight back as the loop's continue signal with no truthOf re-check. So `while someAction(); ...;` where `someAction` legitimately `return 0;`s never stops — only a NULL return stops it. Separately, in the same draft: `if x = someCall();` reads truthy every time regardless of what `someCall()` returned, because `opAssign` (`Instruct.rtn:197`) returns `target` (the assignment's left side, a field that always exists), and that existing-field pointer is what gets truth-tested — not the value just copied into it.
 **Where:** `ruleActions.rtn:456` (`loopCondition`); `Instruct.rtn:197` (`opAssign`, `return target;`).

@@ -61,11 +61,22 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
         members; only the action's own locals resolve natively at first, anything unresolved takes the testOP fallback; values stay in the fields first and
         native code reads and writes them there (a fully resolved local in a machine slot is a later step); fields are reached by position in a list the
         jitter collects.
-    F-160 BUILT on branch f160-cure (SEQ 669, 2026-11-16), waiting on Tony's buy: A, loopCondition tests a call's answer for truth; B1, opAssign and
-        jitAssignNodeRT hand back nothing when the right side is nothing. incant/pop/callTruthT, 42 rows; the new road already read as ruled.
+    F-160 bought and merged (SEQ 669): a loop's call condition is tested for truth; assigning nothing yields nothing (incant/pop/callTruthT).
+    STEP 3a BUILT on branch kant-jitter-3a (SEQ 670, 2026-11-16), waiting on Tony's buy:
+        The jitter's home is incant/kantJitter (registry KantJitter): kwCompile (2c, and it now skips a statement-list member that is no instruct)
+        and krResolve, the kind-resolve pass, with krShow its printer. No C++ was added.
+        The pass marks a two-operand instruct with KinD = irCOUNT or irNUMBER when both operands have that kind for sure and the operator carries
+        that attribute; it marks the action KinDs. The mark is an attribute, so a marked instruct's list is one longer; testOP runs it unchanged.
+        SPELLING STRUCK, RULING STANDS: the per-kind IR data are ATTRIBUTES on the operator (irCOUNT="add i32"), not members named '+isCOUNT'.
+        A member named <op><kind> is picked AS the operator by pickKindOP on every operator with members: with such members == and != build
+        nothing on the new road, and the jit ladder fails (43 FAIL lines, did not finish) on the other eight. Measured, SEQ 670.
+        R1's table (incant/pop/kindTableT): + - * give a count from two counts, a number otherwise; / always a number; a true compare is a
+        count 1, a false one nothing. So mixed pairs and count / count are unmarked, and a compare gives no kind to what it is assigned to.
+        Fixtures: incant/pop/kindTableT, kindResolveT; pinned genLadder/kindTableT.txt, kindResolveT.kr.txt. F-161 (f() on the new road) and
+        F-162 (a rule call on the new road) are docketed, not used.
     RULED AND NOT YET BUILT, dispatch held by Tony:
         debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body is parsed: measured SEQ 662).
-    NEXT: the buy of f160-cure, then step 3a (the resolve pass alone, printing the marked chain).
+    NEXT: the buy of kant-jitter-3a, then step 3b (native arithmetic from the marks, values staying in the fields).
 
 /*****************************************************************************
     Plan

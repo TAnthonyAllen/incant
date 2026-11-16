@@ -1,0 +1,301 @@
+registry(KantJitter);
+define
+    kjBuf buffer;
+    kjReq name text;
+    kwName;
+    kwMark;
+    kwCompile code={
+        kwName = string $"kw_" argument.taG$;
+        kwBlk   := argument.BlocK;
+        kwStmts := *kwBlk[2];
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"declare ptr @testOP(ptr)"$:;
+        print $"declare ptr @irAt(ptr, i32)"$:;
+        print $"declare i32 @irGoOn()"$:;
+        print $"declare ptr @irSeqEnd(ptr, ptr)"$:;
+        print $"@" kwName "_n = global i32 0"$:;
+        print $"define ptr @" kwName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%last = alloca ptr"$:;
+        print $_ _ "store ptr null, ptr %last"$:;
+        print $_ _ "%items = call ptr @irAt(ptr %a, i32 2)"$:;
+        print $_ _ "br label %s1"$:;
+        kwK = 0;
+        kwPos = 0;
+        iterate kwSt on *kwStmts;
+        while ++kwSt;
+            ++kwPos;
+            kwIs := *kwSt.instructTypE;
+            if *kwIs == 1;
+                ++kwK;
+                kwNext = kwK + 1;
+                print $"s" kwK ":"$:;
+                print $_ _ "%n" kwK _ "= load i32, ptr @" kwName "_n"$:;
+                print $_ _ "%m" kwK _ "= add i32 %n" kwK ", 1"$:;
+                print $_ _ "store i32 %m" kwK ", ptr @" kwName "_n"$:;
+                print $_ _ "%f" kwK _ "= call ptr @irAt(ptr %items, i32 " kwPos ")"$:;
+                print $_ _ "%r" kwK _ "= call ptr @testOP(ptr %f" kwK ")"$:;
+                print $_ _ "store ptr %r" kwK ", ptr %last"$:;
+                print $_ _ "%g" kwK _ "= call i32 @irGoOn()"$:;
+                print $_ _ "%c" kwK _ "= icmp ne i32 %g" kwK ", 0"$:;
+                print $_ _ "br i1 %c" kwK ", label %s" kwNext ", label %done"$:;
+        kwNext = kwK + 1;
+        print $"s" kwNext ":"$:;
+        print $_ _ "br label %done"$:;
+        print $"done:"$:;
+        print $_ _ "%v = load ptr, ptr %last"$:;
+        print $_ _ "%e = call ptr @irSeqEnd(ptr %items, ptr %v)"$:;
+        print $_ _ "ret ptr %e"$:;
+        print $"}"$:;
+        print $"define i32 @" kwName "_ran(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%n = load i32, ptr @" kwName "_n"$:;
+        print $_ _ "ret i32 %n"$:;
+        print $"}"$:;
+        printTO(0);
+        kjReq.name = kwName;
+        kjReq.text = string $kjBuf$;
+        if compileIR(kjReq);
+            kwMark := new("KanT");
+            *kwMark = kwName;
+            *kwMark :. noPrinT;
+            argument +% *kwMark;
+        };
+    krTab;
+    krCount=0;
+    krKindOf code={
+        krkLit := argument.isLiteraL;
+        if *krkLit == 1;
+            krkD := argument.datA;
+            if *krkD == 5;  return 5;
+            if *krkD == 9;  return 9;
+            return 0;
+        krkLoc := argument.isLocaL;
+        if *krkLoc == 1;
+            krkNm := argument.taG;
+            if krTab[*krkNm];
+                krkE := krTab[*krkNm];
+                krkV = *krkE;
+                if krkV == 99;  return 0;
+                return krkV;
+            return 0;
+        krkIn := argument.instructTypE;
+        if *krkIn == 1;
+            krkR = krResultKind(argument);
+            return krkR;
+        return 0;
+        };
+    krResultKind code={
+        krrLen := argument.listLengtH;
+        if *krrLen < 3;     return 0;
+        krrOp := argument[1];
+        krrT  := *krrOp.taG;
+        krrHas = 0;
+        if *krrOp["irCOUNT"];   krrHas = 1;
+        if *krrOp["irNUMBER"];  krrHas = 1;
+        if krrHas == 0;     return 0;
+        if *krrOp["compareTier"];   return 0;
+        krrL := argument[2];
+        krrR := argument[3];
+        krrA = krKindOf(*krrL);
+        krrB = krKindOf(*krrR);
+        if krrA == 0;   return 0;
+        if krrB == 0;   return 0;
+        if *krrT == "/";    return 9;
+        if krrA == 9;   return 9;
+        if krrB == 9;   return 9;
+        return 5;
+        };
+    krNoteWrite code={
+        nwOp := argument[1];
+        nwTg := argument[2];
+        nwLoc := *nwTg.isLocaL;
+        if *nwLoc != 1;     return 0;
+        nwT  := *nwOp.taG;
+        nwK = 99;
+        nwIs = 0;
+        if *nwT == "=";     nwIs = 1;
+        if nwIs == 1;
+            nwSrc := argument[3];
+            nwK = krKindOf(*nwSrc);
+        if nwIs == 0;
+            nwTier = 0;
+            if *nwOp["assignTier"];     nwTier = 1;
+            if nwTier == 0;     return 0;
+        nwNm := *nwTg.taG;
+        if krTab[*nwNm];
+            nwE := krTab[*nwNm];
+            nwOld = *nwE;
+            if nwOld != nwK;    *nwE = 99;
+            return 0;
+        nwNew := new(*nwNm);
+        *nwNew = nwK;
+        *nwNew :. noPrinT;
+        krTab +% *nwNew;
+        return 0;
+        };
+    krInside code={
+        kiIn := argument.instructTypE;
+        if *kiIn == 1;      return 1;
+        kiT := argument.taG;
+        if *kiT == "blockStmts";    return 1;
+        if *kiT == "opArms";        return 1;
+        if *kiT == "printItems";    return 1;
+        return 0;
+        };
+    krScan code={
+        ksGo = krInside(argument);
+        if ksGo == 0;       return 0;
+        ksIn := argument.instructTypE;
+        ksLen := argument.listLengtH;
+        if *ksIn == 1;
+            if *ksLen == 3;     krNoteWrite(argument);
+        if *ksLen > 0;
+            iterate ksC on argument;
+            while ++ksC;
+                krScan(*ksC);
+        return 0;
+        };
+    krMarkOne code={
+        kmOp := argument[1];
+        kmL  := argument[2];
+        kmR  := argument[3];
+        kmA = krKindOf(*kmL);
+        kmB = krKindOf(*kmR);
+        if kmA != kmB;      return 0;
+        if kmA == 0;    return 0;
+        if kmA == 5;    kmNm = "irCOUNT";
+        if kmA == 9;    kmNm = "irNUMBER";
+        kmHas = 0;
+        if *kmOp[kmNm];     kmHas = 1;
+        if kmHas == 0;      return 0;
+        kmMark := new("KinD");
+        *kmMark = kmNm;
+        *kmMark :. noPrinT;
+        argument +% *kmMark;
+        ++krCount;
+        return 0;
+        };
+    krMark code={
+        kbGo = krInside(argument);
+        if kbGo == 0;       return 0;
+        kbIn := argument.instructTypE;
+        kbLen := argument.listLengtH;
+        if *kbIn == 1;
+            if *kbLen == 3;     krMarkOne(argument);
+        if *kbLen > 0;
+            iterate kbC on argument;
+            while ++kbC;
+                krMark(*kbC);
+        return 0;
+        };
+    krResolve code={
+        if argument.KinDs;      return 0;
+        krB := argument.BlocK;
+        krS := *krB[2];
+        clear(krTab);
+        krScan(*krS);
+        krScan(*krS);
+        krCount = 0;
+        krMark(*krS);
+        krDone := new("KinDs");
+        *krDone = krCount;
+        *krDone :. noPrinT;
+        argument +% *krDone;
+        return krCount;
+        };
+    krAct;
+    krSay code={
+        ksyLit := argument.isLiteraL;
+        ksyIn  := argument.instructTypE;
+        ksyDone = 0;
+        if *ksyLit == 1;
+            cerr argument.texT;
+            ksyDone = 1;
+        if *ksyIn == 1;
+            ksyOp := argument[1];
+            ksyT  := *ksyOp.taG;
+            cerr $"(" ksyT ")"$;
+            ksyDone = 1;
+        if ksyDone == 0;    cerr argument.taG;
+        };
+    krShowOne code={
+        ksoOp := argument[1];
+        ksoT := *ksoOp.taG;
+        cerr "KR" krAct ksoT;
+        ksoL := argument[2];
+        ksoR := argument[3];
+        krSay(*ksoL);
+        krSay(*ksoR);
+        ksoHas = 0;
+        if argument.KinD;   ksoHas = 1;
+        if ksoHas == 1;
+            ksoK := argument.KinD;
+            ksoIR := *ksoOp[*ksoK];
+            cerr "->" ksoK "=" ksoIR:;
+        if ksoHas == 0;     cerr "-> unmarked":;
+        };
+    krShowWalk code={
+        kvGo = krInside(argument);
+        if kvGo == 0;       return 0;
+        kvIn := argument.instructTypE;
+        kvLen := argument.listLengtH;
+        if *kvIn == 1;
+            if *kvLen > 2;      krShowOne(argument);
+        if *kvLen > 0;
+            iterate kvC on argument;
+            while ++kvC;
+                krShowWalk(*kvC);
+        return 0;
+        };
+    krShow code={
+        krAct = argument.taG;
+        kshB := argument.BlocK;
+        kshS := *kshB[2];
+        krShowWalk(*kshS);
+        cerr "KR" krAct "marked" argument.KinDs:;
+        };
+    ;
+bail();
+
+kantJitter -- the kant jitter's own incantation (SEQ 670, Tony's ruling R0 of 2026-11-16). A fixture includes it and
+searches KantJitter. It holds the walk from step 2c and the kind-resolve pass of step 3a. No C++ belongs to it but the
+door (compileIR, callIR) and the four helpers the walk's text names (testOP, irAt, irGoOn, irSeqEnd).
+
+What Is In Here
+    kwCompile(action)   step 2c, the walk. Writes one function for the action: one testOP call per statement of its
+                        chain, statement k reached by position (irAt), a go-on check after each (irGoOn), the ending
+                        opSeq's (irSeqEnd). Compiles the text through compileIR and marks the action KanT, so ordinary
+                        calls run the function. A statement-list member that is not an instruct gets no call, as the
+                        interpreter's walk skips it (R4): the label count and the list position are kept apart.
+    krResolve(action)   step 3a, the kind-resolve pass. Marks each two-operand instruct in the action's chain, the
+                        insides of if and loops included, with the per-kind IR attribute of its operator -- an attribute KinD
+                        whose text is that attribute's name (irCOUNT, irNUMBER) -- when it is sure of the kind. Writes no
+                        IR. Marks the action KinDs (its text the count marked); a second call does nothing.
+    krShow(action)      prints the chain's two-operand instructs on stderr, one line each, with the mark or "unmarked".
+
+How The Pass Decides
+    Kinds are the engine's own numbers, as datA reads them: 5 a count, 9 a number. 0 is not known; 99 is two kinds.
+    The walks (krScan, krMark, krShowWalk) go inside a node only when krInside says the chain continues there: an
+    instruct, or one of the three lists the build makes inside one (blockStmts, opArms, printItems). They never go
+    inside an operand that is a field: a call's callee is the action itself (a self-call would never end), and an
+    action handed as an argument would have its own chain marked with this action's table.
+    krTab holds one entry per local the action writes. krScan walks the chain twice, in order, noting each writer
+    (krNoteWrite): `=` into a local gives it the kind of the right side; a second writer of another kind makes it 99;
+    any other assigning operator (it carries assignTier) on a local makes it 99. ++ and -- are not writers.
+    krKindOf answers for an operand: a literal has its own kind; a local has its table kind (99 and absent answer 0);
+    an instruct answers by krResultKind; anything else -- a field from outside the action, a string -- answers 0.
+    krResultKind is the measured table (incant/pop/kindResolveT, R1): + - * give a count from two counts and a number
+    when either is a number; / always gives a number; a compare gives no kind (true is a count 1, false is nothing).
+    krMarkOne marks only when both operands have the same known kind and the operator carries the attribute for it. So a
+    mixed pair, and count / count, stay unmarked: the table shows a conversion there.
+    Which operators have kinds is data: the irCOUNT= and irNUMBER= attributes in incant/setup's Operators
+    (irCOUNT="add i32"). The pass reads them through the instruct's own op entry, which shares its body with the
+    registry's. They are attributes and not members named <op><kind>, as the ruling first spelled them, because the
+    engine picks a member of that name AS the operator (pickKindOP): measured SEQ 670, == and != then build nothing.
+
+Current State -- WIP
+    Settled: the walk (2c) and its skip; the pass marks and prints. testOP runs a marked chain as an unmarked one.
+    Not built: nothing reads the marks yet. Step 3b is native arithmetic from them, values staying in the fields.
+    `=` is not marked (it carries no per-kind attribute); the pass uses it only to learn a local's kind.

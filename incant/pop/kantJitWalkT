@@ -4,10 +4,12 @@ include(unitTests);
 registry(fILEs);
 define
     kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
     ;
 include(kantGrammar);
+include(kantJitter);
 search reset stack KantGrammar Grokking;
-search Utilities UnitTests;
+search Utilities UnitTests KantJitter;
 registry(KantJitWalkT);
 define
     njReq owner source result rule;
@@ -21,65 +23,6 @@ define
             *njBlock :. noPrinT;
             argument :. isActioN;
             argument +< *njBlock;
-        };
-    kjBuf buffer;
-    kjReq name text;
-    kwName;
-    kwMark;
-    kq=5;
-    kwCompile code={
-        kwName = string $"kw_" argument.taG$;
-        kwBlk   := argument.BlocK;
-        kwStmts := *kwBlk[2];
-        reset(kjBuf);
-        printTO(kjBuf);
-        print $"declare ptr @testOP(ptr)"$:;
-        print $"declare ptr @irAt(ptr, i32)"$:;
-        print $"declare i32 @irGoOn()"$:;
-        print $"declare ptr @irSeqEnd(ptr, ptr)"$:;
-        print $"@" kwName "_n = global i32 0"$:;
-        print $"define ptr @" kwName "(ptr %a) {"$:;
-        print $"entry:"$:;
-        print $_ _ "%last = alloca ptr"$:;
-        print $_ _ "store ptr null, ptr %last"$:;
-        print $_ _ "%items = call ptr @irAt(ptr %a, i32 2)"$:;
-        print $_ _ "br label %s1"$:;
-        kwK = 0;
-        iterate kwSt on *kwStmts;
-        while ++kwSt;
-            ++kwK;
-            kwNext = kwK + 1;
-            print $"s" kwK ":"$:;
-            print $_ _ "%n" kwK _ "= load i32, ptr @" kwName "_n"$:;
-            print $_ _ "%m" kwK _ "= add i32 %n" kwK ", 1"$:;
-            print $_ _ "store i32 %m" kwK ", ptr @" kwName "_n"$:;
-            print $_ _ "%f" kwK _ "= call ptr @irAt(ptr %items, i32 " kwK ")"$:;
-            print $_ _ "%r" kwK _ "= call ptr @testOP(ptr %f" kwK ")"$:;
-            print $_ _ "store ptr %r" kwK ", ptr %last"$:;
-            print $_ _ "%g" kwK _ "= call i32 @irGoOn()"$:;
-            print $_ _ "%c" kwK _ "= icmp ne i32 %g" kwK ", 0"$:;
-            print $_ _ "br i1 %c" kwK ", label %s" kwNext ", label %done"$:;
-        kwNext = kwK + 1;
-        print $"s" kwNext ":"$:;
-        print $_ _ "br label %done"$:;
-        print $"done:"$:;
-        print $_ _ "%v = load ptr, ptr %last"$:;
-        print $_ _ "%e = call ptr @irSeqEnd(ptr %items, ptr %v)"$:;
-        print $_ _ "ret ptr %e"$:;
-        print $"}"$:;
-        print $"define i32 @" kwName "_ran(ptr %a) {"$:;
-        print $"entry:"$:;
-        print $_ _ "%n = load i32, ptr @" kwName "_n"$:;
-        print $_ _ "ret i32 %n"$:;
-        print $"}"$:;
-        printTO(0);
-        kjReq.name = kwName;
-        kjReq.text = string $kjBuf$;
-        if compileIR(kjReq);
-            kwMark := new("KanT");
-            *kwMark = kwName;
-            *kwMark :. noPrinT;
-            argument +% *kwMark;
         };
     kwRan code={
         kjReq.name = string $"kw_" argument.taG "_ran"$;
@@ -103,6 +46,7 @@ define
             print "loop" i:;
         print "after loop":;
         };
+    kwn code={ print "n1":; 7; print "n2":; };
     kwf code={ hz := kq; print 1:; print hz - 1:; print 2:; };
     kwfCall code={ kwf(); print "caller went on":; };
     nj1 code={ x1 = 3 + 4; print x1:; };
@@ -137,6 +81,7 @@ njNew(nj7);
 njNew(kwr);
 njNew(kwb);
 njNew(kwf);
+njNew(kwn);
 kwCompile(nj1);
 kwCompile(nj2);
 kwCompile(nj3);
@@ -147,6 +92,7 @@ kwCompile(nj7);
 kwCompile(kwr);
 kwCompile(kwb);
 kwCompile(kwf);
+kwCompile(kwn);
 print "KW S1":;
 nj1();
 nj2();
@@ -161,6 +107,8 @@ print "KW ROW3 a break that reaches the top":;
 kwbCall();
 print "KW ROW4 a refusal in the middle":;
 kwfCall();
+print "KW ROW5 a member that is no instruct":;
+kwn();
 print "KW END":;
 kwLen(nj1);
 kwLen(nj2);
@@ -172,6 +120,7 @@ kwLen(nj7);
 kwLen(kwr);
 kwLen(kwb);
 kwLen(kwf);
+kwLen(kwn);
 kwRan(nj1);
 kwRan(nj2);
 kwRan(nj3);
@@ -182,12 +131,17 @@ kwRan(nj7);
 kwRan(kwr);
 kwRan(kwb);
 kwRan(kwf);
+kwRan(kwn);
 kwCompile(kwr);
 cerr "KW TEXT BEGIN":;
 cerr $kjBuf$;
 cerr "KW TEXT END":;
 cerr "KANTJITWALKT SENTINEL":;
 stop();
+
+SEQ 670 (R0): kwCompile, kjBuf and kjReq moved to the jitter's own incantation, incant/kantJitter, which this file
+includes. ROW5 (R4): kwn's statement list holds a member that is no instruct (a bare 7). The interpreter's walk skips
+it and so does the text: KW RAN kwn 2 of KW LEN 3. Before the skip the text called testOP on it, which refused.
 
 kantJitWalkT -- SEQ 668 (Tony, 2026-11-16), the kant jitter's step 2c: the walk. kwCompile(action) walks the action's
 finished chain in kant -- the BlocK's second slot is its statement list -- and writes one function with one testOP call

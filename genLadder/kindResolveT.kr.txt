@@ -1,0 +1,79 @@
+KR nj1 = x1 (+)-> unmarked
+KR nj1 + 3 4 -> irCOUNT = add i32
+KR nj1 marked 1
+KR nj2 = y2 5 -> unmarked
+KR nj2 > y2 2 -> irCOUNT = icmp sgt i32
+KR nj2 marked 1
+KR nj3 = n3 0 -> unmarked
+KR nj3 < n3 5 -> irCOUNT = icmp slt i32
+KR nj3 = n3 (+)-> unmarked
+KR nj3 + n3 1 -> irCOUNT = add i32
+KR nj3 == n3 3 -> irCOUNT = icmp eq i32
+KR nj3 marked 3
+KR nj4 = a4 3 -> unmarked
+KR nj4 = b4 (+)-> unmarked
+KR nj4 + a4 4 -> irCOUNT = add i32
+KR nj4 = c4 (*)-> unmarked
+KR nj4 * b4 2 -> irCOUNT = mul i32
+KR nj4 marked 2
+KR nj5 = a5 3.5 -> unmarked
+KR nj5 = b5 (+)-> unmarked
+KR nj5 + a5 1 -> unmarked
+KR nj5 marked 0
+KR nj6 = m6 2 -> unmarked
+KR nj6 > m6 0 -> irCOUNT = icmp sgt i32
+KR nj6 = m6 7 -> unmarked
+KR nj6 = n6 (*)-> unmarked
+KR nj6 * m6 3 -> irCOUNT = mul i32
+KR nj6 marked 2
+KR nj7 = m7 2 -> unmarked
+KR nj7 && (>)(<)-> unmarked
+KR nj7 > m7 0 -> irCOUNT = icmp sgt i32
+KR nj7 < m7 5 -> irCOUNT = icmp slt i32
+KR nj7 = m7 7 -> unmarked
+KR nj7 = n7 (*)-> unmarked
+KR nj7 * m7 3 -> irCOUNT = mul i32
+KR nj7 marked 3
+KR krNum = a 1.5 -> unmarked
+KR krNum = b (*)-> unmarked
+KR krNum * a 2.5 -> irNUMBER = fmul double
+KR krNum > b 3.5 -> irNUMBER = fcmp ogt double
+KR krNum = c (/)-> unmarked
+KR krNum / b 0.5 -> irNUMBER = fdiv double
+KR krNum marked 3
+KR krDiv = a 7 -> unmarked
+KR krDiv = b (/)-> unmarked
+KR krDiv / a 2 -> unmarked
+KR krDiv marked 0
+KR krTypeless = t (+)-> unmarked
+KR krTypeless + u 1 -> unmarked
+KR krTypeless marked 0
+KR krOutside = o (+)-> unmarked
+KR krOutside + kq 1 -> unmarked
+KR krOutside = p (*)-> unmarked
+KR krOutside * o 2 -> unmarked
+KR krOutside marked 0
+KR krTwoKind = w 3 -> unmarked
+KR krTwoKind = x (+)-> unmarked
+KR krTwoKind + w 1 -> unmarked
+KR krTwoKind = w 2.5 -> unmarked
+KR krTwoKind = y (*)-> unmarked
+KR krTwoKind * w 2 -> unmarked
+KR krTwoKind marked 0
+KR krNest = a 2 -> unmarked
+KR krNest = b 3 -> unmarked
+KR krNest = c (*)-> unmarked
+KR krNest * (+)a -> irCOUNT = mul i32
+KR krNest + a b -> irCOUNT = add i32
+KR krNest marked 2
+KD + members 0 | add i32 | fadd double
+KD - members 0 | sub i32 | fsub double
+KD * members 0 | mul i32 | fmul double
+KD / members 0 | none | fdiv double
+KD < members 0 | icmp slt i32 | fcmp olt double
+KD > members 0 | icmp sgt i32 | fcmp ogt double
+KD <= members 0 | icmp sle i32 | fcmp ole double
+KD >= members 0 | icmp sge i32 | fcmp oge double
+KD == members 0 | icmp eq i32 | fcmp oeq double
+KD != members 0 | icmp ne i32 | fcmp une double
+KD = members 0 | none | none

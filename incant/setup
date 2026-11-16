@@ -122,6 +122,7 @@ define
 *******************************************************************************/
 registry(Operators);
 define
+    // perKindIR irCOUNT= and irNUMBER= on an arithmetic or compare operator are DATA: the kant jitter's IR spelling for that operator on that kind (step 3a, SEQ 670). Attributes, never members: a member named <op><kind> is picked as the operator by pickKindOP, on every operator (measured SEQ 670: == and != then build nothing on the new road, and the jit ladder fails on the other eight)
     // notBuilt the ten entries bound to opNotBuilt are RESERVED -- Tony, SEQ 599: using one refuses by name as not built yet and the statement does nothing; when one is built its refusal is replaced by its method
     '~='    operateMethod=opMatch  compareTier;
     '||'    operateMethod=opOR   shortCircuit isOR;
@@ -155,22 +156,22 @@ define
     runRule         unary ruleMethod=opRunRule;
     '?'    operateMethod=opNotBuilt;
     '>>'    operateMethod=opNotBuilt;
-    '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier;
-    '>'     operateMethod=opGT  jitEmitter=jitEmitGT  compareTier;
+    '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier  irCOUNT="icmp sge i32"  irNUMBER="fcmp oge double";
+    '>'     operateMethod=opGT  jitEmitter=jitEmitGT  compareTier  irCOUNT="icmp sgt i32"  irNUMBER="fcmp ogt double";
 
-    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ  compareTier;
+    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ  compareTier  irCOUNT="icmp eq i32"  irNUMBER="fcmp oeq double";
     '=['    operateMethod=opGet;
     '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
     '=<'    operateMethod=opGetProperty;
     '='     operateMethod=opAssign  assignTier;
 
-    '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier;
+    '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier  irCOUNT="icmp sle i32"  irNUMBER="fcmp ole double";
     '<<'    operateMethod=opNotBuilt;
     '<:'    operateMethod=opSetTag  assignTier;
     // arrowRetired <- is RETIRED as an operator (Tony, SEQ 597): it did nothing := cannot. The entry stays as a tombstone because the two characters must still be read together -- with no entry `x <- y` reads as `x < -y`, a comparison, silently, and an entry outside this registry is not read as an operator (both measured). Its method refuses by name and says to write :=. The <- inside a for loop is grammar text, not this entry
     '<-'    operateMethod=opArrowRetired  assignTier;
-    '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier;
+    '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier  irCOUNT="icmp slt i32"  irNUMBER="fcmp olt double";
 
     ':>'    operateMethod=opNotBuilt;
     ':='    operateMethod=opSetGroup  assignTier;
@@ -179,7 +180,7 @@ define
     ':+'    operateMethod=opReplaceMember  assignTier;
     ':%'    operateMethod=opReplaceAttribute  assignTier;
     '/='    operateMethod=opDivEQ  assignTier;
-    '/'     operateMethod=opDiv  jitEmitter=jitEmitDiv;
+    '/'     operateMethod=opDiv  jitEmitter=jitEmitDiv  irNUMBER="fdiv double";
     '.'     operateMethod=opDot;
     ':.'    operateMethod=opSetFlag  assignTier;
     '-='    operateMethod=opMinusEQ  assignTier;
@@ -187,7 +188,7 @@ define
     '--'    unary ruleMethod=opMinusMinus  postfixToo;
 
     '$$'    unary ruleMethod=opDebug;
-    '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
+    '-'     operateMethod=opMinus  jitEmitter=jitEmitSub  irCOUNT="sub i32"  irNUMBER="fsub double";
     '+='    operateMethod=opPlusEQ  assignTier;
     '+='    // bear-trap 56: never merge these two mentions -- attributes and members on one mention bind it to its last member (section 9)
         '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
@@ -202,13 +203,13 @@ define
     '+%'    operateMethod=opAddAttribute  assignTier;
     '+<'    operateMethod=opAddProperty  assignTier;
     '+/'    operateMethod=opAddMember  assignTier;
-    '+'     operateMethod=opPlus  jitEmitter=jitEmitAdd;
+    '+'     operateMethod=opPlus  jitEmitter=jitEmitAdd  irCOUNT="add i32"  irNUMBER="fadd double";
     '*='    operateMethod=opMultiplyEQ  assignTier;
-    '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass;
+    '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass  irCOUNT="mul i32"  irNUMBER="fmul double";
     '@'     unary ruleMethod=opLastREF;
     '&'    operateMethod=opNotBuilt;
     '%'     operateMethod=opRem;
-    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier;
+    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier  irCOUNT="icmp ne i32"  irNUMBER="fcmp une double";
     '!'     unary ruleMethod=opNOT;
     ;
 /*******************************************************************************

@@ -4,8 +4,10 @@ include(unitTests);
 registry(fILEs);
 define
     kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
     ;
 include(kantGrammar);
+include(kantJitter);
 search reset stack KantGrammar Grokking;
 search Utilities UnitTests;
 registry(KantJitCallT);
@@ -93,6 +95,7 @@ define
     nl3an code={ lv3a = argument; if lv3a > 0; nl3an(lv3a - 1); print lv3a:; };
     ;
 search KantJitCallT;
+search KantJitter;
 njNew(nl3an);
 njNew(kl);
 njNew(kd);
