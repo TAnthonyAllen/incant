@@ -2345,6 +2345,12 @@ extern "C" GroupItem *compileIR(GroupItem *field)
 	if (shape < 0 || fn->arg_size() != 1 || !fn->getArg(0)->getType()->isPointerTy()) {
 	why = "compileIR: @" + name + " is neither i32 (ptr) nor ptr (ptr) -- the two shapes the door calls";
 	return ::refuse(field,::strdup(why.c_str())); }
+	//  everyFunction a text may define several functions; each one of a door shape is cached under its own name (SEQ 667)
+	std::vector<std::pair<std::string,int>> defs;
+	for (llvm::Function &f : *mod) {
+	if (f.isDeclaration() || f.arg_size() != 1 || !f.getArg(0)->getType()->isPointerTy()) continue;
+	if (f.getReturnType()->isIntegerTy(32))     defs.push_back({f.getName().str(), 0});
+	else if (f.getReturnType()->isPointerTy())  defs.push_back({f.getName().str(), 1}); }
 	{
 	llvm::PassBuilder PB;
 	llvm::LoopAnalysisManager LAM;
@@ -2368,6 +2374,11 @@ extern "C" GroupItem *compileIR(GroupItem *field)
 	why = "compileIR: lookup of @" + name + " failed -- " + llvm::toString(sym.takeError());
 	return ::refuse(field,::strdup(why.c_str())); }
 	gIRDoor[name] = { sym->toPtr<void*>(), shape };
+	for (auto &d : defs) {
+	if (d.first == name) continue;
+	auto ds = jit->lookup(d.first);
+	if (!ds) { llvm::consumeError(ds.takeError()); continue; }
+	gIRDoor[d.first] = { ds->toPtr<void*>(), d.second }; }
 	gIRDoorCompiles++;
 	fprintf(stderr,"=== compileIR: %s COMPILED, compile count = %d ===\n", name.c_str(), gIRDoorCompiles);
 	return ruler->trueResult;
@@ -12465,7 +12476,14 @@ GroupItem 	*action = field;
 		bodyRefused = gJitRetEnding == 2;
 		result = ::jitTakeReturn(ruleValue); } }
 		if ( !ruleCompiled ) {
-		result = result->groupBody->gMethod(result);
+		//  doorBody an action marked KanT runs the function the door compiled under that name IN PLACE OF the chain walk: the bind, the save, the clear above and the restore are this call's own, written once (Tony, SEQ 667). A mark naming nothing compiled refuses by name, never falls back
+		GroupItem *doorMark = ( !gIRDoor.empty() && !ruler->jitting ) ? fireRule->get((char*)"KanT") : 0;
+		if ( doorMark ) {
+		char *doorName = doorMark->getText();
+		auto doorHit = gIRDoor.find(doorName ? doorName : "");
+		if ( doorHit == gIRDoor.end() || doorHit->second.second != 1 ) result = ::refuse(fireRule,(char*)"is marked KanT, and no ptr (ptr) function is compiled under the name the mark carries");
+		else result = ((GroupItem*(*)(GroupItem*))doorHit->second.first)(result); }
+		else result = result->groupBody->gMethod(result);
 		bodyRanOff = fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused; }
 		if ( bodyRanOff ) result = ::refuse(fireRule,"the rule ran off its end: it handed back no label, and nothing is adopted");
 		if ( bodyRefused ) { ruler->refused = 1; result = nullptr; }

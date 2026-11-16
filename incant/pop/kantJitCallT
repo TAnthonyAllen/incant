@@ -1,0 +1,147 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(KantJitCallT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kjBuf buffer;
+    kjReq name text;
+    kjName;
+    kjMark;
+    kjCompile code={
+        kjName = string $"kj_" argument.taG$;
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"declare ptr @testOP(ptr)"$:;
+        print $"@" kjName "_n = global i32 0"$:;
+        print $"define ptr @" kjName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%n = load i32, ptr @" kjName "_n"$:;
+        print $_ _ "%n1 = add i32 %n, 1"$:;
+        print $_ _ "store i32 %n1, ptr @" kjName "_n"$:;
+        print $_ _ "%t1 = call ptr @testOP(ptr %a)"$:;
+        print $_ _ "ret ptr %t1"$:;
+        print $"}"$:;
+        print $"define i32 @" kjName "_fired(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%n = load i32, ptr @" kjName "_n"$:;
+        print $_ _ "ret i32 %n"$:;
+        print $"}"$:;
+        printTO(0);
+        kjReq.name = kjName;
+        kjReq.text = string $kjBuf$;
+        if compileIR(kjReq);
+            kjMark := new("KanT");
+            *kjMark = kjName;
+            *kjMark :. noPrinT;
+            argument +% *kjMark;
+        };
+    kjFired code={
+        kjReq.name = string $"kj_" argument.taG "_fired"$;
+        kjGot = callIR(kjReq);
+        cerr "KJ FIRED" argument.taG kjGot:;
+        };
+    kjCtl code={
+        kjName = string $"kjctl_" argument.taG$;
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"define ptr @" kjName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "ret ptr %a"$:;
+        print $"}"$:;
+        printTO(0);
+        kjReq.name = kjName;
+        kjReq.text = string $kjBuf$;
+        if compileIR(kjReq);
+            kjMark := new("KanT");
+            *kjMark = kjName;
+            *kjMark :. noPrinT;
+            argument +% *kjMark;
+        };
+    kjBad code={
+        kjMark := new("KanT");
+        *kjMark = "kj_nobody";
+        *kjMark :. noPrinT;
+        argument +% *kjMark;
+        };
+    kl code={ print seen:; seen = 5; print seen:; };
+    kd code={ d = argument; e = d * 2; if d > 0; kd(d - 1); print d e:; };
+    kc code={ c = argument + 1; print "kc" c:; };
+    ki code={ print "ki in":; kc(3); print "ki out":; };
+    kp code={ p = argument * 2; print "kp" p:; };
+    kr code={ print "kr in":; kp(4); print "kr out":; };
+    kx code={ print "kx ran its chain":; };
+    ky code={ print "ky ran its chain":; };
+    nl3an code={ lv3a = argument; if lv3a > 0; nl3an(lv3a - 1); print lv3a:; };
+    ;
+search KantJitCallT;
+njNew(nl3an);
+njNew(kl);
+njNew(kd);
+njNew(kc);
+njNew(ki);
+njNew(kp);
+njNew(kr);
+njNew(kx);
+njNew(ky);
+kjCompile(nl3an);
+kjCompile(kl);
+kjCompile(kd);
+kjCompile(kc);
+kjCompile(kr);
+print "KC ROW1 nl3an(2), no plain call first":;
+nl3an(2);
+print "KC ROW2 locals, called twice":;
+kl();
+kl();
+print "KC ROW3 a self-call with two locals":;
+kd(2);
+print "KC ROW4a compiled called from interpreted":;
+ki();
+print "KC ROW4b interpreted called from compiled":;
+kr();
+print "KC END":;
+kjFired(nl3an);
+kjFired(kl);
+kjFired(kd);
+kjFired(kc);
+kjFired(kr);
+print "KC CONTROL":;
+kx();
+kjCtl(kx);
+kx();
+print "KC BAD MARK":;
+kjBad(ky);
+ky();
+print "KC FOOT":;
+cerr "KANTJITCALLT SENTINEL":;
+stop();
+
+kantJitCallT -- SEQ 667 (Tony, 2026-11-16), the kant jitter's step 2b: the engine calls the compiled function.
+kjCompile(action) writes the action's function (one call to testOP, plus a counter the text keeps for itself and a
+second function, <name>_fired, that reads it), takes it through compileIR, and MARKS the action: an attribute KanT
+whose text is the function's name. From then on an ordinary call of the action runs the compiled function in place
+of the chain walk -- processAction's doorBody seat -- with the argument bound and the locals saved, cleared and
+restored by the call itself. pop.sh runs this file twice: as written, and with every top-level kjCompile( and
+kjFired( line deleted (the TWIN, everything interpreted). Stdout from KC ROW1 to KC END must be equal.
+KJ FIRED is the witness that the compiled functions ran: nl3an 3, kl 2, kd 3, kc 1, kr 1 -- one per call, the
+self-calls included. KC CONTROL: kx is called once unmarked (its chain prints), then marked with a function that never calls testOP, so
+the second ordinary call prints nothing. KC BAD MARK: ky's mark names nothing compiled; the call refuses by name and does not fall back to the chain.

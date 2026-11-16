@@ -8777,6 +8777,22 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_kaF" > "$T/ka.o" 2> "$T/ka.e"; _kax=$?
 _ofeq "kantJitArgT S1b: nl3an(2) through the door = its plain run (value / refusals of lv3a / exit / sentinel)" "$(_kjv "$T/ka.o" 'NL AL-3a n' 'NL KR plain') R$(grep -c '^REFUSED lv3a ' "$T/ka.e") x$_kax s$(grep -c '^KANTJITARGT SENTINEL' "$T/ka.e")" "NL AL-3a n |0 |1 |2 |NL KR plain | R0 x0 s1"
 _ofeq "kantJitArgT a refusal inside the body crosses the door as it does plainly: 1, one refusal each, no 2, the driver goes on" "$(_kjv "$T/ka.o" 'NL KR plain' 'NL END') R$(grep -c '^REFUSED hz -- Operator - ' "$T/ka.e")" "NL KR plain |1 |NL KR after plain |NL KR door |1 |NL KR after door |NL END | R2"
 
+#  ⚑ kantJitCallT -- SEQ 667 (Tony, 2026-11-16): THE KANT JITTER, STEP 2b -- the engine calls the compiled function. An action
+#  marked KanT (an attribute whose text names a door-compiled function) runs that function in place of the chain walk, from
+#  processAction's doorBody seat: the bind, the save, the clear and the restore are the call's own. Run twice: as written and
+#  with the top-level kjCompile( / kjFired( lines deleted (the twin, all interpreted). KJ FIRED is the text's own counter.
+_kcF=$(ip kantJitCallT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kcF" > "$T/kc.o" 2> "$T/kc.e"; _kcx=$?
+sed '/^kjCompile(/d;/^kjFired(/d' "$_kcF" > "$T/kc.twin"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/kc.twin" > "$T/kct.o" 2> "$T/kct.e"; _kctx=$?
+_kcWant="KC ROW1 nl3an(2), no plain call first |0 |1 |2 |KC ROW2 locals, called twice |seen |5 |seen |5 |KC ROW3 a self-call with two locals |0 0 |1 2 |2 4 |KC ROW4a compiled called from interpreted |ki in |kc 4 |ki out |KC ROW4b interpreted called from compiled |kr in |kp 8 |kr out |KC END |"
+_ofeq "kantJitCallT twin (nothing compiled): rows 1-4, exit, sentinel, compiles of kj_" "$(_kjv "$T/kct.o" 'KC ROW1' 'KC END') x$_kctx s$(grep -c '^KANTJITCALLT SENTINEL' "$T/kct.e") c$(grep -c '^=== compileIR: kj_' "$T/kct.e")" "$_kcWant x0 s1 c0"
+_ofeq "kantJitCallT compiled, ordinary calls = the twin: rows 1-4, exit, sentinel" "$(_kjv "$T/kc.o" 'KC ROW1' 'KC END') x$_kcx s$(grep -c '^KANTJITCALLT SENTINEL' "$T/kc.e")" "$_kcWant x0 s1"
+_ofeq "kantJitCallT the compiled functions ran, one fire per call, self-calls included (nl3an kl kd kc kr)" "$(grep '^KJ FIRED ' "$T/kc.e" | awk '{printf "%s %s;", $3, $4}')" "nl3an 3;kl 2;kd 3;kc 1;kr 1;"
+_ofeq "kantJitCallT nothing refused in rows 1-4 (REFUSED lines other than ky's)" "$(grep '^REFUSED ' "$T/kc.e" | grep -vc '^REFUSED ky ')" "0"
+_ofeq "kantJitCallT control: unmarked kx prints its chain; marked with a function that never calls testOP it prints nothing" "$(_kjv "$T/kc.o" 'KC CONTROL' 'KC BAD MARK')" "KC CONTROL |kx ran its chain |KC BAD MARK |"
+_ofeq "kantJitCallT a mark naming nothing compiled refuses by name and does not fall back to the chain" "$(grep -c '^REFUSED ky -- is marked KanT, and no ptr (ptr) function is compiled under the name the mark carries' "$T/kc.e") $(grep -c 'ky ran its chain' "$T/kc.o") $(_kjv "$T/kc.o" 'KC BAD MARK' 'KC FOOT')" "1 0 KC BAD MARK |KC FOOT |"
+
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
 #  `return *argument;`. Road i (fired on a label, InvokeD's attribute) and road ii (called from the command line) both

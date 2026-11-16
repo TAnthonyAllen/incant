@@ -4430,6 +4430,12 @@ extern GroupItem compileIR(GroupItem field)
     if (shape < 0 || fn->arg_size() != 1 || !fn->getArg(0)->getType()->isPointerTy()) {
         why = "compileIR: @" + name + " is neither i32 (ptr) nor ptr (ptr) -- the two shapes the door calls";
         return ::refuse(field,::strdup(why.c_str())); }
+    //  everyFunction a text may define several functions; each one of a door shape is cached under its own name (SEQ 667)
+    std::vector<std::pair<std::string,int>> defs;
+    for (llvm::Function &f : *mod) {
+        if (f.isDeclaration() || f.arg_size() != 1 || !f.getArg(0)->getType()->isPointerTy()) continue;
+        if (f.getReturnType()->isIntegerTy(32))     defs.push_back({f.getName().str(), 0});
+        else if (f.getReturnType()->isPointerTy())  defs.push_back({f.getName().str(), 1}); }
     {
         llvm::PassBuilder PB;
         llvm::LoopAnalysisManager LAM;
@@ -4453,6 +4459,11 @@ extern GroupItem compileIR(GroupItem field)
         why = "compileIR: lookup of @" + name + " failed -- " + llvm::toString(sym.takeError());
         return ::refuse(field,::strdup(why.c_str())); }
     gIRDoor[name] = { sym->toPtr<void*>(), shape };
+    for (auto &d : defs) {
+        if (d.first == name) continue;
+        auto ds = jit->lookup(d.first);
+        if (!ds) { llvm::consumeError(ds.takeError()); continue; }
+        gIRDoor[d.first] = { ds->toPtr<void*>(), d.second }; }
     gIRDoorCompiles++;
     fprintf(stderr,"=== compileIR: %s COMPILED, compile count = %d ===\n", name.c_str(), gIRDoorCompiles);
     return ruler->trueResult;

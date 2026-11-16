@@ -788,7 +788,14 @@ use grup
                 bodyRefused = gJitRetEnding == 2;
                 result = ::jitTakeReturn(ruleValue); } }
         if ( !ruleCompiled ) {
-            result = result->groupBody->gMethod(result);
+            //  doorBody an action marked KanT runs the function the door compiled under that name IN PLACE OF the chain walk: the bind, the save, the clear above and the restore are this call's own, written once (Tony, SEQ 667). A mark naming nothing compiled refuses by name, never falls back
+            GroupItem *doorMark = ( !gIRDoor.empty() && !ruler->jitting ) ? fireRule->get((char*)"KanT") : 0;
+            if ( doorMark ) {
+                char *doorName = doorMark->getText();
+                auto doorHit = gIRDoor.find(doorName ? doorName : "");
+                if ( doorHit == gIRDoor.end() || doorHit->second.second != 1 ) result = ::refuse(fireRule,(char*)"is marked KanT, and no ptr (ptr) function is compiled under the name the mark carries");
+                else result = ((GroupItem*(*)(GroupItem*))doorHit->second.first)(result); }
+            else result = result->groupBody->gMethod(result);
             bodyRanOff = fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused; }
         if ( bodyRanOff ) result = ::refuse(fireRule,"the rule ran off its end: it handed back no label, and nothing is adopted");
         if ( bodyRefused ) { ruler->refused = 1; result = nullptr; }
