@@ -86,7 +86,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS compile if before (parked, line 52 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS compile endCompile (parked, line 71 of Directives/GroupRules) -> GroupRules.twk +3
   ok    INJECTS copyOf starting (parked, line 75 of Directives/GroupRules) -> GroupRules.twk +2
-  WARN dark  generateCode generating (parked, line 78 of Directives/GroupRules) -- method not found in any candidate file
+  WARN dark  generateCode generating (parked, line 78 of Directives/GroupRules) -- tok found generateCode in measure.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS guard GroupItem (parked, line 83 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS guard clearData (parked, line 86 of Directives/GroupRules) -> GroupRules.twk +1
   ok    INJECTS listenTo notifyList (parked, line 89 of Directives/GroupRules) -> GroupRules.twk +1
