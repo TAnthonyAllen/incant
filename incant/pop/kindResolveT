@@ -120,14 +120,16 @@ kindResolveT -- SEQ 670 (Tony's ruling of 2026-11-16), the kant jitter's step 3a
 krResolve(action), in incant/kantJitter, marks each two-operand instruct of the action's chain with the per-kind IR
 attribute of its operator (KinD = irCOUNT or irNUMBER) when it is sure of the kind, and writes no IR. krShow prints the
 chain's two-operand instructs, one KR line each, with the mark and the IR text it names, or "unmarked".
+Since step 3b an = whose right side has a known kind is marked with its store (the right side's kind).
 pop.sh compares every KR and KD line with genLadder/kindResolveT.kr.txt and reads these by name:
     nj4         its + and its * are marked irCOUNT; resolved twice, it still reads 2 (the second call does nothing)
-    nj5         3.5 + 1 is a number with a count: the table shows a conversion, so nothing is marked
+    nj5         3.5 + 1 is a number with a count: since step 3c (SEQ 672) the + is marked a number, its right side widening
     krNum       number with number: * > and / are marked irNUMBER
-    krDiv       count / count gives a number (7 / 2 is 3.5): unmarked, and / carries no irCOUNT
+    krDiv       count / count gives a number (7 / 2 is 3.5): since 3c marked a number, both sides widening; / carries no irCOUNT
     krTypeless  u is never written: u + 1 is unmarked
     krOutside   kq is a field from outside the action: kq + 1 is unmarked, and so is o * 2, since o's kind is then not known
-    krTwoKind   w is written as a count and as a number: every op that touches it is unmarked
+    krTwoKind   w is written as a count at the top level and later given a number: since 3c its kind is its first writer's,
+                a count, its ops are marked count, and the store of 2.5 is marked a number (the write helper casts it in)
     krNest      a + b * a builds (a + b) * a: both are marked, the outer through the inner's result kind
     nj2 nj3 nj6 nj7   the insides of if and while are walked (nj3's < + and ==; nj7's > and < under &&, which has no kind)
 KD lines (R2): the ten operators carry irCOUNT and irNUMBER as attributes, and hasMembers reads 0 for each, so the

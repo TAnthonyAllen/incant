@@ -1,0 +1,132 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(KantMixedT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kwRan code={
+        kjReq.name = string $"kw_" argument.taG "_ran"$;
+        kwGot = callIR(kjReq);
+        kjReq.name = string $"kw_" argument.taG "_tops"$;
+        kwTop = callIR(kjReq);
+        cerr "KM RAN" argument.taG kwGot "testOP" kwTop:;
+        };
+    nj5 code={ a5 = 3.5; b5 = a5 + 1; print b5:; };
+    mx code={
+        c = 7;
+        n = 2.5;
+        r1 = c + n;
+        print r1:;
+        r2 = n + c;
+        print r2:;
+        r3 = c - n;
+        print r3:;
+        r4 = n - c;
+        print r4:;
+        r5 = c * n;
+        print r5:;
+        r6 = n * c;
+        print r6:;
+        r7 = c + n * c;
+        print r7:;
+        };
+    mc code={ w = 3; w = 2.5; print w:; x = w + 1; print x:; w = x * 1.5; print w:; };
+    mn code={ v = 2.5; v = 3; print v:; y = v + 1; print y:; v = y + y; print v:; };
+    md code={ a = 7; b = 2; q = a / b; print q:; z = a / 0; print z:; h = 7.5 / b; print h:; g = q / 0.5; print g:; };
+    mq code={ c = 2; n = 1.5; r = c * n; print r:; };
+    ms code={ c = 4; n = 0.5; r = c - n; print r:; };
+    ;
+search KantMixedT;
+njNew(nj5);
+njNew(mx);
+njNew(mc);
+njNew(mn);
+njNew(md);
+njNew(mq);
+njNew(ms);
+krResolve(nj5);
+krResolve(mx);
+krResolve(mc);
+krResolve(mn);
+krResolve(md);
+krResolve(mq);
+krResolve(ms);
+krShow(nj5);
+krShow(mc);
+krShow(md);
+cerr "KM NOTES off, compiling nj5 mx mc mn md":;
+kwCompile(nj5);
+kwCompile(mx);
+kwCompile(mc);
+kwCompile(mn);
+kwCompile(md);
+cerr "KM NOTES toggled on, compiling mq":;
+jitNotes();
+kwCompile(mq);
+cerr "KM NOTES on, calling mq twice and compiling it again":;
+mq();
+mq();
+kwCompile(mq);
+cerr "KM NOTES toggled off, compiling ms":;
+jitNotes();
+kwCompile(ms);
+cerr "KM NOTES end":;
+print "KM ROW1 nj5":;
+nj5();
+print "KM ROW2 count with number, both ways, + - *":;
+mx();
+print "KM ROW3a a count local given a number":;
+mc();
+print "KM ROW3b a number local given a count":;
+mn();
+print "KM ROW4 division":;
+md();
+print "KM ROW5 the notes actions":;
+mq();
+ms();
+print "KM END":;
+kwRan(nj5);
+kwRan(mx);
+kwRan(mc);
+kwRan(mn);
+kwRan(md);
+kwCompile(nj5);
+cerr "KM TEXT BEGIN":;
+cerr $kjBuf$;
+cerr "KM TEXT END":;
+cerr "KANTMIXEDT SENTINEL":;
+stop();
+
+kantMixedT -- SEQ 672 (Tony's ruling of 2026-11-16), the kant jitter's step 3c: mixed kinds, / and the notes toggle.
+pop.sh runs this file twice: as written, and with the top-level kwCompile( and kwRan( lines deleted (the twin, all
+interpreted). Stdout from KM ROW1 to KM END must be equal.
+    ROW1   nj5: a5 = 3.5; b5 = a5 + 1 reads 4.5, the count 1 widened natively.
+    ROW2   mx: a count with a number and a number with a count, for + - *, and one nested (c + n * c).
+    ROW3a  mc: w is a count; w = 2.5 is cast in by the store (it reads 3); x = w + 1 is count arithmetic; w = x * 1.5 is
+           a number cast back into the count. ROW3b mn: the reverse, a number local given a count.
+    ROW4   md: 7 / 2 is 3.5 and 7 / 0 is inf, both sides widened; 7.5 / 2 widens the right; q / 0.5 widens nothing.
+    ROW5   the notes. Off (the default): five actions are compiled and nothing is said. jitNotes() turns them on: mq is
+           compiled and its one widening * says so once; calling mq twice and compiling it again says nothing more.
+           jitNotes() again turns them off: ms is compiled and nothing is said.
+KM RAN is the text's own count of statements run and of testOP calls: only the prints go through testOP.
+The text between KM TEXT BEGIN and KM TEXT END is nj5's, pinned in genLadder/kantMixedT.nj5.ll.

@@ -122,6 +122,7 @@ define
 *******************************************************************************/
 registry(Operators);
 define
+    // perKindIR irWIDE= on + - * / is the IR that widens a count operand to a number (step 3c, SEQ 672): an operator that carries it takes a count mixed with a number natively, and / takes two counts
     // perKindIR irCOUNT= and irNUMBER= on an arithmetic or compare operator are DATA: the kant jitter's IR spelling for that operator on that kind (step 3a, SEQ 670). Attributes, never members: a member named <op><kind> is picked as the operator by pickKindOP, on every operator (measured SEQ 670: == and != then build nothing on the new road, and the jit ladder fails on the other eight)
     // notBuilt the ten entries bound to opNotBuilt are RESERVED -- Tony, SEQ 599: using one refuses by name as not built yet and the statement does nothing; when one is built its refusal is replaced by its method
     '~='    operateMethod=opMatch  compareTier;
@@ -180,7 +181,7 @@ define
     ':+'    operateMethod=opReplaceMember  assignTier;
     ':%'    operateMethod=opReplaceAttribute  assignTier;
     '/='    operateMethod=opDivEQ  assignTier;
-    '/'     operateMethod=opDiv  jitEmitter=jitEmitDiv  irNUMBER="fdiv double";
+    '/'     operateMethod=opDiv  jitEmitter=jitEmitDiv  irNUMBER="fdiv double"  irWIDE="sitofp i32";
     '.'     operateMethod=opDot;
     ':.'    operateMethod=opSetFlag  assignTier;
     '-='    operateMethod=opMinusEQ  assignTier;
@@ -188,7 +189,7 @@ define
     '--'    unary ruleMethod=opMinusMinus  postfixToo;
 
     '$$'    unary ruleMethod=opDebug;
-    '-'     operateMethod=opMinus  jitEmitter=jitEmitSub  irCOUNT="sub i32"  irNUMBER="fsub double";
+    '-'     operateMethod=opMinus  jitEmitter=jitEmitSub  irCOUNT="sub i32"  irNUMBER="fsub double"  irWIDE="sitofp i32";
     '+='    operateMethod=opPlusEQ  assignTier;
     '+='    // bear-trap 56: never merge these two mentions -- attributes and members on one mention bind it to its last member (section 9)
         '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
@@ -203,9 +204,9 @@ define
     '+%'    operateMethod=opAddAttribute  assignTier;
     '+<'    operateMethod=opAddProperty  assignTier;
     '+/'    operateMethod=opAddMember  assignTier;
-    '+'     operateMethod=opPlus  jitEmitter=jitEmitAdd  irCOUNT="add i32"  irNUMBER="fadd double";
+    '+'     operateMethod=opPlus  jitEmitter=jitEmitAdd  irCOUNT="add i32"  irNUMBER="fadd double"  irWIDE="sitofp i32";
     '*='    operateMethod=opMultiplyEQ  assignTier;
-    '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass  irCOUNT="mul i32"  irNUMBER="fmul double";
+    '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass  irCOUNT="mul i32"  irNUMBER="fmul double"  irWIDE="sitofp i32";
     '@'     unary ruleMethod=opLastREF;
     '&'    operateMethod=opNotBuilt;
     '%'     operateMethod=opRem;

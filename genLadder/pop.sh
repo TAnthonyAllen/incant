@@ -8885,12 +8885,15 @@ _ofeq "kindResolveT every printed chain and the operators' data = the pinned tex
 #  sides have the same known kind. The op rows below did not move; the "marked N" totals grew by each action's same-kind stores
 #  (nj4 2 -> 5, nj5 0 -> 2, krDiv 0 -> 2), and the pinned text gained those = lines and the KD line for =.
 _ofeq "kindResolveT nj4 marks its + and its * as count, and a second krResolve does nothing (still 5: two ops, three stores)" "$(_krm nj4) $(grep '^KR nj4 marked' "$T/kr.txt")" "+ a4 4 -> irCOUNT = add i32;* b4 2 -> irCOUNT = mul i32; KR nj4 marked 5"
-_ofeq "kindResolveT nj5, a number with a count: the table shows a conversion, its + is unmarked (the 2 marked are its two number stores)" "$(_krm nj5) $(grep '^KR nj5 marked' "$T/kr.txt")" "+ a5 1 -> unmarked; KR nj5 marked 2"
+#  RE-PINNED SEQ 672 (step 3c, Tony's ruling): a count mixed with a number in + - * is marked with its result kind and the side that
+#  widens (nj5); / is marked on any pair, both sides widening on two counts (krDiv); a local's kind is its first writer's when that
+#  writer is a top-level statement, so a two-kind local is marked (krTwoKind: w stays a count, the 2.5 is cast in by the store).
+_ofeq "kindResolveT nj5, a number with a count: its + is marked a number, the right side (the count 1) widening" "$(_krm nj5) $(grep '^KR nj5 marked' "$T/kr.txt")" "+ a5 1 -> irNUMBER = fadd double widening 3; KR nj5 marked 3"
 _ofeq "kindResolveT number with number is marked irNUMBER (krNum: * > /)" "$(_krm krNum)" "* a 2.5 -> irNUMBER = fmul double;> b 3.5 -> irNUMBER = fcmp ogt double;/ b 0.5 -> irNUMBER = fdiv double;"
-_ofeq "kindResolveT count / count is unmarked: it gives a number (krDiv)" "$(_krm krDiv) $(grep '^KR krDiv marked' "$T/kr.txt")" "/ a 2 -> unmarked; KR krDiv marked 2"
+_ofeq "kindResolveT count / count is marked a number, both sides widening (krDiv)" "$(_krm krDiv) $(grep '^KR krDiv marked' "$T/kr.txt")" "/ a 2 -> irNUMBER = fdiv double widening 23; KR krDiv marked 3"
 _ofeq "kindResolveT a typeless local in arithmetic is unmarked (krTypeless)" "$(_krm krTypeless) $(grep '^KR krTypeless marked' "$T/kr.txt")" "+ u 1 -> unmarked; KR krTypeless marked 0"
 _ofeq "kindResolveT a field from outside the action is unmarked, and what is computed from it (krOutside)" "$(_krm krOutside) $(grep '^KR krOutside marked' "$T/kr.txt")" "+ kq 1 -> unmarked;* o 2 -> unmarked; KR krOutside marked 0"
-_ofeq "kindResolveT a local with writers of two kinds is unmarked with every op that touches it (krTwoKind)" "$(_krm krTwoKind) $(grep '^KR krTwoKind marked' "$T/kr.txt")" "+ w 1 -> unmarked;* w 2 -> unmarked; KR krTwoKind marked 0"
+_ofeq "kindResolveT a local written as a count at the top level and later given a number stays a count: its ops are marked count (krTwoKind)" "$(_krm krTwoKind) $(grep '^KR krTwoKind marked' "$T/kr.txt")" "+ w 1 -> irCOUNT = add i32;* w 2 -> irCOUNT = mul i32; KR krTwoKind marked 6"
 _ofeq "kindResolveT the insides of a while and an if are walked (nj3: < + ==), and a nested expression takes its inner result's kind (krNest)" "$(_krm nj3) $(_krm krNest)" "< n3 5 -> irCOUNT = icmp slt i32;+ n3 1 -> irCOUNT = add i32;== n3 3 -> irCOUNT = icmp eq i32; * (+)a -> irCOUNT = mul i32;+ a b -> irCOUNT = add i32;"
 _ofeq "kindResolveT R2: the ten operators carry their IR as attributes and none has members, so the engine's per-kind pick is not entered (operators / with members)" "$(grep -c '^KD ' "$T/kr.txt") $(grep '^KD ' "$T/kr.txt" | grep -vc ' members 0 ')" "11 0"
 #  ROW 3: every 2b and 2c row again, on actions the pass has marked (krResolve and krShow inserted after each njNew)
@@ -8908,7 +8911,7 @@ _ofeq "kindResolveT row 3, 2c marked: twin = the unmarked want (stdout / exit / 
 _ofeq "kindResolveT row 3, 2c marked: walked = the unmarked want, and the statement counts are the unmarked run's (stdout / exit / sentinel / KW RAN)" "$(_kjv "$T/kwr.o" 'KW S1' 'KW END') x$(cat "$T/kwr.x") s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwr.e") $(grep '^KW RAN ' "$T/kwr.e" | awk '{printf "%s %s;", $3, $4}')" "$_kwWant x0 s1 $(grep '^KW RAN ' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')"
 #  2b's actions all compute from `argument`, whose kind the pass cannot know, so it marks none of their ops (kl's `seen = 5` is the one store); nl3an and kd call themselves,
 #  which the walk must not follow into the callee (before krInside the pass never ended on them: exit 139).
-_ofeq "kindResolveT row 3 is not vacuous: the pass ran on every action (2b: 9 actions, 1 marked -- kl's store, two self-calls; 2c: 11 actions, 27 marked)" "$(grep -c '^KR .* marked ' "$T/kcr.e") $(_krsum "$T/kcr.e") $(grep -c '^KR .* marked ' "$T/kwr.e") $(_krsum "$T/kwr.e")" "9 1 11 27"
+_ofeq "kindResolveT row 3 is not vacuous: the pass ran on every action (2b: 9 actions, 1 marked -- kl's store, two self-calls; 2c: 11 actions, 28 marked -- nj5's + since 3c)" "$(grep -c '^KR .* marked ' "$T/kcr.e") $(_krsum "$T/kcr.e") $(grep -c '^KR .* marked ' "$T/kwr.e") $(_krsum "$T/kwr.e")" "9 1 11 28"
 
 #  ⚑ kantNativeT -- SEQ 671 (Tony's ruling of 2026-11-16): THE KANT JITTER, STEP 3b -- native arithmetic, values in the fields.
 #  On a resolved action kwCompile writes a top-level = into a local natively when its right side is, all the way down, a marked
@@ -8931,6 +8934,28 @@ sed -n '/^KN TEXT BEGIN/,/^KN TEXT END/p' "$T/kn.e"  | sed -e '1d' -e '$d' > "$T
 sed -n '/^KN TEXT BEGIN/,/^KN TEXT END/p' "$T/kn2.e" | sed -e '1d' -e '$d' > "$T/kn.t2"
 _ofeq "kantNativeT row 7: nj4's native text is the pinned text (genLadder/kantNativeT.nj4.ll), two runs write the same bytes, and it holds no address" "$(cmp -s "$T/kn.t1" genLadder/kantNativeT.nj4.ll && echo pinned) $([ -s "$T/kn.t1" ] && cmp -s "$T/kn.t1" "$T/kn.t2" && echo same) $(grep -c '0x\|inttoptr' "$T/kn.t1")" "pinned same 0"
 _ofeq "kantNativeT the native text computes with the operators' own IR and stores through the helpers (add / mul / irSetCount calls / testOP calls in nj4's text)" "$(grep -c '= add i32 %vt' "$T/kn.t1") $(grep -c '= mul i32 %vt' "$T/kn.t1") $(grep -c 'call ptr @irSetCount(' "$T/kn.t1") $(grep -c 'call ptr @testOP(' "$T/kn.t1")" "1 1 3 1"
+
+#  ⚑ kantMixedT -- SEQ 672 (Tony's ruling of 2026-11-16): THE KANT JITTER, STEP 3c -- mixed kinds, / and the notes toggle.
+#  A count mixed with a number in + - * runs natively as the interpreter does it: the count side widens (the operator's irWIDE
+#  text, data in incant/setup), the result is a number. / is a plain double division on any pair (measured: 7 / 2 is 3.5, a zero
+#  divisor gives inf or nan, nothing refuses). A store of the other kind is cast by the write helper, which is opAssign. jitNotes()
+#  toggles a note per mixed op at compile, off by default. Run twice: as written and with kwCompile( / kwRan( deleted (the twin).
+_kmF=$(ip kantMixedT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kmF" > "$T/km.o" 2> "$T/km.e"; _kmx=$?
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kmF" > "$T/km2.o" 2> "$T/km2.e"
+sed '/^kwCompile(/d;/^kwRan(/d' "$_kmF" > "$T/km.twin"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/km.twin" > "$T/kmt.o" 2> "$T/kmt.e"; _kmtx=$?
+_kmWant="KM ROW1 nj5 |4.5 |KM ROW2 count with number, both ways, + - * |9.5 |9.5 |4.5 |-4.5 |17.5 |17.5 |66.5 |KM ROW3a a count local given a number |3 |4 |6 |KM ROW3b a number local given a count |3 |4 |8 |KM ROW4 division |3.5 |inf |3.75 |7 |KM ROW5 the notes actions |3 |3.5 |KM END |"
+_ofeq "kantMixedT twin (nothing compiled): rows 1-5 (stdout / exit / sentinel / compiles / refusals)" "$(_kjv "$T/kmt.o" 'KM ROW1' 'KM END') x$_kmtx s$(grep -c '^KANTMIXEDT SENTINEL' "$T/kmt.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kmt.e") R$(grep -c '^REFUSED\|ERROR' "$T/kmt.e")" "$_kmWant x0 s1 c0 R0"
+_ofeq "kantMixedT native = the twin: nj5 4.5, both ways of + - *, the two casts, division (stdout / exit / sentinel / compiles / refusals)" "$(_kjv "$T/km.o" 'KM ROW1' 'KM END') x$_kmx s$(grep -c '^KANTMIXEDT SENTINEL' "$T/km.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/km.e") R$(grep -c '^REFUSED\|ERROR' "$T/km.e")" "$_kmWant x0 s1 c7 R0"
+_ofeq "kantMixedT every statement but the prints ran natively (statements run / testOP calls: nj5 mx mc mn md)" "$(grep '^KM RAN ' "$T/km.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "nj5 3 1;mx 16 7;mc 7 3;mn 7 3;md 10 4;"
+_ofeq "kantMixedT the marks as printed: nj5's + a number widening its right side; mc's cast store and its widening *; md's / on two counts widening both" "$(grep '^KR nj5 + \|^KR mc = w 2.5 \|^KR mc \* \|^KR md / a b ' "$T/km.e" | sed 's/ *$//' | tr '\n' ';')" "KR nj5 + a5 1 -> irNUMBER = fadd double widening 3;KR mc = w 2.5 -> irNUMBER = call ptr @irSetNumber;KR mc * x 1.5 -> irNUMBER = fmul double widening 2;KR md / a b -> irNUMBER = fdiv double widening 23;"
+_kmn () { sed -n "/^KM NOTES $1/,/^KM NOTES /p" "$T/km.e" | grep -c '^JIT NOTE'; }
+_ofeq "kantMixedT row 5 notes: off, five actions compiled, 0 lines; toggled on, mq compiled, 1; on, mq called twice and compiled again, 0; toggled off, ms compiled, 0" "$(_kmn 'off, compiling') $(_kmn 'toggled on') $(_kmn 'on, calling') $(_kmn 'toggled off')" "0 1 0 0"
+_ofeq "kantMixedT the one note, as printed" "$(grep '^JIT NOTE' "$T/km.e" | sed 's/ *$//')" "JIT NOTE kw_mq : * widens its left count to a number"
+sed -n '/^KM TEXT BEGIN/,/^KM TEXT END/p' "$T/km.e"  | sed -e '1d' -e '$d' > "$T/km.t1"
+sed -n '/^KM TEXT BEGIN/,/^KM TEXT END/p' "$T/km2.e" | sed -e '1d' -e '$d' > "$T/km.t2"
+_ofeq "kantMixedT nj5's native text is the pinned text (genLadder/kantMixedT.nj5.ll), two runs the same bytes; the widening is the operator's own text (pinned / same / sitofp lines)" "$(cmp -s "$T/km.t1" genLadder/kantMixedT.nj5.ll && echo pinned) $([ -s "$T/km.t1" ] && cmp -s "$T/km.t1" "$T/km.t2" && echo same) $(grep -c '= sitofp i32 %vt2_3_3 to double' "$T/km.t1")" "pinned same 1"
 
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends

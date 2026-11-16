@@ -65,18 +65,20 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
     STEP 3a bought and merged (SEQ 670): the jitter's home is incant/kantJitter; krResolve marks a two-operand instruct KinD = irCOUNT or
         irNUMBER when both sides have that kind for sure. The per-kind IR data are ATTRIBUTES on the operator's own line in incant/setup
         (irCOUNT="add i32"), never members named <op><kind>: pickKindOP picks such a member as the operator. R1's table: incant/pop/kindTableT.
-    STEP 3b BUILT on branch kant-jitter-3b (SEQ 671, 2026-11-16), waiting on Tony's buy: native arithmetic, values in the fields.
-        A top-level = into a local is written natively when its right side is, all the way down, a marked + - or *, a literal, or a local an
-        earlier top-level statement wrote. Fields are fetched by position at the top of the function (irAt), read by irCountOf / irNumberOf,
-        computed with the operator's IR text, written back by irSetCount / irSetNumber, which are opAssign. = carries its store as data
-        (irCOUNT="call ptr @irSetCount"), so the pass now marks a same-kind store. An unresolved action's text is step 2c's, byte for byte.
-        C++: the four helpers, 16 lines of code (running total for the jitter 184). Fixture incant/pop/kantNativeT, text genLadder/kantNativeT.nj4.ll.
-        A local cannot carry a listener (listenTo names a field on the search list), so the notify row is at the helper, on a declared field.
-    RULED FOR 3c, NOT BUILT: a count mixed with a number is handled natively, doing what the interpreter does, no fallback. Each such op notes
-        itself once at compile, on the error stream. Notes are a toggle, OFF by default; once toggled they stay as set for the rest of the run.
+    STEP 3b bought and merged (SEQ 671): a top-level = into a local runs natively when its right side is native all the way down. Fields by
+        position (irAt), read by irCountOf / irNumberOf, computed with the operator's IR text, written back by irSetCount / irSetNumber
+        (opAssign). = carries its store as data. An unresolved action's text is step 2c's. A local cannot carry a listener.
+    STEP 3c BUILT on branch kant-jitter-3c (SEQ 672, 2026-11-16), waiting on Tony's buy: mixed kinds, / and the notes toggle. No C++.
+        A count mixed with a number in + - * is marked irNUMBER with WideN the side that widens (2 left, 3 right); the widening's text is
+        the operator's irWIDE="sitofp i32" in incant/setup. / is marked on any pair (two counts: WideN 23): measured, the new road's / is a
+        plain double division, 7 / 2 is 3.5, a zero divisor gives inf or nan, nothing refuses. An = is marked with its right side's kind;
+        the store helper is opAssign, which casts into the target's kind (a count local given 2.5 reads 3).
+        A local's kind is its first writer's ONLY when that writer is a top-level statement (so surely first to run); a first writer inside
+        an if or a loop followed by another kind leaves it unknown. jitNotes() toggles a note per widening op at compile, off by default.
+        Fixture incant/pop/kantMixedT, text genLadder/kantMixedT.nj5.ll. C++ running total for the jitter 184, unchanged.
     RULED AND NOT YET BUILT, dispatch held by Tony:
         debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body is parsed: measured SEQ 662).
-    NEXT: the buy of kant-jitter-3b, then step 3c.
+    NEXT: the buy of kant-jitter-3c, then step 4 (native compare, if, while).
 
 /*****************************************************************************
     Plan

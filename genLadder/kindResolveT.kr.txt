@@ -18,8 +18,8 @@ KR nj4 * b4 2 -> irCOUNT = mul i32
 KR nj4 marked 5
 KR nj5 = a5 3.5 -> irNUMBER = call ptr @irSetNumber
 KR nj5 = b5 (+)-> irNUMBER = call ptr @irSetNumber
-KR nj5 + a5 1 -> unmarked
-KR nj5 marked 2
+KR nj5 + a5 1 -> irNUMBER = fadd double widening 3
+KR nj5 marked 3
 KR nj6 = m6 2 -> irCOUNT = call ptr @irSetCount
 KR nj6 > m6 0 -> irCOUNT = icmp sgt i32
 KR nj6 = m6 7 -> irCOUNT = call ptr @irSetCount
@@ -43,8 +43,8 @@ KR krNum / b 0.5 -> irNUMBER = fdiv double
 KR krNum marked 6
 KR krDiv = a 7 -> irCOUNT = call ptr @irSetCount
 KR krDiv = b (/)-> irNUMBER = call ptr @irSetNumber
-KR krDiv / a 2 -> unmarked
-KR krDiv marked 2
+KR krDiv / a 2 -> irNUMBER = fdiv double widening 23
+KR krDiv marked 3
 KR krTypeless = t (+)-> unmarked
 KR krTypeless + u 1 -> unmarked
 KR krTypeless marked 0
@@ -53,13 +53,13 @@ KR krOutside + kq 1 -> unmarked
 KR krOutside = p (*)-> unmarked
 KR krOutside * o 2 -> unmarked
 KR krOutside marked 0
-KR krTwoKind = w 3 -> unmarked
-KR krTwoKind = x (+)-> unmarked
-KR krTwoKind + w 1 -> unmarked
-KR krTwoKind = w 2.5 -> unmarked
-KR krTwoKind = y (*)-> unmarked
-KR krTwoKind * w 2 -> unmarked
-KR krTwoKind marked 0
+KR krTwoKind = w 3 -> irCOUNT = call ptr @irSetCount
+KR krTwoKind = x (+)-> irCOUNT = call ptr @irSetCount
+KR krTwoKind + w 1 -> irCOUNT = add i32
+KR krTwoKind = w 2.5 -> irNUMBER = call ptr @irSetNumber
+KR krTwoKind = y (*)-> irCOUNT = call ptr @irSetCount
+KR krTwoKind * w 2 -> irCOUNT = mul i32
+KR krTwoKind marked 6
 KR krNest = a 2 -> irCOUNT = call ptr @irSetCount
 KR krNest = b 3 -> irCOUNT = call ptr @irSetCount
 KR krNest = c (*)-> irCOUNT = call ptr @irSetCount

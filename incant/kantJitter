@@ -58,9 +58,8 @@ define
                 if kwNv == 1;
                     kwKd := *kwSt["KinD"];
                     kgTy = "double";
-                    kgRd = "irNumberOf";
                     if *kwKd == "irCOUNT";  kgTy = "i32";
-                    if *kwKd == "irCOUNT";  kgRd = "irCountOf";
+                    kgKind = string $kwKd$;
                     kwEq := *kwSt[1];
                     kwStore := *kwEq[*kwKd];
                     kwSrc := *kwSt[3];
@@ -108,7 +107,7 @@ define
         };
     kgPath="t";
     kgTy="i32";
-    kgRd="irCountOf";
+    kgKind="irCOUNT";
     krSeen;
     krFetch code={
         kfP = string $kgPath$;
@@ -129,23 +128,62 @@ define
         };
     krValue code={
         kvP = string $kgPath$;
+        kvMine = string $kgKind$;
         kvI := argument.instructTypE;
         kvIs = 0;
         if *kvI == 1;   kvIs = 1;
         if kvIs == 0;
-            print $_ _ "%v" kvP _ "= call" _ kgTy _ "@" kgRd "(ptr %" kvP ")"$:;
+            kvTy = "double";
+            kvRd = "irNumberOf";
+            if kvMine == "irCOUNT";     kvTy = "i32";
+            if kvMine == "irCOUNT";     kvRd = "irCountOf";
+            print $_ _ "%v" kvP _ "= call" _ kvTy _ "@" kvRd "(ptr %" kvP ")"$:;
             return 0;
+        kvOp := argument[1];
+        kvK  := argument.KinD;
+        kvW = 0;
+        if argument.WideN;      kvW = argument.WideN;
+        kvLk = string $kvK$;
+        kvRk = string $kvK$;
+        if kvW == 2;    kvLk = "irCOUNT";
+        if kvW == 3;    kvRk = "irCOUNT";
+        if kvW == 23;   kvLk = "irCOUNT";
+        if kvW == 23;   kvRk = "irCOUNT";
         kvL := argument[2];
         kgPath = string $kvP "_2"$;
+        kgKind = string $kvLk$;
         krValue(*kvL);
         kvR := argument[3];
         kgPath = string $kvP "_3"$;
+        kgKind = string $kvRk$;
         krValue(*kvR);
         kgPath = string $kvP$;
-        kvOp := argument[1];
-        kvK  := argument.KinD;
+        kgKind = string $kvMine$;
+        kvA = string $"%v" kvP "_2"$;
+        kvB = string $"%v" kvP "_3"$;
+        if kvW != 0;
+            kvWide := *kvOp["irWIDE"];
+            if kvW != 3;
+                print $_ _ "%w" kvP "_2 =" _ kvWide _ "%v" kvP "_2 to double"$:;
+                kvA = string $"%w" kvP "_2"$;
+            if kvW != 2;
+                print $_ _ "%w" kvP "_3 =" _ kvWide _ "%v" kvP "_3 to double"$:;
+                kvB = string $"%w" kvP "_3"$;
+            if krNotes == 1;
+                kvNoted = 0;
+                if argument.NoteD;      kvNoted = 1;
+                if kvNoted == 0;
+                    kvT := *kvOp.taG;
+                    kvSide = "both counts";
+                    if kvW == 2;    kvSide = "its left count";
+                    if kvW == 3;    kvSide = "its right count";
+                    cerr "JIT NOTE" kwName ":" kvT "widens" kvSide "to a number":;
+                    kvFlag := new("NoteD");
+                    *kvFlag = 1;
+                    *kvFlag :. noPrinT;
+                    argument +% *kvFlag;
         kvIR := *kvOp[*kvK];
-        print $_ _ "%v" kvP _ "=" _ kvIR _ "%v" kvP "_2, %v" kvP "_3"$:;
+        print $_ _ "%v" kvP _ "=" _ kvIR _ kvA ", " kvB$:;
         return 0;
         };
     krNatExpr code={
@@ -169,6 +207,7 @@ define
         if *neT == "+";     neOk = 1;
         if *neT == "-";     neOk = 1;
         if *neT == "*";     neOk = 1;
+        if *neT == "/";     neOk = 1;
         if neOk == 0;       return 0;
         neL := argument[2];
         neA = krNatExpr(*neL);
@@ -225,7 +264,16 @@ define
         return kpN;
         };
     krTab;
+    krFirm;
+    krDepth=0;
     krCount=0;
+    krNotes=0;
+    jitNotes code={
+        jnWas = krNotes;
+        if jnWas == 0;  krNotes = 1;
+        if jnWas == 1;  krNotes = 0;
+        return krNotes;
+        };
     krKindOf code={
         krkLit := argument.isLiteraL;
         if *krkLit == 1;
@@ -289,12 +337,20 @@ define
         if krTab[*nwNm];
             nwE := krTab[*nwNm];
             nwOld = *nwE;
-            if nwOld != nwK;    *nwE = 99;
+            if nwOld == nwK;    return 0;
+            nwKeep = 0;
+            if krFirm[*nwNm];   nwKeep = nwIs;
+            if nwKeep == 0;     *nwE = 99;
             return 0;
         nwNew := new(*nwNm);
         *nwNew = nwK;
         *nwNew :. noPrinT;
         krTab +% *nwNew;
+        if krDepth == 2;
+            nwF := new(*nwNm);
+            *nwF = 1;
+            *nwF :. noPrinT;
+            krFirm +% *nwF;
         return 0;
         };
     krInside code={
@@ -309,6 +365,7 @@ define
     krScan code={
         ksGo = krInside(argument);
         if ksGo == 0;       return 0;
+        ++krDepth;
         ksIn := argument.instructTypE;
         ksLen := argument.listLengtH;
         if *ksIn == 1;
@@ -317,25 +374,50 @@ define
             iterate ksC on argument;
             while ++ksC;
                 krScan(*ksC);
+        --krDepth;
         return 0;
         };
     krMarkOne code={
         kmOp := argument[1];
+        kmT  := *kmOp.taG;
         kmL  := argument[2];
         kmR  := argument[3];
         kmA = krKindOf(*kmL);
         kmB = krKindOf(*kmR);
-        if kmA != kmB;      return 0;
+        kmIsEq = 0;
+        if *kmT == "=";     kmIsEq = 1;
+        if kmIsEq == 1;
+            kmLoc := *kmL.isLocaL;
+            if *kmLoc != 1;     return 0;
+            kmA = kmB;
         if kmA == 0;    return 0;
+        if kmB == 0;    return 0;
+        kmCanWiden = 0;
+        if *kmOp["irWIDE"];     kmCanWiden = 1;
+        kmWide = 0;
+        if kmA != kmB;
+            if kmCanWiden == 0;     return 0;
+            if kmA == 5;    kmWide = 2;
+            if kmB == 5;    kmWide = 3;
+            kmA = 9;
         if kmA == 5;    kmNm = "irCOUNT";
         if kmA == 9;    kmNm = "irNUMBER";
         kmHas = 0;
         if *kmOp[kmNm];     kmHas = 1;
-        if kmHas == 0;      return 0;
+        if kmHas == 0;
+            if kmA == 9;        return 0;
+            if kmCanWiden == 0; return 0;
+            kmWide = 23;
+            kmNm = "irNUMBER";
         kmMark := new("KinD");
         *kmMark = kmNm;
         *kmMark :. noPrinT;
         argument +% *kmMark;
+        if kmWide != 0;
+            kmSide := new("WideN");
+            *kmSide = kmWide;
+            *kmSide :. noPrinT;
+            argument +% *kmSide;
         ++krCount;
         return 0;
         };
@@ -357,7 +439,10 @@ define
         krB := argument.BlocK;
         krS := *krB[2];
         clear(krTab);
+        clear(krFirm);
+        krDepth = 0;
         krScan(*krS);
+        krDepth = 0;
         krScan(*krS);
         krCount = 0;
         krMark(*krS);
@@ -395,7 +480,10 @@ define
         if ksoHas == 1;
             ksoK := argument.KinD;
             ksoIR := *ksoOp[*ksoK];
-            cerr "->" ksoK "=" ksoIR:;
+            ksoW = 0;
+            if argument.WideN;      ksoW = argument.WideN;
+            if ksoW == 0;   cerr "->" ksoK "=" ksoIR:;
+            if ksoW != 0;   cerr "->" ksoK "=" ksoIR "widening" ksoW:;
         if ksoHas == 0;     cerr "-> unmarked":;
         };
     krShowWalk code={
@@ -440,6 +528,9 @@ What Is In Here
                         whose text is that attribute's name (irCOUNT, irNUMBER) -- when it is sure of the kind. Writes no
                         IR. Marks the action KinDs (its text the count marked); a second call does nothing.
     krShow(action)      prints the chain's two-operand instructs on stderr, one line each, with the mark or "unmarked".
+    jitNotes()          toggles the compile notes, OFF at the start of a run: while on, each operator that widens a count
+                        notes itself once on stderr when its action is compiled (JIT NOTE kw_mq : * widens its left count
+                        to a number). It stays as set for the rest of the run.
 
 How The Pass Decides
     Kinds are the engine's own numbers, as datA reads them: 5 a count, 9 a number. 0 is not known; 99 is two kinds.
@@ -448,14 +539,21 @@ How The Pass Decides
     inside an operand that is a field: a call's callee is the action itself (a self-call would never end), and an
     action handed as an argument would have its own chain marked with this action's table.
     krTab holds one entry per local the action writes. krScan walks the chain twice, in order, noting each writer
-    (krNoteWrite): `=` into a local gives it the kind of the right side; a second writer of another kind makes it 99;
-    any other assigning operator (it carries assignTier) on a local makes it 99. ++ and -- are not writers.
+    (krNoteWrite): `=` into a local gives it the kind of the right side. A local's kind is its first writer's (Tony,
+    2026-11-04): a later = of another kind is cast in by the store and does not change it -- but only when that first
+    writer is a top-level statement (krFirm; krDepth is 2 there), because only then is it surely the first to run.
+    A first writer inside an if or a loop, followed by one of another kind, makes it 99; so does any other assigning
+    operator (it carries assignTier) on a local. ++ and -- are not writers.
     krKindOf answers for an operand: a literal has its own kind; a local has its table kind (99 and absent answer 0);
     an instruct answers by krResultKind; anything else -- a field from outside the action, a string -- answers 0.
     krResultKind is the measured table (incant/pop/kindResolveT, R1): + - * give a count from two counts and a number
     when either is a number; / always gives a number; a compare gives no kind (true is a count 1, false is nothing).
-    krMarkOne marks only when both operands have the same known kind and the operator carries the attribute for it. So a
-    mixed pair, and count / count, stay unmarked: the table shows a conversion there.
+    krMarkOne marks an operator when both operands have a known kind. Same kind: KinD is that kind's attribute, if the
+    operator carries it. A count with a number (step 3c): if the operator carries irWIDE it is marked irNUMBER, with
+    WideN naming the side that widens (2 the left, 3 the right). Two counts on an operator with no irCOUNT but with
+    irWIDE -- that is / -- is marked irNUMBER, WideN 23 (both). Compares carry no irWIDE, so a mixed compare stays
+    unmarked. An = is marked with its RIGHT side's kind whenever that is known and its target is a local: the store
+    helper for that kind is opAssign, which casts into whatever kind the target already has.
     Which operators have kinds is data: the irCOUNT= and irNUMBER= attributes in incant/setup's Operators
     (irCOUNT="add i32"). The pass reads them through the instruct's own op entry, which shares its body with the
     registry's. They are attributes and not members named <op><kind>, as the ruling first spelled them, because the
@@ -465,13 +563,15 @@ Native Statements (step 3b)
     krPlan walks the top-level statements in order and marks one KnaT when krIsStore says it is a marked = into a local
     and krNatExpr says its right side is native all the way down: a literal; a local in krSeen, the locals an earlier
     top-level marked store wrote (so a native read never meets a local no statement has surely written yet); or a
-    marked + - or * whose two sides are native. An if or a loop is one statement and is never native. Compares, /,
-    mixed kinds and anything computed from `argument` are not marked that far, so they stay on testOP.
+    marked + - * or / whose two sides are native. An if or a loop is one statement and is never native. Compares
+    and anything computed from `argument` are not marked that far, so they stay on testOP.
     The text for a native statement at list position p: at the top of the function, once, krFetch fetches the
     statement (%tp), its target (%tp_2), its right side (%tp_3) and, inside an operator, each side again (_2, _3) --
     by position with irAt, so no address is in the text. In the statement's block krValue leaves each node's value in
     %v<path>: a leaf is read with irCountOf or irNumberOf (literals too: one spelling, no number formatting in kant),
-    an operator is one line of its own IR text, `%vtp_3 = add i32 %vtp_3_2, %vtp_3_3`. The store is ='s own data,
+    an operator is one line of its own IR text, `%vtp_3 = add i32 %vtp_3_2, %vtp_3_3`. Each node has its own kind,
+    handed down in kgKind: an operator's sides have its KinD, except the side WideN names, which is a count and gets
+    one more line, the operator's irWIDE text, `%wtp_3_3 = sitofp i32 %vtp_3_3 to double`. The store is ='s own data,
     `call ptr @irSetCount(ptr %tp_2, i32 %vtp_3)`: opAssign, so the cast, the guards and the notify are the engine's.
     What it hands back goes to %last, and the go-on check follows, as after a testOP statement.
 
@@ -479,6 +579,5 @@ Current State -- WIP
     Settled: the walk (2c) and its skip; the pass marks and prints. testOP runs a marked chain as an unmarked one.
     Settled (3b): + - * and same-kind stores of top-level statements run natively, values staying in the fields.
     `=` carries its store as data, so the pass marks an = whose two sides have the same known kind.
-    Not built: compares, /, a count mixed with a number (ruled for 3c: native, as the interpreter does it, each such
-    op noting itself once at compile on the error stream when the notes toggle is on), the kind of `argument`,
-    statements inside an if or a loop.
+    Settled (3c): a count mixed with a number, / on any pair, a store of the other kind, the notes toggle.
+    Not built: compares, the kind of `argument`, statements inside an if or a loop (step 4).
