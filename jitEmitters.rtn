@@ -4527,6 +4527,38 @@ GroupRules  ruler = groupRules;
 }
 
 
+/*  THE NATIVE STATEMENT'S FOUR HELPERS (SEQ 671, step 3b, Tony 2026-11-16). The kant jitter's text calls them BY NAME;
+    none touches LLVM. They are C++ because IR text carries no layout: it cannot read or write a field's data. Values
+    stay in the fields: native code reads a count or a number out of a field, computes, and writes the result back. The
+    writes go through opAssign -- the interpreted = itself -- so its guards, its cast and the notify are the engine's own.  */
+// irCountOf a field's count, for native arithmetic
+extern int irCountOf(GroupItem field)
+{
+    -% return field ? field->getCount() : 0; %-
+}
+
+
+// irNumberOf a field's number, for native arithmetic
+extern double irNumberOf(GroupItem field)
+{
+    -% return field ? field->getNumber() : 0.0; %-
+}
+
+
+// irSetCount a natively computed count into a field, by opAssign; hands back what opAssign does (the field, or nothing under a refusal)
+extern GroupItem irSetCount(GroupItem field,int value)
+{
+    -% return ::opAssign(::jitBoxCountRT(value),field); %-
+}
+
+
+// irSetNumber a natively computed number into a field, by opAssign
+extern GroupItem irSetNumber(GroupItem field,double value)
+{
+    -% return ::opAssign(::jitBoxNumberRT(value),field); %-
+}
+
+
 /*******************************************************************************
     jitter -- THE jitter; COMMAND (SEQ 386). From this point in the run every
     action is compiled at its first call and answers from the cache after.

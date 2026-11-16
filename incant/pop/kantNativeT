@@ -1,0 +1,113 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(KantNativeT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    knReq name text arg;
+    kwRan code={
+        kjReq.name = string $"kw_" argument.taG "_ran"$;
+        kwGot = callIR(kjReq);
+        kjReq.name = string $"kw_" argument.taG "_tops"$;
+        kwTop = callIR(kjReq);
+        cerr "KN RAN" argument.taG kwGot "testOP" kwTop:;
+        };
+    nj4 code={ a4 = 3; b4 = a4 + 4; c4 = b4 * 2; print c4:; };
+    nn code={ a = 1.5; b = a * 2.5; c = b - 0.5 + a; print c:; };
+    nx code={ a = 3; print a:; if a > 2; a = 10; b = a + 1; print b:; };
+    nt code={ s = 5; t = s * 2; print t:; s = t - 1; print s:; };
+    nr code={ d = argument; e = 3; f = e + 4; if d > 0; nr(d - 1); print f:; g = f * 2; print g:; };
+    lsSrc=1;
+    lsFired=0;
+    lsL listenTo:=lsSrc code={ lsFired = lsFired + 1; };
+    lsText="define ptr @ls_set(ptr %a) {  %r = call ptr @irSetCount(ptr %a, i32 7)  ret ptr %r } declare ptr @irSetCount(ptr, i32)";
+    lsGo code={
+        lsFired = 0;
+        lsSrc = 9;
+        cerr "KN LISTEN interpreted = : fired" lsFired "value" lsSrc:;
+        knReq.name = "ls_set";
+        knReq.text = lsText;
+        compileIR(knReq);
+        lsFired = 0;
+        knReq.arg := lsSrc;
+        callIR(knReq);
+        cerr "KN LISTEN native write: fired" lsFired "value" lsSrc:;
+        };
+    ;
+search KantNativeT;
+njNew(nj4);
+njNew(nn);
+njNew(nx);
+njNew(nt);
+njNew(nr);
+krResolve(nj4);
+krResolve(nn);
+krResolve(nx);
+krResolve(nt);
+krResolve(nr);
+kwCompile(nj4);
+kwCompile(nn);
+kwCompile(nx);
+kwCompile(nt);
+kwCompile(nr);
+print "KN ROW1 nj4, + and * native":;
+nj4();
+print "KN ROW2 all number":;
+nn();
+print "KN ROW3 native and testOP statements see each other":;
+nx();
+print "KN ROW5a called twice":;
+nt();
+nt();
+print "KN ROW5b calls itself":;
+nr(1);
+print "KN END":;
+kwRan(nj4);
+kwRan(nn);
+kwRan(nx);
+kwRan(nt);
+kwRan(nr);
+lsGo();
+kwCompile(nj4);
+cerr "KN TEXT BEGIN":;
+cerr $kjBuf$;
+cerr "KN TEXT END":;
+cerr "KANTNATIVET SENTINEL":;
+stop();
+
+kantNativeT -- SEQ 671 (Tony's ruling of 2026-11-16), the kant jitter's step 3b: native arithmetic, values in the fields.
+After krResolve has marked an action, kwCompile writes a top-level statement natively when it is an = into a local
+whose right side is, all the way down, a marked + - or *, a literal, or a local already written by an earlier top-level
+statement. Native code reaches each field by position (irAt, fetched once at the top of the function), reads it with
+irCountOf or irNumberOf, computes with the operator's own IR text (irCOUNT / irNUMBER in incant/setup), and writes the
+result back through irSetCount or irSetNumber, which are opAssign. Every other statement is the testOP call of step 2c.
+pop.sh runs this file twice: as written, and with the top-level kwCompile( and kwRan( lines deleted (the twin, all
+interpreted). Stdout from KN ROW1 to KN END must be equal.
+    ROW1   nj4: three native statements and the print. KN RAN nj4 4 testOP 1 -- testOP was called only for the print.
+    ROW2   nn, every operand a number: 4.75; KN RAN nn 4 testOP 1.
+    ROW3   nx: a written natively, read by the print (testOP); a written inside the if (testOP); a read natively by b = a + 1.
+    ROW5a  nt called twice; ROW5b nr calls itself, with native statements before and after the call: locals as the twin.
+    ROW4   KN LISTEN: lsSrc has a listener. An interpreted = fires it once; irSetCount on the same field, called from a
+           hand-written text, fires it once. The row is at the helper, not in a walked action: a native statement
+           writes only locals, and a local cannot carry a listener (listenTo names a field on the search list).
+    ROW7   the text between KN TEXT BEGIN and KN TEXT END is nj4's, pinned in genLadder/kantNativeT.nj4.ll.

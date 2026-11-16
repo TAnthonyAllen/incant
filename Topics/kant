@@ -62,21 +62,21 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
         native code reads and writes them there (a fully resolved local in a machine slot is a later step); fields are reached by position in a list the
         jitter collects.
     F-160 bought and merged (SEQ 669): a loop's call condition is tested for truth; assigning nothing yields nothing (incant/pop/callTruthT).
-    STEP 3a BUILT on branch kant-jitter-3a (SEQ 670, 2026-11-16), waiting on Tony's buy:
-        The jitter's home is incant/kantJitter (registry KantJitter): kwCompile (2c, and it now skips a statement-list member that is no instruct)
-        and krResolve, the kind-resolve pass, with krShow its printer. No C++ was added.
-        The pass marks a two-operand instruct with KinD = irCOUNT or irNUMBER when both operands have that kind for sure and the operator carries
-        that attribute; it marks the action KinDs. The mark is an attribute, so a marked instruct's list is one longer; testOP runs it unchanged.
-        SPELLING STRUCK, RULING STANDS: the per-kind IR data are ATTRIBUTES on the operator (irCOUNT="add i32"), not members named '+isCOUNT'.
-        A member named <op><kind> is picked AS the operator by pickKindOP on every operator with members: with such members == and != build
-        nothing on the new road, and the jit ladder fails (43 FAIL lines, did not finish) on the other eight. Measured, SEQ 670.
-        R1's table (incant/pop/kindTableT): + - * give a count from two counts, a number otherwise; / always a number; a true compare is a
-        count 1, a false one nothing. So mixed pairs and count / count are unmarked, and a compare gives no kind to what it is assigned to.
-        Fixtures: incant/pop/kindTableT, kindResolveT; pinned genLadder/kindTableT.txt, kindResolveT.kr.txt. F-161 (f() on the new road) and
-        F-162 (a rule call on the new road) are docketed, not used.
+    STEP 3a bought and merged (SEQ 670): the jitter's home is incant/kantJitter; krResolve marks a two-operand instruct KinD = irCOUNT or
+        irNUMBER when both sides have that kind for sure. The per-kind IR data are ATTRIBUTES on the operator's own line in incant/setup
+        (irCOUNT="add i32"), never members named <op><kind>: pickKindOP picks such a member as the operator. R1's table: incant/pop/kindTableT.
+    STEP 3b BUILT on branch kant-jitter-3b (SEQ 671, 2026-11-16), waiting on Tony's buy: native arithmetic, values in the fields.
+        A top-level = into a local is written natively when its right side is, all the way down, a marked + - or *, a literal, or a local an
+        earlier top-level statement wrote. Fields are fetched by position at the top of the function (irAt), read by irCountOf / irNumberOf,
+        computed with the operator's IR text, written back by irSetCount / irSetNumber, which are opAssign. = carries its store as data
+        (irCOUNT="call ptr @irSetCount"), so the pass now marks a same-kind store. An unresolved action's text is step 2c's, byte for byte.
+        C++: the four helpers, 16 lines of code (running total for the jitter 184). Fixture incant/pop/kantNativeT, text genLadder/kantNativeT.nj4.ll.
+        A local cannot carry a listener (listenTo names a field on the search list), so the notify row is at the helper, on a declared field.
+    RULED FOR 3c, NOT BUILT: a count mixed with a number is handled natively, doing what the interpreter does, no fallback. Each such op notes
+        itself once at compile, on the error stream. Notes are a toggle, OFF by default; once toggled they stay as set for the rest of the run.
     RULED AND NOT YET BUILT, dispatch held by Tony:
         debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body is parsed: measured SEQ 662).
-    NEXT: the buy of kant-jitter-3a, then step 3b (native arithmetic from the marks, values staying in the fields).
+    NEXT: the buy of kant-jitter-3b, then step 3c.
 
 /*****************************************************************************
     Plan

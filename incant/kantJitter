@@ -8,6 +8,8 @@ define
         kwName = string $"kw_" argument.taG$;
         kwBlk   := argument.BlocK;
         kwStmts := *kwBlk[2];
+        kwNat = 0;
+        if argument.KinDs;      kwNat = krPlan(argument);
         reset(kjBuf);
         printTO(kjBuf);
         print $"declare ptr @testOP(ptr)"$:;
@@ -15,11 +17,28 @@ define
         print $"declare i32 @irGoOn()"$:;
         print $"declare ptr @irSeqEnd(ptr, ptr)"$:;
         print $"@" kwName "_n = global i32 0"$:;
+        if kwNat > 0;
+            print $"declare i32 @irCountOf(ptr)"$:;
+            print $"declare double @irNumberOf(ptr)"$:;
+            print $"declare ptr @irSetCount(ptr, i32)"$:;
+            print $"declare ptr @irSetNumber(ptr, double)"$:;
+            print $"@" kwName "_t = global i32 0"$:;
         print $"define ptr @" kwName "(ptr %a) {"$:;
         print $"entry:"$:;
         print $_ _ "%last = alloca ptr"$:;
         print $_ _ "store ptr null, ptr %last"$:;
         print $_ _ "%items = call ptr @irAt(ptr %a, i32 2)"$:;
+        if kwNat > 0;
+            kwPos = 0;
+            iterate kwFt on *kwStmts;
+            while ++kwFt;
+                ++kwPos;
+                kwFn = 0;
+                if *kwFt["KnaT"];   kwFn = 1;
+                if kwFn == 1;
+                    kgPath = string $"t" kwPos$;
+                    print $_ _ "%" kgPath _ "= call ptr @irAt(ptr %items, i32 " kwPos ")"$:;
+                    krFetch(*kwFt);
         print $_ _ "br label %s1"$:;
         kwK = 0;
         kwPos = 0;
@@ -34,8 +53,27 @@ define
                 print $_ _ "%n" kwK _ "= load i32, ptr @" kwName "_n"$:;
                 print $_ _ "%m" kwK _ "= add i32 %n" kwK ", 1"$:;
                 print $_ _ "store i32 %m" kwK ", ptr @" kwName "_n"$:;
-                print $_ _ "%f" kwK _ "= call ptr @irAt(ptr %items, i32 " kwPos ")"$:;
-                print $_ _ "%r" kwK _ "= call ptr @testOP(ptr %f" kwK ")"$:;
+                kwNv = 0;
+                if *kwSt["KnaT"];   kwNv = 1;
+                if kwNv == 1;
+                    kwKd := *kwSt["KinD"];
+                    kgTy = "double";
+                    kgRd = "irNumberOf";
+                    if *kwKd == "irCOUNT";  kgTy = "i32";
+                    if *kwKd == "irCOUNT";  kgRd = "irCountOf";
+                    kwEq := *kwSt[1];
+                    kwStore := *kwEq[*kwKd];
+                    kwSrc := *kwSt[3];
+                    kgPath = string $"t" kwPos "_3"$;
+                    krValue(*kwSrc);
+                    print $_ _ "%r" kwK _ "=" _ kwStore "(ptr %t" kwPos "_2, " kgTy _ "%vt" kwPos "_3)"$:;
+                if kwNv == 0;
+                    if kwNat > 0;
+                        print $_ _ "%tn" kwK _ "= load i32, ptr @" kwName "_t"$:;
+                        print $_ _ "%tm" kwK _ "= add i32 %tn" kwK ", 1"$:;
+                        print $_ _ "store i32 %tm" kwK ", ptr @" kwName "_t"$:;
+                    print $_ _ "%f" kwK _ "= call ptr @irAt(ptr %items, i32 " kwPos ")"$:;
+                    print $_ _ "%r" kwK _ "= call ptr @testOP(ptr %f" kwK ")"$:;
                 print $_ _ "store ptr %r" kwK ", ptr %last"$:;
                 print $_ _ "%g" kwK _ "= call i32 @irGoOn()"$:;
                 print $_ _ "%c" kwK _ "= icmp ne i32 %g" kwK ", 0"$:;
@@ -53,6 +91,12 @@ define
         print $_ _ "%n = load i32, ptr @" kwName "_n"$:;
         print $_ _ "ret i32 %n"$:;
         print $"}"$:;
+        if kwNat > 0;
+            print $"define i32 @" kwName "_tops(ptr %a) {"$:;
+            print $"entry:"$:;
+            print $_ _ "%n = load i32, ptr @" kwName "_t"$:;
+            print $_ _ "ret i32 %n"$:;
+            print $"}"$:;
         printTO(0);
         kjReq.name = kwName;
         kjReq.text = string $kjBuf$;
@@ -61,6 +105,124 @@ define
             *kwMark = kwName;
             *kwMark :. noPrinT;
             argument +% *kwMark;
+        };
+    kgPath="t";
+    kgTy="i32";
+    kgRd="irCountOf";
+    krSeen;
+    krFetch code={
+        kfP = string $kgPath$;
+        print $_ _ "%" kfP "_2 = call ptr @irAt(ptr %" kfP ", i32 2)"$:;
+        print $_ _ "%" kfP "_3 = call ptr @irAt(ptr %" kfP ", i32 3)"$:;
+        kfL := argument[2];
+        kfLi := *kfL.instructTypE;
+        if *kfLi == 1;
+            kgPath = string $kfP "_2"$;
+            krFetch(*kfL);
+        kfR := argument[3];
+        kfRi := *kfR.instructTypE;
+        if *kfRi == 1;
+            kgPath = string $kfP "_3"$;
+            krFetch(*kfR);
+        kgPath = string $kfP$;
+        return 0;
+        };
+    krValue code={
+        kvP = string $kgPath$;
+        kvI := argument.instructTypE;
+        kvIs = 0;
+        if *kvI == 1;   kvIs = 1;
+        if kvIs == 0;
+            print $_ _ "%v" kvP _ "= call" _ kgTy _ "@" kgRd "(ptr %" kvP ")"$:;
+            return 0;
+        kvL := argument[2];
+        kgPath = string $kvP "_2"$;
+        krValue(*kvL);
+        kvR := argument[3];
+        kgPath = string $kvP "_3"$;
+        krValue(*kvR);
+        kgPath = string $kvP$;
+        kvOp := argument[1];
+        kvK  := argument.KinD;
+        kvIR := *kvOp[*kvK];
+        print $_ _ "%v" kvP _ "=" _ kvIR _ "%v" kvP "_2, %v" kvP "_3"$:;
+        return 0;
+        };
+    krNatExpr code={
+        neLit := argument.isLiteraL;
+        if *neLit == 1;     return 1;
+        neLoc := argument.isLocaL;
+        if *neLoc == 1;
+            neNm := argument.taG;
+            if krSeen[*neNm];   return 1;
+            return 0;
+        neIn := argument.instructTypE;
+        if *neIn != 1;      return 0;
+        neLen := argument.listLengtH;
+        if *neLen < 3;      return 0;
+        neHas = 0;
+        if argument.KinD;   neHas = 1;
+        if neHas == 0;      return 0;
+        neOp := argument[1];
+        neT  := *neOp.taG;
+        neOk = 0;
+        if *neT == "+";     neOk = 1;
+        if *neT == "-";     neOk = 1;
+        if *neT == "*";     neOk = 1;
+        if neOk == 0;       return 0;
+        neL := argument[2];
+        neA = krNatExpr(*neL);
+        if neA == 0;        return 0;
+        neR := argument[3];
+        neB = krNatExpr(*neR);
+        return neB;
+        };
+    krIsStore code={
+        isIn := argument.instructTypE;
+        if *isIn != 1;      return 0;
+        isLen := argument.listLengtH;
+        if *isLen < 3;      return 0;
+        isOp := argument[1];
+        isT  := *isOp.taG;
+        if *isT != "=";     return 0;
+        isHas = 0;
+        if argument.KinD;   isHas = 1;
+        if isHas == 0;      return 0;
+        isTg := argument[2];
+        isLoc := *isTg.isLocaL;
+        if *isLoc != 1;     return 0;
+        return 1;
+        };
+    krPlan code={
+        kpB := argument.BlocK;
+        kpS := *kpB[2];
+        clear(krSeen);
+        kpN = 0;
+        iterate kpSt on *kpS;
+        while ++kpSt;
+            kpStore = krIsStore(*kpSt);
+            if kpStore == 1;
+                kpSrc := *kpSt[3];
+                kpOk = krNatExpr(*kpSrc);
+                if kpOk == 1;
+                    ++kpN;
+                    kpHas = 0;
+                    if *kpSt["KnaT"];   kpHas = 1;
+                    if kpHas == 0;
+                        kpMark := new("KnaT");
+                        *kpMark = 1;
+                        *kpMark :. noPrinT;
+                        *kpSt +% *kpMark;
+                kpTg := *kpSt[2];
+                kpNm := *kpTg.taG;
+                kpIn = 0;
+                if krSeen[*kpNm];   kpIn = 1;
+                if kpIn == 0;
+                    kpNew := new(*kpNm);
+                    *kpNew = 1;
+                    *kpNew :. noPrinT;
+                    krSeen +% *kpNew;
+        return kpN;
         };
     krTab;
     krCount=0;
@@ -260,8 +422,9 @@ define
 bail();
 
 kantJitter -- the kant jitter's own incantation (SEQ 670, Tony's ruling R0 of 2026-11-16). A fixture includes it and
-searches KantJitter. It holds the walk from step 2c and the kind-resolve pass of step 3a. No C++ belongs to it but the
-door (compileIR, callIR) and the four helpers the walk's text names (testOP, irAt, irGoOn, irSeqEnd).
+searches KantJitter. It holds the walk from step 2c, the kind-resolve pass of step 3a and the native statements of
+step 3b. No C++ belongs to it but the door (compileIR, callIR) and the helpers the walk's text names: testOP, irAt,
+irGoOn, irSeqEnd, and for native statements irCountOf, irNumberOf, irSetCount, irSetNumber.
 
 What Is In Here
     kwCompile(action)   step 2c, the walk. Writes one function for the action: one testOP call per statement of its
@@ -269,6 +432,9 @@ What Is In Here
                         opSeq's (irSeqEnd). Compiles the text through compileIR and marks the action KanT, so ordinary
                         calls run the function. A statement-list member that is not an instruct gets no call, as the
                         interpreter's walk skips it (R4): the label count and the list position are kept apart.
+                        On an action krResolve has marked (KinDs), a statement krPlan marked KnaT is written natively
+                        (step 3b, below) in place of its testOP call; the text then also keeps a count of its testOP
+                        calls (<name>_t, read by <name>_tops). An unresolved action's text is step 2c's, byte for byte.
     krResolve(action)   step 3a, the kind-resolve pass. Marks each two-operand instruct in the action's chain, the
                         insides of if and loops included, with the per-kind IR attribute of its operator -- an attribute KinD
                         whose text is that attribute's name (irCOUNT, irNUMBER) -- when it is sure of the kind. Writes no
@@ -295,7 +461,24 @@ How The Pass Decides
     registry's. They are attributes and not members named <op><kind>, as the ruling first spelled them, because the
     engine picks a member of that name AS the operator (pickKindOP): measured SEQ 670, == and != then build nothing.
 
+Native Statements (step 3b)
+    krPlan walks the top-level statements in order and marks one KnaT when krIsStore says it is a marked = into a local
+    and krNatExpr says its right side is native all the way down: a literal; a local in krSeen, the locals an earlier
+    top-level marked store wrote (so a native read never meets a local no statement has surely written yet); or a
+    marked + - or * whose two sides are native. An if or a loop is one statement and is never native. Compares, /,
+    mixed kinds and anything computed from `argument` are not marked that far, so they stay on testOP.
+    The text for a native statement at list position p: at the top of the function, once, krFetch fetches the
+    statement (%tp), its target (%tp_2), its right side (%tp_3) and, inside an operator, each side again (_2, _3) --
+    by position with irAt, so no address is in the text. In the statement's block krValue leaves each node's value in
+    %v<path>: a leaf is read with irCountOf or irNumberOf (literals too: one spelling, no number formatting in kant),
+    an operator is one line of its own IR text, `%vtp_3 = add i32 %vtp_3_2, %vtp_3_3`. The store is ='s own data,
+    `call ptr @irSetCount(ptr %tp_2, i32 %vtp_3)`: opAssign, so the cast, the guards and the notify are the engine's.
+    What it hands back goes to %last, and the go-on check follows, as after a testOP statement.
+
 Current State -- WIP
     Settled: the walk (2c) and its skip; the pass marks and prints. testOP runs a marked chain as an unmarked one.
-    Not built: nothing reads the marks yet. Step 3b is native arithmetic from them, values staying in the fields.
-    `=` is not marked (it carries no per-kind attribute); the pass uses it only to learn a local's kind.
+    Settled (3b): + - * and same-kind stores of top-level statements run natively, values staying in the fields.
+    `=` carries its store as data, so the pass marks an = whose two sides have the same known kind.
+    Not built: compares, /, a count mixed with a number (ruled for 3c: native, as the interpreter does it, each such
+    op noting itself once at compile on the error stream when the notes toggle is on), the kind of `argument`,
+    statements inside an if or a loop.

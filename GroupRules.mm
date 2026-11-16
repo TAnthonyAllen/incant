@@ -3873,6 +3873,16 @@ extern "C" GroupItem *irAt(GroupItem *list, int position)
 	return list->get(position);
 }
 
+/*  THE NATIVE STATEMENT'S FOUR HELPERS (SEQ 671, step 3b, Tony 2026-11-16). The kant jitter's text calls them BY NAME;
+    none touches LLVM. They are C++ because IR text carries no layout: it cannot read or write a field's data. Values
+    stay in the fields: native code reads a count or a number out of a field, computes, and writes the result back. The
+    writes go through opAssign -- the interpreted = itself -- so its guards, its cast and the notify are the engine's own.  */
+// irCountOf a field's count, for native arithmetic
+extern "C" int irCountOf(GroupItem *field)
+{
+	 return field ? field->getCount() : 0; 
+}
+
 // irGoOn after a statement: 1 to go on, 0 to leave -- opBodySeq's two tests, read only (a refusal, or any signal)
 extern "C" int irGoOn()
 {
@@ -3884,6 +3894,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 1;
 }
 
+// irNumberOf a field's number, for native arithmetic
+extern "C" double irNumberOf(GroupItem *field)
+{
+	 return field ? field->getNumber() : 0.0; 
+}
+
 // irSeqEnd the walked function's ending, as opBodySeq and opSeq end: a return's value rides up with its signal still set; a break is caught and cleared here; otherwise the statement list is handed back
 extern "C" GroupItem *irSeqEnd(GroupItem *items, GroupItem *last)
 {
@@ -3893,6 +3909,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->branchKind == 1 )
 		ruler->branchKind = 0;
 	return items;
+}
+
+// irSetCount a natively computed count into a field, by opAssign; hands back what opAssign does (the field, or nothing under a refusal)
+extern "C" GroupItem *irSetCount(GroupItem *field, int value)
+{
+	 return ::opAssign(::jitBoxCountRT(value),field); 
+}
+
+// irSetNumber a natively computed number into a field, by opAssign
+extern "C" GroupItem *irSetNumber(GroupItem *field, double value)
+{
+	 return ::opAssign(::jitBoxNumberRT(value),field); 
 }
 
 // isCallable a call has something to call: a rule (callIsRule), an action, or a method

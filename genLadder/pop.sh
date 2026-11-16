@@ -8881,10 +8881,13 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$_krF" > "$T/kr.o" 2> "$T/kr.e"; _krx=$?
 grep '^KR \|^KD ' "$T/kr.e" | sed 's/ *$//' > "$T/kr.txt"
 _krm () { grep "^KR $1 " "$T/kr.txt" | grep -v ' marked ' | grep -v "^KR $1 = " | sed "s/^KR $1 //" | tr '\n' ';'; }
 _ofeq "kindResolveT every printed chain and the operators' data = the pinned text (genLadder/kindResolveT.kr.txt) (pinned / exit / sentinel / refusals)" "$(cmp -s "$T/kr.txt" genLadder/kindResolveT.kr.txt && echo pinned) x$_krx s$(grep -c '^KINDRESOLVET SENTINEL' "$T/kr.e") R$(grep -c 'REFUSED\|ERROR' "$T/kr.e")" "pinned x0 s1 R0"
-_ofeq "kindResolveT nj4 marks its + and its * as count, and a second krResolve does nothing (still 2)" "$(_krm nj4) $(grep '^KR nj4 marked' "$T/kr.txt")" "+ a4 4 -> irCOUNT = add i32;* b4 2 -> irCOUNT = mul i32; KR nj4 marked 2"
-_ofeq "kindResolveT nj5, a number with a count: the table shows a conversion, nothing marked" "$(_krm nj5) $(grep '^KR nj5 marked' "$T/kr.txt")" "+ a5 1 -> unmarked; KR nj5 marked 0"
+#  RE-PINNED SEQ 671 (step 3b): = now carries its store as data (irCOUNT / irNUMBER on its own line), so the pass marks an = whose two
+#  sides have the same known kind. The op rows below did not move; the "marked N" totals grew by each action's same-kind stores
+#  (nj4 2 -> 5, nj5 0 -> 2, krDiv 0 -> 2), and the pinned text gained those = lines and the KD line for =.
+_ofeq "kindResolveT nj4 marks its + and its * as count, and a second krResolve does nothing (still 5: two ops, three stores)" "$(_krm nj4) $(grep '^KR nj4 marked' "$T/kr.txt")" "+ a4 4 -> irCOUNT = add i32;* b4 2 -> irCOUNT = mul i32; KR nj4 marked 5"
+_ofeq "kindResolveT nj5, a number with a count: the table shows a conversion, its + is unmarked (the 2 marked are its two number stores)" "$(_krm nj5) $(grep '^KR nj5 marked' "$T/kr.txt")" "+ a5 1 -> unmarked; KR nj5 marked 2"
 _ofeq "kindResolveT number with number is marked irNUMBER (krNum: * > /)" "$(_krm krNum)" "* a 2.5 -> irNUMBER = fmul double;> b 3.5 -> irNUMBER = fcmp ogt double;/ b 0.5 -> irNUMBER = fdiv double;"
-_ofeq "kindResolveT count / count is unmarked: it gives a number (krDiv)" "$(_krm krDiv) $(grep '^KR krDiv marked' "$T/kr.txt")" "/ a 2 -> unmarked; KR krDiv marked 0"
+_ofeq "kindResolveT count / count is unmarked: it gives a number (krDiv)" "$(_krm krDiv) $(grep '^KR krDiv marked' "$T/kr.txt")" "/ a 2 -> unmarked; KR krDiv marked 2"
 _ofeq "kindResolveT a typeless local in arithmetic is unmarked (krTypeless)" "$(_krm krTypeless) $(grep '^KR krTypeless marked' "$T/kr.txt")" "+ u 1 -> unmarked; KR krTypeless marked 0"
 _ofeq "kindResolveT a field from outside the action is unmarked, and what is computed from it (krOutside)" "$(_krm krOutside) $(grep '^KR krOutside marked' "$T/kr.txt")" "+ kq 1 -> unmarked;* o 2 -> unmarked; KR krOutside marked 0"
 _ofeq "kindResolveT a local with writers of two kinds is unmarked with every op that touches it (krTwoKind)" "$(_krm krTwoKind) $(grep '^KR krTwoKind marked' "$T/kr.txt")" "+ w 1 -> unmarked;* w 2 -> unmarked; KR krTwoKind marked 0"
@@ -8903,9 +8906,31 @@ _ofeq "kindResolveT row 3, 2b marked: twin = the unmarked want (rows 1-4 / exit 
 _ofeq "kindResolveT row 3, 2b marked: compiled = the unmarked want, one fire per call (rows 1-4 / exit / sentinel / fires)" "$(_kjv "$T/kcr.o" 'KC ROW1' 'KC END') x$(cat "$T/kcr.x") s$(grep -c '^KANTJITCALLT SENTINEL' "$T/kcr.e") $(grep '^KJ FIRED ' "$T/kcr.e" | awk '{printf "%s %s;", $3, $4}')" "$_kcWant x0 s1 nl3an 3;kl 2;kd 3;kc 1;kr 1;"
 _ofeq "kindResolveT row 3, 2c marked: twin = the unmarked want (stdout / exit / sentinel)" "$(_kjv "$T/kwrt.o" 'KW S1' 'KW END') x$(cat "$T/kwrt.x") s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwrt.e")" "$_kwWant x0 s1"
 _ofeq "kindResolveT row 3, 2c marked: walked = the unmarked want, and the statement counts are the unmarked run's (stdout / exit / sentinel / KW RAN)" "$(_kjv "$T/kwr.o" 'KW S1' 'KW END') x$(cat "$T/kwr.x") s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwr.e") $(grep '^KW RAN ' "$T/kwr.e" | awk '{printf "%s %s;", $3, $4}')" "$_kwWant x0 s1 $(grep '^KW RAN ' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')"
-#  2b's actions all compute from `argument`, whose kind the pass cannot know, so it marks none of them; nl3an and kd call themselves,
+#  2b's actions all compute from `argument`, whose kind the pass cannot know, so it marks none of their ops (kl's `seen = 5` is the one store); nl3an and kd call themselves,
 #  which the walk must not follow into the callee (before krInside the pass never ended on them: exit 139).
-_ofeq "kindResolveT row 3 is not vacuous: the pass ran on every action (2b: 9 actions, 0 marked, two self-calls; 2c: 11 actions, 12 marked)" "$(grep -c '^KR .* marked ' "$T/kcr.e") $(_krsum "$T/kcr.e") $(grep -c '^KR .* marked ' "$T/kwr.e") $(_krsum "$T/kwr.e")" "9 0 11 12"
+_ofeq "kindResolveT row 3 is not vacuous: the pass ran on every action (2b: 9 actions, 1 marked -- kl's store, two self-calls; 2c: 11 actions, 27 marked)" "$(grep -c '^KR .* marked ' "$T/kcr.e") $(_krsum "$T/kcr.e") $(grep -c '^KR .* marked ' "$T/kwr.e") $(_krsum "$T/kwr.e")" "9 1 11 27"
+
+#  ⚑ kantNativeT -- SEQ 671 (Tony's ruling of 2026-11-16): THE KANT JITTER, STEP 3b -- native arithmetic, values in the fields.
+#  On a resolved action kwCompile writes a top-level = into a local natively when its right side is, all the way down, a marked
+#  + - or *, a literal, or a local an earlier top-level statement wrote: fields by position (irAt), read by irCountOf / irNumberOf,
+#  computed with the operator's own IR text, written back by irSetCount / irSetNumber (opAssign). Everything else is 2c's testOP
+#  call. Run twice: as written and with the top-level kwCompile( / kwRan( lines deleted (the twin). KN RAN is the text's own count
+#  of statements run and of testOP calls. Row 6 (every 2b, 2c and 3a row) is the rows above; with 3b, row 3's 2c variant is native.
+_knF=$(ip kantNativeT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_knF" > "$T/kn.o" 2> "$T/kn.e"; _knx=$?
+perl -e 'alarm 30; exec @ARGV' "$B" "$_knF" > "$T/kn2.o" 2> "$T/kn2.e"
+sed '/^kwCompile(/d;/^kwRan(/d' "$_knF" > "$T/kn.twin"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/kn.twin" > "$T/knt.o" 2> "$T/knt.e"; _kntx=$?
+_knWant="KN ROW1 nj4, + and * native |14 |KN ROW2 all number |4.75 |KN ROW3 native and testOP statements see each other |3 |11 |KN ROW5a called twice |10 |9 |10 |9 |KN ROW5b calls itself |7 |14 |7 |14 |KN END |"
+_ofeq "kantNativeT twin (nothing compiled): rows 1 2 3 5 (stdout / exit / sentinel / compiles)" "$(_kjv "$T/knt.o" 'KN ROW1' 'KN END') x$_kntx s$(grep -c '^KANTNATIVET SENTINEL' "$T/knt.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/knt.e")" "$_knWant x0 s1 c0"
+_ofeq "kantNativeT native = the twin: rows 1 2 3 5 (stdout / exit / sentinel / compiles / refusals)" "$(_kjv "$T/kn.o" 'KN ROW1' 'KN END') x$_knx s$(grep -c '^KANTNATIVET SENTINEL' "$T/kn.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kn.e") R$(grep -c '^REFUSED\|ERROR' "$T/kn.e")" "$_knWant x0 s1 c5 R0"
+_ofeq "kantNativeT rows 1 and 2: the native lines ran and testOP was called only for the print (statements run / testOP calls)" "$(grep '^KN RAN nj4 \|^KN RAN nn ' "$T/kn.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "nj4 4 1;nn 4 1;"
+_ofeq "kantNativeT rows 3 and 5: statements run / testOP calls (nx 5 / 3; nt twice 10 / 4; nr, called with 1, 14 / 8)" "$(grep '^KN RAN nx \|^KN RAN nt \|^KN RAN nr ' "$T/kn.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "nx 5 3;nt 10 4;nr 14 8;"
+_ofeq "kantNativeT row 4: a native write notifies as the interpreted write does (interpreted fired / value; native fired / value)" "$(grep '^KN LISTEN ' "$T/kn.e" | awk '{printf "%s %s;", $(NF-2), $NF}')" "1 9;1 7;"
+sed -n '/^KN TEXT BEGIN/,/^KN TEXT END/p' "$T/kn.e"  | sed -e '1d' -e '$d' > "$T/kn.t1"
+sed -n '/^KN TEXT BEGIN/,/^KN TEXT END/p' "$T/kn2.e" | sed -e '1d' -e '$d' > "$T/kn.t2"
+_ofeq "kantNativeT row 7: nj4's native text is the pinned text (genLadder/kantNativeT.nj4.ll), two runs write the same bytes, and it holds no address" "$(cmp -s "$T/kn.t1" genLadder/kantNativeT.nj4.ll && echo pinned) $([ -s "$T/kn.t1" ] && cmp -s "$T/kn.t1" "$T/kn.t2" && echo same) $(grep -c '0x\|inttoptr' "$T/kn.t1")" "pinned same 0"
+_ofeq "kantNativeT the native text computes with the operators' own IR and stores through the helpers (add / mul / irSetCount calls / testOP calls in nj4's text)" "$(grep -c '= add i32 %vt' "$T/kn.t1") $(grep -c '= mul i32 %vt' "$T/kn.t1") $(grep -c 'call ptr @irSetCount(' "$T/kn.t1") $(grep -c 'call ptr @testOP(' "$T/kn.t1")" "1 1 3 1"
 
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
