@@ -8737,6 +8737,26 @@ kindRow "ruleThisT control: dumpField(this) in the action lists atFirst, atSecon
 "$CB" "$(ip ruleThisTopT)" > "$T/rtt" 2>&1; check "ruleThisTopT runs (a top-level refusal abandons the file, still exit 0)" 0 $?
 kindRow "ruleThisTopT a top-level \$\$this stays refused, and what follows it is abandoned: REFUSED \$\$, RTT-0, RTT-1" "$(grep -c '^REFUSED \$\$ ' "$T/rtt") $(grep -c '^RTT-0 ' "$T/rtt") $(grep -c '^RTT-1 ' "$T/rtt")" "1 1 0"
 
+#  ⚑ irWhole / irParts / irDoor -- SEQ 664 (Tony, 2026-11-16): THE KANT JITTER'S ONE DOOR. kant writes LLVM IR as text
+#  into a buffer (irWhole whole, irParts from a counter, a name and two numbers); compileIR(field) compiles the field's
+#  text under the field's tag and callIR(field) calls it. The text rows compare bytes with the target; ID-1 wants 42 (a
+#  value no default yields); ID-2 is compile-once (REUSED, count still 1); ID-3 to ID-6 are the refusals, each printing
+#  its line with the run going on; ID-7 calls an engine extern declared by name in the text, with no registration.
+printf 'define i32 @kantProbe(ptr %%a) {\nentry:\n  %%t1 = add i32 40, 2\n  ret i32 %%t1\n}\n' > "$T/ir.want"
+"$CB" "$(ip irWhole)" > "$T/irw.o" 2> "$T/irw.e"; check "irWhole runs" 0 $?
+kindRow "irWhole the buffer holds the IR text byte for byte" "$(cmp -s "$T/irw.e" "$T/ir.want" && echo same)" "same"
+"$CB" "$(ip irParts)" > "$T/irp.o" 2> "$T/irp.e"; check "irParts runs" 0 $?
+kindRow "irParts the text built from parts is the same bytes, and the counter's next temp is %t2" "$(cmp -s "$T/irp.e" "$T/ir.want" && echo same) $(grep -c '^next temp would be %t2' "$T/irp.o")" "same 1"
+"$CB" "$(ip irDoor)" > "$T/ird" 2>&1; check "irDoor runs" 0 $?
+sentinel "irDoor sentinel" "$T/ird" "ID SENTINEL"
+kindRow "irDoor ID-1 kant text compiled through the door returns 42" "$(grep -c '^ID-1 first call returns 42 ' "$T/ird")" "1"
+kindRow "irDoor ID-2 compile once: COMPILED 1, REUSED 1 at count 1, second call 42" "$(grep -c '^=== compileIR: kantProbe COMPILED, compile count = 1 ===' "$T/ird") $(grep -c '^=== compileIR: kantProbe REUSED, compile count = 1 ===' "$T/ird") $(grep -c '^ID-2 second call returns 42 ' "$T/ird")" "1 1 1"
+kindRow "irDoor ID-3 a text that does not parse refuses with LLVM's text, and the run goes on" "$(grep -c '^REFUSED irBad -- compileIR: the text does not parse -- .*error: expected instruction opcode' "$T/ird") $(grep -c '^ID-3 ' "$T/ird") $(grep -c '^ID-3x' "$T/ird")" "1 1 0"
+kindRow "irDoor ID-4 a text that fails the verifier refuses with LLVM's text, and the run goes on" "$(grep -c '^REFUSED irUnverified -- compileIR: the text fails the verifier -- Instruction does not dominate all uses' "$T/ird") $(grep -c '^ID-4 ' "$T/ird")" "1 1"
+kindRow "irDoor ID-5 a name the text does not define refuses by name, and the run goes on" "$(grep -c '^REFUSED irNoName -- compileIR: the text defines no function @irNoName' "$T/ird") $(grep -c '^ID-5 ' "$T/ird")" "1 1"
+kindRow "irDoor ID-6 a call of a name never compiled refuses by name, and the run goes on" "$(grep -c '^REFUSED irNoName -- callIR: nothing is compiled under the name irNoName' "$T/ird") $(grep -c '^ID-6 ' "$T/ird")" "1 1"
+kindRow "irDoor ID-7 an engine extern declared by name resolves with no registration: compile 2, returns 1" "$(grep -c '^=== compileIR: irHelper COMPILED, compile count = 2 ===' "$T/ird") $(grep -c '^ID-7 a helper declared by name and called returns 1 ' "$T/ird")" "1 1"
+
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
 #  `return *argument;`. Road i (fired on a label, InvokeD's attribute) and road ii (called from the command line) both

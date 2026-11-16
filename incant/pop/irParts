@@ -1,0 +1,32 @@
+Start();
+include(utilities);
+search reset stack Grokking Utilities;
+register(IrProbe);
+define
+    irBuf buffer;
+    irCount=0;
+    irName="kantProbe";
+    irLeft=40;
+    irRight=2;
+    irTemp;
+    irNewTemp code={
+        ++irCount;
+        irTemp = string $"%t" irCount$;
+        };
+    irParts code={
+        reset(irBuf);
+        printTO(irBuf);
+        print $"define i32 @" irName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        irNewTemp();
+        print $_ _ irTemp _ "= add i32 " irLeft ", " irRight$:;
+        print $_ _ "ret i32 " irTemp$:;
+        print $"}"$:;
+        irNewTemp();
+        printTO(0);
+        print "next temp would be" irTemp:;
+        };
+    ;
+irParts();
+cerr $irBuf$;
+stop();

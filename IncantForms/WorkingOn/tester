@@ -50,6 +50,9 @@ define
             cerr "  field" fieldName:;
             if fieldName != "SKIp";     currentField = grup;
             else    clear(currentField);
+            $$currentField;
+            //debug;
+            $$currentField;
             if hasInput = DataInputField();
                 cerr "    hasInput truthy, text=" hasInput.text " lastField=" lastField:;
                 if lastField == 1;

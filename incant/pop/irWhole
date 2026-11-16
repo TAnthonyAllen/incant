@@ -1,0 +1,20 @@
+Start();
+include(utilities);
+search reset stack Grokking Utilities;
+register(IrProbe);
+define
+    irBuf buffer;
+    irWhole code={
+        reset(irBuf);
+        printTO(irBuf);
+        print $"define i32 @kantProbe(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%t1 = add i32 40, 2"$:;
+        print $_ _ "ret i32 %t1"$:;
+        print $"}"$:;
+        printTO(0);
+        };
+    ;
+irWhole();
+cerr $irBuf$;
+stop();

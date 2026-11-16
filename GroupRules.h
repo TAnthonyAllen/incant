@@ -166,12 +166,14 @@ extern "C" GroupItem *appendGroupNumberValue(double value, GroupItem *FormaT, Bu
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer);
 extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer);
 extern "C" GroupItem *cLEAR(GroupItem *input);
+extern "C" GroupItem *callIR(GroupItem *field);
 extern "C" int callIsRule(GroupItem *target);
 extern "C" int castStore(GroupItem *argument, GroupItem *target);
 extern "C" int clearRefusal(GroupItem *where);
 extern "C" void clearWalked(GroupItem *field);
 extern "C" int closeFile(GroupItem *bufField);
 extern "C" GroupItem *compile(GroupItem *field);
+extern "C" GroupItem *compileIR(GroupItem *field);
 extern "C" GroupItem *compileIn(GroupItem *input);
 extern "C" char *concatText(char *left, char *right);
 extern "C" GroupItem *copyDeep(GroupItem *grup);

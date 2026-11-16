@@ -2104,6 +2104,22 @@ extern "C" GroupItem *cLEAR(GroupItem *input)
 	return input;
 }
 
+/*  callIR -- call the function compileIR cached under the field's tag, handing it the field; the i32 comes back as a
+    count. Kant cannot call a raw function pointer, which is why this is C++ (it touches no LLVM).  */
+extern "C" GroupItem *callIR(GroupItem *field)
+{
+	
+	if (!field) return ::refuse(0,(char*)"callIR: no field");
+	std::string name = field->groupBody->tag ? field->groupBody->tag : "";
+	if (!gIRDoor.count(name)) {
+	std::string why = "callIR: nothing is compiled under the name " + name + " -- compileIR it first";
+	return ::refuse(field,::strdup(why.c_str())); }
+	GroupItem *out = new GroupItem((char*)"irResult");
+	out->setCount(gIRDoor[name](field));
+	return out;
+	
+}
+
 // callIsRule M3's DOOR, in one place: interpreted, a rule term; jitting, a rule term OR anything with an installed parse (F-123)
 extern "C" int callIsRule(GroupItem *target)
 {
@@ -2272,6 +2288,76 @@ endCompile:
 			else	::compile(grup);
 			}
 	return field;
+}
+
+/*******************************************************************************
+    compileIR -- THE ONE DOOR of the kant jitter (SEQ 664, Tony 2026-11-16): IR
+    text in, a compiled function out. The argument is ONE field: its text is the
+    IR and its tag is the function's @name. Parse, verify, mem2reg, add to the
+    engine jitRunAction uses, look up, cache BY NAME -- a second call with a
+    cached name compiles nothing. Every failure refuses by name, with LLVM's own
+    text where LLVM has one. jitRunAction and the C++ walk are not touched; this
+    is the only C++ of the kant jitter that touches LLVM.
+*******************************************************************************/
+extern "C" GroupItem *compileIR(GroupItem *field)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if (!field) return ::refuse(0,(char*)"compileIR: no field -- it takes a field whose text is the IR and whose tag is the function's name");
+	std::string name = field->groupBody->tag ? field->groupBody->tag : "";
+	if (gIRDoor.count(name)) {
+	fprintf(stderr,"=== compileIR: %s REUSED, compile count = %d ===\n", name.c_str(), gIRDoorCompiles);
+	return ruler->trueResult; }
+	char *text = field->getText();
+	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
+	if (!jit) return ::refuse(field,(char*)"compileIR: the JIT engine is null");
+	auto ctx = std::make_unique<llvm::LLVMContext>();
+	llvm::SMDiagnostic diag;
+	std::string why;
+	llvm::raw_string_ostream os(why);
+	std::unique_ptr<llvm::Module> mod = llvm::parseAssemblyString(text ? text : "", diag, *ctx);
+	if (!mod) {
+	diag.print(name.c_str(), os, false); os.flush();
+	why = "compileIR: the text does not parse -- " + why;
+	return ::refuse(field,::strdup(why.c_str())); }
+	if (llvm::verifyModule(*mod, &os)) {
+	os.flush();
+	why = "compileIR: the text fails the verifier -- " + why;
+	return ::refuse(field,::strdup(why.c_str())); }
+	llvm::Function *fn = mod->getFunction(name);
+	if (!fn || fn->isDeclaration()) {
+	why = "compileIR: the text defines no function @" + name;
+	return ::refuse(field,::strdup(why.c_str())); }
+	if (!fn->getReturnType()->isIntegerTy(32) || fn->arg_size() != 1 || !fn->getArg(0)->getType()->isPointerTy()) {
+	why = "compileIR: @" + name + " is not i32 (ptr) -- the one shape the door calls";
+	return ::refuse(field,::strdup(why.c_str())); }
+	{
+	llvm::PassBuilder PB;
+	llvm::LoopAnalysisManager LAM;
+	llvm::FunctionAnalysisManager FAM;
+	llvm::CGSCCAnalysisManager CGAM;
+	llvm::ModuleAnalysisManager MAM;
+	PB.registerModuleAnalyses(MAM);
+	PB.registerCGSCCAnalyses(CGAM);
+	PB.registerFunctionAnalyses(FAM);
+	PB.registerLoopAnalyses(LAM);
+	PB.crossRegisterProxies(LAM, FAM, CGAM, MAM);
+	llvm::FunctionPassManager FPM;
+	FPM.addPass(llvm::PromotePass());
+	for (llvm::Function &f : *mod) if (!f.isDeclaration()) FPM.run(f, FAM);
+	}
+	if (auto err = jit->addIRModule(llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
+	why = "compileIR: the JIT would not take the module -- " + llvm::toString(std::move(err));
+	return ::refuse(field,::strdup(why.c_str())); }
+	auto sym = jit->lookup(name);
+	if (!sym) {
+	why = "compileIR: lookup of @" + name + " failed -- " + llvm::toString(sym.takeError());
+	return ::refuse(field,::strdup(why.c_str())); }
+	gIRDoor[name] = sym->toPtr<int(*)(GroupItem*)>();
+	gIRDoorCompiles++;
+	fprintf(stderr,"=== compileIR: %s COMPILED, compile count = %d ===\n", name.c_str(), gIRDoorCompiles);
+	return ruler->trueResult;
+	
 }
 
 // compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299); answers true or false, the BlocK goes on the request's `result` (SEQ 300)

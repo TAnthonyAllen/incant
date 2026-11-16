@@ -1,0 +1,77 @@
+Start();
+include(utilities);
+search reset stack Grokking Utilities;
+register(IrProbe);
+define
+    kantProbe buffer;
+    irCount=0;
+    irLeft=40;
+    irRight=2;
+    irTemp;
+    irGot;
+    irBad="define i32 @irBad(ptr %a) { oops }";
+    irUnverified="define i32 @irUnverified(ptr %a) { %x = add i32 %y, 1  %y = add i32 1, 1  ret i32 %x }";
+    irNoName="define i32 @somebodyElse(ptr %a) { ret i32 7 }";
+    irHelper="declare i32 @truthOf(ptr)  define i32 @irHelper(ptr %a) { %r = call i32 @truthOf(ptr %a)  ret i32 %r }";
+    irNewTemp code={
+        ++irCount;
+        irTemp = string $"%t" irCount$;
+        };
+    irBuild code={
+        reset(kantProbe);
+        printTO(kantProbe);
+        print $"define i32 @" kantProbe.taG "(ptr %a) {"$:;
+        print $"entry:"$:;
+        irNewTemp();
+        print $_ _ irTemp _ "= add i32 " irLeft ", " irRight$:;
+        print $_ _ "ret i32 " irTemp$:;
+        print $"}"$:;
+        printTO(0);
+        };
+    irDrive code={
+        irBuild();
+        compileIR(kantProbe);
+        irGot = callIR(kantProbe);
+        cerr "ID-1 first call returns" irGot:;
+        compileIR(kantProbe);
+        irGot = callIR(kantProbe);
+        cerr "ID-2 second call returns" irGot:;
+        };
+    irRefuseParse code={
+        compileIR(irBad);
+        cerr "ID-3x NOT REACHED -- a refusal ends its action":;
+        };
+    irRefuseVerify code={
+        compileIR(irUnverified);
+        };
+    irRefuseName code={
+        compileIR(irNoName);
+        };
+    irRefuseCall code={
+        callIR(irNoName);
+        };
+    irNamed code={
+        compileIR(irHelper);
+        irGot = callIR(irHelper);
+        cerr "ID-7 a helper declared by name and called returns" irGot:;
+        };
+    ;
+irDrive();
+irRefuseParse();
+cerr "ID-3 the run went on past a text that does not parse":;
+irRefuseVerify();
+cerr "ID-4 the run went on past a text that fails the verifier":;
+irRefuseName();
+cerr "ID-5 the run went on past a name the text does not define":;
+irRefuseCall();
+cerr "ID-6 the run went on past a call of a name never compiled":;
+irNamed();
+cerr "ID SENTINEL":;
+stop();
+
+irDoor -- SEQ 664 (Tony, 2026-11-16), the kant jitter's step 1: the one door. kantProbe is a buffer; irBuild prints
+LLVM IR text into it from parts (the step 0 specimen irParts, with the function's name read off the buffer's own tag);
+compileIR(kantProbe) compiles the text under the field's tag and callIR(kantProbe) calls it. ID-1 wants 42. ID-2 is the
+compile-once row: the second compileIR prints REUSED and the count stays 1. ID-3 to ID-6 are the refusals, one action
+each because a refusal ends the action it happens in (ID-3x must never print). ID-7 is the naming measurement: the text
+declares truthOf, an existing extern of the engine, by name and calls it; it resolved with no registration.

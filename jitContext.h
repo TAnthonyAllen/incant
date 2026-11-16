@@ -20,6 +20,8 @@
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Transforms/Utils/Mem2Reg.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/AsmParser/Parser.h"
+#include "llvm/Support/SourceMgr.h"
 #include <memory>
 #include <vector>
 #include <string>
@@ -228,6 +230,9 @@ inline int gJitCompileCount = 0;
 // string. It exists for persistence and inspection, and Clay SEQ 27 v2 rules that
 // boundary explicitly: dispatch is only ever through rStuff.jitMethod.
 inline std::string gJitLastIR;
+// compileIR's cache, by function name, and its compile count (the kant jitter's one door, SEQ 664)
+inline std::map<std::string,int(*)(GroupItem*)> gIRDoor;
+inline int gIRDoorCompiles = 0;
 
 // THE PRINT BUFFER IN FLIGHT (2026-08-04). jitEmitPrint brackets a print
 // statement: one emitted call to jitPrintBegin acquires the buffer, one emitted

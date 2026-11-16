@@ -32,7 +32,9 @@ define
     class immediateAction=rEGISTER noPrint;
     clear immediateAction=cLEAR;
     closeFile immediateAction;
+    callIR immediateAction;
     compile immediateAction;
+    compileIR immediateAction;
     compileIn immediateAction;
     condition immediateAction=processFlags noPrint;
     copyOf immediateAction;
