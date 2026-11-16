@@ -111,7 +111,7 @@ where it stands. Nothing else is backfilled.
 **RULED 2026-11-16 (Tony):** f() runs f with no argument, as the old road does. An empty subscript is not ruled and not to change.
 **Attempt log:**
   1. SEQ 673: `incant/kantGrammar` INVOKEd `EXPRESSIOn` -> `EXPRESSIOn?`; INVOKEr builds the call instruct with no third slot when the parentheses are empty and refuses an empty subscript by name; EXPRESSIOn's adjacent-run check reads slot 3 only when there is one -> f() runs from a new-road action, a new-road callee and a top-level text, as on the old road; a compiled action holding f() equals its twin. Correction to **What**: in a new-road ACTION body f() was not silent, the action failed to build by name (ERROR processCode); only a STARt text dropped it in silence.
-  2. H7: the `?` taken back out -> the new-road and top-level rows are empty again; restored from git.
+  2. H7: the `?` taken back out -> the top-level rows are empty and 12 actions fail to build (want 1, the old road's empty subscript); the new-road action rows keep their values, because an action whose new-road build fails runs its old-road body -- the build-error count is what certifies them. Restored from git.
   POP: pop.sh `emptyCallT` rows (13).
 
 ### F-160 — CLOSED 2026-11-16 (SEQ 669; bought and merged, 1565ddfe); docketed 2026-11-15 (Clod, found building tester's comma-delimited draft) — loopConditionNoTruthOf: `while <call>;` never re-tests the callee's return value for truthiness

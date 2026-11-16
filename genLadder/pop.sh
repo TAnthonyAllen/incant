@@ -8961,7 +8961,9 @@ _ofeq "kantMixedT nj5's native text is the pinned text (genLadder/kantMixedT.nj5
 #  kantGrammar's INVOKEd takes `EXPRESSIOn?` inside the parentheses (it took `EXPRESSIOn`); INVOKEr builds the call instruct with
 #  no third slot. Before: a new-road action holding f() failed to build and a STARt text holding f() dropped its statement in
 #  silence. incant/grammar is not touched. An empty subscript a[] refuses by name. Run twice: as written and with the kwCompile(
-#  lines deleted (the twin). H7: with the `?` taken back out, every NEW and TOP row of a, b, d, h and g is empty.
+#  lines deleted (the twin). H7 (run SEQ 673): with the `?` taken back out the TOP rows are empty and ERROR processCode reads 12,
+#  not 1. ⚠ THE NEW ROWS KEEP THEIR VALUES UNDER THAT CONTROL: an action whose new-road build fails still has its old-road body and
+#  runs on it. So the first row's E1 (every njNew built) is what certifies that the NEW rows ran on the new road, not their values.
 _ecF=$(ip emptyCallT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_ecF" > "$T/ec.o" 2> "$T/ec.e"; _ecx=$?
 sed '/^kwCompile(/d' "$_ecF" > "$T/ec.twin"
