@@ -212,6 +212,9 @@ extern "C" GroupItem *implicitFormat(GroupItem *value, GroupItem *fmtCount, Grou
 extern "C" GroupItem *interpretXPaccum(GroupItem *xpList);
 extern "C" GroupItem *interpretXPaccumU(GroupItem *op, GroupItem *operand);
 extern "C" GroupItem *interpretXPaccumWrap(GroupItem *operand, GroupItem *rest);
+extern "C" GroupItem *irAt(GroupItem *list, int position);
+extern "C" int irGoOn();
+extern "C" GroupItem *irSeqEnd(GroupItem *items, GroupItem *last);
 extern "C" int isCallable(GroupItem *target);
 extern "C" int isShortcutInstruct(GroupItem *value);
 extern "C" int iterateSetup(GroupItem *iterator, GroupItem *source, int attributes, int members);

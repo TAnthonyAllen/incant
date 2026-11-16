@@ -3863,6 +3863,38 @@ GroupItem 	*done = operand;
 	return done;
 }
 
+/*  THE WALKED TEXT'S THREE HELPERS (SEQ 668, Tony 2026-11-16). The kant jitter's text calls them BY NAME; none touches
+    LLVM. They are C++ because IR text carries no address and no layout: it cannot index a list or read the ruler.  */
+// irAt a list's member by position, 1-based -- how the text reaches statement k, and later a collected field
+extern "C" GroupItem *irAt(GroupItem *list, int position)
+{
+	if ( !list )
+		return 0;
+	return list->get(position);
+}
+
+// irGoOn after a statement: 1 to go on, 0 to leave -- opBodySeq's two tests, read only (a refusal, or any signal)
+extern "C" int irGoOn()
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused && !ruler->jitting )
+		return 0;
+	if ( ruler->branchKind )
+		return 0;
+	return 1;
+}
+
+// irSeqEnd the walked function's ending, as opBodySeq and opSeq end: a return's value rides up with its signal still set; a break is caught and cleared here; otherwise the statement list is handed back
+extern "C" GroupItem *irSeqEnd(GroupItem *items, GroupItem *last)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->branchKind == 3 )
+		return last;
+	if ( ruler->branchKind == 1 )
+		ruler->branchKind = 0;
+	return items;
+}
+
 // isCallable a call has something to call: a rule (callIsRule), an action, or a method
 extern "C" int isCallable(GroupItem *target)
 {

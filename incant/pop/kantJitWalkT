@@ -1,0 +1,205 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(KantJitWalkT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kjBuf buffer;
+    kjReq name text;
+    kwName;
+    kwMark;
+    kq=5;
+    kwCompile code={
+        kwName = string $"kw_" argument.taG$;
+        kwBlk   := argument.BlocK;
+        kwStmts := *kwBlk[2];
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"declare ptr @testOP(ptr)"$:;
+        print $"declare ptr @irAt(ptr, i32)"$:;
+        print $"declare i32 @irGoOn()"$:;
+        print $"declare ptr @irSeqEnd(ptr, ptr)"$:;
+        print $"@" kwName "_n = global i32 0"$:;
+        print $"define ptr @" kwName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%last = alloca ptr"$:;
+        print $_ _ "store ptr null, ptr %last"$:;
+        print $_ _ "%items = call ptr @irAt(ptr %a, i32 2)"$:;
+        print $_ _ "br label %s1"$:;
+        kwK = 0;
+        iterate kwSt on *kwStmts;
+        while ++kwSt;
+            ++kwK;
+            kwNext = kwK + 1;
+            print $"s" kwK ":"$:;
+            print $_ _ "%n" kwK _ "= load i32, ptr @" kwName "_n"$:;
+            print $_ _ "%m" kwK _ "= add i32 %n" kwK ", 1"$:;
+            print $_ _ "store i32 %m" kwK ", ptr @" kwName "_n"$:;
+            print $_ _ "%f" kwK _ "= call ptr @irAt(ptr %items, i32 " kwK ")"$:;
+            print $_ _ "%r" kwK _ "= call ptr @testOP(ptr %f" kwK ")"$:;
+            print $_ _ "store ptr %r" kwK ", ptr %last"$:;
+            print $_ _ "%g" kwK _ "= call i32 @irGoOn()"$:;
+            print $_ _ "%c" kwK _ "= icmp ne i32 %g" kwK ", 0"$:;
+            print $_ _ "br i1 %c" kwK ", label %s" kwNext ", label %done"$:;
+        kwNext = kwK + 1;
+        print $"s" kwNext ":"$:;
+        print $_ _ "br label %done"$:;
+        print $"done:"$:;
+        print $_ _ "%v = load ptr, ptr %last"$:;
+        print $_ _ "%e = call ptr @irSeqEnd(ptr %items, ptr %v)"$:;
+        print $_ _ "ret ptr %e"$:;
+        print $"}"$:;
+        print $"define i32 @" kwName "_ran(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%n = load i32, ptr @" kwName "_n"$:;
+        print $_ _ "ret i32 %n"$:;
+        print $"}"$:;
+        printTO(0);
+        kjReq.name = kwName;
+        kjReq.text = string $kjBuf$;
+        if compileIR(kjReq);
+            kwMark := new("KanT");
+            *kwMark = kwName;
+            *kwMark :. noPrinT;
+            argument +% *kwMark;
+        };
+    kwRan code={
+        kjReq.name = string $"kw_" argument.taG "_ran"$;
+        kwGot = callIR(kjReq);
+        cerr "KW RAN" argument.taG kwGot:;
+        };
+    kwLen code={
+        kwBlk   := argument.BlocK;
+        kwStmts := *kwBlk[2];
+        kwLn    := *kwStmts.listLengtH;
+        cerr "KW LEN" argument.taG kwLn:;
+        };
+    kwr code={ print "r1":; return 42; print "r2":; };
+    kwrCall code={ got = kwr(); print "got" got:; };
+    kwb code={ print "b1":; break; print "b2":; };
+    kwbCall code={
+        i = 0;
+        while i < 2;
+            i = i + 1;
+            kwb();
+            print "loop" i:;
+        print "after loop":;
+        };
+    kwf code={ hz := kq; print 1:; print hz - 1:; print 2:; };
+    kwfCall code={ kwf(); print "caller went on":; };
+    nj1 code={ x1 = 3 + 4; print x1:; };
+    nj2 code={ y2 = 5; if y2 > 2; print 1:; };
+    nj3 code={
+        n3 = 0;
+        while n3 < 5;
+            n3 = n3 + 1;
+            if n3 == 3;     break;
+        print n3:;
+        };
+    nj4 code={ a4 = 3; b4 = a4 + 4; c4 = b4 * 2; print c4:; };
+    nj5 code={ a5 = 3.5; b5 = a5 + 1; print b5:; };
+    nj6 code={ m6 = 2; if m6 > 0; m6 = 7; print m6:; n6 = m6 * 3; print n6:; };
+    nj7 code={
+        m7 = 2;
+        if m7 > 0 && m7 < 5;
+            m7 = 7;
+        print m7:;
+        n7 = m7 * 3;
+        print n7:;
+        };
+    ;
+search KantJitWalkT;
+njNew(nj1);
+njNew(nj2);
+njNew(nj3);
+njNew(nj4);
+njNew(nj5);
+njNew(nj6);
+njNew(nj7);
+njNew(kwr);
+njNew(kwb);
+njNew(kwf);
+kwCompile(nj1);
+kwCompile(nj2);
+kwCompile(nj3);
+kwCompile(nj4);
+kwCompile(nj5);
+kwCompile(nj6);
+kwCompile(nj7);
+kwCompile(kwr);
+kwCompile(kwb);
+kwCompile(kwf);
+print "KW S1":;
+nj1();
+nj2();
+nj3();
+nj4();
+nj5();
+nj6();
+nj7();
+print "KW ROW2 a return in the middle":;
+kwrCall();
+print "KW ROW3 a break that reaches the top":;
+kwbCall();
+print "KW ROW4 a refusal in the middle":;
+kwfCall();
+print "KW END":;
+kwLen(nj1);
+kwLen(nj2);
+kwLen(nj3);
+kwLen(nj4);
+kwLen(nj5);
+kwLen(nj6);
+kwLen(nj7);
+kwLen(kwr);
+kwLen(kwb);
+kwLen(kwf);
+kwRan(nj1);
+kwRan(nj2);
+kwRan(nj3);
+kwRan(nj4);
+kwRan(nj5);
+kwRan(nj6);
+kwRan(nj7);
+kwRan(kwr);
+kwRan(kwb);
+kwRan(kwf);
+kwCompile(kwr);
+cerr "KW TEXT BEGIN":;
+cerr $kjBuf$;
+cerr "KW TEXT END":;
+cerr "KANTJITWALKT SENTINEL":;
+stop();
+
+kantJitWalkT -- SEQ 668 (Tony, 2026-11-16), the kant jitter's step 2c: the walk. kwCompile(action) walks the action's
+finished chain in kant -- the BlocK's second slot is its statement list -- and writes one function with one testOP call
+per top-level statement. The text reaches statement k by position (irAt, by name), asks irGoOn after each statement and
+branches to the exit if not, and ends through irSeqEnd, which ends as the interpreter's statement walk does: a return's
+value rides up, a break is caught and cleared. An if or a loop is one statement; its inside is not walked. The action
+is then marked KanT, so ordinary calls run the walked function (step 2b's seat).
+The three callers (kwrCall, kwbCall, kwfCall) are ordinary old-road actions, never compiled.
+pop.sh runs this file twice: as written, and with the top-level kwCompile( and kwRan( lines deleted (the twin). Stdout
+from KW S1 to KW END must be equal. KW S1 is newJitT's seven actions. ROW2: the statement after a return does not run
+and 42 comes back. ROW3: a break at the top of an action ends it and does not reach the caller's loop. ROW4: the
+statement after a refusal is skipped and the caller goes on. KW RAN is the text's own counter of statements run: for
+the seven it equals KW LEN (every statement ran); kwr 2 of 3; kwb 4 over two calls (2 of 3 each); kwf 3 of 4. The text
+between KW TEXT BEGIN and KW TEXT END is kwr's, pinned in pop.sh and compared across two runs (the second kwCompile(kwr)
+only rewrites the text: the door answers REUSED).

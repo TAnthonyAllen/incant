@@ -8793,6 +8793,25 @@ _ofeq "kantJitCallT nothing refused in rows 1-4 (REFUSED lines other than ky's)"
 _ofeq "kantJitCallT control: unmarked kx prints its chain; marked with a function that never calls testOP it prints nothing" "$(_kjv "$T/kc.o" 'KC CONTROL' 'KC BAD MARK')" "KC CONTROL |kx ran its chain |KC BAD MARK |"
 _ofeq "kantJitCallT a mark naming nothing compiled refuses by name and does not fall back to the chain" "$(grep -c '^REFUSED ky -- is marked KanT, and no ptr (ptr) function is compiled under the name the mark carries' "$T/kc.e") $(grep -c 'ky ran its chain' "$T/kc.o") $(_kjv "$T/kc.o" 'KC BAD MARK' 'KC FOOT')" "1 0 KC BAD MARK |KC FOOT |"
 
+#  ⚑ kantJitWalkT -- SEQ 668 (Tony, 2026-11-16): THE KANT JITTER, STEP 2c -- the walk. kwCompile (kant) walks an action's chain
+#  and writes one testOP call per top-level statement, each followed by the go-on check (irGoOn), statement k reached by
+#  position (irAt), the ending opSeq's (irSeqEnd). Run twice: as written and with the top-level kwCompile( / kwRan( lines
+#  deleted (the twin). KW RAN is the text's own count of statements run; KW LEN is the chain's length, read in kant.
+_kwF=$(ip kantJitWalkT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kwF" > "$T/kw.o" 2> "$T/kw.e"; _kwx=$?
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kwF" > "$T/kw2.o" 2> "$T/kw2.e"
+sed '/^kwCompile(/d;/^kwRan(/d' "$_kwF" > "$T/kw.twin"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/kw.twin" > "$T/kwt.o" 2> "$T/kwt.e"; _kwtx=$?
+_kwWant="KW S1 |7 |1 |3 |14 |4.5 |7 |21 |7 |21 |KW ROW2 a return in the middle |r1 |got 42 |KW ROW3 a break that reaches the top |b1 |loop 1 |b1 |loop 2 |after loop |KW ROW4 a refusal in the middle |1 |caller went on |KW END |"
+_ofeq "kantJitWalkT twin (nothing compiled): the seven, a return, a break, a refusal (stdout / exit / sentinel / compiles / refusals of hz)" "$(_kjv "$T/kwt.o" 'KW S1' 'KW END') x$_kwtx s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kwt.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kwt.e") R$(grep -c '^REFUSED hz -- Operator - ' "$T/kwt.e")" "$_kwWant x0 s1 c0 R1"
+_ofeq "kantJitWalkT walked, ordinary calls = the twin (stdout / exit / sentinel / compiles / refusals of hz)" "$(_kjv "$T/kw.o" 'KW S1' 'KW END') x$_kwx s$(grep -c '^KANTJITWALKT SENTINEL' "$T/kw.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kw.e") R$(grep -c '^REFUSED hz -- Operator - ' "$T/kw.e")" "$_kwWant x0 s1 c10 R1"
+_ofeq "kantJitWalkT the seven ran every statement: the text's count = the chain's length, per action" "$(grep '^KW RAN nj' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "$(grep '^KW LEN nj' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')"
+_ofeq "kantJitWalkT the seven's lengths are real numbers (anti-vacuity for the row above)" "$(grep '^KW LEN nj' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "nj1 2;nj2 2;nj3 3;nj4 4;nj5 3;nj6 5;nj7 5;"
+_ofeq "kantJitWalkT early endings, statements run of length: return 2 of 3, break 4 of 3 over two calls, refusal 3 of 4" "$(grep '^KW RAN kw' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}') $(grep '^KW LEN kw' "$T/kw.e" | awk '{printf "%s %s;", $3, $4}')" "kwr 2;kwb 4;kwf 3; kwr 3;kwb 3;kwf 4;"
+sed -n '/^KW TEXT BEGIN/,/^KW TEXT END/p' "$T/kw.e"  | sed -e '1d' -e '$d' > "$T/kw.t1"
+sed -n '/^KW TEXT BEGIN/,/^KW TEXT END/p' "$T/kw2.e" | sed -e '1d' -e '$d' > "$T/kw.t2"
+_ofeq "kantJitWalkT kwr's walked text is the pinned text (genLadder/kantJitWalkT.kwr.ll), and two runs write the same bytes" "$(cmp -s "$T/kw.t1" genLadder/kantJitWalkT.kwr.ll && echo pinned) $([ -s "$T/kw.t1" ] && cmp -s "$T/kw.t1" "$T/kw.t2" && echo same)" "pinned same"
+
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
 #  `return *argument;`. Road i (fired on a label, InvokeD's attribute) and road ii (called from the command line) both
