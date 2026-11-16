@@ -2104,18 +2104,27 @@ extern "C" GroupItem *cLEAR(GroupItem *input)
 	return input;
 }
 
-/*  callIR -- call the function compileIR cached under the field's tag, handing it the field; the i32 comes back as a
-    count. Kant cannot call a raw function pointer, which is why this is C++ (it touches no LLVM).  */
+/*  callIR -- call the function compileIR cached under the field's tag (or the request's name), handing it the field (or
+    the field the request's `arg` holds). An i32 comes back as a count; a ptr (ptr) function's field comes back as it is.
+    Kant cannot call a raw function pointer, which is why this is C++ (it touches no LLVM).  */
 extern "C" GroupItem *callIR(GroupItem *field)
 {
 	
 	if (!field) return ::refuse(0,(char*)"callIR: no field");
-	std::string name = field->groupBody->tag ? field->groupBody->tag : "";
+	GroupItem *reqName = field->get((char*)"name"), *reqArg = field->get((char*)"arg");
+	std::string name = reqName ? reqName->getText() : (field->groupBody->tag ? field->groupBody->tag : "");
 	if (!gIRDoor.count(name)) {
 	std::string why = "callIR: nothing is compiled under the name " + name + " -- compileIR it first";
 	return ::refuse(field,::strdup(why.c_str())); }
+	GroupItem *arg = field;
+	if (reqArg) {
+	if (!isGROUP(reqArg->groupBody->flags.data) || !reqArg->groupBody->gGroup)
+	return ::refuse(field,(char*)"callIR: the request's `arg` holds no field");
+	arg = reqArg->groupBody->gGroup; }
+	if (gIRDoor[name].second == 1)
+	return ((GroupItem*(*)(GroupItem*))gIRDoor[name].first)(arg);
 	GroupItem *out = new GroupItem((char*)"irResult");
-	out->setCount(gIRDoor[name](field));
+	out->setCount(((int(*)(GroupItem*))gIRDoor[name].first)(arg));
 	return out;
 	
 }
@@ -2293,7 +2302,9 @@ endCompile:
 /*******************************************************************************
     compileIR -- THE ONE DOOR of the kant jitter (SEQ 664, Tony 2026-11-16): IR
     text in, a compiled function out. The argument is ONE field: its text is the
-    IR and its tag is the function's @name. Parse, verify, mem2reg, add to the
+    IR and its tag is the function's @name -- or a REQUEST (SEQ 666), a field
+    with `name`, `text` and `arg` attributes, as compileIn takes one: the name's
+    text, the text's text, and for callIR the field `arg` holds. Parse, verify, mem2reg, add to the
     engine jitRunAction uses, look up, cache BY NAME -- a second call with a
     cached name compiles nothing. Every failure refuses by name, with LLVM's own
     text where LLVM has one. jitRunAction and the C++ walk are not touched; this
@@ -2304,11 +2315,12 @@ extern "C" GroupItem *compileIR(GroupItem *field)
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
 	if (!field) return ::refuse(0,(char*)"compileIR: no field -- it takes a field whose text is the IR and whose tag is the function's name");
-	std::string name = field->groupBody->tag ? field->groupBody->tag : "";
+	GroupItem *reqText = field->get((char*)"text"), *reqName = field->get((char*)"name");
+	std::string name = reqName ? reqName->getText() : (field->groupBody->tag ? field->groupBody->tag : "");
 	if (gIRDoor.count(name)) {
 	fprintf(stderr,"=== compileIR: %s REUSED, compile count = %d ===\n", name.c_str(), gIRDoorCompiles);
 	return ruler->trueResult; }
-	char *text = field->getText();
+	char *text = reqText ? reqText->getText() : field->getText();
 	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
 	if (!jit) return ::refuse(field,(char*)"compileIR: the JIT engine is null");
 	auto ctx = std::make_unique<llvm::LLVMContext>();
@@ -2328,8 +2340,10 @@ extern "C" GroupItem *compileIR(GroupItem *field)
 	if (!fn || fn->isDeclaration()) {
 	why = "compileIR: the text defines no function @" + name;
 	return ::refuse(field,::strdup(why.c_str())); }
-	if (!fn->getReturnType()->isIntegerTy(32) || fn->arg_size() != 1 || !fn->getArg(0)->getType()->isPointerTy()) {
-	why = "compileIR: @" + name + " is not i32 (ptr) -- the one shape the door calls";
+	//  twoShapes i32 (ptr) hands back a count; ptr (ptr) is a field in, a field out (SEQ 666 R1)
+	int shape = fn->getReturnType()->isIntegerTy(32) ? 0 : fn->getReturnType()->isPointerTy() ? 1 : -1;
+	if (shape < 0 || fn->arg_size() != 1 || !fn->getArg(0)->getType()->isPointerTy()) {
+	why = "compileIR: @" + name + " is neither i32 (ptr) nor ptr (ptr) -- the two shapes the door calls";
 	return ::refuse(field,::strdup(why.c_str())); }
 	{
 	llvm::PassBuilder PB;
@@ -2353,7 +2367,7 @@ extern "C" GroupItem *compileIR(GroupItem *field)
 	if (!sym) {
 	why = "compileIR: lookup of @" + name + " failed -- " + llvm::toString(sym.takeError());
 	return ::refuse(field,::strdup(why.c_str())); }
-	gIRDoor[name] = sym->toPtr<int(*)(GroupItem*)>();
+	gIRDoor[name] = { sym->toPtr<void*>(), shape };
 	gIRDoorCompiles++;
 	fprintf(stderr,"=== compileIR: %s COMPILED, compile count = %d ===\n", name.c_str(), gIRDoorCompiles);
 	return ruler->trueResult;

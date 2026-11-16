@@ -1,0 +1,127 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(KantJitT);
+define
+    njReq owner source result rule;
+    kjBuf buffer;
+    kjReq name text arg;
+    kjName;
+    kjWrite code={
+        kjName = string $"kj_" argument.taG$;
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"declare ptr @testOP(ptr)"$:;
+        print $"define ptr @" kjName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%t1 = call ptr @testOP(ptr %a)"$:;
+        print $_ _ "ret ptr %t1"$:;
+        print $"}"$:;
+        printTO(0);
+        };
+    kjRun code={
+        kjWrite(argument);
+        kjReq.name = kjName;
+        kjReq.text = string $kjBuf$;
+        kjReq.arg := argument.BlocK;
+        compileIR(kjReq);
+        callIR(kjReq);
+        };
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kjCtl code={
+        kjName = string $"kjctl_" argument.taG$;
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"define ptr @" kjName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "ret ptr %a"$:;
+        print $"}"$:;
+        printTO(0);
+        kjReq.name = kjName;
+        kjReq.text = string $kjBuf$;
+        kjReq.arg := argument.BlocK;
+        compileIR(kjReq);
+        callIR(kjReq);
+        };
+    nj1 code={ x1 = 3 + 4; print x1:; };
+    nj2 code={ y2 = 5; if y2 > 2; print 1:; };
+    nj3 code={
+        n3 = 0;
+        while n3 < 5;
+            n3 = n3 + 1;
+            if n3 == 3;     break;
+        print n3:;
+        };
+    nj4 code={ a4 = 3; b4 = a4 + 4; c4 = b4 * 2; print c4:; };
+    nj5 code={ a5 = 3.5; b5 = a5 + 1; print b5:; };
+    nj6 code={ m6 = 2; if m6 > 0; m6 = 7; print m6:; n6 = m6 * 3; print n6:; };
+    nj7 code={
+        m7 = 2;
+        if m7 > 0 && m7 < 5;
+            m7 = 7;
+        print m7:;
+        n7 = m7 * 3;
+        print n7:;
+        };
+    ;
+search KantJitT;
+njNew(nj1);
+njNew(nj2);
+njNew(nj3);
+njNew(nj4);
+njNew(nj5);
+njNew(nj6);
+njNew(nj7);
+print "NJ NJ-1":;
+kjRun(nj1);
+print "NJ NJ-2":;
+kjRun(nj2);
+print "NJ NJ-3":;
+kjRun(nj3);
+print "NJ NJ-4":;
+kjRun(nj4);
+print "NJ NJ-5":;
+kjRun(nj5);
+print "NJ NJ-6":;
+kjRun(nj6);
+print "NJ NJ-7":;
+kjRun(nj7);
+print "NJ END":;
+print "KJ AGAIN":;
+kjRun(nj1);
+print "KJ CONTROL":;
+kjCtl(nj1);
+print "KJ END":;
+kjWrite(nj1);
+cerr "KJ TEXT BEGIN":;
+cerr $kjBuf$;
+cerr "KJ TEXT END":;
+cerr "KANTJITT SENTINEL":;
+stop();
+
+kantJitT -- SEQ 666 (Tony, 2026-11-16), the kant jitter's step 2: an action's body runs through the door. The seven
+actions are newJitT's (the C++ walk's S1 rows), built on the new road by njNew. kjWrite(action) is the kant jitter so
+far: it writes the action's function as LLVM IR text -- ONE call to testOP on the argument, by name, returning what
+testOP returns. kjRun writes it, fills the request (name, text, and arg = the action's finished chain, its BlocK),
+and takes it through compileIR and callIR. The NJ rows must equal newJitT's twin, row for row. KJ AGAIN is compile
+once (REUSED, 7 again). KJ CONTROL is the negative control: a function that returns its argument and never calls
+testOP prints nothing, so the values above came from the chain running inside the compiled function. The text
+between KJ TEXT BEGIN and KJ TEXT END on stderr is pinned in pop.sh and compared across two runs.
+No address is written into the text; testOP is named and the engine resolves it.

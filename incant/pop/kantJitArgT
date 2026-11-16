@@ -1,0 +1,111 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(KantJitArgT);
+define
+    nlReqN owner source result rule;
+    nlReqO owner source result;
+    nlOutN = 5;
+    nlOutO = 5;
+    nlDepN = 2;
+    nlDepO = 2;
+    itW;
+    it5;
+    nlNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nlOld code={
+        nlSrc := argument.CodE;
+        nlReqO.owner  := argument;
+        nlReqO.source := nlSrc;
+        if compileIn(nlReqO);
+            nlBlock = nlReqO.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    kjBuf buffer;
+    kjReq name text arg;
+    kjName;
+    kjWrite code={
+        kjName = string $"kj_" argument.taG$;
+        reset(kjBuf);
+        printTO(kjBuf);
+        print $"declare ptr @testOP(ptr)"$:;
+        print $"define ptr @" kjName "(ptr %a) {"$:;
+        print $"entry:"$:;
+        print $_ _ "%t1 = call ptr @testOP(ptr %a)"$:;
+        print $_ _ "ret ptr %t1"$:;
+        print $"}"$:;
+        printTO(0);
+        };
+    kjRun code={
+        kjWrite(argument);
+        kjReq.name = kjName;
+        kjReq.text = string $kjBuf$;
+        kjReq.arg := argument.BlocK;
+        compileIR(kjReq);
+        callIR(kjReq);
+        };
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kjTwo=2;
+    kq=5;
+    kr1 code={ hz := kq; print 1:; print hz - 1:; print 2:; };
+    kr2 code={ hz := kq; print 1:; print hz - 1:; print 2:; };
+    nl3an code={ lv3a = argument; if lv3a > 0; nl3an(lv3a - 1); print lv3a:; };
+    nl3ao code={ lv3a = argument; if lv3a > 0; nl3ao(lv3a - 1); print lv3a:; };
+    nlRPn code={ print "[" 7 #5d "]":; };
+    ;
+search KantJitArgT;
+nlNew(nlRPn);
+nlNew(nl3an);
+nlNew(kr1);
+nlNew(kr2);
+nlOld(nl3ao);
+print "NL PRIME":;
+nl3an(0);
+print "NL AL-3a n":;
+nl3an.argument := kjTwo;
+kjRun(nl3an);
+print "NL KR plain":;
+kr1();
+print "NL KR after plain":;
+print "NL KR door":;
+kjRun(kr2);
+print "NL KR after door":;
+print "NL END":;
+cerr "KANTJITARGT SENTINEL":;
+stop();
+
+kantJitArgT -- SEQ 666, with kantJitT: the C++ walk's S1b action (newLocalArgT's nl3an) and a refusal inside a body.
+NL AL-3a n: nl3an(2) through the door reads 0 1 2 with no refusal, as its plain run does. The door call is not a call
+of the action, so nothing binds nl3an's argument: the driver binds it from kant (nl3an.argument := kjTwo), and that
+works only after one plain call has minted the argument slot (NL PRIME) -- runAction mints and flags it, and kant has
+no spelling for the flag. Unprimed, lv3a copies a holder and the row reads 2 with one refusal (measured).
+NL KR: kr1 run plainly and kr2 (the same body) through the door. The holder arithmetic refuses once in each, the
+statement after it does not run in either, and the driver goes on.

@@ -8757,6 +8757,26 @@ kindRow "irDoor ID-5 a name the text does not define refuses by name, and the ru
 kindRow "irDoor ID-6 a call of a name never compiled refuses by name, and the run goes on" "$(grep -c '^REFUSED irNoName -- callIR: nothing is compiled under the name irNoName' "$T/ird") $(grep -c '^ID-6 ' "$T/ird")" "1 1"
 kindRow "irDoor ID-7 an engine extern declared by name resolves with no registration: compile 2, returns 1" "$(grep -c '^=== compileIR: irHelper COMPILED, compile count = 2 ===' "$T/ird") $(grep -c '^ID-7 a helper declared by name and called returns 1 ' "$T/ird")" "1 1"
 
+#  ⚑ kantJitT / kantJitArgT -- SEQ 666 (Tony, 2026-11-16): THE KANT JITTER, STEP 2 -- an action's body runs through the door.
+#  kjWrite (kant) writes the action's function as IR text, one call to testOP by name; compileIR compiles it, callIR runs
+#  it on the action's finished chain. The rows are the C++ walk's S1 rows (newJitT's actions; want = newJitT's twin string)
+#  and S1b's (newLocalArgT's nl3an), plus a refusal inside a body. NJ-5 reads 4.5 here: testOP runs the whole chain.
+_kjF=$(ip kantJitT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kjF" > "$T/kj.o" 2> "$T/kj.e"; _kjx=$?
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kjF" > "$T/kj2.o" 2> "$T/kj2.e"
+_kjv () { sed -n "/^$2/,/^$3/p" "$1" | grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' | tr '\n' '|'; }
+_ofeq "kantJitT every action through the door = newJitT's twin, row for row (stdout / exit / sentinel)" "$(_kjv "$T/kj.o" 'NJ NJ-1' 'NJ END') x$_kjx s$(grep -c '^KANTJITT SENTINEL' "$T/kj.e")" "NJ NJ-1 |7 |NJ NJ-2 |1 |NJ NJ-3 |3 |NJ NJ-4 |14 |NJ NJ-5 |4.5 |NJ NJ-6 |7 |21 |NJ NJ-7 |7 |21 |NJ END | x0 s1"
+_ofeq "kantJitT seven compiles, one per action, and the second run of nj1 is REUSED and reads 7 again" "$(grep -c '^=== compileIR: kj_nj[1-7] COMPILED' "$T/kj.e") $(grep -c '^=== compileIR: kj_nj1 REUSED' "$T/kj.e") $(_kjv "$T/kj.o" 'KJ AGAIN' 'KJ CONTROL')" "7 1 KJ AGAIN |7 |KJ CONTROL |"
+_ofeq "kantJitT control: a function that never calls testOP compiles and prints nothing" "$(grep -c '^=== compileIR: kjctl_nj1 COMPILED' "$T/kj.e") $(_kjv "$T/kj.o" 'KJ CONTROL' 'KJ END')" "1 KJ CONTROL |KJ END |"
+printf 'declare ptr @testOP(ptr)\ndefine ptr @kj_nj1(ptr %%a) {\nentry:\n  %%t1 = call ptr @testOP(ptr %%a)\n  ret ptr %%t1\n}\n' > "$T/kj.want"
+sed -n '/^KJ TEXT BEGIN/,/^KJ TEXT END/p' "$T/kj.e"  | sed -e '1d' -e '$d' > "$T/kj.t1"
+sed -n '/^KJ TEXT BEGIN/,/^KJ TEXT END/p' "$T/kj2.e" | sed -e '1d' -e '$d' > "$T/kj.t2"
+_ofeq "kantJitT nj1's text is the pinned text, and two runs write the same bytes" "$(cmp -s "$T/kj.t1" "$T/kj.want" && echo pinned) $([ -s "$T/kj.t1" ] && cmp -s "$T/kj.t1" "$T/kj.t2" && echo same)" "pinned same"
+_kaF=$(ip kantJitArgT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_kaF" > "$T/ka.o" 2> "$T/ka.e"; _kax=$?
+_ofeq "kantJitArgT S1b: nl3an(2) through the door = its plain run (value / refusals of lv3a / exit / sentinel)" "$(_kjv "$T/ka.o" 'NL AL-3a n' 'NL KR plain') R$(grep -c '^REFUSED lv3a ' "$T/ka.e") x$_kax s$(grep -c '^KANTJITARGT SENTINEL' "$T/ka.e")" "NL AL-3a n |0 |1 |2 |NL KR plain | R0 x0 s1"
+_ofeq "kantJitArgT a refusal inside the body crosses the door as it does plainly: 1, one refusal each, no 2, the driver goes on" "$(_kjv "$T/ka.o" 'NL KR plain' 'NL END') R$(grep -c '^REFUSED hz -- Operator - ' "$T/ka.e")" "NL KR plain |1 |NL KR after plain |NL KR door |1 |NL KR after door |NL END | R2"
+
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
 #  `return *argument;`. Road i (fired on a label, InvokeD's attribute) and road ii (called from the command line) both

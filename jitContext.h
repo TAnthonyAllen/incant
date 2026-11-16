@@ -230,8 +230,8 @@ inline int gJitCompileCount = 0;
 // string. It exists for persistence and inspection, and Clay SEQ 27 v2 rules that
 // boundary explicitly: dispatch is only ever through rStuff.jitMethod.
 inline std::string gJitLastIR;
-// compileIR's cache, by function name, and its compile count (the kant jitter's one door, SEQ 664)
-inline std::map<std::string,int(*)(GroupItem*)> gIRDoor;
+// compileIR's cache, by function name -- the function and its shape, 0 = i32 (ptr), 1 = ptr (ptr) -- and its compile count (the kant jitter's one door, SEQ 664, 666)
+inline std::map<std::string,std::pair<void*,int>> gIRDoor;
 inline int gIRDoorCompiles = 0;
 
 // THE PRINT BUFFER IN FLIGHT (2026-08-04). jitEmitPrint brackets a print
