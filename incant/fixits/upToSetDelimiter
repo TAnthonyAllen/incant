@@ -1,0 +1,73 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(UpToSet);
+define
+    usSet=[,\n];
+    usSrc File="Tests/delimitTest";
+    usHit=0;
+    usGuarded isRule usA=','{ guard='n' code={ usHit = 1; cerr "    read up to the comma: " usA:; return usA; };
+    usPlain   isRule usC=','{ code={ usHit = 1; cerr "    read up to the comma: " usC:; return usC; };
+    usBySet   isRule usB=usSet{ usSet guard='n' code={ usHit = 1; cerr "    read up to the set: " usB:; return usB; };
+    usGoGuarded code={
+        usHit = 0;
+        pushInputField(argument);
+        usGuarded();
+        popInputField();
+        cerr "PIN 1 string delimiter, guard='n' written   -> rule fired " usHit " (want 1)":;
+        };
+    usGoPlain code={
+        usHit = 0;
+        pushInputField(argument);
+        usPlain();
+        popInputField();
+        cerr "PIN 2 string delimiter, no guard attribute  -> rule fired " usHit " (want 1)":;
+        };
+    usGoSet code={
+        usHit = 0;
+        pushInputField(argument);
+        usBySet();
+        popInputField();
+        cerr "PIN 3 set delimiter [,\\n] held in a field   -> rule fired " usHit " (want 1)":;
+        };
+    ;
+cerr "ANCHOR upToSetDelimiter -- three rules that read up to a delimiter; the file's first field is 1":;
+getFile(usSrc);
+usGoGuarded(usSrc);
+usGoPlain(usSrc);
+fixUpToSetDelimiterHere = 0;
+cerr "NEXT LINE CRASHES TODAY (exit 139): upTo over a set":;
+usGoSet(usSrc);
+cerr "SENTINEL upToSetDelimiter reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Tony, offline status of 2026-11-16: "making upToMatch handle sets can go into a fixit for now while we work on jitter")
+
+upToSetDelimiter -- two things owed, both found by Tony running IncantForms/WorkingOn/tester's DataInputField rule.
+
+1. A rule that reads UP TO a set crashes. upToMatch (RuleStuff.twk:303) opens with `endString = text;` (tok makes that
+   grup.text) and strlen of it, before it asks whether the delimiter is a set. Its loop does have a set arm
+   (`if isSET && characterSet.contains(*atText)`), so the set was meant to work; the string read ahead of it is what dies.
+   MEASURED 2026-11-16, kant, bare build: exit 139 with the set held in a field (PIN 3 here, tester's shape), with the set
+   written in the rule (usB=[,\n]{), and with or without the second term. A string written in the rule (','{) reads 1.
+
+2. A rule whose first term is an upTo match gets a guard that fails it before it runs, so the writer has to add guard='n'.
+   MEASURED the same day: PIN 1 (guard='n') fires and reads 1; PIN 2, the same rule without the attribute, does not fire.
+   Tony's suggestion: GroupItem ensureGuard (GroupItem.twk:581) should make such a rule unguarded itself.
+
+Seen on the way and not chased: a string delimiter held in a FIELD (us=","; usA=us{) fires but the label reads "," not
+"1"; and adding the field as a second term (usA=us{ us) stops the rule firing at all. Only the written-in string works.
+
+NEXT: BEST GUESS -- not a recommendation until built.
+  1. In upToMatch, take the string and its length only when the delimiter is not a set (matchLength stays 1 for a set),
+     and check which of field / grup the loop's isSET is reading when the set is held in a field. Grade: likely; the
+     crash line is Tony's reading of the source, not a backtrace I took. Promoted by PIN 3 reading 1 and tester running
+     without its crash; killed if the crash is still there with the string read skipped.
+  2. In ensureGuard, a first attribute carrying upTo (or upToOver) makes the rule unguarded. Grade: Tony's suggestion,
+     site not read. Promoted by PIN 2 reading 1 with no fleet row moving.
+  Taken: all three PINs read 1 and the SENTINEL prints at exit 0. Not taken (today): PIN 1 reads 1, PIN 2 reads 0, the
+  run dies at exit 139 before PIN 3.

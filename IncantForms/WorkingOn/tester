@@ -30,7 +30,7 @@ define
     record;
     recordCount=0;
     fieldList one two SKIp some SKIp SKIp more;
-    DataInputField isRule inputField=dataDelimiter{ dataDelimiter code={
+    DataInputField isRule inputField=dataDelimiter{ dataDelimiter guard='n' code={
         if dataDelimiter != ","; lastField = 1;
         $$currentField;
         $$inputField;
@@ -50,8 +50,6 @@ define
             cerr "  field" fieldName:;
             if fieldName != "SKIp";     currentField = grup;
             else    clear(currentField);
-            $$currentField;
-            //debug;
             $$currentField;
             if hasInput = DataInputField();
                 cerr "    hasInput truthy, text=" hasInput.text " lastField=" lastField:;
@@ -74,6 +72,7 @@ define
         };
     ;
 getFile(source);
+debug GUARD DataInputField;
 loadRecords(source);
 dumpField(source);
 print "SENTINEL tester driver end":;
