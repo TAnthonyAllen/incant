@@ -4058,7 +4058,7 @@ extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 	if ( !target )  return 0;
 	//  castRule opAssign's twin casts as opAssign does (SEQ 347 R0)
 	if ( source )   { if ( !::castStore(source,target) ) target->setContent(source); }
-	else            target->clearData();
+	else            { target->clearData(); return 0; }   /* nothingYieldsNothing, as opAssign (F-160 B1) */
 	return target;
 	
 }
@@ -9586,17 +9586,19 @@ extern "C" char *lookupName(GroupItem *argument)
 
 /*******************************************************************************
     A loop's condition, for DO and WhilE. A method-bearing condition is called
-    exactly as before; a bare value -- `while 0;` -- has no method and is tested
-    by truthOf, as aCTionIF already does.
+    and what it hands back is tested by truthOf, as a bare value is and as
+    aCTionIF tests its condition: `while f();` ends when f hands back a zero
+    count, as it does on nothing (Tony, 2026-11-16, F-160 A; incant/pop/callTruthT).
 *******************************************************************************/
 extern "C" GroupItem *loopCondition(GroupItem *cond)
 {
+GroupItem 	*answer = cond;
 	if ( !cond )
 		return 0;
 	if ( cond->groupBody->gMethod )
-		return cond->groupBody->gMethod(cond);
-	if ( ::truthOf(cond) )
-		return cond;
+		answer = cond->groupBody->gMethod(cond);
+	if ( ::truthOf(answer) )
+		return answer;
 	return 0;
 }
 
@@ -9957,6 +9959,9 @@ int 		priorLimit = ::limitWriteGuard(target);
 	// limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
 	if ( priorLimit )
 		::limitWriteCheck(target,priorLimit);
+	// nothingYieldsNothing assigning nothing clears the target and the assignment's own value is nothing, so `if x = f();` is false when f hands back nothing (Tony, 2026-11-16, F-160 B1; jitAssignNodeRT is the twin)
+	if ( !argument )
+		return 0;
 	return target;
 }
 

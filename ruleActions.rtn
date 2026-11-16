@@ -450,14 +450,16 @@ GroupItem   grup = dtext.firstInList;
 
 /*******************************************************************************
     A loop's condition, for DO and WhilE. A method-bearing condition is called
-    exactly as before; a bare value -- `while 0;` -- has no method and is tested
-    by truthOf, as aCTionIF already does.
+    and what it hands back is tested by truthOf, as a bare value is and as
+    aCTionIF tests its condition: `while f();` ends when f hands back a zero
+    count, as it does on nothing (Tony, 2026-11-16, F-160 A; incant/pop/callTruthT).
 *******************************************************************************/
 extern GroupItem loopCondition(GroupItem cond)
 {
+GroupItem   answer = cond;
     if !cond            return null;
-    if cond.gMethod     return cond.gMethod(cond);
-    if truthOf(cond)    return cond;
+    if cond.gMethod     answer = cond.gMethod(cond);
+    if truthOf(answer)  return answer;
     return null;
 }
 

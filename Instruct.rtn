@@ -212,6 +212,8 @@ use target
     else    target.clearData();
     // limitGuard F-27: a non-zero priorLimit means target IS maxLimit; the guard call sits above the jitting arm on purpose
     if priorLimit   limitWriteCheck(target,priorLimit);
+    // nothingYieldsNothing assigning nothing clears the target and the assignment's own value is nothing, so `if x = f();` is false when f hands back nothing (Tony, 2026-11-16, F-160 B1; jitAssignNodeRT is the twin)
+    if !argument    return null;
     return  target;
 }
 

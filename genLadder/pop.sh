@@ -643,6 +643,56 @@ else echo "  FAIL  ifT MISSING"; fail=1
 fi
 
 #  ============================================================================
+#  ⚑ callTruthT -- SEQ 669 (Tony's ruling of 2026-11-16, F-160): the truth of a call in `while f();` and `if x = f();`.
+#  A: a loop condition that is a call is tested for truth (loopCondition). B1: assigning nothing yields nothing (opAssign,
+#  jitAssignNodeRT). Per row the call is written into an if-assign and a while, old road (an action body) and new road (If /
+#  WHILe on the text, then testOP), one process each under an alarm, read on stderr with exit and sentinel. The D rows call a
+#  rule directly, which only the old road can. CT-H has no break: it ends only if the zero count is read false (H7: with
+#  loopCondition reverted it runs until the alarm, exit 142). Before the cure the old road read 3 at CT-1, CT-3 and CT-7's
+#  while and 1 at CT-7D's if; the new road already read as ruled.
+_ctF=$(ip callTruthT)
+if [ -f "$_ctF" ]; then
+sed '/^stop();/,$d' "$_ctF" > "$T/ct.pre"
+grep '^CT-[0-9D]*|' "$_ctF" > "$T/ct.list"
+_ctrun () {   # $1 input, $2 form -> "<value> x<exit> s<sentinel>[ !R]"
+    perl -e 'alarm 10; exec @ARGV' "$B" "$1" > "$1.out" 2> "$1.err"; local x=$?
+    local v; v=$(grep "^CT $2" "$1.err" | sed "s/^CT $2 *//" | tr -d ' ' | tr '\n' ',' | sed 's/,$//')
+    v="$v x$x s$(grep -c '^CT SENTINEL' "$1.err")"
+    grep -q 'REFUS\|ERROR\|REMOVED\|ABANDON\|RunRulE\|has no method' "$1.err" && v="$v !R"
+    echo "$v"
+}
+_ctwant () {  # $1 id, $2 form -> the ruled value
+    case "$1.$2" in
+        CT-1.*|CT-3.*|CT-7.*|CT-7D.*) echo 0 ;;
+        *.if) echo 1 ;;
+        *) echo 3 ;;
+    esac
+}
+_ctn=0
+while IFS='|' read -r _id _call _what _roads; do
+    for _form in if while; do
+        if [ $_form = if ]; then
+            _so="if ctX = $_call;\n            ctR = 1;"; _sn="it1 = If(\"if ctX = $_call; ctR = 1;\");"; _rp='cerr "CT if " ctR:;'
+        else
+            _so="while $_call;\n            ctN = ctN + 1;\n            if ctN == 3; break;"; _sn="it1 = WHILe(\"while $_call; { ctN = ctN + 1; if ctN == 3; break; }\");"; _rp='cerr "CT while " ctN:;'
+        fi
+        { cat "$T/ct.pre"; printf 'define\n    ctGo code={\n        %b\n        };\n    ;\nctGo();\n%s\ncerr "CT SENTINEL":;\nstop();\n' "$_so" "$_rp"; } > "$T/ct.$_id.$_form.ok"
+        _ofeq "callTruthT $_id old road, $_form on $_what (value / exit / sentinel)" "$(_ctrun "$T/ct.$_id.$_form.ok" $_form)" "$(_ctwant $_id $_form) x0 s1"
+        _ctn=$((_ctn+1))
+        if [ "$_roads" = b ]; then
+            { cat "$T/ct.pre"; printf '%s\ntestOP(it1);\n%s\ncerr "CT SENTINEL":;\nstop();\n' "$_sn" "$_rp"; } > "$T/ct.$_id.$_form.nk"
+            _ofeq "callTruthT $_id new road, $_form on $_what (value / exit / sentinel)" "$(_ctrun "$T/ct.$_id.$_form.nk" $_form)" "$(_ctwant $_id $_form) x0 s1"
+            _ctn=$((_ctn+1))
+        fi
+    done
+done < "$T/ct.list"
+_ofeq "callTruthT rows ran (40: 8 on both roads, 4 on the old road, two forms each)" "$_ctn" "40"
+{ cat "$T/ct.pre"; printf 'define\n    ctGo code={\n        while ctZero(ctR);\n            ctN = ctN + 1;\n        };\n    ;\nctGo();\ncerr "CT while " ctN:;\ncerr "CT SENTINEL":;\nstop();\n'; } > "$T/ct.CT-H.ok"
+_ofeq "callTruthT CT-H old road, a while on a zero count with no break ends without entering (value / exit / sentinel)" "$(_ctrun "$T/ct.CT-H.ok" while)" "0 x0 s1"
+else echo "  FAIL  callTruthT MISSING"; fail=1
+fi
+
+#  ============================================================================
 #  ⚑ whileT -- SEQ 475 (Tony, 2026-10-30): WHILe on the new road, PRE-REGISTERED ON TRUNK, born red. Per row the old road and
 #  the new road, one process each under an alarm, read by value; the new road also by exit status and sentinel. Today WH-3 and
 #  WH-4 die with exit 139 in the parse: break (BRANCh) and a block (BLOCk) hand up no instruct, and If's action attaches a null.

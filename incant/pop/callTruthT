@@ -1,0 +1,87 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(CtT);
+define
+    ctR=0;
+    ctN=0;
+    ctX;
+    it1;
+    ctAb="ab";
+    ctXy="xy";
+    ctZe="0";
+    ctCm=",x";
+    ctZero code={
+        return 0;
+        };
+    ctThree code={
+        return 3;
+        };
+    ctNull code={
+        return null;
+        };
+    ctString code={
+        return "abc";
+        };
+    ctVal isRule ctA=[ab]+ code={ return ctA; };
+    ctDig isRule ctD=[0-9]+ code={ return ctD; };
+    ctUp isRule ctU=','{ guard='n' code={ return ctU; };
+    ctWVal code={
+        return ctVal(ctAb);
+        };
+    ctWUp code={
+        return ctUp(ctCm);
+        };
+    ctWFail code={
+        return ctVal(ctXy);
+        };
+    ctWDig code={
+        return ctDig(ctZe);
+        };
+    ;
+search CtT Utilities UnitTests list;
+stop();
+
+callTruthT -- SEQ 669 (Tony's ruling of 2026-11-16, F-160): the truth of a call in `while f();` and in `if x = f();`.
+    A.  a loop condition that is a call is tested for truth: `while f();` ends when f hands back a zero count, as on nothing.
+    B1. assigning nothing yields nothing: `if x = f();` is false when f hands back nothing.
+    A label a rule hands back is true by existing, with or without a value. Not ruled: an empty field is false (B2).
+
+This file is not run alone. pop.sh builds the inputs per row, one process each under an alarm: everything above this
+file's `stop();`, then the row's call written into an if-assign and into a while, on the OLD road (the statement in an
+action body, ctGo, defined and called) and on the NEW road (If or WHILe on the statement's text, then testOP). Read on stderr.
+    if form      if ctX = CALL; ctR = 1;                                 prints CT if <ctR>       1 = the if read true
+    while form   while CALL; { ctN = ctN + 1; if ctN == 3; break; }     prints CT while <ctN>    3 = entered, 0 = not
+    CT-H         while CALL; ctN = ctN + 1;   no break: it ends only if the call is read false (the H7 row: it hangs unfixed)
+
+Three facts the rows are built round (measured 2026-11-16, before the cure):
+    - an action never hands back nothing: `return null;` and a failed rule returned from an action arrive as a zero count.
+      Nothing reaches an assignment only from a rule called directly (CT-7D).
+    - on the new road a call needs an argument (INVOKEd wants an expression): `f()` in a STARt text drops the statement in
+      silence, so every action here is called with ctR. Not chased.
+    - a rule cannot be called from the new road (opCallTest: no method), so the D rows are old road only.
+
+ROWS -- id | the call | what it hands back | roads (b both, o old only)
+CT-1|ctZero(ctR)|a zero count|b
+CT-2|ctThree(ctR)|a nonzero count|b
+CT-3|ctNull(ctR)|an action returning null: a zero count|b
+CT-4|ctString(ctR)|a string|b
+CT-5|ctWVal(ctR)|a label with a value, through an action|b
+CT-6|ctWUp(ctR)|a label with no value, through an action|b
+CT-7|ctWFail(ctR)|a failed rule, through an action: a zero count|b
+CT-8|ctWDig(ctR)|a label whose text is 0, through an action|b
+CT-5D|ctVal(ctAb)|a rule's label with a value|o
+CT-6D|ctUp(ctCm)|a rule's label with no value|o
+CT-7D|ctVal(ctXy)|a rule that fails: nothing|o
+CT-8D|ctDig(ctZe)|a rule's label whose text is 0|o
