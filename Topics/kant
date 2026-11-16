@@ -61,10 +61,11 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
         members; only the action's own locals resolve natively at first, anything unresolved takes the testOP fallback; values stay in the fields first and
         native code reads and writes them there (a fully resolved local in a machine slot is a later step); fields are reached by position in a list the
         jitter collects.
-    RULED AND NOT YET BUILT, dispatches held by Tony:
-        F-160: A (a loop's call condition is tested for truth) and B1 (assigning nothing yields nothing).
+    F-160 BUILT on branch f160-cure (SEQ 669, 2026-11-16), waiting on Tony's buy: A, loopCondition tests a call's answer for truth; B1, opAssign and
+        jitAssignNodeRT hand back nothing when the right side is nothing. incant/pop/callTruthT, 42 rows; the new road already read as ruled.
+    RULED AND NOT YET BUILT, dispatch held by Tony:
         debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body is parsed: measured SEQ 662).
-    NEXT SESSION OPENS WITH: the F-160 dispatch, then step 3a (the resolve pass alone, printing the marked chain).
+    NEXT: the buy of f160-cure, then step 3a (the resolve pass alone, printing the marked chain).
 
 /*****************************************************************************
     Plan

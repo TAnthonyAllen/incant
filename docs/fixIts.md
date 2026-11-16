@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-160 — OPEN, docketed 2026-11-15 (Clod, found building tester's comma-delimited draft) — loopConditionNoTruthOf: `while <call>;` never re-tests the callee's return value for truthiness
+### F-160 — BUILT on branch f160-cure 2026-11-16 (SEQ 669), waiting on Tony's buy; docketed 2026-11-15 (Clod, found building tester's comma-delimited draft) — loopConditionNoTruthOf: `while <call>;` never re-tests the callee's return value for truthiness
 
 **What:** (kant) `loopCondition` (`ruleActions.rtn:456`) only calls `truthOf(cond)` when `cond` has NO `gMethod`. Every `ExpressioN` carries `gMethod=aCTionXpress`, so a call-expression condition always takes the `cond.gMethod(cond)` branch instead, and whatever that call returns is handed straight back as the loop's continue signal with no truthOf re-check. So `while someAction(); ...;` where `someAction` legitimately `return 0;`s never stops — only a NULL return stops it. Separately, in the same draft: `if x = someCall();` reads truthy every time regardless of what `someCall()` returned, because `opAssign` (`Instruct.rtn:197`) returns `target` (the assignment's left side, a field that always exists), and that existing-field pointer is what gets truth-tested — not the value just copied into it.
 **Where:** `ruleActions.rtn:456` (`loopCondition`); `Instruct.rtn:197` (`opAssign`, `return target;`).
@@ -105,7 +105,10 @@ where it stands. Nothing else is backfilled.
   2. Ran tester -> hung at 100% CPU, zero stdout (block-buffered, never flushed). lldb attach during the hang showed the stall inside `getRecord`'s own field walk, not inside pushInput/popInput.
   3. Instrumented `getRecord` with `cerr` traces (unit-buffered, visible mid-hang) -> showed the pattern above.
   4. Built the isolated `loopProbe` two-arm reproducer -> confirmed the hang is a general `while <call>;` property, not specific to tester's code; read `loopCondition` and `opAssign` to name the mechanism.
-  POP: none yet — no fleet row exists for this; `loopProbe` is the reproducer and is not committed.
+  5. SEQ 669 (Tony's ruling A and B1, 2026-11-16): measured first with `incant/pop/callTruthT`, twelve calls in an if-assign and a while on both roads -> the new road already read a call's truth (opWhile, opDo and opIf use truthOf); the old road's while entered on a zero count (CT-1, CT-3, CT-7) and `if x = <a rule that fails>` read true (CT-7D). Correction to **What** above: `if x = f();` was already false when f hands back a zero count (the count is copied into x and x is tested); it was true only when f hands back nothing, and an action never hands back nothing (a `return null;` arrives as a zero count), only a directly called rule does.
+  6. `loopCondition` tests what a method-bearing condition hands back with truthOf; `opAssign` and `jitAssignNodeRT` hand back nothing when the right side is nothing -> the table reads as ruled; pop.sh FAIL rows identical by name to the bank, no mover; jitLadder exit 0.
+  7. H7, one variable each: loopCondition reverted -> CT-1, CT-3, CT-7's while back to 3 and CT-H runs to the 30 s alarm (exit 142), CT-7D unmoved; opAssign reverted -> CT-7D's if back to 1, the whiles unmoved. Fix restored md5-identical.
+  POP: pop.sh `callTruthT` rows (42).
 
 ### F-159 — OPEN (nit), docketed 2026-11-14 (SEQ 661, Clay's dispatch; row only) — formatAfterOnly: in an action body a print format parses only after its expression
 
