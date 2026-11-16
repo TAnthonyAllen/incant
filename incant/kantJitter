@@ -5,6 +5,11 @@ define
     kwName;
     kwMark;
     kwCompile code={
+        kwBuilt = 0;
+        if argument.BlocK;      kwBuilt = 1;
+        if kwBuilt == 0;
+            cerr "REFUSED" argument.taG "-- kwCompile: the action has no built chain":;
+            return 0;
         kwName = string $"kw_" argument.taG$;
         kwBlk   := argument.BlocK;
         kwStmts := *kwBlk[2];

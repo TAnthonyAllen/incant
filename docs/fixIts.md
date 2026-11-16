@@ -101,14 +101,18 @@ where it stands. Nothing else is backfilled.
 **Owner:** Tony to rule; then Clod. **Size:** not measured.
 **Attempt log:** none. Not to be used in step 3a's fixtures (dispatch of 2026-11-16).
 
-### F-161 — OPEN, docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadEmptyCall: on the new road `f()` with empty parentheses drops its statement in silence
+### F-161 — BUILT on branch newroad-empty-call 2026-11-16 (SEQ 673), waiting on Tony's buy; docketed 2026-11-16 (SEQ 670, Clay's dispatch) — newRoadEmptyCall: on the new road `f()` with empty parentheses drops its statement in silence
 
 **What:** (kant, the new road, `incant/kantGrammar`) `it1 = STARt("ctX = ctThree(); ctR = 5;"); testOP(it1);` leaves ctX and ctR untouched: no refusal, no error, exit 0. With an argument, `ctThree(ctR)`, both statements run (ctX 3, ctR 5). In an If text, `if ctThree(); ctR = 1;` reads false. At the top level and in an action body (the old road) `f()` is an ordinary call.
 **Where:** `incant/kantGrammar:94`, `INVOKEd  startBox=[([] EXPRESSIOn endParen-?=")" ...` -- the expression inside the parentheses is not optional.
 **Evidence:** measured 2026-11-16 (SEQ 669) building `incant/pop/callTruthT`; every call in that fixture carries an argument for this reason.
 **Done when:** Tony rules: it runs as a call with no argument, or it refuses by name. Then a row for the ruled behaviour on the new road, with an H7.
 **Owner:** Tony to rule; then Clod. **Size:** not measured; a kantGrammar change (SEQ 552 R5: the new grammar only).
-**Attempt log:** none. Not to be used in step 3a's fixtures (dispatch of 2026-11-16).
+**RULED 2026-11-16 (Tony):** f() runs f with no argument, as the old road does. An empty subscript is not ruled and not to change.
+**Attempt log:**
+  1. SEQ 673: `incant/kantGrammar` INVOKEd `EXPRESSIOn` -> `EXPRESSIOn?`; INVOKEr builds the call instruct with no third slot when the parentheses are empty and refuses an empty subscript by name; EXPRESSIOn's adjacent-run check reads slot 3 only when there is one -> f() runs from a new-road action, a new-road callee and a top-level text, as on the old road; a compiled action holding f() equals its twin. Correction to **What**: in a new-road ACTION body f() was not silent, the action failed to build by name (ERROR processCode); only a STARt text dropped it in silence.
+  2. H7: the `?` taken back out -> the new-road and top-level rows are empty again; restored from git.
+  POP: pop.sh `emptyCallT` rows (13).
 
 ### F-160 — CLOSED 2026-11-16 (SEQ 669; bought and merged, 1565ddfe); docketed 2026-11-15 (Clod, found building tester's comma-delimited draft) — loopConditionNoTruthOf: `while <call>;` never re-tests the callee's return value for truthiness
 

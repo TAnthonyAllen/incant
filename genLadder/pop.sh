@@ -8957,6 +8957,30 @@ sed -n '/^KM TEXT BEGIN/,/^KM TEXT END/p' "$T/km.e"  | sed -e '1d' -e '$d' > "$T
 sed -n '/^KM TEXT BEGIN/,/^KM TEXT END/p' "$T/km2.e" | sed -e '1d' -e '$d' > "$T/km.t2"
 _ofeq "kantMixedT nj5's native text is the pinned text (genLadder/kantMixedT.nj5.ll), two runs the same bytes; the widening is the operator's own text (pinned / same / sitofp lines)" "$(cmp -s "$T/km.t1" genLadder/kantMixedT.nj5.ll && echo pinned) $([ -s "$T/km.t1" ] && cmp -s "$T/km.t1" "$T/km.t2" && echo same) $(grep -c '= sitofp i32 %vt2_3_3 to double' "$T/km.t1")" "pinned same 1"
 
+#  ⚑ emptyCallT -- SEQ 673 (Tony's ruling of 2026-11-16, F-161): ON THE NEW ROAD f() IS A CALL WITH NO ARGUMENT, as on the old.
+#  kantGrammar's INVOKEd takes `EXPRESSIOn?` inside the parentheses (it took `EXPRESSIOn`); INVOKEr builds the call instruct with
+#  no third slot. Before: a new-road action holding f() failed to build and a STARt text holding f() dropped its statement in
+#  silence. incant/grammar is not touched. An empty subscript a[] refuses by name. Run twice: as written and with the kwCompile(
+#  lines deleted (the twin). H7: with the `?` taken back out, every NEW and TOP row of a, b, d, h and g is empty.
+_ecF=$(ip emptyCallT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_ecF" > "$T/ec.o" 2> "$T/ec.e"; _ecx=$?
+sed '/^kwCompile(/d' "$_ecF" > "$T/ec.twin"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/ec.twin" > "$T/ect.o" 2> "$T/ect.e"; _ectx=$?
+_ecr () { _kjv "$T/ec.o" "EC $1" "EC $2" | sed "s/^EC $1 |//; s/EC $2 |\$//"; }
+_ofeq "emptyCallT runs to its end, nothing fails to build but the old road's empty subscript (exit / sentinel / processCode errors / twin exit)" "x$_ecx s$(grep -c '^EMPTYCALLT SENTINEL' "$T/ec.e") E$(grep -c '^ERROR processCode' "$T/ec.e") x$_ectx" "x0 s1 E1 x0"
+_ofeq "emptyCallT a: f() as a statement and inside an expression, old road (control)" "$(_ecr 'a OLD' 'a NEW')" "fz ran |fz ran |8 |"
+_ofeq "emptyCallT a: the same in a new-road action, a new-road action calling a new-road callee, and a top-level text" "$(_ecr 'a NEW' 'a NEW callee new')/$(_ecr 'a NEW callee new' 'a TOP')/$(_ecr 'a TOP' 'b OLD')" "fz ran |fz ran |8 |/fz ran |fz ran |8 |/fz ran |fz ran |8 |"
+_ofeq "emptyCallT b: inside f called as f(), old road (control): argument has no data and prints its own name, taG and @.taG read f" "$(_ecr 'b OLD' 'b NEW')" "0 |argument |fb |fb |"
+_ofeq "emptyCallT b: the same called from a new-road action and from a top-level text" "$(_ecr 'b NEW' 'b NEW callee new')/$(_ecr 'b TOP' 'c OLD')" "0 |argument |fb |fb |/0 |argument |fb |fb |"
+_ofeq "emptyCallT b: a new-road callee called as f(): argument is nothing and @.taG reads f (its bare taG reads 1 -- the new road's bare accessor, pinned, not cured)" "$(_ecr 'b NEW callee new' 'b TOP')" "0 |argument |1 |fbN |"
+_ofeq "emptyCallT c: f(x), argument is x, on the old road, from a new-road action, and into a new-road callee (bare taG 1 there too)" "$(_ecr 'c OLD' 'c NEW')/$(_ecr 'c NEW' 'c NEW callee new')/$(_ecr 'c NEW callee new' 'd OLD')" "5 |5 |ex |ex |/5 |5 |ex |ex |/5 |5 |1 |ex |"
+_ofeq "emptyCallT d: a C++ command called as m() receives itself, old road and new" "$(_ecr 'd OLD' 'd NEW' | cat -t)/$(_ecr 'd NEW' 'h OLD' | cat -t)" "dumpField|^I^I(no list) |/dumpField|^I^I(no list) |"
+_ofeq "emptyCallT h: f's own name reads f's attribute, called as f() and as f(x): old road, new-road caller, new-road callee" "$(_ecr 'h OLD' 'h NEW')/$(_ecr 'h NEW' 'h NEW callee new')/$(_ecr 'h NEW callee new' 'g')" "red |red |/red |red |/red |red |"
+_ofeq "emptyCallT g: f() in an action compiled through the door, callee compiled too = its interpreted twin, row b included (compiled / twin / compiles)" "$(_ecr 'g' 'END')/$(_kjv "$T/ect.o" 'EC g' 'EC END' | sed 's/^EC g |//; s/EC END |$//')/c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/ec.e")" "0 |argument |1 |fbN |g went on |/0 |argument |1 |fbN |g went on |/c2"
+_ofeq "emptyCallT the whole file compiled = its twin (stdout a OLD to END)" "$(_kjv "$T/ec.o" 'EC a OLD' 'EC END' | cksum)" "$(_kjv "$T/ect.o" 'EC a OLD' 'EC END' | cksum)"
+_ofeq "emptyCallT f: an empty subscript refuses by name on the new road, in an action and in a top-level text; the old road fails the action's build by name (refusals of ea / processCode oF)" "$(grep -c '^REFUSED ea -- an empty subscript' "$T/ec.e") $(grep -c '^ERROR processCode: oF parse failed' "$T/ec.e")" "2 1"
+_ofeq "emptyCallT i (measured, not ruled): inside fi, @.taG then this.taG, called fi() fi(ex) box.fi() box.fi(ex): old road / new road" "$(_ecr 'i OLD' 'i NEW')/$(_ecr 'i NEW' 'i END')" "fi |this |ex |this |fi |this |ex |this |/fi |this |ex |this |fi |this |ex |this |"
+
 #  ⚑ ruleReturnT / ruleReturnOpT -- SEQ 411 R0 (Tony, 2026-10-23): A RULE'S CODE RETURNS ITS LABEL, NOT THE LABEL'S
 #  CONTENTS. tester's xpListTest shape: the code makes the label it fired on hold the chain it built and ends
 #  `return *argument;`. Road i (fired on a label, InvokeD's attribute) and road ii (called from the command line) both

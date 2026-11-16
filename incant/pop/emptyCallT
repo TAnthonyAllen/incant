@@ -1,0 +1,151 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(EmptyCallT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    it1;
+    er=0;
+    box;
+    ex=5;
+    ea one two three;
+    fz code={ print "fz ran":; return 7; };
+    fb code={ print argument.datA:; print argument:; print taG:; print @.taG:; };
+    fh color="red" code={ print fh.color:; };
+    fzN code={ print "fz ran":; return 7; };
+    fbN code={ print argument.datA:; print argument:; print taG:; print @.taG:; };
+    fhN color="red" code={ print fhN.color:; };
+    oA code={ fz(); r = fz() + 1; print r:; };
+    oB code={ fb(); };
+    oC code={ fb(ex); };
+    oD code={ dumpField(); };
+    oH code={ fh(); fh(ex); };
+    oF code={ q = ea[]; print "after the empty subscript":; };
+    nA code={ fz(); r = fz() + 1; print r:; };
+    nB code={ fb(); };
+    nC code={ fb(ex); };
+    nD code={ dumpField(); };
+    nH code={ fh(); fh(ex); };
+    nF code={ q = ea[]; print "after the empty subscript":; };
+    nAn code={ fzN(); r = fzN() + 1; print r:; };
+    nBn code={ fbN(); };
+    nCn code={ fbN(ex); };
+    nHn code={ fhN(); fhN(ex); };
+    gB code={ fbN(); print "g went on":; };
+    fi code={ print @.taG:; print this.taG:; };
+    oI code={ fi(); fi(ex); box.fi(); box.fi(ex); };
+    nI code={ fi(); fi(ex); box.fi(); box.fi(ex); };
+    ;
+search EmptyCallT;
+njNew(fzN);
+njNew(fbN);
+njNew(fhN);
+njNew(nA);
+njNew(nB);
+njNew(nC);
+njNew(nD);
+njNew(nH);
+njNew(nAn);
+njNew(nBn);
+njNew(nCn);
+njNew(nHn);
+njNew(gB);
+njNew(nI);
+njNew(nF);
+box +% fi;
+kwCompile(fbN);
+kwCompile(gB);
+print "EC a OLD":;
+oA();
+print "EC a NEW":;
+nA();
+print "EC a NEW callee new":;
+nAn();
+print "EC a TOP":;
+it1 = STARt("fz(); er = fz() + 1; print er:;");
+testOP(it1);
+print "EC b OLD":;
+oB();
+print "EC b NEW":;
+nB();
+print "EC b NEW callee new":;
+nBn();
+print "EC b TOP":;
+it1 = STARt("fb();");
+testOP(it1);
+print "EC c OLD":;
+oC();
+print "EC c NEW":;
+nC();
+print "EC c NEW callee new":;
+nCn();
+print "EC d OLD":;
+oD();
+print "EC d NEW":;
+nD();
+print "EC h OLD":;
+oH();
+print "EC h NEW":;
+nH();
+print "EC h NEW callee new":;
+nHn();
+print "EC g":;
+gB();
+print "EC END":;
+print "EC i OLD":;
+oI();
+print "EC i NEW":;
+nI();
+print "EC i END":;
+cerr "EC f OLD":;
+oF();
+cerr "EC f NEW":;
+nF();
+cerr "EC f TOP":;
+it1 = STARt("er = ea[]; print 99:;");
+testOP(it1);
+cerr "EC f END":;
+cerr "EMPTYCALLT SENTINEL":;
+stop();
+
+emptyCallT -- SEQ 673 (Tony's ruling of 2026-11-16, F-161): on the new road f() is a call with no argument, as on the old.
+incant/kantGrammar's INVOKEd took `EXPRESSIOn` inside the parentheses; it takes `EXPRESSIOn?`. INVOKEr builds the call
+instruct with no third slot, and opCallTest hands the callee nothing. An empty subscript, a[], refuses by name.
+Before: a new-road action body holding f() failed to build (ERROR processCode: <action> parse failed) and a STARt text
+holding f() dropped its statement in silence.
+Callers: o.. are old-road action bodies, n.. are new-road bodies (njNew), TOP is a STARt text run by testOP.
+Callees: fz fb fh fi have old-road bodies; fzN fbN fhN are the same bodies built on the new road.
+    a   fz() as a statement and inside an expression: "fz ran" twice, then 8.
+    b   inside fb called as fb(): argument has no data (0) and prints its own name; @.taG reads fb.
+    c   inside fb called as fb(ex): argument is ex (kind 5, value 5); @.taG reads ex.
+    d   a C++ command called as dumpField(): it receives itself (it dumps "dumpField").
+    h   fh's own name reads fh's attribute (red), called as fh() and as fh(ex).
+    g   gB, a new-road action holding fbN(), with fbN and gB both compiled through the door (kwCompile): as the twin.
+    f   an empty subscript. Old road: the action holding it fails to build, by name (ERROR processCode: oF). New road:
+        REFUSED ea, by name, when the action or the STARt text is built; the statement after it is built and runs, as
+        after any refused statement on the new road.
+    i   MEASURE ONLY. box +% fi gives box a second field sharing fi's body. Inside fi, @.taG and this.taG, called fi(),
+        fi(ex), box.fi(), box.fi(ex). The two fields have the same tag, so the tag cannot say which was called through.
+A bare taG inside a NEW-road body reads 1, not the callee's tag, with f() and with f(x) alike (rows b and c, "callee
+new"): the bare accessor on the new road, not the call. Pinned as it reads, not cured.
+pop.sh runs this file twice: as written, and with the kwCompile( lines deleted (the twin). Stdout EC a OLD to EC END equal.

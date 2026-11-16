@@ -68,8 +68,8 @@ action body, ctGo, defined and called) and on the NEW road (If or WHILe on the s
 Three facts the rows are built round (measured 2026-11-16, before the cure):
     - an action never hands back nothing: `return null;` and a failed rule returned from an action arrive as a zero count.
       Nothing reaches an assignment only from a rule called directly (CT-7D).
-    - on the new road a call needs an argument (INVOKEd wants an expression): `f()` in a STARt text drops the statement in
-      silence, so every action here is called with ctR. Not chased.
+    - when this was written, on the new road a call needed an argument (`f()` in a STARt text dropped the statement in
+      silence), so every action here is called with ctR. Cured 2026-11-16, SEQ 673 (F-161, incant/pop/emptyCallT).
     - a rule cannot be called from the new road (opCallTest: no method), so the D rows are old road only.
 
 ROWS -- id | the call | what it hands back | roads (b both, o old only)
