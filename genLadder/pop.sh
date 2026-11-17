@@ -28,6 +28,13 @@ ip () {
 }
 
 T=${TMPDIR:-/tmp}/genpop.$$
+#  userPdf IncantForms/PDF/output.pdf is the user's (Tony, 2026-11-17); test.pdf is the fleet's. Two runs here write output.pdf --
+#  Tony's tester (show(firstLight)) and showT's SH-4 -- so it is set aside now and put back at exit, whatever happens (SEQ 686;
+#  found by a binary wrapper logging every run that changed it). formsPop does the same around its showT.
+_userPdf=IncantForms/PDF/output.pdf
+_userKeep=${TMPDIR:-/tmp}/genpop.userpdf.$$
+rm -f "$_userKeep"; [ -f "$_userPdf" ] && cp -p "$_userPdf" "$_userKeep"
+trap '[ -f "$_userKeep" ] && mv -f "$_userKeep" "$_userPdf"' EXIT
 mkdir -p "$T"
 #  helperLoud the fleet's OWN stderr is teed to a file the foot reads (SEQ 386 R0b): a helper called before its
 #  helperLoud definition prints "command not found" and its rows evaporate -- the count drops and nothing says so (H5's
