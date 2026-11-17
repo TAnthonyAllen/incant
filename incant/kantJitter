@@ -17,6 +17,7 @@ define
         if argument.KinDs;      kwNat = krPlan(argument);
         clear(krSlot);
         clear(krNarrow);
+        clear(krWrit);
         if kwNat > 0;
             krSure := argument.SurE;
             iterate kwNw on *kwStmts;
@@ -36,6 +37,7 @@ define
             print $"declare double @irNumberOf(ptr)"$:;
             print $"declare ptr @irSetCount(ptr, i32)"$:;
             print $"declare ptr @irSetNumber(ptr, double)"$:;
+            print $"declare i32 @irKindOf(ptr)"$:;
             print $"@" kwName "_t = global i32 0"$:;
         print $"define ptr @" kwName "(ptr %a) {"$:;
         print $"entry:"$:;
@@ -61,6 +63,7 @@ define
         print $_ _ "br label %s1"$:;
         kwK = 0;
         kwPos = 0;
+        kwXs = 0;
         iterate kwSt on *kwStmts;
         while ++kwSt;
             ++kwPos;
@@ -72,6 +75,14 @@ define
                 print $_ _ "%n" kwK _ "= load i32, ptr @" kwName "_n"$:;
                 print $_ _ "%m" kwK _ "= add i32 %n" kwK ", 1"$:;
                 print $_ _ "store i32 %m" kwK ", ptr @" kwName "_n"$:;
+                kwWr = krIsStore(*kwSt);
+                if kwWr == 1;
+                    kwWt := *kwSt[2];
+                    kwWn := *kwWt.taG;
+                    kwWe := new(*kwWn);
+                    *kwWe = 1;
+                    *kwWe :. noPrinT;
+                    krWrit +% *kwWe;
                 kwNv = 0;
                 if *kwSt["KnaT"];   kwNv = 1;
                 if kwNv == 1;
@@ -94,7 +105,9 @@ define
                     if kwSl == 1;       kwTo = string $"q" kwK$;
                     print $_ _ "br i1 %c" kwK ", label %" kwTo ", label %done"$:;
                     if kwSl == 1;
+                        kwXs = 1;
                         print $"q" kwK ":"$:;
+                        kgNext = kwNext;
                         krReload();
                         print $_ _ "br label %s" kwNext$:;
         kwNext = kwK + 1;
@@ -104,6 +117,32 @@ define
             print $"back:"$:;
             kgSite = "B";
             if kwSl == 1;       krBack();
+            print $_ _ "br label %done"$:;
+        if kwXs == 1;
+            kwK = 0;
+            kwPos = 0;
+            iterate kwRt on *kwStmts;
+            while ++kwRt;
+                ++kwPos;
+                kwRi := *kwRt.instructTypE;
+                if *kwRi == 1;
+                    ++kwK;
+                    kwNext = kwK + 1;
+                    print $"X" kwK ":"$:;
+                    print $_ _ "%Xn" kwK _ "= load i32, ptr @" kwName "_n"$:;
+                    print $_ _ "%Xm" kwK _ "= add i32 %Xn" kwK ", 1"$:;
+                    print $_ _ "store i32 %Xm" kwK ", ptr @" kwName "_n"$:;
+                    print $_ _ "%Xtn" kwK _ "= load i32, ptr @" kwName "_t"$:;
+                    print $_ _ "%Xtm" kwK _ "= add i32 %Xtn" kwK ", 1"$:;
+                    print $_ _ "store i32 %Xtm" kwK ", ptr @" kwName "_t"$:;
+                    print $_ _ "%Xf" kwK _ "= call ptr @irAt(ptr %items, i32 " kwPos ")"$:;
+                    print $_ _ "%Xr" kwK _ "= call ptr @testOP(ptr %Xf" kwK ")"$:;
+                    print $_ _ "store ptr %Xr" kwK ", ptr %last"$:;
+                    print $_ _ "%Xg" kwK _ "= call i32 @irGoOn()"$:;
+                    print $_ _ "%Xc" kwK _ "= icmp ne i32 %Xg" kwK ", 0"$:;
+                    print $_ _ "br i1 %Xc" kwK ", label %X" kwNext ", label %done"$:;
+            kwNext = kwK + 1;
+            print $"X" kwNext ":"$:;
         print $_ _ "br label %done"$:;
         print $"done:"$:;
         print $_ _ "%v = load ptr, ptr %last"$:;
@@ -134,6 +173,8 @@ define
     kgTy="i32";
     kgKind="irCOUNT";
     kgSite="I";
+    kgNext=1;
+    krWrit;
     krSeen;
     krSlot;
     krNarrow;
@@ -182,6 +223,18 @@ define
                 print $_ _ "%S" rlNm _ "= alloca" _ rlTy$:;
                 print $_ _ "%D" rlNm _ "= alloca i1"$:;
                 print $_ _ "store i1 0, ptr %D" rlNm$:;
+            if rlS != "I";
+                rlC = string $"%W" rlS "_" rlNm$;
+                print $_ _ "%V" rlS "_" rlNm _ "= call i32 @irKindOf(ptr %F" rlNm ")"$:;
+                print $_ _ rlC _ "= icmp ne i32 %V" rlS "_" rlNm ", " rlK$:;
+                rlW = 0;
+                if krWrit[*rlNm];   rlW = 1;
+                if rlW == 0;
+                    print $_ _ "%Z" rlS "_" rlNm _ "= icmp ne i32 %V" rlS "_" rlNm ", 0"$:;
+                    print $_ _ "%A" rlS "_" rlNm _ "= and i1 " rlC ", %Z" rlS "_" rlNm$:;
+                    rlC = string $"%A" rlS "_" rlNm$;
+                print $_ _ "br i1" _ rlC ", label %X" kgNext ", label %O" rlS "_" rlNm$:;
+                print $"O" rlS "_" rlNm ":"$:;
             print $_ _ "%L" rlS "_" rlNm _ "= call" _ rlTy _ "@" rlRd "(ptr %F" rlNm ")"$:;
             print $_ _ "store" _ rlTy _ "%L" rlS "_" rlNm ", ptr %S" rlNm$:;
         return 0;
@@ -896,7 +949,7 @@ bail();
 kantJitter -- the kant jitter's own incantation (SEQ 670, Tony's ruling R0 of 2026-11-16). A fixture includes it and
 searches KantJitter. It holds the walk from step 2c, the kind-resolve pass of step 3a, the native statements of
 step 3b, the native if and while of step 4 and the slot locals of step 5. No C++ belongs to it but the door (compileIR, callIR) and the helpers the walk's text names: testOP, irAt,
-irGoOn, irSeqEnd, and for native statements irCountOf, irNumberOf, irSetCount, irSetNumber.
+irGoOn, irSeqEnd, and for native statements irCountOf, irNumberOf, irSetCount, irSetNumber, irKindOf.
 
 What Is In Here
     kwCompile(action)   step 2c, the walk. Writes one function for the action: one testOP call per statement of its
@@ -1020,6 +1073,14 @@ Slot Locals (step 5, SEQ 680, Clay's dispatch of 2026-11-17 on Tony's rulings SE
     non-slot store's go-on check go to back, which writes back by the flags, then to done. kgSite names the site in the
     labels and values (a statement number, B or I). An action with no slot writes no flag, alloca or write-back.
     incant/pop/kantSlotT. Speed (genLadder/kantSpeed.sh, SEQ 680): the native summing loop runs at the floor.
+    THE RELOAD KIND CHECK (SEQ 682, calleeWritesCallerLocal). A callee can change a slot local's kind by name (a group,
+    clear, clear then a number or a string; a plain = by name casts and keeps the kind). At each reload after a testOP
+    statement krReload asks irKindOf (C++: IR text carries no layout) for the field's kind; when it is not the slot's
+    sure kind the text jumps to X<next>, an interpreted copy of the action's chain (step 2c's text, one testOP call per
+    statement, counted in _n and _t), entered at the next statement, and writes nothing back: every slot was written back
+    before the testOP statement, so no flag is set. A slot no top-level store has surely written yet (krWrit) may read no
+    data there without a mismatch, so a print before the first store does not send the whole action to the interpreter.
+    The copy is written only when some reload can jump into it (kwXs).
 
 Current State -- WIP
     Settled: the walk (2c) and its skip; the pass marks and prints. testOP runs a marked chain as an unmarked one.

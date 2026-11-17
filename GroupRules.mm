@@ -3894,6 +3894,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 1;
 }
 
+// irKindOf a field's kind, as datA reads it (5 a count, 9 a number, 0 no data) -- the slot reload's check (SEQ 682); IR text carries no layout, so it cannot read a kind
+extern "C" int irKindOf(GroupItem *field)
+{
+	if ( !field )
+		return 0;
+	return field->groupBody->flags.data;
+}
+
 // irNumberOf a field's number, for native arithmetic
 extern "C" double irNumberOf(GroupItem *field)
 {

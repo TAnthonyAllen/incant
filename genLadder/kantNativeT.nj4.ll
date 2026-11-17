@@ -7,6 +7,7 @@ declare i32 @irCountOf(ptr)
 declare double @irNumberOf(ptr)
 declare ptr @irSetCount(ptr, i32)
 declare ptr @irSetNumber(ptr, double)
+declare i32 @irKindOf(ptr)
 @kw_nj4_t = global i32 0
 define ptr @kw_nj4(ptr %a) {
 entry:
@@ -114,10 +115,22 @@ J4_c4:
   %c4 = icmp ne i32 %g4, 0
   br i1 %c4, label %q4, label %done
 q4:
+  %V4_a4 = call i32 @irKindOf(ptr %Fa4)
+  %W4_a4 = icmp ne i32 %V4_a4, 5
+  br i1 %W4_a4, label %X5, label %O4_a4
+O4_a4:
   %L4_a4 = call i32 @irCountOf(ptr %Fa4)
   store i32 %L4_a4, ptr %Sa4
+  %V4_b4 = call i32 @irKindOf(ptr %Fb4)
+  %W4_b4 = icmp ne i32 %V4_b4, 5
+  br i1 %W4_b4, label %X5, label %O4_b4
+O4_b4:
   %L4_b4 = call i32 @irCountOf(ptr %Fb4)
   store i32 %L4_b4, ptr %Sb4
+  %V4_c4 = call i32 @irKindOf(ptr %Fc4)
+  %W4_c4 = icmp ne i32 %V4_c4, 5
+  br i1 %W4_c4, label %X5, label %O4_c4
+O4_c4:
   %L4_c4 = call i32 @irCountOf(ptr %Fc4)
   store i32 %L4_c4, ptr %Sc4
   br label %s5
@@ -148,6 +161,60 @@ KB_c4:
   store i1 0, ptr %Dc4
   br label %JB_c4
 JB_c4:
+  br label %done
+X1:
+  %Xn1 = load i32, ptr @kw_nj4_n
+  %Xm1 = add i32 %Xn1, 1
+  store i32 %Xm1, ptr @kw_nj4_n
+  %Xtn1 = load i32, ptr @kw_nj4_t
+  %Xtm1 = add i32 %Xtn1, 1
+  store i32 %Xtm1, ptr @kw_nj4_t
+  %Xf1 = call ptr @irAt(ptr %items, i32 1)
+  %Xr1 = call ptr @testOP(ptr %Xf1)
+  store ptr %Xr1, ptr %last
+  %Xg1 = call i32 @irGoOn()
+  %Xc1 = icmp ne i32 %Xg1, 0
+  br i1 %Xc1, label %X2, label %done
+X2:
+  %Xn2 = load i32, ptr @kw_nj4_n
+  %Xm2 = add i32 %Xn2, 1
+  store i32 %Xm2, ptr @kw_nj4_n
+  %Xtn2 = load i32, ptr @kw_nj4_t
+  %Xtm2 = add i32 %Xtn2, 1
+  store i32 %Xtm2, ptr @kw_nj4_t
+  %Xf2 = call ptr @irAt(ptr %items, i32 2)
+  %Xr2 = call ptr @testOP(ptr %Xf2)
+  store ptr %Xr2, ptr %last
+  %Xg2 = call i32 @irGoOn()
+  %Xc2 = icmp ne i32 %Xg2, 0
+  br i1 %Xc2, label %X3, label %done
+X3:
+  %Xn3 = load i32, ptr @kw_nj4_n
+  %Xm3 = add i32 %Xn3, 1
+  store i32 %Xm3, ptr @kw_nj4_n
+  %Xtn3 = load i32, ptr @kw_nj4_t
+  %Xtm3 = add i32 %Xtn3, 1
+  store i32 %Xtm3, ptr @kw_nj4_t
+  %Xf3 = call ptr @irAt(ptr %items, i32 3)
+  %Xr3 = call ptr @testOP(ptr %Xf3)
+  store ptr %Xr3, ptr %last
+  %Xg3 = call i32 @irGoOn()
+  %Xc3 = icmp ne i32 %Xg3, 0
+  br i1 %Xc3, label %X4, label %done
+X4:
+  %Xn4 = load i32, ptr @kw_nj4_n
+  %Xm4 = add i32 %Xn4, 1
+  store i32 %Xm4, ptr @kw_nj4_n
+  %Xtn4 = load i32, ptr @kw_nj4_t
+  %Xtm4 = add i32 %Xtn4, 1
+  store i32 %Xtm4, ptr @kw_nj4_t
+  %Xf4 = call ptr @irAt(ptr %items, i32 4)
+  %Xr4 = call ptr @testOP(ptr %Xf4)
+  store ptr %Xr4, ptr %last
+  %Xg4 = call i32 @irGoOn()
+  %Xc4 = icmp ne i32 %Xg4, 0
+  br i1 %Xc4, label %X5, label %done
+X5:
   br label %done
 done:
   %v = load ptr, ptr %last
