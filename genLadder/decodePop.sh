@@ -1,4 +1,5 @@
 #!/bin/sh
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  DECODER POP.  Run from the Groups directory:
 #      sh genLadder/decodePop.sh
 #

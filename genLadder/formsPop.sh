@@ -1,4 +1,5 @@
 #!/bin/sh
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  FORMS POP -- the drawing surface.  Run from the Groups directory:
 #      sh genLadder/formsPop.sh
 #
@@ -478,6 +479,21 @@ _ofeq "clickT CK-4 a field with no action: heading is selected, nothing fired, n
 _ofeq "clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was" "$(grep -c '^click: REFUSING ckNoField -- the form firstLight has no field named nosuch' "$T/ck.e") $(grep -c '^click: REFUSING ckNoName -- its request needs form:=theForm and field=theName' "$T/ck.e") / [$(_ckc refused)] / $(_ckr CK-5 | cut -d' ' -f1-4)" "1 1 / [] / runs 2 selected heading"
 _ofeq "clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123" "$(_ckr CK-6 | sed 's/.*order //') / $(_ckc order)" "123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond"
 
+echo "-- the viewer: show opens what it wrote (viewerT, SEQ 686)."
+#  ⚑ viewerT -- the show dispatch, stroke 1 (Clay, 2026-11-17): show opens its output path's PDF in the system's default viewer
+#  (open -g) when viewer (pROPERTIEs) is 1 and the shell's INCANT_NOVIEW is not set; never another path. This script exports
+#  INCANT_NOVIEW=1 (1d). The fixture never writes output.pdf (it points showPath at test.pdf). viewer on is checked by Tony's eye.
+#  H7 (SEQ 686, on the committed file, open -g respelled true so nothing pops up): without the INCANT_NOVIEW test VT-2 reads
+#  "opened"; with open respelled false, VT-2 says "could not open ... the PDF is written" (the errant line, not a refusal).
+_vtF=$(ip viewerT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_vtF" > "$T/vt.o" 2> "$T/vt.e"; _vtx=$?
+_vtb () { awk -v want="$1" '/^VT-/{b=$1} /^VT END/{b=""} b==want && /=== show (viewer off|opened)/{ sub(/^=== show /,""); sub(/ ===.*/,""); printf "%s;", $0 }' "$T/vt.o"; printf '%s' "$(grep -c "could not open" "$T/vt.e")"; }
+_ofeq "viewerT exit / sentinel" "$_vtx $(grep -c '^VIEWERT SENTINEL' "$T/vt.e")" "0 1"
+_ofeq "viewerT VT-1 viewer = 0: viewer off, no open attempted (viewer lines / could-not-open lines)" "$(_vtb VT-1)" "viewer off;0"
+_ofeq "viewerT VT-2 viewer = 1 but INCANT_NOVIEW set: viewer off, no open attempted" "$(_vtb VT-2)" "viewer off;0"
+_ofeq "viewerT VT-3 a form with its own path, not the output path: no viewer line at all" "$(_vtb VT-3)" "0"
+_ofeq "viewerT output.pdf untouched by the fleet: three shows, every one to test.pdf" "$(grep -c '^=== show .* to IncantForms/PDF/test.pdf ===' "$T/vt.o") $(grep -c 'output.pdf' "$T/vt.o")" "3 0"
+
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
 #  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.
@@ -850,7 +866,8 @@ perl -e 'alarm 60; exec @ARGV' "$B" "$_shF" > "$T/sh.o" 2> "$T/sh.e"; _shx=$?
 _shNew=0; [ -s "$_shOut" ] && _shNew=1
 [ -f "$T/sh.keep" ] && mv "$T/sh.keep" "$_shOut"
 _shb () { awk -v pg="$1" '/^SH PAGE/{b=$3; next} b==pg' "$T/sh.o"; }
-_shs () { _shb "$1" | grep '^=== show ' | sed 's/^=== show //; s/ ===.*//'; }
+#  _shs reads the "=== show <form> to <path> ===" line only: since SEQ 686 show also says "viewer off" or "opened" after it
+_shs () { _shb "$1" | grep '^=== show .* to ' | sed 's/^=== show //; s/ ===.*//'; }
 _sht () { _shb "$1" | awk '$1=="===" && $2=="drawSpans"' | sed 's/.*drawSpans \([A-Za-z]*\) font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1 \2 \3/'; }
 _shp () { _shb "$1" | grep 'pixelAt pdfRead' | sed 's/.*= //; s/ ===.*//'; }
 _ofeq "showT exit / sentinel" "$_shx $(grep -c '^SHOWT SENTINEL' "$T/sh.e")" "0 1"

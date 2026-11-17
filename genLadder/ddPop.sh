@@ -1,4 +1,5 @@
 #!/bin/bash
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 
 #  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
 #  without touching a single row label. Falls back to incant/<name> so an unknown name

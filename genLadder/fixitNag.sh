@@ -1,4 +1,5 @@
 #!/bin/bash
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  fixitNag.sh -- the seal's standing line about Tony's fixit queue.
 #
 #  GENERATED, NOT REMEMBERED, which is the whole point. A seal line that has to

@@ -1,4 +1,5 @@
 #!/bin/bash
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  kantSpeed.sh -- SEQ 675 (step 4 of the kant jitter): THE FIRST SPEED MEASUREMENT. Not a seal instrument and on no checklist:
 #  it prints times, and a time is not a row (rule H3). Two loops (SEQ 682: the second added), four ways:
 #      sum   i and s counts, s = s + i: about a nanosecond a pass natively, so it reads near zero at 600000 passes. It is NOT

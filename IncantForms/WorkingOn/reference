@@ -19,7 +19,7 @@ define
 register(ReferencE);
 search ReferencE fORMfACTs FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    refGroups layout box text style typeset action;
+    refGroups layout box text style typeset action show;
     refWant;
     refRows = 0;
     refInGroup = 0;
@@ -36,6 +36,8 @@ define
             rgGt = *rgG;
             rgIs = 0;
             if FORMs[rgName];   rgIs = 1;
+            // showGroup a fact in the show group is a property show reads (viewer), not a form attribute: it is a row with no attribute in FORMs (SEQ 686)
+            if rgGt == "show";  rgIs = 1;
             rgMine = 0;
             if rgGt == refWant;     rgMine = 1;
             if rgIs == 0;           rgMine = 0;
@@ -67,6 +69,10 @@ define
             refFacts = refFacts + 1;
             rcIs = 0;
             if FORMs[rcName];   rcIs = 1;
+            rcSelf := *grup;
+            rcGr := *rcSelf["group"];
+            rcGt = *rcGr;
+            if rcGt == "show";  rcIs = 1;
             if rcIs == 0;
                 cerr "CHECK a fact with no attribute in FORMs:" rcName:;
                 refOrphans = refOrphans + 1;

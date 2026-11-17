@@ -141,6 +141,12 @@
   ok    clickT CK-4 a field with no action: heading is selected, nothing fired, no listener run = [runs 2 selected heading / firstLight heading selected]
   ok    clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was = [1 1 / [] / runs 2 selected heading]
   ok    clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123 = [123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond]
+-- the viewer: show opens what it wrote (viewerT, SEQ 686).
+  ok    viewerT exit / sentinel = [0 1]
+  ok    viewerT VT-1 viewer = 0: viewer off, no open attempted (viewer lines / could-not-open lines) = [viewer off;0]
+  ok    viewerT VT-2 viewer = 1 but INCANT_NOVIEW set: viewer off, no open attempted = [viewer off;0]
+  ok    viewerT VT-3 a form with its own path, not the output path: no viewer line at all = [0]
+  ok    viewerT output.pdf untouched by the fleet: three shows, every one to test.pdf = [3 0]
 -- the IBkant skeleton: the kant wiki as a kant form (ibkantT).
   ok    ibkantT exit / sentinel = [0 1]
   ok    ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run = [runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody]
@@ -325,4 +331,4 @@
   ok    showT SH-5 show returns the laid-out copy: a list of 10 (its attributes and its one member), width 400 = [SH-5 list 10 width 400]
   ok    ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form = [4 4]
 
-FORMS POP FAILED -- 279 green, see above
+FORMS POP FAILED -- 284 green, see above

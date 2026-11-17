@@ -1089,6 +1089,13 @@ define
         to showPath, IncantForms/PDF/output.pdf. A form that names a look
         (look:=nightLook) is laid out under it. Says where it wrote, on one
         line. Returns the laid-out copy, as redrawForm does.
+        THE VIEWER (SEQ 686): when it wrote output.pdf and viewer (pROPERTIEs) is 1,
+        it opens the PDF in the system's default viewer, in the background:
+        `open -g`. The shell's INCANT_NOVIEW, when set, counts as viewer off
+        (every script of Clod's sets it). It never opens any other path
+        (test.pdf, the captures). A failed open is said by name, not refused;
+        the PDF is written either way. It says which: opened, viewer off, or
+        could not open.
     ***************************************************************************/
     showPath path="IncantForms/PDF/output.pdf";
     showReq path form look;
@@ -1108,7 +1115,28 @@ define
         shName := *shForm.taG;
         shTo := showReq["path"];
         cout "=== show" shName "to" shTo "===":;
-        return redrawForm(showReq);
+        shDone := redrawForm(showReq);
+        shWrote = 0;
+        if *shDone;     shWrote = 1;
+        shP = string $shTo$;
+        shOut = string $showPath["path"]$;
+        shView = 0;
+        if shWrote == 1;
+            if shP == shOut;    shView = 1;
+        shOn = 0;
+        if shView == 1;
+            if viewer != 0;     shOn = 1;
+            if shOn == 1;
+                shEnv = string $"[ -n \"$INCANT_NOVIEW\" ]"$;
+                if system(shEnv);   shOn = 0;
+            if shOn == 0;       cout "=== show viewer off ===":;
+        if shOn == 1;
+            shCmd = string $"open -g '" shP "'"$;
+            shOpened = 0;
+            if system(shCmd);   shOpened = 1;
+            if shOpened == 1;   cout "=== show opened" shP "===":;
+            if shOpened == 0;   cerr "show: could not open" shP "-- the PDF is written":;
+        return *shDone;
         };
     /***************************************************************************
         click -- the mock click (goal G1; G2 stroke 3; Tony, 2026-11-13). ONE

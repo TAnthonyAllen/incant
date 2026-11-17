@@ -230,6 +230,7 @@ define
     null=0;
     notInNameSet=[^a-zA-Z0-9];
     selection;      // its group contains the current selection
+    viewer=1;       // show opens what it writes to output.pdf when 1 (SEQ 686); viewer = 0; turns it off
     stringBUFFER;
     UnaryOPS bin
         '--';
