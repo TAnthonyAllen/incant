@@ -70,3 +70,6 @@ RETIRED SEQ 682 (2026-11-17), BY MAPPING: the reload kind check (Clay's dispatch
 SEQ 682 build, the native line reads cwG1, the taken signature above. Its one assertion now lives in two fleet rows:
 pop.sh "kantSlotT native = the twin" (row 12, slGr: a group by name into a slot local, equal to its twin) and "sureKindT M5,
 native" (re-pinned: sqBy1 skG1, sqBy2 refuses, both as the twin). Its interpreted lines live in sureKindT's M5 twin row.
+Seal 498 (SEQ 683, Clay's riders, both green): two more rows join the mapping. pop.sh "kantSlotT row 13" and kantSlotT's twin
+row (row 13): the change arriving from a call inside a loop body and an if body (each one testOP statement, its reload checked),
+and an unwritten local given a string or a group by name before its first store (the excuse is no data only).
