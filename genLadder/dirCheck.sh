@@ -1,4 +1,5 @@
 #!/bin/bash
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  dirCheck.sh -- EVERY DIRECTIVE MUST STILL INJECT (Tony, SEQ 304 R1, standing; on the seal checklist).
 #
 #  tok matches a directive's anchor as a PREFIX of a statement's source text and drops a miss at exit 0 with no

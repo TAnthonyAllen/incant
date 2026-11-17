@@ -1,4 +1,5 @@
 #!/bin/sh
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  THE jitLadder.  Run from the Groups directory:   sh jitLadder/ladder.sh
 #
 #  Tony's goal, shaped: one simple action, jitted end to end, fired, intended

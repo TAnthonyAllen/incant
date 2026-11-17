@@ -1,4 +1,5 @@
 #!/bin/bash
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  pdfCaptures.sh -- SEQ 684 (Clay's forms dispatch, ruled by Tony, 2026-11-17): writes docs/sealCaptures/firstLight.pdf and
 #  descriptions.pdf, each form fired by Topics/forms' firing lines through a request whose path= is the capture, so
 #  IncantForms/PDF/output.pdf (Tony's) is never written. A capture to compare a drawing against; not a row and on no checklist.

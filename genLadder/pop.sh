@@ -1,4 +1,5 @@
 #!/bin/sh
+export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of Clod's
 #  genParse ladder POP. Run from the Groups directory:  sh genLadder/pop.sh
 #  Every line RUN, and EXIT STATUS CHECKED -- a POP is not passed unless the
 #  process exited 0 (CLAUDE.md Testing). Prints one line per check.
@@ -10330,17 +10331,20 @@ else echo "  FAIL  gcOffMainT MISSING"; fail=1; fi
 #  the count line; the two controls named. REF_FILE lets an H7 copy be run through the same rows.
 #  H7 (SEQ 659, on copies): the formats off the row print -> "28 rows, 28 misaligned" and the fill row red; a typeset fact
 #  added -> the group order reads "layout box text style typeset action"; style filed under text -> "layout box text action".
+#  RE-PINNED SEQ 686 (the show dispatch, stroke 1): viewer joins the facts in a group of its own, show, after action. A show-group
+#  fact is a property show reads, not a form attribute, so the walk prints it as a row and does not name it as a fact with no
+#  attribute: groups "... action show", 6 headings, rows 29 of 30 facts; the two controls unchanged.
 _rfF=${REF_FILE:-IncantForms/WorkingOn/reference}
 if [ -f "$_rfF" ]; then
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rfF" > "$T/rf.o" 2> "$T/rf.e"; echo $? > "$T/rf.x"
 _ofeq "reference exit 0 and its sentinel (the last statement before stop)" "$(cat "$T/rf.x") $(grep -c '^REFERENCE SENTINEL' "$T/rf.e")" "0 1"
 _rfHead='name          values                                  inherited  status           what it does '
-_ofeq "reference the groups in order: style its own group, typeset (no attributes) prints nothing" "$(grep -B1 -F -x "$_rfHead" "$T/rf.o" | grep -v -F -x "$_rfHead" | grep -v '^--$' | tr -d ' ' | tr '\n' ' ' | sed 's/ $//')" "layout box text style action"
-_ofeq "reference one heading line a group, byte for byte (5 groups)" "$(grep -c -F -x "$_rfHead" "$T/rf.o")" "5"
+_ofeq "reference the groups in order: style its own group, typeset (no attributes) prints nothing" "$(grep -B1 -F -x "$_rfHead" "$T/rf.o" | grep -v -F -x "$_rfHead" | grep -v '^--$' | tr -d ' ' | tr '\n' ' ' | sed 's/ $//')" "layout box text style action show"
+_ofeq "reference one heading line a group, byte for byte (6 groups)" "$(grep -c -F -x "$_rfHead" "$T/rf.o")" "6"
 _ofeq "reference the fill row, byte for byte (the widest value: one space before the next column)" "$(grep '^fill ' "$T/rf.o")" "fill          a held colour (fill:=wall), or #rrggbb  no         built            paints the field's box "
 _ofeq "reference the style group holds style and nothing else" "$(awk '/^style $/{on=1;next} on&&/^$/{on=0} on&&!/^name /{print $1}' "$T/rf.o" | tr '\n' ' ')" "style "
 _ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "28 0"
-_ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 28 of 29 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
+_ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 29 of 30 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 

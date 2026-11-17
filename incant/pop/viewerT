@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+registry(ViewerT);
+define
+    vtOwn window x=0 y=0 width=100 height=100 fill:=wall path="IncantForms/PDF/test.pdf";
+    ;
+search ViewerT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+showPath.path = "IncantForms/PDF/test.pdf";
+print "VT-1 viewer = 0, the show's own output path":;
+viewer = 0;
+show(firstLight);
+print "VT-2 viewer = 1, INCANT_NOVIEW set by the script":;
+viewer = 1;
+show(firstLight);
+print "VT-3 a form with its own path= that is not the output path: no viewer line at all":;
+showPath.path = "IncantForms/PDF/output.pdf";
+show(vtOwn);
+print "VT END":;
+cerr "VIEWERT SENTINEL":;
+stop();
+
+viewerT -- SEQ 686 (the show dispatch, stroke 1: the viewer). show opens the PDF it wrote to its output path when viewer (pROPERTIEs)
+is 1 and the shell's INCANT_NOVIEW is not set; it never opens another path. This fixture never writes IncantForms/PDF/output.pdf:
+for VT-1 and VT-2 it points showPath, the output path, at test.pdf; for VT-3 it puts showPath back and shows a form whose own path
+is test.pdf. formsPop runs it with INCANT_NOVIEW=1, as every script of Clod's does.
+    VT-1  viewer = 0: "=== show viewer off ===", no open attempted.
+    VT-2  viewer = 1 but INCANT_NOVIEW set: viewer off, no open attempted.
+    VT-3  the path is not the output path: no viewer line of any kind.
+    viewer on with nothing set opens the system's default viewer in the background: checked by Tony's eye, not here.
