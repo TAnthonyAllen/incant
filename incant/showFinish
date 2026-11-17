@@ -1,0 +1,2 @@
+/*  showFinish -- read by the bootstrap show (incant/setup) after a form file loads: it draws, restores the search list, names a refusal. SEQ 687.  */
+showFinish();

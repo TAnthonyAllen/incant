@@ -1082,7 +1082,9 @@ define
         return *rdLaid;
         };
     /***************************************************************************
-        show -- fire a form (Tony, 2026-11-14, the show dispatch R2). ONE
+        showForm -- the worker behind show (SEQ 687: show is the bootstrap in
+        incant/setup, which loads what is missing and calls this; show returns
+        nothing, showForm returns the laid-out copy). Was show: fire a form (Tony, 2026-11-14, the show dispatch R2). ONE
         argument, the form: show(firstLight). It builds its own request and
         hands it to redrawForm, so the caller writes no request. The PDF's
         path is the form's own path= attribute; a form with none is written
@@ -1099,7 +1101,7 @@ define
     ***************************************************************************/
     showPath path="IncantForms/PDF/output.pdf";
     showReq path form look;
-    show code={
+    showForm code={
         shForm := argument;
         shOwn = 0;
         if *shForm["path"];     shOwn = 1;
@@ -1343,3 +1345,5 @@ include(parser);
     straight after include(utilities) rely on it being Utilities  */
 include(forms);
 register(Utilities);
+/*  showLoaded  the bootstrap show (incant/setup) reads this to know utilities is loaded (SEQ 687)  */
+showLoaded = 1;

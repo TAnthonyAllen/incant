@@ -53,6 +53,9 @@ define
     fail immediateAction=processFlags noPrint;
     file immediateAction=setInternalType noPrint;
     getFile immediateAction;
+    searchSave immediateAction;
+    canOpen immediateAction;
+    searchRestore immediateAction;
     getLine immediateAction=getMarkLineAt;
     getType immediateAction;
     grammarHolds immediateAction;
@@ -366,8 +369,96 @@ define
     decoder File='incant/decoder';
     designDocs File='incant/designDocs';
     parser File='IncantForms/WorkingOn/parser';
+    formFiles File='incant/formFiles';
+    showStageFile File='incant/showStage';
+    showFinishFile File='incant/showFinish';
     ;
+include(formFiles);
 include(grammar);
+/*  showBoot -- the bootstrap show (SEQ 687; R4 ruled option 1). show(form) works after Start(); alone: it loads what is not loaded
+    and draws by continuation, since an include inside an action is read after the action returns. Commentary: section 9 below. */
+registry(pROPERTIEs);
+define
+    showLoaded=0;
+    stylesLoaded=0;
+    showPending;
+    showSaved;
+    show code={
+        swN = string $argument.taG$;
+        swDef = 0;
+        swLen := argument.listLengtH;
+        if *swLen > 0;      swDef = 1;
+        swNeed = 1;
+        if showLoaded == 1;
+            if stylesLoaded == 1;
+                if swDef == 1;  swNeed = 0;
+        if swNeed == 0;
+            showNow(argument);
+            return 0;
+        // entOutsideArm the entry is bound here, not inside the arm below: a := made inside an if arm holds nothing after it (measured SEQ 687)
+        swEnt := fILEs[swN];
+        if swDef == 0;
+            swHas = 0;
+            if fILEs[swN];      swHas = 1;
+            if swHas == 0;
+                cerr "REFUSED show" swN "-- it is not defined, and fILEs, searched by qualified name, has no entry" swN:;
+                return 0;
+            swOk = 0;
+            if canOpen(*swEnt);     swOk = 1;
+            if swOk == 0;
+                swPath := *swEnt["File"];
+                cerr "REFUSED show" swN "-- fILEs' entry" swN "names" swPath "and no such file opens":;
+                return 0;
+        showPending = swN;
+        showSaved := searchSave(0);
+        cout "=== show" swN "deferred: what it needs loads after this statement, then it draws ===":;
+        include(showFinishFile);
+        if swDef == 0;      include(*swEnt);
+        include(showStageFile);
+        if stylesLoaded == 0;   include(styles);
+        if showLoaded == 0;     include(utilities);
+        if showLoaded == 0;     include(unitTests);
+        return 0;
+        };
+    showNow code={
+        snKeep := searchSave(0);
+        showSearch();
+        showForm(argument);
+        searchRestore(*snKeep);
+        return 0;
+        };
+    showSearch code={
+        ssL := searchSave(0);
+        *ssL +% FORMs;
+        *ssL +% Utilities;
+        *ssL +% cOLOr;
+        *ssL +% fONTs;
+        *ssL +% sTYLEs;
+        searchRestore(*ssL);
+        return 0;
+        };
+    showStage code={
+        stL := searchSave(0);
+        *stL +% cOLOr;
+        *stL +% fONTs;
+        *stL +% sTYLEs;
+        searchRestore(*stL);
+        return 0;
+        };
+    showFinish code={
+        sfN = string $showPending$;
+        showSearch();
+        sfHas = 0;
+        if FORMs[sfN];      sfHas = 1;
+        if sfHas == 1;
+            sfF := FORMs[sfN];
+            showForm(*sfF);
+        if sfHas == 0;      cerr "REFUSED show" sfN "-- its file loaded and defines no form" sfN:;
+        searchRestore(*showSaved);
+        return 0;
+        };
+    ;
+registry(Grokking);
 
 /*******************************************************************************
                     incant/setup -- the commentary

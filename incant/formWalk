@@ -1,0 +1,40 @@
+Start();
+registry(FormWalk);
+define
+    fwDirs
+        fwWindows directory="IncantForms/Windows" load;
+    fwSeen;
+    fwBad = 0;
+    fwOne code={
+        fwD := argument["directory"];
+        fwDir = string $*fwD$;
+        for fwM in argument; members
+            fwN = string $*fwM.taG$;
+            fwHas = 0;
+            if fwSeen[fwN];     fwHas = 1;
+            if fwHas == 1;
+                fwE := fwSeen[fwN];
+                cerr "REFUSED formWalk -- two files named" fwN ":" *fwE "and" $fwDir "/" fwN$:;
+                fwBad = 1;
+            if fwHas == 0;
+                fwNew := new(fwN);
+                *fwNew = string $fwDir "/" fwN$;
+                fwSeen +% *fwNew;
+                print $_ _ _ _ fwN _ "File='" fwDir "/" fwN "';"$:;
+        };
+    fwWalk code={
+        for fwX in fwDirs; members
+            fwOne(*fwX);
+        };
+    ;
+search FormWalk;
+fwWalk();
+cerr "FORMWALK BAD" fwBad:;
+cerr "FORMWALK SENTINEL":;
+stop();
+
+formWalk -- SEQ 687 (the show dispatch 2g, amended): the incantation walk that generates incant/formFiles, the fILEs entries the
+bootstrap show looks a form up in. The stated list of directories is fwDirs: today IncantForms/Windows alone, the forms. Each
+directory is read by the load attribute (loadDirectory, which since SEQ 687 takes a capitalised name: IBkant); each file becomes
+one line, name File='dir/name'. Two files with one name refuse, naming both, and FORMWALK BAD reads 1, so the script writes
+nothing. Run by genLadder/formFiles.sh, never by hand. A dotted file name would not parse as an entry; none is in Windows today.
