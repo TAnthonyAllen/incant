@@ -165,7 +165,7 @@ define
     '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
     '=<'    operateMethod=opGetProperty;
-    '='     operateMethod=opAssign  assignTier  irCOUNT="call ptr @irSetCount"  irNUMBER="call ptr @irSetNumber";
+    '='     operateMethod=opAssign  assignTier  irCOUNT="call ptr @irSetCount"  irNUMBER="call ptr @irSetNumber"  irWIDE="sitofp i32";
 
     '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier  irCOUNT="icmp sle i32"  irNUMBER="fcmp ule double"  irWIDE="sitofp i32";
     '<<'    operateMethod=opNotBuilt;
