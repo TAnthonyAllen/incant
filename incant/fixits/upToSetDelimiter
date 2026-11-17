@@ -59,6 +59,18 @@ upToSetDelimiter -- two things owed, both found by Tony running IncantForms/Work
    MEASURED the same day: PIN 1 (guard='n') fires and reads 1; PIN 2, the same rule without the attribute, does not fire.
    Tony's suggestion: GroupItem ensureGuard (GroupItem.twk:581) should make such a rule unguarded itself.
 
+RULED 2026-11-17 (wake-up dispatch, rule 2): this fixit stays in Clod's lane, behind the jitter. No cure now.
+
+Tony, 2026-11-17, in his words, on item 2:
+   "ensureGuard should take a leading attribute with an upToMatch triggered by the { or } modifier into
+    consideration making its parent unguarded. Note attributes only affect guards if they are not optional
+    and only the first not optional attribute impacts guardSet."
+
+THE SPECIMEN MOVED, 2026-11-17: Tony copied tester into IncantForms/WorkingOn/delimitedData and cleared the delimit
+testing out of tester. DataInputField there carries guard='n' as a workaround; IT COMES OUT WITH THE CURE. So where the
+text above says tester's DataInputField, read delimitedData's, and item 2's cure is certified there as well as by PIN 2:
+delimitedData runs with the guard='n' removed.
+
 Seen on the way and not chased: a string delimiter held in a FIELD (us=","; usA=us{) fires but the label reads "," not
 "1"; and adding the field as a second term (usA=us{ us) stops the rule firing at all. Only the written-in string works.
 
@@ -67,7 +79,9 @@ NEXT: BEST GUESS -- not a recommendation until built.
      and check which of field / grup the loop's isSET is reading when the set is held in a field. Grade: likely; the
      crash line is Tony's reading of the source, not a backtrace I took. Promoted by PIN 3 reading 1 and tester running
      without its crash; killed if the crash is still there with the string read skipped.
-  2. In ensureGuard, a first attribute carrying upTo (or upToOver) makes the rule unguarded. Grade: Tony's suggestion,
-     site not read. Promoted by PIN 2 reading 1 with no fleet row moving.
+  2. In ensureGuard, the first attribute that is not optional, when it carries upTo or upToOver (the { or } modifier),
+     makes the rule unguarded (Tony's words of 2026-11-17, above; optional attributes do not count, and only the first
+     that is not optional reaches guardSet). Grade: Tony's suggestion, site not read. Promoted by PIN 2 reading 1 with
+     no fleet row moving, and by delimitedData running with DataInputField's guard='n' taken out.
   Taken: all three PINs read 1 and the SENTINEL prints at exit 0. Not taken (today): PIN 1 reads 1, PIN 2 reads 0, the
   run dies at exit 139 before PIN 3.

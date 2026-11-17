@@ -67,14 +67,14 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
             "sitofp i32", data); / on any pair (a plain double division: 7 / 2 is 3.5, a zero divisor inf or nan, nothing refuses); an = is marked
             by its right side's kind and the store casts. ACCEPTED WITH IT: a local keeps its first writer's kind only when that writer is a
             top-level statement. The notes toggle, jitNotes(), OFF by default: one line per widening op at compile.
-        f() on the new road is a call with no argument (SEQ 673, F-161): BUILT on branch newroad-empty-call, NOT YET BOUGHT at seal 494.
+        f() on the new road is a call with no argument (SEQ 673, F-161): BOUGHT 2026-11-17 (SEQ 674), on trunk; pop.sh 3930 green, FAIL 63.
             kantGrammar's INVOKEd takes `EXPRESSIOn?`; an empty subscript refuses by name. Its one mover: cmdCallT CC-6 new road turns green.
     RULED AND NOT YET BUILT, dispatch held by Tony: debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body
         is parsed: measured SEQ 662).
     DOCKETED, waiting on Tony's ruling: F-162, a rule cannot be called from the new road. The fixit upToSetDelimiter (Clod's lane): a rule that
-        reads up to a set crashes in upToMatch, and an upTo-first rule needs guard='n'; tester stops there (exit 139 at getRecord's first field).
+        reads up to a set crashes in upToMatch, and an upTo-first rule needs guard='n'; the specimen is IncantForms/WorkingOn/delimitedData since 2026-11-17 (its guard='n' comes out with the cure); ruled to stay behind the jitter.
     FOUND, not ruled: a bare taG inside a new-road action body reads 1, not what was referenced last (emptyCallT rows b and c, pinned as read).
-    NEXT SESSION OPENS WITH: the buy of newroad-empty-call; then step 4 of the kant jitter (native compare, if, while), DESIGN FIRST: Clay's
+    NEXT: step 4 of the kant jitter (native compare, if, while), DESIGN FIRST: Clay's
         sketch, then the dispatch. The first speed measurement belongs to step 4. The forms opener from seal 492 stays set aside, not struck.
 
 /*****************************************************************************
