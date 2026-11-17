@@ -8,8 +8,8 @@ and any number that moved. One seal sequence and one SEQ sequence across topics,
 **499, 2026-11-17, topic: forms, SEQ 684 (assigned by Clod), not a shutdown seal (no dirCheck).** Seal 498 (kant, SEQ 682-683) came first.
 **DONE:** formsPop re-pinned to Tony's settled firstLight (500x600, inside 60%) and descriptions (describeHelp 20%): 279 green, F-149
 red as banked. Points re-aimed by the new frames, seven green rows with them; AL-3/PD-7, TY-1 and RG-2 change shape with the width.
-**FOR TONY:** genLadder/pdfCaptures.sh writes docs/sealCaptures/firstLight.pdf and descriptions.pdf; they embed your two pictures
-(1.6 MB each), so they are gitignored until you say whether they go into git.
+**RULED (Tony, 2026-11-17):** no pictures in the repo. genLadder/pdfCaptures.sh writes docs/sealCaptures/firstLight.pdf and
+descriptions.pdf on disk only; they embed his pictures and stay gitignored.
 **OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's ruling. F-162 (a rule call on the new road).
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). The fixit `upToSetDelimiter` stays behind the jitter.
 **NEXT:** nothing dispatched; the parked show dispatch now has its captures.
