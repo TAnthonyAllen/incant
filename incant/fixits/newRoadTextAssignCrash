@@ -1,0 +1,51 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(NewRoadTextAssignCrash);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    taOk code={ a = 3; print "PIN control, a = 3 then print:" a:; };
+    taBad code={ a = 3; a.text = "9.5"; print "PIN a.text assigned:" a:; };
+    ;
+search NewRoadTextAssignCrash;
+njNew(taOk);
+njNew(taBad);
+cerr "ANCHOR newRoadTextAssignCrash -- a.text = \"9.5\" inside a new-road action: the run dies at exit 139 before the second PIN":;
+taOk();
+fixNewRoadTextAssignCrashHere = 0;
+taBad();
+cerr "SENTINEL newRoadTextAssignCrash reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-17, SEQ 678, rule 4; row only, not chased)
+
+newRoadTextAssignCrash -- in an action built on the new road (incant/kantGrammar), `a.text = "9.5"` on a local crashes
+the run: exit 139, nothing printed after it, no refusal. Interpreted; nothing is compiled. Found 2026-11-17 (SEQ 677)
+probing what can change a local's kind. Not stepped: whether it is the dotted target, the accessor name, or the string.
+
+NEXT: OPEN
+  What would say more: the backtrace of this file in Xcode, and the same line with a count on the right, with another
+  accessor on the left, and on a field that is not a local.
+  Taken: both PIN lines and the SENTINEL, exit 0. Not taken (today): the control's PIN, then exit 139.

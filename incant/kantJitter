@@ -621,6 +621,45 @@ define
                 krMark(*kbC);
         return 0;
         };
+    krChanged=0;
+    krDoubt code={
+        kuOp := argument[1];
+        kuTier = 0;
+        if *kuOp["assignTier"];     kuTier = 1;
+        if kuTier == 0;     return 0;
+        kuT := *kuOp.taG;
+        kuWho := argument[3];
+        kuEq = 0;
+        if *kuT == "=";     kuEq = 1;
+        if kuEq == 1;
+            kuK = krKindOf(*kuWho);
+            if kuK != 0;    return 0;
+            kuWho := argument[2];
+        kuLoc := *kuWho.isLocaL;
+        if *kuLoc != 1;     return 0;
+        kuNm := *kuWho.taG;
+        if krTab[*kuNm];
+            kuE := krTab[*kuNm];
+            kuOld = *kuE;
+            if kuOld == 0;      return 0;
+            if kuOld == 99;     return 0;
+            *kuE = 99;
+            ++krChanged;
+        return 0;
+        };
+    krUnsure code={
+        kuGo = krInside(argument);
+        if kuGo == 0;       return 0;
+        kuIn := argument.instructTypE;
+        kuLen := argument.listLengtH;
+        if *kuIn == 1;
+            if *kuLen == 3;     krDoubt(argument);
+        if *kuLen > 0;
+            iterate kuC on argument;
+            while ++kuC;
+                krUnsure(*kuC);
+        return 0;
+        };
     krResolve code={
         if argument.KinDs;      return 0;
         krB := argument.BlocK;
@@ -631,6 +670,10 @@ define
         krScan(*krS);
         krDepth = 0;
         krScan(*krS);
+        krChanged = 1;
+        while krChanged > 0;
+            krChanged = 0;
+            krUnsure(*krS);
         krCount = 0;
         krMark(*krS);
         krDone := new("KinDs");
@@ -741,6 +784,17 @@ How The Pass Decides
     irWIDE -- that is / -- is marked irNUMBER, WideN 23 (both). Compares carry no irWIDE, so a mixed compare stays
     unmarked. An = is marked with its RIGHT side's kind whenever that is known and its target is a local: the store
     helper for that kind is opAssign, which casts into whatever kind the target already has.
+    Sure of the kind (SEQ 678, Tony's ruling of 2026-11-17). After the two scans krUnsure walks the chain, again and
+    again until a walk changes nothing, and krDoubt makes a local 99 -- not sure, so every read of it is unmarked and
+    stays on testOP -- when it is (a) the target of an = whose right side has no known kind, or (b) the right operand
+    of any assigning operator but = : a call's argument (clear and every other command; no call is taken as a reader),
+    the source of a := , what +% and its kin attach. Measured (SEQ 677 M1, SEQ 678 M4): clear(a), a = new("x") and
+    a = a group field change a local's kind (datA 0, 13, 13), directly, by a callee on its argument, and through a
+    holder; nothing else tried does. The walk repeats because what is computed from a not-sure local has no known kind
+    either. A local with no entry, or an entry of 0 (which `if krTab[name]` reads as absent), has no known kind already
+    and is left alone: making an entry for it there never ended (met SEQ 678, `d = argument`). print is no call and no assigning operator, so a printed local stays sure. A store of a known kind INTO a
+    not-sure local is still marked and native: it is opAssign either way. NOT SEEN BY THE PASS, found and not ruled
+    (M5): another action writing the local by name during a call (f.a = g). incant/pop/sureKindT.
     Which operators have kinds is data: the irCOUNT= and irNUMBER= attributes in incant/setup's Operators
     (irCOUNT="add i32"). The pass reads them through the instruct's own op entry, which shares its body with the
     registry's. They are attributes and not members named <op><kind>, as the ruling first spelled them, because the
@@ -801,5 +855,6 @@ Current State -- WIP
     `=` carries its store as data, so the pass marks an = whose two sides have the same known kind.
     Settled (3c): a count mixed with a number, / on any pair, a store of the other kind, the notes toggle.
     Settled (4): a compare as a condition, native if (else, elseif) and while, nested to any depth, all or nothing.
+    Settled (SEQ 678): a local whose kind may change (an = of unknown kind, a call's argument, a := source) is not sure.
     Not built: an if or a while with anything not native inside it (mixed bodies, a later step with its own design);
     Do, FOr, ITERATe; a bare field or a call as a condition; the kind of `argument`; values kept out of the fields.

@@ -1,0 +1,52 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(NewRoadPlusEqFails);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    peOk code={ a = 3; a = a + 1.5; print "PIN control, a = a + 1.5:" a:; };
+    peBad code={ a = 3; a += 1.5; print "PIN a += 1.5:" a:; };
+    ;
+search NewRoadPlusEqFails;
+njNew(peOk);
+njNew(peBad);
+cerr "ANCHOR newRoadPlusEqFails -- a += 1.5 inside a new-road action: stderr says Operator += failed on a and TOKEn, and a is left at 3":;
+peOk();
+fixNewRoadPlusEqFailsHere = 0;
+peBad();
+cerr "SENTINEL newRoadPlusEqFails reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-17, SEQ 678, rule 4; row only, not chased)
+
+newRoadPlusEqFails -- in an action built on the new road, `a += 1.5` on a count local prints
+"ERROR Operator += failed on a and TOKEn" on stderr and leaves a as it was; the run goes on at exit 0. The right operand
+the operator is handed is tagged TOKEn, a grammar node, not the 1.5. Found 2026-11-17 (SEQ 677). Not tried: a count on
+the right, -= *= /= (measured the same day: a *= 1.5 and a /= 2 and a -= 0.5 print no error; *= and /= change a, -= leaves 3).
+
+NEXT: OPEN
+  What would say more: what kantGrammar hands opPlusEQ for the right side of += (the built instruct, printed), beside
+  what it hands *= .
+  Taken: the second PIN reads 5 (4.5 cast into the count, as a = a + 1.5 gives), no ERROR line. Not taken (today): 3.

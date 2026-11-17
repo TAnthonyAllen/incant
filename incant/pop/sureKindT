@@ -1,0 +1,248 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(SureKindT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kwRan code={
+        kjReq.name = string $"kw_" argument.taG "_ran"$;
+        kwGot = callIR(kjReq);
+        kjReq.name = string $"kw_" argument.taG "_tops"$;
+        kwTop = callIR(kjReq);
+        cerr "SK RAN" argument.taG kwGot "testOP" kwTop:;
+        };
+    skMarks code={
+        smB := argument.BlocK;
+        smS := *smB[2];
+        cerr "SK NATIVE" argument.taG;
+        iterate smC on *smS;
+        while ++smC;
+            smV = 0;
+            if *smC["KnaT"];    smV = 1;
+            cerr smV;
+        cerr ":";
+        };
+    skG;
+    skKill code={ clear(argument); };
+    skMake code={ argument = new("x"); };
+    skGive code={ argument = skG; };
+    skNum code={ argument = 2.5; };
+    skCnt code={ argument = 4; };
+    skByG code={ sqBy1.a = skG; };
+    skByC code={ clear(sqBy2.a); };
+    skByN code={ sqBy3.a = 9; };
+    sqClr code={ a = 3; clear(a); b = a + 1; print "sqClr" b:; };
+    sqNew code={ a = 3; a = new("x"); b = a + 1; print "sqNew" b:; };
+    sqGrp code={ a = 3; a = skG; b = a + 1; print "sqGrp" b:; };
+    sqClrC code={ a = 3; skKill(a); b = a + 1; print "sqClrC" b:; };
+    sqNewC code={ a = 3; skMake(a); b = a + 1; print "sqNewC" b:; };
+    sqGrpC code={ a = 3; skGive(a); b = a + 1; print "sqGrpC" b:; };
+    sqH1 code={ a = 3; h := a; *h = skG; b = a + 1; print "sqH1" b:; };
+    sqH2 code={ a = 3; h := a; *h = new("x"); b = a + 1; print "sqH2" b:; };
+    sqH3 code={ a = 3; h := a; clear(*h); b = a + 1; print "sqH3" b:; };
+    sqH4 code={ a = 3; h := a; *h = 2.5; b = a + 1; print "sqH4" b:; };
+    sqPr code={ a = 3; print "sqPr" a:; b = a + 1; print "sqPr" b:; };
+    sqArg code={ a = 3; skNum(a); b = a + 1; print "sqArg" b:; };
+    sqArgN code={ a = 1.5; skCnt(a); b = a + 1; print "sqArgN" b:; };
+    sqSt code={ a = 3; a = skG; a = 4; b = a + 1; print "sqSt" a b:; };
+    sqChain code={ a = 3; a = skG; b = a + 1; c = b + 1; d = 2; e = d * 3; print "sqChain" c e:; };
+    sqLoop code={
+        a = 0;
+        i = 0;
+        while i < 3;
+            a = a + 2;
+            i = i + 1;
+        skNum(a);
+        b = a + 1;
+        print "sqLoop" i b:;
+        };
+    sqBy1 code={ a = 3; skByG(); b = a + 1; print "sqBy1" b:; };
+    sqBy2 code={ a = 3; skByC(); b = a + 1; print "sqBy2" b:; };
+    sqBy3 code={ a = 3; skByN(); b = a + 1; print "sqBy3" b:; };
+    ;
+search SureKindT;
+njNew(sqClr);
+njNew(sqNew);
+njNew(sqGrp);
+njNew(sqClrC);
+njNew(sqNewC);
+njNew(sqGrpC);
+njNew(sqH1);
+njNew(sqH2);
+njNew(sqH3);
+njNew(sqH4);
+njNew(sqPr);
+njNew(sqArg);
+njNew(sqArgN);
+njNew(sqSt);
+njNew(sqChain);
+njNew(sqLoop);
+njNew(sqBy1);
+njNew(sqBy2);
+njNew(sqBy3);
+krResolve(sqClr);
+krResolve(sqNew);
+krResolve(sqGrp);
+krResolve(sqClrC);
+krResolve(sqNewC);
+krResolve(sqGrpC);
+krResolve(sqH1);
+krResolve(sqH2);
+krResolve(sqH3);
+krResolve(sqH4);
+krResolve(sqPr);
+krResolve(sqArg);
+krResolve(sqArgN);
+krResolve(sqSt);
+krResolve(sqChain);
+krResolve(sqLoop);
+krResolve(sqBy1);
+krResolve(sqBy2);
+krResolve(sqBy3);
+kwCompile(sqClr);
+kwCompile(sqNew);
+kwCompile(sqGrp);
+kwCompile(sqClrC);
+kwCompile(sqNewC);
+kwCompile(sqGrpC);
+kwCompile(sqH1);
+kwCompile(sqH2);
+kwCompile(sqH3);
+kwCompile(sqH4);
+kwCompile(sqPr);
+kwCompile(sqArg);
+kwCompile(sqArgN);
+kwCompile(sqSt);
+kwCompile(sqChain);
+kwCompile(sqLoop);
+kwCompile(sqBy1);
+kwCompile(sqBy2);
+kwCompile(sqBy3);
+print "SK ROW1 the three misreads of SEQ 677, directly: clear, = new, = a group field":;
+sqClr();
+sqNew();
+sqGrp();
+print "SK ROW2 the same three by a callee on its argument":;
+sqClrC();
+sqNewC();
+sqGrpC();
+print "SK ROW3 M4, through a holder: a group, a new field, clear, a number":;
+sqH1();
+sqH2();
+sqH3();
+sqH4();
+print "SK ROW4 a printed local is still native":;
+sqPr();
+print "SK ROW5 a callee writes a value into its argument: 2.5 into a count, 4 into a number":;
+sqArg();
+sqArgN();
+print "SK ROW6 a store into a not-sure local; what is computed from one; one handed to a call after a native loop":;
+sqSt();
+sqChain();
+sqLoop();
+print "SK ROW7 called twice":;
+sqGrp();
+sqGrp();
+sqLoop();
+sqLoop();
+print "SK END":;
+print "SK M5 another action writes the local by name during a call: a group, clear, a count":;
+sqBy1();
+sqBy2();
+sqBy3();
+print "SK M5 END":;
+kwRan(sqClr);
+kwRan(sqNew);
+kwRan(sqGrp);
+kwRan(sqClrC);
+kwRan(sqNewC);
+kwRan(sqGrpC);
+kwRan(sqH1);
+kwRan(sqH2);
+kwRan(sqH3);
+kwRan(sqH4);
+kwRan(sqPr);
+kwRan(sqArg);
+kwRan(sqArgN);
+kwRan(sqSt);
+kwRan(sqChain);
+kwRan(sqLoop);
+kwRan(sqBy1);
+kwRan(sqBy2);
+kwRan(sqBy3);
+skMarks(sqClr);
+skMarks(sqNew);
+skMarks(sqGrp);
+skMarks(sqClrC);
+skMarks(sqNewC);
+skMarks(sqGrpC);
+skMarks(sqH1);
+skMarks(sqH2);
+skMarks(sqH3);
+skMarks(sqH4);
+skMarks(sqPr);
+skMarks(sqArg);
+skMarks(sqArgN);
+skMarks(sqSt);
+skMarks(sqChain);
+skMarks(sqLoop);
+skMarks(sqBy1);
+skMarks(sqBy2);
+skMarks(sqBy3);
+krShow(sqGrp);
+krShow(sqArg);
+krShow(sqH4);
+krShow(sqPr);
+cerr "SUREKINDT SENTINEL":;
+stop();
+
+sureKindT -- SEQ 678 (Tony's ruling of 2026-11-17, on SEQ 677's M1): the kant jitter's sure-kind cure, in the resolve pass, kant only.
+Before it, a local whose first top-level writer gave it a kind kept that kind in the pass whatever happened to it later,
+and the native text of steps 3b and 4 read its field by that kind. Three things change a local's kind where the pass did
+not look: clear(a), a = new("x") and a = a group field -- directly, by a callee on its argument, or through a holder
+(h := a; *h = ...). Each then printed a wrong answer natively (1, 2, 5 where the interpreter refuses or prints x1, outG1).
+THE RULE NOW: a local is NOT SURE, and every read of it stays on testOP, if anywhere in the action it is (a) the target
+of an = whose right side's kind the pass does not know, or (b) the right operand of any assigning operator but = : a
+call's argument (clear and every other command included), the source of a := , what +% and its kin attach.
+pop.sh runs this file twice: as written, and with the top-level kwCompile( and kwRan( lines deleted (the twin, all
+interpreted). Stdout from SK ROW1 to SK END must be equal, and the refusals on stderr the same count.
+    ROW1   sqClr refuses (+ cannot apply to a cleared field; nothing is printed); sqNew x1; sqGrp skG1.
+    ROW2   the same by a callee: sqClrC refuses; sqNewC x1; sqGrpC skG1.
+    ROW3   M4 (measured SEQ 678): through a holder the kind changes as it does directly. sqH1 skG1; sqH2 x1; sqH3 refuses;
+           sqH4 (a number through the holder: the kind stays a count, 2.5 reads 3) 4.
+    ROW4   sqPr: print is no call and no assigning operator, so a printed local stays sure and b = a + 1 is native
+           (SK NATIVE sqPr 1 0 1 0).
+    ROW5   sqArg, sqArgN: the callee writes a value of the other kind; the local's kind does not change and the answer
+           was right before the cure. The local is handed to a call, so it is not sure now: b = a + 1 is on testOP
+           (SK NATIVE 1 0 0 0), the answer unchanged.
+    ROW6   sqSt: a store of a known kind into a not-sure local is still written natively (it is opAssign either way), here
+           after the local became a group. sqChain: what is computed from a not-sure local is not sure either (b, then c),
+           while d and e beside them stay native. sqLoop: a is written in a native-shaped loop and handed to a call
+           after it, so it is not sure anywhere: the loop goes to testOP whole.
+    ROW7   two actions called twice.
+    SK M5  FOUND, NOT RULED, pinned as read (measured SEQ 678): another action can write an action's local BY NAME
+           during a call that action makes (skByG: sqBy1.a = skG; skByC: clear(sqBy2.a)). The pass cannot see that from
+           inside the action, so natively sqBy1 prints 4 where the twin prints skG1, and sqBy2 prints 1 where the twin
+           refuses. sqBy3 (a count by name) agrees. pop.sh pins the twin's lines and the native lines apart.
+    SK RAN <action> <statements run> testOP <calls>; SK NATIVE <action> then 1 native / 0 testOP per top-level statement.
+Action names here avoid the jitter's own local names (jitterNameShadows).
