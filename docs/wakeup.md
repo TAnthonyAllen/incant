@@ -5,48 +5,49 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**495, 2026-11-17, topic: kant, SEQ 674-676 (assigned by Clod).**
-Tony updated the OS and Xcode offline (Xcode 27.2): trunk builds, `tok` retoks byte-identical, the Xcode bridge connects (one
-XcodeOpenWorkspace call on `InProcess.xcworkspace` asks for the approval), and the baseline read as at 494 before anything was bought.
-**BOUGHT:** `newroad-empty-call` (674): on the new road `f()` is a call with no argument; bank 64 to 63. **The kant jitter's step 4**
-(675, bought 676): native compare, if and while, the all-or-nothing cut, kant and data only; every row equals its interpreted twin
-(`incant/pop/kantCondT`). Accepted as built: four number compare spellings follow the interpreter on nan; the top-level read rule of 3b.
-**THE FIRST SPEED MEASUREMENT** (`genLadder/kantSpeed.sh`, 600000 passes, ms): interpreted 178.6, step 2c 177.5, step 4 native 153.4,
-frozen C++ walk 0.3. The reading: the native loop's time is `irSetCount` boxing each store. The table and detail are in `Topics/kant`.
+**496, 2026-11-17, topic: kant, SEQ 677-679 (assigned by Clod), a SHUTDOWN seal.**
+Step 5 of the kant jitter was dispatched and STOPPED at its first measurement, as the dispatch ruled: a local's kind can change after
+its first write (`clear(a)`, `a = new("x")`, `a = ` a group field; directly, by a callee on its argument, through a holder), and the
+native text already on trunk misread it (1, 2, 5 where the interpreter refuses or prints `x1`, `outG1`).
+**BOUGHT:** the sure-kind cure (678, bought 679), kant only: the kind pass makes a local NOT SURE, every read of it on `testOP`, when it
+is the target of an `=` of unknown kind or the right operand of any assigning operator but `=` (a call's argument, a `:=` source, an
+attach). A known-kind store into such a local stays native. `incant/pop/sureKindT`, every ruled row equal to its interpreted twin.
+**FOUND, NOT RULED:** a callee can change its caller's local BY NAME; the pass cannot see it. Pinned as read (sureKindT M5) and
+docketed, latent (`calleeWritesCallerLocal`). Still found, not ruled: interpreted, nan == anything is true.
 **OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's ruling. F-162 (a rule call on the new road).
-**RULED, behind the jitter (Clod's lane):** the fixit `upToSetDelimiter`; it carries Tony's words on `ensureGuard`, and its specimen is
-`IncantForms/WorkingOn/delimitedData`. **RULED, NOT BUILT, dispatch held by Tony:** `debug` in an action body acts when its line runs.
-**FOUND, not ruled:** interpreted, nan == anything is true; the native compares copy it. Two Clod fixits joined (`Topics/kant`).
-**NEXT:** step 5 of the kant jitter, values out of the fields, DESIGN FIRST: Clay's sketch, then the dispatch. The forms opener from
-seal 492 stays set aside, not struck. **BeforeSave last refreshed at seal 492; not touched since.**
+**RULED, NOT BUILT:** STEP 5, dispatched and amended (679 R3: write back only the slots stored natively since the last read from the
+fields; one more row, M5's group case under slots); its text is in `Topics/kant`. `debug` in an action body (dispatch held by Tony).
+The fixit `upToSetDelimiter` stays behind the jitter.
+**NEXT:** step 5 opens the next session; M1-M3 are measured, the build starts at 2a. The forms opener from seal 492 stays set aside.
+**BeforeSave last refreshed at seal 492; `bs` is not on Clod's shell, so the refresh after this seal is Tony's.**
 
-## The numbers (as run at seal 495, on trunk 737a32ce; the binary is the bare build of 2026-11-17 on Xcode 27.2, 2188992 bytes)
+## The numbers (as run at seal 496, on trunk 2d60b68d's tree; the binary is the bare build of 2026-11-17 on Xcode 27.2, 2188992 bytes)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3941 green (3916 at 494; + 14 with newroad-empty-call, + 11 kantCondT), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3950 green (3941 at 495; + 9 sureKindT), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 279 green; F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 495 (a plain seal; no tok source touched, anchors none). At 494: exit 0, 116 directives, 108 inject, 8 parked dark |
-| extern canary | 474 (`grep -c '^extern' GroupRules.h`; unmoved, step 4 added no C++) |
+| `genLadder/dirCheck.sh` (shutdown seals only) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare (second pass; the first read `getStuff if before` dark too, kept as `dirCheck.flicker-2026-11-17.txt`) |
+| extern canary | 474 (`grep -c '^extern' GroupRules.h`; unmoved, the cure added no C++) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged at 495: newroad-empty-call, kant-jitter-4. TOK took the Xcode 27.2 project upgrade (`aaacef4`). BeforeSave last refreshed at seal 492.
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged at 496: kant-sure-kind. BeforeSave last refreshed at seal 492 (the refresh after 496 is Tony's).
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
 Tony's fixit incantations waiting: 0
-Clod's fixit incantations waiting: 13 (oldest: defineCapture, since 2026-10-02)
+Clod's fixit incantations waiting: 16 (oldest: defineCapture, since 2026-10-02)
 
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 60 / 60 | this page. |
 | `Topics/forms` | 279 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 184 / 200 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
+| `Topics/kant` | 204 / 200, OVER by 4 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 113 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |

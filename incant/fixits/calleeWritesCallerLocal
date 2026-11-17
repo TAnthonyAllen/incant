@@ -1,0 +1,67 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(CalleeWritesCallerLocal);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    cwG;
+    cwByG code={ cwGrp.a = cwG; };
+    cwByC code={ clear(cwClr.a); };
+    cwGrp code={ a = 3; cwByG(); b = a + 1; print "PIN a group by name, then a + 1:" b:; };
+    cwClr code={ a = 3; cwByC(); b = a + 1; print "PIN cleared by name, then a + 1:" b:; };
+    cwGrpN code={ a = 3; cwByGN(); b = a + 1; print "PIN a group by name, then a + 1:" b:; };
+    cwByGN code={ cwGrpN.a = cwG; };
+    ;
+search CalleeWritesCallerLocal;
+njNew(cwGrp);
+njNew(cwClr);
+njNew(cwGrpN);
+krResolve(cwGrpN);
+kwCompile(cwGrpN);
+cerr "ANCHOR calleeWritesCallerLocal -- a callee writes its caller's local a by name; the caller then reads a + 1":;
+print "interpreted: a group by name (cwG1), then cleared by name (the + refuses, no PIN line):":;
+cwGrp();
+cwClr();
+print "native (the kant jitter): the group by name. Wants cwG1; reads 4 today:":;
+cwGrpN();
+fixCalleeWritesCallerLocalHere = 0;
+cerr "SENTINEL calleeWritesCallerLocal reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-17, SEQ 679, rule 2; severity LATENT; FOUND, NOT RULED)
+
+calleeWritesCallerLocal -- during a call an action makes, the callee can change that action's local BY NAME
+(f.a = aGroup, clear(f.a)), on either road. The kant jitter's kind pass looks only inside the action, so the local stays
+sure, its read stays native, and the compiled action reads the field by the old kind: 4 where the interpreter prints
+cwG1, 1 where the interpreter refuses. Measured SEQ 678 (M5). The sure-kind cure (SEQ 678) covers a local the action
+itself hands out or assigns an unknown kind; it does not cover this. Not cured in step 5, by ruling.
+See: the two pinned fleet rows, pop.sh "sureKindT M5, found not ruled" (the twin, and native), fixture incant/pop/sureKindT.
+Step 5 adds a third: M5's group case under slots, pinned as read.
+
+NEXT: OPEN
+  What would generate a fix: a census of who writes another action's local by name in the fleet and the forms (if no
+  one does, a refusal at that write is a candidate); or a kind check where native code comes back from a call, which
+  Tony ruled out for now (SEQ 678: the pass, no reload kind check).
+  Taken: the native PIN reads cwG1. Not taken (today): 4.
