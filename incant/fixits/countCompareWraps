@@ -1,0 +1,64 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(CountCompareWraps);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    cwFar code={ big = 2000000000; low = 0 - 2000000000; r = 0; if big > low; r = 1; print "PIN" r:; };
+    cwNear code={ big = 1000000000; low = 0 - 1000000000; r = 0; if big > low; r = 1; print "PIN" r:; };
+    cwFarN code={ big = 2000000000; low = 0 - 2000000000; r = 0; if big > low; r = 1; print "PIN" r:; };
+    ;
+search CountCompareWraps;
+njNew(cwFar);
+njNew(cwNear);
+njNew(cwFarN);
+krResolve(cwFarN);
+kwCompile(cwFarN);
+cerr "ANCHOR countCompareWraps -- is 2000000000 greater than -2000000000? Each PIN line on stdout wants 1":;
+print "interpreted, 1000000000 > -1000000000 (the control, 2^31 is not crossed):":;
+cwNear();
+print "interpreted, 2000000000 > -2000000000:":;
+cwFar();
+print "native (step 4 of the kant jitter), the same two counts:":;
+cwFarN();
+fixCountCompareWrapsHere = 0;
+cerr "SENTINEL countCompareWraps reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-17, SEQ 676, rule 5; severity LATENT)
+
+countCompareWraps -- interpreted, comparing two counts takes the sign of an int subtraction, so two counts more than
+2^31 apart compare the wrong way round. The native compare of the kant jitter (icmp) does not wrap, so on such a pair
+the compiled action and the interpreted one disagree. No fleet row holds such a pair.
+Site, read not stepped: compareValues, GroupItem.twk, its isCOUNT arm: `result = count - group2.count;`. A number
+against a number was already cured there (numberCompare: the sign of the double difference, never a rounded count).
+Found 2026-11-17 reading compareValues for step 4 (SEQ 675).
+
+NEXT: BEST GUESS -- not a recommendation until built.
+  In compareValues' count-with-count arm, compare instead of subtract (less -1, greater 1, equal 0), as the
+  number arm does. Grade: likely; the line is read, the wrap is measured by this file, the fix is not built.
+  Promoted by all three PIN lines reading 1 with no fleet row moving; killed if any caller reads the size of the
+  difference and not only its sign (sort, compareAttribute: not read).
+  Taken: PIN 1, 1, 1. Not taken (today): PIN 1, 0, 1.

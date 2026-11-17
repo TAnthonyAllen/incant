@@ -1,0 +1,61 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantJitter);
+search reset stack Grokking;
+search Utilities UnitTests KantJitter;
+registry(JitterNameShadows);
+define
+    jsWho code={ cerr "PIN" jsWhen "the name handed in is" argument.taG "(want" jsWant ")":; };
+    jsWant="kiT";
+    jsWhen="before:";
+    jsOther code={ return 1; };
+    kiT code={ return 1; };
+    kiIn code={ return 1; };
+    ;
+search JitterNameShadows;
+cerr "ANCHOR jitterNameShadows -- this file's own actions kiT and kiIn handed by name, before and after the jitter's krInside has run once":;
+jsWho(kiT);
+jsWant = "kiIn";
+jsWho(kiIn);
+krInside(jsOther);
+jsWhen = "after: ";
+jsWant = "kiT";
+jsWho(kiT);
+jsWant = "kiIn";
+jsWho(kiIn);
+jsWant = "jsOther";
+jsWho(jsOther);
+fixJitterNameShadowsHere = 0;
+cerr "SENTINEL jitterNameShadows reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-17, SEQ 676, rule 5; severity WRONG -- silent)
+
+jitterNameShadows -- a user's action named like one of incant/kantJitter's own names is found in that name's place.
+kiT and kiIn are locals of the jitter's action krInside (kfP of krFetch, and so on). A fixture that includes kantJitter
+and defines its own action kiT, then writes kiT at its top level, hands over the jitter's local, not its action. Nothing
+says so and the run exits 0.
+MEASURED 2026-11-17, kant, bare build, by this file: BEFORE krInside has run, kiT and kiIn name the file's own actions.
+AFTER one call of krInside they name what its locals hold (taG, instructTypE). So the local is minted when the jitter's
+action first runs, and from then on it is found ahead of the user's action of the same name. jsOther, a name the
+jitter does not use, is unmoved (the control).
+Found 2026-11-17 writing incant/pop/kantCondT (SEQ 675): kwCompile(kiT) answered "REFUSED taG -- kwCompile: the action
+has no built chain", the action then ran interpreted with the right values, and only the count of compiles was short.
+The fixture's actions were renamed (iq, wq, fq ...) and its notes say why.
+
+Not measured: where the minted local sits and why it is found first (the KantJitter registry ahead of the user's on
+the search list is the obvious suspect, not read). Not measured either: whether the locals of any included
+incantation's actions (utilities, unitTests) do the same, which would make it a fact about locals and not the jitter.
+
+NEXT: OPEN -- print where the name kiT resolves from at the top level after krInside has run (which registry, which
+owner), and try the same with a local of a utilities action. That says whether the cure is a prefix rule for the
+jitter's names or a change to how an action's locals are found from outside it.
+  Taken: all five PIN lines name what they want. Not taken (today): the two "after" lines for kiT and kiIn name
+  taG and instructTypE.

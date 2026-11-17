@@ -13,7 +13,7 @@ A regular rule names its operator (op="...") and the shared default action build
 The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant: the plan").
 
 /*****************************************************************************
-    State (seal 444, 2026-11-11, for the rule door and the grammar; the kant jitter's state is its own section below, seal 494)
+    State (seal 444, 2026-11-11, for the rule door and the grammar; the kant jitter's state is its own section below, seal 495)
 *****************************************************************************/
     operators by the default action   WHILe, Do, If, ELSEIf, FORBACk / FORWARd, ITERATe's three shapes, BRANCh's four.
     compiled through the rule door    ITERATe, FOr (both rules), If; +%, := and copyOf native in opted-in rules.
@@ -42,12 +42,12 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
     The full checklist runs at every landing whatever the topic (CLAUDE.md, rule H12).
 
 /*****************************************************************************
-    The kant jitter (rulings of 2026-11-16, Tony; seals 493 and 494)
+    The kant jitter (rulings of 2026-11-16 and 2026-11-17, Tony; seals 493 to 495)
 *****************************************************************************/
     The jitter walk is kant: incant/kantJitter (registry KantJitter; a fixture includes it) walks an action's finished chain and writes LLVM IR
         as text; one C++ door compiles the text (compileIR, callIR). The C++ new-road walk is frozen where it stands (S1-S5) and is the yardstick.
     DESIGN GOAL, standing: minimize the jitter's code, C++ above all, kant too. The door is the only C++ that touches LLVM. Before any other C++ for the
-        jitter, one line on why kant cannot do it; every jitter report carries the count of C++ lines and kant lines added. (C++ 184; kant 509, at 494.)
+        jitter, one line on why kant cannot do it; every jitter report carries the count of C++ lines and kant lines added. (C++ 184; kant 696, at 495.)
     Helpers are named in the text, never addressed; no address is written into IR text. The engine resolves a named extern with no registration.
     An action carrying a KanT attribute (its text the function's name) runs that function in place of the chain walk, at processAction's doorBody seat.
     kant spellings that carry IR text: `$ ... $` joins with no spaces; `:` is the newline; a string's LEADING spaces are dropped, so write `_` per space.
@@ -69,13 +69,33 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
             top-level statement. The notes toggle, jitNotes(), OFF by default: one line per widening op at compile.
         f() on the new road is a call with no argument (SEQ 673, F-161): BOUGHT 2026-11-17 (SEQ 674), on trunk; pop.sh 3930 green, FAIL 63.
             kantGrammar's INVOKEd takes `EXPRESSIOn?`; an empty subscript refuses by name. Its one mover: cmdCallT CC-6 new road turns green.
+    STEP 4, BUILT AND BOUGHT 2026-11-17 (SEQ 675, bought SEQ 676, seal 495): native compare, if and while, THE ALL-OR-NOTHING CUT (Tony). An if
+        or a while runs natively only when its condition is a marked compare and every statement in every arm or body is native (a 3b
+        store, a block, another native if or while, to any depth); anything else in it sends the whole statement to testOP. A compare as a
+        value (x = a < b) is not native. Mixed bodies are a later step with its own design. kant and data only, no C++. incant/pop/kantCondT.
+        Measured first: an if hands back what its arm did (a store its target, a block its own list, nothing when no arm ran), a while
+        nothing; elseif is the same if-instruct in the else slot. A mixed compare is data: irWIDE on the six compare lines in incant/setup.
+        ACCEPTED AS BUILT: the four number spellings M3 forced (== <= >= != are fcmp ueq, ule, uge, one); the top-level read rule kept
+        from 3b (a native read takes a local any earlier marked top-level store wrote, native or on testOP).
+        Statements are told apart by operator, never by listLengtH: a mark is an attribute and is counted in the length.
+    THE FIRST SPEED MEASUREMENT (SEQ 675, genLadder/kantSpeed.sh; one summing loop, ms net of the same file at 0 passes, best of 5):
+            passes     interpreted   step 2c   step 4 native   frozen C++ walk
+            600000     178.6         177.5     153.4           0.3
+            60000      21.2          17.5      17.8            -0.4 (below what the script reads)
+        THE READING (Clay, 2026-11-17): the native loop's time is irSetCount boxing each store into a new field for opAssign (sampled: the
+        collector is most of it). SO STEP 5 IS VALUES OUT OF THE FIELDS, DESIGN FIRST: Clay's sketch, then the dispatch.
     RULED AND NOT YET BUILT, dispatch held by Tony: debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body
         is parsed: measured SEQ 662).
     DOCKETED, waiting on Tony's ruling: F-162, a rule cannot be called from the new road. The fixit upToSetDelimiter (Clod's lane): a rule that
         reads up to a set crashes in upToMatch, and an upTo-first rule needs guard='n'; the specimen is IncantForms/WorkingOn/delimitedData since 2026-11-17 (its guard='n' comes out with the cure); ruled to stay behind the jitter.
     FOUND, not ruled: a bare taG inside a new-road action body reads 1, not what was referenced last (emptyCallT rows b and c, pinned as read).
-    NEXT: step 4 of the kant jitter (native compare, if, while), DESIGN FIRST: Clay's
-        sketch, then the dispatch. The first speed measurement belongs to step 4. The forms opener from seal 492 stays set aside, not struck.
+    FOUND, not ruled (2026-11-17): interpreted, a number compare is the sign of the difference and a nan difference counts as equal, so
+        nan == anything is true (and <=, >=); the native compares copy it (kantCondT ROW2, M3's rows).
+    TWO FIXITS, Clod's lane (2026-11-17, SEQ 676): countCompareWraps (interpreted, a count compare is the sign of an int subtraction and
+        wraps for counts more than 2^31 apart; the native compare does not; latent) and jitterNameShadows (a user action named like one of
+        kantJitter's locals -- kiT, kiIn, kfP -- is found in the local's place once the jitter's action has run; silent, exit 0).
+    NEXT: step 5 of the kant jitter, values out of the fields, DESIGN FIRST: Clay's sketch, then the dispatch. The forms opener from seal
+        492 stays set aside, not struck.
 
 /*****************************************************************************
     Plan
@@ -109,6 +129,7 @@ To come, from IncantForms/WorkingOn/macros.
 /*****************************************************************************
     Seal digest, newest first (full text: git show cf9522cb:docs/wakeup.md for seals 373-444; older seals are in docs/wakeupVintage-to-2026-11-07.md)
 *****************************************************************************/
+    495  SEQ 674-676, 2026-11-17.  Tony updated the OS and Xcode offline: trunk builds on Xcode 27.2, tok retoks byte-identical, the Xcode bridge connects, and the whole baseline read as at 494. newroad-empty-call bought (674; bank 64 to 63). The kant jitter's step 4 built and bought (675, 676): native compare, if and while, all or nothing, kant and data only; every row equals its interpreted twin (kantCondT, 11 rows); four number compare spellings follow the interpreter on nan. The first speed measurement: a native summing loop is barely faster than interpreted (153 against 179 ms for 600000 passes) because every store still boxes a field; the frozen C++ walk reads 0.3 ms. Step 5 is values out of the fields, design first. pop.sh 3941 green, FAIL 63 by name; jitLadder exit 0; canary 474. Two Clod fixits joined (countCompareWraps, jitterNameShadows); upToSetDelimiter gained Tony's words on ensureGuard and stays behind the jitter. BeforeSave not touched.
     494  SEQ 669-673, 2026-11-16, shutdown.  The afternoon: while and if read a call's truth (F-160); the kant jitter's step 3 -- the kind-resolve pass, the IR spelling as attributes on the operator's own line, native + - * / and = with values staying in the fields, mixed kinds native, the notes toggle off by default. All bought and on trunk. f() on the new road as a call with no argument is built on branch newroad-empty-call and not yet bought. pop.sh 3916 green, FAIL 64 by name; jitLadder exit 0; canary 470 to 474 (the four field helpers). C++ for the jitter 184 lines, kant 509. One Clod fixit joined (upToSetDelimiter). BeforeSave not refreshed.
     493  SEQ 662-668, 2026-11-16, shutdown, on the Mac Studio.  The kant jitter began. kant writes LLVM IR as text and one C++ door compiles it (compileIR, callIR); an action marked KanT is run compiled by the engine's own action call; the kant walk writes one testOP call per top-level statement with a go-on check after each, and a return, a break and a refusal end the walked function as they end the interpreted one. Every row equals its interpreted twin; pop.sh 3841 green, FAIL 64 by name; jitLadder exit 0. Also: `$$` measured sound (662; tester's missing stops are debug; firing at body parse and a trace breakpoint); the Studio made fit for a seal (665: ~/bin/incant repointed from a July binary, GitHub sign-in, the Xcode bridge registered). C++ 168 lines for the jitter so far, kant about 150 in the jitter's own actions. BeforeSave not refreshed (Studio).
     482  SEQ 649, 2026-11-13, shutdown.  A top-level scope statement is refused by name instead of crashing (aCTionScopeXP, no action to bind locals in). Found from tester: an indented define with deeper entries makes checkSkip write a ':' before the second entry, the define ends, and the ':' line runs as a scope statement. The indent behaviour is not changed; keep define at column 0 or its entries at its own indent. bridgeT BR-4's two red rows green, its control re-pinned; pop.sh 3802 green, bank 64.
