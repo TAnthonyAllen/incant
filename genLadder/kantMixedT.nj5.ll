@@ -16,35 +16,45 @@ entry:
   %t1 = call ptr @irAt(ptr %items, i32 1)
   %t1_2 = call ptr @irAt(ptr %t1, i32 2)
   %t1_3 = call ptr @irAt(ptr %t1, i32 3)
+  %Fa5 = bitcast ptr %t1_2 to ptr
+  %vt1_3 = call double @irNumberOf(ptr %t1_3)
   %t2 = call ptr @irAt(ptr %items, i32 2)
   %t2_2 = call ptr @irAt(ptr %t2, i32 2)
   %t2_3 = call ptr @irAt(ptr %t2, i32 3)
+  %Fb5 = bitcast ptr %t2_2 to ptr
   %t2_3_2 = call ptr @irAt(ptr %t2_3, i32 2)
   %t2_3_3 = call ptr @irAt(ptr %t2_3, i32 3)
+  %vt2_3_3 = call i32 @irCountOf(ptr %t2_3_3)
+  %Sa5 = alloca double
+  %Da5 = alloca i1
+  store i1 0, ptr %Da5
+  %LI_a5 = call double @irNumberOf(ptr %Fa5)
+  store double %LI_a5, ptr %Sa5
+  %Sb5 = alloca double
+  %Db5 = alloca i1
+  store i1 0, ptr %Db5
+  %LI_b5 = call double @irNumberOf(ptr %Fb5)
+  store double %LI_b5, ptr %Sb5
   br label %s1
 s1:
   %n1 = load i32, ptr @kw_nj5_n
   %m1 = add i32 %n1, 1
   store i32 %m1, ptr @kw_nj5_n
-  %vt1_3 = call double @irNumberOf(ptr %t1_3)
-  %r1 = call ptr @irSetNumber(ptr %t1_2, double %vt1_3)
-  store ptr %r1, ptr %last
-  %g1 = call i32 @irGoOn()
-  %c1 = icmp ne i32 %g1, 0
-  br i1 %c1, label %s2, label %done
+  store double %vt1_3, ptr %Sa5
+  store i1 1, ptr %Da5
+  store ptr %t1_2, ptr %last
+  br label %s2
 s2:
   %n2 = load i32, ptr @kw_nj5_n
   %m2 = add i32 %n2, 1
   store i32 %m2, ptr @kw_nj5_n
-  %vt2_3_2 = call double @irNumberOf(ptr %t2_3_2)
-  %vt2_3_3 = call i32 @irCountOf(ptr %t2_3_3)
+  %vt2_3_2 = load double, ptr %Sa5
   %wt2_3_3 = sitofp i32 %vt2_3_3 to double
   %vt2_3 = fadd double %vt2_3_2, %wt2_3_3
-  %r2 = call ptr @irSetNumber(ptr %t2_2, double %vt2_3)
-  store ptr %r2, ptr %last
-  %g2 = call i32 @irGoOn()
-  %c2 = icmp ne i32 %g2, 0
-  br i1 %c2, label %s3, label %done
+  store double %vt2_3, ptr %Sb5
+  store i1 1, ptr %Db5
+  store ptr %t2_2, ptr %last
+  br label %s3
 s3:
   %n3 = load i32, ptr @kw_nj5_n
   %m3 = add i32 %n3, 1
@@ -52,13 +62,53 @@ s3:
   %tn3 = load i32, ptr @kw_nj5_t
   %tm3 = add i32 %tn3, 1
   store i32 %tm3, ptr @kw_nj5_t
+  %P3_a5 = load i1, ptr %Da5
+  br i1 %P3_a5, label %K3_a5, label %J3_a5
+K3_a5:
+  %Q3_a5 = load double, ptr %Sa5
+  %R3_a5 = call ptr @irSetNumber(ptr %Fa5, double %Q3_a5)
+  store i1 0, ptr %Da5
+  br label %J3_a5
+J3_a5:
+  %P3_b5 = load i1, ptr %Db5
+  br i1 %P3_b5, label %K3_b5, label %J3_b5
+K3_b5:
+  %Q3_b5 = load double, ptr %Sb5
+  %R3_b5 = call ptr @irSetNumber(ptr %Fb5, double %Q3_b5)
+  store i1 0, ptr %Db5
+  br label %J3_b5
+J3_b5:
   %f3 = call ptr @irAt(ptr %items, i32 3)
   %r3 = call ptr @testOP(ptr %f3)
   store ptr %r3, ptr %last
   %g3 = call i32 @irGoOn()
   %c3 = icmp ne i32 %g3, 0
-  br i1 %c3, label %s4, label %done
+  br i1 %c3, label %q3, label %done
+q3:
+  %L3_a5 = call double @irNumberOf(ptr %Fa5)
+  store double %L3_a5, ptr %Sa5
+  %L3_b5 = call double @irNumberOf(ptr %Fb5)
+  store double %L3_b5, ptr %Sb5
+  br label %s4
 s4:
+  br label %back
+back:
+  %PB_a5 = load i1, ptr %Da5
+  br i1 %PB_a5, label %KB_a5, label %JB_a5
+KB_a5:
+  %QB_a5 = load double, ptr %Sa5
+  %RB_a5 = call ptr @irSetNumber(ptr %Fa5, double %QB_a5)
+  store i1 0, ptr %Da5
+  br label %JB_a5
+JB_a5:
+  %PB_b5 = load i1, ptr %Db5
+  br i1 %PB_b5, label %KB_b5, label %JB_b5
+KB_b5:
+  %QB_b5 = load double, ptr %Sb5
+  %RB_b5 = call ptr @irSetNumber(ptr %Fb5, double %QB_b5)
+  store i1 0, ptr %Db5
+  br label %JB_b5
+JB_b5:
   br label %done
 done:
   %v = load ptr, ptr %last

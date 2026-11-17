@@ -234,6 +234,7 @@ slMarks(slMid);
 slMarks(slRef);
 slMarks(slBy);
 slMarks(slGr);
+cerr "SL MARKS END":;
 cerr "KANTSLOTT SENTINEL":;
 stop();
 
