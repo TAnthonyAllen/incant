@@ -697,8 +697,8 @@ define
 bail();
 
 kantJitter -- the kant jitter's own incantation (SEQ 670, Tony's ruling R0 of 2026-11-16). A fixture includes it and
-searches KantJitter. It holds the walk from step 2c, the kind-resolve pass of step 3a and the native statements of
-step 3b. No C++ belongs to it but the door (compileIR, callIR) and the helpers the walk's text names: testOP, irAt,
+searches KantJitter. It holds the walk from step 2c, the kind-resolve pass of step 3a, the native statements of
+step 3b and the native if and while of step 4. No C++ belongs to it but the door (compileIR, callIR) and the helpers the walk's text names: testOP, irAt,
 irGoOn, irSeqEnd, and for native statements irCountOf, irNumberOf, irSetCount, irSetNumber.
 
 What Is In Here
@@ -750,8 +750,8 @@ Native Statements (step 3b)
     krPlan walks the top-level statements in order and marks one KnaT when krIsStore says it is a marked = into a local
     and krNatExpr says its right side is native all the way down: a literal; a local in krSeen, the locals an earlier
     top-level marked store wrote (so a native read never meets a local no statement has surely written yet); or a
-    marked + - * or / whose two sides are native. An if or a loop is one statement and is never native. Compares
-    and anything computed from `argument` are not marked that far, so they stay on testOP.
+    marked + - * or / whose two sides are native. An if or a while is one statement and is native all or nothing
+    (step 4, below). Anything computed from `argument` is not marked that far, so it stays on testOP.
     The text for a native statement at list position p: at the top of the function, once, krFetch fetches the
     statement (%tp), its target (%tp_2), its right side (%tp_3) and, inside an operator, each side again (_2, _3) --
     by position with irAt, so no address is in the text. In the statement's block krValue leaves each node's value in
@@ -762,9 +762,44 @@ Native Statements (step 3b)
     `call ptr @irSetCount(ptr %tp_2, i32 %vtp_3)`: opAssign, so the cast, the guards and the notify are the engine's.
     What it hands back goes to %last, and the go-on check follows, as after a testOP statement.
 
+Native If And While (step 4, SEQ 675, Tony's ruling of 2026-11-17: the all-or-nothing cut)
+    An if or a while is native only when its condition is a compare the pass marked whose two sides are native
+    (krNatCond) and every statement in every arm or body is native (krNatStmt): a store as above, a block of native
+    statements, or another native if or while, to any depth. Anything else in it -- a print, a break, a call, a bare
+    field or a call as the condition -- leaves the WHOLE statement on testOP. A compare as a value (x = a < b) is not
+    native: krNatExpr takes only + - * /, because a false compare is nothing, not a count.
+    krShape tells the statements apart by their operator, never by listLengtH: a mark is an attribute and is counted
+    in the length (measured: a marked compare reads 4). 1 a two-operand instruct, 2 a block (seq, or bodySeq inside a
+    loop), 3 an if (ifThen), 4 a while (whileLoop). The built shapes are pinned in genLadder/kantCondT.m2.txt: an if
+    is [ifThen, opArms] with opArms = condition, then, else when present; an `or` arm is an if in the else slot; a
+    block is [seq, its statement list]; a while is [whileLoop, opArms] with opArms = condition, body.
+    Surely written. krSeen holds each local a store has written, its value the level it was written at: 1 the top
+    level, one more inside each if or while. krLeave, called when an arm or a body ends, sets the entries of that level
+    to 99, which reads as not written; krWrote brings a 99 entry back to life at the current level. So a native read
+    needs its local written by an earlier top-level store, or by an earlier store in the same block or an enclosing
+    one, and a store inside a block counts for nothing after the block ends. A statement that fails this is not
+    native, so its whole if or while is not.
+    The text. krFetch fetches a native if or while once, at the top of the function, by position: its list (%p_2) and
+    each member (%p_2_1 the condition, %p_2_2, %p_2_3), and so on down. krEmit writes it where the statement runs. A
+    condition is one line of the compare's own IR text, `%vp_2_1 = icmp slt i32 %vp_2_1_2, %vp_2_1_3`, feeding
+    `br i1`; a mixed compare widens its count side with the operator's irWIDE text first, as + - * do. The labels are
+    y (the then arm, or the loop body), x (the else arm, or the loop's end), z (after an if), w (a loop's condition),
+    n (after a store's go-on check), each followed by the statement's path. A store inside a block is step 3b's
+    store, then the go-on check, which leaves by %done as at the top level. No count is kept inside a native if or
+    while: <name>_n counts it as one statement, and <name>_t is not touched.
+    What it hands %last (measured, kantCondT M1): a store its target field; a block its own statement list; an if what
+    its arm handed back, or null when no arm ran; a while null.
+    The number compares say what the interpreter says (kantCondT ROW2): a nan difference counts as equal, so ==, <=
+    and >= are fcmp ueq, ule, uge and != is fcmp one; < and > are olt and ogt.
+    Speed, first measured SEQ 675 (genLadder/kantSpeed.sh): a native summing loop runs no faster than the interpreted
+    one. Every native store boxes its value into a new field for opAssign (irSetCount), and the collector is most of
+    the time (sampled). The frozen C++ walk, which keeps values out of the fields, is far faster.
+
 Current State -- WIP
     Settled: the walk (2c) and its skip; the pass marks and prints. testOP runs a marked chain as an unmarked one.
     Settled (3b): + - * and same-kind stores of top-level statements run natively, values staying in the fields.
     `=` carries its store as data, so the pass marks an = whose two sides have the same known kind.
     Settled (3c): a count mixed with a number, / on any pair, a store of the other kind, the notes toggle.
-    Not built: compares, the kind of `argument`, statements inside an if or a loop (step 4).
+    Settled (4): a compare as a condition, native if (else, elseif) and while, nested to any depth, all or nothing.
+    Not built: an if or a while with anything not native inside it (mixed bodies, a later step with its own design);
+    Do, FOr, ITERATe; a bare field or a call as a condition; the kind of `argument`; values kept out of the fields.
