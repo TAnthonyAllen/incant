@@ -1,0 +1,271 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(KantSlotT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kwRan code={
+        kjReq.name = string $"kw_" argument.taG "_ran"$;
+        kwGot = callIR(kjReq);
+        kjReq.name = string $"kw_" argument.taG "_tops"$;
+        kwTop = callIR(kjReq);
+        cerr "SL RAN" argument.taG kwGot "testOP" kwTop:;
+        };
+    slMarks code={
+        smB := argument.BlocK;
+        smS := *smB[2];
+        cerr "SL NATIVE" argument.taG;
+        iterate smC on *smS;
+        while ++smC;
+            smV = 0;
+            if *smC["KnaT"];    smV = 1;
+            cerr smV;
+        cerr ":";
+        };
+    slG;
+    slHalf code={ argument = 2.5; };
+    slSetBy code={ slBy.a = 9; };
+    slGrpBy code={ slGr.a = slG; };
+    slPeekM code={ print "slMid peek" slMid.x slMid.y:; };
+    slPeekB code={ print "slBy peek" slBy.a slBy.b slBy.c:; };
+    slPeekG code={ print "slGr peek" slGr.a slGr.b slGr.c:; };
+    slPeekR code={ print "slRef peek" slRef.i slRef.s:; };
+    slRd code={
+        s = 1;
+        if s > 0;
+            s = s + 10;
+            print "slRd in" s:;
+        t = s + 1;
+        print "slRd" s t:;
+        };
+    slPr code={
+        a = 2;
+        b = a * 3;
+        a = a + b;
+        print "slPr" a b:;
+        };
+    slRet code={
+        x = 4;
+        y = x * x;
+        return y;
+        };
+    slWid code={
+        x = 1.5;
+        x = 2;
+        y = x + 1;
+        print "slWid" x y:;
+        };
+    slNar code={
+        c = 1;
+        c = 2.5;
+        d = c + 1;
+        print "slNar" c d:;
+        };
+    slMix code={
+        a = 0;
+        i = 0;
+        s = 0;
+        while i < 4;
+            a = 7;
+            s = s + i;
+            i = i + 1;
+        slHalf(a);
+        print "slMix" s i a:;
+        };
+    slNest code={
+        i = 0;
+        s = 0;
+        while i < 4;
+            j = 0;
+            while j < i;
+                s = s + j * i;
+                j = j + 1;
+            i = i + 1;
+        print "slNest" s i j:;
+        };
+    slMid code={
+        x = 3;
+        y = x + 4;
+        x = x * 2;
+        slPeekM();
+        return y;
+        x = 100;
+        print "slMid never":;
+        };
+    slRef code={
+        i = 0;
+        s = 0;
+        while i < 3;
+            s = s + i;
+            i = i + 1;
+        slPeekR();
+        g = 1;
+        clear(g);
+        h = g + 1;
+        s = 50;
+        print "slRef never":;
+        };
+    slBy code={
+        a = 3;
+        b = a + 1;
+        slSetBy();
+        c = a + 1;
+        slPeekB();
+        };
+    slGr code={
+        a = 3;
+        b = a + 1;
+        slGrpBy();
+        c = a + 1;
+        slPeekG();
+        };
+    ;
+search KantSlotT;
+njNew(slRd);
+njNew(slPr);
+njNew(slRet);
+njNew(slWid);
+njNew(slNar);
+njNew(slMix);
+njNew(slNest);
+njNew(slMid);
+njNew(slRef);
+njNew(slBy);
+njNew(slGr);
+krResolve(slRd);
+krResolve(slPr);
+krResolve(slRet);
+krResolve(slWid);
+krResolve(slNar);
+krResolve(slMix);
+krResolve(slNest);
+krResolve(slMid);
+krResolve(slRef);
+krResolve(slBy);
+krResolve(slGr);
+kwCompile(slRd);
+kwCompile(slPr);
+kwCompile(slRet);
+kwCompile(slWid);
+kwCompile(slNar);
+kwCompile(slNest);
+kwCompile(slMid);
+kwCompile(slRef);
+kwCompile(slBy);
+kwCompile(slGr);
+kwCompile(slMix);
+cerr "SL TEXT BEGIN":;
+cerr $kjBuf$;
+cerr "SL TEXT END":;
+print "SL ROW1 a slot local read after a testOP statement changed it":;
+slRd();
+print "SL ROW2 printed after native stores":;
+slPr();
+print "SL ROW3 returned as the action's value":;
+print "slRet" slRet():;
+print "SL ROW4 a count into a number slot":;
+slWid();
+print "SL ROW5 the excluded narrowing local":;
+slNar();
+print "SL ROW6 a not-sure local and slot locals in one loop":;
+slMix();
+print "SL ROW7 nested loops":;
+slNest();
+print "SL ROW8 a return on testOP mid-function after native stores, the locals read by a callee just before":;
+print "slMid" slMid():;
+print "SL ROW9 a refusal on testOP after a native loop, the locals read by a callee just before":;
+slRef();
+print "SL ROW10 a callee writes a count by name into a slot local stored no more after":;
+slBy();
+print "SL ROW11 each called again":;
+slRd();
+slPr();
+print "slRet" slRet():;
+slWid();
+slNar();
+slMix();
+slNest();
+print "slMid" slMid():;
+slRef();
+slBy();
+print "SL END":;
+print "SL M5 a group by name into a slot local, under slots":;
+slGr();
+print "SL M5 END":;
+kwRan(slRd);
+kwRan(slPr);
+kwRan(slRet);
+kwRan(slWid);
+kwRan(slNar);
+kwRan(slMix);
+kwRan(slNest);
+kwRan(slMid);
+kwRan(slRef);
+kwRan(slBy);
+kwRan(slGr);
+slMarks(slRd);
+slMarks(slPr);
+slMarks(slRet);
+slMarks(slWid);
+slMarks(slNar);
+slMarks(slMix);
+slMarks(slNest);
+slMarks(slMid);
+slMarks(slRef);
+slMarks(slBy);
+slMarks(slGr);
+cerr "KANTSLOTT SENTINEL":;
+stop();
+
+kantSlotT -- SEQ 680 (Clay's dispatch of 2026-11-17, on Tony's rulings SEQ 677-679): the kant jitter's step 5, values out of the fields.
+A SLOT LOCAL is a local the resolve pass is sure of (a count or a number, its first writer a top-level statement) that no native
+store of a number into a count reaches anywhere; it lives in an alloca. A native read is a load and a native store a store, with
+the = operator's irWIDE text first when a count goes into a number slot; no go-on check after it, and its target field goes to
+%last. Before a testOP statement the slots stored natively since the last read are written back (a flag per slot says which);
+after it every slot is read again from its field; the normal end writes back and then irSeqEnd; a stop after a testOP statement
+leaves with no write-back. Each literal is read once, at the top of the function.
+pop.sh runs this file twice: as written, and with the top-level kwCompile( and kwRan( lines deleted (the twin, all interpreted).
+Stdout from SL ROW1 to SL END must be equal.
+    ROW1   slRd: an if that prints is on testOP and changes s; the native t = s + 1 after it reads 12, the reloaded slot.
+    ROW2   slPr: three native stores, then print reads the written-back fields.
+    ROW3   slRet: return y on testOP hands back 16.
+    ROW4   slWid: x is a number slot; x = 2 widens by ='s irWIDE (data, incant/setup) and stores 2.0.
+    ROW5   slNar: c = 2.5 is a native number into a count, so c is no slot and keeps step 4's text (it rounds to 3).
+    ROW6   slMix: a is handed to a call, so not sure and no slot; its stores stay field stores with their go-on checks,
+           beside the slots s and i in the same native loop.
+    ROW7   slNest: j's first writer is inside the loop, so j is no slot; i and s are.
+    ROW8   slMid: a callee reads x and y by name before the return: the write-back made them 6 and 7.
+    ROW9   slRef: a callee reads i and s by name after the native loop; then h = g + 1 refuses (g was cleared), on testOP,
+           and the action stops there (7 statements of 9). A refused NATIVE field store, as the dispatch asked, cannot be
+           built: opAssign of a boxed count or number never refuses, so the go-on check after a non-slot store is never
+           taken. A refusal inside a callee does not stop its caller (measured, both sides), so the refusal is slRef's own.
+    ROW10  slBy: a callee writes 9 into a by name; a is not stored after the read, so it is not written back: 9 4 10.
+    ROW11  each called again.
+    SL M5  FOUND, NOT RULED, pinned as read: a callee writes a group into the slot local a by name. a is not written back
+           (it was not stored after the read), so the group survives on both sides (slG); the native read of a after the
+           call still misreads, as sureKindT's M5 does (4 where the twin reads slG1).
+    A local read by name from the top level AFTER its action returns echoes its tag on both sides; the activation is over.
+    So every read of a local here is by a callee during the call.
+    SL RAN <action> <statements run> testOP <calls>; SL NATIVE <action> then 1 native / 0 testOP per top-level statement.
+    SL TEXT: slMix's compiled text, counted by pop.sh.
+Action names here avoid the jitter's own local names (jitterNameShadows).
