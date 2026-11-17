@@ -1,0 +1,596 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    kantJitter File='incant/kantJitter';
+    ;
+include(kantGrammar);
+include(kantJitter);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests KantJitter;
+registry(KantCondT);
+define
+    njReq owner source result rule;
+    njNew code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        if compileIn(njReq);
+            njBlock = njReq.result;
+            *njBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *njBlock;
+        };
+    kwRan code={
+        kjReq.name = string $"kw_" argument.taG "_ran"$;
+        kwGot = callIR(kjReq);
+        kjReq.name = string $"kw_" argument.taG "_tops"$;
+        kwTop = callIR(kjReq);
+        cerr "KC RAN" argument.taG kwGot "testOP" kwTop:;
+        };
+    kcMarks code={
+        cmB := argument.BlocK;
+        cmS := *cmB[2];
+        cerr "KC NATIVE" argument.taG;
+        iterate cmC on *cmS;
+        while ++cmC;
+            cmV = 0;
+            if *cmC["KnaT"];    cmV = 1;
+            cerr cmV;
+        cerr ":";
+        };
+    k1Dep=0;
+    k1Walk code={
+        k1Go = krInside(argument);
+        k1I := argument.instructTypE;
+        k1L := argument.listLengtH;
+        k1T := argument.taG;
+        k1Op = "-";
+        if *k1I == 1;
+            k1O := argument[1];
+            k1Op = string $*k1O.taG$;
+        if *k1I != 2;   cerr "M2" k1Dep k1T "len" k1L "op" k1Op:;
+        if k1Go == 0;   return 0;
+        ++k1Dep;
+        if *k1L > 0;
+            iterate k1C on argument;
+            while ++k1C;
+                k1Walk(*k1C);
+        --k1Dep;
+        return 0;
+        };
+    k1Show code={
+        cerr "M2 ACTION" argument.taG:;
+        k1B := argument.BlocK;
+        k1S := *k1B[2];
+        k1Dep = 0;
+        k1Walk(*k1S);
+        };
+    k1Last code={
+        k1B := argument.BlocK;
+        k1S := *k1B[2];
+        k1N := *k1S.listLengtH;
+        k1K = 0;
+        iterate k1C on *k1S;
+        while ++k1C;
+            ++k1K;
+            if k1K < *k1N;      testOP(*k1C);
+        k1St := *k1S[*k1N];
+        k1R := testOP(*k1St);
+        cerr "M1" argument.taG "its last statement hands back:";
+        addrOf(*k1R);
+        cerr "M1" argument.taG "its own statement list is:";
+        addrOf(*k1S);
+        };
+    cqccLt code={ a = 3; b = 5; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "3 with 5:" r0 r1 r2 r3 r4 r5:; };
+    cqccGt code={ a = 5; b = 3; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "5 with 3:" r0 r1 r2 r3 r4 r5:; };
+    cqccEq code={ a = 4; b = 4; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "4 with 4:" r0 r1 r2 r3 r4 r5:; };
+    cqnnLt code={ a = 1.5; b = 2.5; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "1.5 with 2.5:" r0 r1 r2 r3 r4 r5:; };
+    cqnnGt code={ a = 2.5; b = 1.5; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "2.5 with 1.5:" r0 r1 r2 r3 r4 r5:; };
+    cqnnEq code={ a = 2.5; b = 2.5; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "2.5 with 2.5:" r0 r1 r2 r3 r4 r5:; };
+    cqcnLt code={ a = 3; b = 3.5; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "3 with 3.5:" r0 r1 r2 r3 r4 r5:; };
+    cqcnGt code={ a = 4; b = 3.5; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "4 with 3.5:" r0 r1 r2 r3 r4 r5:; };
+    cqcnEq code={ a = 3; b = 3.0; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "3 with 3.0:" r0 r1 r2 r3 r4 r5:; };
+    cqncGt code={ a = 3.5; b = 3; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "3.5 with 3:" r0 r1 r2 r3 r4 r5:; };
+    cqncLt code={ a = 3.5; b = 4; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "3.5 with 4:" r0 r1 r2 r3 r4 r5:; };
+    cqncEq code={ a = 3.0; b = 3; r0 = 0; if a < b; r0 = 1; r1 = 0; if a <= b; r1 = 1; r2 = 0; if a > b; r2 = 1; r3 = 0; if a >= b; r3 = 1; r4 = 0; if a == b; r4 = 1; r5 = 0; if a != b; r5 = 1; print "3.0 with 3:" r0 r1 r2 r3 r4 r5:; };
+    mqfo code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if f < o; r0 = 1; r1 = 0; if f <= o; r1 = 1; r2 = 0; if f > o; r2 = 1; r3 = 0; if f >= o; r3 = 1; r4 = 0; if f == o; r4 = 1; r5 = 0; if f != o; r5 = 1; print "f with o:" r0 r1 r2 r3 r4 r5:; };
+    mqof code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if o < f; r0 = 1; r1 = 0; if o <= f; r1 = 1; r2 = 0; if o > f; r2 = 1; r3 = 0; if o >= f; r3 = 1; r4 = 0; if o == f; r4 = 1; r5 = 0; if o != f; r5 = 1; print "o with f:" r0 r1 r2 r3 r4 r5:; };
+    mqno code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if n < o; r0 = 1; r1 = 0; if n <= o; r1 = 1; r2 = 0; if n > o; r2 = 1; r3 = 0; if n >= o; r3 = 1; r4 = 0; if n == o; r4 = 1; r5 = 0; if n != o; r5 = 1; print "n with o:" r0 r1 r2 r3 r4 r5:; };
+    mqon code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if o < n; r0 = 1; r1 = 0; if o <= n; r1 = 1; r2 = 0; if o > n; r2 = 1; r3 = 0; if o >= n; r3 = 1; r4 = 0; if o == n; r4 = 1; r5 = 0; if o != n; r5 = 1; print "o with n:" r0 r1 r2 r3 r4 r5:; };
+    mqnn code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if n < n; r0 = 1; r1 = 0; if n <= n; r1 = 1; r2 = 0; if n > n; r2 = 1; r3 = 0; if n >= n; r3 = 1; r4 = 0; if n == n; r4 = 1; r5 = 0; if n != n; r5 = 1; print "n with n:" r0 r1 r2 r3 r4 r5:; };
+    mqnm code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if n < m; r0 = 1; r1 = 0; if n <= m; r1 = 1; r2 = 0; if n > m; r2 = 1; r3 = 0; if n >= m; r3 = 1; r4 = 0; if n == m; r4 = 1; r5 = 0; if n != m; r5 = 1; print "n with m:" r0 r1 r2 r3 r4 r5:; };
+    mqff code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if f < f; r0 = 1; r1 = 0; if f <= f; r1 = 1; r2 = 0; if f > f; r2 = 1; r3 = 0; if f >= f; r3 = 1; r4 = 0; if f == f; r4 = 1; r5 = 0; if f != f; r5 = 1; print "f with f:" r0 r1 r2 r3 r4 r5:; };
+    mqfg code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if f < g; r0 = 1; r1 = 0; if f <= g; r1 = 1; r2 = 0; if f > g; r2 = 1; r3 = 0; if f >= g; r3 = 1; r4 = 0; if f == g; r4 = 1; r5 = 0; if f != g; r5 = 1; print "f with g:" r0 r1 r2 r3 r4 r5:; };
+    mqnf code={ n = 0.0 / 0.0; m = 0.0 / 0.0; f = 1.0 / 0.0; g = 0.0 - f; o = 1.5; r0 = 0; if n < f; r0 = 1; r1 = 0; if n <= f; r1 = 1; r2 = 0; if n > f; r2 = 1; r3 = 0; if n >= f; r3 = 1; r4 = 0; if n == f; r4 = 1; r5 = 0; if n != f; r5 = 1; print "n with f:" r0 r1 r2 r3 r4 r5:; };
+    iqT code={ a = 3; r = 0; if a > 2; r = 1; print r:; };
+    iqF code={ a = 1; r = 0; if a > 2; r = 1; print r:; };
+    iqET code={ a = 3; if a > 2; r = 10; else r = 20; print r:; };
+    iqEF code={ a = 1; if a > 2; r = 10; else r = 20; print r:; };
+    iqO1 code={ a = 5; if a > 2; r = 10; or a > 0; r = 30; else r = 20; print r:; };
+    iqO2 code={ a = 1; if a > 2; r = 10; or a > 0; r = 30; else r = 20; print r:; };
+    iqO3 code={ a = 0 - 1; if a > 2; r = 10; or a > 0; r = 30; else r = 20; print r:; };
+    iqO4 code={ a = 0 - 1; r = 0; if a > 2; r = 10; or a > 0; r = 30; or a > 0 - 5; r = 40; print r:; };
+    iqB code={
+        a = 3;
+        b = 0;
+        c = 0;
+        if a > 2;
+            b = a + 1;
+            c = b * 2;
+        else
+            b = a - 1;
+            c = b * 3;
+        print b c:;
+        };
+    iqN code={
+        a = 3;
+        b = 2.5;
+        r = 0;
+        if a > 2;
+            if b < a;
+                if b * 2 == 5;
+                    r = 7;
+        print r:;
+        };
+    wq0 code={ i = 5; n = 0; while i < 3; i = i + 1; print i n:; };
+    wq1 code={ i = 2; while i < 3; i = i + 1; print i:; };
+    wqN code={
+        i = 0;
+        s = 0;
+        while i < 100;
+            s = s + i;
+            i = i + 1;
+        print i s:;
+        };
+    wqX code={
+        x = 0.5;
+        k = 0;
+        while x < 10;
+            x = x * 2;
+            k = k + 1;
+        print x k:;
+        };
+    wqM code={
+        i = 0;
+        t = 0.0;
+        while i < 2.5;
+            t = t + i / 2;
+            i = i + 1;
+        print i t:;
+        };
+    wqW code={
+        i = 0;
+        s = 0;
+        while i < 5;
+            j = 0;
+            while j < i;
+                s = s + j * i;
+                j = j + 1;
+            i = i + 1;
+        print i s:;
+        };
+    wqI code={
+        i = 0;
+        s = 0;
+        e = 0;
+        while i < 6;
+            if i > 2;
+                s = s + i;
+            else
+                e = e + 1;
+            i = i + 1;
+        print i s e:;
+        };
+    iqW code={
+        a = 3;
+        i = 0;
+        if a > 2;
+            while i < 4;
+                i = i + 1;
+        print i:;
+        };
+    fqP code={
+        i = 0;
+        while i < 3;
+            print i:;
+            i = i + 1;
+        print i:;
+        };
+    fqB code={
+        i = 0;
+        while i < 10;
+            i = i + 1;
+            if i == 3;
+                break;
+        print i:;
+        };
+    fqV code={ a = 3; b = 5; r = 0; x = a < b; if x; r = 1; print r:; };
+    fqR code={
+        c = 1;
+        if c > 0;
+            y = 5;
+        z = 0;
+        if c > 0;
+            z = y + 1;
+        print z:;
+        };
+    fqC code={
+        a = 3;
+        r = 0;
+        if a;
+            r = 1;
+        print r:;
+        };
+    hqT code={ qa = 3; if qa > 2; qa = 10; };
+    hqF code={ qa = 1; if qa > 2; qa = 10; };
+    hqET code={ qa = 3; if qa > 2; qa = 10; else qa = 20; };
+    hqEF code={ qa = 1; if qa > 2; qa = 10; else qa = 20; };
+    hqB code={
+        qa = 3;
+        if qa > 2;
+            qa = 10;
+            qb = 1;
+        };
+    hqEB code={
+        qa = 1;
+        if qa > 2;
+            qa = 10;
+            qb = 1;
+        else
+            qa = 20;
+            qb = 2;
+        };
+    hqO code={ qa = 1; if qa > 2; qa = 10; or qa > 0; qa = 30; else qa = 20; };
+    hqW0 code={ qi = 5; while qi < 3; qi = qi + 1; };
+    hqWN code={
+        qi = 0;
+        qs = 0;
+        while qi < 3;
+            qs = qs + qi;
+            qi = qi + 1;
+        };
+    ;
+search KantCondT;
+njNew(cqccLt);
+njNew(cqccGt);
+njNew(cqccEq);
+njNew(cqnnLt);
+njNew(cqnnGt);
+njNew(cqnnEq);
+njNew(cqcnLt);
+njNew(cqcnGt);
+njNew(cqcnEq);
+njNew(cqncGt);
+njNew(cqncLt);
+njNew(cqncEq);
+njNew(mqfo);
+njNew(mqof);
+njNew(mqno);
+njNew(mqon);
+njNew(mqnn);
+njNew(mqnm);
+njNew(mqff);
+njNew(mqfg);
+njNew(mqnf);
+njNew(iqT);
+njNew(iqF);
+njNew(iqET);
+njNew(iqEF);
+njNew(iqO1);
+njNew(iqO2);
+njNew(iqO3);
+njNew(iqO4);
+njNew(iqB);
+njNew(iqN);
+njNew(wq0);
+njNew(wq1);
+njNew(wqN);
+njNew(wqX);
+njNew(wqM);
+njNew(wqW);
+njNew(wqI);
+njNew(iqW);
+njNew(fqP);
+njNew(fqB);
+njNew(fqV);
+njNew(fqR);
+njNew(fqC);
+njNew(hqT);
+njNew(hqF);
+njNew(hqET);
+njNew(hqEF);
+njNew(hqB);
+njNew(hqEB);
+njNew(hqO);
+njNew(hqW0);
+njNew(hqWN);
+k1Last(hqT);
+k1Last(hqF);
+k1Last(hqET);
+k1Last(hqEF);
+k1Last(hqB);
+k1Last(hqEB);
+k1Last(hqO);
+k1Last(hqW0);
+k1Last(hqWN);
+k1Show(hqO);
+k1Show(hqEB);
+k1Show(hqWN);
+krResolve(cqccLt);
+krResolve(cqccGt);
+krResolve(cqccEq);
+krResolve(cqnnLt);
+krResolve(cqnnGt);
+krResolve(cqnnEq);
+krResolve(cqcnLt);
+krResolve(cqcnGt);
+krResolve(cqcnEq);
+krResolve(cqncGt);
+krResolve(cqncLt);
+krResolve(cqncEq);
+krResolve(mqfo);
+krResolve(mqof);
+krResolve(mqno);
+krResolve(mqon);
+krResolve(mqnn);
+krResolve(mqnm);
+krResolve(mqff);
+krResolve(mqfg);
+krResolve(mqnf);
+krResolve(iqT);
+krResolve(iqF);
+krResolve(iqET);
+krResolve(iqEF);
+krResolve(iqO1);
+krResolve(iqO2);
+krResolve(iqO3);
+krResolve(iqO4);
+krResolve(iqB);
+krResolve(iqN);
+krResolve(wq0);
+krResolve(wq1);
+krResolve(wqN);
+krResolve(wqX);
+krResolve(wqM);
+krResolve(wqW);
+krResolve(wqI);
+krResolve(iqW);
+krResolve(fqP);
+krResolve(fqB);
+krResolve(fqV);
+krResolve(fqR);
+krResolve(fqC);
+kwCompile(cqccLt);
+kwCompile(cqccGt);
+kwCompile(cqccEq);
+kwCompile(cqnnLt);
+kwCompile(cqnnGt);
+kwCompile(cqnnEq);
+kwCompile(cqcnLt);
+kwCompile(cqcnGt);
+kwCompile(cqcnEq);
+kwCompile(cqncGt);
+kwCompile(cqncLt);
+kwCompile(cqncEq);
+kwCompile(mqfo);
+kwCompile(mqof);
+kwCompile(mqno);
+kwCompile(mqon);
+kwCompile(mqnn);
+kwCompile(mqnm);
+kwCompile(mqff);
+kwCompile(mqfg);
+kwCompile(mqnf);
+kwCompile(iqT);
+kwCompile(iqF);
+kwCompile(iqET);
+kwCompile(iqEF);
+kwCompile(iqO1);
+kwCompile(iqO2);
+kwCompile(iqO3);
+kwCompile(iqO4);
+kwCompile(iqB);
+kwCompile(iqN);
+kwCompile(wq0);
+kwCompile(wq1);
+kwCompile(wqN);
+kwCompile(wqX);
+kwCompile(wqM);
+kwCompile(wqW);
+kwCompile(wqI);
+kwCompile(iqW);
+kwCompile(fqP);
+kwCompile(fqB);
+kwCompile(fqV);
+kwCompile(fqR);
+kwCompile(fqC);
+print "KC ROW1 the six compares (< <= > >= == !=), counts, numbers, mixed both ways":;
+cqccLt();
+cqccGt();
+cqccEq();
+cqnnLt();
+cqnnGt();
+cqnnEq();
+cqcnLt();
+cqcnGt();
+cqcnEq();
+cqncGt();
+cqncLt();
+cqncEq();
+print "KC ROW2 the six compares on nan (n, m), inf (f), -inf (g) and 1.5 (o)":;
+mqfo();
+mqof();
+mqno();
+mqon();
+mqnn();
+mqnm();
+mqff();
+mqfg();
+mqnf();
+print "KC ROW3 if, if-else, elseif, blocks, nested":;
+iqT();
+iqF();
+iqET();
+iqEF();
+iqO1();
+iqO2();
+iqO3();
+iqO4();
+iqB();
+iqN();
+print "KC ROW4 while: zero, one, many passes; numbers; mixed; a loop in a loop; an if in a loop; a loop in an if":;
+wq0();
+wq1();
+wqN();
+wqX();
+wqM();
+wqW();
+wqI();
+iqW();
+print "KC ROW5 called twice":;
+wqW();
+wqW();
+iqO2();
+iqO2();
+print "KC ROW6 the fall-backs":;
+fqP();
+fqB();
+fqV();
+fqR();
+fqC();
+print "KC END":;
+kwRan(cqccLt);
+kwRan(cqccGt);
+kwRan(cqccEq);
+kwRan(cqnnLt);
+kwRan(cqnnGt);
+kwRan(cqnnEq);
+kwRan(cqcnLt);
+kwRan(cqcnGt);
+kwRan(cqcnEq);
+kwRan(cqncGt);
+kwRan(cqncLt);
+kwRan(cqncEq);
+kwRan(mqfo);
+kwRan(mqof);
+kwRan(mqno);
+kwRan(mqon);
+kwRan(mqnn);
+kwRan(mqnm);
+kwRan(mqff);
+kwRan(mqfg);
+kwRan(mqnf);
+kwRan(iqT);
+kwRan(iqF);
+kwRan(iqET);
+kwRan(iqEF);
+kwRan(iqO1);
+kwRan(iqO2);
+kwRan(iqO3);
+kwRan(iqO4);
+kwRan(iqB);
+kwRan(iqN);
+kwRan(wq0);
+kwRan(wq1);
+kwRan(wqN);
+kwRan(wqX);
+kwRan(wqM);
+kwRan(wqW);
+kwRan(wqI);
+kwRan(iqW);
+kwRan(fqP);
+kwRan(fqB);
+kwRan(fqV);
+kwRan(fqR);
+kwRan(fqC);
+kcMarks(cqccLt);
+kcMarks(cqccGt);
+kcMarks(cqccEq);
+kcMarks(cqnnLt);
+kcMarks(cqnnGt);
+kcMarks(cqnnEq);
+kcMarks(cqcnLt);
+kcMarks(cqcnGt);
+kcMarks(cqcnEq);
+kcMarks(cqncGt);
+kcMarks(cqncLt);
+kcMarks(cqncEq);
+kcMarks(mqfo);
+kcMarks(mqof);
+kcMarks(mqno);
+kcMarks(mqon);
+kcMarks(mqnn);
+kcMarks(mqnm);
+kcMarks(mqff);
+kcMarks(mqfg);
+kcMarks(mqnf);
+kcMarks(iqT);
+kcMarks(iqF);
+kcMarks(iqET);
+kcMarks(iqEF);
+kcMarks(iqO1);
+kcMarks(iqO2);
+kcMarks(iqO3);
+kcMarks(iqO4);
+kcMarks(iqB);
+kcMarks(iqN);
+kcMarks(wq0);
+kcMarks(wq1);
+kcMarks(wqN);
+kcMarks(wqX);
+kcMarks(wqM);
+kcMarks(wqW);
+kcMarks(wqI);
+kcMarks(iqW);
+kcMarks(fqP);
+kcMarks(fqB);
+kcMarks(fqV);
+kcMarks(fqR);
+kcMarks(fqC);
+krShow(cqcnLt);
+krShow(cqncGt);
+kwCompile(wqW);
+cerr "KC TEXT BEGIN":;
+cerr $kjBuf$;
+cerr "KC TEXT END":;
+cerr "KANTCONDT SENTINEL":;
+stop();
+
+kantCondT -- SEQ 675 (Tony's ruling of 2026-11-17), the kant jitter's step 4: native compare, if and while, the all-or-nothing cut.
+An if or a while runs natively only when its condition is a compare the kind pass has marked and every statement in every
+arm or body is native: a store of step 3b's kind, or another native if or while, to any depth. Anything else in it sends
+the whole statement to testOP, as before. A compare used as a VALUE (x = a < b) is not native: false is nothing.
+pop.sh runs this file twice: as written, and with the top-level kwCompile( and kwRan( lines deleted (the twin, all
+interpreted). Stdout from KC ROW1 to KC END must be equal.
+
+    M1 (stderr, interpreted, pinned as read): what a statement hands back, read by running testOP on an action's last
+       statement after the ones before it. An if whose arm is one store hands back that store's target field (hqT, hqET,
+       hqEF, hqO); one whose arm is a block hands back the block's own statement list (hqB, hqEB), which is not the
+       action's list; an if that runs no arm hands back nothing (hqF); a while hands back nothing, after zero passes or
+       some (hqW0, hqWN). addrOf prints its own name for nothing. The native text hands %last the same things.
+    M2 (stderr, pinned in genLadder/kantCondT.m2.txt): how the build nests them. An if is an instruct, op ifThen, whose one
+       operand is the list opArms: condition, then-statement, else-statement when there is one. An `or` arm is the same
+       instruct sitting in the else slot (hqO). A block arm is an instruct, op seq (bodySeq inside a loop), whose operand
+       is its statement list (hqEB, hqWN). A while is op whileLoop with opArms: condition, body.
+    ROW1   the six compares < <= > >= == != as conditions, on two counts, two numbers, and a count with a number both ways.
+    ROW2   M3: the six compares where a side is nan or inf (step 3c's / makes them). Interpreted, a number compare is the
+           sign of the difference, and a difference that is nan counts as equal: so nan against anything, and inf against
+           inf, answer false true false true true false. The number spellings in incant/setup say the same (fcmp ueq, ule,
+           uge, one; olt and ogt as they were).
+    ROW3   if; if-else; elseif, each arm taken and none taken; block arms; an if in an if in an if with a mixed compare.
+    ROW4   while with zero, one and many passes; on numbers; a count against a number; a loop in a loop; an if-else in
+           a loop; a loop in an if.
+    ROW5   two actions called twice.
+    ROW6   the fall-backs, each still on testOP (KC NATIVE prints 1 or 0 per top-level statement):
+           fqP a print in the loop body; fqB a break in the body; fqV a compare as a value, and the bare field it is
+           tested by; fqR a local read in one if that only an earlier if wrote (the first if is native, the second is
+           not: a store inside a block counts for nothing after the block ends); fqC a bare field as the condition.
+    KC RAN <action> <statements run> testOP <calls>: the text's own counts, top-level statements only. A native if or
+           while is one statement and no testOP call; nothing is counted inside it.
+    KC TEXT: wqW's text (a loop in a loop), pinned in genLadder/kantCondT.wqW.ll. A go-on check follows every native store.
+Action names here avoid the jitter's own local names (kiT, kfP, kwN ...): a fixture action of the same name is found in
+their place and the run goes wrong in silence at exit 0 (met while this file was written).

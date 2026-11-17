@@ -105,7 +105,8 @@ pop.sh runs this file twice: as written, and with the top-level kwCompile( and k
 interpreted). Stdout from KN ROW1 to KN END must be equal.
     ROW1   nj4: three native statements and the print. KN RAN nj4 4 testOP 1 -- testOP was called only for the print.
     ROW2   nn, every operand a number: 4.75; KN RAN nn 4 testOP 1.
-    ROW3   nx: a written natively, read by the print (testOP); a written inside the if (testOP); a read natively by b = a + 1.
+    ROW3   nx: a written natively, read by the print (testOP); a written inside the if (testOP until step 4, SEQ 675; the
+           whole if is native since, so KN RAN nx reads 5 testOP 2); a read natively by b = a + 1.
     ROW5a  nt called twice; ROW5b nr calls itself, with native statements before and after the call: locals as the twin.
     ROW4   KN LISTEN: lsSrc has a listener. An interpreted = fires it once; irSetCount on the same field, called from a
            hand-written text, fires it once. The row is at the helper, not in a walked action: a native statement

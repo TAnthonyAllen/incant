@@ -72,8 +72,8 @@ KD * members 0 | mul i32 | fmul double
 KD / members 0 | none | fdiv double
 KD < members 0 | icmp slt i32 | fcmp olt double
 KD > members 0 | icmp sgt i32 | fcmp ogt double
-KD <= members 0 | icmp sle i32 | fcmp ole double
-KD >= members 0 | icmp sge i32 | fcmp oge double
-KD == members 0 | icmp eq i32 | fcmp oeq double
-KD != members 0 | icmp ne i32 | fcmp une double
+KD <= members 0 | icmp sle i32 | fcmp ule double
+KD >= members 0 | icmp sge i32 | fcmp uge double
+KD == members 0 | icmp eq i32 | fcmp ueq double
+KD != members 0 | icmp ne i32 | fcmp one double
 KD = members 0 | call ptr @irSetCount | call ptr @irSetNumber

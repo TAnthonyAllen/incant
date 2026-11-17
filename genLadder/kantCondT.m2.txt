@@ -1,0 +1,83 @@
+M2 ACTION hqO
+M2 0 blockStmts len 2 op -
+M2 1 instruct len 3 op =
+M2 2 qa len 0 op -
+M2 2 TOKEn len 0 op -
+M2 1 instruct len 2 op ifThen
+M2 2 ifThen len 0 op
+M2 2 opArms len 3 op -
+M2 3 instruct len 3 op >
+M2 4 qa len 0 op -
+M2 4 TOKEn len 0 op -
+M2 3 instruct len 3 op =
+M2 4 qa len 0 op -
+M2 4 TOKEn len 0 op -
+M2 3 instruct len 2 op ifThen
+M2 4 ifThen len 0 op
+M2 4 opArms len 3 op -
+M2 5 instruct len 3 op >
+M2 6 qa len 0 op -
+M2 6 TOKEn len 0 op -
+M2 5 instruct len 3 op =
+M2 6 qa len 0 op -
+M2 6 TOKEn len 0 op -
+M2 5 instruct len 3 op =
+M2 6 qa len 0 op -
+M2 6 TOKEn len 0 op -
+M2 ACTION hqEB
+M2 0 blockStmts len 2 op -
+M2 1 instruct len 3 op =
+M2 2 qa len 0 op -
+M2 2 TOKEn len 0 op -
+M2 1 instruct len 2 op ifThen
+M2 2 ifThen len 0 op
+M2 2 opArms len 3 op -
+M2 3 instruct len 3 op >
+M2 4 qa len 0 op -
+M2 4 TOKEn len 0 op -
+M2 3 instruct len 2 op seq
+M2 4 seq len 0 op
+M2 4 blockStmts len 2 op -
+M2 5 instruct len 3 op =
+M2 6 qa len 0 op -
+M2 6 TOKEn len 0 op -
+M2 5 instruct len 3 op =
+M2 6 qb len 0 op -
+M2 6 TOKEn len 0 op -
+M2 3 instruct len 2 op seq
+M2 4 seq len 0 op
+M2 4 blockStmts len 2 op -
+M2 5 instruct len 3 op =
+M2 6 qa len 0 op -
+M2 6 TOKEn len 0 op -
+M2 5 instruct len 3 op =
+M2 6 qb len 0 op -
+M2 6 TOKEn len 0 op -
+M2 ACTION hqWN
+M2 0 blockStmts len 3 op -
+M2 1 instruct len 3 op =
+M2 2 qi len 0 op -
+M2 2 TOKEn len 0 op -
+M2 1 instruct len 3 op =
+M2 2 qs len 0 op -
+M2 2 TOKEn len 0 op -
+M2 1 instruct len 2 op whileLoop
+M2 2 whileLoop len 1 op ownsBody
+M2 3 ownsBody len 0 op -
+M2 2 opArms len 2 op -
+M2 3 instruct len 3 op <
+M2 4 qi len 0 op -
+M2 4 TOKEn len 0 op -
+M2 3 instruct len 2 op bodySeq
+M2 4 bodySeq len 0 op
+M2 4 blockStmts len 2 op -
+M2 5 instruct len 3 op =
+M2 6 qs len 0 op -
+M2 6 instruct len 3 op +
+M2 7 qs len 0 op -
+M2 7 qi len 0 op -
+M2 5 instruct len 3 op =
+M2 6 qi len 0 op -
+M2 6 instruct len 3 op +
+M2 7 qi len 0 op -
+M2 7 TOKEn len 0 op -

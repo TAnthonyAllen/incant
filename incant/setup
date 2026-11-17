@@ -157,22 +157,22 @@ define
     runRule         unary ruleMethod=opRunRule;
     '?'    operateMethod=opNotBuilt;
     '>>'    operateMethod=opNotBuilt;
-    '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier  irCOUNT="icmp sge i32"  irNUMBER="fcmp oge double";
-    '>'     operateMethod=opGT  jitEmitter=jitEmitGT  compareTier  irCOUNT="icmp sgt i32"  irNUMBER="fcmp ogt double";
+    '>='    operateMethod=opGE  jitEmitter=jitEmitGE  compareTier  irCOUNT="icmp sge i32"  irNUMBER="fcmp uge double"  irWIDE="sitofp i32";
+    '>'     operateMethod=opGT  jitEmitter=jitEmitGT  compareTier  irCOUNT="icmp sgt i32"  irNUMBER="fcmp ogt double"  irWIDE="sitofp i32";
 
-    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ  compareTier  irCOUNT="icmp eq i32"  irNUMBER="fcmp oeq double";
+    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ  compareTier  irCOUNT="icmp eq i32"  irNUMBER="fcmp ueq double"  irWIDE="sitofp i32";
     '=['    operateMethod=opGet;
     '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
     '=<'    operateMethod=opGetProperty;
     '='     operateMethod=opAssign  assignTier  irCOUNT="call ptr @irSetCount"  irNUMBER="call ptr @irSetNumber";
 
-    '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier  irCOUNT="icmp sle i32"  irNUMBER="fcmp ole double";
+    '<='    operateMethod=opLE  jitEmitter=jitEmitLE  compareTier  irCOUNT="icmp sle i32"  irNUMBER="fcmp ule double"  irWIDE="sitofp i32";
     '<<'    operateMethod=opNotBuilt;
     '<:'    operateMethod=opSetTag  assignTier;
     // arrowRetired <- is RETIRED as an operator (Tony, SEQ 597): it did nothing := cannot. The entry stays as a tombstone because the two characters must still be read together -- with no entry `x <- y` reads as `x < -y`, a comparison, silently, and an entry outside this registry is not read as an operator (both measured). Its method refuses by name and says to write :=. The <- inside a for loop is grammar text, not this entry
     '<-'    operateMethod=opArrowRetired  assignTier;
-    '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier  irCOUNT="icmp slt i32"  irNUMBER="fcmp olt double";
+    '<'     operateMethod=opLT  jitEmitter=jitEmitLT  compareTier  irCOUNT="icmp slt i32"  irNUMBER="fcmp olt double"  irWIDE="sitofp i32";
 
     ':>'    operateMethod=opNotBuilt;
     ':='    operateMethod=opSetGroup  assignTier;
@@ -210,7 +210,7 @@ define
     '@'     unary ruleMethod=opLastREF;
     '&'    operateMethod=opNotBuilt;
     '%'     operateMethod=opRem;
-    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier  irCOUNT="icmp ne i32"  irNUMBER="fcmp une double";
+    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE  compareTier  irCOUNT="icmp ne i32"  irNUMBER="fcmp one double"  irWIDE="sitofp i32";
     '!'     unary ruleMethod=opNOT;
     ;
 /*******************************************************************************

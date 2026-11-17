@@ -8880,6 +8880,9 @@ _krF=$(ip kindResolveT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_krF" > "$T/kr.o" 2> "$T/kr.e"; _krx=$?
 grep '^KR \|^KD ' "$T/kr.e" | sed 's/ *$//' > "$T/kr.txt"
 _krm () { grep "^KR $1 " "$T/kr.txt" | grep -v ' marked ' | grep -v "^KR $1 = " | sed "s/^KR $1 //" | tr '\n' ';'; }
+#  RE-PINNED SEQ 675 (step 4): four KD lines moved and nothing else -- the number spellings of <= >= == != are now fcmp ule / uge / ueq /
+#  one (were ole / oge / oeq / une), because interpreted a nan difference counts as equal (M3, incant/pop/kantCondT ROW2). The six
+#  compares also gained irWIDE, which KD does not print; no KR line moved.
 _ofeq "kindResolveT every printed chain and the operators' data = the pinned text (genLadder/kindResolveT.kr.txt) (pinned / exit / sentinel / refusals)" "$(cmp -s "$T/kr.txt" genLadder/kindResolveT.kr.txt && echo pinned) x$_krx s$(grep -c '^KINDRESOLVET SENTINEL' "$T/kr.e") R$(grep -c 'REFUSED\|ERROR' "$T/kr.e")" "pinned x0 s1 R0"
 #  RE-PINNED SEQ 671 (step 3b): = now carries its store as data (irCOUNT / irNUMBER on its own line), so the pass marks an = whose two
 #  sides have the same known kind. The op rows below did not move; the "marked N" totals grew by each action's same-kind stores
@@ -8928,7 +8931,9 @@ _knWant="KN ROW1 nj4, + and * native |14 |KN ROW2 all number |4.75 |KN ROW3 nati
 _ofeq "kantNativeT twin (nothing compiled): rows 1 2 3 5 (stdout / exit / sentinel / compiles)" "$(_kjv "$T/knt.o" 'KN ROW1' 'KN END') x$_kntx s$(grep -c '^KANTNATIVET SENTINEL' "$T/knt.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/knt.e")" "$_knWant x0 s1 c0"
 _ofeq "kantNativeT native = the twin: rows 1 2 3 5 (stdout / exit / sentinel / compiles / refusals)" "$(_kjv "$T/kn.o" 'KN ROW1' 'KN END') x$_knx s$(grep -c '^KANTNATIVET SENTINEL' "$T/kn.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/kn.e") R$(grep -c '^REFUSED\|ERROR' "$T/kn.e")" "$_knWant x0 s1 c5 R0"
 _ofeq "kantNativeT rows 1 and 2: the native lines ran and testOP was called only for the print (statements run / testOP calls)" "$(grep '^KN RAN nj4 \|^KN RAN nn ' "$T/kn.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "nj4 4 1;nn 4 1;"
-_ofeq "kantNativeT rows 3 and 5: statements run / testOP calls (nx 5 / 3; nt twice 10 / 4; nr, called with 1, 14 / 8)" "$(grep '^KN RAN nx \|^KN RAN nt \|^KN RAN nr ' "$T/kn.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "nx 5 3;nt 10 4;nr 14 8;"
+#  RE-PINNED SEQ 675 (step 4): nx's `if a > 2; a = 10;` is a marked compare over one native store, so the whole if is native now and
+#  nx calls testOP for its two prints only (3 -> 2). nr's if holds a call and its d comes from `argument`: still testOP, unmoved.
+_ofeq "kantNativeT rows 3 and 5: statements run / testOP calls (nx 5 / 2; nt twice 10 / 4; nr, called with 1, 14 / 8)" "$(grep '^KN RAN nx \|^KN RAN nt \|^KN RAN nr ' "$T/kn.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "nx 5 2;nt 10 4;nr 14 8;"
 _ofeq "kantNativeT row 4: a native write notifies as the interpreted write does (interpreted fired / value; native fired / value)" "$(grep '^KN LISTEN ' "$T/kn.e" | awk '{printf "%s %s;", $(NF-2), $NF}')" "1 9;1 7;"
 sed -n '/^KN TEXT BEGIN/,/^KN TEXT END/p' "$T/kn.e"  | sed -e '1d' -e '$d' > "$T/kn.t1"
 sed -n '/^KN TEXT BEGIN/,/^KN TEXT END/p' "$T/kn2.e" | sed -e '1d' -e '$d' > "$T/kn.t2"
@@ -8956,6 +8961,36 @@ _ofeq "kantMixedT the one note, as printed" "$(grep '^JIT NOTE' "$T/km.e" | sed 
 sed -n '/^KM TEXT BEGIN/,/^KM TEXT END/p' "$T/km.e"  | sed -e '1d' -e '$d' > "$T/km.t1"
 sed -n '/^KM TEXT BEGIN/,/^KM TEXT END/p' "$T/km2.e" | sed -e '1d' -e '$d' > "$T/km.t2"
 _ofeq "kantMixedT nj5's native text is the pinned text (genLadder/kantMixedT.nj5.ll), two runs the same bytes; the widening is the operator's own text (pinned / same / sitofp lines)" "$(cmp -s "$T/km.t1" genLadder/kantMixedT.nj5.ll && echo pinned) $([ -s "$T/km.t1" ] && cmp -s "$T/km.t1" "$T/km.t2" && echo same) $(grep -c '= sitofp i32 %vt2_3_3 to double' "$T/km.t1")" "pinned same 1"
+
+#  ⚑ kantCondT -- SEQ 675 (Tony's ruling of 2026-11-17): THE KANT JITTER, STEP 4 -- native compare, if and while, all or nothing.
+#  An if or a while is written natively only when its condition is a compare the kind pass marked and every statement in every arm
+#  or body is native (a step-3b store, or another native if or while, to any depth); anything else in it leaves the whole statement
+#  on testOP. A compare as a value (x = a < b) is never native. Mixed compares are data: irWIDE on the six compare lines in
+#  incant/setup. The number spellings there follow M3 as measured: interpreted, a nan difference counts as equal, so == <= >= are
+#  fcmp ueq / ule / uge and != is fcmp one. Run twice: as written and with kwCompile( / kwRan( deleted (the twin).
+#  H7 (run SEQ 675, on the committed build): with == put back to fcmp oeq the native row goes red (mqno reads 0 1 0 1 0 0); with
+#  krLeave's kill line removed, fqR's second if is planned native and the fall-back row goes red.
+_k4F=$(ip kantCondT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_k4F" > "$T/k4.o" 2> "$T/k4.e"; _k4x=$?
+perl -e 'alarm 30; exec @ARGV' "$B" "$_k4F" > "$T/k42.o" 2> "$T/k42.e"
+sed '/^kwCompile(/d;/^kwRan(/d' "$_k4F" > "$T/k4.twin"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/k4.twin" > "$T/k4t.o" 2> "$T/k4t.e"; _k4tx=$?
+_k4Want="KC ROW1 the six compares (< <= > >= == !=), counts, numbers, mixed both ways |3 with 5: 1 1 0 0 0 1 |5 with 3: 0 0 1 1 0 1 |4 with 4: 0 1 0 1 1 0 |1.5 with 2.5: 1 1 0 0 0 1 |2.5 with 1.5: 0 0 1 1 0 1 |2.5 with 2.5: 0 1 0 1 1 0 |3 with 3.5: 1 1 0 0 0 1 |4 with 3.5: 0 0 1 1 0 1 |3 with 3.0: 0 1 0 1 1 0 |3.5 with 3: 0 0 1 1 0 1 |3.5 with 4: 1 1 0 0 0 1 |3.0 with 3: 0 1 0 1 1 0 |KC ROW2 the six compares on nan (n, m), inf (f), -inf (g) and 1.5 (o) |f with o: 0 0 1 1 0 1 |o with f: 1 1 0 0 0 1 |n with o: 0 1 0 1 1 0 |o with n: 0 1 0 1 1 0 |n with n: 0 1 0 1 1 0 |n with m: 0 1 0 1 1 0 |f with f: 0 1 0 1 1 0 |f with g: 0 0 1 1 0 1 |n with f: 0 1 0 1 1 0 |KC ROW3 if, if-else, elseif, blocks, nested |1 |0 |10 |20 |10 |30 |20 |40 |4 8 |7 |KC ROW4 while: zero, one, many passes; numbers; mixed; a loop in a loop; an if in a loop; a loop in an if |5 0 |3 |100 4950 |16 5 |3 1.25 |5 17772 |6 12 3 |4 |KC ROW5 called twice |5 17772 |5 17772 |30 |30 |KC ROW6 the fall-backs |0 |1 |2 |3 |3 |1 |6 |1 |KC END |"
+_ofeq "kantCondT twin (nothing compiled): rows 1-6 (stdout / exit / sentinel / compiles / refusals)" "$(_kjv "$T/k4t.o" 'KC ROW1' 'KC END') x$_k4tx s$(grep -c '^KANTCONDT SENTINEL' "$T/k4t.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/k4t.e") R$(grep -c '^REFUSED\|ERROR' "$T/k4t.e")" "$_k4Want x0 s1 c0 R0"
+_ofeq "kantCondT native = the twin: the compares, nan and inf, if / else / elseif, while, nested, the fall-backs (stdout / exit / sentinel / compiles / refusals)" "$(_kjv "$T/k4.o" 'KC ROW1' 'KC END') x$_k4x s$(grep -c '^KANTCONDT SENTINEL' "$T/k4.e") c$(grep -c '^=== compileIR: kw_.* COMPILED' "$T/k4.e") R$(grep -c '^REFUSED\|ERROR' "$T/k4.e")" "$_k4Want x0 s1 c44 R0"
+_k4n () { grep -o "KC NATIVE $1 [01 ]*" "$T/k4.e" | sed "s/KC NATIVE $1 //; s/ *$//"; }
+_ofeq "kantCondT rows 1 and 2: in all 21 compare actions every statement but the print is native (actions with testOP called once / with every if marked native)" "$(grep '^KC RAN [cm]q' "$T/k4.e" | awk '$6 == 1' | wc -l | tr -d ' ') $(grep -o 'KC NATIVE [cm]q[a-zA-Z]* [01 ]*' "$T/k4.e" | sed 's/ *$//' | grep -c '^KC NATIVE [a-zA-Z]*\( 1\)* 0$')" "21 21"
+_ofeq "kantCondT rows 3 and 4: each if and while is one native statement (statements run / testOP calls; iqO2 and wqW called three times)" "$(grep '^KC RAN [iw]q' "$T/k4.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "iqT 4 1;iqF 4 1;iqET 3 1;iqEF 3 1;iqO1 3 1;iqO2 9 3;iqO3 3 1;iqO4 4 1;iqB 5 1;iqN 5 1;wq0 4 1;wq1 3 1;wqN 4 1;wqX 4 1;wqM 4 1;wqW 12 3;wqI 5 1;iqW 4 1;"
+_ofeq "kantCondT row 6, the fall-backs stay on testOP, per top-level statement 1 native / 0 testOP: a print in the body, a break in the body, a compare as a value, a local only an earlier if wrote, a bare field as the condition" "$(_k4n fqP);$(_k4n fqB);$(_k4n fqV);$(_k4n fqR);$(_k4n fqC)" "1 0 0;1 0 0;1 1 1 0 0 0;1 1 1 0 0;1 1 0 0"
+_ofeq "kantCondT row 6: the fall-backs' own counts (statements run / testOP calls)" "$(grep '^KC RAN fq' "$T/k4.e" | awk '{printf "%s %s %s;", $3, $4, $6}')" "fqP 3 2;fqB 3 2;fqV 6 3;fqR 5 2;fqC 4 2;"
+_ofeq "kantCondT M1, interpreted: what the last statement hands back (an arm's store: its target; a block arm: a list; no arm run, and a while: nothing, which addrOf prints as its own name)" "$(grep '^M1 .*hands back' "$T/k4.e" | awk '{printf "%s %s;", $2, $9}')" "hqT qa;hqF addrOf;hqET qa;hqEF qa;hqB blockStmts;hqEB blockStmts;hqO qa;hqW0 addrOf;hqWN addrOf;"
+_ofeq "kantCondT M1: the list a block arm hands back is the block's own, not the action's (hqB, hqEB: fields differ)" "$(for _a in hqB hqEB; do [ "$(grep "^M1 $_a its last" "$T/k4.e" | grep -o 'field=#[0-9]*')" != "$(grep "^M1 $_a its own" "$T/k4.e" | grep -o 'field=#[0-9]*')" ] && printf 'differ '; done)" "differ differ "
+grep '^M2 ' "$T/k4.e" | sed 's/ *$//' > "$T/k4.m2"
+_ofeq "kantCondT M2: the built shapes = the pinned text (genLadder/kantCondT.m2.txt); an or arm is an ifThen instruct in the else slot (ifThen instructs in hqO)" "$(cmp -s "$T/k4.m2" genLadder/kantCondT.m2.txt && echo pinned) $(sed -n '/^M2 ACTION hqO/,/^M2 ACTION hqEB/p' "$T/k4.m2" | grep -c 'instruct len 2 op ifThen')" "pinned 2"
+_ofeq "kantCondT a count against a number is marked by data, the count side widening (cqcnLt's < and <=, cqncGt's > and >=)" "$(grep '^KR cqcnLt <\|^KR cqncGt >' "$T/k4.e" | sed 's/ *$//; s/^KR //' | tr '\n' ';')" "cqcnLt < a b -> irNUMBER = fcmp olt double widening 2;cqcnLt <= a b -> irNUMBER = fcmp ule double widening 2;cqncGt > a b -> irNUMBER = fcmp ogt double widening 3;cqncGt >= a b -> irNUMBER = fcmp uge double widening 3;"
+sed -n '/^KC TEXT BEGIN/,/^KC TEXT END/p' "$T/k4.e"  | sed -e '1d' -e '$d' > "$T/k4.t1"
+sed -n '/^KC TEXT BEGIN/,/^KC TEXT END/p' "$T/k42.e" | sed -e '1d' -e '$d' > "$T/k4.t2"
+_ofeq "kantCondT wqW's native text is the pinned text (genLadder/kantCondT.wqW.ll), two runs the same bytes, no address; a go-on check follows every native store and the one testOP call, 6 + 1 (pinned / same / addresses / stores / go-on checks / testOP calls / compares)" "$(cmp -s "$T/k4.t1" genLadder/kantCondT.wqW.ll && echo pinned) $([ -s "$T/k4.t1" ] && cmp -s "$T/k4.t1" "$T/k4.t2" && echo same) $(grep -c '0x\|inttoptr' "$T/k4.t1") $(grep -c 'call ptr @irSet' "$T/k4.t1") $(grep -c 'call i32 @irGoOn()' "$T/k4.t1") $(grep -c 'call ptr @testOP(' "$T/k4.t1") $(grep -c '= icmp slt i32 %vt' "$T/k4.t1")" "pinned same 0 6 7 1 2"
 
 #  ⚑ emptyCallT -- SEQ 673 (Tony's ruling of 2026-11-16, F-161): ON THE NEW ROAD f() IS A CALL WITH NO ARGUMENT, as on the old.
 #  kantGrammar's INVOKEd takes `EXPRESSIOn?` inside the parentheses (it took `EXPRESSIOn`); INVOKEr builds the call instruct with
