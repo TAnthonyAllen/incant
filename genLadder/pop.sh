@@ -8999,7 +8999,7 @@ _ofeq "kantCondT wqW's native text is the pinned text (genLadder/kantCondT.wqW.l
 #  side's kind is unknown, or the right operand of any assigning operator but = (a call's argument, a := source, +% and its kin).
 #  Run twice: as written and with kwCompile( / kwRan( deleted (the twin). M5 is FOUND, NOT RULED, pinned as read on each side.
 #  H7 (run SEQ 678, on the committed file): with the krUnsure loop taken out of krResolve the native row goes red (sqClr 1,
-#  sqNew 2, sqGrp 5 ...) and the testOP row reads the old native marks.
+#  sqNew 2, sqGrp 4, and so by a callee and through a holder; no refusal) and sqClr's marks read 1 0 1 0, the old native read.
 _skF=$(ip sureKindT)
 perl -e 'alarm 30; exec @ARGV' "$B" "$_skF" > "$T/sk.o" 2> "$T/sk.e"; _skx=$?
 sed '/^kwCompile(/d;/^kwRan(/d' "$_skF" > "$T/sk.twin"
