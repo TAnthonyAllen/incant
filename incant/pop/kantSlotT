@@ -53,6 +53,38 @@ define
     slToNC code={ slKNC.a = 4; };
     slToNCC code={ clear(slKNCC.a); slKNCC.a = 4; };
     slToCS code={ clear(slKCS.a); slKCS.a = "xy"; };
+    slToL code={ slLp.a = slG; };
+    slToI code={ slIf.a = slG; };
+    slToEs code={ slEs.a = "xy"; };
+    slToEg code={ slEg.a = slG; };
+    slLp code={
+        a = 3;
+        i = 0;
+        while i < 2;
+            slToL();
+            i = i + 1;
+        c = a + 1;
+        print "slLp group from a loop body" c i:;
+        };
+    slIf code={
+        a = 3;
+        if a > 0;
+            slToI();
+        c = a + 1;
+        print "slIf group from an if body" c:;
+        };
+    slEs code={
+        slToEs();
+        a = 3;
+        b = a + 1;
+        print "slEs empty, then a string, then a = 3" b a:;
+        };
+    slEg code={
+        slToEg();
+        a = 3;
+        b = a + 1;
+        print "slEg empty, then a group, then a = 3" b a:;
+        };
     slKS code={ a = 3; b = a + 1; slToS(); c = a + 1; print "slKS count <- string" c a:; };
     slKN code={ a = 3; b = a + 1; slToN(); c = a + 1; print "slKN count <- number" c a:; };
     slKCN code={ a = 3; b = a + 1; slToCN(); c = a + 1; print "slKCN count <- clear, number" c a:; };
@@ -167,6 +199,10 @@ njNew(slRef);
 njNew(slBy);
 njNew(slGr);
 njNew(slKCS);
+njNew(slLp);
+njNew(slIf);
+njNew(slEs);
+njNew(slEg);
 njNew(slKNCC);
 njNew(slKNC);
 njNew(slKC);
@@ -185,6 +221,10 @@ krResolve(slRef);
 krResolve(slBy);
 krResolve(slGr);
 krResolve(slKCS);
+krResolve(slLp);
+krResolve(slIf);
+krResolve(slEs);
+krResolve(slEg);
 krResolve(slKNCC);
 krResolve(slKNC);
 krResolve(slKC);
@@ -202,6 +242,10 @@ kwCompile(slRef);
 kwCompile(slBy);
 kwCompile(slGr);
 kwCompile(slKCS);
+kwCompile(slLp);
+kwCompile(slIf);
+kwCompile(slEs);
+kwCompile(slEg);
 kwCompile(slKNCC);
 kwCompile(slKNC);
 kwCompile(slKC);
@@ -260,6 +304,15 @@ slKC();
 slKNC();
 slKNCC();
 slKCS();
+print "SL ROW13 the riders: the change from a call inside a loop body and an if body; the excused local given a value first":;
+slLp();
+slIf();
+slEs();
+slEg();
+slLp();
+slIf();
+slEs();
+slEg();
 print "SL END":;
 kwRan(slRd);
 kwRan(slPr);
@@ -273,6 +326,10 @@ kwRan(slRef);
 kwRan(slBy);
 kwRan(slGr);
 kwRan(slKCS);
+kwRan(slLp);
+kwRan(slIf);
+kwRan(slEs);
+kwRan(slEg);
 kwRan(slKNCC);
 kwRan(slKNC);
 kwRan(slKC);
@@ -291,6 +348,10 @@ slMarks(slRef);
 slMarks(slBy);
 slMarks(slGr);
 slMarks(slKCS);
+slMarks(slLp);
+slMarks(slIf);
+slMarks(slEs);
+slMarks(slEg);
 slMarks(slKNCC);
 slMarks(slKNC);
 slMarks(slKC);
@@ -332,6 +393,11 @@ Stdout from SL ROW1 to SL END must be equal.
            (clear, then a number or a string), slKNCC (a number slot cleared, then a count). slKS, slKN and slKNC keep their
            kind: = by name casts into the kind the field has (SEQ 347), so they stay native. Each twice.
            A slot no top-level store has surely written yet may read no data at a reload without a mismatch.
+    ROW13  SEQ 683, the riders. slLp and slIf: the callee that changes a to a group is called inside a loop body and an if
+           body. A loop or an if holding a call is not native (all or nothing, step 4), so each is ONE testOP statement, and
+           the reload after it is checked like any other; there is no reload inside a native loop. slEs and slEg: a has no
+           top-level store when the callee gives it a string or a group; the reload after the call excuses only NO DATA, so
+           both mismatch, and the rest (a = 3, kept in a's new kind by the cast rule, then b = a + 1) runs interpreted.
     A local read by name from the top level AFTER its action returns echoes its tag on both sides; the activation is over.
     So every read of a local here is by a callee during the call.
     SL RAN <action> <statements run> testOP <calls>; SL NATIVE <action> then 1 native / 0 testOP per top-level statement.
