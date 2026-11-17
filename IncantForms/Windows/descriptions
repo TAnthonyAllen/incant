@@ -40,7 +40,7 @@ define
                 second across font:=normalFont
                     saber image="/Users/anthony/Pictures/Saber.jpg" border fill:=paleGray;
                     trees image="/Users/anthony/Pictures/BetweenTrees.jpg" border fill:=paleGray;
-                describeHelp describe="This is the default text description when nothing is selected" border font:=normalFont fill:=lightGreen;
+                describeHelp describe="This is the default text description when nothing is selected" border font:=normalFont fill:=lightGreen height=20%;
     ;
 bail();
 

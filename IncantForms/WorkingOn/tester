@@ -3,12 +3,32 @@
     under development so it changes when there is a new feature in the works.
 *****************************************************************************/
 Start();
-
-registry(TESTing);
+include(unitTests);
+include(utilities);
+registry(fILEs);
 define
-    nothingYet;
+    firstLightFile File='IncantForms/Windows/firstLight';
     ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+/*****************************************************************************
+    I made a couple of cosmetice changes to the firstLight and definition forms
+    to get them looking more right.
+    
+    Looking ahead to when we have new users (I am thinking to bring in family
+    to act as new users so that may happen soon as it is practical).
+
+	The lines above are setting things up stuff. The work happens in the following
+    show command. Would be nice if we could say Start(); then show(); and have
+    the setting up driven in the show command. Would also be nice if we fired
+    skim on output.pdf after running show. We turned that off because tester was
+    being run a lot and output.pdf kept popping up on me when I did not run it.
+    However, new users will expect show() to show something.
+*****************************************************************************/
+show(firstLight);
 print "SENTINEL tester driver end":;
 stop();
 
-// Everything that was below the stop was moved to IncantForms/WorkingOn/stash
+// Everything else that was below the stop was moved to IncantForms/WorkingOn/stash
