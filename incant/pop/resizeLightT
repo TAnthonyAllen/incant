@@ -26,7 +26,7 @@ define
     pdfRead path="IncantForms/PDF/test.pdf";
     rgRuns = 0;
     rgBig x=300 y=450 width=600 height=600;
-    rgSmall x=300 y=450 width=400 height=400;
+    rgSmall x=300 y=450 width=500 height=600;
     ;
 search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
@@ -38,17 +38,17 @@ define
         redrawForm(rgReq);
         };
     rgSmallPts code={
-        rgX = 300; rgY = 15;  rgRead(pdfRead);
+        rgX = 450; rgY = 15;  rgRead(pdfRead);
         rgX = 5;   rgY = 100; rgRead(pdfRead);
-        rgX = 100; rgY = 180; rgRead(pdfRead);
-        rgX = 390; rgY = 190; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
         };
     rgBigPts code={
         rgX = 450; rgY = 15;  rgRead(pdfRead);
         rgX = 5;   rgY = 150; rgRead(pdfRead);
-        rgX = 100; rgY = 280; rgRead(pdfRead);
-        rgX = 590; rgY = 290; rgRead(pdfRead);
-        rgX = 390; rgY = 190; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 590; rgY = 230; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
         };
     ;
 cerr "RG-1 before: a fresh run, as declared: runs" rgRuns:;
@@ -95,3 +95,9 @@ listeners once, after all four values have arrived. Before the cure RG-2 read ru
 RE-PINNED 2026-11-13 (G2 stroke 1b): firstLight holds the descriptions form in its lower half (inside, height=50%) and is declared
 400x400, so the two frames are 400x400 and 600x600 (they were 400x200 and 600x300). heading, words, bar and ok keep the frames
 they had at both sizes, so every point and line count above reads as it did; only the page sizes in the rows changed.
+
+RE-AIMED SEQ 684 (Tony's settled edit, 2026-11-17: firstLight 500x600, inside 60%): the declared frame is 500x600, so the small frame,
+the one resized back to, is 500x600 too (RG-4 must read as RG-1, RG-5 as declared). Both sizes are 600 high now, so bar and ok
+sit at y 205..239 at either size and only x moves: the points are heading (450,15), words (5,100) or (5,150), space (100,220), ok
+(490,230) at 500 and (590,230) at 600; where ok was at 500, (490,230), reads space's WALL at 600 (it read words' white when the
+resize also changed the height).

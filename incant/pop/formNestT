@@ -69,9 +69,9 @@ cerr "NF chain left" sfChain.listLengtH:;
 cout "NF PAGE light":;
 npGo(npLightReq);
 readPDF(pdfRead);
-npX = 300; npY = 15; npAt(pdfRead);
-npX = 10; npY = 210; npAt(pdfRead);
-npX = 390; npY = 190; npAt(pdfRead);
+npX = 450; npY = 15; npAt(pdfRead);
+npX = 10; npY = 250; npAt(pdfRead);
+npX = 490; npY = 230; npAt(pdfRead);
 cout "NF PAGE end":;
 cerr "NESTT SENTINEL":;
 stop();
@@ -89,6 +89,6 @@ NF-3  TWO FIELDS, ONE FORM: npLeft and npRight both hold descriptions; each gets
 NF-4  A FORM THAT HOLDS ITSELF is refused by name at layout and its field is left empty: npIn is rewritten to hold npSelf
       (a := in a define cannot name its own form: the name is not defined yet, and the define refuses it). The page is
       still drawn (npSelf's wall at (10,10)), and the list of forms being laid out is empty afterwards.
-NF-5  firstLight holds descriptions in its lower half: heading's wall at (300,15), the held form's lightGreen heading
-      field at (10,210), ok's green at (390,190).
+NF-5  firstLight holds descriptions in its lower half: heading's wall at (450,15), the held form's lightGreen heading
+      field at (10,250), ok's green at (490,230) (re-aimed SEQ 684: firstLight 500x600, inside 60%).
 H7: with placeForm's call removed from frameMembers, NF-1, NF-3 and NF-5 go red.

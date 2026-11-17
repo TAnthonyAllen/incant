@@ -50,14 +50,14 @@ fpY = 29;
 fpAt(*laid["heading"]);
 fpY = 100;
 fpAt(*laid["words"]);
-fpY = 166;
+fpY = 206;
 fpAt(*laid["bar"]);
 pixelAt(*laid);
 cerr "FP-2 words inside its frame, page (5,100), want white":;
 pixelAt(*laid["words"]);
 cerr "FP-3 above words, page (5,29), want wall":;
 pixelAt(*laid["heading"]);
-cerr "FP-4 below words, page (5,166), want wall":;
+cerr "FP-4 below words, page (5,206), want wall":;
 pixelAt(*laid["bar"]);
 define
     fpFlipReq form:=fpFlip;

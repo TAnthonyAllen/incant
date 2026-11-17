@@ -154,7 +154,10 @@ _ofeq "fillPageT exit / sentinel" "$_fpx $(grep -c '^FILLPAGE SENTINEL' "$T/fp.e
 fdRow "fillPageT FP-1 firstLight at (300,450) paints wall at its own top-left, page (5,5)" "$(_fpp firstLight)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
 fdRow "fillPageT FP-2 a child, words, paints white inside its frame, page (5,100)" "$(_fpp words)" "" "r255 g255 b255 a255/"
 fdRow "fillPageT FP-3 just above words, page (5,29), reads wall: the child's fill stays inside" "$(_fpp heading)" "" "r247 g232 b170 a255/"
-fdRow "fillPageT FP-4 just below words, page (5,166), reads wall" "$(_fpp bar)" "" "r247 g232 b170 a255/"
+#  RE-AIM SEQ 684 (Tony's settled forms, 2026-11-17): firstLight is 500x600 with inside 60%, so words ends at y=204 (was 164),
+#  bar spans y 205..239 (was 165..199) and ok x 440..499 (was 340..399). Rows below that read firstLight's frames are re-aimed by
+#  those offsets; the question each asks and its intended value are unchanged unless the row says so.
+fdRow "fillPageT FP-4 just below words, page (5,206), reads wall" "$(_fpp bar)" "" "r247 g232 b170 a255/"
 fdRow "fillPageT FP-5 the flip: the band at the top of the form paints the top of the bitmap, page (5,2)" "$(_fpp fpBand)" "" "r175 g211 b120 a255/"
 fdRow "fillPageT FP-6 the flip's pair: the bottom of the form reads wall, page (5,97)" "$(_fpp fpRest)" "" "r247 g232 b170 a255/"
 #  FP-7 (SEQ ___ R0 rider 2): the display is handed down as a property (+<), so the form's definition is unchanged: a child's list length before and after makeDisplay.
@@ -177,25 +180,27 @@ _ofeq "drawWalkT exit / sentinel" "$_dwx $(grep -c '^DRAWWALK SENTINEL' "$T/dw.e
 #  with both in incant/setup the display opens and reads empty until drawWalk exists. Intended values unchanged.
 #  RE-AIM (SEQ 582, forms step 5, 2026-11-09): text now draws in heading and ok, over (5,15) and (360,180). These rows ask about FILL, so the point
 #  moves off the text, to (300,15) and (390,190), where the same fill shows; pinned values unchanged.
-fdRow "drawWalkT DW-1 heading has no fill: the top's wall shows, page (300,15)" "$(_dwp heading)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
+fdRow "drawWalkT DW-1 heading has no fill: the top's wall shows, page (450,15)" "$(_dwp heading)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
 fdRow "drawWalkT DW-2 words, depth 1, white, page (5,100)" "$(_dwp words)" "r0 g0 b0 a0/" "r255 g255 b255 a255/"
-fdRow "drawWalkT DW-3 space, depth 2, no fill: wall, page (100,180)" "$(_dwp space)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
-fdRow "drawWalkT DW-4 ok, depth 2, lightGreen, page (390,190)" "$(_dwp ok)" "r0 g0 b0 a0/" "r175 g211 b120 a255/"
+fdRow "drawWalkT DW-3 space, depth 2, no fill: wall, page (100,220)" "$(_dwp space)" "r0 g0 b0 a0/" "r247 g232 b170 a255/"
+fdRow "drawWalkT DW-4 ok, depth 2, lightGreen, page (490,230)" "$(_dwp ok)" "r0 g0 b0 a0/" "r175 g211 b120 a255/"
 #  forms step 2 R2 (2026-11-08): the right way up, each side of an edge; a flipped child lands 5 points off and fails a pair
 #  BORDERS REGISTERED (forms step 3, before the build): DW-5 and DW-6 move with the border by design -- (5,29) is heading's bottom row,
 #  (399,199) and (341,165) lie on ok's edges. Width sits inside the frame (Tony), so nothing outside a field's frame is painted.
 #  SEQ 583 (heading 43, colour in firstLight), REGISTERED BEFORE THE FORM CHANGE: DW-5, DW-8, DW-9 (both), PD-3, PD-4 re-aimed to heading's new
 #  bottom edge y=42 (they keep asking about heading's border and words' top); DW-6, DW-7, PD-2 move as ok's border turns red (strokeColor:=red).
-fdRow "drawWalkT DW-5 words' edges (5,42) (5,44) (5,164) (5,166): heading's bottomBorder, white, white, wall" "$(_dwpr words 2 5)" "r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/"
-fdRow "drawWalkT DW-6 ok's edges (339,190) (341,190) (399,199) (341,165) (341,164); (399,199) and (341,165) are ok's border, red" "$(_dwpr ok 2 6)" "r247 g232 b170 a255/r175 g211 b120 a255/r0 g0 b0 a255/r0 g0 b0 a255/r255 g255 b255 a255/" "r247 g232 b170 a255/r175 g211 b120 a255/r239 g43 b45 a255/r239 g43 b45 a255/r255 g255 b255 a255/"
+fdRow "drawWalkT DW-5 words' edges (5,42) (5,44) (5,204) (5,206): heading's bottomBorder, white, white, wall" "$(_dwpr words 2 5)" "r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/r255 g255 b255 a255/r247 g232 b170 a255/"
+fdRow "drawWalkT DW-6 ok's edges (439,230) (441,230) (499,239) (441,205) (441,204); (499,239) and (441,205) are ok's border, red" "$(_dwpr ok 2 6)" "r247 g232 b170 a255/r175 g211 b120 a255/r0 g0 b0 a255/r0 g0 b0 a255/r255 g255 b255 a255/" "r247 g232 b170 a255/r175 g211 b120 a255/r239 g43 b45 a255/r239 g43 b45 a255/r255 g255 b255 a255/"
 _dwcnt () { grep -h '^=== pixelAt '"$1"' ' "$T/dw.o" "$T/dw.e" 2>/dev/null | sed -n "$2,$3p" | grep -c "$4"; }
-fdRow "drawWalkT DW-7 ok's plain border, inside / outside: left (340,180) (339,180), top (360,165) (360,164), right (399,180) (398,180), bottom (360,199) (360,198); inside red" "$(_dwpr ok 7 14)" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/r0 g0 b0 a255/r175 g211 b120 a255/r0 g0 b0 a255/r175 g211 b120 a255/" "r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/r239 g43 b45 a255/r175 g211 b120 a255/r239 g43 b45 a255/r175 g211 b120 a255/"
+fdRow "drawWalkT DW-7 ok's plain border, inside / outside: left (440,220) (439,220), top (460,205) (460,204), right (499,220) (498,220), bottom (460,239) (460,238); inside red" "$(_dwpr ok 7 14)" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/r0 g0 b0 a255/r175 g211 b120 a255/r0 g0 b0 a255/r175 g211 b120 a255/" "r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/r239 g43 b45 a255/r175 g211 b120 a255/r239 g43 b45 a255/r175 g211 b120 a255/"
 fdRow "drawWalkT DW-8 heading's bottomBorder: inside (5,42) black, outside (5,43) white" "$(_dwpr heading 2 3)" "r255 g255 b255 a255/r255 g255 b255 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/"
-fdRow "drawWalkT DW-9 heading's other three sides unpainted: pixels not wall / pixels read (top row, left and right columns y 0..41)" "$(_dwcnt heading 4 487 'r247 g232 b170 a255' | awk '{print 484-$1}')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '4,487p' | wc -l | tr -d ' ')" "26/484" "0/484"
-fdRow "drawWalkT DW-9 heading's bottom row painted: black pixels / pixels read (y=42, x 0..399)" "$(_dwcnt heading 488 887 'r0 g0 b0 a255')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '488,887p' | wc -l | tr -d ' ')" "27/400" "400/400"
+#  DW-9 RE-AIMED SEQ 684 though it stayed green: its right column and its rows stopped at x=399, inside a heading 500 wide, so the
+#  row no longer read heading's right side. Now x 0..499 and x=499: 500 + 42 + 42 = 584 pixels, then 500 on the bottom row.
+fdRow "drawWalkT DW-9 heading's other three sides unpainted: pixels not wall / pixels read (top row, left and right columns y 0..41)" "$(_dwcnt heading 4 587 'r247 g232 b170 a255' | awk '{print 584-$1}')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '4,587p' | wc -l | tr -d ' ')" "26/584" "0/584"
+fdRow "drawWalkT DW-9 heading's bottom row painted: black pixels / pixels read (y=42, x 0..499)" "$(_dwcnt heading 588 1087 'r0 g0 b0 a255')/$(grep -h '^=== pixelAt heading ' "$T/dw.o" | sed -n '588,1087p' | wc -l | tr -d ' ')" "27/500" "500/500"
 fdRow "drawWalkT DW-10 width 3, own strokeColor=blue: left (0..3,10), top (10,0..3) -- three painted, the fourth not" "$(_dwpr dwThick 1 8)" "r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/r255 g255 b255 a255/" "r0 g81 b186 a255/r0 g81 b186 a255/r0 g81 b186 a255/r255 g255 b255 a255/r0 g81 b186 a255/r0 g81 b186 a255/r0 g81 b186 a255/r255 g255 b255 a255/"
 fdRow "drawWalkT DW-11 colour from the style (dwSt strokeColor red): (0,5) painted, (1,5) not" "$(_dwpr dwStyled 1 2)" "r255 g255 b255 a255/r255 g255 b255 a255/" "r239 g43 b45 a255/r255 g255 b255 a255/"
-_ofeq "drawWalkT DW-12 x past the width refuses by name, and no pixel line for it (ok's reads stay 14)" "$(grep -c '^pixelAt: ok (400,180) OUT OF RANGE' "$T/dw.e") $(grep -h '^=== pixelAt ok ' "$T/dw.o" | wc -l | tr -d ' ')" "1 14"
+_ofeq "drawWalkT DW-12 x past the width refuses by name, and no pixel line for it (ok's reads stay 14)" "$(grep -c '^pixelAt: ok (500,220) OUT OF RANGE' "$T/dw.e") $(grep -h '^=== pixelAt ok ' "$T/dw.o" | wc -l | tr -d ' ')" "1 14"
 fdRow "drawWalkT a field with no fill is skipped, not refused: refusals during the walk, beside words' pixel (anti-vacuity)" "$(sed -n '/^DW walk begins/,/^DW walk ends/p' "$T/dw.e" | grep -c 'REFUS') $(_dwp words)" "0 r0 g0 b0 a0/" "0 r255 g255 b255 a255/"
 
 echo "-- the text: forms step 5."
@@ -240,7 +245,7 @@ _txFlush () { if [ "$1" = none ] || [ "$2" = none ]; then echo none
 _txOrient () { if [ "$1" -eq 0 ] && [ "$2" -eq 0 ]; then echo none; elif [ "$1" -gt "$2" ]; then echo upright; elif [ "$1" -lt "$2" ]; then echo flipped; else echo level; fi; }
 #  _txClasses <file> <tag>: the six firstLight classes -- heading, words line 1, words line 2, no indent, orientation, ok
 _txClasses () {
-    echo "$(_txInk $(_txs "$1" "$2" 4 203 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 55 55 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 70 70 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 49 58 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 64 73 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 49 51 "$_txWhite" count) $(_txs "$1" "$2" 3 12 55 57 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 342 397 180 180 "$_txGreen" count))"
+    echo "$(_txInk $(_txs "$1" "$2" 4 495 18 18 "$_txWall" count)) $(_txInk $(_txs "$1" "$2" 4 203 55 55 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 4 203 70 70 "$_txWhite" count)) $(_txFlush $(_txs "$1" "$2" 0 29 49 58 "$_txWhite" minx) $(_txs "$1" "$2" 0 29 64 73 "$_txWhite" minx)) $(_txOrient $(_txs "$1" "$2" 3 12 49 51 "$_txWhite" count) $(_txs "$1" "$2" 3 12 55 57 "$_txWhite" count)) $(_txInk $(_txs "$1" "$2" 442 497 220 220 "$_txGreen" count))"
 }
 #  _txTrace <tag> <field>: a field of drawSpans's line for that field (font / color / lines / next)
 _txTrace () { grep -h "^=== drawSpans $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | head -1 | sed "s/^=== drawSpans $1 //; s/ ===\$//" | awk -v want="$2" '
@@ -248,7 +253,7 @@ _txTrace () { grep -h "^=== drawSpans $1 " "$T/tx.o" "$T/tx.e" 2>/dev/null | hea
       if ($i == "lines") l = $(i+1); if ($i == "next") nx = $(i+1) } }
     END { if (want == "font") print f; else if (want == "color") print c; else if (want == "lines") print l " " nx }'; }
 _ofeq "textT exit / sentinel" "$_txx $(grep -c '^TEXTT SENTINEL' "$T/tx.e")" "0 1"
-fdRow "textT TX-1 heading's text inks its line: y=18, x 4..203, not wall" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 18 18 "$_txWall" count))" "none" "ink"
+fdRow "textT TX-1 heading's text inks its line: y=18, x 4..495, not wall" "$(_txInk $(_txs "$T/tx.o" firstLight 4 495 18 18 "$_txWall" count))" "none" "ink"
 fdRow "textT TX-2 words' first line inks: y=55, x 4..203, not white" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 55 55 "$_txWhite" count))" "ink" "ink"
 fdRow "textT TX-3 WRAP: words' second line inks: y=70, x 4..203" "$(_txInk $(_txs "$T/tx.o" firstLight 4 203 70 70 "$_txWhite" count))" "ink" "ink"
 fdRow "textT TX-4 WRAP, no indent: first ink of line 1 (y 49..58) and line 2 (y 64..73) at the same x, within 2, at most 7" "$(_txFlush $(_txs "$T/tx.o" firstLight 0 29 49 58 "$_txWhite" minx) $(_txs "$T/tx.o" firstLight 0 29 64 73 "$_txWhite" minx))" "flush" "flush"
@@ -256,7 +261,7 @@ fdRow "textT TX-5 ORIENTATION: the T of This, bar rows y 49..51 outweigh stem ro
 #  RE-AIM (SEQ 605, step 5b): ok is centred top to bottom, so its letters sit about 6 lower. TX-6, TX-K3 and the ok point of _txClasses ask
 #  about ink and colour, not position, so their row moves from y=176 to y=180, inside the letters at the top and at the centre alike; pinned
 #  values unchanged. firstPdfT reads y=180 from its PD-9 band.
-fdRow "textT TX-6 ok's text inks: y=180, x 342..397, not lightGreen" "$(_txInk $(_txs "$T/tx.o" firstLight 342 397 180 180 "$_txGreen" count))" "none" "ink"
+fdRow "textT TX-6 ok's text inks: y=220, x 442..497, not lightGreen" "$(_txInk $(_txs "$T/tx.o" firstLight 442 497 220 220 "$_txGreen" count))" "none" "ink"
 fdRow "textT TX-7 tOver's second line inks: y=37, x 14..125" "$(_txInk $(_txs "$T/tx.o" tForm 14 125 37 37 "$_txBlue" count))" "none" "ink"
 fdRow "textT TX-8 a line that does not fit is not drawn: below tOver's second line, y 46..49, x 14..125, clean (pair: TX-7)" "$(_txClean $(_txs "$T/tx.o" tForm 14 125 46 49 "$_txBlue" count))" "clean" "clean"
 fdRow "textT TX-9 SPACE-CLIP: tOver's second line ends inside the inset, last ink x at most 125 (y 31..44, x 100..129)" "$(_m=$(_txs "$T/tx.o" tForm 100 129 31 44 "$_txBlue" maxx); [ "$_m" = none ] && echo none || { [ "$_m" -le 125 ] && echo inside || echo "past $_m"; })" "none" "inside"
@@ -268,9 +273,9 @@ fdRow "textT TX-C0 tPlain names no color, nor does anything above it: black (SEQ
 fdRow "textT TX-F0 tPlain names no font, nor does anything above it: Helvetica 12 (R1)" "$(_txTrace tPlain font)" "Helvetica 12 0" "Helvetica 12 0"
 fdRow "textT TX-C1 words inherits firstLight's color:=blue" "$(_txTrace words color)" "r0 g0 b0" "r0 g81 b186"
 fdRow "textT TX-C4 heading's own color:=green wins over firstLight's blue" "$(_txTrace heading color)" "r0 g0 b0" "r0 g158 b15"
-fdRow "textT TX-K1 heading's ink is green: its darkest ink pixel's strongest channel (y=18, x 4..203)" "$(_txHue "$T/tx.o" firstLight 4 203 18 18 "$_txWall")" "none" "g"
+fdRow "textT TX-K1 heading's ink is green: its darkest ink pixel's strongest channel (y=18, x 4..495)" "$(_txHue "$T/tx.o" firstLight 4 495 18 18 "$_txWall")" "none" "g"
 fdRow "textT TX-K2 words' ink is blue, inherited (y=55, x 4..203)" "$(_txHue "$T/tx.o" firstLight 4 203 55 55 "$_txWhite")" "k" "b"
-fdRow "textT TX-K3 ok's ink is blue, inherited through bar (y=180, x 342..397)" "$(_txHue "$T/tx.o" firstLight 342 397 180 180 "$_txGreen")" "k" "b"
+fdRow "textT TX-K3 ok's ink is blue, inherited through bar (y=220, x 442..497)" "$(_txHue "$T/tx.o" firstLight 442 497 220 220 "$_txGreen")" "k" "b"
 fdRow "textT TX-C2 tOver's own color:=blue (pair: TX-C1)" "$(_txTrace tOver color)" "" "r0 g81 b186"
 fdRow "textT TX-C3 tLong inherits tForm's color:=red" "$(_txTrace tLong color)" "" "r239 g43 b45"
 fdRow "textT TX-ST tStyled takes font and color from its style tsStyle (titleFont, green)" "$(_txTrace tStyled font) $(_txTrace tStyled color)" " " "Palatino 24 1 r0 g158 b15"
@@ -292,11 +297,16 @@ _txCentre () { _l=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" minx); _r=$(_txs "$1" "$2" $
 _txEdge () { _r=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" maxx); if [ "$_r" = none ]; then echo none; elif [ $_r -ge $(( $8 - 2 )) ] && [ $_r -le $8 ]; then echo edge; else echo short; fi; }
 #  _txLeft <file> <tag> <box> <bg> <frame left>: the first ink at most 6 px in
 _txLeft () { _l=$(_txs "$1" "$2" $3 $4 $5 $6 "$7" minx); if [ "$_l" = none ]; then echo none; elif [ $_l -le $(( $8 + 6 )) ]; then echo left; else echo "in $(( _l - $8 ))"; fi; }
-#  _alClasses <file> <tag>: heading centred, words line 1, line 2, line 3 (justify: edge edge short)
-_alClasses () { echo "$(_txCentre "$1" "$2" 0 399 10 28 "$_txWall" 0 399) $(_txEdge "$1" "$2" 300 399 49 60 "$_txWhite" 395) $(_txEdge "$1" "$2" 300 399 64 75 "$_txWhite" 395) $(_txEdge "$1" "$2" 0 399 80 90 "$_txWhite" 395)"; }
-fdRow "textT AL-1 CENTER: heading's ink centred in its frame (x 0..399, y 10..28)" "$(_txCentre "$T/tx.o" firstLight 0 399 10 28 "$_txWall" 0 399)" "off 4 282" "centred"
-fdRow "textT AL-2 CENTER: ok's ink centred in its frame (x 340..399; scanned 342..397, y 168..196)" "$(_txCentre "$T/tx.o" firstLight 342 397 168 196 "$_txGreen" 340 399)" "off 4 34" "centred"
-fdRow "textT AL-3 JUSTIFY: words' lines 1 and 2 end at x 395 (396 less a pixel), line 3, the last, does not" "$(_txEdge "$T/tx.o" firstLight 300 399 49 60 "$_txWhite" 395) $(_txEdge "$T/tx.o" firstLight 300 399 64 75 "$_txWhite" 395) $(_txEdge "$T/tx.o" firstLight 0 399 80 90 "$_txWhite" 395)" "short short short" "edge edge short"
+#  _alClasses <file> <tag>: heading centred, words line 1, line 2, paragraph 2's line (justify, SEQ 684: edge short short -- at 500 wide
+#  paragraph 1 is two lines, so line 2 is its last and stops short)
+_alClasses () { echo "$(_txCentre "$1" "$2" 0 499 10 28 "$_txWall" 0 499) $(_txEdge "$1" "$2" 400 499 49 60 "$_txWhite" 495) $(_txEdge "$1" "$2" 400 499 64 75 "$_txWhite" 495) $(_txEdge "$1" "$2" 0 499 93 108 "$_txWhite" 495)"; }
+fdRow "textT AL-1 CENTER: heading's ink centred in its frame (x 0..499, y 10..28)" "$(_txCentre "$T/tx.o" firstLight 0 499 10 28 "$_txWall" 0 499)" "off 4 282" "centred"
+#  AL-2, TX-6, VA-1 RE-AIMED SEQ 684 though they stayed green: their boxes (x 342..397) now lie on words' white, which is not ok's
+#  lightGreen background, so a full-width box of "ink" read as centred. Moved to ok's frame, x 440..499, y 205..239.
+fdRow "textT AL-2 CENTER: ok's ink centred in its frame (x 440..499; scanned 442..497, y 208..236)" "$(_txCentre "$T/tx.o" firstLight 442 497 208 236 "$_txGreen" 440 499)" "off 4 34" "centred"
+#  AL-3 RE-AIMED SEQ 684, AND ITS EXPECTED SHAPE MOVES WITH THE WIDTH: at 500 wide paragraph 1 wraps in two lines, not three, so the
+#  justified line is line 1 only; line 2 is the paragraph's last and stops short, as does paragraph 2's one line. Edge 495 = 500 - 4 - 1.
+fdRow "textT AL-3 JUSTIFY: words' line 1 ends at x 495 (496 less a pixel); line 2, paragraph 1's last, does not; nor paragraph 2's line" "$(_txEdge "$T/tx.o" firstLight 400 499 49 60 "$_txWhite" 495) $(_txEdge "$T/tx.o" firstLight 400 499 64 75 "$_txWhite" 495) $(_txEdge "$T/tx.o" firstLight 0 499 93 108 "$_txWhite" 495)" "short short short" "edge short short"
 fdRow "textT AL-4 RIGHT: tRight's last ink at its frame edge less the inset, x 185 (190 - 4, less a pixel)" "$(_txEdge "$T/tx.o" tForm 140 189 64 85 "$_txBlue" 185)" "short" "edge"
 fdRow "textT AL-5 LEFT: tOver, no align, draws as before -- first ink within 6 of x 10" "$(_txLeft "$T/tx.o" tForm 10 40 15 28 "$_txBlue" 10)" "left" "left"
 fdRow "textT AL-6 INHERIT: tKid (no align) centred under tCenterTop; tKidL (style align=left) left; tBad (align=leftl) left" "$(_txCentre "$T/tx.o" tCenterTop 0 119 5 26 "$_txWhite" 0 119) $(_txLeft "$T/tx.o" tCenterTop 0 119 35 56 "$_txWhite" 0) $(_txLeft "$T/tx.o" tCenterTop 0 119 65 86 "$_txWhite" 0)" "off 4 99 left left" "centred left left"
@@ -331,7 +341,7 @@ _tyBottom () { _b=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" maxy); if [ "$_b" = none ]; 
 #  _tyTop <file> <tag> <box> <bg> <frame top>: the first ink at most 6 px down
 _tyTop () { _t=$(_tys "$1" "$2" $3 $4 $5 $6 "$7" miny); if [ "$_t" = none ]; then echo none; elif [ $_t -le $(( $8 + 6 )) ]; then echo top; else echo "down $(( _t - $8 ))"; fi; }
 _vaOf () { grep -h "^=== drawSpans $1 " "$T/tx.o" | head -1 | sed -n 's/.* valign \([a-z]*\) align [a-z]* ===$/\1/p'; }
-fdRow "textT VA-1 CENTER: ok's ink centred top to bottom in its frame (y 165..199; scanned inside the border, 167..197, x 342..397)" "$(_tyCentre "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" 165 199)" "off 5 18" "centred"
+fdRow "textT VA-1 CENTER: ok's ink centred top to bottom in its frame (y 205..239; scanned inside the border, 207..237, x 442..497)" "$(_tyCentre "$T/tx.o" firstLight 442 497 207 237 "$_txGreen" 205 239)" "off 5 18" "centred"
 fdRow "textT VA-2 CENTER: tVOwn (its own valign=center) centred in its frame (y 60..119)" "$(_tyCentre "$T/tx.o" tVTop 0 59 60 119 "$_txWhite" 60 119)" "off 4 43" "centred"
 fdRow "textT VA-3 BOTTOM: tVBot's last ink at its frame's bottom less the inset (y 55); tVTwo's three lines end at y 115, the first starts below the middle" "$(_tyBottom "$T/tx.o" tVTop 60 119 0 59 "$_txWhite" 55) $(_tyBottom "$T/tx.o" tVTop 240 299 0 119 "$_txWhite" 115) $([ "$(_tys "$T/tx.o" tVTop 240 299 0 119 "$_txWhite" miny)" -ge 60 ] && echo low || echo high)" "short 16 short 40 high" "bottom bottom low"
 fdRow "textT VA-4 INHERIT: tVKid (no valign) centred under tVTop's valign=center; tVSty (style valign=top) at the top" "$(_tyCentre "$T/tx.o" tVTop 0 59 0 59 "$_txWhite" 0 59) $(_tyTop "$T/tx.o" tVTop 120 179 0 59 "$_txWhite" 0)" "off 4 43 top" "centred top"
@@ -356,24 +366,25 @@ _pdp () { grep -h '^=== pixelAt pdfRead ' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed 
 _ofeq "firstPdfT exit / sentinel" "$_pdx $(grep -c '^FIRSTPDF SENTINEL' "$T/pd.e")" "0 1"
 fdRow "firstPdfT the file exists and begins %PDF" "$([ -s "$_pdO" ] && head -c 4 "$_pdO" || echo none)" "none" "%PDF"
 #  RE-PINNED 2026-11-13 (G2 stroke 1b): firstLight is 400x400, its lower half holding the descriptions form.
-fdRow "firstPdfT readPDF: one page, firstLight's frame (400 x 400 points)" "$(grep '^=== readPDF pdfRead' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed 's/.*pdfRead //; s/ ===.*//')" "" "pages 1 size 400x400"
+#  RE-PINNED SEQ 684: firstLight is 500x600 (Tony's settled edit); PD-1, PD-2, PD-4 re-aimed by the same offsets as drawWalkT.
+fdRow "firstPdfT readPDF: one page, firstLight's frame (500 x 600 points)" "$(grep '^=== readPDF pdfRead' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed 's/.*pdfRead //; s/ ===.*//')" "" "pages 1 size 500x600"
 #  RE-AIM (SEQ 582, forms step 5, 2026-11-09): text now draws in heading and ok, over (5,15) and (360,180). These rows ask about FILL, so the point
 #  moves off the text, to (300,15) and (390,190), where the same fill shows; pinned values unchanged.
-fdRow "firstPdfT PD-1 read back: heading (300,15) wall, words (5,100) white, space (100,180) wall, ok (390,190) lightGreen" "$(_pdp 1 4)" "" "r247 g232 b170 a255/r255 g255 b255 a255/r247 g232 b170 a255/r175 g211 b120 a255/"
-fdRow "firstPdfT PD-2 read back: ok's border left (340,180) red / (339,180) wall, top (360,165) red / (360,164) white" "$(_pdp 5 8)" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/" "r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/"
+fdRow "firstPdfT PD-1 read back: heading (450,15) wall, words (5,100) white, space (100,220) wall, ok (490,230) lightGreen" "$(_pdp 1 4)" "" "r247 g232 b170 a255/r255 g255 b255 a255/r247 g232 b170 a255/r175 g211 b120 a255/"
+fdRow "firstPdfT PD-2 read back: ok's border left (440,220) red / (439,220) wall, top (460,205) red / (460,204) white" "$(_pdp 5 8)" "r0 g0 b0 a255/r247 g232 b170 a255/r0 g0 b0 a255/r255 g255 b255 a255/" "r239 g43 b45 a255/r247 g232 b170 a255/r239 g43 b45 a255/r255 g255 b255 a255/"
 fdRow "firstPdfT PD-3 read back: heading's bottom line (5,42) black, (5,43) white" "$(_pdp 9 10)" "r255 g255 b255 a255/r255 g255 b255 a255/" "r0 g0 b0 a255/r255 g255 b255 a255/"
-fdRow "firstPdfT PD-4 read back, the right way up: (5,44) white, (5,166) wall" "$(_pdp 11 12)" "r255 g255 b255 a255/r247 g232 b170 a255/" "r255 g255 b255 a255/r247 g232 b170 a255/"
+fdRow "firstPdfT PD-4 read back, the right way up: (5,44) white, (5,206) wall" "$(_pdp 11 12)" "r255 g255 b255 a255/r247 g232 b170 a255/" "r255 g255 b255 a255/r247 g232 b170 a255/"
 #  PD-5 RE-PINNED (SEQ 583): its words scans moved 13 down with heading, so today (heading 30) the shifted scans read line 2 and words's edge;
 #  intended unchanged.
 #  PD-5 (forms step 5, SEQ 582): the text read back at textT's firstLight points, classified as textT's bitmap is; the PDF agrees with the bitmap.
 fdRow "firstPdfT PD-5 the text read back: heading, words line 1, line 2, no indent, orientation, ok" "$(_txClasses "$T/pd.o" pdfRead)" "none ink ink flush flipped ink" "ink ink ink flush upright ink"
 _ofeq "firstPdfT PD-6 the PDF agrees with the bitmap on the same points (textT's classes)" "$(_txClasses "$T/pd.o" pdfRead)" "$(_txClasses "$T/tx.o" firstLight)"
 #  PD-7 / PD-8 (step 5a, SEQ 584): heading centred and words justified, read back from the PDF at textT's AL points; the PDF agrees with the bitmap.
-fdRow "firstPdfT PD-7 the read-back: heading centred, words lines 1 and 2 at the edge, line 3 short" "$(_alClasses "$T/pd.o" pdfRead)" "off 4 282 short short short" "centred edge edge short"
+fdRow "firstPdfT PD-7 the read-back: heading centred, words line 1 at the edge, line 2 and paragraph 2's line short (SEQ 684, as AL-3)" "$(_alClasses "$T/pd.o" pdfRead)" "off 4 282 short short short" "centred edge short short"
 _ofeq "firstPdfT PD-8 the PDF agrees with the bitmap on the centre and justify points" "$(_alClasses "$T/pd.o" pdfRead)" "$(_alClasses "$T/tx.o" firstLight)"
 #  PD-9 / PD-10 (step 5b, SEQ 605): ok centred top to bottom, read back from the PDF inside ok's border; the PDF agrees with the bitmap.
-fdRow "firstPdfT PD-9 the read-back: ok's ink centred top to bottom in its frame" "$(_tyCentre "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" 165 199)" "off 5 18" "centred"
-_ofeq "firstPdfT PD-10 the PDF agrees with the bitmap on ok's first and last ink rows, within 1" "$(_p=$(( $(_tys "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" miny) - $(_tys "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" miny) )); _q=$(( $(_tys "$T/pd.o" pdfRead 342 397 167 197 "$_txGreen" maxy) - $(_tys "$T/tx.o" firstLight 342 397 167 197 "$_txGreen" maxy) )); [ ${_p#-} -le 1 ] && [ ${_q#-} -le 1 ] && echo agree || echo "differ $_p $_q")" "agree"
+fdRow "firstPdfT PD-9 the read-back: ok's ink centred top to bottom in its frame" "$(_tyCentre "$T/pd.o" pdfRead 442 497 207 237 "$_txGreen" 205 239)" "off 5 18" "centred"
+_ofeq "firstPdfT PD-10 the PDF agrees with the bitmap on ok's first and last ink rows, within 1" "$(_p=$(( $(_tys "$T/pd.o" pdfRead 442 497 207 237 "$_txGreen" miny) - $(_tys "$T/tx.o" firstLight 442 497 207 237 "$_txGreen" miny) )); _q=$(( $(_tys "$T/pd.o" pdfRead 442 497 207 237 "$_txGreen" maxy) - $(_tys "$T/tx.o" firstLight 442 497 207 237 "$_txGreen" maxy) )); [ ${_p#-} -le 1 ] && [ ${_q#-} -le 1 ] && echo agree || echo "differ $_p $_q")" "agree"
 
 echo "-- the descriptions form: forms step 8, baby steps."
 #  ⚑ descT -- the descriptions form (Tony, 2026-11-10, SEQ 607): IncantForms/Windows/descriptions is a whole incantation, so the run file is
@@ -387,12 +398,14 @@ _dep () { grep -h "^=== pixelAt descriptions ($1) " "$T/de.o" | head -1 | sed 's
 _deFr () { grep -h "^[[:space:]]*$1=" "$T/de.o" | tail -1 | awk '{ for (i = 1; i <= NF; i++) { split($i, kv, "="); gsub(/;/, "", kv[2]); if (kv[1] == "width") w = kv[2]; if (kv[1] == "height") h = kv[2]; if (kv[1] == "x") x = kv[2]; if (kv[1] == "y") y = kv[2] } } END { print w "x" h " at " x "," y }'; }
 _det () { grep -h "^=== drawSpans $1 " "$T/de.o" | head -1 | sed "s/^=== drawSpans $1 //; s/ lines .* next [a-z]*//; s/ ===\$//"; }
 _ofeq "descT exit / sentinel" "$_dex $(grep -c '^DESCT SENTINEL' "$T/de.e")" "0 1"
-fdRow "descT DE-1 ACROSS: saber and trees side by side, each half of second (flex is gone, across is written)" "$(_deFr saber) / $(_deFr trees)" "500x138 at 500,250 / 500x137 at 500,388" "250x275 at 500,250 / 250x275 at 750,250"
+#  RE-PINNED SEQ 684 (Tony's settled edit: describeHelp height=20%): describeHelp is 120 high, y 480..599, so second (and saber and
+#  trees beside each other in it) is 430 high, not 275. DE-4's describeHelp-top point and DE-10's moved with it, (100,325) -> (100,480).
+fdRow "descT DE-1 ACROSS: saber and trees side by side, each half of second (flex is gone, across is written)" "$(_deFr saber) / $(_deFr trees)" "500x138 at 500,250 / 500x137 at 500,388" "250x430 at 500,250 / 250x430 at 750,250"
 fdRow "descT DE-2 the heading's text: titleFont, white, centred both ways (font:= color:= align valign)" "$(_det describeHead)" "font Helvetica 12 0 color r0 g0 b0 valign top align left" "font Palatino 24 1 color r255 g255 b255 valign center align center"
 #  RE-AIM (SEQ 609): saber's and trees' points sit under their images once images draw, so DE-3 keeps the two fills nothing covers; pinned at
 #  the values those two points read already. The image fields' points are DE-9's.
 fdRow "descT DE-3 FILLS (fill:=): first lightGreen (10,10), describeHelp lightGreen (100,550)" "$(_dep 10,10)/$(_dep 100,550)" "r175 g211 b120 a255/r175 g211 b120 a255" "r175 g211 b120 a255/r175 g211 b120 a255"
-fdRow "descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' left (250,300), describeHelp's top (100,325), black" "$(_dep 0,300)/$(_dep 250,300)/$(_dep 100,325)" "r0 g0 b0 a0/r0 g0 b0 a0/r0 g0 b0 a0" "r0 g0 b0 a255/r0 g0 b0 a255/r0 g0 b0 a255"
+fdRow "descT DE-4 BORDERS (bordered -> border): saber's left (0,300), trees' left (250,300), describeHelp's top (100,480), black" "$(_dep 0,300)/$(_dep 250,300)/$(_dep 100,480)" "r0 g0 b0 a0/r0 g0 b0 a0/r0 g0 b0 a0" "r0 g0 b0 a255/r0 g0 b0 a255/r0 g0 b0 a255"
 fdRow "descT DE-5 no refusal and no colour error (the form includes styles itself)" "$(grep -c 'REFUS\|ERROR' "$T/de.e")" "11" "0"
 #  DE-6 MEASURED, NOT CHOSEN: with dESCRIPTIONs on the search list during the form's define (R1), the form's saber IS the registry's saber, so
 #  the registry entry's text becomes the form field's text. R2 reads the same way (an image field's text is its description).
@@ -415,7 +428,7 @@ _ofeq "describeT: describe's six lines (was tester's, across the move to utiliti
 fdRow "descT DE-9 IMAGES: displayImage drew saber and trees, fit fill; their points (100,300) (350,300) are not paleGray" "$(grep -h '^=== displayImage ' "$T/de.o" | awk '{print $3, $8, $9}' | xargs) / $([ "$(_dep 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ "$(_dep 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" " / fill fill" "saber fit fill trees fit fill saber fit fill trees fit fill / image image"
 #  ⚑ G2 stroke 1a (Tony, 2026-11-13): descriptions drawn to a PDF on its own, layout only. The same points read back from the page.
 _depp () { grep -h "^=== pixelAt pdfRead ($1) " "$T/de.o" | head -1 | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/'; }
-_ofeq "descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top)" "$(grep -h '^=== readPDF pdfRead' "$T/de.o" | sed 's/^=== readPDF pdfRead //; s/ ===$//' | xargs) / $(_depp 10,10) $(_depp 100,550) $(_depp 0,300) $(_depp 250,300) $(_depp 100,325)" "pages 1 size 500x600 / $(_dep 10,10) $(_dep 100,550) $(_dep 0,300) $(_dep 250,300) $(_dep 100,325)"
+_ofeq "descT DE-10 THE PDF: one page written, 500x600; its fills and borders agree with the bitmap (first, describeHelp; saber's left, trees' left, describeHelp's top)" "$(grep -h '^=== readPDF pdfRead' "$T/de.o" | sed 's/^=== readPDF pdfRead //; s/ ===$//' | xargs) / $(_depp 10,10) $(_depp 100,550) $(_depp 0,300) $(_depp 250,300) $(_depp 100,480)" "pages 1 size 500x600 / $(_dep 10,10) $(_dep 100,550) $(_dep 0,300) $(_dep 250,300) $(_dep 100,480)"
 _ofeq "descT DE-11 THE IMAGES IN THE PDF: saber's and trees' points (100,300) (350,300) are not the field's paleGray" "$([ -n "$(_depp 100,300)" ] && [ "$(_depp 100,300)" != "r241 g241 b241 a255" ] && echo image || echo fill) $([ -n "$(_depp 350,300)" ] && [ "$(_depp 350,300)" != "r241 g241 b241 a255" ] && echo image || echo fill)" "image image"
 
 echo "-- a form inside a field: G2 stroke 1b (formNestT)."
@@ -430,7 +443,7 @@ _ofeq "formNestT NF-1 the held form takes its field's frame (400x320 at 0,40, be
 _ofeq "formNestT NF-2 a second run reads as the first" "$(_nff outer2)" "$(_nff outer)"
 _ofeq "formNestT NF-3 TWO FIELDS, ONE FORM: each holds its own copy, 200 wide at x 0 and x 200, and both draw (10,10) (210,10)" "$(_nff two) / $(_nfp two)" "200x300 at 0,0 / 200x300 at 200,0 / r175 g211 b120 a255 / r175 g211 b120 a255"
 _ofeq "formNestT NF-4 A FORM THAT HOLDS ITSELF is refused by name, once; its page is still drawn (wall at (10,10)); no form is left on the list of forms being laid out" "$(grep -c '^setFrame: REFUSING placeReq -- the form npSelf holds itself' "$T/nf.e") / $(_nfp self) / $(sed -n 's/^NF chain left \([0-9]*\).*/\1/p' "$T/nf.e")" "1 / r247 g232 b170 a255 / 0"
-_ofeq "formNestT NF-5 firstLight holds descriptions in its lower half: heading's wall (300,15), the held form's lightGreen heading field (10,210), ok's green (390,190)" "$(_nfp light)" "r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
+_ofeq "formNestT NF-5 firstLight holds descriptions in its lower half: heading's wall (450,15), the held form's lightGreen heading field (10,250), ok's green (490,230) (re-aimed SEQ 684)" "$(_nfp light)" "r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
 
 echo "-- the swap: G2 stroke 2 (swapT)."
 #  ⚑ swapT -- the swap (Tony, 2026-11-13): firstLight's inside names insideForm, a field of its own holding the form to show; one write to it tells
@@ -442,8 +455,8 @@ _swp () { awk -v want="$1" '/^SW PAGE/{b=$3} /pixelAt pdfRead/ && b==want { s=$0
 _swt () { awk -v want="$1" '/^SW PAGE/{b=$3} /^=== drawSpans/ && b==want { printf "%s%s", sep, $3; sep=" " }' "$T/sw.o"; }
 _swr () { grep "^$1" "$T/sw.e" | sed 's/.*: //' | xargs; }
 _ofeq "swapT exit / sentinel" "$_swx $(grep -c '^SWAPT SENTINEL' "$T/sw.e")" "0 1"
-_ofeq "swapT SW-1 before: no listener run; heading's wall, the descriptions form's lightGreen (200,390), ok's green; its two text fields drawn" "$(_swr SW-1) / $(_swp before) / $(_swt before)" "runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp"
-_ofeq "swapT SW-2 ONE WRITE SWAPS: one listener run; (200,390) is the other form's red and its text is drawn, descriptions' is not; heading and ok as before" "$(_swr SW-2) / $(_swp swapped) / $(_swt swapped)" "runs 1 / r247 g232 b170 a255 / r239 g43 b45 a255 / r175 g211 b120 a255 / heading words ok swOtherText"
+_ofeq "swapT SW-1 before: no listener run; heading's wall, the descriptions form's lightGreen (200,580), ok's green; its two text fields drawn" "$(_swr SW-1) / $(_swp before) / $(_swt before)" "runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp"
+_ofeq "swapT SW-2 ONE WRITE SWAPS: one listener run; (200,580) is the other form's red and its text is drawn, descriptions' is not; heading and ok as before" "$(_swr SW-2) / $(_swp swapped) / $(_swt swapped)" "runs 1 / r247 g232 b170 a255 / r239 g43 b45 a255 / r175 g211 b120 a255 / heading words ok swOtherText"
 _ofeq "swapT SW-3 written back: a second run, and the page and text calls are SW-1's by value" "$(_swr SW-3) / $(_swp back) / $(_swt back)" "runs 2 / $(_swp before) / $(_swt before)"
 _ofeq "swapT SW-4 the definition is not written by a swap: firstLight's inside still names insideForm" "$(awk '/^SW PAGE/{b=$3} b=="definition" && /inside form=/ {print $2}' "$T/sw.o")" "form=insideForm"
 
@@ -458,8 +471,8 @@ _ckt () { awk -v want="$1" '/^CK PAGE/{b=$3} /^=== drawSpans/ && b==want { print
 _ckc () { awk -v want="$1" '/^CK PAGE/{b=$3} /^=== click/ && b==want { s=$0; sub(/^=== click /,"",s); sub(/ ===.*/,"",s); printf "%s%s", sep, s; sep=" / " }' "$T/ck.o"; }
 _ckr () { grep "^$1 " "$T/ck.e" | sed "s/^$1 //" | xargs; }
 _ofeq "clickT exit / sentinel" "$_ckx $(grep -c '^CLICKT SENTINEL' "$T/ck.e")" "0 1"
-_ofeq "clickT CK-1 before: no listener run; (200,390) is the descriptions form's lightGreen" "$(_ckr CK-1 | cut -d' ' -f1-2) / $(_ckp before)" "runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
-_ofeq "clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,390) is the note form's white and its text is drawn; heading and ok unmoved" "$(_ckr CK-2 | cut -d' ' -f1-4) / $(_ckc clicked) / $(_ckp clicked) / $(_ckt clicked)" "runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r175 g211 b120 a255 / heading words ok okNoteText"
+_ofeq "clickT CK-1 before: no listener run; (200,580) is the descriptions form's lightGreen" "$(_ckr CK-1 | cut -d' ' -f1-2) / $(_ckp before)" "runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255"
+_ofeq "clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,580) is the note form's white and its text is drawn; heading and ok unmoved" "$(_ckr CK-2 | cut -d' ' -f1-4) / $(_ckc clicked) / $(_ckp clicked) / $(_ckt clicked)" "runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r175 g211 b120 a255 / heading words ok okNoteText"
 _ofeq "clickT CK-3 a second click brings descriptions back: two runs, the page and text calls are CK-1's by value" "$(_ckr CK-3 | cut -d' ' -f1-2) / $(_ckp again) / $(_ckt again)" "runs 2 / $(_ckp before) / $(_ckt before)"
 _ofeq "clickT CK-4 a field with no action: heading is selected, nothing fired, no listener run" "$(_ckr CK-4 | cut -d' ' -f1-4) / $(_ckc heading)" "runs 2 selected heading / firstLight heading selected"
 _ofeq "clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was" "$(grep -c '^click: REFUSING ckNoField -- the form firstLight has no field named nosuch' "$T/ck.e") $(grep -c '^click: REFUSING ckNoName -- its request needs form:=theForm and field=theName' "$T/ck.e") / [$(_ckc refused)] / $(_ckr CK-5 | cut -d' ' -f1-4)" "1 1 / [] / runs 2 selected heading"
@@ -682,11 +695,15 @@ _rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/
 _rgb () { awk -v n="$1" '/drawSpans words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
 _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
 #  RG-1 / RG-2 RE-PINNED 2026-11-12 (the typesetting slice): words holds a second paragraph of one line, so it draws 4 lines at 400 wide and 3 at 600, where it drew 3 and 2
-_ofeq "resizeLightT RG-1 before, as declared: no listener run; 400x400, words in 4 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 400x400 lines 4 wall white wall green"
-_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x600, words in 3 lines; the four fields at their new places; where ok was is words' white" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 600 / 600x600 lines 3 wall white wall green white"
+#  RG-1 / RG-2 / RG-4 / RG-5 RE-PINNED SEQ 684 (Tony's settled edit: firstLight declared 500x600, inside 60%): the small frame is the
+#  declared 500x600. Both sizes are 600 high, so only x moves: words draws 3 lines at 500 and at 600 (the re-flow RG-2 showed is gone
+#  with the narrower step), and where ok was at 500, (490,230), reads space's wall at 600. The resize still shows in the page size
+#  and in ok: green at (590,230) on the big page, wall at (490,230).
+_ofeq "resizeLightT RG-1 before, as declared: no listener run; 500x600, words in 3 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 500x600 lines 3 wall white wall green"
+_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x600, words in 3 lines; the four fields at their new places; where ok was is space's wall" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 600 / 600x600 lines 3 wall white wall green wall"
 _ofeq "resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value" "$(grep '^RG-3' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 3)" "runs 1 / $(_rgb 2)"
-_ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 400 height 400 / $(_rgb 1)"
-_ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 400x400" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=400 height=400"
+_ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 500 height 600 / $(_rgb 1)"
+_ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 500x600" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=500 height=600"
 
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
@@ -699,8 +716,10 @@ perl -e 'alarm 120; exec @ARGV' "$B" "$_tyF" > "$T/ty.o" 2> "$T/ty.e"; _tyx=$?
 _tyb () { awk -v want="$1" '/^TY BAND/{b=$3} /pixelAt pdfRead/ && b==want { s=$0; sub(/.*= r/,"",s); split(s,a,/[ rgba=]+/); if(a[1]>180&&a[2]<140&&a[3]<140) red++; if(a[3]>120&&a[1]<120) blue++; if(!(a[1]>240&&a[2]>240&&a[3]>240)) ink++; n++ } END{ printf "%s %s %s", (ink?"ink":"none"), (red?"red":"nored"), (blue?"blue":"noblue") }' "$T/ty.o"; }
 _tyl () { grep -h "^=== drawSpans $1 " "$T/ty.o" | sed 's/.* lines /lines /; s/ valign.*align [a-z]*//; s/ ===//' | xargs; }
 _ofeq "typesetT exit / sentinel" "$_tyx $(grep -c '^TYPESET SENTINEL' "$T/ty.e")" "0 1"
-_ofeq "typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in four lines" "$(_tyl words)" "lines 4 drawn 205 of 205 next end paragraphs 2 of 2 runs 1"
-_ofeq "typesetT TY-2 THE BLANK LINE: no ink across the field between the paragraphs (y 98..102); the line below it has ink" "$(_tyb gap) / $(_tyb before)" "none nored noblue / ink nored blue"
+#  TY-1 / TY-2 / TY-3 RE-PINNED SEQ 684 (Tony's settled edit: firstLight 500 wide): paragraph 1 wraps in two lines at 500, so words draws
+#  3 lines, the blank line is y 78..92 and paragraph 2 (the run's line) y 93..108; the bands moved with it (incant/pop/typesetT says so).
+_ofeq "typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines" "$(_tyl words)" "lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1"
+_ofeq "typesetT TY-2 THE BLANK LINE: no ink across the field between the paragraphs (y 80..90); the line below it has ink" "$(_tyb gap) / $(_tyb before)" "none nored noblue / ink nored blue"
 _ofeq "typesetT TY-3 THE RUN: its band is red with no blue; before it and after it the ink is blue with no red" "$(_tyb run) / $(_tyb before) / $(_tyb after)" "ink red noblue / ink nored blue / ink nored blue"
 _ofeq "typesetT TY-4 {{ is a literal brace: five characters, no run" "$(_tyl tsLit)" "lines 1 drawn 5 of 5 next end"
 _ofeq "typesetT TY-5 an unknown style warns by name and prints plain" "$(_tyl tsBad) / $(grep -c '^drawSpans: WARNING tsBad -- its text names the style nosuch -- not a style' "$T/ty.e")" "lines 1 drawn 5 of 5 next end paragraphs 1 of 1 runs 1 / 1"

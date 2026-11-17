@@ -116,3 +116,5 @@ genLadder/.binRecord*
 # test.pdf is the fleet's: every fixture writes it, overwritten each run. The directory is kept by .keep
 IncantForms/PDF/output.pdf
 IncantForms/PDF/test.pdf
+# docs/sealCaptures/*.pdf: the form captures (genLadder/pdfCaptures.sh, SEQ 684) embed Tony's own pictures; kept on disk, not tracked until he rules
+docs/sealCaptures/*.pdf

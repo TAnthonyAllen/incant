@@ -27,9 +27,9 @@ define
         pixelAt(argument);
         };
     swPts code={
-        swX = 300; swY = 15;  swAt(pdfRead);
-        swX = 200; swY = 390; swAt(pdfRead);
-        swX = 390; swY = 190; swAt(pdfRead);
+        swX = 450; swY = 15;  swAt(pdfRead);
+        swX = 200; swY = 580; swAt(pdfRead);
+        swX = 490; swY = 230; swAt(pdfRead);
         };
     pdfRead path="IncantForms/PDF/test.pdf";
     swRuns = 0;
@@ -64,9 +64,9 @@ swapT -- the swap, G2 stroke 2 (Tony, 2026-11-13). Rows in genLadder/formsPop.sh
 firstLight's inside names insideForm, a field of its own that holds the form to show. One write to insideForm tells its
 listener, which calls redrawForm, and a different form appears in the field.
 
-Each page is read at three points: heading's wall (300,15), a point low in the held form (200,390), ok's green (390,190).
-SW-1  before: no listener run. (200,390) is the descriptions form's lightGreen describeHelp, and its two text fields are drawn.
-SW-2  ONE WRITE SWAPS: insideForm := swOther. One run of the listener; (200,390) is swOther's red and its text is drawn, not
+Each page is read at three points: heading's wall (450,15), a point low in the held form (200,580), ok's green (490,230) (re-aimed SEQ 684).
+SW-1  before: no listener run. (200,580) is the descriptions form's lightGreen describeHelp, and its two text fields are drawn.
+SW-2  ONE WRITE SWAPS: insideForm := swOther. One run of the listener; (200,580) is swOther's red and its text is drawn, not
       descriptions'. heading and ok read as before.
 SW-3  written back: a second run, and the page is SW-1's by value.
 SW-4  the definition is not written by a swap: firstLight's inside still names insideForm.

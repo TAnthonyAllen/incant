@@ -84,13 +84,13 @@ define
 redrawForm(tyLight);
 readPDF(pdfRead);
 cout "TY BAND gap":;
-tyX0 = 4; tyX1 = 396; tyY0 = 98; tyY1 = 103; tyBand(pdfRead);
+tyX0 = 4; tyX1 = 496; tyY0 = 80; tyY1 = 91; tyBand(pdfRead);
 cout "TY BAND run":;
-tyX0 = 168; tyX1 = 214; tyY0 = 106; tyY1 = 122; tyBand(pdfRead);
+tyX0 = 168; tyX1 = 214; tyY0 = 93; tyY1 = 109; tyBand(pdfRead);
 cout "TY BAND after":;
-tyX0 = 222; tyX1 = 340; tyY0 = 106; tyY1 = 122; tyBand(pdfRead);
+tyX0 = 222; tyX1 = 340; tyY0 = 93; tyY1 = 109; tyBand(pdfRead);
 cout "TY BAND before":;
-tyX0 = 4; tyX1 = 160; tyY0 = 106; tyY1 = 122; tyBand(pdfRead);
+tyX0 = 4; tyX1 = 160; tyY0 = 93; tyY1 = 109; tyBand(pdfRead);
 cout "TY BAND end":;
 redrawForm(tyEdges);
 readPDF(pdfRead);
@@ -146,3 +146,7 @@ Point 1 (Tony, 2026-11-13): {registry.name} inserts that registry's entry and lo
          "see gamma delta epsilon here" (28) and {tsSrc} draws "see alpha beta here" (19). Either looking in the other's place fails its count.
   TY-19  tsQnoReg, tsQnoEnt  a registry that is not one, and an entry the registry does not hold: each warns by name and is left as written (21, 25).
 tsForm is 820 high for the four fields; they sit below tsRunIns so that no earlier field moves.
+
+RE-AIMED SEQ 684 (Tony's settled edit, 2026-11-17: firstLight 500x600): at 500 wide words' first paragraph wraps in two lines, not
+three, so the blank line is y 78..92 (the gap band now y 80..90, x 4..495) and the second paragraph, with the run, is y 93..108
+(the run, after and before bands keep their x and move to y 93..108). words draws 3 lines, not 4.

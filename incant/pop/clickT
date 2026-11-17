@@ -32,9 +32,9 @@ define
         pixelAt(argument);
         };
     ckPts code={
-        ckX = 300; ckY = 15;  ckAt(pdfRead);
-        ckX = 200; ckY = 390; ckAt(pdfRead);
-        ckX = 390; ckY = 190; ckAt(pdfRead);
+        ckX = 450; ckY = 15;  ckAt(pdfRead);
+        ckX = 200; ckY = 580; ckAt(pdfRead);
+        ckX = 490; ckY = 230; ckAt(pdfRead);
         };
     pdfRead path="IncantForms/PDF/test.pdf";
     ckRuns = 0;
@@ -86,9 +86,9 @@ clickT -- the mock click, G2 stroke 3 and goal G1 (Tony, 2026-11-13). Rows in ge
 click(request) names a form and a field: it selects the field, fires the field's own action, then its attribute actions
 left to right. firstLight's ok holds onClick:=okClick, which writes insideForm; insideForm's listener redraws.
 
-Each page is read at heading's wall (300,15), a point low in the held form (200,390), and ok's green (390,190).
-CK-1  before: no listener run; (200,390) is the descriptions form's lightGreen.
-CK-2  THE CLICK: ok is selected, its onClick fired okClick, one listener run; (200,390) is okNote's white and its text is drawn.
+Each page is read at heading's wall (450,15), a point low in the held form (200,580), and ok's green (490,230) (re-aimed SEQ 684).
+CK-1  before: no listener run; (200,580) is the descriptions form's lightGreen.
+CK-2  THE CLICK: ok is selected, its onClick fired okClick, one listener run; (200,580) is okNote's white and its text is drawn.
 CK-3  a second click brings descriptions back: two runs, and the page is CK-1's by value.
 CK-4  a field with no action (heading): selected, nothing fired, no listener run.
 CK-5  a name the form has no field for, and a request with no field name: each refused by name; nothing selected anew, no run.
