@@ -25,7 +25,7 @@ define
         };
     pdfRead path="IncantForms/PDF/test.pdf";
     rgRuns = 0;
-    rgBig x=300 y=450 width=600 height=600;
+    rgBig x=300 y=450 width=1200 height=600;
     rgSmall x=300 y=450 width=500 height=600;
     ;
 search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
@@ -44,10 +44,10 @@ define
         rgX = 490; rgY = 230; rgRead(pdfRead);
         };
     rgBigPts code={
-        rgX = 450; rgY = 15;  rgRead(pdfRead);
+        rgX = 900; rgY = 15;  rgRead(pdfRead);
         rgX = 5;   rgY = 150; rgRead(pdfRead);
         rgX = 100; rgY = 220; rgRead(pdfRead);
-        rgX = 590; rgY = 230; rgRead(pdfRead);
+        rgX = 1190; rgY = 230; rgRead(pdfRead);
         rgX = 490; rgY = 230; rgRead(pdfRead);
         };
     ;
@@ -101,3 +101,6 @@ the one resized back to, is 500x600 too (RG-4 must read as RG-1, RG-5 as declare
 sit at y 205..239 at either size and only x moves: the points are heading (450,15), words (5,100) or (5,150), space (100,220), ok
 (490,230) at 500 and (590,230) at 600; where ok was at 500, (490,230), reads space's WALL at 600 (it read words' white when the
 resize also changed the height).
+STROKE 0 OF SEQ 685 (Clay's forms dispatch, 2026-11-17): the big frame is 1200x600, not 600x600, so the resize re-flows words
+again -- 3 lines at the declared 500, 2 at 1200 (paragraph 1 fits one line). The big points follow it: heading's wall (900,15),
+ok (1190,230); where ok was at 500, (490,230), is space's wall. The small frame stays the declared 500x600 (Tony's form untouched).

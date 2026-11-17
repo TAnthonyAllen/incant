@@ -695,12 +695,14 @@ _rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/
 _rgb () { awk -v n="$1" '/drawSpans words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
 _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
 #  RG-1 / RG-2 RE-PINNED 2026-11-12 (the typesetting slice): words holds a second paragraph of one line, so it draws 4 lines at 400 wide and 3 at 600, where it drew 3 and 2
+#  RG-2 RE-PINNED SEQ 685 (stroke 0): the big frame is 1200x600, so words re-flows again, 3 lines at 500 to 2 at 1200; the big points
+#  are heading (900,15) and ok (1190,230). Its comment below, "the re-flow RG-2 showed is gone", held only from 684 to 685.
 #  RG-1 / RG-2 / RG-4 / RG-5 RE-PINNED SEQ 684 (Tony's settled edit: firstLight declared 500x600, inside 60%): the small frame is the
 #  declared 500x600. Both sizes are 600 high, so only x moves: words draws 3 lines at 500 and at 600 (the re-flow RG-2 showed is gone
 #  with the narrower step), and where ok was at 500, (490,230), reads space's wall at 600. The resize still shows in the page size
 #  and in ok: green at (590,230) on the big page, wall at (490,230).
 _ofeq "resizeLightT RG-1 before, as declared: no listener run; 500x600, words in 3 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 500x600 lines 3 wall white wall green"
-_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x600, words in 3 lines; the four fields at their new places; where ok was is space's wall" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 600 height 600 / 600x600 lines 3 wall white wall green wall"
+_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 1200x600, words re-flows to 2 lines; the four fields at their new places; where ok was is space's wall" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 1200 height 600 / 1200x600 lines 2 wall white wall green wall"
 _ofeq "resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value" "$(grep '^RG-3' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 3)" "runs 1 / $(_rgb 2)"
 _ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 500 height 600 / $(_rgb 1)"
 _ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 500x600" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=500 height=600"

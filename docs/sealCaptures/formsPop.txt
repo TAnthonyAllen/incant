@@ -239,8 +239,8 @@
 -- firstLight resized by one whole write to layoutFrame (resizeLightT).
   ok    resizeLightT exit / sentinel = [0 1]
   ok    resizeLightT RG-1 before, as declared: no listener run; 500x600, words in 3 lines; heading wall, words white, space wall, ok green = [runs 0 / 500x600 lines 3 wall white wall green]
-  ok    resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 600x600, words in 3 lines; the four fields at their new places; where ok was is space's wall = [runs 1 width 600 height 600 / 600x600 lines 3 wall white wall green wall]
-  ok    resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value = [runs 1 / 600x600 lines 3 wall white wall green wall]
+  ok    resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 1200x600, words re-flows to 2 lines; the four fields at their new places; where ok was is space's wall = [runs 1 width 1200 height 600 / 1200x600 lines 2 wall white wall green wall]
+  ok    resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value = [runs 1 / 1200x600 lines 2 wall white wall green wall]
   ok    resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value = [runs 2 width 500 height 600 / 500x600 lines 3 wall white wall green]
   ok    resizeLightT RG-5 four pages were read, and firstLight still declares 500x600 = [4 / firstLight x=300 y=450 width=500 height=600]
 
