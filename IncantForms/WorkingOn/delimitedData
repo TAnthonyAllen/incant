@@ -1,0 +1,81 @@
+/*****************************************************************************
+	This is the tester incantation. It is a working file for testing new features
+    under development so it changes when there is a new feature in the works.
+*****************************************************************************/
+Start();
+
+registry(TESTing);
+/*****************************************************************************
+	The following is a first draft of fields that process a coma delimited file.
+    The file is assumed to contain records where every record is a row of
+    plain text fields separated by a comma, the the row ending in a new line.
+
+    The process: source is a field loaded initially via getFile so it contains
+    a buffer with the file contents. Records are read in via loadRecords() which
+    calls getRecord repeatedly to read in one record, iterating thru the fieldList
+    provided by the user which has a list of fields to go into a record. For
+    each of those fields, getRecord runs the DataInputField rule to extract the
+    next input field from the source and stick it in the record it returns.
+    The contents of a record is a list of every input field read in from a row
+    of the source, not includeing skipped fields. A row is a line in the source
+    terminated by a \n character.
+*****************************************************************************/
+define
+    currentField;
+    dataDelimiter=[,\n];
+    fieldList;
+    lastField;
+    SKIp;
+    source File="Tests/delimitTest";
+    record;
+    recordCount=0;
+    fieldList one two SKIp some SKIp SKIp more;
+    DataInputField isRule inputField=dataDelimiter{ dataDelimiter guard='n' code={
+        if dataDelimiter != ","; lastField = 1;
+        $$currentField;
+        $$inputField;
+        $$dataDelimiter;
+        if currentField.isGrouP;
+            recordField := copyOf(*currentField);
+            recordField = inputField;
+            record      += *recordField;
+        return  inputField;
+        };
+    getRecord code={
+        ++recordCount;
+        cerr "getRecord ENTER recordCount=" recordCount:;
+        iterate grup on fieldList;
+        while ++grup;
+            fieldName = *grup.taG;
+            cerr "  field" fieldName:;
+            if fieldName != "SKIp";     currentField = grup;
+            else    clear(currentField);
+            $$currentField;
+            if hasInput = DataInputField();
+                cerr "    hasInput truthy, text=" hasInput.text " lastField=" lastField:;
+                if lastField == 1;
+                    lastField = 0;
+                    record = recordCount;
+                    $$record;
+                    recordField = source += copyOf(record);
+                    clear(record);
+                    $$recordField;
+                    return recordField;
+            else cerr "    getRecord ran out of input":;
+        cerr "getRecord EXIT recordCount=" recordCount " returning 0":;
+        return 0;
+        };
+    loadRecords code={
+        pushInputField(argument);
+        while getRecord(); continue;
+        popInputField();
+        };
+    ;
+getFile(source);
+debug GUARD DataInputField;
+loadRecords(source);
+dumpField(source);
+print "SENTINEL tester driver end":;
+stop();
+
+// Everything that was below the stop was moved to IncantForms/WorkingOn/stash
