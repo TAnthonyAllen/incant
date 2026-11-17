@@ -215,6 +215,7 @@ extern "C" GroupItem *interpretXPaccumWrap(GroupItem *operand, GroupItem *rest);
 extern "C" GroupItem *irAt(GroupItem *list, int position);
 extern "C" int irCountOf(GroupItem *field);
 extern "C" int irGoOn();
+extern "C" int irKindOf(GroupItem *field);
 extern "C" double irNumberOf(GroupItem *field);
 extern "C" GroupItem *irSeqEnd(GroupItem *items, GroupItem *last);
 extern "C" GroupItem *irSetCount(GroupItem *field, int value);

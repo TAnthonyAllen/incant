@@ -4559,6 +4559,14 @@ extern GroupItem irSetNumber(GroupItem field,double value)
 }
 
 
+// irKindOf a field's kind, as datA reads it (5 a count, 9 a number, 0 no data) -- the slot reload's check (SEQ 682); IR text carries no layout, so it cannot read a kind
+extern int irKindOf(GroupItem field)
+{
+    if !field   return 0;
+    return field.data;
+}
+
+
 /*******************************************************************************
     jitter -- THE jitter; COMMAND (SEQ 386). From this point in the run every
     action is compiled at its first call and answers from the cache after.

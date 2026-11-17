@@ -7,6 +7,7 @@ declare i32 @irCountOf(ptr)
 declare double @irNumberOf(ptr)
 declare ptr @irSetCount(ptr, i32)
 declare ptr @irSetNumber(ptr, double)
+declare i32 @irKindOf(ptr)
 @kw_nj5_t = global i32 0
 define ptr @kw_nj5(ptr %a) {
 entry:
@@ -85,8 +86,16 @@ J3_b5:
   %c3 = icmp ne i32 %g3, 0
   br i1 %c3, label %q3, label %done
 q3:
+  %V3_a5 = call i32 @irKindOf(ptr %Fa5)
+  %W3_a5 = icmp ne i32 %V3_a5, 9
+  br i1 %W3_a5, label %X4, label %O3_a5
+O3_a5:
   %L3_a5 = call double @irNumberOf(ptr %Fa5)
   store double %L3_a5, ptr %Sa5
+  %V3_b5 = call i32 @irKindOf(ptr %Fb5)
+  %W3_b5 = icmp ne i32 %V3_b5, 9
+  br i1 %W3_b5, label %X4, label %O3_b5
+O3_b5:
   %L3_b5 = call double @irNumberOf(ptr %Fb5)
   store double %L3_b5, ptr %Sb5
   br label %s4
@@ -109,6 +118,47 @@ KB_b5:
   store i1 0, ptr %Db5
   br label %JB_b5
 JB_b5:
+  br label %done
+X1:
+  %Xn1 = load i32, ptr @kw_nj5_n
+  %Xm1 = add i32 %Xn1, 1
+  store i32 %Xm1, ptr @kw_nj5_n
+  %Xtn1 = load i32, ptr @kw_nj5_t
+  %Xtm1 = add i32 %Xtn1, 1
+  store i32 %Xtm1, ptr @kw_nj5_t
+  %Xf1 = call ptr @irAt(ptr %items, i32 1)
+  %Xr1 = call ptr @testOP(ptr %Xf1)
+  store ptr %Xr1, ptr %last
+  %Xg1 = call i32 @irGoOn()
+  %Xc1 = icmp ne i32 %Xg1, 0
+  br i1 %Xc1, label %X2, label %done
+X2:
+  %Xn2 = load i32, ptr @kw_nj5_n
+  %Xm2 = add i32 %Xn2, 1
+  store i32 %Xm2, ptr @kw_nj5_n
+  %Xtn2 = load i32, ptr @kw_nj5_t
+  %Xtm2 = add i32 %Xtn2, 1
+  store i32 %Xtm2, ptr @kw_nj5_t
+  %Xf2 = call ptr @irAt(ptr %items, i32 2)
+  %Xr2 = call ptr @testOP(ptr %Xf2)
+  store ptr %Xr2, ptr %last
+  %Xg2 = call i32 @irGoOn()
+  %Xc2 = icmp ne i32 %Xg2, 0
+  br i1 %Xc2, label %X3, label %done
+X3:
+  %Xn3 = load i32, ptr @kw_nj5_n
+  %Xm3 = add i32 %Xn3, 1
+  store i32 %Xm3, ptr @kw_nj5_n
+  %Xtn3 = load i32, ptr @kw_nj5_t
+  %Xtm3 = add i32 %Xtn3, 1
+  store i32 %Xtm3, ptr @kw_nj5_t
+  %Xf3 = call ptr @irAt(ptr %items, i32 3)
+  %Xr3 = call ptr @testOP(ptr %Xf3)
+  store ptr %Xr3, ptr %last
+  %Xg3 = call i32 @irGoOn()
+  %Xc3 = icmp ne i32 %Xg3, 0
+  br i1 %Xc3, label %X4, label %done
+X4:
   br label %done
 done:
   %v = load ptr, ptr %last

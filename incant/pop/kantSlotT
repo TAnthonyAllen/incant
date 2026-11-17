@@ -46,6 +46,20 @@ define
     slHalf code={ argument = 2.5; };
     slSetBy code={ slBy.a = 9; };
     slGrpBy code={ slGr.a = slG; };
+    slToS code={ slKS.a = "xy"; };
+    slToN code={ slKN.a = 2.5; };
+    slToCN code={ clear(slKCN.a); slKCN.a = 2.5; };
+    slToC code={ clear(slKC.a); };
+    slToNC code={ slKNC.a = 4; };
+    slToNCC code={ clear(slKNCC.a); slKNCC.a = 4; };
+    slToCS code={ clear(slKCS.a); slKCS.a = "xy"; };
+    slKS code={ a = 3; b = a + 1; slToS(); c = a + 1; print "slKS count <- string" c a:; };
+    slKN code={ a = 3; b = a + 1; slToN(); c = a + 1; print "slKN count <- number" c a:; };
+    slKCN code={ a = 3; b = a + 1; slToCN(); c = a + 1; print "slKCN count <- clear, number" c a:; };
+    slKC code={ a = 3; b = a + 1; slToC(); c = a + 1; print "slKC count <- clear" c a:; };
+    slKNC code={ a = 1.5; b = a + 1; slToNC(); c = a + 1; print "slKNC number <- count" c a:; };
+    slKNCC code={ a = 1.5; b = a + 1; slToNCC(); c = a + 1; print "slKNCC number <- clear, count" c a:; };
+    slKCS code={ a = 3; b = a + 1; slToCS(); c = a + 1; print "slKCS count <- clear, string" c a:; };
     slPeekM code={ print "slMid peek" slMid.x slMid.y:; };
     slPeekB code={ print "slBy peek" slBy.a slBy.b slBy.c:; };
     slPeekG code={ print "slGr peek" slGr.a slGr.b slGr.c:; };
@@ -152,6 +166,13 @@ njNew(slMid);
 njNew(slRef);
 njNew(slBy);
 njNew(slGr);
+njNew(slKCS);
+njNew(slKNCC);
+njNew(slKNC);
+njNew(slKC);
+njNew(slKCN);
+njNew(slKN);
+njNew(slKS);
 krResolve(slRd);
 krResolve(slPr);
 krResolve(slRet);
@@ -163,6 +184,13 @@ krResolve(slMid);
 krResolve(slRef);
 krResolve(slBy);
 krResolve(slGr);
+krResolve(slKCS);
+krResolve(slKNCC);
+krResolve(slKNC);
+krResolve(slKC);
+krResolve(slKCN);
+krResolve(slKN);
+krResolve(slKS);
 kwCompile(slRd);
 kwCompile(slPr);
 kwCompile(slRet);
@@ -173,6 +201,13 @@ kwCompile(slMid);
 kwCompile(slRef);
 kwCompile(slBy);
 kwCompile(slGr);
+kwCompile(slKCS);
+kwCompile(slKNCC);
+kwCompile(slKNC);
+kwCompile(slKC);
+kwCompile(slKCN);
+kwCompile(slKN);
+kwCompile(slKS);
 kwCompile(slMix);
 cerr "SL TEXT BEGIN":;
 cerr $kjBuf$;
@@ -208,10 +243,24 @@ slNest();
 print "slMid" slMid():;
 slRef();
 slBy();
-print "SL END":;
-print "SL M5 a group by name into a slot local, under slots":;
+print "SL ROW12 the reload kind check: a callee changes a slot local's kind by name; the rest of the action runs interpreted":;
 slGr();
-print "SL M5 END":;
+slKS();
+slKN();
+slKCN();
+slKC();
+slKNC();
+slKNCC();
+slKCS();
+slGr();
+slKS();
+slKN();
+slKCN();
+slKC();
+slKNC();
+slKNCC();
+slKCS();
+print "SL END":;
 kwRan(slRd);
 kwRan(slPr);
 kwRan(slRet);
@@ -223,6 +272,13 @@ kwRan(slMid);
 kwRan(slRef);
 kwRan(slBy);
 kwRan(slGr);
+kwRan(slKCS);
+kwRan(slKNCC);
+kwRan(slKNC);
+kwRan(slKC);
+kwRan(slKCN);
+kwRan(slKN);
+kwRan(slKS);
 slMarks(slRd);
 slMarks(slPr);
 slMarks(slRet);
@@ -234,6 +290,13 @@ slMarks(slMid);
 slMarks(slRef);
 slMarks(slBy);
 slMarks(slGr);
+slMarks(slKCS);
+slMarks(slKNCC);
+slMarks(slKNC);
+slMarks(slKC);
+slMarks(slKCN);
+slMarks(slKN);
+slMarks(slKS);
 cerr "SL MARKS END":;
 cerr "KANTSLOTT SENTINEL":;
 stop();
@@ -262,9 +325,13 @@ Stdout from SL ROW1 to SL END must be equal.
            taken. A refusal inside a callee does not stop its caller (measured, both sides), so the refusal is slRef's own.
     ROW10  slBy: a callee writes 9 into a by name; a is not stored after the read, so it is not written back: 9 4 10.
     ROW11  each called again.
-    SL M5  FOUND, NOT RULED, pinned as read: a callee writes a group into the slot local a by name. a is not written back
-           (it was not stored after the read), so the group survives on both sides (slG); the native read of a after the
-           call still misreads, as sureKindT's M5 does (4 where the twin reads slG1).
+    ROW12  THE RELOAD KIND CHECK (SEQ 682; calleeWritesCallerLocal). A callee writes a slot local by name; after the call the
+           reload asks the field its kind (irKindOf) and, when it is not the slot's sure kind, jumps into an interpreted copy
+           of the action's chain at the next statement, writing nothing back. slGr (a group; it was SL M5, pinned as read at
+           seal 497: the native read gave 4 where the twin reads slG1), slKC (clear: both refuse at the +), slKCN and slKCS
+           (clear, then a number or a string), slKNCC (a number slot cleared, then a count). slKS, slKN and slKNC keep their
+           kind: = by name casts into the kind the field has (SEQ 347), so they stay native. Each twice.
+           A slot no top-level store has surely written yet may read no data at a reload without a mismatch.
     A local read by name from the top level AFTER its action returns echoes its tag on both sides; the activation is over.
     So every read of a local here is by a callee during the call.
     SL RAN <action> <statements run> testOP <calls>; SL NATIVE <action> then 1 native / 0 testOP per top-level statement.
