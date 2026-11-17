@@ -29,6 +29,13 @@ ip () {
 }
 
 T=${TMPDIR:-/tmp}/genpop.$$
+#  userPdf IncantForms/PDF/output.pdf is the user's (Tony, 2026-11-17); test.pdf is the fleet's. Two runs here write output.pdf --
+#  Tony's tester (show(firstLight)) and showT's SH-4 -- so it is set aside now and put back at exit, whatever happens (SEQ 686;
+#  found by a binary wrapper logging every run that changed it). formsPop does the same around its showT.
+_userPdf=IncantForms/PDF/output.pdf
+_userKeep=${TMPDIR:-/tmp}/genpop.userpdf.$$
+rm -f "$_userKeep"; [ -f "$_userPdf" ] && cp -p "$_userPdf" "$_userKeep"
+trap '[ -f "$_userKeep" ] && mv -f "$_userKeep" "$_userPdf"' EXIT
 mkdir -p "$T"
 #  helperLoud the fleet's OWN stderr is teed to a file the foot reads (SEQ 386 R0b): a helper called before its
 #  helperLoud definition prints "command not found" and its rows evaporate -- the count drops and nothing says so (H5's
@@ -10343,7 +10350,7 @@ _ofeq "reference the groups in order: style its own group, typeset (no attribute
 _ofeq "reference one heading line a group, byte for byte (6 groups)" "$(grep -c -F -x "$_rfHead" "$T/rf.o")" "6"
 _ofeq "reference the fill row, byte for byte (the widest value: one space before the next column)" "$(grep '^fill ' "$T/rf.o")" "fill          a held colour (fill:=wall), or #rrggbb  no         built            paints the field's box "
 _ofeq "reference the style group holds style and nothing else" "$(awk '/^style $/{on=1;next} on&&/^$/{on=0} on&&!/^name /{print $1}' "$T/rf.o" | tr '\n' ' ')" "style "
-_ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "28 0"
+_ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "29 0"
 _ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 29 of 30 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi

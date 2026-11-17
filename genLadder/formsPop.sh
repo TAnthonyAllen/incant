@@ -866,7 +866,8 @@ perl -e 'alarm 60; exec @ARGV' "$B" "$_shF" > "$T/sh.o" 2> "$T/sh.e"; _shx=$?
 _shNew=0; [ -s "$_shOut" ] && _shNew=1
 [ -f "$T/sh.keep" ] && mv "$T/sh.keep" "$_shOut"
 _shb () { awk -v pg="$1" '/^SH PAGE/{b=$3; next} b==pg' "$T/sh.o"; }
-_shs () { _shb "$1" | grep '^=== show ' | sed 's/^=== show //; s/ ===.*//'; }
+#  _shs reads the "=== show <form> to <path> ===" line only: since SEQ 686 show also says "viewer off" or "opened" after it
+_shs () { _shb "$1" | grep '^=== show .* to ' | sed 's/^=== show //; s/ ===.*//'; }
 _sht () { _shb "$1" | awk '$1=="===" && $2=="drawSpans"' | sed 's/.*drawSpans \([A-Za-z]*\) font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1 \2 \3/'; }
 _shp () { _shb "$1" | grep 'pixelAt pdfRead' | sed 's/.*= //; s/ ===.*//'; }
 _ofeq "showT exit / sentinel" "$_shx $(grep -c '^SHOWT SENTINEL' "$T/sh.e")" "0 1"
