@@ -5,38 +5,34 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**496, 2026-11-17, topic: kant, SEQ 677-679 (assigned by Clod), a SHUTDOWN seal.**
-Step 5 of the kant jitter was dispatched and STOPPED at its first measurement, as the dispatch ruled: a local's kind can change after
-its first write (`clear(a)`, `a = new("x")`, `a = ` a group field; directly, by a callee on its argument, through a holder), and the
-native text already on trunk misread it (1, 2, 5 where the interpreter refuses or prints `x1`, `outG1`).
-**BOUGHT:** the sure-kind cure (678, bought 679), kant only: the kind pass makes a local NOT SURE, every read of it on `testOP`, when it
-is the target of an `=` of unknown kind or the right operand of any assigning operator but `=` (a call's argument, a `:=` source, an
-attach). A known-kind store into such a local stays native. `incant/pop/sureKindT`, every ruled row equal to its interpreted twin.
-**FOUND, NOT RULED:** a callee can change its caller's local BY NAME; the pass cannot see it. Pinned as read (sureKindT M5) and
-docketed, latent (`calleeWritesCallerLocal`). Still found, not ruled: interpreted, nan == anything is true.
+**497, 2026-11-17, topic: kant, SEQ 680-681 (assigned by Clod), not a shutdown seal (no dirCheck).**
+**BOUGHT AND MERGED:** step 5 of the kant jitter (kant-slots): values out of the fields. A sure local lives in an alloca; before a
+testOP statement only the slots stored since the last read are written back; after it every slot is read again; literals once.
+`incant/pop/kantSlotT`, every row equal to its twin. The summing loop reads at the floor (-0.6 ms net, 600000 passes; 177.8 interpreted).
+Both departures accepted: row 9 refuses on testOP (a native field store never refuses); locals are read by a callee during the call.
+**FOUND:** formsPop 279 to 249 green, all 30 movers from Tony's offline edits to firstLight and descriptions (500x600, inside 60%,
+describeHelp 20%); with those two files at 496's version it reads 496's capture exactly. Banked, not re-pinned: the forms topic's.
 **OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's ruling. F-162 (a rule call on the new road).
-**RULED, NOT BUILT:** STEP 5, dispatched and amended (679 R3: write back only the slots stored natively since the last read from the
-fields; one more row, M5's group case under slots); its text is in `Topics/kant`. `debug` in an action body (dispatch held by Tony).
-The fixit `upToSetDelimiter` stays behind the jitter.
-**NEXT:** step 5 opens the next session; M1-M3 are measured, the build starts at 2a. The forms opener from seal 492 stays set aside.
-**BeforeSave last refreshed at seal 492; `bs` is not on Clod's shell, so the refresh after this seal is Tony's.**
+**RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). The fixit `upToSetDelimiter` stays behind the jitter.
+**NEXT:** the reload kind check (calleeWritesCallerLocal, SEQ 681 part 2), M1-M3 first; kantSpeed.sh gains a loop that cannot fold.
+**BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.**
 
-## The numbers (as run at seal 496, on trunk 2d60b68d's tree; the binary is the bare build of 2026-11-17 on Xcode 27.2, 2188992 bytes)
+## The numbers (as run at seal 497, on trunk 28736003's tree; the binary is the bare build of 2026-11-17 on Xcode 27.2, 2188992 bytes)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3950 green (3941 at 495; + 9 sureKindT), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`) |
+| `genLadder/pop.sh` | exit 1, 3956 green (3950 at 496; + 6 kantSlotT), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`) |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 279 green; F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 249 green (279 at 496: 30 movers, Tony's form edits, see above); re-banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare (second pass; the first read `getStuff if before` dark too, kept as `dirCheck.flicker-2026-11-17.txt`) |
-| extern canary | 474 (`grep -c '^extern' GroupRules.h`; unmoved, the cure added no C++) |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run (497 is not a shutdown seal); 496 read 108 of 116 inject |
+| extern canary | 474 (`grep -c '^extern' GroupRules.h`; unmoved, step 5 added no C++) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged at 496: kant-sure-kind. BeforeSave last refreshed at seal 492 (the refresh after 496 is Tony's).
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged at 497: kant-slots. BeforeSave last refreshed at seal 492 (the refresh after 497 is Tony's).
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
 Tony's fixit incantations waiting: 0
@@ -47,7 +43,7 @@ Clod's fixit incantations waiting: 16 (oldest: defineCapture, since 2026-10-02)
 |---|---|---|
 | `docs/wakeup.md` | 60 / 60 | this page. |
 | `Topics/forms` | 279 / 280 (prose lines only) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 204 / 200, OVER by 4 | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
+| `Topics/kant` | 205 / 200, OVER by 5 (the trim waits for cleanup, SEQ 681) | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 113 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
