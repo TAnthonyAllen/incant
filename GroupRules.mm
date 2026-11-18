@@ -13685,7 +13685,10 @@ GroupItem 	*arg = 0;
 		::measureRuleDispatch(ruler->falseResult,val,arg);
 		if ( ::isCallable(val) )
 			return ::opCall(val,arg);
-		return ::refuseUnknownOperator(ruler->falseResult,val);
+		// undefinedCall a call to a name with nothing to call refuses by name -- it used to do nothing, silently: a name defined nowhere, or one bound to a fresh local when its body was built (Tony, SEQ 689; F-164)
+		if ( val )
+			return ::refuse(val,"a call to a name with nothing to call -- not a rule, an action or a method (defined nowhere, or bound to a fresh local when its body was built)");
+		return ::refuse(field,"a call with nothing to call");
 		}
 	return ::refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
 }
