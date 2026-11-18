@@ -1,0 +1,30 @@
+Start();
+register(StringIntoCountStaysCount);
+search StringIntoCountStaysCount list;
+define
+    scZero = 0;
+    scText = "x";
+    ;
+cerr "ANCHOR stringIntoCountStaysCount -- the string abc written into a field holding 0, and into one holding a string":;
+fixStringIntoCountStaysCountHere = 0;
+scZero = "abc";
+scText = "abc";
+cerr "PIN 1 the field that held 0 reads [" scZero "] (want abc)":;
+cerr "PIN 2 control, the field that held x reads [" scText "] (want abc)":;
+cerr "SENTINEL stringIntoCountStaysCount reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, buying tabs stroke 2: file, do not chase)
+SEVERITY: wrong, quietly -- a plausible number where a string was written, at exit 0.
+
+stringIntoCountStaysCount -- = keeps the target's kind: a field holding a count, written a string, holds the string's
+length (abc reads 3; tabThree read 8). Found SEQ 701 selecting a tab by name: tabSelected = "tabThree" read 8, so
+tabSelected holds the tab instead (tabSelected := tabThree). Measured at the top level of a file, fields defined in a define.
+Bear-trap #1 (= imposes the target's tag) is the same family: the target keeps what it was.
+
+NEXT: OPEN
+  Whether this is the design (= converts to the target's kind, as a count field assigned 3.7 truncates?) or a defect is a
+  ruling. The measurement that would say which: = of a number into a string field, and of 3.7 into a count field.
+  Taken (if ruled a defect): PIN 1 reads abc. Not taken (today): PIN 1 reads 3, PIN 2 abc.

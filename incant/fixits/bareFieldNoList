@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(BareFieldNoList);
+search BareFieldNoList FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    bfForm window x=0 y=0 width=100 height=100 down fill:=pageFill path="IncantForms/PDF/test.pdf"
+        bfBare="bare";
+        bfText="text" text;
+    ;
+cerr "ANCHOR bareFieldNoList -- a form field with a value and no attribute at all (bfBare), beside one with text":;
+viewer = 0;
+fixBareFieldNoListHere = 0;
+show(bfForm);
+cerr "PIN the lines above: nextGroup: ERROR bfBare does not contain a list (want none)":;
+cerr "SENTINEL bareFieldNoList reached the foot":;
+stop();
+
+LANE:  forms
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, buying tabs stroke 2: file, do not chase)
+SEVERITY: noise -- the run goes on and draws; a line on stderr names the field.
+
+bareFieldNoList -- a form field that has a value and no attributes (bfBare="bare") prints "nextGroup: ERROR bfBare does
+not contain a list" during layout or the draw. Found SEQ 701 in cardsT's first shape (ctC="C"): 10 lines in five
+layouts with cardsPick taken out, so it is older than tabs stroke 2. The C++ message is nextGroup's; which kant walk asks
+a list-less field for its next member is not measured.
+
+NEXT: OPEN
+  The measurement that would say: count the error lines with each of setFrame's steps taken out in turn (setLook,
+  mergeStyles, frameMembers), then the draw walk. The walk that does it wants a length check before it iterates, as
+  cardsPick has.
+  Taken: no nextGroup line. Not taken (today): the line names bfBare.
