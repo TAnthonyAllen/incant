@@ -541,6 +541,11 @@ _ofeq "tabFormT TF-4 tabSelected := tabThree by hand: only thirdCard drawn, and 
 #  H7 (SEQ 703, committed file, cardsPick's rebind of the tab's fill taken out by hand): both tabs read tabFill on both pages.
 _ofeq "tabFormT TF-5 the selected tab takes its card's colour, the others tabFill, and the first page's colour does not stay: page 1 One / Three, page 2 One / Three" "$(_tfp tfTabOne) $(_tfp tfTabThree) | $(_tf4 tfTabOne) $(_tf4 tfTabThree)" "r0 g158 b15 a255 r175 g211 b120 a255 | r175 g211 b120 a255 r239 g43 b45 a255"
 
+#  ⚑ TF-6 -- describe fix 1 (Tony's ruling, SEQ 704): a describe value naming a dESCRIPTIONs entry draws the entry's text, so the
+#  help box (describe=tabForm) draws dESCRIPTIONs' tabForm, 302 characters; descriptions' describeHelp (a sentence) is unchanged (descT).
+#  H7 (SEQ 704, committed file, the lookup taken out of drawText by hand): help draws the word tabForm, 7 of 7.
+_ofeq "tabFormT TF-6 the help box draws dESCRIPTIONs' tabForm text, not the word" "$(awk '/^TF-4 /{exit} $2=="drawSpans" && $3=="help" {print $13, $15, $17}' "$T/tf.o")" "5 302 302"
+
 echo "-- cards: one card shown, picked by the selected tab (cardsT; SEQ 701)."
 #  ⚑ cardsT -- tabs stroke 2 (Tony's rulings, 2026-11-18): setFrame's cardsPick, on the laid-out copy. A cards field shows one member;
 #  the bar's tabs:= holds a field outside the form that holds the selected tab (0: the first tab); the tab's card:= names the card.

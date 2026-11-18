@@ -489,6 +489,16 @@ define
         dtSelf := argument;
         if *dtSelf["describe"];     textReq.source := *dtSelf["describe"];
         if *dtSelf["describe"];     dtSrc := *dtSelf["describe"];
+        // describeLookup a describe value that names a dESCRIPTIONs entry draws that entry's text; any other value draws as written (Tony, fix 1, SEQ 704)
+        dtDes = 0;
+        if *dtSelf["describe"];     dtDes = 1;
+        if dtDes == 1;
+            dtKey = string $*dtSrc$;
+            dtFound = 0;
+            if dESCRIPTIONs[dtKey];     dtFound = 1;
+            if dtFound == 1;
+                textReq.source := dESCRIPTIONs[dtKey];
+                dtSrc := dESCRIPTIONs[dtKey];
         // imageText an image field's text is its description, never drawn over the image (SEQ 608 R2)
         dtDraw = 1;
         if *dtSelf["image"];        dtDraw = 0;
