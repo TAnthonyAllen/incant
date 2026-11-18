@@ -114,6 +114,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
 *****************************************************************************/
     A form file is definitions only: loading it draws nothing. To fire one, put its lines in tester above the SENTINEL line, after tester's own
     Start() and includes. One form at a time. This heading is the only home for these lines (Tony, 2026-11-13). To look: open -a Skim IncantForms/PDF/output.pdf
+    TABS, the next form (SEQ 699): the recon is docs/tabsRecon.md -- four strokes, smallest first, and four rulings for Tony.
     SINCE SEAL 503: a form on the stash list (incant/stashList: firstLight, descriptions) needs only Start(); show(firstLight); -- the lines below still work.
     firstLight:
         registry(fILEs);
