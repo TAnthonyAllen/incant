@@ -2142,6 +2142,20 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
+// callTextOf appends a call's text, rebuilt from its built nodes (acC, acU, acSub; anything else by its tag) -- no statement keeps its source text (refuse's theLine), so this is the nearest quote there is (SEQ 690)
+extern "C" void callTextOf(GroupItem *node, char *out)
+{
+	
+	if ( !node ) { ::strlcat(out,"?",400); return; }
+	const char *t = node->groupBody->tag ? node->groupBody->tag : "?";
+	int n = node->groupBody->groupList ? node->groupBody->groupList->listLength : 0;
+	if ( !::strcmp(t,"acU") && n >= 2 ) { ::callTextOf(node->get(1),out); ::callTextOf(node->get(2),out); return; }
+	if ( !::strcmp(t,"acC") && n >= 2 ) { ::callTextOf(node->get(2),out); ::strlcat(out,"(",400); if ( n > 2 ) ::callTextOf(node->get(3),out); ::strlcat(out,")",400); return; }
+	if ( !::strcmp(t,"acSub") && n >= 3 ) { ::callTextOf(node->get(2),out); ::strlcat(out,"[",400); ::callTextOf(node->get(3),out); ::strlcat(out,"]",400); return; }
+	::strlcat(out,t,400);
+	
+}
+
 /*******************************************************************************
     canOpen -- trueResult when the field's File (or text) names a file getFile can
     open, the working directory first, then incant's root (SEQ 687, the show
@@ -6174,9 +6188,32 @@ extern "C" void jitEmitScOperandRT(GroupItem *operand)
 	llvm::Value *fn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitScOperandRT), ptr, "scOpFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-	gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
+	llvm::Value *rv = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
+	gJitResult     = rv;
 	gJitEmitted    = true;
 	gJitLastIsNode = false;
+	//  refusalExit a 2 is a refusal: leave the function as jitEmitStmtRT's refused leg does -- an inlined callee through its
+	//  own exit block, else the epilogue; the activation's ending says refused (SEQ 690)
+	{
+	llvm::Function   *rfn  = b->GetInsertBlock()->getParent();
+	llvm::BasicBlock *exit = nullptr;
+	if (!gJitInlining.empty()) {
+	if (!gJitInlineFrames.empty() && gJitInlineFrames.back().exitBB) {
+	JitInlineFrame &f = gJitInlineFrames.back();
+	if (!f.used) { rfn->insert(rfn->end(), f.exitBB); f.used = true; }
+	exit = f.exitBB; } }
+	else exit = gJitEpilogueBB;
+	if (exit) {
+	llvm::BasicBlock *refused = llvm::BasicBlock::Create(ctx, "scOpRefusedExit", rfn);
+	llvm::BasicBlock *cont    = llvm::BasicBlock::Create(ctx, "scOpNotRefused", rfn);
+	b->CreateCondBr(b->CreateICmpEQ(rv, llvm::ConstantInt::get(i32, 2), "scOpRefused"), refused, cont);
+	llvm::IRBuilder<> rb(refused);
+	llvm::Value *rk = gJitInlining.empty() ? gJitRetKindSlot : (gJitInlineFrames.empty() ? nullptr : gJitInlineFrames.back().retKindSlot);
+	if (rk) rb.CreateStore(llvm::ConstantInt::get(i32, 0), rk);
+	if (gJitInlining.empty() && gJitRetEndSlot) rb.CreateStore(llvm::ConstantInt::get(i32, 2), gJitRetEndSlot);
+	rb.CreateBr(exit);
+	b->SetInsertPoint(cont); }
+	}
 	//  handedOnce the operand's run-time call is its statement's hand-over: the boundary must not hand the whole statement to jitStmtRT as well (SEQ 372 R2)
 	if (gJitStmt)   gJitStmtRTDone = true;
 	
@@ -8384,18 +8421,29 @@ extern "C" void jitScEnd(GroupItem *resultNode)
 }
 
 /*  jitScOperandRT -- one AND/OR operand the jit could not emit, evaluated at RUN time on the interpreted road, as
-    runShortCircuit evaluates it; its truth comes back as an i32. A refusal's scope is the operand: it opens with none
-    in force and clears its own on the way out, as jitIfRT does.  */
+    runShortCircuit evaluates it; its truth comes back as an i32, 0 or 1. A refusal the operand raises ENDS THE ACTION, as
+    it does interpreted: it is cleared here and 2 comes back, and the emitted code leaves the function on a 2 (Tony,
+    SEQ 690: the compiled run refuses as the interpreted run does; until then the refusal's scope was the operand). A
+    refusal armed before the operand is the caller's and is kept, as jitStmtRT keeps it.  */
 extern "C" int jitScOperandRT(GroupItem *operand)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*value = operand;
 int 		truth = 0;
-	::clearRefusal(operand);
+int 		inherited = 0;
+	inherited = ruler->refused;
+	if ( !inherited )
+		::clearRefusal(operand);
 	if ( value )
 		if ( isMethod(value->groupBody->flags.instructType) && value->groupBody->flags.invoke )
 			value = value->groupBody->gMethod(value);
 	truth = ::truthOf(value);
-	::clearRefusal(operand);
+	// endsTheAction a refusal raised by the operand leaves the compiled function, as the interpreted action ends (SEQ 690)
+	if ( ruler->refused && !inherited )
+		{
+		::clearRefusal(operand);
+		return 2;
+		}
 	return truth;
 }
 
@@ -12980,6 +13028,18 @@ extern "C" int refuseLookupMiss(GroupItem *op, GroupItem *lookup)
 	
 }
 
+// refuseNoTarget a call whose target yields nothing refuses, named by its quoted call text (Tony, SEQ 690)
+extern "C" GroupItem *refuseNoTarget(GroupItem *field)
+{
+	
+	char text[400] = "`";
+	::callTextOf(field,text);
+	::strlcat(text,"`",400);
+	GroupItem *quoted = new GroupItem(text);
+	return ::refuse(quoted,(char*)"a call with no target -- its target yields nothing to call");
+	
+}
+
 // refuseStarArgument *argument on a non-holder refuses by name, on both roads (Tony, 2026-11-05, R1b); a star on any other plain field still yields null (Instruct.opDeref.starRuling)
 extern "C" GroupItem *refuseStarArgument(GroupItem *raw)
 {
@@ -13685,7 +13745,11 @@ GroupItem 	*arg = 0;
 		::measureRuleDispatch(ruler->falseResult,val,arg);
 		if ( ::isCallable(val) )
 			return ::opCall(val,arg);
-		return ::refuseUnknownOperator(ruler->falseResult,val);
+		// undefinedCall a call to a name with nothing to call refuses by name -- it used to do nothing, silently: a name defined nowhere, or one bound to a fresh local when its body was built (Tony, SEQ 689; F-164)
+		if ( val )
+			return ::refuse(val,"a call to a name with nothing to call -- not a rule, an action or a method (defined nowhere, or bound to a fresh local when its body was built)");
+		// noTarget a call with no target at all, as (*fId)(x), refuses too; with no name to give, it quotes the call (Tony, SEQ 690)
+		return refuseNoTarget(field);
 		}
 	return ::refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
 }

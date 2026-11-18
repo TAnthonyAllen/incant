@@ -3129,17 +3129,25 @@ extern void jitEmitStmtRT(GroupItem statement)
 
 
 /*  jitScOperandRT -- one AND/OR operand the jit could not emit, evaluated at RUN time on the interpreted road, as
-    runShortCircuit evaluates it; its truth comes back as an i32. A refusal's scope is the operand: it opens with none
-    in force and clears its own on the way out, as jitIfRT does.  */
+    runShortCircuit evaluates it; its truth comes back as an i32, 0 or 1. A refusal the operand raises ENDS THE ACTION, as
+    it does interpreted: it is cleared here and 2 comes back, and the emitted code leaves the function on a 2 (Tony,
+    SEQ 690: the compiled run refuses as the interpreted run does; until then the refusal's scope was the operand). A
+    refusal armed before the operand is the caller's and is kept, as jitStmtRT keeps it.  */
 extern int jitScOperandRT(GroupItem operand)
 {
+GroupRules  ruler = groupRules;
 GroupItem   value = operand;
-int         truth;
-    clearRefusal(operand);
+int         truth,
+            inherited = 0;
+    inherited = ruler.refused;
+    if !inherited   clearRefusal(operand);
     if value
         if value.isMethod && value.invoke   value = value.method(value);
     truth = truthOf(value);
-    clearRefusal(operand);
+    // endsTheAction a refusal raised by the operand leaves the compiled function, as the interpreted action ends (SEQ 690)
+    if ruler.refused && !inherited {
+        clearRefusal(operand);
+        return 2; }
     return truth;
 }
 
@@ -3157,9 +3165,32 @@ extern void jitEmitScOperandRT(GroupItem operand)
     llvm::Value *fn = b->CreateIntToPtr(
         llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitScOperandRT), ptr, "scOpFn");
     llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
-    gJitResult     = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
+    llvm::Value *rv = b->CreateCall(ty, fn, {opAddr}, "scOpRT");
+    gJitResult     = rv;
     gJitEmitted    = true;
     gJitLastIsNode = false;
+    //  refusalExit a 2 is a refusal: leave the function as jitEmitStmtRT's refused leg does -- an inlined callee through its
+    //  own exit block, else the epilogue; the activation's ending says refused (SEQ 690)
+    {
+        llvm::Function   *rfn  = b->GetInsertBlock()->getParent();
+        llvm::BasicBlock *exit = nullptr;
+        if (!gJitInlining.empty()) {
+            if (!gJitInlineFrames.empty() && gJitInlineFrames.back().exitBB) {
+                JitInlineFrame &f = gJitInlineFrames.back();
+                if (!f.used) { rfn->insert(rfn->end(), f.exitBB); f.used = true; }
+                exit = f.exitBB; } }
+        else exit = gJitEpilogueBB;
+        if (exit) {
+            llvm::BasicBlock *refused = llvm::BasicBlock::Create(ctx, "scOpRefusedExit", rfn);
+            llvm::BasicBlock *cont    = llvm::BasicBlock::Create(ctx, "scOpNotRefused", rfn);
+            b->CreateCondBr(b->CreateICmpEQ(rv, llvm::ConstantInt::get(i32, 2), "scOpRefused"), refused, cont);
+            llvm::IRBuilder<> rb(refused);
+            llvm::Value *rk = gJitInlining.empty() ? gJitRetKindSlot : (gJitInlineFrames.empty() ? nullptr : gJitInlineFrames.back().retKindSlot);
+            if (rk) rb.CreateStore(llvm::ConstantInt::get(i32, 0), rk);
+            if (gJitInlining.empty() && gJitRetEndSlot) rb.CreateStore(llvm::ConstantInt::get(i32, 2), gJitRetEndSlot);
+            rb.CreateBr(exit);
+            b->SetInsertPoint(cont); }
+    }
     //  handedOnce the operand's run-time call is its statement's hand-over: the boundary must not hand the whole statement to jitStmtRT as well (SEQ 372 R2)
     if (gJitStmt)   gJitStmtRTDone = true;
     %-

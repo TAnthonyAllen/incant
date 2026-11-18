@@ -1,0 +1,44 @@
+Start();
+register(UndefCallT);
+search UndefCallT list;
+define
+    ucNowhere code={
+        ucNoSuchName(5);
+        cerr "UC-3 a statement after the refused call in the same action":;
+        };
+    ucEarly code={
+        ucLater(1);
+        cerr "UC-2b a statement after the early-bound call":;
+        };
+    ucFresh code={
+        ucLater(1);
+        };
+    ;
+cerr "UC-1 a call to a name defined nowhere, at the top level":;
+ucTopNoSuch(3);
+cerr "UC-1 next top-level statement runs":;
+cerr "UC-3 the same inside an action":;
+ucNowhere();
+cerr "UC-3 next top-level statement runs":;
+cerr "UC-2 SB-1's case: ucEarly is first built before ucLater exists":;
+ucEarly();
+registry(UcLater);
+define
+    ucLater code={ cerr "UC-2 ucLater ran":; };
+    ;
+search UndefCallT UcLater list;
+cerr "UC-2 ucLater exists and is searched now: ucEarly still refuses, a body first built now runs it":;
+ucEarly();
+ucFresh();
+cerr "UNDEFCALLT SENTINEL":;
+stop();
+
+undefCallT -- a call to an undefined name refuses by name (Tony, 2026-11-18, SEQ 689). Rows in genLadder/pop.sh.
+It used to do nothing at all, at exit 0: runOPaccum's call arm handed an uncallable target to refuseUnknownOperator, which
+speaks only for an Operators entry.
+UC-1  a name defined nowhere, called at the top level: REFUSED by name; the next statement runs.
+UC-2  SB-1's case (F-164): a body binds its names when first built, so ucEarly, built before ucLater exists, holds a fresh local.
+      Its call refuses by name -- twice, the second time after ucLater is defined and searched -- while ucFresh, first built
+      then, runs ucLater.
+UC-3  the refusal ends the action, as any refusal does (2026-11-05): the statement after the call does not run, the next
+      top-level statement does.

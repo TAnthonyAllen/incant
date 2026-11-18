@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+
+register(JitNoTargetT);
+define
+    ntCase;
+    ntL;
+    ntR;
+    ntA;
+    ntB;
+    ntC;
+    fId code={ return argument; };
+    ntDriver code={
+        ntA = 1;
+        if ntCase == 1;     ntB = ntL && *fId(ntR);
+        if ntCase == 2;     *fId(ntR);
+        ntC = 3;
+        };
+    ;
+
+ntL = 1; ntR = 1; ntCase = 1; ntA = 9; ntB = 9; ntC = 9;
+cerr "NT compiled 1":;
+testing(ntDriver);
+print "NT compiled 1 : ntA =" ntA " ntB =" ntB " ntC =" ntC:;
+ntCase = 2; ntA = 9; ntB = 9; ntC = 9;
+cerr "NT compiled 2":;
+jitRefire();
+print "NT compiled 2 : ntA =" ntA " ntB =" ntB " ntC =" ntC:;
+
+ntCase = 1; ntA = 9; ntB = 9; ntC = 9;
+cerr "NT interpreted 1":;
+ntDriver();
+print "NT interpreted 1 : ntA =" ntA " ntB =" ntB " ntC =" ntC:;
+ntCase = 2; ntA = 9; ntB = 9; ntC = 9;
+cerr "NT interpreted 2":;
+ntDriver();
+print "NT interpreted 2 : ntA =" ntA " ntB =" ntB " ntC =" ntC:;
+
+print "NT SENTINEL -- run reached the end":;
+stop();
+
+jitNoTargetT -- A CALL WITH NO TARGET REFUSES, ON BOTH ROADS (Tony, 2026-11-18, SEQ 690). Rung JXD-5 in jitLadder/ladder.sh.
+`*fId(x)` reads (*fId)(x): a star on an action yields nothing, so the call has no target. It refuses, quoting the call
+(`*fId(ntR)`), since there is no name to give, and the refusal ends the action: ntA was written (1), ntB and ntC were not (9).
+Case 1 is JXD-4's old spelling, the call as an AND operand (the compiled run hands it to jitScOperandRT); case 2 is the call
+as a bare statement. The compiled fires come first and the interpreted oracle last (bear-trap 25); each case is one fire, and
+compiled must equal interpreted, values and refusal lines both.

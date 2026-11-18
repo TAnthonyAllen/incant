@@ -2179,6 +2179,8 @@ fdRow "codeBraceT the block-brace refusals, by name, and the definitions removed
 #  BC-4 (Tony, SEQ 512 correction): the scan steps over comments as it steps over strings -- KANT-40 closes on this row
 fdRow "codeBraceT BC-4 a } in a // comment, balanced then lone: works (sentinel / value)" "$(grep -c '^BC SENTINEL BC-4' "$T/bc.e") $(_bcv 'BC-4')" "0 " "1 6 |8 |"
 fdRow "codeBraceT reaches its end (BC END / sentinel)" "$(grep -c '^BC END' "$T/bc.o") $(grep -c '^CODEBRACET SENTINEL' "$T/bc.e")" "0 0" "1 1"
+#  ⚑ undefinedCall (SEQ 689): bcBad() and bc2() call definitions the boundary removed, so each REFUSES BY NAME, once.
+_ofeq "codeBraceT bcBad() and bc2() after their removal refuse by name (bcBad / bc2)" "$(grep -c '^REFUSED bcBad -- a call to a name with nothing to call' "$T/bc.e") $(grep -c '^REFUSED bc2 -- a call to a name with nothing to call' "$T/bc.e")" "1 1"
 else echo "  FAIL  codeBraceT MISSING"; fail=1
 fi
 
@@ -2353,6 +2355,8 @@ else
     echo "  FAIL  argRetiredT the boundary removed arBad SILENTLY. Actual:"
     grep -F "REMOVED" "$T/art2" | sed 's/^/          /'; fail=1
 fi
+#  ⚑ undefinedCall (SEQ 689): the later arBad() calls a definition the boundary removed, so it now REFUSES BY NAME -- once.
+_ofeq "argRetiredT arBad() after its removal refuses by name (a call to a name with nothing to call), once" "$(grep -c '^REFUSED arBad -- a call to a name with nothing to call' "$T/art2")" "1"
 for _n in BEFORE AFTER; do
     if grep -q "^AR $_n ran" "$T/art2"; then
         echo "  ok    argRetiredT AR $_n ran -- the definition $_n a refusal is unharmed"; green=$((green+1))
@@ -4496,6 +4500,8 @@ fi
 #  THE FLIP, 2026-10-13 (SEQ 350): switch on the ratchet is 5 -- plusPlusStar, plusPlusStarsub and minusMinusStar graduate
 #  (a prefix binds its name first, so ++*x / --*x act on the dereferenced field). Switch off it stayed 8 until the old road
 #  retired: 5 alone now, the old road retired, 2026-10-13 (SEQ 353).
+#  SEQ 689: the fixture called minusMinusStarsub, a name defined nowhere (the action is tpMinusMinusStarsub), so that row never ran
+#  and the map read 35 rows; an undefined call now refuses, the typo is cured, the row runs and is TRUE: 5 of 36, ratchet unchanged.
 TPWANT=5
 run2 testPrecedence "$T/tp.o" "$T/tp.e"; check "testPrecedence runs" 0 $?
 sentinel "testPrecedence sentinel (no truncation)" "$T/tp.e" "PRECEDENCE SENTINEL"
@@ -10354,6 +10360,18 @@ _ofeq "reference every row's columns start where the heading's do (rows, misalig
 _ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 29 of 30 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
+
+echo "-- a call to an undefined name refuses by name (undefCallT, SEQ 689)."
+#  ⚑ undefCallT -- Tony, 2026-11-18: a call to a name with nothing to call refuses by name; it used to do nothing at exit 0.
+#  H7 (SEQ 689, committed file): runOPaccum's foot back to refuseUnknownOperator -> every REFUSED count below 0, and UC-3's
+#  "statement after" prints (the action no longer ends).
+_ucF=$(ip undefCallT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_ucF" > "$T/uc.o" 2> "$T/uc.e"; _ucx=$?
+_ucR () { grep -c "^REFUSED $1 -- a call to a name with nothing to call" "$T/uc.e"; }
+_ofeq "undefCallT exit / sentinel" "$_ucx $(grep -c '^UNDEFCALLT SENTINEL' "$T/uc.e")" "0 1"
+_ofeq "undefCallT UC-1 a name defined nowhere, called at the top level: refused by name; the next statement runs" "$(_ucR ucTopNoSuch) $(grep -c '^UC-1 next top-level statement runs' "$T/uc.e")" "1 1"
+_ofeq "undefCallT UC-2 SB-1's case: a call bound to a fresh local at build refuses by name, before and after the callee exists; a body built later runs it" "$(_ucR ucLater) $(grep -c '^UC-2 ucLater ran' "$T/uc.e")" "2 1"
+_ofeq "undefCallT UC-3 the refusal ends the action: the statement after the call does not run, the next top-level one does" "$(_ucR ucNoSuchName) $(grep -c '^UC-3 a statement after the refused call' "$T/uc.e") $(grep -c '^UC-2b a statement after' "$T/uc.e") $(grep -c '^UC-3 next top-level statement runs' "$T/uc.e")" "1 0 0 1"
 
 echo "-- a := inside an if arm holds after the arm (armBindT; F-163 retired, SEQ 689)."
 #  ⚑ armBindT -- F-163 did not reproduce (Tony retired it 2026-11-18); its seven shapes are pinned. AB-0 is the control: an arm

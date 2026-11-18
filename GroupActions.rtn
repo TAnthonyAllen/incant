@@ -1408,8 +1408,39 @@ GroupItem   op, val, arg;
         // dispatchSeat the call's witness, as runOPdirect gave it before opCall existed (searchNewParseT SNP-0 reads it)
         measureRuleDispatch(falseResult,val,arg);
         if isCallable(val)  return opCall(val,arg);
-        return refuseUnknownOperator(falseResult,val); }
+        // undefinedCall a call to a name with nothing to call refuses by name -- it used to do nothing, silently: a name defined nowhere, or one bound to a fresh local when its body was built (Tony, SEQ 689; F-164)
+        if val  return refuse(val,"a call to a name with nothing to call -- not a rule, an action or a method (defined nowhere, or bound to a fresh local when its body was built)");
+        // noTarget a call with no target at all, as (*fId)(x), refuses too; with no name to give, it quotes the call (Tony, SEQ 690)
+        return refuseNoTarget(field); }
     return refuse(field,"runOPaccum runs a prefix or a call only -- tiers have their own executors (SEQ 319 c3)");
+}
+
+
+// callTextOf appends a call's text, rebuilt from its built nodes (acC, acU, acSub; anything else by its tag) -- no statement keeps its source text (refuse's theLine), so this is the nearest quote there is (SEQ 690)
+extern void callTextOf(GroupItem node,String out)
+{
+    -%
+    if ( !node ) { ::strlcat(out,"?",400); return; }
+    const char *t = node->groupBody->tag ? node->groupBody->tag : "?";
+    int n = node->groupBody->groupList ? node->groupBody->groupList->listLength : 0;
+    if ( !::strcmp(t,"acU") && n >= 2 ) { ::callTextOf(node->get(1),out); ::callTextOf(node->get(2),out); return; }
+    if ( !::strcmp(t,"acC") && n >= 2 ) { ::callTextOf(node->get(2),out); ::strlcat(out,"(",400); if ( n > 2 ) ::callTextOf(node->get(3),out); ::strlcat(out,")",400); return; }
+    if ( !::strcmp(t,"acSub") && n >= 3 ) { ::callTextOf(node->get(2),out); ::strlcat(out,"[",400); ::callTextOf(node->get(3),out); ::strlcat(out,"]",400); return; }
+    ::strlcat(out,t,400);
+    %-
+}
+
+
+// refuseNoTarget a call whose target yields nothing refuses, named by its quoted call text (Tony, SEQ 690)
+extern GroupItem refuseNoTarget(GroupItem field)
+{
+    -%
+    char text[400] = "`";
+    ::callTextOf(field,text);
+    ::strlcat(text,"`",400);
+    GroupItem *quoted = new GroupItem(text);
+    return ::refuse(quoted,(char*)"a call with no target -- its target yields nothing to call");
+    %-
 }
 
 
