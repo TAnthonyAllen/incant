@@ -10375,8 +10375,9 @@ else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
 echo "-- a rule reads up to (or over) a set, written in the rule or held in a field (upToSetT; fixit upToSetDelimiter, SEQ 697)."
 #  ⚑ upToSetT -- dispatch of 2026-11-18 (Tony's item 1): upToMatch takes a delimiter holding a set, as delimitedData's
-#  DataInputField line. H7 (SEQ 697, committed files): parse's onGroup parse (GroupItem, old road) back for an upTo term -> UT-1 reads "," and
-#  UT-2 fires 0, UT-4 reads 0 rows; upToMatch's string read back ahead of the set test -> exit 139 before UT-1 (measured).
+#  DataInputField line. H7 (SEQ 697, committed files, measured): parse's onGroup parse (GroupItem, old road) back for an upTo
+#  term -> UT-1 and UT-3 read ",", UT-2 fires 0, UT-4 reads 0 rows; upToMatch's string read back ahead of the set test -> exit
+#  139, no output.
 _utF=$(ip upToSetT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_utF" > "$T/ut.o" 2> "$T/ut.e"; _utx=$?
 _ofeq "upToSetT exit / sentinel" "$_utx $(grep -c '^UPTOSETT SENTINEL' "$T/ut.e")" "0 1"
