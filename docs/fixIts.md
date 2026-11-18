@@ -111,7 +111,7 @@ where it stands. Nothing else is backfilled.
 **Attempt log:** none.
   RETIRED (Tony, 2026-11-18): did not reproduce. The seven shapes are fleet rows: incant/pop/armBindT, AB-1..AB-7 with the control AB-0 (pop.sh).
 
-### F-162 — OPEN, docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadRuleCall: a rule cannot be called from the new road
+### F-162 — BUILT on branch f162-rule-call 2026-11-18 (SEQ 691), waiting on Tony's buy; docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadRuleCall: a rule cannot be called from the new road
 
 **What:** (kant, the new road, `incant/kantGrammar`) a call of a rule written in a new-road text, `it1 = If("if ctX = ctBare(ctAb); ctR = 5;"); testOP(it1);`, prints `opCallTest: ctBarehas no method` and the call hands back nothing. A rule that carries `code={ }` fails differently: `ERROR processCode: ctVal parse failed ... reached end of input`. On the old road the same calls run the rule on the argument's text and hand back its label.
 **Where:** `Instruct.rtn` `opCallTest` (it runs `target.actionType` through runAction, else `target.method`; a rule is neither).
@@ -119,6 +119,11 @@ where it stands. Nothing else is backfilled.
 **Done when:** Tony rules what a rule call means on the new road; then a callTruthT-shaped row calls a rule from a new-road text and reads its label, with an H7.
 **Owner:** Tony to rule; then Clod. **Size:** not measured.
 **Attempt log:** none. Not to be used in step 3a's fixtures (dispatch of 2026-11-16).
+**RULED 2026-11-18 (Tony):** a rule called from the new road works as on the old road: it runs on the argument's text and hands back its label, or nothing when it fails.
+**Attempt log:**
+  1. SEQ 691, measured first: the old road (opCall -> runRule) reads CT-5D..CT-8D as ab / ctU / nothing / 0, if true but on the failure; the new road read all four false (a rule with code={ } failed in processCode, reached end of input; a bare rule, "has no method") -> opCallTest asks callIsRule first, as opCall does, and runs runRule on the argument; no argument, or an argument with no data, refuses by name -> the new road reads as the old on all four, on a bare rule (CT-9D) and on quoted literals (CT-10D, CT-11D). The old road reads both errant cases false in SILENCE: reported, not copied.
+  2. H7: the rule arm out -> 14 new-road D rows red (!R) and both refusals 0. Restored from git.
+  POP: pop.sh callTruthT (60 call rows, the count, four errant rows).
 
 ### F-161 — BUILT on branch newroad-empty-call 2026-11-16 (SEQ 673), waiting on Tony's buy; docketed 2026-11-16 (SEQ 670, Clay's dispatch) — newRoadEmptyCall: on the new road `f()` with empty parentheses drops its statement in silence
 
@@ -159,6 +164,9 @@ where it stands. Nothing else is backfilled.
 **Done when:** Tony rules which spelling an action body takes (format first, as the kant grammar; or both); then a pop.sh row prints one padded item from an action body in the ruled spelling, with the other spelling pinned as ruled, and an H7.
 **Owner:** Tony to rule; then Clod. **Size:** not measured; a grammar change, so the dispatch names which grammar (SEQ 552 R5).
 **Attempt log:** none.
+**RULED 2026-11-18 (Tony):** an action body takes the format FIRST, as the kant grammar; format-after refuses by name.
+**Attempt log:**
+  1. SEQ 691, the count first, no build: 26 bodies plus the reference walk's 2 lines carry format-after on the old grammar -- above the dispatch's 10, so STOPPED, nothing built. 15 are road-proof bodies (print "[" 7 #5d "]"), whose whole job is that the two grammars read the format differently: chainCmpT, kantJitArgT, newCallBindT x2, newJitCallT, newLocalArgT, newLocalT x2, newReturnSelfT x2, newReturnT x2, postfixT, prefixNestT (every body is parsed on the old grammar at define, the n ones re-parsed on the new road after); 8 are optFlagsT's OF-1..OF-8; 1 is unitTests' formatTest (pinned in pop.sh as "old road: the format applies to the expression before it", and BN-3).
 
 ### F-158 — OPEN, docketed 2026-11-14 (SEQ 656, Clay's dispatch; row only) — lookInSharedFields: typeset reads the look of the last layout from shared fields; its home is the layout context
 
