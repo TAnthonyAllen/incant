@@ -5,6 +5,29 @@
 ONE LINE: kant is being rewritten in kant -- rules whose actions build instructs, on a new road (incant/kantGrammar) beside the old one (incant/grammar) -- and compiled by the jitter rule by rule.
 
 /*****************************************************************************
+    OPEN, FOR CLAY: what makes kant awkward to write (Tony, 2026-11-18; a design question, not a stroke)
+    Clod's list from writing typeset (incant/utilities, typesetting T1-T3), worst first. Tony wants all five fixed
+    and calls it a mega design issue -- "a hammer when I need a screwdriver". Nothing here is ruled.
+*****************************************************************************/
+    1 control flow      no trusted multi-statement else (bear-trap #32, kant inverted from tok), no break, no && in a
+                        condition. So flags stand in for control: tyIsStyle, tyLook, tyMore, tySwitch, tyHops = 32 to
+                        leave a while; nested ifs that are one condition. About half of typeset's ty* names are this.
+    2 one argument,     tsFind talks through globals (tsWant in; tsFound, tsHit out); resolveLook's caller is passed by
+      no return value   swapping rlSays around the call; tsBoxWarn is its own action only so a for loop can walk it.
+                        Every helper speaks through globals, so every name needs a prefix. Clod's first pick, with 1.
+    3 parse results     the rules label their pieces (tsQual: reg^ dot^ name^) but the code walks siblings by position
+      by position       (*tyLeaf.nexT, then .nexT.nexT). Wanted: tyPiece.reg, tyPiece.name; a grammar edit then cannot
+                        silently shift the positions.
+    4 holder or held    = := <- (retired), * and **, copyOf (shares attributes) vs copyDeep. typeset carries two comments
+                        (ownEntry, ownSpan) only because copyOf made every span read the last one's font. Bear-traps #41,
+                        #55 are the same question. Not the holder model itself -- a smaller surface: one own-copy verb,
+                        comparisons that deref on their own.
+    5 list walking      tyE := x.firsT; while tyE.datA != 0; ... tyE := *tyE.nexT; five times in typeset, twice walking
+                        once to find a position and again to reach it. Wanted: for e in <any holder>, and a kept cursor.
+    WHAT WORKS          an inline grammar parsing a string in one call (tsText); registries as plain lookups.
+    CAVEAT              some of these may already have a spelling Clod did not use (describe uses `or` as else-if).
+
+/*****************************************************************************
     Description
 *****************************************************************************/
 Two roads. The old road is incant/grammar with C++ rule actions; action bodies and forms still parse on it. The new road is incant/kantGrammar: each rule's action is kant and builds an instruct, which runs later.

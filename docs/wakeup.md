@@ -12,6 +12,7 @@ the selected tab takes its selectFill. **ON BRANCH describe-lookup, the buy Tony
 dESCRIPTIONs entry draws its text; formsPop 306 there). Five Clod fixits filed: termValueNeverEqual and heldFieldEndLosesFile (before the
 list form), emptyFieldIsPlaceholder, stringIntoCountStaysCount, bareFieldNoList.
 **OPEN (Tony):** carried from 482, whether an indented `define` should work.
+**CLAY, 2026-11-18 (Tony):** a mega design question heads `Topics/kant` -- five things that make kant awkward to write (control flow, one-argument actions, parse results by position, holder-or-held, list walking), from Clod's typeset. Tony wants all five fixed; nothing ruled yet.
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). upToSetDelimiter's item 2 (ensureGuard makes an upTo-first rule unguarded).
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
 **NEXT:** mornings, the full monty plan step 1 (fixit newRoadStringJoin); afternoons, forms: buy describe-lookup, then tabs stroke 4, the click (selectTab, clickShow), then the two fixits, then the list form.
