@@ -533,8 +533,13 @@ _ofeq "tabFormT TF-1 drawn by show to test.pdf (twice, TF-4 the second); the tab
 #  RE-PINNED SEQ 701 (tabs stroke 2): only the selected card is drawn, in the cards field's whole box; nothing selected is the
 #  first tab, so TF-2 draws firstCard alone and TF-3's three card pixels all read cardOneFill.
 _ofeq "tabFormT TF-2 the heading in headingFont (titleFont); nothing selected, so only the first card is drawn" "$(awk '/^TF-4 /{exit} $2=="drawSpans" && ($3=="heading" || $3 ~ /Card$/) {printf "%s %s %s;", $3, $5, $6}' "$T/tf.o")" "heading Palatino 24;firstCard Helvetica 12;"
-_ofeq "tabFormT TF-3 one pixel a region: intro pageFill, tab tabFill, the cards box all cardOneFill, help tabFill" "$(_tfp tfIntro) | $(_tfp tfTabOne) | $(_tfp tfCardOne) | $(_tfp tfCardTwo) | $(_tfp tfCardThree) | $(_tfp tfHelp)" "r255 g255 b255 a255 | r175 g211 b120 a255 | r0 g158 b15 a255 | r0 g158 b15 a255 | r0 g158 b15 a255 | r175 g211 b120 a255"
+#  RE-PINNED SEQ 703 (tabs stroke 3): the selected tab takes its selectFill, so TF-3's tab One reads cardOneFill; tab Three tabFill.
+_ofeq "tabFormT TF-3 one pixel a region: intro pageFill, tab One (selected) cardOneFill, tab Three tabFill, the cards box all cardOneFill, help tabFill" "$(_tfp tfIntro) | $(_tfp tfTabOne) | $(_tfp tfTabThree) | $(_tfp tfCardOne) | $(_tfp tfCardTwo) | $(_tfp tfCardThree) | $(_tfp tfHelp)" "r255 g255 b255 a255 | r0 g158 b15 a255 | r175 g211 b120 a255 | r0 g158 b15 a255 | r0 g158 b15 a255 | r0 g158 b15 a255 | r175 g211 b120 a255"
 _ofeq "tabFormT TF-4 tabSelected := tabThree by hand: only thirdCard drawn, and it fills the box (top and bottom pixels cardThreeFill)" "$(awk '/^TF-4 /{on=1} on && $2=="drawSpans" && $3 ~ /Card$/ {printf "%s;", $3}' "$T/tf.o") $(_tf4 tfCardOne) | $(_tf4 tfCardThree)" "thirdCard; r239 g43 b45 a255 | r239 g43 b45 a255"
+
+#  ⚑ TF-5 -- tabs stroke 3 (Clay's dispatch, 2026-11-18): the selected tab is filled with what its selectFill holds, on the copy.
+#  H7 (SEQ 703, committed file, cardsPick's rebind of the tab's fill taken out by hand): both tabs read tabFill on both pages.
+_ofeq "tabFormT TF-5 the selected tab takes its card's colour, the others tabFill, and the first page's colour does not stay: page 1 One / Three, page 2 One / Three" "$(_tfp tfTabOne) $(_tfp tfTabThree) | $(_tf4 tfTabOne) $(_tf4 tfTabThree)" "r0 g158 b15 a255 r175 g211 b120 a255 | r175 g211 b120 a255 r239 g43 b45 a255"
 
 echo "-- cards: one card shown, picked by the selected tab (cardsT; SEQ 701)."
 #  ⚑ cardsT -- tabs stroke 2 (Tony's rulings, 2026-11-18): setFrame's cardsPick, on the laid-out copy. A cards field shows one member;
