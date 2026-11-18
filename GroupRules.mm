@@ -10173,6 +10173,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" GroupItem *opCallTest(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
+	// ruleCall a rule called from the new road runs on its argument's text and hands back its label, or nothing when it fails -- as opCall does on the old road; a rule is asked first, as there (Tony, F-162, SEQ 691)
+	if ( ::callIsRule(target) )
+		{
+		if ( !argument )
+			return ::refuse(target,"a rule called with no argument -- it runs on its argument's text");
+		if ( !argument->groupBody->flags.data )
+			return ::refuse(argument,"a rule called with an argument that has no text");
+		
+		++gTermCallCount;
+		return ::runRule(argument,target);
+		
+		}
 	if ( target->groupBody->flags.actionType )
 		result = ::runAction(argument,target);
 	else

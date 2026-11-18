@@ -671,7 +671,7 @@ _ctrun () {   # $1 input, $2 form -> "<value> x<exit> s<sentinel>[ !R]"
 }
 _ctwant () {  # $1 id, $2 form -> the ruled value
     case "$1.$2" in
-        CT-1.*|CT-3.*|CT-7.*|CT-7D.*) echo 0 ;;
+        CT-1.*|CT-3.*|CT-7.*|CT-7D.*|CT-11D.*) echo 0 ;;
         *.if) echo 1 ;;
         *) echo 3 ;;
     esac
@@ -680,9 +680,9 @@ _ctn=0
 while IFS='|' read -r _id _call _what _roads; do
     for _form in if while; do
         if [ $_form = if ]; then
-            _so="if ctX = $_call;\n            ctR = 1;"; _sn="it1 = If(\"if ctX = $_call; ctR = 1;\");"; _rp='cerr "CT if " ctR:;'
+            _so="if ctX = $_call;\n            ctR = 1;"; _sn="it1 = If(\"if ctX = ${_call//\"/\\\"}; ctR = 1;\");"; _rp='cerr "CT if " ctR:;'
         else
-            _so="while $_call;\n            ctN = ctN + 1;\n            if ctN == 3; break;"; _sn="it1 = WHILe(\"while $_call; { ctN = ctN + 1; if ctN == 3; break; }\");"; _rp='cerr "CT while " ctN:;'
+            _so="while $_call;\n            ctN = ctN + 1;\n            if ctN == 3; break;"; _sn="it1 = WHILe(\"while ${_call//\"/\\\"}; { ctN = ctN + 1; if ctN == 3; break; }\");"; _rp='cerr "CT while " ctN:;'
         fi
         { cat "$T/ct.pre"; printf 'define\n    ctGo code={\n        %b\n        };\n    ;\nctGo();\n%s\ncerr "CT SENTINEL":;\nstop();\n' "$_so" "$_rp"; } > "$T/ct.$_id.$_form.ok"
         _ofeq "callTruthT $_id old road, $_form on $_what (value / exit / sentinel)" "$(_ctrun "$T/ct.$_id.$_form.ok" $_form)" "$(_ctwant $_id $_form) x0 s1"
@@ -694,7 +694,19 @@ while IFS='|' read -r _id _call _what _roads; do
         fi
     done
 done < "$T/ct.list"
-_ofeq "callTruthT rows ran (40: 8 on both roads, 4 on the old road, two forms each)" "$_ctn" "40"
+_ofeq "callTruthT rows ran (60: 15 on both roads, two forms each; the D rows on the new road since F-162, SEQ 691)" "$_ctn" "60"
+#  ⚑ F-162 (SEQ 691): a rule called from the new road with no argument, or with one that has no text, refuses by name; the old road
+#  reads both false in silence (reported, not copied). H7 (committed file): opCallTest's rule arm out -> every new-road D row !R
+#  ("has no method" / processCode) and both refusals 0.
+for _e in "ctVal()|no argument" "ctVal(ctEmpty)|an argument that has no text"; do
+    _ec=${_e%%|*}; _ew=${_e#*|}
+    { cat "$T/ct.pre"; printf '%s\ntestOP(it1);\n%s\ncerr "CT SENTINEL":;\nstop();\n' "it1 = If(\"if ctX = $_ec; ctR = 1;\");" 'cerr "CT if " ctR:;'; } > "$T/ct.err.nk"
+    perl -e 'alarm 10; exec @ARGV' "$B" "$T/ct.err.nk" > "$T/ct.err.out" 2> "$T/ct.err.err"; _ecx=$?
+    _ofeq "callTruthT a rule called from the new road with $_ew refuses by name, reads false (refusal / if / exit)" "$(grep -c "^REFUSED .* -- a rule called with $_ew" "$T/ct.err.err") $(grep '^CT if' "$T/ct.err.err" | tr -d ' ') x$_ecx" "1 CTif0 x0"
+    { cat "$T/ct.pre"; printf 'define\n    ctGo code={\n        if ctX = %s;\n            ctR = 1;\n        };\n    ;\nctGo();\ncerr "CT if " ctR:;\ncerr "CT SENTINEL":;\nstop();\n' "$_ec"; } > "$T/ct.err.ok"
+    perl -e 'alarm 10; exec @ARGV' "$B" "$T/ct.err.ok" > "$T/ct.err.out" 2> "$T/ct.err.err"; _ecx=$?
+    _ofeq "callTruthT the same on the OLD road reads false in SILENCE, pinned as reported (refusals / if / exit)" "$(grep -c '^REFUSED' "$T/ct.err.err") $(grep '^CT if' "$T/ct.err.err" | tr -d ' ') x$_ecx" "0 CTif0 x0"
+done
 { cat "$T/ct.pre"; printf 'define\n    ctGo code={\n        while ctZero(ctR);\n            ctN = ctN + 1;\n        };\n    ;\nctGo();\ncerr "CT while " ctN:;\ncerr "CT SENTINEL":;\nstop();\n'; } > "$T/ct.CT-H.ok"
 _ofeq "callTruthT CT-H old road, a while on a zero count with no break ends without entering (value / exit / sentinel)" "$(_ctrun "$T/ct.CT-H.ok" while)" "0 x0 s1"
 else echo "  FAIL  callTruthT MISSING"; fail=1

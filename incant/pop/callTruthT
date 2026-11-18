@@ -37,6 +37,8 @@ define
     ctVal isRule ctA=[ab]+ code={ return ctA; };
     ctDig isRule ctD=[0-9]+ code={ return ctD; };
     ctUp isRule ctU=','{ guard='n' code={ return ctU; };
+    ctBare isRule ctB=[ab]+;
+    ctEmpty;
     ctWVal code={
         return ctVal(ctAb);
         };
@@ -70,7 +72,11 @@ Three facts the rows are built round (measured 2026-11-16, before the cure):
       Nothing reaches an assignment only from a rule called directly (CT-7D).
     - when this was written, on the new road a call needed an argument (`f()` in a STARt text dropped the statement in
       silence), so every action here is called with ctR. Cured 2026-11-16, SEQ 673 (F-161, incant/pop/emptyCallT).
-    - a rule cannot be called from the new road (opCallTest: no method), so the D rows are old road only.
+    - a rule could not be called from the new road (opCallTest: no method for a bare rule; a rule with code={ } failed in
+      processCode, reached end of input), so the D rows were old road only. Cured 2026-11-18, SEQ 691 (F-162): opCallTest asks
+      for a rule first, as opCall does, and runs it on the argument's text. The D rows now run on both roads; CT-9D is a rule
+      with no code={ }, CT-10D and CT-11D call a rule on a quoted literal. pop.sh also pins the two refusals the new road adds:
+      a rule called with no argument, or with an argument that has no text (the old road reads both false, silently).
 
 ROWS -- id | the call | what it hands back | roads (b both, o old only)
 CT-1|ctZero(ctR)|a zero count|b
@@ -81,7 +87,10 @@ CT-5|ctWVal(ctR)|a label with a value, through an action|b
 CT-6|ctWUp(ctR)|a label with no value, through an action|b
 CT-7|ctWFail(ctR)|a failed rule, through an action: a zero count|b
 CT-8|ctWDig(ctR)|a label whose text is 0, through an action|b
-CT-5D|ctVal(ctAb)|a rule's label with a value|o
-CT-6D|ctUp(ctCm)|a rule's label with no value|o
-CT-7D|ctVal(ctXy)|a rule that fails: nothing|o
-CT-8D|ctDig(ctZe)|a rule's label whose text is 0|o
+CT-5D|ctVal(ctAb)|a rule's label with a value|b
+CT-6D|ctUp(ctCm)|a rule's label with no value|b
+CT-7D|ctVal(ctXy)|a rule that fails: nothing|b
+CT-8D|ctDig(ctZe)|a rule's label whose text is 0|b
+CT-9D|ctBare(ctAb)|a rule with no code: its label|b
+CT-10D|ctVal("ab")|a rule on a quoted literal that matches|b
+CT-11D|ctVal("xy")|a rule on a quoted literal that fails: nothing|b
