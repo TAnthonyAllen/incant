@@ -1,0 +1,50 @@
+Start();
+include(stashList);
+registry(StashWalk);
+define
+    swDirs
+        swWindows directory="IncantForms/Windows" load;
+        swIncant directory="incant" load;
+    swBad = 0;
+    swHits = 0;
+    swCur = "none";
+    swFirst = "none";
+    swSecond = "none";
+    swDirOne code={
+        swD := argument["directory"];
+        swDir = string $*swD$;
+        swHas = 0;
+        if argument[swCur];     swHas = 1;
+        if swHas == 1;          swHits += 1;
+        if swHas == 1;
+            if swHits == 1;     swFirst = string $swDir "/" swCur$;
+            if swHits == 2;     swSecond = string $swDir "/" swCur$;
+        };
+    swName code={
+        swCur = string $argument.taG$;
+        swHits = 0;
+        for swX in swDirs; members
+            swDirOne(*swX);
+        if swHits == 0;     cerr "REFUSED stash --" swCur "is on the list and no stated directory has a file of that name":;
+        if swHits == 0;     swBad = 1;
+        if swHits > 1;      cerr "REFUSED stash -- two files named" swCur ":" swFirst "and" swSecond:;
+        if swHits > 1;      swBad = 1;
+        if swHits == 1;     print $_ _ _ _ swCur _ "File='" swFirst "';"$:;
+        };
+    swWalk code={
+        for swM in stashNames; members
+            swName(*swM);
+        };
+    ;
+search StashWalk StashList;
+swWalk();
+cerr "STASHWALK BAD" swBad:;
+cerr "STASHWALK SENTINEL":;
+stop();
+
+stashWalk -- SEQ 688 (the stash dispatch, Tony 2026-11-17): the walk that generates incant/stash, the sTASh entries show looks a
+name up in. The list is hand-kept (incant/stashList): only a listed name gets an entry. The stated directories are swDirs, each
+read by the load attribute (loadDirectory). For each listed name it counts the stated directories holding a file of that name:
+none refuses by name; two refuse naming both files; one writes the line name File='dir/name'. Any refusal sets STASHWALK BAD 1
+and genLadder/stash.sh writes nothing. A directory that cannot be read is refused by the script (loadDirectory says
+"load: could not open <dir>" and the walk would otherwise read it as empty). Run by genLadder/stash.sh, never by hand.

@@ -1,0 +1,10 @@
+/*  stashList -- THE STASH'S LIST, KEPT BY HAND (Tony, 2026-11-17, SEQ 688). The user decides what is stashed: one incantation's
+    own name a line, under stashNames, no suffix. genLadder/stash.sh finds each name's file under the stated directories
+    (incant/stashWalk, swDirs) and writes incant/stash, the sTASh entries show looks a name up in. Paths are never typed here.
+    To stash another: add its name below, run genLadder/stash.sh.  */
+registry(StashList);
+define
+    stashNames
+        firstLight;
+        descriptions;
+    ;

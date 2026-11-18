@@ -1,0 +1,59 @@
+Start();
+register(StashT);
+search StashT list;
+define
+    stRead code={
+        stH := argument;
+        stN = *stH.listLengtH;
+        cerr "length" stN:;
+        };
+    stBare code={
+        stB1 := firstLight;
+        stB1L = *stB1.listLengtH;
+        stB2 := descriptions;
+        stB2L = *stB2.listLengtH;
+        stE1 := sTASh["firstLight"];
+        stE1L = *stE1.listLengtH;
+        stE2 := sTASh["descriptions"];
+        stE2L = *stE2.listLengtH;
+        cerr "ST-1 bare firstLight" stB1L "bare descriptions" stB2L "sTASh[firstLight]" stE1L "sTASh[descriptions]" stE2L:;
+        };
+    stAfter code={
+        stF := FORMs["firstLight"];
+        stFL = *stF.listLengtH;
+        stE := sTASh["firstLight"];
+        stEL = *stE.listLengtH;
+        stB := firstLight;
+        stBL = *stB.listLengtH;
+        stU := fILEs["utilities"];
+        stUL = *stU.listLengtH;
+        stS = 0;
+        if FORMs["simple"];     stS = 1;
+        cerr "ST-4 FORMs[firstLight]" stFL "bare firstLight" stBL "sTASh[firstLight]" stEL "fILEs[utilities]" stUL "FORMs[simple]" stS:;
+        };
+    ;
+stBare();
+cerr "ST-2 show(simple), a file on disk not on the list":;
+show(simple);
+cerr "ST-3 show(zzNoSuchForm), no file and no entry":;
+show(zzNoSuchForm);
+include(utilities);
+showPath.path = "IncantForms/PDF/test.pdf";
+cerr "ST-4 show(firstLight), through the stash":;
+show(firstLight);
+stAfter();
+cerr "STASHT SENTINEL":;
+stop();
+
+stashT -- the stash (SEQ 688; the stash dispatch, Tony 2026-11-17). Rows in genLadder/formsPop.sh.
+The stash is the registry sTASh, loaded at Start() from incant/stash, which genLadder/stash.sh generates from the hand-kept list
+incant/stashList. It is reached only by qualified name.
+ST-1  the 2b guard, now against the stash: after Start(); alone, the bare names firstLight and descriptions read nothing (0), while
+      sTASh[firstLight] and sTASh[descriptions] read their entries (1: the File attribute). A non-zero sibling beside each zero.
+ST-2  show(simple): IncantForms/Windows/simple exists, but simple is not on the list: refused "not in the stash", nothing loaded
+      (no deferred line; FORMs[simple] still absent at ST-4).
+ST-3  show(zzNoSuchForm): refused the same way.
+ST-4  show(firstLight) with utilities already loaded (so showPath can point at test.pdf, never Tony's output.pdf): the entry's file
+      loads by continuation and draws to test.pdf; then the form's define has landed in FORMs (12) and the bare name is the form
+      (12). The stash entry reads 2, its File and the file's text, which getFile keeps on any entry it reads: fILEs' utilities
+      entry, read by include(utilities), reads 2 beside it. FORMs[simple] is still 0: ST-2 loaded nothing.
