@@ -1022,6 +1022,8 @@ define
         points into shows its first member. A selected tab whose card is in
         no cards field, or a selected name the bar has no tab for, refuses by
         name, and every cards field then shows its first member.
+        The selected tab is filled with what its selectFill holds (tabs
+        stroke 3); every other tab keeps its own fill.
     ***************************************************************************/
     cpWant;
     cpTab;
@@ -1058,6 +1060,15 @@ define
             return;
         cbHas = 0;
         cbTL = *cpTab.listLengtH;
+        // selectFill the selected tab is filled with what its selectFill holds; the look has resolved both by now, and this is the copy (tabs stroke 3)
+        cbSF = 0;
+        if cbTL > 0;
+            if *cpTab["selectFill"];    cbSF = cbSF + 1;
+            if *cpTab["fill"];          cbSF = cbSF + 1;
+        if cbSF == 2;
+            cbFrom := *cpTab["selectFill"];
+            cbTo := *cpTab["fill"];
+            *cbTo := **cbFrom;
         if cbTL > 0;
             if *cpTab["card"];      cbHas = 1;
         if cbHas == 0;

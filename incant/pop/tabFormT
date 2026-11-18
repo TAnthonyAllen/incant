@@ -22,6 +22,7 @@ define
         };
     tfIntro px=12 py=10;
     tfTabOne px=60 py=62;
+    tfTabThree px=300 py=62;
     tfCardOne px=300 py=120;
     tfCardTwo px=300 py=190;
     tfCardThree px=300 py=260;
@@ -34,6 +35,7 @@ show(tabForm);
 readPDF(tfRead);
 tfAt(tfIntro);
 tfAt(tfTabOne);
+tfAt(tfTabThree);
 tfAt(tfCardOne);
 tfAt(tfCardTwo);
 tfAt(tfCardThree);
@@ -42,6 +44,8 @@ cout "TF-4 tabSelected := tabThree":;
 tabSelected := tabThree;
 show(tabForm);
 readPDF(tfRead);
+tfAt(tfTabOne);
+tfAt(tfTabThree);
 tfAt(tfCardOne);
 tfAt(tfCardThree);
 cerr "TABFORMT SENTINEL":;
@@ -53,3 +57,5 @@ cards stacked (cards, tabs= and selectFill are not read yet), the help box. One 
 SINCE STROKE 2 (SEQ 701): only the selected card is drawn, in the cards field's whole box. tabSelected (outside the form)
 holds 0, so the first tab is selected: the three card pixels all read cardOneFill. TF-4 selects tabThree by hand
 (tabSelected := tabThree): the third card, cardThreeFill, fills the box.
+SINCE STROKE 3 (SEQ 703): the selected tab is filled with what its selectFill holds, its own card's fill: tab One green
+on the first page, tab Three red after tabSelected := tabThree; the others keep tabFill.
