@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2190112 bytes  Nov 18 10:17
+  bin   2190112 bytes  Nov 18 14:10
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs

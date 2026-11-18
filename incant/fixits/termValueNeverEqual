@@ -1,0 +1,55 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(TermValueNeverEqual);
+define
+    tvSrc=(1,second#);
+    tvLit="1";
+    tvCtl=0;
+    tvEq=0;
+    tvEqText=0;
+    tvNe=0;
+    tvRead   isRule tvA=','} guard='n' code={
+        cerr "    the term printed: [" tvA "]":;
+        if tvA == "1";      tvEq = 1;
+        if tvA.text == "1"; tvEqText = 1;
+        if tvA != "1";      tvNe = 1;
+        return tvA; };
+    tvGo code={
+        if tvLit == "1";    tvCtl = 1;
+        pushInputField(argument);
+        tvRead();
+        popInputField();
+        };
+    ;
+cerr "ANCHOR termValueNeverEqual -- a rule reads 1 into its term tvA; its body compares tvA with \"1\"":;
+fixTermValueNeverEqualHere = 0;
+tvGo(tvSrc);
+cerr "PIN 0 control: a plain field holding 1, == \"1\"   -> " tvCtl " (want 1)":;
+cerr "PIN 1 tvA == \"1\"                                 -> " tvEq " (want 1)":;
+cerr "PIN 2 tvA.text == \"1\"                            -> " tvEqText " (want 1)":;
+cerr "PIN 3 tvA != \"1\"                                 -> " tvNe " (want 0)":;
+cerr "SENTINEL termValueNeverEqual reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, buying upto-set: file, do not chase; fixed before the list form)
+SEVERITY: wrong -- it gives the wrong answer quietly.
+
+termValueNeverEqual -- in a rule's body, the value a term matched compares unequal to anything with == or !=, though it
+prints right. Found SEQ 697 (2026-11-18, kant, bare build) on the way to upToSetDelimiter; it is that fixit's finding b.
+
+MEASURED SEQ 697, every spelling unequal: usE == "second", usE.text == "second", ue := usE; *ue == "second", a set
+term's value against a field holding "," (usSet == usComma), and != reading 1 for every field. The control, a plain
+field == ",", reads equal. A set term's value is a TOKEN (testMacro's setToken); an upTo term's is a STRING (setText).
+Who meets it: Tony's DataInputField (IncantForms/WorkingOn/delimitedData) tests `dataDelimiter != ","` and so ends a
+record after every field; the list form will.
+
+NEXT: OPEN
+  What == reads for a term name in a body is not measured: the label, the term's definition (tvA=','}, whose value is
+  the delimiter), or a fresh local (the body's tvA dumped as "tvA=tvA" in SEQ 697, while print showed the label).
+  The measurement that would say: compare tvA with "," -- if that reads equal, == reads the definition.
+  Taken: PINs 0, 1, 2 read 1 and PIN 3 reads 0. Not taken (today): PIN 0 reads 1 and the rest read 0 0 1.

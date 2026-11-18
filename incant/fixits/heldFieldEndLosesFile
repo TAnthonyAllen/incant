@@ -1,0 +1,45 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(HeldFieldEndLosesFile);
+define
+    hfSrc=(first line
+second line
+#);
+    hfN=0;
+    hfLine   isRule hfL='\n'} guard='n' code={ ++hfN; cerr "    line " hfN " [" hfL "]":; return hfL; };
+    hfRead code={
+        pushInputField(argument);
+        while hfLine(); continue;
+        popInputField();
+        cerr "PIN 1 the action finished, lines read " hfN " (want 2)":;
+        };
+    ;
+cerr "ANCHOR heldFieldEndLosesFile -- a rule reads a pushed field line by line, to its very end":;
+fixHeldFieldEndLosesFileHere = 0;
+hfRead(hfSrc);
+cerr "PIN 2 the next top-level statement ran (want this line)":;
+cerr "SENTINEL heldFieldEndLosesFile reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, buying upto-set: file, do not chase; fixed before the list form)
+SEVERITY: wrong -- input goes missing without a refusal.
+
+heldFieldEndLosesFile -- when a rule reads a pushed field (pushInputField) to its very end, the action that pushed it
+finishes, but the rest of the CALLING file never runs: no refusal, exit 0, only stop's "ending input divert" lines.
+Found SEQ 697 (2026-11-18, kant, bare build); upToSetDelimiter's finding d. A plain string delimiter ('\n'}), so not
+a set matter. Measured with the explicit popInputField and without it: the file is lost either way.
+
+Who meets it: anything that reads a data file to its end -- Tony's delimitedData, the list form. upToSetT and
+delimitedData's specimen dodge it by ending their data in a line with no delimiter.
+
+NEXT: BEST GUESS -- not a recommendation.
+  GroupItem::parse's failure path (debugHere): `if !*atRuleMark && inputDiverted` pops the input stack while it is at
+  its end and above inputFloor. pushInputField is not a drive, so inputFloor is 0 and the pop may go past the pushed
+  field into the file; the action's own popInputField then pops again. Grade: a reading of the source, not traced.
+  Promoted by a trace of the input stack's depth at that pop; killed if the depth there is the field's own.
+  Taken: PIN 1, PIN 2 and the SENTINEL print. Not taken (today): PIN 1 prints and nothing after it.
