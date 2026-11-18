@@ -1804,9 +1804,10 @@ continueHere:
 			// leafDone the leaf hands its result back by RETURN; a self-repeating leaf has done the whole repetition, so its success ends the loop (stroke 1.1 site 3)
 			if ( callOK && !ruleStuff->overTo && (this->groupBody->gTestMatch == ::testAny || this->groupBody->gTestMatch == ::testCharacter || this->groupBody->gTestMatch == ::testSet) )
 				leafDone = 1;
+			// heldDelimiter an upTo's held group IS its delimiter, already read by testUpTo -- parsing it again ate the delimiter, or failed past it (upToSetDelimiter)
 			if ( !parseACTION(groupBody->flags.methodType) )
 				{
-				if ( callOK && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff,0,0) )
+				if ( callOK && ruleStuff->onGroup && !ruleStuff->overTo && !ruleStuff->onGroup->parse(ruleStuff,0,0) )
 					callOK = 0;
 				if ( callOK && groupBody->flags.hasAttributes )
 					callOK = ::testAttributes(ruleStuff,this);

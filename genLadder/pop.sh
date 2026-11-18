@@ -10373,6 +10373,16 @@ _ofeq "reference the count line: rows, facts, and the two controls counted" "$(g
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
+echo "-- a rule reads up to (or over) a set, written in the rule or held in a field (upToSetT; fixit upToSetDelimiter, SEQ 697)."
+#  ⚑ upToSetT -- dispatch of 2026-11-18 (Tony's item 1): upToMatch takes a delimiter holding a set, as delimitedData's
+#  DataInputField line. H7 (SEQ 697, committed files): parse's onGroup parse (GroupItem, old road) back for an upTo term -> UT-1 reads "," and
+#  UT-2 fires 0, UT-4 reads 0 rows; upToMatch's string read back ahead of the set test -> exit 139 before UT-1 (measured).
+_utF=$(ip upToSetT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_utF" > "$T/ut.o" 2> "$T/ut.e"; _utx=$?
+_ofeq "upToSetT exit / sentinel" "$_utx $(grep -c '^UPTOSETT SENTINEL' "$T/ut.e")" "0 1"
+_ofeq "upToSetT UT-1..UT-3 held set up to, held set over, written set up to: each fires and reads the first field" "$(grep -c '^UT- [123] fired  1 ' "$T/ut.e") $(grep -c '^UT-[123] read \[ 1 \] ' "$T/ut.e")" "3 3"
+_ofeq "upToSetT UT-4 DataInputField's shape (up to the held set, then the delimiter as a term) reads 2 rows of 3 cells" "$(grep '^UT-4 rows' "$T/ut.e") $(grep '^UT-4 cell' "$T/ut.e" | sed 's/^UT-4 cell \[ \(.*\) \].*/\1/' | tr '\n' '|')" "UT-4 rows  2 cells  6  1|second|42|3|third|43|"
+
 echo "-- a refusal names the true file line (lineNoT, searchAtBuild; SEQ 694)."
 #  ⚑ lineNoT -- seal 506's step A (Tony, 2026-11-18): the counter starts at 1, and the newlines a quoted string, a (...#)
 #  literal or a code={ } body swallows join it when the token is taken. H7 (SEQ 694, committed file): the counter back to 0 and
