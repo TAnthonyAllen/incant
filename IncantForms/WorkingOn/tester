@@ -28,6 +28,66 @@ search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
     However, new users will expect show() to show something.
 *****************************************************************************/
 show(firstLight);
+/*  Specimens for F-163 and F-164 (Clod, SEQ 688; docs/fixIts.md). Walk them with a breakpoint on fixArmHere or fixSearchHere.
+    F-163: a := made inside an if arm, read after the arm. Each line should read length 2; today every one does (not reproduced).
+    F-164: a search line in a body runs when the body is first built, not when its line runs (a); names bind at that build too (b, c). */
+register(FixSpec);
+search FixSpec FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    fxSrc a=1 b=2;
+    fxArmBinding code={
+        fxOn = 1;
+        if fxOn == 1;
+            fxPlain := fxSrc;
+        if fxOn == 1;
+            fxSub := FixSpec["fxSrc"];
+        if fxOn == 1;
+            if fxOn == 1;
+                fxNest := fxSrc;
+        if fxOn == 1;
+            fxRet := fxSrc;
+            if fxOn == 0;
+                return 0;
+        fixArmHere = 0;
+        fxN1 = *fxPlain.listLengtH;
+        fxN2 = *fxSub.listLengtH;
+        fxN3 = *fxNest.listLengtH;
+        fxN4 = *fxRet.listLengtH;
+        cerr "F-163 after the arm: plain" fxN1 "subscript" fxN2 "nested" fxN3 "with a return" fxN4:;
+        };
+    fxLen code={
+        fxK := searchSave(0);
+        fxKN = *fxK.listLengtH;
+        cerr argument "search list length" fxKN:;
+        };
+    fxSearchAtBuild code={
+        fixSearchHere = 0;
+        fxLen(beforeTheLine);
+        search FixSpec FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+        fxLen(afterTheLine);
+        };
+    fxBindAtBuild code={
+        fxLaterOne(1);
+        };
+    fxBindFresh code={
+        fxLaterOne(1);
+        };
+    ;
+fxArmBinding();
+search FixSpec FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+fxLen(atTopLevel);
+cerr "F-164 a: the body's search line ran before its first statement (both lengths already longer than at the top level)":;
+fxSearchAtBuild();
+cerr "F-164 b: fxBindAtBuild is first built before FixLater exists, so fxLaterOne binds to a fresh local and the call does nothing":;
+fxBindAtBuild();
+registry(FixLater);
+define
+    fxLaterOne code={ cerr "    fxLaterOne ran":; };
+    ;
+search FixSpec FixLater FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+cerr "F-164 c: FixLater is searched now; fxBindAtBuild still does nothing, a twin first built now runs it":;
+fxBindAtBuild();
+fxBindFresh();
 print "SENTINEL tester driver end":;
 stop();
 
