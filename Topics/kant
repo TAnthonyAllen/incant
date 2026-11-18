@@ -28,6 +28,23 @@ ONE LINE: kant is being rewritten in kant -- rules whose actions build instructs
                         once to find a position and again to reach it. Wanted: for e in <any holder>, and a kept cursor.
     WHAT WORKS          an inline grammar parsing a string in one call (tsText); registries as plain lookups.
     CAVEAT              some of these may already have a spelling Clod did not use (describe uses `or` as else-if).
+    THE SPLIT (Clod's proposal, 2026-11-18; Tony: body and fender work now, before typesetting grows)
+        hammer          break in while/for; && and || in a condition; a trusted else (first a MEASUREMENT of which
+                        shapes work today, and on which grammar); labelled access to a parse result (piece.name).
+                        Each one at a time, with a fixture row and typeset's line count before and after.
+                        Proposed order: break and && first (they pay most in typeset), then the else measurement,
+                        then labelled access.
+        screwdriver     parameters and return values (the frame, the jitter); holder-or-held (the object model).
+                        Clay's. The hammer work does not wait on them.
+        which grammar   action bodies and forms parse on incant/grammar: a hammer change made only in kantGrammar
+                        does not reach typeset. Every change names its grammar (standing rule, SEQ 552 R5).
+    RULES IN ACTIONS (Tony asked, 2026-11-18: useful, or a solution looking for a problem?)
+        Clod's answer: useful. tsText(argument) is the shortest and clearest part of typeset; reading the same text
+        in kant by hand would be char loops and many more lines. It is the less-code goal working. The sharp edges are
+        real and are what tripped delimitedData: the skipper eats a newline unless the term carries ^; a rule that
+        reads a pushed field to its end loses the rest of the calling file at exit 0 (fixits upToSetDelimiter,
+        heldFieldEndLosesFile); the new road could not call a rule at all until F-162; the result comes back by
+        position (point 3). Worth hardening rather than doubting.
 
 /*****************************************************************************
     Description
