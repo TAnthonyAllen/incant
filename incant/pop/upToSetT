@@ -1,0 +1,67 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(UpToSetT);
+define
+    utDelim=[,\n];
+    utComma=[,];
+    utNewline=[\n];
+    utSrc=(1,second,42
+3,third,43
+no delimiter after this line#);
+    utHit=0;
+    utRows=0;
+    utCells=0;
+    utHeld   isRule utA=utDelim{ guard='n' code={ utHit = 1; cerr "UT-1 read [" utA "]":; return utA; };
+    utOver   isRule utB=utDelim} guard='n' code={ utHit = 1; cerr "UT-2 read [" utB "]":; return utB; };
+    utInline isRule utC=[,\n]{ guard='n' code={ utHit = 1; cerr "UT-3 read [" utC "]":; return utC; };
+    utMid    isRule utCell=utDelim{ utComma^ guard='n' code={ ++utCells; cerr "UT-4 cell [" utCell "]":; return utCell; };
+    utLast   isRule utCell=utDelim{ utNewline^ guard='n' code={ ++utCells; ++utRows; cerr "UT-4 cell [" utCell "] ends row " utRows:; return utCell; };
+    utOne code={
+        utHit = 0;
+        pushInputField(utSrc);
+        if argument == 1;   utHeld();
+        if argument == 2;   utOver();
+        if argument == 3;   utInline();
+        popInputField();
+        cerr "UT-" argument " fired " utHit:;
+        };
+    utRead code={
+        pushInputField(argument);
+        utGoing = 1;
+        while utGoing == 1;
+            utGoing = 0;
+            if utMid();    utGoing = 1;
+            if utGoing == 0;
+                if utLast();   utGoing = 1;
+        popInputField();
+        cerr "UT-4 rows " utRows " cells " utCells:;
+        };
+    ;
+utOne(1);
+utOne(2);
+utOne(3);
+utRead(utSrc);
+cerr "UPTOSETT SENTINEL":;
+stop();
+
+upToSetT -- a rule that reads UP TO a set (the { modifier) or OVER one (the }), the set written in the rule or held in a
+field. Fixit upToSetDelimiter, SEQ 697 (2026-11-18).
+
+UT-1  the set held in a field, up to:      fires, reads 1
+UT-2  the set held in a field, over:       fires, reads 1
+UT-3  the set written in the rule, up to:  fires, reads 1
+UT-4  DataInputField's shape: up to the held set, then the delimiter as a second term (^, so the skipper does not eat a
+      newline). Two rules, one ending in a comma and one in a newline, read the data into rows: 2 rows, 6 cells.
+
+THE TWO HALVES OF THE CURE, and what each row needs:
+  upToMatch (RuleStuff.twk) read the delimiter's text and its length before asking whether it was a set: exit 139 on every
+  row here. It now asks the delimiter (the term, or the field the term names) first.
+  parse (GroupItem.twk, the old road) parsed a held field again as the term's onGroup after the upTo had read it: with { that ate the
+  delimiter (UT-1 read "," and UT-4's second term never matched), with } it failed past it (UT-2 fired 0). It is skipped
+  for an upTo term now.
+
+The data ends in a line with no delimiter on purpose: a rule that reads a pushed field to its very end loses the rest of
+the calling file at exit 0 (string delimiters too; recorded in the fixit, not chased).

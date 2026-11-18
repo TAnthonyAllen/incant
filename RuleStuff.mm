@@ -296,10 +296,15 @@ int 		matchLength = 1;
 int 		skipping = 0;
 Buffer 		*buffer = ruler->stringBUFFER;
 GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : field;
+GroupItem 	*delim = grup;
 	 char *lineFrom = ruler->atRuleMark; 
 	buffer->reset();
-	endString = grup->getText();
-	matchLength = (int)::strlen(endString);
+	// setDelimiter the delimiter is the term or the field it names; a set has no string to read (upToSetDelimiter)
+	if ( !isSET(delim->groupBody->flags.data) )
+		{
+		endString = delim->getText();
+		matchLength = (int)::strlen(endString);
+		}
 	if ( ruleStuff->noLabel && isCOUNT(grup->groupBody->flags.data) )
 		{
 		counter = field->getCount();
@@ -313,8 +318,11 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 		********************************************************************/
 		for ( ; *atText; atText++, lngth++ )
 			{
-			if ( isSET(field->groupBody->flags.data) && field->getCharacterSet()->contains(*atText) )
-				matched++;
+			if ( isSET(delim->groupBody->flags.data) )
+				{
+				if ( delim->getCharacterSet()->contains(*atText) )
+					matched++;
+				}
 			else
 			if ( matchLength == 1 )
 				{

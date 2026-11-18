@@ -313,10 +313,13 @@ int         counter     = 1,
             skipping;
 Buffer      buffer = stringBUFFER;
 GroupItem   grup = field.isGROUP ? field.group : field;
+GroupItem   delim = grup;
     -% char *lineFrom = ruler->atRuleMark; %-
     reset();
-    endString = text;
-    matchLength = (int)strlen(endString);
+    // setDelimiter the delimiter is the term or the field it names; a set has no string to read (upToSetDelimiter)
+    if !delim.isSET {
+        endString = delim.text;
+        matchLength = (int)strlen(endString); }
 use field
     if noLabel && grup.isCOUNT {
         counter = count;
@@ -327,7 +330,8 @@ use field
             Advance atText until the rule matches
         ********************************************************************/
         for (; *atText; atText++ lngth++) {
-            if isSET && characterSet.contains(*atText)  matched++;
+            if delim.isSET {
+                if delim.characterSet.contains(*atText)  matched++; }
             or matchLength == 1 {
                 if *atText == '\\' {
                     atText++;

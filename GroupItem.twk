@@ -1352,8 +1352,9 @@ continueHere:
             or this.testMatch                                       callOK = this.testMatch(this);
             // leafDone the leaf hands its result back by RETURN; a self-repeating leaf has done the whole repetition, so its success ends the loop (stroke 1.1 site 3)
             if callOK && !ruleStuff.overTo && (this.testMatch == testAny || this.testMatch == testCharacter || this.testMatch == testSet)   leafDone = 1;
+            // heldDelimiter an upTo's held group IS its delimiter, already read by testUpTo -- parsing it again ate the delimiter, or failed past it (upToSetDelimiter)
             if !parseACTION {
-                if callOK && onGroup && !onGroup.parse(ruleStuff,0,null)  callOK = false;
+                if callOK && onGroup && !ruleStuff.overTo && !onGroup.parse(ruleStuff,0,null)  callOK = false;
                 if callOK && hasAttributes                         callOK = testAttributes(ruleStuff,this); }}
         if !callOK     goto matchFailed;
         /*******************************************************************

@@ -38,7 +38,6 @@ getFile(usSrc);
 usGoGuarded(usSrc);
 usGoPlain(usSrc);
 fixUpToSetDelimiterHere = 0;
-cerr "NEXT LINE CRASHES TODAY (exit 139): upTo over a set":;
 usGoSet(usSrc);
 cerr "SENTINEL upToSetDelimiter reached the foot":;
 stop();
@@ -74,14 +73,36 @@ delimitedData runs with the guard='n' removed.
 Seen on the way and not chased: a string delimiter held in a FIELD (us=","; usA=us{) fires but the label reads "," not
 "1"; and adding the field as a second term (usA=us{ us) stops the rule firing at all. Only the written-in string works.
 
-NEXT: BEST GUESS -- not a recommendation until built.
-  1. In upToMatch, take the string and its length only when the delimiter is not a set (matchLength stays 1 for a set),
-     and check which of field / grup the loop's isSET is reading when the set is held in a field. Grade: likely; the
-     crash line is Tony's reading of the source, not a backtrace I took. Promoted by PIN 3 reading 1 and tester running
-     without its crash; killed if the crash is still there with the string read skipped.
-  2. In ensureGuard, the first attribute that is not optional, when it carries upTo or upToOver (the { or } modifier),
-     makes the rule unguarded (Tony's words of 2026-11-17, above; optional attributes do not count, and only the first
-     that is not optional reaches guardSet). Grade: Tony's suggestion, site not read. Promoted by PIN 2 reading 1 with
-     no fleet row moving, and by delimitedData running with DataInputField's guard='n' taken out.
-  Taken: all three PINs read 1 and the SENTINEL prints at exit 0. Not taken (today): PIN 1 reads 1, PIN 2 reads 0, the
-  run dies at exit 139 before PIN 3.
+ATTEMPT LOG
+  SEQ 697 (2026-11-18, kant, bare build, branch upto-set):
+    upToMatch reads the delimiter's string only when it is not a set, and asks the set of the delimiter (the term, or the
+      field the term names: delim), not of field -> the crash is gone (PIN 3 exit 0), but PIN 3 fires 0 and its body read ",".
+    measured why (a trace in upToMatch, then taken out): upToMatch matched "1"; parse (GroupItem, the old road) then parsed the HELD field again as the
+      term's onGroup. With { that ate the comma (so a second term never matched, and the body read the comma); with } it
+      failed past it (the rule fired 0 though upToMatch matched). parse skips the onGroup parse for an upTo term
+      (GroupItem.twk, heldDelimiter) -> PIN 3 fires 1 and reads 1; upTo-over a held set fires; DataInputField's shape
+      (up to the held set, then the set as a term) reads every field once the second term carries ^.
+    fleet: incant/pop/upToSetT, pop.sh rows "upToSetT ..." (3). pop.sh 4004 green, FAIL 63 identical by name.
+  Item 2 (ensureGuard) NOT touched: PIN 2 still reads 0, and every rule here still carries guard='n'.
+
+FOUND ON THE WAY (SEQ 697), not chased:
+  a. PIN 1's "1" was never the label: no label was set for usA (a trace on setText), and the body's usA is a fresh local.
+     The "a string written in the rule reads 1" above is withdrawn as a measurement of the label.
+  b. A term's label compared with == or != never reads equal in the rule's body, however spelled (usE == "second",
+     usE.text == "second", a := capture starred, against a field holding ","); a plain field == "," reads equal (control).
+     The label prints right. A set term's label is a TOKEN (testMacro's setToken). Tony's DataInputField tests
+     `dataDelimiter != ","` and so ends a record after every field.
+  c. Without ^ on the second term, the skipper eats a newline before the term sees it.
+  d. A rule that reads a pushed field to its very end loses the rest of the CALLING file at exit 0 -- shown with a plain
+     string delimiter ('\n'}), so not a set matter: the action finishes, the next top-level statement never runs.
+  e. Two strings, up to then as a term (usE=','{ ','), refuses: "processCode: the label arm was reached by a label with
+     no labelOf (F-130)". Not DataInputField's shape.
+
+NEXT:
+  Item 1 -- REMEDY, BEHAVIOUR. Built SEQ 697: upToMatch (RuleStuff.twk, setDelimiter) and parse (GroupItem.twk,
+    heldDelimiter). Taken: PIN 3 fires 1 and reads 1, the SENTINEL prints at exit 0, upToSetT green. Not taken: exit 139
+    at PIN 3 (the first half undone) or PIN 3 fires 0 / reads "," (the second).
+  Item 2 -- BEST GUESS, unchanged: in ensureGuard, the first attribute that is not optional, when it carries upTo or
+    upToOver (the { or } modifier), makes the rule unguarded (Tony's words of 2026-11-17, above). Promoted by PIN 2
+    reading 1 with no fleet row moving, and by delimitedData running with DataInputField's guard='n' taken out.
+  Found b and d are the ones DataInputField meets next; each wants Tony's word before it is chased.

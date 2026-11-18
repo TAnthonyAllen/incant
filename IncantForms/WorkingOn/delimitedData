@@ -75,7 +75,53 @@ getFile(source);
 debug GUARD DataInputField;
 loadRecords(source);
 dumpField(source);
+/*****************************************************************************
+    Clod's specimen, SEQ 697 (2026-11-18): comma-and-newline data read into rows
+    by a rule that reads up to a set held in a field. Walk it in Xcode from a
+    breakpoint in upToMatch (RuleStuff.mm). Notes below the stop.
+*****************************************************************************/
+define
+    rsDelim=[,\n];
+    rsComma=[,];
+    rsNewline=[\n];
+    rsSrc=(1,second,42
+3,third,43
+no delimiter after this line#);
+    rsRows=0;
+    rsCells=0;
+    rsMid    isRule rsCell=rsDelim{ rsComma^ guard='n' code={ ++rsCells; cerr "    cell " rsCells " [" rsCell "]":; return rsCell; };
+    rsLast   isRule rsCell=rsDelim{ rsNewline^ guard='n' code={ ++rsCells; ++rsRows; cerr "    cell " rsCells " [" rsCell "]  -- end of row " rsRows:; return rsCell; };
+    rsRead code={
+        pushInputField(argument);
+        rsGoing = 1;
+        while rsGoing == 1;
+            rsGoing = 0;
+            if rsMid();    rsGoing = 1;
+            if rsGoing == 0;
+                if rsLast();   rsGoing = 1;
+        popInputField();
+        cerr "SPECIMEN rows " rsRows " cells " rsCells " (want 2 and 6)":;
+        };
+    ;
+fixDelimitedRowsHere = 0;
+rsRead(rsSrc);
 print "SENTINEL tester driver end":;
 stop();
 
 // Everything that was below the stop was moved to IncantForms/WorkingOn/stash
+
+Clod's specimen (SEQ 697, 2026-11-18), above the stop:
+    rsMid reads a cell up to the set held in rsDelim, then the comma as its second term; rsLast reads a cell up to the
+    set, then the newline. rsRead tries rsMid, then rsLast, until neither matches: two rows of three cells.
+    The ^ on the second term matters: without it the skipper eats the newline before the term sees it, and the first
+    row runs on into the second.
+    The data ends in a line with no delimiter after it on purpose. A rule that reads a pushed field to its very end
+    loses the rest of the calling file at exit 0 (string delimiters too, not only sets; in the fixit upToSetDelimiter).
+
+What this means for DataInputField above (left as you wrote it):
+    1. Its second term wants the ^ (dataDelimiter^), for the newline, as rsMid and rsLast have.
+    2. Its body's test `if dataDelimiter != ","` reads unequal for every field: a term's label compared with ==
+       or != never reads equal, however spelled (dataDelimiter == ",", .text, a := capture, a field holding ","),
+       although it prints right. Measured SEQ 697; in the fixit upToSetDelimiter. rsMid / rsLast tell the comma
+       from the newline by which rule matched instead.
+    3. guard='n' is still needed (item 2 of the fixit, Tony's ensureGuard note: not built).
