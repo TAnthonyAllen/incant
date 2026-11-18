@@ -12,12 +12,14 @@ define
     xrR;
     xrA;
     xrB;
-    fId code={ return argument; };
+    xrH;
+    fZero code={ return 0; };
     xrDriver code={
-        xrA = xrL && *fId(xrR);
-        xrB = *fId(xrL) || xrR;
+        xrA = xrL && *xrH(xrR);
+        xrB = *xrH(xrL) || xrR;
         };
     ;
+xrH := fZero;
 
 xrL = 0; xrR = 0; xrA = 9; xrB = 9;
 testing(xrDriver);
@@ -39,10 +41,15 @@ stop();
 
 jitXscRT -- AN AND/OR OPERAND THAT EMITS NOTHING UNDER JIT (SEQ 335 R2, fault A). 2026-10-11.
 
-`*fId(x)` is a star on a call target: the jit has no emit for it (switch off the operand yields no value; switch on the
-candidate refuses "a call whose target is built"). So each connective has one operand with no value at emit time:
-    xrA = xrL && *fId(xrR);     the RIGHT operand
-    xrB = *fId(xrL) || xrR;     the LEFT operand -- and its value is decided by xrR, so fire 2 must read 1
+`*xrH(x)` is a call whose target is built -- (*xrH)(x), xrH a holder of fZero, which returns 0: the jit has no emit for it
+(the candidate refuses "a call whose target is built" at emit time). So each connective has one operand with no value at
+emit time:
+    xrA = xrL && *xrH(xrR);     the RIGHT operand
+    xrB = *xrH(xrL) || xrR;     the LEFT operand -- and its value is decided by xrR, so fire 2 must read 1
+RESPELLED 2026-11-18 (SEQ 690). Until then the operand was `*fId(x)`, which reads (*fId)(x): a star on an action yields
+nothing, so it was a call with no target at all, which did nothing in silence. Tony ruled that it refuses; the old spelling is
+pinned as that refusal in incant/pop/jit/jitNoTargetT (rung JXD-5). The rung's point -- an operand with no value at emit
+time, run as one run-time call -- did not depend on the no-op, so fZero gives the falsy value the no-op used to.
 jitEmitShortCircuit now clears the value in flight before each operand and runs an operand with no value as ONE run-time
 call (jitScOperandRT, interpreted). Before that fix the right case read the stale assignment (9) and the left case omitted
 the connective entirely, so xrB read back its own tag. The interpreted oracle runs last, after the jitted fires

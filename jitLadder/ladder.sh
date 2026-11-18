@@ -1483,6 +1483,33 @@ else
     else echo "  FAIL  JXD-4 degrade count = '$xrd', want 2"; fail=1; fi
 fi
 
+#  JXD-5 -- A CALL WITH NO TARGET REFUSES, ON BOTH ROADS (Tony, SEQ 690, 2026-11-18). `*fId(x)` reads (*fId)(x): a star on an
+#  action yields nothing. It used to do nothing in silence; it refuses now, quoting the call, and the refusal ends the action.
+#  JXD-4's old spelling is case 1 (the call as an AND operand, through jitScOperandRT); case 2 is the call as a bare statement.
+#  Compiled must equal interpreted: ntA 1 (written before the call), ntB and ntC 9 (never reached), one refusal per fire.
+#  H7 (SEQ 690, committed file): jitScOperandRT back to scoping the refusal to the operand -> compiled 1 reads ntC = 3 (the
+#  compiled action ran on), interpreted 1 still 9.
+echo "-- JXD-5  A CALL WITH NO TARGET REFUSES, AND ENDS THE ACTION, ON BOTH ROADS."
+$B "$(ip jitNoTargetT)" > "$T/jitNoTargetT" 2>&1
+nte=$?
+if [ $nte != 0 ]; then echo "  FAIL  JXD-5 -- nonzero exit ($nte)"; fail=1
+elif ! grep -qF "NT SENTINEL" "$T/jitNoTargetT"; then
+    echo "  FAIL  JXD-5 -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1
+else
+    echo "  ok    JXD-5 runs, sentinel"; green=$((green+1))
+    if [ "$(grep -c '=== jitRunAction: entering on ntDriver' "$T/jitNoTargetT")" = "1" ]; then echo "  ok    JXD-5 the compiled fires are compiled (jitRunAction entered once)"; green=$((green+1))
+    else echo "  FAIL  JXD-5 jitRunAction did not enter on ntDriver -- the compiled half measured the interpreter"; fail=1; fi
+    _nt() { sed -n "s/.*NT $1 : ntA = \([0-9a-zA-Z]*\) *ntB = \([0-9a-zA-Z]*\) *ntC = \([0-9a-zA-Z]*\).*/\1 \2 \3/p" "$T/jitNoTargetT" | head -1; }
+    for k in 1 2; do
+        nc=$(_nt "compiled $k"); ni=$(_nt "interpreted $k")
+        if [ "$nc" = "1 9 9" ] && [ "$ni" = "1 9 9" ]; then echo "  ok    JXD-5 case $k compiled = interpreted = 1 9 9 (the refusal ended the action)"; green=$((green+1))
+        else echo "  FAIL  JXD-5 case $k compiled '$nc', interpreted '$ni', want 1 9 9"; fail=1; fi
+    done
+    ntr=$(grep -c '^REFUSED `\*fId(ntR)` -- a call with no target' "$T/jitNoTargetT")
+    if [ "$ntr" = "4" ]; then echo "  ok    JXD-5 the refusal quotes the call, once per fire: 4"; green=$((green+1))
+    else echo "  FAIL  JXD-5 quoted refusals = '$ntr', want 4"; fail=1; fi
+fi
+
 echo ""
 echo "-- JE2 / JXN  E2 OWNED WHILE IT WAITS. TWO MORE INVERTED ROWS."
 #  ⚠⚠ E2 IS A CAMPAIGN PREREQUISITE, NOT PARALLEL-TRACK PURITY WORK (R1, Tony,
@@ -1754,7 +1781,7 @@ for _mf in "$T"/.missingFixture.*; do
     echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
 done
 rm -f "$JITCAPLOG"
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JD JN JGC + J-R THE PROOF + SLOT: JM1 JM2)"
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JXD-4 JXD-5 JD JN JGC + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail
