@@ -12,7 +12,6 @@ listExample window closable resize x=400 y=400 width=360 height=300 fill=wall fo
         space;
         heading="Variable Attributes List" height=43.0 text align=center font=title border=off;
     body source=listStuff pad rounded=5 fill=white border=black
-        ?The source attribute creates a Source instance based on the listStuff group and stores a pointer to the instance in a hidden attribute named sRCe?
         rows tableBody
             row fit pad rounded next=body
                 ?The next attribute above looks up the block named in its text (body), finds its source in that block, gets the next record from that source and assigns it to its parent (thus it sets row.group to the next record block). Also, it creates a hidden sRCe attribute in its parent (row), that contains a pointer to the source (created by the source attribute in the body block)?
@@ -33,6 +32,7 @@ listExample window closable resize x=400 y=400 width=360 height=300 fill=wall fo
                         wrap width=75 next=contents
                             vALUE trait=source tableCell;
                 space  height=16;
+bail();
 
 traits and tags are attributes, associated with the cell attribute, and used to refrence the contents of a source.  # TODO: review
 
@@ -55,6 +55,7 @@ The trait attribute value provides three options:  # TODO: review
         source                  As in trait=source. Here the word source is a literal, that is,  # TODO: review
                                 not the name of source. The source block is found by walking up the block hierarchy to find the first parent with a source attribute and then using its source block, which is stored in that first parent group value.  # TODO: review
                                 For example, the trait (in value block of the secondRow above) is set to source, which means it uses the current source block (set when the next attribute of wrap gets fired) as the source for the trait to be displayed.  # TODO: review
+                                In old GUI, the source attribute in the body field creates a Source instance based on the listStuff group and stores a pointer to the instance in a hidden attribute named sRCe. This is probably way too complicated. I would suggest to start have source name the fiele used as the source. We can use listening to reset the source and do without the Source class, altho that will mean figuring out how to keep track of the current source entry to enable scrolling thru what the source contains
 
         anything else           anything else is assumed to be the name of a registered item  # TODO: review
                                 somewhere in the registry search list and trait = that registered item if it exists  # TODO: review
