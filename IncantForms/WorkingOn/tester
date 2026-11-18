@@ -1,22 +1,16 @@
 /*****************************************************************************
 	This is the tester incantation. It is a working file for testing new features
     under development so it changes when there is a new feature in the works.
+    Today it is a clean test of show (SEQ 690): nothing but what show needs.
 *****************************************************************************/
 Start();
-include(unitTests);
-include(utilities);
-registry(fILEs);
-define
-    firstLightFile File='IncantForms/Windows/firstLight';
-    ;
-include(styles);
-search cOLOr fONTs sTYLEs;
-include(firstLightFile);
-search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-/*****************************************************************************
+show(firstLight);
+stop();
+
+Tony's note that sat above the show line, kept here below the stop (2026-11-18, SEQ 690):
     I made a couple of cosmetice changes to the firstLight and definition forms
     to get them looking more right.
-    
+
     Looking ahead to when we have new users (I am thinking to bring in family
     to act as new users so that may happen soon as it is practical).
 
@@ -26,46 +20,7 @@ search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
     skim on output.pdf after running show. We turned that off because tester was
     being run a lot and output.pdf kept popping up on me when I did not run it.
     However, new users will expect show() to show something.
-*****************************************************************************/
-show(firstLight);
-/*  Specimen for F-164 (Clod, SEQ 688; docs/fixIts.md). Walk it with a breakpoint on fixSearchHere. (F-163's retired: armBindT.)
-    F-164: a search line in a body runs when the body is first built, not when its line runs (a); names bind at that build too (b, c). */
-register(FixSpec);
-search FixSpec FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-define
-    fxLen code={
-        fxK := searchSave(0);
-        fxKN = *fxK.listLengtH;
-        cerr argument "search list length" fxKN:;
-        };
-    fxSearchAtBuild code={
-        fixSearchHere = 0;
-        fxLen(beforeTheLine);
-        search FixSpec FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-        fxLen(afterTheLine);
-        };
-    fxBindAtBuild code={
-        fxLaterOne(1);
-        };
-    fxBindFresh code={
-        fxLaterOne(1);
-        };
-    ;
-search FixSpec FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-fxLen(atTopLevel);
-cerr "F-164 a: the body's search line ran before its first statement (both lengths already longer than at the top level)":;
-fxSearchAtBuild();
-cerr "F-164 b: fxBindAtBuild is first built before FixLater exists, so fxLaterOne binds to a fresh local and the call does nothing":;
-fxBindAtBuild();
-registry(FixLater);
-define
-    fxLaterOne code={ cerr "    fxLaterOne ran":; };
-    ;
-search FixSpec FixLater FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
-cerr "F-164 c: FixLater is searched now; fxBindAtBuild still does nothing, a twin first built now runs it":;
-fxBindAtBuild();
-fxBindFresh();
-print "SENTINEL tester driver end":;
-stop();
 
+The tester before this change: BeforeSave/IncantForms/WorkingOn/tester. The F-164 specimen that sat under the
+show line: IncantForms/WorkingOn/searchAtBuild.
 // Everything else that was below the stop was moved to IncantForms/WorkingOn/stash

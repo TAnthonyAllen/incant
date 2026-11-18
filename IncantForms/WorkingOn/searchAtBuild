@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(utilities);
+register(FixSpec);
+search FixSpec UnitTests Utilities list;
+define
+    fxLen code={
+        fxK := searchSave(0);
+        fxKN = *fxK.listLengtH;
+        cerr argument "search list length" fxKN:;
+        };
+    fxSearchAtBuild code={
+        fixSearchHere = 0;
+        fxLen(beforeTheLine);
+        search FixSpec UnitTests Utilities list;
+        fxLen(afterTheLine);
+        };
+    fxBindAtBuild code={
+        fxLaterOne(1);
+        };
+    fxBindFresh code={
+        fxLaterOne(1);
+        };
+    ;
+search FixSpec UnitTests Utilities list;
+fxLen(atTopLevel);
+cerr "F-164 a: the body's search line ran before its first statement (both lengths already longer than at the top level)":;
+fxSearchAtBuild();
+cerr "F-164 b: fxBindAtBuild is first built before FixLater exists, so fxLaterOne binds to a fresh local and the call does nothing":;
+fxBindAtBuild();
+registry(FixLater);
+define
+    fxLaterOne code={ cerr "    fxLaterOne ran":; };
+    ;
+search FixSpec FixLater UnitTests Utilities list;
+cerr "F-164 c: FixLater is searched now; fxBindAtBuild still does nothing, a twin first built now runs it":;
+fxBindAtBuild();
+fxBindFresh();
+cerr "SEARCHATBUILD SENTINEL":;
+stop();
+
+searchAtBuild -- the specimen for F-164 (docs/fixIts.md), moved out of tester 2026-11-18 (SEQ 690) so tester is a clean
+test of show. Walk it in Xcode with a breakpoint on fixSearchHere. NOT RULED: Tony walks this first.
+F-164: a search line in an action body runs when the body is first built (at its first call), not when its line runs (a);
+the body's names bind at that same build, with the search list of that moment (b, c).
+    a  fxSearchAtBuild reads the search-list length before and after its own search line: both already longer than at the
+       top level, so the line ran before the body's first statement.
+    b  fxBindAtBuild is first built before FixLater exists, so fxLaterOne binds to a fresh local.
+    c  FixLater defined and searched: fxBindAtBuild still holds the fresh local; its twin fxBindFresh, first built now, runs it.
+On trunk today b and c's dead call does nothing, silently. With branch undefined-call bought, that call REFUSES BY NAME
+("a call to a name with nothing to call") and ends the action -- the same fact, said out loud.
