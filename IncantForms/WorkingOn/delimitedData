@@ -1,12 +1,11 @@
 /*****************************************************************************
-	This is the tester incantation. It is a working file for testing new features
-    under development so it changes when there is a new feature in the works.
+	This is the delimitedData incantation.
 *****************************************************************************/
 Start();
 
 registry(TESTing);
 /*****************************************************************************
-	The following is a first draft of fields that process a coma delimited file.
+	The following is a first draft of fields that process a comma delimited file.
     The file is assumed to contain records where every record is a row of
     plain text fields separated by a comma, the the row ending in a new line.
 
@@ -72,7 +71,6 @@ define
         };
     ;
 getFile(source);
-debug GUARD DataInputField;
 loadRecords(source);
 dumpField(source);
 /*****************************************************************************

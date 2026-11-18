@@ -8,6 +8,8 @@ ONE LINE: kant is being rewritten in kant -- rules whose actions build instructs
     OPEN, FOR CLAY: what makes kant awkward to write (Tony, 2026-11-18; a design question, not a stroke)
     Clod's list from writing typeset (incant/utilities, typesetting T1-T3), worst first. Tony wants all five fixed
     and calls it a mega design issue -- "a hammer when I need a screwdriver". Nothing here is ruled.
+    THE COST: typeset is about 250 lines; Clod's estimate is about 120 with these fixed. A primary goal of kant is less
+    code, and every one of these pushes the other way (Tony).
 *****************************************************************************/
     1 control flow      no trusted multi-statement else (bear-trap #32, kant inverted from tok), no break, no && in a
                         condition. So flags stand in for control: tyIsStyle, tyLook, tyMore, tySwitch, tyHops = 32 to

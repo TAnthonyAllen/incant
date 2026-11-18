@@ -6,7 +6,7 @@
 *****************************************************************************/
 register(dESCRIPTIONs);
 define
-    tabForm=(In this example, there are two key components to a tabForm interface, the tabBAR (a block with a tabs attribute containing tab blocks). The second component is a block of body panels, with each panel associated with a tab. Each tab block names the card it shows with card:=, and its value is its label.#);
+    tabForm=(In this example, there are two key components to a tabForm interface, the tabBAR (a block with a tabs attribute containing tab blocks). The second component is a block of body panels or cards, with each card associated with a tab. When a tab is selected its associated card is shown.#);
     tabBAR=(When you select a tab on the tabBAR, the body shown in the bodies block becomes the card named in the tab selected: so if tabOne is selected, the firstCard becomes the body, the other two card bodies are hidden. Note the use of selectFill to set the background color of the tab when a tab is selected. Here the selected tab color is matched to the color of the associated body panel but it does not have to be.#);
     ;
 register(FORMs);
@@ -36,11 +36,11 @@ bail();
 THE CARDS ARE DECLARED FIRST (SEQ 700, measured). A tab names its card with card:=firstCard (Tony, ruling 4 of the tabs
 recon), and a := in a define names a field that must already be defined: without the three declarations above the form,
 each tab refused ("a := in a define names a field, and no field by this name is on the search list") and was REMOVED.
-Declared first, the form's card of the same name reopens the declared one: FORMs["firstCard"] reads "The first tab body".
+Declared first, the forms card of the same name reopens the declared one: FORMs["firstCard"] reads "The first tab body".
 
 PLACEHOLDERS (ruling 2): tabFill, tabFont, cardOneFill, cardTwoFill, cardThreeFill, added to IncantForms/Controls/styles
-with their defaultLook values (lightGreen, headerFont, green, blue, red). A tab's selectFill names its card's fill, so one
+with their defaultLook values (lightGreen, headerFont, green, blue, red). A tabs selectFill names its cards fill, so one
 role colours both. The page and intro use pageFill (white in defaultLook; the old wall was never visible, the body covers it).
 
 NOT READ YET: tabs=, card:=, cards and selectFill (strokes 2-4, docs/tabsRecon.md). The selected tab will live in a field
-outside the form (ruling 3). The window's closable, resize and title are inert old-GUI chrome, as in descriptions.
+outside the form (ruling 3). The windows closable, resize and title are inert old-GUI chrome, as in descriptions.
