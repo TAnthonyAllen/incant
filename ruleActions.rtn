@@ -223,6 +223,8 @@ GroupItem   lefty   = rule[1],
             if *atInput  endBox = atInput; }
         if beginBox && endBox++ {
             label.setToken(beginBox,(int)(endBox - beginBox));
+            // swallowedLines the body's newlines join the line count at the capture; the skipper never sees them (SEQ 694)
+            -% for ( char *nl = ruler->atRuleMark; nl < endBox; nl++ ) if ( *nl == '\n' ) ruler->sourceLINE++; %-
             atRuleMark = endBox; }
         else cerr "CodE action failed for", rule.tag:;
         }

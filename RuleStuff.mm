@@ -296,6 +296,7 @@ int 		matchLength = 1;
 int 		skipping = 0;
 Buffer 		*buffer = ruler->stringBUFFER;
 GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : field;
+	 char *lineFrom = ruler->atRuleMark; 
 	buffer->reset();
 	endString = grup->getText();
 	matchLength = (int)::strlen(endString);
@@ -370,6 +371,8 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 				}
 			if ( upToOver(ruleStuff->overTo) )
 				ruler->atRuleMark += matchLength;
+			// swallowedLines the newlines an up-to match steps over (a quoted string, a (...#) literal) join the line count; the skipper never sees them (SEQ 694)
+			 for ( char *nl = lineFrom; nl < ruler->atRuleMark; nl++ ) if ( *nl == '\n' ) ruler->sourceLINE++; 
 			return 1;
 			}
 		}

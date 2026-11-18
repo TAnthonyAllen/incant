@@ -337,7 +337,8 @@ int     result;
             inputDiverted   = true;
             atLINE.count    = sourceLINE; }
         sourceFILE  = source;
-        sourceLINE  = 0;
+        // lineFromOne a file's first line is line 1 (seal 506's step A, SEQ 694)
+        sourceLINE  = 1;
         buffer = source.buffer;
         if !buffer  atRuleMark = text;
         else        atRuleMark = buffer.start;

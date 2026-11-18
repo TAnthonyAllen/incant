@@ -313,6 +313,7 @@ int         counter     = 1,
             skipping;
 Buffer      buffer = stringBUFFER;
 GroupItem   grup = field.isGROUP ? field.group : field;
+    -% char *lineFrom = ruler->atRuleMark; %-
     reset();
     endString = text;
     matchLength = (int)strlen(endString);
@@ -353,6 +354,8 @@ use field
                     if grup     upLab +% grup; }
                 atRuleMark      = atText; }
             if upToOver     atRuleMark += matchLength;
+            // swallowedLines the newlines an up-to match steps over (a quoted string, a (...#) literal) join the line count; the skipper never sees them (SEQ 694)
+            -% for ( char *nl = lineFrom; nl < ruler->atRuleMark; nl++ ) if ( *nl == '\n' ) ruler->sourceLINE++; %-
             return true; }}
     return false;
 }
