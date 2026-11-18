@@ -2142,6 +2142,33 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
+/*******************************************************************************
+    canOpen -- trueResult when the field's File (or text) names a file getFile can
+    open, the working directory first, then incant's root (SEQ 687, the show
+    dispatch 2d: show refuses an entry whose file is missing before it loads).
+*******************************************************************************/
+extern "C" GroupItem *canOpen(GroupItem *filing)
+{
+GroupItem 	*File = filing->getLabelGroup("File");
+char 		*fileName = 0;
+int 		ok = 0;
+	if ( !filing )
+		return GroupControl::groupController->groupRules->falseResult;
+	if ( File )
+		fileName = File->getText();
+	else	fileName = filing->getText();
+	
+	if ( fileName && ::access(fileName,R_OK) == 0 )   ok = 1;
+	if ( !ok && fileName && *fileName != '/' ) {
+	char rooted[2048];
+	::snprintf(rooted,sizeof rooted,"%s/%s",::incantRoot(),fileName);
+	if ( ::access(rooted,R_OK) == 0 )   ok = 1; }
+	
+	if ( ok )
+		return GroupControl::groupController->groupRules->trueResult;
+	return GroupControl::groupController->groupRules->falseResult;
+}
+
 // castStore the cast rule's store (SEQ 347 R0): a count, NUMBER or STRING target that has a kind keeps it and the argument is cast in; answers 1 when it took the store
 extern "C" int castStore(GroupItem *argument, GroupItem *target)
 {
@@ -3263,6 +3290,14 @@ Buffer 		*buffet = 0;
 		fileName = File->getText();
 	else	fileName = filing->getText();
 	file = ::open(fileName,O_RDWR);
+	// rootRetry a relative path the working directory cannot open is opened under incant's root, so incant runs from any directory (SEQ 687)
+	
+	if ( file < 0 && fileName && *fileName != '/' ) {
+	static char rooted[2048];
+	::snprintf(rooted,sizeof rooted,"%s/%s",::incantRoot(),fileName);
+	int again = ::open(rooted,O_RDWR);
+	if ( again >= 0 ) { file = again; fileName = ::strdup(rooted); } }
+	
 	if ( file > 0 )
 		{
 		length = ::lseek(file,0,SEEK_END);
@@ -3543,6 +3578,29 @@ GroupItem 	*probe = 0;
 	if ( isSTRING(probe->groupBody->flags.data) || isTOKEN(probe->groupBody->flags.data) )
 		return fmtString;
 	return 0;
+}
+
+/*******************************************************************************
+    incantRoot -- the directory incant's own files live under (SEQ 687, the show
+    dispatch 2f). The shell's INCANT_ROOT when set (the override); else the
+    directory this source was compiled from, which is the repo: derived when the
+    binary is built, never typed in a committed file. getFile tries a relative
+    path there when the working directory cannot open it.
+*******************************************************************************/
+extern "C" char *incantRoot()
+{
+	
+	static char root[1024] = "";
+	if ( !*root ) {
+	const char *env = ::getenv("INCANT_ROOT");
+	if ( env && *env )  ::snprintf(root,sizeof root,"%s",env);
+	else {
+	::snprintf(root,sizeof root,"%s",__FILE__);
+	char *slash = ::strrchr(root,'/');
+	if ( slash )    *slash = 0;
+	else            ::strcpy(root,"."); } }
+	return root;
+	
 }
 
 /*  interpretXPaccum -- ExpressioN's actor, the one expression road (SEQ 311; the old road
@@ -9551,7 +9609,8 @@ char 		*name = 0;
 					continue;
 				if ( ::containsString(direct->d_name,".") )
 					name = direct->d_name;
-				if ( !name && *direct->d_name >= 'a' )
+				// anyCase an undotted name is taken whatever its first letter (IBkant), SEQ 687 R5, bought in advance
+				if ( !name )
 					name = direct->d_name;
 				if ( name )
 					{
@@ -13844,6 +13903,35 @@ GroupItem 	*grup = 0;
 			recurseSTAK->push(grup);
 			recurseSTAK->push(body);
 			}
+}
+
+extern "C" GroupItem *searchRestore(GroupItem *saved)
+{
+GroupItem 	*searchLIST = GroupControl::groupController->groupRules->searchList;
+GroupItem 	*grup = 0;
+	if ( !saved )
+		return ::refuse(saved,"searchRestore: no saved list -- it takes what searchSave handed back");
+	searchLIST->clearList();
+	while ( grup = saved->next(grup) )
+		searchLIST->addMember(grup);
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
+    searchSave / searchRestore -- the search list kept and put back (SEQ 687,
+    the show dispatch 2i). show sets the list a form needs for its length and
+    restores it after, refusal included. Kant cannot read the search list: it is
+    the ruler's own list. searchSave hands back a copy of it; searchRestore
+    empties the list and puts the copy's registries back, in order.
+*******************************************************************************/
+extern "C" GroupItem *searchSave(GroupItem *input)
+{
+GroupItem 	*searchLIST = GroupControl::groupController->groupRules->searchList;
+GroupItem 	*saved = new GroupItem("searchSaved");
+GroupItem 	*grup = 0;
+	while ( grup = searchLIST->next(grup) )
+		saved->addMember(grup);
+	return saved;
 }
 
 // setCompiledMethod set the block's method by passing the method name to dlsym

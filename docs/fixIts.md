@@ -92,6 +92,24 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-164 — OPEN, docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only, no cure) — searchAtBuild: a `search` line in an action body runs when the body is built, not when its line runs
+
+**What:** (kant, the old road: an action body) a body's `search X;` line runs once, when the body is first built -- at its first call, before its first statement -- and never when the line is reached. A body that is never called never runs it. **And its sibling, found the same day:** every bare name in the body binds at that same build, against the search list of that moment. In the bootstrap show (incant/setup) `showForm(...)` was built before Utilities was searched, so it bound to a fresh local (bare `showForm` read length 0, a resolved action reads 2) and the call did nothing: no draw, no refusal, exit 0.
+**Where:** the body build (resolveName and the search command, run at build); the silent call is runOPaccum's call arm, whose foot hands an uncallable target to refuseUnknownOperator, which says nothing for a non-operator.
+**Evidence:** measured 2026-11-18: a body with `search ArmT SrA list;` between two reads of the search-list length reads 5 before the line and 5 after it on its first call (the line had already run); a never-called sibling never printed its `Search list:`. tester's specimen walks both halves (IncantForms/WorkingOn/tester, below show(firstLight)): (a) `fxSearchAtBuild` reads 34 before and after its line against 27 at the top level; (b) `fxBindAtBuild`, first built before FixLater exists, calls `fxLaterOne` and nothing runs; (c) with FixLater searched it still does nothing, while its twin `fxBindFresh`, first built then, runs it. Breakpoint: fixSearchHere. Compare the debug ruling of 2026-11-16 (Topics/kant: `debug` in a body fires at parse; ruled to act when its line runs).
+**Done when:** Tony rules what a search line in a body means (when its line runs, or refused by name), and whether names bind at build or at run; then a row for each, with an H7.
+**Owner:** Tony to rule (kant topic, after a recon); then Clod. **Size:** not measured.
+**Attempt log:** none. The bootstrap show works around it by name (Utilities["showForm"]), SEQ 688.
+
+### F-163 — NOT REPRODUCED, docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only) — armBindingEmpty: a `:=` made inside an if arm was read empty after the arm
+
+**What:** (kant, the old road) reported at SEQ 687 building the bootstrap show: `swEnt := fILEs[swN];` inside an if arm read nothing after the arm, so the binding was moved to the body's top level.
+**Where:** incant/setup's show, at branch forms-show-load b702fa90.
+**Evidence:** measured 2026-11-18, it does not reproduce. Seven shapes in one specimen all hold after the arm (a plain field, a subscript, a subscript by a computed name, a nested arm, an arm holding a return); and show itself with `swEnt := sTASh[swN];` put back inside its arm draws exactly as with it outside. The likelier cause of the SEQ 687 reading is F-164's build-time binding or the fILEs trap the 2b guard stopped on, not the arm. tester's specimen `fxArmBinding` walks four of the shapes (all read 2). Breakpoint: fixArmHere.
+**Done when:** Tony rules: retire the row, or name a shape to try.
+**Owner:** Tony. **Size:** none.
+**Attempt log:** none.
+
 ### F-162 — OPEN, docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadRuleCall: a rule cannot be called from the new road
 
 **What:** (kant, the new road, `incant/kantGrammar`) a call of a rule written in a new-road text, `it1 = If("if ctX = ctBare(ctAb); ctR = 5;"); testOP(it1);`, prints `opCallTest: ctBarehas no method` and the call hands back nothing. A rule that carries `code={ }` fails differently: `ERROR processCode: ctVal parse failed ... reached end of input`. On the old road the same calls run the rule on the argument's text and hand back its label.

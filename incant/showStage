@@ -1,0 +1,2 @@
+/*  showStage -- read by the bootstrap show (incant/setup) between styles and a form file: a form file wants cOLOr fONTs sTYLEs searched. SEQ 687.  */
+showStage();

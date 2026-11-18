@@ -10355,6 +10355,22 @@ _ofeq "reference the count line: rows, facts, and the two controls counted" "$(g
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
+echo "-- the stash file and incant's root (SEQ 688)."
+#  ⚑ stashCheck -- incant/stash is GENERATED from the hand-kept list incant/stashList (Tony, 2026-11-17): a fresh regeneration
+#  must equal the committed file. The walk's three refusals (a listed name with no file, with two files, a directory that cannot
+#  be read) were each driven by hand at SEQ 688 and wrote nothing.
+_skOut=$(INCANT="$B" genLadder/stash.sh --check 2>&1); _skx=$?
+_ofeq "stash incant/stash = a fresh regeneration from incant/stashList (exit / line)" "$_skx $(echo "$_skOut" | head -1 | sed 's/^ *//')" "0 ok    incant/stash = a fresh regeneration (2 entries)"
+#  ⚑ incantRoot -- getFile retries a relative path under INCANT_ROOT, else the directory the source was compiled in, recorded
+#  in the binary at build time. So a run from outside a checkout works on the machine that built it. A copy of the binary on
+#  another machine, with no INCANT_ROOT set, finds no such directory: Start() cannot open incant/setup and the run exits 2.
+#  That case is pinned here with INCANT_ROOT naming a missing directory, which takes the same path in getFile. Not cured (SEQ 688).
+mkdir -p "$T/rootRun"; printf 'Start();\ncerr "ROOT OK":;\nstop();\n' > "$T/rootRun/rootProbe"
+( cd "$T/rootRun" && env -u INCANT_ROOT "$B" rootProbe > ro1.o 2> ro1.e; echo $? > ro1.x
+  INCANT_ROOT=/nonexistent/incantRoot "$B" rootProbe > ro2.o 2> ro2.e; echo $? > ro2.x )
+_ofeq "incantRoot a run from outside the checkout, no INCANT_ROOT: the built-in root opens incant/setup (exit / ROOT OK)" "$(cat "$T/rootRun/ro1.x") $(grep -c '^ROOT OK' "$T/rootRun/ro1.e")" "0 1"
+_ofeq "incantRoot no root to be found (another machine's case): exit 2, getFile names incant/setup, nothing runs" "$(cat "$T/rootRun/ro2.x") $(grep -c 'getFile: could not open file: incant/setup' "$T/rootRun/ro2.e") $(grep -c '^ROOT OK' "$T/rootRun/ro2.e")" "2 1 0"
+
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then
     exec 2>&3 3>&-

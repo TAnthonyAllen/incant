@@ -1,0 +1,11 @@
+Start();
+show(firstLight);
+cerr "SHOWBOOTT SENTINEL":;
+stop();
+
+showBootT -- the bootstrap show (SEQ 687-688): show(form) works after Start(); alone. Rows in genLadder/formsPop.sh.
+firstLight is not defined, so show finds it in the stash (sTASh, incant/stash), says it is deferred, and returns; what it needs
+(unitTests, utilities, styles, the stash entry's file) is read right after its statement, and showFinish draws it to the output path,
+IncantForms/PDF/output.pdf. That file is Tony's: formsPop sets it aside before this run and puts it back after.
+SB-1  the deferred line, then the draw line naming output.pdf, then the sentinel: the continuation runs before the next statement.
+SB-2  a new output.pdf was written.

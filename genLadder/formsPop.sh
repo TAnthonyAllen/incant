@@ -494,6 +494,30 @@ _ofeq "viewerT VT-2 viewer = 1 but INCANT_NOVIEW set: viewer off, no open attemp
 _ofeq "viewerT VT-3 a form with its own path, not the output path: no viewer line at all" "$(_vtb VT-3)" "0"
 _ofeq "viewerT output.pdf untouched by the fleet: three shows, every one to test.pdf" "$(grep -c '^=== show .* to IncantForms/PDF/test.pdf ===' "$T/vt.o") $(grep -c 'output.pdf' "$T/vt.o")" "3 0"
 
+echo "-- the stash: show finds a form by name (stashT, showBootT; SEQ 688)."
+#  ⚑ stashT -- the stash dispatch (Tony, 2026-11-17): sTASh, a registry of its own loaded at Start() from incant/stash, which
+#  genLadder/stash.sh generates from the hand-kept list incant/stashList. Reached only by qualified name. ST-1 is the 2b guard.
+#  H7 (SEQ 688, committed file): incant/stash's entries written into fILEs instead -> ST-1 reads bare firstLight 1 (red).
+_stF=$(ip stashT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_stF" > "$T/st.o" 2> "$T/st.e"; _stx=$?
+_ofeq "stashT exit / sentinel" "$_stx $(grep -c '^STASHT SENTINEL' "$T/st.e")" "0 1"
+_ofeq "stashT ST-1 THE 2b GUARD: after Start(), the bare names read nothing and the stash entries read their File" "$(grep '^ST-1 ' "$T/st.e" | sed 's/ *$//')" "ST-1 bare firstLight 0 bare descriptions 0 sTASh[firstLight] 1 sTASh[descriptions] 1"
+_ofeq "stashT ST-2 a file on disk not on the list: refused not in the stash, nothing loaded (refusals / deferred lines before ST-4)" "$(grep -c '^REFUSED show simple -- not in the stash' "$T/st.e") $(awk '/^=== show .* deferred/{n++} END{print n+0}' "$T/st.o")" "1 1"
+_ofeq "stashT ST-3 no file and no entry: refused the same way" "$(grep -c '^REFUSED show zzNoSuchForm -- not in the stash' "$T/st.e")" "1"
+_ofeq "stashT ST-4 through the stash: drawn to test.pdf; the form in FORMs, the bare name the form, the entry File + text as fILEs' is" "$(grep -c '^=== show firstLight to IncantForms/PDF/test.pdf ===' "$T/st.o") / $(grep '^ST-4 FORMs' "$T/st.e" | sed 's/ *$//')" "1 / ST-4 FORMs[firstLight] 12 bare firstLight 12 sTASh[firstLight] 2 fILEs[utilities] 2 FORMs[simple] 0"
+#  ⚑ showBootT -- show(firstLight) after Start(); alone writes output.pdf, which is Tony's: set aside here and put back.
+#  H7 (SEQ 688, committed file): showFinish calling showForm by its bare name -> SB-1 has no draw line (the name binds when the
+#  body is first built, with the search list of that moment, and Utilities is not on it).
+_sbF=$(ip showBootT)
+_sbOut=IncantForms/PDF/output.pdf
+rm -f "$T/sb.keep"; [ -f "$_sbOut" ] && mv "$_sbOut" "$T/sb.keep"
+perl -e 'alarm 60; exec @ARGV' "$B" "$_sbF" > "$T/sb.o" 2> "$T/sb.e"; _sbx=$?
+_sbNew=0; [ -s "$_sbOut" ] && _sbNew=1
+rm -f "$_sbOut"; [ -f "$T/sb.keep" ] && mv "$T/sb.keep" "$_sbOut"
+_ofeq "showBootT exit / sentinel" "$_sbx $(grep -c '^SHOWBOOTT SENTINEL' "$T/sb.e")" "0 1"
+_ofeq "showBootT SB-1 deferred, then drawn to output.pdf by the continuation" "$(grep '^=== show firstLight' "$T/sb.o" | sed 's/ *$//' | tr '\n' '|')" "=== show firstLight deferred: what it needs loads after this statement, then it draws ===|=== show firstLight to IncantForms/PDF/output.pdf ===|"
+_ofeq "showBootT SB-2 a new output.pdf was written (Tony's put back)" "$_sbNew" "1"
+
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
 #  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.
