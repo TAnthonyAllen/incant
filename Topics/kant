@@ -85,7 +85,8 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
         THE READING (Clay): the native loop's time is irSetCount boxing each store for opAssign (sampled: mostly the collector); hence step 5.
     RULED AND NOT YET BUILT, dispatch held by Tony: debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body
         is parsed: measured SEQ 662).
-    DOCKETED, waiting on Tony's ruling: F-162, a rule cannot be called from the new road. The fixit upToSetDelimiter (Clod's lane): a rule that
+    PARKED until the old road retires (Tony, 2026-11-18): F-159, format-after stays legal on both grammars -- the road proofs depend on the two grammars reading it differently.
+    DOCKETED: the fixit upToSetDelimiter (Clod's lane): a rule that
         reads up to a set crashes in upToMatch, and an upTo-first rule needs guard='n'; the specimen is IncantForms/WorkingOn/delimitedData since 2026-11-17 (its guard='n' comes out with the cure); ruled to stay behind the jitter.
     FOUND, not ruled: a bare taG inside a new-road action body reads 1, not what was referenced last (emptyCallT rows b and c, pinned as read).
     FOUND, not ruled (2026-11-17): interpreted, a number compare is the sign of the difference and a nan difference counts as equal, so

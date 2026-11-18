@@ -156,7 +156,7 @@ where it stands. Nothing else is backfilled.
   7. H7, one variable each: loopCondition reverted -> CT-1, CT-3, CT-7's while back to 3 and CT-H runs to the 30 s alarm (exit 142), CT-7D unmoved; opAssign reverted -> CT-7D's if back to 1, the whiles unmoved. Fix restored md5-identical.
   POP: pop.sh `callTruthT` rows (42).
 
-### F-159 — OPEN (nit), docketed 2026-11-14 (SEQ 661, Clay's dispatch; row only) — formatAfterOnly: in an action body a print format parses only after its expression
+### F-159 — PARKED until the old road retires (Tony, 2026-11-18), docketed 2026-11-14 (SEQ 661, Clay's dispatch; row only) — formatAfterOnly: in an action body a print format parses only after its expression
 
 **What:** (kant, the old grammar, `incant/grammar`) in an action body `print name #-13s:;` pads name, and `print #-13s name:;` does not parse: the whole action is lost (`ERROR processCode: <action> parse failed`). At top level on the kant grammar the rule is the other way round: a format applies to what follows it (SEQ 449 R4, `incant/pop/printFormatT`). So one spelling works in each place and neither works in both. A second fact from the same measurement: a format after an expression pads every item of that expression, so two items written side by side share it (`print "[" fa #-8s` pads both).
 **Where:** `incant/grammar:123`, `PrintField  ExpressioN FormaT?;` (the format is only tried after an expression). The kant grammar's PRINTXp takes a format as an item of its own.
@@ -167,6 +167,8 @@ where it stands. Nothing else is backfilled.
 **RULED 2026-11-18 (Tony):** an action body takes the format FIRST, as the kant grammar; format-after refuses by name.
 **Attempt log:**
   1. SEQ 691, the count first, no build: 26 bodies plus the reference walk's 2 lines carry format-after on the old grammar -- above the dispatch's 10, so STOPPED, nothing built. 15 are road-proof bodies (print "[" 7 #5d "]"), whose whole job is that the two grammars read the format differently: chainCmpT, kantJitArgT, newCallBindT x2, newJitCallT, newLocalArgT, newLocalT x2, newReturnSelfT x2, newReturnT x2, postfixT, prefixNestT (every body is parsed on the old grammar at define, the n ones re-parsed on the new road after); 8 are optFlagsT's OF-1..OF-8; 1 is unitTests' formatTest (pinned in pop.sh as "old road: the format applies to the expression before it", and BN-3).
+**PARKED 2026-11-18 (Tony), replacing the same day's refuse-format-after ruling (not built):** format-after stays legal on both grammars until the old road retires; the road-proof bodies, optFlagsT and formatTest stay as they are.
+  2. SEQ 692: the Reference walk's 2 lines respelled format-first -> refGroup does not parse on the old grammar (processCode: refGroup parse failed, x5) and the table goes 56 lines -> 9. Left as they were; restored byte-identical.
 
 ### F-158 — OPEN, docketed 2026-11-14 (SEQ 656, Clay's dispatch; row only) — lookInSharedFields: typeset reads the look of the last layout from shared fields; its home is the layout context
 
