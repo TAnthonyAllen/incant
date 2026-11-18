@@ -10376,7 +10376,7 @@ else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 echo "-- a refusal names the true file line (lineNoT, searchAtBuild; SEQ 694)."
 #  ⚑ lineNoT -- seal 506's step A (Tony, 2026-11-18): the counter starts at 1, and the newlines a quoted string, a (...#)
 #  literal or a code={ } body swallows join it when the token is taken. H7 (SEQ 694, committed file): the counter back to 0 and
-#  no swallowed lines -> LN-1 reads 0, LN-2 4, LN-3 10, LN-4 12; searchAtBuild 16 and 23.
+#  no swallowed lines -> LN-1 reads 0, LN-2 4, LN-3 9, LN-4 11; searchAtBuild 16 and 23 (measured).
 _lnF=$(ip lineNoT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_lnF" > "$T/ln.o" 2> "$T/ln.e"; _lnx=$?
 _lnL () { grep "^REFUSED $1 -- " "$T/ln.e" | sed 's/.*\[line \([0-9]*\)\].*/\1/' | tr '\n' ' '; }
