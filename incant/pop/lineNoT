@@ -1,0 +1,29 @@
+Start(); lnOne(1);
+register(LineNoT);
+search LineNoT list;
+lnS = "first
+second
+third";
+lnTwo(2);
+define
+    lnL=(one
+two
+three #);
+    lnBody code={
+        lnX = 1;
+        lnY = 2;
+        };
+    ;
+lnThree(3);
+lnBody();
+lnFour(4);
+cerr "LINENOT SENTINEL":;
+stop();
+
+lineNoT -- a refusal's [line N] is the true file line of the top-level statement (Tony, 2026-11-18; seal 506's step A, SEQ 694).
+The counter starts at 1, and the newlines a quoted string, a (...#) literal or a code={ } body swallows join it when the token
+is taken. Rows in genLadder/pop.sh; each call is to a name defined nowhere, which refuses by name (undefined-call).
+LN-1  lnOne on line 1 reads [line 1].
+LN-2  lnTwo after a three-line quoted string reads [line 7].
+LN-3  lnThree after a three-line (...#) literal and a four-line code body reads [line 17].
+LN-4  lnFour two lines on reads [line 19].

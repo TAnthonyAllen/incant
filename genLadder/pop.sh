@@ -10373,6 +10373,18 @@ _ofeq "reference the count line: rows, facts, and the two controls counted" "$(g
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
+echo "-- a refusal names the true file line (lineNoT, searchAtBuild; SEQ 694)."
+#  ⚑ lineNoT -- seal 506's step A (Tony, 2026-11-18): the counter starts at 1, and the newlines a quoted string, a (...#)
+#  literal or a code={ } body swallows join it when the token is taken. H7 (SEQ 694, committed file): the counter back to 0 and
+#  no swallowed lines -> LN-1 reads 0, LN-2 4, LN-3 9, LN-4 11; searchAtBuild 16 and 23 (measured).
+_lnF=$(ip lineNoT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_lnF" > "$T/ln.o" 2> "$T/ln.e"; _lnx=$?
+_lnL () { grep "^REFUSED $1 -- " "$T/ln.e" | sed 's/.*\[line \([0-9]*\)\].*/\1/' | tr '\n' ' '; }
+_ofeq "lineNoT exit / sentinel" "$_lnx $(grep -c '^LINENOT SENTINEL' "$T/ln.e")" "0 1"
+_ofeq "lineNoT LN-1..LN-4 line 1; after a three-line string; after a (...#) literal and a code body; two lines on" "$(_lnL lnOne)$(_lnL lnTwo)$(_lnL lnThree)$(_lnL lnFour)" "1 7 17 19 "
+perl -e 'alarm 60; exec @ARGV' "$B" IncantForms/WorkingOn/searchAtBuild > "$T/sab.o" 2> "$T/sab.e"; _sabx=$?
+_ofeq "searchAtBuild its two refusals name the lines of the calls that ran the body (exit / lines)" "$_sabx $(grep '^REFUSED fxLaterOne -- ' "$T/sab.e" | sed 's/.*\[line \([0-9]*\)\].*/\1/' | tr '\n' ' ')" "0 30 37 "
+
 echo "-- a call to an undefined name refuses by name (undefCallT, SEQ 689)."
 #  ⚑ undefCallT -- Tony, 2026-11-18: a call to a name with nothing to call refuses by name; it used to do nothing at exit 0.
 #  H7 (SEQ 689, committed file): runOPaccum's foot back to refuseUnknownOperator -> every REFUSED count below 0, and UC-3's

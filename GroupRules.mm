@@ -300,6 +300,8 @@ GroupItem 	*label = ruler->gParseActive->label;
 		if ( beginBox && endBox++ )
 			{
 			label->setToken(beginBox,(int)(endBox - beginBox));
+			// swallowedLines the body's newlines join the line count at the capture; the skipper never sees them (SEQ 694)
+			 for ( char *nl = ruler->atRuleMark; nl < endBox; nl++ ) if ( *nl == '\n' ) ruler->sourceLINE++; 
 			ruler->atRuleMark = endBox;
 			}
 		else	::fprintf(stderr,"CodE action failed for %s\n",rule->groupBody->tag);
@@ -15007,7 +15009,8 @@ int 	result = 0;
 			atLINE->setCount(sourceLINE);
 			}
 		sourceFILE = source;
-		sourceLINE = 0;
+		// lineFromOne a file's first line is line 1 (seal 506's step A, SEQ 694)
+		sourceLINE = 1;
 		buffer = source->getBuffer();
 		if ( !buffer )
 			atRuleMark = source->getText();
