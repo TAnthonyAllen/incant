@@ -4,10 +4,14 @@ export INCANT_NOVIEW=1   # SEQ 686: show never opens a viewer from a script of C
 #  incant/stashList by the walk in incant/stashWalk. Generated, never typed. Entries are sorted by name so a regeneration is
 #  byte-stable. Errant, each refused by name with nothing written: a listed name with no file, a listed name with two files (both
 #  named), a stated directory that cannot be read. --check regenerates into a scratch file and diffs it against the committed one.
+#  --in <dir> runs the walk with <dir> as the working directory and NEVER writes: it says what it would write, or refuses. The
+#  fleet's rows use it to drive the three refusals on a scratch tree (SEQ 689).
 cd "$(dirname "$0")/.." || exit 1
 B="${INCANT:-$HOME/bin/incant}"
 T=$(mktemp -d)
-perl -e 'alarm 60; exec @ARGV' "$B" incant/stashWalk > "$T/o" 2> "$T/e"; x=$?
+WD=.
+if [ "$1" = "--in" ]; then WD="$2"; fi
+( cd "$WD" && perl -e 'alarm 60; exec @ARGV' "$B" incant/stashWalk ) > "$T/o" 2> "$T/e"; x=$?
 bad=0
 if grep -q 'load: could not open' "$T/e"; then
     grep 'load: could not open' "$T/e" | sed 's/.*load: could not open */  REFUSED stash -- a stated directory cannot be read: /'; bad=1; fi
@@ -23,6 +27,7 @@ echo "define"
 cat "$T/lines"
 echo "    ;"
 } > "$T/stash"
+if [ "$1" = "--in" ]; then echo "  would write $(grep -c "File='" "$T/stash") entries"; rm -rf "$T"; exit 0; fi
 if [ "$1" = "--check" ]; then
     if cmp -s "$T/stash" incant/stash; then echo "  ok    incant/stash = a fresh regeneration ($(grep -c "File='" incant/stash) entries)"; rm -rf "$T"; exit 0
     else echo "  FAIL  incant/stash differs from a fresh regeneration:"; diff incant/stash "$T/stash"; rm -rf "$T"; exit 1; fi

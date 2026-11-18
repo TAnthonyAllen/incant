@@ -101,14 +101,15 @@ where it stands. Nothing else is backfilled.
 **Owner:** Tony to rule (kant topic, after a recon); then Clod. **Size:** not measured.
 **Attempt log:** none. The bootstrap show works around it by name (Utilities["showForm"]), SEQ 688.
 
-### F-163 — NOT REPRODUCED, docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only) — armBindingEmpty: a `:=` made inside an if arm was read empty after the arm
+### F-163 — RETIRED 2026-11-18 (Tony, SEQ 689: did not reproduce), docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only) — armBindingEmpty: a `:=` made inside an if arm was read empty after the arm
 
 **What:** (kant, the old road) reported at SEQ 687 building the bootstrap show: `swEnt := fILEs[swN];` inside an if arm read nothing after the arm, so the binding was moved to the body's top level.
 **Where:** incant/setup's show, at branch forms-show-load b702fa90.
-**Evidence:** measured 2026-11-18, it does not reproduce. Seven shapes in one specimen all hold after the arm (a plain field, a subscript, a subscript by a computed name, a nested arm, an arm holding a return); and show itself with `swEnt := sTASh[swN];` put back inside its arm draws exactly as with it outside. The likelier cause of the SEQ 687 reading is F-164's build-time binding or the fILEs trap the 2b guard stopped on, not the arm. tester's specimen `fxArmBinding` walks four of the shapes (all read 2). Breakpoint: fixArmHere.
+**Evidence:** measured 2026-11-18, it does not reproduce. Seven shapes in one specimen all hold after the arm (a plain field, a subscript, a subscript by a computed name, a nested arm, an arm holding a return); and show itself with `swEnt := sTASh[swN];` put back inside its arm draws exactly as with it outside. The likelier cause of the SEQ 687 reading is F-164's build-time binding or the fILEs trap the 2b guard stopped on, not the arm. The tester specimen fxArmBinding is gone with the retirement; armBindT carries the shapes.
 **Done when:** Tony rules: retire the row, or name a shape to try.
 **Owner:** Tony. **Size:** none.
 **Attempt log:** none.
+  RETIRED (Tony, 2026-11-18): did not reproduce. The seven shapes are fleet rows: incant/pop/armBindT, AB-1..AB-7 with the control AB-0 (pop.sh).
 
 ### F-162 — OPEN, docketed 2026-11-16 (SEQ 670, Clay's dispatch; row only, no cure) — newRoadRuleCall: a rule cannot be called from the new road
 

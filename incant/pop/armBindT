@@ -1,0 +1,50 @@
+Start();
+register(ArmBindT);
+search ArmBindT list;
+define
+    abSrc a=1 b=2;
+    abRun code={
+        abOn = 1;
+        abTop := abSrc;
+        abN1 = *abTop.listLengtH;
+        cerr "AB-1 bound at the top level, read after:" abN1:;
+        if abOn == 1;
+            abIn := abSrc;
+            abN2 = *abIn.listLengtH;
+            cerr "AB-2 bound in the arm, read in the arm:" abN2:;
+        abN3 = *abIn.listLengtH;
+        cerr "AB-3 bound in the arm, read after it:" abN3:;
+        if abOn == 1;
+            abSub := ArmBindT["abSrc"];
+        abN4 = *abSub.listLengtH;
+        cerr "AB-4 a subscript on the right, read after:" abN4:;
+        if abOn == 1;
+            if abOn == 1;
+                abNest := abSrc;
+        abN5 = *abNest.listLengtH;
+        cerr "AB-5 a nested arm, read after:" abN5:;
+        if abOn == 1;
+            abRet := abSrc;
+            if abOn == 0;
+                return 0;
+        abN6 = *abRet.listLengtH;
+        cerr "AB-6 an arm holding a return, read after:" abN6:;
+        abNm = string $abSrc.taG$;
+        if abOn == 1;
+            abByName := ArmBindT[abNm];
+        abN7 = *abByName.listLengtH;
+        cerr "AB-7 a subscript by a computed name, read after:" abN7:;
+        if abOn == 0;
+            abNever := abSrc;
+        abN0 = *abNever.listLengtH;
+        cerr "AB-0 control, an arm NOT taken, read after:" abN0:;
+        };
+    ;
+abRun();
+cerr "ARMBINDT SENTINEL":;
+stop();
+
+armBindT -- F-163, retired 2026-11-18 (Tony, SEQ 689): "a := made inside an if arm is empty after the arm" did not reproduce.
+The seven shapes measured at SEQ 688 are pinned here; each reads length 2 (abSrc holds two attributes). AB-0 is the control: an
+arm not taken binds nothing, so the same read there yields no value (its own tag, abN0, bear-trap 26) and the rows above cannot pass by reading anything at all.
+Rows in genLadder/pop.sh.

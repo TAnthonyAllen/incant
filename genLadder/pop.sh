@@ -10355,12 +10355,37 @@ _ofeq "reference the count line: rows, facts, and the two controls counted" "$(g
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
+echo "-- a := inside an if arm holds after the arm (armBindT; F-163 retired, SEQ 689)."
+#  ⚑ armBindT -- F-163 did not reproduce (Tony retired it 2026-11-18); its seven shapes are pinned. AB-0 is the control: an arm
+#  not taken binds nothing, so the same read yields no value (the tag abN0), and the seven cannot pass by reading anything at all.
+_abF=$(ip armBindT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_abF" > "$T/ab.o" 2> "$T/ab.e"; _abx=$?
+_ofeq "armBindT exit / sentinel" "$_abx $(grep -c '^ARMBINDT SENTINEL' "$T/ab.e")" "0 1"
+_ofeq "armBindT AB-1..AB-7 each binding reads length 2 after its arm (top level, in the arm, after it, subscript, nested, return, computed name)" "$(grep '^AB-[1-7] ' "$T/ab.e" | awk '{print $NF}' | tr '\n' ' ')" "2 2 2 2 2 2 2 "
+_ofeq "armBindT AB-0 control: an arm not taken binds nothing (no value, the tag comes back)" "$(grep '^AB-0 ' "$T/ab.e" | awk '{print $NF}')" "abN0"
+
 echo "-- the stash file and incant's root (SEQ 688)."
 #  ⚑ stashCheck -- incant/stash is GENERATED from the hand-kept list incant/stashList (Tony, 2026-11-17): a fresh regeneration
 #  must equal the committed file. The walk's three refusals (a listed name with no file, with two files, a directory that cannot
 #  be read) were each driven by hand at SEQ 688 and wrote nothing.
 _skOut=$(INCANT="$B" genLadder/stash.sh --check 2>&1); _skx=$?
 _ofeq "stash incant/stash = a fresh regeneration from incant/stashList (exit / line)" "$_skx $(echo "$_skOut" | head -1 | sed 's/^ *//')" "0 ok    incant/stash = a fresh regeneration (2 entries)"
+#  ⚑ stashRefusals -- the walk's three refusals, each on a scratch tree (stash.sh --in: run there, never write; SEQ 689). The tree
+#  links every incant file and IncantForms; one file is replaced per case. A control tree, unchanged, would write 2.
+_swR=$PWD; _swT () { rm -rf "$T/sw.$1"; mkdir -p "$T/sw.$1/incant"; ln -s "$_swR/IncantForms" "$T/sw.$1/IncantForms"; for _f in "$_swR"/incant/*; do ln -s "$_f" "$T/sw.$1/incant/"; done; }
+_swM=$(md5 -q incant/stash)
+_swT ctl; _swCtl=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.ctl" 2>&1); _swCtlx=$?
+_swT none; rm "$T/sw.none/incant/stashList"; sed 's/^        descriptions;$/        descriptions;\n        zzNoSuchForm;/' incant/stashList > "$T/sw.none/incant/stashList"
+_swNone=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.none" 2>&1); _swNonex=$?
+_swT two; cp IncantForms/Windows/firstLight "$T/sw.two/incant/firstLight"
+_swTwo=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.two" 2>&1); _swTwox=$?
+_swT dir; rm "$T/sw.dir/incant/stashWalk"; sed 's|directory="incant" load|directory="incantNoSuchDir" load|' incant/stashWalk > "$T/sw.dir/incant/stashWalk"
+_swDir=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.dir" 2>&1); _swDirx=$?
+_ofeq "stash walk control: an unchanged tree would write 2 (exit / line)" "$_swCtlx $(echo "$_swCtl" | sed 's/^ *//')" "0 would write 2 entries"
+_ofeq "stash walk a listed name with no file: refused by name, nothing written (exit / refusal / failed)" "$_swNonex $(echo "$_swNone" | grep -c 'REFUSED stash -- zzNoSuchForm is on the list and no stated directory has a file of that name') $(echo "$_swNone" | grep -c 'nothing written')" "1 1 1"
+_ofeq "stash walk a listed name with two files: refused naming both" "$_swTwox $(echo "$_swTwo" | grep -c 'REFUSED stash -- two files named firstLight : IncantForms/Windows/firstLight and incant/firstLight')" "1 1"
+_ofeq "stash walk a stated directory that cannot be read: refused by name" "$_swDirx $(echo "$_swDir" | grep -c 'REFUSED stash -- a stated directory cannot be read: incantNoSuchDir')" "1 1"
+_ofeq "stash walk none of the four wrote incant/stash (md5 unchanged)" "$(md5 -q incant/stash)" "$_swM"
 #  ⚑ incantRoot -- getFile retries a relative path under INCANT_ROOT, else the directory the source was compiled in, recorded
 #  in the binary at build time. So a run from outside a checkout works on the machine that built it. A copy of the binary on
 #  another machine, with no INCANT_ROOT set, finds no such directory: Start() cannot open incant/setup and the run exits 2.

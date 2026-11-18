@@ -5,37 +5,34 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**501, 2026-11-17, topic: forms, SEQ 687 (assigned by Clod), a SHUTDOWN seal.** Seals 497-500 this session: kant (step 5, the reload
-kind check), forms (the re-pin to Tony's settled forms, the viewer).
-**BOUGHT AND MERGED:** the viewer (show opens output.pdf in the default viewer; viewer in pROPERTIEs; INCANT_NOVIEW in every script).
-pop.sh no longer writes the user's output.pdf (it sets it aside and puts it back). Feature 36 filed: an include that reads at once.
-**STOPPED, NEEDS A RULING:** stroke 2 (show loads by name), branch forms-show-load. fILEs is reached by every lookup as a base
-registry: after Start(); the bare name firstLight IS fILEs' entry, so an entry spelled with the form's own name cannot also be the
-form (the 2b guard). Spelling not invented. Built on the branch and working: incant runs from any directory, the search list saved and
-restored, the walk and its generated entries, the continuation. Found: a := inside an if arm holds nothing after it; search in an
-action body runs when the body is built; a second walk directory refuses. The undefined-call count is still owed.
-**OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's ruling. F-162 (a rule call on the new road).
+**503, 2026-11-18, topic: forms, SEQ 689 (assigned by Clod).** Seal 502 (SEQ 688, on branch) BOUGHT AND MERGED: the stash. sTASh is a
+registry of its own, reached only by qualified name, loaded at Start() from incant/stash, which genLadder/stash.sh generates from the
+hand-kept list incant/stashList (ruled its home). show finds an undefined form there, refuses a name that is not ("not in the stash"),
+and `Start(); show(firstLight);` draws. fILEs is files only. The walk's three refusals are rows (stash.sh --in). F-163 RETIRED (did not
+reproduce; armBindT pins its seven shapes). F-164 (a body's search line and names bind when it is first built) NOT RULED: Tony walks
+tester's specimen first.
+**IN FLIGHT:** stroke 2 of SEQ 689, a call to an undefined name refuses by name, on its own branch.
+**OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's ruling. F-162 (a rule call on the new road). F-164.
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). The fixit `upToSetDelimiter` stays behind the jitter.
-**RULED (Tony, 2026-11-17):** no pictures in the repo. genLadder/pdfCaptures.sh writes docs/sealCaptures/firstLight.pdf and
-descriptions.pdf on disk only; they embed his pictures and stay gitignored.
-**NEXT:** the ruling on fILEs' entry spelling for stroke 2. BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.
+**RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
+**NEXT:** stroke 2's buy. BeforeSave last refreshed at seal 492.
 
-## The numbers (as run at seal 501, the shutdown seal, on trunk; the binary is the bare build of 2026-11-17 15:08 on Xcode 27.2, 2189104 bytes)
+## The numbers (as run at seal 503, on trunk; the binary is the bare build of 2026-11-18 08:01 on Xcode 27.2, 2189760 bytes)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 3957 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
+| `genLadder/pop.sh` | exit 1, 3968 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 284 green (279 + viewerT 5), F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 292 green (284 + stashT 5, showBootT 3), F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
-| extern canary | 475 (`grep -c '^extern' GroupRules.h`; the branch forms-show-load reads 479) |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 503; at 501: exit 0, 116 directives, 108 inject, 8 parked dark |
+| extern canary | 479 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged at 501: forms-viewer. Unbought: forms-show-load (stopped). BeforeSave last refreshed at seal 492 (the refresh after 501 is Tony's).
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged at 503: forms-show-load. BeforeSave last refreshed at seal 492.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
 Tony's fixit incantations waiting: 0
