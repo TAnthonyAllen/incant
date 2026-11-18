@@ -38,9 +38,18 @@ tfAt(tfCardOne);
 tfAt(tfCardTwo);
 tfAt(tfCardThree);
 tfAt(tfHelp);
+cout "TF-4 tabSelected := tabThree":;
+tabSelected := tabThree;
+show(tabForm);
+readPDF(tfRead);
+tfAt(tfCardOne);
+tfAt(tfCardThree);
 cerr "TABFORMT SENTINEL":;
 stop();
 
 tabFormT -- the tabs form, respelled as tabForm (SEQ 700, stroke 1 of docs/tabsRecon.md): definitions only, every
 colour and font a placeholder. Today's picture: the heading, three tabs labelled One Two Three in tabFont, the three
 cards stacked (cards, tabs= and selectFill are not read yet), the help box. One pixel per region of the PDF.
+SINCE STROKE 2 (SEQ 701): only the selected card is drawn, in the cards field's whole box. tabSelected (outside the form)
+holds 0, so the first tab is selected: the three card pixels all read cardOneFill. TF-4 selects tabThree by hand
+(tabSelected := tabThree): the third card, cardThreeFill, fills the box.
