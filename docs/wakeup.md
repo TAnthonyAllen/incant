@@ -11,8 +11,9 @@ hand-kept list incant/stashList (ruled its home). show finds an undefined form t
 and `Start(); show(firstLight);` draws. fILEs is files only. The walk's three refusals are rows (stash.sh --in). F-163 RETIRED (did not
 reproduce; armBindT pins its seven shapes). F-164 (a body's search line and names bind when it is first built) NOT RULED: Tony walks
 tester's specimen first.
-**IN FLIGHT:** stroke 2 of SEQ 689, a call to an undefined name refuses by name, on its own branch.
-**OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's ruling. F-162 (a rule call on the new road). F-164.
+**BOUGHT AND MERGED after 503:** undefined-call (seal 504, SEQ 689-690; 7d94ffc5): a call with nothing to call refuses -- by name, or quoting the call when it has no target -- on both roads; JXD-4 respelled, JXD-5 new; tester is Start(); show(firstLight);. Canary 481.
+**ON BRANCH, for the buy:** f162-rule-call (seal 505, SEQ 691): a rule called from the new road. F-159 stopped at its count (26 bodies; Tony to rule).
+**OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's count (26 bodies, 15 road proofs). F-164.
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). The fixit `upToSetDelimiter` stays behind the jitter.
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
 **NEXT:** stroke 2's buy. BeforeSave last refreshed at seal 492.
@@ -28,7 +29,7 @@ tester's specimen first.
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
 | `genLadder/dirCheck.sh` (shutdown seals only) | not run at 503; at 501: exit 0, 116 directives, 108 inject, 8 parked dark |
-| extern canary | 479 (`grep -c '^extern' GroupRules.h`) |
+| extern canary | 481 since the undefined-call buy (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
