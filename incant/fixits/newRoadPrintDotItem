@@ -1,0 +1,47 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewRoadPrintDotItem);
+define
+    njReq owner source result rule;
+    njTry code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        njOk = 0;
+        if compileIn(njReq);    njOk = 1;
+        cerr "PIN" argument.taG "builds on kantGrammar:" njOk:;
+        };
+    fxX;
+    fxY="yv";
+    fxCtl code={ cerr "a" fxY "b":; };
+    fxBad code={ cerr "a" fxY.taG "b":; };
+    ;
+search NewRoadPrintDotItem Utilities UnitTests;
+cerr "ANCHOR newRoadPrintDotItem -- a dotted read after another print item: refused on the new road":;
+fixNewRoadPrintDotItemHere = 0;
+njTry(fxCtl);
+njTry(fxBad);
+cerr "SENTINEL newRoadPrintDotItem reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, the full monty plan, step 1; ruled by Tony; row only)
+
+newRoadPrintDotItem -- in a print list, a dotted read that follows another item (`cerr "a" x.taG "b":;`) is refused on
+the new road: "REFUSED . -- a list of adjacent operands is not built on the new road yet", and the statement is dropped.
+A lone dotted item (`cerr x.taG:;`) and plain items build. Statements tester reaches that it loses: 6, in resolveLook,
+mergeStyles, setFrame (3) and redrawForm. Kin of seal 432's print-item issue (Topics/kant, Issues).
+Found by the full-monty recon, 2026-11-18 (docs/fullMontyRecon.md). The control body (fxCtl) builds; fxBad is the gap.
+
+NEXT: OPEN
+  Taken: no REFUSED line. Not taken (today): the REFUSED line above.

@@ -1,0 +1,47 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewRoadScopeStatement);
+define
+    njReq owner source result rule;
+    njTry code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        njOk = 0;
+        if compileIn(njReq);    njOk = 1;
+        cerr "PIN" argument.taG "builds on kantGrammar:" njOk:;
+        };
+    fxX;
+    fxY="yv";
+    fxCtl code={ fxX = argument; };
+    fxBad code={ =:argument fxX fxY; };
+    ;
+search NewRoadScopeStatement Utilities UnitTests;
+cerr "ANCHOR newRoadScopeStatement -- the =: scope statement in a body: the whole body fails to parse on kantGrammar":;
+fixNewRoadScopeStatementHere = 0;
+njTry(fxCtl);
+njTry(fxBad);
+cerr "SENTINEL newRoadScopeStatement reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, the full monty plan, step 1; ruled by Tony; row only)
+
+newRoadScopeStatement -- a body holding the scope statement `=:argument a b c;` (ScopeValue on the old grammar) does
+not parse on kantGrammar: compileIn with STARt fails and the WHOLE body is lost. Bodies tester reaches that it loses:
+frameMembers, frameWhole.
+Found by the full-monty recon, 2026-11-18 (docs/fullMontyRecon.md). The control body (fxCtl) builds; fxBad is the gap.
+
+NEXT: OPEN
+  The old grammar's rule: ScopeValue  byValue-="=:" scopeList=ScopeField+ SemI- defer (incant/grammar:170). kantGrammar has none.
+  Taken: the second PIN reads 1. Not taken (today): 0.

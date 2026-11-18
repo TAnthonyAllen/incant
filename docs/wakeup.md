@@ -17,7 +17,7 @@ retires; F-164 RULED (how kant works: a body binds at its first build); Topics/k
 **OPEN (Tony):** carried from 482, whether an indented `define` should work. The [line N] proposal (seal 506).
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). The fixit `upToSetDelimiter` stays behind the jitter.
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
-**NEXT:** stroke 2's buy. BeforeSave last refreshed at seal 492.
+**NEXT:** the full monty plan (Topics/kant, Plan), step 1, the first gap: `string $...$` on kantGrammar (fixit newRoadStringJoin). Mornings: this plan; afternoons: forms.
 
 ## The numbers (as run at seal 503, on trunk; the binary is the bare build of 2026-11-18 08:01 on Xcode 27.2, 2189760 bytes)
 | instrument | reads |

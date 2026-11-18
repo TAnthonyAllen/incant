@@ -1,0 +1,51 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests;
+registry(NewRoadForFilter);
+define
+    njReq owner source result rule;
+    njTry code={
+        njSrc := argument.CodE;
+        njReq.owner  := argument;
+        njReq.source := njSrc;
+        njReq.rule   := KantGrammar["STARt"];
+        njOk = 0;
+        if compileIn(njReq);    njOk = 1;
+        cerr "PIN" argument.taG "builds on kantGrammar:" njOk:;
+        };
+    fxX;
+    fxY="yv";
+    fxCtl code={ for fxI in argument;
+            fxX = 1;
+        };
+    fxBad code={ for fxI in argument; attributes
+            fxX = 1;
+        };
+    ;
+search NewRoadForFilter Utilities UnitTests;
+cerr "ANCHOR newRoadForFilter -- for ... attributes in a body: the statement is refused on the new road":;
+fixNewRoadForFilterHere = 0;
+njTry(fxCtl);
+njTry(fxBad);
+cerr "SENTINEL newRoadForFilter reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, the full monty plan, step 1; ruled by Tony; row only)
+
+newRoadForFilter -- `for x in y; attributes` (or members) in a body builds on kantGrammar only by refusing the statement:
+"REFUSED FOr attributes / members -- not built on the new road yet", and the loop is dropped from the body. Statements
+tester reaches that it loses: 7, in resolveLook, mergeStyles, drawKids, fillDownAcross (2) and tsBoxWarn. Compare iterOpT,
+pinned red on the same gap.
+Found by the full-monty recon, 2026-11-18 (docs/fullMontyRecon.md). The control body (fxCtl) builds; fxBad is the gap.
+
+NEXT: OPEN
+  Taken: no REFUSED line, and the loop is in the built chain. Not taken (today): the REFUSED line above.

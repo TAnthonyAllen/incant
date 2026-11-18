@@ -1,0 +1,27 @@
+Start();
+cerr "ANCHOR jitterCrashTester -- with jitter; on, show(firstLight) dies at exit 139 inside a compiled action below showForm":;
+fixJitterCrashTesterHere = 0;
+jitter;
+show(firstLight);
+cerr "SENTINEL jitterCrashTester reached the foot":;
+stop();
+
+LANE:  jit
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-18, the full monty plan; ruled by Tony: pinned, not cured -- the kant jitter
+                replaces this path)
+
+jitterCrashTester -- tester's show(firstLight) under `jitter;` (the old C++ JIT) exits 139 with no PDF. show, showFinish,
+showSearch and showForm are reported NOT JITTABLE (compile returned -8) and run interpreted; the first compiled action below
+showForm (redrawForm, or one it calls) hands opAssign a null target (EXC_BAD_ACCESS at opAssign's `target->groupBody`; lldb
+shows one frame, its caller being compiled code). The jitter's exit report never prints, since the run dies before atexit.
+THE BOOTSTRAP PATH IS THE CASE: with utilities included first (so show draws at once, not by continuation), it does NOT
+crash -- redrawForm, frameMembers, fillDownAcross and placeForm are then NOT JITTABLE too and run interpreted (measured). So
+this file is the bare tester shape. Today it dies before any PDF is written (IncantForms/PDF/output.pdf unchanged by a run,
+measured). Found by the full-monty recon, 2026-11-18 (docs/fullMontyRecon.md).
+
+NEXT: RULED
+  Pinned, not cured (Tony, 2026-11-18): the kant jitter at the reader's door replaces the C++ JIT path for marked actions.
+  Taken (if ever cured): exit 0 and the SENTINEL line. Not taken (today): exit 139, no SENTINEL.
+  ⚠ IF IT STOPS CRASHING IT WRITES THE USER'S IncantForms/PDF/output.pdf (show's default path, and fixitNag runs this file):
+  before that, give it a form with its own path= or set showPath once utilities has loaded.

@@ -121,11 +121,21 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
         statement, writing nothing back. An unwritten slot is excused NO DATA only. A plain = by name keeps the kind (cast rule).
         kantSlotT rows 12 and 13; sureKindT M5 now equals its twin; the fixit calleeWritesCallerLocal is in the attic, mapped.
         A loop or an if holding a call is one testOP statement: there is no reload inside a native loop. Cost under the noise.
-    NEXT: open; nothing dispatched for the jitter.
 /*****************************************************************************
     Plan
 *****************************************************************************/
-To come, from IncantForms/WorkingOn/macros.
+THE FULL MONTY (Tony, 2026-11-18): tester (Start(); show(firstLight);) runs every action body on kantGrammar with the kant jitter
+on; a mix of native and testOP statements is the first cut. Mornings go to this plan, afternoons to forms. Evidence: docs/fullMontyRecon.md.
+    1  Close the four kantGrammar gaps, each its own small stroke with rows: string $...$ (newRoadStringJoin); the =: scope statement
+       (newRoadScopeStatement); for ... attributes / members (newRoadForFilter); a dotted read after another print item
+       (newRoadPrintDotItem). Done when all 22 bodies tester reaches build clean on kantGrammar.
+    2  A per-action mark that processCode reads: a marked body is read on kantGrammar; one that fails refuses by name, no fallback.
+       Unmarked bodies and every fixture are unchanged (road proofs, F-159, old-road pins do not move).
+    3  Mark tester's 22 actions a group at a time, rows against the old road per body. Milestone: tester's PDF = the old road's,
+       byte for byte, with every body it reaches on the new road.
+    4  The kant jitter at the reader's door for marked actions (krResolve, kwCompile): the first cut of the full monty.
+    LATER, slowly: a file's top level on kantGrammar (a campaign); native coverage; a global switch once most bodies are marked.
+    jitter; crashing tester (the old C++ JIT) is pinned, not cured: fixit jitterCrashTester; the kant jitter replaces that path.
 
 /*****************************************************************************
     Waiting on Tony
