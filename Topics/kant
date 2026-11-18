@@ -85,6 +85,8 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
         THE READING (Clay): the native loop's time is irSetCount boxing each store for opAssign (sampled: mostly the collector); hence step 5.
     RULED AND NOT YET BUILT, dispatch held by Tony: debug in an action body acts when its line runs (today aCTionDEBUG fires once, when the body
         is parsed: measured SEQ 662).
+    RULED (Tony, 2026-11-18): F-164 is how kant works. A body's names bind when the body is first built, with the search list of that moment;
+        a search line in a body is a declaration applied at that build; a name that missed refuses by name at the call. Specimen: IncantForms/WorkingOn/searchAtBuild. A search line appends; `reset` first replaces.
     PARKED until the old road retires (Tony, 2026-11-18): F-159, format-after stays legal on both grammars -- the road proofs depend on the two grammars reading it differently.
     DOCKETED: the fixit upToSetDelimiter (Clod's lane): a rule that
         reads up to a set crashes in upToMatch, and an upTo-first rule needs guard='n'; the specimen is IncantForms/WorkingOn/delimitedData since 2026-11-17 (its guard='n' comes out with the cure); ruled to stay behind the jitter.
@@ -184,29 +186,4 @@ To come, from IncantForms/WorkingOn/macros.
     419  SEQ 588.  GC stroke 1, the instruments: force collections, mark freed objects so a missed root crashes where it is read, count what a collection finds. Nothing made collectable.
     418  SEQ 587.  runSystem restored: system("cmd") runs the command and answers 1 on success, 0 otherwise. Skim will not reload a rewritten PDF on its own.
     417  SEQ 586.  GC recon, read-only (docs/gcRecon.md): `GroupItem extends gc` alone would free almost nothing; the node classes go together, and the JIT's emit-time baked nodes, the calloc'd Stak / GroupStak arrays and Layout->base are the roots a try would miss.
-    410  2026-11-09, shutdown.  op-default bought: WHILe is an operator on trunk.
-    409  SEQ 580, on branch op-default.  WHILe says which operator it is, op="whileLoop", and one shared default action builds it; its hand action is gone; its two refusals name the slot that refused.
-    408  SEQ 579.  A keyword inside an expression refuses by name on the new road: `qr = if qa; 1 else 2;` used to drop that statement and everything after it in silence.
-    407  SEQ 578.  Design recon, a rule as an operator, read-only: up to eight regular rules could lose their hand actions and refusals would name the right thing; the irregular ones keep theirs.
-    406  SEQ 577.  The holder read-through's line found: getLabelGroup follows a chain of references to its end instead of stopping at the first. Today's cells pinned by 12 rows as tripwires; the cure parked, as ruled.
-    405  SEQ 576.  The top-level clear measure, read-only: the gap is build-time name binding, on every old-road call built after the holder's bind, not "top level". The new road is already right.
-    404  f151-cure bought, fast-forwarded (112ada47).
-    403  SEQ 575, on branch f151-cure.  F-151 cured (option E): compiled EXPRESSIOn assigns what interpreted does on all eight shapes, and the same trap in an ordinary compiled action (a memory address read as a number) is closed.
-    402  SEQ 574.  F-151 recon, read-only: compiled EXPRESSIOn builds the right expression and loses it on its last step, an = that copies a number where it should copy a reference.
-    401  f152-cure bought in Groups and TOK.
-    400  SEQ 573, on branch f152-cure.  F-152 cured (option b): macOS's background threads get memory from the system instead of from the collector; the PDF test crashes 0 in 120 runs, from 24 in 40.
-    399  SEQ 572.  F-152's cause measured, nothing built: macOS starts a background thread when it reads a PDF, and that thread allocated through a collector built for one thread.
-    398  SEQ 571.  Stacked prefixes nest on the new road: - - qv reads 3 at any depth, as on the old road. Finding: F-152, firstPdfT crashes about 4 runs in 10.
-    397  SEQ 570.  a < b < c refused by name on the new road, as on the old, instead of silently reading 1. The walkie-talkie retired: the two Clay / Clod channel files are gone.
-    396  rule-if bought, fast-forwarded (5abf7a8b).
-    395  SEQ 569, on branch rule-if.  If compiled through the rule door, the same answers as interpreted on every row.
-    388  2026-11-08.  F-146 bought, f146-cure fast-forwarded (8d6c13de). The flag recording how a body ended is a per-function stack slot published to a global in jitContext.h, not a ruler slot.
-    387  SEQ 568 R1, on branch f146-cure.  F-146's build: a compiled rule ends the way the interpreted one does. EXPRESSIOn still wrong compiled, docketed F-151.
-    386  SEQ 568, shutdown.  Seal 386 made a shutdown seal; the kitchen pass run; nothing built.
-    386  SEQ 567.  F-146's returns landed (714168e3) and moved nothing; its movers registered with their intended values. Paused before the build at a clean edge, Clod's choice: mechanical slips were adding up.
-    385  SEQ 566.  F-146's fixture-rule census stopped for a ruling: 15 fixture rules in 10 files run off their end, beside FELLOFf.
-    384  SEQ 565.  F-146's census stopped for a ruling: unitTests' `list` also runs off its end, beside TOPSTATEMENt.
-    383  SEQ 564.  rule-operators-2 bought and merged (a2922c4f); F-146 recon, docs/f146Recon.md: how a rule that runs off its end should behave was Tony's call.
-    382  SEQ 563.  Operator rung stroke 2 built on rule-operators-2: +%, := and copyOf compile natively everywhere with the same answers; nh stays interpreted by name.
-    381  SEQ 562.  jitterT-cure bought and merged (de2a8905), F-150 closed; main = trunk again (and joins the checklist); EXPRESSIOn described in prose in kantGrammar. Findings: the double prefix and a < b < c disagree between the roads (cured at 398 and 397).
-    380  SEQ 561.  jitterT's cure built on jitterT-cure: a real trunk bug, an inlined call could see its argument's old value.
+    380-410  folded (the trim, seal 506; full text: each seal's commit message): jitterT cured, main = trunk joins the checklist (380-381); operator rung stroke 2, +% := copyOf native (382); F-146, a compiled rule ends as the interpreted one, after two census stops (383-388); If through the rule door (395-396); a < b < c refused and stacked prefixes nested on the new road, the walkie-talkie retired (397-398); F-152, macOS's PDF threads take memory from the system, not the collector (399-401); F-151, compiled EXPRESSIOn assigns as interpreted (402-404); the top-level clear: the gap is build-time name binding, the new road already right (405); the holder read-through is getLabelGroup following a chain to its end, 12 tripwire rows, cure parked (406); a keyword inside an expression refused, WHILe the first operator by the default action (407-410).

@@ -12,8 +12,9 @@ and `Start(); show(firstLight);` draws. fILEs is files only. The walk's three re
 reproduce; armBindT pins its seven shapes). F-164 (a body's search line and names bind when it is first built) NOT RULED: Tony walks
 tester's specimen first.
 **BOUGHT AND MERGED after 503:** undefined-call (seal 504, SEQ 689-690; 7d94ffc5): a call with nothing to call refuses -- by name, or quoting the call when it has no target -- on both roads; JXD-4 respelled, JXD-5 new; tester is Start(); show(firstLight);. Canary 481.
-**ON BRANCH, for the buy:** f162-rule-call (seal 505, SEQ 691): a rule called from the new road. F-159 stopped at its count (26 bodies; Tony to rule).
-**OPEN (Tony):** carried from 482, whether an indented `define` should work. F-159's count (26 bodies, 15 road proofs). F-164.
+**BOUGHT AND MERGED:** f162-rule-call (seal 505; f5c2b8ae): a rule called from the new road. **Seal 506 (SEQ 692-693):** F-159 PARKED until the old road
+retires; F-164 RULED (how kant works: a body binds at its first build); Topics/kant trimmed to 189 / 200. Found: a refusal's [line N] is 0-based and skips code-body newlines.
+**OPEN (Tony):** carried from 482, whether an indented `define` should work. The [line N] proposal (seal 506).
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). The fixit `upToSetDelimiter` stays behind the jitter.
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
 **NEXT:** stroke 2's buy. BeforeSave last refreshed at seal 492.
@@ -44,7 +45,7 @@ Clod's fixit incantations waiting: 15 (oldest: defineCapture, since 2026-10-02)
 |---|---|---|
 | `docs/wakeup.md` | 59 / 60 | this page. |
 | `Topics/forms` | 282 / 280, OVER by 2 (prose lines; the trim waits for cleanup) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 209 / 200, OVER by 9 (the trim waits for the cleanup task, SEQ 681) | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
+| `Topics/kant` | 189 / 200 (trimmed at seal 506) | the language, its grammar in kant, the jitter. Plan to come, from `IncantForms/WorkingOn/macros`. |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/typesetting` | 113 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |

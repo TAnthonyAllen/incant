@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-164 — OPEN, docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only, no cure) — searchAtBuild: a `search` line in an action body runs when the body is built, not when its line runs
+### F-164 — RULED 2026-11-18 (Tony: how kant works; nothing to build), docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only, no cure) — searchAtBuild: a `search` line in an action body runs when the body is built, not when its line runs
 
 **What:** (kant, the old road: an action body) a body's `search X;` line runs once, when the body is first built -- at its first call, before its first statement -- and never when the line is reached. A body that is never called never runs it. **And its sibling, found the same day:** every bare name in the body binds at that same build, against the search list of that moment. In the bootstrap show (incant/setup) `showForm(...)` was built before Utilities was searched, so it bound to a fresh local (bare `showForm` read length 0, a resolved action reads 2) and the call did nothing: no draw, no refusal, exit 0.
 **Where:** the body build (resolveName and the search command, run at build); the silent call is runOPaccum's call arm, whose foot hands an uncallable target to refuseUnknownOperator, which says nothing for a non-operator.
@@ -100,6 +100,7 @@ where it stands. Nothing else is backfilled.
 **Done when:** Tony rules what a search line in a body means (when its line runs, or refused by name), and whether names bind at build or at run; then a row for each, with an H7.
 **Owner:** Tony to rule (kant topic, after a recon); then Clod. **Size:** not measured.
 **Attempt log:** none. The bootstrap show works around it by name (Utilities["showForm"]), SEQ 688.
+**RULED 2026-11-18 (Tony):** this is how kant works. A body's names bind when the body is first built, with the search list of that moment; a search line in a body is a declaration that applies at that build; a name that missed refuses by name at the call (undefined-call, seal 504). A search line appends to the list by design; `reset` as its first argument replaces it. The specimen IncantForms/WorkingOn/searchAtBuild stays.
 
 ### F-163 — RETIRED 2026-11-18 (Tony, SEQ 689: did not reproduce), docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only) — armBindingEmpty: a `:=` made inside an if arm was read empty after the arm
 
