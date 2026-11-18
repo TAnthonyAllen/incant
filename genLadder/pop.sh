@@ -10422,7 +10422,8 @@ echo "-- the stash file and incant's root (SEQ 688)."
 #  must equal the committed file. The walk's three refusals (a listed name with no file, with two files, a directory that cannot
 #  be read) were each driven by hand at SEQ 688 and wrote nothing.
 _skOut=$(INCANT="$B" genLadder/stash.sh --check 2>&1); _skx=$?
-_ofeq "stash incant/stash = a fresh regeneration from incant/stashList (exit / line)" "$_skx $(echo "$_skOut" | head -1 | sed 's/^ *//')" "0 ok    incant/stash = a fresh regeneration (2 entries)"
+#  RE-PINNED SEQ 700: 2 -> 3 entries, tabForm joined incant/stashList (tabs stroke 1); the two rows below move together.
+_ofeq "stash incant/stash = a fresh regeneration from incant/stashList (exit / line)" "$_skx $(echo "$_skOut" | head -1 | sed 's/^ *//')" "0 ok    incant/stash = a fresh regeneration (3 entries)"
 #  ⚑ stashRefusals -- the walk's three refusals, each on a scratch tree (stash.sh --in: run there, never write; SEQ 689). The tree
 #  links every incant file and IncantForms; one file is replaced per case. A control tree, unchanged, would write 2.
 _swR=$PWD; _swT () { rm -rf "$T/sw.$1"; mkdir -p "$T/sw.$1/incant"; ln -s "$_swR/IncantForms" "$T/sw.$1/IncantForms"; for _f in "$_swR"/incant/*; do ln -s "$_f" "$T/sw.$1/incant/"; done; }
@@ -10434,7 +10435,7 @@ _swT two; cp IncantForms/Windows/firstLight "$T/sw.two/incant/firstLight"
 _swTwo=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.two" 2>&1); _swTwox=$?
 _swT dir; rm "$T/sw.dir/incant/stashWalk"; sed 's|directory="incant" load|directory="incantNoSuchDir" load|' incant/stashWalk > "$T/sw.dir/incant/stashWalk"
 _swDir=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.dir" 2>&1); _swDirx=$?
-_ofeq "stash walk control: an unchanged tree would write 2 (exit / line)" "$_swCtlx $(echo "$_swCtl" | sed 's/^ *//')" "0 would write 2 entries"
+_ofeq "stash walk control: an unchanged tree would write 3 (exit / line)" "$_swCtlx $(echo "$_swCtl" | sed 's/^ *//')" "0 would write 3 entries"
 _ofeq "stash walk a listed name with no file: refused by name, nothing written (exit / refusal / failed)" "$_swNonex $(echo "$_swNone" | grep -c 'REFUSED stash -- zzNoSuchForm is on the list and no stated directory has a file of that name') $(echo "$_swNone" | grep -c 'nothing written')" "1 1 1"
 _ofeq "stash walk a listed name with two files: refused naming both" "$_swTwox $(echo "$_swTwo" | grep -c 'REFUSED stash -- two files named firstLight : IncantForms/Windows/firstLight and incant/firstLight')" "1 1"
 _ofeq "stash walk a stated directory that cannot be read: refused by name" "$_swDirx $(echo "$_swDir" | grep -c 'REFUSED stash -- a stated directory cannot be read: incantNoSuchDir')" "1 1"

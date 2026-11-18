@@ -522,7 +522,7 @@ echo "-- the tabs form, respelled as tabForm: definitions only, placeholders onl
 #  ⚑ tabFormT -- tabs stroke 1 (Clay's dispatch, Tony's rulings of 2026-11-18): tabForm draws today's picture under defaultLook,
 #  every colour and font a placeholder (tabFill tabFont cardOneFill cardTwoFill cardThreeFill, IncantForms/Controls/styles).
 #  The tabs are labelled by their value; cards, tabs= and selectFill are not read yet (strokes 2-4, docs/tabsRecon.md).
-#  H7 (SEQ 700): tabFill out of defaultLook -> TF-3's tab and help pixels change (a placeholder in no look is refused by name).
+#  H7 (SEQ 700, committed file, measured): tabFill out of defaultLook -> TF-3 reads the tab and the help white (r255 g255 b255).
 _tfF=$(ip tabFormT)
 rm -f IncantForms/PDF/test.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_tfF" > "$T/tf.o" 2> "$T/tf.e"; _tfx=$?
