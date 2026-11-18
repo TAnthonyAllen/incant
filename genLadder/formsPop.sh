@@ -518,6 +518,20 @@ _ofeq "showBootT exit / sentinel" "$_sbx $(grep -c '^SHOWBOOTT SENTINEL' "$T/sb.
 _ofeq "showBootT SB-1 deferred, then drawn to output.pdf by the continuation" "$(grep '^=== show firstLight' "$T/sb.o" | sed 's/ *$//' | tr '\n' '|')" "=== show firstLight deferred: what it needs loads after this statement, then it draws ===|=== show firstLight to IncantForms/PDF/output.pdf ===|"
 _ofeq "showBootT SB-2 a new output.pdf was written (Tony's put back)" "$_sbNew" "1"
 
+echo "-- the tabs form, respelled as tabForm: definitions only, placeholders only (tabFormT; SEQ 700)."
+#  ⚑ tabFormT -- tabs stroke 1 (Clay's dispatch, Tony's rulings of 2026-11-18): tabForm draws today's picture under defaultLook,
+#  every colour and font a placeholder (tabFill tabFont cardOneFill cardTwoFill cardThreeFill, IncantForms/Controls/styles).
+#  The tabs are labelled by their value; cards, tabs= and selectFill are not read yet (strokes 2-4, docs/tabsRecon.md).
+#  H7 (SEQ 700): tabFill out of defaultLook -> TF-3's tab and help pixels change (a placeholder in no look is refused by name).
+_tfF=$(ip tabFormT)
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 60; exec @ARGV' "$B" "$_tfF" > "$T/tf.o" 2> "$T/tf.e"; _tfx=$?
+_tfp () { grep -A1 "^TF-AT $1 *$" "$T/tf.o" | grep 'pixelAt' | sed 's/.*= //; s/ ===.*//'; }
+_ofeq "tabFormT exit / sentinel / no refusal" "$_tfx $(grep -c '^TABFORMT SENTINEL' "$T/tf.e") $(grep -c '^REFUSED\|^REMOVED' "$T/tf.e")" "0 1 0"
+_ofeq "tabFormT TF-1 drawn by show to test.pdf; the tabs labelled by their value, in tabFont (headerFont)" "$(grep -c '^=== show tabForm to IncantForms/PDF/test.pdf ===' "$T/tf.o") / $(awk '$2=="drawSpans" && $3 ~ /^tab/ {printf "%s %s %s %s %s;", $3, $5, $6, $15, $17}' "$T/tf.o")" "1 / tabOne Palatino 14 3 3;tabTwo Palatino 14 3 3;tabThree Palatino 14 5 5;"
+_ofeq "tabFormT TF-2 the heading in headingFont (titleFont), the cards stacked: all three drawn" "$(awk '$2=="drawSpans" && ($3=="heading" || $3 ~ /Card$/) {printf "%s %s %s;", $3, $5, $6}' "$T/tf.o")" "heading Palatino 24;firstCard Helvetica 12;secondCard Helvetica 12;thirdCard Helvetica 12;"
+_ofeq "tabFormT TF-3 one pixel a region: intro pageFill, tab tabFill, cards cardOne/Two/ThreeFill, help tabFill" "$(_tfp tfIntro) | $(_tfp tfTabOne) | $(_tfp tfCardOne) | $(_tfp tfCardTwo) | $(_tfp tfCardThree) | $(_tfp tfHelp)" "r255 g255 b255 a255 | r175 g211 b120 a255 | r0 g158 b15 a255 | r0 g81 b186 a255 | r239 g43 b45 a255 | r175 g211 b120 a255"
+
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
 #  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.

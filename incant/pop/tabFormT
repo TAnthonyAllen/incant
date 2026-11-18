@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    tabFormFile File='IncantForms/Windows/tabForm';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(tabFormFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+registry(TabFormT);
+define
+    tfRead path="IncantForms/PDF/test.pdf";
+    tfAt code={
+        tfX := argument["px"];
+        tfY := argument["py"];
+        tfRead :% copyOf(*tfX);
+        tfRead :% copyOf(*tfY);
+        cout "TF-AT" argument.taG:;
+        pixelAt(tfRead);
+        };
+    tfIntro px=12 py=10;
+    tfTabOne px=60 py=62;
+    tfCardOne px=300 py=120;
+    tfCardTwo px=300 py=190;
+    tfCardThree px=300 py=260;
+    tfHelp px=300 py=360;
+    ;
+search TabFormT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+showPath.path = "IncantForms/PDF/test.pdf";
+viewer = 0;
+show(tabForm);
+readPDF(tfRead);
+tfAt(tfIntro);
+tfAt(tfTabOne);
+tfAt(tfCardOne);
+tfAt(tfCardTwo);
+tfAt(tfCardThree);
+tfAt(tfHelp);
+cerr "TABFORMT SENTINEL":;
+stop();
+
+tabFormT -- the tabs form, respelled as tabForm (SEQ 700, stroke 1 of docs/tabsRecon.md): definitions only, every
+colour and font a placeholder. Today's picture: the heading, three tabs labelled One Two Three in tabFont, the three
+cards stacked (cards, tabs= and selectFill are not read yet), the help box. One pixel per region of the PDF.

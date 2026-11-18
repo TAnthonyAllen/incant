@@ -4,4 +4,5 @@ registry(sTASh);
 define
     descriptions File='IncantForms/Windows/descriptions';
     firstLight File='IncantForms/Windows/firstLight';
+    tabForm File='IncantForms/Windows/tabForm';
     ;

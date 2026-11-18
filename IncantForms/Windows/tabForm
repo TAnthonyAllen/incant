@@ -1,0 +1,45 @@
+/*****************************************************************************
+    tabForm -- the tabs form. Definitions only, shaped like IncantForms/Windows/firstLight
+    (Tony, 2026-11-18, SEQ 700): fire it with Start(); show(tabForm); The form names no
+    colour and no font: only placeholders, resolved through the look (IncantForms/Controls/styles).
+    Notes below bail().
+*****************************************************************************/
+register(dESCRIPTIONs);
+define
+    tabForm=(In this example, there are two key components to a tabForm interface, the tabBAR (a block with a tabs attribute containing tab blocks). The second component is a block of body panels, with each panel associated with a tab. Each tab block names the card it shows with card:=, and its value is its label.#);
+    tabBAR=(When you select a tab on the tabBAR, the body shown in the bodies block becomes the card named in the tab selected: so if tabOne is selected, the firstCard becomes the body, the other two card bodies are hidden. Note the use of selectFill to set the background color of the tab when a tab is selected. Here the selected tab color is matched to the color of the associated body panel but it does not have to be.#);
+    ;
+register(FORMs);
+define
+    firstCard;
+    secondCard;
+    thirdCard;
+    ;
+define
+    tabForm window closable resize x=400 y=400 width=360 height=400 fill:=pageFill title="Using Tabs"
+        body
+            intro height=50 fill:=pageFill border
+                heading="Tabs Example" font:=headingFont align=center valign=center;
+            tabBAR height=25 across font:=tabFont tabs=tabTwo
+                tabOne="One" card:=firstCard border fill:=tabFill selectFill:=cardOneFill;
+                tabTwo="Two" card:=secondCard fill:=tabFill selectFill:=cardTwoFill border;
+                tabThree="Three" card:=thirdCard fill:=tabFill selectFill:=cardThreeFill border;
+            bodies cards
+                firstCard="The first tab body" border fill:=cardOneFill;
+                secondCard="The second tab body" border fill:=cardTwoFill;
+                thirdCard="The third tab body" border fill:=cardThreeFill;
+            help describe=tabForm border height=100 fill:=tabFill;
+    ;
+bail();
+
+THE CARDS ARE DECLARED FIRST (SEQ 700, measured). A tab names its card with card:=firstCard (Tony, ruling 4 of the tabs
+recon), and a := in a define names a field that must already be defined: without the three declarations above the form,
+each tab refused ("a := in a define names a field, and no field by this name is on the search list") and was REMOVED.
+Declared first, the form's card of the same name reopens the declared one: FORMs["firstCard"] reads "The first tab body".
+
+PLACEHOLDERS (ruling 2): tabFill, tabFont, cardOneFill, cardTwoFill, cardThreeFill, added to IncantForms/Controls/styles
+with their defaultLook values (lightGreen, headerFont, green, blue, red). A tab's selectFill names its card's fill, so one
+role colours both. The page and intro use pageFill (white in defaultLook; the old wall was never visible, the body covers it).
+
+NOT READ YET: tabs=, card:=, cards and selectFill (strokes 2-4, docs/tabsRecon.md). The selected tab will live in a field
+outside the form (ruling 3). The window's closable, resize and title are inert old-GUI chrome, as in descriptions.

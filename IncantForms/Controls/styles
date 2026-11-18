@@ -47,7 +47,12 @@ define
     bodyFont virtual;
     textColor virtual;
     accent virtual;
-    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red;
+    tabFill virtual;
+    tabFont virtual;
+    cardOneFill virtual;
+    cardTwoFill virtual;
+    cardThreeFill virtual;
+    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red tabFill:=lightGreen tabFont:=headerFont cardOneFill:=green cardTwoFill:=blue cardThreeFill:=red;
     ;
 define
     defaultStyle rounded=5;
