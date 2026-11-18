@@ -166,7 +166,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
 *****************************************************************************/
     The tutorial is IBkant's Forms section. A chapter is a passage in IncantForms/IBkant/text (File= for a long one), listed by the contents field (Topics/documentation, SEQ 650 R3).
     Every chapter has four parts: what you write; what you see, an example form that runs to a PDF and so is a test; the rule in a line or two; what is not built.
-        1   A form is a field        the define block, a window, definitions only, firing it        example: firstLight cut to two fields    not written
+        1   A form is a field        the define block, a window, definitions only, firing it; a := names a field already defined, so declare it first (tabForm's cards)    example: firstLight cut to two fields    not written
         2   Layout                   width height percent down across overlay space isHidden noRoom example: simple                          not written
         3   Boxes                    fill, border and sides, strokeColor, rounded, shadow, opacity, image    example: simple                 not written
         4   Text in a field          text font color align valign italic, the inset                 example: firstLight                      not written
