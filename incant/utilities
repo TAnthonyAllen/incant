@@ -1008,6 +1008,100 @@ define
             for grup in argument; members
                 mergeStyles(*grup);
         };
+    /***************************************************************************
+        cardsPick -- tabs and cards (tabs stroke 2, Tony's rulings of
+        2026-11-18). setFrame calls it on the laid-out copy, never on the
+        definition. A field written cards shows ONE member; the rest are
+        isHiddeN on the copy, so they take no room and the shown one gets the
+        cards field's whole box. Which one: a tab bar is a field with
+        tabs:=someField, a field OUTSIDE the form (ruling 3) that holds the
+        selected tab (tabSelected := tabThree); holding 0, the bar's first
+        tab is the selected one (0, not empty: an empty held field reads as a
+        look placeholder). The tab is matched by name on the copy. The selected tab names its card with card:=; the cards
+        field that has a member of that name shows it. A cards field no tab
+        points into shows its first member. A selected tab whose card is in
+        no cards field, or a selected name the bar has no tab for, refuses by
+        name, and every cards field then shows its first member.
+    ***************************************************************************/
+    cpWant;
+    cpTab;
+    cpTabName;
+    cpBars code={
+        for grup in argument; members
+            cbIs = 0;
+            // listFirst a subscript on a field with no list says "does not contain a list"
+            cbL = *grup.listLengtH;
+            if cbL > 0;
+                if *grup["tabs"];   cbIs = 1;
+            if cbIs == 1;           cpBar(*grup);
+            if *grup.hasMemberS;    cpBars(*grup);
+        };
+    cpBar code={
+        cbHold := argument["tabs"];
+        cbSel := **cbHold;
+        // holdsTheTab the field holds the selected tab (tabSelected := tabThree); holding 0 it is nothing selected -- 0, not empty: an empty held field reads as a look placeholder (resolveLook)
+        cbName = string $"none"$;
+        cbIsTab = *cbSel.isGrouP;
+        if cbIsTab == 1;
+            cbTabIs := *cbSel;
+            cbName = string $**cbTabIs.taG$;
+        cbFound = 0;
+        for grup in argument; members
+            cbT = string $*grup.taG$;
+            if cbFound == 0;
+                if cbName == "none";    cbFound = 1;
+                if cbT == cbName;       cbFound = 1;
+                if cbFound == 1;        cpTab := *grup;
+                if cbFound == 1;        cpTabName = string $cbT$;
+        if cbFound == 0;
+            cerr "setFrame: REFUSING the tab" cbName "-- the tab bar" argument.taG "has no tab by that name; the cards show their first":;
+            return;
+        cbHas = 0;
+        cbTL = *cpTab.listLengtH;
+        if cbTL > 0;
+            if *cpTab["card"];      cbHas = 1;
+        if cbHas == 0;
+            cerr "setFrame: REFUSING the tab" cpTabName "-- it names no card (card:=); the cards show their first":;
+            return;
+        cbCard := *cpTab["card"];
+        cpWant = string $**cbCard.taG$;
+        };
+    cpCards code={
+        for grup in argument; members
+            ccIs = 0;
+            ccL = *grup.listLengtH;
+            if ccL > 0;
+                if *grup["cards"];  ccIs = 1;
+            if ccIs == 1;           cpOne(*grup);
+            if *grup.hasMemberS;    cpCards(*grup);
+        };
+    cpOne code={
+        coHas = 0;
+        for grup in argument; members
+            coN = string $*grup.taG$;
+            if coN == cpWant;   coHas = 1;
+        if coHas == 1;      cpHits += 1;
+        coFirst = 1;
+        for grup in argument; members
+            coN = string $*grup.taG$;
+            coShow = 0;
+            if coHas == 1;
+                if coN == cpWant;   coShow = 1;
+            if coHas == 0;
+                if coFirst == 1;    coShow = 1;
+            coFirst = 0;
+            if coShow == 0;     *grup :. isHiddeN;
+        };
+    cpHits = 0;
+    cardsPick code={
+        cpWant = string $"none"$;
+        cpHits = 0;
+        cpBars(argument);
+        cpCards(argument);
+        if cpWant != "none";
+            if cpHits == 0;
+                cerr "setFrame: REFUSING the tab" cpTabName "-- its card" cpWant "is in no cards field; the cards show their first":;
+        };
     setFrame code={
         sfReq := argument;
         sfHas = 0;
@@ -1040,6 +1134,7 @@ define
             *sfLaid :% copyOf(**sfFrame["height"]);
         setLook(argument);
         mergeStyles(*sfLaid);
+        cardsPick(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;

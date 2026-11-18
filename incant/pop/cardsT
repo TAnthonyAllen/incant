@@ -1,0 +1,62 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(CardsT);
+search CardsT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    ctSel = 0;
+    ctOne;
+    ctTwo;
+    ctStray="not in any cards field";
+    ;
+define
+    ctForm window x=0 y=0 width=200 height=300 down fill:=pageFill path="IncantForms/PDF/test.pdf"
+        ctBar height=20 across tabs:=ctSel
+            ctA="A" card:=ctOne;
+            ctB="B" card:=ctTwo;
+            ctC="C" text;
+            ctD="D" card:=ctStray;
+        ctBox cards height=100
+            ctOne="one" text;
+            ctTwo="two" text;
+        ctLone cards
+            ctX="x" text;
+            ctY="y" text;
+    ;
+define
+    ctRun code={
+        cout "CT RUN" argument:;
+        ctLaid := show(ctForm);
+        };
+    ctDefn code={
+        ctDef := ctForm["ctBox"];
+        ctDT := *ctDef["ctTwo"];
+        ctH = *ctDT.isHiddeN;
+        cerr "CT-6 the definition's ctTwo isHidden" ctH:;
+        };
+    ;
+viewer = 0;
+ctRun(1);
+ctSel := ctB;
+ctRun(2);
+ctSel := ctC;
+ctRun(3);
+ctSel := ctD;
+ctRun(4);
+ctSel := ctLone;
+ctRun(5);
+ctDefn();
+cerr "CARDST SENTINEL":;
+stop();
+
+cardsT -- tabs stroke 2 (SEQ 701): a field written cards shows one member on the laid-out copy. The selected tab is held
+by a field outside the form (ctSel, the bar's tabs:=); holding 0 it is the bar's first tab. The tab names its card with
+card:=. A cards field no tab points into (ctLone) shows its first member.
+RUN 1  nothing selected: ctOne and ctX drawn.
+RUN 2  ctB selected: ctTwo and ctX.
+RUN 3  ctC, a tab with no card: refused naming ctC; the cards show their first (ctOne, ctX).
+RUN 4  ctD, whose card is in no cards field: refused naming ctD and ctStray; the first again.
+RUN 5  ctSel holds ctLone, which is no tab of the bar: refused naming it; the first again.
+CT-6   the definition is never written: its ctTwo is not hidden after five layouts.

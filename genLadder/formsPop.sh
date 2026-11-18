@@ -526,11 +526,31 @@ echo "-- the tabs form, respelled as tabForm: definitions only, placeholders onl
 _tfF=$(ip tabFormT)
 rm -f IncantForms/PDF/test.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_tfF" > "$T/tf.o" 2> "$T/tf.e"; _tfx=$?
-_tfp () { grep -A1 "^TF-AT $1 *$" "$T/tf.o" | grep 'pixelAt' | sed 's/.*= //; s/ ===.*//'; }
+_tfp () { awk '/^TF-4 /{exit} {print}' "$T/tf.o" | grep -A1 "^TF-AT $1 *$" | grep 'pixelAt' | sed 's/.*= //; s/ ===.*//'; }
+_tf4 () { awk '/^TF-4 /{on=1} on' "$T/tf.o" | grep -A1 "^TF-AT $1 *$" | grep 'pixelAt' | sed 's/.*= //; s/ ===.*//'; }
 _ofeq "tabFormT exit / sentinel / no refusal" "$_tfx $(grep -c '^TABFORMT SENTINEL' "$T/tf.e") $(grep -c '^REFUSED\|^REMOVED' "$T/tf.e")" "0 1 0"
-_ofeq "tabFormT TF-1 drawn by show to test.pdf; the tabs labelled by their value, in tabFont (headerFont)" "$(grep -c '^=== show tabForm to IncantForms/PDF/test.pdf ===' "$T/tf.o") / $(awk '$2=="drawSpans" && $3 ~ /^tab/ {printf "%s %s %s %s %s;", $3, $5, $6, $15, $17}' "$T/tf.o")" "1 / tabOne Palatino 14 3 3;tabTwo Palatino 14 3 3;tabThree Palatino 14 5 5;"
-_ofeq "tabFormT TF-2 the heading in headingFont (titleFont), the cards stacked: all three drawn" "$(awk '$2=="drawSpans" && ($3=="heading" || $3 ~ /Card$/) {printf "%s %s %s;", $3, $5, $6}' "$T/tf.o")" "heading Palatino 24;firstCard Helvetica 12;secondCard Helvetica 12;thirdCard Helvetica 12;"
-_ofeq "tabFormT TF-3 one pixel a region: intro pageFill, tab tabFill, cards cardOne/Two/ThreeFill, help tabFill" "$(_tfp tfIntro) | $(_tfp tfTabOne) | $(_tfp tfCardOne) | $(_tfp tfCardTwo) | $(_tfp tfCardThree) | $(_tfp tfHelp)" "r255 g255 b255 a255 | r175 g211 b120 a255 | r0 g158 b15 a255 | r0 g81 b186 a255 | r239 g43 b45 a255 | r175 g211 b120 a255"
+_ofeq "tabFormT TF-1 drawn by show to test.pdf (twice, TF-4 the second); the tabs labelled by their value, in tabFont (headerFont)" "$(grep -c '^=== show tabForm to IncantForms/PDF/test.pdf ===' "$T/tf.o") / $(awk '/^TF-4 /{exit} $2=="drawSpans" && $3 ~ /^tab/ {printf "%s %s %s %s %s;", $3, $5, $6, $15, $17}' "$T/tf.o")" "2 / tabOne Palatino 14 3 3;tabTwo Palatino 14 3 3;tabThree Palatino 14 5 5;"
+#  RE-PINNED SEQ 701 (tabs stroke 2): only the selected card is drawn, in the cards field's whole box; nothing selected is the
+#  first tab, so TF-2 draws firstCard alone and TF-3's three card pixels all read cardOneFill.
+_ofeq "tabFormT TF-2 the heading in headingFont (titleFont); nothing selected, so only the first card is drawn" "$(awk '/^TF-4 /{exit} $2=="drawSpans" && ($3=="heading" || $3 ~ /Card$/) {printf "%s %s %s;", $3, $5, $6}' "$T/tf.o")" "heading Palatino 24;firstCard Helvetica 12;"
+_ofeq "tabFormT TF-3 one pixel a region: intro pageFill, tab tabFill, the cards box all cardOneFill, help tabFill" "$(_tfp tfIntro) | $(_tfp tfTabOne) | $(_tfp tfCardOne) | $(_tfp tfCardTwo) | $(_tfp tfCardThree) | $(_tfp tfHelp)" "r255 g255 b255 a255 | r175 g211 b120 a255 | r0 g158 b15 a255 | r0 g158 b15 a255 | r0 g158 b15 a255 | r175 g211 b120 a255"
+_ofeq "tabFormT TF-4 tabSelected := tabThree by hand: only thirdCard drawn, and it fills the box (top and bottom pixels cardThreeFill)" "$(awk '/^TF-4 /{on=1} on && $2=="drawSpans" && $3 ~ /Card$/ {printf "%s;", $3}' "$T/tf.o") $(_tf4 tfCardOne) | $(_tf4 tfCardThree)" "thirdCard; r239 g43 b45 a255 | r239 g43 b45 a255"
+
+echo "-- cards: one card shown, picked by the selected tab (cardsT; SEQ 701)."
+#  ⚑ cardsT -- tabs stroke 2 (Tony's rulings, 2026-11-18): setFrame's cardsPick, on the laid-out copy. A cards field shows one member;
+#  the bar's tabs:= holds a field outside the form that holds the selected tab (0: the first tab); the tab's card:= names the card.
+#  H7 (SEQ 701, committed file, cardsPick's call taken out of setFrame by hand): every run draws both cards of each cards field.
+_ctF=$(ip cardsT)
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 60; exec @ARGV' "$B" "$_ctF" > "$T/ct.o" 2> "$T/ct.e"; _ctx=$?
+_ctr () { awk -v r="$1" '/^CT RUN/{n=$3} n==r && $2=="drawSpans" && $3 ~ /^ct(One|Two|X|Y)$/ {printf "%s ", $3}' "$T/ct.o"; }
+_ofeq "cardsT exit / sentinel / no list errors" "$_ctx $(grep -c '^CARDST SENTINEL' "$T/ct.e") $(grep -c 'nextGroup: ERROR' "$T/ct.e")" "0 1 0"
+_ofeq "cardsT CT-1 nothing selected (ctSel 0): the bar's first tab's card, and a cards field no tab points into shows its first" "$(_ctr 1)" "ctOne ctX "
+_ofeq "cardsT CT-2 ctSel := ctB: ctB's card" "$(_ctr 2)" "ctTwo ctX "
+_ofeq "cardsT CT-3 a tab with no card: refused naming it, the first shown" "$(grep -c '^setFrame: REFUSING the tab ctC -- it names no card' "$T/ct.e") $(_ctr 3)" "1 ctOne ctX "
+_ofeq "cardsT CT-4 a card in no cards field: refused naming the tab and the card, the first shown" "$(grep -c '^setFrame: REFUSING the tab ctD -- its card ctStray is in no cards field' "$T/ct.e") $(_ctr 4)" "1 ctOne ctX "
+_ofeq "cardsT CT-5 a selection that is no tab of the bar: refused naming it, the first shown" "$(grep -c '^setFrame: REFUSING the tab ctLone -- the tab bar ctBar has no tab by that name' "$T/ct.e") $(_ctr 5)" "1 ctOne ctX "
+_ofeq "cardsT CT-6 the definition is never written: its ctTwo is not hidden after five layouts" "$(grep '^CT-6 ' "$T/ct.e" | sed 's/ *$//')" "CT-6 the definition's ctTwo isHidden 0"
 
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
