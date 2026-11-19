@@ -17,8 +17,9 @@ Every pattern here works inside an action (`name code={ ... };`) on both of kant
     t := cell(text);        if *t;  print "matched":;   // := : t holds the result; read pieces as *t.val
 
 Rows: `ruleResultT RR-2`, `RR-10` (the `=` way), `RR-11`, `RR-6` (the `:=` way). **Don't mix them:** `if t := cell(text);`
-is true even when the rule fails (`RR-3`), and after `t = ...`, `*t.val` refuses (`RR-5`). Today a rule that matches
-with an empty piece counts as matched (`RR-1`); that is not ruled yet.
+refuses by name and tells you the cure, because `t` holds a field and would always read true (`RR-3`; `while` and `do`
+the same, `RR-12`, `RR-13`); and after `t = ...`, `*t.val` refuses (`RR-5`). A rule that matches with an empty piece
+counts as matched (`RR-1`).
 
 **2. A piece that may be empty: make the term optional.** A star on a character set needs at least one character.
 
