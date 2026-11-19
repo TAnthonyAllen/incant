@@ -45,3 +45,9 @@ Found by the full-monty recon, 2026-11-18 (docs/fullMontyRecon.md). The control 
 NEXT: OPEN
   The old grammar's rule: ScopeValue  byValue-="=:" scopeList=ScopeField+ SemI- defer (incant/grammar:170). kantGrammar has none.
   Taken: the second PIN reads 1. Not taken (today): 0.
+
+RETIRED BY MAPPING 2026-11-19 (full monty step 1, stroke 2, branch scope-value): the taken signature holds -- the second
+PIN reads 1. Its assertions now live in pop.sh's scopeValueNewT rows: fxBad builds -> "the six actions, frameMembers and
+frameWhole build on kantGrammar" (every scopeValueT body holding =: builds); the value it was for -> "every SV line but SV-9
+equals the old road's"; the bodies tester lost (frameMembers, frameWhole) -> the same build row. fxCtl, a body with no
+scope statement, was the control; every new-road fixture covers it.

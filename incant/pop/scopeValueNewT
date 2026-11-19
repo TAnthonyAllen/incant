@@ -1,0 +1,102 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(ScopeValueNewT);
+define
+    nlReqN owner source result rule;
+    svNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        svOk = 0;
+        if compileIn(nlReqN);
+            svOk = 1;
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        cerr "SVN BUILT" argument.taG svOk:;
+        };
+    svSrc="text" width=250 height=50 flagish
+        kid;
+    svEmpty kid;
+    svOther=9;
+    svHeld height:=svOther width=4;
+    readAll code={
+        =:argument width height flagish missing kid;
+        print "SV-1 present values" width height:;
+        print "SV-3a a bare flag reads" flagish "and a member with no data reads" kid:;
+        if width.datA == 0;     print "SV-2 width no data":;
+        else                    print "SV-2 width has data":;
+        if flagish.datA == 0;   print "SV-3 dataless attribute no data":;
+        else                    print "SV-3 dataless attribute has data":;
+        if missing.datA == 0;   print "SV-4 absent no data":;
+        else                    print "SV-4 absent has data":;
+        if kid.datA == 0;       print "SV-5 member with no data no data":;
+        else                    print "SV-5 member with no data has data":;
+        };
+    noWriteThrough code={
+        =:argument width;
+        width = 7;
+        print "SV-6 local" width "source" argument["width"]:;
+        };
+    holderControl code={
+        :argument width;
+        *width = 8;
+        print "SV-7 colon still writes through, source" argument["width"]:;
+        };
+    refire code={
+        =:argument width;
+        if width.datA == 0;     print "SV-8 no data":;
+        else                    print "SV-8" width:;
+        };
+    heldWarns code={
+        =:argument height width;
+        if height.datA == 0;    print "SV-10 held group left the local empty":;
+        else                    print "SV-10 held group has data":;
+        print "SV-11 its neighbour still reads" width:;
+        };
+    viaCursor code={
+        for grup in argument; members
+            =:grup height;
+            print "SV-9" taG height:;
+        };
+    svKids="p"
+        a height=11;
+        b height=22;
+    ;
+svNew(readAll);
+svNew(noWriteThrough);
+svNew(holderControl);
+svNew(refire);
+svNew(heldWarns);
+svNew(viaCursor);
+readAll(svSrc);
+noWriteThrough(svSrc);
+holderControl(svSrc);
+refire(svSrc);
+refire(svEmpty);
+refire(svSrc);
+viaCursor(svKids);
+heldWarns(svHeld);
+svNew(frameMembers);
+svNew(frameWhole);
+print "SCOPEVALUE SENTINEL":;
+stop();
+
+scopeValueNewT -- the value scope `=:lookin a b c;` on kantGrammar (full monty plan step 1, stroke 2: fixit
+newRoadScopeStatement). The same actions as scopeValueT, moved to the new road by svNew before they run (it prints
+SVN BUILT <name> 1 when a body builds); pop.sh compares every SV line with scopeValueT's, the old road, which is the control.
+kantGrammar's SCOPEVALUe builds as SCOPEXp does and its label runs aCTionScopeValue; STATEMENt's guard takes `=`.
+SV-9 (viaCursor) walks `for grup in argument; members`, and the filter is not built on the new road yet (fixit
+newRoadForFilter, step 1's next stroke): its statement is refused by name and no SV-9 line prints. Pinned so.
+frameMembers and frameWhole, tester's two bodies that held a value scope, build on kantGrammar at the foot.
+utilities is included (unlike scopeValueT) because the new road's actions call its helpers; it adds `stop:` lines only.

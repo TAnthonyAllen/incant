@@ -8930,6 +8930,18 @@ kindRow "scopeValueT SV-9 through a cursor" "$(_sv SV-9)" "SV-9 a 11|SV-9 b 22|"
 kindRow "scopeValueT SV-10 a held group leaves the local empty" "$(_sv SV-10)" "SV-10 held group left the local empty|"
 kindRow "scopeValueT SV-11 its neighbour still reads (non-zero sibling)" "$(_sv SV-11)" "SV-11 its neighbour still reads 4|"
 kindRow "scopeValueT the warning names the field and the form, once" "$(grep -c '^WARNING =: height in svHeld holds a group' "$T/sv.e")" "1"
+#  ---- scopeValueNewT: =: ON kantGrammar (full monty step 1, stroke 2; fixit newRoadScopeStatement retired into it by mapping).
+#  scopeValueT's actions moved to the new road; every SV line must equal scopeValueT's (the old road, run just above as $T/sv),
+#  but SV-9, whose for-filter is not built on the new road yet (step 1's next stroke), pinned refused by name.
+perl -e 'alarm 20; exec @ARGV' "$B" "$(ip scopeValueNewT)" > "$T/svn" 2> "$T/svn.e"; _svnx=$?
+kindRow "scopeValueNewT runs" "$_svnx" "0"
+sentinel "scopeValueNewT sentinel" "$T/svn" "SCOPEVALUE SENTINEL"
+kindRow "scopeValueNewT the six actions, frameMembers and frameWhole build on kantGrammar" "$(grep -c '^SVN BUILT [A-Za-z]* 1' "$T/svn.e" | tr -d ' ') of 8" "8 of 8"
+_svo=$(grep '^SV-' "$T/sv" | grep -v '^SV-9 ' | tr '\n' '|'); _svn=$(grep '^SV-' "$T/svn" | grep -v '^SV-9 ' | tr '\n' '|')
+kindRow "scopeValueNewT every SV line but SV-9 equals the old road's (vacuity: 13 lines)" "$( [ -n "$_svo" ] && [ "$_svo" = "$_svn" ] && echo same || echo differ) $(grep -c '^SV-' "$T/svn" | tr -d ' ')" "same 13"
+#  the refusal counted is the one printed while viaCursor builds (between heldWarns' and viaCursor's SVN BUILT lines); frameMembers
+#  and frameWhole print three more of the same while they build, below
+kindRow "scopeValueNewT SV-9 for-filter not built on the new road: refused by name, no SV-9 line" "$(awk '/^SVN BUILT heldWarns/{on=1;next} /^SVN BUILT viaCursor/{on=0} on && /^REFUSED FOr attributes \/ members -- not built on the new road yet/{n++} END{print n+0}' "$T/svn.e") $(grep -c '^SV-9 ' "$T/svn" | tr -d ' ')" "1 0"
 
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
