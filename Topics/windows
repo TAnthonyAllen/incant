@@ -62,6 +62,8 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
     Plan
 *****************************************************************************/
     1  A read-only recon of the old GUI's window code (GUI/, guiHost.mm) and today's openWindow. Not dispatched.
+    2  The Apple Font and Colour panels feed the look's placeholders (RULED, not built; Tony, 2026-11-19): a pick in the panel
+       writes the placeholder (pageFill, headingFont ...) the request's look holds, and the form redraws through it.
 
 /*****************************************************************************
     Seal digest (newest first)

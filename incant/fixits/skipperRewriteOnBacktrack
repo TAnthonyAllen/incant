@@ -1,0 +1,72 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(Operators);
+define
+    forAttrs        unary ruleMethod=opFor  ownsBody;
+    forMembers      unary ruleMethod=opFor  ownsBody;
+    forBackAttrs    unary ruleMethod=opForBack  ownsBody;
+    forBackMembers  unary ruleMethod=opForBack  ownsBody;
+    ;
+registry(fILEs);
+define
+    kantGrammar File='IncantForms/WorkingOn/skipperReproGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(SkipperRewriteOnBacktrack);
+define
+    srReq owner source result rule;
+    srTry code={
+        srSrc := argument.CodE;
+        srReq.owner  := argument;
+        srReq.source := srSrc;
+        srReq.rule   := KantGrammar["STARt"];
+        if compileIn(srReq);
+            srBlock = srReq.result;
+            *srBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *srBlock;
+        };
+    srSrcList a=1 b=2;
+    srOneLine code={
+        for g in srSrcList; cerr "srOneLine walked" g:;
+        };
+    srNextLine code={
+        for g in srSrcList;
+            cerr "srNextLine walked" g:;
+        };
+    ;
+search SkipperRewriteOnBacktrack Utilities UnitTests list;
+cerr "ANCHOR skipperRewriteOnBacktrack -- a plain for whose block starts on the next line, after filtered shapes tried first":;
+fixSkipperRewriteOnBacktrackHere = 0;
+srTry(srOneLine);
+srTry(srNextLine);
+srOneLine();
+srNextLine();
+cerr "PIN the lines above (today): srOneLine walked 1 and 2 (the control: no newline crossed); srNextLine walks nothing and its for is refused as a keyword inside an expression. Want: both walk":;
+cerr "SENTINEL skipperRewriteOnBacktrack reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: SHARED
+OWNER: Clod     (Tony, 2026-11-19, the shutdown seal: latent, HPDL (checkSkip), not cured)
+SEVERITY: latent -- nothing on trunk tries a failing shape across a newline today; the for filter's first spelling did.
+
+skipperRewriteOnBacktrack -- checkSkip (GroupRules.twk) does not only skip: crossing a newline into a deeper indent in a body
+it REWRITES THE INPUT IN PLACE (the newline becomes `{`), pushes blockSTAK and sets lastIndent. A term that skipped across
+that newline and then FAILED backs out its input mark but not the rewrite, so a later shape reads changed source.
+The four filtered ops are bound here to trunk's opFor / opForBack: the repro never runs a filtered loop, it needs only
+that the shapes define. The repro is IncantForms/WorkingOn/skipperReproGrammar: trunk's kantGrammar with four filtered FOr shapes (for ... ;
+attributes / members) tried ahead of the plain two, as the for filter's first spelling had them (branch for-filter,
+full monty step 1 stroke 3). A plain loop whose block starts on the next line: each filtered shape skips across the
+newline looking for its word, fails, and the plain shape then cannot build. The one-line loop crosses no newline and builds.
+Measured both ways on 2026-11-19: a filter word that cannot skip there (^) leaves the plain loops building; and this same
+file pointed at trunk's own incant/kantGrammar (no filtered shapes) walks srNextLine 1 and 2.
+
+NEXT: OPEN (ruled latent, not cured)
+  The cure would make a failed term's backtrack undo the rewrite (restore the replaced character, blockSTAK, lastIndent) --
+  every backtrack in every parse passes through it. The for filter is to be respelled instead (Tony's ruling pending;
+  Clay's lean: the filter word first, `for members x in y;`, so no shape looks across a newline).
+  Taken: srNextLine walked 1 and 2. Not taken (today): no srNextLine line, and REFUSED for -- a keyword inside an expression.

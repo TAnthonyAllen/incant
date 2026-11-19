@@ -55,6 +55,9 @@ Not typesetting
     5  Pages.
     6  Tabs, indents and lists.
     7  The documenter.
+    8  The float (RULED, not built; Tony, 2026-11-19): an inserted field is inline by default; float=right / float=left on the
+       inserted field takes it out of the line and lets the text run beside it; gap= is the space between them; keep-out boxes are
+       the areas the text runs around.
 Steps 1 to 3 are forms step 7. This file becomes its own topic when they open.
 
 /*****************************************************************************
