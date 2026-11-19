@@ -278,8 +278,9 @@ RR-17 TO RR-24 back docs/kantPatterns.md's "calling an action vs calling a rule"
   RR-20  a rule called with no argument: REFUSES BY NAME on the new road; on the old road it reads false in silence.
   RR-21  a rule called with an argument that has no text: the same split.
   RR-22  an action takes anything as its argument (a count, a string, a group) and hands back what return gives.
-  RR-23  an action returning its argument: 1 reads true on both; 0 reads FALSE ON THE OLD ROAD AND TRUE ON THE NEW.
-  RR-24  an action with no return reads TRUE in an if, on both roads.
+  RR-23  an action returning its argument: 1 true, 0 false, on both roads. (Before Tony's ruling R2 of 2026-11-19, 0
+         read true on the new road: the returned binding was read, not the 0 it held.)
+  RR-24  an action with no return hands back nothing, and nothing reads false (R1, 2026-11-19; it read true before).
 
 ROWS -- id | helpers moved to the new road with it (after the action)
 RR-1|rr1

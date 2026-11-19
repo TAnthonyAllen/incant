@@ -1392,6 +1392,12 @@ GroupItem   value;
     if !arms    return null;
     value = arms[1];
     -% if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); %-
+    // returnedValue a returned argument bound to a plain value hands back that value, so a returned 0 reads false on both grammars (Tony, 2026-11-19, R2); a group or a list still goes back bound
+    -%
+    if ( value && !ruler->jitting && value->groupBody->flags.isArgument && isGROUP(value->groupBody->flags.data) ) {
+        GroupItem *bound = value->getGroup();
+        if ( bound && bound->groupBody->flags.data && !isGROUP(bound->groupBody->flags.data) && !bound->groupBody->groupList ) value = bound; }
+    %-
     ruler.branchKind = 3;
     return value;
 }
