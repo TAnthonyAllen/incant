@@ -468,6 +468,8 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitEQ); %-
     }
+    // holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+    if refuseHolderCompare(argument,target,"==")  return null;
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus)
     if !argument {
         return refuse(target,"Operator == -- an operand that is nothing"); }
@@ -489,6 +491,8 @@ int order = 0;
     if jitting {
         -% return jitEmitCompare(argument, target, jitGE); %-
     }
+    // holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+    if refuseHolderCompare(argument,target,">=")  return null;
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus)
     if !argument {
         return refuse(target,"Operator >= -- an operand that is nothing"); }
@@ -553,6 +557,8 @@ int order = 0;
     if jitting {
         -% return jitEmitCompare(argument, target, jitGT); %-
     }
+    // holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+    if refuseHolderCompare(argument,target,">")  return null;
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus)
     if !argument {
         return refuse(target,"Operator > -- an operand that is nothing"); }
@@ -605,6 +611,8 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitLE); %-
     }
+    // holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+    if refuseHolderCompare(argument,target,"<=")  return null;
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus)
     if !argument {
         return refuse(target,"Operator <= -- an operand that is nothing"); }
@@ -625,6 +633,8 @@ extern GroupItem opLT(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitLT); %-
     }
+    // holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+    if refuseHolderCompare(argument,target,"<")  return null;
     // f41 a refused operand arrives as null -- refuse it by name (see opPlus)
     if !argument {
         return refuse(target,"Operator < -- an operand that is nothing"); }
@@ -817,6 +827,8 @@ extern GroupItem opNotEQ(GroupItem argument,GroupItem target)
     if jitting {
         -% return jitEmitCompare(argument, target, jitNE); %-
     }
+    // holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+    if refuseHolderCompare(argument,target,"!=")  return null;
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount != 0     return trueResult; }

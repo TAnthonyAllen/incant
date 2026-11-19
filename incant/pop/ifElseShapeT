@@ -156,6 +156,9 @@ define
     pair w h;
     pq isRule reg^=[a-z]+ dot^="." name^=[a-z]+;
     pv;
+    ieH;
+    it1;
+    ieK;
     ieMk code={
         o := copyDeep(pair);
         *o.w = argument;
@@ -233,10 +236,57 @@ define
         };
     ie27 code={
         h := qa;
+        print "before":;
         if h == 2;      print "h == 2 yes":;
         else            print "h == 2 no":;
+        print "after":;
+        };
+    ie29 code={
+        h := qa;
         if *h == 2;     print "*h == 2 yes":;
         else            print "*h == 2 no":;
+        print "after":;
+        };
+    ie30 code={
+        h := qa;
+        k := qa;
+        if h == k;      print "same yes":;
+        else            print "same no":;
+        print "after":;
+        };
+    ie31 code={
+        h := qa;
+        k := qb;
+        if h == k;      print "different yes":;
+        else            print "different no":;
+        print "after":;
+        };
+    ie32 code={
+        h := qa;
+        print "before":;
+        if 2 != h;      print "yes":;
+        else            print "no":;
+        print "after":;
+        };
+    ie33 code={
+        h := qa;
+        print "before":;
+        if h < qb;      print "yes":;
+        else            print "no":;
+        print "after":;
+        };
+    ie34 code={
+        h := qa;
+        print "before":;
+        if h == "x";    print "yes":;
+        else            print "no":;
+        print "after":;
+        };
+    ie35 code={
+        if fsrc == 2;   print "list == 2 yes":;
+        else            print "list == 2 no":;
+        if fsrc == 3;   print "list == 3 yes":;
+        else            print "list == 3 no":;
         print "after":;
         };
     ie28 code={
@@ -254,6 +304,8 @@ define
 search IfElseShapeT Utilities UnitTests list;
 fsrc +% fa fb fc;
 pv = "ab.cd";
+ieH := qa;
+ieK := qa;
 stop();
 
 ifElseShapeT -- the if / else / or shapes typeset wants, in an action body, on both grammars (Clay's ergonomics census,
@@ -275,9 +327,14 @@ Bear-trap #32's multi-statement-arm-then-else shape is right on both grammars in
 IE-11, IE-16).
 
 IE-17 TO IE-28 are the census rows (docs/ergoCensus.md): the other spellings typeset wants, in an action body, pinned as
-read. Three read as not intended and are pinned so, not cured: IE-23 (`for lp in *h` on the old road walks two items, the
-star and the name, at exit 0), IE-25 (`*t["name"]` on the new road, exit 139) and IE-27 (`h == 2` with h := qa compares
-the holder, not the value: "no" on both roads; `*h == 2` is the spelling).
+read. Two read as not intended and are pinned so, not cured: IE-23 (`for lp in *h` on the old road walks two items, the
+star and the name, at exit 0) and IE-25 (`*t["name"]` on the new road, exit 139).
+
+THE COMPARE LAW (Tony, 2026-11-19, R1-R4), IE-27 and IE-29 to IE-35, and the top-level rows TP-1 to TP-3 (in pop.sh): a
+compare (== != < <= > >=) never derefs a holder. A holder against a plain value -- a count, a number, a string, a field
+carrying a value -- refuses by name, "h holds qa; compare *h", and the refusal ends the action at the compare (the line
+after it does not print). Holder against holder stays legal: it asks whether both hold the same field (IE-30, IE-31).
+A field with a list against a value is user beware, pinned as it reads (IE-35). IE-27 read "h == 2 no" in silence before.
 
 ROWS -- id | action | helpers moved to the new road with it
 IE-1|ie1|
@@ -308,6 +365,13 @@ IE-25|ie25|
 IE-26|ie26|ieMk
 IE-27|ie27|
 IE-28|ie28|
+IE-29|ie29|
+IE-30|ie30|
+IE-31|ie31|
+IE-32|ie32|
+IE-33|ie33|
+IE-34|ie34|
+IE-35|ie35|
 
 DEF-IE-12 -- the row's own define, added after the preamble for IE-12 only
 DEF-IE-12|define

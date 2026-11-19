@@ -1708,7 +1708,7 @@ while IFS='|' read -r _id _act _help; do
       printf '%s();\ncerr "IE SENTINEL":;\nstop();\n' "$_act"; } > "$T/ie.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/ie.$_id.nk" > "$T/ie.$_id.n" 2> "$T/ie.$_id.ne"; echo $? > "$T/ie.$_id.nx"
 done < "$T/ie.list"
-_ofeq "ifElseShapeT rows ran (28 of 28)" "$(ls "$T"/ie.IE-*.ne 2>/dev/null | wc -l | tr -d ' ')" "28"
+_ofeq "ifElseShapeT rows ran (35 of 35)" "$(ls "$T"/ie.IE-*.ne 2>/dev/null | wc -l | tr -d ' ')" "35"
 _ieR () { _ofeq "ifElseShapeT $1 old road: $2 (value / sentinel)" "$(_iev "$T/ie.$1.o" "$T/ie.$1.oe" "$T/ie.$1.ox") $(grep -c '^IE SENTINEL' "$T/ie.$1.oe")" "$3 1"
           _ofeq "ifElseShapeT $1 new road: $2 (value / sentinel)" "$(_iev "$T/ie.$1.n" "$T/ie.$1.ne" "$T/ie.$1.nx") $(grep -c '^IE SENTINEL' "$T/ie.$1.ne")" "${4:-$3} 1"; }
 _ieR IE-1  "if / else, one statement each, then arm" "then |after | R0 x0"
@@ -1727,7 +1727,7 @@ _ieR IE-13 "if on a call's truth (F-160), true, with an else" "then |after | R0 
 _ieR IE-14 "if on a call's truth (F-160), false, with an else" "else |after | R0 x0"
 _ieR IE-15 "an else after an if whose arm returns" "arm1 |5 |arm2 |tail |7 |after | R0 x0"
 _ieR IE-16 "if / or / else with several statements per arm, in a while" "other 1 |two |two again |three |three again |other 4 |after | R0 x0"
-#  the census rows (docs/ergoCensus.md), pinned as read; IE-23 old, IE-25 new and IE-27 read as not intended (see the fixture)
+#  the census rows (docs/ergoCensus.md), pinned as read; IE-23 old and IE-25 new read as not intended (see the fixture)
 _ieR IE-17 "break in a while" "1 |2 |after | R0 x0"
 _ieR IE-18 "continue in a while" "1 |3 |4 |after | R0 x0"
 _ieR IE-19 "break in a for" "1 |after | R0 x0"
@@ -1739,7 +1739,34 @@ _ieR IE-24 "a parse result's pieces by label (*t.name, *t.reg) and by for" "name
 _ofeq "ifElseShapeT IE-25 old road: a parse result's piece by subscript, *t[\"name\"] (value / sentinel)" "$(_iev "$T/ie.IE-25.o" "$T/ie.IE-25.oe" "$T/ie.IE-25.ox") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.oe")" "name cd |after | R0 x0 1"
 _ofeq "ifElseShapeT IE-25 new road: *t[\"name\"] dies 139 (pinned as read) (value / sentinel)" "$(_iev "$T/ie.IE-25.n" "$T/ie.IE-25.ne" "$T/ie.IE-25.nx") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.ne")" " R0 x139 0"
 _ieR IE-26 "a return carrying a named member (a copyDeep record)" "w 5 |after | R0 x0"
-_ieR IE-27 "a compare on a holder does not deref: h == 2 is no, *h == 2 yes (pinned as read)" "h == 2 no |*h == 2 yes |after | R0 x0"
+#  THE COMPARE LAW (Tony, 2026-11-19, R1-R4): a compare never derefs a holder. A holder against a plain value refuses by name
+#  and ends the action at the compare (IE-27, IE-32 to IE-34); holder against holder stays legal (IE-30, IE-31); *h is the
+#  spelling (IE-29); a field with a list against a value is user beware, pinned as it reads (IE-35). RE-PIN of IE-27: it read
+#  "h == 2 no" in silence until the law; now it refuses.
+_ieR IE-27 "h == 2, a holder against a count, refuses by name" "before | R1 x0"
+_ieR IE-29 "*h == 2 reads through the holder" "*h == 2 yes |after | R0 x0"
+_ieR IE-30 "holder == holder, both hold the same field: legal, yes" "same yes |after | R0 x0"
+_ieR IE-31 "holder == holder, different fields: legal, no" "different no |after | R0 x0"
+_ieR IE-32 "2 != h, the holder on the right, refuses by name" "before | R1 x0"
+_ieR IE-33 "h < qb, a holder against a field carrying a value, refuses by name" "before | R1 x0"
+_ieR IE-34 "h == \"x\", a holder against a string, refuses by name" "before | R1 x0"
+_ieR IE-35 "a field with a list against a value: user beware, pinned as it reads (R4)" "list == 2 no |list == 3 no |after | R0 x0"
+_ieM () { sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$1" | head -1; }
+for _r in o n; do _e=oe; [ $_r = n ] && _e=ne
+    _ofeq "ifElseShapeT the refusal names patient and cure ($_r road): IE-27 / IE-32 / IE-33 / IE-34" "$(_ieM "$T/ie.IE-27.$_e") / $(_ieM "$T/ie.IE-32.$_e") / $(_ieM "$T/ie.IE-33.$_e") / $(_ieM "$T/ie.IE-34.$_e")" "h -- Operator == -- h holds qa; compare *h / h -- Operator != -- h holds qa; compare *h / h -- Operator < -- h holds qa; compare *h / h -- Operator == -- h holds qa; compare *h"
+done
+#  the law at TOP LEVEL: old road the statement in the file, new road STARt on its text then testOP (ieH := qa; ieK := qa)
+for _tp in 'TP-1|if ieH == 2; print "yes":; else print "no":;|after | R1 x0 1' 'TP-2|if *ieH == 2; print "yes":; else print "no":;|yes |after | R0 x0 1' 'TP-3|if ieH == ieK; print "same yes":; else print "same no":;|same yes |after | R0 x0 1'; do
+    _tid=${_tp%%|*}; _trest=${_tp#*|}; _tit=${_trest%%|*}; _twant=${_trest#*|}
+    { cat "$T/ie.pre"; printf '%s\nprint "after":;\ncerr "IE SENTINEL":;\nstop();\n' "$_tit"; } > "$T/ie.$_tid.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ie.$_tid.ok" > "$T/ie.$_tid.o" 2> "$T/ie.$_tid.oe"; echo $? > "$T/ie.$_tid.ox"
+    _tesc=$(printf '%s' "$_tit" | sed 's/"/\\"/g')
+    { cat "$T/ie.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\nprint "after":;\ncerr "IE SENTINEL":;\nstop();\n' "$_tesc"; } > "$T/ie.$_tid.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ie.$_tid.nk" > "$T/ie.$_tid.n" 2> "$T/ie.$_tid.ne"; echo $? > "$T/ie.$_tid.nx"
+    _ofeq "ifElseShapeT $_tid top level, old road: $_tit (value / sentinel)" "$(_iev "$T/ie.$_tid.o" "$T/ie.$_tid.oe" "$T/ie.$_tid.ox") $(grep -c '^IE SENTINEL' "$T/ie.$_tid.oe")" "$_twant"
+    _ofeq "ifElseShapeT $_tid top level, new road: $_tit (value / sentinel)" "$(_iev "$T/ie.$_tid.n" "$T/ie.$_tid.ne" "$T/ie.$_tid.nx") $(grep -c '^IE SENTINEL' "$T/ie.$_tid.ne")" "$_twant"
+done
+_ofeq "ifElseShapeT TP-1 the top-level refusal names ieH (old / new)" "$(_ieM "$T/ie.TP-1.oe") / $(_ieM "$T/ie.TP-1.ne")" "ieH -- Operator == -- ieH holds qa; compare *ieH / ieH -- Operator == -- ieH holds qa; compare *ieH"
 _ieR IE-28 "a starred write through copyOf reaches the source, through copyDeep not" "5 |5 |after | R0 x0"
 _ofeq "ifElseShapeT IE-12 refusal names the brace (old / new)" "$(grep -c '^REFUSED { -- a block brace in an action body' "$T/ie.IE-12.oe") $(grep -c '^REFUSED { -- a block brace in an action body' "$T/ie.IE-12.ne")" "1 1"
 else echo "  FAIL  ifElseShapeT MISSING"; fail=1
@@ -9625,7 +9652,9 @@ kindRow "exprPinT PA1 +% over a juxtaposed list, order"     "$(_ep PA1n): $(_ep 
 #  a == x || b == y is a == (x || (b == y)); the candidate's tiers bind the comparisons first [on: OR1 1, OR2 1, OR3 1].
 #  OR1 is the tester line verbatim: its LEFT half compares the := holder unstarred, which is never equal (bear-trap 55) on
 #  either road, so OR1 is true only through its right half. OR2 is the starred discriminator; OR3 its non-zero sibling.
-kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1"   "$(_ep OR1)"   "1"         # intended 1 (through the right half only) -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
+#  RE-PIN 2026-11-19, the compare law (Tony, R1): OR1's left half compares the := holder unstarred, which now REFUSES by name
+#  and ends OR1 before its cerr, where it read false in silence and OR1 was true through its right half only.
+kindRow "exprPinT OR1 oh == 0 || *oh == 1, holder of 1: the left half refuses (refusals / EP line)"   "$(grep -c '^REFUSED oh -- Operator == -- oh holds orOne; compare \*oh' "$T/ept.e") $(_o=$(_ep OR1); echo "${_o:-none}")"   "1 none"
 kindRow "exprPinT OR2 *oh == 1 || *oh == 0, holder of 0"  "$(_ep OR2)"   "1"         # intended 1 -- re-pinned to switch on, the flip; the old road retired, 2026-10-13
 kindRow "exprPinT OR3 *oh == 1 || *oh == 0, holder of 1"  "$(_ep OR3)"   "1"         # intended 1
 #  FP1-FP8 SEQ 343 (Tony, 2026-10-12, R0 restating 2026-10-06): ARITHMETIC IS A STRICT LEFT FOLD, NO PRECEDENCE --
