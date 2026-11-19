@@ -518,6 +518,7 @@ extern "C" GroupItem *recordLabel(RuleStuff *s);
 extern "C" GroupItem *refuse(GroupItem *subject, char *why);
 extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target);
 extern "C" int refuseDotUnaryOp(GroupItem *op, GroupItem *aop);
+extern "C" int refuseHolderCompare(GroupItem *argument, GroupItem *target, char *opName);
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);
 extern "C" int refuseLookupMiss(GroupItem *op, GroupItem *lookup);
 extern "C" GroupItem *refuseNoTarget(GroupItem *field);

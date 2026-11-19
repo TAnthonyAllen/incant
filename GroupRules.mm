@@ -10615,6 +10615,9 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitEQ); 
 		}
+	// holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+	if ( ::refuseHolderCompare(argument,target,"==") )
+		return 0;
 	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
@@ -10659,6 +10662,9 @@ int 	order = 0;
 		{
 		 return jitEmitCompare(argument, target, jitGE); 
 		}
+	// holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+	if ( ::refuseHolderCompare(argument,target,">=") )
+		return 0;
 	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
@@ -10694,6 +10700,9 @@ int 	order = 0;
 		{
 		 return jitEmitCompare(argument, target, jitGT); 
 		}
+	// holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+	if ( ::refuseHolderCompare(argument,target,">") )
+		return 0;
 	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
@@ -10899,6 +10908,9 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitLE); 
 		}
+	// holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+	if ( ::refuseHolderCompare(argument,target,"<=") )
+		return 0;
 	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
@@ -10930,6 +10942,9 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitLT); 
 		}
+	// holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+	if ( ::refuseHolderCompare(argument,target,"<") )
+		return 0;
 	// f41 a refused operand arrives as null -- refuse it by name (see opPlus)
 	if ( !argument )
 		{
@@ -11225,6 +11240,9 @@ extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target)
 		{
 		 return jitEmitCompare(argument, target, jitNE); 
 		}
+	// holderCompare a compare never derefs a holder: one against a plain value refuses by name (R1, 2026-11-19)
+	if ( ::refuseHolderCompare(argument,target,"!=") )
+		return 0;
 	if ( target && !target->groupBody->flags.data )
 		{
 		if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -12997,6 +13015,27 @@ char *why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is n
 	::refuse(op,why);
 	::free(why);
 	return 1;
+}
+
+// refuseHolderCompare a compare never derefs: a holder against a plain value refuses by name, naming the cure (Tony, 2026-11-19, R1); holder against holder stays legal (R2); 1 when it refused
+extern "C" int refuseHolderCompare(GroupItem *argument, GroupItem *target, char *opName)
+{
+	
+	int heldT = target && isGROUP(target->groupBody->flags.data) && target->getGroup();
+	int heldA = argument && isGROUP(argument->groupBody->flags.data) && argument->getGroup();
+	if ( heldT == heldA ) return 0;
+	GroupItem *holder = heldT ? target : argument;
+	GroupItem *other  = heldT ? argument : target;
+	if ( !other || !other->groupBody->flags.data || isGROUP(other->groupBody->flags.data) ) return 0;
+	GroupItem *inside = holder->getGroup();
+	char why[256];
+	::snprintf(why,sizeof(why),"Operator %s -- %s holds %s; compare *%s",opName,
+	holder->groupBody->tag ? holder->groupBody->tag : "(unnamed)",
+	inside->groupBody->tag ? inside->groupBody->tag : "(unnamed)",
+	holder->groupBody->tag ? holder->groupBody->tag : "(unnamed)");
+	::refuse(holder,why);
+	return 1;
+	
 }
 
 /*  refuseLeadingDotNumber -- A NUMBER NEEDS A LEADING DIGIT (Tony, ruled 2026-09-24, F-117 option (a)). `.5` is

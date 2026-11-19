@@ -257,7 +257,7 @@ define
             // slotStatement a STATEMENt slot must hand up an instruct
             if *slot.taG == "STATEMENt";
                 svM := *sv.methoD;
-                if svM == 0;
+                if *svM == 0;
                     cerr "REFUSED" ruleT "-- its" slN "handed up no instruct":;
                     refusalSaid = 1;
                     clear(*actionLabel);
@@ -355,7 +355,7 @@ define
         topRun = 1;
         // topBranch a break, continue or return at the top level has no loop or block to end: it refuses by name and never runs, so no signal is left set (A2, Tony, SEQ 495); the name comes from the instruct's op since the four shapes (SEQ 603)
         tsL := *ts.listLengtH;
-        if tsL != 0;
+        if *tsL != 0;
             tsOp := *ts[1];
             // topKwCount the keyword is picked as a count and printed by its own line: a string assigned into a count local stores its length (measured SEQ 603: the refusal named 5)
             topKw = 0;

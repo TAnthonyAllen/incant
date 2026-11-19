@@ -38,6 +38,7 @@ A top-level cell marked *probe* was read by a scratch probe (2026-11-19) and has
 | the same, writing `o.w = 5` with no star | **crash** (139), both roads | crash | -- | scratch probe d8 |
 | (R3) copyOf vs copyDeep: a starred write through the copy | copyOf reaches the source; copyDeep does not | the same | -- | IE-28 |
 | (R3) a compare on a holder (`h := qa; if h == 2`) | **silent-wrong**: compares the holder, reads "no"; `*h == 2` reads "yes" | the same | -- | IE-27 |
+| ⚠ **since 2026-11-19, branch compare-holder (the compare law, Tony R1-R4)** | refuses by name: "h holds qa; compare *h"; holder == holder stays legal | the same | refuses / refuses | IE-27, IE-29..IE-35, TP-1..TP-3 |
 
 Two more found on the way, not on the list:
 - **At top level, a `for` whose cursor is not declared runs nothing**, silently, at exit 0, on both roads; declared, it
