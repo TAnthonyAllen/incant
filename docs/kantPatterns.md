@@ -21,12 +21,14 @@ refuses by name and tells you the cure, because `t` holds a field and would alwa
 the same, `RR-12`, `RR-13`); and after `t = ...`, `*t.val` refuses (`RR-5`). A rule that matches with an empty piece
 counts as matched (`RR-1`).
 
-**2. A piece that may be empty: make the term optional.** A star on a character set needs at least one character.
+**2. A modifier belongs to the term: write it before the `=`.** `*` (zero or more) and `?` (maybe) go on the term's name.
 
-    cell isRule open^="[" val?^=[a-z]+ close^="]";      // matches "[]" and "[ab]"
-    // not val^=[a-z]* -- that fails on "[]"
+    cell isRule val*^=[^,] comma^=",";      // an empty cell: "ab," and "," both match
+    // not val^=[^,]* -- a * or ? written after a set refuses by name and tells you the cure
 
-Rows: `ruleResultT RR-9` (the star fails on empty), `RR-7` (the optional term matches, and the piece after it is there).
+Rows: `ruleResultT RR-9`, `RR-17` (term first, empty matches), `RR-14`, `RR-15` (written after the set: refused). A `+`
+after a set is different: it is the set's own run, one or more (`[a-z]+`), and is fine (`RR-16`). A repeated rule of
+empty cells ends: `cells isRule cell+;` over `,,` gives two pieces (`RR-18`).
 
 **3. A piece of a parse result, by its label, not by position.** Name the pieces in the rule; read them by name.
 
@@ -113,3 +115,26 @@ Rows: `ifElseShapeT IE-22`, `IE-23`.
     while ++c;      if *c == 2;     break;          // later: while ++c; ... carries on after 2
 
 Row: `ifElseShapeT IE-37`.
+
+**15. Calling an action and calling a rule look the same, `f(x)`, and mean two things.**
+
+An **action** works ON its argument: `argument` can be anything -- a count, a string, a field. It hands back what its
+`return` gives.
+
+    area code={ w = argument.w; h = argument.h; return w * h; };
+    print area(areaReq):;               // 12
+
+A **rule** READS its argument's text. On a match it hands back its label, whose pieces you read by name; on a failure,
+nothing. In an `if` it is true when it matched, an empty match included. The rule's own code runs on the label, which
+it reads as `*actionLabel` and hands back with `return *actionLabel;`.
+
+    t := cell("ab,");
+    if *t;      p := *t.val;            // the piece named val
+
+Rows: `ruleResultT RR-22` (an action takes anything and returns a value), `RR-1`, `RR-11` (a rule's truth), `RR-19` (a
+rule's code and its label). Three things to watch, each pinned as it reads today:
+- a rule called with no argument, or with an argument that has no text, refuses by name on the newer grammar and reads
+  false in silence on the older one (`RR-20`, `RR-21`);
+- an action with no `return` reads true in an `if` (`RR-24`), so give it a `return` if you test it;
+- an action that returns its argument when that argument is 0 reads false on the older grammar and true on the newer
+  (`RR-23`); return a value you computed, not the argument itself, until that is settled.
