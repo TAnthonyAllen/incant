@@ -32,6 +32,15 @@
     different function answering a different question, at exit 0.
 
     SENTINEL AT THE FOOT (standing harness rule H2).
+
+    REWRITTEN 2026-11-19 (Tony): an action with no return hands back nothing
+    (action-truth R1), so an action's fall-off value no longer exists and the
+    question of what an empty construct is WORTH is gone with it. Each action
+    now ends in its construct and then returns fvIn, so the rung asks on
+    purpose whether the two engines agree on an action whose body ends in an
+    empty loop or an untaken branch: A and B want 5 (the construct changed
+    nothing), C wants 4 (the do ran once). Every row non-zero and C distinct,
+    so a slot that merely defaults satisfies none of them.
 *****************************************************************************/
 Start();
 include(unitTests);
@@ -48,15 +57,18 @@ define
     fvA code={
         while fvIn > 100;
             fvIn = fvIn - 1;
+        return fvIn;
         };
     fvB code={
         if fvIn > 100;
             fvIn = fvIn - 1;
+        return fvIn;
         };
     fvC code={
         do
             fvIn = fvIn - 1;
         while fvIn > 100;
+        return fvIn;
         };
     ;
 
@@ -77,11 +89,11 @@ testing(fvC);
     -- not the field the body touched.  */
 fvIn = 5;
 fvOut = fvA();
-print "A interpreted value =" fvOut " (falseResult is 0)":;
+print "A interpreted value =" fvOut:;
 
 fvIn = 5;
 fvOut = fvB();
-print "B interpreted value =" fvOut " (falseResult is 0)":;
+print "B interpreted value =" fvOut:;
 
 fvIn = 5;
 fvOut = fvC();

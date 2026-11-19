@@ -13,6 +13,7 @@ define
         do
             dxN = dxN + 1;
         while dxN < 3;
+        return dxN;
         };
     ;
 s2Y = 0;
@@ -33,3 +34,7 @@ here hands the live s2Y up to be adopted as DO's label, and s2Y loses its data).
 action's last statement; the action's value must read 3 (a label-return here gives gDO).
 H7, measured at landing: forced to always return the value, DIRECT reads the tag s2Y; forced to always return the
 label, OWNER reads gDO.
+REWRITTEN 2026-11-19 (Tony, action-truth R1): an action with no return hands back nothing, so OWNER's action now hands its
+value back with return dxN. It asks on purpose that an action running a loop and then returning reads 3. The DEFERRED
+half (an owner-run loop's own result being its value, not its label) is not read through a return; that discrimination
+is not reached by this row any more.

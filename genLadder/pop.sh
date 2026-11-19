@@ -5324,10 +5324,9 @@ run2 yieldT "$T/yt.o" "$T/yt.e"; check "yieldT runs" 0 $?
 sentinel "yieldT sentinel" "$T/yt.e" "YIELD SENTINEL"
 if grep -qE '^YT DIRECT s2Y= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT DIRECT: a directly fired loop yields its label -- s2Y reads 3"; green=$((green+1))
 else echo "  FAIL  yieldT DIRECT: $(grep '^YT DIRECT' "$T/yt.e")"; fail=1; fi
-#  RE-PIN 2026-11-19 (Tony, R1): dxOwn has no return, so it hands back nothing and dxOut echoes its tag. OWNER's question
-#  (F-122: an owner-run loop returns its VALUE) is no longer reachable through an action's fall-off value -- coverage
-#  lost, named in the stroke report; DIRECT stands.
-if grep -qE '^YT OWNER value= ?dxOut ?$' "$T/yt.e"; then echo "  ok    yieldT OWNER: an action with no return hands back nothing -- dxOut echoes its tag"; green=$((green+1))
+#  REWRITTEN 2026-11-19 (Tony, action-truth): dxOwn hands its value back with return dxN, on purpose, not through a
+#  fall-off; the deferred loop's own value-or-label is no longer what this row discriminates (named in the fixture)
+if grep -qE '^YT OWNER value= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT OWNER: an action running a loop returns its value -- 3"; green=$((green+1))
 else echo "  FAIL  yieldT OWNER: $(grep '^YT OWNER' "$T/yt.e")"; fail=1; fi
 
 #  ---- adoptT: F-122's (b) census as a standing TRACE row (Tony, 2026-09-24) -- visibility, NOT refusal ----

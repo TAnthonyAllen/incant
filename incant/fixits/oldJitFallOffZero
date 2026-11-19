@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(OldJitFallOffZero);
+define
+    fzIn;
+    fzOut;
+    fzA code={
+        fzIn = fzIn + 1;
+        };
+    ;
+cerr "ANCHOR oldJitFallOffZero -- an action with no return, jitted by testing() and then run interpreted":;
+fixOldJitFallOffZeroHere = 0;
+fzIn = 5;
+testing(fzA);
+fzIn = 5;
+fzOut = fzA();
+print "interpreted value =" fzOut:;
+cerr "PIN the lines above (today): jitRunAction result = 6 (the old JIT hands back its last statement's value); interpreted value = fzOut (nothing: its tag echoes). Want: the two agree -- nothing":;
+cerr "SENTINEL oldJitFallOffZero reached the foot":;
+stop();
+
+LANE:  jit
+BLAST: DISJOINT
+OWNER: Clod     (Tony, 2026-11-19, action-truth: pinned as a known divergence, NOT cured -- the old C++ JIT is retiring)
+SEVERITY: divergence -- the two engines disagree on an action with no return; nothing reads it today.
+
+oldJitFallOffZero -- since action-truth (R1: an action whose body ends without a return hands back nothing), the
+interpreter hands back nothing for such an action, while the old C++ JIT's harness, testing() -> jitRunAction, still
+hands back the fall-off value: its last statement's (6 here; 0 for an empty loop or untaken branch, which is what jitLadder
+JV read before it was rewritten). Named for the 0 in Tony's ruling; measured, it is the last statement's value. Beside jitterCrashTester: both are the old JIT, which the kant jitter replaces. jitLadder JV was rewritten
+to return on purpose, so no rung reads the fall-off any more.
+
+NEXT: RULED (Tony, 2026-11-19): no change to jitRunAction; this retires with the old JIT.
+  Taken (if it is ever cured): jitRunAction result agrees with the interpreted value. Not taken (today): the PIN line.
