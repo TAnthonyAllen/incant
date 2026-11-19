@@ -80,7 +80,8 @@ registry(KantGrammar);
 define
     KantGrammar isRule;
     EXPRESSIOn guard="^,;{}[]`";
-    STATEMENt guard=[{A-Za-z0-9+-;(];
+    // valueScopeGuard = is in the guard so a statement may start with the value scope's =: (full monty step 1, stroke 2); the +-; is a range, + to ;, which is how : was already in
+    STATEMENt guard=[{A-Za-z0-9+-;(=];
     ELSe;
 
     // oneRule the + on the label makes the set match a run, one SHORTCUt per run, as [set]+ did; no two-character refusal on the new road: `,` separates a shortcut from an operator (Tony, SEQ 469)
@@ -159,6 +160,7 @@ define
         SEARCh      search- followedBy GrouP+ SemI-;
         BRANCh;
         SCOPEXp     colon-=":" scopeList=SCOPEFIELd+ SemI- ;
+        SCOPEVALUe  byValue-="=:" scopeList=SCOPEFIELd+ SemI- ;
     XPRESs          EXPRESSIOn SemI- ;
     STATEMENt
         SemI;
@@ -323,6 +325,16 @@ define
     DEBUg code={
         lMint       := copyOf(*actionLabel);
         *lMint.methoD = "aCTionDEBUG";
+        op := Operators["runRule"];
+        miArgs      +% op lMint;
+        built       := makeInstruct(miArgs);
+        *actionLabel   := *built;
+        return  *actionLabel;
+        };
+    // SCOPEVALUe builds as SCOPEXp does, and its label runs aCTionScopeValue: each local takes the found field's VALUE (=:), where : points it at the field (full monty step 1, stroke 2, newRoadScopeStatement)
+    SCOPEVALUe code={
+        lMint       := copyOf(*actionLabel);
+        *lMint.methoD = "aCTionScopeValue";
         op := Operators["runRule"];
         miArgs      +% op lMint;
         built       := makeInstruct(miArgs);
