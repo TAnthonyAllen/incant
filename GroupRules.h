@@ -523,6 +523,7 @@ extern "C" int refuseHolderCompare(GroupItem *argument, GroupItem *target, char 
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);
 extern "C" int refuseLookupMiss(GroupItem *op, GroupItem *lookup);
 extern "C" GroupItem *refuseNoTarget(GroupItem *field);
+extern "C" int refuseSetSuffix(GroupItem *trait, GroupItem *data, GroupItem *termMods);
 extern "C" GroupItem *refuseStarArgument(GroupItem *raw);
 extern "C" GroupItem *refuseTopSignal(GroupItem *stmt);
 extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target);

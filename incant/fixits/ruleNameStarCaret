@@ -1,0 +1,47 @@
+Start();
+include(utilities);
+registry(RuleNameStarCaret);
+define
+    rnCaret isRule open^="[" rnInner^* close^="]";
+    rnPlain isRule open^="[" rnInner* close^="]";
+    rnOnce isRule open^="[" rnInner close^="]";
+    rnInner isRule ch^=[a-z];
+    rnBack isRule open^="[" rnInner^* close^="]";
+    rnRun code={
+        if rnCaret("[ab]");     cerr "rnInner^* on [ab], rnInner defined AFTER: matched":;
+        else                    cerr "rnInner^* on [ab], rnInner defined AFTER: FAILED":;
+        if rnPlain("[ab]");     cerr "rnInner* on [ab], defined AFTER (no caret): matched":;
+        else                    cerr "rnInner* on [ab], defined AFTER (no caret): FAILED":;
+        if rnOnce("[a]");       cerr "rnInner once on [a], defined AFTER: matched":;
+        else                    cerr "rnInner once on [a], defined AFTER: FAILED":;
+        if rnCaret("[]");       cerr "rnInner^* on [], defined AFTER: matched":;
+        else                    cerr "rnInner^* on [], defined AFTER: FAILED":;
+        if rnBack("[ab]");      cerr "rnInner^* on [ab], rnInner defined BEFORE (control): matched":;
+        else                    cerr "rnInner^* on [ab], rnInner defined BEFORE (control): FAILED":;
+        };
+    ;
+search RuleNameStarCaret Utilities list;
+cerr "ANCHOR ruleNameStarCaret -- a rule used as a term in a rule defined BEFORE it, in the same define":;
+fixRuleNameStarCaretHere = 0;
+rnRun();
+cerr "PIN the lines above (today): the three defined-AFTER rows with input FAILED, the [] row matched, the control matched. Want: all matched, or the forward name refused by name where it is defined":;
+cerr "SENTINEL ruleNameStarCaret reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Tony's set-star ruling, 2026-11-19, named from the census probe zInner^*)
+SEVERITY: silent -- the rule fails at exit 0 on input it should match.
+
+ruleNameStarCaret -- named for the shape it was found in (zInner^* failing on [ab]), and THE NAME IS NOT THE CAUSE.
+Measured 2026-11-19: the caret and the star are innocent. A rule that names another rule as a term, where that other rule
+is defined LATER in the same define, never matches that term: once, with +, with *, with or without ^ (rnOnce, rnPlain,
+rnCaret all fail). With * it still "matches" an empty input, because zero of a term that cannot match is zero. The same
+rule written with the inner rule defined first (rnBack) matches. The census probe defined zInner after zRule.
+Nothing in today's grammars or forms is known to depend on this: not censused.
+
+NEXT: OPEN
+  The measurement that would say: what the forward term is bound to at definition (a NamE leaf with no rule behind it,
+  or the later rule's entry); then whether a reference resolved at first parse would fix it, or a refusal by name at
+  define time is the cure (Topics/forms: a forward reference in := already refuses by name). Tony's to rule which.
+  Taken: every row matched, or a REFUSED line names the forward term. Not taken (today): the PIN line.

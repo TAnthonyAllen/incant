@@ -1785,15 +1785,17 @@ _rrv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | ca
 if [ -f "$_rrF" ]; then
 sed '/^stop();/,$d' "$_rrF" > "$T/rr.pre"
 grep '^RR-[0-9]*|' "$_rrF" > "$T/rr.list"
-while IFS='|' read -r _id _act; do
-    { cat "$T/rr.pre"; printf '%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act"; } > "$T/rr.$_id.ok"
+while IFS='|' read -r _id _act _help; do
+    sed -n "s/^DEF-$_id|//p" "$_rrF" > "$T/rr.$_id.def"
+    { cat "$T/rr.pre" "$T/rr.$_id.def"; printf '%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act"; } > "$T/rr.$_id.ok"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_id.ok" > "$T/rr.$_id.o" 2> "$T/rr.$_id.oe"; echo $? > "$T/rr.$_id.ox"
-    { cat "$T/rr.pre"; printf 'rrNew(%s);\n%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act" "$_act"; } > "$T/rr.$_id.nk"
+    { cat "$T/rr.pre" "$T/rr.$_id.def"; printf 'rrNew(%s);\n' "$_act"; for _h in $_help; do printf 'rrNew(%s);\n' "$_h"; done
+      printf '%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act"; } > "$T/rr.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_id.nk" > "$T/rr.$_id.n" 2> "$T/rr.$_id.ne"; echo $? > "$T/rr.$_id.nx"
 done < "$T/rr.list"
-_ofeq "ruleResultT rows ran (13 of 13)" "$(ls "$T"/rr.RR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "13"
+_ofeq "ruleResultT rows ran (24 of 24)" "$(ls "$T"/rr.RR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "24"
 _rrR () { _ofeq "ruleResultT $1 old road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.o" "$T/rr.$1.oe" "$T/rr.$1.ox") $(grep -c '^RR SENTINEL' "$T/rr.$1.oe")" "$3 1"
-          _ofeq "ruleResultT $1 new road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.n" "$T/rr.$1.ne" "$T/rr.$1.nx") $(grep -c '^RR SENTINEL' "$T/rr.$1.ne")" "$3 1"; }
+          _ofeq "ruleResultT $1 new road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.n" "$T/rr.$1.ne" "$T/rr.$1.nx") $(grep -c '^RR SENTINEL' "$T/rr.$1.ne")" "${4:-$3} 1"; }
 _rrR RR-1  "if rule(x): value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
 _rrR RR-2  "if t = rule(x): value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
 #  RE-PIN 2026-11-19 (Tony's ruling): a := as an if / while / do condition refuses by name with its cure; RR-3 read
@@ -1804,11 +1806,26 @@ _rrR RR-5  "after if t = rule(x), *t.val refuses (as read)" " R1 x0"
 _rrR RR-6  "t := rule(x); if *t; then *t.val reads the piece" "val ab |after | R0 x0"
 _rrR RR-7  "after an empty match, close is there and the absent val echoes its tag" "close ] |val y |after | R0 x0"
 _rrR RR-8  "after a failure, reading a piece refuses by name" "before | R1 x0"
-_rrR RR-9  "a star on a set does not match empty: [a-z]* on [] fails" "set-star value true |set-star empty false |after | R0 x0"
+#  RE-PIN 2026-11-19 (Tony): a modifier belongs to the term, before the =; rs respelled val*^=[a-z], and RR-9's empty reads true
+_rrR RR-9  "the star on the term, val*^=[a-z]: zero or more, [] matches" "set-star value true |set-star empty true |after | R0 x0"
 _rrR RR-10 "after if t = rule(x), the unstarred t.val reads the piece" "val ab |after | R0 x0"
 _rrR RR-11 "t := rule(x); if *t: value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
 _rrR RR-12 "while t := rule(x) refuses by name with the cure" "before | R1 x0"
 _rrR RR-13 "a do loop's while t := rule(x) refuses before the body runs" "before | R1 x0"
+_rrR RR-14 "a * written after a set refuses where the rule is defined; the rest of the define stands" "rr14 ran |"' R1 x0'
+_rrR RR-15 "a ? written after a set refuses where the rule is defined" "rr15 ran |"' R1 x0'
+_rrR RR-16 "a + after a set is the set's own run, one or more, and stays legal" "set+ value true |set+ empty false |after | R0 x0"
+#  calling an action vs calling a rule (docs/kantPatterns.md), pinned as read; RR-20, RR-21, RR-23 differ by road
+_rrR RR-17 "an empty CSV cell, val*^=[^,]: ab, and , both match; the comma piece reads" "cell ab, true |cell , true |comma , |after | R0 x0"
+_rrR RR-18 "cells+ over ,, matches two pieces and ends" "cells ,, true |cells pieces 2 |after | R0 x0"
+_rrR RR-19 "a rule's code reads its label as *actionLabel and returns it; the piece reads after" "piece after cd |after | R0 x0"
+_ofeq "ruleResultT RR-19 the rule's code ran on its label, reading val (old / new)" "$(grep -c '^RR its val cd' "$T/rr.RR-19.oe") $(grep -c '^RR its val cd' "$T/rr.RR-19.ne")" "1 1"
+_rrR RR-20 "a rule with no argument: old road false in silence, new road refuses by name" "before |no argument false |after | R0 x0" "before | R1 x0"
+_rrR RR-21 "a rule with an argument that has no text: old false in silence, new refuses" "before |no text false |after | R0 x0" "before | R1 x0"
+_rrR RR-22 "an action takes anything as argument and hands back what return gives" "argument 5 |argument ab |argument aGrp |value 7 |after | R0 x0"
+_rrR RR-23 "an action returning its argument: 1 true; 0 false on the old road, TRUE on the new" "returns 1 true |returns 0 false |after | R0 x0" "returns 1 true |returns 0 true |after | R0 x0"
+_rrR RR-24 "an action with no return reads true in an if" "returns nothing true |after | R0 x0"
+_ofeq "ruleResultT RR-14 / RR-15 the refusal names the term-first cure" "$(sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$T/rr.RR-14.oe" | head -1) / $(sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$T/rr.RR-15.oe" | head -1)" "val -- a * written after a set is not read -- a modifier belongs to the term, before the =: write val*^=[...] / val -- a ? written after a set is not read -- a modifier belongs to the term, before the =: write val?^=[...]"
 _rrM () { sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$1" | head -1; }
 _ofeq "ruleResultT RR-3 / RR-12 the refusal names t and its cure (old road)" "$(_rrM "$T/rr.RR-3.oe") / $(_rrM "$T/rr.RR-12.oe")" "t -- if t := ... is always true (t holds a field); write t := ...; then if *t / t -- while t := ... is always true (t holds a field); write t := ...; then while *t"
 _ofeq "ruleResultT RR-3 / RR-12 the refusal names t and its cure (new road)" "$(_rrM "$T/rr.RR-3.ne") / $(_rrM "$T/rr.RR-12.ne")" "t -- if t := ... is always true (t holds a field); write t := ...; then if *t / t -- while t := ... is always true (t holds a field); write t := ...; then while *t"

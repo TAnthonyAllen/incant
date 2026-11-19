@@ -27,7 +27,7 @@ define
             argument +< *nlBlock;
         };
     rv isRule open^="[" val?^=[a-z]+ close^="]";
-    rs isRule open^="[" val^=[a-z]* close^="]";
+    rs isRule open^="[" val*^=[a-z] close^="]";
     rvVal="[ab]";
     rvEmpty="[]";
     rvFail="ab";
@@ -149,6 +149,88 @@ define
         while t := rv(rvFail);
         print "after" n:;
         };
+    rrPlus isRule open^="[" val^=[a-z]+ close^="]";
+    rr16 code={
+        if rrPlus("[ab]");  print "set+ value true":;
+        else                print "set+ value false":;
+        if rrPlus("[]");    print "set+ empty true":;
+        else                print "set+ empty false":;
+        print "after":;
+        };
+    cell isRule val*^=[^,] comma^=",";
+    cells isRule cell+;
+    rcode isRule open^="[" val*^=[a-z] close^="]" code={
+        lt := *actionLabel.taG;
+        cerr "RR rule code ran on" lt:;
+        p := *actionLabel.val;
+        x := *p.texT;
+        cerr "RR its val" x:;
+        return *actionLabel;
+        };
+    noText;
+    aGrp;
+    aVal code={ return argument; };
+    aNone code={ x = 1; };
+    aKind code={ print "argument" argument:; };
+    rr17 code={
+        if cell("ab,");     print "cell ab, true":;
+        else                print "cell ab, false":;
+        if cell(",");       print "cell , true":;
+        else                print "cell , false":;
+        t := cell(",");
+        p := *t.comma;
+        x := *p.texT;
+        print "comma" x:;
+        print "after":;
+        };
+    rr18 code={
+        if cells(",,");     print "cells ,, true":;
+        else                print "cells ,, false":;
+        t := cells(",,");
+        n = 0;
+        for e in t;     n = n + 1;
+        print "cells pieces" n:;
+        print "after":;
+        };
+    rr19 code={
+        t := rcode("[cd]");
+        q := *t.val;
+        y := *q.texT;
+        print "piece after" y:;
+        print "after":;
+        };
+    rr20 code={
+        print "before":;
+        if rv();            print "no argument true":;
+        else                print "no argument false":;
+        print "after":;
+        };
+    rr21 code={
+        print "before":;
+        if rv(noText);      print "no text true":;
+        else                print "no text false":;
+        print "after":;
+        };
+    rr22 code={
+        aKind(5);
+        aKind("ab");
+        aKind(aGrp);
+        r = aVal(7);
+        print "value" r:;
+        print "after":;
+        };
+    rr23 code={
+        if aVal(1);     print "returns 1 true":;
+        else            print "returns 1 false":;
+        if aVal(0);     print "returns 0 true":;
+        else            print "returns 0 false":;
+        print "after":;
+        };
+    rr24 code={
+        if aNone(1);    print "returns nothing true":;
+        else            print "returns nothing false":;
+        print "after":;
+        };
     it1;
     rrT;
     rrN=0;
@@ -166,8 +248,12 @@ it, then the call. A sentinel on stderr ends each. Each row reads `stdout | R<RE
 
 The rule rv is [ then an OPTIONAL val then ]: on "[ab]" it matches with a value, on "[]" it matches with val empty (the
 val term is absent and close is there), on "ab" it fails.
-rs spells the empty case with a star on a set, val^=[a-z]* -- and a star on a set needs at least one character, so on
-"[]" rs FAILS (RR-9). That is the spelling an empty CSV cell would reach for first, and it does not match empty.
+rs writes its star on the TERM, before the = (val*^=[a-z]): zero or more, so on "[]" it matches with val empty (RR-9).
+RULED (Tony, 2026-11-19): a modifier belongs to the term, written before the =. A * or ? written AFTER a set
+(val^=[a-z]*, val^=[a-z]?) refuses by name where the rule is defined, naming the term-first cure (RR-14, RR-15: their
+defines are the DEF- lines below, added to that row's input only, because a define-time refusal would land in every
+row). A + after a set is the set's own run, one or more, and stays legal (RR-16). Before the ruling rs was written
+val^=[a-z]* and RR-9 read "set-star empty false": the suffix star was never read.
 
 MEASURED 2026-11-19, the same on both grammars:
   RR-1, RR-2  if rule(x) and if t = rule(x): value true, EMPTY TRUE, fail false.
@@ -183,9 +269,19 @@ MEASURED 2026-11-19, the same on both grammars:
   (t := rule(x); if *t; ... *t.val). Mixing them is the trap (RR-3, RR-5).
   RR-7        after an empty match close reads ] (it matched); the absent val reads as a tag echo, no refusal.
   RR-8        after a failure, reading a piece refuses by name ("the left of this dot holds nothing").
-  RR-9        rs: value true, empty false (the set-star does not match zero characters).
+  RR-9        rs, the star on the term: value true, empty true.
 
-ROWS -- id | action
+RR-17 TO RR-24 back docs/kantPatterns.md's "calling an action vs calling a rule" and its empty-cell example, pinned as read:
+  RR-17  cell isRule val*^=[^,] comma^=",": "ab," and "," both match; after "," the comma piece reads ",".
+  RR-18  cells isRule cell+ over ",,": matches, two pieces, and ENDS (an empty piece inside a repeat does not loop).
+  RR-19  a rule's code reads its label as *actionLabel (its pieces by name) and hands it back with return *actionLabel.
+  RR-20  a rule called with no argument: REFUSES BY NAME on the new road; on the old road it reads false in silence.
+  RR-21  a rule called with an argument that has no text: the same split.
+  RR-22  an action takes anything as its argument (a count, a string, a group) and hands back what return gives.
+  RR-23  an action returning its argument: 1 reads true on both; 0 reads FALSE ON THE OLD ROAD AND TRUE ON THE NEW.
+  RR-24  an action with no return reads TRUE in an if, on both roads.
+
+ROWS -- id | helpers moved to the new road with it (after the action)
 RR-1|rr1
 RR-2|rr2
 RR-3|rr3
@@ -199,3 +295,28 @@ RR-10|rr10
 RR-11|rr11
 RR-12|rr12
 RR-13|rr13
+RR-14|rr14
+RR-15|rr15
+RR-16|rr16
+RR-17|rr17
+RR-18|rr18
+RR-19|rr19
+RR-20|rr20
+RR-21|rr21
+RR-22|rr22|aKind aVal
+RR-23|rr23|aVal
+RR-24|rr24|aNone
+
+DEF-RR-14 and DEF-RR-15 -- each row's own define, added after the preamble for that row only
+DEF-RR-14|define
+DEF-RR-14|    rzStar isRule open^="[" val^=[a-z]* close^="]";
+DEF-RR-14|    rr14 code={
+DEF-RR-14|        print "rr14 ran":;
+DEF-RR-14|        };
+DEF-RR-14|    ;
+DEF-RR-15|define
+DEF-RR-15|    rzQ isRule open^="[" val^=[a-z]? close^="]";
+DEF-RR-15|    rr15 code={
+DEF-RR-15|        print "rr15 ran":;
+DEF-RR-15|        };
+DEF-RR-15|    ;

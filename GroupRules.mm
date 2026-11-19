@@ -1489,6 +1489,10 @@ GroupItem 	*trait = input->get(1);
 			trait = new GroupItem(trait);
 		else	trait->setRuleStuff();
 		}
+	// setSuffix a * or ? after a set refuses by name with the term-first cure (Tony, 2026-11-19)
+	if ( TraiTdata )
+		if ( ::refuseSetSuffix(trait,TraiTdata,Modifier) )
+			return input;
 	if ( TraiTdata )
 		upFlags = TraiTdata->get("Modifier");
 	// packetIsSpent the flags are READ here and the node is TAKEN OFF -- nothing downstream reads a
@@ -13142,6 +13146,33 @@ extern "C" GroupItem *refuseNoTarget(GroupItem *field)
 	::strlcat(text,"`",400);
 	GroupItem *quoted = new GroupItem(text);
 	return ::refuse(quoted,(char*)"a call with no target -- its target yields nothing to call");
+	
+}
+
+// refuseSetSuffix a * or ? written AFTER a set value is not read -- a modifier belongs to the term, before the = (Tony, 2026-11-19); a + after a set is the set's own run and stays legal; 1 when it refused
+extern "C" int refuseSetSuffix(GroupItem *trait, GroupItem *data, GroupItem *termMods)
+{
+	
+	if ( !trait || !data || !data->groupBody->groupList ) return 0;
+	GroupItem *value = data;
+	if ( isGROUP(data->groupBody->flags.data) && data->getGroup() ) value = data->getGroup();
+	if ( !isSET(value->groupBody->flags.data) ) return 0;
+	int n = data->groupBody->groupList->listLength;
+	for ( int k = 1; k <= n; k++ ) {
+	GroupItem *m = data->get(k);
+	if ( !m || !m->groupBody->tag || ::strcmp(m->groupBody->tag,"Modifier") ) continue;
+	const char *t = m->getText();
+	char bad = 0;
+	for ( const char *p = t; p && *p; p++ ) if ( *p == '*' || *p == '?' ) { bad = *p; break; }
+	if ( !bad ) continue;
+	const char *nm = trait->groupBody->tag ? trait->groupBody->tag : "the term";
+	const char *setText = value->getText();
+	const char *own = termMods ? termMods->getText() : "";
+	char why[320];
+	::snprintf(why,sizeof(why),"a %c written after a set is not read -- a modifier belongs to the term, before the =: write %s%c%s=[%s]",bad,nm,bad,own ? own : "",setText ? setText : "...");
+	::refuse(trait,why);
+	return 1; }
+	return 0;
 	
 }
 
