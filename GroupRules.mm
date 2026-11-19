@@ -384,6 +384,13 @@ GroupItem 	*result = 0;
 		{
 		 return jitEmitDO(input); 
 		}
+	// captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+	if ( ::refuseCaptureCond(ExpressioN,"while") )
+		{
+		if ( input->groupBody->flags.deferred )
+			return GroupControl::groupController->groupRules->labelNO;
+		return input;
+		}
 	// loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
 	if ( !StatemenT )
 		{
@@ -785,6 +792,10 @@ GroupItem 	*result = ExpressioN;
 		{
 		 return jitEmitGIF(input); 
 		}
+	// captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+	if ( ::refuseCaptureCond(ExpressioN,"if") )
+		result = 0;
+	else
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
 	else	result = ExpressioN;
@@ -1589,6 +1600,13 @@ GroupItem 	*result = 0;
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitWHILE(input); 
+		}
+	// captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+	if ( ::refuseCaptureCond(ExpressioN,"while") )
+		{
+		if ( input->groupBody->flags.deferred )
+			return GroupControl::groupController->groupRules->labelNO;
+		return input;
 		}
 	// loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
 	if ( !StatemenT )
@@ -10334,6 +10352,9 @@ GroupItem 	*body = arms->get(1);
 GroupItem 	*cond = arms->get(2);
 	if ( !cond || !body )
 		return 0;
+	// captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+	if ( ::refuseCaptureCond(cond,"while") )
+		return 0;
 	
 	GroupRules *doRuler = GroupControl::groupController->groupRules;
 	GroupItem *bodyResult = 0;
@@ -10808,6 +10829,9 @@ GroupItem 	*thenArm = arms->get(2);
 GroupItem 	*elseArm = arms->get(3);
 GroupItem 	*arm = 0;
 GroupItem 	*result = 0;
+	// captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+	if ( ::refuseCaptureCond(cond,"if") )
+		return 0;
 	 if ( cond && (void*)cond->groupBody->gMethod == (void*)&testOP ) cond = ::testOP(cond); 
 	// condRefused a condition that refused takes neither arm: the else is a choice, and no choice was made
 	 if ( GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; 
@@ -11831,6 +11855,9 @@ extern "C" GroupItem *opWhile(GroupItem *arms)
 GroupItem 	*cond = arms->get(1);
 GroupItem 	*body = arms->get(2);
 	if ( !cond || !body )
+		return 0;
+	// captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+	if ( ::refuseCaptureCond(cond,"while") )
 		return 0;
 	
 	GroupRules *whileRuler = GroupControl::groupController->groupRules;
@@ -12994,6 +13021,31 @@ extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target)
 	"`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
 	op->groupBody->tag);
 	::refuse(target,why);
+	return 1;
+	
+}
+
+// refuseCaptureCond a := as an if / while / do condition refuses by name with the cure (Tony, 2026-11-19): it is always true, its target holding a field; the new road's condition is an instruct whose op is :=, the old road's an expression with := among its terms; 1 when it refused
+extern "C" int refuseCaptureCond(GroupItem *cond, char *kind)
+{
+	
+	if ( !cond ) return 0;
+	GroupRules *capRuler = GroupControl::groupController->groupRules;
+	GroupItem *capOp = 0, *capTarget = 0;
+	if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) {
+	GroupItem *o = cond->get(1);
+	if ( o && (void*)o->groupBody->gOp == (void*)&opSetGroup ) { capOp = o; capTarget = cond->get(2); } }
+	else if ( cond->groupBody->groupList ) {
+	int n = cond->groupBody->groupList->listLength;
+	for ( int k = 1; k <= n && !capOp; k++ ) {
+	GroupItem *t = cond->get(k);
+	if ( t && t->groupBody->registry == capRuler->opFields && (void*)t->groupBody->gOp == (void*)&opSetGroup ) capOp = t; }
+	if ( capOp ) capTarget = cond->get(1); }
+	if ( !capOp ) return 0;
+	const char *tn = capTarget && capTarget->groupBody->tag ? capTarget->groupBody->tag : "t";
+	char why[256];
+	::snprintf(why,sizeof(why),"%s %s := ... is always true (%s holds a field); write %s := ...; then %s *%s",kind,tn,tn,tn,kind,tn);
+	::refuse(capTarget ? capTarget : capOp,why);
 	return 1;
 	
 }

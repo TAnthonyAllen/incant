@@ -477,6 +477,10 @@ GroupItem   StatemenT:,
     if jitting {
         -% return jitEmitDO(input); %-
     }
+    // captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+    if refuseCaptureCond(ExpressioN,"while") {
+        if input.deferred   return labelNO;
+        return input; }
     // loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
     if !StatemenT {
         cerr "aCTionDO: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label":;
@@ -614,7 +618,9 @@ GroupItem   result = ExpressioN;
     if jitting {
         -% return jitEmitGIF(input); %-
     }
-    if isMethod result = result.gMethod(result);
+    // captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+    if refuseCaptureCond(ExpressioN,"if")   result = null;
+    or isMethod result = result.gMethod(result);
     else        result = ExpressioN;
     // ifRefuseLoudly
     if truthOf(result) && !StatemenT {
@@ -1465,6 +1471,10 @@ GroupItem   looper,
     if jitting {
         -% return jitEmitWHILE(input); %-
     }
+    // captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+    if refuseCaptureCond(ExpressioN,"while") {
+        if input.deferred   return labelNO;
+        return input; }
     // loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
     if !StatemenT {
         cerr "aCTionWhilE: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label":;

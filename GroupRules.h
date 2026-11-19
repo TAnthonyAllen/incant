@@ -517,6 +517,7 @@ extern "C" GroupItem *rEGISTER(GroupItem *item);
 extern "C" GroupItem *recordLabel(RuleStuff *s);
 extern "C" GroupItem *refuse(GroupItem *subject, char *why);
 extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target);
+extern "C" int refuseCaptureCond(GroupItem *cond, char *kind);
 extern "C" int refuseDotUnaryOp(GroupItem *op, GroupItem *aop);
 extern "C" int refuseHolderCompare(GroupItem *argument, GroupItem *target, char *opName);
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);

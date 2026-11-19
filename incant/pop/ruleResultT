@@ -50,10 +50,7 @@ define
         print "after":;
         };
     rr3 code={
-        if t := rv(rvVal);      print "value true":;
-        else                    print "value false":;
-        if t := rv(rvEmpty);    print "empty true":;
-        else                    print "empty false":;
+        print "before":;
         if t := rv(rvFail);     print "fail true":;
         else                    print "fail false":;
         print "after":;
@@ -84,14 +81,16 @@ define
         print "after":;
         };
     rr6 code={
-        if t := rv(rvVal);
+        t := rv(rvVal);
+        if *t;
             p := *t.val;
             x := *p.texT;
             print "val" x:;
         print "after":;
         };
     rr7 code={
-        if t := rv(rvEmpty);
+        t := rv(rvEmpty);
+        if *t;
             p := *t.close;
             x := *p.texT;
             print "close" x:;
@@ -134,6 +133,25 @@ define
         else        print "fail false":;
         print "after":;
         };
+    rr12 code={
+        n = 0;
+        print "before":;
+        while t := rv(rvVal);
+            n = n + 1;
+            if n == 3;      break;
+        print "after" n:;
+        };
+    rr13 code={
+        n = 0;
+        print "before":;
+        do
+            n = n + 1;
+        while t := rv(rvFail);
+        print "after" n:;
+        };
+    it1;
+    rrT;
+    rrN=0;
     ;
 search RuleResultT Utilities UnitTests list;
 stop();
@@ -153,11 +171,12 @@ rs spells the empty case with a star on a set, val^=[a-z]* -- and a star on a se
 
 MEASURED 2026-11-19, the same on both grammars:
   RR-1, RR-2  if rule(x) and if t = rule(x): value true, EMPTY TRUE, fail false.
-  RR-3        if t := rule(x): value true, empty true, and FAIL TRUE -- the condition reads the holder t, which is always
-              there, not the match. Not what anyone means; pinned as read.
+  RR-3        if t := rule(x) read true even on a failure (it tested the holder t, always there). RULED (Tony,
+              2026-11-19): a := as an if / while / do condition REFUSES by name with the cure, "write t := ...; then
+              if *t", on both grammars, body and top level. RR-3, RR-12 (while), RR-13 (do), TP-1 and TP-2 (top level).
   RR-4        while t = rule(x) on the same field: a match loops (capped at 3 by a break), a failure runs no pass.
   RR-5        after if t = rule(x), *t.val REFUSES ("the left of this dot holds nothing"): = made t the result, not a holder.
-  RR-6        after if t := rule(x), *t.val reads ab.
+  RR-6        t := rule(x); if *t; then *t.val reads ab (respelled from if t := rule(x) when that began to refuse).
   RR-10       after if t = rule(x), the unstarred t.val reads ab.
   RR-11       t := rule(x); then if *t: value true, empty true, fail false.
   SO TWO SPELLINGS ARE CONSISTENT: with =, no stars (if t = rule(x); ... t.val); with :=, stars throughout
@@ -178,3 +197,5 @@ RR-8|rr8
 RR-9|rr9
 RR-10|rr10
 RR-11|rr11
+RR-12|rr12
+RR-13|rr13
