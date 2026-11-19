@@ -1,0 +1,38 @@
+17,18c17
+<     continue and return in BRANCHEs; loopOnAttributes and loopOnMembers in
+<     LOOPRESTRICt. Term labels (stuff, pound, leftCurly and the keyword terms
+---
+>     continue and return in BRANCHEs. Term labels (stuff, pound, leftCurly and the keyword terms
+126,130d124
+<     // restrictRule LOOPRESTRICt is a rule over the two words so its action fires; an action on the bin of words itself did not (measured SEQ 594)
+<     LOOPKINd
+<         loopOnAttributes="attributes";
+<         loopOnMembers="members";
+<     LOOPRESTRICt    LOOPKINd;
+135c129
+<     // forShapes a rule's slots never vary (Tony, SEQ 594): FOr is the parent of two fixed shapes, each cursor, source, statement; the <- is a keyword that hands nothing up. FORBACk is first: FORWARd would take `<- source` as its own source and run it forwards (measured)
+---
+>     // forShapes a rule's slots never vary (Tony, SEQ 594): FOr is the parent of fixed shapes, each cursor, source, statement; the <- and the filter words are keywords that hand nothing up, and the shape's op carries the direction and the filter, as ITERATe's do (full monty step 1, stroke 3). The backward shapes are first: a forward one would take `<- source` as its own source and run it forwards (measured); the filtered shapes come before their plain one, which would read the filter word as a statement
+137,138c131,136
+<         FORBACk     op="forBack" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
+<         FORWARd     op="forLoop" for- followedBy LOOPEr in- EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
+---
+>         FORBACKATTRs    op="forBackAttrs" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- attributes- STATEMENt;
+>         FORBACKMEMBERs  op="forBackMembers" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- members- STATEMENt;
+>         FORBACk     op="forBack" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- STATEMENt;
+>         FORATTRs    op="forAttrs" for- followedBy LOOPEr in- EXPRESSIOn SemI- attributes- STATEMENt;
+>         FORMEMBERs  op="forMembers" for- followedBy LOOPEr in- EXPRESSIOn SemI- members- STATEMENt;
+>         FORWARd     op="forLoop" for- followedBy LOOPEr in- EXPRESSIOn SemI- STATEMENt;
+252,258d249
+<     // restrictParked attributes / members is not built on the new road yet (SEQ 482 R1); the refusal lives here, so the loop's default action meets a slot that handed up nothing (SEQ 594 R2)
+<     LOOPRESTRICt code={
+<         cerr "REFUSED FOr attributes / members -- not built on the new road yet":;
+<         refusalSaid = 1;
+<         clear(*actionLabel);
+<         return *actionLabel;
+<         };
+302a294,297
+>     FORBACKATTRs ruleMethod=OPERATOr;
+>     FORBACKMEMBERs ruleMethod=OPERATOr;
+>     FORATTRs ruleMethod=OPERATOr;
+>     FORMEMBERs ruleMethod=OPERATOr;

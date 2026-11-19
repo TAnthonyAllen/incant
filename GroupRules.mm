@@ -3228,7 +3228,7 @@ extern "C" GroupItem *followArgument(GroupItem *operand)
 }
 
 // forWalk the walk opFor and opForBack share (SEQ 594): the operand list holds the cursor, the source and the statement; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn, last to first when backward; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509)
-extern "C" GroupItem *forWalk(GroupItem *arms, int backward)
+extern "C" GroupItem *forWalk(GroupItem *arms, int backward, int restrict)
 {
 GroupItem 	*cursor = arms->get(1);
 GroupItem 	*source = arms->get(2);
@@ -3248,6 +3248,8 @@ GroupItem 	*body = arms->get(3);
 	cursor->clear();
 	GroupItem *member = 0, *bodyResult = 0;
 	while ( (member = backward ? loopOn->prior(member) : loopOn->next(member)) ) {
+	//  forFilter a filtered loop skips a member of the other affiliation, as the old road's FOR does: 1 attributes, 2 members (full monty step 1, stroke 3)
+	if ( restrict && member->options.affiliation != restrict ) continue;
 	cursor->setGroup(member);
 	forRuler->branchKind = 0;
 	bodyResult = 0;
@@ -10670,13 +10672,34 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 // opFor the forLoop instruct's unary op (SEQ 482 R2): forWalk, first to last; retires when a kant action of the same name passes the same rows (forT)
 extern "C" GroupItem *opFor(GroupItem *arms)
 {
-	return ::forWalk(arms,0);
+	return ::forWalk(arms,0,0);
+}
+
+// opForAttrs opForMembers opForBackAttrs opForBackMembers the filtered for loops' unary ops (full monty step 1, stroke 3): forWalk with the filter its op carries, as the iterate ops carry theirs -- never an operand
+extern "C" GroupItem *opForAttrs(GroupItem *arms)
+{
+	return ::forWalk(arms,0,1);
 }
 
 // opForBack the forBack instruct's unary op (SEQ 594): forWalk, last to first -- the reverse rule's own op, so no operand carries the direction
 extern "C" GroupItem *opForBack(GroupItem *arms)
 {
-	return ::forWalk(arms,1);
+	return ::forWalk(arms,1,0);
+}
+
+extern "C" GroupItem *opForBackAttrs(GroupItem *arms)
+{
+	return ::forWalk(arms,1,1);
+}
+
+extern "C" GroupItem *opForBackMembers(GroupItem *arms)
+{
+	return ::forWalk(arms,1,2);
+}
+
+extern "C" GroupItem *opForMembers(GroupItem *arms)
+{
+	return ::forWalk(arms,0,2);
 }
 
 // opGE the >= operator, on opEQ's shape
