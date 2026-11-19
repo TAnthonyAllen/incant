@@ -141,6 +141,7 @@ define
     printList   unary ruleMethod=opPrintList;
     cerrList    unary ruleMethod=opCerrList;
     coutList    unary ruleMethod=opCoutList;
+    stringList  unary ruleMethod=opStringList;
     printShortcut   unary ruleMethod=opPrintShortcut;
     seq     unary ruleMethod=opSeq;
     bodySeq unary ruleMethod=opBodySeq;

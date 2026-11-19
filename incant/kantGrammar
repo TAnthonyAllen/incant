@@ -39,6 +39,7 @@ define
         return  *target;
         };
     // makePrint builds one print instruct from a field carrying two entries -- the print items and the sink's op -- and returns it: the walk PRINt, CERr and COUt share; only the op differs, and the op is the sink (SEQ 496)
+    // bareForAnOperand a third entry asks for the instruct UNBOUND, as INVOKEr hands up a call: a value inside an expression is bound by EXPRESSIOn on arrival, and a rule's return runs a node that has a method (bear-trap 34) -- STRINGXp's (full monty step 1)
     makePrint code={
         mpStuff := argument[1];
         mpOp    := argument[2];
@@ -61,6 +62,14 @@ define
             cur := *cur.nexT;
         // itemsMint the instruct takes a mint of the item list, never the local itself: a local is per-activation scratch, so every PRINt shared it and printed the last one's items (bear-trap 50, SEQ 446 S1)
         itemsMint   := copyOf(printItems);
+        mpCount = argument.listLengtH;
+        if mpCount == 3;
+            instruct    +% *mpOp;
+            instruct    +% *itemsMint;
+            built       := copyOf(instruct);
+            clear(instruct);
+            clear(argument);
+            return  *built;
         miArgs      +% mpOp itemsMint;
         built       := makeInstruct(miArgs);
         clear(argument);
@@ -98,6 +107,7 @@ define
         ANYtoken;
     TOKEn
         INVOKEr;
+        STRINGXp;
         ANYtoken;
         QuotE;
         NumbeR;
@@ -105,8 +115,8 @@ define
         // keywordLast a Keywords entry fails ANYtoken; this last alternative lets it reach EXPRESSIOn, which refuses it by name (SEQ 579)
         KEYWORd;
     KEYWORd         NamE;
-    // stringParked STRINGXp is out of TOKEn and parked (Tony, SEQ 449 R1, R2): after an expression it took a following `#5d` as a string, so a format there could not reach FORMAt
-    STRINGXp        pound-="#" stuff=PRINTXp+ ;
+    // stringLead STRINGXp leads with the word string, as the old road's StringXP does; its # lead was parked because after an expression it took a following `#5d` as a string (SEQ 449 R1, R2), and a word lead cannot (full monty step 1)
+    STRINGXp        lead-="string" followedBy stuff=PRINTXp+ ;
     EXPRESSIOn      lizted=TOKEn+;
     SCOPEFIELd
         ANYtoken;
@@ -224,6 +234,15 @@ define
     PRINt code={
         op := Operators["printList"];
         mpArgs      +% stuff op;
+        built       := makePrint(mpArgs);
+        *actionLabel   := *built;
+        return  *actionLabel;
+        };
+    // STRINGXp builds as PRINt does: its sink is stringList, which hands the joined text back as a value (full monty step 1, newRoadStringJoin)
+    STRINGXp code={
+        op := Operators["stringList"];
+        sjBare = 1;
+        mpArgs      +% stuff op sjBare;
         built       := makePrint(mpArgs);
         *actionLabel   := *built;
         return  *actionLabel;

@@ -45,3 +45,8 @@ Found by the full-monty recon, 2026-11-18 (docs/fullMontyRecon.md). The control 
 NEXT: OPEN
   The join is StringXP on the old grammar (lead "string", then PrintXP items, defer). kantGrammar has no rule for it.
   Taken: the second PIN reads 1. Not taken (today): 0.
+
+RETIRED BY MAPPING 2026-11-19 (full monty step 1, stroke 1, branch string-join): the taken signature holds -- the second PIN
+reads 1. Its assertions now live in incant/pop/stringJoinT: fxBad builds on kantGrammar -> SJ-1..SJ-6 "built" (each body
+holding a join builds, and its value equals the old road's); the bodies tester lost -> SJ-7 (show, showFinish, showForm,
+and showStage build). fxCtl, a body with no join, was the control; every other new-road fixture covers it.
