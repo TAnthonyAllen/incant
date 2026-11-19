@@ -300,6 +300,31 @@ define
         print d2:;
         print "after":;
         };
+    ieAreaReq w h;
+    ieArea code={
+        w = argument.w;
+        h = argument.h;
+        return w * h;
+        };
+    ie36 code={
+        ieAreaReq.w = 3;
+        ieAreaReq.h = 4;
+        print ieArea(ieAreaReq):;
+        ieAreaReq.w = 5;
+        print ieArea(ieAreaReq):;
+        print "after":;
+        };
+    ie37 code={
+        iterate ic on fsrc;
+        while ++ic;
+            if *ic == 2;    break;
+        s = *ic;
+        print "stopped at" s:;
+        while ++ic;
+            r = *ic;
+            print "then" r:;
+        print "after":;
+        };
     ;
 search IfElseShapeT Utilities UnitTests list;
 fsrc +% fa fb fc;
@@ -335,6 +360,9 @@ compare (== != < <= > >=) never derefs a holder. A holder against a plain value 
 carrying a value -- refuses by name, "h holds qa; compare *h", and the refusal ends the action at the compare (the line
 after it does not print). Holder against holder stays legal: it asks whether both hold the same field (IE-30, IE-31).
 A field with a list against a value is user beware, pinned as it reads (IE-35). IE-27 read "h == 2 no" in silence before.
+
+IE-36 and IE-37 back two patterns in docs/kantPatterns: several arguments as a request field (the callee reads
+argument.w), and a kept cursor (iterate; a second while ++ goes on from where a break left the first).
 
 ROWS -- id | action | helpers moved to the new road with it
 IE-1|ie1|
@@ -372,6 +400,8 @@ IE-32|ie32|
 IE-33|ie33|
 IE-34|ie34|
 IE-35|ie35|
+IE-36|ie36|ieArea
+IE-37|ie37|
 
 DEF-IE-12 -- the row's own define, added after the preamble for IE-12 only
 DEF-IE-12|define

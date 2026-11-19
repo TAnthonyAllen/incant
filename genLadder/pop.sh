@@ -1708,7 +1708,7 @@ while IFS='|' read -r _id _act _help; do
       printf '%s();\ncerr "IE SENTINEL":;\nstop();\n' "$_act"; } > "$T/ie.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/ie.$_id.nk" > "$T/ie.$_id.n" 2> "$T/ie.$_id.ne"; echo $? > "$T/ie.$_id.nx"
 done < "$T/ie.list"
-_ofeq "ifElseShapeT rows ran (35 of 35)" "$(ls "$T"/ie.IE-*.ne 2>/dev/null | wc -l | tr -d ' ')" "35"
+_ofeq "ifElseShapeT rows ran (37 of 37)" "$(ls "$T"/ie.IE-*.ne 2>/dev/null | wc -l | tr -d ' ')" "37"
 _ieR () { _ofeq "ifElseShapeT $1 old road: $2 (value / sentinel)" "$(_iev "$T/ie.$1.o" "$T/ie.$1.oe" "$T/ie.$1.ox") $(grep -c '^IE SENTINEL' "$T/ie.$1.oe")" "$3 1"
           _ofeq "ifElseShapeT $1 new road: $2 (value / sentinel)" "$(_iev "$T/ie.$1.n" "$T/ie.$1.ne" "$T/ie.$1.nx") $(grep -c '^IE SENTINEL' "$T/ie.$1.ne")" "${4:-$3} 1"; }
 _ieR IE-1  "if / else, one statement each, then arm" "then |after | R0 x0"
@@ -1751,6 +1751,8 @@ _ieR IE-32 "2 != h, the holder on the right, refuses by name" "before | R1 x0"
 _ieR IE-33 "h < qb, a holder against a field carrying a value, refuses by name" "before | R1 x0"
 _ieR IE-34 "h == \"x\", a holder against a string, refuses by name" "before | R1 x0"
 _ieR IE-35 "a field with a list against a value: user beware, pinned as it reads (R4)" "list == 2 no |list == 3 no |after | R0 x0"
+_ieR IE-36 "several arguments as a request field: the callee reads argument.w and argument.h" "12 |20 |after | R0 x0"
+_ieR IE-37 "a kept cursor: iterate, break, and a second while ++ goes on from there" "stopped at 2 |then 3 |after | R0 x0"
 _ieM () { sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$1" | head -1; }
 for _r in o n; do _e=oe; [ $_r = n ] && _e=ne
     _ofeq "ifElseShapeT the refusal names patient and cure ($_r road): IE-27 / IE-32 / IE-33 / IE-34" "$(_ieM "$T/ie.IE-27.$_e") / $(_ieM "$T/ie.IE-32.$_e") / $(_ieM "$T/ie.IE-33.$_e") / $(_ieM "$T/ie.IE-34.$_e")" "h -- Operator == -- h holds qa; compare *h / h -- Operator != -- h holds qa; compare *h / h -- Operator < -- h holds qa; compare *h / h -- Operator == -- h holds qa; compare *h"
@@ -1770,6 +1772,41 @@ _ofeq "ifElseShapeT TP-1 the top-level refusal names ieH (old / new)" "$(_ieM "$
 _ieR IE-28 "a starred write through copyOf reaches the source, through copyDeep not" "5 |5 |after | R0 x0"
 _ofeq "ifElseShapeT IE-12 refusal names the brace (old / new)" "$(grep -c '^REFUSED { -- a block brace in an action body' "$T/ie.IE-12.oe") $(grep -c '^REFUSED { -- a block brace in an action body' "$T/ie.IE-12.ne")" "1 1"
 else echo "  FAIL  ifElseShapeT MISSING"; fail=1
+fi
+
+#  ============================================================================
+#  ⚑ ruleResultT -- what if and while read when a rule is called from an action body (Clay's dispatch, 2026-11-19; the
+#  ruling is Tony's, from these rows): a match with a value, a match with an empty capture, a failure, and reading a piece
+#  by label after. Per row the old road (processCode) and the new road (rrNew moves the action to kantGrammar), one process
+#  each under an alarm. ALL PINNED AS READ -- nothing ruled. RR-3 (if t := rule(x) reads true on a failure) and RR-5
+#  (after if t = rule(x), *t.val refuses) are not what anyone means; RR-9 shows a set-star term does not match empty.
+_rrF=$(ip ruleResultT)
+_rrv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_rrF" ]; then
+sed '/^stop();/,$d' "$_rrF" > "$T/rr.pre"
+grep '^RR-[0-9]*|' "$_rrF" > "$T/rr.list"
+while IFS='|' read -r _id _act; do
+    { cat "$T/rr.pre"; printf '%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act"; } > "$T/rr.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_id.ok" > "$T/rr.$_id.o" 2> "$T/rr.$_id.oe"; echo $? > "$T/rr.$_id.ox"
+    { cat "$T/rr.pre"; printf 'rrNew(%s);\n%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act" "$_act"; } > "$T/rr.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_id.nk" > "$T/rr.$_id.n" 2> "$T/rr.$_id.ne"; echo $? > "$T/rr.$_id.nx"
+done < "$T/rr.list"
+_ofeq "ruleResultT rows ran (11 of 11)" "$(ls "$T"/rr.RR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "11"
+_rrR () { _ofeq "ruleResultT $1 old road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.o" "$T/rr.$1.oe" "$T/rr.$1.ox") $(grep -c '^RR SENTINEL' "$T/rr.$1.oe")" "$3 1"
+          _ofeq "ruleResultT $1 new road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.n" "$T/rr.$1.ne" "$T/rr.$1.nx") $(grep -c '^RR SENTINEL' "$T/rr.$1.ne")" "$3 1"; }
+_rrR RR-1  "if rule(x): value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
+_rrR RR-2  "if t = rule(x): value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
+_rrR RR-3  "if t := rule(x) reads the holder: true even on a failure (as read)" "value true |empty true |fail true |after | R0 x0"
+_rrR RR-4  "while t = rule(x): a match loops (capped at 3), a failure runs no pass" "value 3 |empty 3 |fail 0 |after | R0 x0"
+_rrR RR-5  "after if t = rule(x), *t.val refuses (as read)" " R1 x0"
+_rrR RR-6  "after if t := rule(x), *t.val reads the piece" "val ab |after | R0 x0"
+_rrR RR-7  "after an empty match, close is there and the absent val echoes its tag" "close ] |val y |after | R0 x0"
+_rrR RR-8  "after a failure, reading a piece refuses by name" "before | R1 x0"
+_rrR RR-9  "a star on a set does not match empty: [a-z]* on [] fails" "set-star value true |set-star empty false |after | R0 x0"
+_rrR RR-10 "after if t = rule(x), the unstarred t.val reads the piece" "val ab |after | R0 x0"
+_rrR RR-11 "t := rule(x); if *t: value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
+_ofeq "ruleResultT RR-5 / RR-8 the refusal is opDot's, by name (old / new)" "$(grep -c '^REFUSED val -- opDot: the left of this dot holds nothing' "$T/rr.RR-5.oe" "$T/rr.RR-5.ne" | awk -F: '{n+=$2} END {print n}') $(grep -c '^REFUSED close -- opDot: the left of this dot holds nothing' "$T/rr.RR-8.oe" "$T/rr.RR-8.ne" | awk -F: '{n+=$2} END {print n}')" "2 2"
+else echo "  FAIL  ruleResultT MISSING"; fail=1
 fi
 
 #  ============================================================================

@@ -1,0 +1,180 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(RuleResultT);
+define
+    nlReqN owner source result rule;
+    rrNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    rv isRule open^="[" val?^=[a-z]+ close^="]";
+    rs isRule open^="[" val^=[a-z]* close^="]";
+    rvVal="[ab]";
+    rvEmpty="[]";
+    rvFail="ab";
+    rr1 code={
+        if rv(rvVal);       print "value true":;
+        else                print "value false":;
+        if rv(rvEmpty);     print "empty true":;
+        else                print "empty false":;
+        if rv(rvFail);      print "fail true":;
+        else                print "fail false":;
+        print "after":;
+        };
+    rr2 code={
+        if t = rv(rvVal);       print "value true":;
+        else                    print "value false":;
+        if t = rv(rvEmpty);     print "empty true":;
+        else                    print "empty false":;
+        if t = rv(rvFail);      print "fail true":;
+        else                    print "fail false":;
+        print "after":;
+        };
+    rr3 code={
+        if t := rv(rvVal);      print "value true":;
+        else                    print "value false":;
+        if t := rv(rvEmpty);    print "empty true":;
+        else                    print "empty false":;
+        if t := rv(rvFail);     print "fail true":;
+        else                    print "fail false":;
+        print "after":;
+        };
+    rr4 code={
+        n = 0;
+        while t = rv(rvVal);
+            n = n + 1;
+            if n == 3;      break;
+        print "value" n:;
+        n = 0;
+        while t = rv(rvEmpty);
+            n = n + 1;
+            if n == 3;      break;
+        print "empty" n:;
+        n = 0;
+        while t = rv(rvFail);
+            n = n + 1;
+            if n == 3;      break;
+        print "fail" n:;
+        print "after":;
+        };
+    rr5 code={
+        if t = rv(rvVal);
+            p := *t.val;
+            x := *p.texT;
+            print "val" x:;
+        print "after":;
+        };
+    rr6 code={
+        if t := rv(rvVal);
+            p := *t.val;
+            x := *p.texT;
+            print "val" x:;
+        print "after":;
+        };
+    rr7 code={
+        if t := rv(rvEmpty);
+            p := *t.close;
+            x := *p.texT;
+            print "close" x:;
+            q := *t.val;
+            y := *q.texT;
+            print "val" y:;
+        print "after":;
+        };
+    rr8 code={
+        t := rv(rvFail);
+        print "before":;
+        p := *t.close;
+        x := *p.texT;
+        print "close" x:;
+        print "after":;
+        };
+    rr9 code={
+        if rs("[ab]");      print "set-star value true":;
+        else                print "set-star value false":;
+        if rs("[]");        print "set-star empty true":;
+        else                print "set-star empty false":;
+        print "after":;
+        };
+    rr10 code={
+        if t = rv(rvVal);
+            p := t.val;
+            x := *p.texT;
+            print "val" x:;
+        print "after":;
+        };
+    rr11 code={
+        t := rv(rvVal);
+        if *t;      print "value true":;
+        else        print "value false":;
+        t := rv(rvEmpty);
+        if *t;      print "empty true":;
+        else        print "empty false":;
+        t := rv(rvFail);
+        if *t;      print "fail true":;
+        else        print "fail false":;
+        print "after":;
+        };
+    ;
+search RuleResultT Utilities UnitTests list;
+stop();
+
+ruleResultT -- what if and while read when a rule is called from an action body: a match with a value, a match with an
+empty capture, and a failure; and reading a piece by its label afterwards. Both grammars, pinned as read (Clay's dispatch,
+2026-11-19; the ruling is Tony's, from these rows).
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this
+file's stop(), then on the OLD road (incant/grammar) a call of the row's action; on the NEW road (kantGrammar) rrNew on
+it, then the call. A sentinel on stderr ends each. Each row reads `stdout | R<REFUSED lines> x<exit>` and the sentinel.
+
+The rule rv is [ then an OPTIONAL val then ]: on "[ab]" it matches with a value, on "[]" it matches with val empty (the
+val term is absent and close is there), on "ab" it fails.
+rs spells the empty case with a star on a set, val^=[a-z]* -- and a star on a set needs at least one character, so on
+"[]" rs FAILS (RR-9). That is the spelling an empty CSV cell would reach for first, and it does not match empty.
+
+MEASURED 2026-11-19, the same on both grammars:
+  RR-1, RR-2  if rule(x) and if t = rule(x): value true, EMPTY TRUE, fail false.
+  RR-3        if t := rule(x): value true, empty true, and FAIL TRUE -- the condition reads the holder t, which is always
+              there, not the match. Not what anyone means; pinned as read.
+  RR-4        while t = rule(x) on the same field: a match loops (capped at 3 by a break), a failure runs no pass.
+  RR-5        after if t = rule(x), *t.val REFUSES ("the left of this dot holds nothing"): = made t the result, not a holder.
+  RR-6        after if t := rule(x), *t.val reads ab.
+  RR-10       after if t = rule(x), the unstarred t.val reads ab.
+  RR-11       t := rule(x); then if *t: value true, empty true, fail false.
+  SO TWO SPELLINGS ARE CONSISTENT: with =, no stars (if t = rule(x); ... t.val); with :=, stars throughout
+  (t := rule(x); if *t; ... *t.val). Mixing them is the trap (RR-3, RR-5).
+  RR-7        after an empty match close reads ] (it matched); the absent val reads as a tag echo, no refusal.
+  RR-8        after a failure, reading a piece refuses by name ("the left of this dot holds nothing").
+  RR-9        rs: value true, empty false (the set-star does not match zero characters).
+
+ROWS -- id | action
+RR-1|rr1
+RR-2|rr2
+RR-3|rr3
+RR-4|rr4
+RR-5|rr5
+RR-6|rr6
+RR-7|rr7
+RR-8|rr8
+RR-9|rr9
+RR-10|rr10
+RR-11|rr11

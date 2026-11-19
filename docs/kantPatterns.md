@@ -1,0 +1,113 @@
+# kant patterns
+
+How to write the things in kant that are not obvious. Each entry is the pattern in one line, a short example, and the
+test row that shows it working. The rows live in `incant/pop/` and run in the test suite (`genLadder/pop.sh`); **if a
+row goes red, the pattern is wrong**, so trust the row over this page.
+
+A word you will meet: a **holder** is a field that points at another field. You make one with `:=` (`h := qa;` makes
+`h` hold `qa`), and you read through it with a star (`*h`). A plain `=` copies a value instead.
+
+Every pattern here works inside an action (`name code={ ... };`) on both of kant's grammars.
+
+---
+
+**1. Did a rule match?** Pick one of two spellings and keep to it: with `=` and no stars, or with `:=` and stars throughout.
+
+    if t = cell(text);      print "matched":;       // = : t is the result; read pieces as t.val
+    t := cell(text);        if *t;  print "matched":;   // := : t holds the result; read pieces as *t.val
+
+Rows: `ruleResultT RR-2`, `RR-10` (the `=` way), `RR-11`, `RR-6` (the `:=` way). **Don't mix them:** `if t := cell(text);`
+is true even when the rule fails (`RR-3`), and after `t = ...`, `*t.val` refuses (`RR-5`). Today a rule that matches
+with an empty piece counts as matched (`RR-1`); that is not ruled yet.
+
+**2. A piece that may be empty: make the term optional.** A star on a character set needs at least one character.
+
+    cell isRule open^="[" val?^=[a-z]+ close^="]";      // matches "[]" and "[ab]"
+    // not val^=[a-z]* -- that fails on "[]"
+
+Rows: `ruleResultT RR-9` (the star fails on empty), `RR-7` (the optional term matches, and the piece after it is there).
+
+**3. A piece of a parse result, by its label, not by position.** Name the pieces in the rule; read them by name.
+
+    t := pq(text);          // pq isRule reg^=[a-z]+ dot^="." name^=[a-z]+;
+    n := *t.name;           x := *n.texT;
+
+Row: `ifElseShapeT IE-24`. To walk all the pieces in order: `for e in t;` (same row).
+
+**4. Several arguments: hand over one request field carrying them as attributes.** `f(a, b)` is not kant.
+
+    areaReq.w = 3;          areaReq.h = 4;          print area(areaReq):;
+    area code={ w = argument.w; h = argument.h; return w * h; };
+
+Row: `ifElseShapeT IE-36`.
+
+**5. Several results: hand back a record.** Make your own copy, fill it in through the star, return it starred.
+
+    o := copyDeep(pair);    *o.w = argument;        return *o;
+    r := mk(5);             x := *r.w;
+
+Row: `ifElseShapeT IE-26`.
+
+**6. Writing through a held record: put the star on the holder.** Without the star the program stops.
+
+    o := copyDeep(pair);
+    *o.w = 5;               // o.w = 5 crashes today
+
+Rows: `ifElseShapeT IE-26`, `IE-28`.
+
+**7. Your own copy is `copyDeep`.** `copyOf` shares its attributes with the original, so writing one writes both.
+
+    b := copyDeep(src);     *b.depth = 7;           // src is untouched
+    a := copyOf(src);       *a.depth = 5;           // src.depth is now 5 too
+
+Row: `ifElseShapeT IE-28`.
+
+**8. Comparing what a holder holds: star it.** A bare holder against a value refuses by name and tells you the cure.
+
+    h := qa;
+    if *h == 2;     print "two":;       // h == 2 refuses: "h holds qa; compare *h"
+
+Rows: `ifElseShapeT IE-29` (the star), `IE-27`, `IE-32` to `IE-34` (the refusal). Two holders compared ask whether they
+hold the same field: `IE-30`, `IE-31`.
+
+**9. Else-if is `or`.**
+
+    if n < 0;       print "negative":;
+    or n == 0;      print "zero":;      else    print "positive":;
+
+Rows: `ifElseShapeT IE-5`, `IE-6`, `IE-7`. (Written on one line here to save space; in an action, each arm is its own line.)
+
+**10. Several statements in an arm: indent them.** Braces are refused inside an action; the indentation is the block.
+
+    if n > 0;
+        print "one":;   print "two":;       // each statement on its own line, indented under the if
+
+Rows: `ifElseShapeT IE-3`, `IE-4`, `IE-11` (indented arms), `IE-12` (a brace refuses).
+
+**11. Two conditions at once: `&&` and `||`.** The words `and` and `or` do not work inside a condition.
+
+    if n > 0 && n < 10;     print "small":;
+    if n == 0 || m == 0;    print "a zero":;
+
+Rows: `ifElseShapeT IE-20`, `IE-21`.
+
+**12. Leaving a loop early: `break`, and skipping to the next turn: `continue`.**
+
+    while n < 9;
+        n = n + 1;      if n == 3;  break;
+
+Rows: `ifElseShapeT IE-17`, `IE-18`, `IE-19`.
+
+**13. Walking the fields a holder holds: `for e in h`, with no star.**
+
+    h := list;
+    for e in h;     print *e:;          // for e in *h walks the wrong thing on the older grammar
+
+Rows: `ifElseShapeT IE-22`, `IE-23`.
+
+**14. A cursor you can stop and pick up again: `iterate`.** After a `break`, a second `while ++` goes on from there.
+
+    iterate c on list;
+    while ++c;      if *c == 2;     break;          // later: while ++c; ... carries on after 2
+
+Row: `ifElseShapeT IE-37`.
