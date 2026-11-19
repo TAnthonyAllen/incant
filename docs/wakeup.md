@@ -44,7 +44,7 @@ Clod's fixit incantations waiting: 31 (oldest: defineCapture, since 2026-10-02)
 |---|---|---|
 | `docs/wakeup.md` | 56 / 60 | this page. |
 | `Topics/forms` | 284 / 280, OVER by 4 (prose lines; the trim waits for cleanup) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 200 / 200 | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/kant` | 195 / 200 | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 69 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 113 / 120 | sub-topic of forms until forms step 7. |

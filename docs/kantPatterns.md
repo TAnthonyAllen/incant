@@ -70,12 +70,13 @@ Row: `ifElseShapeT IE-28`.
 Rows: `ifElseShapeT IE-29` (the star), `IE-27`, `IE-32` to `IE-34` (the refusal). Two holders compared ask whether they
 hold the same field: `IE-30`, `IE-31`.
 
-**9. Else-if is `or`.**
+**9. Else-if is `or`.** Each arm on its own line, the `or` and `else` lined up under the `if`.
 
     if n < 0;       print "negative":;
-    or n == 0;      print "zero":;      else    print "positive":;
+    or n == 0;      print "zero":;
+    else            print "positive":;
 
-Rows: `ifElseShapeT IE-5`, `IE-6`, `IE-7`. (Written on one line here to save space; in an action, each arm is its own line.)
+Rows: `ifElseShapeT IE-5`, `IE-6`, `IE-7`.
 
 **10. Several statements in an arm: indent them.** Braces are refused inside an action; the indentation is the block.
 

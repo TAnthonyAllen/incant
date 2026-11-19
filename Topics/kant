@@ -5,58 +5,20 @@
 ONE LINE: kant is being rewritten in kant -- rules whose actions build instructs, on a new road (incant/kantGrammar) beside the old one (incant/grammar) -- and compiled by the jitter rule by rule.
 
 /*****************************************************************************
-    OPEN, FOR CLAY: what makes kant awkward to write (Tony, 2026-11-18; a design question, not a stroke)
-    Clod's list from writing typeset (incant/utilities, typesetting T1-T3), worst first. Tony wants all five fixed
-    and calls it a mega design issue -- "a hammer when I need a screwdriver". Nothing here is ruled.
-    THE COST: typeset is about 250 lines; Clod's estimate is about 120 with these fixed. A primary goal of kant is less
-    code, and every one of these pushes the other way (Tony).
+    THE AWKWARDNESS QUESTION, ANSWERED (Tony, 2026-11-18 asked; the census and its strokes, 2026-11-19)
 *****************************************************************************/
-    1 control flow      no trusted multi-statement else (bear-trap #32, kant inverted from tok), no break, no && in a
-                        condition. So flags stand in for control: tyIsStyle, tyLook, tyMore, tySwitch, tyHops = 32 to
-                        leave a while; nested ifs that are one condition. About half of typeset's ty* names are this.
-    2 one argument,     tsFind talks through globals (tsWant in; tsFound, tsHit out); resolveLook's caller is passed by
-      no return value   swapping rlSays around the call; tsBoxWarn is its own action only so a for loop can walk it.
-                        Every helper speaks through globals, so every name needs a prefix. Clod's first pick, with 1.
-    3 parse results     the rules label their pieces (tsQual: reg^ dot^ name^) but the code walks siblings by position
-      by position       (*tyLeaf.nexT, then .nexT.nexT). Wanted: tyPiece.reg, tyPiece.name; a grammar edit then cannot
-                        silently shift the positions.
-    4 holder or held    = := <- (retired), * and **, copyOf (shares attributes) vs copyDeep. typeset carries two comments
-                        (ownEntry, ownSpan) only because copyOf made every span read the last one's font. Bear-traps #41,
-                        #55 are the same question. Not the holder model itself -- a smaller surface: one own-copy verb,
-                        comparisons that deref on their own.
-    5 list walking      tyE := x.firsT; while tyE.datA != 0; ... tyE := *tyE.nexT; five times in typeset, twice walking
-                        once to find a position and again to reach it. Wanted: for e in <any holder>, and a kept cursor.
-    WHAT WORKS          an inline grammar parsing a string in one call (tsText); registries as plain lookups.
-    CAVEAT              some of these may already have a spelling Clod did not use (describe uses `or` as else-if).
-    THE SPLIT (Clod's proposal, 2026-11-18; Tony: body and fender work now, before typesetting grows)
-        hammer          break in while/for; && and || in a condition; a trusted else (first a MEASUREMENT of which
-                        shapes work today, and on which grammar); labelled access to a parse result (piece.name).
-                        Each one at a time, with a fixture row and typeset's line count before and after.
-                        Proposed order: break and && first (they pay most in typeset), then the else measurement,
-                        then labelled access.
-        screwdriver     parameters and return values (the frame, the jitter); holder-or-held (the object model).
-                        Clay's. The hammer work does not wait on them.
-        which grammar   action bodies and forms parse on incant/grammar: a hammer change made only in kantGrammar
-                        does not reach typeset. Every change names its grammar (standing rule, SEQ 552 R5).
-    RULES IN ACTIONS (Tony asked, 2026-11-18: useful, or a solution looking for a problem?)
-        Clod's answer: useful. tsText(argument) is the shortest and clearest part of typeset; reading the same text
-        in kant by hand would be char loops and many more lines. It is the less-code goal working. The sharp edges are
-        real and are what tripped delimitedData: the skipper eats a newline unless the term carries ^; a rule that
-        reads a pushed field to its end loses the rest of the calling file at exit 0 (fixits upToSetDelimiter,
-        heldFieldEndLosesFile); the new road could not call a rule at all until F-162; the result comes back by
-        position (point 3). Worth hardening rather than doubting.
-    ESCAPES (Tony, 2026-11-18: newlines, and \anything char by char, are what kant handles worst; he is weighing
-    upToMatch in kant). Clod read the C++, unmeasured:
-        three decoders, three vocabularies   getCharacter (GroupItem.twk:840) knows \n \r \f \t \\ and passes the rest;
-                        upToMatch (RuleStuff.twk:336) knows \r \t \n only, decodes IN THE INPUT by rewriting it in place,
-                        and only for a one-character delimiter; ruleActions.rtn:202 skips backslash-and-next.
-        two jobs in one routine   reading source (a quoted literal honours \" and \n) and reading data (a CSV's
-                        backslash-n is two characters). upToMatch cannot tell which it is doing, so as read it would
-                        decode data too.
-        proposal        one decoder (getCharacter's table), applied where a literal, set or char is DEFINED, so a value
-                        holds real characters ([\n] holds byte 10); matchers compare bytes and never see a backslash;
-                        "this is source" (honour \") is a flag or its own rule, not every up-to's job. A kant upToMatch
-                        is then a byte loop, and point 5 is what is left of it.
+    Of the five things that made kant awkward to write (from typeset): THREE WERE ALREADY SPELLED and simply unused --
+    control flow (break, continue, && ||, an indented multi-statement else, or as else-if), a parse result by label
+    (*t.name, for e in t) and list walking (for e in h, iterate as a kept cursor). Measured on both grammars, in a body.
+    SEVERAL ARGUMENTS are a convention, ruled: a request field in (the callee reads argument.w), a record out (return *o);
+    f(a, b) is to refuse by name (fixit multiArgLosesBody). HOLDER OR HELD: the compare law is BUILT (a holder against a
+    value refuses, "h holds qa; compare *h"); a := as an if / while / do condition refusing with its cure is on branch
+    capture-cond for the buy. A rule's result is true when it matched, an empty capture included (ruled).
+    Open: typeset's rewrite with these spellings (queued, an afternoon forms stroke); the deep review of the kant code
+    (dispatched, waits); [set]* matching empty (measured, not small; reported). The escapes proposal (one decoder) is
+    unruled and lives in git (151524fc).
+    Evidence: docs/ergoCensus.md (every spelling, both grammars, its row); docs/kantPatterns.md (how to write them);
+    fixtures incant/pop/ifElseShapeT and ruleResultT.
 
 /*****************************************************************************
     Description
@@ -229,26 +191,5 @@ on; a mix of native and testOP statements is the first cut. Mornings go to this 
     493  SEQ 662-668, 2026-11-16, shutdown, on the Mac Studio.  The kant jitter began. kant writes LLVM IR as text and one C++ door compiles it (compileIR, callIR); an action marked KanT is run compiled by the engine's own action call; the kant walk writes one testOP call per top-level statement with a go-on check after each, and a return, a break and a refusal end the walked function as they end the interpreted one. Every row equals its interpreted twin; pop.sh 3841 green, FAIL 64 by name; jitLadder exit 0. Also: `$$` measured sound (662; tester's missing stops are debug; firing at body parse and a trace breakpoint); the Studio made fit for a seal (665: ~/bin/incant repointed from a July binary, GitHub sign-in, the Xcode bridge registered). C++ 168 lines for the jitter so far, kant about 150 in the jitter's own actions. BeforeSave not refreshed (Studio).
     482  SEQ 649, 2026-11-13, shutdown.  A top-level scope statement is refused by name instead of crashing (aCTionScopeXP, no action to bind locals in). Found from tester: an indented define with deeper entries makes checkSkip write a ':' before the second entry, the define ends, and the ':' line runs as a scope statement. The indent behaviour is not changed; keep define at column 0 or its entries at its own indent. bridgeT BR-4's two red rows green, its control re-pinned; pop.sh 3802 green, bank 64.
     470  SEQ 635, 2026-11-12.  Postfix ++ and -- (Tony's ruling: allowed, with no C++ difference). x++ and x-- after an operand, with nothing or an operator next, are the prefix forms written after: they change the field and give the new value. Both roads (interpretXPaccum's postfixToo arm; kantGrammar EXPRESSIOn), the mark is postfixToo in incant/setup; postfixT, 31 rows; H7 red with the mark removed. An operand after the ++ is still refused, as before. The fixit postfixIncrementNothing retired to the attic. Canary 462 to 463.
-    438  SEQ 604, 2026-11-10.  ITERBOTh is the plain walk: iterate has three shapes instead of four. No filter word walks the whole list, and writing both "attributes members" is refused on the new road instead of quietly walking the attributes only. ITERPLAIn, op iterateBoth and opIterateBoth retired; canary 460 to 459. Tony deleted arrow-retire offline.
-    437  SEQ 598-603 closed, 2026-11-10, shutdown.  The day closed clean: <- retired on trunk, no operator in a prefix position crashes the new road, the ten reserved operators refuse by name, ITERATe and BRANCh are operators built by the default action, so no control rule keeps a hand action. It recorded the cleanup-census dispatch (now in Topics/cleanup) and the session's open lines (Issues, above).
-    436  SEQ 603.  BRANCh is the parent of four fixed shapes -- break, continue, return, return with a value -- each built by the default action; its hand action is gone. Every answer is unchanged, interpreted and compiled; the signal is read from which operator it is, in the interpreter and in the compiler's two places.
-    435  SEQ 602.  BRANCh as operators stopped at the recon gate, nothing built: the compiler has two places of its own that read break / continue / return from the keyword inside the instruct, more than the gate allowed. Two iterate rows pinned red. Tony then allowed the two jitter sites (436).
-    434  SEQ 601.  ITERATe is the parent of four fixed shapes, each built by the default action; its hand action is gone. One change for writers: the source is a whole expression, so `iterate ic on fsrc + 1` refuses where it used to walk fsrc.
-    433  SEQ 599, 600.  The ten reserved operators (| ^ GO ? >> << :> :< :- &) share one refusing method: "is not built yet", between two operands, on both roads, and the statement does nothing. The features list in macros trimmed from 139 lines to 38.
-    432  SEQ 598.  arrow-retire bought. On the new road an operator in a prefix position that is not a prefix operator refuses by name and the next statement runs; the sixteen that crashed the run no longer do. Five new-road print-item rows are not cured: print's flag reader takes : + and - before the expression sees them (Issues).
-    431  SEQ 591-597 closed, shutdown.  Do, If, ELSEIf and FOr are operators built by the default action; the rule door takes a parent; a refused statement prints one refusal; <- respelled to := everywhere live, its retirement waiting on branch arrow-retire.
-    430  SEQ 597.  <- respelled to := across the fleet, nothing moved by value. Every prefix operator pinned (prefixOpT, 272 runs): on the new road sixteen operators in a prefix position crashed the run at exit 139. The retirement itself built on arrow-retire with a tombstone: the Operators entry cannot be removed, because without it `x <- y` silently becomes `x < -y`.
-    429  SEQ 596.  A prefix <- refuses by name on the new road as on the old; a refused statement prints one refusal, not two or three (refusalSaid); read-only answer: <- does only two things := does not -- it leaves its target alone when the right side is nothing, and it does not compile natively.
-    428  SEQ 595.  The rule door takes a parent: jitterRule(FOr) compiles both of FOr's rules. A prefix <- pinned as silently dropped on the new road (arrowExprT, four rows red on purpose). One refusal per statement stopped before building.
-    427  SEQ 594.  FOr split into FORBACk and FORWARd, each an operator with the default action; its hand action is gone; refusals name the rule and slot.
-    426  SEQ 593.  FOr as an operator: the recon gate failed, nothing built -- the default action refuses a `<-` loop outright.
-    425  SEQ 592.  If and ELSEIf are operators with the default action, op="ifThen"; If's hand action is gone. Refusals name the slot that refused; an or arm's say ELSEIf.
-    424  SEQ 591.  Do is an operator with the default action, op="doLoop" (WHILe's shape); opDo did not change.
-    423  SEQ 589-590 closed, shutdown.  GC stroke 2 built and bought; the four node classes are collected on trunk in all three repos. It recorded the Do dispatch.
-    422  SEQ 590.  gc-collect bought in Groups, support and TOK; GC-3's counter re-pinned; ParseActivation and the force-include settled.
-    421  SEQ 589, on branch gc-collect.  GC stroke 2: GroupItem, GroupBody, GroupList and RuleStuff really collected -- the copy loop frees, cached JIT code still answers, a node held only on a stack survives. Under forced collections the fleet and the ladder moved only by the named rows. ParseActivation could not take the base and does not need it.
-    420  SEQ 586-588 closed, shutdown.  The morning's close: the GC recon, runSystem, GC stroke 1.
-    419  SEQ 588.  GC stroke 1, the instruments: force collections, mark freed objects so a missed root crashes where it is read, count what a collection finds. Nothing made collectable.
-    418  SEQ 587.  runSystem restored: system("cmd") runs the command and answers 1 on success, 0 otherwise. Skim will not reload a rewritten PDF on its own.
-    417  SEQ 586.  GC recon, read-only (docs/gcRecon.md): `GroupItem extends gc` alone would free almost nothing; the node classes go together, and the JIT's emit-time baked nodes, the calloc'd Stak / GroupStak arrays and Layout->base are the roots a try would miss.
+    417-438  folded (2026-11-19 trim; full text: each seal's commit message): GC recon and stroke 1 (417-420); GC stroke 2, the node classes collected (421-423); Do, If, ELSEIf, FOr as operators with the default action (424-431); <- retired, the ten reserved operators refuse by name (428-433, 437); ITERATe and BRANCh as fixed-shape parents (434-436, 438).
     380-410  folded (the trim, seal 506; full text: each seal's commit message): jitterT cured, main = trunk joins the checklist (380-381); operator rung stroke 2, +% := copyOf native (382); F-146, a compiled rule ends as the interpreted one, after two census stops (383-388); If through the rule door (395-396); a < b < c refused and stacked prefixes nested on the new road, the walkie-talkie retired (397-398); F-152, macOS's PDF threads take memory from the system, not the collector (399-401); F-151, compiled EXPRESSIOn assigns as interpreted (402-404); the top-level clear: the gap is build-time name binding, the new road already right (405); the holder read-through is getLabelGroup following a chain to its end, 12 tripwire rows, cure parked (406); a keyword inside an expression refused, WHILe the first operator by the default action (407-410).
