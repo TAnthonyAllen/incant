@@ -5,22 +5,22 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**510, 2026-11-18, topic: forms, SEQ 697-704 (assigned by Clod), a SHUTDOWN seal.** Seal 509 (upto-set) and the tabs work, all
-bought and merged but 3b: the tabs recon (docs/tabsRecon.md); stroke 1, tabForm (definitions only, five new placeholders, the cards
-declared before the bar); stroke 2, cards (one card, picked by the tab tabSelected holds, 0 the first; cards=bodies dropped); stroke 3,
-the selected tab takes its selectFill. **ON BRANCH describe-lookup, the buy Tony's:** stroke 3b, describe fix 1 (a describe value naming a
-dESCRIPTIONs entry draws its text; formsPop 306 there). Five Clod fixits filed: termValueNeverEqual and heldFieldEndLosesFile (before the
-list form), emptyFieldIsPlaceholder, stringIntoCountStaysCount, bareFieldNoList.
-**OPEN (Tony):** carried from 482, whether an indented `define` should work.
-**CLAY, 2026-11-18 (Tony):** a mega design question heads `Topics/kant` -- five things that make kant awkward to write (control flow, one-argument actions, parse results by position, holder-or-held, list walking), from Clod's typeset. Tony wants all five fixed; nothing ruled yet.
-**RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). upToSetDelimiter's item 2 (ensureGuard makes an upTo-first rule unguarded).
+**511, 2026-11-19, topic: kant, SEQ 705-716 (assigned by Clod), a SHUTDOWN seal.** The awkwardness question answered (heads
+`Topics/kant`; docs/ergoCensus.md, docs/kantPatterns.md, docs/kantReceipts.md). Bought: the compare law, capture-cond, set-suffix,
+action-truth, full monty step 1 strokes 1-2 (string join, =:). NOT BOUGHT: branch for-filter (stroke 3; its walk and ops stand; the
+spelling is Tony's: a failed shape's skip rewrites the source, fixit skipperRewriteOnBacktrack). Topics/windows made; Paige's page.
+**OPEN (Tony):** carried from 482, whether an indented `define` should work. The for filter's spelling (Clay's lean: `for members x in y;`).
+**RULED, NOT BUILT:** `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2).
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
-**NEXT:** mornings, the full monty plan step 1 (fixit newRoadStringJoin); afternoons, forms: buy describe-lookup, then tabs stroke 4, the click (selectTab, clickShow), then the two fixits, then the list form; QUEUED (Clay, 2026-11-19): typeset rewritten with the census spellings (docs/ergoCensus.md), request fields in, records out, no tsWant/tsFound, line count before and after, formsPop identical.
+**NEXT:** mornings, full monty step 1 stroke 3 on Tony's spelling ruling, then stroke 4 (the dotted print item), then step 2 (the
+per-action mark, no fallback), then the refuse-by-name fixits (multiArgLosesBody, starlessHeldWriteCrash, newRoadLabelSubscriptCrash,
+topForNoCursor, ruleUsedBeforeDefined); afternoons, forms: buy describe-lookup, describe virtual, tabs stroke 4 (the click), Tony's
+tabForm look block, the Fable review (read only), then the typeset / setFrame rewrite action by action.
 
-## The numbers (as run at seal 510, on trunk; the binary is the bare build of 2026-11-18 14:10 on Xcode 27.2, 2190112 bytes)
+## The numbers (as run at seal 511, on trunk; the binary is the bare build of 2026-11-19 10:23 on Xcode 27.2, 2190624 bytes)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 4004 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
+| `genLadder/pop.sh` | exit 1, 4170 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 305 green (306 on describe-lookup), F-149 red as banked (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
@@ -28,26 +28,26 @@ list form), emptyFieldIsPlaceholder, stringIntoCountStaysCount, bareFieldNoList.
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
 | `genLadder/dirCheck.sh` (shutdown seals only) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
-| extern canary | 481 (`grep -c '^extern' GroupRules.h`) |
+| extern canary | 485 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged this session: forms-show-load, undefined-call, f162-rule-call, refuse-line, upto-set, tabs-cards, tabs-select. On a branch, not bought: describe-lookup. BeforeSave last refreshed at seal 492 (its tester
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged this session: compare-holder, capture-cond, set-suffix, action-truth, string-join, scope-value. On a branch, not bought: describe-lookup, for-filter. BeforeSave last refreshed at seal 492 (its tester
 overwritten 2026-11-18 at Tony's word); the refresh after this seal is Tony's.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
 Tony's fixit incantations waiting: 0
-Clod's fixit incantations waiting: 31 (oldest: defineCapture, since 2026-10-02)
+Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 56 / 60 | this page. |
+| `docs/wakeup.md` | 58 / 60 | this page. |
 | `Topics/forms` | 284 / 280, OVER by 4 (prose lines; the trim waits for cleanup) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 195 / 200 | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/kant` | 196 / 200 | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/windows` | 69 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
-| `Topics/typesetting` | 113 / 120 | sub-topic of forms until forms step 7. |
+| `Topics/windows` | 71 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
+| `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 119 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 69 / 80 | the parking list; not a session topic. |
