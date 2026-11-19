@@ -1690,6 +1690,62 @@ else echo "  FAIL  elseIfT MISSING"; fail=1
 fi
 
 #  ============================================================================
+#  ⚑ ifElseShapeT -- Clay's ergonomics census (Tony's R2, 2026-11-19): the if / else / or shapes typeset wants, in an
+#  ACTION BODY, on both grammars. Per row the old road (incant/grammar, processCode) and the new road (ieNew moves the
+#  action and the helpers the row names to kantGrammar), one process each under an alarm, each read as
+#  `stdout | R<REFUSED lines> x<exit>` with its sentinel. Every action prints its arm and then "after", so a swallowed
+#  statement or a dropped else is a missing line. A row's own define (DEF-<id>| lines) goes into that row's input only.
+_ieF=$(ip ifElseShapeT)
+_iev () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_ieF" ]; then
+sed '/^stop();/,$d' "$_ieF" > "$T/ie.pre"
+grep '^IE-[0-9]*|' "$_ieF" > "$T/ie.list"
+while IFS='|' read -r _id _act _help; do
+    sed -n "s/^DEF-$_id|//p" "$_ieF" > "$T/ie.$_id.def"
+    { cat "$T/ie.pre" "$T/ie.$_id.def"; printf '%s();\ncerr "IE SENTINEL":;\nstop();\n' "$_act"; } > "$T/ie.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ie.$_id.ok" > "$T/ie.$_id.o" 2> "$T/ie.$_id.oe"; echo $? > "$T/ie.$_id.ox"
+    { cat "$T/ie.pre" "$T/ie.$_id.def"; printf 'ieNew(%s);\n' "$_act"; for _h in $_help; do printf 'ieNew(%s);\n' "$_h"; done
+      printf '%s();\ncerr "IE SENTINEL":;\nstop();\n' "$_act"; } > "$T/ie.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/ie.$_id.nk" > "$T/ie.$_id.n" 2> "$T/ie.$_id.ne"; echo $? > "$T/ie.$_id.nx"
+done < "$T/ie.list"
+_ofeq "ifElseShapeT rows ran (28 of 28)" "$(ls "$T"/ie.IE-*.ne 2>/dev/null | wc -l | tr -d ' ')" "28"
+_ieR () { _ofeq "ifElseShapeT $1 old road: $2 (value / sentinel)" "$(_iev "$T/ie.$1.o" "$T/ie.$1.oe" "$T/ie.$1.ox") $(grep -c '^IE SENTINEL' "$T/ie.$1.oe")" "$3 1"
+          _ofeq "ifElseShapeT $1 new road: $2 (value / sentinel)" "$(_iev "$T/ie.$1.n" "$T/ie.$1.ne" "$T/ie.$1.nx") $(grep -c '^IE SENTINEL' "$T/ie.$1.ne")" "${4:-$3} 1"; }
+_ieR IE-1  "if / else, one statement each, then arm" "then |after | R0 x0"
+_ieR IE-2  "if / else, one statement each, else arm" "else |after | R0 x0"
+_ieR IE-3  "several statements per arm, then arm" "then1 |then2 |after | R0 x0"
+_ieR IE-4  "several statements per arm, else arm" "else1 |else2 |after | R0 x0"
+_ieR IE-5  "if / or / else, the or arm" "or |after | R0 x0"
+_ieR IE-6  "if / or / else, the else arm" "else |after | R0 x0"
+_ieR IE-7  "if / or / or / else, the second or" "or2 |after | R0 x0"
+_ieR IE-8  "a nested if / else inside an else arm" "inner then |after | R0 x0"
+_ieR IE-9  "a nested if / else inside a then arm, an outer else" "inner then |after | R0 x0"
+_ieR IE-10 "a several-statement then arm, a one-statement else" "else |after | R0 x0"
+_ieR IE-11 "a one-statement then arm, a several-statement else" "else1 |else2 |after | R0 x0"
+_ieR IE-12 "a brace block arm refuses by name and the action is removed (by design)" " R2 x0" " R3 x0"
+_ieR IE-13 "if on a call's truth (F-160), true, with an else" "then |after | R0 x0"
+_ieR IE-14 "if on a call's truth (F-160), false, with an else" "else |after | R0 x0"
+_ieR IE-15 "an else after an if whose arm returns" "arm1 |5 |arm2 |tail |7 |after | R0 x0"
+_ieR IE-16 "if / or / else with several statements per arm, in a while" "other 1 |two |two again |three |three again |other 4 |after | R0 x0"
+#  the census rows (docs/ergoCensus.md), pinned as read; IE-23 old, IE-25 new and IE-27 read as not intended (see the fixture)
+_ieR IE-17 "break in a while" "1 |2 |after | R0 x0"
+_ieR IE-18 "continue in a while" "1 |3 |4 |after | R0 x0"
+_ieR IE-19 "break in a for" "1 |after | R0 x0"
+_ieR IE-20 "&& in a condition, true then false" "and yes |and no |after | R0 x0"
+_ieR IE-21 "|| in a condition, true then false" "or yes |or no |after | R0 x0"
+_ieR IE-22 "for over a holder, unstarred, walks what it holds" "1 |2 |3 |after | R0 x0"
+_ieR IE-23 "for over a starred holder: old road walks the star and the name (pinned as read)" "* |fsrc |after | R0 x0" "1 |2 |3 |after | R0 x0"
+_ieR IE-24 "a parse result's pieces by label (*t.name, *t.reg) and by for" "name cd |reg ab |ab |. |cd |after | R0 x0"
+_ofeq "ifElseShapeT IE-25 old road: a parse result's piece by subscript, *t[\"name\"] (value / sentinel)" "$(_iev "$T/ie.IE-25.o" "$T/ie.IE-25.oe" "$T/ie.IE-25.ox") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.oe")" "name cd |after | R0 x0 1"
+_ofeq "ifElseShapeT IE-25 new road: *t[\"name\"] dies 139 (pinned as read) (value / sentinel)" "$(_iev "$T/ie.IE-25.n" "$T/ie.IE-25.ne" "$T/ie.IE-25.nx") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.ne")" " R0 x139 0"
+_ieR IE-26 "a return carrying a named member (a copyDeep record)" "w 5 |after | R0 x0"
+_ieR IE-27 "a compare on a holder does not deref: h == 2 is no, *h == 2 yes (pinned as read)" "h == 2 no |*h == 2 yes |after | R0 x0"
+_ieR IE-28 "a starred write through copyOf reaches the source, through copyDeep not" "5 |5 |after | R0 x0"
+_ofeq "ifElseShapeT IE-12 refusal names the brace (old / new)" "$(grep -c '^REFUSED { -- a block brace in an action body' "$T/ie.IE-12.oe") $(grep -c '^REFUSED { -- a block brace in an action body' "$T/ie.IE-12.ne")" "1 1"
+else echo "  FAIL  ifElseShapeT MISSING"; fail=1
+fi
+
+#  ============================================================================
 #  ⚑ cmdCallT -- SEQ 492 (Clay, 2026-10-30): command and action calls on the new road, PRE-REGISTERED ON TRUNK, born red; maps the
 #  fixit newRoadCommandCall. Per row the old road and the new road, one process each under an alarm, each read as
 #  `stdout | R<REFUSED lines> x<exit>`. Today every call with an argument dies 139 (setup's Operators has no `call`); CC-6's empty

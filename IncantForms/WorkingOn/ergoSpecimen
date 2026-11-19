@@ -1,0 +1,81 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(LookR);
+define
+    myLook pageFill="red";
+    myBase inkColor="blue" boxFill="gray";
+    ;
+search LookR Utilities UnitTests list;
+registry(RlT);
+define
+    pageFill;
+    inkColor;
+    lostOne;
+    boxFill;
+    req look:=myLook;
+    sty2 fill:=boxFill;
+    sty fill:=pageFill ink:=inkColor gone:=lostOne plain="x" width=4;
+    ergoLook code={
+        for grup in argument; attributes
+            msHolds = *grup.isGrouP;
+            if msHolds == 0;    continue;
+            msData = **grup.datA;
+            msList = **grup.listLengtH;
+            msVia = **grup.isGrouP;
+            if msData != 0 || msList != 0 || msVia != 0;    continue;
+            msName := **grup.taG;
+            if lkHas == 1 && *lkLook[*msName];
+                msTo := *lkLook[*msName];
+                *grup := **msTo;
+            or lkBaseHas == 1 && *lkBase[*msName];
+                msTo := *lkBase[*msName];
+                *grup := **msTo;
+            else
+                msAttr = *grup.taG;
+                cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
+        };
+    ;
+search RlT LookR Utilities UnitTests list;
+setLook(req);
+print "lkHas" lkHas:;
+lkBase := myBase;
+lkBaseHas = 1;
+rlSays = "probe:";
+ergoLook(sty);
+print "fill" sty.fill:;
+print "ink" sty.ink:;
+print "gone" sty.gone:;
+print "plain" sty.plain:;
+print "width" sty.width:;
+lkBaseHas = 0;
+lkHas = 0;
+ergoLook(sty2);
+print "neither boxFill" sty2.fill:;
+cerr "RL SENTINEL":;
+stop();
+
+ergoSpecimen -- resolveLook (incant/utilities) rewritten with only the spellings docs/ergoCensus.md marks "works" on
+incant/grammar (Clay's ergonomics census, 2026-11-19). incant/utilities is NOT changed; this file is the specimen.
+
+WHAT IT USES
+    continue in a for loop        replaces msPh, the "is this a placeholder" flag
+    && and || in a condition      replace the nested ifs that were one condition
+    if / or / else                replaces msDone, the "already resolved" flag, and its two re-tests
+    (the for loop over argument's attributes, the holder reads, the := re-point and the refusal line are resolveLook's own)
+
+LINES
+    resolveLook as it stands        32 lines, 30 without its two comment lines; names msHolds msData msList msVia msPh msName msDone msTo msAttr (9)
+    ergoLook, the rewrite           19 lines; msPh and msDone are gone (7 names)
+
+HOW IT WAS CHECKED (2026-11-19, the bare build of 2026-11-18 14:10)
+    The file above runs ergoLook. Replacing ergoLook with resolveLook in the two driver calls runs the original
+    (it is in Utilities); the two outputs are byte-identical. The setup takes each arm once: fill resolves only through
+    the request's look (the base has no pageFill), ink only through the base (the look has no inkColor), gone refuses by
+    name, plain and width are skipped, and sty2's fill refuses with neither look on. A second run with lkHas = 0 in place
+    of setLook(req) moves fill to a refusal, identically on both.
+    ⚠ The looks live in their own registry (LookR) on purpose: an attribute named like a field in the same define writes
+    that field (myBase's pageFill="green" set the placeholder pageFill itself), which made every run read "green".
+    Not chased; recorded in the census report.
+    ⚠ The printed values read as tag echoes (fill fill, ink ink) on both; which value a resolved attribute holds is not
+    what this compares. The refusals are the arm witnesses.

@@ -1,0 +1,319 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(IfElseShapeT);
+define
+    qa=2;
+    qb=3;
+    wc=0;
+    nlReqN owner source result rule;
+    ieNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    ieYes code={
+        return 1;
+        };
+    ieNo code={
+        return 0;
+        };
+    ieRet code={
+        if argument == 1;
+            print "arm1":;
+            return 5;
+        else
+            print "arm2":;
+        print "tail":;
+        return 7;
+        };
+    ie1 code={
+        if qa < qb;     print "then":;
+        else            print "else":;
+        print "after":;
+        };
+    ie2 code={
+        if qa > qb;     print "then":;
+        else            print "else":;
+        print "after":;
+        };
+    ie3 code={
+        if qa < qb;
+            print "then1":;
+            print "then2":;
+        else
+            print "else1":;
+            print "else2":;
+        print "after":;
+        };
+    ie4 code={
+        if qa > qb;
+            print "then1":;
+            print "then2":;
+        else
+            print "else1":;
+            print "else2":;
+        print "after":;
+        };
+    ie5 code={
+        if qa > qb;     print "if":;
+        or qa < qb;     print "or":;
+        else            print "else":;
+        print "after":;
+        };
+    ie6 code={
+        if qa > qb;     print "if":;
+        or qa == qb;    print "or":;
+        else            print "else":;
+        print "after":;
+        };
+    ie7 code={
+        if qa > qb;     print "if":;
+        or qa == qb;    print "or1":;
+        or qa < qb;     print "or2":;
+        else            print "else":;
+        print "after":;
+        };
+    ie8 code={
+        if qa > qb;     print "then":;
+        else
+            if qa < qb;     print "inner then":;
+            else            print "inner else":;
+        print "after":;
+        };
+    ie9 code={
+        if qa < qb;
+            if qa == 2;     print "inner then":;
+            else            print "inner else":;
+        else
+            print "outer else":;
+        print "after":;
+        };
+    ie10 code={
+        if qa > qb;
+            print "then1":;
+            print "then2":;
+        else            print "else":;
+        print "after":;
+        };
+    ie11 code={
+        if qa > qb;     print "then":;
+        else
+            print "else1":;
+            print "else2":;
+        print "after":;
+        };
+    ie13 code={
+        if ieYes();     print "then":;
+        else            print "else":;
+        print "after":;
+        };
+    ie14 code={
+        if ieNo();      print "then":;
+        else            print "else":;
+        print "after":;
+        };
+    ie15 code={
+        print ieRet(1):;
+        print ieRet(2):;
+        print "after":;
+        };
+    ie16 code={
+        while wc < 4;
+            wc = wc + 1;
+            if wc == 2;
+                print "two":;
+                print "two again":;
+            or wc == 3;
+                print "three":;
+                print "three again":;
+            else
+                print "other" wc:;
+        print "after":;
+        };
+    fa=1;
+    fb=2;
+    fc=3;
+    fsrc;
+    src depth=1;
+    pair w h;
+    pq isRule reg^=[a-z]+ dot^="." name^=[a-z]+;
+    pv;
+    ieMk code={
+        o := copyDeep(pair);
+        *o.w = argument;
+        return *o;
+        };
+    ie17 code={
+        while wc < 9;
+            wc = wc + 1;
+            if wc == 3;     break;
+            print wc:;
+        print "after":;
+        };
+    ie18 code={
+        while wc < 4;
+            wc = wc + 1;
+            if wc == 2;     continue;
+            print wc:;
+        print "after":;
+        };
+    ie19 code={
+        for lp in fsrc;
+            if *lp == 2;    break;
+            print *lp:;
+        print "after":;
+        };
+    ie20 code={
+        if qa == 2 && qb == 3;      print "and yes":;
+        else                        print "and no":;
+        if qa == 2 && qb == 4;      print "and yes":;
+        else                        print "and no":;
+        print "after":;
+        };
+    ie21 code={
+        if qa == 9 || qb == 3;      print "or yes":;
+        else                        print "or no":;
+        if qa == 9 || qb == 9;      print "or yes":;
+        else                        print "or no":;
+        print "after":;
+        };
+    ie22 code={
+        h := fsrc;
+        for lp in h;    print *lp:;
+        print "after":;
+        };
+    ie23 code={
+        h := fsrc;
+        for lp in *h;   print *lp:;
+        print "after":;
+        };
+    ie24 code={
+        t := pq(pv);
+        n := *t.name;
+        x := *n.texT;
+        print "name" x:;
+        r := *t.reg;
+        y := *r.texT;
+        print "reg" y:;
+        for lp in t;
+            z := *lp.texT;
+            print z:;
+        print "after":;
+        };
+    ie25 code={
+        t := pq(pv);
+        n := *t["name"];
+        x := *n.texT;
+        print "name" x:;
+        print "after":;
+        };
+    ie26 code={
+        r := ieMk(5);
+        x := *r.w;
+        print "w" x:;
+        print "after":;
+        };
+    ie27 code={
+        h := qa;
+        if h == 2;      print "h == 2 yes":;
+        else            print "h == 2 no":;
+        if *h == 2;     print "*h == 2 yes":;
+        else            print "*h == 2 no":;
+        print "after":;
+        };
+    ie28 code={
+        a := copyOf(src);
+        *a.depth = 5;
+        d1 = src.depth;
+        print d1:;
+        b := copyDeep(src);
+        *b.depth = 7;
+        d2 = src.depth;
+        print d2:;
+        print "after":;
+        };
+    ;
+search IfElseShapeT Utilities UnitTests list;
+fsrc +% fa fb fc;
+pv = "ab.cd";
+stop();
+
+ifElseShapeT -- the if / else / or shapes typeset wants, in an action body, on both grammars (Clay's ergonomics census,
+Tony's R2, 2026-11-19). A double check of bear-trap #32: which else shapes kant reads right today.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this
+file's stop(), then on the OLD road (incant/grammar, processCode on the first run) a call of the row's action; on the NEW
+road (kantGrammar) ieNew on the row's action and on each helper the row names, then the call. A sentinel on stderr ends
+each. Each row reads `stdout | R<REFUSED lines> x<exit>` and the sentinel. Every action prints the arm that ran and then
+"after", so a swallowed statement or a dropped else shows as a missing line.
+
+IE-12 is the brace arm: an action body refuses a block brace by name, AT DEFINE TIME, and the action is removed (use
+indentation; that is the block shape in a body). Its define is the DEF-IE-12 lines below, added to that row's input only,
+because a refusal at define time would land in every row. Pinned as read, a refusal by design, not a red row.
+
+MEASURED 2026-11-19 (first run): every shape row, IE-1 to IE-16, reads the same on both roads and as the shape intends; no red
+row, so no fixit.
+Bear-trap #32's multi-statement-arm-then-else shape is right on both grammars in an action body (rows IE-3, IE-4, IE-10,
+IE-11, IE-16).
+
+IE-17 TO IE-28 are the census rows (docs/ergoCensus.md): the other spellings typeset wants, in an action body, pinned as
+read. Three read as not intended and are pinned so, not cured: IE-23 (`for lp in *h` on the old road walks two items, the
+star and the name, at exit 0), IE-25 (`*t["name"]` on the new road, exit 139) and IE-27 (`h == 2` with h := qa compares
+the holder, not the value: "no" on both roads; `*h == 2` is the spelling).
+
+ROWS -- id | action | helpers moved to the new road with it
+IE-1|ie1|
+IE-2|ie2|
+IE-3|ie3|
+IE-4|ie4|
+IE-5|ie5|
+IE-6|ie6|
+IE-7|ie7|
+IE-8|ie8|
+IE-9|ie9|
+IE-10|ie10|
+IE-11|ie11|
+IE-12|ie12|
+IE-13|ie13|ieYes
+IE-14|ie14|ieNo
+IE-15|ie15|ieRet
+IE-16|ie16|
+IE-17|ie17|
+IE-18|ie18|
+IE-19|ie19|
+IE-20|ie20|
+IE-21|ie21|
+IE-22|ie22|
+IE-23|ie23|
+IE-24|ie24|
+IE-25|ie25|
+IE-26|ie26|ieMk
+IE-27|ie27|
+IE-28|ie28|
+
+DEF-IE-12 -- the row's own define, added after the preamble for IE-12 only
+DEF-IE-12|define
+DEF-IE-12|    ie12 code={
+DEF-IE-12|        if qa > qb;     { print "then1":; print "then2":; }
+DEF-IE-12|        else            print "else":;
+DEF-IE-12|        print "after":;
+DEF-IE-12|        };
+DEF-IE-12|    ;
