@@ -1,6 +1,6 @@
 Start();
 include(utilities);
-registry(RuleNameStarCaret);
+registry(RuleUsedBeforeDefined);
 define
     rnCaret isRule open^="[" rnInner^* close^="]";
     rnPlain isRule open^="[" rnInner* close^="]";
@@ -20,28 +20,26 @@ define
         else                    cerr "rnInner^* on [ab], rnInner defined BEFORE (control): FAILED":;
         };
     ;
-search RuleNameStarCaret Utilities list;
-cerr "ANCHOR ruleNameStarCaret -- a rule used as a term in a rule defined BEFORE it, in the same define":;
-fixRuleNameStarCaretHere = 0;
+search RuleUsedBeforeDefined Utilities list;
+cerr "ANCHOR ruleUsedBeforeDefined -- a rule used as a term in a rule defined BEFORE it, in the same define":;
+fixRuleUsedBeforeDefinedHere = 0;
 rnRun();
 cerr "PIN the lines above (today): the three defined-AFTER rows with input FAILED, the [] row matched, the control matched. Want: all matched, or the forward name refused by name where it is defined":;
-cerr "SENTINEL ruleNameStarCaret reached the foot":;
+cerr "SENTINEL ruleUsedBeforeDefined reached the foot":;
 stop();
 
 LANE:  kant
 BLAST: DISJOINT
-OWNER: Clod     (Tony's set-star ruling, 2026-11-19, named from the census probe zInner^*)
+OWNER: Clod     (Tony, 2026-11-19: filed as ruleUsedBeforeDefined, renamed from ruleNameStarCaret)
 SEVERITY: silent -- the rule fails at exit 0 on input it should match.
 
-ruleNameStarCaret -- named for the shape it was found in (zInner^* failing on [ab]), and THE NAME IS NOT THE CAUSE.
-Measured 2026-11-19: the caret and the star are innocent. A rule that names another rule as a term, where that other rule
-is defined LATER in the same define, never matches that term: once, with +, with *, with or without ^ (rnOnce, rnPlain,
-rnCaret all fail). With * it still "matches" an empty input, because zero of a term that cannot match is zero. The same
-rule written with the inner rule defined first (rnBack) matches. The census probe defined zInner after zRule.
+ruleUsedBeforeDefined -- a rule used as a term before it is defined in the same define never matches it, SILENTLY.
+Measured 2026-11-19: once, with +, with *, with or without ^ (rnOnce, rnPlain, rnCaret all fail); with * it still
+"matches" an empty input, because zero of a term that cannot match is zero. The same rule with the inner rule defined first
+(rnBack) matches. Found as zInner^* failing on [ab] (first filed as ruleNameStarCaret; the caret and star are innocent).
 Nothing in today's grammars or forms is known to depend on this: not censused.
 
-NEXT: OPEN
-  The measurement that would say: what the forward term is bound to at definition (a NamE leaf with no rule behind it,
-  or the later rule's entry); then whether a reference resolved at first parse would fix it, or a refusal by name at
-  define time is the cure (Topics/forms: a forward reference in := already refuses by name). Tony's to rule which.
-  Taken: every row matched, or a REFUSED line names the forward term. Not taken (today): the PIN line.
+NEXT: RULED (Tony, 2026-11-19), build waits
+  The cure is a refusal by name at the END of the define: a term naming a rule that was not defined by then refuses,
+  naming the term and the rule. Waiting; not dispatched.
+  Taken: a REFUSED line naming the forward term (or every row matched). Not taken (today): the PIN line.
