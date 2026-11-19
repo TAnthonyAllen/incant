@@ -1845,6 +1845,37 @@ else echo "  FAIL  ruleResultT MISSING"; fail=1
 fi
 
 #  ============================================================================
+#  ⚑ stringJoinT -- the string join on the new road (full monty step 1, stroke 1; fixit newRoadStringJoin retired into it
+#  by mapping). Per row the old road (the control) and the new road (sjNew moves the action to kantGrammar), one process
+#  each under an alarm; the value must be the same on both. SJ-7: tester's four string-join bodies build on kantGrammar.
+_sjF=$(ip stringJoinT)
+_sjv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
+if [ -f "$_sjF" ]; then
+sed '/^stop();/,$d' "$_sjF" > "$T/sj.pre"
+grep '^SJ-[0-9]*|' "$_sjF" > "$T/sj.list"
+while IFS='|' read -r _id _act; do
+    { cat "$T/sj.pre"; printf '%s();\ncerr "SJ SENTINEL":;\nstop();\n' "$_act"; } > "$T/sj.$_id.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/sj.$_id.ok" > "$T/sj.$_id.o" 2> "$T/sj.$_id.oe"; echo $? > "$T/sj.$_id.ox"
+    { cat "$T/sj.pre"; printf 'sjNew(%s);\n%s();\ncerr "SJ SENTINEL":;\nstop();\n' "$_act" "$_act"; } > "$T/sj.$_id.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/sj.$_id.nk" > "$T/sj.$_id.n" 2> "$T/sj.$_id.ne"; echo $? > "$T/sj.$_id.nx"
+done < "$T/sj.list"
+_ofeq "stringJoinT rows ran (6 of 6)" "$(ls "$T"/sj.SJ-*.ne 2>/dev/null | wc -l | tr -d ' ')" "6"
+_sjR () { _ofeq "stringJoinT $1 old road (control): $2 (value / sentinel)" "$(_sjv "$T/sj.$1.o" "$T/sj.$1.oe" "$T/sj.$1.ox") $(grep -c '^SJ SENTINEL' "$T/sj.$1.oe")" "$3 1"
+          _ofeq "stringJoinT $1 new road: $2 (built / value / sentinel)" "$(grep -c "^SJ BUILT [a-z0-9]* 1" "$T/sj.$1.ne") $(_sjv "$T/sj.$1.n" "$T/sj.$1.ne" "$T/sj.$1.nx") $(grep -c '^SJ SENTINEL' "$T/sj.$1.ne")" "1 $3 1"; }
+_sjR SJ-1 "string \$y\$, no spaces" "[ yv ] | R0 x0"
+_sjR SJ-2 "string y \"-\" z, spaced as print spaces" "[ yv - zv  ] | R0 x0"
+_sjR SJ-3 "string \$y \"-\" z\$" "[ yv-zv ] | R0 x0"
+_sjR SJ-4 "a count in the join" "[ n=5 ] | R0 x0"
+_sjR SJ-5 "a join as a print item" "yvzv| after | R0 x0"
+_sjR SJ-6 "the same join reached twice (bear-trap 22)" "[ k1 ] |[ k2 ] | R0 x0"
+#  SJ-7 tester's four string-join bodies build on kantGrammar (the full monty's step-1 count); the control is a body with no join
+{ cat "$T/sj.pre"; printf 'sjNew(show);\nsjNew(showFinish);\nsjNew(showForm);\nsjNew(showStage);\ncerr "SJ SENTINEL":;\nstop();\n'; } > "$T/sj.SJ-7.nk"
+perl -e 'alarm 30; exec @ARGV' "$B" "$T/sj.SJ-7.nk" > "$T/sj.SJ-7.n" 2> "$T/sj.SJ-7.ne"
+_ofeq "stringJoinT SJ-7 show, showFinish, showForm, showStage build on kantGrammar" "$(grep -c '^SJ BUILT show[A-Za-z]* 1' "$T/sj.SJ-7.ne") $(grep -c '^SJ SENTINEL' "$T/sj.SJ-7.ne")" "4 1"
+else echo "  FAIL  stringJoinT MISSING"; fail=1
+fi
+
+#  ============================================================================
 #  ⚑ cmdCallT -- SEQ 492 (Clay, 2026-10-30): command and action calls on the new road, PRE-REGISTERED ON TRUNK, born red; maps the
 #  fixit newRoadCommandCall. Per row the old road and the new road, one process each under an alarm, each read as
 #  `stdout | R<REFUSED lines> x<exit>`. Today every call with an argument dies 139 (setup's Operators has no `call`); CC-6's empty
@@ -8279,13 +8310,15 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  Operators reads 273 for 270 (itRT, jitCursorLifeT, itBackRT) and its length 71 for 68 (opEntryT). A count of the registry, not behaviour.
 #  REGISTERED 2026-11-12 (Tony, wakeup dispatch ruling 2): the remove-attribute operator is one more Operators entry: 276 for 275 on the six
 #  sibling rows and 74 for 73 on opEntryT OE-R. A count of the registry, not behaviour.
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "275" "276"
+#  REGISTERED 2026-11-19 (full monty step 1, stroke 1): stringList, the string join's sink, is one more Operators entry: 277 for 276
+#  on the six sibling rows and 75 for 74 on opEntryT OE-R. A count of the registry, not behaviour.
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "276" "277"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "275" "276"
+fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "276" "277"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -8301,8 +8334,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "275 6" "276 6"
-fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "275" "276"
+fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "276 6" "277 6"
+fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "276" "277"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -8318,12 +8351,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "275" "276"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "276" "277"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "275" "276"
+fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "276" "277"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -9859,7 +9892,7 @@ sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
 #  OE-R RE-PINNED 2026-10-31 (SEQ 496): 64 -> 66 -- cerrList and coutList are registered in Operators
 #  OE-R RE-PINNED 2026-11-03 (SEQ 516): 66 -> 67 -- bodySeq is registered in Operators (control: the bodySeq line removed, 66 again)
 #  OE-R REGISTERED 2026-11-12 (Tony, wakeup dispatch ruling 2): 73 -> 74 -- the remove-attribute operator is registered in Operators
-fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "73" "74"
+fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "74" "75"
 kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
 kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was

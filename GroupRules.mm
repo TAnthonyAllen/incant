@@ -11825,6 +11825,14 @@ extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer)
 	return target;
 }
 
+// opStringList the string join's unary op on the new road (full monty step 1, newRoadStringJoin): the shared print walk, then the joined text is handed back as a fresh field's value, as opString gives the old road's
+extern "C" GroupItem *opStringList(GroupItem *items)
+{
+Buffer 		*buffer = ::printWalk(items);
+GroupItem 	*joined = new GroupItem("string");
+	return ::opString(joined,buffer);
+}
+
 // opUnaryMinus the prefix unary - (negate): 0 - operand into tempField, the operand untouched -- its own op, distinct from the binary - slot
 extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 {

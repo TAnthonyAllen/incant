@@ -484,6 +484,7 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);
+extern "C" GroupItem *opStringList(GroupItem *items);
 extern "C" GroupItem *opUnaryMinus(GroupItem *result);
 extern "C" GroupItem *opWhile(GroupItem *arms);
 extern "C" void ownStatement(GroupItem *stmt);

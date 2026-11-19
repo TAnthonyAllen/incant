@@ -1,0 +1,86 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(StringJoinT);
+define
+    nlReqN owner source result rule;
+    sjNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        sjOk = 0;
+        if compileIn(nlReqN);
+            sjOk = 1;
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        cerr "SJ BUILT" argument.taG sjOk:;
+        };
+    sy="yv";
+    sz="zv";
+    sn=5;
+    sx;
+    sj1 code={
+        sx = string $sy$;
+        print "[" sx "]":;
+        };
+    sj2 code={
+        sx = string sy "-" sz;
+        print "[" sx "]":;
+        };
+    sj3 code={
+        sx = string $sy "-" sz$;
+        print "[" sx "]":;
+        };
+    sj4 code={
+        sx = string $"n=" sn$;
+        print "[" sx "]":;
+        };
+    sj5 code={
+        print string $sy sz$:;
+        print "after":;
+        };
+    sj6 code={
+        k = 0;
+        while k < 2;
+            k = k + 1;
+            sx = string $"k" k$;
+            print "[" sx "]":;
+        };
+    ;
+search StringJoinT Utilities UnitTests list;
+stop();
+
+stringJoinT -- the string join, `string $...$`, in an action body on both grammars (full monty plan step 1, stroke 1:
+fixit newRoadStringJoin). The join builds a string from print items, as print does, and hands it back as a value:
+$ ... $ joins with no spaces, plain items are spaced as print spaces them.
+
+This file is not run alone. pop.sh builds two inputs per row, one process each under an alarm: everything above this
+file's stop(), then on the OLD road (incant/grammar) a call of the row's action; on the NEW road (kantGrammar) sjNew on it
+(which prints SJ BUILT <name> 1 when the body builds), then the call. A sentinel on stderr ends each. The old road is the
+control: each row's value must be the same on both.
+
+Before the stroke a body holding `string $...$` did not build on kantGrammar at all (the whole body was lost); tester's
+show, showFinish and showForm were lost that way. SJ-7 builds those three and showStage on kantGrammar.
+SJ-6 reaches the same join twice: an action must never change its own parse tree (bear-trap 22).
+
+ROWS -- id | action
+SJ-1|sj1
+SJ-2|sj2
+SJ-3|sj3
+SJ-4|sj4
+SJ-5|sj5
+SJ-6|sj6

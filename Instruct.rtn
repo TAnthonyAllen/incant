@@ -1129,6 +1129,15 @@ Buffer      buffer = printWalk(items);
 }
 
 
+// opStringList the string join's unary op on the new road (full monty step 1, newRoadStringJoin): the shared print walk, then the joined text is handed back as a fresh field's value, as opString gives the old road's
+extern GroupItem opStringList(GroupItem items)
+{
+Buffer      buffer = printWalk(items);
+GroupItem   joined = new("string");
+    return opString(joined,buffer);
+}
+
+
 // opCoutList the cout instruct's unary op (SEQ 496): the shared walk, then opCout writes to stdout and never to printTO's divert (KANT-23)
 extern GroupItem opCoutList(GroupItem items)
 {
