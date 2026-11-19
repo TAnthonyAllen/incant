@@ -1815,7 +1815,7 @@ _rrR RR-13 "a do loop's while t := rule(x) refuses before the body runs" "before
 _rrR RR-14 "a * written after a set refuses where the rule is defined; the rest of the define stands" "rr14 ran |"' R1 x0'
 _rrR RR-15 "a ? written after a set refuses where the rule is defined" "rr15 ran |"' R1 x0'
 _rrR RR-16 "a + after a set is the set's own run, one or more, and stays legal" "set+ value true |set+ empty false |after | R0 x0"
-#  calling an action vs calling a rule (docs/kantPatterns.md), pinned as read; RR-20, RR-21, RR-23 differ by road
+#  calling an action vs calling a rule (docs/kantPatterns.md), pinned as read; RR-20, RR-21 differ by road
 _rrR RR-17 "an empty CSV cell, val*^=[^,]: ab, and , both match; the comma piece reads" "cell ab, true |cell , true |comma , |after | R0 x0"
 _rrR RR-18 "cells+ over ,, matches two pieces and ends" "cells ,, true |cells pieces 2 |after | R0 x0"
 _rrR RR-19 "a rule's code reads its label as *actionLabel and returns it; the piece reads after" "piece after cd |after | R0 x0"
@@ -1823,8 +1823,10 @@ _ofeq "ruleResultT RR-19 the rule's code ran on its label, reading val (old / ne
 _rrR RR-20 "a rule with no argument: old road false in silence, new road refuses by name" "before |no argument false |after | R0 x0" "before | R1 x0"
 _rrR RR-21 "a rule with an argument that has no text: old false in silence, new refuses" "before |no text false |after | R0 x0" "before | R1 x0"
 _rrR RR-22 "an action takes anything as argument and hands back what return gives" "argument 5 |argument ab |argument aGrp |value 7 |after | R0 x0"
-_rrR RR-23 "an action returning its argument: 1 true; 0 false on the old road, TRUE on the new" "returns 1 true |returns 0 false |after | R0 x0" "returns 1 true |returns 0 true |after | R0 x0"
-_rrR RR-24 "an action with no return reads true in an if" "returns nothing true |after | R0 x0"
+#  RE-PIN 2026-11-19 (Tony, R1 and R2): a returned 0 reads false on both grammars (RR-23's new road read true); an action
+#  that hands back nothing reads false, as a failed rule does (RR-24 read true on both)
+_rrR RR-23 "an action returning its argument: 1 true, 0 false, on both grammars" "returns 1 true |returns 0 false |after | R0 x0"
+_rrR RR-24 "an action with no return hands back nothing, and nothing reads false" "returns nothing false |after | R0 x0"
 _ofeq "ruleResultT RR-14 / RR-15 the refusal names the term-first cure" "$(sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$T/rr.RR-14.oe" | head -1) / $(sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$T/rr.RR-15.oe" | head -1)" "val -- a * written after a set is not read -- a modifier belongs to the term, before the =: write val*^=[...] / val -- a ? written after a set is not read -- a modifier belongs to the term, before the =: write val?^=[...]"
 _rrM () { sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$1" | head -1; }
 _ofeq "ruleResultT RR-3 / RR-12 the refusal names t and its cure (old road)" "$(_rrM "$T/rr.RR-3.oe") / $(_rrM "$T/rr.RR-12.oe")" "t -- if t := ... is always true (t holds a field); write t := ...; then if *t / t -- while t := ... is always true (t holds a field); write t := ...; then while *t"
@@ -1869,7 +1871,8 @@ _ccO CC-1 "include, then a print" "INCLUDED |5 | R0 x0"
 _ccO CC-2 "copyOf" "2 | R0 x0"
 _ccO CC-3 "addrOf, then a print" "5 | R0 x0"
 _ccO CC-4 "clear" "cx | R0 x0"
-_ccO CC-5 "a rule call: its action runs, its value is truthy" "9 |1 | R0 x0"
+#  RE-PIN 2026-11-19 (Tony, R1): ccRule is an ACTION with no return, so it hands back nothing -- cc echoes its tag; it read 1 before
+_ccO CC-5 "a call: its action runs and, with no return, hands back nothing" "9 |cc | R0 x0"
 _ccO CC-6 "an action call, empty ()" "8 |5 | R0 x0"
 _ccO CC-7 "an action call with an argument" "8 |5 | R0 x0"
 _ofeq "cmdCallT CC-3 old road: addrOf's line on stderr" "$(grep -c '^ADDROF fa ' "$T/cc.CC-3.oe")" "1"
@@ -1879,7 +1882,7 @@ _ccN CC-1 "include, then a print (through FILe)" "5 |INCLUDED | R0 x0 1" "INCLUD
 _ccN CC-2 "copyOf" " R0 x139 0" "2 | R0 x0"
 _ccN CC-3 "addrOf, then a print" " R0 x139 0" "5 | R0 x0"
 _ccN CC-4 "clear" " R0 x139 0" "cx | R0 x0"
-_ccN CC-5 "a rule call: its action runs, its value is truthy" " R0 x139 0" "9 |1 | R0 x0"
+_ccN CC-5 "a call: its action runs and, with no return, hands back nothing" " R0 x139 0" "9 |cc | R0 x0"
 _ccN CC-6 "an action call, empty ()" " R0 x0 1" "8 |5 | R0 x0"
 _ccN CC-7 "an action call with an argument" " R0 x139 0" "8 |5 | R0 x0"
 fdRow "cmdCallT CC-3 new road: addrOf's line on stderr" "$(grep -c '^ADDROF fa ' "$T/cc.CC-3.ne")" "0" "1"
@@ -2134,7 +2137,8 @@ _rkv () { grep '^RK ' "$1" | tr -s ' ' | sed 's/^RK //; s/ kind /:/' | tr '\n' '
 perl -e 'alarm 30; exec @ARGV' "$B" "$_rkF" > "$T/rk.o" 2> "$T/rk.e"; _rkx=$?
 awk 'BEGIN{d=0} /^search NewReturnKindT;$/{c++} {print} c==2 && !d {print "jitter;"; d=1}' "$_rkF" > "$T/rkj.k"
 perl -e 'alarm 30; exec @ARGV' "$B" "$T/rkj.k" > "$T/rkj.o" 2> "$T/rkj.e"; _rkjx=$?
-_rkWant="ns str:13 |os str:13 |nm loc:13 |om loc:13 |nd 3.5:9 |od 3.5:9 |nc 4.5:9 |oc 4.5:9 |nl 2.5:9 |ol 2.5:9 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne arm:13 |oe arm:13 |"
+#  RE-PIN 2026-11-19 (Tony, R1): of, the old road's action with no return, hands back nothing (rof:0), as nf on the new road already did -- the roads agree; it read 4:5 before
+_rkWant="ns str:13 |os str:13 |nm loc:13 |om loc:13 |nd 3.5:9 |od 3.5:9 |nc 4.5:9 |oc 4.5:9 |nl 2.5:9 |ol 2.5:9 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of rof:0 |ne arm:13 |oe arm:13 |"
 _ofeq "newReturnKindT plain (the control): value:kind per shape, exit, sentinel" "$(_rkv "$T/rk.o") x$_rkx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rk.e")" "$_rkWant x0 s1"
 fdRow "newReturnKindT under jitter; = plain" "$(_rkv "$T/rkj.o") x$_rkjx s$(grep -c '^NEWRETURNKIND SENTINEL' "$T/rkj.e")" "ns 3:5 |os 3:5 |nm 3:5 |om 3:5 |nd 4:5 |od 3:5 |nc 5:5 |oc 4:5 |nl 3:5 |ol 2:5 |nk 7:5 |ok 7:5 |nv 6:5 |ov 6:5 |nh 7:6 |oh 7:5 |nf rnf:0 |of 4:5 |ne 3:5 |oe 3:5 | x0 s1" "$_rkWant x0 s1"
 #  F-146 REGISTERED (SEQ 567 R2): nh's shape is refused by name today (stroke 2's R1); with the cure it compiles and still reads 7:6
@@ -5320,7 +5324,9 @@ run2 yieldT "$T/yt.o" "$T/yt.e"; check "yieldT runs" 0 $?
 sentinel "yieldT sentinel" "$T/yt.e" "YIELD SENTINEL"
 if grep -qE '^YT DIRECT s2Y= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT DIRECT: a directly fired loop yields its label -- s2Y reads 3"; green=$((green+1))
 else echo "  FAIL  yieldT DIRECT: $(grep '^YT DIRECT' "$T/yt.e")"; fail=1; fi
-if grep -qE '^YT OWNER value= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT OWNER: an owner-run loop returns its value -- 3"; green=$((green+1))
+#  REWRITTEN 2026-11-19 (Tony, action-truth): dxOwn hands its value back with return dxN, on purpose, not through a
+#  fall-off; the deferred loop's own value-or-label is no longer what this row discriminates (named in the fixture)
+if grep -qE '^YT OWNER value= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT OWNER: an action running a loop returns its value -- 3"; green=$((green+1))
 else echo "  FAIL  yieldT OWNER: $(grep '^YT OWNER' "$T/yt.e")"; fail=1; fi
 
 #  ---- adoptT: F-122's (b) census as a standing TRACE row (Tony, 2026-09-24) -- visibility, NOT refusal ----

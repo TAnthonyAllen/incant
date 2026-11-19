@@ -119,7 +119,9 @@ Row: `ifElseShapeT IE-37`.
 **15. Calling an action and calling a rule look the same, `f(x)`, and mean two things.**
 
 An **action** works ON its argument: `argument` can be anything -- a count, a string, a field. It hands back what its
-`return` gives.
+`return` gives. **If you want an action to return something, use `return`. If there is no `return`, do not expect to read
+one. There is no default return; the action just ends; it might have side effects.** An action that hands back nothing
+reads false in an `if`, as a failed rule does (`RR-24`), and a returned 0 reads false (`RR-23`).
 
     area code={ w = argument.w; h = argument.h; return w * h; };
     print area(areaReq):;               // 12
@@ -131,10 +133,7 @@ it reads as `*actionLabel` and hands back with `return *actionLabel;`.
     t := cell("ab,");
     if *t;      p := *t.val;            // the piece named val
 
-Rows: `ruleResultT RR-22` (an action takes anything and returns a value), `RR-1`, `RR-11` (a rule's truth), `RR-19` (a
-rule's code and its label). Three things to watch, each pinned as it reads today:
-- a rule called with no argument, or with an argument that has no text, refuses by name on the newer grammar and reads
-  false in silence on the older one (`RR-20`, `RR-21`);
-- an action with no `return` reads true in an `if` (`RR-24`), so give it a `return` if you test it;
-- an action that returns its argument when that argument is 0 reads false on the older grammar and true on the newer
-  (`RR-23`); return a value you computed, not the argument itself, until that is settled.
+Rows: `ruleResultT RR-22` (an action takes anything and returns a value), `RR-23`, `RR-24` (an action's truth), `RR-1`,
+`RR-11` (a rule's truth), `RR-19` (a rule's code and its label). One thing to watch, pinned as it reads today: a rule
+called with no argument, or with an argument that has no text, refuses by name on the newer grammar and reads false in
+silence on the older one (`RR-20`, `RR-21`).

@@ -11728,6 +11728,12 @@ GroupItem 	*value = 0;
 		return 0;
 	value = arms->get(1);
 	 if ( value && (void*)value->groupBody->gMethod == (void*)&testOP ) value = ::testOP(value); 
+	// returnedValue a returned argument bound to a plain value hands back that value, so a returned 0 reads false on both grammars (Tony, 2026-11-19, R2); a group or a list still goes back bound
+	
+	if ( value && !ruler->jitting && value->groupBody->flags.isArgument && isGROUP(value->groupBody->flags.data) ) {
+	GroupItem *bound = value->getGroup();
+	if ( bound && bound->groupBody->flags.data && !isGROUP(bound->groupBody->flags.data) && !bound->groupBody->groupList ) value = bound; }
+	
 	ruler->branchKind = 3;
 	return value;
 }
@@ -12726,7 +12732,10 @@ GroupItem 	*action = field;
 		auto doorHit = gIRDoor.find(doorName ? doorName : "");
 		if ( doorHit == gIRDoor.end() || doorHit->second.second != 1 ) result = ::refuse(fireRule,(char*)"is marked KanT, and no ptr (ptr) function is compiled under the name the mark carries");
 		else result = ((GroupItem*(*)(GroupItem*))doorHit->second.first)(result); }
-		else result = result->groupBody->gMethod(result);
+		else {
+		result = result->groupBody->gMethod(result);
+		//  actionNothing an ACTION whose body ends without a return hands back nothing, and nothing reads false, as a failed rule does (Tony, 2026-11-19, R1)
+		if ( !fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused ) result = nullptr; }
 		bodyRanOff = fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused; }
 		if ( bodyRanOff ) result = ::refuse(fireRule,"the rule ran off its end: it handed back no label, and nothing is adopted");
 		if ( bodyRefused ) { ruler->refused = 1; result = nullptr; }
@@ -13756,7 +13765,10 @@ GroupItem 	*ruleArg = 0;
 	
 	// jitterIntercept after jitter; a call fires its compiled function, compiled at the first call -- inside the bracket, so the frame is the interpreter's (SEQ 386)
 	
-	if ( gJitter && ::jitterReady(field) )  result = ::jitTakeReturn(gJitterFn(::jitBodyField(field)));
+	if ( gJitter && ::jitterReady(field) ) {
+	result = ::jitTakeReturn(gJitterFn(::jitBodyField(field)));
+	//  actionNothingJitted a compiled action that ran off its end hands back nothing, as the interpreted one does (Tony, 2026-11-19, R1)
+	if ( gJitRetEnding == 1 ) result = 0; }
 	else                                    result = ::processAction(field);
 	
 	if ( result )

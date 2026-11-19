@@ -911,7 +911,7 @@ else
 fi
 
 echo ""
-echo "-- JV VALUE PARITY on an EMPTY loop or branch."
+echo "-- JV VALUE PARITY on an action ending in an EMPTY loop or branch, then a return."
 #  aCTionDO / aCTionIF / aCTionWhilE all end `if !result result = falseResult;`
 #  -- falseResult being a pROPERTIEs node, isCOUNT, value 0 -- and all three
 #  return at their `if jitting` gate ABOVE that line. So whether the emitters
@@ -947,7 +947,8 @@ if [ -z "$jva" ] || [ -z "$ova" ]; then
     echo "        ^ OWNED RED, docs/fixIts.md F-12 -- pre-existing, not the sweep"
     fail=1
 else
-    for row in "A:$jva:$ova:0" "B:$jvb:$ovb:0" "C:$jvc:$ovc:4"; do
+    #  REWRITTEN 2026-11-19 (Tony, action-truth): each action RETURNS fvIn after its construct; A, B want 5, C 4
+    for row in "A:$jva:$ova:5" "B:$jvb:$ovb:5" "C:$jvc:$ovc:4"; do
         r=${row%%:*}; rest=${row#*:}; j=${rest%%:*}; rest=${rest#*:}; o=${rest%%:*}; w=${rest##*:}
         if [ "$j" = "$w" ] && [ "$o" = "$w" ]; then
             echo "  ok    JV $r jitted $j == oracle $o == $w"; green=$((green+1))
