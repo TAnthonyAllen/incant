@@ -1206,6 +1206,8 @@ extern GroupItem opWhile(GroupItem arms)
 GroupItem   cond = arms[1],
             body = arms[2];
     if !cond || !body   return null;
+    // captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+    if refuseCaptureCond(cond,"while")  return null;
     -%
     GroupRules *whileRuler = GroupControl::groupController->groupRules;
     GroupItem *bodyResult = 0;
@@ -1234,6 +1236,8 @@ extern GroupItem opDo(GroupItem arms)
 GroupItem   body = arms[1],
             cond = arms[2];
     if !cond || !body   return null;
+    // captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+    if refuseCaptureCond(cond,"while")  return null;
     -%
     GroupRules *doRuler = GroupControl::groupController->groupRules;
     GroupItem *bodyResult = 0;
@@ -1401,6 +1405,8 @@ GroupItem   cond = arms[1],
             elseArm = arms[3],
             arm,
             result;
+    // captureCond a := as the condition is always true: refused by name with the cure (Tony, 2026-11-19)
+    if refuseCaptureCond(cond,"if")     return null;
     -% if ( cond && (void*)cond->groupBody->gMethod == (void*)&testOP ) cond = ::testOP(cond); %-
     // condRefused a condition that refused takes neither arm: the else is a choice, and no choice was made
     -% if ( GroupControl::groupController->groupRules->refused && !GroupControl::groupController->groupRules->jitting ) return 0; %-

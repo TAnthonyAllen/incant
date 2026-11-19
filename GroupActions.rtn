@@ -921,6 +921,32 @@ extern int refuseHolderCompare(GroupItem argument,GroupItem target,String opName
 }
 
 
+// refuseCaptureCond a := as an if / while / do condition refuses by name with the cure (Tony, 2026-11-19): it is always true, its target holding a field; the new road's condition is an instruct whose op is :=, the old road's an expression with := among its terms; 1 when it refused
+extern int refuseCaptureCond(GroupItem cond,String kind)
+{
+    -%
+    if ( !cond ) return 0;
+    GroupRules *capRuler = GroupControl::groupController->groupRules;
+    GroupItem *capOp = 0, *capTarget = 0;
+    if ( (void*)cond->groupBody->gMethod == (void*)&testOP ) {
+        GroupItem *o = cond->get(1);
+        if ( o && (void*)o->groupBody->gOp == (void*)&opSetGroup ) { capOp = o; capTarget = cond->get(2); } }
+    else if ( cond->groupBody->groupList ) {
+        int n = cond->groupBody->groupList->listLength;
+        for ( int k = 1; k <= n && !capOp; k++ ) {
+            GroupItem *t = cond->get(k);
+            if ( t && t->groupBody->registry == capRuler->opFields && (void*)t->groupBody->gOp == (void*)&opSetGroup ) capOp = t; }
+        if ( capOp ) capTarget = cond->get(1); }
+    if ( !capOp ) return 0;
+    const char *tn = capTarget && capTarget->groupBody->tag ? capTarget->groupBody->tag : "t";
+    char why[256];
+    ::snprintf(why,sizeof(why),"%s %s := ... is always true (%s holds a field); write %s := ...; then %s *%s",kind,tn,tn,tn,kind,tn);
+    ::refuse(capTarget ? capTarget : capOp,why);
+    return 1;
+    %-
+}
+
+
 // refuseArgRebind a := on the argument refuses by name (<- retired, SEQ 597), tested BEFORE the follow, which destroys the evidence; 1 when it refused
 extern int refuseArgRebind(GroupItem op,GroupItem target)
 {

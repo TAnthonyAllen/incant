@@ -1778,7 +1778,7 @@ fi
 #  ⚑ ruleResultT -- what if and while read when a rule is called from an action body (Clay's dispatch, 2026-11-19; the
 #  ruling is Tony's, from these rows): a match with a value, a match with an empty capture, a failure, and reading a piece
 #  by label after. Per row the old road (processCode) and the new road (rrNew moves the action to kantGrammar), one process
-#  each under an alarm. ALL PINNED AS READ -- nothing ruled. RR-3 (if t := rule(x) reads true on a failure) and RR-5
+#  each under an alarm. Matched-means-true is RULED as it reads (Tony, 2026-11-19). RR-3: a := condition refuses (ruled). RR-5
 #  (after if t = rule(x), *t.val refuses) are not what anyone means; RR-9 shows a set-star term does not match empty.
 _rrF=$(ip ruleResultT)
 _rrv () { _o=$(grep -v '^stop: \|^Search list: \|^Assign at end\|^ *$' "$1" | cat -t | tr '\n' '|'); echo "$_o R$(grep -c '^REFUSED' "$2") x$(cat "$3")"; }
@@ -1791,20 +1791,38 @@ while IFS='|' read -r _id _act; do
     { cat "$T/rr.pre"; printf 'rrNew(%s);\n%s();\ncerr "RR SENTINEL":;\nstop();\n' "$_act" "$_act"; } > "$T/rr.$_id.nk"
     perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_id.nk" > "$T/rr.$_id.n" 2> "$T/rr.$_id.ne"; echo $? > "$T/rr.$_id.nx"
 done < "$T/rr.list"
-_ofeq "ruleResultT rows ran (11 of 11)" "$(ls "$T"/rr.RR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "11"
+_ofeq "ruleResultT rows ran (13 of 13)" "$(ls "$T"/rr.RR-*.ne 2>/dev/null | wc -l | tr -d ' ')" "13"
 _rrR () { _ofeq "ruleResultT $1 old road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.o" "$T/rr.$1.oe" "$T/rr.$1.ox") $(grep -c '^RR SENTINEL' "$T/rr.$1.oe")" "$3 1"
           _ofeq "ruleResultT $1 new road: $2 (value / sentinel)" "$(_rrv "$T/rr.$1.n" "$T/rr.$1.ne" "$T/rr.$1.nx") $(grep -c '^RR SENTINEL' "$T/rr.$1.ne")" "$3 1"; }
 _rrR RR-1  "if rule(x): value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
 _rrR RR-2  "if t = rule(x): value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
-_rrR RR-3  "if t := rule(x) reads the holder: true even on a failure (as read)" "value true |empty true |fail true |after | R0 x0"
+#  RE-PIN 2026-11-19 (Tony's ruling): a := as an if / while / do condition refuses by name with its cure; RR-3 read
+#  "fail true" in silence before. RR-6 and RR-7 respelled to the cure (t := rule(x); if *t) to keep asking their question.
+_rrR RR-3  "if t := rule(x) refuses by name with the cure" "before | R1 x0"
 _rrR RR-4  "while t = rule(x): a match loops (capped at 3), a failure runs no pass" "value 3 |empty 3 |fail 0 |after | R0 x0"
 _rrR RR-5  "after if t = rule(x), *t.val refuses (as read)" " R1 x0"
-_rrR RR-6  "after if t := rule(x), *t.val reads the piece" "val ab |after | R0 x0"
+_rrR RR-6  "t := rule(x); if *t; then *t.val reads the piece" "val ab |after | R0 x0"
 _rrR RR-7  "after an empty match, close is there and the absent val echoes its tag" "close ] |val y |after | R0 x0"
 _rrR RR-8  "after a failure, reading a piece refuses by name" "before | R1 x0"
 _rrR RR-9  "a star on a set does not match empty: [a-z]* on [] fails" "set-star value true |set-star empty false |after | R0 x0"
 _rrR RR-10 "after if t = rule(x), the unstarred t.val reads the piece" "val ab |after | R0 x0"
 _rrR RR-11 "t := rule(x); if *t: value, empty match, failure" "value true |empty true |fail false |after | R0 x0"
+_rrR RR-12 "while t := rule(x) refuses by name with the cure" "before | R1 x0"
+_rrR RR-13 "a do loop's while t := rule(x) refuses before the body runs" "before | R1 x0"
+_rrM () { sed -n 's/^REFUSED \(.*\) \[line [0-9]*\]$/\1/p' "$1" | head -1; }
+_ofeq "ruleResultT RR-3 / RR-12 the refusal names t and its cure (old road)" "$(_rrM "$T/rr.RR-3.oe") / $(_rrM "$T/rr.RR-12.oe")" "t -- if t := ... is always true (t holds a field); write t := ...; then if *t / t -- while t := ... is always true (t holds a field); write t := ...; then while *t"
+_ofeq "ruleResultT RR-3 / RR-12 the refusal names t and its cure (new road)" "$(_rrM "$T/rr.RR-3.ne") / $(_rrM "$T/rr.RR-12.ne")" "t -- if t := ... is always true (t holds a field); write t := ...; then if *t / t -- while t := ... is always true (t holds a field); write t := ...; then while *t"
+#  the same at TOP LEVEL: old road the statement in the file, new road STARt on its text then testOP
+for _tp in 'TP-1|if rrT := rv(rvFail); print "yes":; else print "no":;|after | R1 x0 1' 'TP-2|if rrT = rv(rvFail); print "yes":; else print "no":;|no |after | R0 x0 1' 'TP-3|while rrT := rv(rvVal); { rrN = rrN + 1; if rrN == 3; break; }|after | R1 x0 1' 'TP-4|do { rrN = rrN + 1; } while rrT := rv(rvFail);|after | R1 x0 1'; do
+    _tid=${_tp%%|*}; _trest=${_tp#*|}; _tit=${_trest%%|*}; _twant=${_trest#*|}
+    { cat "$T/rr.pre"; printf '%s\nprint "after":;\ncerr "RR SENTINEL":;\nstop();\n' "$_tit"; } > "$T/rr.$_tid.ok"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_tid.ok" > "$T/rr.$_tid.o" 2> "$T/rr.$_tid.oe"; echo $? > "$T/rr.$_tid.ox"
+    _tesc=$(printf '%s' "$_tit" | sed 's/"/\\"/g')
+    { cat "$T/rr.pre"; printf 'it1 = STARt("%s");\ntestOP(it1);\nprint "after":;\ncerr "RR SENTINEL":;\nstop();\n' "$_tesc"; } > "$T/rr.$_tid.nk"
+    perl -e 'alarm 20; exec @ARGV' "$B" "$T/rr.$_tid.nk" > "$T/rr.$_tid.n" 2> "$T/rr.$_tid.ne"; echo $? > "$T/rr.$_tid.nx"
+    _ofeq "ruleResultT $_tid top level, old road: $_tit (value / sentinel)" "$(_rrv "$T/rr.$_tid.o" "$T/rr.$_tid.oe" "$T/rr.$_tid.ox") $(grep -c '^RR SENTINEL' "$T/rr.$_tid.oe")" "$_twant"
+    _ofeq "ruleResultT $_tid top level, new road: $_tit (value / sentinel)" "$(_rrv "$T/rr.$_tid.n" "$T/rr.$_tid.ne" "$T/rr.$_tid.nx") $(grep -c '^RR SENTINEL' "$T/rr.$_tid.ne")" "$_twant"
+done
 _ofeq "ruleResultT RR-5 / RR-8 the refusal is opDot's, by name (old / new)" "$(grep -c '^REFUSED val -- opDot: the left of this dot holds nothing' "$T/rr.RR-5.oe" "$T/rr.RR-5.ne" | awk -F: '{n+=$2} END {print n}') $(grep -c '^REFUSED close -- opDot: the left of this dot holds nothing' "$T/rr.RR-8.oe" "$T/rr.RR-8.ne" | awk -F: '{n+=$2} END {print n}')" "2 2"
 else echo "  FAIL  ruleResultT MISSING"; fail=1
 fi
