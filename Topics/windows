@@ -1,0 +1,69 @@
+/*****************************************************************************
+    windows -- the windows topic file, a sibling of forms (Tony, 2026-11-19, via Clay's dispatch after the census e278a976).
+    Not an incantation; notes only. Wake-up read for a windows session: this file, Topics/forms, then docs/wakeup.md.
+    Budget 120 lines. Timing: windows starts once tabs runs on mock clicks (Topics/forms, tabs stroke 4).
+*****************************************************************************/
+ONE LINE: windows is forms in a real Apple window: a click from a point, a resize that relays out, and the behaviours
+that wait for both (describe, an image's actions, text editing). Today forms draw to a bitmap or a PDF and a click is mocked.
+
+/*****************************************************************************
+    Description
+*****************************************************************************/
+The line between forms and windows is the window: forms owns attributes, layout, the draw walk and the mock click (click);
+windows owns where a click and a size come from, and what a window must keep alive.
+Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and git; each source keeps a one-line pointer.
+
+/*****************************************************************************
+    Rulings and facts, with dates
+*****************************************************************************/
+    POINTS (Tony, 2026-11-07)   a bare number in a form is in points (1/72 inch), on PDF and in Apple windows alike.
+                                (git 73f11c70; the drawing half stays in Topics/drawing, Box attributes, and Topics/forms, Attributes.)
+    THE CLICK (Tony, 2026-11-04) a click selects the field first, then fires its own action, then its attribute actions left to
+                                right. Click actions use onClick:=. Bubbling stays: a member's parent is its enclosing field (built,
+                                merge 24beb5f0). Layout's mouseUp calls a kant extern; firing is proved with a synthetic point and
+                                no window. (Topics/forms, Events, moved here.)
+    THE RESIZE (2026-11-06, 2026-11-10)
+                                a resize re-runs setFrame from the top field's new frame: setFrame lays out a deep copy each time, so
+                                a resize reads like a fresh run (Topics/forms plan step 6, strokes 1-4, seals 456-465; percent stays
+                                because the rerun depends on it, SEQ 622 R0). layoutFrame is utilities' field and a request's
+                                frame:=; one whole write tells its listeners once, and a form's listener calls redrawForm
+                                (resizeLightT, resizeListenT). WAITING: what calls it for real is a window's resize; the firing
+                                command is Tony's to rule (step 6, stroke 4 first run, seal 460).
+    DESCRIBE (2026-11-07)       describe's action is a windows behaviour: selecting a field shows its dESCRIPTIONs entry in
+                                describeHelp. Today descriptions is layout only; "the describe action and the images' click actions
+                                wait for windows" (IncantForms/Windows/descriptions, below its bail). describeAny (same file) is for
+                                an inspector in its own window. Seal 441: "the click (select a picture, its text shows in
+                                describeHelp) needs a selection and windows, step 10 -- not small." (Topics/forms, Issues, moved here.)
+    IMAGES                      images wait for windows: zoom, shrink and centre on the click point come with the click
+                                (Topics/drawing, the floor census, image placements; Topics/forms step 10: "images' zoom and field actions come with it").
+    THE STAND-IN                the mock click: click(request), a named field, not a point (G1, seal 477; clickT). clickShow(request),
+                                proposed, is click then showForm, for forms that do not redraw by listening (docs/tabsRecon.md, item 4a; tabs
+                                stroke 4). Still open from G1: bubbling to the enclosing fields, naming each action skipped, a real
+                                point and a window.
+    TEXT EDITING (Tony, 2026-11-09, SEQ 585 R2; recorded, not ruled for build)
+                                move start to cursor: the field's displayed text (possibly part of a larger text source) restarts at
+                                the beginning of the word the cursor is in, or the next word if the cursor is between words, then
+                                redisplays. Move end to cursor: the mirror. Try it and adjust. Editing commands are reached by a
+                                short selection pop-up rather than memorised keys; a pop-up is itself a form (select a command, its
+                                action fires). (git 151b899e; trimmed from Topics/forms since.)
+    THE COLLECTOR (seal 417, docs/gcRecon.md)
+                                openWindow calls GC_set_no_dls(1) (guiHost.mm:28) to dodge AppKit's root-set limit, which turns off
+                                data-segment scanning for every image: after a window opens, every raw-pointer global but the
+                                controller is invisible to the collector. "Today no window opens while the JIT runs. Under relayout
+                                both will happen together." A window stroke owns this.
+
+/*****************************************************************************
+    State
+*****************************************************************************/
+    built       the mock click (click, G1), redrawForm as the mock resize, layoutFrame. clickShow is proposed (tabs stroke 4), not built.
+    not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
+
+/*****************************************************************************
+    Plan
+*****************************************************************************/
+    1  A read-only recon of the old GUI's window code (GUI/, guiHost.mm) and today's openWindow. Not dispatched.
+
+/*****************************************************************************
+    Seal digest (newest first)
+*****************************************************************************/
+    (none yet)

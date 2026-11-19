@@ -1,0 +1,60 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(NewRoadLabelSubscriptCrash);
+define
+    nsPq isRule reg^=[a-z]+ dot^="." name^=[a-z]+;
+    nsPv;
+    nlReqN owner source result rule;
+    fxNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        if compileIn(nlReqN);
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        };
+    nsRead code={
+        t := nsPq(nsPv);
+        cerr "parsed":;
+        n := *t["name"];
+        x := *n.texT;
+        cerr "name" x:;
+        };
+    ;
+search NewRoadLabelSubscriptCrash Utilities UnitTests list;
+nsPv = "ab.cd";
+cerr "ANCHOR newRoadLabelSubscriptCrash -- *t[\"name\"] on a parse result, the body on kantGrammar":;
+cerr "PIN today: parsed, then exit 139, no sentinel. The old road prints name cd; *t.name prints name cd on both (IE-24). Want: name cd":;
+fxNew(nsRead);
+fixNewRoadLabelSubscriptCrashHere = 0;
+nsRead();
+cerr "SENTINEL newRoadLabelSubscriptCrash reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-19, after the census e278a976)
+SEVERITY: crash -- exit 139, kantGrammar only.
+
+newRoadLabelSubscriptCrash -- reading a parse result's piece by subscript, n := *t["name"], in a body on kantGrammar,
+kills the process. The old road reads it (cd), and *t.name reads it on both. ifElseShapeT IE-25 pins both halves.
+
+NEXT: OPEN
+  The measurement that would say: the same subscript on a plain group with an attribute "name" (not a parse result),
+  on the new road; then a backtrace. Not yet split: subscript on a label, or *t[...] on the new road in general.
+  Taken: "name cd" and the sentinel. Not taken (today): exit 139 after "parsed".

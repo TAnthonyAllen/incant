@@ -1,0 +1,50 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(cOMMANDs);
+define
+    testOP  immediateAction;
+    ;
+registry(MultiArgLosesBody);
+define
+    qa=2;
+    qb=3;
+    maTwo code={
+        print "maTwo ran":;
+        };
+    maBody code={
+        print "before the call":;
+        maTwo(qa, qb);
+        print "after the call":;
+        };
+    ;
+search MultiArgLosesBody Utilities UnitTests list;
+cerr "ANCHOR multiArgLosesBody -- an action body holding f(a, b)":;
+fixMultiArgLosesBodyHere = 0;
+maBody();
+cerr "PIN today: no line printed, one ERROR processCode line, exit 0. Want: REFUSED naming the pattern (R2), the body's other lines kept or the body refused by name":;
+cerr "SENTINEL multiArgLosesBody reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-19, after the census e278a976)
+SEVERITY: silent -- the whole body is lost at exit 0; only "ERROR processCode: maBody parse failed" says so.
+
+multiArgLosesBody -- f(a, b) in an action body: the comma does not parse, so the WHOLE body fails and nothing in it runs,
+on both grammars. docs/ergoCensus.md, "more than one argument" (scratch probe d1). f(a b) passes a list the callee cannot
+read (census probes d2, d6).
+
+NEXT: RULED (Tony, 2026-11-19, R2)
+  More than one argument is a convention, not a feature: a request field carrying the arguments as attributes
+  (fillDownAcross's shape), or a rule whose attributes are the arguments; several results come back as a record
+  (return *o). So f(a, b) REFUSES BY NAME, and the refusal names that pattern. Site not chosen (the grammar's
+  Parens takes ExpressioN?, and a comma is a ShortcuT character).
+  Taken: a REFUSED line naming the request-field pattern. Not taken (today): the ERROR processCode line and no output.

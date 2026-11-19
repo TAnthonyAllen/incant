@@ -68,3 +68,11 @@ Two more found on the way, not on the list:
 `IncantForms/WorkingOn/ergoSpecimen`: resolveLook rewritten with continue, `&&`, `||` and `if / or / else`.
 **32 lines (30 without comments) -> 19**; the flags msPh and msDone are gone. Checked byte-identical against the
 original with each arm taken (look, base, refusal, skip), two setups; the file carries how.
+
+## Fixits filed (Clay's dispatch after the census, 2026-11-19; Clod's lane, `incant/fixits/`)
+
+multiArgLosesBody (f(a, b); NEXT is RULED, R2: refuse by name naming the request-field pattern) · starlessHeldWriteCrash
+(o.w = 5 on a held record, 139) · newRoadLabelSubscriptCrash (IE-25) · oldRoadForStarWalk (IE-23) · topForNoCursor ·
+defineAttrWritesField (only fields on the search list when the define is read; forms exposure: describe= in eight form
+files writes utilities' describe value, the action still runs). R3: whether a compare derefs on its own (IE-27) is Clay's
+write-up, not a fixit.

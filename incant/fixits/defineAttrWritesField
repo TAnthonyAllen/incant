@@ -1,0 +1,48 @@
+Start();
+include(utilities);
+search Utilities list;
+registry(DefineAttrWritesField);
+define
+    dwField="orig";
+    dwAct code={ print "dwAct ran":; };
+    dwRec dwField="green" dwAct="text" describe="hello";
+    dwLater dwNew="x";
+    dwNew;
+    ;
+search DefineAttrWritesField Utilities list;
+cerr "ANCHOR defineAttrWritesField -- dwRec's attributes are named like fields on the search list":;
+fixDefineAttrWritesFieldHere = 0;
+print "dwField" dwField:;
+print "dwAct reads" dwAct:;
+dwAct();
+print "describe reads" describe:;
+print "dwNew" dwNew:;
+print "dwRec.dwField" dwRec.dwField:;
+cerr "PIN the lines above (today): dwField green, dwAct reads text, dwAct ran, describe reads hello, dwNew dwNew, dwRec.dwField green. Want: dwField orig, dwAct and describe untouched":;
+cerr "SENTINEL defineAttrWritesField reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: SHARED
+OWNER: Clod     (Clay's dispatch of 2026-11-19, after the census e278a976)
+SEVERITY: silent -- the named field takes the attribute's value, at exit 0. SHARED: every form carrying describe= writes Utilities' describe.
+
+defineAttrWritesField -- in a define, an attribute with a value (name="v" or name:=x) whose name is a field already on the
+search list WRITES THAT FIELD: the same define's earlier field, or one in another registry (Utilities' describe). The
+record keeps the attribute too (dwRec.dwField reads green, listLengtH 2). A field declared after it is not touched
+(dwNew), and a bare flag does not write (measured: dwRec dwField; left dwField orig). An action field keeps running;
+its value reads the attribute's. ONLY fields on the search list WHEN THE DEFINE IS READ: with Utilities
+added after the define, describe stayed untouched (measured); show loads a form under showSearch, which holds Utilities. Found building ergoSpecimen's check (myBase pageFill="green" set the placeholder).
+
+FORMS EXPOSURE (2026-11-19, report only, a text census of IncantForms/Windows/* live regions: valued attributes whose
+name is an entry in incant/utilities, Controls/styles or another form file, or a field of the same file):
+  describe=   bigify, descriptions, fit, inspector, keyAction, scroll, tabForm, tree -- describe is Utilities' action;
+              measured here, describe reads the last text written and the action still runs
+  rows= columns= (bigify), left= (layout)   name a field in the same file; not measured
+  three= (inspector; a field in draw), target= (menu; a field in inspector)   cross-file, only if both are loaded; not measured
+  The census reads text, not the registries; a name it misses is not shown clean.
+
+NEXT: OPEN
+  The measurement that would say: whether describe's action, or show, reads Utilities' describe value anywhere
+  (if not, the forms exposure is cosmetic); then where a define binds an attribute to an existing field.
+  Taken: dwField orig, describe untouched. Not taken (today): the PIN line.

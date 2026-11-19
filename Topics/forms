@@ -92,7 +92,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
                  A parent that NAMES overlay places each child from its own x and y, measured from the parent (stroke 3, seal 458). A parent naming no direction stacks, as down: ruled (SEQ 627 R0).
                  isHidden and noRoom are built (seal 459): two flags. A field written isHiddeN takes no room and is not drawn; a field wholly outside its parent's box is flagged noRooM on the laid-out copy and is not drawn.
     stroke 4     DONE (seal 465). layoutFrame is utilities' field and a request's frame:=. Layout writes it as ONE WHOLE WRITE (layoutFrame = a field holding x y width height): the four values arrive and its listeners are told once; a form's listener calls redrawForm. Pinned on firstLight (resizeLightT RG-1 to RG-5): a resize reads like a fresh run. Writing one of the four alone tells nobody (resizeListenT). What calls it for real is windows, step 10.
-    not built    windows, a real click from a point, bubbling; margin. (fit is parked: Topics/features 33.) The mock click and selection by name are built (G1).
+    not built    margin; windows, a real click from a point and bubbling are Topics/windows (2026-11-19). (fit is parked: Topics/features 33.) The mock click and selection by name are built (G1).
     drawing      what is drawn and not drawn, and formsPop's count: Topics/drawing, State.
 
 /*****************************************************************************
@@ -187,7 +187,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
     7   Runs inside text: the first typesetting step. See Topics/typesetting.
     8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
     9   Rounded fields.                                                DONE for the fill and a plain border (451). A side on a rounded field is still open (Waiting on Tony 5); a rounded image is not built.
-    10  Windows: assess and plan first; images' zoom and field actions come with it.
+    10  Windows: its own topic, Topics/windows (2026-11-19).
 Forms order: firstLight, then descriptions, then form by form. Old spellings are respelled form by form, never as a sweep.
 
 /*****************************************************************************
@@ -242,9 +242,7 @@ Attributes
     fill is not inherited. A bare number is in points (1/72 inch).
     Dropped: pad, onLayout, flex, center, fit=text, and the drop list at the foot of formsTable. Anything dropped and wanted later comes back then.
     flex also meant across: a form that drops flex writes across where it relied on it.
-Events (2026-11-04) -- the mock click is built (G1, seal 477); the rest is on paper
-    Click actions use onClick:=. A click selects the field first. Own action, then attribute actions left to right. Bubbling stays; a member's parent is its enclosing field (built, merge 24beb5f0).
-    Layout's mouseUp calls a kant extern. Firing is proved with a synthetic point and no window.
+Events (2026-11-04) -- the mock click is built (G1, seal 477); the click's ruling moved to Topics/windows (2026-11-19).
 Form files (from docs/forms.md, retired into this file)
     A form is define-only, with stop() or bail() and free prose below it; IncantForms/Windows/tree is the reference shape.
     Long text uses the (...#) literal. Comments are // text, with no braces in an action body.
@@ -276,7 +274,7 @@ Form files (from docs/forms.md, retired into this file)
     seal 462:  -= subtracts on a valued field whatever attributes it holds (ruling 2; notifyT NT-3 green). The remove-attribute operator, minus then percent, is the opposite of +% (minusAttrT, minusAttrNewT; both grammars, top level and action body).
                JITTED WRITES FIRE ONCE PER WRITE (ruling 3, seal 463): a compiled store straight into a field calls jitNotifyRT at run time (notifyT NT-5: four writes, four fires, jitted and interpreted). A postfix x++; did nothing: CURED at seal 470 (Topics/kant).
     seal 451:  CURED (seal 484). Font was not inherited three levels down: fillDownAcross rebuilt a down or across field's members as shallow copies, so their children climbed to the old member and then to its scratch list. Now only a field that repeats its members (down=3, down=*) is rebuilt; under one of those the climb is still wrong. climbT CL-0 to CL-2.
-    seal 441:  "the click (select a picture, its text shows in describeHelp) needs a selection and windows, step 10 -- not small. A fit attribute needs a name ruled." (The image in a PDF has its row since seal 474: descT DE-11.)
+    seal 441:  the click in descriptions (select a picture, its text shows in describeHelp): moved to Topics/windows (2026-11-19).
     seal 439:  "M8 (a value naming a registered field copies that field's text) was not met by these three names, and was not tested against a registry that holds a field called top or bottom."
     seal 438:  "incant/grammar (the old road, which action bodies and forms parse on) still reads `attributes? members?`, so both words are still taken there and still walk the attributes only."
     parseLabelParent:  "A warning when a field is placed twice is a candidate for later. NOT BUILT."

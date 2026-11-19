@@ -14,6 +14,7 @@ row () {
 row docs/wakeup.md        60
 row Topics/forms          280
 row Topics/drawing        160
+row Topics/windows        120
 row Topics/kant           200
 row Topics/typesetting    120
 row Topics/cleanup        120

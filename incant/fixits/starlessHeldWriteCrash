@@ -1,0 +1,35 @@
+Start();
+include(utilities);
+registry(StarlessHeldWriteCrash);
+define
+    shPair w h;
+    shMake code={
+        o := copyDeep(shPair);
+        cerr "made":;
+        o.w = 5;
+        cerr "written":;
+        return *o;
+        };
+    ;
+search StarlessHeldWriteCrash Utilities list;
+cerr "ANCHOR starlessHeldWriteCrash -- o := copyDeep(rec); o.w = 5; (no star)":;
+cerr "PIN today: made, then exit 139 with no sentinel. *o.w = 5 is the working spelling (census IE-26). Want: the write lands, or a refusal by name":;
+fixStarlessHeldWriteCrashHere = 0;
+shMake();
+cerr "SENTINEL starlessHeldWriteCrash reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-19, after the census e278a976)
+SEVERITY: crash -- exit 139, on both grammars.
+
+starlessHeldWriteCrash -- writing an attribute of a HELD record without the star (o := copyDeep(rec); o.w = 5;) kills the
+process. *o.w = 5 works and is what ifElseShapeT IE-26 pins. docs/ergoCensus.md, "the same, writing o.w = 5 with no star"
+(scratch probe d8); also seen as h1 (a := copyOf(src); a.depth = 5;). Measured on the old road here; the census measured
+the new road the same.
+
+NEXT: OPEN
+  Holder-or-held is Clay's (R3 leaves the compare question to Clay's write-up). The measurement that would say: a
+  backtrace of this file, then whether opDot's write arm reaches a null when its left is a holder.
+  Taken: "written" prints, or a REFUSED line names the star. Not taken (today): exit 139 after "made".
