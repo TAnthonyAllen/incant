@@ -15,7 +15,7 @@ list form), emptyFieldIsPlaceholder, stringIntoCountStaysCount, bareFieldNoList.
 **CLAY, 2026-11-18 (Tony):** a mega design question heads `Topics/kant` -- five things that make kant awkward to write (control flow, one-argument actions, parse results by position, holder-or-held, list walking), from Clod's typeset. Tony wants all five fixed; nothing ruled yet.
 **RULED, NOT BUILT:** `debug` in an action body (dispatch held by Tony). upToSetDelimiter's item 2 (ensureGuard makes an upTo-first rule unguarded).
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
-**NEXT:** mornings, the full monty plan step 1 (fixit newRoadStringJoin); afternoons, forms: buy describe-lookup, then tabs stroke 4, the click (selectTab, clickShow), then the two fixits, then the list form.
+**NEXT:** mornings, the full monty plan step 1 (fixit newRoadStringJoin); afternoons, forms: buy describe-lookup, then tabs stroke 4, the click (selectTab, clickShow), then the two fixits, then the list form; QUEUED (Clay, 2026-11-19): typeset rewritten with the census spellings (docs/ergoCensus.md), request fields in, records out, no tsWant/tsFound, line count before and after, formsPop identical.
 
 ## The numbers (as run at seal 510, on trunk; the binary is the bare build of 2026-11-18 14:10 on Xcode 27.2, 2190112 bytes)
 | instrument | reads |
