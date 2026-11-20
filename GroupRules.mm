@@ -12792,6 +12792,7 @@ GroupItem 	*result = 0;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
+int 		nrMarked = 0;
 char 		*failText = 0;
 	// d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
 	if ( field->groupBody->flags.isLabel && !field->getRStuff() )
@@ -12847,9 +12848,10 @@ char 		*failText = 0;
 	::refuse(field,(char*)(nrStart ? "is marked newRoad, and its body does not build on kantGrammar; it is not read on the old grammar"
 	: "is marked newRoad, and KantGrammar's STARt is not loaded; it is not read on the old grammar")); }
 	else ruler->refused = nrRefusedSave; }
-	else
+	nrMarked = nrMark != 0;
 	
-	result = ::driveStep(code,blockRULE,codeReport,action,action);
+	if ( !nrMarked )
+		result = ::driveStep(code,blockRULE,codeReport,action,action);
 	 GroupControl::groupController->groupRules->jitting = jitSave; 
 	 gJitEmitWalk = walkSave; if ( walkSave ) ::clearRefusal(field); 
 	if ( result )
