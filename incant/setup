@@ -156,6 +156,8 @@ define
     forBack         unary ruleMethod=opForBack  ownsBody;
     forMembers      unary ruleMethod=opForMembers  ownsBody;
     forBackMembers  unary ruleMethod=opForBackMembers  ownsBody;
+    forAttrs        unary ruleMethod=opForAttrs  ownsBody;
+    forBackAttrs    unary ruleMethod=opForBackAttrs  ownsBody;
     iterateOn       unary ruleMethod=opIterate;
     iterateAttrs    unary ruleMethod=opIterateAttrs;
     iterateMembers  unary ruleMethod=opIterateMembers;
