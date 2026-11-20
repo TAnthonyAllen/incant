@@ -154,6 +154,8 @@ define
     doLoop          unary ruleMethod=opDo  ownsBody;
     forLoop         unary ruleMethod=opFor  ownsBody;
     forBack         unary ruleMethod=opForBack  ownsBody;
+    forMembers      unary ruleMethod=opForMembers  ownsBody;
+    forBackMembers  unary ruleMethod=opForBackMembers  ownsBody;
     iterateOn       unary ruleMethod=opIterate;
     iterateAttrs    unary ruleMethod=opIterateAttrs;
     iterateMembers  unary ruleMethod=opIterateMembers;

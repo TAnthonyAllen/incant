@@ -1,0 +1,126 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(ForMembersT);
+define
+    nlReqN owner source result rule;
+    fmNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        fmOk = 0;
+        if compileIn(nlReqN);
+            fmOk = 1;
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        cerr "FMN BUILT" argument.taG fmOk:;
+        };
+    fwdMembers code={
+        for members fmX in fmSrc;
+            ft := *fmX.taG;
+            print "FM-1" ft:;
+        };
+    backMembers code={
+        for members fmX in <- fmSrc;
+            ft := *fmX.taG;
+            print "FM-2" ft:;
+        };
+    oldRoad code={
+        for grup in fmSrc; members
+            ft := *grup.taG; print "FM-0" ft:;
+        };
+    plainAll code={
+        for fmX in fmSrc;
+            ft := *fmX.taG;
+            print "FM-4" ft:;
+        };
+    nextLine code={
+        for fmX in fmSrc;
+            ft := *fmX.taG;
+            print "FM-5" ft:;
+        print "FM-5 after":;
+        };
+    membersNextLine code={
+        for members fmX in fmSrc;
+            if *fmX == 12;  continue;
+            ft := *fmX.taG; print "FM-10" ft:;
+            if *fmX == 13;  break;
+        print "FM-10 after":;
+        };
+    attrsWord code={
+        for attributes fmX in fmSrc;
+            ft := *fmX.taG;
+            print "FM-6" ft:;
+        print "FM-6 after":;
+        };
+    otherWord code={
+        for each fmX in fmSrc;
+            ft := *fmX.taG;
+            print "FM-7" ft:;
+        print "FM-7 after":;
+        };
+    cursorNamed code={
+        for membersX in fmSrc;
+            ft := *membersX.taG;
+            print "FM-8" ft:;
+        };
+    trailing code={
+        for fmX in fmSrc; members
+            ft := *fmX.taG; print "FM-9" ft:;
+        print "FM-9 after":;
+        };
+    fmSrc at1=1 at2=2;
+    fmSrc
+        m1=11;
+        m2=12;
+        m3=13;
+    ;
+cerr "FM oldRoad runs first, interpreted":;
+oldRoad();
+fmNew(fwdMembers);
+fmNew(backMembers);
+fmNew(plainAll);
+fmNew(nextLine);
+fmNew(membersNextLine);
+fmNew(attrsWord);
+fmNew(otherWord);
+fmNew(cursorNamed);
+fmNew(trailing);
+fwdMembers();
+backMembers();
+plainAll();
+nextLine();
+membersNextLine();
+attrsWord();
+otherWord();
+cursorNamed();
+trailing();
+print "FORMEMBERS SENTINEL":;
+stop();
+
+forMembersT -- full monty step 1, stroke 3 (Tony, 2026-11-20): the for-filter on kantGrammar is spelled
+`for members x in y;` and `for members x in <- y;`. Only members is ruled for the slot between for and the cursor; any
+other word there refuses by its own name, and nothing falls back. The old road's trailing spelling
+(`for x in y; members`) refuses on the new road with a line naming the new spelling. Rows prefixed FM-.
+
+FM-0   the old road's `for x in y; members`, interpreted (oldRoad): the oracle for FM-1.
+FM-1   members only, first to last: the same tags as FM-0.
+FM-2   members only, last to first.
+FM-4   the plain for walks the whole list, attributes included (control: unchanged by the stroke).
+FM-5   a plain for whose block starts on the next line still builds (yesterday's skipper trap does not arm: the
+       members shapes fail before any newline is crossed).
+FM-10  a members loop whose block starts on the next line, with continue and break.
+FM-6   `for attributes x in y;` refuses naming attributes; the loop is not built, the statement after it runs.
+FM-7   any other word (each) refuses naming that word.
+FM-8   a cursor whose name starts with members (membersX) is a cursor: the plain walk.
+FM-9   the trailing old-road spelling refuses on the new road, naming the new spelling.
