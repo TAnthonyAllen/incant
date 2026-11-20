@@ -7,4 +7,26 @@ Start();
 show(firstLight);
 stop();
 
-Everything below the stop line is effectively a comment.
+WHAT TESTER IS
+tester is the shared working incantation: Tony and Clod both use it to try out whatever feature is in the works, so what
+sits above stop() changes often and is only ever as finished as the work in flight. It is tracked in git and commits under
+Tony's name like any of his WIP files. It is not a scratch file (incant++ is the only one of those).
+
+WHAT IT DOES TODAY
+It shows the firstLight form, nothing more: the clean test of show (SEQ 690).
+    Start();           fire the Start rule (still the old-grammar version).
+    show(firstLight);  look firstLight up by name and draw it.
+    stop();            stop reading. Nothing below this line is parsed.
+
+HOW show DOES IT
+show is a bootstrap in incant/setup. On its first call it loads utilities, then hands the work to the real worker,
+showForm. showForm finds the form by name in the stash (registry sTASh, built from the hand-kept list in
+incant/stashList), lays out a copy of it with setFrame (the form's own definition is never changed), draws that copy to
+IncantForms/PDF/output.pdf, and, with the viewer properties field on (the default), opens output.pdf in the system viewer
+in the background. show puts the search list back the way it found it and returns nothing.
+firstLight itself includes descriptions, so this one line exercises a form held inside another form (inside form:=...).
+
+HOW TO USE IT
+Above stop() is live and below it is dead, so moving lines across stop() turns them on and off. When Tony and Clod are
+both working in tester, each moves the other's in-progress work below stop() rather than deleting it, and each looks
+over tester to see what the other is up to. Anything parked below this note is someone's work waiting its turn.

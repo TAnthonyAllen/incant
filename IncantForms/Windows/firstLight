@@ -1,6 +1,6 @@
 /*****************************************************************************
-    firstLight is A4's form, on paper: the smallest form worth drawing, cut down
-    from IncantForms/Windows/simple. Nothing draws it yet. See the notes below bail().
+    firstLight is the forms test bed: the smallest form worth drawing, cut down
+    from IncantForms/Windows/simple. show(firstLight) draws it to a PDF. See the notes below bail().
 *****************************************************************************/
 registry(fILEs);
 define
@@ -37,36 +37,49 @@ define
     ;
 bail();
 
-A FORM INSIDE A FIELD (G2 stroke 1b; Tony, 2026-11-13). inside holds the descriptions form: form:=descriptions. Layout gives
-inside its frame (the lower half: height=60%), then lays descriptions out in that frame, and the draw walk draws it there.
-firstLight grew from 400x200 to 500x600 so that heading, words and bar keep the frames they had; inside sits below bar.
-This file includes IncantForms/Windows/descriptions itself, since a := names a field that must already be defined.
-A form that holds itself is refused by name at layout (setFrame) and its field is left empty.
-THE SWAP (G2 stroke 2; Tony, 2026-11-13). inside names insideForm, a field of its own outside the form that holds the form to
-show: insideForm := descriptions. Writing it (insideForm := anotherForm) is one write, and it tells insideForm's listeners; a
-listener that calls redrawForm shows the other form in the field. firstLight's own definition is never written by a swap.
-THE CLICK (G2 stroke 3, the mock click; Tony, 2026-11-13). ok holds onClick:=okClick. okClick writes insideForm: the first
-click shows okNote in the field, the next brings descriptions back. A click is click(request) in incant/utilities, the
-request naming form:=firstLight and field="ok"; the redraw comes from insideForm's listener, not from the click.
+WHAT IT IS
+firstLight is the forms test bed: the smallest form worth drawing, cut down from IncantForms/Windows/simple and grown
+one stroke at a time as forms features land. It was the first form drawn to a PDF (2026-11-08). show(firstLight) draws
+it to IncantForms/PDF/output.pdf. Like descriptions, it is definitions only: including it draws nothing, which matters
+because fleet fixtures include it.
 
-Spelled to the forms plan's rulings. Style attributes sit on fields and are scoped to the subtree: font=normal holds for
-everything under firstLight, and heading overrides it by naming font=title. fill is not inherited, so each field names its
-own. bottomBorder is the ruled side spelling (Tony, 2026-11-04); the plan's A4 section carries the count and the walk.
+WHAT IT SHOWS
+A 500 x 600 window, laid out down:
+    heading  "First Light", 43 points high, centered, in the title font, with a border along its bottom only.
+    words    two paragraphs poured into their frame: wrapped at its width, justified, stopped at its height. The
+             second paragraph has a styled run, {emphasis: one run}, typesetting's way of styling part of a paragraph.
+    bar      a 35-point row laid out across: a space, then ok, a bordered button-shaped text field.
+    inside   the lower 60% of the window, holding a whole other form.
 
-Cut from simple, and why:
-    onLayout code={}   event firing comes after A4
-    text=one           one field showing another field's text is a field reference; the listener's family, parked
-    two                a red block holding nothing
-    pad                dropped by ruling (Tony, 2026-11-04)
-    three, stuff, wrap the nesting that existed to carry text=one
-    width=50.0%        the % is parsed as a Modifier and the width reads 50; a percentage needs its own spelling
-    rounded            a border is enough for first light; rounded waits for the drawing step
-    the name simple    UnitTests already has a field named simple, and the define merged into it
+A FORM INSIDE A FIELD
+inside says form:=insideForm. insideForm is a field of its own, outside the form, and its value is the form to show,
+descriptions to start with. Layout gives inside its frame, then lays the held form out in that frame, and the draw walk
+draws it there. Since := names a field that must already exist, firstLight includes descriptions itself (through the
+fILEs entry descriptionsFile). A form that holds itself is refused by name at layout, and the field is left empty.
 
-Added: down, a text field that pours, and a field shaped like A4's button. Nothing fires. It is plain text with a border
-until event firing comes through it. The word button stays out because nothing reads it (formsTable).
+THE SWAP AND THE CLICK
+Writing insideForm (insideForm := okNote) swaps what inside shows. It is one write, and it tells insideForm's listeners.
+A listener that calls redrawForm shows the new form. firstLight's own definition is never touched by a swap.
+ok carries onClick:=okClick. Each click flips insideForm between okNote (a small blue-on-white note) and descriptions.
+insideShown remembers which one is showing. okClick copies it to ocWas first, because the four if lines run one after
+another: testing insideShown directly, the second pair would see the value the first pair just wrote and flip it back.
+Clicks are mock clicks for now: click(request) in incant/utilities, the request naming form:=firstLight and field="ok".
+The redraw comes from insideForm's listener, not from the click.
 
-Read it with IncantForms/WorkingOn/firstLightRead.
+STYLE, AS RULED
+font:=normalFont and color:=blue on firstLight reach everything under it, because text properties (font, color, align,
+valign) are inherited. heading overrides them by naming its own. Box properties (fill, border, strokeColor, rounded,
+shadow, opacity) belong to the field that names them, which is why each field names its own fill. A bare number is in
+points; a % is a percent of the parent's size. Colors and fonts are placeholders, never explicit values.
 
-TO FIRE IT: the lines are in Topics/forms, under "Firing a form by hand".
-The driver that sat here (moved from tester 2026-11-12) went 2026-11-13; fleet fixtures include this file and must not draw.
+CUT FROM simple, AND WHY
+    onLayout code={}    event firing came after first light
+    text=one            one field showing another's text is a field reference (listening), parked
+    two, pad            a red block holding nothing; pad dropped by ruling (2026-11-04)
+    three, stuff, wrap  the nesting that existed only to carry text=one
+    rounded             a border was enough for first light
+    the name simple     UnitTests already has a field named simple, and the define merged into it
+
+SEE ALSO
+IncantForms/WorkingOn/firstLightRead parses this file and prints its definition, a read-only check that draws nothing.
+To fire it by hand rather than with show, the lines are in Topics/forms, under "Firing a form by hand".

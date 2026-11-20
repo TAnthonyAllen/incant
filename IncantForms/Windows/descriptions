@@ -1,6 +1,6 @@
 /*****************************************************************************
     descriptions -- the descriptions form and its registry of help texts. Definitions only,
-    shaped like IncantForms/Windows/firstLight (Tony, 2026-11-13): the driver is below bail().
+    shaped like IncantForms/Windows/firstLight (Tony, 2026-11-13); see the notes below bail().
     The form is named descriptions (it was webViewExample), so a field of another form
     can hold it with form:=descriptions. The includer loads utilities and styles and
     searches cOLOr and fONTs before including this file.
@@ -11,7 +11,7 @@ define
     A descriptions registry containing blocks with descriptive text as content. The description blocks have the same name as the display blocks they describe.
     A describe block, essentially just a text block with a describe attribute (the green help block in this example).
 
-The describe attribute: When a GUI block is selected and there is a descriptions registry, the tag of the selected block is used to look up a description block in the registry. If a description block is found, its content is put in as the text of the describe block. If the describe attribute of the describe block has a value, the value is used when nothing is selected. If there is no describe attribute value, the selected block tag is used as the describe text. Here, the green help block has no associated entry in the descriptions registry so what is displayed if you select the green block is the value of its describe attribute. Likewise, the same thing happens when nothing is selected (as when you first bring up this example).
+The describe attribute: When a GUI block is selected and there is a descriptions registry, the tag of the selected block is used to look up a description block in the registry. If a description block is found, its content is put in as the text of the describe block. If the describe attribute of the describe block has a value, the value is used when nothing is selected. If there is no describe attribute value, the selected block tag is used as the describe text. Here, the green help block has its own entry in the descriptions registry (describeHelp), so selecting it displays that entry. When nothing is selected (as when you first bring up this example), the value of its describe attribute is displayed.
 
 The describeAny attribute, not used in this example, is used in conjunction with the describe attribute to indicate that descriptions displayed do not just apply to the containing window. Any field in any window or panel that is selected and has an entry in the descriptions registry will be displayed. This attribute is needed if you are building an inspector that operates in its own window but which is designed to inspect the contents of other windows.
 
@@ -44,10 +44,49 @@ define
     ;
 bail();
 
-CAPTIONS (Tony's fix, 2026-11-13). A caption that shares its name with a registry entry (describeHead, saber, trees) is
-defined on its own in FORMs, before the search line, with dESCRIPTIONs not searched. The form then names it with no text.
-The current registry is searched first (GroupControl locate), so the form's bare saber is the caption, and the registry's
-saber keeps its long text. describeHelp has no caption: the form's describeHelp is still the registry's entry.
-Layout only for now: the describe action and the images' click actions wait for windows (forms step 10).
+WHAT IT IS
+descriptions is a help-text form: a window with a heading, two pictures and a help box. Click a picture (or the heading)
+and the help box shows a longer description of what was clicked. It is also the form firstLight holds inside one of its
+fields (inside form:=descriptions), which is why it is definitions only: including it defines things and draws nothing.
+
+THE TWO PARTS
+1. The dESCRIPTIONs registry: one entry per thing that can be described, named the same as the form field it describes
+   (describeHead, saber, trees, describeHelp), its text being the long description.
+2. A describe block: an ordinary text field carrying a describe attribute. Here that is describeHelp, the light green
+   box at the bottom. Its describe value is the text shown when nothing is selected.
+
+HOW DESCRIBE WORKS (the old GUI's way, and the plan)
+When a field is selected, its tag is looked up in dESCRIPTIONs. If an entry is found, its text becomes the describe
+block's text. If nothing is selected, the block shows its describe value; with no describe value, the selected field's
+own tag is shown. describeAny (not used here) widens this to fields in any window, for an inspector that lives in its
+own window but inspects others.
+
+CAPTIONS AND DESCRIPTIONS SHARE NAMES (Tony's fix, 2026-11-13)
+A field's caption and its description have the same name, so they must live in different registries. The captions
+(describeHead, saber, trees) are defined first, in FORMs, before dESCRIPTIONs is searched. The form then names them with
+no text. Since the current registry (FORMs) is searched first, the form's bare saber finds the caption, and the
+registry's saber keeps its long text. describeHelp has no caption, so the form's describeHelp is the registry's entry
+itself.
+
+THE LAYOUT
+A 500 x 600 window, laid out down (a parent naming no direction goes down):
+    first   a 50-point light green band holding the heading, centered, in the title font.
+    second  the two pictures side by side (across), each bordered on pale gray.
+    describeHelp  the help box, light green, 20% of the window's height.
+wrap holds first and second together. Colors and fonts are placeholders (wall, lightGreen, titleFont, ...), never
+explicit values, so a look can change them without touching the form.
+
+WHAT WORKS TODAY
+Layout and drawing only, to PDF: it draws on its own and inside firstLight. Selecting, the describe action, and the
+pictures' click actions (click to enlarge, shift-click to shrink, control-click to center on the point) all wait for
+windows (forms step 10).
+
+THINGS WORTH KNOWING
+- The includer must load utilities and styles and search cOLOr and fONTs before including this file.
+- The picture paths are absolute paths on Tony's Mac (/Users/anthony/Pictures/...), so the form won't find them on
+  any other machine, and pictures can't move into the repo (ruled 2026-11-17). Absolute paths are a project-wide issue
+  still to be addressed; forms is where it bites first.
+- describe= on a form currently overwrites the describe field in utilities. Tony's fix, not yet built, is to make
+  describe virtual, so each form's describe value is its own.
 
 TO FIRE IT: the lines are in Topics/forms, under "Firing a form by hand".
