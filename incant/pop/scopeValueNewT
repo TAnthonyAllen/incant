@@ -65,7 +65,7 @@ define
         print "SV-11 its neighbour still reads" width:;
         };
     viaCursor code={
-        for grup in argument; members
+        for members grup in argument;
             =:grup height;
             print "SV-9" taG height:;
         };
@@ -96,7 +96,7 @@ scopeValueNewT -- the value scope `=:lookin a b c;` on kantGrammar (full monty p
 newRoadScopeStatement). The same actions as scopeValueT, moved to the new road by svNew before they run (it prints
 SVN BUILT <name> 1 when a body builds); pop.sh compares every SV line with scopeValueT's, the old road, which is the control.
 kantGrammar's SCOPEVALUe builds as SCOPEXp does and its label runs aCTionScopeValue; STATEMENt's guard takes `=`.
-SV-9 (viaCursor) walks `for grup in argument; members`, and the filter is not built on the new road yet (fixit
-newRoadForFilter, step 1's next stroke): its statement is refused by name and no SV-9 line prints. Pinned so.
+SV-9 (viaCursor) walks `for members grup in argument;`, the new road's spelling of the old road's
+`for grup in argument; members` (stroke 3, Tony 2026-11-20), so it is compared with scopeValueT's SV-9 like every other line.
 frameMembers and frameWhole, tester's two bodies that held a value scope, build on kantGrammar at the foot.
 utilities is included (unlike scopeValueT) because the new road's actions call its helpers; it adds `stop:` lines only.

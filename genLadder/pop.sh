@@ -908,8 +908,9 @@ fdRow "forT FR-6 new road: a FOr nested in a WHILe, the inner break ends only th
 fdRow "forT FR-7 new road: after the loop the cursor holds the last member" "$(_frv "$T/fr.FR-7.n")" "7 |" "1 |2 |3 |7 |3 |"
 fdRow "forT FR-8 new road: a source with no list -- as the old road (stdout / no-list line / refused)" "[$(_frv "$T/fr.FR-8.n")] $(grep -c 'does not contain a list' "$T/fr.FR-8.ne") $(grep -c '^REFUSED' "$T/fr.FR-8.ne")" "[] 0 1" "[] 1 0"
 #  FR-R (SEQ 482 R1): attributes / members refuses by name on the new road, the next statement runs; the old road walks all three
+#  RE-PINNED 2026-11-20 (stroke 3): the same trailing word refuses, its line now naming the new road's spelling (for members x in y;)
 _ofeq "forT FR-R old road (control): attributes walks all three (+% attached them as attributes)" "$(_frv "$T/fr.FR-R.o")" "1 |2 |3 |"
-_ofeq "forT FR-R new road: attributes / members refuses by name, nothing prints, next runs (refused / stdout / next)" "$(grep -c '^REFUSED FOr attributes / members -- not built on the new road yet *$' "$T/fr.FR-R.ne") [$(_frv "$T/fr.FR-R.n")] $(grep -c '^FR NEXT' "$T/fr.FR-R.ne")" "1 [] 1"
+_ofeq "forT FR-R new road: attributes / members refuses by name, nothing prints, next runs (refused / stdout / next)" "$(grep -c '^REFUSED FOr a trailing attributes / members -- on the new road the filter is for members x in y; and only members is ruled *$' "$T/fr.FR-R.ne") [$(_frv "$T/fr.FR-R.n")] $(grep -c '^FR NEXT' "$T/fr.FR-R.ne")" "1 [] 1"
 else echo "  FAIL  forT MISSING"; fail=1
 fi
 
@@ -8318,13 +8319,15 @@ fdRow "itRT jitted run's exit under a 10 s alarm" "$_itrtx" "0" "0"
 #  sibling rows and 74 for 73 on opEntryT OE-R. A count of the registry, not behaviour.
 #  REGISTERED 2026-11-19 (full monty step 1, stroke 1): stringList, the string join's sink, is one more Operators entry: 277 for 276
 #  on the six sibling rows and 75 for 74 on opEntryT OE-R. A count of the registry, not behaviour.
-fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "276" "277"
+#  REGISTERED 2026-11-20 (full monty step 1, stroke 3): forMembers and forBackMembers, the members-only for loops' ops, are two more
+#  Operators entries: 279 for 277 on the six sibling rows and 77 for 75 on opEntryT OE-R. A count of the registry, not behaviour.
+fdRow "itRT IT-1 jitted: children walked" "$(_itv "$T/itrt")" "276" "279"
 _itr () { grep '^REFUSED' "$1" | sed 's/ \[line [0-9]*\]//'; }
 fdRow "itRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/itrt" | grep -c .)" "85" "$(_itr "$T/itrtI" | grep -c .)"
 fdRow "itRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/itrt")" = "$(_itr "$T/itrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itRT interpreted twin runs" 0 $_itrtIx
 sentinel "itRT interpreted twin sentinel" "$T/itrtI" "ITRT SENTINEL"
-fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "276" "277"
+fdRow "itRT IT-1 the interpreted twin: children walked (the intended value)" "$(_itv "$T/itrtI")" "276" "279"
 
 #  ⚑ jitCursorLifeT -- SEQ 403 R0 (2026-10-23): THE HANDED-OVER-CURSOR RECORD'S LIFETIME. One compile, two functions: bRec
 #  gets its own function (its self-call) after lDrive's walk recorded lc as a handed-over cursor; bRec's `++lc` is on a
@@ -8340,8 +8343,8 @@ _jclIt () { awk -v f="define i32 @$2(" '/^=== IR .*post-mem2reg/{p=0} index($0,f
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "276 6" "277 6"
-fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "276" "277"
+fdRow "jitCursorLifeT the interpreted twin: LB-1 LB-2 (the intended values)" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jclI") $(_jcl2 "$T/jclI")" "276 6" "279 6"
+fdRow "jitCursorLifeT LB-1 jitted: A's walk = the twin's" "$(sed -n 's/^LB-1 .*\[ *\([0-9]*\) *\].*/\1/p' "$T/jcl")" "276" "279"
 fdRow "jitCursorLifeT LB-2 jitted: B's ++lc on a count" "$(_jcl2 "$T/jcl")" "5" "6"
 fdRow "jitCursorLifeT jit_bRec's IR: iterNext calls (B's ++ must be a count increment)" "$(_jclIt "$T/jcl.ir" jit_bRec)" "1" "0"
 kindRow "jitCursorLifeT jit_lDrive's IR: iterNext calls -- lR and the handed-over lc keep the iterator step" "$(_jclIt "$T/jcl.ir" jit_lDrive)" "2"
@@ -8357,12 +8360,12 @@ fdRow "itBackRT jitted run's exit under a 10 s alarm" "$_ibrtx" "142" "0"
 #  ⚠ RE-PINNED SEQ 442 R4 (2026-10-28): 247 -> 248. The walk counts Operators' entries, and rung 1 added one (printList).
 #  Control: printList removed from incant/setup, the walk read 247 again on the same binary.
 #  ⚠ RE-PINNED SEQ 446 S2 (2026-10-28): 248 -> 249, the seq entry in Operators (control: removed, 248 again).
-fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "276" "277"
+fdRow "itBackRT IB-1 jitted: children walked back" "$(_ibv "$T/ibrt")" "276" "279"
 fdRow "itBackRT REFUSED lines in the jitted run (intended: the twin's count)" "$(_itr "$T/ibrt" | grep -c .)" "2" "$(_itr "$T/ibrtI" | grep -c .)"
 fdRow "itBackRT REFUSED lines in the jitted run = the twin's, by name" "$( [ "$(_itr "$T/ibrt")" = "$(_itr "$T/ibrtI")" ] && echo same || echo differ)" "differ" "same"
 check "itBackRT interpreted twin runs" 0 $_ibrtIx
 sentinel "itBackRT interpreted twin sentinel" "$T/ibrtI" "ITBACKRT SENTINEL"
-fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "276" "277"
+fdRow "itBackRT IB-1 the interpreted twin: children walked back (the intended value)" "$(_ibv "$T/ibrtI")" "276" "279"
 
 #  ⚑ seedScopeAT / seedScopeBT -- SEQ 405 R1 (2026-10-23): A SEEDED VALUE READ OUTSIDE THE INLINED REGION THAT SEEDED IT,
 #  SILENT (the build verifies and runs). A: three straight-line inlined copies of saBump; copies 2 and 3 reuse copy 1's load
@@ -8932,16 +8935,42 @@ kindRow "scopeValueT SV-11 its neighbour still reads (non-zero sibling)" "$(_sv 
 kindRow "scopeValueT the warning names the field and the form, once" "$(grep -c '^WARNING =: height in svHeld holds a group' "$T/sv.e")" "1"
 #  ---- scopeValueNewT: =: ON kantGrammar (full monty step 1, stroke 2; fixit newRoadScopeStatement retired into it by mapping).
 #  scopeValueT's actions moved to the new road; every SV line must equal scopeValueT's (the old road, run just above as $T/sv),
-#  but SV-9, whose for-filter is not built on the new road yet (step 1's next stroke), pinned refused by name.
+#  but SV-9: since stroke 3 (2026-11-20) it walks `for members grup in argument;` and its heights equal the old road's; its bare taG
+#  reads 1 on the new road where the old road reads the member's tag -- found in stroke 3, not chased, pinned as read.
 perl -e 'alarm 20; exec @ARGV' "$B" "$(ip scopeValueNewT)" > "$T/svn" 2> "$T/svn.e"; _svnx=$?
 kindRow "scopeValueNewT runs" "$_svnx" "0"
 sentinel "scopeValueNewT sentinel" "$T/svn" "SCOPEVALUE SENTINEL"
 kindRow "scopeValueNewT the six actions, frameMembers and frameWhole build on kantGrammar" "$(grep -c '^SVN BUILT [A-Za-z]* 1' "$T/svn.e" | tr -d ' ') of 8" "8 of 8"
 _svo=$(grep '^SV-' "$T/sv" | grep -v '^SV-9 ' | tr '\n' '|'); _svn=$(grep '^SV-' "$T/svn" | grep -v '^SV-9 ' | tr '\n' '|')
-kindRow "scopeValueNewT every SV line but SV-9 equals the old road's (vacuity: 13 lines)" "$( [ -n "$_svo" ] && [ "$_svo" = "$_svn" ] && echo same || echo differ) $(grep -c '^SV-' "$T/svn" | tr -d ' ')" "same 13"
+kindRow "scopeValueNewT every SV line but SV-9 equals the old road's (vacuity: 13 lines)" "$( [ -n "$_svo" ] && [ "$_svo" = "$_svn" ] && echo same || echo differ) $(grep '^SV-' "$T/svn" | grep -vc '^SV-9 ' | tr -d ' ')" "same 13"
 #  the refusal counted is the one printed while viaCursor builds (between heldWarns' and viaCursor's SVN BUILT lines); frameMembers
 #  and frameWhole print three more of the same while they build, below
-kindRow "scopeValueNewT SV-9 for-filter not built on the new road: refused by name, no SV-9 line" "$(awk '/^SVN BUILT heldWarns/{on=1;next} /^SVN BUILT viaCursor/{on=0} on && /^REFUSED FOr attributes \/ members -- not built on the new road yet/{n++} END{print n+0}' "$T/svn.e") $(grep -c '^SV-9 ' "$T/svn" | tr -d ' ')" "1 0"
+_sv9 () { grep '^SV-9 ' "$1" | sed 's/^SV-9 [^ ]* //' | tr '\n' '|'; }
+kindRow "scopeValueNewT SV-9 for members walks the members: its heights = the old road's (vacuity: 2 lines)" "$( [ -n "$(_sv9 "$T/sv")" ] && [ "$(_sv9 "$T/sv")" = "$(_sv9 "$T/svn")" ] && echo same || echo differ) $(grep -c '^SV-9 ' "$T/svn" | tr -d ' ')" "same 2"
+kindRow "scopeValueNewT SV-9 bare taG in the walk reads 1 on the new road, the tag on the old (found stroke 3, pinned as read)" "$(grep '^SV-9 ' "$T/svn" | awk '{print $2}' | tr '\n' ' ')/ $(grep '^SV-9 ' "$T/sv" | awk '{print $2}' | tr '\n' ' ')" "1 1 / a b "
+
+#  ---- forMembersT: THE FOR-FILTER ON kantGrammar (full monty step 1, stroke 3; Tony, 2026-11-20: `for members x in y;`, members only).
+#  Fixit newRoadForFilter retired into it by mapping: its control fxCtl (a plain for builds) -> FM-4 and FM-5; its gap fxBad (the trailing
+#  word refused) -> FM-9, now by ruling (the line names the new spelling); the filter it waited for -> FM-1, FM-2, FM-10.
+#  H7 (fix committed first, single fixture): forWalk's members-only line out -> FM-1 reads at1 at2 m1 m2 m3, FM-2 and FM-10 walk the
+#  attributes too, red; the second followedBy (after members) out -> FM-8 reads ft ft ft (membersX taken as members + cursor X), red;
+#  FORWORd out -> FM-6 and FM-7 refuse as "a keyword inside an expression" and print a line, red.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip forMembersT)" > "$T/fm" 2> "$T/fm.e"; _fmx=$?
+kindRow "forMembersT runs" "$_fmx" "0"
+sentinel "forMembersT sentinel" "$T/fm" "FORMEMBERS SENTINEL"
+_fm () { grep "^$1 " "$T/fm" | sed 's/^[^ ]* //' | tr -d ' ' | tr '\n' '|'; }
+kindRow "forMembersT the nine bodies build on kantGrammar" "$(grep -c '^FMN BUILT [A-Za-z]* 1' "$T/fm.e" | tr -d ' ') of 9" "9 of 9"
+kindRow "forMembersT FM-0 the old road's for x in y; members (the oracle)" "$(_fm FM-0)" "m1|m2|m3|"
+kindRow "forMembersT FM-1 for members x in y; = the old road's walk" "$(_fm FM-1) $( [ -n "$(_fm FM-0)" ] && [ "$(_fm FM-0)" = "$(_fm FM-1)" ] && echo same || echo differ)" "m1|m2|m3| same"
+kindRow "forMembersT FM-2 for members x in <- y; last to first" "$(_fm FM-2)" "m3|m2|m1|"
+kindRow "forMembersT FM-4 the plain for walks all five (control)" "$(_fm FM-4)" "at1|at2|m1|m2|m3|"
+kindRow "forMembersT FM-5 a plain for with its block on the next line still builds and walks" "$(_fm FM-5)" "at1|at2|m1|m2|m3|after|"
+kindRow "forMembersT FM-10 members, block on the next line, continue and break" "$(_fm FM-10)" "m1|m3|after|"
+kindRow "forMembersT FM-6 for attributes refuses by name, the next statement runs" "$(grep -c '^REFUSED FOr attributes -- only members is ruled between for and the cursor' "$T/fm.e") $(_fm FM-6)" "1 after|"
+kindRow "forMembersT FM-7 any other word refuses by its name (each)" "$(grep -c '^REFUSED FOr each -- only members is ruled between for and the cursor' "$T/fm.e") $(_fm FM-7)" "1 after|"
+kindRow "forMembersT FM-8 a cursor named membersX is a cursor: the plain walk" "$(_fm FM-8)" "at1|at2|m1|m2|m3|"
+kindRow "forMembersT FM-9 the trailing old-road spelling refuses, naming the new spelling" "$(grep -c '^REFUSED FOr a trailing attributes / members -- on the new road the filter is for members x in y; and only members is ruled' "$T/fm.e") $(_fm FM-9)" "1 after|"
+kindRow "forMembersT REFUSED lines, all (three by name above; nothing else)" "$(grep -c '^REFUSED' "$T/fm.e")" "3"
 
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
@@ -9910,7 +9939,7 @@ sentinel "opEntryT sentinel" "$T/oe.e" "OPENTRY SENTINEL"
 #  OE-R RE-PINNED 2026-10-31 (SEQ 496): 64 -> 66 -- cerrList and coutList are registered in Operators
 #  OE-R RE-PINNED 2026-11-03 (SEQ 516): 66 -> 67 -- bodySeq is registered in Operators (control: the bodySeq line removed, 66 again)
 #  OE-R REGISTERED 2026-11-12 (Tony, wakeup dispatch ruling 2): 73 -> 74 -- the remove-attribute operator is registered in Operators
-fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "74" "75"
+fdRow "opEntryT OE-R bare Operators is an operand, its length" "$(sed -n 's/^OE-R .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "74" "77"
 kindRow "opEntryT OE-E an entry is still an operator, 3 + 4"     "$(sed -n 's/^OE-E .* reads  *\([0-9]*\).*/\1/p' "$T/oe.e")" "7"
 kindRow "opEntryT no refusal names Operators, lines"            "$(grep -c '^REFUSED Operators' "$T/oe.e")" "0"
 #  blockCallT SEQ 325 R0 (h): a rule called with a HOLDER drives the holder's NAME text. pz 7 only if the source was
