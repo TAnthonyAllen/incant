@@ -3227,8 +3227,8 @@ extern "C" GroupItem *followArgument(GroupItem *operand)
 	
 }
 
-// forWalk the walk opFor and opForBack share (SEQ 594): the operand list holds the cursor, the source and the statement; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn, last to first when backward, members only when membersOnly; break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509)
-extern "C" GroupItem *forWalk(GroupItem *arms, int backward, int membersOnly)
+// forWalk the walk opFor and opForBack share (SEQ 594): the operand list holds the cursor, the source and the statement; at RUN the source is resolved (an instruct runs, holders unwrap to the list, as the old road) and the cursor is bound as a holder of each member in turn, last to first when backward, one affiliation only when only is set (1 attributes, 2 members, the affiliation's own codes); break clears and ends, continue clears and goes to the next member, any other signal stays set and ends; a source with no list says so, as the old road; hands back nothing, but a return's value (kind 3) rides up (SEQ 509)
+extern "C" GroupItem *forWalk(GroupItem *arms, int backward, int only)
 {
 GroupItem 	*cursor = arms->get(1);
 GroupItem 	*source = arms->get(2);
@@ -3248,7 +3248,7 @@ GroupItem 	*body = arms->get(3);
 	cursor->clear();
 	GroupItem *member = 0, *bodyResult = 0;
 	while ( (member = backward ? loopOn->prior(member) : loopOn->next(member)) ) {
-	if ( membersOnly && !isMember(member->options.affiliation) ) continue;
+	if ( only && member->options.affiliation != only ) continue;
 	cursor->setGroup(member);
 	forRuler->branchKind = 0;
 	bodyResult = 0;
@@ -10674,22 +10674,34 @@ extern "C" GroupItem *opFor(GroupItem *arms)
 	return ::forWalk(arms,0,0);
 }
 
+// opForAttrs the forAttrs instruct's unary op, FORATTRs' (stroke 3b; `for attributes x in y;`, Tony 2026-11-20): forWalk over the attributes only, first to last
+extern "C" GroupItem *opForAttrs(GroupItem *arms)
+{
+	return ::forWalk(arms,0,1);
+}
+
 // opForBack the forBack instruct's unary op (SEQ 594): forWalk, last to first -- the reverse rule's own op, so no operand carries the direction
 extern "C" GroupItem *opForBack(GroupItem *arms)
 {
 	return ::forWalk(arms,1,0);
 }
 
+// opForBackAttrs the forBackAttrs instruct's unary op, FORBACKATTRs' (stroke 3b; `for attributes x in <- y;`): forWalk over the attributes only, last to first
+extern "C" GroupItem *opForBackAttrs(GroupItem *arms)
+{
+	return ::forWalk(arms,1,1);
+}
+
 // opForBackMembers the forBackMembers instruct's unary op, FORBACKMEMBERs' (stroke 3; `for members x in <- y;`): forWalk over the members only, last to first
 extern "C" GroupItem *opForBackMembers(GroupItem *arms)
 {
-	return ::forWalk(arms,1,1);
+	return ::forWalk(arms,1,2);
 }
 
 // opForMembers the forMembers instruct's unary op, FORMEMBERs' (full monty step 1, stroke 3; `for members x in y;`, Tony 2026-11-20): forWalk over the members only, first to last -- the op carries the filter, never an operand
 extern "C" GroupItem *opForMembers(GroupItem *arms)
 {
-	return ::forWalk(arms,0,1);
+	return ::forWalk(arms,0,2);
 }
 
 // opGE the >= operator, on opEQ's shape

@@ -39,6 +39,20 @@ define
         for grup in fmSrc; members
             ft := *grup.taG; print "FM-0" ft:;
         };
+    oldRoadAttrs code={
+        for grup in fmSrc; attributes
+            ft := *grup.taG; print "FM-0a" ft:;
+        };
+    backAttrs code={
+        for attributes fmX in <- fmSrc;
+            ft := *fmX.taG;
+            print "FM-3" ft:;
+        };
+    cursorAttrs code={
+        for attributesX in fmSrc;
+            ft := *attributesX.taG;
+            print "FM-11" ft:;
+        };
     plainAll code={
         for fmX in fmSrc;
             ft := *fmX.taG;
@@ -87,7 +101,10 @@ define
     ;
 cerr "FM oldRoad runs first, interpreted":;
 oldRoad();
+oldRoadAttrs();
 fmNew(fwdMembers);
+fmNew(backAttrs);
+fmNew(cursorAttrs);
 fmNew(backMembers);
 fmNew(plainAll);
 fmNew(nextLine);
@@ -98,6 +115,8 @@ fmNew(cursorNamed);
 fmNew(trailing);
 fwdMembers();
 backMembers();
+backAttrs();
+cursorAttrs();
 plainAll();
 nextLine();
 membersNextLine();
@@ -111,7 +130,8 @@ stop();
 forMembersT -- full monty step 1, stroke 3 (Tony, 2026-11-20): the for-filter on kantGrammar is spelled
 `for members x in y;` and `for members x in <- y;`. Only members is ruled for the slot between for and the cursor; any
 other word there refuses by its own name, and nothing falls back. The old road's trailing spelling
-(`for x in y; members`) refuses on the new road with a line naming the new spelling. Rows prefixed FM-.
+(`for x in y; members`) refuses on the new road with a line naming the new spelling. Stroke 3b (2026-11-20) rules
+`for attributes x in y;` the same shape. Rows prefixed FM-.
 
 FM-0   the old road's `for x in y; members`, interpreted (oldRoad): the oracle for FM-1.
 FM-1   members only, first to last: the same tags as FM-0.
@@ -120,7 +140,10 @@ FM-4   the plain for walks the whole list, attributes included (control: unchang
 FM-5   a plain for whose block starts on the next line still builds (yesterday's skipper trap does not arm: the
        members shapes fail before any newline is crossed).
 FM-10  a members loop whose block starts on the next line, with continue and break.
-FM-6   `for attributes x in y;` refuses naming attributes; the loop is not built, the statement after it runs.
+FM-0a  the old road's `for x in y; attributes`, interpreted (oldRoadAttrs): the oracle for FM-6.
+FM-3   attributes only, last to first (stroke 3b).
+FM-6   `for attributes x in y;` (stroke 3b, Tony 2026-11-20): attributes only, first to last, the same tags as FM-0a.
+FM-11  a cursor named attributesX is a cursor: the plain walk.
 FM-7   any other word (each) refuses naming that word.
 FM-8   a cursor whose name starts with members (membersX) is a cursor: the plain walk.
 FM-9   the trailing old-road spelling refuses on the new road, naming the new spelling.

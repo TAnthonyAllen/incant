@@ -133,10 +133,12 @@ define
         BASICELSe   else- followedBy STATEMENt@;
         ELSEIf      op="ifThen" or- EXPRESSIOn SemI- STATEMENt ELSe?;
     // forShapes a rule's slots never vary (Tony, SEQ 594): FOr is the parent of two fixed shapes, each cursor, source, statement; the <- is a keyword that hands nothing up. FORBACk is first: FORWARd would take `<- source` as its own source and run it forwards (measured)
-    // forMembers the filter word sits between for and the cursor, so a shape that fails on it fails before any newline is crossed (Tony, 2026-11-20: `for members x in y;`, members only; full monty step 1, stroke 3). The members shapes are first, else FORWARd takes members as its cursor; followedBy after members keeps a cursor named membersX a cursor. FORWORd is last: any other word in that slot refuses by name, and nothing falls back
+    // forMembers the filter word sits between for and the cursor, so a shape that fails on it fails before any newline is crossed (Tony, 2026-11-20: `for members x in y;`, stroke 3; `for attributes x in y;`, stroke 3b). The filtered shapes are first, else FORWARd takes the word as its cursor; followedBy after the word keeps a cursor named membersX a cursor. FORWORd is last: any other word in that slot refuses by name, and nothing falls back
     FOr
         FORBACKMEMBERs  op="forBackMembers" for- followedBy members- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- STATEMENt;
         FORMEMBERs  op="forMembers" for- followedBy members- followedBy LOOPEr in- EXPRESSIOn SemI- STATEMENt;
+        FORBACKATTRs    op="forBackAttrs" for- followedBy attributes- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- STATEMENt;
+        FORATTRs    op="forAttrs" for- followedBy attributes- followedBy LOOPEr in- EXPRESSIOn SemI- STATEMENt;
         FORBACk     op="forBack" for- followedBy LOOPEr in- back-="<-" EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         FORWARd     op="forLoop" for- followedBy LOOPEr in- EXPRESSIOn SemI- LOOPRESTRICt? STATEMENt;
         FORWORd     for- followedBy ANYtoken LOOPEr in- EXPRESSIOn SemI- STATEMENt;
@@ -253,18 +255,18 @@ define
         *actionLabel   := *built;
         return  *actionLabel;
         };
-    // restrictTrailing a filter word after the semicolon is the old road's spelling; the new road's is `for members x in y;` (Tony, 2026-11-20), so the trailing word refuses here, and the loop's default action meets a slot that handed up nothing (SEQ 594 R2)
+    // restrictTrailing a filter word after the semicolon is the old road's spelling; the new road's is `for members x in y;` or `for attributes x in y;` (Tony, 2026-11-20), so the trailing word refuses here, and the loop's default action meets a slot that handed up nothing (SEQ 594 R2)
     LOOPRESTRICt code={
-        cerr "REFUSED FOr a trailing attributes / members -- on the new road the filter is for members x in y; and only members is ruled":;
+        cerr "REFUSED FOr a trailing attributes / members -- on the new road the filter goes before the cursor: for members x in y; or for attributes x in y;":;
         refusalSaid = 1;
         clear(*actionLabel);
         return *actionLabel;
         };
-    // forWordRefused any word but members between for and the cursor refuses by its own name; nothing is built and nothing falls back (Tony, 2026-11-20)
+    // forWordRefused any word but members or attributes between for and the cursor refuses by its own name; nothing is built and nothing falls back (Tony, 2026-11-20)
     FORWORd code={
         fwOf := unWrap(ANYtoken);
         fwNm := *fwOf.taG;
-        cerr "REFUSED FOr" fwNm "-- only members is ruled between for and the cursor (for members x in y;)":;
+        cerr "REFUSED FOr" fwNm "-- only members or attributes is ruled between for and the cursor (for members x in y;)":;
         refusalSaid = 1;
         clear(*actionLabel);
         return *actionLabel;
@@ -316,6 +318,9 @@ define
     // forMembersIsAnOperator FORBACKMEMBERs (op forBackMembers) and FORMEMBERs (op forMembers) take the default action; the op carries the filter (stroke 3)
     FORBACKMEMBERs ruleMethod=OPERATOr;
     FORMEMBERs ruleMethod=OPERATOr;
+    // forAttrsIsAnOperator FORBACKATTRs (op forBackAttrs) and FORATTRs (op forAttrs) take the default action (stroke 3b)
+    FORBACKATTRs ruleMethod=OPERATOr;
+    FORATTRs ruleMethod=OPERATOr;
     // branchIsFourOperators BREAk, CONTINUe, RETURNVALUe and RETURn take the default action; each op is its own signal (SEQ 603)
     BREAk ruleMethod=OPERATOr;
     CONTINUe ruleMethod=OPERATOr;
