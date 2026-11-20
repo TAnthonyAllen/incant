@@ -8992,6 +8992,24 @@ kindRow "printDotT PD-1..PD-6 on the new road = the old road's (vacuity: 6 lines
 kindRow "printDotT PD-2 argument.taG mid-list (tester's six statements' shape)" "$(sed -n '/^PD NEW/,$p' "$T/pd" | grep '^PD-2 ' | sed 's/ *$//')" "PD-2 x pdArg y pdY"
 kindRow "printDotT PD-5 pdA + pdB.val reads 7 (the dot binds first; non-zero)" "$(sed -n '/^PD NEW/,$p' "$T/pd" | grep '^PD-5 ' | sed 's/ *$//')" "PD-5 7"
 
+#  ---- newRoadMarkT / newRoadMarkNoKgT: THE newRoad MARK (full monty step 2, Tony, 2026-11-20). A bare `newRoad` on an action's
+#  definition makes processCode read its body on kantGrammar's STARt; a marked body that does not build there (a statement refused
+#  in the build counts: kantGrammar's bodyRefused) is refused naming the action and NOT read on the old grammar; unmarked bodies are
+#  untouched. Road proof: `7 #5d` reads [ 7 ] on kantGrammar, [     7 ] on the old grammar.
+#  H7 (fix committed first, single fixture): (1) the mark not read -> NM-1 [     7 ] and nmBad walks, red; (2) bodyRefused not read
+#  -> nmBad is not refused and prints NM-3 ran, red.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip newRoadMarkT)" > "$T/nm" 2> "$T/nm.e"; _nmx=$?
+kindRow "newRoadMarkT runs" "$_nmx" "0"
+sentinel "newRoadMarkT sentinel" "$T/nm" "NEWROADMARK SENTINEL"
+kindRow "newRoadMarkT unmarked twins on the old grammar: road proof, and the old for-filter walks a b c" "$(sed -n '/^NM OLD/,/^NM NEW/p' "$T/nm" | grep '^NM-1 ' | sed 's/ *$//') $(sed -n '/^NM OLD/,/^NM NEW/p' "$T/nm" | grep -c '^NM-3 nmE' | tr -d ' ')" "NM-1 [     7 ] 3"
+kindRow "newRoadMarkT marked nmGood read on kantGrammar, both calls (cached body reached twice)" "$(sed -n '/^NM NEW/,/^NM AFTER/p' "$T/nm" | grep '^NM-[12] ' | sed 's/ *$//' | tr '\n' '|')" "NM-1 [ 7 ]|NM-2 7 nmArg|NM-1 [ 7 ]|NM-2 7 nmArg2|"
+kindRow "newRoadMarkT marked nmBad refused by name on both calls, and nothing of it ran (no fallback)" "$(grep -c '^REFUSED nmBad -- is marked newRoad, and its body does not build on kantGrammar' "$T/nm.e" | tr -d ' ') $(sed -n '/^NM NEW/,$p' "$T/nm" | grep -c '^NM-3' | tr -d ' ')" "2 0"
+kindRow "newRoadMarkT the only other refusal lines are the two FOr trailing-word lines" "$(grep -c '^REFUSED' "$T/nm.e" | tr -d ' ')" "4"
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip newRoadMarkNoKgT)" > "$T/nk" 2> "$T/nk.e"; _nkx=$?
+kindRow "newRoadMarkNoKgT runs" "$_nkx" "0"
+sentinel "newRoadMarkNoKgT sentinel" "$T/nk" "NEWROADMARKNOKG SENTINEL"
+kindRow "newRoadMarkNoKgT marked body refused by name with kantGrammar not loaded, not run; the unmarked one runs" "$(grep -c "^REFUSED nkGood -- is marked newRoad, and KantGrammar's STARt is not loaded" "$T/nk.e" | tr -d ' ') $(grep -c '^NK-1' "$T/nk" | tr -d ' ') $(grep -c '^NK-2 ran' "$T/nk" | tr -d ' ')" "1 0 1"
+
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
 #  H7 (fix committed first, single fixture): compareValues' mixed block out, no warnings; 1 vs * reads 010000 -> 011100 and '12' vs 2 reads 010011 -> 011100, both red.

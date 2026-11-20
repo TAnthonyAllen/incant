@@ -1,0 +1,20 @@
+Start();
+include(utilities);
+include(unitTests);
+search Utilities UnitTests list;
+registry(NewRoadMarkNoKgT);
+define
+    nkGood newRoad code={
+        print "NK-1 ran":;
+        };
+    nkOld code={
+        print "NK-2 ran":;
+        };
+    ;
+nkGood(nkArg);
+nkOld(nkArg);
+print "NEWROADMARKNOKG SENTINEL":;
+stop();
+
+newRoadMarkNoKgT -- the `newRoad` mark with kantGrammar not included: the marked body is refused by name
+(KantGrammar's STARt is not loaded) and not read on the old grammar; the unmarked body beside it runs.

@@ -1,0 +1,57 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(NewRoadMarkT);
+define
+    nmH a b c;
+    nmGood newRoad code={
+        print "NM-1 [" 7 #5d "]":;
+        nmS = 3 + 4;
+        print "NM-2" nmS argument.taG:;
+        };
+    nmGoodOld code={
+        print "NM-1 [" 7 #5d "]":;
+        nmS = 3 + 4;
+        print "NM-2" nmS argument.taG:;
+        };
+    nmBad newRoad code={
+        print "NM-3 ran":;
+        for nmE in nmH; attributes
+            print "NM-3" nmE.taG:;
+        };
+    nmBadOld code={
+        print "NM-3 ran":;
+        for nmE in nmH; attributes
+            print "NM-3" nmE.taG:;
+        };
+    ;
+print "NM OLD":;
+nmGoodOld(nmArg);
+nmBadOld(nmArg);
+print "NM NEW":;
+nmGood(nmArg);
+nmGood(nmArg2);
+nmBad(nmArg);
+print "NM AFTER":;
+nmBad(nmArg);
+print "NEWROADMARK SENTINEL":;
+stop();
+
+newRoadMarkT -- full monty step 2: the `newRoad` mark (Tony, 2026-11-20).
+
+A bare `newRoad` on an action's definition makes processCode read its body on kantGrammar's STARt instead of
+the old grammar's BlocK. A marked body that does not build there -- a statement refused in the build counts --
+is refused naming the action, and is NOT read on the old grammar. Unmarked bodies are untouched.
+
+The road proof is `7 #5d`: kantGrammar prints `[ 7 ]`, the old grammar `[     7 ]`. nmGood and nmGoodOld are
+one body, marked and unmarked; nmGood is called twice (a cached body reached a second time). nmBad and
+nmBadOld are one body with the old for-filter spelling, which the old grammar builds and kantGrammar refuses:
+the unmarked twin walks a b c, the marked one is refused by name, prints nothing, and is refused again on its
+second call (it never gets a BlocK). The run goes on past each refusal to the sentinel.
