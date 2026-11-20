@@ -148,7 +148,8 @@ on; a mix of native and testOP statements is the first cut. Mornings go to this 
     2  The mark, a bare flag `newRoad` on an action's definition (scaffolding: all marks come off in one sweep after the last; Tony, 2026-11-20): processCode reads a
        marked body on kantGrammar; a failure refuses naming the action, no fallback. Unmarked bodies and every fixture are unchanged. Step 1 done (seal 514):
        all 22 bodies build; their 10 old-spelling for-filter loops are respelled in the stroke that marks each body (R3).
-       BUILT on branch new-road-mark (seal 516), not yet bought; no body marked yet. kantGrammar's STARt writes bodyRefused, so a statement refused in the build refuses the action.
+       BOUGHT 2026-11-20 (merge 7c954982), no body marked yet. RULED (Tony): a statement refused in the build refuses the whole body,
+       naming the action; bodyRefused (written by STARt) is scaffolding and leaves in the marks' sweep; the 'parse failed' lines stay.
     3  Mark tester's 22 actions a group at a time, rows against the old road per body. Milestone: tester's PDF = the old road's,
        byte for byte, with every body it reaches on the new road.
     4  The kant jitter at the reader's door for marked actions (krResolve, kwCompile): the first cut of the full monty.

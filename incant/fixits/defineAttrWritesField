@@ -42,7 +42,16 @@ name is an entry in incant/utilities, Controls/styles or another form file, or a
   three= (inspector; a field in draw), target= (menu; a field in inspector)   cross-file, only if both are loaded; not measured
   The census reads text, not the registries; a name it misses is not shown clean.
 
-NEXT: OPEN
+MEASURED 2026-11-20 (Tony's btw, report only): describe is NOT virtual in incant/utilities (`describe code={...}`). Two fields
+with describe="first value" / "second value" read "second value" both, and so does Utilities' describe: all three share one
+body (addrOf body=#2 on all three). The same shape with the action declared `virtual` (a probe, vpAct virtual code={...}):
+vpOne.vpAct reads first, vpTwo.vpAct second, three bodies (#2 #4 #6), the prototype reads its own tag, and the action still
+runs; its plain twin reads second / second on one body. So virtual cures it for describe.
+
+NEXT: RULED (Tony, 2026-11-20): describe is declared virtual in incant/utilities, so each describe= is its own copy. NOT BUILT
+(the ruling was report only); a build reruns this fixit and formsPop (eight forms carry describe=). The general case (any
+valued attribute named like a field on the search list) stays OPEN, as below.
+WAS: OPEN
   The measurement that would say: whether describe's action, or show, reads Utilities' describe value anywhere
   (if not, the forms exposure is cosmetic); then where a define binds an attribute to an existing field.
   Taken: dwField orig, describe untouched. Not taken (today): the PIN line.
