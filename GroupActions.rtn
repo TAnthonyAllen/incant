@@ -821,7 +821,8 @@ GroupItem   blockRULE = grokking/BlocK,
             result,
             priorMETHOD = currentMETHOD.group,
             action = field;
-int         indenter = lastIndent;
+int         indenter = lastIndent,
+            nrMarked = 0;
 String      failText;
 use field
     // d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
@@ -848,7 +849,33 @@ use field
     // parseNeverEmits a parse RUNS, even inside a compile: on the new road the drive runs BlocK's generated body, and under jitting its terms were emitted into the action's function instead of parsing the code (SEQ 382 R2)
     -% bool walkSave = gJitEmitWalk; gJitEmitWalk = false; %-
     -% int jitSave = GroupControl::groupController->groupRules->jitting; GroupControl::groupController->groupRules->jitting = 0; %-
-    result = driveStep(code,blockRULE,codeReport,action,action);
+    // newRoadMark an action marked newRoad reads its body on kantGrammar's STARt, as compileIn's rule arm does; any failure, a statement refused in the build included (kantGrammar's bodyRefused, or refuse()), refuses naming the action -- no fallback to the old grammar (Tony, 2026-11-20; scaffolding, every mark comes off in one sweep)
+    -%
+    GroupItem *nrMark = field->groupBody->flags.isRule ? 0 : field->get((char*)"newRoad");
+    int nrRefusedSave = ruler->refused, nrFailed = 0;
+    if ( nrMark ) {
+        GroupItem *nrReg = GroupControl::groupController->getRegistry((char*)"KantGrammar");
+        GroupItem *nrStart = nrReg ? nrReg->get((char*)"STARt") : 0;
+        ruler->refused = 0;
+        if ( !nrStart ) nrFailed = 1;
+        else {
+            result = ::driveStep(code,nrStart,codeReport,0,action);
+            GroupItem *nrUtil = GroupControl::groupController->getRegistry((char*)"Utilities");
+            GroupItem *nrSaid = nrUtil ? nrUtil->get((char*)"bodyRefused") : 0;
+            if ( result && result != ruler->falseResult && !ruler->refused && !(nrSaid && nrSaid->getCount()) ) {
+                GroupItem *nrSeq = result->get(1);
+                result = new GroupItem("BlocK");
+                result->setContent(nrSeq);
+                ::setCompiledMethod(result,(char*)"testOP"); }
+            else nrFailed = 1; }
+        if ( nrFailed ) {
+            result = 0;
+            ::refuse(field,(char*)(nrStart ? "is marked newRoad, and its body does not build on kantGrammar; it is not read on the old grammar"
+                                            : "is marked newRoad, and KantGrammar's STARt is not loaded; it is not read on the old grammar")); }
+        else ruler->refused = nrRefusedSave; }
+    nrMarked = nrMark != 0;
+    %-
+    if !nrMarked    result = driveStep(code,blockRULE,codeReport,action,action);
     -% GroupControl::groupController->groupRules->jitting = jitSave; %-
     -% gJitEmitWalk = walkSave; if ( walkSave ) ::clearRefusal(field); %-
 use field

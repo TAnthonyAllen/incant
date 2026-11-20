@@ -25,6 +25,8 @@ registry(Utilities);
 define
     // refusalSaid ONE MEANING: a kant action has already printed the refusal for the statement being built. Every refusing kant action sets it; the default action OPERATOr reads it and stays quiet when its own slot is the casualty; TOPSTATEMENt and STARt clear it when their statements end. Declared because more than one action touches it (Tony, SEQ 596 R1)
     refusalSaid=0;
+    // bodyRefused ONE MEANING: a statement of the body STARt last built was refused. Only STARt writes it, on every build, from refusalSaid before clearing that; processCode reads it after a newRoad body's build and refuses the action (full monty step 2, Tony, 2026-11-20)
+    bodyRefused=0;
     // makeInstruct builds one instruct from a field carrying two entries, the op and its operand, binds testOP and returns it; it clears its pieces, so the next build starts empty (SEQ 478 R0). Each rule keeps its own missing-part check (Tony, SEQ 494 R1)
     // plainReturn the return copy carries the method binding, so the instruct comes back still bound to testOP (Tony, SEQ 497)
     makeInstruct code={
@@ -223,6 +225,8 @@ define
         stmtsMint   := copyOf(stmts);
         miArgs      +% op stmtsMint;
         built       := makeInstruct(miArgs);
+        bodyRefused = 0;
+        if refusalSaid == 1;    bodyRefused = 1;
         // sequenceEnds the sequence is built: nothing said carries past it (SEQ 596 R1)
         refusalSaid = 0;
         *actionLabel   := *built;
