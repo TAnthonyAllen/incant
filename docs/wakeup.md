@@ -5,17 +5,18 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**516, 2026-11-20, topic: kant, SEQ 721 (assigned by Clod), bought (merge 7c954982).** Full monty step 2: the
-`newRoad` mark is built (processCode reads a marked body on kantGrammar; a failing one, a statement refused in the build included, is
-refused naming the action, no fallback). No body is marked yet. Proven on newRoadMarkT / newRoadMarkNoKgT; H7 red twice.
+**517, 2026-11-20, topic: kant, SEQ 722 (assigned by Clod), a SHUTDOWN seal.** new-road-mark bought (merge 7c954982): full monty
+step 2 is DONE -- a `newRoad` body reads on kantGrammar, a failing one (a refused statement included) refuses naming the action; no
+body marked yet; bodyRefused and the marks leave in one sweep. describe measured not virtual; virtual cures it (fixit
+defineAttrWritesField, RULED, not built). Topics/features 38 filed: the environment spec.
 **OPEN (Tony):** carried from 482, whether an indented `define` should work.
-**RULED, NOT BUILT:** `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2).
+**RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2).
 **RULED (Tony, 2026-11-17):** no pictures in the repo (genLadder/pdfCaptures.sh writes the form PDFs on disk only, gitignored).
-**NEXT:** mornings, full monty step 3 (mark tester's bodies a group at a time, respelling their
-for-filter loops), then the refuse-by-name fixits; afternoons, forms as at seal 511 (describe-lookup, describe virtual (RULED, not built: fixit defineAttrWritesField), tabs stroke 4,
-tabForm look, the Fable review, typeset / setFrame).
+**NEXT:** the forms session, after dinner: its agenda is show's request (a user-given search list and files) and the shape of
+looks; Tony and Clay settle the design first and the dispatch comes with the wake-up. Then mornings, full monty step 3 (mark
+tester's bodies a group at a time, respelling their for-filter loops).
 
-## The numbers (as run at seal 516, on branch new-road-mark; the binary is the bare build of 2026-11-20 12:54, 2191072 bytes)
+## The numbers (as run at seal 517, on trunk; the binary is the bare build of 2026-11-20 12:54, 2191072 bytes)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4203 green (+9, newRoadMarkT / newRoadMarkNoKgT), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
@@ -25,7 +26,7 @@ tabForm look, the Fable review, typeset / setFrame).
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only; not run at 516, as at 515) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
+| `genLadder/dirCheck.sh` (shutdown seals only) | exit 0 (a first run died on a bus error in a bare tok of GroupList.twk; 3 clean retries, no file changed, rerun green), 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
 | extern canary | 489 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -40,15 +41,15 @@ Clod's fixit incantations waiting: 31 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 56 / 60 | this page. |
+| `docs/wakeup.md` | 57 / 60 | this page. |
 | `Topics/forms` | 284 / 280, OVER by 4 (prose lines; the trim waits for cleanup) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 203 / 200, OVER by 3 (seal digest lines; the trim waits for cleanup) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/kant` | 205 / 200, OVER by 5 (seal digest lines; the trim waits for cleanup) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 71 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 72 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
-| `Topics/features` | 69 / 80 | the parking list; not a session topic. |
+| `Topics/features` | 74 / 80 | the parking list; not a session topic. |
 
 ## Where the old seals are
 - Seals 373-444, in full: `git show cf9522cb:docs/wakeup.md`. Each is digested in its topic file.
