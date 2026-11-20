@@ -1,0 +1,73 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(PrintDotT);
+define
+    nlReqN owner source result rule;
+    pdNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        pdOk = 0;
+        if compileIn(nlReqN);
+            pdOk = 1;
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        cerr "PDN BUILT" argument.taG pdOk:;
+        };
+    pdY="yv";
+    pdA=2;
+    pdB val=5;
+    pdBody code={
+        print "PD-1 a" pdY.taG "b":;
+        print "PD-2 x" argument.taG "y" pdY.taG:;
+        print "PD-3" pdY.taG:;
+        print "PD-4 a" pdY "b":;
+        pdS = pdA + pdB.val;
+        print "PD-5" pdS:;
+        pdB.val = 9;
+        print "PD-6" pdB.val "then" pdA:;
+        pdB.val = 5;
+        };
+    pdOld code={
+        print "PD-1 a" pdY.taG "b":;
+        print "PD-2 x" argument.taG "y" pdY.taG:;
+        print "PD-3" pdY.taG:;
+        print "PD-4 a" pdY "b":;
+        pdS = pdA + pdB.val;
+        print "PD-5" pdS:;
+        pdB.val = 9;
+        print "PD-6" pdB.val "then" pdA:;
+        pdB.val = 5;
+        };
+    ;
+print "PD OLD":;
+pdOld(pdArg);
+pdNew(pdBody);
+print "PD NEW":;
+pdBody(pdArg);
+print "PRINTDOT SENTINEL":;
+stop();
+
+printDotT -- full monty step 1, stroke 4 (fixit newRoadPrintDotItem): a dotted read after another print item built on
+kantGrammar. The flat run a print list arrives as ("a" x . taG "b") met the dot as an operator and was refused; the dot
+and its name now bind to the operand before any run or operator sees them (a prefix binds its name first, then the
+postfixes apply in order: Tony, 2026-10-06 R1). pdOld is the old road, interpreted; pdBody the same text on the new road.
+pop.sh compares each PD line of the two halves.
+
+PD-1  a dotted item between two quoted items (the fixit's own shape).
+PD-2  argument.taG mid-list, as tester's six statements write it (resolveLook, mergeStyles, setFrame 3, redrawForm).
+PD-3  a lone dotted item (control: built before the stroke).
+PD-4  plain items, no dot (control).
+PD-5  an operator then a dot: pdA + pdB.val reads 7, the dot binding first.
+PD-6  a dotted field as the left of = (the assign tier's field list allows the dot), then read back mid-list.

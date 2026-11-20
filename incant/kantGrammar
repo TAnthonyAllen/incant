@@ -536,6 +536,28 @@ define
                         refusalSaid = 1;
                         clear(*actionLabel);
                         return *actionLabel;
+                // dotPostfix a dot and the name after it bind to the operand before a run or an operator sees them, so "a" x.taG "b" is three items and a + b.c is a + (b.c): a prefix binds its name first, then the postfixes apply in order (Tony, 2026-10-06 R1; full monty step 1, stroke 4)
+                dotOp := *cur.nexT;
+                dotGo = 1;
+                while dotGo == 1;
+                    dotGo = 0;
+                    if dotOp.datA != 0;
+                        if *dotOp.taG == ".";
+                            dotR := *dotOp.nexT;
+                            if dotR.datA != 0;
+                                if *dotR.instructTypE == 0;     dotGo = 1;
+                    if dotGo == 1;
+                        dOp = dotOp;
+                        if wrapped == 0;    opnd := *cur;
+                        if *dotR.taG == "instruct";     *dotR.methoD = "testOP";
+                        instruct    +% dOp opnd dotR;
+                        instruct.methoD = "testOP";
+                        opnd        := copyOf(instruct);
+                        clear(instruct);
+                        clear(dOp);
+                        wrapped = 1;
+                        cur := *dotR;
+                        dotOp := *cur.nexT;
                 // adjacentRun an operand followed by an operand, no op between, joins a run; the run ends at an operator or the end and becomes ONE operand, an ADJACENt list (SEQ 468)
                 nx := *cur.nexT;
                 nxOpnd = 0;
