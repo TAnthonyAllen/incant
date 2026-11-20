@@ -1,0 +1,73 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(NewRoadBareTagInFor);
+define
+    nlReqN owner source result rule;
+    njNew code={
+        nlSrc := argument.CodE;
+        nlReqN.owner  := argument;
+        nlReqN.source := nlSrc;
+        nlReqN.rule   := KantGrammar["STARt"];
+        njOk = 0;
+        if compileIn(nlReqN);
+            njOk = 1;
+            nlBlock = nlReqN.result;
+            *nlBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *nlBlock;
+        cerr "PIN" argument.taG "builds on kantGrammar:" njOk:;
+        };
+    oldScope code={
+        for grup in argument; members
+            =:grup height;
+            print "OLD scope" taG height:;
+        };
+    newScope code={
+        for members grup in argument;
+            =:grup height;
+            print "NEW scope" taG height:;
+        };
+    oldBare code={
+        for grup in argument; members
+            print "OLD bare" taG:;
+        };
+    newBare code={
+        for members grup in argument;
+            print "NEW bare" taG:;
+        };
+    btKids="p"
+        a height=11;
+        b height=22;
+    ;
+cerr "ANCHOR newRoadBareTagInFor -- bare taG in a for body reads 1 on the new road, the member's tag on the old":;
+njNew(newScope);
+njNew(newBare);
+fixNewRoadBareTagInForHere = 0;
+oldScope(btKids);
+newScope(btKids);
+oldBare(btKids);
+newBare(btKids);
+print "SENTINEL newRoadBareTagInFor reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Tony's ruling via Clay, 2026-11-20, R3: filed in Clod's lane; the scopeValueNewT SV-9 pin stays and names it)
+
+newRoadBareTagInFor -- in a for body built on kantGrammar, a bare accessor (`taG`) reads 1 where the same body on the old
+road reads the walked member's tag (a, b). The walk itself is right on both roads: the heights read 11 and 22. Found in
+full monty step 1 stroke 3 (seal 512), when scopeValueNewT's viaCursor was respelled `for members grup in argument;`.
+The OLD/NEW scope pair is SV-9's own shape; the bare pair (no =:) reads the same 1, so the value scope is not part of it
+(measured 2026-11-20).
+Not chased: which reference a bare accessor follows on the new road (lastREF on the old road).
+
+NEXT: OPEN
+  Taken: NEW lines read the member's tag, as the OLD lines do. Not taken (today): NEW lines read 1.

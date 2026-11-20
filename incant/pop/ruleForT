@@ -62,4 +62,4 @@ RF-8|2|0||it1 = FOr("for lp in <- fsrc; print *lp:;"); testOP(it1); it2 = FOr("f
 RF-9|1|0||it1 = WHILe("while wo < 2; { wo = wo + 1; for lp in fsrc; { print *lp:; if *lp == 2; break; } print 9:; }"); testOP(it1);|1 |2 |9 |1 |2 |9 |
 RF-S|1|0|REFUSED FOr -- its statement handed up no instruct|it1 = FOr("for lp in fsrc; qa qb + 1;");|
 RF-O|1|1|REFUSED forArms -- Operator +% -- an operand that is nothing|it1 = FOr("for lp in qa qb + 1; print 1:;");|
-RF-R|1|0|REFUSED FOr a trailing attributes / members -- on the new road the filter is for members x in y; and only members is ruled|it1 = FOr("for lp in fsrc; attributes print *lp:;");|
+RF-R|1|0|REFUSED FOr a trailing attributes / members -- on the new road the filter goes before the cursor: for members x in y; or for attributes x in y;|it1 = FOr("for lp in fsrc; attributes print *lp:;");|
