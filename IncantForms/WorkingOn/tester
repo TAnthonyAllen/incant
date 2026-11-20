@@ -7,20 +7,4 @@ Start();
 show(firstLight);
 stop();
 
-Tony's note that sat above the show line, kept here below the stop (2026-11-18, SEQ 690):
-    I made a couple of cosmetice changes to the firstLight and definition forms
-    to get them looking more right.
-
-    Looking ahead to when we have new users (I am thinking to bring in family
-    to act as new users so that may happen soon as it is practical).
-
-	The lines above are setting things up stuff. The work happens in the following
-    show command. Would be nice if we could say Start(); then show(); and have
-    the setting up driven in the show command. Would also be nice if we fired
-    skim on output.pdf after running show. We turned that off because tester was
-    being run a lot and output.pdf kept popping up on me when I did not run it.
-    However, new users will expect show() to show something.
-
-The tester before this change: BeforeSave/IncantForms/WorkingOn/tester. The F-164 specimen that sat under the
-show line: IncantForms/WorkingOn/searchAtBuild.
-// Everything else that was below the stop was moved to IncantForms/WorkingOn/stash
+Everything below the stop line is effectively a comment.
