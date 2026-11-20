@@ -83,3 +83,11 @@ shows one frame (its caller is compiled code). The action trace's last entry is 
 compiled one below it, entered without passing the interpreter's door. With utilities included first the run does not
 crash (redrawForm, frameMembers, fillDownAcross and placeForm are then not jittable too): the crash is on the bootstrap
 path. No statement ran native.
+
+## Step 1 after strokes 1-4 (2026-11-20, seal 514, branch print-dot)
+
+The step 2 census re-run on the same 22 bodies, one process each through `compileIn` with `STARt`, control `zzNoCode`
+(refused, "carries no code"). **All 22 build; 16 build clean.** The other 6 lose only old-spelling for-filter statements,
+refused by name ("REFUSED FOr a trailing attributes / members"): resolveLook 1, mergeStyles 2, drawKids 1, frameMembers 3,
+fillDownAcross 2, tsBoxWarn 1 -- **10 statements, 7 members and 3 attributes.** frameMembers' three were not in the step 2
+count above because its whole body failed then (=: scope, stroke 2). Ruled (Tony, 2026-11-20): they respell at step 2.

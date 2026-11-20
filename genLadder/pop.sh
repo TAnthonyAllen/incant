@@ -8978,6 +8978,20 @@ kindRow "forMembersT FM-8 a cursor named membersX is a cursor: the plain walk" "
 kindRow "forMembersT FM-9 the trailing old-road spelling refuses, naming the new spelling" "$(grep -c '^REFUSED FOr a trailing attributes / members -- on the new road the filter goes before the cursor: for members x in y; or for attributes x in y;' "$T/fm.e") $(_fm FM-9)" "1 after|"
 kindRow "forMembersT REFUSED lines, all (two by name above; nothing else)" "$(grep -c '^REFUSED' "$T/fm.e")" "2"
 
+#  ---- printDotT: A DOTTED PRINT ITEM ON kantGrammar (full monty step 1, stroke 4; fixit newRoadPrintDotItem retired into it by mapping:
+#  its control fxCtl (plain items build) -> PD-4; its gap fxBad (`cerr "a" x.taG "b"` refused) -> PD-1 and PD-2, now built and equal).
+#  A dot and its name bind to the operand before a run or an operator sees them (Tony, 2026-10-06 R1: prefix first, then postfixes).
+#  H7 (fix committed first): the dotPostfix block out -> PD-1, PD-2, PD-3, PD-5, PD-6 vanish, four "REFUSED ." lines and one "Operator +
+#  cannot apply", red.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip printDotT)" > "$T/pd" 2> "$T/pd.e"; _pdx=$?
+kindRow "printDotT runs" "$_pdx" "0"
+sentinel "printDotT sentinel" "$T/pd" "PRINTDOT SENTINEL"
+kindRow "printDotT the body builds on kantGrammar, nothing refused" "$(grep -c '^PDN BUILT pdBody 1' "$T/pd.e") $(grep -c '^REFUSED' "$T/pd.e")" "1 0"
+_pdo=$(sed -n '/^PD OLD/,/^PD NEW/p' "$T/pd" | grep '^PD-' | tr '\n' '|'); _pdn=$(sed -n '/^PD NEW/,$p' "$T/pd" | grep '^PD-' | tr '\n' '|')
+kindRow "printDotT PD-1..PD-6 on the new road = the old road's (vacuity: 6 lines)" "$( [ -n "$_pdo" ] && [ "$_pdo" = "$_pdn" ] && echo same || echo differ) $(sed -n '/^PD NEW/,$p' "$T/pd" | grep -c '^PD-' | tr -d ' ')" "same 6"
+kindRow "printDotT PD-2 argument.taG mid-list (tester's six statements' shape)" "$(sed -n '/^PD NEW/,$p' "$T/pd" | grep '^PD-2 ' | sed 's/ *$//')" "PD-2 x pdArg y pdY"
+kindRow "printDotT PD-5 pdA + pdB.val reads 7 (the dot binds first; non-zero)" "$(sed -n '/^PD NEW/,$p' "$T/pd" | grep '^PD-5 ' | sed 's/ *$//')" "PD-5 7"
+
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
 #  H7 (fix committed first, single fixture): compareValues' mixed block out, no warnings; 1 vs * reads 010000 -> 011100 and '12' vs 2 reads 010011 -> 011100, both red.
