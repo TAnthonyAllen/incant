@@ -92,6 +92,24 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-166 — OPEN, docketed 2026-11-20 (SEQ 725, Clay's ruling: file, not fixed) — showPathWriteCrash: a bare top-level `showPath.path = ...` after a bootstrap `show(...)` crashes
+
+**What:** (kant, the old road, top level) after `Start(); show(firstLight);` -- the bootstrap show, which loads utilities by continuation -- the next top-level statement `showPath.path = "IncantForms/PDF/test.pdf";` kills the process with exit 139 (SIGSEGV), no message. The same write after a direct `include(utilities)` works (stashT, viewerT, tabFormT do it).
+**Where:** not located. The write is opDot/opAssign on an attribute of a field defined in a file the continuation loaded.
+**Evidence:** measured 2026-11-20 on trunk 507a00fa (the specimen: `Start(); show(firstLight); showPath.path = "IncantForms/PDF/test.pdf"; cerr "MARK end":; stop();` -- exit 139, MARK absent), and the same on branch kant-environment. A print of `showPath["path"]` in the same position works.
+**Done when:** the specimen exits 0 and the write takes; a row with its H7.
+**Owner:** Clod, when ruled. **Size:** not measured.
+**Attempt log:** none. envT (kant-environment) draws to output.pdf instead of re-pointing showPath, and says why.
+
+### F-165 — OPEN, docketed 2026-11-20 (SEQ 725, Clay's ruling: file, not fixed) — nameWritesExistingField: a member, or a request attribute, that shares its name with an existing field writes onto that field
+
+**What:** (kant, a define) the member or attribute is not a new field of its parent: it is located on the search list and written. Measured three ways building the environment (SEQ 724): a member named `show` under `environment.forShow` copied the show action into environment (it printed `show this=show tempField`); a member line `search "FORMs" ...` wrote its attributes onto the `search` command, and every later `search` statement failed (`RunRulE: expected a method not search`, styles refused colour by colour); a request attribute `search:=envShort` wrote onto the same command, so two requests' lists collapsed into the last one defined. A member line naming a registry (`FORMs;`) copies the whole registry in.
+**Where:** the define's name resolution (aCTionNamE's located-field arm). Same family as fixit `defineAttrWritesField` (an attribute named like a field writes it; describe's clash), which was measured on attributes only.
+**Evidence:** the three runs above, 2026-11-20; the environment respelled around them: `forShow`, `searchNames`, `fileNames`, `stageNames`, and a request's `searchNames:=` / `fileNames:=` (branch kant-environment, incant/setup section 11).
+**Done when:** Tony rules what a member or attribute named like an existing field means (a new field of its parent, or refused by name); then rows for member, attribute and request attribute, each with an H7.
+**Owner:** Tony to rule; then Clod, with defineAttrWritesField. **Size:** not measured.
+**Attempt log:** none.
+
 ### F-164 — RULED 2026-11-18 (Tony: how kant works; nothing to build), docketed 2026-11-18 (SEQ 688, Clay's stash dispatch; row and specimen only, no cure) — searchAtBuild: a `search` line in an action body runs when the body is built, not when its line runs
 
 **What:** (kant, the old road: an action body) a body's `search X;` line runs once, when the body is first built -- at its first call, before its first statement -- and never when the line is reached. A body that is never called never runs it. **And its sibling, found the same day:** every bare name in the body binds at that same build, against the search list of that moment. In the bootstrap show (incant/setup) `showForm(...)` was built before Utilities was searched, so it bound to a fresh local (bare `showForm` read length 0, a resolved action reads 2) and the call did nothing: no draw, no refusal, exit 0.
