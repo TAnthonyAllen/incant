@@ -33,8 +33,10 @@ define
         climb(*clDrawn);
         printDefinition(*clDrawn);
         };
-    clBoth window x=0 y=0 width=250 height=200 down="*" across=2
-        clCross height=50;
+    clBoth window x=0 y=0 width=250 height=200 down="*"
+        clRow across=2 height=50
+            clCross
+                clLeaf="leaf" text;
     clReqBoth form:=clBoth;
     clReqDown form:=clDown;
     clReqAcross form:=clAcross;
@@ -69,7 +71,7 @@ clWord = "CL-3";  clWant = "crKid";  clDraw(clReqNum);
 cout "CL PAGE star":;
 clWord = "CL-4";  clWant = "crLeaf";  clDraw(clReqStar);
 cout "CL PAGE both":;
-clWord = "CL-6";  clWant = "none";  clRun(clReqBoth);
+clWord = "CL-6";  clWant = "clLeaf";  clRun(clReqBoth);
 cout "CL PAGE end":;
 cerr "CLIMBT SENTINEL":;
 stop();
