@@ -965,6 +965,7 @@ echo "-- the kant environment, first piece (envT)."
 #  ⚑ envT -- SEQ 724 R1-R4 (ruled 2026-11-20): environment (incant/setup) holds root, paths and forShow (searchNames, fileNames, stageNames);
 #  show reads only from it, and a request's searchNames:= or fileNames:= replaces that member for one call; one list of loaded files; showPath
 #  derives from environment.root. Run after Start() alone; every draw writes output.pdf, Tony's, set aside here and put back.
+#  H7 (run SEQ 724): with the request's fileNames:= ignored in show, EN-1 goes red (unitTests loads too).
 _enF=$(ip envT)
 _enOut=IncantForms/PDF/output.pdf
 rm -f "$T/en.keep"; [ -f "$_enOut" ] && mv "$_enOut" "$T/en.keep"
