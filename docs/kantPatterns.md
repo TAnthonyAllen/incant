@@ -137,3 +137,35 @@ Rows: `ruleResultT RR-22` (an action takes anything and returns a value), `RR-23
 `RR-11` (a rule's truth), `RR-19` (a rule's code and its label). One thing to watch, pinned as it reads today: a rule
 called with no argument, or with an argument that has no text, refuses by name on the newer grammar and reads false in
 silence on the older one (`RR-20`, `RR-21`).
+
+**16. Try a change to a kant library in a cheat first: a registry of your own, first on the search list, before the first call.**
+
+A **cheat** shadows a library without touching it. The cheat file includes the library, defines a registry (`CheaT`) holding
+its own copies of the actions being changed, and the driver searches that registry ahead of the library **before the first
+call** of anything that reaches them: a body binds its names at its first call (F-164), so a library body already called
+keeps the copy it found then. Each copy says so on every call (a witness line on stderr and a count), and the run prints
+the count and **fails by name at 0** -- a run that never reached the cheat has measured the library, not the cheat.
+
+    Start();
+    include(utilities);
+    registry(fILEs);
+    define
+        cheatFile File='IncantForms/WorkingOn/cheat';     // ends with bail(), not stop(): stop() ends the includer too
+        ;
+    include(cheatFile);
+    search CheaT Utilities list;                          // before the first show: show draws under the caller's list
+    show(firstLight);
+    cheatCount();                                         // CHEAT hits 9 -- or CHEAT FAILED, by name, at 0
+
+Inside each copy, first: `cheatHits = cheatHits + 1;  cerr "CHEAT setFrame" argument.taG:;`. Define in the cheat only what
+is new; state the library already holds stays defined there, once. Fixtures that measure the change include the cheat and
+assert its count.
+
+**The buy:** copy into the library with the witness lines stripped; the code-only diff (`genLadder/codeOnly.py`) between the
+cheat, witness lines aside, and the library is empty; drop the include; the same rows read the same. **Keep the cheat as a
+template** for the next one.
+
+Example: `IncantForms/WorkingOn/cheat` (the template, copies of `setFrame` and `frameMembers`) and `cheatShow` (its driver).
+Rows: G3 (Topics/forms, 2026-11-21) was built this way -- `frameStoreT FS-1` to `FS-11`, `resizeT`, `resizeLightT`, first
+against the cheat and, after the buy, unchanged against `incant/utilities`. The control: with the cheat not searched,
+`cheatShow` reads `CHEAT hits 0` and `CHEAT FAILED` (measured SEQ 728).

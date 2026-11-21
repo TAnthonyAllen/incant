@@ -254,24 +254,17 @@
 -- the mock resize (resizeT).
   ok    resizeT exit / sentinel = [0 1]
   ok    resizeT RZ-1 as declared, 400x200: wrap (98,70), two (150,70), three's leftBorder at 50% (200,70), three (300,70), fourth (200,170) = [400x200 white red black white green]
-  ok    resizeT RZ-2 resized by a frame to 600x300: the page follows, and the percent: wrap (148,100), two (225,100), three's leftBorder (300,100), three (450,100), fourth (300,270); (200,100), the old border, is two's red = [600x300 white red black white green red]
-  ok    resizeT RZ-3 back with no frame: the run after a resize reads exactly as the first = [400x200 white red black white green]
+  ok    resizeT RZ-2 resized to 600x300 through the store (redrawWindow): the page follows, and the percent: wrap (148,100), two (225,100), three's leftBorder (300,100), three (450,100), fourth (300,270); (200,100), the old border, is two's red = [600x300 white red black white green red]
+  ok    resizeT RZ-3 a plain redraw after the resize: the resize read and cleared its entry, so the run reads exactly as the first = [400x200 white red black white green]
   ok    resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600 = [181 266 181 266]
   ok    resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame = [simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;]
 
--- the resize by listening (resizeListenT).
-  ok    resizeListenT exit / sentinel = [0 1]
-  ok    resizeListenT RL-1 writing the frame's width and height lays nothing out (the values did land: 600, 300) = [runs 0 width 600 height 300]
-  ok    resizeListenT RL-2 one write to layoutFrame fires one layout; the page and resizeT's five points at 600x300 = [runs 1 600x300 white red black white green]
-  ok    resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run = [runs 2 400x200 white red black white green]
-  ok    resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200 = [266 181 / simple x=300 y=450 width=400 height=200 down rounded]
-
--- firstLight resized by one whole write to layoutFrame (resizeLightT).
+-- firstLight resized through formFrames (resizeLightT).
   ok    resizeLightT exit / sentinel = [0 1]
-  ok    resizeLightT RG-1 before, as declared: no listener run; 500x600, words in 3 lines; heading wall, words white, space wall, ok green = [runs 0 / 500x600 lines 3 wall white wall green]
-  ok    resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 1200x600, words re-flows to 2 lines; the four fields at their new places; where ok was is space's wall = [runs 1 width 1200 height 600 / 1200x600 lines 2 wall white wall green wall]
-  ok    resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value = [runs 1 / 1200x600 lines 2 wall white wall green wall]
-  ok    resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value = [runs 2 width 500 height 600 / 500x600 lines 3 wall white wall green]
+  ok    resizeLightT RG-1 before, as declared: 500x600, words in 3 lines; heading wall, words white, space wall, ok green = [500x600 lines 3 wall white wall green]
+  ok    resizeLightT RG-2 the resize through the store: the window at 1200x600; the page 1200x600, words re-flows to 2 lines; the four fields at their new places; where ok was is space's wall = [width 1200 height 600 / 1200x600 lines 2 wall white wall green wall]
+  ok    resizeLightT RG-3 the store's page = the same frame named in a request (frame:=), by value = [1200x600 lines 2 wall white wall green wall]
+  ok    resizeLightT RG-4 resized back through the store: the window at 500x600; the page = RG-1's, by value = [width 500 height 600 / 500x600 lines 3 wall white wall green]
   ok    resizeLightT RG-5 four pages were read, and firstLight still declares 500x600 = [4 / firstLight x=300 y=450 width=500 height=600]
 
 -- paragraphs and one run in firstLight (typesetT).
@@ -374,4 +367,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 322 green, see above
+FORMS POP FAILED -- 317 green, see above
