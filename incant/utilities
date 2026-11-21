@@ -1303,8 +1303,17 @@ define
         could not open.
     ***************************************************************************/
     showPath path="IncantForms/PDF/output.pdf";
+    // rootedPath showPath's location derives from environment.root (incant/setup; SEQ 724 R4): its path is relative to root, and with root "." the relative path is the location
+    showPathRoot code={
+        spRel = string $showPath["path"]$;
+        spR := environment["root"];
+        spRoot = string $*spR$;
+        if spRoot != ".";   showPath.path = string $spRoot "/" spRel$;
+        };
     showReq path form look;
     showForm code={
+        // rootAtShow showPath derives from environment.root when a form is shown, not at utilities' foot (SEQ 726 R1)
+        showPathRoot();
         shForm := argument;
         shOwn = 0;
         if *shForm["path"];     shOwn = 1;
@@ -1548,5 +1557,5 @@ include(parser);
     straight after include(utilities) rely on it being Utilities  */
 include(forms);
 register(Utilities);
-/*  showLoaded  the bootstrap show (incant/setup) reads this to know utilities is loaded (SEQ 687)  */
-showLoaded = 1;
+/*  loadedFiles  utilities joins the loaded files the bootstrap show (incant/setup) reads (SEQ 687; one list, SEQ 724) -- marked here with no action call: one writer, and a call at a foot primes lastREF (SEQ 726)  */
+loadedFiles +% new("utilities");

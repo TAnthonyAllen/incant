@@ -1,0 +1,63 @@
+Start();
+register(EnvT);
+define
+    envTwice "styles" "utilities" "styles";
+    rqFiles form="firstLight" fileNames:=envTwice;
+    ;
+cout "EN PAGE files":;
+show(rqFiles);
+search EnvT FORMs Utilities cOLOr fONTs sTYLEs list;
+define
+    envList code={
+        for grup in loadedFiles; attributes
+            glN = string $*grup.taG$;
+            cout "loaded" glN:;
+        };
+    envPath code={
+        epP = string $showPath["path"]$;
+        cout "showPath" epP:;
+        };
+    envRootTry code={
+        erR := environment["root"];
+        *erR = "elsewhere";
+        showPath.path = "IncantForms/PDF/output.pdf";
+        showPathRoot();
+        envPath();
+        *erR = ".";
+        showPath.path = "IncantForms/PDF/output.pdf";
+        showPathRoot();
+        envPath();
+        };
+    envShort "FORMs" "Utilities";
+    envNoReg "FORMs" "noSuchRegistry";
+    rqShort form:=firstLight searchNames:=envShort;
+    rqNoReg form:=firstLight searchNames:=envNoReg;
+    rqPlain form:=firstLight;
+    ;
+cout "EN PAGE loaded":;     envList();
+cout "EN PAGE path":;       envPath();
+cout "EN PAGE short":;      show(rqShort);
+cout "EN PAGE noreg":;      show(rqNoReg);
+cout "EN PAGE plain":;      show(rqPlain);
+cout "EN PAGE again":;      envList();
+cout "EN PAGE root":;       envRootTry();
+cout "EN PAGE end":;
+cerr "ENVT SENTINEL":;
+stop();
+
+envT -- the kant environment, first piece (SEQ 724, ruled 2026-11-20). environment (incant/setup) holds root, paths and
+forShow, show's defaults: searchNames, fileNames, stageNames. A request names the member it replaces: searchNames:= or
+fileNames:= (search:= would write onto the search command). Run after Start() alone, like showBootT. Every draw is to
+output.pdf, Tony's: formsPop sets it aside and puts it back (a top-level showPath.path write after a bootstrap show crashes,
+exit 139, on trunk too; measured SEQ 724).
+files    show(rqFiles): firstLight is not defined, so show loads it from the stash, with the request's fileNames:= in place
+         of environment's: styles, utilities, styles -- each loaded once, and unitTests not at all.
+loaded   the one list of loaded files: styles and utilities, once each.
+path     showPath derives from environment.root: with root "." it is the relative path itself.
+short    a request whose searchNames:= names FORMs and Utilities only: it draws (the form's colours were bound at its define).
+         It names no fileNames, so environment's stand: unitTests, not loaded yet, loads first (deferred), then it draws.
+noreg    searchNames:= naming noSuchRegistry: refused by name, nothing drawn.
+plain    a request naming only form:= keeps every default: it draws.
+again    after three more shows the loaded list is styles, utilities, unitTests: nothing loaded twice.
+root     environment's root set to elsewhere and showPath re-derived: elsewhere/IncantForms/PDF/output.pdf, so the derivation
+         is real; root put back to "." and the path with it.

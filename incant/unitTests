@@ -391,3 +391,5 @@ define
         testSetFrame();
         };
     ;
+/*  loadedFiles  unitTests joins the loaded files the bootstrap show (incant/setup) reads (SEQ 724) -- marked here with no action call: one writer, and a call at a foot primes lastREF (SEQ 726)  */
+loadedFiles +% new("unitTests");

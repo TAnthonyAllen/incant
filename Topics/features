@@ -68,6 +68,8 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
     customer: its defaults become the environment's. Ties to the stash (registry sTASh, built from incant/stashList) and to the
     distribution entry -- which no tracked file names today (searched 2026-11-20: Topics/, docs/, TODO.md, macros); the tie waits
     on where that entry lives. Today include() searches no path (bear-trap #28: fILEs in incant/setup, by hand).
+    FIRST PIECE BUILT (SEQ 724): environment in incant/setup (root ".", paths ".", forShow); show reads only from it. Kept in view:
+    include reading paths (bear-trap #28); the user's folder at the front of paths; a remedy for the absolute paths in the tree.
 
 ## Not harvested, and why
 
