@@ -985,8 +985,8 @@ define
         matched by its tag. Its list's first member is the default.
         Top level: a name not in the list refuses by name (lkRefused) and
         setFrame lays nothing out. Held (R4): it takes its host's look name;
-        a name its list lacks, or no list at all, gives its own default
-        (the first member, else defaultLook) and a trace line says so.
+        a name its list lacks gives its own default, the first member, and a
+        trace line says so; with no list at all it uses defaultLook silently.
     ***************************************************************************/
     lnHeld = 0;
     lnFirst = 0;
@@ -1035,9 +1035,11 @@ define
         if lnMiss == 1;
             if lnHeld == 0;     lkRefused = 1;
             if lnHeld == 0;     cerr "setFrame: REFUSING" lnFName "-- the request asks for the look" lnName "and its looks list holds no look by that name; nothing is laid out":;
+            // listLacksIt the trace is for a held form whose list lacks the name; one with no list uses defaultLook silently, which is R1, not a fallback (ruled 2026-11-20)
             if lnHeld != 0;
-                if lnFirst == 1;    cout "setFrame:" lnFName "is held under the look" lnName "and its looks list has none by that name; it uses its own default," *lkLook.taG:;
-                if lnFirst == 0;    cout "setFrame:" lnFName "is held under the look" lnName "and has no looks list; it uses its own default, defaultLook":;
+                lnDef = "none";
+                if lnFirst == 1;    lnDef = string $*lkLook.taG$;
+                if lnFirst == 1;    cout "setFrame:" lnFName "is held under the look" lnName "and its looks list has none by that name; it uses its own default," lnDef:;
         };
     rlSays = "setFrame:";
     /***************************************************************************

@@ -32,11 +32,31 @@ define
     rqStandard path="IncantForms/PDF/test.pdf" form:=firstLight look="standard";
     rqDark path="IncantForms/PDF/test.pdf" form:=firstLight look="dark";
     rqPrint path="IncantForms/PDF/test.pdf" form:=firstLight look="print";
+    lbHeldLooks
+        standard pageFill:=red;
+    lbHeld window x=0 y=0 width=100 height=100 down fill:=pageFill looks:=lbHeldLooks
+        lbHeldText="held" text;
+    lbHostLooks
+        standard pageFill:=wall;
+        dark pageFill:=black;
+    lbHost window x=0 y=0 width=200 height=200 down fill:=pageFill looks:=lbHostLooks
+        lbTop="top" text height=50%;
+        lbIn form:=lbHeld height=50%;
+    rqHostStd path="IncantForms/PDF/test.pdf" form:=lbHost look="standard";
+    rqHostDark path="IncantForms/PDF/test.pdf" form:=lbHost look="dark";
+    lbHostRun code={
+        redrawForm(argument);
+        readPDF(pdfRead);
+        lbX = 190; lbY = 10;  lbAt(pdfRead);
+        lbX = 190; lbY = 190; lbAt(pdfRead);
+        };
     ;
 cout "LB PAGE none":;       lbRun(rqNone);
 cout "LB PAGE standard":;   lbRun(rqStandard);
 cout "LB PAGE dark":;       lbRun(rqDark);
 cout "LB PAGE print":;      lbRun(rqPrint);
+cout "LB PAGE hostStd":;    lbHostRun(rqHostStd);
+cout "LB PAGE hostDark":;   lbHostRun(rqHostDark);
 cout "LB PAGE after":;      printDefinition(firstLightLooks);
 cout "LB PAGE end":;
 cerr "LOOKSBYNAMET SENTINEL":;
@@ -46,7 +66,9 @@ looksByNameT -- looks by name (Tony, 2026-11-20, SEQ 723 R2-R4). firstLight carr
 standard (pageFill wall) and dark (pageFill black); the first is the default. It is drawn to test.pdf with no look, with
 look="standard", with look="dark", and with look="print", a name its list lacks: refused by name, nothing laid out: redrawForm says so on stderr and writes no PDF.
 Pixel (450,15) is the heading, which has no fill of its own: the page fill, so the look shows there. Pixel (200,580) is inside the
-held descriptions form, which has no list: it takes firstLight's look name, lacks it, uses its own default (defaultLook) and a trace
-line says so; its lightGreen is explicit, so it reads the same on every page (the control). The print page's pixels are the dark
+held descriptions form, which has no list: it uses defaultLook silently (R1, no trace); its lightGreen is explicit, so it reads the
+same on every page (the control). lbHost (standard wall, dark black) holds lbHeld, whose list has standard only (red): under standard
+lbHeld finds the name, no trace; under dark its list lacks it, so it uses its own default, standard, red, and a trace line says so
+(ruled 2026-11-20). Pixels (190,10) host page, (190,190) held page. The print page's pixels are the dark
 page's PDF, unwritten: the row reads redrawForm's line, never the pixels.
 The spelling is look="dark", by name: a list member is on no search list, so look:=dark is refused at define (measured SEQ 723).

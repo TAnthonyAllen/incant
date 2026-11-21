@@ -945,7 +945,7 @@ _ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (t
 echo "-- looks by name (looksByNameT)."
 #  ⚑ looksByNameT -- SEQ 723 R1-R4 (Tony, 2026-11-20): firstLight carries looks:=firstLightLooks (standard, dark); the first is the default; a
 #  request asks by name, look="dark"; a name the list lacks is refused by name and nothing is laid out; the held descriptions form, with no list,
-#  takes firstLight's look name, lacks it, uses defaultLook and a trace line says so. (450,15) is the heading: the page fill. (200,580) is in the held
+#  uses defaultLook silently; lbHeld, whose list lacks dark, uses its own default with a trace line (ruled 2026-11-20). (450,15) is the heading: the page fill. (200,580) is in the held
 #  form, its explicit lightGreen: the control, the same on every page. H7 (run SEQ 723): with setLook's call to setLookByName removed, LB-1, LB-3, LB-4 and LB-5 go red (page white throughout, no refusal, no trace); LB-2 stays green, as it compares to LB-1.
 _lbF=$(ip looksByNameT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_lbF" > "$T/lb.o" 2> "$T/lb.e"; _lbx=$?
@@ -956,7 +956,9 @@ _ofeq "looksByNameT LB-1 NO LOOK ASKED: the list's first member, standard, gives
 _ofeq "looksByNameT LB-2 look=\"standard\" reads as LB-1" "$(_lbp standard)" "$(_lbp none)"
 _ofeq "looksByNameT LB-3 look=\"dark\": the page black; the held form's lightGreen unmoved" "$(_lbp dark)" "r0 g0 b0 a255 / r175 g211 b120 a255"
 _ofeq "looksByNameT LB-4 A NAME NOT IN THE LIST is refused by name, once, and nothing is laid out or written" "$(grep -c '^setFrame: REFUSING firstLight -- the request asks for the look print and its looks list holds no look by that name' "$T/lb.e") $(grep -c '^redrawForm: nothing laid out for rqPrint' "$T/lb.e") $(_lbb print | grep -c drawSpans)" "1 1 0"
-_ofeq "looksByNameT LB-5 THE HELD FORM WITH NO LIST falls back with a trace line on each drawn page, never a refusal: the look named (standard standard dark)" "$(grep '^setFrame: descriptions is held under the look .* and has no looks list; it uses its own default, defaultLook' "$T/lb.o" | awk '{print $8}' | xargs) $(grep -c 'REFUSING descriptions' "$T/lb.e")" "standard standard dark 0"
+_ofeq "looksByNameT LB-5 THE HELD FORM WITH NO LIST uses defaultLook silently (R1, ruled 2026-11-20): no trace line and no refusal naming descriptions" "$(grep -c 'descriptions is held under' "$T/lb.o") $(grep -c 'REFUSING descriptions' "$T/lb.e")" "0 0"
+_ofeq "looksByNameT LB-7 A HELD FORM WHOSE LIST HAS THE NAME takes it, no trace: lbHost under standard, host page wall, lbHeld's own standard red" "$(_lbp hostStd) / $(_lbb hostStd | grep -c 'held under')" "r247 g232 b170 a255 / r239 g43 b45 a255 / 0"
+_ofeq "looksByNameT LB-8 A HELD FORM WHOSE LIST LACKS THE NAME uses its own default with one trace line: lbHost under dark, host black, lbHeld red (standard)" "$(_lbp hostDark) / $(_lbb hostDark | grep -c '^setFrame: lbHeld is held under the look dark and its looks list has none by that name; it uses its own default, standard')" "r0 g0 b0 a255 / r239 g43 b45 a255 / 1"
 _ofeq "looksByNameT LB-6 the list prints after four draws as defined" "$(_lbb after | grep -v '^\s*$' | xargs)" "firstLightLooks standard pageFill=wall; dark pageFill=black;"
 
 #  missingFixtureFoot every fixture a row ran must have existed
