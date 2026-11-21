@@ -9,6 +9,7 @@ define
         inside an action as  v := tell("..."); vc := *v["consumed"];
     ***************************************************************************/
     tell isRule target=[a-zA-Z0-9]+ message?=[^\n]+ ruleMethod=aCTionTell;
+    listed;
     /***************************************************************************
         dumpField — print a field as tag=value, then an indented list of the
         child tags (or a no-list note). Incant-side cousin of dumpContents.
@@ -21,6 +22,64 @@ define
                 if datA != 0;   print `$taG "=" grup:;
                 else            print `$taG:;
         else print ``"(no list)":;
+        };
+    /***************************************************************************
+        flatten converts the hierarchy of its argument into a list in whatsIt.
+        Just a test action for now.
+    ***************************************************************************/
+    flatten code={
+        for grup in argument; members
+            if grup.hasMembers; flatten(*grup);
+            else
+                print "Adding" grup.tag:;
+                whatsIt += grup;
+        };
+    /***************************************************************************
+        listRules — print a field and its components as tag=value. Note the use
+        of listed, which is explicitly not a local field used to control
+        recursing and hold off a mad recursing loop
+    ***************************************************************************/
+    listRules code={
+        listed  += argument;
+        length  = listLengtH;
+        if datA != 0;   print ~$taG "=" argument;
+        else            print ~$taG;
+        if length > 0;
+            print _length:;
+            iterate grup on argument;
+            while ++grup;
+                length  = listLengtH;
+                if noPrinT; continue;
+                print +;
+                if !length || grup IN listed;
+                    if datA != 0;   print ~$taG "=" grup:;
+                    else            print ~$taG:;
+                else
+                    listRules(*grup);
+                print $-;
+        else    print :;
+        };
+    /***************************************************************************
+        print out xml representation of the group passed in. Does not
+        handle cdata yet.
+    ***************************************************************************/
+    toXML code={
+        print ~,"<" tag;
+        if datA; print ,"=" argument;
+        if hasAttributes;
+            for grup in argument; attributes
+                print _grup.tag;
+                if grup.datA print ,"=" grup;
+        if hasMembers;
+            print ">",:+;
+            for grup in argument; members
+                ++recurse;
+                toXML(*grup);
+                --recurse;
+                if grup.next    print :;
+        else    print "/>";
+        if hasMembers;      print ,-"</" tag ">";
+        if recurse == 0     print :;
         };
     /***************************************************************************
         JSON rules invoked as JSONblock("json string or json file name"); These
@@ -66,63 +125,825 @@ define
         return *jaOut;
         };
     JSONblock isRule fail "{"- JSONfield* "}"-;
+    tARGET;
+    dIRECTion;
+    newStuff isList;
+    placeReq form frame look;
+    sfChain;
+    fwOk = 0;
     /***************************************************************************
-        flatten converts the hierarchy of its argument into a list in whatsIt.
-        Just a test action for now.
+        fillDownAcross deals with direction framing. The direction can be either
+        down or across. When the direction passed in has a value. The value can
+        be "*" or a number. The argument passed in has to contain the direction
+        attribute (that is down or across respectively).
+        
+        If the direction value is "*", the argument passed in can have only one
+        member (the member may have members); also the member should have its
+        target (width or height) specified. If direction value is a number
+        (like down=3) the argument can have more than one member, but all members
+        should have no target specified. Also, the argument passed in should
+        have no data (you can add data after setFrame finishes).
     ***************************************************************************/
-    flatten code={
+    fillDownAcross code={
+        pValue = argument[tARGET];
+        direct = argument[dIRECTion];
+        memberCount=0;
         for grup in argument; members
-            if grup.hasMembers; flatten(*grup);
-            else
-                print "Adding" grup.tag:;
-                whatsIt += grup;
+            ++memberCount;
+            target = *grup[tARGET];
+            if target.isPercenT;    target = argument[tARGET] * target / 100;
+            if target.datA != 0;    pValue -= target;
+        if direct == "*";
+            if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
+            valueCount = 0;
+            valueCount = pValue / target;
+            if valueCount * target > pValue;    --valueCount;
+        else
+            if direct > 0;
+                valueCount = direct - 1;
+        // repeatInPlace the repeats are deep copies added to the field itself, so every member keeps the field as its parent and each copy owns its children (SEQ 653). A bare down or across adds nothing. The old way rebuilt the list in a scratch field from shallow copies: a member's children climbed to the scratch field, and the copies shared one set of children, all laid out where the last one fell.
+        while valueCount > 0;
+            --valueCount;
+            fdSeen = 0;
+            for grup in argument; members
+                if fdSeen < memberCount;    argument +/ copyDeep(*grup);
+                ++fdSeen;
         };
     /***************************************************************************
-        drawWalk -- forms step 2: draw a form, parent before child, depth first.
-        The top field opens the display (makeDisplay hands it down as each
-        descendant's display property, step 1), then every field that names a
-        fill, or a style for displayFill to resolve, fills into it at page
-        coordinates. A field naming neither is skipped, not refused. After its
-        fill, a field naming border or a side (topBorder, bottomBorder,
-        leftBorder, rightBorder) draws it through displayBorder (forms step 3).
-        A top that already holds a context (openPDF's, or a bitmap the caller
-        opened) is drawn into as it stands: drawWalk opens no bitmap of its own
-        (forms step 4). The capture is `=`, not `:=`: a := capture is a holder,
-        and `dwOpen == 0` then reads false on a 0 (measured 2026-11-08; #55's
-        family). isPointeR always writes 0 or 1, so `=` carries it.
-        drawKids descends where *grup.hasMemberS: grup is the loop's holder, so
-        the star is needed (grup.hasMemberS reads nothing; measured 2026-11-08,
-        bar 1, every leaf 0).
-    ***************************************************************************/
-    drawWalk code={
-        dwOpen = argument.isPointeR;
-        if dwOpen == 0;     makeDisplay(argument);
-        drawFill(argument);
-        drawImage(argument);
-        drawBorder(argument);
-        drawText(argument);
-        drawKids(argument);
-        };
-    /***************************************************************************
-        describe is used to supply descriptions in forms by adding it as a form
-        attribute with a text value of the field being described. The describe
-        text is initialized as either the tag of a field in the form that has
-        a corresponding entry with the same tag in the dESCRIPTIONs registry, or
-        as whatever descriptive text the form designer wants to show when the
-        form first fires. describe is a dynamic attribute with an action
-        When a form field is clicked on selection.group is set to the first selectable
-        field found after searching up the parent hierarchy starting with the
-        field clicked on. And if the selected field has a describe attribute the
-        describe action sets the describe.text for the form layout to display.
+         frameMembers sets frames for the members of the group passed in. It must
+         have x y width and height attributes. It WRITES the group it is handed,
+         so only setFrame calls it, and only on a copy.
 
-        See the tabs or descriptions forms in IncantForms/Windows for an example
-        of how to define a form that uses descriptions.
+         isHidden and noRoom (forms step 6, Tony's ruling of 2026-11-07; built
+         SEQ 627). Two flags, two facts. isHidden is the author's: a field
+         written isHiddeN takes no room, gets no frame, and neither it nor
+         anything under it is laid out or drawn. noRoom is layout's and means
+         only "does not fit": after a parent's members are placed, a member
+         wholly outside the parent's box on either axis (or left with no width
+         or no height) is flagged noRooM; it is not drawn and nothing under it
+         is laid out. A member partly outside is drawn. Nothing is shrunk and
+         layout does not stop. noRoom is written on the laid-out copy only, so
+         every run decides it afresh.
     ***************************************************************************/
-    describe code={
-        if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
-        or describe.isGrouP;    describe = dESCRIPTIONs[describe];
+    frameMembers code={
+        =:argument across down overlay width height x y;
+        // oneDirection a field names down or across, never both (G3 item 1, Tony 2026-11-21): refused by name, its members are not laid out. A grid is a row level: down on the field, across on the one row it holds, the height on the row
+        fmBoth = 0;
+        if across.datA != 0;
+            if down.datA != 0;  fmBoth = 1;
+        if fmBoth == 1;
+            cerr "setFrame: REFUSING" argument.taG "-- it names both down and across; a field takes one direction, so write the grid as rows (down on the field, across on a row it holds); its members are not laid out":;
+            return;
+        sideRoom    = width;
+        pWidth      = width;
+        headRoom    = height;
+        pHeight     = height;
+        pX          = x;
+        pY          = y;
+        boxX        = x;
+        boxY        = y;
+        boxR        = x + width;
+        boxB        = y + height;
+        upOut       = 0;
+        sideOut     = 0;
+        // overlayNamed a parent that names overlay (and neither down nor across) overlays its children: each fills the parent's box unless it declares its own width, height, x or y. A parent naming no direction stacks them, as down does: the old GUI's default, and what descriptions and unitTests' sample rely on (SEQ 626 W3; the default is Tony's to re-rule)
+        laysOver    = 0;
+        if overlay.datA != 0;
+            if across.datA == 0;
+                if down.datA == 0;  laysOver = 1;
+        if down.datA != 0;
+            tARGET="height";
+            dIRECTion="down";
+            fillDownAcross(argument);
+        if across.datA != 0;
+            tARGET="width";
+            dIRECTion="across";
+            fillDownAcross(argument);
+   /***************************************************************************
+                 Create frame and set width and height
+    ***************************************************************************/
+        for grup in argument; members
+            // hiddenTakesNoRoom an isHidden member is not sized, so it joins no share
+            fmHid = *grup.isHiddeN;
+            if fmHid == 0;
+                =:grup width height;
+                if width.isPercenT;
+                    width = pWidth * width / 100;
+                    *grup :% copyOf(width);
+                if height.isPercenT;
+                    height = pHeight * height / 100;
+                    *grup :% copyOf(height);
+                if width.datA != 0;
+                    sideRoom    -= width;
+                or across.datA == 0;
+                    width = pWidth;
+                    *grup :% copyOf(width);
+                else
+                    sideOut     +/ *grup;
+                    ++sideOut;
+                if height.datA != 0;
+                    headRoom    -= height;
+                or across.datA != 0;
+                    height = pHeight;
+                    *grup :% copyOf(height);
+                or laysOver == 1;
+                    height = pHeight;
+                    *grup :% copyOf(height);
+                else
+                    upOut       +/ *grup;
+                    ++upOut;
+        if upOut > 0;
+            shareN = 0;
+            shareUsed = 0;
+            shareEdge = 0;
+            for grup in upOut;
+                ++shareN;
+                shareEdge = headRoom * shareN / upOut;
+                height = shareEdge - shareUsed;
+                shareUsed = shareEdge;
+                *grup :% copyOf(height);
+        if sideOut > 0;
+            shareN = 0;
+            shareUsed = 0;
+            shareEdge = 0;
+            for grup in sideOut;
+                ++shareN;
+                shareEdge = sideRoom * shareN / sideOut;
+                width = shareEdge - shareUsed;
+                shareUsed = shareEdge;
+                *grup :% copyOf(width);
+        headRoom    = 0;
+        sideRoom    = 0;
+    /***************************************************************************
+             Set x and y in frame
+    ***************************************************************************/
+        // fromTheParent under an overlaying parent a child's declared x and y are measured from the parent's origin (R4); under down or across they are not read, as before
+        for grup in argument; members
+            fmHid = *grup.isHiddeN;
+            if fmHid == 0;
+                =:grup width height x y;
+                placeY = pY;
+                placeX = pX;
+                if laysOver == 1;
+                    if y.datA != 0;     placeY = pY + y;
+                if laysOver == 1;
+                    if x.datA != 0;     placeX = pX + x;
+                y = placeY;
+                *grup :% copyOf(y);
+                x = placeX;
+                *grup :% copyOf(x);
+                // doesNotFit noRoom means only this: wholly outside the parent's box on an axis, or no extent on one (Tony, 2026-11-07). Partly outside is drawn.
+                fmRight = placeX + width;
+                fmFoot  = placeY + height;
+                fmOut   = 0;
+                if placeX >= boxR;      fmOut = 1;
+                if fmRight <= boxX;     fmOut = 1;
+                if placeY >= boxB;      fmOut = 1;
+                if fmFoot <= boxY;      fmOut = 1;
+                if fmOut == 1;          *grup :. noRooM;
+                if laysOver == 0;
+                    if across.datA == 0;    pY += height;
+                if laysOver == 0;
+                    if across.datA != 0;    pX += width;
+        for grup in argument; members
+            fmSkip = *grup.isHiddeN;
+            fmGone = *grup.noRooM;
+            if fmGone == 1;     fmSkip = 1;
+            if fmSkip == 0;
+                // holdsAForm a field written form:=other is filled by that form, laid out in the field's frame (G2 stroke 1b); its own members, if any, are not laid out
+                fmHolds = 0;
+                fmSelf := *grup;
+                if *fmSelf["form"];     fmHolds = 1;
+                if fmHolds == 1;        placeForm(*grup);
+                if fmHolds == 0;
+                    if *grup.hasMemberS;
+                        frameMembers(*grup);
         };
-    textReq field source font color align valign italic spans runs;
+    /***************************************************************************
+        placeForm -- a form inside a field (G2 stroke 1b; Tony, 2026-11-13). A
+        field written form:=other is the frame for that form: once the field has
+        its own x y width height, the form is laid out by setFrame with the
+        field as the request's frame, and the laid-out copy becomes the field's
+        one member, so drawWalk draws it there with no change. Each field that
+        holds a form gets its own copy. setFrame refuses a form that holds
+        itself, directly or through other forms (sfChain holds the names of the
+        forms being laid out); the field is then left empty.
+        The reference may name the form itself (form:=other) or a field of
+        its own that holds the form (shown := other; form:=shown). Writing
+        that field tells its listeners, so a listener that calls redrawForm
+        swaps the form shown in the field (G2 stroke 2).
+    ***************************************************************************/
+    placeForm code={
+        pfHost := argument;
+        pfRef := *pfHost["form"];
+        // heldThroughAField the reference may name a field of its own that holds the form (shown := aForm); writing that field swaps the form (G2 stroke 2)
+        pfTarget := **pfRef;
+        pfVia = *pfTarget.isGrouP;
+        if pfVia == 1;      pfTarget := **pfTarget;
+        placeReq.form := *pfTarget;
+        placeReq.frame := argument;
+        // lookGoesDown the held form is laid out under its host's look (SEQ 655, stroke 4)
+        placeReq.look = 0;
+        if lkHas == 1;      placeReq.look := *lkLook;
+        // hostLookKept the held form may take a look of its own (SEQ 723 R4), so the host's is kept and put back after it is laid out
+        pfHas = lkHas;
+        pfNamed = lkNamed;
+        pfKeep := *lkLook;
+        lkHeld = 1;
+        if lkNamed == 1;    lkHeld = 2;
+        pfLaid := setFrame(placeReq);
+        lkHas = pfHas;
+        lkNamed = pfNamed;
+        if pfHas == 1;      lkLook := *pfKeep;
+        pfGot = 0;
+        if *pfLaid.listLengtH;      pfGot = 1;
+        if pfGot == 1;              argument +/ *pfLaid;
+        };
+    frameWhole code={
+        =:argument x y width height;
+        fwOk = 1;
+        if x.datA == 0;         fwOk = 0;
+        if y.datA == 0;         fwOk = 0;
+        if width.datA == 0;     fwOk = 0;
+        if height.datA == 0;    fwOk = 0;
+        };
+    /***************************************************************************
+        setFrame -- forms step 6 (Tony's design of 2026-11-07; SEQ 626).
+        ONE argument, a request holding form:= the form and, optionally,
+        frame:= a field of its own, outside the form, holding x y width height.
+        setFrame copies the form, lays out the copy and returns it. The form's
+        definition is never written, so a declared percent, a down=3 and the
+        member set are all still there for the next run, and every run is a
+        fresh run. With a frame the copy's top takes the frame's four values;
+        with none it keeps the form's declared four. Only the top is gated:
+        every child is laid out from its parent, so a percent follows the new
+        size. The caller holds the returned copy (laid := setFrame(req)) and
+        draws that; no laid-out result is saved anywhere.
+        A request with no frame takes its form's entry in formFrames, if any,
+        for the top field, then clears it (G3 item 2, Tony 2026-11-21): a part
+        the entry lacks keeps the declared value. A request's own frame comes
+        first, so a held form (placeForm names its host field) never reads it.
+        Refuses by name and returns nothing: a request with no form; a frame
+        that lacks any of x y width height (frameWhole).
+    ***************************************************************************/
+    setFrame code={
+        sfReq := argument;
+        sfHas = 0;
+        if *sfReq["form"];      sfHas = 1;
+        if sfHas == 0;
+            cerr "setFrame: REFUSING" argument.taG "-- its request holds no form; write form:=theForm":;
+            return;
+        sfUse = 0;
+        if *sfReq["frame"];     sfUse = 1;
+        if sfUse == 1;
+            sfFrame := *sfReq["frame"];
+            frameWhole(**sfFrame);
+            if fwOk == 0;
+                cerr "setFrame: REFUSING" argument.taG "-- its frame needs x, y, width and height":;
+                return;
+        sfForm := *sfReq["form"];
+        // holdsItself the names of the forms being laid out; one met again is a form inside itself, refused by name and not laid out
+        sfName := **sfForm.taG;
+        if sfChain[*sfName];
+            cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
+            return;
+        sfMark := new(*sfName);
+        sfChain +% *sfMark;
+        // deepCopy copyOf shares bodies below the second level, so a deep form would be written (measured, SEQ 626)
+        sfLaid := copyDeep(**sfForm);
+        if sfUse == 1;
+            *sfLaid :% copyOf(**sfFrame["x"]);
+            *sfLaid :% copyOf(**sfFrame["y"]);
+            *sfLaid :% copyOf(**sfFrame["width"]);
+            *sfLaid :% copyOf(**sfFrame["height"]);
+        // frameStore (G3 item 2) with no frame in the request, the top field takes its form's entry in formFrames, read once and cleared; a part the entry lacks keeps the declared value. A held form never reads it: placeForm always hands it its host field as frame:= (measured SEQ 729: a depth test beside this guarded nothing)
+        sfStore = 0;
+        if sfUse == 0;
+            if formFrames[*sfName];     sfStore = 1;
+        // entOutsideArm bound at the top level: a := made inside an if arm holds nothing after it (measured SEQ 687)
+        sfEnt := formFrames[*sfName];
+        if sfStore == 1;
+            if *sfEnt["x"];         *sfLaid :% copyOf(*sfEnt["x"]);
+            if *sfEnt["y"];         *sfLaid :% copyOf(*sfEnt["y"]);
+            if *sfEnt["width"];     *sfLaid :% copyOf(*sfEnt["width"]);
+            if *sfEnt["height"];    *sfLaid :% copyOf(*sfEnt["height"]);
+            formFrames -% *sfEnt;
+        setLook(argument);
+        // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out
+        if lkRefused == 1;
+            sfChain -% *sfMark;
+            return;
+        mergeStyles(*sfLaid);
+        cardsPick(*sfLaid);
+        frameMembers(*sfLaid);
+        sfChain -% *sfMark;
+        return *sfLaid;
+        };
+    /***************************************************************************
+        bigifyLayout — build a rows x columns grid of cells as members of the
+        bigify block passed in. Templates (regularItem) ride in as fields of the
+        block and are scoped out. Each cell merges the template's attributes in
+        (two-sided merge: cell opts in via :. mergeON) and is stamped with its
+        row, col, and reading-order seq. setFrame paints the result.
+        v1: all-regular grid (no big band yet); percent/orientation in v2.
+    ***************************************************************************/
+    bigifyLayout code={
+        print "bigifyLayout building grid for" taG:;
+        :argument rows columns bigRows bigColumns regularItem bigItem selRow selCol;
+    /***************************************************************************
+        Clamp the big-slot origin so the bigRows x bigColumns rectangle fits.
+    ***************************************************************************/
+        maxRow = rows - bigRows;
+        maxCol = columns - bigColumns;
+        bOR = selRow;
+        if bOR < 0;        bOR = 0;
+        if bOR > maxRow;   bOR = maxRow;
+        bOC = selCol;
+        if bOC < 0;        bOC = 0;
+        if bOC > maxCol;   bOC = maxCol;
+        rowPct = 100 / rows;
+        colPct = 100 / columns;
+        bigRowSpan = 100 * bigRows;
+        bigHpct = bigRowSpan / rows;
+        bigColSpan = 100 * bigColumns;
+        bigWpct = bigColSpan / columns;
+    /***************************************************************************
+        Build bands top to bottom. A row inside [bOR, bOR+bigRows) becomes the
+        big band; every other row is a full-width regular row.
+    ***************************************************************************/
+        r = 0;
+        while r < rows;
+            if r == bOR;
+            /***************************************************************
+                The big band, bigRows tall: left-strip columns, the enlarged
+                cell, then right-strip columns, left to right.
+            ***************************************************************/
+                bandName = string $"band" r;
+                band := argument :+ new(bandName);
+                across = 1;
+                band +% across;
+                height = bigHpct;
+                height :. isPercenT;
+                band +% copyOf(height);
+                c = 0;
+                while c < columns;
+                    if c == bOC;
+                        bigName = string "big" r;
+                        big := band :+ new(bigName);
+                        big :. mergeON;
+                        big +% bigItem;
+                        width = bigWpct;
+                        width :. isPercenT;
+                        big +% copyOf(width);
+                        row = bOR;
+                        big +% copyOf(row);
+                        col = bOC;
+                        big +% copyOf(col);
+                        c += bigColumns;
+                    else
+                        colName = string "strip" c;
+                        column := band :+ new(colName);
+                        width = colPct;
+                        width :. isPercenT;
+                        column +% copyOf(width);
+                        rr = 0;
+                        while rr < bigRows;
+                            cellRow = bOR + rr;
+                            cellName = string "c" cellRow "x" c;
+                            cell := column :+ new(cellName);
+                            cell :. mergeON;
+                            cell +% regularItem;
+                            row = cellRow;
+                            cell +% copyOf(row);
+                            col = c;
+                            cell +% copyOf(col);
+                            rr += 1;
+                        c += 1;
+                r += bigRows;
+            else
+            /***************************************************************
+                A full-width regular row.
+            ***************************************************************/
+                rowName = string "row" r;
+                rowBlock := argument :+ new(rowName);
+                across = 1;
+                rowBlock +% across;
+                height = rowPct;
+                height :. isPercenT;
+                rowBlock +% copyOf(height);
+                c = 0;
+                while c < columns;
+                    cellName = string "c" r "x" c$;
+                    cell := rowBlock :+ new(cellName);
+                    cell :. mergeON;
+                    cell +% regularItem;
+                    width = colPct;
+                    width :. isPercenT;
+                    cell +% copyOf(width);
+                    row = r;
+                    cell +% copyOf(row);
+                    col = c;
+                    cell +% copyOf(col);
+                    c += 1;
+                r += 1;
+        };
+    lkLook;
+    lkHas = 0;
+    lkBase;
+    lkBaseHas = 0;
+    lkNamed = 0;
+    lkHeld = 0;
+    lkRefused = 0;
+    lnHeld = 0;
+    lnFirst = 0;
+    rlSays = "setFrame:";
+    /***************************************************************************
+        setLook -- which looks a layout resolves placeholders through (SEQ 654).
+        argument is setFrame's request. Its look:= is the first place looked;
+        defaultLook (IncantForms/Controls/styles) is the second, when the styles
+        file is loaded. mergeStyles reads the four fields this writes.
+    ***************************************************************************/
+    setLook code={
+        slReq := argument;
+        // heldOnce placeForm raises lkHeld for the one setFrame it calls: 1 the host's look is a look field, 2 it was picked by name from the host's list (SEQ 723 R4)
+        slHeld = lkHeld;
+        lkHeld = 0;
+        lkRefused = 0;
+        slForm := *slReq["form"];
+        slF := **slForm;
+        slHasList = 0;
+        if *slF["looks"];       slHasList = 1;
+        slAsk = 0;
+        if *slReq["look"];      slAsk = 1;
+        slLook := *slReq["look"];
+        slByName = 0;
+        if slHasList == 1;      slByName = 1;
+        if slHeld == 2;         slByName = 1;
+        lkHas = 0;
+        lkNamed = 0;
+        if slByName == 0;
+            if slAsk == 1;      lkHas = 1;
+            if slAsk == 1;      lkLook := **slLook;
+        lnHeld = slHeld;
+        if slByName == 1;   setLookByName(*slReq);
+        lkBaseHas = 0;
+        slBase := sTYLEs["defaultLook"];
+        if *slBase.listLengtH;  lkBaseHas = 1;
+        if lkBaseHas == 1;      lkBase := *slBase;
+        };
+    // firstIsDefault a looks list's first member is its default (R2); its own action, since a local bound inside an if arm holds nothing after it (SEQ 687)
+    lookFirst code={
+        for grup in argument; members
+            if lnFirst == 0;    lkLook := *grup;
+            lnFirst = 1;
+        };
+    /***************************************************************************
+        setLookByName -- looks by name (Tony, 2026-11-20, SEQ 723 R2-R4).
+        argument is setFrame's request; setLook calls this when the form
+        carries looks:=aList or is held under a look picked by name. A look
+        is asked for by name: look="dark" (a list member is on no search
+        list, so look:=dark is refused at define), or by a held look field,
+        matched by its tag. Its list's first member is the default.
+        Top level: a name not in the list refuses by name (lkRefused) and
+        setFrame lays nothing out. Held (R4): it takes its host's look name;
+        a name its list lacks gives its own default, the first member, and a
+        trace line says so; with no list at all it uses defaultLook silently.
+    ***************************************************************************/
+    setLookByName code={
+        lnReq := argument;
+        lnForm := *lnReq["form"];
+        lnFName := **lnForm.taG;
+        lnF := **lnForm;
+        lnList := *lnF["looks"];
+        lnHasList = 0;
+        if *lnF["looks"];       lnHasList = 1;
+        lnAsk = 0;
+        if *lnReq["look"];      lnAsk = 1;
+        lnLook := *lnReq["look"];
+        lnVia = 0;
+        if lnAsk == 1;          lnVia = *lnLook.isGrouP;
+        lnName = "none";
+        if lnAsk == 1;
+            if lnVia == 1;      lnName = string $**lnLook.taG$;
+            if lnVia == 0;      lnName = string $*lnLook$;
+        lnHit = 0;
+        if lnAsk == 1;
+            if lnHasList == 1;
+                if **lnList[lnName];    lnHit = 1;
+        if lnHit == 1;
+            lkLook := **lnList[lnName];
+            lkHas = 1;
+            lkNamed = 1;
+        // byListOrder no hit: the list's first member is the default, else defaultLook (lkHas stays 0)
+        lnFirst = 0;
+        if lnHit == 0;
+            if lnHasList == 1;
+                lookFirst(**lnList);
+        if lnFirst == 1;
+            lkHas = 1;
+            lkNamed = 1;
+        lnMiss = 0;
+        if lnAsk == 1;
+            if lnHit == 0;      lnMiss = 1;
+        if lnMiss == 1;
+            if lnHeld == 0;     lkRefused = 1;
+            if lnHeld == 0;     cerr "setFrame: REFUSING" lnFName "-- the request asks for the look" lnName "and its looks list holds no look by that name; nothing is laid out":;
+            // listLacksIt the trace is for a held form whose list lacks the name; one with no list uses defaultLook silently, which is R1, not a fallback (ruled 2026-11-20)
+            if lnHeld != 0;
+                lnDef = "none";
+                if lnFirst == 1;    lnDef = string $*lkLook.taG$;
+                if lnFirst == 1;    cout "setFrame:" lnFName "is held under the look" lnName "and its looks list has none by that name; it uses its own default," lnDef:;
+        };
+    /***************************************************************************
+        resolveLook -- placeholders through the look (SEQ 652 R2, R3). argument
+        is a field on a laid-out copy, or a run's own copy of its style (typeset).
+        Its attributes are re-pointed; nothing under it is walked. rlSays is the
+        word the refusal opens with: setFrame's, or drawSpans' for a run.
+    ***************************************************************************/
+    resolveLook code={
+        // placeholders an attribute that holds a placeholder (fill:=pageFill) is re-pointed, on the copy, at what the request's look holds under that name, else at what defaultLook holds; found in neither, it is refused by name and left as written (SEQ 652 R2, R3)
+        for grup in argument; attributes
+            msHolds = *grup.isGrouP;
+            // emptyHeldField kant cannot read the virtual flag, so a placeholder is known by what it is: a held field with no value, no list and nothing held. A colour has a value, a font and an action have a list, a holder holds
+            msPh = 0;
+            if msHolds == 1;
+                msPh = 1;
+                msData = **grup.datA;
+                msList = **grup.listLengtH;
+                msVia = **grup.isGrouP;
+                if msData != 0;     msPh = 0;
+                if msList != 0;     msPh = 0;
+                if msVia != 0;      msPh = 0;
+            if msPh == 1;
+                msName := **grup.taG;
+                msDone = 0;
+                if lkHas == 1;
+                    if *lkLook[*msName];
+                        msTo := *lkLook[*msName];
+                        *grup := **msTo;
+                        msDone = 1;
+                if msDone == 0;
+                    if lkBaseHas == 1;
+                        if *lkBase[*msName];
+                            msTo := *lkBase[*msName];
+                            *grup := **msTo;
+                            msDone = 1;
+                if msDone == 0;
+                    msAttr = *grup.taG;
+                    cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
+        };
+    /***************************************************************************
+        mergeStyles -- styles by merge at layout (Tony, 2026-11-14, SEQ 652 R1).
+        Run by setFrame on the copy, before frameMembers. Every style:= a field
+        holds is merged into that field: a deep copy of the style (R5), by
+        GroupItem's merge, which adds an attribute only where the field has
+        none of that name. So the field's own attributes always win, wherever
+        style:= sits on the line, and of two styles the earlier wins. The
+        definition and the style are never written. A style:= inside a style
+        is not followed: styles are composed from styles by merge in a define.
+    ***************************************************************************/
+    mergeStyles code={
+        for grup in argument; attributes
+            msTag = *grup.taG;
+            msIs = 0;
+            if msTag == "style";    msIs = 1;
+            msHeld = *grup.isGrouP;
+            // notHeld style:= is the only spelling (SEQ 624 R0): a quoted or copied style name is refused by name, here since F-156 took the floor's own style read away, and the field has no style
+            if msIs == 1;
+                if msHeld == 0;
+                    cerr "styleOf: REFUSING" argument.taG "-- its style is not held; write style:=name (a quoted or copied style name is retired)":;
+            if msHeld == 0;         msIs = 0;
+            if msIs == 1;
+                msOwn := copyDeep(**grup);
+                *msOwn :. mergeON;
+                argument :. mergeON;
+                argument +% *msOwn;
+        resolveLook(argument);
+        if hasMemberS;
+            for grup in argument; members
+                mergeStyles(*grup);
+        };
+    /***************************************************************************
+        Convert the hex string in the target passed in to a floating point number
+    ***************************************************************************/
+    hexToNumber target code={
+        while target;
+            numDBL  = target.numbeR;
+            if numDBL <= 57;    numDBL -= 48;
+            or numDBL <= 70;    numDBL -= 55;
+            or numDBL <= 102;   numDBL -= 87;
+            ++target;
+            if num; num *= 16;
+            num += numDBL;
+        target  = num;
+        return target; };
+    /***************************************************************************
+        Extract the red, green, and blue components of a color group passed
+        in as a six character hex string
+    ***************************************************************************/
+    setHexColor hex code={
+        RGBred  = hex - 4;
+        hex     +% hexToNumber(RGBred);
+        RGBgreen    = hex + 2;
+        RGBgreen    -= 2;       // to chop off the blue component
+        hex     +% hexToNumber(RGBgreen);
+        RGBblue = hex + 4;
+        hex     +% hexToNumber(RGBblue);
+        dumpContents(hex); };
+    cpWant;
+    cpTab;
+    cpTabName;
+    cpHits = 0;
+    cpBars code={
+        for grup in argument; members
+            cbIs = 0;
+            // listFirst a subscript on a field with no list says "does not contain a list"
+            cbL = *grup.listLengtH;
+            if cbL > 0;
+                if *grup["tabs"];   cbIs = 1;
+            if cbIs == 1;           cpBar(*grup);
+            if *grup.hasMemberS;    cpBars(*grup);
+        };
+    cpBar code={
+        cbHold := argument["tabs"];
+        cbSel := **cbHold;
+        // holdsTheTab the field holds the selected tab (tabSelected := tabThree); holding 0 it is nothing selected -- 0, not empty: an empty held field reads as a look placeholder (resolveLook)
+        cbName = string $"none"$;
+        cbIsTab = *cbSel.isGrouP;
+        if cbIsTab == 1;
+            cbTabIs := *cbSel;
+            cbName = string $**cbTabIs.taG$;
+        cbFound = 0;
+        for grup in argument; members
+            cbT = string $*grup.taG$;
+            if cbFound == 0;
+                if cbName == "none";    cbFound = 1;
+                if cbT == cbName;       cbFound = 1;
+                if cbFound == 1;        cpTab := *grup;
+                if cbFound == 1;        cpTabName = string $cbT$;
+        if cbFound == 0;
+            cerr "setFrame: REFUSING the tab" cbName "-- the tab bar" argument.taG "has no tab by that name; the cards show their first":;
+            return;
+        cbHas = 0;
+        cbTL = *cpTab.listLengtH;
+        // selectFill the selected tab is filled with what its selectFill holds; the look has resolved both by now, and this is the copy (tabs stroke 3)
+        cbSF = 0;
+        if cbTL > 0;
+            if *cpTab["selectFill"];    cbSF = cbSF + 1;
+            if *cpTab["fill"];          cbSF = cbSF + 1;
+        if cbSF == 2;
+            cbFrom := *cpTab["selectFill"];
+            cbTo := *cpTab["fill"];
+            *cbTo := **cbFrom;
+        if cbTL > 0;
+            if *cpTab["card"];      cbHas = 1;
+        if cbHas == 0;
+            cerr "setFrame: REFUSING the tab" cpTabName "-- it names no card (card:=); the cards show their first":;
+            return;
+        cbCard := *cpTab["card"];
+        cpWant = string $**cbCard.taG$;
+        };
+    cpCards code={
+        for grup in argument; members
+            ccIs = 0;
+            ccL = *grup.listLengtH;
+            if ccL > 0;
+                if *grup["cards"];  ccIs = 1;
+            if ccIs == 1;           cpOne(*grup);
+            if *grup.hasMemberS;    cpCards(*grup);
+        };
+    cpOne code={
+        coHas = 0;
+        for grup in argument; members
+            coN = string $*grup.taG$;
+            if coN == cpWant;   coHas = 1;
+        if coHas == 1;      cpHits += 1;
+        coFirst = 1;
+        for grup in argument; members
+            coN = string $*grup.taG$;
+            coShow = 0;
+            if coHas == 1;
+                if coN == cpWant;   coShow = 1;
+            if coHas == 0;
+                if coFirst == 1;    coShow = 1;
+            coFirst = 0;
+            if coShow == 0;     *grup :. isHiddeN;
+        };
+    /***************************************************************************
+        cardsPick -- tabs and cards (tabs stroke 2, Tony's rulings of
+        2026-11-18). setFrame calls it on the laid-out copy, never on the
+        definition. A field written cards shows ONE member; the rest are
+        isHiddeN on the copy, so they take no room and the shown one gets the
+        cards field's whole box. Which one: a tab bar is a field with
+        tabs:=someField, a field OUTSIDE the form (ruling 3) that holds the
+        selected tab (tabSelected := tabThree); holding 0, the bar's first
+        tab is the selected one (0, not empty: an empty held field reads as a
+        look placeholder). The tab is matched by name on the copy. The selected tab names its card with card:=; the cards
+        field that has a member of that name shows it. A cards field no tab
+        points into shows its first member. A selected tab whose card is in
+        no cards field, or a selected name the bar has no tab for, refuses by
+        name, and every cards field then shows its first member.
+        The selected tab is filled with what its selectFill holds (tabs
+        stroke 3); every other tab keeps its own fill.
+    ***************************************************************************/
+    cardsPick code={
+        cpWant = string $"none"$;
+        cpHits = 0;
+        cpBars(argument);
+        cpCards(argument);
+        if cpWant != "none";
+            if cpHits == 0;
+                cerr "setFrame: REFUSING the tab" cpTabName "-- its card" cpWant "is in no cards field; the cards show their first":;
+        };
+    /***************************************************************************
+        formFrames -- G3 item 2 (Tony ruled 2026-11-21): frames kept by form name,
+        for one run. An entry is a field named for the form holding any of x y
+        width height. setFrame reads its own form's entry for the top field, then
+        clears it; keepFrame writes one (a close, a resize, a redraw of an open
+        window). Nothing goes to disk: a fresh run starts empty. The one place
+        this state is defined.
+    ***************************************************************************/
+    formFrames;
+    /***************************************************************************
+        keepFrame -- ONE argument, a request: form:= the form and frame:= a
+        field holding any of x y width height (a window's frame, or a new one).
+        Writes the form's entry in formFrames, replacing an old one. A close is
+        this alone. Refuses by name a request with no form or no frame.
+    ***************************************************************************/
+    keepFrame code={
+        kfReq := argument;
+        kfOk = 1;
+        if *kfReq["form"];      kfOk = kfOk + 1;
+        if *kfReq["frame"];     kfOk = kfOk + 1;
+        if kfOk != 3;
+            cerr "keepFrame: REFUSING" argument.taG "-- its request needs form:=theForm and frame:=aFrame":;
+            return;
+        kfForm := *kfReq["form"];
+        kfName := **kfForm.taG;
+        kfFrame := *kfReq["frame"];
+        kfOld := formFrames[*kfName];
+        kfHad = 0;
+        if formFrames[*kfName];     kfHad = 1;
+        if kfHad == 1;              formFrames -% *kfOld;
+        kfEnt := new(*kfName);
+        if **kfFrame["x"];          *kfEnt :% copyOf(**kfFrame["x"]);
+        if **kfFrame["y"];          *kfEnt :% copyOf(**kfFrame["y"]);
+        if **kfFrame["width"];      *kfEnt :% copyOf(**kfFrame["width"]);
+        if **kfFrame["height"];     *kfEnt :% copyOf(**kfFrame["height"]);
+        formFrames +% *kfEnt;
+        };
+    tsSp isRule sp^-=[\t\r ];
+    tsNl isRule nl^-=[\n];
+    tsLine isRule tsNl^ tsSp^*;
+    tsWord isRule word^=[^\t\n\r{} ]+;
+    tsLit isRule lit^="{" more^-="{";
+    tsOpen isRule open^="{" style^=[a-zA-Z0-9]+ colon^=":";
+    tsQual isRule qins^="{" reg^=[a-zA-Z0-9]+ dot^="." name^=[a-zA-Z0-9]+ end^="}";
+    tsIns isRule ins^="{" name^=[a-zA-Z0-9]+ end^="}";
+    tsBrace isRule brace^="{";
+    tsClose isRule close^="}";
+    tsPiece isRule
+        tsWord^;
+        tsLit^;
+        tsOpen^;
+        tsQual^;
+        tsIns^;
+        tsBrace^;
+        tsClose^;
+    tsUnit isRule tsPiece^ tsSp^* tsLine^*;
+    tsText isRule tsUnit+;
+    tsInner isRule tsUnit+;
+    tsWant;
+    tsFound;
+    tsHit;
+    tsRun style depth;
+    tsBoxNames fill border topBorder bottomBorder leftBorder rightBorder strokeColor rounded shadow opacity;
+    tsRunName;
+    tsRuns;
+    tsSpan space font color italic;
+    tsOut;
+    tsRunCount;
+    tsWho;
+    tsFind code={
+        for grup in argument; members
+            if tsHit == 0;
+                tfTag := *grup.taG;
+                if *tfTag == *tsWant;
+                    tsFound := *grup;
+                    tsHit = 1;
+            if tsHit == 0;
+                if *grup.hasMemberS;    tsFind(*grup);
+        };
+    // boxWarn its own action because a for loop walks an argument's attributes and not a starred holder's (measured, SEQ 655)
+    tsBoxWarn code={
+        for grup in argument; attributes
+            bwTag := *grup.taG;
+            bwHit = 0;
+            if tsBoxNames[*bwTag];      bwHit = 1;
+            if bwHit == 1;
+                bwField := *tsWho.taG;
+                cerr "drawSpans: WARNING" bwField "-- its text names the style" tsRunName "which holds the box attribute" bwTag "-- a run takes font, color, italic and space only":;
+        };
     /***************************************************************************
         typeset -- typesetting T1 (2026-11-12; Clay's pre-pass design, Tony's go).
         The kant pre-pass: it takes a field's text apart into paragraphs and
@@ -158,58 +979,6 @@ define
         name and is left as written. This replaces T3's "nothing inside it is
         read as a mark".
     ***************************************************************************/
-    tsSp isRule sp^-=[\t\r ];
-    tsNl isRule nl^-=[\n];
-    tsLine isRule tsNl^ tsSp^*;
-    tsWord isRule word^=[^\t\n\r{} ]+;
-    tsLit isRule lit^="{" more^-="{";
-    tsOpen isRule open^="{" style^=[a-zA-Z0-9]+ colon^=":";
-    tsQual isRule qins^="{" reg^=[a-zA-Z0-9]+ dot^="." name^=[a-zA-Z0-9]+ end^="}";
-    tsIns isRule ins^="{" name^=[a-zA-Z0-9]+ end^="}";
-    tsBrace isRule brace^="{";
-    tsClose isRule close^="}";
-    tsPiece isRule
-        tsWord^;
-        tsLit^;
-        tsOpen^;
-        tsQual^;
-        tsIns^;
-        tsBrace^;
-        tsClose^;
-    tsUnit isRule tsPiece^ tsSp^* tsLine^*;
-    tsText isRule tsUnit+;
-    tsInner isRule tsUnit+;
-    tsWant;
-    tsFound;
-    tsHit;
-    tsFind code={
-        for grup in argument; members
-            if tsHit == 0;
-                tfTag := *grup.taG;
-                if *tfTag == *tsWant;
-                    tsFound := *grup;
-                    tsHit = 1;
-            if tsHit == 0;
-                if *grup.hasMemberS;    tsFind(*grup);
-        };
-    tsRun style depth;
-    tsBoxNames fill border topBorder bottomBorder leftBorder rightBorder strokeColor rounded shadow opacity;
-    tsRunName;
-    // boxWarn its own action because a for loop walks an argument's attributes and not a starred holder's (measured, SEQ 655)
-    tsBoxWarn code={
-        for grup in argument; attributes
-            bwTag := *grup.taG;
-            bwHit = 0;
-            if tsBoxNames[*bwTag];      bwHit = 1;
-            if bwHit == 1;
-                bwField := *tsWho.taG;
-                cerr "drawSpans: WARNING" bwField "-- its text names the style" tsRunName "which holds the box attribute" bwTag "-- a run takes font, color, italic and space only":;
-        };
-    tsRuns;
-    tsSpan space font color italic;
-    tsOut;
-    tsRunCount;
-    tsWho;
     typeset code={
         tyTree := tsText(argument);
         clear(tsOut);
@@ -465,6 +1234,34 @@ define
                         tyOpen = 0;
                     tyUnit := *tyBack.nexT;
         };
+    textReq field source font color align valign italic spans runs;
+    imageReq field source fit;
+    /***************************************************************************
+        drawWalk -- forms step 2: draw a form, parent before child, depth first.
+        The top field opens the display (makeDisplay hands it down as each
+        descendant's display property, step 1), then every field that names a
+        fill, or a style for displayFill to resolve, fills into it at page
+        coordinates. A field naming neither is skipped, not refused. After its
+        fill, a field naming border or a side (topBorder, bottomBorder,
+        leftBorder, rightBorder) draws it through displayBorder (forms step 3).
+        A top that already holds a context (openPDF's, or a bitmap the caller
+        opened) is drawn into as it stands: drawWalk opens no bitmap of its own
+        (forms step 4). The capture is `=`, not `:=`: a := capture is a holder,
+        and `dwOpen == 0` then reads false on a 0 (measured 2026-11-08; #55's
+        family). isPointeR always writes 0 or 1, so `=` carries it.
+        drawKids descends where *grup.hasMemberS: grup is the loop's holder, so
+        the star is needed (grup.hasMemberS reads nothing; measured 2026-11-08,
+        bar 1, every leaf 0).
+    ***************************************************************************/
+    drawWalk code={
+        dwOpen = argument.isPointeR;
+        if dwOpen == 0;     makeDisplay(argument);
+        drawFill(argument);
+        drawImage(argument);
+        drawBorder(argument);
+        drawText(argument);
+        drawKids(argument);
+        };
     /***************************************************************************
         drawText -- forms step 5 (Tony, 2026-11-09, SEQ 582). Resolves a field's
         font, color, align (step 5a, SEQ 584), valign (step 5b, SEQ 605) and italic (SEQ 624) in kant and hands drawSpans one request, textReq,
@@ -560,7 +1357,6 @@ define
         no attribute names a fit yet. Drawn after the fill and before the
         border, so the border sits on the image.
     ***************************************************************************/
-    imageReq field source fit;
     drawImage code={
         diSelf := argument;
         if *diSelf["image"];
@@ -592,685 +1388,30 @@ define
                 drawText(*grup);
                 if *grup.hasMemberS;    drawKids(*grup);
         };
-    listed;
+    windowReq path form look;
+    pageReq path form width height;
+    showPath path="IncantForms/PDF/output.pdf";
+    showReq path form look;
+    ckFn;
+    ckNm;
     /***************************************************************************
-        listRules — print a field and its components as tag=value. Note the use
-        of listed, which is explicitly not a local field used to control
-        recursing and hold off a mad recursing loop
-    ***************************************************************************/
-    listRules code={
-        listed  += argument;
-        length  = listLengtH;
-        if datA != 0;   print ~$taG "=" argument;
-        else            print ~$taG;
-        if length > 0;
-            print _length:;
-            iterate grup on argument;
-            while ++grup;
-                length  = listLengtH;
-                if noPrinT; continue;
-                print +;
-                if !length || grup IN listed;
-                    if datA != 0;   print ~$taG "=" grup:;
-                    else            print ~$taG:;
-                else
-                    listRules(*grup);
-                print $-;
-        else    print :;
-        };
-    /***************************************************************************
-        print out xml representation of the group passed in. Does not
-        handle cdata yet.
-    ***************************************************************************/
-    toXML code={
-        print ~,"<" tag;
-        if datA; print ,"=" argument;
-        if hasAttributes;
-            for grup in argument; attributes
-                print _grup.tag;
-                if grup.datA print ,"=" grup;
-        if hasMembers;
-            print ">",:+;
-            for grup in argument; members
-                ++recurse;
-                toXML(*grup);
-                --recurse;
-                if grup.next    print :;
-        else    print "/>";
-        if hasMembers;      print ,-"</" tag ">";
-        if recurse == 0     print :;
-        };
-    /***************************************************************************
-        fillDownAcross deals with direction framing. The direction can be either
-        down or across. When the direction passed in has a value. The value can
-        be "*" or a number. The argument passed in has to contain the direction
-        attribute (that is down or across respectively).
-        
-        If the direction value is "*", the argument passed in can have only one
-        member (the member may have members); also the member should have its
-        target (width or height) specified. If direction value is a number
-        (like down=3) the argument can have more than one member, but all members
-        should have no target specified. Also, the argument passed in should
-        have no data (you can add data after setFrame finishes).
-    ***************************************************************************/
-    tARGET;
-    dIRECTion;
-    newStuff isList;
-    fillDownAcross code={
-        pValue = argument[tARGET];
-        direct = argument[dIRECTion];
-        memberCount=0;
-        for grup in argument; members
-            ++memberCount;
-            target = *grup[tARGET];
-            if target.isPercenT;    target = argument[tARGET] * target / 100;
-            if target.datA != 0;    pValue -= target;
-        if direct == "*";
-            if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
-            valueCount = 0;
-            valueCount = pValue / target;
-            if valueCount * target > pValue;    --valueCount;
-        else
-            if direct > 0;
-                valueCount = direct - 1;
-        // repeatInPlace the repeats are deep copies added to the field itself, so every member keeps the field as its parent and each copy owns its children (SEQ 653). A bare down or across adds nothing. The old way rebuilt the list in a scratch field from shallow copies: a member's children climbed to the scratch field, and the copies shared one set of children, all laid out where the last one fell.
-        while valueCount > 0;
-            --valueCount;
-            fdSeen = 0;
-            for grup in argument; members
-                if fdSeen < memberCount;    argument +/ copyDeep(*grup);
-                ++fdSeen;
-        };
-    /***************************************************************************
-         frameMembers sets frames for the members of the group passed in. It must
-         have x y width and height attributes. It WRITES the group it is handed,
-         so only setFrame calls it, and only on a copy.
+        describe is used to supply descriptions in forms by adding it as a form
+        attribute with a text value of the field being described. The describe
+        text is initialized as either the tag of a field in the form that has
+        a corresponding entry with the same tag in the dESCRIPTIONs registry, or
+        as whatever descriptive text the form designer wants to show when the
+        form first fires. describe is a dynamic attribute with an action
+        When a form field is clicked on selection.group is set to the first selectable
+        field found after searching up the parent hierarchy starting with the
+        field clicked on. And if the selected field has a describe attribute the
+        describe action sets the describe.text for the form layout to display.
 
-         isHidden and noRoom (forms step 6, Tony's ruling of 2026-11-07; built
-         SEQ 627). Two flags, two facts. isHidden is the author's: a field
-         written isHiddeN takes no room, gets no frame, and neither it nor
-         anything under it is laid out or drawn. noRoom is layout's and means
-         only "does not fit": after a parent's members are placed, a member
-         wholly outside the parent's box on either axis (or left with no width
-         or no height) is flagged noRooM; it is not drawn and nothing under it
-         is laid out. A member partly outside is drawn. Nothing is shrunk and
-         layout does not stop. noRoom is written on the laid-out copy only, so
-         every run decides it afresh.
+        See the tabs or descriptions forms in IncantForms/Windows for an example
+        of how to define a form that uses descriptions.
     ***************************************************************************/
-    frameMembers code={
-        =:argument across down overlay width height x y;
-        // oneDirection a field names down or across, never both (G3 item 1, Tony 2026-11-21): refused by name, its members are not laid out. A grid is a row level: down on the field, across on the one row it holds, the height on the row
-        fmBoth = 0;
-        if across.datA != 0;
-            if down.datA != 0;  fmBoth = 1;
-        if fmBoth == 1;
-            cerr "setFrame: REFUSING" argument.taG "-- it names both down and across; a field takes one direction, so write the grid as rows (down on the field, across on a row it holds); its members are not laid out":;
-            return;
-        sideRoom    = width;
-        pWidth      = width;
-        headRoom    = height;
-        pHeight     = height;
-        pX          = x;
-        pY          = y;
-        boxX        = x;
-        boxY        = y;
-        boxR        = x + width;
-        boxB        = y + height;
-        upOut       = 0;
-        sideOut     = 0;
-        // overlayNamed a parent that names overlay (and neither down nor across) overlays its children: each fills the parent's box unless it declares its own width, height, x or y. A parent naming no direction stacks them, as down does: the old GUI's default, and what descriptions and unitTests' sample rely on (SEQ 626 W3; the default is Tony's to re-rule)
-        laysOver    = 0;
-        if overlay.datA != 0;
-            if across.datA == 0;
-                if down.datA == 0;  laysOver = 1;
-        if down.datA != 0;
-            tARGET="height";
-            dIRECTion="down";
-            fillDownAcross(argument);
-        if across.datA != 0;
-            tARGET="width";
-            dIRECTion="across";
-            fillDownAcross(argument);
-   /***************************************************************************
-                 Create frame and set width and height
-    ***************************************************************************/
-        for grup in argument; members
-            // hiddenTakesNoRoom an isHidden member is not sized, so it joins no share
-            fmHid = *grup.isHiddeN;
-            if fmHid == 0;
-                =:grup width height;
-                if width.isPercenT;
-                    width = pWidth * width / 100;
-                    *grup :% copyOf(width);
-                if height.isPercenT;
-                    height = pHeight * height / 100;
-                    *grup :% copyOf(height);
-                if width.datA != 0;
-                    sideRoom    -= width;
-                or across.datA == 0;
-                    width = pWidth;
-                    *grup :% copyOf(width);
-                else
-                    sideOut     +/ *grup;
-                    ++sideOut;
-                if height.datA != 0;
-                    headRoom    -= height;
-                or across.datA != 0;
-                    height = pHeight;
-                    *grup :% copyOf(height);
-                or laysOver == 1;
-                    height = pHeight;
-                    *grup :% copyOf(height);
-                else
-                    upOut       +/ *grup;
-                    ++upOut;
-        if upOut > 0;
-            shareN = 0;
-            shareUsed = 0;
-            shareEdge = 0;
-            for grup in upOut;
-                ++shareN;
-                shareEdge = headRoom * shareN / upOut;
-                height = shareEdge - shareUsed;
-                shareUsed = shareEdge;
-                *grup :% copyOf(height);
-        if sideOut > 0;
-            shareN = 0;
-            shareUsed = 0;
-            shareEdge = 0;
-            for grup in sideOut;
-                ++shareN;
-                shareEdge = sideRoom * shareN / sideOut;
-                width = shareEdge - shareUsed;
-                shareUsed = shareEdge;
-                *grup :% copyOf(width);
-        headRoom    = 0;
-        sideRoom    = 0;
-    /***************************************************************************
-             Set x and y in frame
-    ***************************************************************************/
-        // fromTheParent under an overlaying parent a child's declared x and y are measured from the parent's origin (R4); under down or across they are not read, as before
-        for grup in argument; members
-            fmHid = *grup.isHiddeN;
-            if fmHid == 0;
-                =:grup width height x y;
-                placeY = pY;
-                placeX = pX;
-                if laysOver == 1;
-                    if y.datA != 0;     placeY = pY + y;
-                if laysOver == 1;
-                    if x.datA != 0;     placeX = pX + x;
-                y = placeY;
-                *grup :% copyOf(y);
-                x = placeX;
-                *grup :% copyOf(x);
-                // doesNotFit noRoom means only this: wholly outside the parent's box on an axis, or no extent on one (Tony, 2026-11-07). Partly outside is drawn.
-                fmRight = placeX + width;
-                fmFoot  = placeY + height;
-                fmOut   = 0;
-                if placeX >= boxR;      fmOut = 1;
-                if fmRight <= boxX;     fmOut = 1;
-                if placeY >= boxB;      fmOut = 1;
-                if fmFoot <= boxY;      fmOut = 1;
-                if fmOut == 1;          *grup :. noRooM;
-                if laysOver == 0;
-                    if across.datA == 0;    pY += height;
-                if laysOver == 0;
-                    if across.datA != 0;    pX += width;
-        for grup in argument; members
-            fmSkip = *grup.isHiddeN;
-            fmGone = *grup.noRooM;
-            if fmGone == 1;     fmSkip = 1;
-            if fmSkip == 0;
-                // holdsAForm a field written form:=other is filled by that form, laid out in the field's frame (G2 stroke 1b); its own members, if any, are not laid out
-                fmHolds = 0;
-                fmSelf := *grup;
-                if *fmSelf["form"];     fmHolds = 1;
-                if fmHolds == 1;        placeForm(*grup);
-                if fmHolds == 0;
-                    if *grup.hasMemberS;
-                        frameMembers(*grup);
-        };
-    /***************************************************************************
-        setFrame -- forms step 6 (Tony's design of 2026-11-07; SEQ 626).
-        ONE argument, a request holding form:= the form and, optionally,
-        frame:= a field of its own, outside the form, holding x y width height.
-        setFrame copies the form, lays out the copy and returns it. The form's
-        definition is never written, so a declared percent, a down=3 and the
-        member set are all still there for the next run, and every run is a
-        fresh run. With a frame the copy's top takes the frame's four values;
-        with none it keeps the form's declared four. Only the top is gated:
-        every child is laid out from its parent, so a percent follows the new
-        size. The caller holds the returned copy (laid := setFrame(req)) and
-        draws that; no laid-out result is saved anywhere.
-        A request with no frame takes its form's entry in formFrames, if any,
-        for the top field, then clears it (G3 item 2, Tony 2026-11-21): a part
-        the entry lacks keeps the declared value. A request's own frame comes
-        first, so a held form (placeForm names its host field) never reads it.
-        Refuses by name and returns nothing: a request with no form; a frame
-        that lacks any of x y width height (frameWhole).
-    ***************************************************************************/
-    /***************************************************************************
-        placeForm -- a form inside a field (G2 stroke 1b; Tony, 2026-11-13). A
-        field written form:=other is the frame for that form: once the field has
-        its own x y width height, the form is laid out by setFrame with the
-        field as the request's frame, and the laid-out copy becomes the field's
-        one member, so drawWalk draws it there with no change. Each field that
-        holds a form gets its own copy. setFrame refuses a form that holds
-        itself, directly or through other forms (sfChain holds the names of the
-        forms being laid out); the field is then left empty.
-        The reference may name the form itself (form:=other) or a field of
-        its own that holds the form (shown := other; form:=shown). Writing
-        that field tells its listeners, so a listener that calls redrawForm
-        swaps the form shown in the field (G2 stroke 2).
-    ***************************************************************************/
-    placeReq form frame look;
-    sfChain;
-    placeForm code={
-        pfHost := argument;
-        pfRef := *pfHost["form"];
-        // heldThroughAField the reference may name a field of its own that holds the form (shown := aForm); writing that field swaps the form (G2 stroke 2)
-        pfTarget := **pfRef;
-        pfVia = *pfTarget.isGrouP;
-        if pfVia == 1;      pfTarget := **pfTarget;
-        placeReq.form := *pfTarget;
-        placeReq.frame := argument;
-        // lookGoesDown the held form is laid out under its host's look (SEQ 655, stroke 4)
-        placeReq.look = 0;
-        if lkHas == 1;      placeReq.look := *lkLook;
-        // hostLookKept the held form may take a look of its own (SEQ 723 R4), so the host's is kept and put back after it is laid out
-        pfHas = lkHas;
-        pfNamed = lkNamed;
-        pfKeep := *lkLook;
-        lkHeld = 1;
-        if lkNamed == 1;    lkHeld = 2;
-        pfLaid := setFrame(placeReq);
-        lkHas = pfHas;
-        lkNamed = pfNamed;
-        if pfHas == 1;      lkLook := *pfKeep;
-        pfGot = 0;
-        if *pfLaid.listLengtH;      pfGot = 1;
-        if pfGot == 1;              argument +/ *pfLaid;
-        };
-    fwOk = 0;
-    frameWhole code={
-        =:argument x y width height;
-        fwOk = 1;
-        if x.datA == 0;         fwOk = 0;
-        if y.datA == 0;         fwOk = 0;
-        if width.datA == 0;     fwOk = 0;
-        if height.datA == 0;    fwOk = 0;
-        };
-    /***************************************************************************
-        mergeStyles -- styles by merge at layout (Tony, 2026-11-14, SEQ 652 R1).
-        Run by setFrame on the copy, before frameMembers. Every style:= a field
-        holds is merged into that field: a deep copy of the style (R5), by
-        GroupItem's merge, which adds an attribute only where the field has
-        none of that name. So the field's own attributes always win, wherever
-        style:= sits on the line, and of two styles the earlier wins. The
-        definition and the style are never written. A style:= inside a style
-        is not followed: styles are composed from styles by merge in a define.
-    ***************************************************************************/
-    lkLook;
-    lkHas = 0;
-    lkBase;
-    lkBaseHas = 0;
-    /***************************************************************************
-        setLook -- which looks a layout resolves placeholders through (SEQ 654).
-        argument is setFrame's request. Its look:= is the first place looked;
-        defaultLook (IncantForms/Controls/styles) is the second, when the styles
-        file is loaded. mergeStyles reads the four fields this writes.
-    ***************************************************************************/
-    lkNamed = 0;
-    lkHeld = 0;
-    lkRefused = 0;
-    setLook code={
-        slReq := argument;
-        // heldOnce placeForm raises lkHeld for the one setFrame it calls: 1 the host's look is a look field, 2 it was picked by name from the host's list (SEQ 723 R4)
-        slHeld = lkHeld;
-        lkHeld = 0;
-        lkRefused = 0;
-        slForm := *slReq["form"];
-        slF := **slForm;
-        slHasList = 0;
-        if *slF["looks"];       slHasList = 1;
-        slAsk = 0;
-        if *slReq["look"];      slAsk = 1;
-        slLook := *slReq["look"];
-        slByName = 0;
-        if slHasList == 1;      slByName = 1;
-        if slHeld == 2;         slByName = 1;
-        lkHas = 0;
-        lkNamed = 0;
-        if slByName == 0;
-            if slAsk == 1;      lkHas = 1;
-            if slAsk == 1;      lkLook := **slLook;
-        lnHeld = slHeld;
-        if slByName == 1;   setLookByName(*slReq);
-        lkBaseHas = 0;
-        slBase := sTYLEs["defaultLook"];
-        if *slBase.listLengtH;  lkBaseHas = 1;
-        if lkBaseHas == 1;      lkBase := *slBase;
-        };
-    /***************************************************************************
-        setLookByName -- looks by name (Tony, 2026-11-20, SEQ 723 R2-R4).
-        argument is setFrame's request; setLook calls this when the form
-        carries looks:=aList or is held under a look picked by name. A look
-        is asked for by name: look="dark" (a list member is on no search
-        list, so look:=dark is refused at define), or by a held look field,
-        matched by its tag. Its list's first member is the default.
-        Top level: a name not in the list refuses by name (lkRefused) and
-        setFrame lays nothing out. Held (R4): it takes its host's look name;
-        a name its list lacks gives its own default, the first member, and a
-        trace line says so; with no list at all it uses defaultLook silently.
-    ***************************************************************************/
-    lnHeld = 0;
-    lnFirst = 0;
-    // firstIsDefault a looks list's first member is its default (R2); its own action, since a local bound inside an if arm holds nothing after it (SEQ 687)
-    lookFirst code={
-        for grup in argument; members
-            if lnFirst == 0;    lkLook := *grup;
-            lnFirst = 1;
-        };
-    setLookByName code={
-        lnReq := argument;
-        lnForm := *lnReq["form"];
-        lnFName := **lnForm.taG;
-        lnF := **lnForm;
-        lnList := *lnF["looks"];
-        lnHasList = 0;
-        if *lnF["looks"];       lnHasList = 1;
-        lnAsk = 0;
-        if *lnReq["look"];      lnAsk = 1;
-        lnLook := *lnReq["look"];
-        lnVia = 0;
-        if lnAsk == 1;          lnVia = *lnLook.isGrouP;
-        lnName = "none";
-        if lnAsk == 1;
-            if lnVia == 1;      lnName = string $**lnLook.taG$;
-            if lnVia == 0;      lnName = string $*lnLook$;
-        lnHit = 0;
-        if lnAsk == 1;
-            if lnHasList == 1;
-                if **lnList[lnName];    lnHit = 1;
-        if lnHit == 1;
-            lkLook := **lnList[lnName];
-            lkHas = 1;
-            lkNamed = 1;
-        // byListOrder no hit: the list's first member is the default, else defaultLook (lkHas stays 0)
-        lnFirst = 0;
-        if lnHit == 0;
-            if lnHasList == 1;
-                lookFirst(**lnList);
-        if lnFirst == 1;
-            lkHas = 1;
-            lkNamed = 1;
-        lnMiss = 0;
-        if lnAsk == 1;
-            if lnHit == 0;      lnMiss = 1;
-        if lnMiss == 1;
-            if lnHeld == 0;     lkRefused = 1;
-            if lnHeld == 0;     cerr "setFrame: REFUSING" lnFName "-- the request asks for the look" lnName "and its looks list holds no look by that name; nothing is laid out":;
-            // listLacksIt the trace is for a held form whose list lacks the name; one with no list uses defaultLook silently, which is R1, not a fallback (ruled 2026-11-20)
-            if lnHeld != 0;
-                lnDef = "none";
-                if lnFirst == 1;    lnDef = string $*lkLook.taG$;
-                if lnFirst == 1;    cout "setFrame:" lnFName "is held under the look" lnName "and its looks list has none by that name; it uses its own default," lnDef:;
-        };
-    rlSays = "setFrame:";
-    /***************************************************************************
-        resolveLook -- placeholders through the look (SEQ 652 R2, R3). argument
-        is a field on a laid-out copy, or a run's own copy of its style (typeset).
-        Its attributes are re-pointed; nothing under it is walked. rlSays is the
-        word the refusal opens with: setFrame's, or drawSpans' for a run.
-    ***************************************************************************/
-    resolveLook code={
-        // placeholders an attribute that holds a placeholder (fill:=pageFill) is re-pointed, on the copy, at what the request's look holds under that name, else at what defaultLook holds; found in neither, it is refused by name and left as written (SEQ 652 R2, R3)
-        for grup in argument; attributes
-            msHolds = *grup.isGrouP;
-            // emptyHeldField kant cannot read the virtual flag, so a placeholder is known by what it is: a held field with no value, no list and nothing held. A colour has a value, a font and an action have a list, a holder holds
-            msPh = 0;
-            if msHolds == 1;
-                msPh = 1;
-                msData = **grup.datA;
-                msList = **grup.listLengtH;
-                msVia = **grup.isGrouP;
-                if msData != 0;     msPh = 0;
-                if msList != 0;     msPh = 0;
-                if msVia != 0;      msPh = 0;
-            if msPh == 1;
-                msName := **grup.taG;
-                msDone = 0;
-                if lkHas == 1;
-                    if *lkLook[*msName];
-                        msTo := *lkLook[*msName];
-                        *grup := **msTo;
-                        msDone = 1;
-                if msDone == 0;
-                    if lkBaseHas == 1;
-                        if *lkBase[*msName];
-                            msTo := *lkBase[*msName];
-                            *grup := **msTo;
-                            msDone = 1;
-                if msDone == 0;
-                    msAttr = *grup.taG;
-                    cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
-        };
-    mergeStyles code={
-        for grup in argument; attributes
-            msTag = *grup.taG;
-            msIs = 0;
-            if msTag == "style";    msIs = 1;
-            msHeld = *grup.isGrouP;
-            // notHeld style:= is the only spelling (SEQ 624 R0): a quoted or copied style name is refused by name, here since F-156 took the floor's own style read away, and the field has no style
-            if msIs == 1;
-                if msHeld == 0;
-                    cerr "styleOf: REFUSING" argument.taG "-- its style is not held; write style:=name (a quoted or copied style name is retired)":;
-            if msHeld == 0;         msIs = 0;
-            if msIs == 1;
-                msOwn := copyDeep(**grup);
-                *msOwn :. mergeON;
-                argument :. mergeON;
-                argument +% *msOwn;
-        resolveLook(argument);
-        if hasMemberS;
-            for grup in argument; members
-                mergeStyles(*grup);
-        };
-    /***************************************************************************
-        cardsPick -- tabs and cards (tabs stroke 2, Tony's rulings of
-        2026-11-18). setFrame calls it on the laid-out copy, never on the
-        definition. A field written cards shows ONE member; the rest are
-        isHiddeN on the copy, so they take no room and the shown one gets the
-        cards field's whole box. Which one: a tab bar is a field with
-        tabs:=someField, a field OUTSIDE the form (ruling 3) that holds the
-        selected tab (tabSelected := tabThree); holding 0, the bar's first
-        tab is the selected one (0, not empty: an empty held field reads as a
-        look placeholder). The tab is matched by name on the copy. The selected tab names its card with card:=; the cards
-        field that has a member of that name shows it. A cards field no tab
-        points into shows its first member. A selected tab whose card is in
-        no cards field, or a selected name the bar has no tab for, refuses by
-        name, and every cards field then shows its first member.
-        The selected tab is filled with what its selectFill holds (tabs
-        stroke 3); every other tab keeps its own fill.
-    ***************************************************************************/
-    cpWant;
-    cpTab;
-    cpTabName;
-    cpBars code={
-        for grup in argument; members
-            cbIs = 0;
-            // listFirst a subscript on a field with no list says "does not contain a list"
-            cbL = *grup.listLengtH;
-            if cbL > 0;
-                if *grup["tabs"];   cbIs = 1;
-            if cbIs == 1;           cpBar(*grup);
-            if *grup.hasMemberS;    cpBars(*grup);
-        };
-    cpBar code={
-        cbHold := argument["tabs"];
-        cbSel := **cbHold;
-        // holdsTheTab the field holds the selected tab (tabSelected := tabThree); holding 0 it is nothing selected -- 0, not empty: an empty held field reads as a look placeholder (resolveLook)
-        cbName = string $"none"$;
-        cbIsTab = *cbSel.isGrouP;
-        if cbIsTab == 1;
-            cbTabIs := *cbSel;
-            cbName = string $**cbTabIs.taG$;
-        cbFound = 0;
-        for grup in argument; members
-            cbT = string $*grup.taG$;
-            if cbFound == 0;
-                if cbName == "none";    cbFound = 1;
-                if cbT == cbName;       cbFound = 1;
-                if cbFound == 1;        cpTab := *grup;
-                if cbFound == 1;        cpTabName = string $cbT$;
-        if cbFound == 0;
-            cerr "setFrame: REFUSING the tab" cbName "-- the tab bar" argument.taG "has no tab by that name; the cards show their first":;
-            return;
-        cbHas = 0;
-        cbTL = *cpTab.listLengtH;
-        // selectFill the selected tab is filled with what its selectFill holds; the look has resolved both by now, and this is the copy (tabs stroke 3)
-        cbSF = 0;
-        if cbTL > 0;
-            if *cpTab["selectFill"];    cbSF = cbSF + 1;
-            if *cpTab["fill"];          cbSF = cbSF + 1;
-        if cbSF == 2;
-            cbFrom := *cpTab["selectFill"];
-            cbTo := *cpTab["fill"];
-            *cbTo := **cbFrom;
-        if cbTL > 0;
-            if *cpTab["card"];      cbHas = 1;
-        if cbHas == 0;
-            cerr "setFrame: REFUSING the tab" cpTabName "-- it names no card (card:=); the cards show their first":;
-            return;
-        cbCard := *cpTab["card"];
-        cpWant = string $**cbCard.taG$;
-        };
-    cpCards code={
-        for grup in argument; members
-            ccIs = 0;
-            ccL = *grup.listLengtH;
-            if ccL > 0;
-                if *grup["cards"];  ccIs = 1;
-            if ccIs == 1;           cpOne(*grup);
-            if *grup.hasMemberS;    cpCards(*grup);
-        };
-    cpOne code={
-        coHas = 0;
-        for grup in argument; members
-            coN = string $*grup.taG$;
-            if coN == cpWant;   coHas = 1;
-        if coHas == 1;      cpHits += 1;
-        coFirst = 1;
-        for grup in argument; members
-            coN = string $*grup.taG$;
-            coShow = 0;
-            if coHas == 1;
-                if coN == cpWant;   coShow = 1;
-            if coHas == 0;
-                if coFirst == 1;    coShow = 1;
-            coFirst = 0;
-            if coShow == 0;     *grup :. isHiddeN;
-        };
-    cpHits = 0;
-    cardsPick code={
-        cpWant = string $"none"$;
-        cpHits = 0;
-        cpBars(argument);
-        cpCards(argument);
-        if cpWant != "none";
-            if cpHits == 0;
-                cerr "setFrame: REFUSING the tab" cpTabName "-- its card" cpWant "is in no cards field; the cards show their first":;
-        };
-    setFrame code={
-        sfReq := argument;
-        sfHas = 0;
-        if *sfReq["form"];      sfHas = 1;
-        if sfHas == 0;
-            cerr "setFrame: REFUSING" argument.taG "-- its request holds no form; write form:=theForm":;
-            return;
-        sfUse = 0;
-        if *sfReq["frame"];     sfUse = 1;
-        if sfUse == 1;
-            sfFrame := *sfReq["frame"];
-            frameWhole(**sfFrame);
-            if fwOk == 0;
-                cerr "setFrame: REFUSING" argument.taG "-- its frame needs x, y, width and height":;
-                return;
-        sfForm := *sfReq["form"];
-        // holdsItself the names of the forms being laid out; one met again is a form inside itself, refused by name and not laid out
-        sfName := **sfForm.taG;
-        if sfChain[*sfName];
-            cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
-            return;
-        sfMark := new(*sfName);
-        sfChain +% *sfMark;
-        // deepCopy copyOf shares bodies below the second level, so a deep form would be written (measured, SEQ 626)
-        sfLaid := copyDeep(**sfForm);
-        if sfUse == 1;
-            *sfLaid :% copyOf(**sfFrame["x"]);
-            *sfLaid :% copyOf(**sfFrame["y"]);
-            *sfLaid :% copyOf(**sfFrame["width"]);
-            *sfLaid :% copyOf(**sfFrame["height"]);
-        // frameStore (G3 item 2) with no frame in the request, the top field takes its form's entry in formFrames, read once and cleared; a part the entry lacks keeps the declared value. A held form never reads it: placeForm always hands it its host field as frame:= (measured SEQ 729: a depth test beside this guarded nothing)
-        sfStore = 0;
-        if sfUse == 0;
-            if formFrames[*sfName];     sfStore = 1;
-        // entOutsideArm bound at the top level: a := made inside an if arm holds nothing after it (measured SEQ 687)
-        sfEnt := formFrames[*sfName];
-        if sfStore == 1;
-            if *sfEnt["x"];         *sfLaid :% copyOf(*sfEnt["x"]);
-            if *sfEnt["y"];         *sfLaid :% copyOf(*sfEnt["y"]);
-            if *sfEnt["width"];     *sfLaid :% copyOf(*sfEnt["width"]);
-            if *sfEnt["height"];    *sfLaid :% copyOf(*sfEnt["height"]);
-            formFrames -% *sfEnt;
-        setLook(argument);
-        // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out
-        if lkRefused == 1;
-            sfChain -% *sfMark;
-            return;
-        mergeStyles(*sfLaid);
-        cardsPick(*sfLaid);
-        frameMembers(*sfLaid);
-        sfChain -% *sfMark;
-        return *sfLaid;
-        };
-    /***************************************************************************
-        formFrames -- G3 item 2 (Tony ruled 2026-11-21): frames kept by form name,
-        for one run. An entry is a field named for the form holding any of x y
-        width height. setFrame reads its own form's entry for the top field, then
-        clears it; keepFrame writes one (a close, a resize, a redraw of an open
-        window). Nothing goes to disk: a fresh run starts empty. The one place
-        this state is defined.
-    ***************************************************************************/
-    formFrames;
-    /***************************************************************************
-        keepFrame -- ONE argument, a request: form:= the form and frame:= a
-        field holding any of x y width height (a window's frame, or a new one).
-        Writes the form's entry in formFrames, replacing an old one. A close is
-        this alone. Refuses by name a request with no form or no frame.
-    ***************************************************************************/
-    keepFrame code={
-        kfReq := argument;
-        kfOk = 1;
-        if *kfReq["form"];      kfOk = kfOk + 1;
-        if *kfReq["frame"];     kfOk = kfOk + 1;
-        if kfOk != 3;
-            cerr "keepFrame: REFUSING" argument.taG "-- its request needs form:=theForm and frame:=aFrame":;
-            return;
-        kfForm := *kfReq["form"];
-        kfName := **kfForm.taG;
-        kfFrame := *kfReq["frame"];
-        kfOld := formFrames[*kfName];
-        kfHad = 0;
-        if formFrames[*kfName];     kfHad = 1;
-        if kfHad == 1;              formFrames -% *kfOld;
-        kfEnt := new(*kfName);
-        if **kfFrame["x"];          *kfEnt :% copyOf(**kfFrame["x"]);
-        if **kfFrame["y"];          *kfEnt :% copyOf(**kfFrame["y"]);
-        if **kfFrame["width"];      *kfEnt :% copyOf(**kfFrame["width"]);
-        if **kfFrame["height"];     *kfEnt :% copyOf(**kfFrame["height"]);
-        formFrames +% *kfEnt;
+    describe code={
+        if selection.isGrouP;   describe = dESCRIPTIONs[*selection.taG];
+        or describe.isGrouP;    describe = dESCRIPTIONs[describe];
         };
     /***************************************************************************
         redrawWindow -- ONE argument, a request: form:= frame:= (the window's
@@ -1279,7 +1420,6 @@ define
         request that names no frame, so setFrame takes the frame from the store.
         Returns the laid-out copy, as redrawForm does.
     ***************************************************************************/
-    windowReq path form look;
     redrawWindow code={
         rwReq := argument;
         keepFrame(argument);
@@ -1293,7 +1433,6 @@ define
         rwLaid := redrawForm(windowReq);
         return *rwLaid;
         };
-    pageReq path form width height;
     /***************************************************************************
         redrawForm -- the first resize, as a plain call (SEQ 626 W2). ONE
         argument, setFrame's own request with a path added: form:=, frame:=
@@ -1320,6 +1459,13 @@ define
         closePDF(pageReq);
         return *rdLaid;
         };
+    // rootedPath showPath's location derives from environment.root (incant/setup; SEQ 724 R4): its path is relative to root, and with root "." the relative path is the location
+    showPathRoot code={
+        spRel = string $showPath["path"]$;
+        spR := environment["root"];
+        spRoot = string $*spR$;
+        if spRoot != ".";   showPath.path = string $spRoot "/" spRel$;
+        };
     /***************************************************************************
         showForm -- the worker behind show (SEQ 687: show is the bootstrap in
         incant/setup, which loads what is missing and calls this; show returns
@@ -1338,15 +1484,6 @@ define
         the PDF is written either way. It says which: opened, viewer off, or
         could not open.
     ***************************************************************************/
-    showPath path="IncantForms/PDF/output.pdf";
-    // rootedPath showPath's location derives from environment.root (incant/setup; SEQ 724 R4): its path is relative to root, and with root "." the relative path is the location
-    showPathRoot code={
-        spRel = string $showPath["path"]$;
-        spR := environment["root"];
-        spRoot = string $*spR$;
-        if spRoot != ".";   showPath.path = string $spRoot "/" spRel$;
-        };
-    showReq path form look;
     showForm code={
         // rootAtShow showPath derives from environment.root when a form is shown, not at utilities' foot (SEQ 726 R1)
         showPathRoot();
@@ -1388,20 +1525,6 @@ define
             if shOpened == 0;   cerr "show: could not open" shP "-- the PDF is written":;
         return *shDone;
         };
-    /***************************************************************************
-        click -- the mock click (goal G1; G2 stroke 3; Tony, 2026-11-13). ONE
-        argument, a request: form:= the form and field= the name of a field in
-        it. No point and no window: the field is named. The click selects the
-        field (selection), fires the field's own action if it has one, then
-        its attribute actions left to right: every attribute that holds an
-        action (onClick:=someAction, or any other name). Each is handed the
-        field. Nothing here redraws: an action that writes a field with a
-        listener (insideForm := another) is redrawn by that listener.
-        Refuses by name: a request with no form or no field name; a name the
-        form has no field for. Not built: bubbling to the enclosing fields.
-    ***************************************************************************/
-    ckFn;
-    ckNm;
     clickFire code={
         if argument["CodE"];
             cout "=== click" ckFn ckNm "fired its own action ===":;
@@ -1419,6 +1542,18 @@ define
                 cout "=== click" ckFn ckNm "fired" ckAn ckTo "===":;
                 **grup(argument);
         };
+    /***************************************************************************
+        click -- the mock click (goal G1; G2 stroke 3; Tony, 2026-11-13). ONE
+        argument, a request: form:= the form and field= the name of a field in
+        it. No point and no window: the field is named. The click selects the
+        field (selection), fires the field's own action if it has one, then
+        its attribute actions left to right: every attribute that holds an
+        action (onClick:=someAction, or any other name). Each is handed the
+        field. Nothing here redraws: an action that writes a field with a
+        listener (insideForm := another) is redrawn by that listener.
+        Refuses by name: a request with no form or no field name; a name the
+        form has no field for. Not built: bubbling to the enclosing fields.
+    ***************************************************************************/
     click code={
         ckReq := argument;
         ckOk = 1;
@@ -1447,141 +1582,6 @@ define
         clickFire(*ckField);
         };
     // quoteIfNeeded obituary: never called; set arm exercised by inArmsT, 2026-09-08
-    /***************************************************************************
-        Convert the hex string in the target passed in to a floating point number
-    ***************************************************************************/
-    hexToNumber target code={
-        while target;
-            numDBL  = target.numbeR;
-            if numDBL <= 57;    numDBL -= 48;
-            or numDBL <= 70;    numDBL -= 55;
-            or numDBL <= 102;   numDBL -= 87;
-            ++target;
-            if num; num *= 16;
-            num += numDBL;
-        target  = num;
-        return target; };
-    /***************************************************************************
-        Extract the red, green, and blue components of a color group passed
-        in as a six character hex string
-    ***************************************************************************/
-    setHexColor hex code={
-        RGBred  = hex - 4;
-        hex     +% hexToNumber(RGBred);
-        RGBgreen    = hex + 2;
-        RGBgreen    -= 2;       // to chop off the blue component
-        hex     +% hexToNumber(RGBgreen);
-        RGBblue = hex + 4;
-        hex     +% hexToNumber(RGBblue);
-        dumpContents(hex); };
-    /***************************************************************************
-        bigifyLayout — build a rows x columns grid of cells as members of the
-        bigify block passed in. Templates (regularItem) ride in as fields of the
-        block and are scoped out. Each cell merges the template's attributes in
-        (two-sided merge: cell opts in via :. mergeON) and is stamped with its
-        row, col, and reading-order seq. setFrame paints the result.
-        v1: all-regular grid (no big band yet); percent/orientation in v2.
-    ***************************************************************************/
-    bigifyLayout code={
-        print "bigifyLayout building grid for" taG:;
-        :argument rows columns bigRows bigColumns regularItem bigItem selRow selCol;
-    /***************************************************************************
-        Clamp the big-slot origin so the bigRows x bigColumns rectangle fits.
-    ***************************************************************************/
-        maxRow = rows - bigRows;
-        maxCol = columns - bigColumns;
-        bOR = selRow;
-        if bOR < 0;        bOR = 0;
-        if bOR > maxRow;   bOR = maxRow;
-        bOC = selCol;
-        if bOC < 0;        bOC = 0;
-        if bOC > maxCol;   bOC = maxCol;
-        rowPct = 100 / rows;
-        colPct = 100 / columns;
-        bigRowSpan = 100 * bigRows;
-        bigHpct = bigRowSpan / rows;
-        bigColSpan = 100 * bigColumns;
-        bigWpct = bigColSpan / columns;
-    /***************************************************************************
-        Build bands top to bottom. A row inside [bOR, bOR+bigRows) becomes the
-        big band; every other row is a full-width regular row.
-    ***************************************************************************/
-        r = 0;
-        while r < rows;
-            if r == bOR;
-            /***************************************************************
-                The big band, bigRows tall: left-strip columns, the enlarged
-                cell, then right-strip columns, left to right.
-            ***************************************************************/
-                bandName = string $"band" r;
-                band := argument :+ new(bandName);
-                across = 1;
-                band +% across;
-                height = bigHpct;
-                height :. isPercenT;
-                band +% copyOf(height);
-                c = 0;
-                while c < columns;
-                    if c == bOC;
-                        bigName = string "big" r;
-                        big := band :+ new(bigName);
-                        big :. mergeON;
-                        big +% bigItem;
-                        width = bigWpct;
-                        width :. isPercenT;
-                        big +% copyOf(width);
-                        row = bOR;
-                        big +% copyOf(row);
-                        col = bOC;
-                        big +% copyOf(col);
-                        c += bigColumns;
-                    else
-                        colName = string "strip" c;
-                        column := band :+ new(colName);
-                        width = colPct;
-                        width :. isPercenT;
-                        column +% copyOf(width);
-                        rr = 0;
-                        while rr < bigRows;
-                            cellRow = bOR + rr;
-                            cellName = string "c" cellRow "x" c;
-                            cell := column :+ new(cellName);
-                            cell :. mergeON;
-                            cell +% regularItem;
-                            row = cellRow;
-                            cell +% copyOf(row);
-                            col = c;
-                            cell +% copyOf(col);
-                            rr += 1;
-                        c += 1;
-                r += bigRows;
-            else
-            /***************************************************************
-                A full-width regular row.
-            ***************************************************************/
-                rowName = string "row" r;
-                rowBlock := argument :+ new(rowName);
-                across = 1;
-                rowBlock +% across;
-                height = rowPct;
-                height :. isPercenT;
-                rowBlock +% copyOf(height);
-                c = 0;
-                while c < columns;
-                    cellName = string "c" r "x" c$;
-                    cell := rowBlock :+ new(cellName);
-                    cell :. mergeON;
-                    cell +% regularItem;
-                    width = colPct;
-                    width :. isPercenT;
-                    cell +% copyOf(width);
-                    row = r;
-                    cell +% copyOf(row);
-                    col = c;
-                    cell +% copyOf(col);
-                    c += 1;
-                r += 1;
-        };
     ;
 
 /*  utilitiesIncludesParser  INTERIM, ruled 2026-09-17 -- so parser and generateParse resolve
