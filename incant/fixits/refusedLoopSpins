@@ -1,0 +1,72 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(RefusedLoopSpins);
+define
+    rsGone;
+    rsFlag=1;
+    rsCompare code={
+        rn = 0;
+        while rsFlag == 1;
+            cerr "PIN compared condition, turn" rn:;
+            ++rsGone;
+            rn = rn + 1;
+            if rn == 3;     rsFlag = 0;
+        cerr "compared condition: after the loop" rn:;
+        };
+    rsControl code={
+        rn = 0;
+        while rsFlag;
+            cerr "PIN bare condition, no refusal, turn" rn:;
+            rn = rn + 1;
+            if rn == 3;     rsFlag = 0;
+        cerr "PIN bare condition, no refusal: after the loop" rn "(want 3)":;
+        };
+    rsBare code={
+        rn = 0;
+        while rsFlag;
+            cerr "PIN bare condition, turn" rn:;
+            ++rsGone;
+            rn = rn + 1;
+            if rn == 3;     rsFlag = 0;
+        cerr "bare condition: after the loop" rn:;
+        };
+    ;
+cerr "ANCHOR refusedLoopSpins -- a refusal inside a while body: the loop on a compared condition ends, the loop on a bare field does not":;
+rsFlag = 1;
+rsControl();
+rsFlag = 1;
+rsCompare();
+cerr "PIN the compared loop ended at its refusal (one turn, one REFUSED line above); the next call does not return":;
+rsFlag = 1;
+fixRefusedLoopSpinsHere = 0;
+rsBare();
+cerr "SENTINEL refusedLoopSpins reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-21, R1, D3: "if it's kant, mint a fixit"; Tony forwarded)
+SEVERITY: hang -- the run never ends and says nothing after the one REFUSED line. THIS FILE HANGS BY DESIGN: the nag's
+alarm ends it (HUNG at 60s). Nothing in the loop's body can bound it, because after the refusal the body does not run.
+
+refusedLoopSpins -- after a statement in a while body refuses, a loop whose condition is a comparison ends (the action
+ends, its caller goes on), but a loop whose condition is a bare field that reads true keeps turning for ever. No body
+statement runs on those turns: no cerr prints, nothing is stored, so a counter or a break in the body cannot end it.
+
+MEASURED 2026-11-21, kant, old road (incant/grammar), in an action, the bare build of 2026-11-20 12:54:
+    while rsFlag == 1;  with ++ on a field never assigned    one turn, one REFUSED line, the action ends, exit 0
+    while rsFlag;       the same body                        one turn, one REFUSED line, then no end (alarm, exit 142)
+    while rsFlag;       no refusing statement (the control)  three turns, ends
+A sample of the hung process shows the main thread inside the parse of the action's call, nothing else running.
+Found reading incant/utilities' hexToNumber (docs/kantLibraryRecon.md, D3): its loop is `while target;` and its
+`++target` refuses once the string is used up, so it never returns.
+
+Not measured: the new road (kantGrammar's WHILe); do-while; for; iterate's while ++; a bare call as the condition.
+Read, not measured, as the likely seat: opPlusPlus opens with `if ruler.refused return null;` (Instruct.rtn), so an
+armed action's operators answer nothing, which a comparison reads as false and a bare field never asks.
+
+NEXT: OPEN -- find what aCTionWhilE tests between turns once ruler.refused is set, and whether it reads the flag at
+all. Taken: the bare loop ends at its refusal as the compared one does, and the SENTINEL line prints. Not taken
+(today): one "PIN bare condition, turn 0", one REFUSED line, then nothing.

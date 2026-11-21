@@ -321,3 +321,65 @@ repeated; these are beyond them, or sharpen one. Each says whether a fixit alrea
 No edit to any library file, no fixit minted, no entry added to `docs/cleanupList.md` (R1's census decides the dead
 list). No instrument was run: this commit adds one file under `docs/` that no instrument reads. The scratch probes are
 not in the tree.
+
+---
+
+## R1 -- the census of 1b, whole tree (2026-11-21, SEQ 733 assigned by Clod; read-only, nothing cut)
+
+**The search.** `grep -rlw <name> .` from the repo root, `.git` excluded and nothing else: so the gitignored
+`Directives/`, `groupDirectives`, `IncantForms/WorkingOn/incant++` and `tester`, `IncantForms/Windows/`,
+`incant/attic`, the fixtures, the scripts and the generated `.mm`/`.h` were all in it. A hit in `docs/`, a topic file or
+a comment is named as prose and is not a caller. `layout` was read, not grepped.
+
+| item | callers in the whole tree | proposal |
+|---|---|---|
+| D1 `toXML` | none. Prose only: four files under `docs/`. | **cut** (its body does not parse today) |
+| D2 `flatten` | none. Prose only: `docs/`, TODO.md; `docs/cleanupList.md:9` already lists it (2026-11-08). | **cut** |
+| D3 `hexToNumber` | none. Prose only: three files under `docs/`. | **kept, ruled (Tony)**; see below |
+| D3 `setHexColor` | none anywhere; this file is the only other mention. | **cut** |
+| D4 `bigifyLayout` | none. Prose only: three files under `docs/`. `IncantForms/Windows/bigify` does not name it. | **cut**, or keep with the bigify form if that form is to be repaired: Tony's call, they go together |
+| D5 `newStuff` | none. Prose only: `incant/pop/climbT:82` and `genLadder/formsPop.sh:858-859` (comments recalling the old way); `docs/cleanupList.md:375` already lists it (2026-11-14). | **cut** |
+| D6 the `quoteIfNeeded` obituary | no action of that name exists. `incant/designDocs:95-118` holds the same obituary as an entry. | **cut** the line in utilities; the designDocs entry is the record |
+| D7 `callMyself` | none. | **cut** (known to recurse for ever) |
+| D7 `invokeTest`, `testNegate`, `testPointer`, `testScope`, `delimitRecord`, `commaStuff`, `jsonFile`, `winForm`, `plainField` | none in the whole tree, each. | **cut**, except `testPointer`: **keep until the string-pointer fixture below exists**, then cut (it is the only other string-pointer text) |
+| D7 `testForC` | none. `incant/attic/goldenDrift:125` names it in a table of old output. | **cut** |
+| D7 `testNew` | none. Prose: CLAUDE.md bear-trap #15 cites it as "the confirmed template"; three files under `docs/`. | **keep** (a cited example), or cut and reword the bear-trap: Tony's call |
+| D7 `floaty` | **one live user**: `incant/generate:330-334` (`jitPlusEQF code={ floaty += 1.5; }`). generate is reference-only by ruling. | **keep** |
+| D7 `layout` (read) | none. Every other `layout` in the forms, fixtures, Directives and tester is the English word, the form file `IncantForms/Windows/layout`, or the field `layoutExample`. The action is from 2026-05-31; the old GUI's layout hook was `onLayout`, dropped by ruling (`IncantForms/Windows/simple:27`). | **cut** |
+| D8 `Controls/attributes`, `traits`, `templates` | no loader. Named by `incant/setup:393` (a comment listing absolute paths to remedy), the three forms that include the deleted XML paths, and prose. Nothing includes these three files themselves. | **cut all three** when bigify, db and inspector are ruled; until then they are the only record of the old attribute and template names |
+
+### D3, hexToNumber: the hang, and what it uses
+
+**The hang is kant's, set off by the action's own loop.** Two facts, both measured today:
+
+1. *A string walked to its end never reads false.* `while s; ++s;` over "ff9" takes five turns, not three: after the
+   third `++` the field holds an empty string and still reads true; the fourth `++` clears it; a field with no value
+   reads as its own tag (bear-trap #26), true again; the fifth `++` refuses ("no value to bump"). So `while target;
+   ... ++target;`, hexToNumber's loop, cannot end by itself on today's truth rules.
+2. *After that refusal the loop spins.* A refusal in a while body ends the action when the loop's condition is a
+   comparison, and never ends it when the condition is a bare field: no body statement runs again and nothing prints.
+   **Fixit minted, as the dispatch ruled: `incant/fixits/refusedLoopSpins`** (Clod's lane; it hangs by design and the
+   nag's alarm ends it). Cutting or fixing hexToNumber does not retire it.
+
+**The string-pointer operations hexToNumber and setHexColor use, and what each does today:**
+
+| operation | where | today (measured) | covered by a fixture? |
+|---|---|---|---|
+| `while target;` (true while string is left) | utilities, hexToNumber | reads true one turn too long, then true for ever (fact 1) | none found |
+| `++target` (step one character) | hexToNumber | steps: "ff9", "f9", "9", then empty, then no value | none found |
+| `target.numbeR` (the character's code) | hexToNumber | **not an accessor today**: `numbeR` is in no registry and no tok source; the read hands back nothing | none; nothing else in the tree spells it |
+| `hex + 2` (skip two characters) | setHexColor | **joins**: "abcdef" + 2 reads "abcdef2" (ruled, SEQ 347 R3: a string on the left concatenates) | the concatenation is covered (stringJoinT); the skip no longer exists |
+| `hex - 4`, `-= 2` (drop characters from the end) | setHexColor | works: "abcdef" - 4 reads "ab", `-= 2` reads "abcd" | none found |
+| `argument&` (unitTests' testPointer) | `incant/unitTests:176` | `&` is registered `opNotBuilt` (`incant/setup:219`) | none |
+
+"None found" is from two greps (`\.numbeR` over the fixtures, tester, the grammars and setup; "string pointer",
+"chop", "walks the string" over pop.sh and `incant/pop`): it shows no fixture names these, not that no fixture happens
+to step a string.
+
+**Proposal: the fixture first, then the fix.** hexToNumber cannot be made to work by editing hexToNumber alone: it
+needs a way to read a character's code (numbeR is gone) and a loop test that ends at the string's end, and both are
+kant rulings, not library edits. So: (1) a fixture that pins the string-pointer operations as they read today, one row
+each from the table above, with the five-turn walk pinned as read and marked not-blessed; (2) Tony rules what an
+exhausted string reads and how a character's code is read; (3) hexToNumber is fixed to the ruled spellings and given
+its own row ("ff" reads 255, "ef2b2d" splits to 239 43 45). A unitTest alone (the second option) would exercise the
+operations but leave the one real user broken, so it is step 1 of this, not an alternative to it.
