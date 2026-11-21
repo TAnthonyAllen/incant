@@ -106,6 +106,9 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
     PARKED until the old road retires (Tony, 2026-11-18): F-159, format-after stays legal on both grammars -- the road proofs depend on the two grammars reading it differently.
     DOCKETED: the fixit upToSetDelimiter (Clod's lane): a rule that
         reads up to a set crashes in upToMatch, and an upTo-first rule needs guard='n'; the specimen is IncantForms/WorkingOn/delimitedData since 2026-11-17 (its guard='n' comes out with item 2); item 1, the set, CURED at seal 509 (upto-set); item 2, the guard, open.
+    DOCKETED (Tony, 2026-11-21, SEQ 726 R4; Clod's lane, not scheduled ahead of anything): the cure for fixits setFlagTopLevel and
+        jitSetFlagTemp -- `:.` takes its flag as a NAME and never evaluates it. Until then any earlier action call in a run primes lastREF
+        and hides the bug (measured bisecting kant-environment), so their repros reach their `:.` before any action call.
     FOUND, not ruled: a bare taG inside a new-road action body reads 1, not what was referenced last (emptyCallT rows b and c, pinned as read).
     FOUND, not ruled (2026-11-17): interpreted, a number compare is the sign of the difference and a nan difference counts as equal, so
         nan == anything is true (and <=, >=); the native compares copy it (kantCondT ROW2, M3's rows).

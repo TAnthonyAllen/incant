@@ -43,3 +43,15 @@ top-level as such: in an action, the FIRST `:. flaG` of a run failed the same wa
 NEXT: BEST GUESS -- `:.` must take its right operand as a NAME, never evaluate it: either the builder stops making it
 an acDot, or runAccAssign skips runOPaccumOperand for `:.`. Grade: mechanism measured, fix site not chosen. Taken: both
 lines here read 1 and setFlagTopT's two red rows go green. Not taken: the top-level line reads 0.
+
+MASKED BY ANY EARLIER ACTION CALL (measured 2026-11-21, SEQ 726, bisecting kant-environment; Tony ruled R3). Any kant action
+call earlier in the run -- even `code={ return 0; }` called once at the foot of an included file -- primes lastREF, and this
+line then reads 1 with nothing cured: this repro, setFlagTopT's two red rows, jitRefuseFlagT JRS-F and prefixOpT PX-49 all
+moved together; the define without the call moved none; an assignment, a cerr or a command (searchSave) at the foot moved
+none. So THE REPRO MUST REACH ITS `:.` BEFORE ANY ACTION CALL. This one does (stSet() comes after the top-level line), so it
+stays as it is; its in-action line is a later `:.` in the run and reads 1 either way. The cure, C on the kant docket: `:.`
+takes its flag as a NAME and never evaluates it (the BEST GUESS above).
+
+ATTEMPT LOG
+  2026-10-05 filed (SEQ 298 R1).  2026-10-20 the right operand measured null (lldb).
+  2026-11-21 SEQ 726: masked by any earlier action call (above); kant-environment's foot calls removed for it (R1).

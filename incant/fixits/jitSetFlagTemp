@@ -47,9 +47,15 @@ is NON-NULL in 4 of 5 (it points into jitBuildFunction's stack frame, which has 
 operand nodes' seeded jitData is not flushed (jitFlushTransient runs at the NEXT build). Either is the "jit operand
 resolution" half of the guess; neither is measured as the cause.
 
+SHARES setFlagTopLevel's CAUSE AND ITS MASK (measured 2026-11-21, SEQ 726; Tony ruled R3). Any kant action call earlier in the run
+primes lastREF and the jitted `:.` then reads 1 with nothing cured (kant-environment's foot calls did it: JSF read 1 (want 1)).
+THE REPRO MUST REACH ITS `:.` BEFORE ANY ACTION CALL. This one does (testing() is a command; jsDrive's `:.` is the run's first),
+so it stays as it is. The cure is setFlagTopLevel's, C on the kant docket: `:.` takes its flag as a name, never evaluated.
+
 ATTEMPT LOG
   2026-10-05 filed (SEQ 298 R1): the refusal, and every later store silenced.
   2026-10-16 SEQ 370 (branch jit-refuse-scope): persistence cured -- b c d 1 7 6. The flag still 0: opSetFlag gets a
     null argument at run time. Re-aimed at that (R3). Row: jitRefuseFlagT JRS-F a.
   2026-10-16 SEQ 371 R2: jitting = 0 inside jitStmtRT's run (measured); gJitBuilder dangling and seeded jitData unflushed
     during it (measured); not fixed.
+  2026-11-21 SEQ 726: masked by any earlier action call (above); shares setFlagTopLevel's cure.
