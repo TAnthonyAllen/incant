@@ -383,3 +383,18 @@ each from the table above, with the five-turn walk pinned as read and marked not
 exhausted string reads and how a character's code is read; (3) hexToNumber is fixed to the ruled spellings and given
 its own row ("ff" reads 255, "ef2b2d" splits to 239 43 45). A unitTest alone (the second option) would exercise the
 operations but leave the one real user broken, so it is step 1 of this, not an alternative to it.
+
+### D3, what moved under hexToNumber (Tony: it worked once and has not changed since; history read 2026-11-21)
+
+Its body is the same text as in June but for one respell (`target++` became `++target`, `89be1cb3`, 2026-06-19).
+Three things in kant moved under it; two have a commit, one predates the repo.
+
+| what it relies on | what moved | when |
+|---|---|---|
+| `target.numbeR`, the character's code | the accessor `numbeR=27` is in this repo's history exactly once: in `BackupIncant/setup` at the first commit (`9db8ca6f`, 2026-04-09), a backup directory removed on 2026-04-26. The live setup has never held it in this repo, and today's engine has no case 27 (26 and 28 are there). | **before the repo's first commit**; no commit to name |
+| the loop ending when the string is used up | `++` on a field with no value now refuses ("zero is a value, absent is not"), so the walk's last step is a refusal instead of a quiet no-op | `686e202b`, 2026-09-11 |
+| setHexColor's `hex + 2`, skip two characters | a string on the left of `+` now joins | `6aa30d81`, 2026-10-12 (SEQ 347 R3) |
+
+Not dated: when a refusal inside a `while` on a bare field began to spin (fixit refusedLoopSpins), and whether the
+string walk read false at its end before 2026-09-11. Each needs a build of an older commit, which is a clone outside
+Dropbox by the standing rule, so neither was cheap.
