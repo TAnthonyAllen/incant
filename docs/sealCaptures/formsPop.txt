@@ -317,7 +317,7 @@
   ok    climbT CL-3 UNDER A REPEAT, down=3: each of the three kids climbs crCell, crRep, clNum = [crKid crCell crRep clNum crKid crCell crRep clNum crKid crCell crRep clNum]
   ok    climbT CL-4 under down="*": three rows fit, each leaf climbs crRow, crAll, clStar = [crLeaf crRow crAll clStar crLeaf crRow crAll clStar crLeaf crRow crAll clStar]
   ok    climbT CL-5 each repeat owns its child: the kids' y are 0 100 200 (down=3) and the leaves' the same (down=*); the parent's style font and colour reach all three kids = [0 100 200 / 0 100 200 / 3]
-  ok    climbT CL-6 a field written both down and across is warned by name, once (F-157); no other form here is warned = [1 1]
+  ok    climbT CL-6 a grid written as rows: each of the eight leaves climbs clCross, clRow, clBoth; no setFrame warning or refusal in climbT = [8 clLeaf clCross clRow clBoth 0]
 -- styles by merge at layout (styleMergeT).
   ok    styleMergeT exit / sentinel / nothing clipped = [0 1 0]
   ok    styleMergeT SM-1 a style gives its field font, color and align: smA = [Palatino 24 1 r239 g43 b45 top center]
