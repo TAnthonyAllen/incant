@@ -27,7 +27,10 @@ define
         };
     ;
 define
-    firstLight window x=300 y=450 width=500 height=600 down fill:=wall font:=normalFont color:=blue
+    firstLightLooks
+        standard pageFill:=wall;
+        dark pageFill:=black;
+    firstLight window x=300 y=450 width=500 height=600 down fill:=pageFill font:=normalFont color:=blue looks:=firstLightLooks
         heading="First Light" text height=43 font:=titleFont color:=green align=center bottomBorder;
         words="This text is poured into its frame. It should wrap at the frame's width and stop at the frame's height, and the form should report how much of it fit.\n\nA second paragraph holds {emphasis: one run} in a style of its own." text fill:=white align=justify;
         bar across height=35

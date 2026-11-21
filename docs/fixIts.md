@@ -178,7 +178,7 @@ where it stands. Nothing else is backfilled.
 **Evidence:** read; the failing order (lay out A, lay out B, draw A) is not built anywhere today and was not run.
 **Done when:** the look rides in the layout context (Topics/typesetting, RULED 2026-11-12: typeset's state moves into its own layout context), handed to typeset with the text; a row lays out two copies under two looks, draws the first after the second is laid out, and reads the first's look in its run; H7.
 **Owner:** Clod, with the layout context stroke. **Size:** not measured.
-**Attempt log:** none.
+**Attempt log:** none. SEQ 723 (looks by name, read, not run): a held form may now be laid out under a look of its own (R4's fallback), so the failing order exists inside ONE layout -- a typeset run in a held form that fell back resolves at draw through the top form's look. placeForm keeps and restores the host's look around the held form, so the host's own runs are right; the held form's runs are this row. No fixture has a held form with a run naming a placeholder.
 
 ### F-157 — OPEN, docketed 2026-11-14 (SEQ 655, Clay's rider; row and a warning, no fix) — bothDirectionsShallow: a field written both down and across still rebuilds its members as shallow copies
 

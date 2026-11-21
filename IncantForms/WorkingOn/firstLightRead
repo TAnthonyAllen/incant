@@ -8,7 +8,7 @@ define
     firstLightFile File='IncantForms/Windows/firstLight';
     ;
 include(styles);
-search cOLOr fONTs;
+search cOLOr fONTs sTYLEs;
 include(firstLightFile);
 search FORMs UnitTests Utilities list;
 printDefinition(firstLight);
