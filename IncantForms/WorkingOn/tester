@@ -30,3 +30,120 @@ HOW TO USE IT
 Above stop() is live and below it is dead, so moving lines across stop() turns them on and off. When Tony and Clod are
 both working in tester, each moves the other's in-progress work below stop() rather than deleting it, and each looks
 over tester to see what the other is up to. Anything parked below this note is someone's work waiting its turn.
+
+CLOD'S PROBES, SEQ 726 (2026-11-21), parked for Topics/forms G3. Each ran from the repo root as its own file (copy a block out above stop() alone,
+or into a scratch file; INCANT_NOVIEW=1). Results: rowProbe -- rA (height on crossing) refuses pValue / and lays out one row; rB (height on the row) lays out 4 rows of 2.
+cheatProbe -- cases 1 and 2 print CHEAT (a body, and utilities' own redrawForm); its case 3 was a bad top-level spelling, replaced by d3. d3_control and d3_cheat --
+identical layouts: CheaT defined but not on the search list leaves the real setFrame untouched.
+
+---- rowProbe ----
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(RowP);
+define
+    rA="s" height=200 width=250 x=100 y=100 down=*
+        rRow across=2
+            crossing height=50;
+    rB="s" height=200 width=250 x=100 y=100 down=*
+        rRow2 across=2 height=50
+            crossing2;
+    rAreq form:=rA;
+    rBreq form:=rB;
+    rpRun code={
+        rpA := setFrame(argument);
+        print "RP" argument.taG:;
+        tsfLine(*rpA);
+        print "RPEND" argument.taG:;
+        };
+    ;
+search RowP UnitTests Utilities list;
+rpRun(rAreq);
+rpRun(rBreq);
+cout "SENTINEL":;
+stop();
+
+---- cheatProbe ----
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(CheaT);
+define
+    setFrame code={
+        cout "CHEAT setFrame on" argument.taG:;
+        return 0;
+        };
+    ;
+register(CheatP);
+define
+    cA x=0 y=0 width=200 height=100 down
+        one;
+        two;
+    cAreq form:=cA path="IncantForms/PDF/test.pdf";
+    cpRun code={
+        cpA := setFrame(argument);
+        print "CP direct" argument.taG:;
+        };
+    ;
+search CheatP CheaT UnitTests Utilities list;
+cout "--- 1: direct call from a body":;
+cpRun(cAreq);
+cout "--- 2: through utilities' redrawForm":;
+redrawForm(cAreq);
+cout "--- 3: Utilities.setFrame is still the real one":;
+search CheatP UnitTests Utilities list;
+cpLaid := Utilities.setFrame(cAreq);
+tsfLine(*cpLaid);
+cout "SENTINEL":;
+stop();
+
+---- d3_control ----
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(CheatP);
+define
+    cA x=0 y=0 width=200 height=100 down
+        one;
+        two;
+    cAreq form:=cA;
+    realRun code={
+        rrA := setFrame(argument);
+        tsfLine(*rrA);
+        };
+    ;
+search CheatP UnitTests Utilities list;
+realRun(cAreq);
+cout "SENTINEL":;
+stop();
+
+---- d3_cheat ----
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+register(CheaT);
+define
+    setFrame code={
+        cout "CHEAT setFrame on" argument.taG:;
+        return 0;
+        };
+    ;
+register(CheatP);
+define
+    cA x=0 y=0 width=200 height=100 down
+        one;
+        two;
+    cAreq form:=cA;
+    realRun code={
+        rrA := setFrame(argument);
+        tsfLine(*rrA);
+        };
+    ;
+search CheatP UnitTests Utilities list;
+realRun(cAreq);
+cout "SENTINEL":;
+stop();

@@ -160,6 +160,19 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
                        An attribute fires when it holds a field that has an action (its CodE child is the test; isCodeD clears after a first run: fixit codedFlagClears). A field with an action holds itself as this; click skips it.
         NOT BUILT: the held form's own declared size is not read; a field holding a form lays out no members of its own.
         PARKED, a later step (Tony, 2026-11-13): a form reference whose attribute action runs a whole incantation, instead of a reference to a form that is definitions only.
+    G3  SETFRAME SIMPLIFIED (Tony ruled 2026-11-21, SEQ 726, from his offline status; Clay's dispatch). DOCKETED: starts after the environment buy, on a branch. Order: 1, then 3 carrying 2.
+        1  ONE DIRECTION PER FIELD. A field naming both down and across refuses by name. Spelled as a row level, the height on the row (measured: with it on crossing, down=* divides by nothing and lays out one row):
+               sumple=... height=200 width=250 x=100 y=100 down=*          sumpleRow across=2 height=50          crossing;
+           Same 2x4 grid of 125x50 as today. Respell unitTests' sumple, reframeT's pSumple, climbT's clBoth, the baselineTests golden. bothDirections and the F-157 warning retire.
+        2  A RESIZE STICKS, WITHIN ONE RUN. The definition is never written and every layout still lays out a fresh copy. A global holds frames keyed by form name; setFrame reads its own form's entry
+           for the top field only, then clears it; no entry uses the declared x y width height, a missing part its declared value. Written by a resize, a close, and any redraw of an open window
+           (clickShow and kin write the window's frame before laying out). Loading the form incantation starts afresh; nothing goes to disk. Supersedes 2026-11-07 "a resize reads like a fresh run":
+           now a fresh run at the frame given; utilities' old resize path shrinks to the lookup. Re-pin or retire by mapping: reframeT RF-1..14, resizeLightT RG-1..5, resizeT RZ-1..5, resizeListenT.
+           New mock-resize row: close one form, open another (descriptions must not open at firstLight's size).
+        3  THE CHEAT PATTERN is how 2 is tried: a cheat incantation includes utilities, defines CheaT holding the new setFrame and every helper it changes, and searches CheaT first BEFORE the
+           first show or redrawForm in the run (F-164: a body binds its names at its first call). Measured (SEQ 726 probes, in tester below stop): utilities' own redrawForm reaches the cheat;
+           CheaT defined but not searched leaves the real setFrame untouched (F-165 does not bite a fresh registry). First step: drive it through show itself, the trace naming which copy each
+           call reached. On the buy: copy into utilities, drop the helpers no longer needed, keep the cheat incantation in WorkingOn as the template (typesetting's shortening is next).
 
 /*****************************************************************************
     The forms tutorial (Tony, 2026-11-14, SEQ 651 R1)
