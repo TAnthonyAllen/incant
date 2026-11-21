@@ -171,7 +171,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         3   Boxes                    fill, border and sides, strokeColor, rounded, shadow, opacity, image    example: simple                 not written
         4   Text in a field          text font color align valign italic, the inset                 example: firstLight                      not written
         5   Styles                   what a style is, defining, applying, inheriting, order         example: new                             waits on a ruling
-        6   Look and feel            placeholders for colours and fonts, swapping a look            example: new                             waits on a ruling
+        6   Look and feel            placeholders for colours and fonts, swapping a look            example: new                             waits on a ruling (the shape of looks, two proposals: Topics/features 39)
         7   Typeset text             paragraphs, {style: text}, {name}, {registry.name}, passages   example: firstLight's words, IBkant      not written
         8   Forms inside forms       form:=, the holding field, the swap                            example: firstLight's inside             not written
         9   Actions and clicks       onClick, attribute actions, listeners, redraw                  example: firstLight's ok                 waits (mock click only)
