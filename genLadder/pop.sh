@@ -10318,10 +10318,12 @@ _ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setF
 #  form's entry for the top field when the request names no frame, then clears it; a missing part keeps the declared value. keepFrame writes an entry
 #  (a close); redrawWindow keeps the window's frame, then redraws (a resize, a click redraw). Mock events on firstLight, the window kept in flWin.
 #  The fixture includes IncantForms/WorkingOn/cheat. The rows read laid-out frames only, so at the buy (3c) they must read the same with the include
-#  dropped; the cheat row is a guard and retires then. H7 (run 2026-11-21, the store read disabled in the cheat): FS-2, FS-3, FS-5, FS-6, FS-8, FS-10 go red.
+#  dropped; the cheat row is a guard and retires then. H7 (run 2026-11-21, the store read disabled in the cheat): FS-2, FS-3, FS-4, FS-5, FS-7, FS-9 go red
+#  (each reads declared). H7 of the frame-first gate (the store read even when the request names a frame): FS-10 goes red. A depth test (top
+#  field only) was tried beside it and removed: its H7 stayed green, masked by this gate, since placeForm always hands a held form a frame.
 _fsF=$(ip frameStoreT)
 perl -e 'alarm 60; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_fsF" > "$T/fs.o" 2> "$T/fs.e"; _fsx=$?
-_fss () { sed -n "/^FS $1 /,/^FS /p" "$T/fs.o" | grep -E "^(firstLight|descriptions) |^	inside " | sed 's/^[	 ]*//; s/ *$//' | tr '\n' '/'; }
+_fss () { sed -n "/^FS $1 /,/^FS /p" "$T/fs.o" | grep -E "^(firstLight|descriptions) |^	inside |^		descriptions " | sed 's/^[	 ]*//; s/ *$//' | tr '\n' '/'; }
 _ofeq "frameStoreT exit / sentinel" "$_fsx $(grep -c '^FRAMESTORE SENTINEL' "$T/fs.e")" "0 1"
 _ofeq "frameStoreT the cheat was reached (CHEAT hits not 0, no CHEAT FAILED; retires at 3c)" "$(grep -c '^CHEAT hits [1-9]' "$T/fs.o") $(grep -c '^CHEAT FAILED' "$T/fs.e")" "1 0"
 _ofeq "frameStoreT FS-1 a plain open with no entry: declared" "$(_fss S1)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/"
@@ -10333,6 +10335,8 @@ _ofeq "frameStoreT FS-6 close firstLight, open descriptions: descriptions opens 
 _ofeq "frameStoreT FS-7 firstLight's entry was untouched by descriptions: the reopen reads 900x500 at 100,100" "$(_fss S8)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
 _ofeq "frameStoreT FS-8 the read cleared the entry: an open with no event is declared" "$(_fss S9)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/"
 _ofeq "frameStoreT FS-9 an entry holding only a width: width from the store, x y height declared" "$(_fss S10)" "firstLight x=300 y=450 w=700 h=600/inside x=300 y=690 w=700 h=360/"
+_ofeq "frameStoreT FS-10 A HELD FORM NEVER READS THE STORE (a request's frame comes first, and placeForm always names one): with an entry kept for descriptions, firstLight's held descriptions is laid out in its host field" "$(_fss S11)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/descriptions x=300 y=690 w=500 h=360/"
+_ofeq "frameStoreT FS-11 the entry was left for descriptions' own open: 300x300 at 10,20" "$(_fss S12)" "descriptions x=10 y=20 w=300 h=300/"
 #  G3 item 1 (SEQ 727, 2026-11-21): one direction per field. A field naming both down and across is refused by name at layout, in
 #  frameMembers, and its members are not laid out (bCross keeps no x, y or width). Only pBoth is refused so; pSumple, the same grid
 #  written as rows, is laid out (RF-1 to RF-3). H7: the refusal removed, the line is gone and bCross is laid out.

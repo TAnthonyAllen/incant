@@ -23,11 +23,10 @@ define
     ***************************************************************************/
     formFrames;
     sfFrom;
-    sfDepthSeen;
     // cheatSays the witness names the source of the top frame and the four values it laid out at
     cheatSays code={
         =:argument x y width height;
-        cerr "CHEAT frame" argument.taG sfFrom "depth" sfDepthSeen "x" x "y" y "w" width "h" height:;
+        cerr "CHEAT frame" argument.taG sfFrom "x" x "y" y "w" width "h" height:;
         };
     /***************************************************************************
         keepFrame -- ONE argument, a request: form:= the form and frame:= a
@@ -238,9 +237,6 @@ define
         sfForm := *sfReq["form"];
         // holdsItself the names of the forms being laid out; one met again is a form inside itself, refused by name and not laid out
         sfName := **sfForm.taG;
-        // topOnly the store is read for the top field alone: a held form (placeForm) is laid out while its host's name is in sfChain
-        // captureThenTest the length is captured with := and tested from the local (bear-traps #35, #41); a walk over an empty sfChain says "does not contain a list"
-        sfDepth := sfChain.listLengtH;
         if sfChain[*sfName];
             cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
             return;
@@ -253,13 +249,12 @@ define
             *sfLaid :% copyOf(**sfFrame["y"]);
             *sfLaid :% copyOf(**sfFrame["width"]);
             *sfLaid :% copyOf(**sfFrame["height"]);
-        // frameStore (G3 item 2) with no frame in the request, the top field takes its form's entry in formFrames, read once and cleared; a part the entry lacks keeps the declared value
+        // frameStore (G3 item 2) with no frame in the request, the top field takes its form's entry in formFrames, read once and cleared; a part the entry lacks keeps the declared value. A held form never reads it: placeForm always hands it its host field as frame:= (measured SEQ 729: a depth test beside this guarded nothing)
         sfFrom = "declared";
         if sfUse == 1;      sfFrom = "frame";
         sfStore = 0;
-        if *sfDepth == 0;
-            if sfUse == 0;
-                if formFrames[*sfName];     sfStore = 1;
+        if sfUse == 0;
+            if formFrames[*sfName];     sfStore = 1;
         // entOutsideArm bound at the top level: a := made inside an if arm holds nothing after it (measured SEQ 687)
         sfEnt := formFrames[*sfName];
         if sfStore == 1;
@@ -269,7 +264,6 @@ define
             if *sfEnt["width"];     *sfLaid :% copyOf(*sfEnt["width"]);
             if *sfEnt["height"];    *sfLaid :% copyOf(*sfEnt["height"]);
             formFrames -% *sfEnt;
-        sfDepthSeen = *sfDepth;
         cheatSays(*sfLaid);
         setLook(argument);
         // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out

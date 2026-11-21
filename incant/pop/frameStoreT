@@ -17,12 +17,14 @@ define
     fsBig x=300 y=450 width=1200 height=800;
     fsMid x=100 y=100 width=900 height=500;
     fsWide width=700;
+    fsSmall x=10 y=20 width=300 height=300;
     ;
 search FrameStoreT CheaT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     flReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=flWin;
     flPlain path="IncantForms/PDF/test.pdf" form:=firstLight;
     flWideReq form:=firstLight frame:=fsWide;
+    dsKeep form:=descriptions frame:=fsSmall;
     dsPlain path="IncantForms/PDF/test.pdf" form:=descriptions;
     flClick form:=firstLight field="ok";
     fsWinTakes code={
@@ -62,6 +64,8 @@ cout "FS S7 close, open descriptions":;     mockClose();    mockOpen(dsPlain);
 cout "FS S8 reopen firstLight":;    mockOpen(flPlain);
 cout "FS S9 open, no event":;       mockOpen(flPlain);
 cout "FS S10 a kept width only":;   keepFrame(flWideReq);   mockOpen(flPlain);
+cout "FS S11 an entry for a held form":;     click(flClick);     keepFrame(dsKeep);  mockOpen(flPlain);
+cout "FS S12 open descriptions":;   mockOpen(dsPlain);
 cout "FS END":;
 cheatCount();
 cerr "FRAMESTORE SENTINEL":;
@@ -86,3 +90,6 @@ S7  close firstLight, open descriptions: descriptions opens at its declared 500x
 S8  reopen firstLight: its entry was untouched by descriptions, 900x500 at 100,100.
 S9  open again with no event: S8's read cleared the entry, so declared.
 S10 an entry with only a width (700): width from the store, x y height declared.
+S11 a second click puts descriptions back inside firstLight; an entry is kept for descriptions (300x300 at 10,20); firstLight opens and
+    its held descriptions is laid out in its host field, 500x360 at 300,690: a held form never reads the store (top field only).
+S12 descriptions opened on its own reads its entry, untouched by S11: 300x300 at 10,20.
