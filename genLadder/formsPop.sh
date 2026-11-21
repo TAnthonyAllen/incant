@@ -946,7 +946,7 @@ echo "-- looks by name (looksByNameT)."
 #  ⚑ looksByNameT -- SEQ 723 R1-R4 (Tony, 2026-11-20): firstLight carries looks:=firstLightLooks (standard, dark); the first is the default; a
 #  request asks by name, look="dark"; a name the list lacks is refused by name and nothing is laid out; the held descriptions form, with no list,
 #  takes firstLight's look name, lacks it, uses defaultLook and a trace line says so. (450,15) is the heading: the page fill. (200,580) is in the held
-#  form, its explicit lightGreen: the control, the same on every page. H7: with setLook's call to setLookByName removed, LB-1 to LB-4 go red.
+#  form, its explicit lightGreen: the control, the same on every page. H7 (run SEQ 723): with setLook's call to setLookByName removed, LB-1, LB-3, LB-4 and LB-5 go red (page white throughout, no refusal, no trace); LB-2 stays green, as it compares to LB-1.
 _lbF=$(ip looksByNameT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_lbF" > "$T/lb.o" 2> "$T/lb.e"; _lbx=$?
 _lbb () { awk -v pg="$1" '/^LB PAGE/{b=$3; next} b==pg' "$T/lb.o"; }
