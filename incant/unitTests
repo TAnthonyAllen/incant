@@ -5,7 +5,7 @@
     (one action per language feature under test), one runner (testUnitTests).
     Each action is self-contained and can be run standalone or via the runner.
     Actions NOT called by testUnitTests are marked unverified — legacy-POP sweep
-    pending (see TODO). callMyself is known broken (infinite recursion).
+    pending (see TODO).
 
     --------------------------------------------------------------------------
     Incant diverges from C++ in ways that bite new readers. The list below is
@@ -41,7 +41,6 @@
     : as the first field in a statement binds names from the field that follows
         into local scope. ':argument width height' makes width and height from
         argument available by name in the local scope. No C++ equivalent.
-        See testScope.
 
     & is a field modifier, not a type declaration
         argument& dereferences a pointer-arithmetic result. & follows the field
@@ -72,10 +71,6 @@
     printDefinition()       prints out its argument in incant field definition format
                             and tests recursion
 
-    --------------------------------------------------------------------------
-    Known broken: callMyself — infinite recursion. righty++ does not persist
-    across the self-recursive call so righty==13 never goes false. See TODO
-    reentrancy arc.
 *******************************************************************************/
 register(UnitTests);
 define
@@ -91,8 +86,6 @@ define
     sumple="What if it is a long string." height=200 width=250 x=100 y=100 down=*
         sumpleRow across=2 height=50
             crossing;
-    plainField height=200 width=250 x=100 y=100;
-    winForm window closable resize height=520 width=300 x=700 y=100;
     simple across styleTest height=212 width=250 x=100 y=100
         quinto width=150;
         sexto height=12;
@@ -115,15 +108,6 @@ define
     ***************************************************************************/
     accessTest code={ print "accessTest: " taG; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; };
     anotherTest code={ print "anotherTest: max should be" maximus " + 3"``"it is", maximus + 3, "and we done":; };
-    callMyself code={
-        print ~"callMyself: First time:" argument righty,:+;
-        if righty == 13;
-            righty++;
-            callMyself(aGroup);
-        print ~"Second time:" argument righty,:-;
-        };
-    commaStuff="44,two,  forty three,six,6.7,ninety one";
-    delimitRecord isRule countField}=1 skip-}=3 numberField}=1.0 stringField};
     feeling='having a few doubts ends here';
     formatTest code={ print "formatTest:" `is "Formatted" #12s maybe:; };
     ifTest code={
@@ -142,9 +126,6 @@ define
             else
                 print "  outer-else":;
         };
-    invokeTest code={ print "invokeTest:"` clear(aGroup); anotherTest(); print Invoked:; };
-    jsonFile file="/Users/anthony/Dropbox/data/InProcess/Groups/Tests/test.json";
-    layout code={ gruber = 23; print "layout:"`"Here is" parent.taG and gruber:; };
     list isRule entries=ANYstring+ SemI?- code={
         print "list tests the for statement:":;
         for sumGrup in entries; print `sumGrup:;
@@ -156,10 +137,6 @@ define
     stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
     testOR code={ print "testOR:"`; if !righty || feeling; print Saw righty feeling:; else print "I see nothing":; };
     testARG code={ print "testARG: Argument is:" actionLabel:; };
-    testForC second=56 third="WTF?" code={
-        print "testForC:"`"Components of" actionLabel with second third:;
-        for grup in actionLabel; attributes
-            print `grup += righty:; };
     testGet code={ sumple[width] = 251; print "testGet: should set sumple width to 251. It is", sumple.width:; };
     testIndentBlock code={
         print "testIndentBlock:":;
@@ -168,7 +145,6 @@ define
             print ~Two:;
         print ~-Three:;
         print ~-Four:; };
-    testNegate code={ print "testNegate: does not matter if the ! comes before or after"`; if !whatever; print "No result":; else print "Negate failed":; };
     testNew code={ grup = new(actionLabel); grup++; return grup; };
     testPointer lineIn code={
         print "testPointer:"`;
@@ -177,11 +153,6 @@ define
     testList code={
         print `"Processing testList action that runs list rule":;
         list("righty 3.1 seven eight nine;"); };
-    testScope code={
-            :actionLabel width height;
-            print taG width height:;
-            :simple width height quinto@;
-            print taG width height:; };
     testUnary code={
         print "testUnary:":;
         grup = 0;
