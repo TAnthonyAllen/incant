@@ -8,8 +8,12 @@ define
         quinto width=150;
         sexto height=12;
         fifth;
-    pSumple="long string" height=200 width=250 x=100 y=100 down=* across=2
-        crossing height=50;
+    pSumple="long string" height=200 width=250 x=100 y=100 down=*
+        pSumpleRow across=2 height=50
+            crossing;
+    pBoth x=0 y=0 width=250 height=200 down=* across=2
+        bCross height=50;
+    pBothReq form:=pBoth;
     pPct across x=0 y=0 width=200 height=100
         half width=50%;
         rest;
@@ -92,6 +96,12 @@ define
         printDefinition(**rfForm);
         print "RF-END" argument.taG:;
         };
+    rfBoth code={
+        rfBo := setFrame(argument);
+        print "RF-BOTH" argument.taG:;
+        tsfLine(*rfBo);
+        print "RF-BOTHEND" argument.taG:;
+        };
     rfNone code={
         rfN := setFrame(argument);
         print "RF-NONE done":;
@@ -113,6 +123,7 @@ rfFrame(pPct400Req);
 rfFrame(pPctWideReq);
 rfFrame(pPctZeroReq);
 rfNone(pPctShortReq);
+rfBoth(pBothReq);
 cerr "REFRAME SENTINEL":;
 stop();
 

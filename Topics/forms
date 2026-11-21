@@ -161,7 +161,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         NOT BUILT: the held form's own declared size is not read; a field holding a form lays out no members of its own.
         PARKED, a later step (Tony, 2026-11-13): a form reference whose attribute action runs a whole incantation, instead of a reference to a form that is definitions only.
     G3  SETFRAME SIMPLIFIED (Tony ruled 2026-11-21, SEQ 726, from his offline status; Clay's dispatch). DOCKETED: starts after the environment buy, on a branch. Order: 1, then 3 carrying 2.
-        1  ONE DIRECTION PER FIELD. A field naming both down and across refuses by name. Spelled as a row level, the height on the row (measured: with it on crossing, down=* divides by nothing and lays out one row):
+        1  ONE DIRECTION PER FIELD -- BUILT on branch g3-one-direction (SEQ 727), waiting for the buy: refused at layout (frameMembers), its members not laid out (reframeT RF-15, RF-16; climbT CL-6). A field naming both down and across refuses by name. Spelled as a row level, the height on the row (measured: with it on crossing, down=* divides by nothing and lays out one row):
                sumple=... height=200 width=250 x=100 y=100 down=*          sumpleRow across=2 height=50          crossing;
            Same 2x4 grid of 125x50 as today. Respell unitTests' sumple, reframeT's pSumple, climbT's clBoth, the baselineTests golden. bothDirections and the F-157 warning retire.
         2  A RESIZE STICKS, WITHIN ONE RUN. The definition is never written and every layout still lays out a fresh copy. A global holds frames keyed by form name; setFrame reads its own form's entry

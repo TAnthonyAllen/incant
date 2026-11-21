@@ -297,6 +297,7 @@ run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 #  ⚠ 2026-10-03 (SEQ 286): line 5 re-blessed (ifTest test:); lines 44-45 (Saw grup x2,
 #  unitTests:204 reads through the cursor) joined the unpinned set. All three: fixIts F-139.
 #  ⚠ 2026-11-05 (SEQ 535): testSetFrame added (SEQ 535). Its block is the golden's only new text; no other line moved.
+#  ⚠ 2026-11-21 (SEQ 727, G3 item 1): sumple respelled as a row level; its printDefinition (two lines) became three. No other line moved.
 #  So a content diff turned on today comes up RED ON TWO CLUSTERS BY DESIGN. That
 #  is the pin being honest, NOT a regression -- do not "fix" it by re-pinning
 #  them, which is precisely the move goldenDrift's clause 2 prohibits: re-pinning
@@ -10311,6 +10312,11 @@ _ofeq "reframeT RF-14 a parent naming NO direction stacks its children as down d
 _ofeq "reframeT RF-12 overlay, parent at 100,200 300x150: a bare child fills it; x=10 y=20 lands at 110,220; x=0 y=0 at the origin; width=50% y=100; a child of a placed child is measured from that child" "$(_rfl pOverReq)" "pOver x=100 y=200 w=300 h=150/oFull x=100 y=200 w=300 h=150/oPlaced x=110 y=220 w=50 h=40/oZero x=100 y=200 w=30 h=30/oWide x=100 y=300 w=150 h=150/oInner x=300 y=205 w=80 h=80/oKid x=303 y=209 w=10 h=10/"
 _ofeq "reframeT RF-13 the control: under down, declared x and y are not read and the children stack" "$(_rfl pStackReq)" "pStack x=100 y=200 w=300 h=150/sA x=100 y=200 w=300 h=40/sB x=100 y=240 w=300 h=110/"
 _ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setFrame: REFUSING pPctShortReq -- its frame needs x, y, width and height' "$T/rf.e")" "1"
+#  G3 item 1 (SEQ 727, 2026-11-21): one direction per field. A field naming both down and across is refused by name at layout, in
+#  frameMembers, and its members are not laid out (bCross keeps no x, y or width). Only pBoth is refused so; pSumple, the same grid
+#  written as rows, is laid out (RF-1 to RF-3). H7: the refusal removed, the line is gone and bCross is laid out.
+_ofeq "reframeT RF-15 a field naming both down and across refuses by name, once, and its member is not laid out" "$(grep -c '^setFrame: REFUSING pBoth -- it names both down and across' "$T/rf.e") $(grep -c 'names both down and across' "$T/rf.e") $(_rfb BOTH BOTHEND pBothReq | grep -c '^	bCross x=- y=- w=- h=50')" "1 1 1"
+_ofeq "reframeT RF-16 the same grid written as rows lays out 4 rows of 2 cells, 125x50, rows at y 100 150 200 250" "$(_rfb RUN1 RUN2 pSumpleReq | grep -c '^		crossing .* w=125 h=50') $(_rfb RUN1 RUN2 pSumpleReq | grep '^	pSumpleRow ' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs)" "8 100 150 200 250"
 
 #  ⚑ noRoomT -- forms step 6, the rest (Tony's ruling of 2026-11-07; SEQ 627 W1, 2026-11-11): noRoom means only "does not fit"; isHidden is its own
 #  author-declared flag. Two GroupBody flags (isHiddeN 49, noRooM 50). An isHidden member takes no room and gets no frame, nor does anything under it.

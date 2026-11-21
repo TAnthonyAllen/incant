@@ -865,7 +865,12 @@ _clp () { awk -v pg="$1" '/^CL PAGE/{b=$3; next} b==pg' "$T/cl.o"; }
 _ofeq "climbT CL-3 UNDER A REPEAT, down=3: each of the three kids climbs crCell, crRep, clNum" "$(_clp num | sed -n 's/^CL-3 *//p' | xargs)" "crKid crCell crRep clNum crKid crCell crRep clNum crKid crCell crRep clNum"
 _ofeq "climbT CL-4 under down=\"*\": three rows fit, each leaf climbs crRow, crAll, clStar" "$(_clp star | sed -n 's/^CL-4 *//p' | xargs)" "crLeaf crRow crAll clStar crLeaf crRow crAll clStar crLeaf crRow crAll clStar"
 _ofeq "climbT CL-5 each repeat owns its child: the kids' y are 0 100 200 (down=3) and the leaves' the same (down=*); the parent's style font and colour reach all three kids" "$(_clp num | grep 'crKid=' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs) / $(_clp star | grep 'crLeaf=' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs) / $(_clp num | grep -c '^=== drawSpans crKid font Palatino 24 1 color r239 g43 b45 ')" "0 100 200 / 0 100 200 / 3"
-_ofeq "climbT CL-6 a field written both down and across is warned by name, once (F-157); no other form here is warned" "$(grep -c '^setFrame: WARNING clBoth -- it is written both down and across' "$T/cl.e") $(grep -c '^setFrame: WARNING' "$T/cl.e")" "1 1"
+#  CL-6 RETIRED BY MAPPING (G3 item 1, SEQ 727, 2026-11-21): one direction per field; bothDirections and the F-157 warning are gone.
+#    "clBoth is warned by name, once"  -> gone with the warning; a field naming both is now REFUSED by name: pop.sh reframeT RF-15 (pBoth).
+#    "no other form here is warned"     -> carried below: no setFrame WARNING or REFUSING line in climbT at all.
+#  clBoth is respelled as a row level (down="*" holding clRow across=2 height=50 holding clCross) with a leaf under each cell,
+#  so the row also asks F-157's question: a field three levels down under a grid climbs to its own parents, once per copy.
+_ofeq "climbT CL-6 a grid written as rows: each of the eight leaves climbs clCross, clRow, clBoth; no setFrame warning or refusal in climbT" "$(_clp both | sed -n 's/^CL-6 *//p' | sort | uniq -c | xargs) $(grep -c '^setFrame: \(WARNING\|REFUSING\)' "$T/cl.e")" "8 clLeaf clCross clRow clBoth 0"
 
 echo "-- styles by merge at layout (styleMergeT)."
 #  ⚑ styleMergeT -- SEQ 652 R1 (Tony, 2026-11-14): setFrame's mergeStyles merges a deep copy of every style:= into its field on the copy; own

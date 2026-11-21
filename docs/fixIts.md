@@ -198,7 +198,7 @@ where it stands. Nothing else is backfilled.
 **Owner:** Clod, with the layout context stroke. **Size:** not measured.
 **Attempt log:** none. SEQ 723 (looks by name, read, not run): a held form may now be laid out under a look of its own (R4's fallback), so the failing order exists inside ONE layout -- a typeset run in a held form that fell back resolves at draw through the top form's look. placeForm keeps and restores the host's look around the held form, so the host's own runs are right; the held form's runs are this row. No fixture has a held form with a run naming a placeholder.
 
-### F-157 — OPEN, docketed 2026-11-14 (SEQ 655, Clay's rider; row and a warning, no fix) — bothDirectionsShallow: a field written both down and across still rebuilds its members as shallow copies
+### F-157 — RETIRED 2026-11-21 (G3 item 1, SEQ 727, branch g3-one-direction): bothDirections is deleted, a field naming both down and across is refused by name; docketed 2026-11-14 (SEQ 655, Clay's rider; row and a warning, no fix) — bothDirectionsShallow: a field written both down and across still rebuilds its members as shallow copies
 
 **What:** (kant) `bothDirections` in `incant/utilities` builds a cell, fills it in the scratch field `bothStuff` from the field's members (`bothStuff +/ ...`), then `clear(argument); argument = bothStuff;`. That is the shape `fillDownAcross` had until seals 484 and 486: members rebuilt through a scratch field, so a field under one of them climbs to the scratch field and not to its parent, and copies made from them may share one set of children.
 **Where:** `incant/utilities`, `bothDirections` (the `bothStuff isList;` block above `frameMembers`); called from `frameMembers` when a field holds both `across` and `down` values.
@@ -206,7 +206,8 @@ where it stands. Nothing else is backfilled.
 **Until fixed:** setFrame warns by name when it meets one: `setFrame: WARNING <field> -- it is written both down and across; ...` (climbT CL-6).
 **Done when:** bothDirections builds its cell in the field itself from deep copies; a climbT row shows a field three levels down under a both-directions parent climbing to its own parents and laid out once per copy, with an H7; the warning and CL-6 retire by mapping to that row.
 **Owner:** Clod, when Tony rules it. **Size:** small, by the single-direction fix; not measured.
-**Attempt log:** none.
+**Attempt log:**
+- 2026-11-21 (SEQ 727, G3 item 1, Tony ruled one direction per field): RETIRED, not fixed. bothDirections and the warning deleted from `incant/utilities`; frameMembers refuses a field naming both by name and lays out none of its members (pop.sh reframeT RF-15, with H7). The grid is written as a row level; climbT's clBoth so respelled, with a leaf under each cell, answers this row's done-when question: all eight leaves climb clCross, clRow, clBoth (formsPop CL-6, which retired the warning row by mapping).
 
 ### F-156 — DONE 2026-11-14: branch f156-floor-style bought (Tony, via Clay) and merged at seal 489; docketed 2026-11-14 (SEQ 654, Clay's dispatch; row only, do not remove now) — floorReadsStyle: the floor's own read of a held style's box properties is redundant after the merge
 

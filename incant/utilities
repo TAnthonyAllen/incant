@@ -682,35 +682,6 @@ define
                 ++fdSeen;
         };
     /***************************************************************************
-        Both directions on one field (Clay's design, Tony 2026-11-06). The number
-        goes outside: a new cell holds the members and carries the *, and
-        setFrame's recursion does the rest. Both * or both numbers: parked.
-    ***************************************************************************/
-    bothStuff isList;
-    bothDirections code={
-        =:argument across down;
-        inner = "none";
-        if down == "*";
-            if across != "*";   inner = "down";
-        if across == "*";
-            if down != "*";     inner = "across";
-        if inner == "none";
-            print taG "needs one * and one number to use both down and across":;
-            return;
-        cellHold := new("dirCell");
-        innerAttr := argument[inner];
-        *cellHold :% copyOf(*innerAttr);
-        for grup in argument; members
-            *cellHold +/ copyOf(*grup);
-        clear(bothStuff);
-        for grup in argument; attributes
-            if *grup.taG != inner;
-                bothStuff +% *grup;
-        bothStuff +/ *cellHold;
-        clear(argument);
-        argument = bothStuff;
-        };
-    /***************************************************************************
          frameMembers sets frames for the members of the group passed in. It must
          have x y width and height attributes. It WRITES the group it is handed,
          so only setFrame calls it, and only on a copy.
@@ -728,12 +699,13 @@ define
     ***************************************************************************/
     frameMembers code={
         =:argument across down overlay width height x y;
+        // oneDirection a field names down or across, never both (G3 item 1, Tony 2026-11-21): refused by name, its members are not laid out. A grid is a row level: down on the field, across on the one row it holds, the height on the row
+        fmBoth = 0;
         if across.datA != 0;
-            if down.datA != 0;
-                // warnsBoth until F-157 is fixed: the cell bothDirections builds holds shallow copies in a scratch field
-                cerr "setFrame: WARNING" argument.taG "-- it is written both down and across; its members are rebuilt as shallow copies, so a field under one of them may be laid out and inherit wrongly (F-157)":;
-                bothDirections(argument);
-                =:argument across down;
+            if down.datA != 0;  fmBoth = 1;
+        if fmBoth == 1;
+            cerr "setFrame: REFUSING" argument.taG "-- it names both down and across; a field takes one direction, so write the grid as rows (down on the field, across on a row it holds); its members are not laid out":;
+            return;
         sideRoom    = width;
         pWidth      = width;
         headRoom    = height;
