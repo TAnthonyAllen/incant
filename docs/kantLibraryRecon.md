@@ -398,3 +398,49 @@ Three things in kant moved under it; two have a commit, one predates the repo.
 Not dated: when a refusal inside a `while` on a bare field began to spin (fixit refusedLoopSpins), and whether the
 string walk read false at its end before 2026-09-11. Each needs a build of an older commit, which is a clone outside
 Dropbox by the standing rule, so neither was cheap.
+
+---
+
+## M1 -- utilities reordered into the ten families (2026-11-21, SEQ 734 assigned by Clod; branch m1-utilities-families, for Tony's buy)
+
+Moves only. `incant/utilities` is cut into 97 pieces by line range and written back in the order of 1a: within a
+family, its fields first (in the order they stood), then its actions (in the order they stood), each header directly
+above its own action. No line of any body changed; no comment was rewritten; the foot (the last 13 lines) is untouched.
+
+**The families as built** (file order): tell · printing a field (`listed`; dumpField, flatten, listRules, toXML) ·
+JSON (its block, verbatim) · layout (`tARGET dIRECTion newStuff placeReq sfChain fwOk`; fillDownAcross, frameMembers,
+placeForm, frameWhole, setFrame, bigifyLayout) · looks and styles (the ten `lk*` `ln*` `rlSays` fields; setLook,
+lookFirst, setLookByName, resolveLook, mergeStyles, hexToNumber, setHexColor) · cards (`cpWant cpTab cpTabName
+cpHits`; cpBars, cpBar, cpCards, cpOne, cardsPick) · the frame store (`formFrames`; keepFrame) · typesetting (the `ts`
+rules and fields; tsFind, tsBoxWarn, typeset) · drawing (`textReq imageReq`; drawWalk, drawText, drawImage, drawFill,
+drawBorder, drawKids) · show, redraw, click (`windowReq pageReq showPath showReq ckFn ckNm`; describe, redrawWindow,
+redrawForm, showPathRoot, showForm, clickFire, click).
+
+**Where the dead items went** (1a named no family for them; my choice, say if another is wanted): flatten and toXML
+with printing a field; bigifyLayout with layout; hexToNumber and setHexColor with looks and styles (colours).
+
+**Headers, matched by what they say.** 29 block headers and 4 one-line `//` notes. Moved to their action: setFrame's
+(was 333 lines above it), mergeStyles' (146 above), setLookByName's, cardsPick's, showForm's, click's, typeset's,
+placeForm's, fillDownAcross', drawImage's and redrawWindow's (each had fields or other actions between it and its
+action).
+- **Matches none:** the `quoteIfNeeded` obituary (one `//` line; no such action). Left after `click`, where it stood.
+- **Matches a field, not an action:** the `formFrames` header. It sits above `formFrames`.
+- **Matches two or more:** the JSON header (the whole rule set: kept above the block, which is verbatim); the typeset
+  header (the `ts` grammar and the action: placed above the action, so the grammar now stands above it with no header);
+  the cardsPick header (the five `cp` actions: placed above cardsPick, the last of them); the showForm header (it also
+  describes the viewer, which is showForm's own code).
+- **No header at all:** tsFind, frameWhole, drawFill, drawBorder, drawKids, cpBars, cpBar, cpCards, cpOne, clickFire.
+
+**The proof.**
+
+| check | reads |
+|---|---|
+| every line, sorted, before and after | identical, 1597 lines each |
+| `genLadder/codeOnly.py`, sorted, before and after | identical, 1201 lines each |
+| the foot (last 13 lines) | identical, in place |
+| `genLadder/pop.sh` | exit 1, **4217 green**, FAIL rows 63, identical by name to `docs/sealCaptures/pop.fails.txt` |
+| pop.sh against a run on the unmoved file the same hour | the same but for the tree-status header and one printed memory address (acceptStartT's body address, different every run) |
+| `genLadder/formsPop.sh` | **317 green**, F-149 red as banked; its whole output identical to `docs/sealCaptures/formsPop.txt` (0 lines differ) |
+
+Binary: the bare build of 2026-11-20 12:54, 2191072 bytes. Not run: jitLadder, printPop, decodePop, ddPop, frontier,
+dirCheck (the dispatch named pop.sh and formsPop.sh as the proof; a buy runs the rest).
