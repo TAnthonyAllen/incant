@@ -1,3 +1,33 @@
+/*****************************************************************************
+    Revised list work in process. The new list will be simpler than the old
+    one shown below the bail; best ignored for now to avoid confusion and lots of
+    explanation. The simpler table will still have to deal with pouring input into its table structure.
+    
+    The first step will be to define that structure and see that setFrame handles its layout.
+    Second step will be change Tests/delimitTest to be a data source with 6 rows
+    with each row having a label and three numbers.
+    Third step: figure out how to pour in delimitTest such that its components get put into
+    rowLabel first then numbers go into rowField. This is the design challenge.
+*****************************************************************************/
+register(FORMs);
+define
+    listExample window closable resize x=400 y=400 width=400 height=300 fill=wall title="List With Attributes"
+        first height=50 fill=white top left right rounded font=normal
+            space;
+            heading="Variable Attributes List" height=43.0 text align=center font=title border=off;
+        body source=listStuff rounded=5 fill=white font=normal down=*
+            rows across
+                rowLabel text width=100;
+                rowFields across=*
+                    rowField text align=right;
+    ;
+bail();
+
+The following is the old body of list and Clods notes below it
+
+/*****************************************************************************
+    Old body of list
+*****************************************************************************/
 register(GUI);
 define
 listStuff with some attributes
@@ -32,8 +62,10 @@ listExample window closable resize x=400 y=400 width=360 height=300 fill=wall fo
                         wrap width=75 next=contents
                             vALUE trait=source tableCell;
                 space  height=16;
-bail();
 
+/*****************************************************************************
+    Notes on the old body
+*****************************************************************************/
 traits and tags are attributes, associated with the cell attribute, and used to refrence the contents of a source.  # TODO: review
 
 Note: Traits are only relevant in association with cells (specified by the cell attribute). The trait value is what the cell displays. The trait is used to access the text value of its source. The trait action puts the trait block into the trait parent (the enclosing block), that is, it sets trait.parent.text to trait.text. There are three basic steps involved:  # TODO: review
