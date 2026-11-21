@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+register(LooksByNameT);
+search LooksByNameT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    lbX = 0;
+    lbY = 0;
+    lbAt code={
+        px = lbX;
+        py = lbY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/test.pdf";
+    lbRun code={
+        redrawForm(argument);
+        readPDF(pdfRead);
+        lbX = 450; lbY = 15;  lbAt(pdfRead);
+        lbX = 200; lbY = 580; lbAt(pdfRead);
+        };
+    rqNone path="IncantForms/PDF/test.pdf" form:=firstLight;
+    rqStandard path="IncantForms/PDF/test.pdf" form:=firstLight look="standard";
+    rqDark path="IncantForms/PDF/test.pdf" form:=firstLight look="dark";
+    rqPrint path="IncantForms/PDF/test.pdf" form:=firstLight look="print";
+    ;
+cout "LB PAGE none":;       lbRun(rqNone);
+cout "LB PAGE standard":;   lbRun(rqStandard);
+cout "LB PAGE dark":;       lbRun(rqDark);
+cout "LB PAGE print":;      lbRun(rqPrint);
+cout "LB PAGE after":;      printDefinition(firstLightLooks);
+cout "LB PAGE end":;
+cerr "LOOKSBYNAMET SENTINEL":;
+stop();
+
+looksByNameT -- looks by name (Tony, 2026-11-20, SEQ 723 R2-R4). firstLight carries looks:=firstLightLooks, a list of two looks,
+standard (pageFill wall) and dark (pageFill black); the first is the default. It is drawn to test.pdf with no look, with
+look="standard", with look="dark", and with look="print", a name its list lacks: refused by name, nothing laid out: redrawForm says so on stderr and writes no PDF.
+Pixel (450,15) is the heading, which has no fill of its own: the page fill, so the look shows there. Pixel (200,580) is inside the
+held descriptions form, which has no list: it takes firstLight's look name, lacks it, uses its own default (defaultLook) and a trace
+line says so; its lightGreen is explicit, so it reads the same on every page (the control). The print page's pixels are the dark
+page's PDF, unwritten: the row reads redrawForm's line, never the pixels.
+The spelling is look="dark", by name: a list member is on no search list, so look:=dark is refused at define (measured SEQ 723).

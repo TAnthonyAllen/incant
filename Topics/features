@@ -68,12 +68,6 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
     customer: its defaults become the environment's. Ties to the stash (registry sTASh, built from incant/stashList) and to the
     distribution entry -- which no tracked file names today (searched 2026-11-20: Topics/, docs/, TODO.md, macros); the tie waits
     on where that entry lives. Today include() searches no path (bear-trap #28: fILEs in incant/setup, by hand).
-39. The shape of looks (Clay, 2026-11-20; NOT RULED, forms session agenda; built context: Topics/forms, THE BUILD 3-4). The point
-    both share: every form handles looks the same way. Tony: each incantation defines a default field tagged Look, alternatives
-    Look1, Look2 ... (open to other names). Clay: avoids the clash when two forms load together (firstLight holding descriptions
-    would both define Look, and the second define merges into the first): each form carries looks:=<form>Looks, a list whose
-    members are named by what they are (standard, dark, print), the first the default; look:=dark picks one; a name not in the
-    list refuses by name. OPEN: a held form takes its parent's look, so a requested look must be in both lists or refuse.
 
 ## Not harvested, and why
 

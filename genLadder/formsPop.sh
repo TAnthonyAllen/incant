@@ -504,7 +504,8 @@ _ofeq "stashT exit / sentinel" "$_stx $(grep -c '^STASHT SENTINEL' "$T/st.e")" "
 _ofeq "stashT ST-1 THE 2b GUARD: after Start(), the bare names read nothing and the stash entries read their File" "$(grep '^ST-1 ' "$T/st.e" | sed 's/ *$//')" "ST-1 bare firstLight 0 bare descriptions 0 sTASh[firstLight] 1 sTASh[descriptions] 1"
 _ofeq "stashT ST-2 a file on disk not on the list: refused not in the stash, nothing loaded (refusals / deferred lines before ST-4)" "$(grep -c '^REFUSED show simple -- not in the stash' "$T/st.e") $(awk '/^=== show .* deferred/{n++} END{print n+0}' "$T/st.o")" "1 1"
 _ofeq "stashT ST-3 no file and no entry: refused the same way" "$(grep -c '^REFUSED show zzNoSuchForm -- not in the stash' "$T/st.e")" "1"
-_ofeq "stashT ST-4 through the stash: drawn to test.pdf; the form in FORMs, the bare name the form, the entry File + text as fILEs' is" "$(grep -c '^=== show firstLight to IncantForms/PDF/test.pdf ===' "$T/st.o") / $(grep '^ST-4 FORMs' "$T/st.e" | sed 's/ *$//')" "1 / ST-4 FORMs[firstLight] 12 bare firstLight 12 sTASh[firstLight] 2 fILEs[utilities] 2 FORMs[simple] 0"
+#  re-pinned SEQ 723 (looks by name): firstLight gained looks:=firstLightLooks, one attribute, so its list length is 13 where it was 12.
+_ofeq "stashT ST-4 through the stash: drawn to test.pdf; the form in FORMs, the bare name the form, the entry File + text as fILEs' is" "$(grep -c '^=== show firstLight to IncantForms/PDF/test.pdf ===' "$T/st.o") / $(grep '^ST-4 FORMs' "$T/st.e" | sed 's/ *$//')" "1 / ST-4 FORMs[firstLight] 13 bare firstLight 13 sTASh[firstLight] 2 fILEs[utilities] 2 FORMs[simple] 0"
 #  ⚑ showBootT -- show(firstLight) after Start(); alone writes output.pdf, which is Tony's: set aside here and put back.
 #  H7 (SEQ 688, committed file): showFinish calling showForm by its bare name -> SB-1 has no draw line (the name binds when the
 #  body is first built, with the search list of that moment, and Utilities is not on it).
@@ -940,6 +941,23 @@ _ofeq "showT SH-3 the look does not stay in show's request: shPlain again reads 
 _ofeq "showT SH-4 A FORM WITH NO path is written to IncantForms/PDF/output.pdf (line / a new file written)" "$(_shs home) / $_shNew" "shHome to IncantForms/PDF/output.pdf / 1"
 _ofeq "showT SH-5 show returns the laid-out copy: a list of 10 (its attributes and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 10 width 400"
 _ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form" "$(grep -c '^=== show IBkant to IncantForms/PDF/test.pdf ===' "$T/ib.o") $(grep -c '^=== show ' "$T/ib.o")" "4 4"
+
+echo "-- looks by name (looksByNameT)."
+#  ⚑ looksByNameT -- SEQ 723 R1-R4 (Tony, 2026-11-20): firstLight carries looks:=firstLightLooks (standard, dark); the first is the default; a
+#  request asks by name, look="dark"; a name the list lacks is refused by name and nothing is laid out; the held descriptions form, with no list,
+#  takes firstLight's look name, lacks it, uses defaultLook and a trace line says so. (450,15) is the heading: the page fill. (200,580) is in the held
+#  form, its explicit lightGreen: the control, the same on every page. H7: with setLook's call to setLookByName removed, LB-1 to LB-4 go red.
+_lbF=$(ip looksByNameT)
+perl -e 'alarm 60; exec @ARGV' "$B" "$_lbF" > "$T/lb.o" 2> "$T/lb.e"; _lbx=$?
+_lbb () { awk -v pg="$1" '/^LB PAGE/{b=$3; next} b==pg' "$T/lb.o"; }
+_lbp () { _lbb "$1" | grep 'pixelAt pdfRead' | sed 's/.*= //; s/ ===.*//' | xargs | sed 's/ a255 / a255 \/ /'; }
+_ofeq "looksByNameT exit / sentinel" "$_lbx $(grep -c '^LOOKSBYNAMET SENTINEL' "$T/lb.e")" "0 1"
+_ofeq "looksByNameT LB-1 NO LOOK ASKED: the list's first member, standard, gives the page wall; the held form's lightGreen" "$(_lbp none)" "r247 g232 b170 a255 / r175 g211 b120 a255"
+_ofeq "looksByNameT LB-2 look=\"standard\" reads as LB-1" "$(_lbp standard)" "$(_lbp none)"
+_ofeq "looksByNameT LB-3 look=\"dark\": the page black; the held form's lightGreen unmoved" "$(_lbp dark)" "r0 g0 b0 a255 / r175 g211 b120 a255"
+_ofeq "looksByNameT LB-4 A NAME NOT IN THE LIST is refused by name, once, and nothing is laid out or written" "$(grep -c '^setFrame: REFUSING firstLight -- the request asks for the look print and its looks list holds no look by that name' "$T/lb.e") $(grep -c '^redrawForm: nothing laid out for rqPrint' "$T/lb.e") $(_lbb print | grep -c drawSpans)" "1 1 0"
+_ofeq "looksByNameT LB-5 THE HELD FORM WITH NO LIST falls back with a trace line on each drawn page, never a refusal: the look named (standard standard dark)" "$(grep '^setFrame: descriptions is held under the look .* and has no looks list; it uses its own default, defaultLook' "$T/lb.o" | awk '{print $8}' | xargs) $(grep -c 'REFUSING descriptions' "$T/lb.e")" "standard standard dark 0"
+_ofeq "looksByNameT LB-6 the list prints after four draws as defined" "$(_lbb after | grep -v '^\s*$' | xargs)" "firstLightLooks standard pageFill=wall; dark pageFill=black;"
 
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
