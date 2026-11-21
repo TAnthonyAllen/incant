@@ -961,6 +961,26 @@ _ofeq "looksByNameT LB-7 A HELD FORM WHOSE LIST HAS THE NAME takes it, no trace:
 _ofeq "looksByNameT LB-8 A HELD FORM WHOSE LIST LACKS THE NAME uses its own default with one trace line: lbHost under dark, host black, lbHeld red (standard)" "$(_lbp hostDark) / $(_lbb hostDark | grep -c '^setFrame: lbHeld is held under the look dark and its looks list has none by that name; it uses its own default, standard')" "r0 g0 b0 a255 / r239 g43 b45 a255 / 1"
 _ofeq "looksByNameT LB-6 the list prints after four draws as defined" "$(_lbb after | grep -v '^\s*$' | xargs)" "firstLightLooks standard pageFill=wall; dark pageFill=black;"
 
+echo "-- the kant environment, first piece (envT)."
+#  ⚑ envT -- SEQ 724 R1-R4 (ruled 2026-11-20): environment (incant/setup) holds root, paths and forShow (searchNames, fileNames, stageNames);
+#  show reads only from it, and a request's searchNames:= or fileNames:= replaces that member for one call; one list of loaded files; showPath
+#  derives from environment.root. Run after Start() alone; every draw writes output.pdf, Tony's, set aside here and put back.
+_enF=$(ip envT)
+_enOut=IncantForms/PDF/output.pdf
+rm -f "$T/en.keep"; [ -f "$_enOut" ] && mv "$_enOut" "$T/en.keep"
+perl -e 'alarm 60; exec @ARGV' "$B" "$_enF" > "$T/en.o" 2> "$T/en.e"; _enx=$?
+rm -f "$_enOut"; [ -f "$T/en.keep" ] && mv "$T/en.keep" "$_enOut"
+_enb () { awk -v pg="$1" '/^EN PAGE/{b=$3; next} b==pg' "$T/en.o"; }
+_ens () { _enb "$1" | grep -E '^=== show firstLight (deferred|to)' | sed 's/ *$//; s/=== show firstLight //; s/ ===$//; s/:.*//' | tr '\n' '|'; }
+_ofeq "envT exit / sentinel" "$_enx $(grep -c '^ENVT SENTINEL' "$T/en.e")" "0 1"
+_ofeq "envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn" "$(_ens files) / $(_enb loaded | awk '/^loaded/{print $2}' | xargs)" "deferred|to IncantForms/PDF/output.pdf| / styles utilities"
+_ofeq "envT EN-2 showPath derives from environment.root: root . gives the relative path" "$(_enb path | grep '^showPath' | awk '{print $2}')" "IncantForms/PDF/output.pdf"
+_ofeq "envT EN-3 searchNames:= FORMs Utilities: drawn; fileNames not named, so environment's stand and unitTests loads first (deferred)" "$(_ens short)" "deferred|to IncantForms/PDF/output.pdf|"
+_ofeq "envT EN-4 searchNames:= naming noSuchRegistry: refused by name, once, and nothing drawn" "$(grep -c '^REFUSED show -- its search list names noSuchRegistry -- not a registry; nothing drawn' "$T/en.e") $(_enb noreg | grep -c '^=== show firstLight')" "1 0"
+_ofeq "envT EN-5 a request naming only form:= keeps every default: drawn with nothing to load" "$(_ens plain)" "to IncantForms/PDF/output.pdf|"
+_ofeq "envT EN-6 EACH FILE ONCE: after four shows the loaded list is styles utilities unitTests" "$(_enb again | awk '/^loaded/{print $2}' | xargs)" "styles utilities unitTests"
+_ofeq "envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path" "$(_enb root | awk '/^showPath/{print $2}' | xargs)" "elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

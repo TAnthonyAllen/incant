@@ -391,3 +391,5 @@ define
         testSetFrame();
         };
     ;
+/*  fileLoaded  unitTests joins the loaded files the bootstrap show (incant/setup) reads (SEQ 724)  */
+fileLoaded("unitTests");

@@ -384,21 +384,106 @@ include(grammar);
 /*  showBoot -- the bootstrap show (SEQ 687; R4 ruled option 1). show(form) works after Start(); alone: it loads what is not loaded
     and draws by continuation, since an include inside an action is read after the action returns. Commentary: section 10 below. */
 registry(pROPERTIEs);
+/*  environment -- the kant environment, first piece (Topics/features 38; ruled 2026-11-20, SEQ 724). root is the folder incant
+    runs from, and every path in the tree is relative to it today; a location derives from root (showPath, incant/utilities).
+    paths are the folders searched for files, in order, relative to root: the shipped files only. forShow is show's defaults
+    (searchNames, fileNames, stageNames: member names no other field has, since a member named search or show writes onto
+    the command of that name); a request's searchNames:= or fileNames:= replaces that member for one call. Not built, kept in view:
+    include reading paths (bear-trap #28: include searches no path); the user's folder at the front of paths; the remedy for
+    absolute paths already in the tree (Controls/attributes, bigify, db, the descriptions images). Commentary: section 11 below.  */
 define
-    showLoaded=0;
-    stylesLoaded=0;
+    environment
+        root=".";
+        paths ".";
+        forShow
+            searchNames "FORMs" "Utilities" "cOLOr" "fONTs" "sTYLEs";
+            fileNames "styles" "utilities" "unitTests";
+            stageNames "cOLOr" "fONTs" "sTYLEs";
+    ;
+define
+    loadedFiles;
+    lfName = "none";
+    fileLoaded code={
+        lfName = string $argument$;
+        if loadedFiles[lfName];     return 0;
+        lfMark := new(lfName);
+        loadedFiles +% *lfMark;
+        return 0;
+        };
     showPending;
     showSaved;
+    showFormNow;
+    showSearchUse;
+    showFilesUse;
+    swBad = 0;
+    swMissing = 0;
+    // namesAreFiles each name in a files list must be a fILEs entry; one not loaded yet is counted in swMissing
+    showCheckFiles code={
+        for grup in argument; attributes
+            cfN = string $*grup$;
+            cfOk = 0;
+            if fILEs[cfN];          cfOk = 1;
+            if cfOk == 0;           cerr "REFUSED show -- its files list names" cfN "-- not in fILEs; nothing loaded, nothing drawn":;
+            if cfOk == 0;           swBad = 1;
+            if cfOk == 1;
+                if loadedFiles[cfN];    cfOk = 2;
+            if cfOk == 1;           swMissing = swMissing + 1;
+        };
+    // eachOnce a file is included only if not loaded, and marked as it is queued, so a name written twice loads once
+    showLoadFiles code={
+        for grup in argument; attributes
+            lfN = string $*grup$;
+            lfGo = 1;
+            if loadedFiles[lfN];    lfGo = 0;
+            if lfGo == 1;           fileLoaded(lfN);
+            lfEnt := fILEs[lfN];
+            if lfGo == 1;           include(*lfEnt);
+        };
     show code={
+        swArg := argument;
+        // byRequest a field holding form= is a request: its form names the form; its searchNames:= or fileNames:= replaces that member of environment.forShow for this call (SEQ 724 R2; search:= would write onto the search command)
+        swReq = 0;
+        if *swArg["form"];      swReq = 1;
         swN = string $argument.taG$;
+        swFa := *swArg["form"];
+        swVia = 0;
+        if swReq == 1;          swVia = *swFa.isGrouP;
+        if swReq == 1;
+            if swVia == 1;      swN = string $**swFa.taG$;
+            if swVia == 0;      swN = string $*swFa$;
+        swFs := environment["forShow"];
+        showSearchUse := *swFs["searchNames"];
+        showFilesUse := *swFs["fileNames"];
+        swRs = 0;
+        if swReq == 1;
+            if *swArg["searchNames"];   swRs = 1;
+        swRsA := *swArg["searchNames"];
+        if swRs == 1;           showSearchUse := **swRsA;
+        swRf = 0;
+        if swReq == 1;
+            if *swArg["fileNames"];     swRf = 1;
+        swRfA := *swArg["fileNames"];
+        if swRf == 1;           showFilesUse := **swRfA;
+        swBad = 0;
+        swMissing = 0;
+        showCheckFiles(*showFilesUse);
+        if swBad == 1;          return 0;
+        // whichForm a form argument is defined when it has a list; a request's held form is defined; a request naming one by text finds it in FORMs
         swDef = 0;
         swLen := argument.listLengtH;
-        if *swLen > 0;      swDef = 1;
+        if swReq == 0;
+            if *swLen > 0;      swDef = 1;
+            showFormNow := argument;
+        if swReq == 1;
+            if swVia == 1;      swDef = 1;
+            if swVia == 1;      showFormNow := **swFa;
+            if swVia == 0;
+                if FORMs[swN];      swDef = 1;
+                if FORMs[swN];      showFormNow := FORMs[swN];
         swNeed = 1;
-        if showLoaded == 1;
-            if stylesLoaded == 1;
-                if swDef == 1;  swNeed = 0;
-        if swNeed == 0;     return showNow(argument);
+        if swMissing == 0;
+            if swDef == 1;      swNeed = 0;
+        if swNeed == 0;     return showNow(*showFormNow);
         // entOutsideArm the entry is bound here, not inside the arm below: a := made inside an if arm holds nothing after it (measured SEQ 687)
         swEnt := sTASh[swN];
         swHas = 0;
@@ -421,43 +506,55 @@ define
         include(showFinishFile);
         if swDef == 0;      include(*swEnt);
         include(showStageFile);
-        if stylesLoaded == 0;   include(styles);
-        if showLoaded == 0;     include(utilities);
-        if showLoaded == 0;     include(unitTests);
+        showLoadFiles(*showFilesUse);
         return 0;
         };
     showNow code={
         snKeep := searchSave(0);
+        swBad = 0;
         showSearch();
+        if swBad == 1;      searchRestore(*snKeep);
+        if swBad == 1;      return 0;
         // byQualifiedName showForm is reached through Utilities, never the search list: a body binds its names when it is first built, with the search list of that moment (SEQ 688)
         snF := Utilities["showForm"];
         snOut := *snF(argument);
         searchRestore(*snKeep);
         return *snOut;
         };
+    // fromTheList the search list a form is shown under: environment.forShow's searchNames, or the request's search:= (SEQ 724)
+    showSearchKeep;
+    // starNotInFor the walk takes its list as argument: for grup in *x reads the star as text (measured SEQ 724)
+    // namesAreRegistries a name that is not a registry when the form is drawn is refused by name and nothing is drawn; checked here, since show's own files create the registries
+    showAddRegs code={
+        for grup in argument; attributes
+            arN = string $*grup$;
+            arOk = 0;
+            if registries[arN];     arOk = 1;
+            if arOk == 1;           *showSearchKeep +% registries[arN];
+            if arOk == 0;           cerr "REFUSED show -- its search list names" arN "-- not a registry; nothing drawn":;
+            if arOk == 0;           swBad = 1;
+        };
     showSearch code={
-        ssL := searchSave(0);
-        *ssL +% FORMs;
-        *ssL +% Utilities;
-        *ssL +% cOLOr;
-        *ssL +% fONTs;
-        *ssL +% sTYLEs;
-        searchRestore(*ssL);
+        showSearchKeep := searchSave(0);
+        showAddRegs(*showSearchUse);
+        searchRestore(*showSearchKeep);
         return 0;
         };
     showStage code={
-        stL := searchSave(0);
-        *stL +% cOLOr;
-        *stL +% fONTs;
-        *stL +% sTYLEs;
-        searchRestore(*stL);
+        showSearchKeep := searchSave(0);
+        stFs := environment["forShow"];
+        stList := *stFs["stageNames"];
+        showAddRegs(*stList);
+        searchRestore(*showSearchKeep);
         return 0;
         };
     showFinish code={
         sfN = string $showPending$;
+        swBad = 0;
         showSearch();
         sfHas = 0;
         if FORMs[sfN];      sfHas = 1;
+        if swBad == 1;      sfHas = 2;
         // formOutsideArm bound here, not inside the arm: a := made inside an if arm holds nothing (measured SEQ 687, again SEQ 688)
         sfF := FORMs[sfN];
         // byQualifiedName as in showNow
@@ -714,4 +811,21 @@ registry(Grokking);
     loads after show's statement, since an include inside an action is read after
     the action returns; showStage and showFinish carry it on, and showFinish
     draws and puts the search list back.
+
+    11. THE ENVIRONMENT, FIRST PIECE (SEQ 724, ruled 2026-11-20)
+
+    environment states what show used to carry in its code: root, paths, and
+    forShow with searchNames, fileNames and stageNames. show reads only from it.
+    A request -- a field holding form, by name or held -- names the member it
+    replaces for one call, searchNames or fileNames; the rest stay default. The
+    member names are new on purpose: a member or a request attribute that
+    shares its name with an existing field writes onto that field, and search
+    and show are the search command and the show action (measured SEQ 724). The
+    loaded files are one list, loadedFiles: utilities, styles and unitTests each
+    add their own name at their foot through fileLoaded, and show marks a file
+    as it queues it, so a file named twice loads once. A search name is checked
+    when the form is drawn, not before: at the bootstrap the registries do not
+    exist until show's own files have loaded. root is the folder incant runs
+    from; with root dot a relative path is its own location, which is what
+    showPath derives in incant/utilities, showPathRoot.
 *******************************************************************************/

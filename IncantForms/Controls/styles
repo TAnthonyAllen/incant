@@ -58,5 +58,5 @@ define
     defaultStyle rounded=5;
     emphasis color:=red italic;
     ;
-/*  stylesLoaded  the bootstrap show (incant/setup) reads this to know styles is loaded (SEQ 687)  */
-stylesLoaded = 1;
+/*  fileLoaded  styles joins the loaded files the bootstrap show (incant/setup) reads (SEQ 687; one list, SEQ 724)  */
+fileLoaded("styles");
