@@ -170,6 +170,7 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
            now a fresh run at the frame given; utilities' old resize path shrinks to the lookup. Re-pin or retire by mapping: reframeT RF-1..14, resizeLightT RG-1..5, resizeT RZ-1..5, resizeListenT.
            New mock-resize row: close one form, open another (descriptions must not open at firstLight's size).
         3  STROKE 3a DONE on branch g3-cheat (SEQ 728): IncantForms/WorkingOn/cheat, show(firstLight) through unchanged copies; PDF = control; both setFrame calls reach it.
+           STROKE 3b BUILT on g3-cheat (SEQ 729), for review: item 2 in the cheat (formFrames, keepFrame, redrawWindow); frameStoreT FS-1..11; resizeT, resizeLightT through the store.
            THE CHEAT PATTERN is how 2 is tried: a cheat incantation includes utilities, defines CheaT holding the new setFrame and every helper it changes, and searches CheaT first BEFORE the
            first show or redrawForm in the run (F-164: a body binds its names at its first call). Measured (SEQ 726 probes, in tester below stop): utilities' own redrawForm reaches the cheat;
            CheaT defined but not searched leaves the real setFrame untouched (F-165 does not bite a fresh registry). First step: drive it through show itself, the trace naming which copy each

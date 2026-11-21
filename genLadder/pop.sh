@@ -10318,7 +10318,7 @@ _ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setF
 #  form's entry for the top field when the request names no frame, then clears it; a missing part keeps the declared value. keepFrame writes an entry
 #  (a close); redrawWindow keeps the window's frame, then redraws (a resize, a click redraw). Mock events on firstLight, the window kept in flWin.
 #  The fixture includes IncantForms/WorkingOn/cheat. The rows read laid-out frames only, so at the buy (3c) they must read the same with the include
-#  dropped; the cheat row is a guard and retires then. H7 (run 2026-11-21, the store read disabled in the cheat): FS-2, FS-3, FS-4, FS-5, FS-7, FS-9 go red
+#  dropped; the cheat row is a guard and retires then. Where descriptions is held (S1-S5), its line is read too: it follows its host field. H7 (run 2026-11-21, the store read disabled in the cheat): FS-2, FS-3, FS-4, FS-5, FS-7, FS-9 go red
 #  (each reads declared). H7 of the frame-first gate (the store read even when the request names a frame): FS-10 goes red. A depth test (top
 #  field only) was tried beside it and removed: its H7 stayed green, masked by this gate, since placeForm always hands a held form a frame.
 _fsF=$(ip frameStoreT)
@@ -10326,10 +10326,10 @@ perl -e 'alarm 60; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_fsF" > "$T/fs.o" 2> "
 _fss () { sed -n "/^FS $1 /,/^FS /p" "$T/fs.o" | grep -E "^(firstLight|descriptions) |^	inside |^		descriptions " | sed 's/^[	 ]*//; s/ *$//' | tr '\n' '/'; }
 _ofeq "frameStoreT exit / sentinel" "$_fsx $(grep -c '^FRAMESTORE SENTINEL' "$T/fs.e")" "0 1"
 _ofeq "frameStoreT the cheat was reached (CHEAT hits not 0, no CHEAT FAILED; retires at 3c)" "$(grep -c '^CHEAT hits [1-9]' "$T/fs.o") $(grep -c '^CHEAT FAILED' "$T/fs.e")" "1 0"
-_ofeq "frameStoreT FS-1 a plain open with no entry: declared" "$(_fss S1)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/"
-_ofeq "frameStoreT FS-2 a resize to 1200x800 lays out from the store; inside (60%) is 480" "$(_fss S2)" "firstLight x=300 y=450 w=1200 h=800/inside x=300 y=770 w=1200 h=480/"
-_ofeq "frameStoreT FS-3 a second resize, 900x500 at 100,100: the percent is right after two resizes, inside 300" "$(_fss S3)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
-_ofeq "frameStoreT FS-4 A RESIZE THEN A REOPEN KEEPS THE SIZE: close keeps the window's frame, the reopen reads it" "$(_fss S5)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
+_ofeq "frameStoreT FS-1 a plain open with no entry: declared" "$(_fss S1)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/descriptions x=300 y=690 w=500 h=360/"
+_ofeq "frameStoreT FS-2 a resize to 1200x800 lays out from the store; inside (60%) is 480" "$(_fss S2)" "firstLight x=300 y=450 w=1200 h=800/inside x=300 y=770 w=1200 h=480/descriptions x=300 y=770 w=1200 h=480/"
+_ofeq "frameStoreT FS-3 a second resize, 900x500 at 100,100: the percent is right after two resizes, inside 300" "$(_fss S3)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/descriptions x=100 y=300 w=900 h=300/"
+_ofeq "frameStoreT FS-4 A RESIZE THEN A REOPEN KEEPS THE SIZE: close keeps the window's frame, the reopen reads it" "$(_fss S5)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/descriptions x=100 y=300 w=900 h=300/"
 _ofeq "frameStoreT FS-5 A RESIZE THEN A CLICK REDRAW KEEPS THE SIZE (the click swaps inside to okNote)" "$(_fss S6)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
 _ofeq "frameStoreT FS-6 close firstLight, open descriptions: descriptions opens at its declared frame, not firstLight's" "$(_fss S7)" "descriptions x=500 y=200 w=500 h=600/"
 _ofeq "frameStoreT FS-7 firstLight's entry was untouched by descriptions: the reopen reads 900x500 at 100,100" "$(_fss S8)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
