@@ -12,18 +12,37 @@
 register(FORMs);
 define
     listExample window closable resize x=400 y=400 width=400 height=300 fill=wall title="List With Attributes"
-        first height=50 fill=white top left right rounded font=normal
+        first height=60 fill=white top left right rounded font=normal
             space;
             heading="Variable Attributes List" height=43.0 text align=center font=title border=off;
         body source=listStuff rounded=5 fill=white font=normal down=*
-            rows across
+            rows across height=40
                 rowLabel text width=100;
                 rowFields across=*
                     rowField text align=right;
     ;
 bail();
 
-The following is the old body of list and Clods notes below it
+/*****************************************************************************
+    Design notes
+*****************************************************************************/
+Step three: the pour. I’d split it into two jobs that never meet.
+
+Parsing turns the data into fields. delimitedData reads delimitTest into listStuff: one member per row, and each row holds its pieces (label, n1, n2, n3). The pour never sees a separator; tab, comma or line end are entirely the parser’s business. That keeps the poured-data idea you had on 2026-11-14 (“tab is a concept”) on the parsing side, where it belongs.
+Pouring matches the data to the template by position.
+body source:=listStuff down=*: when a field has a source, * means one copy per data row instead of as many as fit. Rows that don’t fit are clipped for now; scrolling waits for windows.
+Within a row, pieces go into the template’s leaves in reading order, left to right and depth first. A plain leaf (rowLabel) takes one piece. A * repeat (rowFields across=*) takes all the pieces that remain, one rowField per piece.
+So “label first, then numbers” comes straight out of the template’s order, with no naming needed.
+It all happens on setFrame’s copy, so the definition is never written. That matches G3.
+
+What happens when the data misbehaves (you leave this to us):
+
+Two * siblings at one level: refused by name, because there’d be no way to tell where one ends and the next begins.
+A short row: the missing leaves are left empty, with a trace line naming the row.
+A long row with no * to absorb the extras: the extras are dropped, with a trace line.
+Ragged rows under across=*: the count is taken from the widest row, so every row shares the same column widths and the table stays aligned. Short rows get empty cells.
+
+Later, not now: matching by name (a header row naming the columns, fields named to match) suits DB query data. Position is enough for six rows of a label and three numbers.
 
 /*****************************************************************************
     Old body of list
