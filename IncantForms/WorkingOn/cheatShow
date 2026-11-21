@@ -1,0 +1,17 @@
+/*****************************************************************************
+    cheatShow -- drives the cheat (IncantForms/WorkingOn/cheat) through show(firstLight) (G3 stroke 3a, SEQ 728).
+    The foot prints CHEAT hits N and fails by name at 0.
+*****************************************************************************/
+Start();
+include(utilities);
+registry(fILEs);
+define
+    cheatFile File='IncantForms/WorkingOn/cheat';
+    ;
+include(cheatFile);
+// cheatFirst CheaT goes on the search list before the first show: show adds environment.forShow's registries to the list it is called under, so CheaT comes first (measured SEQ 728)
+search CheaT Utilities list;
+show(firstLight);
+cheatCount();
+cerr "CHEAT SENTINEL":;
+stop();

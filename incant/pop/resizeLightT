@@ -5,10 +5,12 @@ search reset stack Grokking;
 registry(fILEs);
 define
     firstLightFile File='IncantForms/Windows/firstLight';
+    cheatFile File='IncantForms/WorkingOn/cheat';
     ;
 include(styles);
 search cOLOr fONTs sTYLEs;
 include(firstLightFile);
+include(cheatFile);
 register(ResizeLightT);
 define
     rgX = 0;
@@ -24,18 +26,23 @@ define
         pixelAt(argument);
         };
     pdfRead path="IncantForms/PDF/test.pdf";
-    rgRuns = 0;
+    rgWin x=300 y=450 width=500 height=600;
     rgBig x=300 y=450 width=1200 height=600;
     rgSmall x=300 y=450 width=500 height=600;
     ;
-search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+search ResizeLightT CheaT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
     rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
-    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=layoutFrame;
-    onResize listenTo:=layoutFrame code={
-        rgRuns = rgRuns + 1;
-        redrawForm(rgReq);
+    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
+    rgResize code={
+        rgF := argument;
+        rgWin :% copyOf(*rgF["x"]);
+        rgWin :% copyOf(*rgF["y"]);
+        rgWin :% copyOf(*rgF["width"]);
+        rgWin :% copyOf(*rgF["height"]);
+        redrawWindow(rgReq);
         };
     rgSmallPts code={
         rgX = 450; rgY = 15;  rgRead(pdfRead);
@@ -51,24 +58,25 @@ define
         rgX = 490; rgY = 230; rgRead(pdfRead);
         };
     ;
-cerr "RG-1 before: a fresh run, as declared: runs" rgRuns:;
+cerr "RG-1 before: a fresh run, as declared":;
 redrawForm(rgFresh);
 readPDF(pdfRead);
 rgSmallPts();
-layoutFrame = rgBig;
-cerr "RG-2 the resize, one whole write: runs" rgRuns " width" layoutFrame.width " height" layoutFrame.height:;
+rgResize(rgBig);
+cerr "RG-2 the resize through the store: width" rgWin.width " height" rgWin.height:;
 readPDF(pdfRead);
 rgBigPts();
-cerr "RG-3 a fresh run at the same frame, no listening: runs" rgRuns:;
+cerr "RG-3 a fresh run at the same frame, named in the request":;
 redrawForm(rgFreshBig);
 readPDF(pdfRead);
 rgBigPts();
-layoutFrame = rgSmall;
-cerr "RG-4 resized back, one whole write: runs" rgRuns " width" layoutFrame.width " height" layoutFrame.height:;
+rgResize(rgSmall);
+cerr "RG-4 resized back through the store: width" rgWin.width " height" rgWin.height:;
 readPDF(pdfRead);
 rgSmallPts();
 cerr "RG-5 the definition after two resizes":;
 printDefinition(firstLight);
+cheatCount();
 cerr "RESIZELIGHT SENTINEL":;
 stop();
 
@@ -104,3 +112,8 @@ resize also changed the height).
 STROKE 0 OF SEQ 685 (Clay's forms dispatch, 2026-11-17): the big frame is 1200x600, not 600x600, so the resize re-flows words
 again -- 3 lines at the declared 500, 2 at 1200 (paragraph 1 fits one line). The big points follow it: heading's wall (900,15),
 ok (1190,230); where ok was at 500, (490,230), is space's wall. The small frame stays the declared 500x600 (Tony's form untouched).
+
+RE-AIMED 2026-11-21 (G3 item 2, stroke 3b, SEQ 729): the resize no longer arrives by listening to layoutFrame. The fixture includes
+IncantForms/WorkingOn/cheat; rgResize sets the mock window rgWin and calls redrawWindow, which keeps the frame in formFrames and lays
+out from there. RG-2 and RG-4 print the window's width and height in place of a listener's run count; RG-3 still compares the store's
+page with the same frame named in a request, by value. Points and line counts are unchanged.

@@ -10298,9 +10298,11 @@ _ofeq "reframeT RF-6 a request with no form refuses by name" "$(grep -c '^setFra
 #  RE-PIN of RF-6 and the three shape lists (SEQ 626 W2, same day): the fixture gained pDeep and a second refused request, so "RF-NONE done" prints twice
 #  and the lists gain pDeep. pDeep is five levels deep and is the row for copyDeep: on copyOf's copy the definition's own deep fields were framed.
 #  STROKE 2 (W2): the request may hold frame:= a field of its own. The oracle for a resize is a FRESH RUN of a form declared at that size (pPct400).
+#  RE-WORDED 2026-11-21 (G3 item 2, SEQ 729): a resize now goes through formFrames (frameStoreT, below). frame:= stays as a request's explicit frame,
+#  the road placeForm hands a held form its host field by; RF-7 to RF-10 claim that road. Values unchanged.
 _rff () { sed -n "/^RF-$1 $3 /,/^RF-$2 $3 /p" "$T/rf.o" | sed '1d;$d' | sed 's/^pPct400 /pPct /'; }
-_ofeq "reframeT RF-7 a resize reads like a fresh run: pPct (declared 200 at 0,0) in a frame of 400 at 10,20 equals pPct400 laid out as declared" "$([ -n "$(_rff FRAME1 FRAME2 pPctWideReq)" ] && [ "$(_rff FRAME1 FRAME2 pPctWideReq)" = "$(_rff FRAME1 FRAME2 pPct400Req)" ] && echo same || echo differ) $(_rff FRAME1 FRAME2 pPctWideReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/')" "same 200"
-_ofeq "reframeT RF-8 a second run with the frame reads like the first, and the definition still reads 200 wide at 0,0" "$([ "$(_rff FRAME1 FRAME2 pPctWideReq)" = "$(_rff FRAME2 FRAMEDEF pPctWideReq)" ] && echo same || echo differ) $(_rff FRAMEDEF FRAMEEND pPctWideReq | head -1)" "same pPct across x=0 y=0 width=200 height=100"
+_ofeq "reframeT RF-7 a request's frame lays the top out as a fresh run would: pPct (declared 200 at 0,0) in a frame of 400 at 10,20 equals pPct400 laid out as declared" "$([ -n "$(_rff FRAME1 FRAME2 pPctWideReq)" ] && [ "$(_rff FRAME1 FRAME2 pPctWideReq)" = "$(_rff FRAME1 FRAME2 pPct400Req)" ] && echo same || echo differ) $(_rff FRAME1 FRAME2 pPctWideReq | grep '^	half ' | sed 's/.*w=\([0-9]*\).*/\1/')" "same 200"
+_ofeq "reframeT RF-8 a second run with the request's frame reads like the first, and the definition still reads 200 wide at 0,0" "$([ "$(_rff FRAME1 FRAME2 pPctWideReq)" = "$(_rff FRAME2 FRAMEDEF pPctWideReq)" ] && echo same || echo differ) $(_rff FRAMEDEF FRAMEEND pPctWideReq | head -1)" "same pPct across x=0 y=0 width=200 height=100"
 _ofeq "reframeT RF-9 a frame at 0,0 is a value, not an absence: pPct400 (declared at 10,20) in a frame of 300x60 at 0,0 puts rest at x=150, not 160" "$(_rff FRAME1 FRAME2 pPctZeroReq | grep '^	rest ' | sed 's/.*x=\([0-9-]*\) .*w=\([0-9]*\) h=\([0-9]*\).*/\1 \2 \3/')" "150 150 60"
 _ofeq "reframeT RF-10 no frame given: the declared four stand (pPct400 at 10,20, 400 wide)" "$(_rff FRAME1 FRAME2 pPct400Req | head -1 | xargs)" "pPct x=10 y=20 w=400 h=100"
 #  STROKE 3 (SEQ 626 W3, R4): a parent that NAMES overlay (and neither down nor across) overlays its children; a child's declared x and y are measured
@@ -10312,6 +10314,25 @@ _ofeq "reframeT RF-14 a parent naming NO direction stacks its children as down d
 _ofeq "reframeT RF-12 overlay, parent at 100,200 300x150: a bare child fills it; x=10 y=20 lands at 110,220; x=0 y=0 at the origin; width=50% y=100; a child of a placed child is measured from that child" "$(_rfl pOverReq)" "pOver x=100 y=200 w=300 h=150/oFull x=100 y=200 w=300 h=150/oPlaced x=110 y=220 w=50 h=40/oZero x=100 y=200 w=30 h=30/oWide x=100 y=300 w=150 h=150/oInner x=300 y=205 w=80 h=80/oKid x=303 y=209 w=10 h=10/"
 _ofeq "reframeT RF-13 the control: under down, declared x and y are not read and the children stack" "$(_rfl pStackReq)" "pStack x=100 y=200 w=300 h=150/sA x=100 y=200 w=300 h=40/sB x=100 y=240 w=300 h=110/"
 _ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setFrame: REFUSING pPctShortReq -- its frame needs x, y, width and height' "$T/rf.e")" "1"
+#  ⚑ frameStoreT -- G3 item 2 inside the cheat (stroke 3b, SEQ 729; Tony ruled 2026-11-21): frames kept by form name in formFrames. setFrame reads its own
+#  form's entry for the top field when the request names no frame, then clears it; a missing part keeps the declared value. keepFrame writes an entry
+#  (a close); redrawWindow keeps the window's frame, then redraws (a resize, a click redraw). Mock events on firstLight, the window kept in flWin.
+#  The fixture includes IncantForms/WorkingOn/cheat. The rows read laid-out frames only, so at the buy (3c) they must read the same with the include
+#  dropped; the cheat row is a guard and retires then. H7 (run 2026-11-21, the store read disabled in the cheat): FS-2, FS-3, FS-5, FS-6, FS-8, FS-10 go red.
+_fsF=$(ip frameStoreT)
+perl -e 'alarm 60; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_fsF" > "$T/fs.o" 2> "$T/fs.e"; _fsx=$?
+_fss () { sed -n "/^FS $1 /,/^FS /p" "$T/fs.o" | grep -E "^(firstLight|descriptions) |^	inside " | sed 's/^[	 ]*//; s/ *$//' | tr '\n' '/'; }
+_ofeq "frameStoreT exit / sentinel" "$_fsx $(grep -c '^FRAMESTORE SENTINEL' "$T/fs.e")" "0 1"
+_ofeq "frameStoreT the cheat was reached (CHEAT hits not 0, no CHEAT FAILED; retires at 3c)" "$(grep -c '^CHEAT hits [1-9]' "$T/fs.o") $(grep -c '^CHEAT FAILED' "$T/fs.e")" "1 0"
+_ofeq "frameStoreT FS-1 a plain open with no entry: declared" "$(_fss S1)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/"
+_ofeq "frameStoreT FS-2 a resize to 1200x800 lays out from the store; inside (60%) is 480" "$(_fss S2)" "firstLight x=300 y=450 w=1200 h=800/inside x=300 y=770 w=1200 h=480/"
+_ofeq "frameStoreT FS-3 a second resize, 900x500 at 100,100: the percent is right after two resizes, inside 300" "$(_fss S3)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
+_ofeq "frameStoreT FS-4 A RESIZE THEN A REOPEN KEEPS THE SIZE: close keeps the window's frame, the reopen reads it" "$(_fss S5)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
+_ofeq "frameStoreT FS-5 A RESIZE THEN A CLICK REDRAW KEEPS THE SIZE (the click swaps inside to okNote)" "$(_fss S6)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
+_ofeq "frameStoreT FS-6 close firstLight, open descriptions: descriptions opens at its declared frame, not firstLight's" "$(_fss S7)" "descriptions x=500 y=200 w=500 h=600/"
+_ofeq "frameStoreT FS-7 firstLight's entry was untouched by descriptions: the reopen reads 900x500 at 100,100" "$(_fss S8)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/"
+_ofeq "frameStoreT FS-8 the read cleared the entry: an open with no event is declared" "$(_fss S9)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/"
+_ofeq "frameStoreT FS-9 an entry holding only a width: width from the store, x y height declared" "$(_fss S10)" "firstLight x=300 y=450 w=700 h=600/inside x=300 y=690 w=700 h=360/"
 #  G3 item 1 (SEQ 727, 2026-11-21): one direction per field. A field naming both down and across is refused by name at layout, in
 #  frameMembers, and its members are not laid out (bCross keeps no x, y or width). Only pBoth is refused so; pSumple, the same grid
 #  written as rows, is laid out (RF-1 to RF-3). H7: the refusal removed, the line is gone and bCross is laid out.

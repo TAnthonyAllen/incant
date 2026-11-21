@@ -4,14 +4,82 @@
     CheaT holding its own copies, and puts CheaT first on the search list before the first show (show draws
     under the caller's list with environment.forShow's registries added). Every cheat copy says so on stderr (CHEAT <name> <argument>) and counts itself in
     cheatHits; the foot prints the count and fails by name if no cheat copy was reached.
-    3a: setFrame and frameMembers are UNCHANGED copies of utilities' (as of trunk 2026-11-21, after G3 item 1),
-    so the PDF must be byte-identical to the control. Notes below stop().
+    Definitions only: an includer loads utilities, includes this file, and searches CheaT ahead of Utilities
+    before its first show or redrawForm. cheatShow is the driver (show(firstLight)).
+    3a (SEQ 728): setFrame and frameMembers were unchanged copies of utilities'; the PDF matched the control.
+    3b (SEQ 729): item 2 inside the cheat -- formFrames, keepFrame, redrawWindow, and setFrame's store read.
+    frameMembers is still an unchanged copy. Notes below bail().
 *****************************************************************************/
-Start();
-include(utilities);
 register(CheaT);
 define
     cheatHits = 0;
+    /***************************************************************************
+        formFrames -- G3 item 2 (Tony ruled 2026-11-21): frames kept by form name,
+        for one run. An entry is a field named for the form holding any of x y
+        width height. setFrame reads its own form's entry for the top field, then
+        clears it; keepFrame writes one (a close, a resize, a redraw of an open
+        window). Nothing goes to disk: a fresh run starts empty. The ONE place
+        this state is defined.
+    ***************************************************************************/
+    formFrames;
+    sfFrom;
+    sfDepthSeen;
+    // cheatSays the witness names the source of the top frame and the four values it laid out at
+    cheatSays code={
+        =:argument x y width height;
+        cerr "CHEAT frame" argument.taG sfFrom "depth" sfDepthSeen "x" x "y" y "w" width "h" height:;
+        };
+    /***************************************************************************
+        keepFrame -- ONE argument, a request: form:= the form and frame:= a
+        field holding any of x y width height (a window's frame, or a new one).
+        Writes the form's entry in formFrames, replacing an old one. A close is
+        this alone. Refuses by name a request with no form or no frame.
+    ***************************************************************************/
+    keepFrame code={
+        kfReq := argument;
+        kfOk = 1;
+        if *kfReq["form"];      kfOk = kfOk + 1;
+        if *kfReq["frame"];     kfOk = kfOk + 1;
+        if kfOk != 3;
+            cerr "keepFrame: REFUSING" argument.taG "-- its request needs form:=theForm and frame:=aFrame":;
+            return;
+        kfForm := *kfReq["form"];
+        kfName := **kfForm.taG;
+        kfFrame := *kfReq["frame"];
+        kfOld := formFrames[*kfName];
+        kfHad = 0;
+        if formFrames[*kfName];     kfHad = 1;
+        if kfHad == 1;              formFrames -% *kfOld;
+        kfEnt := new(*kfName);
+        if **kfFrame["x"];          *kfEnt :% copyOf(**kfFrame["x"]);
+        if **kfFrame["y"];          *kfEnt :% copyOf(**kfFrame["y"]);
+        if **kfFrame["width"];      *kfEnt :% copyOf(**kfFrame["width"]);
+        if **kfFrame["height"];     *kfEnt :% copyOf(**kfFrame["height"]);
+        formFrames +% *kfEnt;
+        cheatHits = cheatHits + 1;
+        cerr "CHEAT keepFrame" kfName:;
+        };
+    /***************************************************************************
+        redrawWindow -- ONE argument, a request: form:= frame:= (the window's
+        frame now) path= and, optionally, look=. A resize, and any redraw of an
+        open window (clickShow's kin): keepFrame first, then redrawForm with a
+        request that names no frame, so setFrame takes the frame from the store.
+        Returns the laid-out copy, as redrawForm does.
+    ***************************************************************************/
+    windowReq path form look;
+    redrawWindow code={
+        rwReq := argument;
+        keepFrame(argument);
+        windowReq :% copyOf(*rwReq["path"]);
+        rwForm := *rwReq["form"];
+        windowReq.form := **rwForm;
+        windowReq.look = 0;
+        rwLk = 0;
+        if *rwReq["look"];      rwLk = 1;
+        if rwLk == 1;           windowReq :% copyOf(*rwReq["look"]);
+        rwLaid := redrawForm(windowReq);
+        return *rwLaid;
+        };
     frameMembers code={
         // cheatWitness this copy is the cheat's, and says so on every call
         cheatHits = cheatHits + 1;
@@ -170,6 +238,9 @@ define
         sfForm := *sfReq["form"];
         // holdsItself the names of the forms being laid out; one met again is a form inside itself, refused by name and not laid out
         sfName := **sfForm.taG;
+        // topOnly the store is read for the top field alone: a held form (placeForm) is laid out while its host's name is in sfChain
+        // captureThenTest the length is captured with := and tested from the local (bear-traps #35, #41); a walk over an empty sfChain says "does not contain a list"
+        sfDepth := sfChain.listLengtH;
         if sfChain[*sfName];
             cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
             return;
@@ -182,6 +253,24 @@ define
             *sfLaid :% copyOf(**sfFrame["y"]);
             *sfLaid :% copyOf(**sfFrame["width"]);
             *sfLaid :% copyOf(**sfFrame["height"]);
+        // frameStore (G3 item 2) with no frame in the request, the top field takes its form's entry in formFrames, read once and cleared; a part the entry lacks keeps the declared value
+        sfFrom = "declared";
+        if sfUse == 1;      sfFrom = "frame";
+        sfStore = 0;
+        if *sfDepth == 0;
+            if sfUse == 0;
+                if formFrames[*sfName];     sfStore = 1;
+        // entOutsideArm bound at the top level: a := made inside an if arm holds nothing after it (measured SEQ 687)
+        sfEnt := formFrames[*sfName];
+        if sfStore == 1;
+            sfFrom = "store";
+            if *sfEnt["x"];         *sfLaid :% copyOf(*sfEnt["x"]);
+            if *sfEnt["y"];         *sfLaid :% copyOf(*sfEnt["y"]);
+            if *sfEnt["width"];     *sfLaid :% copyOf(*sfEnt["width"]);
+            if *sfEnt["height"];    *sfLaid :% copyOf(*sfEnt["height"]);
+            formFrames -% *sfEnt;
+        sfDepthSeen = *sfDepth;
+        cheatSays(*sfLaid);
         setLook(argument);
         // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out
         if lkRefused == 1;
@@ -199,12 +288,8 @@ define
             cerr "CHEAT FAILED -- no cheat copy was reached; the run measured utilities, not the cheat":;
         };
     ;
-// cheatFirst CheaT goes on the search list before the first show: show adds environment.forShow's registries to the list it is called under, so CheaT comes first (measured SEQ 728)
-search CheaT Utilities list;
-show(firstLight);
-cheatCount();
-cerr "CHEAT SENTINEL":;
-stop();
+// bailNotStop an included file ends with bail(): a stop() at its foot ends the includer too (measured SEQ 729)
+bail();
 
 How to use it as a template (3c keeps this file): copy it, replace the copies in CheaT with the code being tried, keep the
 witness lines and cheatCount. Put CheaT first before the first show or redrawForm in the run: a body binds its names at
