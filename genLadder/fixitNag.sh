@@ -98,14 +98,16 @@ runnable=0; misfiled=""; rows=""
 for f in "$D"/*; do
     [ -e "$f" ] || continue
     nm=$(basename "$f")
-    out=$(perl -e 'alarm 60; exec @ARGV' "$B" "$f" 2>/dev/null)
+    #  ownAlarm a citizen that hangs BY DESIGN states its own bound on an `ALARM: n` line (seconds), so the nag does not wait the full 60 on it (Tony, 2026-11-21; refusedLoopSpins). Every other citizen keeps 60.
+    al=$(sed -n 's/^ALARM:[ ]*\([0-9][0-9]*\).*/\1/p' "$f" | head -1); al=${al:-60}
+    out=$(perl -e 'alarm shift; exec @ARGV' "$al" "$B" "$f" 2>/dev/null)
     st=$?
     #  crashLosesStdout a citizen that dies (139) loses its block-buffered stdout, so an empty stdout is prose only at exit 0 -- carrierNode's case; a non-zero exit RAN (SEQ 489)
     if [ -z "$out" ] && [ "$st" = 0 ]; then
         misfiled="$misfiled $nm"
     else
         runnable=$((runnable+1))
-        if [ "$st" = 142 ]; then rows="$rows  repro: $nm -- HUNG (alarm at 60s)\n"
+        if [ "$st" = 142 ]; then rows="$rows  repro: $nm -- HUNG (alarm at ${al}s)\n"
         else                     rows="$rows  repro: $nm -- exit $st\n"; fi
     fi
 done

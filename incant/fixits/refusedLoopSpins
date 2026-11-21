@@ -47,9 +47,10 @@ stop();
 
 LANE:  kant
 BLAST: DISJOINT
+ALARM: 5        (seconds; this file hangs by design, so the nag bounds it here rather than waiting its usual 60)
 OWNER: Clod     (Clay's dispatch of 2026-11-21, R1, D3: "if it's kant, mint a fixit"; Tony forwarded)
 SEVERITY: hang -- the run never ends and says nothing after the one REFUSED line. THIS FILE HANGS BY DESIGN: the nag's
-alarm ends it (HUNG at 60s). Nothing in the loop's body can bound it, because after the refusal the body does not run.
+alarm ends it (HUNG at 5s, the ALARM line above). Nothing in the loop's body can bound it, because after the refusal the body does not run.
 
 refusedLoopSpins -- after a statement in a while body refuses, a loop whose condition is a comparison ends (the action
 ends, its caller goes on), but a loop whose condition is a bare field that reads true keeps turning for ever. No body

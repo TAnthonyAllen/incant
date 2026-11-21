@@ -109,6 +109,8 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
     DOCKETED (Tony, 2026-11-21, SEQ 726 R4; Clod's lane, not scheduled ahead of anything): the cure for fixits setFlagTopLevel and
         jitSetFlagTemp -- `:.` takes its flag as a NAME and never evaluates it. Until then any earlier action call in a run primes lastREF
         and hides the bug (measured bisecting kant-environment), so their repros reach their `:.` before any action call.
+    DOCKETED, TWO RULINGS OWED BY TONY (2026-11-21, the clean-up dispatch after R1): hexToNumber (incant/utilities; kept, the one action that uses string pointers) worked once and kant moved under it. It needs: 1 WHAT A STRING WALKED TO ITS END READS -- today `while s; ++s;` takes five turns over three characters (an empty string reads true, then the field with no value reads as its tag), stringPointerT SP-1, SP-2; 2 HOW A CHARACTER'S CODE IS READ -- `s.numbeR` is no accessor today (it left before the repo's first commit), SP-3.
+        Beside them, fixit refusedLoopSpins (Clod's lane): after a refusal in a while body a loop on a bare field never ends, where a loop on a comparison does. Evidence and the dated history: docs/kantLibraryRecon.md, R1, D3. Then hexToNumber is fixed to the ruled spellings and gets its own row.
     FOUND, not ruled: a bare taG inside a new-road action body reads 1, not what was referenced last (emptyCallT rows b and c, pinned as read).
     FOUND, not ruled (2026-11-17): interpreted, a number compare is the sign of the difference and a nan difference counts as equal, so
         nan == anything is true (and <=, >=); the native compares copy it (kantCondT ROW2, M3's rows).
@@ -162,7 +164,7 @@ on; a mix of native and testOP statements is the first cut. Mornings go to this 
 /*****************************************************************************
     Waiting on Tony
 *****************************************************************************/
-    Nothing is recorded as waiting beyond the Issues below. (The arrow-retire delete, owed at seals 432-437, was done by Tony offline, 2026-11-10.)
+    The two string-pointer rulings hexToNumber needs (DOCKETED above, 2026-11-21). Nothing else is recorded as waiting beyond the Issues below. (The arrow-retire delete, owed at seals 432-437, was done by Tony offline, 2026-11-10.)
 
 /*****************************************************************************
     Issues (open lines, verbatim from the seal that recorded them)

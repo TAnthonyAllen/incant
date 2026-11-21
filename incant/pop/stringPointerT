@@ -1,0 +1,68 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(StringPointerT);
+define
+    spWalk="ff9";
+    spCode="A";
+    spPlus="abcdef";
+    spMinus="abcdef";
+    spChop="abcdef";
+    spUsed="z";
+    spWalkT code={
+        sn = 0;
+        while spWalk;
+            sn = sn + 1;
+            cerr "SP-1 turn" sn "reads [" spWalk "]":;
+            if sn >= 5;     break;
+            ++spWalk;
+        cerr "SP-2 turns" sn:;
+        };
+    spCodeT code={
+        sv = spCode.numbeR;
+        cerr "SP-3 numbeR reads [" sv "]":;
+        sk = 0;
+        if sv == 65;    sk = 1;
+        cerr "SP-3 is 65:" sk:;
+        };
+    spArithT code={
+        sa = spPlus + 2;
+        cerr "SP-4 plus 2 reads [" sa "]":;
+        sb = spMinus - 4;
+        cerr "SP-5 minus 4 reads [" sb "]":;
+        spChop -= 2;
+        cerr "SP-6 minus-equals 2 reads [" spChop "]":;
+        cerr "SP-6 the others are untouched [" spPlus "] [" spMinus "]":;
+        };
+    spUsedT code={
+        ++spUsed;
+        cerr "SP-7 after one step [" spUsed "]":;
+        ++spUsed;
+        cerr "SP-7 after two steps [" spUsed "]":;
+        ++spUsed;
+        cerr "SP-7 NOT REACHED: the third step refuses and ends this action":;
+        };
+    ;
+spWalkT();
+spCodeT();
+spArithT();
+spUsedT();
+cerr "STRINGPOINTER SENTINEL":;
+stop();
+
+stringPointerT -- what kant's string-pointer operations do TODAY, pinned as read (Tony, 2026-11-21, the clean-up
+dispatch after R1; SEQ 735). NOT BLESSED: these rows record, they do not approve. incant/utilities' hexToNumber is the
+one action that uses string pointers (kept by ruling) and it does not work today; two rulings it needs are in
+Topics/kant's docket, with the fixit refusedLoopSpins. When those are ruled these pins move, each with a sentence.
+
+SP-1, SP-2  while s; ++s;  over "ff9". Wanted: three turns. Today five: ff9, f9, 9, then an EMPTY string that still
+            reads true, then the field with no value, which reads as its own tag (spWalk) and is true again. The loop
+            here stops itself at turn five; left alone, the next ++ refuses and the loop then spins (refusedLoopSpins).
+SP-3        s.numbeR, the character's code (65 for "A"). numbeR is not an accessor today: the read hands back nothing,
+            the local prints as its own tag, and the compare with 65 reads 0.
+SP-4        s + 2. Once "skip two characters"; today a string on the left joins (SEQ 347 R3): abcdef2.
+SP-5        s - 4 drops four characters from the end: ab.
+SP-6        s -= 2 drops two from the end, in place: abcd; the other strings are untouched (the anti-vacuity pair).
+SP-7        ++ on a one-character string: one step leaves it empty, a second leaves it with no value (its tag prints),
+            a third refuses by name and ends the action; the caller goes on to the sentinel.
