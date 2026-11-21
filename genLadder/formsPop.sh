@@ -742,38 +742,41 @@ _rzF=$(ip resizeT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rzF" > "$T/rz.o" 2> "$T/rz.e"; _rzx=$?
 _rzp () { grep -h '^=== pixelAt pdfRead ' "$T/rz.o" | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | sed -e 's/r255 g255 b255 a255/white/' -e 's/r239 g43 b45 a255/red/' -e 's/r0 g0 b0 a255/black/' -e 's/r175 g211 b120 a255/green/' | tr '\n' ' ' | sed 's/ $//'; }
 _ofeq "resizeT exit / sentinel" "$_rzx $(grep -c '^RESIZE SENTINEL' "$T/rz.e")" "0 1"
+#  RE-AIMED 2026-11-21 (G3 item 2, stroke 3b, SEQ 729; the include dropped at the buy, SEQ 730): resizeT included the cheat (IncantForms/WorkingOn/cheat) and resizes through formFrames
+#  (redrawWindow) instead of a request's frame:=. Every value below is unchanged; RZ-2 and RZ-3 are re-worded for what they now claim.
+#  The cheat row is a guard: a run where no cheat copy fired measured utilities, not the cheat. It retires at the buy (3c), with the include.
+#  RETIRED AT THE BUY (3c, SEQ 730): "resizeT the cheat was reached" -- a guard for the cheat include, which is gone; nothing to map.
 _ofeq "resizeT RZ-1 as declared, 400x200: wrap (98,70), two (150,70), three's leftBorder at 50% (200,70), three (300,70), fourth (200,170)" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 1p | sed 's/.*size //; s/ ===//') $(_rzp 1 5)" "400x200 white red black white green"
-_ofeq "resizeT RZ-2 resized by a frame to 600x300: the page follows, and the percent: wrap (148,100), two (225,100), three's leftBorder (300,100), three (450,100), fourth (300,270); (200,100), the old border, is two's red" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rzp 6 11)" "600x300 white red black white green red"
-_ofeq "resizeT RZ-3 back with no frame: the run after a resize reads exactly as the first" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 3p | sed 's/.*size //; s/ ===//') $(_rzp 12 16)" "400x200 white red black white green"
+_ofeq "resizeT RZ-2 resized to 600x300 through the store (redrawWindow): the page follows, and the percent: wrap (148,100), two (225,100), three's leftBorder (300,100), three (450,100), fourth (300,270); (200,100), the old border, is two's red" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rzp 6 11)" "600x300 white red black white green red"
+_ofeq "resizeT RZ-3 a plain redraw after the resize: the resize read and cleared its entry, so the run reads exactly as the first" "$(grep -h '^=== readPDF pdfRead' "$T/rz.o" | sed -n 3p | sed 's/.*size //; s/ ===//') $(_rzp 12 16)" "400x200 white red black white green"
 _ofeq "resizeT RZ-4 the text re-flows in the wider frame: characters of one drawn at 400, at 600, at 400 again, at 600" "$(grep -h '^=== drawSpans one ' "$T/rz.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | tr '\n' ' ' | sed 's/ $//')" "181 266 181 266"
 _ofeq "resizeT RZ-5 the definition after two resizes: simple still declares 400x200, and its deepest field (stuff, three levels down) holds no frame" "$(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | head -1 | xargs) / $(sed -n '/^simple x=300/,/fourth/p' "$T/rz.o" | grep 'stuff' | xargs)" "simple x=300 y=450 width=400 height=200 down rounded / stuff text=one;"
 
-#  ⚑ resizeListenT -- forms step 6, stroke 4 (2026-11-12): the resize arriving by listening. layoutFrame is the request's frame:=; onResize
-#  listens to it and its action calls redrawForm. Writing the frame's width and height fires nothing; one write to layoutFrame itself fires
-#  once. The points and values are resizeT's. H7 (run 2026-11-12): listenTo:= taken off onResize reads RL-2 "runs 0" and no page.
-echo ""
-echo "-- the resize by listening (resizeListenT)."
-_rlF=$(ip resizeListenT)
-perl -e 'alarm 60; exec @ARGV' "$B" "$_rlF" > "$T/rl.o" 2> "$T/rl.e"; _rlx=$?
-_rlp () { grep -h '^=== pixelAt pdfRead ' "$T/rl.o" | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | sed -e 's/r255 g255 b255 a255/white/' -e 's/r239 g43 b45 a255/red/' -e 's/r0 g0 b0 a255/black/' -e 's/r175 g211 b120 a255/green/' | tr '\n' ' ' | sed 's/ $//'; }
-_ofeq "resizeListenT exit / sentinel" "$_rlx $(grep -c '^RESIZELISTEN SENTINEL' "$T/rl.e")" "0 1"
-_ofeq "resizeListenT RL-1 writing the frame's width and height lays nothing out (the values did land: 600, 300)" "$(grep '^RL-1 after' "$T/rl.e" | sed 's/.*: //' | xargs)" "runs 0 width 600 height 300"
-_ofeq "resizeListenT RL-2 one write to layoutFrame fires one layout; the page and resizeT's five points at 600x300" "$(grep '^RL-2' "$T/rl.e" | sed 's/.*: //' | xargs) $(grep -h '^=== readPDF pdfRead' "$T/rl.o" | sed -n 1p | sed 's/.*size //; s/ ===//') $(_rlp 1 5)" "runs 1 600x300 white red black white green"
-_ofeq "resizeListenT RL-3 back to 400x200 by the same road: a second layout, reading as resizeT's first run" "$(grep '^RL-3' "$T/rl.e" | sed 's/.*: //' | xargs) $(grep -h '^=== readPDF pdfRead' "$T/rl.o" | sed -n 2p | sed 's/.*size //; s/ ===//') $(_rlp 6 10)" "runs 2 400x200 white red black white green"
-_ofeq "resizeListenT RL-4 the text re-flows each time (characters of one drawn at 600, at 400), and simple still declares 400x200" "$(grep -h '^=== drawSpans one ' "$T/rl.o" | sed 's/.*drawn \([0-9]*\) of.*/\1/' | xargs) / $(grep '^simple x=300' "$T/rl.o" | head -1 | xargs)" "266 181 / simple x=300 y=450 width=400 height=200 down rounded"
+#  ⚑ resizeListenT -- RETIRED BY MAPPING at the G3 buy (3c, SEQ 730; Tony ruled 2026-11-21, 12:20, R4): layoutFrame and its listener are gone,
+#  replaced by redrawWindow and keepFrame (formFrames). The fixture is in incant/attic. Its assertions and their homes:
+#    exit / sentinel                                   -> each successor's own exit / sentinel row
+#    RL-1 writing parts of a field notifies nobody     -> pop.sh notifyT NT-2 (an attach fires nothing)
+#    RL-2 a resize to 600x300, the page and five points -> resizeT RZ-2 (the same points, through the store)
+#    RL-3 back to 400x200, reading as the first run    -> resizeT RZ-3
+#    RL-4 the text re-flows; simple still declares 400  -> resizeT RZ-4 and RZ-5
+#    (the whole-write listener fact)                   -> pop.sh listenT LN-6
 
-#  ⚑ resizeLightT -- forms step 6, stroke 4's last piece (Tony, 2026-11-12): Layout writes layoutFrame as ONE WHOLE WRITE (layoutFrame = a field holding
+#  ⚑ resizeLightT -- forms step 6, stroke 4's last piece (Tony, 2026-11-12; since G3 3b-3c the resize is redrawWindow, not layoutFrame): Layout wrote layoutFrame as ONE WHOLE WRITE (layoutFrame = a field holding
 #  x y width height), on firstLight: PDF before, resize, PDF after. A resize must read like a fresh run, so RG-3 lays the same frame out by a plain call
 #  and is compared with RG-2 by value. Control (measured 2026-11-12, before GroupItem.setContent kept and told the listeners on a whole-list write):
 #  the one write fired nothing (runs 0) and removed layoutFrame's listener list.
 echo ""
-echo "-- firstLight resized by one whole write to layoutFrame (resizeLightT)."
+echo "-- firstLight resized through formFrames (resizeLightT)."
 _rgF=$(ip resizeLightT)
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rgF" > "$T/rg.o" 2> "$T/rg.e"; _rgx=$?
 _rgc () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r247 g232 b170 a255/wall/g' -e 's/r175 g211 b120 a255/green/g'; }
 #  one block per PDF read: the page size, its points, and the words field's line count drawn just before it
 _rgb () { awk -v n="$1" '/drawSpans words /{w=$0} /readPDF pdfRead/{k++; if(k==n){sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0; sub(/.*lines /,"",w); sub(/ drawn.*/,"",w); printf "lines %s ", w}} /pixelAt pdfRead/ && k==n {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/rg.o" | _rgc | xargs; }
 _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$T/rg.e")" "0 1"
+#  RE-AIMED 2026-11-21 (G3 item 2, stroke 3b, SEQ 729; the include dropped at the buy, SEQ 730): the resize no longer arrives by listening to layoutFrame. resizeLightT included the cheat and
+#  resizes through formFrames (redrawWindow); RG-2 and RG-4 read the window's width and height where they read a listener's run count. Pages,
+#  points and line counts are unchanged. The cheat row is a guard and retires at the buy (3c), with the include.
+#  RETIRED AT THE BUY (3c, SEQ 730): "resizeLightT the cheat was reached" -- a guard for the cheat include, which is gone; nothing to map.
 #  RG-1 / RG-2 RE-PINNED 2026-11-12 (the typesetting slice): words holds a second paragraph of one line, so it draws 4 lines at 400 wide and 3 at 600, where it drew 3 and 2
 #  RG-2 RE-PINNED SEQ 685 (stroke 0): the big frame is 1200x600, so words re-flows again, 3 lines at 500 to 2 at 1200; the big points
 #  are heading (900,15) and ok (1190,230). Its comment below, "the re-flow RG-2 showed is gone", held only from 684 to 685.
@@ -781,10 +784,10 @@ _ofeq "resizeLightT exit / sentinel" "$_rgx $(grep -c '^RESIZELIGHT SENTINEL' "$
 #  declared 500x600. Both sizes are 600 high, so only x moves: words draws 3 lines at 500 and at 600 (the re-flow RG-2 showed is gone
 #  with the narrower step), and where ok was at 500, (490,230), reads space's wall at 600. The resize still shows in the page size
 #  and in ok: green at (590,230) on the big page, wall at (490,230).
-_ofeq "resizeLightT RG-1 before, as declared: no listener run; 500x600, words in 3 lines; heading wall, words white, space wall, ok green" "$(grep '^RG-1' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 1)" "runs 0 / 500x600 lines 3 wall white wall green"
-_ofeq "resizeLightT RG-2 one whole write resizes: one run, all four values arrived; 1200x600, words re-flows to 2 lines; the four fields at their new places; where ok was is space's wall" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "runs 1 width 1200 height 600 / 1200x600 lines 2 wall white wall green wall"
-_ofeq "resizeLightT RG-3 A RESIZE READS LIKE A FRESH RUN: the same frame by a plain call (no listener run) = RG-2's page, by value" "$(grep '^RG-3' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 3)" "runs 1 / $(_rgb 2)"
-_ofeq "resizeLightT RG-4 resized back by the same road: a second run; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "runs 2 width 500 height 600 / $(_rgb 1)"
+_ofeq "resizeLightT RG-1 before, as declared: 500x600, words in 3 lines; heading wall, words white, space wall, ok green" "$(_rgb 1)" "500x600 lines 3 wall white wall green"
+_ofeq "resizeLightT RG-2 the resize through the store: the window at 1200x600; the page 1200x600, words re-flows to 2 lines; the four fields at their new places; where ok was is space's wall" "$(grep '^RG-2' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 2)" "width 1200 height 600 / 1200x600 lines 2 wall white wall green wall"
+_ofeq "resizeLightT RG-3 the store's page = the same frame named in a request (frame:=), by value" "$(_rgb 3)" "$(_rgb 2)"
+_ofeq "resizeLightT RG-4 resized back through the store: the window at 500x600; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "width 500 height 600 / $(_rgb 1)"
 _ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 500x600" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=500 height=600"
 
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its

@@ -1,0 +1,95 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+register(FrameStoreT);
+define
+    flWin x=300 y=450 width=500 height=600;
+    fsBig x=300 y=450 width=1200 height=800;
+    fsMid x=100 y=100 width=900 height=500;
+    fsWide width=700;
+    fsSmall x=10 y=20 width=300 height=300;
+    ;
+search FrameStoreT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    flReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=flWin;
+    flPlain path="IncantForms/PDF/test.pdf" form:=firstLight;
+    flWideReq form:=firstLight frame:=fsWide;
+    dsKeep form:=descriptions frame:=fsSmall;
+    dsPlain path="IncantForms/PDF/test.pdf" form:=descriptions;
+    flClick form:=firstLight field="ok";
+    fsWinTakes code={
+        fwF := argument;
+        flWin :% copyOf(*fwF["x"]);
+        flWin :% copyOf(*fwF["y"]);
+        flWin :% copyOf(*fwF["width"]);
+        flWin :% copyOf(*fwF["height"]);
+        };
+    mockOpen code={
+        moLaid := redrawForm(argument);
+        tsfLine(*moLaid);
+        fsWinTakes(*moLaid);
+        };
+    mockResize code={
+        fsWinTakes(argument);
+        mrLaid := redrawWindow(flReq);
+        tsfLine(*mrLaid);
+        };
+    mockClose code={
+        keepFrame(flReq);
+        };
+    mockClickShow code={
+        click(flClick);
+        mcLaid := redrawWindow(flReq);
+        tsfLine(*mcLaid);
+        fsWinTakes(*mcLaid);
+        };
+    ;
+cout "FS S1 open":;                 mockOpen(flPlain);
+cout "FS S2 resize big":;           mockResize(fsBig);
+cout "FS S3 resize mid":;           mockResize(fsMid);
+cout "FS S4 close":;                mockClose();
+cout "FS S5 reopen":;               mockOpen(flPlain);
+cout "FS S6 click redraw":;         mockClickShow();
+cout "FS S7 close, open descriptions":;     mockClose();    mockOpen(dsPlain);
+cout "FS S8 reopen firstLight":;    mockOpen(flPlain);
+cout "FS S9 open, no event":;       mockOpen(flPlain);
+cout "FS S10 a kept width only":;   keepFrame(flWideReq);   mockOpen(flPlain);
+cout "FS S11 an entry for a held form":;     click(flClick);     keepFrame(dsKeep);  mockOpen(flPlain);
+cout "FS S12 open descriptions":;   mockOpen(dsPlain);
+cout "FS END":;
+cerr "FRAMESTORE SENTINEL":;
+stop();
+
+frameStoreT -- Topics/forms G3 item 2 inside the cheat (stroke 3b, SEQ 729; Tony ruled 2026-11-21). Includes
+IncantForms/WorkingOn/cheat, whose setFrame reads formFrames, so every row here measures the cheat; at the buy (3c) the
+include is dropped and the same rows must stay green against utilities.
+
+The mock window is flWin, the frame firstLight's window is at: an open or a redraw sets it from the laid-out copy, a resize
+sets it to the new frame. The events: mockOpen (a plain open, redrawForm with no frame), mockResize (the window takes the
+new frame, then redrawWindow), mockClose (keepFrame with the window's frame), mockClickShow (click, then redrawWindow).
+All draw to IncantForms/PDF/test.pdf, not output.pdf.
+
+S1  a plain open with no entry: declared, 500x600 at 300,450.
+S2  resize to 1200x800: the frame comes from the store; inside (height=60%) is 480.
+S3  resize to 900x500 at 100,100: inside is 300 -- a percent is right after two resizes.
+S4  close: the window's frame (900x500 at 100,100) is kept.
+S5  reopen: from the store, 900x500 at 100,100 -- a resize then a reopen keeps the size.
+S6  click redraw (the click swaps inside to okNote): the window's frame is kept first, so 900x500 again.
+S7  close firstLight, open descriptions: descriptions opens at its declared 500x600 at 500,200, not firstLight's.
+S8  reopen firstLight: its entry was untouched by descriptions, 900x500 at 100,100.
+S9  open again with no event: S8's read cleared the entry, so declared.
+S10 an entry with only a width (700): width from the store, x y height declared.
+S11 a second click puts descriptions back inside firstLight; an entry is kept for descriptions (300x300 at 10,20); firstLight opens and
+    its held descriptions is laid out in its host field, 500x360 at 300,690: a held form never reads the store (top field only).
+S12 descriptions opened on its own reads its entry, untouched by S11: 300x300 at 10,20.
+
+THE BUY (3c, SEQ 730, 2026-11-21): the cheat's store went into incant/utilities and the include was dropped; the rows read the same
+against utilities. The cheat-reached guard row retired with the include.

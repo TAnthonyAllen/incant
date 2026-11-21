@@ -1,11 +1,74 @@
 /*****************************************************************************
 	This is the tester incantation. It is a working file for testing new features
     under development so it changes when there is a new feature in the works.
-    Today it is a clean test of show (SEQ 690): nothing but what show needs.
+    Today it runs Clod's G3 specimens (SEQ 729-730): mock resize, close and click events. Tony's show test is parked below stop().
 *****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+register(TesterG3);
+define
+    flWin x=300 y=450 width=500 height=600;
+    fsBig x=300 y=450 width=1200 height=800;
+    fsMid x=100 y=100 width=900 height=500;
+    ;
+search TesterG3 FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    flReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=flWin;
+    flPlain path="IncantForms/PDF/test.pdf" form:=firstLight;
+    dsPlain path="IncantForms/PDF/test.pdf" form:=descriptions;
+    flClick form:=firstLight field="ok";
+    winTakes code={
+        wtF := argument;
+        flWin :% copyOf(*wtF["x"]);
+        flWin :% copyOf(*wtF["y"]);
+        flWin :% copyOf(*wtF["width"]);
+        flWin :% copyOf(*wtF["height"]);
+        };
+    mockOpen code={
+        moLaid := redrawForm(argument);
+        tsfLine(*moLaid);
+        winTakes(*moLaid);
+        };
+    mockResize code={
+        winTakes(argument);
+        mrLaid := redrawWindow(flReq);
+        tsfLine(*mrLaid);
+        };
+    mockClose code={    keepFrame(flReq);   };
+    mockClickShow code={
+        click(flClick);
+        mcLaid := redrawWindow(flReq);
+        tsfLine(*mcLaid);
+        winTakes(*mcLaid);
+        };
+    ;
+cout "G3 open":;                            mockOpen(flPlain);
+cout "G3 resize, then a reopen":;           mockResize(fsBig);      mockClose();    mockOpen(flPlain);
+cout "G3 resize, then a click redraw":;     mockResize(fsMid);      mockClickShow();
+cout "G3 close, then descriptions":;        mockClose();            mockOpen(dsPlain);
+stop();
+
+Tony's clean test of show (SEQ 690), parked here by Clod for G3 3b (move it back above stop() and delete the block above to run it):
 Start();
 show(firstLight);
 stop();
+
+CLOD'S G3 SPECIMENS (SEQ 729; since the buy, SEQ 730, against utilities, no cheat), above stop(): the four mock events of Topics/forms
+G3 item 2. setFrame keeps frames by form name in formFrames. The window is flWin. The fleet copy, with
+rows, is incant/pop/frameStoreT.
+    resize then reopen       1200x800 kept: the reopen reads the store
+    resize then click        900x500 at 100,100 kept: the click redraw keeps the window's frame first
+    close then descriptions  descriptions opens at its own declared 500x600 at 500,200, not firstLight's
+    a percent                inside (height=60%) is 480 at 800 high and 300 at 500 high
 
 WHAT TESTER IS
 tester is the shared working incantation: Tony and Clod both use it to try out whatever feature is in the works, so what
@@ -87,7 +150,7 @@ define
         print "CP direct" argument.taG:;
         };
     ;
-search CheatP CheaT UnitTests Utilities list;
+search CheatP UnitTests Utilities list;
 cout "--- 1: direct call from a body":;
 cpRun(cAreq);
 cout "--- 2: through utilities' redrawForm":;

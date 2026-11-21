@@ -22,13 +22,13 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
                                 right. Click actions use onClick:=. Bubbling stays: a member's parent is its enclosing field (built,
                                 merge 24beb5f0). Layout's mouseUp calls a kant extern; firing is proved with a synthetic point and
                                 no window. (Topics/forms, Events, moved here.)
-    THE RESIZE (2026-11-06, 2026-11-10)
-                                a resize re-runs setFrame from the top field's new frame: setFrame lays out a deep copy each time, so
-                                a resize reads like a fresh run (Topics/forms plan step 6, strokes 1-4, seals 456-465; percent stays
-                                because the rerun depends on it, SEQ 622 R0). layoutFrame is utilities' field and a request's
-                                frame:=; one whole write tells its listeners once, and a form's listener calls redrawForm
-                                (resizeLightT, resizeListenT). WAITING: what calls it for real is a window's resize; the firing
-                                command is Tony's to rule (step 6, stroke 4 first run, seal 460).
+    THE RESIZE (2026-11-06, 2026-11-10; G3 item 2, 2026-11-21)
+                                a resize re-runs setFrame on a fresh deep copy at the frame given (percent stays, SEQ 622 R0). Since G3
+                                (SEQ 730) frames are kept by form name in formFrames, for one run: redrawWindow keeps the window's frame,
+                                then redraws (a resize, a click redraw); keepFrame alone is a close; setFrame reads and clears the entry
+                                for a request naming no frame. layoutFrame and its listener are retired. The window holds its own frame;
+                                utilities does not track open windows -- that is this topic's (Tony, 2026-11-21 R3). WAITING: a real
+                                window's resize and close calling redrawWindow and keepFrame (frameStoreT, resizeT, resizeLightT).
     DESCRIBE (2026-11-07)       describe's action is a windows behaviour: selecting a field shows its dESCRIPTIONs entry in
                                 describeHelp. Today descriptions is layout only; "the describe action and the images' click actions
                                 wait for windows" (IncantForms/Windows/descriptions, below its bail). describeAny (same file) is for
@@ -55,7 +55,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
 /*****************************************************************************
     State
 *****************************************************************************/
-    built       the mock click (click, G1), redrawForm as the mock resize, layoutFrame. clickShow is proposed (tabs stroke 4), not built.
+    built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730). clickShow is proposed (tabs stroke 4), not built.
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
 
 /*****************************************************************************

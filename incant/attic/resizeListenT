@@ -82,3 +82,6 @@ That second line is a choice made here to get a first run, not a ruling: "fire o
 Rows in genLadder/formsPop.sh. The form is IncantForms/Windows/simple and the points are resizeT's, so the two roads can be
 read against each other: a resize by listening must read as resizeT's plain call does.
 H7 (run 2026-11-12): with listenTo:=layoutFrame taken off onResize, RL-2 reads "0 1 runs 0" and no page is read.
+
+RETIRED BY MAPPING at the G3 buy (3c, SEQ 730, 2026-11-21): layoutFrame and its listener left incant/utilities (redrawWindow and keepFrame
+replace them). The mapping is in genLadder/formsPop.sh where its rows were. It no longer runs: layoutFrame is gone.

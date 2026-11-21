@@ -843,6 +843,10 @@ define
         every child is laid out from its parent, so a percent follows the new
         size. The caller holds the returned copy (laid := setFrame(req)) and
         draws that; no laid-out result is saved anywhere.
+        A request with no frame takes its form's entry in formFrames, if any,
+        for the top field, then clears it (G3 item 2, Tony 2026-11-21): a part
+        the entry lacks keeps the declared value. A request's own frame comes
+        first, so a held form (placeForm names its host field) never reads it.
         Refuses by name and returns nothing: a request with no form; a frame
         that lacks any of x y width height (frameWhole).
     ***************************************************************************/
@@ -1208,6 +1212,18 @@ define
             *sfLaid :% copyOf(**sfFrame["y"]);
             *sfLaid :% copyOf(**sfFrame["width"]);
             *sfLaid :% copyOf(**sfFrame["height"]);
+        // frameStore (G3 item 2) with no frame in the request, the top field takes its form's entry in formFrames, read once and cleared; a part the entry lacks keeps the declared value. A held form never reads it: placeForm always hands it its host field as frame:= (measured SEQ 729: a depth test beside this guarded nothing)
+        sfStore = 0;
+        if sfUse == 0;
+            if formFrames[*sfName];     sfStore = 1;
+        // entOutsideArm bound at the top level: a := made inside an if arm holds nothing after it (measured SEQ 687)
+        sfEnt := formFrames[*sfName];
+        if sfStore == 1;
+            if *sfEnt["x"];         *sfLaid :% copyOf(*sfEnt["x"]);
+            if *sfEnt["y"];         *sfLaid :% copyOf(*sfEnt["y"]);
+            if *sfEnt["width"];     *sfLaid :% copyOf(*sfEnt["width"]);
+            if *sfEnt["height"];    *sfLaid :% copyOf(*sfEnt["height"]);
+            formFrames -% *sfEnt;
         setLook(argument);
         // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out
         if lkRefused == 1;
@@ -1220,24 +1236,72 @@ define
         return *sfLaid;
         };
     /***************************************************************************
-        layoutFrame -- the frame Layout hands the form on a resize (stroke 4,
-        Tony 2026-11-12). It holds x y width height and is a request's frame:=.
-        Layout writes it as ONE whole write, layoutFrame = newFrame, where
-        newFrame holds the four values: that one write carries all four and
-        tells layoutFrame's listeners once. A form's resize listener
-        (listenTo:=layoutFrame) calls redrawForm with its request. Writing one
-        of the four on its own (layoutFrame :% ...) tells nobody.
+        formFrames -- G3 item 2 (Tony ruled 2026-11-21): frames kept by form name,
+        for one run. An entry is a field named for the form holding any of x y
+        width height. setFrame reads its own form's entry for the top field, then
+        clears it; keepFrame writes one (a close, a resize, a redraw of an open
+        window). Nothing goes to disk: a fresh run starts empty. The one place
+        this state is defined.
     ***************************************************************************/
-    layoutFrame x=0 y=0 width=0 height=0;
+    formFrames;
+    /***************************************************************************
+        keepFrame -- ONE argument, a request: form:= the form and frame:= a
+        field holding any of x y width height (a window's frame, or a new one).
+        Writes the form's entry in formFrames, replacing an old one. A close is
+        this alone. Refuses by name a request with no form or no frame.
+    ***************************************************************************/
+    keepFrame code={
+        kfReq := argument;
+        kfOk = 1;
+        if *kfReq["form"];      kfOk = kfOk + 1;
+        if *kfReq["frame"];     kfOk = kfOk + 1;
+        if kfOk != 3;
+            cerr "keepFrame: REFUSING" argument.taG "-- its request needs form:=theForm and frame:=aFrame":;
+            return;
+        kfForm := *kfReq["form"];
+        kfName := **kfForm.taG;
+        kfFrame := *kfReq["frame"];
+        kfOld := formFrames[*kfName];
+        kfHad = 0;
+        if formFrames[*kfName];     kfHad = 1;
+        if kfHad == 1;              formFrames -% *kfOld;
+        kfEnt := new(*kfName);
+        if **kfFrame["x"];          *kfEnt :% copyOf(**kfFrame["x"]);
+        if **kfFrame["y"];          *kfEnt :% copyOf(**kfFrame["y"]);
+        if **kfFrame["width"];      *kfEnt :% copyOf(**kfFrame["width"]);
+        if **kfFrame["height"];     *kfEnt :% copyOf(**kfFrame["height"]);
+        formFrames +% *kfEnt;
+        };
+    /***************************************************************************
+        redrawWindow -- ONE argument, a request: form:= frame:= (the window's
+        frame now) path= and, optionally, look=. A resize, and any redraw of an
+        open window (clickShow's kin): keepFrame first, then redrawForm with a
+        request that names no frame, so setFrame takes the frame from the store.
+        Returns the laid-out copy, as redrawForm does.
+    ***************************************************************************/
+    windowReq path form look;
+    redrawWindow code={
+        rwReq := argument;
+        keepFrame(argument);
+        windowReq :% copyOf(*rwReq["path"]);
+        rwForm := *rwReq["form"];
+        windowReq.form := **rwForm;
+        windowReq.look = 0;
+        rwLk = 0;
+        if *rwReq["look"];      rwLk = 1;
+        if rwLk == 1;           windowReq :% copyOf(*rwReq["look"]);
+        rwLaid := redrawForm(windowReq);
+        return *rwLaid;
+        };
     pageReq path form width height;
     /***************************************************************************
         redrawForm -- the first resize, as a plain call (SEQ 626 W2). ONE
         argument, setFrame's own request with a path added: form:=, frame:=
         (optional), path= the PDF to write. It lays the form out afresh through
-        setFrame, draws the copy to that PDF and returns the copy. This is what
-        Layout calls on a resize, with the new frame in the request, until the
-        frame arrives by listening (stroke 4). It keeps nothing: the caller
-        holds the returned copy if it wants it. A refused setFrame draws nothing.
+        setFrame, draws the copy to that PDF and returns the copy. A resize is
+        redrawWindow, which keeps the window's frame in formFrames and calls
+        this with no frame (G3 item 2). It keeps nothing: the caller holds the
+        returned copy if it wants it. A refused setFrame draws nothing.
     ***************************************************************************/
     redrawForm code={
         rdReq := argument;
