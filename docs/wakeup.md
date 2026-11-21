@@ -5,26 +5,27 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**521, 2026-11-21, topic: cleanup, SEQ 732-735 (assigned by Clod).** The kant library read (docs/kantLibraryRecon.md, three
-lists). M1 bought: incant/utilities in ten families, moves only. Cut by ruling: toXML, flatten, setHexColor, bigifyLayout,
-newStuff and eleven unitTests entries; no existing row moved. incant/pop/stringPointerT pins the string-pointer operations as
-read. Fixit refusedLoopSpins (after a refusal, a while on a bare field never ends). Not a shutdown seal: dirCheck not run.
-**OPEN (Tony):** the two string-pointer rulings hexToNumber needs (Topics/kant, DOCKETED); carried from 482, whether an indented `define` should work.
-**RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2).
-**DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is decided next.
-**NEXT (ruled order):** tabs stroke 4, then windows; the old-GUI window recon in any gap.
+**522, 2026-11-21, topic: cleanup, SEQ 736 (assigned by Clod), a SHUTDOWN seal.** Docs only: Topics/kant trimmed under the
+trim rule (the eight digest lines 470-498 folded into one; no dispatch to shorten, no issue line closed in whole), 210 to 203.
+RULED (Tony, 2026-11-21): the .twk / .rtn alpha reorder carries the box headers in the same commit, each matched to its method
+by what it says, a no-match or two-match header listed for Tony (docs/cleanupList.md). Seal 521, the same day: the kant library
+read (docs/kantLibraryRecon.md), utilities in ten families, the dead list cut but for D8, stringPointerT, fixit refusedLoopSpins.
+**OPEN (Tony):** the two string-pointer rulings hexToNumber needs (Topics/kant, DOCKETED); Topics/kant's budget (3 over, nothing stale left); carried from 482, whether an indented `define` should work.
+**RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
+**DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
+**NEXT:** tabs stroke 4.
 
-## The numbers (as run at seal 521, on trunk; the binary is the bare build of 2026-11-20 12:54, 2191072 bytes)
+## The numbers (as run at seal 522, on trunk; the binary is the bare build of 2026-11-20 12:54, 2191072 bytes)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 4225 green (+8: stringPointerT; ±0 elsewhere), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
+| `genLadder/pop.sh` | exit 1, 4225 green (±0 since 521), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 317 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 521; at 520: exit 0, 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
+| `genLadder/dirCheck.sh` (shutdown seals only) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
 | extern canary | 489 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
@@ -39,13 +40,13 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 55 / 60 | this page. |
+| `docs/wakeup.md` | 56 / 60 | this page. |
 | `Topics/forms` | 266 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 210 / 200, OVER by 10 (seal digest lines, the 519 docket line and 521's two; the trim waits for a kant session) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/kant` | 203 / 200, OVER by 3 (trimmed at seal 522; nothing stale left, the budget is Tony's) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 71 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
-| `Topics/cleanup` | 74 / 120 | clean up; the recorded census and split dispatches. |
+| `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 76 / 80 | the parking list; not a session topic. |
 

@@ -233,6 +233,9 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   *******************************************************************************/
   ```
   in place of the one-line `// name what-it-does` header.
+- ⚠⚠ **RULED (Tony, 2026-11-21, seal 522): THE ALPHA REORDER CARRIES THE BOX HEADERS IN THE SAME COMMIT.** Each header is
+  matched to its method by what it says, not by where it sits, and a header that matches no method or two is listed for
+  Tony, not placed by guess. (The form M1 used on `incant/utilities` the same day: docs/kantLibraryRecon.md, M1.)
 - ⚠ **THIS REVERSES AN EARLIER DIRECTION, BY TONY'S WORD (SEQ 514 R1, 2026-11-03) -- do not "correct" it back.** The
   one-line headers are deliberate: seal 125 (`512d53f7`, Tony's evening cleanup -- GroupActions.rtn and Instruct.rtn
   alpha order and Instruct's headers) and SEQ 182 (`0d7dea0d`, Generate.rtn) moved banners to `// name sentence` and put
