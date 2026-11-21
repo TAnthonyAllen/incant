@@ -5,12 +5,10 @@ search reset stack Grokking;
 registry(fILEs);
 define
     simpleFile File='IncantForms/Windows/simple';
-    cheatFile File='IncantForms/WorkingOn/cheat';
     ;
 include(styles);
 search cOLOr fONTs sTYLEs;
 include(simpleFile);
-include(cheatFile);
 register(ResizeT);
 define
     rzX = 0;
@@ -29,7 +27,7 @@ define
     rzWin x=300 y=450 width=400 height=200;
     pdfRead path="IncantForms/PDF/test.pdf";
     ;
-search ResizeT CheaT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+search ResizeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     smReq path="IncantForms/PDF/test.pdf" form:=simple;
     rzReq path="IncantForms/PDF/test.pdf" form:=simple frame:=rzWin;
@@ -73,7 +71,6 @@ rzX = 300; rzRead(pdfRead);
 rzX = 200; rzY = 170; rzRead(pdfRead);
 cerr "RZ-6 the resized form once more, left as the PDF to open":;
 rzResize(big);
-cheatCount();
 cerr "RESIZE SENTINEL":;
 stop();
 
@@ -87,3 +84,6 @@ RE-AIMED 2026-11-21 (G3 item 2, stroke 3b, SEQ 729): the fixture includes Incant
 rzResize sets the mock window rzWin to the new frame and calls redrawWindow, which keeps it in formFrames and lays out from there
 (the request names no frame). The plain redraw after it (RZ-5's run) is declared because setFrame cleared the entry when it read it.
 The points and values are unchanged. At the buy (3c) the cheat include goes and these rows must read the same against utilities.
+
+THE BUY (3c, SEQ 730, 2026-11-21): the cheat's store went into incant/utilities and the include was dropped; the rows read the same
+against utilities. The cheat-reached guard row retired with the include.

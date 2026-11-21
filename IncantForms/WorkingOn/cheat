@@ -6,78 +6,21 @@
     cheatHits; the foot prints the count and fails by name if no cheat copy was reached.
     Definitions only: an includer loads utilities, includes this file, and searches CheaT ahead of Utilities
     before its first show or redrawForm. cheatShow is the driver (show(firstLight)).
-    3a (SEQ 728): setFrame and frameMembers were unchanged copies of utilities'; the PDF matched the control.
-    3b (SEQ 729): item 2 inside the cheat -- formFrames, keepFrame, redrawWindow, and setFrame's store read.
-    frameMembers is still an unchanged copy. Notes below bail().
+    3a (SEQ 728): the vehicle, proved with unchanged copies; the PDF matched the control.
+    3b (SEQ 729): G3 item 2 was built here (formFrames, keepFrame, redrawWindow, setFrame's store read).
+    3c (SEQ 730, the buy): those went into incant/utilities. What is left is THE TEMPLATE: copies of setFrame
+    and frameMembers equal to utilities' but for the witness lines (cheatHits, cerr "CHEAT, cheatSays, sfFrom),
+    so a fresh cheat starts from today's code. State utilities owns (formFrames, sfChain, lkRefused, tARGET,
+    dIRECTion) is never defined here. Notes below bail().
 *****************************************************************************/
 register(CheaT);
 define
     cheatHits = 0;
-    /***************************************************************************
-        formFrames -- G3 item 2 (Tony ruled 2026-11-21): frames kept by form name,
-        for one run. An entry is a field named for the form holding any of x y
-        width height. setFrame reads its own form's entry for the top field, then
-        clears it; keepFrame writes one (a close, a resize, a redraw of an open
-        window). Nothing goes to disk: a fresh run starts empty. The ONE place
-        this state is defined.
-    ***************************************************************************/
-    formFrames;
     sfFrom;
     // cheatSays the witness names the source of the top frame and the four values it laid out at
     cheatSays code={
         =:argument x y width height;
         cerr "CHEAT frame" argument.taG sfFrom "x" x "y" y "w" width "h" height:;
-        };
-    /***************************************************************************
-        keepFrame -- ONE argument, a request: form:= the form and frame:= a
-        field holding any of x y width height (a window's frame, or a new one).
-        Writes the form's entry in formFrames, replacing an old one. A close is
-        this alone. Refuses by name a request with no form or no frame.
-    ***************************************************************************/
-    keepFrame code={
-        kfReq := argument;
-        kfOk = 1;
-        if *kfReq["form"];      kfOk = kfOk + 1;
-        if *kfReq["frame"];     kfOk = kfOk + 1;
-        if kfOk != 3;
-            cerr "keepFrame: REFUSING" argument.taG "-- its request needs form:=theForm and frame:=aFrame":;
-            return;
-        kfForm := *kfReq["form"];
-        kfName := **kfForm.taG;
-        kfFrame := *kfReq["frame"];
-        kfOld := formFrames[*kfName];
-        kfHad = 0;
-        if formFrames[*kfName];     kfHad = 1;
-        if kfHad == 1;              formFrames -% *kfOld;
-        kfEnt := new(*kfName);
-        if **kfFrame["x"];          *kfEnt :% copyOf(**kfFrame["x"]);
-        if **kfFrame["y"];          *kfEnt :% copyOf(**kfFrame["y"]);
-        if **kfFrame["width"];      *kfEnt :% copyOf(**kfFrame["width"]);
-        if **kfFrame["height"];     *kfEnt :% copyOf(**kfFrame["height"]);
-        formFrames +% *kfEnt;
-        cheatHits = cheatHits + 1;
-        cerr "CHEAT keepFrame" kfName:;
-        };
-    /***************************************************************************
-        redrawWindow -- ONE argument, a request: form:= frame:= (the window's
-        frame now) path= and, optionally, look=. A resize, and any redraw of an
-        open window (clickShow's kin): keepFrame first, then redrawForm with a
-        request that names no frame, so setFrame takes the frame from the store.
-        Returns the laid-out copy, as redrawForm does.
-    ***************************************************************************/
-    windowReq path form look;
-    redrawWindow code={
-        rwReq := argument;
-        keepFrame(argument);
-        windowReq :% copyOf(*rwReq["path"]);
-        rwForm := *rwReq["form"];
-        windowReq.form := **rwForm;
-        windowReq.look = 0;
-        rwLk = 0;
-        if *rwReq["look"];      rwLk = 1;
-        if rwLk == 1;           windowReq :% copyOf(*rwReq["look"]);
-        rwLaid := redrawForm(windowReq);
-        return *rwLaid;
         };
     frameMembers code={
         // cheatWitness this copy is the cheat's, and says so on every call
@@ -285,6 +228,9 @@ define
 // bailNotStop an included file ends with bail(): a stop() at its foot ends the includer too (measured SEQ 729)
 bail();
 
-How to use it as a template (3c keeps this file): copy it, replace the copies in CheaT with the code being tried, keep the
-witness lines and cheatCount. Put CheaT first before the first show or redrawForm in the run: a body binds its names at
+How to use it as a template (kept at the G3 buy, SEQ 730): copy it, replace the copies in CheaT with the code being tried, keep
+the witness lines and cheatCount, and define in CheaT only what is new; state utilities already holds stays defined there once.
+Drive it the way cheatShow does, and have each fixture that measures the cheat assert its count. At the buy: copy into utilities
+with the witness lines stripped (the code-only diff against the cheat, those lines aside, must be empty), drop the include, and
+the same rows must read the same. Put CheaT first before the first show or redrawForm in the run: a body binds its names at
 its first call (F-164), so a utilities body already called keeps the copy it found then.

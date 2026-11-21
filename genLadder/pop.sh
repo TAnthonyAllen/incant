@@ -10314,18 +10314,19 @@ _ofeq "reframeT RF-14 a parent naming NO direction stacks its children as down d
 _ofeq "reframeT RF-12 overlay, parent at 100,200 300x150: a bare child fills it; x=10 y=20 lands at 110,220; x=0 y=0 at the origin; width=50% y=100; a child of a placed child is measured from that child" "$(_rfl pOverReq)" "pOver x=100 y=200 w=300 h=150/oFull x=100 y=200 w=300 h=150/oPlaced x=110 y=220 w=50 h=40/oZero x=100 y=200 w=30 h=30/oWide x=100 y=300 w=150 h=150/oInner x=300 y=205 w=80 h=80/oKid x=303 y=209 w=10 h=10/"
 _ofeq "reframeT RF-13 the control: under down, declared x and y are not read and the children stack" "$(_rfl pStackReq)" "pStack x=100 y=200 w=300 h=150/sA x=100 y=200 w=300 h=40/sB x=100 y=240 w=300 h=110/"
 _ofeq "reframeT RF-11 a frame lacking x and y refuses by name" "$(grep -c '^setFrame: REFUSING pPctShortReq -- its frame needs x, y, width and height' "$T/rf.e")" "1"
-#  ⚑ frameStoreT -- G3 item 2 inside the cheat (stroke 3b, SEQ 729; Tony ruled 2026-11-21): frames kept by form name in formFrames. setFrame reads its own
+#  ⚑ frameStoreT -- G3 item 2 (built in the cheat, stroke 3b, SEQ 729; in utilities since the buy, 3c, SEQ 730; Tony ruled 2026-11-21): frames kept by form name in formFrames. setFrame reads its own
 #  form's entry for the top field when the request names no frame, then clears it; a missing part keeps the declared value. keepFrame writes an entry
 #  (a close); redrawWindow keeps the window's frame, then redraws (a resize, a click redraw). Mock events on firstLight, the window kept in flWin.
 #  The fixture includes IncantForms/WorkingOn/cheat. The rows read laid-out frames only, so at the buy (3c) they must read the same with the include
 #  dropped; the cheat row is a guard and retires then. Where descriptions is held (S1-S5), its line is read too: it follows its host field. H7 (run 2026-11-21, the store read disabled in the cheat): FS-2, FS-3, FS-4, FS-5, FS-7, FS-9 go red
 #  (each reads declared). H7 of the frame-first gate (the store read even when the request names a frame): FS-10 goes red. A depth test (top
 #  field only) was tried beside it and removed: its H7 stayed green, masked by this gate, since placeForm always hands a held form a frame.
+#  SINCE THE BUY (3c, SEQ 730): no cheat include; the same rows read the same against utilities.
 _fsF=$(ip frameStoreT)
 perl -e 'alarm 60; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_fsF" > "$T/fs.o" 2> "$T/fs.e"; _fsx=$?
 _fss () { sed -n "/^FS $1 /,/^FS /p" "$T/fs.o" | grep -E "^(firstLight|descriptions) |^	inside |^		descriptions " | sed 's/^[	 ]*//; s/ *$//' | tr '\n' '/'; }
 _ofeq "frameStoreT exit / sentinel" "$_fsx $(grep -c '^FRAMESTORE SENTINEL' "$T/fs.e")" "0 1"
-_ofeq "frameStoreT the cheat was reached (CHEAT hits not 0, no CHEAT FAILED; retires at 3c)" "$(grep -c '^CHEAT hits [1-9]' "$T/fs.o") $(grep -c '^CHEAT FAILED' "$T/fs.e")" "1 0"
+#  RETIRED AT THE BUY (3c, SEQ 730): "frameStoreT the cheat was reached" -- a guard for the cheat include, which is gone; nothing to map.
 _ofeq "frameStoreT FS-1 a plain open with no entry: declared" "$(_fss S1)" "firstLight x=300 y=450 w=500 h=600/inside x=300 y=690 w=500 h=360/descriptions x=300 y=690 w=500 h=360/"
 _ofeq "frameStoreT FS-2 a resize to 1200x800 lays out from the store; inside (60%) is 480" "$(_fss S2)" "firstLight x=300 y=450 w=1200 h=800/inside x=300 y=770 w=1200 h=480/descriptions x=300 y=770 w=1200 h=480/"
 _ofeq "frameStoreT FS-3 a second resize, 900x500 at 100,100: the percent is right after two resizes, inside 300" "$(_fss S3)" "firstLight x=100 y=100 w=900 h=500/inside x=100 y=300 w=900 h=300/descriptions x=100 y=300 w=900 h=300/"

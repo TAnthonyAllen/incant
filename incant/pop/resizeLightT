@@ -5,12 +5,10 @@ search reset stack Grokking;
 registry(fILEs);
 define
     firstLightFile File='IncantForms/Windows/firstLight';
-    cheatFile File='IncantForms/WorkingOn/cheat';
     ;
 include(styles);
 search cOLOr fONTs sTYLEs;
 include(firstLightFile);
-include(cheatFile);
 register(ResizeLightT);
 define
     rgX = 0;
@@ -30,7 +28,7 @@ define
     rgBig x=300 y=450 width=1200 height=600;
     rgSmall x=300 y=450 width=500 height=600;
     ;
-search ResizeLightT CheaT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+search ResizeLightT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
     rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
@@ -76,7 +74,6 @@ readPDF(pdfRead);
 rgSmallPts();
 cerr "RG-5 the definition after two resizes":;
 printDefinition(firstLight);
-cheatCount();
 cerr "RESIZELIGHT SENTINEL":;
 stop();
 
@@ -117,3 +114,6 @@ RE-AIMED 2026-11-21 (G3 item 2, stroke 3b, SEQ 729): the resize no longer arrive
 IncantForms/WorkingOn/cheat; rgResize sets the mock window rgWin and calls redrawWindow, which keeps the frame in formFrames and lays
 out from there. RG-2 and RG-4 print the window's width and height in place of a listener's run count; RG-3 still compares the store's
 page with the same frame named in a request, by value. Points and line counts are unchanged.
+
+THE BUY (3c, SEQ 730, 2026-11-21): the cheat's store went into incant/utilities and the include was dropped; the rows read the same
+against utilities. The cheat-reached guard row retired with the include.
