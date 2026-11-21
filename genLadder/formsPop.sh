@@ -974,12 +974,15 @@ rm -f "$_enOut"; [ -f "$T/en.keep" ] && mv "$T/en.keep" "$_enOut"
 _enb () { awk -v pg="$1" '/^EN PAGE/{b=$3; next} b==pg' "$T/en.o"; }
 _ens () { _enb "$1" | grep -E '^=== show firstLight (deferred|to)' | sed 's/ *$//; s/=== show firstLight //; s/ ===$//; s/:.*//' | tr '\n' '|'; }
 _ofeq "envT exit / sentinel" "$_enx $(grep -c '^ENVT SENTINEL' "$T/en.e")" "0 1"
-_ofeq "envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn" "$(_ens files) / $(_enb loaded | awk '/^loaded/{print $2}' | xargs)" "deferred|to IncantForms/PDF/output.pdf| / styles utilities"
+#  RE-PINNED SEQ 726 R2 (one writer): EN-1 and EN-6's lists read in the order the files FINISHED loading, utilities before styles,
+#  since only a file's own foot writes loadedFiles (show queued styles first; the includes queued inside an action are read
+#  last-queued first). Membership, the claim (each once, unitTests absent in EN-1), is unchanged.
+_ofeq "envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn" "$(_ens files) / $(_enb loaded | awk '/^loaded/{print $2}' | xargs)" "deferred|to IncantForms/PDF/output.pdf| / utilities styles"
 _ofeq "envT EN-2 showPath derives from environment.root: root . gives the relative path" "$(_enb path | grep '^showPath' | awk '{print $2}')" "IncantForms/PDF/output.pdf"
 _ofeq "envT EN-3 searchNames:= FORMs Utilities: drawn; fileNames not named, so environment's stand and unitTests loads first (deferred)" "$(_ens short)" "deferred|to IncantForms/PDF/output.pdf|"
 _ofeq "envT EN-4 searchNames:= naming noSuchRegistry: refused by name, once, and nothing drawn" "$(grep -c '^REFUSED show -- its search list names noSuchRegistry -- not a registry; nothing drawn' "$T/en.e") $(_enb noreg | grep -c '^=== show firstLight')" "1 0"
 _ofeq "envT EN-5 a request naming only form:= keeps every default: drawn with nothing to load" "$(_ens plain)" "to IncantForms/PDF/output.pdf|"
-_ofeq "envT EN-6 EACH FILE ONCE: after four shows the loaded list is styles utilities unitTests" "$(_enb again | awk '/^loaded/{print $2}' | xargs)" "styles utilities unitTests"
+_ofeq "envT EN-6 EACH FILE ONCE: after four shows the loaded list is utilities styles unitTests" "$(_enb again | awk '/^loaded/{print $2}' | xargs)" "utilities styles unitTests"
 _ofeq "envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path" "$(_enb root | awk '/^showPath/{print $2}' | xargs)" "elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf"
 
 #  missingFixtureFoot every fixture a row ran must have existed

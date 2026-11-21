@@ -1312,6 +1312,8 @@ define
         };
     showReq path form look;
     showForm code={
+        // rootAtShow showPath derives from environment.root when a form is shown, not at utilities' foot (SEQ 726 R1)
+        showPathRoot();
         shForm := argument;
         shOwn = 0;
         if *shForm["path"];     shOwn = 1;
@@ -1555,6 +1557,5 @@ include(parser);
     straight after include(utilities) rely on it being Utilities  */
 include(forms);
 register(Utilities);
-/*  fileLoaded  utilities joins the loaded files the bootstrap show (incant/setup) reads (SEQ 687; one list, SEQ 724)  */
-fileLoaded("utilities");
-showPathRoot();
+/*  loadedFiles  utilities joins the loaded files the bootstrap show (incant/setup) reads (SEQ 687; one list, SEQ 724) -- marked here with no action call: one writer, and a call at a foot primes lastREF (SEQ 726)  */
+loadedFiles +% new("utilities");

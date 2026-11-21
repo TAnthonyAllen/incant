@@ -401,15 +401,10 @@ define
             stageNames "cOLOr" "fONTs" "sTYLEs";
     ;
 define
+    // oneWriter only a file's own foot marks it loaded, with no action call (SEQ 726 R1-R2: a call at a foot primes lastREF and hides fixit setFlagTopLevel)
     loadedFiles;
-    lfName = "none";
-    fileLoaded code={
-        lfName = string $argument$;
-        if loadedFiles[lfName];     return 0;
-        lfMark := new(lfName);
-        loadedFiles +% *lfMark;
-        return 0;
-        };
+    // onItsWay the files show has queued in this call, a fact of its own (SEQ 726 R2): show never writes loadedFiles
+    queuedFiles;
     showPending;
     showSaved;
     showFormNow;
@@ -431,11 +426,14 @@ define
         };
     // eachOnce a file is included only if not loaded, and marked as it is queued, so a name written twice loads once
     showLoadFiles code={
+        clear(queuedFiles);
         for grup in argument; attributes
             lfN = string $*grup$;
             lfGo = 1;
             if loadedFiles[lfN];    lfGo = 0;
-            if lfGo == 1;           fileLoaded(lfN);
+            if queuedFiles[lfN];    lfGo = 0;
+            lfMark := new(lfN);
+            if lfGo == 1;           queuedFiles +% *lfMark;
             lfEnt := fILEs[lfN];
             if lfGo == 1;           include(*lfEnt);
         };
@@ -821,9 +819,11 @@ registry(Grokking);
     member names are new on purpose: a member or a request attribute that
     shares its name with an existing field writes onto that field, and search
     and show are the search command and the show action (measured SEQ 724). The
-    loaded files are one list, loadedFiles: utilities, styles and unitTests each
-    add their own name at their foot through fileLoaded, and show marks a file
-    as it queues it, so a file named twice loads once. A search name is checked
+    loaded files are one list, loadedFiles, with one writer: utilities, styles and
+    unitTests each add their own name at their foot, with no action call (an
+    action called there primes lastREF and hides fixit setFlagTopLevel; SEQ 726).
+    show never writes it: the files it queues in a call go in queuedFiles, so a
+    name written twice is queued once. A search name is checked
     when the form is drawn, not before: at the bootstrap the registries do not
     exist until show's own files have loaded. root is the folder incant runs
     from; with root dot a relative path is its own location, which is what
