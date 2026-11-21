@@ -444,3 +444,14 @@ action).
 
 Binary: the bare build of 2026-11-20 12:54, 2191072 bytes. Not run: jitLadder, printPop, decodePop, ddPop, frontier,
 dirCheck (the dispatch named pop.sh and formsPop.sh as the proof; a buy runs the rest).
+
+---
+
+## What was done with it (2026-11-21, seal 521)
+
+M1 bought (merge `8e00a71b`). Cut, by ruling: D1, D2, setHexColor, D4, D5, D6 and eleven D7 entries (callMyself,
+invokeTest, testNegate, testScope, testForC, layout, delimitRecord, commaStuff, jsonFile, winForm, plainField). No
+existing fleet row moved. Kept: hexToNumber, testPointer, testNew, floaty. Deferred: D8, with the bigify / db /
+inspector ruling. The string-pointer operations are pinned as read in `incant/pop/stringPointerT`; the two rulings
+hexToNumber needs are in `Topics/kant`'s docket beside fixit refusedLoopSpins. Line numbers above this section are
+those of utilities and unitTests BEFORE M1 and the cuts. Lists 2 and 3 are untouched and still open.
