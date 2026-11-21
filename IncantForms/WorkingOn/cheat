@@ -1,0 +1,211 @@
+/*****************************************************************************
+    cheat -- the cheat pattern (Topics/forms G3 item 3, stroke 3a; Tony ruled 2026-11-21, SEQ 728).
+    A cheat tries a new version of utilities' code without touching utilities: it includes utilities, defines
+    CheaT holding its own copies, and puts CheaT first on the search list before the first show (show draws
+    under the caller's list with environment.forShow's registries added). Every cheat copy says so on stderr (CHEAT <name> <argument>) and counts itself in
+    cheatHits; the foot prints the count and fails by name if no cheat copy was reached.
+    3a: setFrame and frameMembers are UNCHANGED copies of utilities' (as of trunk 2026-11-21, after G3 item 1),
+    so the PDF must be byte-identical to the control. Notes below stop().
+*****************************************************************************/
+Start();
+include(utilities);
+register(CheaT);
+define
+    cheatHits = 0;
+    frameMembers code={
+        // cheatWitness this copy is the cheat's, and says so on every call
+        cheatHits = cheatHits + 1;
+        cerr "CHEAT frameMembers" argument.taG:;
+        =:argument across down overlay width height x y;
+        // oneDirection a field names down or across, never both (G3 item 1, Tony 2026-11-21): refused by name, its members are not laid out. A grid is a row level: down on the field, across on the one row it holds, the height on the row
+        fmBoth = 0;
+        if across.datA != 0;
+            if down.datA != 0;  fmBoth = 1;
+        if fmBoth == 1;
+            cerr "setFrame: REFUSING" argument.taG "-- it names both down and across; a field takes one direction, so write the grid as rows (down on the field, across on a row it holds); its members are not laid out":;
+            return;
+        sideRoom    = width;
+        pWidth      = width;
+        headRoom    = height;
+        pHeight     = height;
+        pX          = x;
+        pY          = y;
+        boxX        = x;
+        boxY        = y;
+        boxR        = x + width;
+        boxB        = y + height;
+        upOut       = 0;
+        sideOut     = 0;
+        // overlayNamed a parent that names overlay (and neither down nor across) overlays its children: each fills the parent's box unless it declares its own width, height, x or y. A parent naming no direction stacks them, as down does: the old GUI's default, and what descriptions and unitTests' sample rely on (SEQ 626 W3; the default is Tony's to re-rule)
+        laysOver    = 0;
+        if overlay.datA != 0;
+            if across.datA == 0;
+                if down.datA == 0;  laysOver = 1;
+        if down.datA != 0;
+            tARGET="height";
+            dIRECTion="down";
+            fillDownAcross(argument);
+        if across.datA != 0;
+            tARGET="width";
+            dIRECTion="across";
+            fillDownAcross(argument);
+   /***************************************************************************
+                 Create frame and set width and height
+    ***************************************************************************/
+        for grup in argument; members
+            // hiddenTakesNoRoom an isHidden member is not sized, so it joins no share
+            fmHid = *grup.isHiddeN;
+            if fmHid == 0;
+                =:grup width height;
+                if width.isPercenT;
+                    width = pWidth * width / 100;
+                    *grup :% copyOf(width);
+                if height.isPercenT;
+                    height = pHeight * height / 100;
+                    *grup :% copyOf(height);
+                if width.datA != 0;
+                    sideRoom    -= width;
+                or across.datA == 0;
+                    width = pWidth;
+                    *grup :% copyOf(width);
+                else
+                    sideOut     +/ *grup;
+                    ++sideOut;
+                if height.datA != 0;
+                    headRoom    -= height;
+                or across.datA != 0;
+                    height = pHeight;
+                    *grup :% copyOf(height);
+                or laysOver == 1;
+                    height = pHeight;
+                    *grup :% copyOf(height);
+                else
+                    upOut       +/ *grup;
+                    ++upOut;
+        if upOut > 0;
+            shareN = 0;
+            shareUsed = 0;
+            shareEdge = 0;
+            for grup in upOut;
+                ++shareN;
+                shareEdge = headRoom * shareN / upOut;
+                height = shareEdge - shareUsed;
+                shareUsed = shareEdge;
+                *grup :% copyOf(height);
+        if sideOut > 0;
+            shareN = 0;
+            shareUsed = 0;
+            shareEdge = 0;
+            for grup in sideOut;
+                ++shareN;
+                shareEdge = sideRoom * shareN / sideOut;
+                width = shareEdge - shareUsed;
+                shareUsed = shareEdge;
+                *grup :% copyOf(width);
+        headRoom    = 0;
+        sideRoom    = 0;
+    /***************************************************************************
+             Set x and y in frame
+    ***************************************************************************/
+        // fromTheParent under an overlaying parent a child's declared x and y are measured from the parent's origin (R4); under down or across they are not read, as before
+        for grup in argument; members
+            fmHid = *grup.isHiddeN;
+            if fmHid == 0;
+                =:grup width height x y;
+                placeY = pY;
+                placeX = pX;
+                if laysOver == 1;
+                    if y.datA != 0;     placeY = pY + y;
+                if laysOver == 1;
+                    if x.datA != 0;     placeX = pX + x;
+                y = placeY;
+                *grup :% copyOf(y);
+                x = placeX;
+                *grup :% copyOf(x);
+                // doesNotFit noRoom means only this: wholly outside the parent's box on an axis, or no extent on one (Tony, 2026-11-07). Partly outside is drawn.
+                fmRight = placeX + width;
+                fmFoot  = placeY + height;
+                fmOut   = 0;
+                if placeX >= boxR;      fmOut = 1;
+                if fmRight <= boxX;     fmOut = 1;
+                if placeY >= boxB;      fmOut = 1;
+                if fmFoot <= boxY;      fmOut = 1;
+                if fmOut == 1;          *grup :. noRooM;
+                if laysOver == 0;
+                    if across.datA == 0;    pY += height;
+                if laysOver == 0;
+                    if across.datA != 0;    pX += width;
+        for grup in argument; members
+            fmSkip = *grup.isHiddeN;
+            fmGone = *grup.noRooM;
+            if fmGone == 1;     fmSkip = 1;
+            if fmSkip == 0;
+                // holdsAForm a field written form:=other is filled by that form, laid out in the field's frame (G2 stroke 1b); its own members, if any, are not laid out
+                fmHolds = 0;
+                fmSelf := *grup;
+                if *fmSelf["form"];     fmHolds = 1;
+                if fmHolds == 1;        placeForm(*grup);
+                if fmHolds == 0;
+                    if *grup.hasMemberS;
+                        frameMembers(*grup);
+        };
+    setFrame code={
+        // cheatWitness this copy is the cheat's, and says so on every call
+        cheatHits = cheatHits + 1;
+        cerr "CHEAT setFrame" argument.taG:;
+        sfReq := argument;
+        sfHas = 0;
+        if *sfReq["form"];      sfHas = 1;
+        if sfHas == 0;
+            cerr "setFrame: REFUSING" argument.taG "-- its request holds no form; write form:=theForm":;
+            return;
+        sfUse = 0;
+        if *sfReq["frame"];     sfUse = 1;
+        if sfUse == 1;
+            sfFrame := *sfReq["frame"];
+            frameWhole(**sfFrame);
+            if fwOk == 0;
+                cerr "setFrame: REFUSING" argument.taG "-- its frame needs x, y, width and height":;
+                return;
+        sfForm := *sfReq["form"];
+        // holdsItself the names of the forms being laid out; one met again is a form inside itself, refused by name and not laid out
+        sfName := **sfForm.taG;
+        if sfChain[*sfName];
+            cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
+            return;
+        sfMark := new(*sfName);
+        sfChain +% *sfMark;
+        // deepCopy copyOf shares bodies below the second level, so a deep form would be written (measured, SEQ 626)
+        sfLaid := copyDeep(**sfForm);
+        if sfUse == 1;
+            *sfLaid :% copyOf(**sfFrame["x"]);
+            *sfLaid :% copyOf(**sfFrame["y"]);
+            *sfLaid :% copyOf(**sfFrame["width"]);
+            *sfLaid :% copyOf(**sfFrame["height"]);
+        setLook(argument);
+        // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out
+        if lkRefused == 1;
+            sfChain -% *sfMark;
+            return;
+        mergeStyles(*sfLaid);
+        cardsPick(*sfLaid);
+        frameMembers(*sfLaid);
+        sfChain -% *sfMark;
+        return *sfLaid;
+        };
+    cheatCount code={
+        cout "CHEAT hits" cheatHits:;
+        if cheatHits == 0;
+            cerr "CHEAT FAILED -- no cheat copy was reached; the run measured utilities, not the cheat":;
+        };
+    ;
+// cheatFirst CheaT goes on the search list before the first show: show adds environment.forShow's registries to the list it is called under, so CheaT comes first (measured SEQ 728)
+search CheaT Utilities list;
+show(firstLight);
+cheatCount();
+cerr "CHEAT SENTINEL":;
+stop();
+
+How to use it as a template (3c keeps this file): copy it, replace the copies in CheaT with the code being tried, keep the
+witness lines and cheatCount. Put CheaT first before the first show or redrawForm in the run: a body binds its names at
+its first call (F-164), so a utilities body already called keeps the copy it found then.
