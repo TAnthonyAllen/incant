@@ -124,6 +124,17 @@ define
             valueCount = 0;
             valueCount = pValue / target;
             if valueCount * target > pValue;    --valueCount;
+            // pourCount a poured field repeats its template once per member of its registry, whatever fits (P1); the copies are marked after the repeat
+            fdPour = 0;
+            if argument["pour"];    fdPour = 1;
+            if fdPour == 1;
+                psN = 0;
+                psOk = 0;
+                pourOpen(argument);
+                if psOk == 1;   valueCount = psN - 1;
+                // refusedPour the template row stays single: it is not repeated to fit
+                if psOk == 0;   valueCount = 0;
+                if psOk == 0;   fdPour = 0;
         else
             if direct > 0;
                 valueCount = direct - 1;
@@ -134,6 +145,154 @@ define
             for grup in argument; members
                 if fdSeen < memberCount;    argument +/ copyDeep(*grup);
                 ++fdSeen;
+        if fdPour == 1;
+            psField := argument;
+            psI = 0;
+            pourStamp(*psReg);
+        };
+    /***************************************************************************
+        pour -- data poured into a form (Tony's first draft, 2026-11-22; SEQ 741).
+        A field written  down="*" pour:=aRegistry  holds ONE template row; on the
+        laid-out copy fillDownAcross repeats the row once per member of the
+        registry, in order (P1), and each copy is marked with the member it is
+        for: an attribute each holding that member. Under a copy, each stands
+        for its member (P2): fill:=each (any attribute holding each) is
+        re-pointed at the member, and typeset's inserts read it -- {each} the
+        member's value, {each.taG} its name, {aRegistry.each} that registry's
+        entry of the member's name, nothing when it has none. color:=contrast
+        (P3) is pourContrast, below. The definition is never written.
+        Refused by name: pour on a field that is not down="*" (frameMembers);
+        a pour that holds no registry, or an empty one; each outside a poured
+        field (resolveLook, and typeset for an insert). A registry not on the
+        search list is refused at define, as any := is.
+    ***************************************************************************/
+    psField;
+    psReg;
+    psMember;
+    psN = 0;
+    psI = 0;
+    psJ = 0;
+    psOk = 0;
+    psDepth = 0;
+    pourOpen code={
+        poA := argument["pour"];
+        poIs = *poA.isGrouP;
+        if poIs == 0;
+            cerr "setFrame: REFUSING" argument.taG "-- its pour holds no registry; write pour:=aRegistry":;
+            return;
+        psReg := **poA;
+        poRn = string $**poA.taG$;
+        poLen = *psReg.listLengtH;
+        if poLen > 0;   pourCount(*psReg);
+        if psN == 0;
+            cerr "setFrame: REFUSING" argument.taG "-- its pour registry" poRn "has no members; the template row is left as written":;
+            return;
+        psOk = 1;
+        };
+    pourCount code={
+        for grup in argument; members
+            psN += 1;
+        };
+    pourStamp code={
+        for grup in argument; members
+            psMember := *grup;
+            psJ = 0;
+            pourRowAt(*psField);
+            psI += 1;
+        };
+    pourRowAt code={
+        for grup in argument; members
+            if psJ == psI;  pourMark(*grup);
+            psJ += 1;
+        };
+    pourMark code={
+        pmE := new("each");
+        *pmE := *psMember;
+        argument :% *pmE;
+        pourResolve(argument);
+        };
+    pourResolve code={
+        // leafHasNoList a field with no attribute and no member has no list to walk
+        prLen = 0;
+        if argument.listLengtH;     prLen = 1;
+        if prLen == 0;      return;
+        for grup in argument; attributes
+            prHeld = *grup.isGrouP;
+            prIs = 0;
+            if prHeld == 1;
+                prTo = string $**grup.taG$;
+                prAt = string $*grup.taG$;
+                if prTo == "each";      prIs = 1;
+                if prAt == "each";      prIs = 0;
+            if prIs == 1;   *grup := *psMember;
+        pourContrast(argument);
+        if hasMemberS;
+            for grup in argument; members
+                pourResolve(*grup);
+        };
+    /***************************************************************************
+        pourContrast -- color:=contrast (P3; Tony ruled the rule 2026-11-22): a
+        field whose color holds contrast gets black or white text from its own
+        fill. Brightness is 0.2126 R*R + 0.7152 G*G + 0.0722 B*B as a share of
+        white's; at 17.9% or more the text is black, below it white (the point
+        where black and white text contrast equally). One step a statement:
+        kant has no precedence and the sums are near a count's limit. A field
+        with no fill, or a fill that is not #rrggbb, loses the color attribute,
+        so it takes the text colour in effect. A fill still holding each waits
+        for its copy to be marked (pourResolve calls this again).
+    ***************************************************************************/
+    pourContrast code={
+        pcHas = 0;
+        if argument.listLengtH;
+            if argument["color"];   pcHas = 1;
+        if pcHas == 0;      return;
+        pcCol := argument["color"];
+        pcIs = *pcCol.isGrouP;
+        if pcIs == 0;       return;
+        pcName = string $**pcCol.taG$;
+        if pcName != "contrast";    return;
+        pcFillHas = 0;
+        if argument["fill"];    pcFillHas = 1;
+        if pcFillHas == 0;
+            argument -% *pcCol;
+            return;
+        pcFill := argument["fill"];
+        pcHeld = *pcFill.isGrouP;
+        pcHex = string $*pcFill$;
+        if pcHeld == 1;
+            pcFn = string $**pcFill.taG$;
+            if pcFn == "each";      return;
+            pcHex = string $**pcFill$;
+        pcLead = pcHex.numbeR;
+        pcOk = 1;
+        if pcLead != 35;    pcOk = 0;
+        if pcOk == 0;
+            argument -% *pcCol;
+            return;
+        pcR = string $pcHex$;
+        ++pcR;
+        pcR -= 4;
+        pcG = string $pcHex$;
+        ++pcG; ++pcG; ++pcG;
+        pcG -= 2;
+        pcB = string $pcHex$;
+        ++pcB; ++pcB; ++pcB; ++pcB; ++pcB;
+        pcRn = hexToNumber(pcR);
+        pcGn = hexToNumber(pcG);
+        pcBn = hexToNumber(pcB);
+        pcR2 = pcRn * pcRn;
+        pcG2 = pcGn * pcGn;
+        pcB2 = pcBn * pcBn;
+        pcSa = 2126 * pcR2;
+        pcSb = 7152 * pcG2;
+        pcSc = 722 * pcB2;
+        pcSum = pcSa + pcSb;
+        pcSum = pcSum + pcSc;
+        // threshold 17.9% of white's 10000 * 255 * 255
+        pcPick = string $"white"$;
+        if pcSum >= 116394750;      pcPick = string $"black"$;
+        pcReg := registries["cOLOr"];
+        *pcCol := *pcReg[pcPick];
         };
     /***************************************************************************
          frameMembers sets frames for the members of the group passed in. It must
@@ -177,6 +336,15 @@ define
         if overlay.datA != 0;
             if across.datA == 0;
                 if down.datA == 0;  laysOver = 1;
+        // pourNeedsStar pour repeats a template, and only down="*" has one (P1): anything else is refused by name and laid out as written
+        fmPour = 0;
+        if argument["pour"];    fmPour = 1;
+        fmStar = 0;
+        if fmPour == 1;
+            fmDown = string $down$;
+            if fmDown == "*";   fmStar = 1;
+        if fmPour == 1;
+            if fmStar == 0;     cerr "setFrame: REFUSING" argument.taG "-- it names pour and is not down=\"*\"; pour repeats one template row, so write down=\"*\" pour:=aRegistry; laid out as written":;
         if down.datA != 0;
             tARGET="height";
             dIRECTion="down";
@@ -532,6 +700,18 @@ define
                 if msData != 0;     msPh = 0;
                 if msList != 0;     msPh = 0;
                 if msVia != 0;      msPh = 0;
+            // eachAndContrast each is resolved per poured copy and contrast from the field's own fill (pour, pourContrast), never through a look; each outside a poured field is refused by name
+            if msPh == 1;
+                msPn = string $**grup.taG$;
+                msAn = string $*grup.taG$;
+                // pourHoldsARegistry an empty registry is a held field with nothing in it, as a placeholder is: pour's own refusal names it
+                if msAn == "pour";      msPh = 0;
+                if msPn == "contrast";  msPh = 0;
+                if msPn == "each";
+                    msPh = 0;
+                    if psDepth == 0;
+                        msAttr = *grup.taG;
+                        cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names each outside a poured field; each stands for a member only under down=\"*\" pour:=aRegistry":;
             if msPh == 1;
                 msName := **grup.taG;
                 msDone = 0;
@@ -549,6 +729,7 @@ define
                 if msDone == 0;
                     msAttr = *grup.taG;
                     cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names the placeholder" msName "and no look holds it; name it in the request's look or in defaultLook":;
+        pourContrast(argument);
         };
     /***************************************************************************
         mergeStyles -- styles by merge at layout (Tony, 2026-11-14, SEQ 652 R1).
@@ -577,9 +758,18 @@ define
                 argument :. mergeON;
                 argument +% *msOwn;
         resolveLook(argument);
+        // pourDepth the fields under a poured field are its template: each is lawful there (resolveLook reads psDepth)
+        msPoured = 0;
+        if argument.listLengtH;
+            if argument["pour"];    msPoured = 1;
+        if msPoured == 1;   psDepth += 1;
         if hasMemberS;
             for grup in argument; members
                 mergeStyles(*grup);
+        msPoured = 0;
+        if argument.listLengtH;
+            if argument["pour"];    msPoured = 1;
+        if msPoured == 1;   psDepth -= 1;
         };
     /***************************************************************************
         Convert the hex string in the target passed in to a floating point number
@@ -771,6 +961,28 @@ define
     tsOut;
     tsRunCount;
     tsWho;
+    tsEach;
+    tsEachHit = 0;
+    tsEachTag;
+    // eachOf the member a poured copy is for: the nearest field at or above the one handed in that carries each (pourMark put it there); the climb stops at the top, which holds the drawing context
+    tsEachFind code={
+        tsEachHit = 0;
+        teAt := argument;
+        teHops = 0;
+        while teHops < 32;
+            teLen = *teAt.listLengtH;
+            teHas = 0;
+            if teLen > 0;
+                if *teAt["each"];   teHas = 1;
+            if teHas == 1;
+                tsEach := *teAt["each"];
+                tsEachHit = 1;
+                teHops = 32;
+            teTop = *teAt.isPointeR;
+            if teTop == 1;      teHops = 32;
+            if teHops < 32;     teAt := *teAt.parenT;
+            teHops += 1;
+        };
     tsFind code={
         for grup in argument; members
             if tsHit == 0;
@@ -851,6 +1063,7 @@ define
             tyMode = 0;
             // insertFound mode 1: no field of that name, the three pieces print as written; 2: the field's words; 3: a field with no text of its own, nothing
             tyIns = 0;
+            tyQuiet = 0;
             if *tyKind == "ins";    tyIns = 1;
             if *tyKind == "qins";   tyIns = 2;
             // noNested inside inserted text an insert is not followed: it warns by name and its pieces print as written
@@ -871,18 +1084,48 @@ define
                 tyMode = 1;
                 tsHit = 0;
                 tyRegOk = 0;
-                if registries[*tyRg];
-                    tyRegOk = 1;
-                    tyRegH := registries[*tyRg];
-                    if *tyRegH[*tyNm];
-                        tsFound := *tyRegH[*tyNm];
-                        tsHit = 1;
+                // eachInAnInsert {each.taG} is the poured member's name; {aRegistry.each} is that registry's entry of the member's name, and nothing when it has none (P2; it must not print its tag)
+                tyEach = 0;
+                if *tyRg == "each";     tyEach = 1;
+                if *tyNm == "each";     tyEach = 2;
+                if tyEach > 0;          tsEachFind(*tsWho);
+                tyEachBad = 0;
+                if tyEach > 0;
+                    if tsEachHit == 0;  tyEachBad = 1;
                 tyFt := *tsWho.taG;
+                if tyEachBad == 1;
+                    tyEach = 0;
+                    tyRegOk = 2;
+                    cerr "drawSpans: REFUSING" tyFt "-- its text names each outside a poured field; left as written":;
+                if tyEach == 1;
+                    tyRegOk = 2;
+                    tyNmS = string $*tyNm$;
+                    if tyNmS == "taG";
+                        tsEachTag = string $**tsEach.taG$;
+                        tsFound := tsEachTag;
+                        tsHit = 1;
+                    if tyNmS != "taG";
+                        cerr "drawSpans: WARNING" tyFt "-- its text inserts each." tyNm "-- only each.taG is read; left as written":;
+                if tyEach == 2;
+                    tyEachNm = string $**tsEach.taG$;
+                    tyQuiet = 1;
+                if tyRegOk == 0;
+                    if registries[*tyRg];
+                        tyRegOk = 1;
+                        tyRegH := registries[*tyRg];
+                        if tyEach == 0;
+                            if *tyRegH[*tyNm];
+                                tsFound := *tyRegH[*tyNm];
+                                tsHit = 1;
+                        if tyEach == 2;
+                            if *tyRegH[tyEachNm];
+                                tsFound := *tyRegH[tyEachNm];
+                                tsHit = 1;
                 if tyRegOk == 0;
                     cerr "drawSpans: WARNING" tyFt "-- its text inserts from" tyRg "-- not a registry; left as written":;
                 if tyRegOk == 1;
                     if tsHit == 0;
-                        cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "from" tyRg "-- that registry has no such entry; left as written":;
+                        if tyQuiet == 0;    cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "from" tyRg "-- that registry has no such entry; left as written":;
             if tyIns == 1;
                 tySl := *tyLeaf.nexT;
                 tyNm := *tySl.texT;
@@ -896,15 +1139,31 @@ define
                     tyHops += 1;
                 tsHit = 0;
                 tsWant := *tyNm;
+                // eachInsert {each} is the poured member itself, so its value is what is inserted (P2); outside a poured field it is refused by name
+                tyEach = 0;
+                if *tyNm == "each";     tyEach = 3;
+                if tyEach == 3;
+                    tsEachFind(*tsWho);
+                    if tsEachHit == 1;
+                        tsFound := **tsEach;
+                        tsHit = 1;
+                    if tsEachHit == 0;
+                        tyFt := *tsWho.taG;
+                        cerr "drawSpans: REFUSING" tyFt "-- its text names each outside a poured field; left as written":;
                 tyTt := *tyTop.taG;
-                if *tyTt == *tyNm;
-                    tsFound := *tyTop;
-                    tsHit = 1;
+                if tyEach == 0;
+                    if *tyTt == *tyNm;
+                        tsFound := *tyTop;
+                        tsHit = 1;
+                    if tsHit == 0;
+                        if *tyTop.hasMemberS;   tsFind(*tyTop);
+                    if tsHit == 0;
+                        tyFt := *tsWho.taG;
+                        cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "-- no field of that name in the form; left as written":;
+            // quietMiss a poured member with no entry in the qualified registry shows nothing
+            if tyIns > 0;
                 if tsHit == 0;
-                    if *tyTop.hasMemberS;   tsFind(*tyTop);
-                if tsHit == 0;
-                    tyFt := *tsWho.taG;
-                    cerr "drawSpans: WARNING" tyFt "-- its text inserts" tyNm "-- no field of that name in the form; left as written":;
+                    if tyQuiet == 1;    tyMode = 3;
             if tyIns > 0;
                 if tsHit == 1;
                     tyMode = 3;

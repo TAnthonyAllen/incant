@@ -579,6 +579,27 @@ _ofeq "tabClickT TK-4 a name the form lacks: click refuses by name, clickShow dr
 _ofeq "tabClickT TK-5 selectTab under a parent with no tabs:= refuses naming the field and the parent; tabSelected unchanged" "$(grep -c '^selectTab: REFUSING tkOrphan -- its parent tkNotBar is no tab bar (tabs:=)' "$T/tk.e") $(_tks TK-5)" "1 tabOne"
 _ofeq "tabClickT TK-6 the definition is never written: its thirdCard is not hidden after the clicks" "$(grep '^TK-6 ' "$T/tk.e" | sed 's/ *$//')" "TK-6 the definition's thirdCard isHidden 0"
 
+echo "-- pour: data poured into a form (pourT; SEQ 741)."
+#  ⚑ pourT -- pour:=, each, color:=contrast (Tony's first draft, 2026-11-22; Clay's dispatch). A down="*" pour:=aRegistry field's one template row
+#  is copied once a member on the laid-out copy and each copy is marked with its member (fillDownAcross, pourStamp); under a copy each stands for
+#  the member ({each}, {each.taG}, fill:=each, {aRegistry.each}); color:=contrast is black or white from the field's own fill, black at 17.9% or more.
+_ptF=$(ip pourT)
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 60; exec @ARGV' "$B" "$_ptF" > "$T/pt.o" 2> "$T/pt.e"; _ptx=$?
+_ptr () { awk -v r="$1" '/^PT RUN/{on=($3==r)} on' "$T/pt.o"; }
+_ptc () { _ptr "$1" | awk -v f="$2" '$2=="drawSpans" && $3==f {c=$9" "$10" "$11; n[c]++} END{for (k in n) printf "%s x%d;", k, n[k]}' | tr ';' '\n' | sort | tr '\n' ';'; }
+_ptp () { _ptr ptColors | grep -A1 "^PT-AT $1 *$" | grep pixelAt | sed 's/.*= //; s/ a255 ===.*//'; }
+_ofeq "pourT exit / sentinel" "$_ptx $(grep -c '^POURT SENTINEL' "$T/pt.e")" "0 1"
+_ofeq "pourT PT-1 cOLOr poured: 14 rows whatever fits, names in cOLOr's order by their length (black blue darkBrown ... wall white)" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptName" {printf "%s ", $15}')" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
+_ofeq "pourT PT-2 the swatch text is the value (7 characters, 14 times) and its colour is contrast's: white on 3 (black, blue, darkBrown), black on 11" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptSwatch" && $15==7' | wc -l | tr -d ' ') / $(_ptc ptColors ptSwatch)" "14 / r0 g0 b0 x11;r255 g255 b255 x3;"
+_ofeq "pourT PT-3 the swatch pixels are the members' colours: rows 1, 2, 13, 14; below row 14 is the page" "$(_ptp ptBlack) | $(_ptp ptBlue) | $(_ptp ptWall) | $(_ptp ptWhite) | $(_ptp ptPastEnd)" "r0 g0 b0 | r0 g81 b186 | r247 g232 b170 | r255 g255 b255 | r255 g255 b255"
+_ofeq "pourT PT-4 a member with no entry in the qualified registry shows NOTHING: two third cells drawn (black 11, wall 13 characters), no warning, no tag" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptWhat" {printf "%s ", $15}')/ $(grep -c 'ptWhat.*no such entry\|ptWhat.*left as written' "$T/pt.e")" "11 13 / 0"
+_ofeq "pourT PT-5 a registry of three in room for two: three rows; black fill white text, wall and red (#ef2b2d, 20.9%) black text" "$(_ptr ptThree | awk '$2=="drawSpans" && $3=="ptCell3" {printf "%s %s;", $15, $9}')" "5 r255;4 r0;5 r0;"
+_ofeq "pourT PT-6 contrast with no pour: a blue fill white, a literal #ffffff black, no fill the text colour in effect (red)" "$(_ptr ptPlain | awk '$2=="drawSpans" {printf "%s %s %s %s;", $3, $9, $10, $11}')" "ptDark r255 g255 b255;ptLight r0 g0 b0;ptBare r239 g43 b45;"
+_ofeq "pourT PT-7 refused by name: pour on a plain down; an empty registry (one row, not repeated to fit); each outside a poured field, a fill and two inserts" "$(grep -c '^setFrame: REFUSING ptBadRows -- it names pour and is not down=' "$T/pt.e") $(grep -c '^setFrame: REFUSING ptEmptyRows -- its pour registry PourEmpty has no members' "$T/pt.e") $(_ptr ptBadEmpty | grep -c drawSpans) $(grep -c '^setFrame: REFUSING ptLoose -- its fill names each outside a poured field' "$T/pt.e") $(grep -c '^drawSpans: REFUSING ptLoose.* -- its text names each outside a poured field' "$T/pt.e")" "1 1 1 1 2"
+_ofeq "pourT PT-8 a registry not on the search list is refused at define, as any := is" "$(grep -c '^REFUSED NoSuchRegistry -- a := in a define names a field' "$T/pt.e")" "1"
+_ofeq "pourT PT-9 the definition is never written: one row, no each" "$(grep '^PT-9 ' "$T/pt.e" | sed 's/ *$//')" "PT-9 the definition's ptRows holds 1 row; its each attribute: 0"
+
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
 #  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.
@@ -850,7 +871,8 @@ echo ""
 echo "-- the drawing fields in FORMs (drawFieldsT)."
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip drawFieldsT)" > "$T/df.o" 2> "$T/df.e"; _dfx=$?
 _ofeq "drawFieldsT exit / sentinel" "$_dfx $(grep -c '^DRAWFIELDS SENTINEL' "$T/df.e")" "0 1"
-_ofeq "drawFieldsT DF-1 FORMs holds 35 drawing fields, 28 form attributes, 7 unparked drawing entries and this file's three" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "73"
+#  RE-PINNED SEQ 741: pour joined the form attributes (Topics/forms, above its bail), 28 -> 29, so FORMs holds 74.
+_ofeq "drawFieldsT DF-1 FORMs holds 35 drawing fields, 29 form attributes, 7 unparked drawing entries and this file's three" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "74"
 _ofeq "drawFieldsT DF-2 LinE carries its Core Graphics call, once; X is defined" "$(grep -c '^	LinE function=CGContextAddLineToPoint signature=v:pdY;' "$T/df.o") $(grep -c '^	X;' "$T/df.o")" "1 1"
 #  DF-3 / DF-4 (Tony, 2026-11-12, rulings 1 and then 3 of the next dispatch): every FORMs field a form writes is virtual, the drawing fields included, so each
 #  write is the writing field's own copy and the registry's definition keeps no value. The control is dfShared, defined in the fixture and NOT virtual: the same
