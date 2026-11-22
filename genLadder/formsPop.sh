@@ -621,6 +621,9 @@ _ofeq "colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 14
 echo "-- pour stage 2: rows derived from what is poured; margin, gap, height=fit (pourDeriveT; SEQ 742)."
 #  ⚑ pourDeriveT -- Tony ruled D1-D6, 2026-11-22 (Clay's dispatch), and with the build: kind by value; descriptions from dESCRIPTIONs by the
 #  entry's name, no attribute. A down="*" pour:= field with no row has one built a member (pourPlan, before the styles are merged).
+#  H7 (SEQ 742, committed file, fixture alone, each undone from git with an md5 check): the derive out -> no rows, the top 116 high; kind by
+#  value out -> every show is plain text (no white, one font sample); margin out -> the title at x=- 490 wide; gap out -> rows 24 apart;
+#  the fit sum out -> the top 792.
 _pdF=$(ip pourDeriveT)
 rm -f IncantForms/PDF/test.pdf
 perl -e 'alarm 90; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
