@@ -65,6 +65,14 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
     1  A read-only recon of the old GUI's window code (GUI/, guiHost.mm) and today's openWindow. DONE 2026-11-22 (SEQ 740): docs/windowsRecon.md --
        read, not run; its charter is Clod's draft. Five decisions for Tony (the loop and how many windows; what a click from a point hands kant;
        where selection shows; the window's chrome; when F-153 is cured) and six proposed strokes, the first three provable with no visible window.
+    RULED (Tony, 2026-11-22, on the recon; the dispatch is in incant++, forwarded): W1 openWindow returns at once; the loop starts when the
+       script ends and stops when the last window closes; more than one window. W2 a click from a point hands kant the FIELD, from the
+       laid-out copy; bubbling comes with it; the mock click by name stays. W3 selection shows through a look placeholder, selectFill, a
+       field's own winning; no selectFill, drawn as it was. W4 the title is read from the form; closable and resize stay hard-coded.
+       W5 F-153 first, its own stroke. STROKES, each on its own branch, stop and report after each: 0 F-153 (a relayout with the JIT on
+       under an open offscreen window, GCSTRESS); 1 the window draws the form, with the title (measure first that AppKit renders the view
+       offscreen; stop if it will not); 2 a click from a point, with selectFill; 3 resize and close; 4 the loop, and the display's size
+       published; 5 a real run watched by Tony.
     SIZE (Tony, 2026-11-22; Topics/forms): a form is capped at the display's height less menu bar and dock; a window stroke publishes that size to kant.
     2  The Apple Font and Colour panels feed the look's placeholders (RULED, not built; Tony, 2026-11-19): a pick in the panel
        writes the placeholder (pageFill, headingFont ...) the request's look holds, and the form redraws through it.

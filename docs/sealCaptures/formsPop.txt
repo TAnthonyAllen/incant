@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2191200 bytes  Nov 22 10:17
+  bin   2191200 bytes  Nov 22 12:26
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -192,6 +192,7 @@
   ok    pourT PT-8 a registry not on the search list is refused at define, as any := is = [1]
   ok    pourT PT-9 the definition is never written: one row, no each = [PT-9 the definition's ptRows holds 1 row; its each attribute: 0]
   ok    colorListT exit / sentinel / no refusal = [0 1 0]
+  ok    colorListT CL-0 stderr holds this fixture's CL-4 line and its sentinel and nothing else = [2 2]
   ok    colorListT CL-1 found in the stash (deferred), drawn to test.pdf = [1 1]
   ok    colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white) = [5 4 9 10 4 5 9 10 8 11 3 10 4 5 ]
   ok    colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions = [14 14 3 11 14]
@@ -406,4 +407,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 353 green, see above
+FORMS POP FAILED -- 354 green, see above
