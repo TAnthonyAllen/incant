@@ -1843,6 +1843,8 @@ define
         };
     windowReq path form look;
     layReq form look;
+    // displaySize the display less menu bar and dock, in points; 0 until a window is laid out (guiHost.mm displayPublish writes it)
+    displaySize width=0 height=0;
     pageReq path form width height;
     /***************************************************************************
         selectionPick -- the selected field shows (windows stroke 2; W3, Tony
@@ -1980,7 +1982,13 @@ define
         wlLk = 0;
         if *wlReq["look"];      wlLk = 1;
         if wlLk == 1;           layReq :% copyOf(*wlReq["look"]);
+        // displayCap a window's height=fit is capped at the display's usable height, which the window publishes in displaySize; fitCap is put back, so a PDF's cap stays a page (Topics/forms, SIZE)
+        wlCap = fitCap;
+        wlHigh = 0;
+        wlHigh = displaySize["height"];
+        if wlHigh > 0;          fitCap = wlHigh;
         wlLaid := setFrame(layReq);
+        fitCap = wlCap;
         wlGot = 0;
         if *wlLaid.listLengtH;  wlGot = 1;
         if wlGot == 1;          windowTake(*wlLaid);
@@ -2052,6 +2060,26 @@ define
             shLook := *shForm["look"];
             showReq.look := **shLook;
         shName := *shForm.taG;
+        // showDecides (Tony, 2026-11-22) a form written window opens in a window when windows is switched on (incant/setup), else its PDF as today. windows = 1 shows it, unless INCANT_NOVIEW is set (the fleet): then the PDF. windows = 2 makes the window and does not show it. The window lays the form out itself, from this request.
+        shWin = 0;
+        if windows != 0;
+            shIsW := isWindowForm(argument);
+            if *shIsW == 1;         shWin = 1;
+        shHide = 0;
+        if shWin == 1;
+            if windows == 2;        shHide = 1;
+        if shWin == 1;
+            if shHide == 0;
+                shEnvW = string $"[ -n \"$INCANT_NOVIEW\" ]"$;
+                if system(shEnvW);  shWin = 0;
+        if shWin == 1;
+            if shHide == 0;
+                cout "=== show" shName "in a window ===":;
+                openWindow(showReq);
+            if shHide == 1;
+                cout "=== show" shName "in a window, not shown ===":;
+                windowOffscreen(showReq);
+            return;
         shTo := showReq["path"];
         cout "=== show" shName "to" shTo "===":;
         shDone := redrawForm(showReq);

@@ -981,6 +981,29 @@ _ofeq "windowResizeT close: A CLOSE keeps the window's frame for its form (keepF
 _ofeq "windowResizeT reopen: THE REOPENED WINDOW READS THE KEPT FRAME -- 1200x600, where the form declares 500x600 -- and the entry is cleared" "$(_wrp reopen) / $(_wrl reopen)" "1200x600 / WR-STORE after-reopen entry 0"
 _ofeq "windowResizeT errant: a resize and a close for a form no window shows are refused by name; firstLight still declares 500x600" "$(grep -c '^windowResize: REFUSING wrNoWindow -- needs form:= a form a window shows' "$T/wr.e") $(grep -c '^windowClose: REFUSING wrNoWindow -- needs form:= a form a window shows' "$T/wr.e") / $(grep '^firstLight x=300' "$T/wr.o" | head -1 | cut -d' ' -f1-5)" "1 1 / firstLight x=300 y=450 width=500 height=600"
 
+#  ⚑ windowLoopT -- windows stroke 4 (SEQ 751, 2026-11-22): the loop (W1), the display's size, show deciding. openWindow returns at once; where a script ends
+#  (stop's exit, main's foot) windowsRun runs the event loop while a window is shown. For the fleet, a windowClick / windowResize / windowClose whose request
+#  carries `later` is kept and done INSIDE the loop, and kept requests start it: the real loop runs with nothing on the screen. show opens a window for a form
+#  written window when windows is switched on (incant/setup; 2 = made, not shown), else its PDF. displaySize is the display less menu bar and dock; its
+#  values are the machine's, so the rows compare and never pin them. Run at GCSTRESS=1000.
+#  Controls (H7, 2026-11-22): windowsRun made to return at once (one build) -> the loop rows red, the kept click and closes never done; windowLay's
+#  cap line removed -> WL-TALL reads 792. The show rows carry their own: the same show at windows 0 goes to the PDF.
+echo ""
+echo "-- two windows, the loop, the display's size, show deciding (windowLoopT)."
+_wlF=$(ip windowLoopT)
+INCANT_NOVIEW=1 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wlF" > "$T/wl.o" 2> "$T/wl.e"; _wlx=$?
+_wls () { grep "^WL-SIZE $1 " "$T/wl.o" | awk '{print (($4 > 0 && $6 > 0) ? "sized" : "0x0"), "fitCap", $8}'; }
+_wlblock () { awk -v a="$1" -v b="$2" '$0 ~ a {on=1; next} b != "" && $0 ~ b {on=0} on && /^===/ && !/drawSpans|show viewer off/' "$T/wl.o" | sed 's/^=== //; s/ *=== *$//; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
+_ofeq "windowLoopT exit / sentinel / nothing refused" "$_wlx $(grep -c '^WINDOWLOOP SENTINEL' "$T/wl.e") $(grep -c 'REFUS' "$T/wl.e")" "0 1 0"
+_ofeq "windowLoopT WL-SIZE before any window: the display's size is not yet published; fitCap is a page" "$(_wls before)" "0x0 fitCap 792"
+_ofeq "windowLoopT WL-TWO two windows open at once, each drawn: tabForm's card green under its title, wlSmall red under its own" "$(_wlblock '^WL-TWO' '^WL-SIZE')" "readWindow wlReadTab title [Using Tabs] size 360x400;pixelAt wlReadTab (300,260) = r0 g158 b15 a255;readWindow wlReadSmall title [Second] size 120x80;pixelAt wlReadSmall (60,40) = r239 g43 b45 a255"
+_ofeq "windowLoopT WL-SIZE after: displaySize is published (both parts more than 0) and fitCap is put back" "$(_wls after)" "sized fitCap 792"
+_wlTall=$(grep '^=== readWindow wlReadTall' "$T/wl.o" | sed 's/.*size 200x//; s/ ===.*//'); _wlHigh=$(grep '^WL-SIZE tall ' "$T/wl.o" | awk '{print $6}')
+_ofeq "windowLoopT WL-TALL a height=fit form needing 6000: IN A WINDOW it is capped at the display's usable height, not at a page's 792; fitCap put back" "$([ -n "$_wlTall" ] && [ "$_wlTall" = "$_wlHigh" ] && echo same || echo "differ $_wlTall $_wlHigh") $([ "${_wlTall:-792}" != 792 ] && echo not-792 || echo IS-792) $(_wls tall)" "same not-792 sized fitCap 792"
+_ofeq "windowLoopT WL-SHOW SHOW DECIDES: windows 0, a form written window goes to its PDF; windows 2, the same show makes a window and no PDF; a form not written window still goes to its PDF" "$(_wlblock '^WL-SHOW' '^WL-LAST')" "show tkLoose to IncantForms/PDF/test.pdf;show tkLoose in a window, not shown;readWindow wlReadLoose title [incant] size 100x100;show wlSmall to IncantForms/PDF/test.pdf"
+_ofeq "windowLoopT WL-LAST the script's last line printed, and before the loop started: every opening returned at once" "$(grep -n '^WL-LAST\|^=== window loop: started' "$T/wl.o" | sed 's/^[0-9]*://; s/ the script.*//; s/,.*//' | tr '\n' ' ' | xargs)" "WL-LAST === window loop: started"
+_ofeq "windowLoopT THE LOOP: started after stop with 3 open and 4 kept; the kept click runs kant inside it; three closes keep their frames; it ends with none open" "$(_wlblock '^WL-LAST' '')" "window loop: started, 3 open, 0 shown, 4 kept for later;windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree;window closed: tabForm kept 360x400 at (400,400);window closed: wlSmall kept 120x80 at (40,60);window closed: tkLoose kept 100x100 at (0,0);window loop: ended, 0 open"
+
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
 #  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one

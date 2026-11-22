@@ -717,6 +717,11 @@ use ruler
         *atRuleMark = 0;
         endParse    = true;
         cout :"stop: end parsing":;
+        -%
+        /*  windowsLoop the script has ended: with a window shown the event loop runs here until the last one closes (guiHost.mm, windows stroke 4)  */
+        void windowsRun();
+        windowsRun();
+        %-
         exit(0); }
     return  input;
 }
