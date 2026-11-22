@@ -2,6 +2,7 @@
     to incant/stashList and rerun the script. The sTASh entries show (incant/setup) looks a name up in, by qualified name.  */
 registry(sTASh);
 define
+    colorList File='IncantForms/Windows/colorList';
     descriptions File='IncantForms/Windows/descriptions';
     firstLight File='IncantForms/Windows/firstLight';
     tabForm File='IncantForms/Windows/tabForm';

@@ -1,0 +1,52 @@
+/*****************************************************************************
+    colorList -- the colours as a poured list (Tony and Clay, 2026-11-22, first draft;
+    the final form takes shape by rinse and repeat). Definitions only. Fire it with
+    Start(); show(colorList);  NOT RUNNABLE YET: pour:= and each are not built (the
+    pour dispatch). Until then tester draws the same shape by hand (colorListHand).
+    The form names no colour and no font of its own: only placeholders, resolved
+    through the look (IncantForms/Controls/styles).
+*****************************************************************************/
+/*  The words for each colour, keyed by the colour's own name, as dESCRIPTIONs is keyed
+    by field name. The form reads them with a registry-qualified insert,
+    {cOLOrdESCRIPTIONs.each}, so nothing else on the search list can answer.
+    A colour with no entry here shows nothing in its third cell.
+    Defined with only Grokking searched: with cOLOr on the list, black="..." would reopen cOLOr's black
+    and overwrite its value (measured by Clod, 2026-11-22, the pour stroke). The search line after puts the colours back.  */
+search reset stack Grokking;
+registry(cOLOrdESCRIPTIONs);
+define
+    black="the darkest; the fallback text and border colour";
+    blue="a strong mid blue";
+    darkBrown="a deep brown";
+    darkerGray="a cool mid grey";
+    gray="a light grey";
+    green="a strong green";
+    lightBlue="a very pale blue";
+    lightGreen="a soft green; the default look's tab fill";
+    paleGray="the palest grey";
+    radialGreen="the same value as lightGreen, kept under its old name";
+    red="a strong red; the default look's accent";
+    saberBrown="a sand brown";
+    wall="a pale yellow; the old forms' page colour";
+    white="white; the default look's page fill";
+    ;
+search cOLOr fONTs sTYLEs;
+register(FORMs);
+/*  One template row (clRow: down on the field, across and the height on its one row, the G3 grid rule), repeated once per cOLOr entry in order (pour:=, on a down="*" field).
+    each names the entry the copy is for: {each.taG} prints its name, {each} its value,
+    fill:=each paints it. color:=contrast picks black or white text from the field's own
+    fill. All three are new (the pour dispatch); everything else is built.  */
+define
+    colorList window x=0 y=0 width=490 height=792 down fill:=pageFill font:=bodyFont title="Colors"
+        clTitle="Colors" text height=40 font:=headingFont align=center valign=center bottomBorder;
+        clRows down="*" pour:=cOLOr
+            clRow across height=24
+                clName="{each.taG}" width=30% valign=center;
+                clSwatch="{each}" width=25% fill:=each color:=contrast align=center valign=center;
+                clWhat="{cOLOrdESCRIPTIONs.each}" valign=center;
+    ;
+bail();
+
+ISSUES (first draft):
+- Nothing here runs until pour:=, each and color:=contrast are built.
+- The design pass (spacing, borders, type) is done on tester's colorListHand and folded back here.

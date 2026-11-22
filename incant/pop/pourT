@@ -1,0 +1,121 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+registry(PourWords);
+define
+    black="the darkest";
+    wall="a pale yellow";
+    ;
+registry(PourEmpty);
+registry(PourThree);
+define
+    alpha="#000000";
+    beta="#f7e8aa";
+    gamma="#ef2b2d";
+    ;
+register(FORMs);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs PourThree list;
+define
+    ptColors window x=0 y=0 width=490 height=792 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        ptTitle="Colors" text height=40;
+        ptRows down="*" pour:=cOLOr
+            ptRow across height=24
+                ptName="{each.taG}" width=30%;
+                ptSwatch="{each}" width=25% fill:=each color:=contrast;
+                ptWhat="{PourWords.each}";
+    ;
+define
+    ptThree window x=0 y=0 width=300 height=60 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        ptRows3 down="*" pour:=PourThree
+            ptRow3 across height=24
+                ptCell3="{each.taG}" fill:=each color:=contrast;
+    ;
+define
+    ptPlain window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont color:=red path="IncantForms/PDF/test.pdf"
+        ptDark="dark" height=24 fill:=blue color:=contrast;
+        ptLight="light" height=24 fill="#ffffff" color:=contrast;
+        ptBare="bare" height=24 color:=contrast;
+    ;
+define
+    ptBadDown window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        ptBadRows down pour:=PourThree
+            ptBadRow across height=24
+                ptBadCell="cell";
+    ;
+define
+    ptBadEmpty window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        ptEmptyRows down="*" pour:=PourEmpty
+            ptEmptyRow across height=24
+                ptEmptyCell="cell";
+    ;
+define
+    ptBadEach window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        ptLoose="{each}" height=24 fill:=each;
+        ptLooseTag="{each.taG}" height=24;
+    ;
+define
+    ptNoReg window x=0 y=0 width=300 height=120 down fill:=pageFill path="IncantForms/PDF/test.pdf"
+        ptNoRows down="*" pour:=NoSuchRegistry
+            ptNoRow across height=24;
+    ;
+registry(PourT);
+search PourT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    ptRun code={
+        cout "PT RUN" argument.taG:;
+        show(argument);
+        };
+    ptRead path="IncantForms/PDF/test.pdf";
+    ptAt code={
+        ptX := argument["px"];
+        ptY := argument["py"];
+        ptRead :% copyOf(*ptX);
+        ptRead :% copyOf(*ptY);
+        cout "PT-AT" argument.taG:;
+        pixelAt(ptRead);
+        };
+    ptBlack px=262 py=60;
+    ptBlue px=262 py=84;
+    ptWall px=262 py=348;
+    ptWhite px=262 py=372;
+    ptPastEnd px=262 py=396;
+    ptDefCount code={
+        pdN = 0;
+        for grup in argument; members
+            pdN += 1;
+        pdE = 0;
+        if argument["each"];    pdE = 1;
+        cerr "PT-9 the definition's ptRows holds" pdN "row; its each attribute:" pdE:;
+        };
+    ;
+viewer = 0;
+ptRun(ptColors);
+readPDF(ptRead);
+ptAt(ptBlack); ptAt(ptBlue); ptAt(ptWall); ptAt(ptWhite); ptAt(ptPastEnd);
+ptRun(ptThree);
+ptRun(ptPlain);
+ptRun(ptBadDown);
+ptRun(ptBadEmpty);
+ptRun(ptBadEach);
+ptDefCount(ptColors["ptRows"]);
+cerr "POURT SENTINEL":;
+stop();
+
+pourT -- pour:=, each and color:=contrast (Tony's first draft, 2026-11-22; SEQ 741). A field written down="*" pour:=aRegistry
+holds one template row; the laid-out copy has one copy of the row a member of the registry, in order, each marked with its
+member. Under a copy each stands for the member: {each} its value, {each.taG} its name, fill:=each paints it,
+{aRegistry.each} is that registry's entry of the member's name. color:=contrast is black or white text from the field's own fill.
+PourWords is defined with only Grokking searched, so its black and wall are its own and not cOLOr's (a name on the search
+list is reopened, not minted).
+PT-1  ptColors: 14 rows, cOLOr's order, whatever fits; the names are the members' names.
+PT-2  the swatch text is the member's value and its colour is contrast's: white on black, blue and darkBrown, black on the rest.
+PT-3  the swatch pixels are the members' own colours (rows 1, 2, 13, 14); below row 14 the page is pageFill, so there is no fifteenth row.
+PT-4  PourWords has entries for black and wall only: those two third cells draw, the other twelve draw NOTHING (no tag).
+PT-5  ptThree: a registry of three in a field with room for two: three rows; red (#ef2b2d) reads black text by the 17.9% rule.
+PT-6  ptPlain, contrast with no pour: a blue fill reads white, a literal #ffffff reads black, no fill takes the text colour in
+      effect (red).
+PT-7  the refusals, each by name: pour on a plain down; an empty registry; each outside a poured field (a fill and two inserts).
+PT-8  a registry not on the search list is refused at define, as any := is, and the row's field is removed.
+PT-9  the definition is never written: its ptRows still holds one row and no each.

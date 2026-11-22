@@ -10688,6 +10688,7 @@ else echo "  FAIL  gcOffMainT MISSING"; fail=1; fi
 #  RE-PINNED SEQ 686 (the show dispatch, stroke 1): viewer joins the facts in a group of its own, show, after action. A show-group
 #  fact is a property show reads, not a form attribute, so the walk prints it as a row and does not name it as a fact with no
 #  attribute: groups "... action show", 6 headings, rows 29 of 30 facts; the two controls unchanged.
+#  RE-PINNED SEQ 741 (pour): pour joined the form attributes and the facts (layout group), so rows 30 of 31 facts; the two controls unchanged.
 _rfF=${REF_FILE:-IncantForms/WorkingOn/reference}
 if [ -f "$_rfF" ]; then
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rfF" > "$T/rf.o" 2> "$T/rf.e"; echo $? > "$T/rf.x"
@@ -10697,8 +10698,8 @@ _ofeq "reference the groups in order: style its own group, typeset (no attribute
 _ofeq "reference one heading line a group, byte for byte (6 groups)" "$(grep -c -F -x "$_rfHead" "$T/rf.o")" "6"
 _ofeq "reference the fill row, byte for byte (the widest value: one space before the next column)" "$(grep '^fill ' "$T/rf.o")" "fill          a held colour (fill:=wall), or #rrggbb  no         built            paints the field's box "
 _ofeq "reference the style group holds style and nothing else" "$(awk '/^style $/{on=1;next} on&&/^$/{on=0} on&&!/^name /{print $1}' "$T/rf.o" | tr '\n' ' ')" "style "
-_ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "29 0"
-_ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 29 of 30 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
+_ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "30 0"
+_ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 30 of 31 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
@@ -10752,7 +10753,8 @@ echo "-- the stash file and incant's root (SEQ 688)."
 #  be read) were each driven by hand at SEQ 688 and wrote nothing.
 _skOut=$(INCANT="$B" genLadder/stash.sh --check 2>&1); _skx=$?
 #  RE-PINNED SEQ 700: 2 -> 3 entries, tabForm joined incant/stashList (tabs stroke 1); the two rows below move together.
-_ofeq "stash incant/stash = a fresh regeneration from incant/stashList (exit / line)" "$_skx $(echo "$_skOut" | head -1 | sed 's/^ *//')" "0 ok    incant/stash = a fresh regeneration (3 entries)"
+#  RE-PINNED SEQ 741: 3 -> 4 entries, colorList joined incant/stashList (the pour stroke); the two rows move together again.
+_ofeq "stash incant/stash = a fresh regeneration from incant/stashList (exit / line)" "$_skx $(echo "$_skOut" | head -1 | sed 's/^ *//')" "0 ok    incant/stash = a fresh regeneration (4 entries)"
 #  ⚑ stashRefusals -- the walk's three refusals, each on a scratch tree (stash.sh --in: run there, never write; SEQ 689). The tree
 #  links every incant file and IncantForms; one file is replaced per case. A control tree, unchanged, would write 2.
 _swR=$PWD; _swT () { rm -rf "$T/sw.$1"; mkdir -p "$T/sw.$1/incant"; ln -s "$_swR/IncantForms" "$T/sw.$1/IncantForms"; for _f in "$_swR"/incant/*; do ln -s "$_f" "$T/sw.$1/incant/"; done; }
@@ -10764,7 +10766,7 @@ _swT two; cp IncantForms/Windows/firstLight "$T/sw.two/incant/firstLight"
 _swTwo=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.two" 2>&1); _swTwox=$?
 _swT dir; rm "$T/sw.dir/incant/stashWalk"; sed 's|directory="incant" load|directory="incantNoSuchDir" load|' incant/stashWalk > "$T/sw.dir/incant/stashWalk"
 _swDir=$(INCANT="$B" genLadder/stash.sh --in "$T/sw.dir" 2>&1); _swDirx=$?
-_ofeq "stash walk control: an unchanged tree would write 3 (exit / line)" "$_swCtlx $(echo "$_swCtl" | sed 's/^ *//')" "0 would write 3 entries"
+_ofeq "stash walk control: an unchanged tree would write 4 (exit / line)" "$_swCtlx $(echo "$_swCtl" | sed 's/^ *//')" "0 would write 4 entries"
 _ofeq "stash walk a listed name with no file: refused by name, nothing written (exit / refusal / failed)" "$_swNonex $(echo "$_swNone" | grep -c 'REFUSED stash -- zzNoSuchForm is on the list and no stated directory has a file of that name') $(echo "$_swNone" | grep -c 'nothing written')" "1 1 1"
 _ofeq "stash walk a listed name with two files: refused naming both" "$_swTwox $(echo "$_swTwo" | grep -c 'REFUSED stash -- two files named firstLight : IncantForms/Windows/firstLight and incant/firstLight')" "1 1"
 _ofeq "stash walk a stated directory that cannot be read: refused by name" "$_swDirx $(echo "$_swDir" | grep -c 'REFUSED stash -- a stated directory cannot be read: incantNoSuchDir')" "1 1"
