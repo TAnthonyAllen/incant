@@ -584,17 +584,19 @@ define
     /***************************************************************************
         Convert the hex string in the target passed in to a floating point number
     ***************************************************************************/
-    hexToNumber target code={
-        while target;
-            numDBL  = target.numbeR;
+    hexToNumber code={
+        // ruledSpellings the walk tests data (a step past the last character leaves no value) and numbeR reads a character's code (SEQ 737); it walks a copy, since ++ on argument steps the caller's own string
+        num = 0;
+        hxWalk = argument;
+        while hxWalk.datA;
+            numDBL  = hxWalk.numbeR;
             if numDBL <= 57;    numDBL -= 48;
             or numDBL <= 70;    numDBL -= 55;
             or numDBL <= 102;   numDBL -= 87;
-            ++target;
-            if num; num *= 16;
+            ++hxWalk;
+            num *= 16;
             num += numDBL;
-        target  = num;
-        return target; };
+        return num; };
     cpWant;
     cpTab;
     cpTabName;

@@ -10343,20 +10343,28 @@ _ofeq "frameStoreT FS-11 the entry was left for descriptions' own open: 300x300 
 #  written as rows, is laid out (RF-1 to RF-3). H7: the refusal removed, the line is gone and bCross is laid out.
 _ofeq "reframeT RF-15 a field naming both down and across refuses by name, once, and its member is not laid out" "$(grep -c '^setFrame: REFUSING pBoth -- it names both down and across' "$T/rf.e") $(grep -c 'names both down and across' "$T/rf.e") $(_rfb BOTH BOTHEND pBothReq | grep -c '^	bCross x=- y=- w=- h=50')" "1 1 1"
 _ofeq "reframeT RF-16 the same grid written as rows lays out 4 rows of 2 cells, 125x50, rows at y 100 150 200 250" "$(_rfb RUN1 RUN2 pSumpleReq | grep -c '^		crossing .* w=125 h=50') $(_rfb RUN1 RUN2 pSumpleReq | grep '^	pSumpleRow ' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs)" "8 100 150 200 250"
-#  ⚑ stringPointerT -- SEQ 735 (Tony, 2026-11-21, the clean-up dispatch after R1): what the string-pointer operations do TODAY, pinned
-#  AS READ and NOT BLESSED. hexToNumber (incant/utilities) is the one action that uses them and does not work; the two rulings it needs
-#  are in Topics/kant's docket beside fixit refusedLoopSpins. A re-pin here needs a sentence. The fixture's foot says what each row wanted.
+#  ⚑ stringPointerT -- SEQ 735 (Tony, 2026-11-21): kant's string-pointer operations. RE-PINNED SEQ 737 under Tony's rulings of 2026-11-22:
+#  R1a ++ on a one-character string leaves no value; R1b a string walk tests data (while s.datA;); R2 numbeR (27) is the first character's
+#  code, read only. hexToNumber (incant/utilities) gets its own rows. A re-pin here needs a sentence. The fixture's foot says what each row asserts.
+#  H7 (SEQ 737, committed file, fixture alone): R1a reverted -> SP-1/SP-2 four turns (the empty string reads data) and SP-7's first step
+#  leaves it empty; case 27 out of opDot -> SP-3 and HX red; case 27 out of setGroupField -> SP-8's refusal gone.
 _spF=$(ip stringPointerT)
 perl -e 'alarm 30; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_spF" > "$T/sp.o" 2> "$T/sp.e"; _spx=$?
 _spl () { grep "^$1" "$T/sp.e" | sed "s/^$1 *//; s/ *$//" | tr '\n' '/'; }
 _ofeq "stringPointerT exit / sentinel" "$_spx $(grep -c '^STRINGPOINTER SENTINEL' "$T/sp.e")" "0 1"
-_ofeq "stringPointerT SP-1 while s; ++s; over ff9 reads ff9, f9, 9, an empty string, then its own tag (as read; wanted: three turns)" "$(_spl 'SP-1 turn')" "1 reads [ ff9 ]/2 reads [ f9 ]/3 reads [ 9 ]/4 reads [  ]/5 reads [ spWalk ]/"
-_ofeq "stringPointerT SP-2 the walk takes 5 turns over 3 characters (as read; wanted 3)" "$(_spl 'SP-2 turns')" "5/"
-_ofeq "stringPointerT SP-3 s.numbeR hands back nothing: the local prints its own tag and is not 65 (as read; wanted 65 and 1)" "$(_spl 'SP-3')" "numbeR reads [ sv ]/is 65: 0/"
+#  RE-PINNED SEQ 737: the walk tests data (R1b) and the last step leaves no value (R1a), so it is three turns and ends by itself.
+_ofeq "stringPointerT SP-1 while s.datA; ++s; over ff9 reads ff9, f9, 9" "$(_spl 'SP-1 turn')" "1 reads [ ff9 ]/2 reads [ f9 ]/3 reads [ 9 ]/"
+_ofeq "stringPointerT SP-2 the walk takes 3 turns over 3 characters and ends by itself" "$(_spl 'SP-2 turns')" "3/"
+#  RE-PINNED SEQ 737: numbeR is accessor 27 again (R2).
+_ofeq "stringPointerT SP-3 s.numbeR on A reads 65" "$(_spl 'SP-3')" "numbeR reads [ 65 ]/is 65: 1/"
 _ofeq "stringPointerT SP-4 a string + 2 joins (SEQ 347 R3; once: skip two characters)" "$(_spl 'SP-4 plus 2 reads')" "[ abcdef2 ]/"
 _ofeq "stringPointerT SP-5 a string - 4 drops four characters from the end" "$(_spl 'SP-5 minus 4 reads')" "[ ab ]/"
 _ofeq "stringPointerT SP-6 a string -= 2 drops two in place; the other two strings are untouched" "$(_spl 'SP-6')" "minus-equals 2 reads [ abcd ]/the others are untouched [ abcdef ] [ abcdef ]/"
-_ofeq "stringPointerT SP-7 ++ on a one-character string: empty, then no value (its tag), then one refusal by name that ends the action" "$(_spl 'SP-7') $(grep -c '^REFUSED spUsed -- Operator ++ -- this field has no value to bump' "$T/sp.e")" "after one step [  ]/after two steps [ spUsed ]/ 1"
+#  RE-PINNED SEQ 737 (R1a): one step leaves no value, never an empty string; the second step refuses.
+_ofeq "stringPointerT SP-7 ++ on a one-character string: no value (its tag), then one refusal by name that ends the action" "$(_spl 'SP-7') $(grep -c '^REFUSED spUsed -- Operator ++ -- this field has no value to bump' "$T/sp.e")" "after one step [ spUsed ]/ 1"
+_ofeq "stringPointerT SP-8 a write to numbeR refuses by name; the string is unchanged" "$(grep -c '^REFUSED spCode -- numbeR is read-only' "$T/sp.e") $(_spl 'SP-8 code after the write')" "1 [ A ]/"
+_ofeq "stringPointerT SP-9 numbeR on a field with no string refuses by name, naming the field" "$(grep -c '^REFUSED spNone -- numbeR -- this field holds no string' "$T/sp.e") $(grep -c 'NOT REACHED' "$T/sp.e")" "1 0"
+_ofeq "stringPointerT HX hexToNumber: ff 255, ef 239, 2b 43, 2d 45; the strings handed in are untouched" "$(_spl 'HX')" "ff 255 ef 239 2b 43 2d 45/the strings handed in are untouched [ ff ] [ 2d ]/"
 
 #  ⚑ noRoomT -- forms step 6, the rest (Tony's ruling of 2026-11-07; SEQ 627 W1, 2026-11-11): noRoom means only "does not fit"; isHidden is its own
 #  author-declared flag. Two GroupBody flags (isHiddeN 49, noRooM 50). An isHidden member takes no room and gets no frame, nor does anything under it.

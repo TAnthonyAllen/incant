@@ -339,6 +339,7 @@ define
     isShortcuT=24;
     isVirtuaL=25;
     mergeON=26;
+    numbeR=27;
     noLabeL=28;
     noPrinT=29;
     noRooM=50;

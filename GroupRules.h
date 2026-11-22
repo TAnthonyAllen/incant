@@ -195,6 +195,7 @@ extern "C" GroupItem *enclosingInstance(GroupItem *field);
 extern "C" RuleStuff *enclosingStuff(GroupItem *askField, RuleStuff *askStuff);
 extern "C" GroupItem *exitFromParse(GroupItem *field, int exitOK, char *exitAt, GroupItem *exitLab);
 extern "C" GroupItem *fAIL(GroupItem *input);
+extern "C" int firstCharCode(GroupItem *field);
 extern "C" int flagAttribute(GroupItem *host, GroupItem *item);
 extern "C" int flagEntry(GroupItem *entry);
 extern "C" GroupItem *followArgument(GroupItem *operand);
