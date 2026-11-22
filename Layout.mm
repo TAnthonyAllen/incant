@@ -4,107 +4,18 @@
 #import <stdlib.h>
 #import "OCroutines.h"
 #import "GroupItem.h"
-#import "GroupBody.h"
 #import "Stylish.h"
 #import "GroupDraw.h"
 #import "Layout.h"
 
 @implementation Layout
 
-- (void)displayCell
-{
-GroupItem 	*align = base->get("align");
-NSString 	*tEXT = [NSString stringWithCString:base->getText() encoding:NSASCIIStringEncoding];
-NSCell 		*cell = [textField cell];
-	[cell initTextCell:tEXT];
-	// align name collision fixed by changing StringRoutines.twk
-	if ( align && align->groupBody->gText )
-		if ( *align->groupBody->gText == 'c' )
-			[[textField cell] setAlignment:NSCenterTextAlignment];
-		else
-		if ( *align->groupBody->gText == 'l' )
-			[[textField cell] setAlignment:NSLeftTextAlignment];
-		else
-		if ( *align->groupBody->gText == 'r' )
-			[[textField cell] setAlignment:NSRightTextAlignment];
-	if ( style->fillColor )
-		[textField setBackgroundColor:style->fillColor];
-	[textField setTextColor:textColor];
-	[[textField cell] setUsesSingleLineMode:1];
-	[self addSubview:textField];
-	if ( [cell isEditable] )
-		if ( style->selected )
-			{
-			[[self window] makeFirstResponder:textField];
-			[textField displayIfNeededIgnoringOpacity];
-			}
-}
-
-- (void)displayImage
-{
-GroupItem 	*image = base->get("image");
-GroupItem 	*offset = base->get("offset");
-GroupItem 	*scale = base->get("scale");
-NSImage 	*viewImage = (NSImage*)image->getObject();
-NSRect 		imageFrame;
-	if ( !viewImage )
-		return;
-	if ( scale )
-		imageFrame = ::indentFrame([self frame],scale->getNumber());
-	[viewImage setSize:imageFrame.size];
-	if ( offset )
-		imageFrame = *(NSRect*)offset->getPointer();
-	[viewImage drawInRect:[self frame] fromRect:imageFrame operation:NSCompositeSourceOver fraction:1.0];
-}
-
-- (void)displayText
-{
-NSTextContainer 	*box = 0;
-NSTextView 			*editor = 0;
-NSRect 				indented = ::indentFrame([self frame],5.0);
-GroupItem 			*align = base->get("align");
-	if ( base->getObject() )
-		editor = (NSTextView*)base->getObject();
-	else {
-		editor = [[NSTextView alloc] initWithFrame:indented];
-		base->setObject((NSObject*)editor);
-		[self addSubview:editor];
-		}
-	box = [editor textContainer];
-	//case j means justify, how to set align justified???
-	if ( align && align->groupBody->gText )
-		if ( *align->groupBody->gText == 'c' )
-			[editor setAlignment:NSCenterTextAlignment];
-		else
-		if ( *align->groupBody->gText == 'l' )
-			[editor setAlignment:NSLeftTextAlignment];
-		else
-		if ( *align->groupBody->gText == 'r' )
-			[editor setAlignment:NSRightTextAlignment];
-	if ( style->bgColor )
-		[editor setBackgroundColor:style->bgColor];
-	else	[editor setBackgroundColor:[NSColor clearColor]];
-	[editor setFont:style->font];
-	if ( style->selected )
-		[editor setEditable:1];
-	else	[editor setEditable:0];
-	[editor setFrame:indented];
-	//editor.displayIfNeededIgnoringOpacity();
-}
-
 - (void)drawRect:(NSRect)r
 {
-NSRect 	f;
-	if ( !base )
-		return;
-	style = ::getStyle(base);
-	[NSBezierPath setDefaultLineWidth:0.0];
-	strokeColor = [NSColor blackColor];
-	[strokeColor set];
-	f = ::getFrame(base);
-	f.origin.y = [self frame].size.height - f.origin.y - f.size.height;
-	[layoutPath appendBezierPathWithRect:f];
-	[layoutPath stroke];
+	
+	void windowDrawForm(GroupItem *top, double height);
+	windowDrawForm(base, [self bounds].size.height);
+	
 }
 
 - (Layout*)init:(GroupItem*)field

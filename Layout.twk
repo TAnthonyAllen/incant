@@ -7,109 +7,22 @@ class Layout extends View implements WindowDelegate
 {
 GroupItem       base,
                 selection;
-TextField       textField;
 Path            layoutPath;
-Stylish         style;
 Frame           frame;
 
 /*******************************************************************************
-	Display a cell.
-*******************************************************************************/
-void displayCell()
-{
-GroupItem   align = base["align"];
-NSString    tEXT = base.text;
-use base
-use style
-Cell    cell = textField.cell;
-    cell.init(tEXT);
-    // align name collision fixed by changing StringRoutines.twk
-    if align && align.gText
-        if align.gText == 'c'   textField.cell.setAlign(alignCenter);
-        or align.gText == 'l'   textField.cell.setAlign(alignLeft);
-        or align.gText == 'r'   textField.cell.setAlign(alignRight);
-    if style.fillColor    textField.bgColor = fillColor;
-    textField.color = textColor;
-    textField.cell.setSingleLine(true);
-    addSubview(textField);
-    if editable
-        if selected {
-            window.makeFirstResponder(textField);
-            textField.displayIfNeededIgnoringOpacity(); }
-}
-
-/*******************************************************************************
-	Display an image (centered and cropped to fit the frame). Getting image
-    to fit happens in incant in the imageFit action TBD; it will set scale and
-    offset attributes in the image attribute.
-*******************************************************************************/
-void displayImage()
-{
-use base
-GroupItem   image = base["image"],
-            offset = base["offset"],
-            scale = base["scale"];
-Image		viewImage = image.object;
-Frame       imageFrame;
-	if !viewImage return;
-    if scale    imageFrame = indentFrame(frame,scale.number);
-    viewImage.setSize(size);
-    if offset   imageFrame = *(Frame)offset.pointer;
-    viewImage.drawIn(frame,imageFrame,sourceOver,1.0);
-}
-
-/*******************************************************************************
-	Display text
-*******************************************************************************/
-void displayText()
-{
-Box         box;
-TextView    editor;
-Frame       indented = indentFrame(frame,5.0);
-use base
-GroupItem   align = base["align"];
-use style
-	if base.object   editor = base.object;
-	else {
-        editor  = new(indented);
-        base.object  = editor;
-        addSubview(editor); }
-    box = editor.textContainer;
-    //case j means justify, how to set align justified???
-    if align && align.gText
-        if align.gText == 'c'   editor.setAlign(alignCenter);
-        or align.gText == 'l'   editor.setAlign(alignLeft);
-        or align.gText == 'r'   editor.setAlign(alignRight);
-    if bgColor  editor.bgColor = bgColor;
-    else        editor.bgColor = clearColor;
-    editor.setFont(font);
-    if selected         editor.setEditable(true);
-    else                editor.setEditable(false);
-    editor.setFrame(indented);
-    //editor.displayIfNeededIgnoringOpacity();
-}
-
-/*******************************************************************************
-	Draw — flat, read-only pass over base's attributes. The old recursive
-    GroupItem.walk descended into scalar attribute leaves (null groupList) and
-    SIGSEGV'd; this nextAttribute loop stays at base's own attribute level,
-    never recursing, so it survives a paint cycle. For now it just reads each
-    attribute and strokes its frame (getFrame yields a zero rect when there are
-    no x/y/width/height, harmless). Real content dispatch hangs off this once
-    it's a stable platform — green light is drawRect completing without SIGSEGV.
+	Draw -- the window as a display (windows stroke 1, 2026-11-22). base is the
+    laid-out copy the window holds. windowDrawForm (guiHost.mm) is the third
+    opener beside makeDisplay and openPDF: it puts AppKit's context in base's
+    pointer slot with the floor's transforms and runs kant's drawWalk. In a
+    passthrough because tok cannot see guiHost.mm's functions.
 *******************************************************************************/
 void drawRect(Frame r)
 {
-Frame       f;
-    if !base return;
-    style   = getStyle(base);
-    setDefaultLineWidth(0.0);
-    strokeColor = blackColor;
-    strokeColor.set();
-    f   = getFrame(base);
-    f.y = frame.height - f.y - f.height;
-    rectangle(f);
-    stroke();
+    -%
+    void windowDrawForm(GroupItem *top, double height);
+    windowDrawForm(base, [self bounds].size.height);
+    %-
 }
 
 /*******************************************************************************

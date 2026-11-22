@@ -21,6 +21,7 @@
 ***************************************************************************/
 #import <Cocoa/Cocoa.h>
 #import <stdio.h>
+#import <vector>
 #import <mach-o/dyld.h>
 #import "gc/gc.h"   // quoted: Groups/include (bdw-gc 8.3.0, the library this links), never /usr/local/include (seal 298, SEQ 505)
 #import "OCroutines.h"
@@ -28,6 +29,13 @@
 #import "GroupControl.h"
 #import "GroupDraw.h"
 #import "Layout.h"
+#import "GroupBody.h"
+#import "GroupRules.h"
+
+//  windows every window made, with the cell that keeps its form alive; found by the form's body (a field and its faces share one)
+struct WindowRecord { Layout *view; GroupItem **held; };
+static std::vector<WindowRecord> gWindows;
+
 
 /***************************************************************************
     THE ROOT PROBE (windows stroke 0, F-153) -- measures what the collector
@@ -124,12 +132,19 @@ extern "C" GroupItem *windowRootProbe(GroupItem *input)
 ***************************************************************************/
 static Layout *makeWindow(GroupItem *input, bool visible)
 {
+    NSRect asked = input ? getFrame(input) : NSZeroRect;
+    if ( asked.size.width < 1 || asked.size.height < 1 ) {
+        fprintf(stderr, "%s: REFUSING %s -- frame is %gx%g; a window needs a laid-out form (what redrawForm or showForm returns)\n",
+                visible ? "openWindow" : "windowOffscreen", input ? input->groupBody->tag : "nothing", asked.size.width, asked.size.height);
+        return nil; }
     if ( !getenv("WINDOW_KEEP_DLS") ) GC_set_no_dls(1);
     if ( getenv("WINDOW_CLEAR_ROOTS") ) GC_clear_roots();
     GC_add_roots((char *)&GroupControl::groupController,
                  (char *)&GroupControl::groupController + sizeof(GroupControl *));
     GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *));
     *heldForm = input;
+    GroupItem *titleF = input ? input->get((char *)"title") : 0;
+    char *titled = titleF ? titleF->getText() : 0;
     NSApplication *app = [NSApplication sharedApplication];
     [app setActivationPolicy:(visible ? NSApplicationActivationPolicyRegular : NSApplicationActivationPolicyProhibited)];
     NSRect content = getFrame(input);
@@ -146,11 +161,127 @@ static Layout *makeWindow(GroupItem *input, bool visible)
         backing:NSBackingStoreBuffered
         defer:(visible ? NO : YES)];
     [win setReleasedWhenClosed:NO];
-    [win setTitle:@"incant"];
+    //  title W4 (Tony, 2026-11-22): the title is the form's title=; a form naming none is titled incant, as every window was
+    [win setTitle:(titled && *titled) ? [NSString stringWithUTF8String:titled] : @"incant"];
     Layout *view = [[Layout alloc] initWithFrame:NSMakeRect(0, 0, content.size.width, content.size.height)];
     view->base = input;
     [win setContentView:view];
+    gWindows.push_back({view, heldForm});
     return view;
+}
+
+/***************************************************************************
+    THE WINDOW AS A DISPLAY (windows stroke 1). Layout.drawRect calls
+    windowDrawForm: the third opener beside makeDisplay (a bitmap) and
+    openPDF. It takes the context AppKit is drawing the view into, sets the
+    floor's three transforms (y down, origin at the top field's x and y),
+    puts the context in the top's pointer slot, hands it down, runs kant's
+    drawWalk on the top, and clears the slot again -- the context is
+    AppKit's and is gone when drawRect returns.
+***************************************************************************/
+void windowDrawForm(GroupItem *top, double height)
+{
+    if ( !top ) return;
+    CGContextRef ctx = [[NSGraphicsContext currentContext] CGContext];
+    GroupItem *utilities = GroupControl::groupController->getRegistry((char *)"Utilities");
+    GroupItem *walk = utilities ? utilities->get((char *)"drawWalk") : 0;
+    if ( !ctx || !walk ) {
+        fprintf(stderr, "windowDrawForm: REFUSING %s -- %s\n", top->groupBody->tag, ctx ? "no drawWalk in Utilities" : "no drawing context");
+        return; }
+    NSRect framed = getFrame(top);
+    CGContextSaveGState(ctx);
+    CGContextTranslateCTM(ctx, 0, height);
+    CGContextScaleCTM(ctx, 1, -1);
+    CGContextTranslateCTM(ctx, -framed.origin.x, -framed.origin.y);
+    top->setPointer((void *)ctx);
+    handDisplay(top, top);
+    runAction(top, walk);
+    top->groupBody->gPointer = 0;
+    top->groupBody->flags.isPointer = 0;
+    CGContextRestoreGState(ctx);
+}
+
+static WindowRecord *windowHolding(GroupItem *top)
+{
+    for ( WindowRecord &w : gWindows )
+        if ( top && *w.held && (*w.held)->groupBody == top->groupBody ) return &w;
+    return 0;
+}
+
+/***************************************************************************
+    readWindow(request): form:= the top field a window holds. AppKit draws
+    that window's view -- its real drawRect -- into a fresh bitmap the size
+    of the view, held by the request itself, so pixelAt reads it as it reads
+    readPDF's. Nothing is shown.
+***************************************************************************/
+extern "C" GroupItem *readWindow(GroupItem *request)
+{
+    if ( !request ) return 0;
+    GroupItem *formF = request->get((char *)"form");
+    GroupItem *top = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+    WindowRecord *w = windowHolding(top);
+    if ( !w ) {
+        fprintf(stderr, "readWindow: REFUSING %s -- needs form:= a top field that a window holds\n", request->groupBody->tag);
+        return 0; }
+    @autoreleasepool {
+        NSRect bounds = [w->view bounds];
+        int wide = (int)bounds.size.width, high = (int)bounds.size.height;
+        CGColorSpaceRef cs  = CGColorSpaceCreateDeviceRGB();
+        CGContextRef    ctx = CGBitmapContextCreate(0, wide, high, 8, 0, cs, kCGImageAlphaPremultipliedLast);
+        CGColorSpaceRelease(cs);
+        if ( !ctx ) {
+            fprintf(stderr, "readWindow: REFUSING %s -- CGBitmapContextCreate failed\n", request->groupBody->tag);
+            return 0; }
+        NSGraphicsContext *into = [NSGraphicsContext graphicsContextWithCGContext:ctx flipped:NO];
+        [w->view displayRectIgnoringOpacity:bounds inContext:into];
+        printf("=== readWindow %s title [%s] size %dx%d ===\n", request->groupBody->tag, [[[w->view window] title] UTF8String], wide, high);
+        fflush(stdout);
+        request->setPointer((void *)ctx);
+    }
+    return request;
+}
+
+/***************************************************************************
+    displayDiff(request): first:= and second:= two fields that each hold a
+    bitmap (readPDF's request, readWindow's request, a makeDisplay top).
+    Compares them pixel for pixel and prints how many differ, by how much at
+    most, and how many differ by more than 16 in some channel -- text drawn
+    straight into a bitmap and text drawn through a PDF are antialiased
+    apart, so the edges of glyphs differ a little and nothing else should.
+***************************************************************************/
+extern "C" GroupItem *displayDiff(GroupItem *request)
+{
+    if ( !request ) return 0;
+    GroupItem *f[2] = { request->get((char *)"first"), request->get((char *)"second") };
+    CGContextRef c[2] = { 0, 0 };
+    for (int i = 0; i < 2; i++) {
+        GroupItem *held = (f[i] && isGROUP(f[i]->groupBody->flags.data)) ? f[i]->getGroup() : 0;
+        GroupItem *top = held ? displayOf(held) : 0;
+        c[i] = top ? (CGContextRef)top->getPointer() : 0; }
+    if ( !c[0] || !c[1] ) {
+        fprintf(stderr, "displayDiff: REFUSING %s -- needs first:= and second:= fields that each hold a bitmap\n", request->groupBody->tag);
+        return 0; }
+    size_t w = CGBitmapContextGetWidth(c[0]), h = CGBitmapContextGetHeight(c[0]);
+    if ( w != CGBitmapContextGetWidth(c[1]) || h != CGBitmapContextGetHeight(c[1]) ) {
+        printf("=== displayDiff %s sizes differ: %zux%zu and %zux%zu ===\n", request->groupBody->tag, w, h, CGBitmapContextGetWidth(c[1]), CGBitmapContextGetHeight(c[1]));
+        fflush(stdout);
+        return request; }
+    unsigned char *a = (unsigned char *)CGBitmapContextGetData(c[0]), *b = (unsigned char *)CGBitmapContextGetData(c[1]);
+    size_t ra = CGBitmapContextGetBytesPerRow(c[0]), rb = CGBitmapContextGetBytesPerRow(c[1]);
+    long differ = 0, far = 0, inked = 0; int most = 0;
+    for (size_t y = 0; y < h; y++)
+        for (size_t x = 0; x < w; x++) {
+            unsigned char *p = a + y * ra + x * 4, *q = b + y * rb + x * 4;
+            int d = 0;
+            for (int k = 0; k < 4; k++) { int e = abs((int)p[k] - (int)q[k]); if ( e > d ) d = e; }
+            if ( p[0] != a[0] || p[1] != a[1] || p[2] != a[2] ) inked++;
+            if ( d ) differ++;
+            if ( d > 16 ) far++;
+            if ( d > most ) most = d; }
+    printf("=== displayDiff %s size %zux%zu pixels %zu; unlike the first's corner %ld; differing %ld, by more than 16: %ld, at most %d ===\n",
+           request->groupBody->tag, w, h, w * h, inked, differ, far, most);
+    fflush(stdout);
+    return request;
 }
 
 extern "C" GroupItem *windowOffscreen(GroupItem *input)
@@ -158,6 +289,7 @@ extern "C" GroupItem *windowOffscreen(GroupItem *input)
     @autoreleasepool {
         unsigned before = _dyld_image_count();
         Layout *view = makeWindow(input, false);
+        if ( !view ) return 0;
         [NSApp finishLaunching];
         NSEvent *e;
         while ( (e = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES]) ) [NSApp sendEvent:e];
@@ -172,6 +304,7 @@ extern "C" GroupItem *openWindow(GroupItem *input)
 {
     @autoreleasepool {
         Layout *view = makeWindow(input, true);
+        if ( !view ) return 0;
         NSWindow *win = [view window];
         [win makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
