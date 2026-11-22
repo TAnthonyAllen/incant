@@ -1,52 +1,49 @@
 /*****************************************************************************
-    colorList -- the colours as a poured list (Tony and Clay, 2026-11-22, first draft;
-    the final form takes shape by rinse and repeat). Definitions only. Fire it with
-    Start(); show(colorList);  NOT RUNNABLE YET: pour:= and each are not built (the
-    pour dispatch). Until then tester draws the same shape by hand (colorListHand).
-    The form names no colour and no font of its own: only placeholders, resolved
-    through the look (IncantForms/Controls/styles).
+    colorList -- the colours as a poured list (Tony and Clay, 2026-11-22; derived rows since SEQ 742).
+    Definitions only. Fire it with  Start(); show(colorList);
+    The form says only what to pour: clRows holds no template row, so pour works out each row from
+    what a member IS -- a colour here: its name, a swatch printing its value in contrast text, and
+    its words from dESCRIPTIONs. The form names no colour and no font of its own: only placeholders,
+    resolved through the look (IncantForms/Controls/styles).
 *****************************************************************************/
-/*  The words for each colour, keyed by the colour's own name, as dESCRIPTIONs is keyed
-    by field name. The form reads them with a registry-qualified insert,
-    {cOLOrdESCRIPTIONs.each}, so nothing else on the search list can answer.
-    A colour with no entry here shows nothing in its third cell.
+/*  The words for each colour, in dESCRIPTIONs, keyed by the colour's own name, as a field's
+    description is keyed by the field's name (Tony, 2026-11-22: no registry of their own).
     Defined with only Grokking searched: with cOLOr on the list, black="..." would reopen cOLOr's black
-    and overwrite its value (measured by Clod, 2026-11-22, the pour stroke). The search line after puts the colours back.  */
+    and overwrite its value (measured by Clod, 2026-11-22, the pour stroke). The search line after puts
+    the colours back. genLadder/describedTwice.sh names any name described in two places.  */
 search reset stack Grokking;
-registry(cOLOrdESCRIPTIONs);
+register(dESCRIPTIONs);
 define
-    black="the darkest; the fallback text and border colour";
+    black="the darkest; default text";
     blue="a strong mid blue";
     darkBrown="a deep brown";
     darkerGray="a cool mid grey";
     gray="a light grey";
     green="a strong green";
     lightBlue="a very pale blue";
-    lightGreen="a soft green; the default look's tab fill";
+    lightGreen="a soft green; the tab fill";
     paleGray="the palest grey";
-    radialGreen="the same value as lightGreen, kept under its old name";
-    red="a strong red; the default look's accent";
+    radialGreen="lightGreen's value, old name";
+    red="strong red; the accent";
     saberBrown="a sand brown";
-    wall="a pale yellow; the old forms' page colour";
-    white="white; the default look's page fill";
+    wall="pale yellow; old page colour";
+    white="white; the page fill";
     ;
 search cOLOr fONTs sTYLEs;
 register(FORMs);
-/*  One template row (clRow: down on the field, across and the height on its one row, the G3 grid rule), repeated once per cOLOr entry in order (pour:=, on a down="*" field).
-    each names the entry the copy is for: {each.taG} prints its name, {each} its value,
-    fill:=each paints it. color:=contrast picks black or white text from the field's own
-    fill. All three are new (the pour dispatch); everything else is built.  */
 define
-    colorList window x=0 y=0 width=490 height=792 down fill:=pageFill font:=bodyFont title="Colors"
+    colorList window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont title="Colors"
         clTitle="Colors" text height=40 font:=headingFont align=center valign=center bottomBorder;
-        clRows down="*" pour:=cOLOr
-            clRow across height=24
-                clName="{each.taG}" width=30% valign=center;
-                clSwatch="{each}" width=25% fill:=each color:=contrast align=center valign=center;
-                clWhat="{cOLOrdESCRIPTIONs.each}" valign=center;
+        clRows down="*" pour:=cOLOr gap=4;
     ;
 bail();
 
-ISSUES (first draft):
-- Nothing here runs until pour:=, each and color:=contrast are built.
-- The design pass (spacing, borders, type) is done on tester's colorListHand and folded back here.
+HOW IT WORKS (pour stage 2, SEQ 742; incant/utilities, pourPlan):
+    pour:=cOLOr on a down="*" field with no row of its own: one row a member of cOLOr, in order, three cells.
+    margin=12 stands the content 12 points in; gap=4 puts 4 points between rows; height=fit makes the window as tall
+    as its rows need (capped at the page, 792, until a window knows its display).
+    A written template row under clRows is the override (stage 1): pour then copies that row, and each stands for the
+    member under its copy -- {each}, {each.taG}, fill:=each, {dESCRIPTIONs.each}. incant/pop/pourT keeps one.
+    Poured from fONTs or sTYLEs the same field shows sample text in each font, or with each style.
+ISSUES:
+- Six descriptions are the design pass's short ones (tester's colorListHand, 2026-11-22); Clod shortened the other eight to match.

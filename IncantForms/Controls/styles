@@ -54,9 +54,10 @@ define
     cardThreeFill virtual;
     /*  each and contrast are held like placeholders and resolved elsewhere (SEQ 741): each is the member a poured copy is for
         (down="*" pour:=aRegistry), contrast is black or white text picked from the field's own fill. No look holds either.  */
+    lineColor virtual;
     each virtual;
     contrast virtual;
-    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red tabFill:=lightGreen tabFont:=headerFont cardOneFill:=green cardTwoFill:=blue cardThreeFill:=red;
+    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red tabFill:=lightGreen tabFont:=headerFont cardOneFill:=green cardTwoFill:=blue cardThreeFill:=red lineColor:=gray;
     ;
 define
     defaultStyle rounded=5;

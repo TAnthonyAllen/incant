@@ -47,7 +47,7 @@ define
     x virtual; y virtual; width virtual; height virtual; across virtual; down virtual; overlay virtual;
     space virtual; fill virtual; border virtual; topBorder virtual; bottomBorder virtual; leftBorder virtual; rightBorder virtual;
     strokeColor virtual; font virtual; color virtual; align virtual; valign virtual; italic virtual; rounded virtual;
-    shadow virtual; opacity virtual; style virtual; text virtual; image virtual; fit virtual; onClick virtual; pour virtual;
+    shadow virtual; opacity virtual; style virtual; text virtual; image virtual; fit virtual; onClick virtual; pour virtual; margin virtual; gap virtual;
     PoinT isRule toX=NumbeR toY=NumbeR;
     ArC isRule from=PoinT to=PoinT RadiuS=NumbeR;
     CurvE isRule target=PoinT control1=PoinT control2=PoinT;

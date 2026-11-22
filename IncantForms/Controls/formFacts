@@ -9,7 +9,7 @@ define
     x group="layout" values="points" inherits="no" status="built" does="where the field sits across; read on the top field, and on a child under a parent that names overlay";
     y group="layout" values="points" inherits="no" status="built" does="where the field sits down; read as x is";
     width group="layout" values="points, or N%" inherits="no" status="built" does="the field's width; a percent is of its parent";
-    height group="layout" values="points, or N%" inherits="no" status="built" does="the field's height; a percent is of its parent";
+    height group="layout" values="points, N%, or fit (top field)" inherits="no" status="built" does="the field's height; a percent is of its parent; fit is what its members need, capped";
     across group="layout" values="bare, a count, or *" inherits="no" status="built" does="lays the members out side by side";
     down group="layout" values="bare, a count, or *" inherits="no" status="built" does="stacks the members; the default when no direction is named";
     overlay group="layout" values="bare" inherits="no" status="built" does="places each member from its own x and y, measured from this field";
@@ -33,7 +33,9 @@ define
     text group="text" values="bare" inherits="no" status="built" does="draws the field's own string in its frame";
     image group="box" values="a file path" inherits="no" status="built" does="draws the image in the frame, under the border";
     fit group="box" values="none ruled" inherits="no" status="parked" does="how an image or text is fitted to the frame";
-    pour group="layout" values="a held registry (pour:=cOLOr)" inherits="no" status="built" does="on a down=* field, repeats its one template row once per member of the registry; under a copy, each stands for its member";
+    margin group="layout" values="points" inherits="no" status="built" does="stands the field's content that many points in from its edges";
+    gap group="layout" values="points" inherits="no" status="built" does="on a field that stacks its members down, the space between one and the next";
+    pour group="layout" values="a held registry (pour:=cOLOr)" inherits="no" status="built" does="on a down=* field, one row a member of the registry: derived from what the member is, or a written template row copied, each standing for its member";
     onClick group="action" values="a held action (onClick:=name)" inherits="no" status="mock click only" does="the action a click on the field fires";
     viewer group="show" values="1 or 0, in pROPERTIEs (viewer = 0;)" inherits="no" status="built" does="show opens the PDF it wrote to IncantForms/PDF/output.pdf in the system's default viewer, in the background; never another path; the shell's INCANT_NOVIEW turns it off too"
     ;

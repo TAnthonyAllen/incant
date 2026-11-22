@@ -1,0 +1,98 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(dESCRIPTIONs);
+define
+    black="the darkest";
+    wall="a pale yellow";
+    titleFont="the heading font";
+    emphasis="red and slanted";
+    ;
+registry(PourMixed);
+define
+    aColour="#0051ba";
+    aWord="just words";
+    aBare;
+    ;
+register(FORMs);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    pdNight merge accent:=blue pageFill:=black defaultLook;
+    ;
+define
+    pdColors window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        pdTitle="Colors" text height=40;
+        pdRows down="*" pour:=cOLOr gap=4;
+    ;
+define
+    pdFonts window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        pdRowsF down="*" pour:=fONTs gap=4;
+    ;
+define
+    pdStyles window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        pdRowsS down="*" pour:=sTYLEs;
+    ;
+define
+    pdStylesNight window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont look:=pdNight path="IncantForms/PDF/test.pdf"
+        pdRowsN down="*" pour:=sTYLEs;
+    ;
+define
+    pdMixed window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        pdRowsM down="*" pour:=PourMixed;
+    ;
+define
+    pdCmds window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        pdRowsC down="*" pour:=cOMMANDs;
+    ;
+define
+    pdOpen window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+        pdOpenTitle="no height of its own" text;
+        pdRowsO down="*" pour:=PourMixed;
+    ;
+registry(PourDeriveT);
+search PourDeriveT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    pdRun code={
+        cout "PD RUN" argument.taG:;
+        pdL := showForm(argument);
+        tsfLine(*pdL);
+        };
+    pdDefn code={
+        pdN = 0;
+        for grup in argument; members
+            pdN += 1;
+        pdHasPour = 0;
+        if argument["pour"];    pdHasPour = 1;
+        cerr "PD-9 the definition's pdRows holds" pdN "rows; pour still on it:" pdHasPour:;
+        };
+    ;
+showPath.path = "IncantForms/PDF/test.pdf";
+viewer = 0;
+pdRun(pdColors);
+pdRun(pdFonts);
+pdRun(pdStyles);
+pdRun(pdStylesNight);
+pdRun(pdMixed);
+pdRun(pdCmds);
+pdRun(pdOpen);
+pdDefn(pdColors["pdRows"]);
+cerr "POURDERIVET SENTINEL":;
+stop();
+
+pourDeriveT -- pour stage 2 (Tony ruled D1-D6, 2026-11-22; SEQ 742): rows derived from what is poured. A down="*" pour:=aRegistry
+field with no row of its own gets one row a member, three cells: pourName, pourShow, pourWhat. What a member is, by value: a
+value starting # a colour; a family a font; in sTYLEs with attributes a style; empty in sTYLEs a placeholder, shown as what the
+look gives it; anything else its own text. A description is dESCRIPTIONs' entry of the member's name. margin=N stands the
+content in, gap=N separates stacked rows, height=fit makes the top as tall as its members need, capped at 792.
+PD-1  cOLOr: 14 rows; the swatches print their values, white on 3, black on 11; two descriptions (black, wall), nothing else.
+PD-2  margin, gap and fit by frame: the title 12 in, 466 wide; the rows 28 apart (24 + 4); the top 452 high.
+PD-3  fONTs: seven rows, each sample set in its own font; a font's row is as tall as its sample needs (titleFont 36).
+PD-4  sTYLEs: emphasis is a style, its sample red; accent is a placeholder, shown as defaultLook's red swatch.
+PD-5  the same form under a look of its own: accent's swatch prints the look's blue.
+PD-6  a registry of mixed things: a # value a swatch, plain words their own text, an entry with no value nothing.
+PD-7  cOMMANDs: 107 rows named and none read for text -- a command handed around is fired, so none is; the run goes on.
+      The top is capped at 792 and rows wholly past the rows' field are noRoom: fewer than 107 names are drawn.
+PD-8  a top naming height=fit with a member of no height: the cap, said by name.
+PD-9  the definition is never written: no rows on it, pour still there.
