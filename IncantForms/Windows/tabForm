@@ -12,6 +12,7 @@ define
 register(FORMs);
 define
     tabSelected = 0;
+    tabClick code={ selectTab(argument); };
     firstCard;
     secondCard;
     thirdCard;
@@ -22,9 +23,9 @@ define
             intro height=50 fill:=pageFill border
                 heading="Tabs Example" font:=headingFont align=center valign=center;
             tabBAR height=25 across font:=tabFont tabs:=tabSelected
-                tabOne="One" card:=firstCard border fill:=tabFill selectFill:=cardOneFill;
-                tabTwo="Two" card:=secondCard fill:=tabFill selectFill:=cardTwoFill border;
-                tabThree="Three" card:=thirdCard fill:=tabFill selectFill:=cardThreeFill border;
+                tabOne="One" card:=firstCard border fill:=tabFill selectFill:=cardOneFill onClick:=tabClick;
+                tabTwo="Two" card:=secondCard fill:=tabFill selectFill:=cardTwoFill border onClick:=tabClick;
+                tabThree="Three" card:=thirdCard fill:=tabFill selectFill:=cardThreeFill border onClick:=tabClick;
             bodies cards
                 firstCard="The first tab body" border fill:=cardOneFill;
                 secondCard="The second tab body" border fill:=cardTwoFill;

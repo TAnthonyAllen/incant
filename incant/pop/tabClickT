@@ -1,0 +1,98 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    tabFormFile File='IncantForms/Windows/tabForm';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(tabFormFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    tkStray code={ selectTab(argument); };
+    tkLoose window x=0 y=0 width=100 height=100 path="IncantForms/PDF/test.pdf"
+        tkNotBar
+            tkOrphan="orphan" text onClick:=tkStray;
+    ;
+registry(TabClickT);
+define
+    tkRead path="IncantForms/PDF/test.pdf";
+    tkAt code={
+        tkX := argument["px"];
+        tkY := argument["py"];
+        tkRead :% copyOf(*tkX);
+        tkRead :% copyOf(*tkY);
+        cout "TK-AT" argument.taG:;
+        pixelAt(tkRead);
+        };
+    tkTabOne px=60 py=62;
+    tkTabTwo px=180 py=62;
+    tkTabThree px=300 py=62;
+    tkCardTop px=300 py=120;
+    tkCardLow px=300 py=260;
+    tkPage code={
+        cout "TK-PAGE" argument:;
+        readPDF(tkRead);
+        tkAt(tkTabOne);
+        tkAt(tkTabTwo);
+        tkAt(tkTabThree);
+        tkAt(tkCardTop);
+        tkAt(tkCardLow);
+        tkSel(argument);
+        };
+    tkSel code={
+        tkS = string $"none"$;
+        tkIs = tabSelected.isGrouP;
+        if tkIs == 1;
+            tkT := tabSelected;
+            tkS = string $**tkT.taG$;
+        cerr argument "tabSelected" tkS:;
+        };
+    tkDefn code={
+        tkDef := tabForm["body"];
+        tkDb := *tkDef["bodies"];
+        tkDc := *tkDb["thirdCard"];
+        tkDh = *tkDc.isHiddeN;
+        cerr "TK-6 the definition's thirdCard isHidden" tkDh:;
+        };
+    tkThree form:=tabForm field="tabThree";
+    tkTwo form:=tabForm field="tabTwo";
+    tkOne form:=tabForm field="tabOne";
+    tkNoSuch form:=tabForm field="nosuch";
+    tkOrphanClick form:=tkLoose field="tkOrphan";
+    ;
+search TabClickT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+showPath.path = "IncantForms/PDF/test.pdf";
+viewer = 0;
+show(tabForm);
+tkPage("TK-0");
+clickShow(tkThree);
+tkPage("TK-1");
+clickShow(tkTwo);
+tkPage("TK-2");
+clickShow(tkOne);
+tkPage("TK-3");
+cout "TK-4 refused":;
+clickShow(tkNoSuch);
+tkPage("TK-4");
+cout "TK-5 orphan":;
+clickShow(tkOrphanClick);
+tkSel("TK-5");
+tkDefn();
+cerr "TABCLICKT SENTINEL":;
+stop();
+
+tabClickT -- tabs stroke 4 (SEQ 737): the click. Each tab carries onClick:=tabClick, the form's own action, which calls
+utilities' selectTab: it writes the field the bar's tabs:= names (tabSelected, outside the form) to hold the clicked tab.
+clickShow(request) is click, then showForm, so one call clicks and draws. One pixel per tab and two in the cards box,
+read off test.pdf after each draw.
+TK-0  show alone: nothing selected, tab One and the box cardOneFill.
+TK-1  clickShow on tabThree: tab Three and the whole box cardThreeFill; tab One back to tabFill.
+TK-2  tabTwo: cardTwoFill.
+TK-3  tabOne: cardOneFill again.
+TK-4  a name the form lacks: click refuses by name, clickShow says nothing was drawn; the PDF and tabSelected are TK-3's.
+TK-5  a field whose click calls selectTab under a parent with no tabs:=: selectTab refuses naming the field and its
+      parent; tabSelected is unchanged (the loose form IS drawn, by clickShow: the click itself succeeded).
+TK-6  the definition is never written: its thirdCard is not hidden after the clicks.

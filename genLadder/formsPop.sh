@@ -558,6 +558,25 @@ _ofeq "cardsT CT-4 a card in no cards field: refused naming the tab and the card
 _ofeq "cardsT CT-5 a selection that is no tab of the bar: refused naming it, the first shown" "$(grep -c '^setFrame: REFUSING the tab ctLone -- the tab bar ctBar has no tab by that name' "$T/ct.e") $(_ctr 5)" "1 ctOne ctX "
 _ofeq "cardsT CT-6 the definition is never written: its ctTwo is not hidden after five layouts" "$(grep '^CT-6 ' "$T/ct.e" | sed 's/ *$//')" "CT-6 the definition's ctTwo isHidden 0"
 
+echo "-- the tab click: selectTab and clickShow (tabClickT; SEQ 737)."
+#  ⚑ tabClickT -- tabs stroke 4 (docs/tabsRecon.md): each tab's onClick:=tabClick (the form's own action) calls utilities' selectTab, which writes
+#  the field the bar's tabs:= names (tabSelected, outside the form) to hold the clicked tab; clickShow(request) is click, then showForm.
+#  Pixels: tab One, Two, Three at y=62, the cards box top and low. green r0 g158 b15, blue r0 g81 b186, red r239 g43 b45, tabFill r175 g211 b120.
+_tkF=$(ip tabClickT)
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 60; exec @ARGV' "$B" "$_tkF" > "$T/tk.o" 2> "$T/tk.e"; _tkx=$?
+_tkp () { awk -v p="$1" '/^TK-PAGE/{on=($2==p)} on && /pixelAt/ {s=$0; sub(/.* = /,"",s); sub(/ a255 ===.*/,"",s); printf "%s%s", sep, s; sep=" | "}' "$T/tk.o"; }
+_tks () { grep "^$1 tabSelected" "$T/tk.e" | sed 's/ *$//; s/.*tabSelected //'; }
+_tkG="r0 g158 b15"; _tkB="r0 g81 b186"; _tkR="r239 g43 b45"; _tkF0="r175 g211 b120"
+_ofeq "tabClickT exit / sentinel / no refusal at define" "$_tkx $(grep -c '^TABCLICKT SENTINEL' "$T/tk.e") $(grep -c '^REFUSED\|^REMOVED' "$T/tk.e")" "0 1 0"
+_ofeq "tabClickT TK-0 show alone: nothing selected, tab One and the box green" "$(_tks TK-0) / $(_tkp TK-0)" "none / $_tkG | $_tkF0 | $_tkF0 | $_tkG | $_tkG"
+_ofeq "tabClickT TK-1 clickShow tabThree: one call fires tabClick, selectTab, and draws; tab Three and the whole box red, tab One tabFill" "$(grep -c '^=== click tabForm tabThree fired onClick tabClick' "$T/tk.o") $(grep -c '^=== selectTab tabThree ===' "$T/tk.o") $(_tks TK-1) / $(_tkp TK-1)" "1 1 tabThree / $_tkF0 | $_tkF0 | $_tkR | $_tkR | $_tkR"
+_ofeq "tabClickT TK-2 tabTwo: blue" "$(_tks TK-2) / $(_tkp TK-2)" "tabTwo / $_tkF0 | $_tkB | $_tkF0 | $_tkB | $_tkB"
+_ofeq "tabClickT TK-3 tabOne: green again" "$(_tks TK-3) / $(_tkp TK-3)" "tabOne / $_tkG | $_tkF0 | $_tkF0 | $_tkG | $_tkG"
+_ofeq "tabClickT TK-4 a name the form lacks: click refuses by name, clickShow draws nothing; four draws of tabForm in all; selection kept" "$(grep -c '^click: REFUSING tkNoSuch -- the form tabForm has no field named nosuch' "$T/tk.e") $(grep -c '^clickShow: nothing drawn for tkNoSuch -- the click refused' "$T/tk.e") $(grep -c '^=== show tabForm to IncantForms/PDF/test.pdf ===' "$T/tk.o") $(_tks TK-4)" "1 1 4 tabOne"
+_ofeq "tabClickT TK-5 selectTab under a parent with no tabs:= refuses naming the field and the parent; tabSelected unchanged" "$(grep -c '^selectTab: REFUSING tkOrphan -- its parent tkNotBar is no tab bar (tabs:=)' "$T/tk.e") $(_tks TK-5)" "1 tabOne"
+_ofeq "tabClickT TK-6 the definition is never written: its thirdCard is not hidden after the clicks" "$(grep '^TK-6 ' "$T/tk.e" | sed 's/ *$//')" "TK-6 the definition's thirdCard isHidden 0"
+
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
 #  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.
