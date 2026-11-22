@@ -10343,6 +10343,17 @@ _ofeq "frameStoreT FS-11 the entry was left for descriptions' own open: 300x300 
 #  written as rows, is laid out (RF-1 to RF-3). H7: the refusal removed, the line is gone and bCross is laid out.
 _ofeq "reframeT RF-15 a field naming both down and across refuses by name, once, and its member is not laid out" "$(grep -c '^setFrame: REFUSING pBoth -- it names both down and across' "$T/rf.e") $(grep -c 'names both down and across' "$T/rf.e") $(_rfb BOTH BOTHEND pBothReq | grep -c '^	bCross x=- y=- w=- h=50')" "1 1 1"
 _ofeq "reframeT RF-16 the same grid written as rows lays out 4 rows of 2 cells, 125x50, rows at y 100 150 200 250" "$(_rfb RUN1 RUN2 pSumpleReq | grep -c '^		crossing .* w=125 h=50') $(_rfb RUN1 RUN2 pSumpleReq | grep '^	pSumpleRow ' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs)" "8 100 150 200 250"
+#  ⚑ layoutQuietT -- SEQ 745 (Tony ruled 2026-11-22, item 2 of the registries dispatch: tester's noise, cured at its source). fillDownAcross
+#  compared a direction's value with 0 and with "*" whatever it held; a bare down or across reads as its own name and a counted one is a
+#  number, so one compare or the other warned at every layout. Each is now made only on the kind it is for.
+#  H7 (SEQ 745, committed file, fixture alone): the count guard out -> 2 compare warnings (the two bare directions); the star guard out ->
+#  2 (down=3, across=2).
+_lqF=$(ip layoutQuietT)
+perl -e 'alarm 30; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_lqF" > "$T/lq.o" 2> "$T/lq.e"; _lqx=$?
+_ofeq "layoutQuietT exit / sentinel" "$_lqx $(grep -c '^LAYOUTQUIETT SENTINEL' "$T/lq.e")" "0 1"
+_ofeq "layoutQuietT LQ-1 no compare warning from a bare down, a bare across, down=3, across=2 and down=\"*\"" "$(grep -c 'WARNING compare' "$T/lq.e")" "0"
+_ofeq "layoutQuietT LQ-2 control, the counts are still read: down=3 three rows of 30; across=2 two cells; down=\"*\" three rows of 20; the bare across side by side" "$(grep -E '^\s*lq(Row|Cell|Each|A|B) ' "$T/lq.o" | awk '{printf "%s %s %s %s|", $1, $2, $3, $5}')" "lqA x=- y=- h=20|lqB x=100 y=- h=20|lqRow x=- y=20 h=30|lqRow x=- y=50 h=30|lqRow x=- y=80 h=30|lqCell x=- y=110 h=20|lqCell x=150 y=110 h=20|lqEach x=- y=130 h=20|lqEach x=- y=150 h=20|lqEach x=- y=170 h=20|"
+
 #  ⚑ registryHomeT -- SEQ 744 (Tony ruled 2026-11-22, item 1 of the registries dispatch; docs/warningsRecon.md section 3): every registry's
 #  entries sit under registries (makeRegistry adopts the node registries holds, as getRegistry does), and traitOwnsValue knows a registry
 #  by its own marker (binType isREGISTRY), so a definition whose name is found in another registry gets its own entry.
