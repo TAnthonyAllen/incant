@@ -5,16 +5,17 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**524, 2026-11-22, topic: kant, SEQ 738 (assigned by Clod).** String-pointer bought and merged: R1a (++ on a one-character string
-leaves no value), R1b (a string walk tests data; datA already reads 0 on no value), R2 (numbeR, accessor 27, the first character's
-code, read only); hexToNumber fixed and given rows. Bear-trap 61 (after Clay's probe): a word on an action's header is an attribute of the
-action, read bare or as action.word, never the argument; testPointer cut (ruled). Seal 523 the same day (forms): tabs stroke 4, bought and merged.
+**525, 2026-11-22, topic: forms, SEQ 739 (assigned by Clod).** The sampler recon (docs/samplerRecon.md), reports only: everything
+stage 1 needs exists in kant today -- rows built by a walk, held and swapped by form:=, re-coloured by a look, clicked, and a display
+line by insert. At the maximum size assumed (490 x 792, a Letter page; Tony's size rule, now standing in Topics/forms), B holds all
+107 commands with no letter row, and A pages 33 at a time. tester carries the side-by-side specimen. Seal 524 the same day (kant):
+string-pointer bought; bear-trap 61 rewritten to Clay's probe; testPointer cut.
 **OPEN (Tony):** Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
 **RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** the sampler recon (incant++, Instructions parked; forms), then windows plan item 1 (Fable 5.2 first).
+**NEXT:** Tony chooses the sampler layout, A or B; windows plan item 1 (Fable 5.2 first).
 
-## The numbers (as run for seal 524 on branch string-pointer, a tree identical to trunk after the merge; bare build 2026-11-22 09:42, 2191200 bytes)
+## The numbers (as run at seal 525 on trunk; bare build 2026-11-22 09:42, 2191200 bytes)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4228 green (+3: stringPointerT SP-8, SP-9, HX), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |

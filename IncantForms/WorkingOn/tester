@@ -1,8 +1,137 @@
 /*****************************************************************************
 	This is the tester incantation. It is a working file for testing new features
     under development so it changes when there is a new feature in the works.
-    Today it runs Clod's G3 specimens (SEQ 729-730): mock resize, close and click events. Tony's show test is parked below stop().
+    Today it runs Clod's sampler specimen (SEQ 739, docs/samplerRecon.md): colours as A, the list, and B, the buttons, side by side, then a mock click on blue. Clod's G3 specimens and Tony's show test are parked below stop().
 *****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(SamP);
+search SamP FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    spDetail = "Nothing selected: click a colour";
+    spPageA;
+    spPageB;
+    spGrid;
+    spCurRow;
+    spCol = 0;
+    spPerRow = 3;
+    spListRow code={
+        lrC := argument;
+        lrTag = string $*lrC.taG$;
+        lrVal = string $*lrC$;
+        lr := new(lrTag);
+        *lr :% new("across");
+        lh := new("height");
+        *lh = 22;
+        *lr :% *lh;
+        ln := new("name");
+        *ln = string $lrTag " = " lrVal$;
+        lw := new("width");
+        *lw = 130;
+        *ln :% *lw;
+        *lr +/ *ln;
+        lk := new("show");
+        lf := new("fill");
+        *lf := *lrC;
+        *lk :% *lf;
+        *lk :% new("border");
+        *lr +/ *lk;
+        spPageA +/ *lr;
+        };
+    spBuildA code={
+        clear(spPageA);
+        spPageA :% new("down");
+        for grup in argument; members
+            spListRow(*grup);
+        };
+    spButton code={
+        bC := argument;
+        bTag = string $*bC.taG$;
+        if spCol == 0;
+            spCurRow := new("gridRow");
+            *spCurRow :% new("across");
+            gh := new("height");
+            *gh = 34;
+            *spCurRow :% *gh;
+            spGrid +/ *spCurRow;
+        bt := new(bTag);
+        *bt = bTag;
+        bf := new("fill");
+        *bf := *bC;
+        *bt :% *bf;
+        *bt :% new("border");
+        bo := new("onClick");
+        *bo := spPick;
+        *bt :% *bo;
+        *spCurRow +/ *bt;
+        spCol += 1;
+        if spCol >= spPerRow;   spCol = 0;
+        };
+    spBuildB code={
+        clear(spPageB);
+        clear(spGrid);
+        spCol = 0;
+        spPageB :% new("down");
+        spGrid :% new("down");
+        for grup in argument; members
+            spButton(*grup);
+        spPageB +/ spGrid;
+        dl := new("display");
+        *dl = "{SamP.spDetail}";
+        dh := new("height");
+        *dh = 40;
+        *dl :% *dh;
+        *dl :% new("topBorder");
+        spPageB +/ *dl;
+        };
+    spPick code={
+        pkT = string $argument.taG$;
+        pkF := argument["fill"];
+        pkV = string $**pkF$;
+        spDetail = string $"Selected " pkT " = " pkV "   kant: fill:=" pkT$;
+        };
+    spHeldA;
+    spHeldB;
+    ;
+define
+    spOuter window x=0 y=0 width=600 height=400 down fill:=white path="IncantForms/PDF/test.pdf"
+        spTitle="Sampler -- Colors: A, the list (left); B, the buttons (right)" text height=30 align=center bottomBorder;
+        spSides across
+            spLeft form:=spHeldA;
+            spGap width=20;
+            spRight form:=spHeldB;
+    ;
+define
+    spReq form:=spOuter path="IncantForms/PDF/test.pdf";
+    spClickBlue form:=spPageB field="blue";
+    spRun code={
+        cout "DRAW one":;
+        redrawForm(spReq);
+        };
+    spAfter code={
+        cout "DRAW two":;
+        redrawForm(spReq);
+        };
+    ;
+viewer = 0;
+spBuildA(cOLOr);
+spBuildB(cOLOr);
+spHeldA := spPageA;
+spHeldB := spPageB;
+spRun();
+click(spClickBlue);
+cerr "DETAIL" spDetail:;
+spAfter();
+stop();
+
+CLOD'S SAMPLER SPECIMEN (SEQ 739), above stop(): docs/samplerRecon.md section 4. Two generated pages, built at run time by a walk over cOLOr,
+held side by side by form:=, drawn to test.pdf; then click(spClickBlue) fires the button's onClick (attached at run time), which writes
+spDetail, and the redraw shows it in the display line through the insert {SamP.spDetail}. Open test.pdf after each run.
+
+CLOD'S G3 SPECIMENS (SEQ 729-730), parked here for the sampler (SEQ 739); move them back above stop() to run them:
 Start();
 include(unitTests);
 include(utilities);
@@ -55,7 +184,6 @@ cout "G3 open":;                            mockOpen(flPlain);
 cout "G3 resize, then a reopen":;           mockResize(fsBig);      mockClose();    mockOpen(flPlain);
 cout "G3 resize, then a click redraw":;     mockResize(fsMid);      mockClickShow();
 cout "G3 close, then descriptions":;        mockClose();            mockOpen(dsPlain);
-stop();
 
 Tony's clean test of show (SEQ 690), parked here by Clod for G3 3b (move it back above stop() and delete the block above to run it):
 Start();
