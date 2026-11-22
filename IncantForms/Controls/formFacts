@@ -33,7 +33,7 @@ define
     text group="text" values="bare" inherits="no" status="built" does="draws the field's own string in its frame";
     image group="box" values="a file path" inherits="no" status="built" does="draws the image in the frame, under the border";
     fit group="box" values="none ruled" inherits="no" status="parked" does="how an image or text is fitted to the frame";
-    pour group="layout" values="a held registry (pour:=cOLOr), on a down=\"*\" field" inherits="no" status="built" does="repeats the field's one template row once per member of the registry; under a copy, each stands for its member";
+    pour group="layout" values="a held registry (pour:=cOLOr)" inherits="no" status="built" does="on a down=* field, repeats its one template row once per member of the registry; under a copy, each stands for its member";
     onClick group="action" values="a held action (onClick:=name)" inherits="no" status="mock click only" does="the action a click on the field fires";
     viewer group="show" values="1 or 0, in pROPERTIEs (viewer = 0;)" inherits="no" status="built" does="show opens the PDF it wrote to IncantForms/PDF/output.pdf in the system's default viewer, in the background; never another path; the shell's INCANT_NOVIEW turns it off too"
     ;

@@ -583,6 +583,8 @@ echo "-- pour: data poured into a form (pourT; SEQ 741)."
 #  ⚑ pourT -- pour:=, each, color:=contrast (Tony's first draft, 2026-11-22; Clay's dispatch). A down="*" pour:=aRegistry field's one template row
 #  is copied once a member on the laid-out copy and each copy is marked with its member (fillDownAcross, pourStamp); under a copy each stands for
 #  the member ({each}, {each.taG}, fill:=each, {aRegistry.each}); color:=contrast is black or white from the field's own fill, black at 17.9% or more.
+#  H7 (SEQ 741, committed file, fixture alone, each undone from git with an md5 check): pour's count out -> 31 rows, what fits; the mark out ->
+#  14 rows with no member (no white swatch, 14 third cells, 68 refusals); the threshold out -> every swatch white and ptLight white.
 _ptF=$(ip pourT)
 rm -f IncantForms/PDF/test.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_ptF" > "$T/pt.o" 2> "$T/pt.e"; _ptx=$?
