@@ -46,17 +46,20 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
                                 redisplays. Move end to cursor: the mirror. Try it and adjust. Editing commands are reached by a
                                 short selection pop-up rather than memorised keys; a pop-up is itself a form (select a command, its
                                 action fires). (git 151b899e; trimmed from Topics/forms since.)
-    THE COLLECTOR (seal 417, docs/gcRecon.md)
-                                openWindow calls GC_set_no_dls(1) (guiHost.mm:28) to dodge AppKit's root-set limit, which turns off
-                                data-segment scanning for every image: after a window opens, every raw-pointer global but the
-                                controller is invisible to the collector. "Today no window opens while the JIT runs. Under relayout
-                                both will happen together." A window stroke owns this.
+    THE COLLECTOR (measured 2026-11-22, SEQ 747, stroke 0; branch windows-f153, not bought)
+                                an open window does NOT hide our globals from the collector. openWindow's GC_set_no_dls(1) stops libgc
+                                registering images loaded from then on (197 load at the open) and keeps the roots it has, ours among
+                                them. F-153 said the opposite from a comment that was read and never run; closed as not a defect. The
+                                witness is windowRootProbe (formsPop windowGcT), with a control that drops every root. Still by hand:
+                                the form is held in an uncollectable cell, because a Layout is malloc memory and never scanned -- and
+                                once the window holds the laid-out copy, that cell is rewritten at every redraw (stroke 1).
 
 /*****************************************************************************
     State
 *****************************************************************************/
     built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730), clickShow and selectTab (tabs stroke 4, SEQ 737, bought).
     today       openWindow opens one window, strokes the top field's outline, blocks the script and ends the process on close; nothing calls it (docs/windowsRecon.md, section 1).
+    on a branch windowOffscreen(form): the window made and never shown, no loop, returns (windows-f153, stroke 0; the fleet's door).
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
 
 /*****************************************************************************
@@ -80,4 +83,5 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
 /*****************************************************************************
     Seal digest (newest first)
 *****************************************************************************/
+    533  SEQ 747 (assigned by Clod), 2026-11-22.  STROKE 0, F-153, on branch windows-f153 (Tony buys). Measured, no cure needed: under an open offscreen window a block held only by a global of ours is kept (8 of 8; hidden end 0, uncollectable end 8); with every static root dropped (WINDOW_CLEAR_ROOTS, the control) 0 of 8. resizeLightT's two relayouts under the window with a compiled action fired before and after, GCSTRESS=1000: pages equal by value, 3 then 6 -- but that run passes under the control too, so the probe rows carry the claim. New: windowOffscreen, windowRootProbe, incant/pop/windowGcT, 7 formsPop rows (361). FOUND: F-167, setFrame compiled by jitter; refuses every later layout, window or no window -- so "the JIT on" was one action compiled by testing(), not jitter;. Threads: a window adds ~900 system allocations (malloc) and 10 main-made blocks deleted off-main (leaked by design); no engine object off-main. NOT MEASURED: a visible window in its loop (stroke 5); GC_set_no_dls may be unneeded (cleanupList). NEXT: Tony buys stroke 0, then stroke 1.
     526  SEQ 740 (assigned by Clod), 2026-11-22.  THE WINDOWS RECON (docs/windowsRecon.md), read only. Today: openWindow (guiHost.mm) strokes one outline, blocks, and a close kills the process; Layout has no mouse method; isWindow has no reader; blockContaining is in the binary and uncalled. The old GUI was a Cocoa app that owned the loop and drew HTML in a web view; neither survives. What a window needs: a third context opener beside makeDisplay and openPDF (exists but for the opener); C++ calling kant (exists: runAction); the window holding the laid-out copy, not the form; a point turned into a click (blockContaining exists; click takes a name in the definition, so the last step does not); resize and close callers for redrawWindow and keepFrame; F-153 before kant runs under an open window. NEXT: Tony's five decisions.
