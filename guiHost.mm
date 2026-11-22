@@ -31,6 +31,7 @@
 #import "Layout.h"
 #import "GroupBody.h"
 #import "GroupRules.h"
+#import "Stylish.h"
 
 //  windows every window made, with the cell that keeps its form alive; found by the form's body (a field and its faces share one)
 struct WindowRecord { Layout *view; GroupItem **held; };
@@ -238,6 +239,94 @@ extern "C" GroupItem *readWindow(GroupItem *request)
         fflush(stdout);
         request->setPointer((void *)ctx);
     }
+    return request;
+}
+
+/***************************************************************************
+    A CLICK FROM A POINT (windows stroke 2; W2, Tony 2026-11-22).
+    windowClickAt turns a point in the view into the field under it on the
+    laid-out copy the window holds -- blockContaining, the lowest field whose
+    frame contains the point; the top itself when no member does -- and hands
+    kant that field: Utilities' clickField selects it and fires, bubbling up
+    the copy's parents. A point on no field fires nothing and says so.
+    The view's y runs up and the form's runs down, and the copy's frames
+    start at the top field's own x and y: both are undone here, once.
+    mouseUp is AppKit's door to it. windowClick(request) is the fleet's:
+    form:= the copy a window holds, px py a point counted from the view's
+    top left as pixelAt counts; it makes a mouse-up event at that point and
+    sends it to the view's own mouseUp, so the real road is the one tested.
+***************************************************************************/
+static void windowClickAt(Layout *view, NSPoint inView)
+{
+    GroupItem *top = view->base;
+    if ( !top ) return;
+    NSRect  framed = getFrame(top);
+    double  down = [view bounds].size.height - inView.y;
+    NSPoint p = NSMakePoint(inView.x + framed.origin.x, down + framed.origin.y);
+    GroupItem *hit = contains(top, p) ? blockContaining(top, p) : 0;
+    if ( !hit && contains(top, p) ) hit = top;
+    printf("=== windowClick %s at (%g,%g): %s ===\n", top->groupBody->tag, inView.x, down, hit ? hit->groupBody->tag : "no field, nothing fired");
+    fflush(stdout);
+    if ( !hit ) return;
+    GroupItem *utilities = GroupControl::groupController->getRegistry((char *)"Utilities");
+    GroupItem *clicker = utilities ? utilities->get((char *)"clickField") : 0;
+    if ( !clicker ) {
+        fprintf(stderr, "windowClick: REFUSING %s -- no clickField in Utilities\n", top->groupBody->tag);
+        return; }
+    runAction(hit, clicker);
+}
+
+@interface Layout (Events)
+- (void)mouseUp:(NSEvent *)event;
+@end
+@implementation Layout (Events)
+- (void)mouseUp:(NSEvent *)event
+{
+    windowClickAt(self, [self convertPoint:[event locationInWindow] fromView:nil]);
+}
+@end
+
+extern "C" GroupItem *windowClick(GroupItem *request)
+{
+    if ( !request ) return 0;
+    GroupItem *formF = request->get((char *)"form"), *px = request->get((char *)"px"), *py = request->get((char *)"py");
+    GroupItem *top = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+    WindowRecord *w = windowHolding(top);
+    if ( !w || !px || !py ) {
+        fprintf(stderr, "windowClick: REFUSING %s -- needs form:= a top field that a window holds, and px and py\n", request->groupBody->tag);
+        return 0; }
+    @autoreleasepool {
+        NSPoint inView = NSMakePoint(px->getNumber(), [w->view bounds].size.height - py->getNumber());
+        NSEvent *up = [NSEvent mouseEventWithType:NSEventTypeLeftMouseUp
+                                         location:[w->view convertPoint:inView toView:nil]
+                                    modifierFlags:0 timestamp:0 windowNumber:[[w->view window] windowNumber]
+                                          context:nil eventNumber:0 clickCount:1 pressure:0];
+        [w->view mouseUp:up];
+    }
+    return request;
+}
+
+/***************************************************************************
+    windowHold(request): held:= the copy a window holds now, form:= the
+    copy it is to hold from here on (a fresh layout). (Not window:= -- window
+    is a form attribute and marks the request at define.) The cell that keeps the
+    form alive is rewritten, the view draws the new copy from its next draw,
+    and the window is found by the new copy after this.
+***************************************************************************/
+extern "C" GroupItem *windowHold(GroupItem *request)
+{
+    if ( !request ) return 0;
+    GroupItem *wasF = request->get((char *)"held"), *nowF = request->get((char *)"form");
+    GroupItem *was = (wasF && isGROUP(wasF->groupBody->flags.data)) ? wasF->getGroup() : 0;
+    GroupItem *now = (nowF && isGROUP(nowF->groupBody->flags.data)) ? nowF->getGroup() : 0;
+    WindowRecord *w = windowHolding(was);
+    NSRect asked = now ? getFrame(now) : NSZeroRect;
+    if ( !w || asked.size.width < 1 || asked.size.height < 1 ) {
+        fprintf(stderr, "windowHold: REFUSING %s -- needs held:= a top field that a window holds and form:= a laid-out form\n", request->groupBody->tag);
+        return 0; }
+    *w->held = now;
+    w->view->base = now;
+    [w->view setNeedsDisplay:YES];
     return request;
 }
 
