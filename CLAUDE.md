@@ -3491,6 +3491,10 @@ commit that holds them is `76e547e9`, so a citation of the form *"clod-to-clay S
 retired with them. **When the dispatch leaves SEQ to Clod, Clod assigns the next number and the seal says so.**
 ⚠ The other files under `ipc/` (the forms, skip and support minion channels) are not named by that ruling and stay.
 
+⚠⚠ **BEFORE A REPORT, CHECK INCANT++'S "Instructions parked" SECTION. Tony, standing, 2026-11-22 (forwarded from Clay).**
+If more than one dispatch is parked there, the report ends with one line: which one Clod would take on next, and why.
+Naming one is not acting on it: a parked dispatch is still a draft until Tony forwards it.
+
 ⚠⚠ **A FORWARDED DISPATCH RULES EXACTLY WHAT ITS `RULINGS` BLOCK SAYS. Tony, standing, 2026-09-28.**
 Every dispatch opens with a `RULINGS` block, **one ruling per line**. **Nothing in the body counts as
 ruled unless it is listed there**, and `RULINGS: none` means the dispatch rules nothing. Tony edits a
