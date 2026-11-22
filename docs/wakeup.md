@@ -5,32 +5,32 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**523, 2026-11-22, topic: forms, SEQ 737 (assigned by Clod).** Tabs stroke 4, the click, ON BRANCH tabs-click (the buy Tony's):
-selectTab writes the field the bar's tabs:= names to hold the clicked tab; clickShow is click then showForm; each tab carries
-onClick:=tabClick, a form-local action (onClick:=selectTab is refused when show reads the file: Utilities is not on the stage list).
-tabClickT, formsPop TK-0..TK-6; both H7s red. Trunk is unchanged since 522 but for docs; the numbers below are 522's, and the
-branch read them again this seal (formsPop 325 there, +8). Seal 522, 2026-11-21: Topics/kant trimmed; the alpha reorder ruled.
-**OPEN (Tony):** the buy of string-pointer (SEQ 738); Topics/kant's budget (1 over, nothing stale left); carried from 482, whether an indented `define` should work.
+**524, 2026-11-22, topic: kant, SEQ 738 (assigned by Clod).** String-pointer bought and merged: R1a (++ on a one-character string
+leaves no value), R1b (a string walk tests data; datA already reads 0 on no value), R2 (numbeR, accessor 27, the first character's
+code, read only); hexToNumber fixed and given rows. Bear-trap 61 filed for Tony's ruling: a name declared on an action's header is not
+its parameter. Seal 523 the same day (forms): tabs stroke 4, bought and merged.
+**OPEN (Tony):** bear-trap 61's ruling (refuse a header name, make it the parameter, or keep the trap); whether testPointer is now cut
+(the recon kept it until a string-pointer fixture existed; stringPointerT does); Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
 **RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** a parked dispatch (incant++): the string-pointer stroke first, then the sampler recon; or windows plan item 1.
+**NEXT:** the sampler recon (incant++, Instructions parked; forms), then windows plan item 1 (Fable 5.2 first).
 
-## The numbers (as run at seal 522, on trunk; the binary is the bare build of 2026-11-20 12:54, 2191072 bytes)
+## The numbers (as run for seal 524 on branch string-pointer, a tree identical to trunk after the merge; bare build 2026-11-22 09:42, 2191200 bytes)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 4225 green (±0 since 521), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
+| `genLadder/pop.sh` | exit 1, 4228 green (+3: stringPointerT SP-8, SP-9, HX), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 325 green since the tabs-click buy (317 at 522), F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 325 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | exit 0, 116 directives, 108 inject, 8 parked dark, tree bare and byte-identical |
-| extern canary | 489 (`grep -c '^extern' GroupRules.h`) |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run (not a shutdown seal); 522's: exit 0, 116 directives, 108 inject, 8 parked dark |
+| extern canary | 490 (`grep -c '^extern' GroupRules.h`; +1 firstCharCode) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click (bought 2026-11-22). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer (both bought 2026-11-22). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
 for-members, for-attributes, print-dot, looks-by-name, kant-environment, g3-one-direction, g3-cheat). BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
@@ -41,8 +41,8 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 56 / 60 | this page. |
-| `Topics/forms` | 266 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 203 / 200, OVER by 3 (trimmed at seal 522; nothing stale left, the budget is Tony's) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/forms` | 273 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/kant` | 202 / 200, OVER by 2 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 71 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |

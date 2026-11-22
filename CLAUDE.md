@@ -2021,6 +2021,20 @@ Hard-won lessons. Each one has cost real debugging time.
     (Instruct.rtn, `ownStatement`): make the new entry as addGroup makes one (`new GroupItem(registryEntry)`), `prepend` it
     to the old, bump the list length, `remove()` the old. The body is never written.
 
+61. **A NAME DECLARED ON AN ACTION'S HEADER IS NOT ITS PARAMETER. `hexToNumber target code={...}` DOES NOT BIND `target`
+    TO WHAT THE CALLER PASSED; ONLY `argument` CARRIES IT.** Gloss: the header name is not the argument. Measured 2026-11-22
+    (**kant**, `incant/grammar` action body, SEQ 738): called with a field holding "ef", the body read `target.datA` **0** and
+    `argument.datA` **13**; `target.numbeR` refused "holds no string" where `argument.numbeR` read 101. No refusal names the
+    header name: the body runs on a field with no value and the first symptom is wherever that empty field is used, which
+    is how `hexToNumber` failed for as long as nobody called it. **The cure is the spelling `argument`.**
+    ⚠ **AND `argument` IS THE CALLER'S OWN FIELD (try-and-buy B, 2026-09-05; designDocs `ArgBindingWrites`), so a write
+    through it is a write to the caller: `++argument` stepped the caller's "ef" to "f".** An action that walks its argument
+    copies it first (`hxWalk = argument;`), as `hexToNumber` now does. That half is ruled, not a trap; it is here because
+    the first half sends a reader to `argument`, and `argument` is the one name whose writes leave the action.
+    What a header name IS was not measured (an attribute of the action field, presumably); RULING OWED (Tony): refuse it at
+    define, make it the parameter, or leave it and keep this trap. Population: `incant/unitTests` `testPointer lineIn` is
+    the one other action in utilities, unitTests, setup and the forms written this way.
+
 30. ⚠⚠ **AMENDED 2026-09-04 (C-155): THE RULE IS ONE DIRECTIVE PER MATCHING STATEMENT POINT,
     NOT ONE PER TARGET FUNCTION.** A second armed directive on the same function with a
     **different anchor** fires at its own point — measured on the culled file, one directives
