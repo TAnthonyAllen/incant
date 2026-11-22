@@ -882,6 +882,30 @@ _ofeq "resizeLightT RG-3 the store's page = the same frame named in a request (f
 _ofeq "resizeLightT RG-4 resized back through the store: the window at 500x600; the page = RG-1's, by value" "$(grep '^RG-4' "$T/rg.e" | sed 's/.*: //' | xargs) / $(_rgb 4)" "width 500 height 600 / $(_rgb 1)"
 _ofeq "resizeLightT RG-5 four pages were read, and firstLight still declares 500x600" "$(grep -c 'readPDF pdfRead' "$T/rg.o") / $(grep '^firstLight x=300' "$T/rg.o" | head -1 | cut -d' ' -f1-5)" "4 / firstLight x=300 y=450 width=500 height=600"
 
+#  ⚑ windowGcT -- windows stroke 0 (SEQ 747, 2026-11-22), F-153: an open window does not hide our globals from the collector. resizeLightT's two
+#  resizes run under an open OFFSCREEN window (windowOffscreen: never shown, no run loop) at GCSTRESS=1000, with one compiled action alive across
+#  them. windowRootProbe is the witness: a block held only by a global of ours, beside a known-bad end (hidden pointer: COLLECTED) and a known-good
+#  end (uncollectable cell: kept). CONTROL, run here on every pass: WINDOW_CLEAR_ROOTS=1 drops every static root at the open (the state F-153
+#  described) and the probe reads COLLECTED. Measured 2026-11-22: under that control the relayout rows below still read right, so they say a window
+#  run survives and only the probe rows say the globals are scanned. No window appears and no focus is taken.
+echo ""
+echo "-- a relayout under an open offscreen window, collections forced (windowGcT)."
+_wgF=$(ip windowGcT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wgF" > "$T/wg.o" 2> "$T/wg.e"; _wgx=$?
+#  one probe line as four words: the two global sets and the good end exactly; the bad end as "some" (fewer than 8 kept) or "all". The collector is
+#  conservative: a stray stack word can keep a block nothing holds, so an unheld set reads "fewer than 8", never a pinned count; a held set reads 8, always.
+_wgp () { grep '^=== rootProbe' "$1" | sed -n "$2p" | awk '{gsub(/;/,""); bad=($21 < 8) ? "collected" : "ALL-KEPT"; print "no_dls " $4 " bss " $13 " data " $17 " bad-end " bad " good-end " $(NF-1)}'; }
+_wgc () { grep '^=== rootProbe' "$1" | sed -n "$2p" | awk '{gsub(/;/,""); print "no_dls " $4 " globals " (($13 < 8 && $17 < 8) ? "COLLECTED" : "kept")}'; }
+_ofeq "windowGcT exit / sentinel / window opened, not shown" "$_wgx $(grep -c '^WINDOWGC SENTINEL' "$T/wg.e") $(grep -c '^=== windowOffscreen: a window 500 x 600, not shown' "$T/wg.e")" "0 1 1"
+_ofeq "windowGcT WG-1 before any window: of 8 blocks each, globals of ours keep all 8; the hidden end is collected, the uncollectable end keeps 8" "$(_wgp "$T/wg.e" 1)" "no_dls 0 bss 8 data 8 bad-end collected good-end 8"
+_ofeq "windowGcT WG-2 UNDER THE OPEN WINDOW (no_dls 1) blocks held only by globals of ours are still kept, 8 of 8" "$(_wgp "$T/wg.e" 2)" "no_dls 1 bss 8 data 8 bad-end collected good-end 8"
+_ofeq "windowGcT WG-3 / WG-4 compiled code fired under the window, and again after two relayouts: 3 then 6" "$(sed -n 's/^WG-[34] .*wgN \[ \([0-9]*\) \].*/\1/p' "$T/wg.e" | xargs)" "3 6"
+grep 'readPDF pdfRead\|pixelAt pdfRead' "$T/rg.o" > "$T/wg.want"; grep 'readPDF pdfRead\|pixelAt pdfRead' "$T/wg.o" > "$T/wg.got"
+_ofeq "windowGcT the four pages and their points under the window = resizeLightT's own, by value (22 lines, no refusal)" "$(cmp -s "$T/wg.want" "$T/wg.got" && echo same || echo differ) $(wc -l < "$T/wg.got" | xargs) $(grep -c 'REFUS' "$T/wg.e")" "same 22 0"
+_ofeq "windowGcT WG-5 after the relayouts and one more collection: still 8 of 8" "$(_wgp "$T/wg.e" 3)" "no_dls 1 bss 8 data 8 bad-end collected good-end 8"
+WINDOW_CLEAR_ROOTS=1 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wgF" > "$T/wgc.o" 2> "$T/wgc.e"
+_ofeq "windowGcT CONTROL, every static root dropped at the open: the probe reads the globals' blocks COLLECTED (before the window, kept)" "$(_wgc "$T/wgc.e" 1) / $(_wgc "$T/wgc.e" 2)" "no_dls 0 globals kept / no_dls 1 globals COLLECTED"
+
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
 #  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one

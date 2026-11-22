@@ -83,6 +83,8 @@ define
     new immediateAction=makeNew;
     openPDF immediateAction=openPDF;
     openWindow immediateAction=openWindow;
+    windowOffscreen immediateAction=windowOffscreen;
+    windowRootProbe immediateAction=windowRootProbe;
     parseClassify immediateAction;
     pixelAt immediateAction=pixelAt;
     printTO immediateAction=printToBuffer;

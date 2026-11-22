@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-167 — OPEN, docketed 2026-11-22 (SEQ 747, found by windows stroke 0; row only, no fix) — jitterSetFrameHoldsItself: with `jitter;` on, setFrame compiles and then refuses every later layout of the same form
+
+**What:** (emitted; kant source `incant/utilities` setFrame) after `jitter;`, the first layout of a form draws; every later one is refused: `setFrame: REFUSING <request> -- the form firstLight holds itself, directly or through another form`, with `REFUSED sfChain -- Operator remove-attribute -- an operand that is nothing` once. Interpreted, the same run lays out four times. No window is involved. Read, not traced: compiled, setFrame's removal of the form's name from sfChain at its foot does not happen, so the next layout meets the name still on the list.
+**Where:** `incant/utilities` setFrame, the sfChain bookkeeping (the refusal is at :885); the compiled road's handling of that removal. The jitter's exit report: `setFrame built 1 called 5`; redrawForm, fitHeight, frameMembers, fillDownAcross, placeForm NOT JITTABLE (-8).
+**Evidence:** measured 2026-11-22, trunk source, binary built 2026-11-22: `incant/pop/resizeLightT` with one line `jitter;` added before RG-1 and nothing else (no window command): 5 refusals, pages differ from resizeLightT's; without the line, 0 refusals. GCSTRESS=1000 both ways.
+**Done when:** resizeLightT with `jitter;` on reads its four pages as it does interpreted, and a formsPop row pins it, with an H7.
+**Owner:** Tony to rule whether it is worked now; no fleet row runs layout under `jitter;` today (F-149's dsFillJ row is the nearest, and is red for its own reason). **Size:** not measured.
+**Attempt log:** none.
+
 ### F-166 — OPEN, docketed 2026-11-20 (SEQ 725, Clay's ruling: file, not fixed) — showPathWriteCrash: a bare top-level `showPath.path = ...` after a bootstrap `show(...)` crashes
 
 **What:** (kant, the old road, top level) after `Start(); show(firstLight);` -- the bootstrap show, which loads utilities by continuation -- the next top-level statement `showPath.path = "IncantForms/PDF/test.pdf";` kills the process with exit 139 (SIGSEGV), no message. The same write after a direct `include(utilities)` works (stashT, viewerT, tabFormT do it).
@@ -238,13 +247,14 @@ where it stands. Nothing else is backfilled.
 **Owner:** Clod, when Tony rules which. **Size:** not measured.
 **Attempt log:** none.
 
-### F-153 — OPEN, docketed 2026-11-10 (SEQ 589 R6) — windowHidesGlobals: once a window opens, the collector scans no global but the controller
+### F-153 — NOT A DEFECT, MEASURED 2026-11-22 (SEQ 747, windows stroke 0, on branch windows-f153; Tony buys) — windowHidesGlobals: docketed 2026-11-10 (SEQ 589 R6) as "once a window opens, the collector scans no global but the controller". It still scans them.
 
 **What:** `openWindow` (`guiHost.mm`) calls `GC_set_no_dls(1)` to dodge AppKit's root-set limit, which stops libgc scanning EVERY image's data segment, ours included. It roots `GroupControl::groupController` and (SEQ 589) the form, nothing else. With the node classes collectable (GC stroke 2, branch gc-collect), any engine object held only by a raw-pointer global is then collected while the window is open: the JIT globals in `jitContext.h` (`gJitLastAction`, `gJitCurrentAction`, `gJitArgOrigin`, `gJitDotSeeded`, `gJitProbeCarrier`, `gChanPendGroup`, `gChanStkGroup[]`, docs/gcRecon.md 3a), `gParseActive` while its frames are off the stack, and any `static GroupItem*` in a .mm. The std::vector / map globals are safe (their storage is uncollectable and scanned).
 **Where:** `guiHost.mm` (openWindow, the `GC_set_no_dls(1)` line); the globals above.
 **Evidence:** read, not run -- windows are not a target yet (R6: do not certify a window run), and no fleet fixture opens a window.
 **Done when:** a window run with the node classes collectable, under GCSTRESS, survives a relayout with the JIT active, and a row says so.
 **Owner:** Clod, when windows become a target. **Size:** not small -- the candidates are a census of every raw-pointer global holding an engine object plus one `GC_add_roots` range each, or one uncollectable root table they all live in, or a narrower no-dls (register our image's data segment by hand after the switch).
+**Attempt log (SEQ 747, 2026-11-22, branch windows-f153; no cure built, none needed):** the row's What was read from guiHost.mm's own comment, never run. A probe (`windowRootProbe`, guiHost.mm: 8 collectable blocks held only by bss globals of ours, 8 by data globals, 8 by hidden pointers as the known-bad end, 8 by an uncollectable array as the known-good end; one collection) reads 8 / 8 / 0 / 8 kept before any window -> the same 8 / 8 / 0 / 8 under an open offscreen window with `GC_get_no_dls()` 1: the switch stops libgc registering images loaded from then on (197 load when the window opens, 476 to 673) and keeps the roots it has, ours among them -> control `WINDOW_CLEAR_ROOTS=1` (every static root dropped at the open, the controller re-rooted: the state this row described): 0 / 0 / 0 / 8, on 15 runs of 15, so the probe sees the feared state -> the done-when run: resizeLightT's two relayouts under the open offscreen window with a compiled action fired before and after (`testing`, `jitRefire`), GCSTRESS=1000 and 20: exit 0, pages and points = resizeLightT's by value, compiled count 3 then 6 -> THE SAME RUN UNDER THE CONTROL ALSO PASSES (GCSTRESS 1000 and 20), so the relayout run cannot see a hidden global (H17); the probe rows carry the claim -> rows: `genLadder/formsPop.sh` windowGcT (7), the control run on every pass. Not measured: a VISIBLE window inside `[NSApp run]` (stroke 5). Also measured: `WINDOW_KEEP_DLS=1` (no switch at all) aborts nothing offscreen -- the root-set storm the switch was for did not appear (docs/cleanupList.md).
 **Attempt log:** SEQ 589 (branch gc-collect): Layout->base, the small half, fixed -- openWindow holds the form in a GC_MALLOC_UNCOLLECTABLE cell (a Layout is an Objective-C object in malloc memory, never scanned; `selection` is declared and never written). This half docketed.
 
 ### F-152 — CURED, BOUGHT 2026-11-09 (SEQ 573; cause SEQ 572; on trunk at seal 401) — pdfHeapStomp: a CoreGraphics thread allocates through our single-threaded collector; the free list ends up holding text

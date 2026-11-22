@@ -110,6 +110,7 @@ publish it as a field for setFrame to read.
 
 ## 4. What a window must keep alive
 
+- ⚠ **DATED 2026-11-22 (SEQ 747, stroke 0): THE NEXT BULLET IS FALSE AS READ.** Measured: under an open offscreen window the collector still scans our globals (`windowRootProbe`, 8 of 8 kept; formsPop windowGcT). `GC_set_no_dls(1)` stops new images being registered and keeps the roots it has. F-153 is closed as not a defect; its attempt log has the run.
 - **F-153, windowHidesGlobals (docs/fixIts.md:241), is open and is this topic's.** After `GC_set_no_dls(1)` the collector
   scans no global but the controller and the one held form. Any engine object reached only through a raw-pointer global
   is collectable while a window is open: the JIT's globals, `gParseActive`, any `static GroupItem*`. Today nothing runs
@@ -119,7 +120,7 @@ publish it as a field for setFrame to read.
   rewritten each time, not written once.
 - **Threads.** AppKit and Core Graphics bring their own. F-152 (a system thread allocating through a single-threaded
   collector) was cured for the PDF road by `gcThreads.mm`; whether a live window raises the same thing by another door is
-  not known and is one `GCTHREADS_REPORT` run to learn.
+  not known and is one `GCTHREADS_REPORT` run to learn. **Measured 2026-11-22 (SEQ 747), one run each, `GCTHREADS_REPORT=1`:** windowGcT (offscreen window) off-main new 10564, delete 8850, collector blocks deleted off-main and so leaked 10; resizeLightT (no window) 9672, 8223, 0. No engine object was allocated off the main thread (gcEngine's refusal did not fire). So a window adds about 900 system-thread allocations, all through malloc, and 10 blocks made on the main thread that a system thread deleted: leaked by design, never freed under the collector. A visible window in its loop is not measured.
 
 ## 5. The decisions that are Tony's
 
