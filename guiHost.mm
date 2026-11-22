@@ -6,10 +6,10 @@
     paints into the window below it.
 
     openWindow(field): creates an NSWindow whose contentView is a Layout
-    bound (view->base) to the passed-in field, so a setFrame'd field paints
-    (Layout.drawRect strokes its frames). Closing the window terminates the
-    app. extern "C" so the incant runtime dlsym-binds it
-    (registered in incant/setup: openWindow immediateAction=openWindow).
+    bound (view->base) to the laid-out form, shows it, and RETURNS AT ONCE
+    (W1): the event loop starts when the script ends (windowsRun) and stops
+    when the last shown window closes. extern "C" so the incant runtime
+    dlsym-binds it (incant/setup: openWindow immediateAction=openWindow).
 
     windowOffscreen(field): the same window, never shown -- no focus taken,
     no dock icon, no run loop; it finishes launching, drains the events
@@ -38,8 +38,46 @@
 
 //  windows every window made, with the cell that keeps its form alive; found by the form's body (a field and its faces share one)
 //  windows held[0] is the laid-out copy, held[1] the request the window was opened with (0 for a window handed a bare copy)
-struct WindowRecord { Layout *view; GroupItem **held; };
+struct WindowRecord { Layout *view; GroupItem **held; bool shown; };
 static std::vector<WindowRecord> gWindows;
+
+/***************************************************************************
+    THE LOOP (windows stroke 4; W1, Tony 2026-11-22). openWindow returns at
+    once. windowsRun is called where a script ends (stop's exit, and main's
+    foot): with a shown window open it runs the application's event loop,
+    and the loop stops when the last shown window closes, so the process
+    then exits as it always did. With no shown window it returns at once.
+    FOR THE FLEET: windowClick, windowResize and windowClose on a request
+    that carries `later` are not done when called; they are kept, in order,
+    and done inside the loop once it is running. Kept requests start the
+    loop too, and it stops when they are all done and no shown window is
+    open -- so a fixture runs the real loop with nothing on the screen.
+***************************************************************************/
+static bool gLooping, gDraining;
+static std::vector<std::pair<int, GroupItem *> > gLater;
+
+static int shownWindows()
+{
+    int n = 0;
+    for ( WindowRecord &w : gWindows ) if ( w.shown ) n++;
+    return n;
+}
+
+static void loopCheck()
+{
+    if ( !gLooping || gDraining || shownWindows() || !gLater.empty() ) return;
+    [NSApp stop:nil];
+    //  wakeTheLoop stop: takes effect when the loop next returns from an event, so it is handed one
+    [NSApp postEvent:[NSEvent otherEventWithType:NSEventTypeApplicationDefined location:NSZeroPoint modifierFlags:0
+                                       timestamp:0 windowNumber:0 context:nil subtype:0 data1:0 data2:0] atStart:YES];
+}
+
+static bool keptForLater(GroupItem *request, int kind)
+{
+    if ( gDraining || !request || !request->get((char *)"later") ) return false;
+    gLater.push_back(std::make_pair(kind, request));
+    return true;
+}
 
 
 /***************************************************************************
@@ -156,7 +194,12 @@ static GroupItem *windowRequest(GroupItem *opened, NSRect *frame)
     const char *carried[3] = { "form", "look", "frame" };
     for (int i = 0; i < 3; i++) {
         GroupItem *part = opened->get((char *)carried[i]);
-        if ( part && !(i == 2 && frame) ) request->addAttribute(new GroupItem(part)); }
+        if ( !part || (i == 2 && frame) ) continue;
+        //  freshNodes never a copy of the caller's attribute: a copy shares its body, so the caller re-pointing its form:= (showForm's showReq does, at the next show) would re-point this window's too (measured, stroke 4)
+        GroupItem *own = new GroupItem((char *)carried[i]);
+        if ( isGROUP(part->groupBody->flags.data) )    own->setGroup(part->getGroup());
+        else                                            own->setContent(part);
+        request->addAttribute(own); }
     if ( frame ) {
         GroupItem *holder = new GroupItem((char *)"frame");
         holder->setGroup(frameField(*frame));
@@ -164,10 +207,25 @@ static GroupItem *windowRequest(GroupItem *opened, NSRect *frame)
     return request;
 }
 
+//  displayPublish the display's usable size -- the main screen less menu bar and dock -- written into Utilities' displaySize (width, height), where windowLay reads the cap for height=fit
+static void displayPublish()
+{
+    GroupItem *utilities = GroupControl::groupController->getRegistry((char *)"Utilities");
+    GroupItem *size = utilities ? utilities->get((char *)"displaySize") : 0;
+    GroupItem *wide = size ? size->get((char *)"width") : 0, *high = size ? size->get((char *)"height") : 0;
+    if ( !wide || !high ) return;
+    @autoreleasepool {
+        [NSApplication sharedApplication];
+        NSRect usable = [[NSScreen mainScreen] visibleFrame];
+        wide->setCount((int)usable.size.width);
+        high->setCount((int)usable.size.height); }
+}
+
 static GroupItem *windowLayout(GroupItem *opened, NSRect *frame)
 {
     GroupItem *lay = utilityAction("windowLay");
     if ( !lay ) return 0;
+    displayPublish();
     windowTake(0);
     runAction(windowRequest(opened, frame), lay);
     return *gTaken;
@@ -273,7 +331,8 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
                  (char *)&GroupControl::groupController + sizeof(GroupControl *));
     GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *) * 2);
     heldForm[0] = input;
-    heldForm[1] = request;
+    //  ownRequest the window keeps a request of its own: the caller's field may be reused for the next window (showForm's showReq is)
+    heldForm[1] = request ? windowRequest(request, 0) : 0;
     GroupItem *titleF = input ? input->get((char *)"title") : 0;
     char *titled = titleF ? titleF->getText() : 0;
     NSApplication *app = [NSApplication sharedApplication];
@@ -297,12 +356,12 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
     Layout *view = [[Layout alloc] initWithFrame:NSMakeRect(0, 0, content.size.width, content.size.height)];
     view->base = input;
     [win setContentView:view];
-    gWindows.push_back({view, heldForm});
-    //  closeKeeps a close keeps the window's frame for its form (keepFrame) and forgets the window; a shown window still ends the process, until the loop is built (stroke 4)
+    gWindows.push_back({view, heldForm, visible});
+    //  closeKeeps a close keeps the window's frame for its form (keepFrame) and forgets the window; the last shown window closing stops the loop (loopCheck)
     [[NSNotificationCenter defaultCenter]
         addObserverForName:NSWindowWillCloseNotification
         object:win queue:nil
-        usingBlock:^(NSNotification *note){ windowClosed(view); if ( visible ) [NSApp terminate:nil]; }];
+        usingBlock:^(NSNotification *note){ windowClosed(view); loopCheck(); }];
     return view;
 }
 
@@ -432,6 +491,7 @@ static void windowClickAt(Layout *view, NSPoint inView)
 extern "C" GroupItem *windowClick(GroupItem *request)
 {
     if ( !request ) return 0;
+    if ( keptForLater(request, 0) ) return request;
     GroupItem *formF = request->get((char *)"form"), *px = request->get((char *)"px"), *py = request->get((char *)"py");
     GroupItem *top = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
     WindowRecord *w = windowHolding(top);
@@ -492,6 +552,7 @@ static WindowRecord *windowNamed(GroupItem *request, const char *who)
 
 extern "C" GroupItem *windowResize(GroupItem *request)
 {
+    if ( keptForLater(request, 1) ) return request;
     WindowRecord *w = windowNamed(request, "windowResize");
     if ( !w ) return 0;
     GroupItem *frameF = request->get((char *)"frame");
@@ -514,6 +575,7 @@ extern "C" GroupItem *windowResize(GroupItem *request)
 
 extern "C" GroupItem *windowClose(GroupItem *request)
 {
+    if ( keptForLater(request, 2) ) return request;
     WindowRecord *w = windowNamed(request, "windowClose");
     if ( !w ) return 0;
     @autoreleasepool { [[w->view window] close]; }
@@ -597,8 +659,52 @@ extern "C" GroupItem *openWindow(GroupItem *input)
         NSWindow *win = [view window];
         [win makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
-        printf("incant window: created (native .mm), entering run loop\n");
-        [NSApp run];
+        [win displayIfNeeded];
+        printf("=== openWindow: %s shown; the loop starts when the script ends ===\n", top->groupBody->tag);
+        fflush(stdout);
     }
     return input;
+}
+
+//  laterDrain the kept requests, in the order they were asked, done inside the running loop
+static void laterDrain()
+{
+    gDraining = true;
+    for (size_t i = 0; i < gLater.size(); i++) {
+        GroupItem *request = gLater[i].second;
+        if ( gLater[i].first == 0 )         windowClick(request);
+        else if ( gLater[i].first == 1 )    windowResize(request);
+        else                                windowClose(request); }
+    gLater.clear();
+    gDraining = false;
+    loopCheck();
+}
+
+//  twoNames stop's exit is in an extern "C" function and main is not, so a declaration written inside each has that one's linkage: windowsRun is the C name, windowsRunAtEnd the C++ one
+extern "C" void windowsRun()
+{
+    static bool ran;
+    if ( ran || (!shownWindows() && gLater.empty()) ) return;
+    ran = true;
+    @autoreleasepool {
+        [NSApplication sharedApplication];
+        printf("=== window loop: started, %zu open, %d shown, %zu kept for later ===\n", gWindows.size(), shownWindows(), gLater.size());
+        fflush(stdout);
+        gLooping = true;
+        dispatch_async(dispatch_get_main_queue(), ^{ laterDrain(); });
+        [NSApp run];
+        gLooping = false;
+        printf("=== window loop: ended, %zu open ===\n", gWindows.size());
+        fflush(stdout);
+    }
+}
+
+void windowsRunAtEnd() { windowsRun(); }
+
+//  isWindowForm 1 when the form was written with the window attribute (markWindow set isWindow at its define), else 0. The attribute itself is not kept on the form, and kant has no accessor for the flag; show reads this to decide between a window and the PDF (Tony, 2026-11-22)
+extern "C" GroupItem *isWindowForm(GroupItem *input)
+{
+    GroupItem *answer = new GroupItem((char *)"isWindowForm");
+    answer->setCount(input && input->groupBody->flags.isWindow ? 1 : 0);
+    return answer;
 }

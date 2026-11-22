@@ -14603,6 +14603,11 @@ int 		bailing = 0;
 		*ruler->atRuleMark = 0;
 		ruler->endParse = 1;
 		::printf("\nstop: end parsing\n");
+		
+		/*  windowsLoop the script has ended: with a window shown the event loop runs here until the last one closes (guiHost.mm, windows stroke 4)  */
+		void windowsRun();
+		windowsRun();
+		
 		::exit(0);
 		}
 	return input;

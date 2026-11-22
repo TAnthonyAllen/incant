@@ -26,6 +26,11 @@ char 		*name = argv[1];
 		abandonedRun  rest of the file was never parsed -- say so, because exit 0 will
 		abandonedRun  not.   ruleActions.reportRunAbandoned  */
 		::reportRunAbandoned(name);
+		
+		/*  windowsLoop a script that ends without stop() ends here: the same loop (guiHost.mm, windows stroke 4)  */
+		void windowsRunAtEnd();
+		windowsRunAtEnd();
+		
 		}
 }
 

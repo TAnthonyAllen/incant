@@ -1,0 +1,136 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    tabFormFile File='IncantForms/Windows/tabForm';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(tabFormFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    tkStray code={ selectTab(argument); };
+    wlSmall x=40 y=60 width=120 height=80 title="Second" fill:=red;
+    wlTall x=0 y=0 width=200 height=fit fill:=pageFill
+        wlTallOne height=3000 fill:=red;
+        wlTallTwo height=3000 fill:=green;
+    tkLoose window x=0 y=0 width=100 height=100 path="IncantForms/PDF/test.pdf"
+        tkNotBar
+            tkOrphan="orphan" text onClick:=tkStray;
+    ;
+registry(WindowLoopT);
+define
+    tkRead path="IncantForms/PDF/test.pdf";
+    tkAt code={
+        tkX := argument["px"];
+        tkY := argument["py"];
+        tkRead :% copyOf(*tkX);
+        tkRead :% copyOf(*tkY);
+        cout "TK-AT" argument.taG:;
+        pixelAt(tkRead);
+        };
+    tkTabOne px=60 py=62;
+    tkTabTwo px=180 py=62;
+    tkTabThree px=300 py=62;
+    tkCardTop px=300 py=120;
+    tkCardLow px=300 py=260;
+    tkPage code={
+        cout "TK-PAGE" argument:;
+        readPDF(tkRead);
+        tkAt(tkTabOne);
+        tkAt(tkTabTwo);
+        tkAt(tkTabThree);
+        tkAt(tkCardTop);
+        tkAt(tkCardLow);
+        tkSel(argument);
+        };
+    tkSel code={
+        tkS = string $"none"$;
+        tkIs = tabSelected.isGrouP;
+        if tkIs == 1;
+            tkT := tabSelected;
+            tkS = string $**tkT.taG$;
+        cerr argument "tabSelected" tkS:;
+        };
+    tkDefn code={
+        tkDef := tabForm["body"];
+        tkDb := *tkDef["bodies"];
+        tkDc := *tkDb["thirdCard"];
+        tkDh = *tkDc.isHiddeN;
+        cerr "TK-6 the definition's thirdCard isHidden" tkDh:;
+        };
+    wlTabReq form:=tabForm;
+    wlSmallReq form:=wlSmall;
+    wlTallReq form:=wlTall;
+    wlReadTab form:=tabForm px=300 py=260;
+    wlReadSmall form:=wlSmall px=60 py=40;
+    wlReadTall form:=wlTall;
+    wlReadLoose form:=tkLoose;
+    wlCloseTallNow form:=wlTall;
+    wlClickLater form:=tabForm px=300 py=62 later;
+    wlCloseTab form:=tabForm later;
+    wlCloseSmall form:=wlSmall later;
+    wlCloseLoose form:=tkLoose later;
+    wlSize code={
+        cout "WL-SIZE" argument "width" displaySize.width "height" displaySize.height "fitCap" fitCap:;
+        };
+    tkThree form:=tabForm field="tabThree";
+    tkTwo form:=tabForm field="tabTwo";
+    tkOne form:=tabForm field="tabOne";
+    tkNoSuch form:=tabForm field="nosuch";
+    tkOrphanClick form:=tkLoose field="tkOrphan";
+    ;
+search WindowLoopT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+showPath.path = "IncantForms/PDF/test.pdf";
+viewer = 0;
+wlSize("before");
+windowOffscreen(wlTabReq);
+windowOffscreen(wlSmallReq);
+cout "WL-TWO both windows read":;
+readWindow(wlReadTab);
+pixelAt(wlReadTab);
+readWindow(wlReadSmall);
+pixelAt(wlReadSmall);
+wlSize("after");
+cout "WL-TALL a height=fit form in a window":;
+windowOffscreen(wlTallReq);
+readWindow(wlReadTall);
+wlSize("tall");
+windowClose(wlCloseTallNow);
+cout "WL-SHOW show decides":;
+show(tkLoose);
+windows = 2;
+show(tkLoose);
+readWindow(wlReadLoose);
+show(wlSmall);
+windows = 0;
+windowClick(wlClickLater);
+windowClose(wlCloseTab);
+windowClose(wlCloseSmall);
+windowClose(wlCloseLoose);
+cout "WL-LAST the script's last line, after four windows were opened":;
+cerr "WINDOWLOOP SENTINEL":;
+stop();
+
+windowLoopT -- windows stroke 4 (SEQ 751, 2026-11-22): the loop (W1), the display's size, and show deciding between a
+window and the PDF (Tony, 2026-11-22). A delta of tabClickT's preamble (copied, then patched). Rows in
+genLadder/formsPop.sh, run at GCSTRESS=1000. No window is shown.
+
+WL-SIZE before   displaySize is 0 by 0 until a window is laid out; fitCap is a page, 792.
+WL-TWO           two windows open at once, each made and returned from at once, each read: tabForm's card green, wlSmall
+                 red, each with its own title.
+WL-SIZE after    displaySize holds the display less menu bar and dock (its values are this machine's; the row asks only
+                 that both are more than 0), and fitCap is 792 again.
+WL-TALL          a height=fit form whose members need 6000: in a window it is capped at the display's usable height
+                 (the window's height equals displaySize.height, compared in formsPop), where a PDF caps at 792.
+WL-SHOW          show decides. windows is 0: show(tkLoose), a form written window, goes to its PDF. windows = 2: the same
+                 show makes a window (not shown; windows = 1 shows it) and writes no PDF. show(wlSmall), a form not written
+                 window, still goes to its PDF.
+WL-LAST          the script's last line prints: every opening returned.
+THE LOOP         windowClick and three windowCloses carry `later`, so they are kept and done INSIDE the loop. stop() ends
+                 the script; the loop starts (3 open, 0 shown, 4 kept); the click finds tabThree and runs kant -- tabClick
+                 and selectTab, neither run before in this process -- after "stop: end parsing"; the three windows close,
+                 each keeping its frame; the loop ends with none open and the process exits 0.
+NOT HERE: a shown window. With one, the loop runs until the last shown window is closed by hand (stroke 5).
