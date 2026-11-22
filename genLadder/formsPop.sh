@@ -603,17 +603,48 @@ _ofeq "pourT PT-8 a registry not on the search list is refused at define, as any
 _ofeq "pourT PT-9 the definition is never written: one row, no each" "$(grep '^PT-9 ' "$T/pt.e" | sed 's/ *$//')" "PT-9 the definition's ptRows holds 1 row; its each attribute: 0"
 
 #  ⚑ colorListT -- IncantForms/Windows/colorList (Tony's and Clay's form; SEQ 741), shown through the stash: tester's final shape,
-#  Start(); show(colorList); with showPath pointed at test.pdf. pourT above pins pour; these pin the form and that loading it leaves cOLOr alone.
+#  Start(); show(colorList); with showPath pointed at test.pdf. These pin the form and that loading it leaves cOLOr alone.
 #  H7 (SEQ 741, on a copy of the form with its two search lines out, the fixture pointed at it): CL-4 reads black [the darkest; ...] and
 #  CL-3's swatches lose their fills (14 displayFill refusals).
+#  RE-PINNED SEQ 742 (pour stage 2): colorList is the derived form now -- no template row, so the cells are pour's own (pourName, pourShow,
+#  pourWhat), its descriptions are in dESCRIPTIONs, and CL-5 is new: height=fit, the page 452 high.
 _clF=${CL_FILE:-$(ip colorListT)}
 rm -f IncantForms/PDF/test.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
 _ofeq "colorListT exit / sentinel / no refusal" "$_clx $(grep -c '^COLORLISTT SENTINEL' "$T/cl.e") $(grep -c 'REFUS\|^REMOVED' "$T/cl.e")" "0 1 0"
 _ofeq "colorListT CL-1 found in the stash (deferred), drawn to test.pdf" "$(grep -c '^=== show colorList deferred' "$T/cl.o") $(grep -c '^=== show colorList to IncantForms/PDF/test.pdf ===' "$T/cl.o")" "1 1"
-_ofeq "colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="clName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
-_ofeq "colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="clSwatch"){c[$9]++; if($15==7)v++}} END{print n["clSwatch"], v, c["r255"], c["r0"], n["clWhat"]}' "$T/cl.o")" "14 14 3 11 14"
+_ofeq "colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="pourName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
+_ofeq "colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="pourShow"){c[$9]++; if($15==7)v++}} END{print n["pourShow"], v, c["r255"], c["r0"], n["pourWhat"]}' "$T/cl.o")" "14 14 3 11 14"
 _ofeq "colorListT CL-4 loading the form leaves cOLOr as it was; black's description is words, not a colour (its wording is the form's to change)" "$(grep '^CL-4 ' "$T/cl.e" | sed 's/ its description.*//') / $(grep '^CL-4 ' "$T/cl.e" | grep -c 'its description \[ [a-zA-Z]')" "CL-4 cOLOr black [ #000000 ] white [ #ffffff ] / 1"
+_ofeq "colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 14 x 24 + 13 x 4 + 2 x 12" "$(grep '^=== readPDF' "$T/cl.o" | sed 's/.*size //; s/ ===.*//')" "490x452"
+
+echo "-- pour stage 2: rows derived from what is poured; margin, gap, height=fit (pourDeriveT; SEQ 742)."
+#  ⚑ pourDeriveT -- Tony ruled D1-D6, 2026-11-22 (Clay's dispatch), and with the build: kind by value; descriptions from dESCRIPTIONs by the
+#  entry's name, no attribute. A down="*" pour:= field with no row has one built a member (pourPlan, before the styles are merged).
+#  H7 (SEQ 742, committed file, fixture alone, each undone from git with an md5 check): the derive out -> no rows, the top 116 high; kind by
+#  value out -> every show is plain text (no white, one font sample); margin out -> the title at x=- 490 wide; gap out -> rows 24 apart;
+#  the fit sum out -> the top 792.
+_pdF=$(ip pourDeriveT)
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 90; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
+_pdr () { awk -v r="$1" '/^PD RUN/{on=($3==r)} on' "$T/pd.o"; }
+_pdn () { _pdr "$1" | awk -v f="$2" '$2=="drawSpans" && $3==f{n++} END{print n+0}'; }
+_ofeq "pourDeriveT exit / sentinel / no refusal" "$_pdx $(grep -c '^POURDERIVET SENTINEL' "$T/pd.e") $(grep -c 'REFUS\|^REMOVED' "$T/pd.e")" "0 1 0"
+_ofeq "pourDeriveT PD-1 cOLOr derived: 14 names, 14 swatches printing their value (white text 3, black 11), 2 descriptions (black, wall)" "$(_pdn pdColors pourName) $(_pdr pdColors | awk '$2=="drawSpans" && $3=="pourShow"{c[$9]++; if($15==7)v++} END{print v, c["r255"], c["r0"]}') $(_pdr pdColors | awk '$2=="drawSpans" && $3=="pourWhat"{printf "%s ", $15}')" "14 14 3 11 11 13 "
+_ofeq "pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 452 high" "$(_pdr pdColors | grep 'pdTitle x=' | xargs) / $(_pdr pdColors | grep 'pourRow x=' | head -2 | awk '{printf "%s ", $3}')/ $(_pdr pdColors | grep '^pdColors x=' | awk '{print $5}')" "pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=452"
+_ofeq "pourDeriveT PD-3 fONTs: seven samples, each in its own font; a row as tall as its sample needs" "$(_pdr pdFonts | awk '$2=="drawSpans" && $3=="pourShow"{printf "%s %s %s|", $5,$6,$7}') / $(_pdr pdFonts | grep 'pourRow x=' | awk '{printf "%s ", $5}')" ".AppleSystemUIFont 18 0|Copperplate 12 0|Courier New 24|Helvetica 10 0|Palatino 14 1|Palatino 14 0|Palatino 24 1| / h=30 h=24 h=36 h=24 h=26 h=26 h=36 "
+_ofeq "pourDeriveT PD-4 sTYLEs: 16 rows; emphasis's sample is red (the style applied, one r239); accent, a placeholder, is defaultLook's red swatch (black text)" "$(_pdn pdStyles pourName) $(_pdr pdStyles | awk '$2=="drawSpans" && $3=="pourShow" && $9=="r239"{n++} END{print n+0}') $(_pdr pdStyles | awk '$2=="drawSpans" && $3=="pourShow"{print $9; exit}')" "16 1 r0"
+_ofeq "pourDeriveT PD-5 the same pour under a look of its own (accent blue, pageFill black): accent's swatch reads white text; one more white than by day" "$(_pdr pdStylesNight | awk '$2=="drawSpans" && $3=="pourShow"{print $9; exit}') $(_pdr pdStyles | awk '$2=="drawSpans" && $3=="pourShow" && $9=="r255"{n++} END{print n+0}') $(_pdr pdStylesNight | awk '$2=="drawSpans" && $3=="pourShow" && $9=="r255"{n++} END{print n+0}')" "r255 2 4"
+_ofeq "pourDeriveT PD-6 mixed things: a # value a swatch (white on blue), plain words their own text (10 characters), no value nothing" "$(_pdr pdMixed | awk '$2=="drawSpans"{printf "%s:%s:%s ", $3,$9,$15}')" "pourName:r0:5 pourName:r0:7 pourShow:r255:7 pourName:r0:5 pourShow:r0:10 "
+_ofeq "pourDeriveT PD-7 cOMMANDs: no command fired or read (no show text); capped at 792, the names of the 33 rows that fit are drawn and no row is left unframed" "$(_pdn pdCmds pourShow) $(_pdr pdCmds | grep '^pdCmds x=' | awk '{print $5}') $(_pdn pdCmds pourName) $(_pdr pdCmds | grep -c 'pourRow x=- y=- w=- h=24')" "0 h=792 33 0"
+_ofeq "pourDeriveT PD-8 height=fit with a member of no height: the cap, said by name" "$(grep -c '^setFrame: pdOpen names height=fit and 1 of its members name no height of their own; it takes the cap, 792' "$T/pd.e") $(_pdr pdOpen | grep '^pdOpen x=' | awk '{print $5}')" "1 h=792"
+_ofeq "pourDeriveT PD-9 the definition is never written: no rows on it, pour still there" "$(grep '^PD-9 ' "$T/pd.e" | sed 's/ *$//')" "PD-9 the definition's pdRows holds 0 rows; pour still on it: 1"
+#  ⚑ describedTwice -- a name described in two places is named, never silently overwritten (Tony, 2026-11-22): genLadder/describedTwice.sh.
+mkdir -p "$T/dt"; printf 'register(dESCRIPTIONs);\ndefine\n    black="one";\n    ;\nbail();\n' > "$T/dt/a"; printf 'register(dESCRIPTIONs);\ndefine\n    black="two";\n    white="w";\n    ;\nregister(FORMs);\ndefine\n    black="not a description";\n    ;\n' > "$T/dt/b"
+_dtOut=$(bash genLadder/describedTwice.sh 2>&1); _dtx=$?
+_dtBad=$(bash genLadder/describedTwice.sh "$T/dt" 2>&1); _dtbx=$?
+_ofeq "describedTwice the form files: none described twice (exit / line)" "$_dtx $(echo "$_dtOut" | sed 's/^ *//; s/: [0-9]* descriptions/: N descriptions/')" "0 ok    describedTwice: N descriptions, none described twice"
+_ofeq "describedTwice control, two files describing black (a third black under FORMs is not a description): named once, white not named (exit / named / lines)" "$_dtbx $(echo "$_dtBad" | grep -c 'DESCRIBED TWICE black -- .*dt/a:3 .*dt/b:3') $(echo "$_dtBad" | wc -l | tr -d ' ')" "1 1 1"
 
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
@@ -887,7 +918,8 @@ echo "-- the drawing fields in FORMs (drawFieldsT)."
 perl -e 'alarm 30; exec @ARGV' "$B" "$(ip drawFieldsT)" > "$T/df.o" 2> "$T/df.e"; _dfx=$?
 _ofeq "drawFieldsT exit / sentinel" "$_dfx $(grep -c '^DRAWFIELDS SENTINEL' "$T/df.e")" "0 1"
 #  RE-PINNED SEQ 741: pour joined the form attributes (Topics/forms, above its bail), 28 -> 29, so FORMs holds 74.
-_ofeq "drawFieldsT DF-1 FORMs holds 35 drawing fields, 29 form attributes, 7 unparked drawing entries and this file's three" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "74"
+#  RE-PINNED SEQ 742: margin and gap joined them (pour stage 2, D3 and D4), 29 -> 31, so 76.
+_ofeq "drawFieldsT DF-1 FORMs holds 35 drawing fields, 31 form attributes, 7 unparked drawing entries and this file's three" "$(grep '^DF-1' "$T/df.e" | sed 's/.*holds *//' | xargs)" "76"
 _ofeq "drawFieldsT DF-2 LinE carries its Core Graphics call, once; X is defined" "$(grep -c '^	LinE function=CGContextAddLineToPoint signature=v:pdY;' "$T/df.o") $(grep -c '^	X;' "$T/df.o")" "1 1"
 #  DF-3 / DF-4 (Tony, 2026-11-12, rulings 1 and then 3 of the next dispatch): every FORMs field a form writes is virtual, the drawing fields included, so each
 #  write is the writing field's own copy and the registry's definition keeps no value. The control is dfShared, defined in the fixture and NOT virtual: the same

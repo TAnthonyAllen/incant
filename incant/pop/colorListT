@@ -11,23 +11,26 @@ define
         csW := *csC["white"];
         csBt = string $*csB$;
         csWt = string $*csW$;
-        csD := registries["cOLOrdESCRIPTIONs"];
+        csD := registries["dESCRIPTIONs"];
         csE := *csD["black"];
         csEt = string $*csE$;
         cerr "CL-4 cOLOr black [" csBt "] white [" csWt "] its description [" csEt "]":;
         };
+    clRead path="IncantForms/PDF/test.pdf";
     ;
 show(colorList);
 clSay();
+readPDF(clRead);
 cerr "COLORLISTT SENTINEL":;
 stop();
 
-colorListT -- the colours as a poured list, IncantForms/Windows/colorList, shown through the stash (SEQ 741; the pour stroke).
+colorListT -- the colours as a poured list, IncantForms/Windows/colorList, shown through the stash (SEQ 741; derived rows since SEQ 742).
 Tester's final shape is Start(); show(colorList); -- this is that, with utilities loaded first so showPath can point at
-test.pdf and never at Tony's output.pdf. The form holds one template row and pour:=cOLOr; pourT pins pour itself.
+test.pdf and never at Tony's output.pdf. The form holds pour:=cOLOr and no row: pour derives each row (pourDeriveT pins that).
 CL-1  the stash finds colorList (a deferred line), and it draws to test.pdf.
 CL-2  14 rows: the names in cOLOr's order.
 CL-3  the swatches print the values, white on black, blue and darkBrown and black on the other eleven; 14 descriptions.
-CL-4  loading the form leaves cOLOr as it was: black is #000000, white #ffffff, and the description is cOLOrdESCRIPTIONs' own.
+CL-4  loading the form leaves cOLOr as it was: black is #000000, white #ffffff, and black's description is dESCRIPTIONs' own words.
       (The form defines its descriptions with only Grokking searched. With cOLOr on the list, black="..." reopened cOLOr's
       black and overwrote it: measured 2026-11-22, and the H7 for this row.)
+CL-5  the page is as tall as its rows need (height=fit): 40 + 14 x 24 + 13 x 4 + 2 x 12 = 452, read off the PDF.

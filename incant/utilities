@@ -122,8 +122,11 @@ define
         if direct == "*";
             if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
             valueCount = 0;
-            valueCount = pValue / target;
-            if valueCount * target > pValue;    --valueCount;
+            fdStep = target;
+            if dIRECTion == "down";
+                if argument["gap"];     fdStep = target + argument["gap"];
+            valueCount = pValue / fdStep;
+            if valueCount * fdStep > pValue;    --valueCount;
             // pourCount a poured field repeats its template once per member of its registry, whatever fits (P1); the copies are marked after the repeat
             fdPour = 0;
             if argument["pour"];    fdPour = 1;
@@ -231,6 +234,314 @@ define
                 pourResolve(*grup);
         };
     /***************************************************************************
+        pour, stage 2 (Tony ruled D1-D6, 2026-11-22; SEQ 742) -- rows derived from
+        what is poured. pourPlan walks the copy before the styles are merged.
+        A down="*" pour:=aRegistry field with NO member has its rows built here,
+        one a member, three cells: the member's name; a show-me chosen by what
+        the member IS; and dESCRIPTIONs' entry of the member's name (keyed by
+        name, as it is by field name), nothing when it has none. What a member is, by
+        value (pourKind): a value starting # is a colour (a swatch printing the
+        value, contrast text, a lineColor outline); a family is a font (sample
+        text set in it); in sTYLEs with attributes, a style (sample text with
+        the style); empty in sTYLEs, a placeholder, read as what the look gives
+        it and shown through the placeholder, so a look switch shows; anything
+        else shows its own text. A rule or an action is never read for text:
+        reading one would fire it. A written template row is the override: the
+        field keeps it and fillDownAcross repeats it (stage 1). Either way a
+        poured field records what its rows need (pourNeeds: the rows and the
+        gaps between them), which is what height=fit adds up; the field itself
+        still takes its share of the room.
+        A derived field stops being poured on the copy: pour is taken off it
+        and it stacks its rows as a plain down.
+    ***************************************************************************/
+    pdField;
+    pdM;
+    pdTo;
+    pdWords;
+    pdHasWords = 0;
+    pdKind = 0;
+    pdVia = 0;
+    pdRow;
+    pdCell;
+    pdRowH = 24;
+    pdTotal = 0;
+    pdCount = 0;
+    pdSample = "Sample text 123";
+    fitCap = 792;
+    pourPlan code={
+        ppIs = 0;
+        if argument.listLengtH;
+            if argument["pour"];    ppIs = 1;
+        if ppIs == 1;   pourPlanOne(argument);
+        // ownMembers read off argument: a bare hasMemberS reads what was referenced last
+        ppWalk = argument.hasMemberS;
+        if ppWalk == 1;
+            for grup in argument; members
+                pourPlan(*grup);
+        };
+    pourPlanOne code={
+        poA := argument["pour"];
+        poIs = *poA.isGrouP;
+        if poIs == 0;   return;
+        psReg := **poA;
+        psN = 0;
+        poLen = *psReg.listLengtH;
+        if poLen > 0;   pourCount(*psReg);
+        if psN == 0;    return;
+        ppDown = 0;
+        if argument["down"];
+            ppD = string $argument["down"]$;
+            if ppD == "*";  ppDown = 1;
+        if ppDown == 0;     return;
+        ppGap = 0;
+        if argument["gap"];     ppGap = argument["gap"];
+        ppKids = argument.hasMemberS;
+        pdTotal = 0;
+        if ppKids == 1;
+            // templateRow the one row's own height, once a member
+            pdRowH = 0;
+            pourRowHeight(argument);
+            pdTotal = psN * pdRowH;
+        if ppKids == 0;
+            pdField := argument;
+            // describedByName a row's description is dESCRIPTIONs' entry of the member's name (Tony, 2026-11-22: no registry of its own, no attribute); no such registry yet, no descriptions
+            pdHasWords = 0;
+            if registries["dESCRIPTIONs"];
+                pdWords := registries["dESCRIPTIONs"];
+                pdHasWords = 1;
+            pourDerive(*psReg);
+            argument -% *poA;
+            ppDn := argument["down"];
+            argument -% *ppDn;
+            argument :% new("down");
+        ppGaps = psN - 1;
+        ppGaps = ppGaps * ppGap;
+        pdTotal = pdTotal + ppGaps;
+        // needsNotHeight what the rows need is kept beside the field, not as its height: the field still takes its share of the room, so a row past it is noRoom as any is, and fitHeight adds this up
+        ppH := new("pourNeeds");
+        *ppH = pdTotal;
+        argument :% *ppH;
+        };
+    pourRowHeight code={
+        for grup in argument; members
+            prhHas = 0;
+            if *grup["height"];     prhHas = 1;
+            if prhHas == 1;         pdRowH = *grup["height"];
+        };
+    pourDerive code={
+        for grup in argument; members
+            pdM := *grup;
+            pourRowBuild();
+        };
+    // kindByValue what the member pdM holds is; pdTo is the member, or what the look gives a placeholder (Tony ruled by value, 2026-11-22)
+    pourKind code={
+        pdKind = 4;
+        pdVia = 0;
+        pdTo := *pdM;
+        pkReg := *pdM.registrY;
+        pkRi = pkReg.isGrouP;
+        pkRn = string $"none"$;
+        if pkRi == 1;       pkRn = string $*pkReg.taG$;
+        pkD = *pdM.datA;
+        pkL = *pdM.listLengtH;
+        pkEmpty = 0;
+        if pkD == 0;
+            if pkL == 0;    pkEmpty = 1;
+        if pkEmpty == 1;
+            if pkRn == "sTYLEs";    pourThroughLook();
+        pourKindOfTo();
+        if pdKind == 4;
+            if pdVia == 0;
+                if pkRn == "sTYLEs";
+                    if pkL > 0;     pdKind = 3;
+        };
+    pourThroughLook code={
+        ptlN = string $*pdM.taG$;
+        ptlDone = 0;
+        if lkHas == 1;
+            if *lkLook[ptlN];
+                ptlTo := *lkLook[ptlN];
+                pdTo := **ptlTo;
+                ptlDone = 1;
+        if ptlDone == 0;
+            if lkBaseHas == 1;
+                if *lkBase[ptlN];
+                    ptlTo := *lkBase[ptlN];
+                    pdTo := **ptlTo;
+                    ptlDone = 1;
+        if ptlDone == 1;    pdVia = 1;
+        };
+    pourKindOfTo code={
+        pktD = *pdTo.datA;
+        pktL = *pdTo.listLengtH;
+        pktStr = 0;
+        if pktD == 13;      pktStr = 1;
+        if pktD == 14;      pktStr = 1;
+        if pktStr == 1;
+            pktC = *pdTo.numbeR;
+            if pktC == 35;  pdKind = 1;
+        if pktL > 0;
+            if *pdTo["family"];     pdKind = 2;
+        };
+    // valueThenAttributes a cell's text is written before any attribute: writing a field's value drops the attributes it already has (measured, SEQ 742: a width added first was gone, and the cell took a share)
+    pourCell code={
+        pcl := new(argument);
+        *pdRow +/ *pcl;
+        // heldNotReturned the cell is handed back in pdCell: a returned field is a copy, and what is written to it never reaches the row
+        pdCell := *pcl;
+        };
+    pourCentre code={
+        pcv := new("valign");
+        *pcv = "center";
+        *pdCell :% *pcv;
+        };
+    pourWide code={
+        pcw := new("width");
+        *pcw = argument;
+        *pcw :. isPercenT;
+        *pdCell :% *pcw;
+        };
+    pourRowBuild code={
+        prbName = string $*pdM.taG$;
+        pourKind();
+        pdRow := new("pourRow");
+        *pdRow :% new("across");
+        prbRowH = 24;
+        // roomForTheFont a font's own row is as tall as its sample needs
+        if pdKind == 2;
+            prbSz = 0;
+            if *pdTo["size"];   prbSz = *pdTo["size"];
+            prbNeed = prbSz + 12;
+            if prbNeed > prbRowH;   prbRowH = prbNeed;
+        prbH := new("height");
+        *prbH = prbRowH;
+        *pdRow :% *prbH;
+        pdTotal = pdTotal + prbRowH;
+        pourCell("pourName");
+        *pdCell = prbName;
+        pourCentre();
+        pourWide(30);
+        pourCell("pourShow");
+        prbS := *pdCell;
+        if pdKind == 1;     *prbS = string $*pdTo$;
+        if pdKind == 2;     *prbS = pdSample;
+        if pdKind == 3;     *prbS = pdSample;
+        if pdKind == 4;
+            // neverFire a rule or an action is not read for its text: reading one would fire it
+            prbSafe = 1;
+            prbRule = *pdM.isRulE;
+            prbAct = *pdM.actionTypE;
+            prbMeth = *pdM.isMethoD;
+            if prbRule != 0;    prbSafe = 0;
+            if prbAct != 0;     prbSafe = 0;
+            if prbMeth != 0;    prbSafe = 0;
+            prbD = *pdM.datA;
+            if prbD == 0;       prbSafe = 0;
+            if prbSafe == 1;    *prbS = string $*pdM$;
+        pourCentre();
+        pourWide(25);
+        prbSa := new("align");
+        *prbSa = "center";
+        *prbS :% *prbSa;
+        if pdKind == 1;
+            prbF := new("fill");
+            if pdVia == 0;  *prbF := *pdTo;
+            if pdVia == 1;  *prbF := *pdM;
+            *prbS :% *prbF;
+            prbC := new("color");
+            *prbC := sTYLEs["contrast"];
+            *prbS :% *prbC;
+            *prbS :% new("border");
+            prbK := new("strokeColor");
+            *prbK := sTYLEs["lineColor"];
+            *prbS :% *prbK;
+        if pdKind == 2;
+            prbFo := new("font");
+            if pdVia == 0;  *prbFo := *pdTo;
+            if pdVia == 1;  *prbFo := *pdM;
+            *prbS :% *prbFo;
+        if pdKind == 3;
+            prbSt := new("style");
+            *prbSt := *pdM;
+            *prbS :% *prbSt;
+        pourCell("pourWhat");
+        if pdHasWords == 1;
+            prbWl = *pdWords.listLengtH;
+            if prbWl > 0;
+                if *pdWords[prbName];
+                    prbWe := *pdWords[prbName];
+                    *pdCell = string $*prbWe$;
+        pourCentre();
+        *pdField +/ *pdRow;
+        };
+    /***************************************************************************
+        fitHeight -- height=fit on the top field (D5): the form takes the height
+        its members need -- their heights, the gaps between them and its margin
+        twice -- capped at fitCap (792, a Letter page; a window stroke sets it
+        from the display). A member with no height of its own cannot be added
+        up: the cap is used and that is said by name. Past the cap the rows
+        that do not fit are noRoom, as today.
+    ***************************************************************************/
+    fhSum = 0;
+    fhOpen = 0;
+    fhN = 0;
+    fitHeight code={
+        fhIs = 0;
+        if argument["height"];
+            fhT = string $argument["height"]$;
+            if fhT == "fit";    fhIs = 1;
+        if fhIs == 0;       return;
+        fhSum = 0;
+        fhOpen = 0;
+        fhN = 0;
+        fitAdd(argument);
+        fhM = 0;
+        if argument["margin"];  fhM = argument["margin"];
+        fhGap = 0;
+        if argument["gap"];     fhGap = argument["gap"];
+        fhGaps = fhN - 1;
+        fhGaps = fhGaps * fhGap;
+        fhM2 = fhM * 2;
+        fhWant = fhSum + fhGaps;
+        fhWant = fhWant + fhM2;
+        if fhOpen > 0;
+            cerr "setFrame:" argument.taG "names height=fit and" fhOpen "of its members name no height of their own; it takes the cap," fitCap:;
+            fhWant = fitCap;
+        if fhWant > fitCap;     fhWant = fitCap;
+        // freshNumber the height is replaced, not written: the old one holds the word fit, and a number written into it stays a string to the arithmetic below
+        fhNew := new("height");
+        *fhNew = fhWant;
+        argument :% *fhNew;
+        };
+    fitAdd code={
+        for grup in argument; members
+            faHid = *grup.isHiddeN;
+            if faHid == 0;
+                fhN += 1;
+                faHas = 0;
+                faL = *grup.listLengtH;
+                if faL > 0;
+                    if *grup["height"];     faHas = 1;
+                faNum = 0;
+                if faHas == 1;
+                    faH := *grup["height"];
+                    faD = *faH.datA;
+                    faP = *faH.isPercenT;
+                    if faD == 5;    faNum = 1;
+                    if faD == 9;    faNum = 1;
+                    if faP != 0;    faNum = 0;
+                // pouredNeeds a poured field with no height of its own counts what its rows need (pourPlan)
+                faNeeds = 0;
+                if faNum == 0;
+                    if faL > 0;
+                        if *grup["pourNeeds"];  faNeeds = 1;
+                if faNeeds == 1;
+                    faH := *grup["pourNeeds"];
+                    faNum = 1;
+                if faNum == 1;  fhSum = fhSum + *faH;
+                if faNum == 0;  fhOpen += 1;
+        };
+    /***************************************************************************
         pourContrast -- color:=contrast (P3; Tony ruled the rule 2026-11-22): a
         field whose color holds contrast gets black or white text from its own
         fill. Brightness is 0.2126 R*R + 0.7152 G*G + 0.0722 B*B as a share of
@@ -331,6 +642,21 @@ define
         boxB        = y + height;
         upOut       = 0;
         sideOut     = 0;
+        // marginIn margin=N: the content stands N points in from the field's edges (D3); the box that decides noRoom stays the field's own
+        fmM = 0;
+        if argument["margin"];  fmM = argument["margin"];
+        if fmM > 0;
+            fmM2 = fmM * 2;
+            pX += fmM;
+            pY += fmM;
+            pWidth -= fmM2;
+            pHeight -= fmM2;
+            sideRoom -= fmM2;
+            headRoom -= fmM2;
+        // gapBetween gap=N on a field that stacks its members down: N points between one member and the next (D4)
+        fmGap = 0;
+        if argument["gap"];     fmGap = argument["gap"];
+        fmGapN = 0;
         // overlayNamed a parent that names overlay (and neither down nor across) overlays its children: each fills the parent's box unless it declares its own width, height, x or y. A parent naming no direction stacks them, as down does: the old GUI's default, and what descriptions and unitTests' sample rely on (SEQ 626 W3; the default is Tony's to re-rule)
         laysOver    = 0;
         if overlay.datA != 0;
@@ -375,6 +701,11 @@ define
                 else
                     sideOut     +/ *grup;
                     ++sideOut;
+                // gapTakesRoom every member after the first costs one gap of the room shared below
+                if fmGap > 0;
+                    if across.datA == 0;
+                        if fmGapN > 0;      headRoom -= fmGap;
+                        fmGapN += 1;
                 if height.datA != 0;
                     headRoom    -= height;
                 or across.datA != 0;
@@ -437,6 +768,7 @@ define
                 if fmOut == 1;          *grup :. noRooM;
                 if laysOver == 0;
                     if across.datA == 0;    pY += height;
+                    if across.datA == 0;    pY += fmGap;
                 if laysOver == 0;
                     if across.datA != 0;    pX += width;
         for grup in argument; members
@@ -567,6 +899,9 @@ define
         if lkRefused == 1;
             sfChain -% *sfMark;
             return;
+        // pourPlan before the styles are merged: derived rows are built, and every poured field with no height takes the height its rows need, so height=fit can add them up (pour stage 2)
+        pourPlan(*sfLaid);
+        fitHeight(*sfLaid);
         mergeStyles(*sfLaid);
         cardsPick(*sfLaid);
         frameMembers(*sfLaid);

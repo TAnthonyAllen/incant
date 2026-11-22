@@ -10689,6 +10689,7 @@ else echo "  FAIL  gcOffMainT MISSING"; fail=1; fi
 #  fact is a property show reads, not a form attribute, so the walk prints it as a row and does not name it as a fact with no
 #  attribute: groups "... action show", 6 headings, rows 29 of 30 facts; the two controls unchanged.
 #  RE-PINNED SEQ 741 (pour): pour joined the form attributes and the facts (layout group), so rows 30 of 31 facts; the two controls unchanged.
+#  RE-PINNED SEQ 742 (pour stage 2): margin and gap joined them (layout group), so rows 32 of 33 facts.
 _rfF=${REF_FILE:-IncantForms/WorkingOn/reference}
 if [ -f "$_rfF" ]; then
 perl -e 'alarm 60; exec @ARGV' "$B" "$_rfF" > "$T/rf.o" 2> "$T/rf.e"; echo $? > "$T/rf.x"
@@ -10698,8 +10699,8 @@ _ofeq "reference the groups in order: style its own group, typeset (no attribute
 _ofeq "reference one heading line a group, byte for byte (6 groups)" "$(grep -c -F -x "$_rfHead" "$T/rf.o")" "6"
 _ofeq "reference the fill row, byte for byte (the widest value: one space before the next column)" "$(grep '^fill ' "$T/rf.o")" "fill          a held colour (fill:=wall), or #rrggbb  no         built            paints the field's box "
 _ofeq "reference the style group holds style and nothing else" "$(awk '/^style $/{on=1;next} on&&/^$/{on=0} on&&!/^name /{print $1}' "$T/rf.o" | tr '\n' ' ')" "style "
-_ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "30 0"
-_ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 30 of 31 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
+_ofeq "reference every row's columns start where the heading's do (rows, misaligned)" "$(awk -v h="$_rfHead" '$0==h{on=1;next} /^$/{on=0} on{n++; if (substr($0,14,1)!=" "||substr($0,15,1)==" "||substr($0,54,1)!=" "||substr($0,55,1)==" "||substr($0,65,1)!=" "||substr($0,66,1)==" "||substr($0,82,1)!=" "||substr($0,83,1)==" ") bad++} END{printf "%d %d", n, bad}' "$T/rf.o")" "32 0"
+_ofeq "reference the count line: rows, facts, and the two controls counted" "$(grep '^REFERENCE rows' "$T/rf.e")" "REFERENCE rows 32 of 33 facts; facts with no attribute 1 ; attributes with no fact 1 ; drawing fields skipped 23 "
 _ofeq "reference the two controls are named (ghost has no attribute, lonely has no fact)" "$(grep -c '^CHECK a fact with no attribute in FORMs: ghost' "$T/rf.e") $(grep -c '^CHECK a form attribute with no fact: lonely' "$T/rf.e")" "1 1"
 else echo "  FAIL  reference MISSING ($_rfF)"; fail=1; fi
 
