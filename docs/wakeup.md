@@ -5,17 +5,16 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**525, 2026-11-22, topic: forms, SEQ 739 (assigned by Clod).** The sampler recon (docs/samplerRecon.md), reports only: everything
-stage 1 needs exists in kant today -- rows built by a walk, held and swapped by form:=, re-coloured by a look, clicked, and a display
-line by insert. At the maximum size assumed (490 x 792, a Letter page; Tony's size rule, now standing in Topics/forms), B holds all
-107 commands with no letter row, and A pages 33 at a time. tester carries the side-by-side specimen. Seal 524 the same day (kant):
-string-pointer bought; bear-trap 61 rewritten to Clay's probe; testPointer cut.
-**OPEN (Tony):** Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
+**526, 2026-11-22, topic: windows, SEQ 740 (assigned by Clod).** The windows recon (docs/windowsRecon.md), read only, its charter
+Clod's draft. Today openWindow strokes one outline, blocks the script and ends the process on close; the old GUI's window (a Cocoa
+app drawing HTML) does not survive. A real window needs a third context opener, the laid-out copy held by the window, a point turned
+into a click, resize and close callers, and F-153 cured. Seal 525 the same day (forms): the sampler recon; Tony's size rule.
+**OPEN (Tony):** the sampler layout, A or B; the five windows decisions (docs/windowsRecon.md section 5: the loop and how many windows, what a click from a point hands kant, where selection shows, the window's chrome, when F-153 is cured); Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
 **RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** Tony chooses the sampler layout, A or B; windows plan item 1 (Fable 5.2 first).
+**NEXT:** Tony's rulings; then windows stroke 1 (the window draws the form) or the sampler build.
 
-## The numbers (as run at seal 525 on trunk; bare build 2026-11-22 09:42, 2191200 bytes)
+## The numbers (as run at seal 526 on trunk; bare build 2026-11-22 09:42, 2191200 bytes)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4228 green (+3: stringPointerT SP-8, SP-9, HX), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
@@ -41,10 +40,10 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 56 / 60 | this page. |
-| `Topics/forms` | 273 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/forms` | 276 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 202 / 200, OVER by 2 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/windows` | 71 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
+| `Topics/windows` | 75 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |

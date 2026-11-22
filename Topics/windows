@@ -37,7 +37,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
     IMAGES                      images wait for windows: zoom, shrink and centre on the click point come with the click
                                 (Topics/drawing, the floor census, image placements; Topics/forms step 10: "images' zoom and field actions come with it").
     THE STAND-IN                the mock click: click(request), a named field, not a point (G1, seal 477; clickT). clickShow(request)
-                                (on branch tabs-click, SEQ 737) is click then showForm, for forms that do not redraw by listening (docs/tabsRecon.md, item 4a; tabs
+                                (SEQ 737) is click then showForm, for forms that do not redraw by listening (docs/tabsRecon.md, item 4a; tabs
                                 stroke 4). Still open from G1: bubbling to the enclosing fields, naming each action skipped, a real
                                 point and a window.
     TEXT EDITING (Tony, 2026-11-09, SEQ 585 R2; recorded, not ruled for build)
@@ -55,17 +55,21 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
 /*****************************************************************************
     State
 *****************************************************************************/
-    built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730). clickShow and selectTab ON BRANCH tabs-click (tabs stroke 4, SEQ 737), the buy Tony's.
+    built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730), clickShow and selectTab (tabs stroke 4, SEQ 737, bought).
+    today       openWindow opens one window, strokes the top field's outline, blocks the script and ends the process on close; nothing calls it (docs/windowsRecon.md, section 1).
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
 
 /*****************************************************************************
     Plan
 *****************************************************************************/
-    1  A read-only recon of the old GUI's window code (GUI/, guiHost.mm) and today's openWindow. Not dispatched.
+    1  A read-only recon of the old GUI's window code (GUI/, guiHost.mm) and today's openWindow. DONE 2026-11-22 (SEQ 740): docs/windowsRecon.md --
+       read, not run; its charter is Clod's draft. Five decisions for Tony (the loop and how many windows; what a click from a point hands kant;
+       where selection shows; the window's chrome; when F-153 is cured) and six proposed strokes, the first three provable with no visible window.
+    SIZE (Tony, 2026-11-22; Topics/forms): a form is capped at the display's height less menu bar and dock; a window stroke publishes that size to kant.
     2  The Apple Font and Colour panels feed the look's placeholders (RULED, not built; Tony, 2026-11-19): a pick in the panel
        writes the placeholder (pageFill, headingFont ...) the request's look holds, and the form redraws through it.
 
 /*****************************************************************************
     Seal digest (newest first)
 *****************************************************************************/
-    (none yet)
+    526  SEQ 740 (assigned by Clod), 2026-11-22.  THE WINDOWS RECON (docs/windowsRecon.md), read only. Today: openWindow (guiHost.mm) strokes one outline, blocks, and a close kills the process; Layout has no mouse method; isWindow has no reader; blockContaining is in the binary and uncalled. The old GUI was a Cocoa app that owned the loop and drew HTML in a web view; neither survives. What a window needs: a third context opener beside makeDisplay and openPDF (exists but for the opener); C++ calling kant (exists: runAction); the window holding the laid-out copy, not the form; a point turned into a click (blockContaining exists; click takes a name in the definition, so the last step does not); resize and close callers for redrawWindow and keepFrame; F-153 before kant runs under an open window. NEXT: Tony's five decisions.
