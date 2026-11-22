@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2191200 bytes  Nov 22 12:26
+  bin   2208944 bytes  Nov 22 13:05
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -307,6 +307,15 @@
   ok    resizeLightT RG-4 resized back through the store: the window at 500x600; the page = RG-1's, by value = [width 500 height 600 / 500x600 lines 3 wall white wall green]
   ok    resizeLightT RG-5 four pages were read, and firstLight still declares 500x600 = [4 / firstLight x=300 y=450 width=500 height=600]
 
+-- a relayout under an open offscreen window, collections forced (windowGcT).
+  ok    windowGcT exit / sentinel / window opened, not shown = [0 1 1]
+  ok    windowGcT WG-1 before any window: of 8 blocks each, globals of ours keep all 8; the hidden end is collected, the uncollectable end keeps 8 = [no_dls 0 bss 8 data 8 bad-end collected good-end 8]
+  ok    windowGcT WG-2 UNDER THE OPEN WINDOW (no_dls 1) blocks held only by globals of ours are still kept, 8 of 8 = [no_dls 1 bss 8 data 8 bad-end collected good-end 8]
+  ok    windowGcT WG-3 / WG-4 compiled code fired under the window, and again after two relayouts: 3 then 6 = [3 6]
+  ok    windowGcT the four pages and their points under the window = resizeLightT's own, by value (22 lines, no refusal) = [same 22 0]
+  ok    windowGcT WG-5 after the relayouts and one more collection: still 8 of 8 = [no_dls 1 bss 8 data 8 bad-end collected good-end 8]
+  ok    windowGcT CONTROL, every static root dropped at the open: the probe reads the globals' blocks COLLECTED (before the window, kept) = [no_dls 0 globals kept / no_dls 1 globals COLLECTED]
+
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
   ok    typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines = [lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1]
@@ -407,4 +416,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 354 green, see above
+FORMS POP FAILED -- 361 green, see above

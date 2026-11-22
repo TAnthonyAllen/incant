@@ -894,7 +894,7 @@ _wgF=$(ip windowGcT)
 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wgF" > "$T/wg.o" 2> "$T/wg.e"; _wgx=$?
 #  one probe line as four words: the two global sets and the good end exactly; the bad end as "some" (fewer than 8 kept) or "all". The collector is
 #  conservative: a stray stack word can keep a block nothing holds, so an unheld set reads "fewer than 8", never a pinned count; a held set reads 8, always.
-_wgp () { grep '^=== rootProbe' "$1" | sed -n "$2p" | awk '{gsub(/;/,""); bad=($(NF-6) < 8) ? "collected" : "ALL-KEPT"; print "no_dls " $4 " bss " $13 " data " $17 " bad-end " bad " good-end " $(NF-1)}'; }
+_wgp () { grep '^=== rootProbe' "$1" | sed -n "$2p" | awk '{gsub(/;/,""); bad=($21 < 8) ? "collected" : "ALL-KEPT"; print "no_dls " $4 " bss " $13 " data " $17 " bad-end " bad " good-end " $(NF-1)}'; }
 _wgc () { grep '^=== rootProbe' "$1" | sed -n "$2p" | awk '{gsub(/;/,""); print "no_dls " $4 " globals " (($13 < 8 && $17 < 8) ? "COLLECTED" : "kept")}'; }
 _ofeq "windowGcT exit / sentinel / window opened, not shown" "$_wgx $(grep -c '^WINDOWGC SENTINEL' "$T/wg.e") $(grep -c '^=== windowOffscreen: a window 500 x 600, not shown' "$T/wg.e")" "0 1 1"
 _ofeq "windowGcT WG-1 before any window: of 8 blocks each, globals of ours keep all 8; the hidden end is collected, the uncollectable end keeps 8" "$(_wgp "$T/wg.e" 1)" "no_dls 0 bss 8 data 8 bad-end collected good-end 8"
