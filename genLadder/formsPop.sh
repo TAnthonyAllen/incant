@@ -906,6 +906,25 @@ _ofeq "windowGcT WG-5 after the relayouts and one more collection: still 8 of 8"
 WINDOW_CLEAR_ROOTS=1 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wgF" > "$T/wgc.o" 2> "$T/wgc.e"
 _ofeq "windowGcT CONTROL, every static root dropped at the open: the probe reads the globals' blocks COLLECTED (before the window, kept)" "$(_wgc "$T/wgc.e" 1) / $(_wgc "$T/wgc.e" 2)" "no_dls 0 globals kept / no_dls 1 globals COLLECTED"
 
+#  ⚑ windowDrawT -- windows stroke 1 (SEQ 748, 2026-11-22): the window draws the form. Layout.drawRect is the third opener beside makeDisplay and openPDF
+#  (windowDrawForm, guiHost.mm): AppKit's context in the top's pointer slot, the floor's three transforms, kant's drawWalk. readWindow has AppKit draw the
+#  view into a bitmap with nothing shown. THE CLAIM IS EQUALITY WITH THE PLAIN BITMAP, pixel for pixel; the PDF differs from both alike (its own rasterising).
+#  Control (H7, 2026-11-22, one build): windowDrawForm's origin translate removed -> WD-3 reads differing > 0 and WD-4's red point moves. Run at GCSTRESS=1000.
+echo ""
+echo "-- the window draws the form, read offscreen (windowDrawT)."
+_wdF=$(ip windowDrawT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wdF" > "$T/wd.o" 2> "$T/wd.e"; _wdx=$?
+_wdpts () { grep "^=== pixelAt $1 " "$T/wd.o" | sed -n "$2" | sed 's/.*= //; s/ ===//' | _rgc | xargs; }
+_wddiff () { grep "^=== displayDiff $1 " "$T/wd.o" | sed 's/^=== displayDiff [A-Za-z]* //; s/ ===$//'; }
+_ofeq "windowDrawT exit / sentinel" "$_wdx $(grep -c '^WINDOWDRAW SENTINEL' "$T/wd.e")" "0 1"
+_ofeq "windowDrawT WD-1 the PDF's four points: heading wall, words white, space wall, ok green" "$(_wdpts pdfRead 1,4p)" "wall white wall green"
+_ofeq "windowDrawT WD-2 THE WINDOW'S four points = the PDF's, by value; the view is the form's size" "$(_wdpts wdRead 1,4p) / $(grep -c '^=== readWindow wdRead title \[incant\] size 500x600' "$T/wd.o")" "$(_wdpts pdfRead 1,4p) / 2"
+_ofeq "windowDrawT WD-3 THE WINDOW'S BITMAP = THE PLAIN BITMAP'S, every pixel: 0 of 300000 differ, and the page is not blank" "$(_wddiff wdSame | sed 's/unlike the first.s corner \([0-9]*\)/inked \1/' | awk '{print $2, $4, ($6 > 1000 ? "inked" : "BLANK"), "differing", $8}' | tr -d ';,')" "500x600 300000 inked differing 0"
+_ofeq "windowDrawT WD-3 the PDF differs from the window exactly as it differs from the plain bitmap (the PDF's own rasterising)" "$(_wddiff wdDiff)" "$(_wddiff wdPdfBit)"
+_ofeq "windowDrawT WD-4 TITLE: a form naming title= titles its window; the second window is its form's size" "$(grep '^=== readWindow wdTitledRead' "$T/wd.o" | sed 's/^=== readWindow wdTitledRead //; s/ ===$//')" "title [A titled form] size 120x80"
+_ofeq "windowDrawT WD-4 two windows, each draws its own form: red at (60,40) in the titled one, firstLight's wall at (450,15)" "$(grep '^=== pixelAt wdTitledRead (60,40)' "$T/wd.o" | sed 's/.*= //; s/ ===//') / $(_wdpts wdRead 5p)" "r239 g43 b45 a255 / wall"
+_ofeq "windowDrawT WD-5 / WD-6 refused by name, once each: a form no window holds; a field with no frame" "$(grep -c '^readWindow: REFUSING wdTitledRead -- needs form:= a top field that a window holds' "$T/wd.e") $(grep -c '^windowOffscreen: REFUSING wdBare -- frame is 0x0' "$T/wd.e")" "1 1"
+
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
 #  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one

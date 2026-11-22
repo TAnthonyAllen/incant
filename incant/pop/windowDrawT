@@ -1,0 +1,129 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+register(WindowDrawT);
+define
+    rgX = 0;
+    rgY = 0;
+    rgAt code={
+        px = rgX;
+        py = rgY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rgRead code={
+        rgAt(argument);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/test.pdf";
+    wdBare;
+    wdTitled x=40 y=60 width=120 height=80 title="A titled form" fill=red;
+    rgWin x=300 y=450 width=500 height=600;
+    rgBig x=300 y=450 width=1200 height=600;
+    rgSmall x=300 y=450 width=500 height=600;
+    ;
+search WindowDrawT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    wdTitledReq path="IncantForms/PDF/test.pdf" form:=wdTitled;
+    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
+    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
+    rgResize code={
+        rgF := argument;
+        rgWin :% copyOf(*rgF["x"]);
+        rgWin :% copyOf(*rgF["y"]);
+        rgWin :% copyOf(*rgF["width"]);
+        rgWin :% copyOf(*rgF["height"]);
+        redrawWindow(rgReq);
+        };
+    wdLaid;
+    wdTitledLaid;
+    wdTitledRead form;
+    wdTwo code={
+        rgX = 60; rgY = 40;  rgRead(wdTitledRead);
+        rgX = 450; rgY = 15;  rgRead(wdRead);
+        };
+    wdRead form;
+    wdDiff first:=pdfRead second:=wdRead;
+    wdSame first second;
+    wdPdfBit first second;
+    wdPts code={
+        rgX = 450; rgY = 15;  rgRead(wdRead);
+        rgX = 5;   rgY = 100; rgRead(wdRead);
+        rgX = 100; rgY = 220; rgRead(wdRead);
+        rgX = 490; rgY = 230; rgRead(wdRead);
+        };
+    rgSmallPts code={
+        rgX = 450; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 100; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
+        };
+    rgBigPts code={
+        rgX = 900; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 150; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 1190; rgY = 230; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
+        };
+    ;
+cerr "WD-1 the PDF, as declared":;
+wdLaid := redrawForm(rgFresh);
+readPDF(pdfRead);
+rgSmallPts();
+cerr "WD-2 the same laid-out copy in a window, not shown":;
+windowOffscreen(*wdLaid);
+wdRead.form := *wdLaid;
+readWindow(wdRead);
+wdPts();
+displayDiff(wdDiff);
+cerr "WD-3 the same copy drawn into a plain bitmap (makeDisplay), against the window and against the PDF":;
+drawWalk(*wdLaid);
+wdSame.first := *wdLaid;
+wdSame.second := wdRead;
+displayDiff(wdSame);
+wdPdfBit.first := pdfRead;
+wdPdfBit.second := *wdLaid;
+displayDiff(wdPdfBit);
+cerr "WD-4 a second window, for a form naming title=; the first window is read again beside it":;
+wdTitledLaid := redrawForm(wdTitledReq);
+windowOffscreen(*wdTitledLaid);
+wdTitledRead.form := *wdTitledLaid;
+readWindow(wdTitledRead);
+readWindow(wdRead);
+wdTwo();
+cerr "WD-5 a request whose form no window holds":;
+wdTitledRead.form := firstLight;
+readWindow(wdTitledRead);
+cerr "WD-6 a window asked for a field with no frame":;
+windowOffscreen(wdBare);
+cerr "WINDOWDRAW SENTINEL":;
+stop();
+
+windowDrawT -- windows stroke 1 (SEQ 748, 2026-11-22): the window draws the form. A delta of resizeLightT's preamble (copied,
+then patched). Rows in genLadder/formsPop.sh, which runs it at GCSTRESS=1000: the draw walk is kant, run under an open window.
+No window is shown: windowOffscreen makes it, readWindow has AppKit draw its view -- the real drawRect -- into a bitmap.
+
+WD-1  firstLight laid out and drawn to the PDF by redrawForm, which returns the laid-out copy; four points read from the PDF.
+WD-2  the same copy handed to a window. readWindow(wdRead), with wdRead.form := the copy, reads the same four points.
+      displayDiff then compares the window's whole bitmap with the PDF's.
+WD-3  the same copy drawn into a plain bitmap by drawWalk (makeDisplay's opener). THE WINDOW'S BITMAP EQUALS IT EXACTLY:
+      0 pixels of 300000 differ, with 264727 unlike the corner pixel (so two blank pages cannot pass). The PDF differs
+      from the plain bitmap exactly as it differs from the window (the same three counts): the PDF's own rasterising of
+      text and pictures, not the window's. The row compares those two lines with each other and pins no count of them.
+WD-4  a second window, for wdTitled, which names title=: the window's title is the form's. firstLight names none and is
+      titled incant. Both windows are read again: each draws its own form (red at (60,40); firstLight's wall at (450,15)).
+      wdTitled sits at x=40 y=60 and its window's bitmap starts at the form's own corner.
+WD-5  readWindow with form:= a field no window holds (the definition, not the copy): refused by name.
+WD-6  windowOffscreen on a field with no frame: refused by name, no window made.
+
+MEASURED, NOT PINNED: the first readWindow of a window runs the draw walk twice and later ones once (AppKit's doing).

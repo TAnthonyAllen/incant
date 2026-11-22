@@ -1,10 +1,6 @@
 @class NSView;
 class GroupItem;
 @class NSBezierPath;
-@class NSColor;
-@class NSTextFieldCell;
-@class NSTextField;
-class Stylish;
 @class NSNotification;
 /*******************************************************************************
 	Layout view
@@ -15,15 +11,7 @@ class Stylish;
 GroupItem *base;
 GroupItem *selection;
 NSBezierPath *layoutPath;
-NSColor *strokeColor;
-NSColor *textColor;
-NSTextFieldCell *cell;
-NSTextField *textField;
-Stylish *style;
 }
-- (void)displayCell;
-- (void)displayImage;
-- (void)displayText;
 - (void)drawRect:(NSRect)r;
 - (Layout*)init:(GroupItem*)field;
 - (NSPoint)invertY:(NSPoint)point;
