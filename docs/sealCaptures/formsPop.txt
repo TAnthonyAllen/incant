@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2208944 bytes  Nov 22 13:05
+  bin   2220064 bytes  Nov 22 13:23
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -316,6 +316,16 @@
   ok    windowGcT WG-5 after the relayouts and one more collection: still 8 of 8 = [no_dls 1 bss 8 data 8 bad-end collected good-end 8]
   ok    windowGcT CONTROL, every static root dropped at the open: the probe reads the globals' blocks COLLECTED (before the window, kept) = [no_dls 0 globals kept / no_dls 1 globals COLLECTED]
 
+-- the window draws the form, read offscreen (windowDrawT).
+  ok    windowDrawT exit / sentinel = [0 1]
+  ok    windowDrawT WD-1 the PDF's four points: heading wall, words white, space wall, ok green = [wall white wall green]
+  ok    windowDrawT WD-2 THE WINDOW'S four points = the PDF's, by value; the view is the form's size = [wall white wall green / 2]
+  ok    windowDrawT WD-3 THE WINDOW'S BITMAP = THE PLAIN BITMAP'S, every pixel: 0 of 300000 differ, and the page is not blank = [500x600 300000 inked differing 0]
+  ok    windowDrawT WD-3 the PDF differs from the window exactly as it differs from the plain bitmap (the PDF's own rasterising) = [size 500x600 pixels 300000; unlike the first's corner 264727; differing 61142, by more than 16: 824, at most 71]
+  ok    windowDrawT WD-4 TITLE: a form naming title= titles its window; the second window is its form's size = [title [A titled form] size 120x80]
+  ok    windowDrawT WD-4 two windows, each draws its own form: red at (60,40) in the titled one, firstLight's wall at (450,15) = [r239 g43 b45 a255 / wall]
+  ok    windowDrawT WD-5 / WD-6 refused by name, once each: a form no window holds; a field with no frame = [1 1]
+
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
   ok    typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines = [lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1]
@@ -416,4 +426,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 361 green, see above
+FORMS POP FAILED -- 369 green, see above
