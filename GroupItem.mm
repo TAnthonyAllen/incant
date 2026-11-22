@@ -1559,8 +1559,9 @@ void GroupItem::makeRegistry()
 				groupBody->guardSet->set(*grup->groupBody->tag);
 			groupBody->flags.guarding = 1;
 			}
-		GroupControl::groupController->groupRules->registries->addMember(this);
-		groupBody->registry = this;
+		// homeInRegistries the registry's home is the node registries holds, as getRegistry's is: entries are parented to it, so every registry's entries sit under registries (Tony, 2026-11-22, SEQ 744). Before, a registry made by the registry command kept the parse's own node as home
+		GroupItem *home = GroupControl::groupController->groupRules->registries->addMember(this);
+		groupBody->registry = home;
 		}
 	else	::fprintf(stderr,"%s is already a registry\n",groupBody->tag);
 }

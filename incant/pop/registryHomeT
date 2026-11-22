@@ -1,0 +1,67 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+search cOLOr fONTs sTYLEs;
+registry(RhWords);
+define
+    black="words for black";
+    rhOwn="only here";
+    ;
+define
+    rhOwn="said again, in its own registry";
+    ;
+register(RegistryHomeT);
+search RegistryHomeT list;
+define
+    rhSay code={
+        rN = string $argument$;
+        rR := registries[rN];
+        rEh = string $"-"$;
+        rEp = string $"-"$;
+        rE := *rR.firstMembeR;
+        rEo := *rE.parenT;
+        rEh = string $*rEo.taG$;
+        rEg := *rEo.parenT;
+        rEgi = rEg.isGrouP;
+        if rEgi == 1;   rEp = string $*rEg.taG$;
+        cerr "RH-1" rN ": first member's home [" rEh "], the home's parent [" rEp "]":;
+        };
+    rhOver code={
+        oc := registries["cOLOr"];
+        ob := *oc["black"];
+        obT = string $*ob$;
+        ow := registries["RhWords"];
+        oe := *ow["black"];
+        owT = string $*oe$;
+        oo := *ow["rhOwn"];
+        ooT = string $*oo$;
+        owN = 0;
+        rhCount(*ow);
+        cerr "RH-2 cOLOr black [" obT "] RhWords black [" owT "] RhWords entries" rhN:;
+        cerr "RH-3 the same registry said twice: rhOwn [" ooT "]":;
+        };
+    rhN = 0;
+    rhCount code={
+        rhN = 0;
+        for grup in argument; members
+            rhN += 1;
+        };
+    ;
+rhSay("cOMMANDs");
+rhSay("Utilities");
+rhSay("cOLOr");
+rhSay("RhWords");
+rhOver();
+cerr "REGISTRYHOMET SENTINEL":;
+stop();
+
+registryHomeT -- every registry's entries sit under registries, and a definition never writes another registry's entry
+(Tony ruled 2026-11-22; SEQ 744, item 1 of the registries dispatch; docs/warningsRecon.md section 3).
+RH-1  a registry's first member's home is the registry, and THAT node's parent is registries: for a bootstrap registry
+      (cOMMANDs), for one a file made with the registry command (Utilities, cOLOr), and for this fixture's own (RhWords).
+      Before SEQ 744 the last three read the parse's own node, parent acC: makeRegistry kept it as the registry's home.
+RH-2  black="words" under RhWords with cOLOr on the search list: cOLOr's black is still #000000 and RhWords has its own
+      black. Before, the define wrote cOLOr's entry and listed that same entry in RhWords (both read the words).
+RH-3  the control, so the guard is not a wall: a name said twice in its OWN registry still overwrites, the last winning.

@@ -10343,6 +10343,20 @@ _ofeq "frameStoreT FS-11 the entry was left for descriptions' own open: 300x300 
 #  written as rows, is laid out (RF-1 to RF-3). H7: the refusal removed, the line is gone and bCross is laid out.
 _ofeq "reframeT RF-15 a field naming both down and across refuses by name, once, and its member is not laid out" "$(grep -c '^setFrame: REFUSING pBoth -- it names both down and across' "$T/rf.e") $(grep -c 'names both down and across' "$T/rf.e") $(_rfb BOTH BOTHEND pBothReq | grep -c '^	bCross x=- y=- w=- h=50')" "1 1 1"
 _ofeq "reframeT RF-16 the same grid written as rows lays out 4 rows of 2 cells, 125x50, rows at y 100 150 200 250" "$(_rfb RUN1 RUN2 pSumpleReq | grep -c '^		crossing .* w=125 h=50') $(_rfb RUN1 RUN2 pSumpleReq | grep '^	pSumpleRow ' | sed 's/.* y=\([0-9]*\) .*/\1/' | xargs)" "8 100 150 200 250"
+#  ⚑ registryHomeT -- SEQ 744 (Tony ruled 2026-11-22, item 1 of the registries dispatch; docs/warningsRecon.md section 3): every registry's
+#  entries sit under registries (makeRegistry adopts the node registries holds, as getRegistry does), and traitOwnsValue knows a registry
+#  by its own marker (binType isREGISTRY), so a definition whose name is found in another registry gets its own entry.
+#  H7 (three builds, the fixture alone; H17: the two fixes mask each other, so each control runs where the other is absent):
+#  makeRegistry back (the marker kept) -> RH-1 reads parent [ acC ] for the three kant-made registries, RH-2 still green (the marker
+#  alone protects); the marker back to the parent test (makeRegistry kept) -> all green, masked; BOTH back -> RH-2 reads
+#  cOLOr black [ words for black ].
+_rhF=$(ip registryHomeT)
+perl -e 'alarm 30; exec @ARGV' env INCANT_NOVIEW=1 "$B" "$_rhF" > "$T/rh.o" 2> "$T/rh.e"; _rhx=$?
+_ofeq "registryHomeT exit / sentinel / no refusal" "$_rhx $(grep -c '^REGISTRYHOMET SENTINEL' "$T/rh.e") $(grep -c 'REFUS' "$T/rh.e")" "0 1 0"
+_ofeq "registryHomeT RH-1 every registry's entries sit under registries: bootstrap (cOMMANDs), file-made (Utilities, cOLOr), the fixture's own" "$(grep '^RH-1 ' "$T/rh.e" | sed 's/.*the home.s parent \[ *//; s/ *\].*//' | tr '\n' ' ')" "registries registries registries registries "
+_ofeq "registryHomeT RH-2 a definition under one registry does not write another's entry: cOLOr's black stays, RhWords has its own" "$(grep '^RH-2 ' "$T/rh.e" | sed 's/ *$//')" "RH-2 cOLOr black [ #000000 ] RhWords black [ words for black ] RhWords entries 2"
+_ofeq "registryHomeT RH-3 control: a name said twice in its own registry still overwrites, the last winning" "$(grep '^RH-3 ' "$T/rh.e" | sed 's/ *$//')" "RH-3 the same registry said twice: rhOwn [ said again, in its own registry ]"
+
 #  ⚑ stringPointerT -- SEQ 735 (Tony, 2026-11-21): kant's string-pointer operations. RE-PINNED SEQ 737 under Tony's rulings of 2026-11-22:
 #  R1a ++ on a one-character string leaves no value; R1b a string walk tests data (while s.datA;); R2 numbeR (27) is the first character's
 #  code, read only. hexToNumber (incant/utilities) gets its own rows. A re-pin here needs a sentence. The fixture's foot says what each row asserts.
