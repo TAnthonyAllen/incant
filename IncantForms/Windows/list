@@ -1,48 +1,66 @@
 /*****************************************************************************
-    Revised list work in process. The new list will be simpler than the old
-    one shown below the bail; best ignored for now to avoid confusion and lots of
-    explanation. The simpler table will still have to deal with pouring input into its table structure.
-    
-    The first step will be to define that structure and see that setFrame handles its layout.
-    Second step will be change Tests/delimitTest to be a data source with 6 rows
-    with each row having a label and three numbers.
-    Third step: figure out how to pour in delimitTest such that its components get put into
-    rowLabel first then numbers go into rowField. This is the design challenge.
+    list -- a table poured from data (Tony and Clay, 2026-11-22, first draft; the final
+    form by rinse and repeat). Definitions only. NOT RUNNABLE YET: it needs nested pour
+    (pour:=each) and listStuff made by delimitedData from Tests/delimitTest.
+    The plan, Tony's three steps (from the old header):
+    1. Define the structure and see that setFrame lays it out.
+    2. Tests/delimitTest becomes a data source: six rows, each a label and three numbers.
+    3. Pour it in: the label into rowLabel, the numbers into rowField. Answered below:
+       nested pour, the same machinery as colorList (IncantForms/Windows/colorList).
+    The form names no colour and no font: only placeholders, resolved through the look.
+    The old list (below Old body) is the old GUI's; best ignored for now.
 *****************************************************************************/
 register(FORMs);
 define
-    listExample window closable resize x=400 y=400 width=400 height=300 fill=wall title="List With Attributes"
-        first height=60 fill=white top left right rounded font=normal
-            space;
-            heading="Variable Attributes List" height=43.0 text align=center font=title border=off;
-        body source=listStuff rounded=5 fill=white font=normal down=*
-            rows across height=40
-                rowLabel text width=100;
-                rowFields across=*
-                    rowField text align=right;
+    listExample window closable resize x=400 y=400 width=400 height=fit margin=12 down fill:=pageFill font:=bodyFont title="List With Attributes"
+        listHead height=60 fill:=panelFill rounded topBorder leftBorder rightBorder
+            listSpace;
+            heading="Variable Attributes List" text height=43 align=center valign=center font:=headingFont;
+        body down="*" pour:=listStuff rounded=5 fill:=panelFill gap=2
+            rows across height=24
+                rowLabel="{each.taG}" text width=100 valign=center;
+                rowFields across="*" pour:=each
+                    rowField="{each}" text align=right valign=center;
     ;
 bail();
 
 /*****************************************************************************
-    Design notes
+    Design notes (Clay and Tony, 2026-11-22; supersede the position-order notes of earlier)
 *****************************************************************************/
-Step three: the pour. I’d split it into two jobs that never meet.
+TWO JOBS THAT NEVER MEET (kept from the earlier notes). Parsing turns the data into fields: delimitedData reads
+delimitTest into listStuff, one member per row, each row holding its pieces. The pour never sees a separator; tab,
+comma or line end are the parser's business ("tab is a concept", 2026-11-14).
 
-Parsing turns the data into fields. delimitedData reads delimitTest into listStuff: one member per row, and each row holds its pieces (label, n1, n2, n3). The pour never sees a separator; tab, comma or line end are entirely the parser’s business. That keeps the poured-data idea you had on 2026-11-14 (“tab is a concept”) on the parsing side, where it belongs.
-Pouring matches the data to the template by position.
-body source:=listStuff down=*: when a field has a source, * means one copy per data row instead of as many as fit. Rows that don’t fit are clipped for now; scrolling waits for windows.
-Within a row, pieces go into the template’s leaves in reading order, left to right and depth first. A plain leaf (rowLabel) takes one piece. A * repeat (rowFields across=*) takes all the pieces that remain, one rowField per piece.
-So “label first, then numbers” comes straight out of the template’s order, with no naming needed.
-It all happens on setFrame’s copy, so the definition is never written. That matches G3.
+NESTED POUR (new, replaces "pieces go into leaves in reading order"). The template says where each piece goes;
+nothing is placed by position rules:
+  - the outer pour, body down="*" pour:=listStuff, makes one row per member of listStuff; {each.taG} is the row's
+    label (its name);
+  - the inner pour, rowFields across="*" pour:=each, pours that row's own pieces, one rowField per piece; the inner
+    each stands for the piece and shadows the outer one.
+  NEW TO BUILD: pour:=each (pour from the current member) on an across="*" field. The rest is built (colorList).
 
-What happens when the data misbehaves (you leave this to us):
+WHEN THE DATA MISBEHAVES (kept, restated for nested pour):
+  - ragged rows: the column count is taken from the widest row, so every row shares the same column widths and the
+    table stays aligned; short rows get empty cells;
+  - rows that do not fit are clipped for now; scrolling waits for windows;
+  - EMPTY PIECES MUST SURVIVE: 1,2,,,5 is five pieces, two with no value. delimitedData must keep them and pour must
+    keep their places, or 5 lands in column 3 and the table silently lies. A must-test row.
 
-Two * siblings at one level: refused by name, because there’d be no way to tell where one ends and the next begins.
-A short row: the missing leaves are left empty, with a trace line naming the row.
-A long row with no * to absorb the extras: the extras are dropped, with a trace line.
-Ragged rows under across=*: the count is taken from the widest row, so every row shares the same column widths and the table stays aligned. Short rows get empty cells.
+FORMATTING VALUES (Tony, 2026-11-22: it will come up; from the old GUI's tables). Not ruled; the direction:
+  - format on a poured cell writes its value by kind: a number by the pattern (format="0.00"), a count as a whole
+    number, a string as it is (a string in a number column shows as text, it is not refused);
+  - zero has its own look: zero="-", or whatever the user wants;
+  - absent has another: missing="" by default (blank). Zero is a value, absent is not (the ++ ruling), so they never
+    share a look by accident;
+  - right alignment on the decimal point, and thousands separators, are later fiddly bits.
 
-Later, not now: matching by name (a header row naming the columns, fields named to match) suits DB query data. Position is enough for six rows of a label and three numbers.
+NEW PLACEHOLDER: panelFill, the fill of a panel standing on the page (the old list had white panels on a wall page).
+Not in IncantForms/Controls/styles yet: added with list's build (defaultLook: panelFill:=white, and the page then
+wants pageFill:=wall or a look of list's own -- a fiddly-pass decision).
+
+RESPELLED (2026-11-22, by the rulings): fill:=pageFill / font:=bodyFont (placeholders), topBorder leftBorder rightBorder
+(not top left right), down="*" quoted, border=off dropped, the first field renamed listHead and its space listSpace
+(names that say what they are), source= became pour:=.
 
 /*****************************************************************************
     Old body of list
