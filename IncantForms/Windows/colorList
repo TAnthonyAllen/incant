@@ -8,10 +8,10 @@
 *****************************************************************************/
 /*  The words for each colour, in dESCRIPTIONs, keyed by the colour's own name, as a field's
     description is keyed by the field's name (Tony, 2026-11-22: no registry of their own).
-    Defined with only Grokking searched: with cOLOr on the list, black="..." would reopen cOLOr's black
-    and overwrite its value (measured by Clod, 2026-11-22, the pour stroke). The search line after puts
-    the colours back. genLadder/describedTwice.sh names any name described in two places.  */
-search reset stack Grokking;
+    cOLOr is on the search list while these are read, and black="..." still makes dESCRIPTIONs' own black:
+    a definition whose name is found in another registry gets its own entry (SEQ 744; until then this file
+    reset the search list around the define, or cOLOr's black was overwritten).
+    genLadder/describedTwice.sh names any name described in two places.  */
 register(dESCRIPTIONs);
 define
     black="the darkest; default text";
@@ -29,7 +29,6 @@ define
     wall="pale yellow; old page colour";
     white="white; the page fill";
     ;
-search cOLOr fONTs sTYLEs;
 register(FORMs);
 define
     colorList window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont title="Colors"

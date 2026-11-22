@@ -1128,8 +1128,9 @@ void makeRegistry()
             guardSet    = new();
             while grup = next(grup) guardSet += *grup.tag;
             guarded = true; }
-        registries      += this;
-        registry        = this;
+        // homeInRegistries the registry's home is the node registries holds, as getRegistry's is: entries are parented to it, so every registry's entries sit under registries (Tony, 2026-11-22, SEQ 744). Before, a registry made by the registry command kept the parse's own node as home
+        GroupItem   home = registries += this;
+        registry        = home;
         }
     else cerr tag,"is already a registry":;
 }

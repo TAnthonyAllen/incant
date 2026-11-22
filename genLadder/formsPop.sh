@@ -606,6 +606,8 @@ _ofeq "pourT PT-9 the definition is never written: one row, no each" "$(grep '^P
 #  Start(); show(colorList); with showPath pointed at test.pdf. These pin the form and that loading it leaves cOLOr alone.
 #  H7 (SEQ 741, on a copy of the form with its two search lines out, the fixture pointed at it): CL-4 reads black [the darkest; ...] and
 #  CL-3's swatches lose their fills (14 displayFill refusals).
+#  SEQ 744: the form's two search lines are OUT (a definition found in another registry gets its own entry now), and CL-4 holds without
+#  them; its H7 moves to the engine (pop.sh, registryHomeT).
 #  RE-PINNED SEQ 742 (pour stage 2): colorList is the derived form now -- no template row, so the cells are pour's own (pourName, pourShow,
 #  pourWhat), its descriptions are in dESCRIPTIONs, and CL-5 is new: height=fit, the page 452 high.
 _clF=${CL_FILE:-$(ip colorListT)}

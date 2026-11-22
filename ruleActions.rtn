@@ -1153,7 +1153,8 @@ extern int traitOwnsValue(GroupItem trait, GroupItem value)
     ParseActivation *a = ruler->gParseActive;
     GroupItem *home = trait ? trait->parent : 0;
     if ( !value || !home || home == ruler->currentRegistry )    return 0;
-    if ( home != ruler->registries && home->parent != ruler->registries )   return 0;
+    //  ownMarker a registry is known by its own marker, never by who its parent is: one made some other way is still caught (Tony, 2026-11-22, SEQ 744; the parent test missed every registry the registry command made)
+    if ( home != ruler->registries && !isREGISTRY(home->groupBody->flags.binType) )   return 0;
     if ( !a || !a->prev || a->prev->isFloor || !a->prev->instance )   return 0;
     return ::compare(a->prev->instance->groupBody->tag,"NewGroup") == 0;
     %-
