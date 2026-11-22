@@ -36,8 +36,8 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
                                 describeHelp) needs a selection and windows, step 10 -- not small." (Topics/forms, Issues, moved here.)
     IMAGES                      images wait for windows: zoom, shrink and centre on the click point come with the click
                                 (Topics/drawing, the floor census, image placements; Topics/forms step 10: "images' zoom and field actions come with it").
-    THE STAND-IN                the mock click: click(request), a named field, not a point (G1, seal 477; clickT). clickShow(request),
-                                proposed, is click then showForm, for forms that do not redraw by listening (docs/tabsRecon.md, item 4a; tabs
+    THE STAND-IN                the mock click: click(request), a named field, not a point (G1, seal 477; clickT). clickShow(request)
+                                (on branch tabs-click, SEQ 737) is click then showForm, for forms that do not redraw by listening (docs/tabsRecon.md, item 4a; tabs
                                 stroke 4). Still open from G1: bubbling to the enclosing fields, naming each action skipped, a real
                                 point and a window.
     TEXT EDITING (Tony, 2026-11-09, SEQ 585 R2; recorded, not ruled for build)
@@ -55,7 +55,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
 /*****************************************************************************
     State
 *****************************************************************************/
-    built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730). clickShow is proposed (tabs stroke 4), not built.
+    built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730). clickShow and selectTab ON BRANCH tabs-click (tabs stroke 4, SEQ 737), the buy Tony's.
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
 
 /*****************************************************************************

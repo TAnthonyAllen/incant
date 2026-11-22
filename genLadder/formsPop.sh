@@ -561,6 +561,8 @@ _ofeq "cardsT CT-6 the definition is never written: its ctTwo is not hidden afte
 echo "-- the tab click: selectTab and clickShow (tabClickT; SEQ 737)."
 #  ⚑ tabClickT -- tabs stroke 4 (docs/tabsRecon.md): each tab's onClick:=tabClick (the form's own action) calls utilities' selectTab, which writes
 #  the field the bar's tabs:= names (tabSelected, outside the form) to hold the clicked tab; clickShow(request) is click, then showForm.
+#  H7 (SEQ 737, committed file, fixture alone): selectTab's write taken out -> tabSelected none after every click, every page TK-0's (TK-1..3 red);
+#  clickShow's showForm taken out -> tabSelected moves, one draw in all, every page TK-0's (TK-1, TK-2, TK-4 red).
 #  Pixels: tab One, Two, Three at y=62, the cards box top and low. green r0 g158 b15, blue r0 g81 b186, red r239 g43 b45, tabFill r175 g211 b120.
 _tkF=$(ip tabClickT)
 rm -f IncantForms/PDF/test.pdf

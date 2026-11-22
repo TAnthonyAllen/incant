@@ -43,5 +43,15 @@ PLACEHOLDERS (ruling 2): tabFill, tabFont, cardOneFill, cardTwoFill, cardThreeFi
 with their defaultLook values (lightGreen, headerFont, green, blue, red). A tabs selectFill names its cards fill, so one
 role colours both. The page and intro use pageFill (white in defaultLook; the old wall was never visible, the body covers it).
 
-NOT READ YET: tabs=, card:=, cards and selectFill (strokes 2-4, docs/tabsRecon.md). The selected tab will live in a field
-outside the form (ruling 3). The windows closable, resize and title are inert old-GUI chrome, as in descriptions.
+READ SINCE STROKES 2-3: tabs:=, card:=, cards and selectFill (cardsPick, in setFrame, on the laid-out copy). The selected tab
+lives in tabSelected, outside the form (ruling 3). The windows closable, resize and title are inert old-GUI chrome, as in descriptions.
+
+THE CLICK (stroke 4, SEQ 737): each tab's onClick:=tabClick fires on a click; tabClick calls utilities' selectTab, which writes
+tabSelected to hold the clicked tab. clickShow(request) clicks and draws in one call:
+    define
+        tabThreeClick form:=tabForm field="tabThree";
+        ;
+    clickShow(tabThreeClick);
+WHY tabClick AND NOT onClick:=selectTab: a := in a define names a field already on the search list, and show reads this file
+under cOLOr fONTs sTYLEs only, so selectTab (Utilities) was refused and the three tabs REMOVED (measured). tabClick is this
+form's own action, as firstLight's okClick is; its body finds selectTab when it first runs, from the clicking caller's list.
