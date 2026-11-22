@@ -46,7 +46,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
                                 redisplays. Move end to cursor: the mirror. Try it and adjust. Editing commands are reached by a
                                 short selection pop-up rather than memorised keys; a pop-up is itself a form (select a command, its
                                 action fires). (git 151b899e; trimmed from Topics/forms since.)
-    THE COLLECTOR (measured 2026-11-22, SEQ 747, stroke 0; branch windows-f153, not bought)
+    THE COLLECTOR (measured 2026-11-22, SEQ 747, stroke 0; bought)
                                 an open window does NOT hide our globals from the collector. openWindow's GC_set_no_dls(1) stops libgc
                                 registering images loaded from then on (197 load at the open) and keeps the roots it has, ours among
                                 them. F-153 said the opposite from a comment that was read and never run; closed as not a defect. The
@@ -59,7 +59,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
 *****************************************************************************/
     built       the mock click (click, G1), redrawWindow and keepFrame as the mock resize and close (G3, SEQ 730), clickShow and selectTab (tabs stroke 4, SEQ 737, bought).
     today       openWindow opens one window, strokes the top field's outline, blocks the script and ends the process on close; nothing calls it (docs/windowsRecon.md, section 1).
-    on a branch windowOffscreen(form): the window made and never shown, no loop, returns (windows-f153, stroke 0; the fleet's door).
+    built       windowOffscreen(form): the window made and never shown, no loop, returns (stroke 0; the fleet's door).
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
 
 /*****************************************************************************
@@ -76,6 +76,8 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
        under an open offscreen window, GCSTRESS); 1 the window draws the form, with the title (measure first that AppKit renders the view
        offscreen; stop if it will not); 2 a click from a point, with selectFill; 3 resize and close; 4 the loop, and the display's size
        published; 5 a real run watched by Tony.
+    F-167 (Tony, 2026-11-22): stays docketed; it must be cured before a window runs with jitter; on (setFrame compiled refuses every later layout).
+    STROKE 0 BOUGHT 2026-11-22 (merge 606a1401): no cure needed; the probe and windowOffscreen are on trunk.
     SIZE (Tony, 2026-11-22; Topics/forms): a form is capped at the display's height less menu bar and dock; a window stroke publishes that size to kant.
     2  The Apple Font and Colour panels feed the look's placeholders (RULED, not built; Tony, 2026-11-19): a pick in the panel
        writes the placeholder (pageFill, headingFont ...) the request's look holds, and the form redraws through it.
