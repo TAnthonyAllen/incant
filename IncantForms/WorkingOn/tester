@@ -1,8 +1,63 @@
 /*****************************************************************************
 	This is the tester incantation. It is a working file for testing new features
     under development so it changes when there is a new feature in the works.
-    Today it runs Clod's sampler specimen (SEQ 739, docs/samplerRecon.md): colours as A, the list, and B, the buttons, side by side, then a mock click on blue. Clod's G3 specimens and Tony's show test are parked below stop().
+    Today: tester's final shape, two lines (SEQ 741, the pour stroke): show(colorList) draws IncantForms/Windows/colorList, a poured
+    form (down="*" pour:=cOLOr), to output.pdf (Tony's; test.pdf is the fleet's and Clod's runs rewrite it).
+    Parked below stop(): colorListHand (Tony's and Clay's hand-drawn design specimen), then Clod's sampler specimen (SEQ 739),
+    his G3 specimens and Tony's show test.
 *****************************************************************************/
+Start();
+show(colorList);
+stop();
+
+COLORLISTHAND (Tony and Clay, 2026-11-22), the design pass's hand-drawn specimen, parked here by Clod when show(colorList) drew (SEQ 741);
+move it back above stop() to run it:
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(ColorHand);
+search ColorHand FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+/*  colorListHand: colorList's template written out for six colours, three dark and three light,
+    so contrast shows. color:= is set by hand where colorList will say color:=contrast.  */
+define
+    colorListHand window x=0 y=0 width=490 height=792 down fill:=pageFill font:=bodyFont
+        clTitle="Colors" text height=40 font:=headingFont align=center valign=center bottomBorder;
+        clRows down
+            clRowBlack across height=24
+                clNameBlack="black" width=22% valign=center;
+                clSwatchBlack="#000000" width=24% border fill:=black color:=white align=center valign=center;
+                clWhatBlack="the darkest; default text" valign=center;
+            clRowBlue across height=24
+                clNameBlue="blue" width=22% valign=center;
+                clSwatchBlue="#0051ba" width=24% border fill:=blue color:=white align=center valign=center;
+                clWhatBlue="a strong mid blue" valign=center;
+            clRowBrown across height=24
+                clNameBrown="darkBrown" width=22% valign=center;
+                clSwatchBrown="#6b4714" width=24% border fill:=darkBrown color:=white align=center valign=center;
+                clWhatBrown="a deep brown" valign=center;
+            clRowRed across height=24
+                clNameRed="red" width=22% valign=center;
+                clSwatchRed="#ef2b2d" width=24% border fill:=red color:=black align=center valign=center;
+                clWhatRed="strong red; the accent" valign=center;
+            clRowWall across height=24
+                clNameWall="wall" width=22% valign=center;
+                clSwatchWall="#f7e8aa" width=24% border fill:=wall color:=black align=center valign=center;
+                clWhatWall="pale yellow; old page colour" valign=center;
+            clRowWhite across height=24
+                clNameWhite="white" width=22% valign=center;
+                clSwatchWhite="#ffffff" width=24% border fill:=white color:=black align=center valign=center;
+                clWhatWhite="white; the page fill" valign=center;
+    ;
+define
+    clReq form:=colorListHand path="IncantForms/PDF/output.pdf";
+    ;
+viewer = 0;
+redrawForm(clReq);
+stop();
+
+CLOD'S SAMPLER SPECIMEN (SEQ 739), parked here 2026-11-22 for the colorList design pass; move it back above stop() to run it:
 Start();
 include(unitTests);
 include(utilities);
@@ -125,7 +180,6 @@ spRun();
 click(spClickBlue);
 cerr "DETAIL" spDetail:;
 spAfter();
-stop();
 
 CLOD'S SAMPLER SPECIMEN (SEQ 739), above stop(): docs/samplerRecon.md section 4. Two generated pages, built at run time by a walk over cOLOr,
 held side by side by form:=, drawn to test.pdf; then click(spClickBlue) fires the button's onClick (attached at run time), which writes

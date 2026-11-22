@@ -602,6 +602,19 @@ _ofeq "pourT PT-7 refused by name: pour on a plain down; an empty registry (one 
 _ofeq "pourT PT-8 a registry not on the search list is refused at define, as any := is" "$(grep -c '^REFUSED NoSuchRegistry -- a := in a define names a field' "$T/pt.e")" "1"
 _ofeq "pourT PT-9 the definition is never written: one row, no each" "$(grep '^PT-9 ' "$T/pt.e" | sed 's/ *$//')" "PT-9 the definition's ptRows holds 1 row; its each attribute: 0"
 
+#  ⚑ colorListT -- IncantForms/Windows/colorList (Tony's and Clay's form; SEQ 741), shown through the stash: tester's final shape,
+#  Start(); show(colorList); with showPath pointed at test.pdf. pourT above pins pour; these pin the form and that loading it leaves cOLOr alone.
+#  H7 (SEQ 741, on a copy of the form with its two search lines out, the fixture pointed at it): CL-4 reads black [the darkest; ...] and
+#  CL-3's swatches lose their fills (14 displayFill refusals).
+_clF=${CL_FILE:-$(ip colorListT)}
+rm -f IncantForms/PDF/test.pdf
+perl -e 'alarm 60; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
+_ofeq "colorListT exit / sentinel / no refusal" "$_clx $(grep -c '^COLORLISTT SENTINEL' "$T/cl.e") $(grep -c 'REFUS\|^REMOVED' "$T/cl.e")" "0 1 0"
+_ofeq "colorListT CL-1 found in the stash (deferred), drawn to test.pdf" "$(grep -c '^=== show colorList deferred' "$T/cl.o") $(grep -c '^=== show colorList to IncantForms/PDF/test.pdf ===' "$T/cl.o")" "1 1"
+_ofeq "colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="clName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
+_ofeq "colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="clSwatch"){c[$9]++; if($15==7)v++}} END{print n["clSwatch"], v, c["r255"], c["r0"], n["clWhat"]}' "$T/cl.o")" "14 14 3 11 14"
+_ofeq "colorListT CL-4 loading the form leaves cOLOr as it was; black's description is words, not a colour (its wording is the form's to change)" "$(grep '^CL-4 ' "$T/cl.e" | sed 's/ its description.*//') / $(grep '^CL-4 ' "$T/cl.e" | grep -c 'its description \[ [a-zA-Z]')" "CL-4 cOLOr black [ #000000 ] white [ #ffffff ] / 1"
+
 echo "-- the IBkant skeleton: the kant wiki as a kant form (ibkantT)."
 #  ⚑ ibkantT -- IBkant's skeleton (Tony, 2026-11-13): one window, three page forms held in one field, a contents column whose clicks write the
 #  holding field, and page bodies poured by name from IncantForms/IBkant/text. IB-5's expected counts are computed here from the text file.
