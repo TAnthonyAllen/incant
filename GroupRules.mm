@@ -3140,6 +3140,12 @@ char 	*name = input->getText();
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+// firstCharCode numbeR's read (opDot case 27): the code of a string field's first character; the caller has checked there is one
+extern "C" int firstCharCode(GroupItem *field)
+{
+	 return (int)(unsigned char)field->groupBody->gText[0]; 
+}
+
 /*******************************************************************************
     An attribute whose name is a GroupFields flag sets that flag on the field being
     defined and is not added, as a noPrint immediate attribute is not (Tony, SEQ 533
@@ -10492,6 +10498,12 @@ GroupItem 	*minted = 0;
 				case 24:
 					if ( target->groupBody->flags.isShortcut )
 						product->setCount(1);
+					// numbeRReadOnly the first character's code, as a count ("A" reads 65); no string refuses by name; the write half refuses too (SEQ 737 R2)
+					break;
+				case 27:
+					if ( (isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) && target->groupBody->gCount > 0 )
+						product->setCount((int)firstCharCode(target));
+					else	return ::refuse(target,"numbeR -- this field holds no string, so it has no first character to read");
 					break;
 				case 28:
 					if ( target->getRStuff() && target->getRStuff()->noLabel )
@@ -11570,6 +11582,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		 return jitEmitUnary(result, jitInc); 
 		}
 	measurePlusPlusWrite(result);
+	// noEmptyString a step that leaves no characters leaves no value, never an empty string: kant has no empty strings (2026-08-27; SEQ 737 R1a)
 	// zeroIsNotAbsent a field assigned 0 is a count and bumps to 1; one never assigned is absent and refuses by name
 	if ( !result->groupBody->flags.data )
 		return ::refuse(result,"Operator ++ -- this field has no value to bump; a field assigned 0 is a count and bumps to 1, one never assigned is absent");
@@ -11589,7 +11602,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	else
 	if ( isSTRING(result->groupBody->flags.data) || isTOKEN(result->groupBody->flags.data) )
-		if ( result->groupBody->gCount == 0 )
+		if ( result->groupBody->gCount <= 1 )
 			result->setText((char*)0);
 		else {
 			result->groupBody->gText++;
@@ -14260,6 +14273,10 @@ int 		on = 0;
 			break;
 		case 26:
 			target->groupBody->flags.mergeOn = on;
+			// numbeRWrite numbeR is read-only: the code of a string's first character, read off the string (SEQ 737)
+			break;
+		case 27:
+			::refuse(target,"numbeR is read-only -- it reads the code of the string's first character; write the string instead");
 			break;
 		case 29:
 			target->groupBody->flags.noPrint = on;

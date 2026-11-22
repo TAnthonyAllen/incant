@@ -408,6 +408,9 @@ use argument
                 case 21:    if target.isPercent     product.count = 1;
                 case 23:    if target.isRuleTerm()  product.count = 1;
                 case 24:    if target.isShortcut    product.count = 1;
+                // numbeRReadOnly the first character's code, as a count ("A" reads 65); no string refuses by name; the write half refuses too (SEQ 737 R2)
+                case 27:    if (target.isSTRING || target.isTOKEN) && target.gCount > 0    product.count = firstCharCode(target);
+                            else return refuse(target,"numbeR -- this field holds no string, so it has no first character to read");
                 case 28:    if target.rStuff && target.noLabel  product.count = 1;
                 case 29:    if target.noPrint       product.count = 1;
                 case 33:    if target.isBIN         product.count = 1;
@@ -1044,6 +1047,7 @@ GroupRules  ruler = groupRules;
         -% return jitEmitUnary(result, jitInc); %-
     }
     measurePlusPlusWrite(result);
+    // noEmptyString a step that leaves no characters leaves no value, never an empty string: kant has no empty strings (2026-08-27; SEQ 737 R1a)
     // zeroIsNotAbsent a field assigned 0 is a count and bumps to 1; one never assigned is absent and refuses by name
     if !data        return refuse(result,"Operator ++ -- this field has no value to bump; a field assigned 0 is a count and bumps to 1, one never assigned is absent");
     or isCOUNT      {   gCount++;
@@ -1051,7 +1055,7 @@ GroupRules  ruler = groupRules;
     or isNUMBER     {   gNumber++;
                         if hasListeners     updateListeners(); }
     or isSTRING || isTOKEN
-        if gCount == 0 text = 0;
+        if gCount <= 1 text = 0;
         else {
             gText++;
             gCount--; }
@@ -1738,6 +1742,8 @@ int         on = 0;
             case 21:    target.isPercent    = on;
             case 25:    target.isVirtual    = on;
             case 26:    target.mergeOn      = on;
+            // numbeRWrite numbeR is read-only: the code of a string's first character, read off the string (SEQ 737)
+            case 27:    refuse(target,"numbeR is read-only -- it reads the code of the string's first character; write the string instead");
             case 29:    target.noPrint      = on;
             case 31:    target.byRef        = on;
             // hasNewParse the artifact gate: a generated parse body parks as a noPrint member on the shared child list, and this flag says one is there (2026-08-24)
@@ -1776,6 +1782,13 @@ int         offset = markOffset.count;
         else refuse(source,"setMark: the mark offset exceeds the current buffer length"); }
     else cerr "setMark: ERROR no buffer source provided":;
     return null;
+}
+
+
+// firstCharCode numbeR's read (opDot case 27): the code of a string field's first character; the caller has checked there is one
+extern int firstCharCode(GroupItem field)
+{
+    -% return (int)(unsigned char)field->groupBody->gText[0]; %-
 }
 
 

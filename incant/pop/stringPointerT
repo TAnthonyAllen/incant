@@ -10,9 +10,14 @@ define
     spMinus="abcdef";
     spChop="abcdef";
     spUsed="z";
+    spNone;
+    hxFF="ff";
+    hxEF="ef";
+    hx2B="2b";
+    hx2D="2d";
     spWalkT code={
         sn = 0;
-        while spWalk;
+        while spWalk.datA;
             sn = sn + 1;
             cerr "SP-1 turn" sn "reads [" spWalk "]":;
             if sn >= 5;     break;
@@ -25,6 +30,22 @@ define
         sk = 0;
         if sv == 65;    sk = 1;
         cerr "SP-3 is 65:" sk:;
+        };
+    spWriteT code={
+        spCode.numbeR = 66;
+        cerr "SP-8 NOT REACHED: a write to numbeR refuses and ends this action":;
+        };
+    spNoneT code={
+        sw = spNone.numbeR;
+        cerr "SP-9 NOT REACHED: numbeR on a field with no string refuses and ends this action":;
+        };
+    hxT code={
+        h1 := hexToNumber(hxFF);
+        h2 := hexToNumber(hxEF);
+        h3 := hexToNumber(hx2B);
+        h4 := hexToNumber(hx2D);
+        cerr "HX ff" h1 "ef" h2 "2b" h3 "2d" h4:;
+        cerr "HX the strings handed in are untouched [" hxFF "] [" hx2D "]":;
         };
     spArithT code={
         sa = spPlus + 2;
@@ -39,30 +60,32 @@ define
         ++spUsed;
         cerr "SP-7 after one step [" spUsed "]":;
         ++spUsed;
-        cerr "SP-7 after two steps [" spUsed "]":;
-        ++spUsed;
-        cerr "SP-7 NOT REACHED: the third step refuses and ends this action":;
+        cerr "SP-7 NOT REACHED: the second step refuses and ends this action":;
         };
     ;
 spWalkT();
 spCodeT();
 spArithT();
 spUsedT();
+spWriteT();
+cerr "SP-8 code after the write [" spCode "]":;
+spNoneT();
+hxT();
 cerr "STRINGPOINTER SENTINEL":;
 stop();
 
-stringPointerT -- what kant's string-pointer operations do TODAY, pinned as read (Tony, 2026-11-21, the clean-up
-dispatch after R1; SEQ 735). NOT BLESSED: these rows record, they do not approve. incant/utilities' hexToNumber is the
-one action that uses string pointers (kept by ruling) and it does not work today; two rulings it needs are in
-Topics/kant's docket, with the fixit refusedLoopSpins. When those are ruled these pins move, each with a sentence.
-
-SP-1, SP-2  while s; ++s;  over "ff9". Wanted: three turns. Today five: ff9, f9, 9, then an EMPTY string that still
-            reads true, then the field with no value, which reads as its own tag (spWalk) and is true again. The loop
-            here stops itself at turn five; left alone, the next ++ refuses and the loop then spins (refusedLoopSpins).
-SP-3        s.numbeR, the character's code (65 for "A"). numbeR is not an accessor today: the read hands back nothing,
-            the local prints as its own tag, and the compare with 65 reads 0.
+stringPointerT -- kant's string-pointer operations (Tony, 2026-11-21, SEQ 735; the pins moved at SEQ 737 under Tony's rulings
+of 2026-11-22). R1a: ++ on a one-character string leaves NO VALUE, never an empty string (kant has no empty strings). R1b: a
+bare field's truth is unchanged (if x; is existence); a string walk tests for data, while s.datA; R2: numbeR (accessor 27) is
+the code of the first character, as a count; read only. incant/utilities' hexToNumber uses them.
+SP-1, SP-2  while s.datA; ++s;  over "ff9": three turns, ff9, f9, 9; the third step leaves no value, datA reads 0, and the loop
+            ends by itself. (Until SEQ 737: while s; took five turns, an empty string, then the tag.)
+SP-3        s.numbeR on "A" reads 65. (Until SEQ 737 numbeR was no accessor.)
 SP-4        s + 2. Once "skip two characters"; today a string on the left joins (SEQ 347 R3): abcdef2.
 SP-5        s - 4 drops four characters from the end: ab.
 SP-6        s -= 2 drops two from the end, in place: abcd; the other strings are untouched (the anti-vacuity pair).
-SP-7        ++ on a one-character string: one step leaves it empty, a second leaves it with no value (its tag prints),
-            a third refuses by name and ends the action; the caller goes on to the sentinel.
+SP-7        ++ on a one-character string: one step leaves no value (its tag prints); the second refuses by name and ends the
+            action; the caller goes on. (Until SEQ 737 the first step left an empty string and the third refused.)
+SP-8        a write to numbeR refuses by name and ends the action; the string is unchanged (A).
+SP-9        numbeR on a field with no string refuses by name, naming the field.
+HX          hexToNumber: "ff" 255, "ef" 239, "2b" 43, "2d" 45; it walks a copy, so the strings handed in are untouched.
