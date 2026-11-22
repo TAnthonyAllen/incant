@@ -1,0 +1,123 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+register(WindowGcT);
+define
+    rgX = 0;
+    rgY = 0;
+    rgAt code={
+        px = rgX;
+        py = rgY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rgRead code={
+        rgAt(argument);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/test.pdf";
+    wgN = 0;
+    wgList
+        wgA;
+        wgB;
+        wgC;
+    wgCount code={
+        iterate wgCur on wgList;
+        while ++wgCur;
+            wgN = wgN + 1;
+        };
+    wgFound;
+    rgWin x=300 y=450 width=500 height=600;
+    rgBig x=300 y=450 width=1200 height=600;
+    rgSmall x=300 y=450 width=500 height=600;
+    ;
+search WindowGcT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
+    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
+    rgResize code={
+        rgF := argument;
+        rgWin :% copyOf(*rgF["x"]);
+        rgWin :% copyOf(*rgF["y"]);
+        rgWin :% copyOf(*rgF["width"]);
+        rgWin :% copyOf(*rgF["height"]);
+        redrawWindow(rgReq);
+        };
+    rgSmallPts code={
+        rgX = 450; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 100; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
+        };
+    rgBigPts code={
+        rgX = 900; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 150; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 1190; rgY = 230; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
+        };
+    ;
+cerr "WG-1 before any window":;
+windowRootProbe(firstLight);
+windowOffscreen(firstLight);
+cerr "WG-2 under the open window":;
+windowRootProbe(firstLight);
+testing(wgCount);
+cerr "WG-3 compiled and fired under the window: wgN [" wgN "]":;
+cerr "RG-1 before: a fresh run, as declared":;
+redrawForm(rgFresh);
+readPDF(pdfRead);
+rgSmallPts();
+rgResize(rgBig);
+cerr "RG-2 the resize through the store: width" rgWin.width " height" rgWin.height:;
+readPDF(pdfRead);
+rgBigPts();
+cerr "RG-3 a fresh run at the same frame, named in the request":;
+redrawForm(rgFreshBig);
+readPDF(pdfRead);
+rgBigPts();
+rgResize(rgSmall);
+cerr "RG-4 resized back through the store: width" rgWin.width " height" rgWin.height:;
+readPDF(pdfRead);
+rgSmallPts();
+cerr "RG-5 the definition after two resizes":;
+printDefinition(firstLight);
+jitRefire();
+cerr "WG-4 fired again from the compiled code after the relayouts: wgN [" wgN "]":;
+wgFound := collect();
+cerr "WG-5 a collection at the end: objects found unreachable [" wgFound "]":;
+windowRootProbe(firstLight);
+cerr "WINDOWGC SENTINEL":;
+stop();
+
+windowGcT -- windows stroke 0 (SEQ 747, 2026-11-22), F-153: does an open window hide our globals from the collector?
+A delta of resizeLightT (copied, then patched): the same two resizes of firstLight through redrawWindow, run under an open
+offscreen window with one compiled action alive across them. Rows in genLadder/formsPop.sh, which runs it at GCSTRESS=1000.
+
+WG-1  windowRootProbe before any window. Four sets of 8 collectable blocks: held only by globals of this image in bss,
+      by globals in data, only by hidden pointers (the known-bad end), by an uncollectable array (the known-good end).
+      It prints how many of each set a collection kept: 8, 8, 0, 8.
+WG-2  the same probe under the window, after GC_set_no_dls(1): the globals still keep 8 of 8. This is F-153's question.
+WG-3  testing(wgCount) compiles wgCount and fires it under the window: wgN 3. (testing, not jitter;: see below.)
+      Then resizeLightT's rows, unchanged: two relayouts and four pages. formsPop compares the pages and points with
+      resizeLightT's own from the same run, by value.
+WG-4  jitRefire() fires the compiled code again after the relayouts and their collections: wgN 6.
+WG-5  one more collection and the probe again: as WG-2.
+
+THE CONTROL (formsPop runs it): WINDOW_CLEAR_ROOTS=1 drops every static root when the window opens and roots only the
+controller, which is the state F-153 described. The probe then reads 0 of 8 kept for both sets of globals. Measured 2026-11-22: in
+that state the relayouts, the pages and WG-4 still read right, at GCSTRESS=1000 and at 20 -- so the relayout run cannot see
+a hidden global and only the probe rows can. The relayout rows say a window run survives; the probe rows say why.
+
+WHY NOT jitter; -- with jitter; on and NO window, setFrame compiles and then refuses every relayout ("the form firstLight
+holds itself"). That is the jitter's, not the window's or the collector's (docs/fixIts.md F-167). wgCount is compiled alone.

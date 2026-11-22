@@ -166,7 +166,8 @@ the safe direction. Their **calloc'd arrays** are the opposite problem (§3c).
 - **Statics**: `GroupControl::groupController` reaches the whole world. All other `static` /
   `inline` globals are scanned **only while data segments are registered**, and **`openWindow` turns
   that off for every image** (`GC_set_no_dls(1)`, `guiHost.mm:28`) to dodge AppKit's root-set limit.
-  After a window opens, every raw-pointer global except the controller is invisible: the JIT globals
+  ⚠ **DATED 2026-11-22 (SEQ 747): measured false.** The switch stops registering images loaded later; roots already held stay, ours among them (formsPop windowGcT; F-153).
+  ~~After a window opens, every raw-pointer global except the controller is invisible~~: the JIT globals
   above, and `gParseActive` too, unless its frames are on the stack, which they are. Today no window
   opens while the JIT runs. Under relayout (the GC road's own reason, R2) both will happen together.
 - **Thread stacks other than main**: not scanned (single-threaded libgc). Safe only while no engine
