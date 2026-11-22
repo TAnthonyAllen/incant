@@ -5,19 +5,19 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**528, 2026-11-22, topic: forms, SEQ 742 (assigned by Clod).** Pour stage 2, bought and merged the same day: a poured field
-with no template row derives each row from what its member is, by value (colour, font, style, placeholder, else text), with the
-description from dESCRIPTIONs by the member's name; margin=, gap=, height=fit (capped 792), lineColor. colorList is the derived form.
-On the branch formsPop is 353 green. Pour (stage 1, seal 527) is bought and merged. Seal 526 (windows): the recon.
-**OPEN (Tony):** Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
+**529, 2026-11-22, topic: kant, SEQ 743 (assigned by Clod).** The warnings recon (docs/warningsRecon.md), nothing built: the overwrite
+that bit colorList was a define under one registry writing another's entry, which traitOwnsValue (SEQ 457) is meant to stop and
+misses (its registry test); same-registry overwrites with different text do not occur in the fleet; an entry does not record where
+it was defined, and one property would. Seal 528 the same day (forms): pour stage 2, bought and merged with pour.
+**OPEN (Tony):** the warnings recon's lean (section 7: fix traitOwnsValue's registry test; A2 on a definition's own name only, overwrite kept; where-defined as a property; a wARNINGs registry, refusals out of it); Topics/kant's budget; carried from 482, whether an indented `define` should work.
 **RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
 **NEXT:** the windows dispatch (F-153 first; W1-W5 ruled 2026-11-22; incant++).
 
-## The numbers (trunk's, as run at seal 526; the pour branch read the checklist again at 527: pop 4228, formsPop 340 there; bare build 2026-11-22 09:42, 2191200 bytes)
+## The numbers (as run at seal 529 on trunk; bare build 2026-11-22 12:06, 2191200 bytes, rebuilt after the recon's tap came out)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 4228 green (+3: stringPointerT SP-8, SP-9, HX), FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
+| `genLadder/pop.sh` | exit 1, 4228 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 353 green since the pour-stage2 buy (340 before it), F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
@@ -40,8 +40,8 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 | file | lines / budget | what |
 |---|---|---|
 | `docs/wakeup.md` | 56 / 60 | this page. |
-| `Topics/forms` | 276 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 202 / 200, OVER by 2 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/forms` | 278 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
+| `Topics/kant` | 203 / 200, OVER by 3 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 75 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
