@@ -1239,6 +1239,8 @@ define
     showReq path form look;
     ckFn;
     ckNm;
+    // clickDone click writes it, clickShow reads it: 1 when the click found its field, 0 when it refused (two actions touch it, so it is declared)
+    ckDone = 0;
     /***************************************************************************
         describe is used to supply descriptions in forms by adding it as a form
         attribute with a text value of the field being described. The describe
@@ -1401,6 +1403,7 @@ define
     ***************************************************************************/
     click code={
         ckReq := argument;
+        ckDone = 0;
         ckOk = 1;
         if *ckReq["form"];      ckOk = ckOk + 1;
         if *ckReq["field"];     ckOk = ckOk + 1;
@@ -1423,8 +1426,53 @@ define
         // ownHolder the field is kept in a local: an action fired below may redraw, and the redraw's own search writes tsFound
         ckField := *tsFound;
         selection := *ckField;
+        ckDone = 1;
         cout "=== click" ckFn ckNm "selected ===":;
         clickFire(*ckField);
+        };
+    /***************************************************************************
+        clickShow -- click, then draw (tabs stroke 4, docs/tabsRecon.md item 4a).
+        ONE argument, click's own request: form:= the form and field= the name
+        of a field in it. It clicks, and when the click found its field it
+        draws the form with showForm: the form's path=, else showPath. A
+        refused click draws nothing. For a form that does not redraw by
+        listening: a form whose click action's write is heard by a listener
+        that draws (firstLight, IBkant) would draw twice.
+    ***************************************************************************/
+    clickShow code={
+        csReq := argument;
+        click(argument);
+        if ckDone == 0;
+            cerr "clickShow: nothing drawn for" argument.taG "-- the click refused":;
+            return;
+        csForm := *csReq["form"];
+        csLaid := showForm(**csForm);
+        return *csLaid;
+        };
+    /***************************************************************************
+        selectTab -- a tab's click action (tabs stroke 4): onClick:=selectTab on
+        each tab of a bar. Handed the clicked tab, it writes the field the
+        bar's tabs:= names (outside the form, ruling 3: tabSelected) to hold
+        that tab, so the next layout shows the tab's card and fills the tab
+        with its selectFill (cardsPick). The form's own definition is not
+        written. The write tells that field's listeners. Refuses by name a tab
+        whose parent is no tab bar (no tabs:=).
+    ***************************************************************************/
+    selectTab code={
+        stTab := argument;
+        stBar := *stTab.parenT;
+        stIs = 0;
+        stL = *stBar.listLengtH;
+        if stL > 0;
+            if *stBar["tabs"];      stIs = 1;
+        if stIs == 0;
+            stBn := *stBar.taG;
+            cerr "selectTab: REFUSING" argument.taG "-- its parent" stBn "is no tab bar (tabs:=)":;
+            return;
+        stHold := *stBar["tabs"];
+        stTn := *stTab.taG;
+        **stHold := *stTab;
+        cout "=== selectTab" stTn "===":;
         };
     ;
 

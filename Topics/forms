@@ -135,6 +135,12 @@ Tony is the form designer: once the attributes are fleshed out he finishes the I
         show(IBkant);
         click(ibClickFields);
       show draws Welcome; the click shows Fields (IBkant's own listener, ibHears, calls show(IBkant)) (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write test.pdf, never output.pdf.
+    tabForm: the same lines with tabFormFile File='IncantForms/Windows/tabForm' and include(tabFormFile); then show(tabForm); and a click
+        define
+            tabThreeClick form:=tabForm field="tabThree";
+            ;
+        clickShow(tabThreeClick);
+      clickShow clicks and draws in one call: tab Three and its red card (tabs stroke 4).
 /*****************************************************************************
     The instruments that read this topic
 *****************************************************************************/
