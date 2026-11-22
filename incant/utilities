@@ -915,6 +915,7 @@ define
         fitHeight(*sfLaid);
         mergeStyles(*sfLaid);
         cardsPick(*sfLaid);
+        selectionPick(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;
@@ -1842,10 +1843,80 @@ define
         };
     windowReq path form look;
     pageReq path form width height;
+    /***************************************************************************
+        selectionPick -- the selected field shows (windows stroke 2; W3, Tony
+        2026-11-22). setFrame calls it on the laid-out copy, after cardsPick.
+        When selection holds a field, the copy's first field of that name
+        (the top, then depth first) is filled with a selectFill: its own, when
+        it names one (as a tab does), else the one the look holds (the
+        request's look, then defaultLook). No selectFill anywhere: the field
+        is drawn as it was, and nothing is said. The definition is never
+        written. The field is matched by NAME, as a tab is: selection may be
+        the definition's field (the mock click) or a field of an earlier copy
+        (a click from a point), and neither is in this copy.
+    ***************************************************************************/
+    selectionPick code={
+        spIs = selection.isGrouP;
+        if spIs == 0;       return;
+        spSel := selection;
+        spName = string $**spSel.taG$;
+        spHit = 0;
+        spTopName = string $argument.taG$;
+        if spTopName == spName;
+            spField := argument;
+            spHit = 1;
+        if spHit == 0;      spFind(argument);
+        if spHit == 0;      return;
+        spOwn = 0;
+        spHasFill = 0;
+        spL = *spField.listLengtH;
+        if spL > 0;
+            if *spField["selectFill"];  spOwn = 1;
+            if *spField["fill"];        spHasFill = 1;
+        spVia = 0;
+        if spOwn == 0;
+            if lkHas == 1;
+                if *lkLook["selectFill"];   spVia = 1;
+        spBase = 0;
+        if spOwn == 0;
+            if spVia == 0;
+                if lkBaseHas == 1;
+                    if *lkBase["selectFill"];   spBase = 1;
+        if spOwn == 1;      spPaint(*spField["selectFill"]);
+        if spVia == 1;      spPaint(*lkLook["selectFill"]);
+        if spBase == 1;     spPaint(*lkBase["selectFill"]);
+        };
+    spFind code={
+        for grup in argument; members
+            if spHit == 0;
+                sfT = string $*grup.taG$;
+                if sfT == spName;
+                    spField := *grup;
+                    spHit = 1;
+            if spHit == 0;
+                if *grup.hasMemberS;    spFind(*grup);
+        };
+    // spPaint argument is the attribute holding the colour; a field with a fill has it re-pointed (as cardsPick does a tab's), one with none is given a fill of its own on the copy
+    spPaint code={
+        spSrc := argument;
+        if spHasFill == 1;
+            spTo := *spField["fill"];
+            *spTo := **spSrc;
+        if spHasFill == 0;
+            spNew := new("fill");
+            *spNew := **spSrc;
+            *spField +% *spNew;
+        };
     showPath path="IncantForms/PDF/output.pdf";
     showReq path form look;
     ckFn;
     ckNm;
+    // clickFired clickFire writes it when it fires an action, clickField's climb reads it (declared: more than one action touches it)
+    ckFired = 0;
+    spName;
+    spHit = 0;
+    spField;
+    spHasFill = 0;
     // clickDone click writes it, clickShow reads it: 1 when the click found its field, 0 when it refused (two actions touch it, so it is declared)
     ckDone = 0;
     /***************************************************************************
@@ -1982,6 +2053,7 @@ define
     clickFire code={
         if argument["CodE"];
             cout "=== click" ckFn ckNm "fired its own action ===":;
+            ckFired = 1;
             argument(argument);
         for grup in argument; attributes
             ckHeld = *grup.isGrouP;
@@ -1994,6 +2066,7 @@ define
             if ckActs == 1;
                 ckTo := **grup.taG;
                 cout "=== click" ckFn ckNm "fired" ckAn ckTo "===":;
+                ckFired = 1;
                 **grup(argument);
         };
     /***************************************************************************
@@ -2036,6 +2109,47 @@ define
         ckDone = 1;
         cout "=== click" ckFn ckNm "selected ===":;
         clickFire(*ckField);
+        };
+    /***************************************************************************
+        clickField -- a click from a point (windows stroke 2; W2, Tony
+        2026-11-22). ONE argument: the field itself, on a laid-out copy -- the
+        window finds it under the point (guiHost.mm, windowClickAt) and hands
+        it here. It selects the field (selection), then fires as click does:
+        the field's own action, then its attribute actions left to right, each
+        handed the field. BUBBLING: when the field fired nothing, its parent
+        on the copy is tried the same way, and so on up to the top; the first
+        level that fires anything ends the climb, and its actions are handed
+        that level's field. Nothing fired at any level says so. Nothing here
+        redraws. The mock click by name (click) is unchanged and does not climb.
+    ***************************************************************************/
+    clickField code={
+        cfHit := argument;
+        selection := *cfHit;
+        cfName = string $*cfHit.taG$;
+        // topIsNoMember the copy's top is the one field on the way up that is no member; a held form's top is a member of its host, so the climb goes on into the host
+        cfAt := argument;
+        cfHops = 0;
+        while cfHops < 32;
+            cfM = *cfAt.isMembeR;
+            if cfM == 0;        cfHops = 32;
+            if cfHops < 32;     cfAt := *cfAt.parenT;
+            cfHops += 1;
+        ckFn := *cfAt.taG;
+        cout "=== click" ckFn cfName "selected ===":;
+        ckFired = 0;
+        cfDepth = 0;
+        cfAt := *cfHit;
+        cfHops = 0;
+        while cfHops < 32;
+            ckNm := *cfAt.taG;
+            cfDepth += 1;
+            clickFire(*cfAt);
+            cfM = *cfAt.isMembeR;
+            if cfM == 0;        cfHops = 32;
+            if ckFired == 1;    cfHops = 32;
+            if cfHops < 32;     cfAt := *cfAt.parenT;
+            cfHops += 1;
+        if ckFired == 0;    cout "=== click" ckFn cfName "fired nothing, on the way up through" cfDepth "fields ===":;
         };
     /***************************************************************************
         clickShow -- click, then draw (tabs stroke 4, docs/tabsRecon.md item 4a).

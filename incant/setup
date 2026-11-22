@@ -85,6 +85,8 @@ define
     openWindow immediateAction=openWindow;
     displayDiff immediateAction=displayDiff;
     readWindow immediateAction=readWindow;
+    windowClick immediateAction=windowClick;
+    windowHold immediateAction=windowHold;
     windowOffscreen immediateAction=windowOffscreen;
     windowRootProbe immediateAction=windowRootProbe;
     parseClassify immediateAction;

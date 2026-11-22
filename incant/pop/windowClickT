@@ -1,0 +1,240 @@
+Start();
+include(unitTests);
+include(utilities);
+registry(fILEs);
+define
+    tabFormFile File='IncantForms/Windows/tabForm';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(tabFormFile);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    tkStray code={ selectTab(argument); };
+    wcSay code={ cout "WC-SAY handed" argument.taG:; };
+    wcLook merge selectFill:=blue defaultLook;
+    wcForm x=20 y=30 width=200 height=200 fill:=pageFill
+        wcBody
+            wcOuter height=100 onClick:=wcSay
+                wcInner height=50 fill:=red;
+                wcPlain height=50;
+            wcLower height=100 fill:=green selectFill:=wall;
+    tkLoose window x=0 y=0 width=100 height=100 path="IncantForms/PDF/test.pdf"
+        tkNotBar
+            tkOrphan="orphan" text onClick:=tkStray;
+    ;
+registry(WindowClickT);
+define
+    tkRead path="IncantForms/PDF/test.pdf";
+    tkAt code={
+        tkX := argument["px"];
+        tkY := argument["py"];
+        tkRead :% copyOf(*tkX);
+        tkRead :% copyOf(*tkY);
+        cout "TK-AT" argument.taG:;
+        pixelAt(tkRead);
+        };
+    tkTabOne px=60 py=62;
+    tkTabTwo px=180 py=62;
+    tkTabThree px=300 py=62;
+    tkCardTop px=300 py=120;
+    tkCardLow px=300 py=260;
+    tkPage code={
+        cout "TK-PAGE" argument:;
+        readPDF(tkRead);
+        tkAt(tkTabOne);
+        tkAt(tkTabTwo);
+        tkAt(tkTabThree);
+        tkAt(tkCardTop);
+        tkAt(tkCardLow);
+        tkSel(argument);
+        };
+    tkSel code={
+        tkS = string $"none"$;
+        tkIs = tabSelected.isGrouP;
+        if tkIs == 1;
+            tkT := tabSelected;
+            tkS = string $**tkT.taG$;
+        cerr argument "tabSelected" tkS:;
+        };
+    tkDefn code={
+        tkDef := tabForm["body"];
+        tkDb := *tkDef["bodies"];
+        tkDc := *tkDb["thirdCard"];
+        tkDh = *tkDc.isHiddeN;
+        cerr "TK-6 the definition's thirdCard isHidden" tkDh:;
+        };
+    wcReq path="IncantForms/PDF/test.pdf" form:=tabForm;
+    wcLaid;
+    wcNext;
+    wcSwap held form;
+    wcRead form;
+    wcClick form px=0 py=0;
+    wcAt code={
+        wcX := argument["px"];
+        wcY := argument["py"];
+        wcRead :% copyOf(*wcX);
+        wcRead :% copyOf(*wcY);
+        cout "WC-AT" argument.taG:;
+        pixelAt(wcRead);
+        };
+    wcPage code={
+        cout "WC-PAGE" argument:;
+        readWindow(wcRead);
+        wcAt(tkTabOne);
+        wcAt(tkTabTwo);
+        wcAt(tkTabThree);
+        wcAt(tkCardTop);
+        wcAt(tkCardLow);
+        tkSel(argument);
+        };
+    wcPoint code={
+        wcP := argument;
+        wcClick :% copyOf(*wcP["px"]);
+        wcClick :% copyOf(*wcP["py"]);
+        windowClick(wcClick);
+        };
+    wcOutside px=500 py=500;
+    wsReq path="IncantForms/PDF/test.pdf" form:=wcForm look:=wcLook;
+    wsBare path="IncantForms/PDF/test.pdf" form:=wcForm;
+    wsLaid;
+    wsNext;
+    wsSwap held form;
+    wsRead form;
+    wsClick form px=0 py=0;
+    wsInner px=100 py=25;
+    wsPlain px=100 py=75;
+    wsLower px=100 py=150;
+    wsByName form:=wcForm field="wcInner";
+    wsAt code={
+        wsX := argument["px"];
+        wsY := argument["py"];
+        wsRead :% copyOf(*wsX);
+        wsRead :% copyOf(*wsY);
+        pixelAt(wsRead);
+        };
+    wsPage code={
+        cout "WS-PAGE" argument:;
+        readWindow(wsRead);
+        wsAt(wsInner);
+        wsAt(wsPlain);
+        wsAt(wsLower);
+        };
+    wsPoint code={
+        wsP := argument;
+        wsClick :% copyOf(*wsP["px"]);
+        wsClick :% copyOf(*wsP["py"]);
+        windowClick(wsClick);
+        };
+    tkThree form:=tabForm field="tabThree";
+    tkTwo form:=tabForm field="tabTwo";
+    tkOne form:=tabForm field="tabOne";
+    tkNoSuch form:=tabForm field="nosuch";
+    tkOrphanClick form:=tkLoose field="tkOrphan";
+    ;
+search WindowClickT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
+wcLaid := redrawForm(wcReq);
+windowOffscreen(*wcLaid);
+wcRead.form := *wcLaid;
+wcClick.form := *wcLaid;
+wcPage("WC-0");
+wcPoint(tkTabThree);
+wcNext := redrawForm(wcReq);
+wcSwap.held := *wcLaid;
+wcSwap.form := *wcNext;
+windowHold(wcSwap);
+wcLaid := *wcNext;
+wcRead.form := *wcLaid;
+wcClick.form := *wcLaid;
+wcPage("WC-1");
+wcPoint(tkCardLow);
+wcNext := redrawForm(wcReq);
+wcSwap.held := *wcLaid;
+wcSwap.form := *wcNext;
+windowHold(wcSwap);
+wcLaid := *wcNext;
+wcRead.form := *wcLaid;
+wcClick.form := *wcLaid;
+wcPage("WC-2");
+cerr "WC-3 a point outside the window's form":;
+wcPoint(wcOutside);
+cerr "WS a second window: bubbling and selectFill":;
+selection = 0;
+wsLaid := redrawForm(wsReq);
+windowOffscreen(*wsLaid);
+wsRead.form := *wsLaid;
+wsClick.form := *wsLaid;
+wsPage("WS-0");
+wsPoint(wsInner);
+wsNext := redrawForm(wsReq);
+wsSwap.held := *wsLaid;
+wsSwap.form := *wsNext;
+windowHold(wsSwap);
+wsLaid := *wsNext;
+wsRead.form := *wsLaid;
+wsClick.form := *wsLaid;
+wsPage("WS-1");
+wsPoint(wsPlain);
+wsNext := redrawForm(wsReq);
+wsSwap.held := *wsLaid;
+wsSwap.form := *wsNext;
+windowHold(wsSwap);
+wsLaid := *wsNext;
+wsRead.form := *wsLaid;
+wsClick.form := *wsLaid;
+wsPage("WS-2");
+wsPoint(wsLower);
+wsNext := redrawForm(wsReq);
+wsSwap.held := *wsLaid;
+wsSwap.form := *wsNext;
+windowHold(wsSwap);
+wsLaid := *wsNext;
+wsRead.form := *wsLaid;
+wsClick.form := *wsLaid;
+wsPage("WS-3");
+wsPoint(wsPlain);
+wsNext := redrawForm(wsBare);
+wsSwap.held := *wsLaid;
+wsSwap.form := *wsNext;
+windowHold(wsSwap);
+wsLaid := *wsNext;
+wsRead.form := *wsLaid;
+wsClick.form := *wsLaid;
+wsPage("WS-4");
+click(wsByName);
+wsNext := redrawForm(wsReq);
+wsSwap.held := *wsLaid;
+wsSwap.form := *wsNext;
+windowHold(wsSwap);
+wsLaid := *wsNext;
+wsRead.form := *wsLaid;
+wsClick.form := *wsLaid;
+wsPage("WS-5");
+cerr "WINDOWCLICK SENTINEL":;
+stop();
+
+windowClickT -- windows stroke 2 (SEQ 749, 2026-11-22): a click from a point (W2), and selection shown with selectFill (W3).
+A delta of tabClickT's preamble (copied, then patched). Rows in genLadder/formsPop.sh, run at GCSTRESS=1000. No window is
+shown: windowClick(request) makes a mouse-up event at px, py (counted from the view's top left, as pixelAt counts) and
+sends it to the view's own mouseUp, so the road tested is the one a real click takes. After each click the fixture lays
+the form out again and hands the window the new copy (windowHold); a live window doing that itself is stroke 3.
+
+WC-0  tabForm laid out, in a window, read: nothing selected, tab One and the card green (tabClickT's TK-0).
+WC-1  a point inside tab Three: the window finds tabThree on the copy, clickField selects it and fires its onClick
+      (tabClick, selectTab). Redrawn: tab Three and the whole card red, tab One tabFill -- TK-1's page, from a point.
+WC-2  a point in the card: the hit is thirdCard, the card shown (the two hidden cards do not catch it). Nothing has an
+      action on the way up, and it says so, naming how many fields it tried (thirdCard, bodies, body, tabForm).
+WC-3  a point outside the form: no field, nothing fired, said so.
+
+wcForm sits at x=20 y=30, so a hit also proves the form's own origin is added. Its look, wcLook, holds selectFill:=blue.
+WS-0  as declared: wcInner red, wcPlain the page's white (it names no fill), wcLower green.
+WS-1  a point in wcInner. BUBBLING: wcInner has no action, so its parent wcOuter's onClick fires, handed wcOuter.
+      SELECTION: wcInner is drawn blue, the look's selectFill.
+WS-2  a point in wcPlain: it has no fill of its own and is given one, blue; wcInner is red again.
+WS-3  a point in wcLower, which names its own selectFill:=wall: its own wins over the look's (wall, not blue). Nothing
+      fires on the way up (wcLower, wcBody, wcForm).
+WS-4  wcPlain selected, then laid out under a request naming no look: defaultLook holds no selectFill, so wcPlain is
+      drawn as it was, white, and nothing is refused.
+WS-5  the mock click by name (click) selects wcInner on the definition: it does not climb (no WC-SAY), and the next
+      layout under wcLook shows it blue -- selection is matched by name, whichever click made it.

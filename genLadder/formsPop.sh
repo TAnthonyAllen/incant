@@ -925,6 +925,33 @@ _ofeq "windowDrawT WD-4 TITLE: a form naming title= titles its window; the secon
 _ofeq "windowDrawT WD-4 two windows, each draws its own form: red at (60,40) in the titled one, firstLight's wall at (450,15)" "$(grep '^=== pixelAt wdTitledRead (60,40)' "$T/wd.o" | sed 's/.*= //; s/ ===//') / $(_wdpts wdRead 5p)" "r239 g43 b45 a255 / wall"
 _ofeq "windowDrawT WD-5 / WD-6 refused by name, once each: a form no window holds; a field with no frame" "$(grep -c '^readWindow: REFUSING wdTitledRead -- needs form:= a top field that a window holds' "$T/wd.e") $(grep -c '^windowOffscreen: REFUSING wdBare -- frame is 0x0' "$T/wd.e")" "1 1"
 
+#  ⚑ windowClickT -- windows stroke 2 (SEQ 749, 2026-11-22): a click from a point (W2) and selection shown with selectFill (W3). The window turns a
+#  point into the field under it on the laid-out copy (guiHost.mm windowClickAt: blockContaining) and hands kant the field: utilities' clickField selects
+#  it and fires, climbing the copy's parents until a level fires. setFrame's selectionPick fills the selected field, matched by name, with its own
+#  selectFill, else the look's; none anywhere, drawn as it was. windowClick sends a real mouse-up event to the view's mouseUp. Run at GCSTRESS=1000.
+#  Controls (H7, 2026-11-22): selectionPick's call removed from setFrame -> WS-1, WS-2, WS-3 and WS-5 red; the form's origin not added in
+#  windowClickAt -> the WS hits name other fields; clickField's climb cut to one level -> WS-1 fires nothing.
+echo ""
+echo "-- a click from a point, bubbling, and selectFill (windowClickT)."
+_wcF=$(ip windowClickT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wcF" > "$T/wc.o" 2> "$T/wc.e"; _wcx=$?
+_wccol () { sed -e 's/r255 g255 b255 a255/white/g' -e 's/r239 g43 b45 a255/red/g' -e 's/r0 g158 b15 a255/green/g' -e 's/r0 g81 b186 a255/blue/g' -e 's/r247 g232 b170 a255/wall/g' -e 's/r175 g211 b120 a255/tabFill/g'; }
+_wcp () { awk -v t="$1 $2" '$0 ~ "^"t"$" || $0 ~ "^"t" *$" {on=1; next} /^W[CS]-PAGE/ {on=0} on && /^=== pixelAt/ {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s | ", $0}' "$T/wc.o" | _wccol | sed 's/ | $//'; }
+_wcb () { awk -v t="$1" '/^W[CS]-PAGE/ {on = ($2 == t)} on && /^=== (windowClick|click|selectTab) |^WC-SAY/' "$T/wc.o" | sed 's/^=== //; s/ *=== *$//; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
+_ofeq "windowClickT exit / sentinel / no refusal" "$_wcx $(grep -c '^WINDOWCLICK SENTINEL' "$T/wc.e") $(grep -c 'REFUS\|REMOVED' "$T/wc.e")" "0 1 0"
+_ofeq "windowClickT WC-0 tabForm in a window, nothing selected: tab One and the card green" "$(_wcp WC-PAGE WC-0)" "green | tabFill | tabFill | green | green"
+_ofeq "windowClickT WC-1 A POINT INSIDE TAB THREE: the hit is tabThree, selected, its onClick fired, selectTab ran" "$(_wcb WC-0)" "windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree"
+_ofeq "windowClickT WC-1 redrawn in the window: tab Three and the whole card red, tab One tabFill (tabClickT's TK-1, from a point)" "$(_wcp WC-PAGE WC-1)" "tabFill | tabFill | red | red | red"
+_ofeq "windowClickT WC-2 a point in the card: the shown card is hit, not a hidden one; nothing fires on the way up, said with the count of fields tried" "$(_wcb WC-1)" "windowClick tabForm at (300,260): thirdCard;click tabForm thirdCard selected;click tabForm thirdCard fired nothing, on the way up through 4 fields"
+_ofeq "windowClickT WC-3 a point outside the form: no field, nothing fired, said so; no click line follows" "$(_wcb WC-2)" "windowClick tabForm at (500,500): no field, nothing fired"
+_ofeq "windowClickT WS-0 the second form as declared: inner red, plain the page's white, lower green" "$(_wcp WS-PAGE WS-0)" "red | white | green"
+_ofeq "windowClickT WS-1 BUBBLING: a point in wcInner (no action) fires its parent wcOuter's onClick, handed wcOuter" "$(_wcb WS-0)" "windowClick wcForm at (100,25): wcInner;click wcForm wcInner selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter"
+_ofeq "windowClickT WS-1 SELECTION: the selected field is drawn with the look's selectFill, blue; the others as they were" "$(_wcp WS-PAGE WS-1)" "blue | white | green"
+_ofeq "windowClickT WS-2 a selected field naming no fill is given one: plain blue; inner red again" "$(_wcp WS-PAGE WS-2)" "red | blue | green"
+_ofeq "windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower wall, not blue; nothing fires on the way up" "$(_wcp WS-PAGE WS-3) / $(_wcb WS-2 | sed 's/.*;//')" "red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields"
+_ofeq "windowClickT WS-4 A LOOK WITH NO selectFill: the selected field is drawn as it was (plain white), nothing refused" "$(_wcp WS-PAGE WS-4)" "red | white | green"
+_ofeq "windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner blue" "$(_wcb WS-4 | sed 's/^[^;]*;[^;]*;[^;]*;[^;]*;//') / $(_wcp WS-PAGE WS-5)" "click wcForm wcInner selected / blue | white | green"
+
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
 #  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one
