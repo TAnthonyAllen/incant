@@ -61,9 +61,10 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
     today       openWindow opens one window, strokes the top field's outline, blocks the script and ends the process on close; nothing calls it (docs/windowsRecon.md, section 1).
     built       the window draws the form (stroke 1, bought 2026-11-22): Layout.drawRect -> windowDrawForm, the third opener; the window holds
                 the laid-out copy; title= titles it; readWindow(request) reads the view offscreen; displayDiff compares two bitmaps.
-    on a branch a click from a point (windows-click, stroke 2): the window finds the field under the point on the copy and hands it to
+    built       a click from a point (stroke 2, bought 2026-11-22): the window finds the field under the point on the copy and hands it to
                 clickField, which selects, fires, and climbs the parents until a level fires; setFrame's selectionPick shows the selection
                 with selectFill (the field's own, else the look's); windowClick(request) sends a real mouse-up; windowHold swaps the copy.
+                defaultLook holds selectFill:=lightBlue (Tony, 2026-11-22), so a selected field shows under every look.
     built       windowOffscreen(form): the window made and never shown, no loop, returns (stroke 0; the fleet's door).
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
 

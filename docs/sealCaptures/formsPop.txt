@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2220960 bytes  Nov 22 13:42
+  bin   2220960 bytes  Nov 22 13:51
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -136,8 +136,8 @@
 -- the mock click: G2 stroke 3, goal G1 (clickT).
   ok    clickT exit / sentinel = [0 1]
   ok    clickT CK-1 before: no listener run; (200,580) is the descriptions form's lightGreen = [runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255]
-  ok    clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,580) is the note form's white and its text is drawn; heading and ok unmoved = [runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r175 g211 b120 a255 / heading words ok okNoteText]
-  ok    clickT CK-3 a second click brings descriptions back: two runs, the page and text calls are CK-1's by value = [runs 2 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp]
+  ok    clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,580) is the note form's white and its text is drawn; heading unmoved; ok, selected, is the look's selectFill (lightBlue) = [runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r206 g255 b255 a255 / heading words ok okNoteText]
+  ok    clickT CK-3 a second click brings descriptions back: two runs; the page and text calls are CK-1's by value but for ok, still selected (lightBlue) = [runs 2 / r247 g232 b170 a255 / r175 g211 b120 a255 / r206 g255 b255 a255 / heading words ok describeHead describeHelp]
   ok    clickT CK-4 a field with no action: heading is selected, nothing fired, no listener run = [runs 2 selected heading / firstLight heading selected]
   ok    clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was = [1 1 / [] / runs 2 selected heading]
   ok    clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123 = [123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond]
@@ -203,7 +203,7 @@
   ok    pourDeriveT PD-1 cOLOr derived: 14 names, 14 swatches printing their value (white text 3, black 11), 2 descriptions (black, wall) = [14 14 3 11 11 13 ]
   ok    pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 452 high = [pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=452]
   ok    pourDeriveT PD-3 fONTs: seven samples, each in its own font; a row as tall as its sample needs = [.AppleSystemUIFont 18 0|Copperplate 12 0|Courier New 24|Helvetica 10 0|Palatino 14 1|Palatino 14 0|Palatino 24 1| / h=30 h=24 h=36 h=24 h=26 h=26 h=36 ]
-  ok    pourDeriveT PD-4 sTYLEs: 16 rows; emphasis's sample is red (the style applied, one r239); accent, a placeholder, is defaultLook's red swatch (black text) = [16 1 r0]
+  ok    pourDeriveT PD-4 sTYLEs: 17 rows; emphasis's sample is red (the style applied, one r239); accent, a placeholder, is defaultLook's red swatch (black text) = [17 1 r0]
   ok    pourDeriveT PD-5 the same pour under a look of its own (accent blue, pageFill black): accent's swatch reads white text; one more white than by day = [r255 2 4]
   ok    pourDeriveT PD-6 mixed things: a # value a swatch (white on blue), plain words their own text (10 characters), no value nothing = [pourName:r0:5 pourName:r0:7 pourShow:r255:7 pourName:r0:5 pourShow:r0:10 ]
   ok    pourDeriveT PD-7 cOMMANDs: no command fired or read (no show text); capped at 792, the names of the 33 rows that fit are drawn and no row is left unframed = [0 h=792 33 0]
@@ -338,7 +338,7 @@
   ok    windowClickT WS-1 SELECTION: the selected field is drawn with the look's selectFill, blue; the others as they were = [blue | white | green]
   ok    windowClickT WS-2 a selected field naming no fill is given one: plain blue; inner red again = [red | blue | green]
   ok    windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower wall, not blue; nothing fires on the way up = [red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields]
-  ok    windowClickT WS-4 A LOOK WITH NO selectFill: the selected field is drawn as it was (plain white), nothing refused = [red | white | green]
+  ok    windowClickT WS-4 a request naming NO look: the selected field takes defaultLook's selectFill, lightBlue (the request's look's was blue) = [red | lightBlue | green]
   ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner blue = [click wcForm wcInner selected / blue | white | green]
 
 -- paragraphs and one run in firstLight (typesetT).
@@ -400,7 +400,7 @@
   ok    lookT LK-2 THE SAME FORM UNDER look:=lkNight: the page black, lkA Courier white, lkC Courier lightBlue = [r0 g0 b0 a255 / Courier New 24 1 r255 g255 b255 / Courier New 24 1 r206 g255 b255]
   ok    lookT LK-3 a look that merges defaultLook and writes accent: only lkC's colour changes (green) = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r0 g158 b15]
   ok    lookT LK-4 an ordinary name falls through under every look: lkB's fill:=wall and color:=blue, four pages = [fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / ]
-  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [2211d53b79f752b8c50709e5748e9a4c 7]
+  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [36dd437b074f2b3e39b1d2c59d263c8e 7]
   ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [5488e14b31cf1a757da705649cac2b2a 9]
   ok    lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written = [1 1]
   ok    lookT LK-8 A STYLE WITH NO FILL DRAWS WITH NO REFUSAL (F-156): lkC, whose style holds font and colour only, 0 displayFill refusals on four pages; the one refusal in the run is lkBad's unresolved fill = [0 1 1]

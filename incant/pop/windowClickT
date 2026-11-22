@@ -234,7 +234,7 @@ WS-1  a point in wcInner. BUBBLING: wcInner has no action, so its parent wcOuter
 WS-2  a point in wcPlain: it has no fill of its own and is given one, blue; wcInner is red again.
 WS-3  a point in wcLower, which names its own selectFill:=wall: its own wins over the look's (wall, not blue). Nothing
       fires on the way up (wcLower, wcBody, wcForm).
-WS-4  wcPlain selected, then laid out under a request naming no look: defaultLook holds no selectFill, so wcPlain is
-      drawn as it was, white, and nothing is refused.
+WS-4  wcPlain selected, then laid out under a request naming no look: the selectFill is defaultLook's, lightBlue (Tony,
+      2026-11-22), not wcLook's blue. (Before defaultLook held one this row read white: drawn as it was.)
 WS-5  the mock click by name (click) selects wcInner on the definition: it does not climb (no WC-SAY), and the next
       layout under wcLook shows it blue -- selection is matched by name, whichever click made it.
