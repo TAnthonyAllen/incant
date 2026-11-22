@@ -67,7 +67,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
                 defaultLook holds selectFill:=lightBlue (Tony, 2026-11-22), so a selected field shows under every look.
     built       resize and close (stroke 3, bought 2026-11-22): a window opened with a REQUEST keeps it; a resize, a click and a close go back
                 through kant (windowLay: keepFrame, then setFrame from the store; no PDF); a reopened window reads the kept frame.
-    on a branch the loop (windows-loop, stroke 4): openWindow returns at once; windowsRun at the script's end (stop's exit, main's foot) runs the
+    built       the loop (stroke 4, bought 2026-11-22): openWindow returns at once; windowsRun at the script's end (stop's exit, main's foot) runs the
                 event loop while a window is shown; displaySize published; show decides by the windows switch (incant/setup, 0 by default).
     built       windowOffscreen(form): the window made and never shown, no loop, returns (stroke 0; the fleet's door).
     not built   a window, a real click from a point, bubbling, a real resize, describe on select, image actions, editing.
