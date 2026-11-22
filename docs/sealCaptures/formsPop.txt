@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2245248 bytes  Nov 22 14:02
+  bin   2258400 bytes  Nov 22 14:20
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -352,6 +352,16 @@
   ok    windowResizeT reopen: THE REOPENED WINDOW READS THE KEPT FRAME -- 1200x600, where the form declares 500x600 -- and the entry is cleared = [1200x600 / WR-STORE after-reopen entry 0]
   ok    windowResizeT errant: a resize and a close for a form no window shows are refused by name; firstLight still declares 500x600 = [1 1 / firstLight x=300 y=450 width=500 height=600]
 
+-- two windows, the loop, the display's size, show deciding (windowLoopT).
+  ok    windowLoopT exit / sentinel / nothing refused = [0 1 0]
+  ok    windowLoopT WL-SIZE before any window: the display's size is not yet published; fitCap is a page = [0x0 fitCap 792]
+  ok    windowLoopT WL-TWO two windows open at once, each drawn: tabForm's card green under its title, wlSmall red under its own = [readWindow wlReadTab title [Using Tabs] size 360x400;pixelAt wlReadTab (300,260) = r0 g158 b15 a255;readWindow wlReadSmall title [Second] size 120x80;pixelAt wlReadSmall (60,40) = r239 g43 b45 a255]
+  ok    windowLoopT WL-SIZE after: displaySize is published (both parts more than 0) and fitCap is put back = [sized fitCap 792]
+  ok    windowLoopT WL-TALL a height=fit form needing 6000: IN A WINDOW it is capped at the display's usable height, not at a page's 792; fitCap put back = [same not-792 sized fitCap 792]
+  ok    windowLoopT WL-SHOW SHOW DECIDES: windows 0, a form written window goes to its PDF; windows 2, the same show makes a window and no PDF; a form not written window still goes to its PDF = [show tkLoose to IncantForms/PDF/test.pdf;show tkLoose in a window, not shown;readWindow wlReadLoose title [incant] size 100x100;show wlSmall to IncantForms/PDF/test.pdf]
+  ok    windowLoopT WL-LAST the script's last line printed, and before the loop started: every opening returned at once = [WL-LAST === window loop: started]
+  ok    windowLoopT THE LOOP: started after stop with 3 open and 4 kept; the kept click runs kant inside it; three closes keep their frames; it ends with none open = [window loop: started, 3 open, 0 shown, 4 kept for later;windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree;window closed: tabForm kept 360x400 at (400,400);window closed: wlSmall kept 120x80 at (40,60);window closed: tkLoose kept 100x100 at (0,0);window loop: ended, 0 open]
+
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
   ok    typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines = [lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1]
@@ -452,4 +462,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 391 green, see above
+FORMS POP FAILED -- 399 green, see above
