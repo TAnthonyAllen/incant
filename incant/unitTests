@@ -44,7 +44,7 @@
 
     & is a field modifier, not a type declaration
         argument& dereferences a pointer-arithmetic result. & follows the field
-        name as a modifier rather than preceding a type. See testPointer.
+        name as a modifier rather than preceding a type. (& is registered opNotBuilt today.)
 
     --------------------------------------------------------------------------
     POP table — expected output for each verified action (2026-06-02 baseline).
@@ -146,10 +146,6 @@ define
         print ~-Three:;
         print ~-Four:; };
     testNew code={ grup = new(actionLabel); grup++; return grup; };
-    testPointer lineIn code={
-        print "testPointer:"`;
-        actionLabel = lineIn + 4;
-        if actionLabel& > lineIn; print "Yes it is":; else print "No it aint":; };
     testList code={
         print `"Processing testList action that runs list rule":;
         list("righty 3.1 seven eight nine;"); };

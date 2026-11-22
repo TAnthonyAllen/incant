@@ -7,10 +7,9 @@ and any number that moved. One seal sequence and one SEQ sequence across topics,
 ## Last seal
 **524, 2026-11-22, topic: kant, SEQ 738 (assigned by Clod).** String-pointer bought and merged: R1a (++ on a one-character string
 leaves no value), R1b (a string walk tests data; datA already reads 0 on no value), R2 (numbeR, accessor 27, the first character's
-code, read only); hexToNumber fixed and given rows. Bear-trap 61 filed for Tony's ruling: a name declared on an action's header is not
-its parameter. Seal 523 the same day (forms): tabs stroke 4, bought and merged.
-**OPEN (Tony):** bear-trap 61's ruling (refuse a header name, make it the parameter, or keep the trap); whether testPointer is now cut
-(the recon kept it until a string-pointer fixture existed; stringPointerT does); Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
+code, read only); hexToNumber fixed and given rows. Bear-trap 61 (after Clay's probe): a word on an action's header is an attribute of the
+action, read bare or as action.word, never the argument; testPointer cut (ruled). Seal 523 the same day (forms): tabs stroke 4, bought and merged.
+**OPEN (Tony):** Topics/kant's budget (2 over); carried from 482, whether an indented `define` should work.
 **RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
 **NEXT:** the sampler recon (incant++, Instructions parked; forms), then windows plan item 1 (Fable 5.2 first).
