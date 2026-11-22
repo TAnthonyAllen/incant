@@ -959,6 +959,28 @@ _ofeq "windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's:
 _ofeq "windowClickT WS-4 a request naming NO look: the selected field takes defaultLook's selectFill, lightBlue (the request's look's was blue)" "$(_wcp WS-PAGE WS-4 | sed 's/r206 g255 b255 a255/lightBlue/')" "red | lightBlue | green"
 _ofeq "windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner blue" "$(_wcb WS-4 | sed 's/^[^;]*;[^;]*;[^;]*;[^;]*;//') / $(_wcp WS-PAGE WS-5)" "click wcForm wcInner selected / blue | white | green"
 
+#  ⚑ windowResizeT -- windows stroke 3 (SEQ 750, 2026-11-22): resize and close. A window opened with a request keeps it; a resize, a click and a close each go
+#  back through kant with the window's frame now (guiHost.mm windowRelay / windowClosed -> utilities windowLay / keepFrame): the frame into formFrames, the layout
+#  from there, as redrawWindow does, with no PDF. windowResize resizes the window and calls the view's own viewDidEndLiveResize; windowClose closes it as its
+#  button does. Compared BY VALUE with resizeLightT's own pages from this run. Run at GCSTRESS=1000.
+#  Controls (H7, 2026-11-22, one build each): windowRelay made to do nothing -> big, click and small red; windowClosed's keepFrame removed -> close and reopen red.
+echo ""
+echo "-- a window resized, clicked, closed and reopened (windowResizeT)."
+_wrF=$(ip windowResizeT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wrF" > "$T/wr.o" 2> "$T/wr.e"; _wrx=$?
+_wrp () { awk -v t="$1" '/^WR-PAGE/ {on = ($2 == t)} on && /^=== readWindow/ {sub(/.*size /,""); sub(/ ===.*/,""); printf "%s ", $0} on && /^=== pixelAt/ {sub(/.*= /,""); sub(/ ===.*/,""); printf "%s ", $0}' "$T/wr.o" | sed 's/r206 g255 b255 a255/lightBlue/g' | _rgc | xargs; }
+_wrl () { awk -v t="$1" '/^WR-PAGE/ {on = ($2 == t)} on && /^=== (window |windowClick|click )|^WR-STORE/' "$T/wr.o" | sed 's/^=== //; s/ *=== *$//; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
+_rgpts () { _rgb "$1" | awk '{printf "%s", $1; for (i = 4; i <= NF; i++) printf " %s", $i; print ""}'; }
+_ofeq "windowResizeT exit / sentinel" "$_wrx $(grep -c '^WINDOWRESIZE SENTINEL' "$T/wr.e")" "0 1"
+_ofeq "windowResizeT open: a window opened with a REQUEST lays the form out itself; the page = resizeLightT's RG-1 by value" "$(_wrp open)" "$(_rgpts 1)"
+_ofeq "windowResizeT big: A RESIZE to 1200x600 -- the frame it reports, and the page = resizeLightT's RG-2 by value (the mock resize, same size)" "$(_wrl big | sed 's/;.*//') / $(_wrp big)" "window resized: firstLight now 1200x600 at (300,450) / $(_rgpts 2)"
+_ofeq "windowResizeT big: the store's entry was read and cleared by the layout, as redrawWindow leaves it" "$(_wrl big | sed 's/.*;//')" "WR-STORE after-resize entry 0"
+_ofeq "windowResizeT click: at the big size the window LAYS OUT AGAIN BY ITSELF after a click -- still 1200x600, and ok, selected, is lightBlue" "$(_wrl click) / $(_wrp click)" "windowClick firstLight at (1190,230): ok;click firstLight ok selected;click firstLight ok fired onClick okClick / 1200x600 wall white wall lightBlue wall"
+_ofeq "windowResizeT small: resized back, the page is 500x600 with resizeLightT's small points, ok still selected" "$(_wrp small)" "500x600 wall white wall lightBlue"
+_ofeq "windowResizeT close: A CLOSE keeps the window's frame for its form (keepFrame alone), and the window is forgotten: reading it refuses by name" "$(_wrl close | sed 's/^[^;]*;//') / $(grep -c '^readWindow: REFUSING wrRead -- needs form:= a top field that a window holds' "$T/wr.e")" "window closed: firstLight kept 1200x600 at (300,450);WR-STORE after-close entry 1 / 1"
+_ofeq "windowResizeT reopen: THE REOPENED WINDOW READS THE KEPT FRAME -- 1200x600, where the form declares 500x600 -- and the entry is cleared" "$(_wrp reopen) / $(_wrl reopen)" "1200x600 / WR-STORE after-reopen entry 0"
+_ofeq "windowResizeT errant: a resize and a close for a form no window shows are refused by name; firstLight still declares 500x600" "$(grep -c '^windowResize: REFUSING wrNoWindow -- needs form:= a form a window shows' "$T/wr.e") $(grep -c '^windowClose: REFUSING wrNoWindow -- needs form:= a form a window shows' "$T/wr.e") / $(grep '^firstLight x=300' "$T/wr.o" | head -1 | cut -d' ' -f1-5)" "1 1 / firstLight x=300 y=450 width=500 height=600"
+
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
 #  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one

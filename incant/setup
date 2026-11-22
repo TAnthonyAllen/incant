@@ -86,6 +86,9 @@ define
     displayDiff immediateAction=displayDiff;
     readWindow immediateAction=readWindow;
     windowClick immediateAction=windowClick;
+    windowClose immediateAction=windowClose;
+    windowResize immediateAction=windowResize;
+    windowTake immediateAction=windowTake;
     windowHold immediateAction=windowHold;
     windowOffscreen immediateAction=windowOffscreen;
     windowRootProbe immediateAction=windowRootProbe;

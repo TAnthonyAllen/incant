@@ -1842,6 +1842,7 @@ define
                 if *grup.hasMemberS;    drawKids(*grup);
         };
     windowReq path form look;
+    layReq form look;
     pageReq path form width height;
     /***************************************************************************
         selectionPick -- the selected field shows (windows stroke 2; W3, Tony
@@ -1957,6 +1958,32 @@ define
         if rwLk == 1;           windowReq :% copyOf(*rwReq["look"]);
         rwLaid := redrawForm(windowReq);
         return *rwLaid;
+        };
+    /***************************************************************************
+        windowLay -- a window's layout (windows stroke 3). ONE argument, a
+        request the window makes: form:= the form, frame:= the window's frame
+        now (absent at a first opening that names none), look optional. It is
+        redrawWindow with no PDF: a frame is kept in formFrames (keepFrame),
+        then setFrame lays the form out with a request naming no frame, so the
+        frame comes from the store -- and a first opening with no frame takes
+        what the last close kept. The laid-out copy is handed to the window
+        through windowTake; a refused layout hands nothing.
+    ***************************************************************************/
+    windowLay code={
+        wlReq := argument;
+        wlHas = 0;
+        if *wlReq["frame"];     wlHas = 1;
+        if wlHas == 1;          keepFrame(argument);
+        wlForm := *wlReq["form"];
+        layReq.form := **wlForm;
+        layReq.look = 0;
+        wlLk = 0;
+        if *wlReq["look"];      wlLk = 1;
+        if wlLk == 1;           layReq :% copyOf(*wlReq["look"]);
+        wlLaid := setFrame(layReq);
+        wlGot = 0;
+        if *wlLaid.listLengtH;  wlGot = 1;
+        if wlGot == 1;          windowTake(*wlLaid);
         };
     /***************************************************************************
         redrawForm -- the first resize, as a plain call (SEQ 626 W2). ONE
