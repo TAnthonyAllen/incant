@@ -54,10 +54,10 @@ double  baseY = frame.height - point.y;
 
 void viewDidEndLiveResize()
 {
-	cout "View End resize":;
-    setFrame(superview.frame);
-    //base.updateFrame(frame);
-    mustDisplay(true);
+    -%
+    void windowResized(Layout *view);
+    windowResized(self);
+    %-
 }
 
 void windowWillClose(Notification notification)

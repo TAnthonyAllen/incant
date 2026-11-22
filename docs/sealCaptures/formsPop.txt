@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2220960 bytes  Nov 22 13:51
+  bin   2245248 bytes  Nov 22 14:02
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -341,6 +341,17 @@
   ok    windowClickT WS-4 a request naming NO look: the selected field takes defaultLook's selectFill, lightBlue (the request's look's was blue) = [red | lightBlue | green]
   ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner blue = [click wcForm wcInner selected / blue | white | green]
 
+-- a window resized, clicked, closed and reopened (windowResizeT).
+  ok    windowResizeT exit / sentinel = [0 1]
+  ok    windowResizeT open: a window opened with a REQUEST lays the form out itself; the page = resizeLightT's RG-1 by value = [500x600 wall white wall green]
+  ok    windowResizeT big: A RESIZE to 1200x600 -- the frame it reports, and the page = resizeLightT's RG-2 by value (the mock resize, same size) = [window resized: firstLight now 1200x600 at (300,450) / 1200x600 wall white wall green wall]
+  ok    windowResizeT big: the store's entry was read and cleared by the layout, as redrawWindow leaves it = [WR-STORE after-resize entry 0]
+  ok    windowResizeT click: at the big size the window LAYS OUT AGAIN BY ITSELF after a click -- still 1200x600, and ok, selected, is lightBlue = [windowClick firstLight at (1190,230): ok;click firstLight ok selected;click firstLight ok fired onClick okClick / 1200x600 wall white wall lightBlue wall]
+  ok    windowResizeT small: resized back, the page is 500x600 with resizeLightT's small points, ok still selected = [500x600 wall white wall lightBlue]
+  ok    windowResizeT close: A CLOSE keeps the window's frame for its form (keepFrame alone), and the window is forgotten: reading it refuses by name = [window closed: firstLight kept 1200x600 at (300,450);WR-STORE after-close entry 1 / 1]
+  ok    windowResizeT reopen: THE REOPENED WINDOW READS THE KEPT FRAME -- 1200x600, where the form declares 500x600 -- and the entry is cleared = [1200x600 / WR-STORE after-reopen entry 0]
+  ok    windowResizeT errant: a resize and a close for a form no window shows are refused by name; firstLight still declares 500x600 = [1 1 / firstLight x=300 y=450 width=500 height=600]
+
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
   ok    typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines = [lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1]
@@ -441,4 +452,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 382 green, see above
+FORMS POP FAILED -- 391 green, see above

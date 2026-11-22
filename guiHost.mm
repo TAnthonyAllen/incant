@@ -15,6 +15,9 @@
     no dock icon, no run loop; it finishes launching, drains the events
     waiting, and returns. The fleet's door (incant/pop/windowGcT).
     windowRootProbe: what the collector still scans (below).
+    Either door takes a laid-out copy (the window shows it and nothing more)
+    or a REQUEST, form:= the form: the window then lays the form out itself
+    and again after every resize and click, and keeps its frame at a close.
 
     This file is compiled directly by the Xcode Groups target — it is NOT
     included via GroupRules.twk and never goes through tok.
@@ -34,6 +37,7 @@
 #import "Stylish.h"
 
 //  windows every window made, with the cell that keeps its form alive; found by the form's body (a field and its faces share one)
+//  windows held[0] is the laid-out copy, held[1] the request the window was opened with (0 for a window handed a bare copy)
 struct WindowRecord { Layout *view; GroupItem **held; };
 static std::vector<WindowRecord> gWindows;
 
@@ -106,6 +110,131 @@ extern "C" GroupItem *windowRootProbe(GroupItem *input)
 }
 
 /***************************************************************************
+    THE WINDOW'S REQUEST (windows stroke 3). A window opened with a request
+    (form:= the form, look= or look:= optional, frame:= optional) keeps it,
+    and every later layout goes back through kant with the window's frame
+    now: Utilities' windowLay keeps the frame in formFrames (keepFrame) and
+    lays the form out from there (setFrame), as redrawWindow does, writing no
+    PDF. windowLay hands the laid-out copy back through windowTake -- a
+    command's argument is the field itself, where an action's returned value
+    reaches C++ as a copy. A resize, a click and a close all come here.
+***************************************************************************/
+static GroupItem **gTaken;
+
+extern "C" GroupItem *windowTake(GroupItem *input)
+{
+    if ( !gTaken ) gTaken = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *));
+    *gTaken = input;
+    return input;
+}
+
+static GroupItem *utilityAction(const char *name)
+{
+    GroupItem *utilities = GroupControl::groupController->getRegistry((char *)"Utilities");
+    GroupItem *action = utilities ? utilities->get((char *)name) : 0;
+    if ( !action ) fprintf(stderr, "window: REFUSING -- no %s in Utilities\n", name);
+    return action;
+}
+
+//  frameField a field holding x y width height, as a form's frame is written: whole points, y down from the top of the screen
+static GroupItem *frameField(NSRect r)
+{
+    GroupItem *frame = new GroupItem((char *)"windowFrame");
+    const char *names[4] = { "x", "y", "width", "height" };
+    double      values[4] = { r.origin.x, r.origin.y, r.size.width, r.size.height };
+    for (int i = 0; i < 4; i++) {
+        GroupItem *part = new GroupItem((char *)names[i]);
+        part->setCount((int)values[i]);
+        frame->addAttribute(part); }
+    return frame;
+}
+
+//  windowRequest a request of the window's own for one call: the opening request's form and look, and frame:= the frame given (or the opening request's own, when none is)
+static GroupItem *windowRequest(GroupItem *opened, NSRect *frame)
+{
+    GroupItem *request = new GroupItem((char *)"windowRequest");
+    const char *carried[3] = { "form", "look", "frame" };
+    for (int i = 0; i < 3; i++) {
+        GroupItem *part = opened->get((char *)carried[i]);
+        if ( part && !(i == 2 && frame) ) request->addAttribute(new GroupItem(part)); }
+    if ( frame ) {
+        GroupItem *holder = new GroupItem((char *)"frame");
+        holder->setGroup(frameField(*frame));
+        request->addAttribute(holder); }
+    return request;
+}
+
+static GroupItem *windowLayout(GroupItem *opened, NSRect *frame)
+{
+    GroupItem *lay = utilityAction("windowLay");
+    if ( !lay ) return 0;
+    windowTake(0);
+    runAction(windowRequest(opened, frame), lay);
+    return *gTaken;
+}
+
+//  formFrame the window's content rectangle as a form's frame: x from the left, y down from the top of the screen
+static NSRect formFrame(Layout *view)
+{
+    NSWindow *win = [view window];
+    NSRect c = [win contentRectForFrameRect:[win frame]];
+    c.origin.y = [[NSScreen mainScreen] frame].size.height - c.origin.y - c.size.height;
+    return c;
+}
+
+static WindowRecord *windowOf(Layout *view)
+{
+    for ( WindowRecord &w : gWindows ) if ( w.view == view ) return &w;
+    return 0;
+}
+
+//  windowRelay lay the window's form out again at the window's frame now, and hold and draw the new copy; a window handed a bare copy has no request and keeps what it holds
+static void windowRelay(Layout *view)
+{
+    WindowRecord *w = windowOf(view);
+    if ( !w || !w->held[1] ) return;
+    NSRect now = formFrame(view);
+    GroupItem *laid = windowLayout(w->held[1], &now);
+    if ( !laid ) return;
+    w->held[0] = laid;
+    view->base = laid;
+    [view setNeedsDisplay:YES];
+}
+
+//  windowResized Layout.viewDidEndLiveResize calls it: the resize is over, lay out at the new frame
+void windowResized(Layout *view)
+{
+    NSRect now = formFrame(view);
+    printf("=== window resized: %s now %gx%g at (%g,%g) ===\n", view->base ? view->base->groupBody->tag : "nothing", now.size.width, now.size.height, now.origin.x, now.origin.y);
+    fflush(stdout);
+    windowRelay(view);
+}
+
+//  windowClosed keepFrame alone is a close (G3): the frame is kept for the form's next opening; the window is forgotten and its form no longer held
+static void windowClosed(Layout *view)
+{
+    WindowRecord *w = windowOf(view);
+    if ( !w ) return;
+    if ( w->held[1] ) {
+        NSRect now = formFrame(view);
+        GroupItem *keep = utilityAction("keepFrame");
+        printf("=== window closed: %s kept %gx%g at (%g,%g) ===\n", view->base ? view->base->groupBody->tag : "nothing", now.size.width, now.size.height, now.origin.x, now.origin.y);
+        fflush(stdout);
+        if ( keep ) runAction(windowRequest(w->held[1], &now), keep); }
+    w->held[0] = 0;
+    w->held[1] = 0;
+    view->base = 0;
+    gWindows.erase(gWindows.begin() + (w - &gWindows[0]));
+}
+
+//  isRequest a request names a form (form:=) and has no width of its own; a laid-out copy's top always has one
+static bool isRequest(GroupItem *input)
+{
+    GroupItem *formF = input ? input->get((char *)"form") : 0;
+    return formF && isGROUP(formF->groupBody->flags.data) && !input->get((char *)"width");
+}
+
+/***************************************************************************
     makeWindow: everything openWindow does up to the run loop. visible=false
     (windowOffscreen) never orders the window front.
 
@@ -131,7 +260,7 @@ extern "C" GroupItem *windowRootProbe(GroupItem *input)
                           run has not been tried (docs/cleanupList.md).
       WINDOW_IMAGES       print the loaded-image count before and after.
 ***************************************************************************/
-static Layout *makeWindow(GroupItem *input, bool visible)
+static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
 {
     NSRect asked = input ? getFrame(input) : NSZeroRect;
     if ( asked.size.width < 1 || asked.size.height < 1 ) {
@@ -142,8 +271,9 @@ static Layout *makeWindow(GroupItem *input, bool visible)
     if ( getenv("WINDOW_CLEAR_ROOTS") ) GC_clear_roots();
     GC_add_roots((char *)&GroupControl::groupController,
                  (char *)&GroupControl::groupController + sizeof(GroupControl *));
-    GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *));
-    *heldForm = input;
+    GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *) * 2);
+    heldForm[0] = input;
+    heldForm[1] = request;
     GroupItem *titleF = input ? input->get((char *)"title") : 0;
     char *titled = titleF ? titleF->getText() : 0;
     NSApplication *app = [NSApplication sharedApplication];
@@ -168,6 +298,11 @@ static Layout *makeWindow(GroupItem *input, bool visible)
     view->base = input;
     [win setContentView:view];
     gWindows.push_back({view, heldForm});
+    //  closeKeeps a close keeps the window's frame for its form (keepFrame) and forgets the window; a shown window still ends the process, until the loop is built (stroke 4)
+    [[NSNotificationCenter defaultCenter]
+        addObserverForName:NSWindowWillCloseNotification
+        object:win queue:nil
+        usingBlock:^(NSNotification *note){ windowClosed(view); if ( visible ) [NSApp terminate:nil]; }];
     return view;
 }
 
@@ -204,8 +339,14 @@ void windowDrawForm(GroupItem *top, double height)
 
 static WindowRecord *windowHolding(GroupItem *top)
 {
+    if ( !top ) return 0;
     for ( WindowRecord &w : gWindows )
-        if ( top && *w.held && (*w.held)->groupBody == top->groupBody ) return &w;
+        if ( w.held[0] && w.held[0]->groupBody == top->groupBody ) return &w;
+    //  byItsForm a window opened with a request is also found by the form that request names: the copy it holds changes at every redraw, the definition does not
+    for ( WindowRecord &w : gWindows ) {
+        GroupItem *formF = w.held[1] ? w.held[1]->get((char *)"form") : 0;
+        GroupItem *form = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+        if ( form && form->groupBody == top->groupBody ) return &w; }
     return 0;
 }
 
@@ -274,6 +415,8 @@ static void windowClickAt(Layout *view, NSPoint inView)
         fprintf(stderr, "windowClick: REFUSING %s -- no clickField in Utilities\n", top->groupBody->tag);
         return; }
     runAction(hit, clicker);
+    //  clickRedraws a window that knows its request lays out again after the click (clickShow's kin), so what the click changed, and the selection, show
+    windowRelay(view);
 }
 
 @interface Layout (Events)
@@ -324,9 +467,56 @@ extern "C" GroupItem *windowHold(GroupItem *request)
     if ( !w || asked.size.width < 1 || asked.size.height < 1 ) {
         fprintf(stderr, "windowHold: REFUSING %s -- needs held:= a top field that a window holds and form:= a laid-out form\n", request->groupBody->tag);
         return 0; }
-    *w->held = now;
+    w->held[0] = now;
     w->view->base = now;
     [w->view setNeedsDisplay:YES];
+    return request;
+}
+
+/***************************************************************************
+    windowResize(request): form:= the form a window shows (or the copy it
+    holds) and frame:= a field holding width and height, and x and y if the
+    window is to move. The fleet's resize: the window takes the size, then
+    the view's own viewDidEndLiveResize is called, as AppKit calls it when a
+    drag ends. windowClose(request): form:= likewise; the window is closed
+    as its close button closes it.
+***************************************************************************/
+static WindowRecord *windowNamed(GroupItem *request, const char *who)
+{
+    GroupItem *formF = request ? request->get((char *)"form") : 0;
+    GroupItem *top = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+    WindowRecord *w = windowHolding(top);
+    if ( !w ) fprintf(stderr, "%s: REFUSING %s -- needs form:= a form a window shows\n", who, request ? request->groupBody->tag : "nothing");
+    return w;
+}
+
+extern "C" GroupItem *windowResize(GroupItem *request)
+{
+    WindowRecord *w = windowNamed(request, "windowResize");
+    if ( !w ) return 0;
+    GroupItem *frameF = request->get((char *)"frame");
+    GroupItem *frame = (frameF && isGROUP(frameF->groupBody->flags.data)) ? frameF->getGroup() : 0;
+    GroupItem *wide = frame ? frame->get((char *)"width") : 0, *high = frame ? frame->get((char *)"height") : 0;
+    if ( !wide || !high ) {
+        fprintf(stderr, "windowResize: REFUSING %s -- needs frame:= a field holding width and height\n", request->groupBody->tag);
+        return 0; }
+    @autoreleasepool {
+        NSWindow *win = [w->view window];
+        NSRect now = formFrame(w->view);
+        GroupItem *x = frame->get((char *)"x"), *y = frame->get((char *)"y");
+        NSRect want = NSMakeRect(x ? x->getNumber() : now.origin.x, y ? y->getNumber() : now.origin.y, wide->getNumber(), high->getNumber());
+        want.origin.y = [[NSScreen mainScreen] frame].size.height - want.origin.y - want.size.height;
+        [win setFrame:[win frameRectForContentRect:want] display:NO];
+        [w->view viewDidEndLiveResize];
+    }
+    return request;
+}
+
+extern "C" GroupItem *windowClose(GroupItem *request)
+{
+    WindowRecord *w = windowNamed(request, "windowClose");
+    if ( !w ) return 0;
+    @autoreleasepool { [[w->view window] close]; }
     return request;
 }
 
@@ -377,7 +567,12 @@ extern "C" GroupItem *windowOffscreen(GroupItem *input)
 {
     @autoreleasepool {
         unsigned before = _dyld_image_count();
-        Layout *view = makeWindow(input, false);
+        GroupItem *request = isRequest(input) ? input : 0;
+        GroupItem *top = request ? windowLayout(request, 0) : input;
+        if ( request && !top ) {
+            fprintf(stderr, "windowOffscreen: REFUSING %s -- its form was not laid out\n", input->groupBody->tag);
+            return 0; }
+        Layout *view = makeWindow(top, request, false);
         if ( !view ) return 0;
         [NSApp finishLaunching];
         NSEvent *e;
@@ -392,15 +587,16 @@ extern "C" GroupItem *windowOffscreen(GroupItem *input)
 extern "C" GroupItem *openWindow(GroupItem *input)
 {
     @autoreleasepool {
-        Layout *view = makeWindow(input, true);
+        GroupItem *request = isRequest(input) ? input : 0;
+        GroupItem *top = request ? windowLayout(request, 0) : input;
+        if ( request && !top ) {
+            fprintf(stderr, "openWindow: REFUSING %s -- its form was not laid out\n", input->groupBody->tag);
+            return 0; }
+        Layout *view = makeWindow(top, request, true);
         if ( !view ) return 0;
         NSWindow *win = [view window];
         [win makeKeyAndOrderFront:nil];
         [NSApp activateIgnoringOtherApps:YES];
-        [[NSNotificationCenter defaultCenter]
-            addObserverForName:NSWindowWillCloseNotification
-            object:win queue:nil
-            usingBlock:^(NSNotification *note){ [NSApp terminate:nil]; }];
         printf("incant window: created (native .mm), entering run loop\n");
         [NSApp run];
     }

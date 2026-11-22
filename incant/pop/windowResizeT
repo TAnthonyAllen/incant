@@ -1,0 +1,136 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+register(WindowResizeT);
+define
+    rgX = 0;
+    rgY = 0;
+    rgAt code={
+        px = rgX;
+        py = rgY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rgRead code={
+        rgAt(argument);
+        pixelAt(argument);
+        };
+    pdfRead path="IncantForms/PDF/test.pdf";
+    rgWin x=300 y=450 width=500 height=600;
+    rgBig x=300 y=450 width=1200 height=600;
+    rgSmall x=300 y=450 width=500 height=600;
+    ;
+search WindowResizeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
+    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
+    rgResize code={
+        rgF := argument;
+        rgWin :% copyOf(*rgF["x"]);
+        rgWin :% copyOf(*rgF["y"]);
+        rgWin :% copyOf(*rgF["width"]);
+        rgWin :% copyOf(*rgF["height"]);
+        redrawWindow(rgReq);
+        };
+    wrReq form:=firstLight;
+    wrRead form:=firstLight;
+    wrToBig form:=firstLight frame:=rgBig;
+    wrToSmall form:=firstLight frame:=rgSmall;
+    wrOk form:=firstLight px=1190 py=230;
+    wrNoWindow form:=rgBig;
+    wrSmallPts code={
+        rgX = 450; rgY = 15;  rgRead(wrRead);
+        rgX = 5;   rgY = 100; rgRead(wrRead);
+        rgX = 100; rgY = 220; rgRead(wrRead);
+        rgX = 490; rgY = 230; rgRead(wrRead);
+        };
+    wrBigPts code={
+        rgX = 900; rgY = 15;  rgRead(wrRead);
+        rgX = 5;   rgY = 150; rgRead(wrRead);
+        rgX = 100; rgY = 220; rgRead(wrRead);
+        rgX = 1190; rgY = 230; rgRead(wrRead);
+        rgX = 490; rgY = 230; rgRead(wrRead);
+        };
+    wrStore code={
+        wrHas = 0;
+        if formFrames["firstLight"];    wrHas = 1;
+        cout "WR-STORE" argument "entry" wrHas:;
+        };
+    rgSmallPts code={
+        rgX = 450; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 100; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
+        };
+    rgBigPts code={
+        rgX = 900; rgY = 15;  rgRead(pdfRead);
+        rgX = 5;   rgY = 150; rgRead(pdfRead);
+        rgX = 100; rgY = 220; rgRead(pdfRead);
+        rgX = 1190; rgY = 230; rgRead(pdfRead);
+        rgX = 490; rgY = 230; rgRead(pdfRead);
+        };
+    ;
+cout "WR-PAGE open":;
+windowOffscreen(wrReq);
+readWindow(wrRead);
+wrSmallPts();
+cout "WR-PAGE big":;
+windowResize(wrToBig);
+readWindow(wrRead);
+wrBigPts();
+wrStore("after-resize");
+cout "WR-PAGE click":;
+windowClick(wrOk);
+readWindow(wrRead);
+wrBigPts();
+cout "WR-PAGE small":;
+windowResize(wrToSmall);
+readWindow(wrRead);
+wrSmallPts();
+cout "WR-PAGE close":;
+windowResize(wrToBig);
+windowClose(wrRead);
+wrStore("after-close");
+readWindow(wrRead);
+cout "WR-PAGE reopen":;
+windowOffscreen(wrReq);
+readWindow(wrRead);
+wrStore("after-reopen");
+cout "WR-PAGE errant":;
+windowResize(wrNoWindow);
+windowClose(wrNoWindow);
+cout "WR-PAGE definition":;
+printDefinition(firstLight);
+cerr "WINDOWRESIZE SENTINEL":;
+stop();
+
+windowResizeT -- windows stroke 3 (SEQ 750, 2026-11-22): resize and close. A delta of resizeLightT's preamble (copied, then
+patched). Rows in genLadder/formsPop.sh, run at GCSTRESS=1000. No window is shown.
+
+The window is opened with a REQUEST (wrReq form:=firstLight), not a laid-out copy: it lays the form out itself through
+utilities' windowLay, keeps the request, and is found afterwards by the form the request names (readWindow, windowClick,
+windowResize and windowClose all take form:=firstLight).
+
+open     firstLight as declared, 500x600; resizeLightT's four small points.
+big      windowResize to 1200x600: the window takes the size and the view's own viewDidEndLiveResize runs, as when a drag
+         ends. The frame goes to formFrames and setFrame lays out from there (windowLay): the page and the five points are
+         resizeLightT's RG-2, compared by value in formsPop. The store's entry is read and cleared, as redrawWindow leaves it.
+click    a point on ok at the big size: the window lays out again BY ITSELF after the click (stroke 2 left that to the
+         fixture). The size is still 1200x600 and ok, selected, is defaultLook's lightBlue.
+small    resized back to 500x600: resizeLightT's small points, ok still selected.
+close    resized to 1200x600 again, then closed as the close button closes it: keepFrame alone, the frame kept in
+         formFrames (entry 1). The window is forgotten: readWindow refuses by name.
+reopen   the same request again, naming no frame: setFrame takes the kept frame, so the window opens 1200x600, and the
+         entry is cleared.
+errant   windowResize and windowClose for a form no window shows: refused by name.
+definition  firstLight still declares 500x600.

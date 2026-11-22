@@ -34,10 +34,10 @@ double 	baseY = [self frame].size.height - point.y;
 
 - (void)viewDidEndLiveResize
 {
-	::printf("View End resize\n");
-	[self setFrame:[[self superview] frame]];
-	//base.updateFrame(frame);
-	[self setNeedsDisplay:1];
+	
+	void windowResized(Layout *view);
+	windowResized(self);
+	
 }
 
 - (void)windowWillClose:(NSNotification*)notification
