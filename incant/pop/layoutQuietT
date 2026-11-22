@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(utilities);
+include(styles);
+search reset stack Grokking;
+register(FORMs);
+search FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    lqForm window x=0 y=0 width=300 height=200 down fill:=pageFill
+        lqBare across height=20
+            lqA width=100;
+            lqB;
+        lqThree down=3 height=90
+            lqRow;
+        lqTwo across=2 height=20
+            lqCell;
+        lqStar down="*" height=60
+            lqEach height=20;
+    ;
+register(LayoutQuietT);
+search LayoutQuietT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    lqReq form:=lqForm;
+    lqRun code={
+        lqL := setFrame(lqReq);
+        tsfLine(*lqL);
+        };
+    ;
+lqRun();
+cerr "LAYOUTQUIETT SENTINEL":;
+stop();
+
+layoutQuietT -- a bare down or across lays out without a word (SEQ 745; item 2 of the registries dispatch, tester's noise).
+fillDownAcross compared the direction's value with 0 to learn whether it was a count. A bare down or across holds no
+number, reads as its own name, and the compare warned: "WARNING compare: number Token [0] against string direct [across]",
+once for every such field at every layout -- the 16 lines Start(); show(colorList); printed. The count is now compared
+only when the direction holds one.
+LQ-1  no compare warning from a form with a bare down (the window), a bare across, down=3, across=2 and down="*".
+LQ-2  the control, so the fix did not stop the count being read: down=3 makes three rows of 30, across=2 two cells of 150,
+      down="*" three rows of 20 (as many as fit), and the bare across lays its two members side by side.

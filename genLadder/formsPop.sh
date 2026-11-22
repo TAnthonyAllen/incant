@@ -614,6 +614,8 @@ _clF=${CL_FILE:-$(ip colorListT)}
 rm -f IncantForms/PDF/test.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
 _ofeq "colorListT exit / sentinel / no refusal" "$_clx $(grep -c '^COLORLISTT SENTINEL' "$T/cl.e") $(grep -c 'REFUS\|^REMOVED' "$T/cl.e")" "0 1 0"
+#  SEQ 745: tester's shape prints nothing on stderr but this fixture's own two lines (the 16 compare warnings a run are cured at their source).
+_ofeq "colorListT CL-0 stderr holds this fixture's CL-4 line and its sentinel and nothing else" "$(grep -c . "$T/cl.e") $(grep -c '^CL-4 \|^COLORLISTT SENTINEL' "$T/cl.e")" "2 2"
 _ofeq "colorListT CL-1 found in the stash (deferred), drawn to test.pdf" "$(grep -c '^=== show colorList deferred' "$T/cl.o") $(grep -c '^=== show colorList to IncantForms/PDF/test.pdf ===' "$T/cl.o")" "1 1"
 _ofeq "colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="pourName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
 _ofeq "colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="pourShow"){c[$9]++; if($15==7)v++}} END{print n["pourShow"], v, c["r255"], c["r0"], n["pourWhat"]}' "$T/cl.o")" "14 14 3 11 14"

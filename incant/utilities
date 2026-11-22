@@ -119,7 +119,17 @@ define
             target = *grup[tARGET];
             if target.isPercenT;    target = argument[tARGET] * target / 100;
             if target.datA != 0;    pValue -= target;
-        if direct == "*";
+        // bareHasNoCount a bare down or across holds no number: its value reads as its own name, and comparing that with 0 printed a warning for every such field at every layout (tester's 16 lines a run; SEQ 745). The count is compared only when the direction holds one, and "*" only when it does not
+        fdDirAt := argument[dIRECTion];
+        fdDirKind = *fdDirAt.datA;
+        fdCounts = 0;
+        if fdDirKind == 5;      fdCounts = 1;
+        if fdDirKind == 9;      fdCounts = 1;
+        // starIsNotACount and a counted direction (down=3) is not compared with "*": that is the same warning from the other side
+        fdStar = 0;
+        if fdCounts == 0;
+            if direct == "*";   fdStar = 1;
+        if fdStar == 1;
             if memberCount > 1; print taG "can only have one member when" $dIRECTion "=*":;
             valueCount = 0;
             fdStep = target;
@@ -139,8 +149,9 @@ define
                 if psOk == 0;   valueCount = 0;
                 if psOk == 0;   fdPour = 0;
         else
-            if direct > 0;
-                valueCount = direct - 1;
+            if fdCounts == 1;
+                if direct > 0;
+                    valueCount = direct - 1;
         // repeatInPlace the repeats are deep copies added to the field itself, so every member keeps the field as its parent and each copy owns its children (SEQ 653). A bare down or across adds nothing. The old way rebuilt the list in a scratch field from shallow copies: a member's children climbed to the scratch field, and the copies shared one set of children, all laid out where the last one fell.
         while valueCount > 0;
             --valueCount;
