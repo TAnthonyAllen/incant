@@ -196,6 +196,20 @@
   ok    colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white) = [5 4 9 10 4 5 9 10 8 11 3 10 4 5 ]
   ok    colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions = [14 14 3 11 14]
   ok    colorListT CL-4 loading the form leaves cOLOr as it was; black's description is words, not a colour (its wording is the form's to change) = [CL-4 cOLOr black [ #000000 ] white [ #ffffff ] / 1]
+  ok    colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 14 x 24 + 13 x 4 + 2 x 12 = [490x452]
+-- pour stage 2: rows derived from what is poured; margin, gap, height=fit (pourDeriveT; SEQ 742).
+  ok    pourDeriveT exit / sentinel / no refusal = [0 1 0]
+  ok    pourDeriveT PD-1 cOLOr derived: 14 names, 14 swatches printing their value (white text 3, black 11), 2 descriptions (black, wall) = [14 14 3 11 11 13 ]
+  ok    pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 452 high = [pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=452]
+  ok    pourDeriveT PD-3 fONTs: seven samples, each in its own font; a row as tall as its sample needs = [.AppleSystemUIFont 18 0|Copperplate 12 0|Courier New 24|Helvetica 10 0|Palatino 14 1|Palatino 14 0|Palatino 24 1| / h=30 h=24 h=36 h=24 h=26 h=26 h=36 ]
+  ok    pourDeriveT PD-4 sTYLEs: 16 rows; emphasis's sample is red (the style applied, one r239); accent, a placeholder, is defaultLook's red swatch (black text) = [16 1 r0]
+  ok    pourDeriveT PD-5 the same pour under a look of its own (accent blue, pageFill black): accent's swatch reads white text; one more white than by day = [r255 2 4]
+  ok    pourDeriveT PD-6 mixed things: a # value a swatch (white on blue), plain words their own text (10 characters), no value nothing = [pourName:r0:5 pourName:r0:7 pourShow:r255:7 pourName:r0:5 pourShow:r0:10 ]
+  ok    pourDeriveT PD-7 cOMMANDs: no command fired or read (no show text); capped at 792, the names of the 33 rows that fit are drawn and no row is left unframed = [0 h=792 33 0]
+  ok    pourDeriveT PD-8 height=fit with a member of no height: the cap, said by name = [1 h=792]
+  ok    pourDeriveT PD-9 the definition is never written: no rows on it, pour still there = [PD-9 the definition's pdRows holds 0 rows; pour still on it: 1]
+  ok    describedTwice the form files: none described twice (exit / line) = [0 ok    describedTwice: N descriptions, none described twice]
+  ok    describedTwice control, two files describing black (a third black under FORMs is not a description): named once, white not named (exit / named / lines) = [1 1 1]
 -- the IBkant skeleton: the kant wiki as a kant form (ibkantT).
   ok    ibkantT exit / sentinel = [0 1]
   ok    ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run = [runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody]
@@ -315,7 +329,7 @@
 
 -- the drawing fields in FORMs (drawFieldsT).
   ok    drawFieldsT exit / sentinel = [0 1]
-  ok    drawFieldsT DF-1 FORMs holds 35 drawing fields, 29 form attributes, 7 unparked drawing entries and this file's three = [74]
+  ok    drawFieldsT DF-1 FORMs holds 35 drawing fields, 31 form attributes, 7 unparked drawing entries and this file's three = [76]
   ok    drawFieldsT DF-2 LinE carries its Core Graphics call, once; X is defined = [1 1]
   ok    drawFieldsT DF-3 width= and WidtH= are each field's own (100, 300); dfShared=, not virtual, is the registry's one field (300, 300) = [dfA width 100 dfB width 300 dfA WidtH 100 dfB WidtH 300 dfA dfShared 300 dfB dfShared 300]
   ok    drawFieldsT DF-4 the registry's width, fill and WidtH keep no value; dfShared holds the last write = [1 1 1 1]
@@ -351,7 +365,7 @@
   ok    lookT LK-2 THE SAME FORM UNDER look:=lkNight: the page black, lkA Courier white, lkC Courier lightBlue = [r0 g0 b0 a255 / Courier New 24 1 r255 g255 b255 / Courier New 24 1 r206 g255 b255]
   ok    lookT LK-3 a look that merges defaultLook and writes accent: only lkC's colour changes (green) = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r0 g158 b15]
   ok    lookT LK-4 an ordinary name falls through under every look: lkB's fill:=wall and color:=blue, four pages = [fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / ]
-  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [b625bddcdb7054979ddac89fb7530fc8 7]
+  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [2211d53b79f752b8c50709e5748e9a4c 7]
   ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [5488e14b31cf1a757da705649cac2b2a 9]
   ok    lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written = [1 1]
   ok    lookT LK-8 A STYLE WITH NO FILL DRAWS WITH NO REFUSAL (F-156): lkC, whose style holds font and colour only, 0 displayFill refusals on four pages; the one refusal in the run is lkBad's unresolved fill = [0 1 1]
@@ -392,4 +406,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 340 green, see above
+FORMS POP FAILED -- 353 green, see above
