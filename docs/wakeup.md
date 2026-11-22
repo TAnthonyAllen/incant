@@ -5,30 +5,30 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**536, 2026-11-22, topic: windows, SEQ 750 (assigned by Clod).** Windows strokes 0-2 bought and merged; defaultLook holds selectFill:=lightBlue.
-Stroke 3, resize and close, is on branch windows-resize, pushed, NOT bought: a window opened with a request relays itself out on a
-resize and a click and keeps its frame at a close. Trunk reads formsPop 382; the branch 391. Everything else as the table below.
-**OPEN (Tony):** before windows stroke 5, how a user opens a window rather than a PDF (Topics/windows 536); Topics/kant's budget (5 over); carried from 482, whether an indented `define` should work; a Dropbox conflicted copy of test.pdf in IncantForms/PDF, untracked, Tony's to delete.
+**537, 2026-11-22, topic: windows, SEQ 751 (assigned by Clod), SHUTDOWN.** Windows strokes 0-3 bought and merged today. Stroke 4, the loop
+(W1), the display's size and show deciding, is on branch windows-loop, pushed, NOT bought. Trunk reads formsPop 391; the branch 399.
+A fresh session reads this page and Topics/windows, then waits for Tony's buy; stroke 5 is a real run with Tony watching.
+**OPEN (Tony):** whether windows should default to 1 after stroke 5 (it is 0); two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete; Topics/kant's budget (5 over); carried from 482, whether an indented `define` should work;
 **RULED, NOT BUILT:** registries items 3-5 (where defined as a property; the narrowed overwrite warning; the wARNINGs registry); describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** Tony buys windows stroke 3 (branch windows-resize); then stroke 4, the loop (W1) and the display's size published. F-167 stays docketed (cured before a window runs with jitter; on). Later: registries items 3-5, re-parked in incant++.
+**NEXT:** Tony buys windows stroke 4 (branch windows-loop); then stroke 5 on Fable 5.2, a real run Tony watches: `windows = 1;` then show a form written window (tabForm; firstLight is not written window). Expect fix strokes from it: nothing shown has been run. F-167 stays docketed. Later: registries items 3-5, re-parked in incant++.
 
-## The numbers (as run at seal 532 on trunk; bare build 2026-11-22 12:26, 2191200 bytes)
+## The numbers (trunk at seal 537, as run on each stroke's branch before its buy; trunk rebuilt bare after the seal)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4235 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 382 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 391 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | not run (not a shutdown seal); 522's: exit 0, 116 directives, 108 inject, 8 parked dark |
+| `genLadder/dirCheck.sh` (shutdown seals only) | run at 537 on the branch: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
 | extern canary | 490 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click (all bought 2026-11-22). On a branch, not bought: windows-resize (stroke 3); describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize (all bought 2026-11-22). On a branch, not bought: windows-loop (stroke 4); describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
 for-members, for-attributes, print-dot, looks-by-name, kant-environment, g3-one-direction, g3-cheat). BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
@@ -42,7 +42,7 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 | `Topics/forms` | 278 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 206 / 200, OVER by 6 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/windows` | 100 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
+| `Topics/windows` | 105 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
