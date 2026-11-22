@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2220064 bytes  Nov 22 13:23
+  bin   2220960 bytes  Nov 22 13:42
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -326,6 +326,21 @@
   ok    windowDrawT WD-4 two windows, each draws its own form: red at (60,40) in the titled one, firstLight's wall at (450,15) = [r239 g43 b45 a255 / wall]
   ok    windowDrawT WD-5 / WD-6 refused by name, once each: a form no window holds; a field with no frame = [1 1]
 
+-- a click from a point, bubbling, and selectFill (windowClickT).
+  ok    windowClickT exit / sentinel / no refusal = [0 1 0]
+  ok    windowClickT WC-0 tabForm in a window, nothing selected: tab One and the card green = [green | tabFill | tabFill | green | green]
+  ok    windowClickT WC-1 A POINT INSIDE TAB THREE: the hit is tabThree, selected, its onClick fired, selectTab ran = [windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree]
+  ok    windowClickT WC-1 redrawn in the window: tab Three and the whole card red, tab One tabFill (tabClickT's TK-1, from a point) = [tabFill | tabFill | red | red | red]
+  ok    windowClickT WC-2 a point in the card: the shown card is hit, not a hidden one; nothing fires on the way up, said with the count of fields tried = [windowClick tabForm at (300,260): thirdCard;click tabForm thirdCard selected;click tabForm thirdCard fired nothing, on the way up through 4 fields]
+  ok    windowClickT WC-3 a point outside the form: no field, nothing fired, said so; no click line follows = [windowClick tabForm at (500,500): no field, nothing fired]
+  ok    windowClickT WS-0 the second form as declared: inner red, plain the page's white, lower green = [red | white | green]
+  ok    windowClickT WS-1 BUBBLING: a point in wcInner (no action) fires its parent wcOuter's onClick, handed wcOuter = [windowClick wcForm at (100,25): wcInner;click wcForm wcInner selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter]
+  ok    windowClickT WS-1 SELECTION: the selected field is drawn with the look's selectFill, blue; the others as they were = [blue | white | green]
+  ok    windowClickT WS-2 a selected field naming no fill is given one: plain blue; inner red again = [red | blue | green]
+  ok    windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower wall, not blue; nothing fires on the way up = [red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields]
+  ok    windowClickT WS-4 A LOOK WITH NO selectFill: the selected field is drawn as it was (plain white), nothing refused = [red | white | green]
+  ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner blue = [click wcForm wcInner selected / blue | white | green]
+
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
   ok    typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines = [lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1]
@@ -426,4 +441,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 369 green, see above
+FORMS POP FAILED -- 382 green, see above
