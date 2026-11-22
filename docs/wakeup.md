@@ -10,8 +10,8 @@ selectTab writes the field the bar's tabs:= names to hold the clicked tab; click
 onClick:=tabClick, a form-local action (onClick:=selectTab is refused when show reads the file: Utilities is not on the stage list).
 tabClickT, formsPop TK-0..TK-6; both H7s red. Trunk is unchanged since 522 but for docs; the numbers below are 522's, and the
 branch read them again this seal (formsPop 325 there, +8). Seal 522, 2026-11-21: Topics/kant trimmed; the alpha reorder ruled.
-**OPEN (Tony):** the two string-pointer rulings are RULED and parked as a dispatch in incant++ (with the sampler recon); Topics/kant's budget (3 over, nothing stale left); carried from 482, whether an indented `define` should work.
-**RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers; the string-pointer rulings (R1a, R1b, R2).
+**OPEN (Tony):** the buy of string-pointer (SEQ 738); Topics/kant's budget (1 over, nothing stale left); carried from 482, whether an indented `define` should work.
+**RULED, NOT BUILT:** describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
 **NEXT:** a parked dispatch (incant++): the string-pointer stroke first, then the sampler recon; or windows plan item 1.
 
