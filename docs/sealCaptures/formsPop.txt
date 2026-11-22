@@ -171,6 +171,15 @@
   ok    cardsT CT-4 a card in no cards field: refused naming the tab and the card, the first shown = [1 ctOne ctX ]
   ok    cardsT CT-5 a selection that is no tab of the bar: refused naming it, the first shown = [1 ctOne ctX ]
   ok    cardsT CT-6 the definition is never written: its ctTwo is not hidden after five layouts = [CT-6 the definition's ctTwo isHidden 0]
+-- the tab click: selectTab and clickShow (tabClickT; SEQ 737).
+  ok    tabClickT exit / sentinel / no refusal at define = [0 1 0]
+  ok    tabClickT TK-0 show alone: nothing selected, tab One and the box green = [none / r0 g158 b15 | r175 g211 b120 | r175 g211 b120 | r0 g158 b15 | r0 g158 b15]
+  ok    tabClickT TK-1 clickShow tabThree: one call fires tabClick, selectTab, and draws; tab Three and the whole box red, tab One tabFill = [1 1 tabThree / r175 g211 b120 | r175 g211 b120 | r239 g43 b45 | r239 g43 b45 | r239 g43 b45]
+  ok    tabClickT TK-2 tabTwo: blue = [tabTwo / r175 g211 b120 | r0 g81 b186 | r175 g211 b120 | r0 g81 b186 | r0 g81 b186]
+  ok    tabClickT TK-3 tabOne: green again = [tabOne / r0 g158 b15 | r175 g211 b120 | r175 g211 b120 | r0 g158 b15 | r0 g158 b15]
+  ok    tabClickT TK-4 a name the form lacks: click refuses by name, clickShow draws nothing; four draws of tabForm in all; selection kept = [1 1 4 tabOne]
+  ok    tabClickT TK-5 selectTab under a parent with no tabs:= refuses naming the field and the parent; tabSelected unchanged = [1 tabOne]
+  ok    tabClickT TK-6 the definition is never written: its thirdCard is not hidden after the clicks = [TK-6 the definition's thirdCard isHidden 0]
 -- the IBkant skeleton: the kant wiki as a kant form (ibkantT).
   ok    ibkantT exit / sentinel = [0 1]
   ok    ibkantT IB-1 the first page is Welcome: title, the three contents entries, then the page's head and body; no listener run = [runs 0 / ibTitle toWelcome toFields toForms ibWelcomeHead ibWelcomeBody]
@@ -367,4 +376,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 317 green, see above
+FORMS POP FAILED -- 325 green, see above
