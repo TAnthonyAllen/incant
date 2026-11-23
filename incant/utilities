@@ -831,6 +831,7 @@ define
         // heldLayout tells the setFrame called next that its form is held in a field: it writes heldIn on its copy's top (the copy handed back here is a copy of that top, and the fields under it climb to the one setFrame made)
         sfHeldNext = 1;
         pfLaid := setFrame(placeReq);
+        sfHeldNext = 0;
         lkHas = pfHas;
         lkNamed = pfNamed;
         if pfHas == 1;      lkLook := *pfKeep;
@@ -866,6 +867,9 @@ define
         that lacks any of x y width height (frameWhole).
     ***************************************************************************/
     setFrame code={
+        // heldRead placeForm's word that this layout is of a held form: read and cleared FIRST, ahead of every refusal's return below -- left set by a refused layout it made the next plain layout write heldIn from a frame it did not have, and that refused the whole layout (found by formNestT NF-5, SEQ 764)
+        sfHeldBy = sfHeldNext;
+        sfHeldNext = 0;
         sfReq := argument;
         sfHas = 0;
         if *sfReq["form"];      sfHas = 1;
@@ -886,9 +890,6 @@ define
         if sfChain[*sfName];
             cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
             return;
-        // heldRead read once and cleared, before anything below can lay out another held form
-        sfHeldBy = sfHeldNext;
-        sfHeldNext = 0;
         // topForm the name of the form this layout is for: the first one on sfChain, so a form held inside it is laid out under the same name. selectionPick and describePick read the selection kept under it (popups stroke 1)
         sfDeep = sfChain.listLengtH;
         if sfDeep == 0;     slTop = string $*sfName$;
@@ -932,6 +933,7 @@ define
         *sfLaid :% *sfLk;
         // formOnTheCopy the copy's top also keeps the name of the form this layout is for (slTop), a held form's top its host's: a click reads it to know which form's selection it is (popups stroke 1)
         // heldInItsHost a held form's top keeps a holder to the field that holds it, the request's frame. The fields under it climb to this top, which reads as no member and has no parent, so a click's climb crosses into the host through heldIn (clickUp; Tony, 2026-11-23)
+        if sfUse == 0;      sfHeldBy = 0;
         if sfHeldBy == 1;
             sfIn := new("heldIn");
             *sfIn := **sfFrame;

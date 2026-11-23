@@ -13,8 +13,9 @@ define
         cout "CC-SAY handed" ccWho:;
         };
     ccHeld window x=0 y=0 width=200 height=100 fill:=pageFill
-        ccRoom height=40;
-        ccText="t" height=40;
+        ccWrap
+            ccRoom height=40;
+            ccText="t" height=40;
     ccHost window x=0 y=0 width=200 height=240 fill:=pageFill
         ccTop="top" height=40 fill:=green;
         ccIn form:=ccHeld height=100 onClick:=ccSay;
@@ -85,8 +86,9 @@ C-1  firstLight: the heading is clicked (selected, its left edge midBlue). Then 
 C-2  a click on describeHead, in descriptions held in firstLight: it fires nothing on the way up through 7 fields --
      describeHead, first, wrap, body, descriptions, then inside and firstLight, the host's (5 until this stroke: the
      climb stopped at descriptions).
-C-3  ccHost holds ccHeld in ccIn. A click on ccRoom, only room inside the held form: the selection climbs through ccHeld's
-     top into the host and lands on ccIn (selectable: it has an onClick and a description), which is described in the host's
+C-3  ccHost holds ccHeld in ccIn. A click on ccRoom, only room two levels down inside the held form (under ccWrap: a field
+     directly under a held form's top climbs into the host by itself, a deeper one reaches the held top and needs the
+     crossing -- measured, SEQ 764): the selection climbs through ccWrap and ccHeld's top into the host and lands on ccIn (selectable: it has an onClick and a description), which is described in the host's
      help box; the firing climb crosses too and fires ccIn's onClick, handed ccIn. ccTop is not outlined. ccIn's own
      outline is NOT read: the held form's fill is drawn over the field that holds it, so the outline is under it
      (measured: its edge reads the held form's white).

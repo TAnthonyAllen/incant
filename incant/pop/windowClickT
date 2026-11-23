@@ -235,9 +235,10 @@ WC-3  a point outside the form: no field, nothing fired, said so.
 
 wcForm sits at x=20 y=30, so a hit also proves the form's own origin is added. Its look, wcLook, holds selectFill:=blue.
 WS-0  as declared: wcInner red, wcPlain the page's white (it names no fill), wcLower green.
-WS-1  a point in wcInner. BUBBLING: wcInner has no action, so its parent wcOuter's onClick fires, handed wcOuter.
-      SELECTION: wcInner is drawn blue, the look's selectFill.
-WS-2  a point in wcPlain: it has no fill of its own and is given one, blue; wcInner is red again.
+WS-1  a point in wcInner. Since SEQ 764 (an only-room field is not selectable) wcInner, a fill and nothing else, is only room:
+      the selection climbs to its parent wcOuter, selectable by its onClick, which fires, handed wcOuter. wcOuter is outlined
+      in the look's blue: the outline shows at wcPlain's edge (no fill there) and is under wcInner's red fill.
+WS-2  a point in wcPlain, also only room: wcOuter is selected again and the page reads as WS-1.
 WS-3  a point in wcLower, which names its own selectFill:=wall: its own wins over the look's (wall, not blue). Nothing
       fires on the way up (wcLower, wcBody, wcForm).
 WS-4  wcPlain selected, then laid out under a request naming no look: the selectFill is defaultLook's, lightBlue (Tony,
