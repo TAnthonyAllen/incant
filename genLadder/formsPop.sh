@@ -1249,6 +1249,27 @@ _ofeq "windowSelectT S-4 wsShared clicked in A: outlined in A only; B's wsShared
 _ofeq "windowSelectT S-5 unselect(wsA): A has no outline; B keeps its own" "$(_wsr S-5)" "green white BLUE white / A 5 / B 37"
 _ofeq "windowSelectT S-6 the mock click by name is kept under the same form: wsOne outlined and described in A at the next layout" "$(_wsr S-6)" "BLUE white BLUE white / A 19 / B 37"
 
+echo "-- popup(request): a form opened at the field it is opened on, and what it remembers (windowPopupT)."
+#  ⚑ windowPopupT -- popups stroke 2 (SEQ 766, 2026-11-23; Tony's rulings 1, 2, 4; docs/popupsRecon.md). utilities' popup(request), form:= the popup form and
+#  on:= a field of a laid-out copy in a window: the form opens in its own window with its top left under the field's bottom left (the field's frame is in
+#  screen points), every time -- open already, it is closed and opened again there. popupTargets keeps, by the popup form's name, the form and field (and the
+#  poured member) it was opened on, by NAME; windowShut removes the entry when the popup closes. Also here: a frame part holding 0 is kept (framePart).
+#  Where the window really is, is read from its close line ("kept WxH at (x,y)", the window's own frame), not from popup's own line. GCSTRESS=1000, not shown.
+#  Controls (H7, 2026-11-23, on the committed file, no build), one each: the frame not handed to the window -> every close reads the declared (5,5);
+#  the target not written -> every PP-TARGET reads none (and P-2 no longer moves the popup); framePart's old value test -> P-4 closes at (5,30), x lost.
+_ppF=$(ip windowPopupT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_ppF" > "$T/pp.o" 2> "$T/pp.e"; _ppx=$?
+_ppb() { awk -v p="PP-PAGE $1 " '$0 == p {f=1; next} /^PP-PAGE /{f=0} f' "$T/pp.o"; }
+_ppl() { _ppb "$1" | grep '^=== popup\|^=== window closed\|^PP-TARGET\|^=== readWindow' | sed 's/^=== //; s/ *=== *$//; s/ *$//; s/^PP-TARGET [^ ]* /target /' | tr '\n' ';' | sed 's/;$//'; }
+_ofeq "windowPopupT exit / sentinel / the three refusals and readWindow's, no other" "$_ppx $(grep -c '^WINDOWPOPUP SENTINEL' "$T/pp.e") $(cat "$T/pp.o" "$T/pp.e" | grep -c 'REFUS')" "0 1 4"
+_ofeq "windowPopupT P-0 no popup yet: no target" "$(_ppl P-0)" "target none, of 0"
+_ofeq "windowPopupT P-1 A FIELD'S CLICK OPENS THE POPUP AT THAT FIELD: under ppA's bottom left (40,100), its own 120x80; it remembers form ppHost, field ppA" "$(_ppl P-1)" "popup ppPop opened on ppHost ppA each none at 40 100;target form ppHost field ppA each none of 1;readWindow ppRead title [A popup] size 120x80"
+_ofeq "windowPopupT P-2 OPENED AGAIN ON ANOTHER FIELD: closed where P-1 put it, (40,100), opened at ppB's (40,140); the target is ppB; one entry, one window" "$(_ppl P-2)" "window closed: ppPop kept 120x80 at (40,100);popup ppPop opened on ppHost ppB each none at 40 140;target form ppHost field ppB each none of 1;readWindow ppRead title [A popup] size 120x80"
+_ofeq "windowPopupT P-3 THE POPUP CLOSED: it was at (40,140); the target is gone; no window holds it" "$(_ppl P-3) / $(grep -c '^readWindow: REFUSING ppRead' "$T/pp.e")" "window closed: ppPop kept 120x80 at (40,140);target none, of 0 / 1"
+_ofeq "windowPopupT P-4 A FIELD AT THE SCREEN'S (0,0): the popup opens at x 0, y 30 -- a frame part of 0 is kept (dropped until SEQ 766)" "$(_ppl P-4)" "popup ppPop opened on ppEdge ppZ each none at 0 30;target form ppEdge field ppZ each none of 1;window closed: ppPop kept 120x80 at (0,30)"
+_ofeq "windowPopupT P-5 ERRANT no on:=, and a field with no frame: each refused by name, once; nothing opened, no target" "$(grep -c '^popup: REFUSING ppNoOn -- its request needs form:=thePopupForm and on:=theField' "$T/pp.e") $(grep -c '^popup: REFUSING ppDef -- the field ppLoose has no frame' "$T/pp.e") / $(_ppl P-5)" "1 1 / target none, of 0"
+_ofeq "windowPopupT P-6 ERRANT windows = 0: refused by name, once; nothing opened, no target" "$(grep -c '^popup: REFUSING ppAsk -- windows are off' "$T/pp.e") / $(_ppl P-6)" "1 / target none, of 0"
+
 echo "-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT)."
 #  ⚑ windowClimbT -- SEQ 764 (2026-11-23; Tony's rulings via Clay). utilities' selectable: a field is selectable when it has text, an image, an action or an
 #  attribute holding one, a describe, a selectFill of its own, or a dESCRIPTIONs entry; else it is only room. clickField selects the first selectable field at or

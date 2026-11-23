@@ -1,0 +1,79 @@
+Start();
+windows = 2;
+show(firstLight);
+search FORMs cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    ppPop window x=5 y=5 width=120 height=80 fill:=pageFill title="A popup"
+        ppMsg="pop" height=40;
+    ppAsk form on;
+    ppOpen code={
+        ppAsk.form := ppPop;
+        ppAsk.on := argument;
+        popup(ppAsk);
+        };
+    ppHost window x=40 y=60 width=200 height=200 fill:=pageFill
+        ppA="A" height=40 onClick:=ppOpen;
+        ppB="B" height=40 onClick:=ppOpen;
+        ppC="C" height=40;
+    ppEdge window x=0 y=0 width=100 height=100 fill:=pageFill
+        ppZ="Z" height=30 onClick:=ppOpen;
+    ;
+show(ppHost);
+show(ppEdge);
+search FORMs;
+register(WindowPopupT);
+define
+    ppLoose="loose";
+    ;
+define
+    ppOnA form:=ppHost px=100 py=20;
+    ppOnB form:=ppHost px=100 py=60;
+    ppOnZ form:=ppEdge px=50 py=15;
+    ppRead form:=ppPop;
+    ppShut form:=ppPop;
+    ppNoOn form:=ppPop;
+    ppDef form:=ppPop on:=ppLoose;
+    ppSay code={
+        psN = popupTargets.listLengtH;
+        psHas = 0;
+        if psN > 0;
+            if popupTargets["ppPop"];   psHas = 1;
+        psE := popupTargets["ppPop"];
+        if psHas == 0;      cout "PP-TARGET" argument "none, of" psN:;
+        if psHas == 1;
+            psF = string $*psE["form"]$;
+            psD = string $*psE["field"]$;
+            psM = string $*psE["each"]$;
+            cout "PP-TARGET" argument "form" psF "field" psD "each" psM "of" psN:;
+        };
+    ;
+search WindowPopupT Utilities;
+cout "PP-PAGE P-0":;    ppSay("P-0");
+cout "PP-PAGE P-1":;    windowClick(ppOnA);     ppSay("P-1");   readWindow(ppRead);
+cout "PP-PAGE P-2":;    windowClick(ppOnB);     ppSay("P-2");   readWindow(ppRead);
+cout "PP-PAGE P-3":;    windowClose(ppShut);    ppSay("P-3");   readWindow(ppRead);
+cout "PP-PAGE P-4":;    windowClick(ppOnZ);     ppSay("P-4");   windowClose(ppShut);
+cout "PP-PAGE P-5":;    popup(ppNoOn);          popup(ppDef);   ppSay("P-5");
+cout "PP-PAGE P-6":;    windows = 0;            windowClick(ppOnA);     ppSay("P-6");
+cout "PP-PAGE END":;
+cerr "WINDOWPOPUP SENTINEL":;
+stop();
+
+windowPopupT -- popups stroke 2 (SEQ 766, 2026-11-23; Tony's rulings 1, 2 and 4 on docs/popupsRecon.md): popup(request) opens
+a form in a window of its own at the field it is opened on, and remembers what it was opened on. Tester's shape. No window
+is shown. ppHost sits at (40,60) on the screen; its fields ppA and ppB each open ppPop through an onClick action that calls
+popup with form:=ppPop and on:= the field it was handed. ppPop declares x=5 y=5, so a popup that ignored its field opens there.
+Read: popup's own line; popupTargets' entry for ppPop (PP-TARGET); the window's size (readWindow); and where a closing
+window was (the "window closed ... kept WxH at (x,y)" line is the window's real frame).
+P-0  no popup yet: no target.
+P-1  ppA clicked (frame 40,60 200x40): ppPop opens at (40,100), under ppA's bottom left, at its own 120x80; the target is
+     form ppHost, field ppA, each none.
+P-2  ppB clicked while ppPop is open: it is closed (kept at (40,100): where P-1 put it) and opened again at (40,140); the
+     target is ppB; still one entry, one popup window.
+P-3  the popup closed: it was at (40,140); the target is gone; no window holds ppPop (readWindow refuses by name).
+P-4  ppEdge sits at the screen's (0,0): its field ppZ is clicked and the popup opens at x 0, y 30 -- a frame part of 0 is
+     kept (until this stroke a 0 was dropped by keepFrame and the popup would have opened at its declared x=5).
+P-5  ERRANT: a request with no on:=, and one whose on:= is a field on no laid-out copy (no frame): each refused by name,
+     nothing opened.
+P-6  ERRANT: windows = 0, then ppA clicked: its action calls popup, which refuses by name; nothing opened.

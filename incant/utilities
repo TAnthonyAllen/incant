@@ -909,10 +909,12 @@ define
         // entOutsideArm bound at the top level: a := made inside an if arm holds nothing after it (measured SEQ 687)
         sfEnt := formFrames[*sfName];
         if sfStore == 1;
-            if *sfEnt["x"];         *sfLaid :% copyOf(*sfEnt["x"]);
-            if *sfEnt["y"];         *sfLaid :% copyOf(*sfEnt["y"]);
-            if *sfEnt["width"];     *sfLaid :% copyOf(*sfEnt["width"]);
-            if *sfEnt["height"];    *sfLaid :% copyOf(*sfEnt["height"]);
+            fpFrom := *sfEnt;
+            fpTo := *sfLaid;
+            framePart("x");
+            framePart("y");
+            framePart("width");
+            framePart("height");
             formFrames -% *sfEnt;
         setLook(argument);
         // lookRefused a look asked for by name that the form's looks list lacks (SEQ 723 R2): refused by name in setLookByName, nothing laid out
@@ -1279,6 +1281,16 @@ define
         Writes the form's entry in formFrames, replacing an old one. A close is
         this alone. Refuses by name a request with no form or no frame.
     ***************************************************************************/
+    // framePart copies the part named by argument (x, y, width, height) from fpFrom to fpTo when fpFrom has it. Presence is read from datA, not from the value: an attribute holding 0 tests false (measured, SEQ 766)
+    fpFrom;
+    fpTo;
+    framePart code={
+        fpName = string $argument$;
+        fpA := *fpFrom[fpName];
+        fpD = 0;
+        fpD = *fpA.datA;
+        if fpD > 0;     *fpTo :% copyOf(*fpFrom[fpName]);
+        };
     keepFrame code={
         kfReq := argument;
         kfOk = 1;
@@ -1295,10 +1307,13 @@ define
         if formFrames[*kfName];     kfHad = 1;
         if kfHad == 1;              formFrames -% *kfOld;
         kfEnt := new(*kfName);
-        if **kfFrame["x"];          *kfEnt :% copyOf(**kfFrame["x"]);
-        if **kfFrame["y"];          *kfEnt :% copyOf(**kfFrame["y"]);
-        if **kfFrame["width"];      *kfEnt :% copyOf(**kfFrame["width"]);
-        if **kfFrame["height"];     *kfEnt :% copyOf(**kfFrame["height"]);
+        // zeroIsAPart a part is kept when it is THERE, a 0 included (framePart; until SEQ 766 a part holding 0 tested false and was dropped, so a frame at the screen's left edge or top lost its x or y)
+        fpFrom := **kfFrame;
+        fpTo := *kfEnt;
+        framePart("x");
+        framePart("y");
+        framePart("width");
+        framePart("height");
         formFrames +% *kfEnt;
         };
     tsSp isRule sp^-=[\t\r ];
@@ -2172,6 +2187,137 @@ define
         if *wxReq["form"];      wxHas = 1;
         wxForm := *wxReq["form"];
         if wxHas == 1;      unselect(**wxForm);
+        // popupForgets a popup that closes forgets what it was opened on (popupTargets, by the popup form's name)
+        if wxHas == 1;
+            popName = string $**wxForm.taG$;
+            popupForget();
+        };
+    /***************************************************************************
+        popup -- popups stroke 2 (Tony, 2026-11-23; docs/popupsRecon.md, rulings
+        1, 2 and 4). ONE argument, a request: form:= the popup form and on:= the
+        field it is opened on, a field of a laid-out copy in a window (what a
+        click action is handed, or selection). The popup form opens in a window
+        of its own AT THAT FIELD, every time: its top left under the field's
+        bottom left, in the screen points the field's frame is already in. Its
+        size is its own (declared, or height=fit). Open already, it is closed
+        and opened again at the new field, so one popup form is one window.
+        IT REMEMBERS WHAT IT WAS OPENED ON in popupTargets, by the popup
+        form's name: form= the name of the form the window it was opened from
+        shows (laidForm), field= the field's name, and each= the poured member's
+        name when the field is in a poured row. NAMES, not the field: the copy
+        that was clicked is thrown away at the next layout, and a value goes
+        back by name (ruling 4). By the popup form, because a popup form has one
+        window. In kant, beside selections and formFrames, so OK and Cancel
+        (kant actions) read it with no door into the window code. The entry is
+        removed when the popup closes (windowShut).
+        windows = 1 shows it; windows = 2, or INCANT_NOVIEW set, makes the
+        window and does not show it; windows = 0 refuses by name: a popup has
+        no PDF. Refuses by name: a request lacking form:= or on:=; a field with
+        no frame (not on a laid-out copy).
+    ***************************************************************************/
+    popupTargets;
+    popWin form look frame;
+    popName = "none";
+    popupForget code={
+        pfN = popupTargets.listLengtH;
+        pfHad = 0;
+        if pfN > 0;
+            if popupTargets[popName];   pfHad = 1;
+        pfOld := popupTargets[popName];
+        if pfHad == 1;      popupTargets -% *pfOld;
+        };
+    popup code={
+        poReq := argument;
+        poOk = 1;
+        if *poReq["form"];      poOk = poOk + 1;
+        if *poReq["on"];        poOk = poOk + 1;
+        if poOk != 3;
+            cerr "popup: REFUSING" argument.taG "-- its request needs form:=thePopupForm and on:=theField it is opened on":;
+            return;
+        poFa := *poReq["form"];
+        poOa := *poReq["on"];
+        poForm = string $**poFa.taG$;
+        poField = string $**poOa.taG$;
+        poWa := **poOa["width"];
+        poHa := **poOa["height"];
+        poWd = 0;
+        poWd = *poWa.datA;
+        poHd = 0;
+        poHd = *poHa.datA;
+        poFramed = 0;
+        if poWd > 0;
+            if poHd > 0;    poFramed = 1;
+        if poFramed == 0;
+            cerr "popup: REFUSING" argument.taG "-- the field" poField "has no frame; on:= names a field of a laid-out copy in a window":;
+            return;
+        if windows == 0;
+            cerr "popup: REFUSING" argument.taG "-- windows are off (windows = 0); a popup has no PDF":;
+            return;
+        poX = **poOa["x"];
+        poY = **poOa["y"];
+        poH = **poOa["height"];
+        poY = poY + poH;
+        // itsForm the form the field's window shows: laidForm on the nearest laid-out copy's top (setFrame), else that top's own name
+        poAt := **poOa;
+        poHops = 0;
+        while poHops < 32;
+            poM = *poAt.isMembeR;
+            if poM == 0;        poHops = 32;
+            if poHops < 32;     poAt := *poAt.parenT;
+            poHops += 1;
+        poIn = string $*poAt.taG$;
+        poL = *poAt.listLengtH;
+        poHasF = 0;
+        if poL > 0;
+            if *poAt["laidForm"];   poHasF = 1;
+        poLf := *poAt["laidForm"];
+        if poHasF == 1;     poIn = string $*poLf$;
+        // itsMember the poured member the field stands for, when it is in a poured row
+        tsEachFind(**poOa);
+        poEach = "none";
+        if tsEachHit == 1;      poEach = string $**tsEach.taG$;
+        // oneWindow open already (it has a target): closed first, so it opens at the new field; the close clears the old target
+        popWin.form := **poFa;
+        popWin.look = 0;
+        popWin.frame = 0;
+        poN = popupTargets.listLengtH;
+        poOpen = 0;
+        if poN > 0;
+            if popupTargets[poForm];    poOpen = 1;
+        if poOpen == 1;     windowClose(popWin);
+        poEnt := new(poForm);
+        poE1 := new("form");
+        *poE1 = string $poIn$;
+        *poEnt +% *poE1;
+        poE2 := new("field");
+        *poE2 = string $poField$;
+        *poEnt +% *poE2;
+        poE3 := new("each");
+        *poE3 = string $poEach$;
+        *poEnt +% *poE3;
+        popupTargets +% *poEnt;
+        // atTheField a frame of x and y only: the popup form's own width and height stand (keepFrame keeps the parts a frame has)
+        poFr := new("popupFrame");
+        poXa := new("x");
+        *poXa = poX;
+        *poFr +% *poXa;
+        poYa := new("y");
+        *poYa = poY;
+        *poFr +% *poYa;
+        popWin.frame := *poFr;
+        poLooks = 0;
+        if **poFa["look"];      poLooks = 1;
+        if poLooks == 1;
+            poLk := **poFa["look"];
+            popWin.look := **poLk;
+        cout "=== popup" poForm "opened on" poIn poField "each" poEach "at" poX poY "===":;
+        poHide = 0;
+        if windows == 2;    poHide = 1;
+        if poHide == 0;
+            poEnv = string $"[ -n \"$INCANT_NOVIEW\" ]"$;
+            if system(poEnv);   poHide = 1;
+        if poHide == 0;     openWindow(popWin);
+        if poHide == 1;     windowOffscreen(popWin);
         };
     // unselect ONE argument, a form (or its laid-out copy): that form has no selection from here on, and its help box forgets what it described; the other forms keep theirs
     unselect code={
