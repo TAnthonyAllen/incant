@@ -1897,6 +1897,11 @@ define
                 drawBorder(*grup);
                 drawText(*grup);
                 if *grup.hasMemberS;    drawKids(*grup);
+                // outlineOverHeld a selected field that holds a form is outlined again after the held form is drawn, so the outline is over it and not under its fill (Tony, 2026-11-23; spPaint marks the field outlineOver)
+                if *grup.hasMemberS;    drawOver(*grup);
+        };
+    drawOver code={
+        if argument["outlineOver"];     drawBorder(argument);
         };
     windowReq path form look;
     layReq form look;
@@ -2050,6 +2055,13 @@ define
             spNew := new("strokeColor");
             *spNew := **spSrc;
             *spField +% *spNew;
+        // overTheHeldForm a selected field that holds a form is marked, on the copy, to have its border drawn once more after its members (drawKids, drawOver): the held form's fill covers the first one
+        spHolds = 0;
+        if *spField["form"];    spHolds = 1;
+        if spHolds == 1;
+            spOv := new("outlineOver");
+            *spOv = 1;
+            *spField +% *spOv;
         };
     // spEdge the named border of the selected field becomes two points wide, made if the field has none
     spEdge code={
