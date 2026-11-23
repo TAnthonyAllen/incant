@@ -249,7 +249,7 @@ define
     notInNameSet=[^a-zA-Z0-9];
     selection;      // its group contains the current selection
     viewer=1;       // show opens what it writes to output.pdf when 1 (SEQ 686); viewer = 0; turns it off
-    windows=0;      // show decides (Tony, 2026-11-22): 1, a form written window opens in a window, not a PDF; 0, every form goes to its PDF; 2, the window is made and not shown (the fleet)
+    windows=1;      // 1 by default since 2026-11-23 (Tony; it was 0); INCANT_NOVIEW still sends every form to its PDF, and the fleet sets 2. show decides (Tony, 2026-11-22): 1, a form written window opens in a window, not a PDF; 0, every form goes to its PDF; 2, the window is made and not shown (the fleet)
     stringBUFFER;
     UnaryOPS bin
         '--';

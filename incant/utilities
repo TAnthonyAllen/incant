@@ -916,6 +916,7 @@ define
         mergeStyles(*sfLaid);
         cardsPick(*sfLaid);
         selectionPick(*sfLaid);
+        describePick(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;
@@ -1850,7 +1851,8 @@ define
         selectionPick -- the selected field shows (windows stroke 2; W3, Tony
         2026-11-22). setFrame calls it on the laid-out copy, after cardsPick.
         When selection holds a field, the copy's first field of that name
-        (the top, then depth first) is filled with a selectFill: its own, when
+        (the top, then depth first) is OUTLINED in a selectFill (it was filled
+        with it until 2026-11-23; the placeholder keeps its name): its own, when
         it names one (as a tab does), else the one the look holds (the
         request's look, then defaultLook). No selectFill anywhere: the field
         is drawn as it was, and nothing is said. The definition is never
@@ -1889,6 +1891,56 @@ define
         if spVia == 1;      spPaint(*lkLook["selectFill"]);
         if spBase == 1;     spPaint(*lkBase["selectFill"]);
         };
+    /***************************************************************************
+        describePick -- describe on select (Tony, 2026-11-23; windows stroke B).
+        setFrame calls it on the laid-out copy, after selectionPick. The form's
+        HELP BOX is the copy's first field carrying a describe attribute (depth
+        first); a form with none: nothing. When the selected field is in this
+        copy (selectionPick found it) and dESCRIPTIONs holds an entry of its
+        name, the help box's describe text, on the copy, becomes that entry's,
+        and drawText shows it. A field with no entry: the box is left with its
+        own text. Selecting the help box itself changes nothing: the box goes
+        on showing what it described last (describedName). The definition is
+        never written: every layout starts from the box's own text.
+        ONE describedName for the run, as there is one selection: two open
+        forms do not each remember their own.
+    ***************************************************************************/
+    describePick code={
+        dpSel = selection.isGrouP;
+        if dpSel == 0;      return;
+        if spHit == 0;      return;
+        dpHit = 0;
+        dpFind(argument);
+        if dpHit == 0;      return;
+        dpBoxName = string $*dpBox.taG$;
+        dpName = string $spName$;
+        dpIsBox = 0;
+        if dpName == dpBoxName;     dpIsBox = 1;
+        if dpIsBox == 1;    dpName = string $describedName$;
+        if dpIsBox == 0;    describedName = string $spName$;
+        dpHas = 0;
+        if registries["dESCRIPTIONs"];
+            dpWords := registries["dESCRIPTIONs"];
+            if *dpWords[dpName];    dpHas = 1;
+        if dpHas == 0;      return;
+        dpEnt := *dpWords[dpName];
+        dpTo := *dpBox["describe"];
+        *dpTo = *dpEnt;
+        cout "=== describe" dpBoxName "shows the description of" dpName "===":;
+        };
+    dpFind code={
+        for grup in argument; members
+            if dpHit == 0;
+                dfL = *grup.listLengtH;
+                dfHas = 0;
+                if dfL > 0;
+                    if *grup["describe"];   dfHas = 1;
+                if dfHas == 1;
+                    dpBox := *grup;
+                    dpHit = 1;
+            if dpHit == 0;
+                if *grup.hasMemberS;    dpFind(*grup);
+        };
     spFind code={
         for grup in argument; members
             if spHit == 0;
@@ -1899,16 +1951,42 @@ define
             if spHit == 0;
                 if *grup.hasMemberS;    spFind(*grup);
         };
-    // spPaint argument is the attribute holding the colour; a field with a fill has it re-pointed (as cardsPick does a tab's), one with none is given a fill of its own on the copy
+    // spPaint argument is the attribute holding the selection colour. The selected field is OUTLINED in it, on the copy, and its fill is left alone, so its text is never hidden (Tony, 2026-11-23; it was a fill). The outline is the field's border, two points wide, in that colour: displayBorder draws a border inside the frame and layout reads no border, so nothing moves. A field naming sides (bottomBorder ...) is given all four, since named sides are the only ones drawn; any other field a plain border, which follows rounded corners.
     spPaint code={
         spSrc := argument;
-        if spHasFill == 1;
-            spTo := *spField["fill"];
+        spSides = 0;
+        if *spField["topBorder"];       spSides = 1;
+        if *spField["bottomBorder"];    spSides = 1;
+        if *spField["leftBorder"];      spSides = 1;
+        if *spField["rightBorder"];     spSides = 1;
+        if spSides == 0;    spEdge("border");
+        if spSides == 1;
+            spEdge("topBorder");
+            spEdge("bottomBorder");
+            spEdge("leftBorder");
+            spEdge("rightBorder");
+        spHasStroke = 0;
+        if *spField["strokeColor"];     spHasStroke = 1;
+        if spHasStroke == 1;
+            spTo := *spField["strokeColor"];
             *spTo := **spSrc;
-        if spHasFill == 0;
-            spNew := new("fill");
+        if spHasStroke == 0;
+            spNew := new("strokeColor");
             *spNew := **spSrc;
             *spField +% *spNew;
+        };
+    // spEdge the named border of the selected field becomes two points wide, made if the field has none
+    spEdge code={
+        seName = string $argument$;
+        seHas = 0;
+        if *spField[seName];    seHas = 1;
+        if seHas == 1;
+            seTo := *spField[seName];
+            *seTo = 2;
+        if seHas == 0;
+            seNew := new(seName);
+            *seNew = 2;
+            *spField +% *seNew;
         };
     showPath path="IncantForms/PDF/output.pdf";
     showReq path form look;
@@ -1918,6 +1996,11 @@ define
     ckFired = 0;
     spName;
     spHit = 0;
+    dpHit = 0;
+    dpBox;
+    dpWords;
+    // describedName the name describePick described last ("none" before any), so selecting the help box itself changes nothing (two actions do not touch it; it is declared because it must outlive the call)
+    describedName = "none";
     spField;
     spHasFill = 0;
     // clickDone click writes it, clickShow reads it: 1 when the click found its field, 0 when it refused (two actions touch it, so it is declared)

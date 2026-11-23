@@ -10190,7 +10190,8 @@ _stp () { grep "^=== pixelAt $1 " "$T/st.o" | sed 's/.* = //; s/ ===.*//'; }
 #  "Loaded but not searched" therefore no longer exists: once styles is included, wall is found and drawn. Before: r0 g0 b0 a0 on both canvases and 2 errors.
 #  The not-loaded half is unchanged and is the control: nothing drawn, and the one error names wall.
 _ofeq "stylesT ST-1 not loaded: wall is not found, nothing drawn; once styles is included wall is found and drawn (the file searches its own colours)" "$(_stp stPreCanvas) / $(_stp stPre2Canvas) $(grep -c '^getColor: ERROR could not find wall' "$T/st.e")" "r0 g0 b0 a0 / r247 g232 b170 a255 1"
-_ofeq "stylesT ST-2 searched explicitly, the registries hold 14 and 7" "$(grep '^ST counts' "$T/st.e" | xargs)" "ST counts colours= 14 fonts= 7"
+#  ST-2 RE-PINNED 2026-11-23 (SEQ 758): cOLOr gained midBlue (Tony: the default selection colour), 14 -> 15. Nothing else in the row moved.
+_ofeq "stylesT ST-2 searched explicitly, the registries hold 15 and 7" "$(grep '^ST counts' "$T/st.e" | xargs)" "ST counts colours= 15 fonts= 7"
 _ofeq "stylesT ST-3 setColor: a bare hex and a # hex realise alike" "$(_stp stBareCanvas) / $(_stp stHashCanvas)" "r255 g0 b0 a255 / r255 g0 b0 a255"
 _ofeq "stylesT ST-4 five hex characters after the # still refuse: the skip takes the #, nothing more" "$(_stp stBadCanvas) $(grep -c '^ERROR: expected a six character hex string not:12345' "$T/st.o")" "r0 g0 b0 a0 1"
 for _stc in "red r239 g43 b45" "blue r0 g81 b186" "lightBlue r206 g255 b255" "lightGreen r175 g211 b120" "radialGreen r175 g211 b120" "green r0 g158 b15" "paleGray r241 g241 b241" "gray r214 g216 b211" "darkerGray r175 g188 b191" "wall r247 g232 b170" "white r255 g255 b255" "black r0 g0 b0" "saberBrown r230 g209 b162" "darkBrown r107 g71 b20"; do

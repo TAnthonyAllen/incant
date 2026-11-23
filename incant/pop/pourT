@@ -78,9 +78,9 @@ define
         };
     ptBlack px=262 py=60;
     ptBlue px=262 py=84;
-    ptWall px=262 py=348;
-    ptWhite px=262 py=372;
-    ptPastEnd px=262 py=396;
+    ptWall px=262 py=372;
+    ptWhite px=262 py=396;
+    ptPastEnd px=262 py=420;
     ptDefCount code={
         pdN = 0;
         for grup in argument; members

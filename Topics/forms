@@ -198,6 +198,15 @@ SIZE (Tony, 2026-11-22, standing): forms tend to be drawn small. When something 
     8   The descriptions form as a layout test.                        STARTED (440-441): respelled, draws; the click waits for step 10.
     9   Rounded fields.                                                DONE for the fill and a plain border (451). A side on a rounded field is still open (Waiting on Tony 5); a rounded image is not built.
     10  Windows: its own topic, Topics/windows (2026-11-19).
+    USER EDITS (Clay, 2026-11-23, ruled by Tony; NOT SCHEDULED). Colours are tuned by try and buy: lighten / darken by a percent (dispatch parked in
+        incant++), stepped in a popup from the sampler, open forms redrawing live. SCOPE is asked at the change, everywhere or only this form; only this
+        form = the form gets its own entry under the same name, hiding the global there. Lookup: field > form > look > everywhere. In a local definition
+        the name on the right means the next layer out; a true loop is refused by name; deleting a global a form-local is built from is refused, naming
+        the form. A form hiding a global is not an overwrite: no warning (registries item 4). Edits are kept as EXPRESSIONS (lighten(green, 30)), not
+        values. The edits file is a form whose fields are definitions only (anything else refused by name at load, the rest loads); clicking an edit fires
+        it again through Xpress, under the window's kept search list. Moving edits into source comes later, through a "you really want to do this?" check
+        showing old text, new text and place; an entry whose source moved is refused and stays. OPEN, decided by a try when built: edits apply at load
+        (show only displays) or only when shown -- try both with windows 1 and 0.
 Forms order: firstLight, then descriptions, then form by form. Old spellings are respelled form by form, never as a sweep.
 
 /*****************************************************************************

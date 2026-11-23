@@ -6,6 +6,7 @@ define
     red=#ef2b2d;
     blue=#0051ba;
     lightBlue=#ceffff;
+    midBlue=#0078d7;
     lightGreen=#afd378;
     radialGreen=#afd378;
     green=#009e0f;
@@ -52,14 +53,14 @@ define
     cardOneFill virtual;
     cardTwoFill virtual;
     cardThreeFill virtual;
-    /*  selectFill is what a selected field is filled with (windows stroke 2; W3, Tony 2026-11-22). A field naming its own wins.  */
+    /*  selectFill is the colour a selected field is OUTLINED in (a fill until 2026-11-23; the name stays). A field naming its own wins. defaultLook's is midBlue, r0 g120 b215 (Tony, 2026-11-23: lightBlue was too faint on white).  */
     selectFill virtual;
     /*  each and contrast are held like placeholders and resolved elsewhere (SEQ 741): each is the member a poured copy is for
         (down="*" pour:=aRegistry), contrast is black or white text picked from the field's own fill. No look holds either.  */
     lineColor virtual;
     each virtual;
     contrast virtual;
-    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red tabFill:=lightGreen tabFont:=headerFont cardOneFill:=green cardTwoFill:=blue cardThreeFill:=red lineColor:=gray selectFill:=lightBlue;
+    defaultLook merge pageFill:=white headingFont:=titleFont bodyFont:=normalFont textColor:=black accent:=red tabFill:=lightGreen tabFont:=headerFont cardOneFill:=green cardTwoFill:=blue cardThreeFill:=red lineColor:=gray selectFill:=midBlue;
     ;
 define
     defaultStyle rounded=5;
