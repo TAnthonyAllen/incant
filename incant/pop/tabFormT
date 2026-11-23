@@ -11,7 +11,7 @@ include(tabFormFile);
 search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
 registry(TabFormT);
 define
-    tfRead path="IncantForms/PDF/test.pdf";
+    tfRead path="/tmp/incantTest.pdf";
     tfAt code={
         tfX := argument["px"];
         tfY := argument["py"];
@@ -29,7 +29,7 @@ define
     tfHelp px=300 py=360;
     ;
 search TabFormT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
-showPath.path = "IncantForms/PDF/test.pdf";
+showPath.path = "/tmp/incantTest.pdf";
 viewer = 0;
 show(tabForm);
 readPDF(tfRead);

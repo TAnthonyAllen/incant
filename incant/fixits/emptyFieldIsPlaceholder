@@ -8,7 +8,7 @@ search EmptyFieldIsPlaceholder FORMs UnitTests Utilities cOLOr fONTs sTYLEs list
 define
     efEmpty;
     efZero = 0;
-    efForm window x=0 y=0 width=100 height=100 fill:=pageFill path="IncantForms/PDF/test.pdf"
+    efForm window x=0 y=0 width=100 height=100 fill:=pageFill path="/tmp/incantTest.pdf"
         efA="a" text state:=efEmpty;
         efB="b" text state:=efZero;
     ;

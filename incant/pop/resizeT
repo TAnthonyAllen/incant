@@ -25,12 +25,12 @@ define
         };
     big x=300 y=450 width=600 height=300;
     rzWin x=300 y=450 width=400 height=200;
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     ;
 search ResizeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    smReq path="IncantForms/PDF/test.pdf" form:=simple;
-    rzReq path="IncantForms/PDF/test.pdf" form:=simple frame:=rzWin;
+    smReq path="/tmp/incantTest.pdf" form:=simple;
+    rzReq path="/tmp/incantTest.pdf" form:=simple frame:=rzWin;
     // rzResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
     rzResize code={
         rzF := argument;
@@ -78,7 +78,7 @@ resizeT -- forms step 6, stroke 2 (SEQ 626 W2): the first resize, as a plain cal
 afresh through setFrame and writes the PDF; a request with frame:= is a resize. The form is IncantForms/Windows/simple, whose
 three is width=50%: at 400 wide its leftBorder sits at x=200, at 600 wide at x=300. Rows in genLadder/formsPop.sh: the PDF's
 page size follows the frame; the percent follows the new width; the run after the resize reads exactly as the first; the
-definition still reads width=400. The last call leaves the 600x300 page in IncantForms/PDF/test.pdf.
+definition still reads width=400. The last call leaves the 600x300 page in /tmp/incantTest.pdf.
 
 RE-AIMED 2026-11-21 (G3 item 2, stroke 3b, SEQ 729): the fixture includes IncantForms/WorkingOn/cheat and the resize is the store's:
 rzResize sets the mock window rzWin to the new frame and calls redrawWindow, which keeps it in formFrames and lays out from there

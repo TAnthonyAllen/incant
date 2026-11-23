@@ -38,7 +38,7 @@ show(simple);
 cerr "ST-3 show(zzNoSuchForm), no file and no entry":;
 show(zzNoSuchForm);
 include(utilities);
-showPath.path = "IncantForms/PDF/test.pdf";
+showPath.path = "/tmp/incantTest.pdf";
 cerr "ST-4 show(firstLight), through the stash":;
 show(firstLight);
 stAfter();

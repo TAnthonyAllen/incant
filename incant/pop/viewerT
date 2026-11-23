@@ -11,10 +11,10 @@ include(firstLightFile);
 search FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
 registry(ViewerT);
 define
-    vtOwn window x=0 y=0 width=100 height=100 fill:=wall path="IncantForms/PDF/test.pdf";
+    vtOwn window x=0 y=0 width=100 height=100 fill:=wall path="/tmp/incantTest.pdf";
     ;
 search ViewerT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
-showPath.path = "IncantForms/PDF/test.pdf";
+showPath.path = "/tmp/incantTest.pdf";
 print "VT-1 viewer = 0, the show's own output path":;
 viewer = 0;
 show(firstLight);

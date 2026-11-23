@@ -26,8 +26,8 @@ define
         crAll down="*" style:=clStyle
             crRow height=100
                 crLeaf="leaf" text;
-    clReqNum path="IncantForms/PDF/test.pdf" form:=clNum;
-    clReqStar path="IncantForms/PDF/test.pdf" form:=clStar;
+    clReqNum path="/tmp/incantTest.pdf" form:=clNum;
+    clReqStar path="/tmp/incantTest.pdf" form:=clStar;
     clDraw code={
         clDrawn := redrawForm(argument);
         climb(*clDrawn);

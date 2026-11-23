@@ -23,7 +23,7 @@ define
         rgAt(argument);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     wdBare;
     wdTitled x=40 y=60 width=120 height=80 title="A titled form" fill=red;
     rgWin x=300 y=450 width=500 height=600;
@@ -32,10 +32,10 @@ define
     ;
 search WindowDrawT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    wdTitledReq path="IncantForms/PDF/test.pdf" form:=wdTitled;
-    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
-    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
-    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    wdTitledReq path="/tmp/incantTest.pdf" form:=wdTitled;
+    rgFresh path="/tmp/incantTest.pdf" form:=firstLight;
+    rgFreshBig path="/tmp/incantTest.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="/tmp/incantTest.pdf" form:=firstLight frame:=rgWin;
     // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
     rgResize code={
         rgF := argument;

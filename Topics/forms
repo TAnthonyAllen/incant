@@ -100,7 +100,7 @@ SIZE (Tony, 2026-11-22, standing): forms tend to be drawn small. When something 
     Where things live
 *****************************************************************************/
     IncantForms/Windows/            the 21 forms               IncantForms/Controls/   styles, templates, attributes, traits
-    IncantForms/Images/bands.png    the test image             IncantForms/PDF/output.pdf   what Tony opens (test.pdf: the fleet's)
+    IncantForms/Images/bands.png    the test image             IncantForms/PDF/output.pdf   what Tony opens (the fleet's: /tmp/incantTest.pdf)
     incant/utilities                setFrame, fillDownAcross, drawWalk, drawKids, drawText, drawImage, describe
     GroupDraw.twk                   the floor: displayFillRT, displayBorder, drawSpans (displayText until seal 471), displayImage, openPDF, closePDF
     Evidence files, IncantForms/WorkingOn/:
@@ -136,7 +136,7 @@ SIZE (Tony, 2026-11-22, standing): forms tend to be drawn small. When something 
             ;
         show(IBkant);
         click(ibClickFields);
-      show draws Welcome; the click shows Fields (IBkant's own listener, ibHears, calls show(IBkant)) (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write test.pdf, never output.pdf.
+      show draws Welcome; the click shows Fields (IBkant's own listener, ibHears, calls show(IBkant)) (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write /tmp/incantTest.pdf, never output.pdf.
     tabForm: the same lines with tabFormFile File='IncantForms/Windows/tabForm' and include(tabFormFile); then show(tabForm); and a click
         define
             tabThreeClick form:=tabForm field="tabThree";

@@ -69,7 +69,7 @@ TO FIRE a pdf form: from "Firing a form by hand" in Topics/forms
             ;
         show(IBkant);
         click(ibClickFields);
-      show draws Welcome; the click shows Fields (IBkant's own listener, ibHears, calls show(IBkant)) (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write test.pdf, never output.pdf.
+      show draws Welcome; the click shows Fields (IBkant's own listener, ibHears, calls show(IBkant)) (field="toForms" shows Forms; no click line stays on Welcome). Fleet fixtures write /tmp/incantTest.pdf, never output.pdf.
 
 
     /*****************************************************************************

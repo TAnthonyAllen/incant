@@ -6,7 +6,7 @@ search reset stack Grokking;
 register(BareFieldNoList);
 search BareFieldNoList FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    bfForm window x=0 y=0 width=100 height=100 down fill:=pageFill path="IncantForms/PDF/test.pdf"
+    bfForm window x=0 y=0 width=100 height=100 down fill:=pageFill path="/tmp/incantTest.pdf"
         bfBare="bare";
         bfText="text" text;
     ;

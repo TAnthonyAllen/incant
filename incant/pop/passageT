@@ -38,7 +38,7 @@ define
 register(PassageT);
 search PassageT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    pgReq path="IncantForms/PDF/test.pdf" form:=pgForm;
+    pgReq path="/tmp/incantTest.pdf" form:=pgForm;
     ;
 redrawForm(pgReq);
 cerr "PASSAGE SENTINEL":;

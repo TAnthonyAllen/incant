@@ -16,13 +16,13 @@ define
     wlTall x=0 y=0 width=200 height=fit fill:=pageFill
         wlTallOne height=3000 fill:=red;
         wlTallTwo height=3000 fill:=green;
-    tkLoose window x=0 y=0 width=100 height=100 path="IncantForms/PDF/test.pdf"
+    tkLoose window x=0 y=0 width=100 height=100 path="/tmp/incantTest.pdf"
         tkNotBar
             tkOrphan="orphan" text onClick:=tkStray;
     ;
 registry(WindowLoopT);
 define
-    tkRead path="IncantForms/PDF/test.pdf";
+    tkRead path="/tmp/incantTest.pdf";
     tkAt code={
         tkX := argument["px"];
         tkY := argument["py"];
@@ -83,7 +83,7 @@ define
     tkOrphanClick form:=tkLoose field="tkOrphan";
     ;
 search WindowLoopT FORMs UnitTests Utilities cOLOr fONTs sTYLEs;
-showPath.path = "IncantForms/PDF/test.pdf";
+showPath.path = "/tmp/incantTest.pdf";
 viewer = 0;
 wlSize("before");
 windowOffscreen(wlTabReq);

@@ -20,13 +20,13 @@ define
                 wcInner height=50 fill:=red;
                 wcPlain height=50;
             wcLower height=100 fill:=green selectFill:=wall;
-    tkLoose window x=0 y=0 width=100 height=100 path="IncantForms/PDF/test.pdf"
+    tkLoose window x=0 y=0 width=100 height=100 path="/tmp/incantTest.pdf"
         tkNotBar
             tkOrphan="orphan" text onClick:=tkStray;
     ;
 registry(WindowClickT);
 define
-    tkRead path="IncantForms/PDF/test.pdf";
+    tkRead path="/tmp/incantTest.pdf";
     tkAt code={
         tkX := argument["px"];
         tkY := argument["py"];
@@ -65,7 +65,7 @@ define
         tkDh = *tkDc.isHiddeN;
         cerr "TK-6 the definition's thirdCard isHidden" tkDh:;
         };
-    wcReq path="IncantForms/PDF/test.pdf" form:=tabForm;
+    wcReq path="/tmp/incantTest.pdf" form:=tabForm;
     wcLaid;
     wcNext;
     wcSwap held form;
@@ -96,8 +96,8 @@ define
         windowClick(wcClick);
         };
     wcOutside px=500 py=500;
-    wsReq path="IncantForms/PDF/test.pdf" form:=wcForm look:=wcLook;
-    wsBare path="IncantForms/PDF/test.pdf" form:=wcForm;
+    wsReq path="/tmp/incantTest.pdf" form:=wcForm look:=wcLook;
+    wsBare path="/tmp/incantTest.pdf" form:=wcForm;
     wsLaid;
     wsNext;
     wsSwap held form;

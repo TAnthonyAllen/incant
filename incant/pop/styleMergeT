@@ -18,7 +18,7 @@ define
             smD2 color:=black fill:=white
                 smD3="three" text;
         smE="plain" text;
-    smReq path="IncantForms/PDF/test.pdf" form:=smForm;
+    smReq path="/tmp/incantTest.pdf" form:=smForm;
     smRun code={
         smLaid := redrawForm(argument);
         printDefinition(*smLaid);

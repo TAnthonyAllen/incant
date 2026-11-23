@@ -1,6 +1,6 @@
 Start();
 include(utilities);
-showPath.path = "IncantForms/PDF/test.pdf";
+showPath.path = "/tmp/incantTest.pdf";
 viewer = 0;
 register(ColorListT);
 search ColorListT list;
@@ -16,7 +16,7 @@ define
         csEt = string $*csE$;
         cerr "CL-4 cOLOr black [" csBt "] white [" csWt "] its description [" csEt "]":;
         };
-    clRead path="IncantForms/PDF/test.pdf";
+    clRead path="/tmp/incantTest.pdf";
     ;
 show(colorList);
 clSay();

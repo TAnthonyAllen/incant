@@ -22,32 +22,32 @@ define
     pdNight merge accent:=blue pageFill:=black defaultLook;
     ;
 define
-    pdColors window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    pdColors window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         pdTitle="Colors" text height=40;
         pdRows down="*" pour:=cOLOr gap=4;
     ;
 define
-    pdFonts window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    pdFonts window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         pdRowsF down="*" pour:=fONTs gap=4;
     ;
 define
-    pdStyles window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    pdStyles window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         pdRowsS down="*" pour:=sTYLEs;
     ;
 define
-    pdStylesNight window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont look:=pdNight path="IncantForms/PDF/test.pdf"
+    pdStylesNight window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont look:=pdNight path="/tmp/incantTest.pdf"
         pdRowsN down="*" pour:=sTYLEs;
     ;
 define
-    pdMixed window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    pdMixed window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         pdRowsM down="*" pour:=PourMixed;
     ;
 define
-    pdCmds window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    pdCmds window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         pdRowsC down="*" pour:=cOMMANDs;
     ;
 define
-    pdOpen window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    pdOpen window x=0 y=0 width=490 height=fit down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         pdOpenTitle="no height of its own" text;
         pdRowsO down="*" pour:=PourMixed;
     ;
@@ -68,7 +68,7 @@ define
         cerr "PD-9 the definition's pdRows holds" pdN "rows; pour still on it:" pdHasPour:;
         };
     ;
-showPath.path = "IncantForms/PDF/test.pdf";
+showPath.path = "/tmp/incantTest.pdf";
 viewer = 0;
 pdRun(pdColors);
 pdRun(pdFonts);

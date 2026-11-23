@@ -18,7 +18,7 @@ define
 register(FORMs);
 search FORMs UnitTests Utilities cOLOr fONTs sTYLEs PourThree list;
 define
-    ptColors window x=0 y=0 width=490 height=792 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    ptColors window x=0 y=0 width=490 height=792 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         ptTitle="Colors" text height=40;
         ptRows down="*" pour:=cOLOr
             ptRow across height=24
@@ -27,36 +27,36 @@ define
                 ptWhat="{PourWords.each}";
     ;
 define
-    ptThree window x=0 y=0 width=300 height=60 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    ptThree window x=0 y=0 width=300 height=60 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         ptRows3 down="*" pour:=PourThree
             ptRow3 across height=24
                 ptCell3="{each.taG}" fill:=each color:=contrast;
     ;
 define
-    ptPlain window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont color:=red path="IncantForms/PDF/test.pdf"
+    ptPlain window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont color:=red path="/tmp/incantTest.pdf"
         ptDark="dark" height=24 fill:=blue color:=contrast;
         ptLight="light" height=24 fill="#ffffff" color:=contrast;
         ptBare="bare" height=24 color:=contrast;
     ;
 define
-    ptBadDown window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    ptBadDown window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         ptBadRows down pour:=PourThree
             ptBadRow across height=24
                 ptBadCell="cell";
     ;
 define
-    ptBadEmpty window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    ptBadEmpty window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         ptEmptyRows down="*" pour:=PourEmpty
             ptEmptyRow across height=24
                 ptEmptyCell="cell";
     ;
 define
-    ptBadEach window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="IncantForms/PDF/test.pdf"
+    ptBadEach window x=0 y=0 width=300 height=120 down fill:=pageFill font:=bodyFont path="/tmp/incantTest.pdf"
         ptLoose="{each}" height=24 fill:=each;
         ptLooseTag="{each.taG}" height=24;
     ;
 define
-    ptNoReg window x=0 y=0 width=300 height=120 down fill:=pageFill path="IncantForms/PDF/test.pdf"
+    ptNoReg window x=0 y=0 width=300 height=120 down fill:=pageFill path="/tmp/incantTest.pdf"
         ptNoRows down="*" pour:=NoSuchRegistry
             ptNoRow across height=24;
     ;
@@ -67,7 +67,7 @@ define
         cout "PT RUN" argument.taG:;
         show(argument);
         };
-    ptRead path="IncantForms/PDF/test.pdf";
+    ptRead path="/tmp/incantTest.pdf";
     ptAt code={
         ptX := argument["px"];
         ptY := argument["py"];

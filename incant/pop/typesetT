@@ -74,12 +74,12 @@ define
             tyRow(argument);
             tyY += 1;
         };
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     ;
 search TypesetT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    tyLight path="IncantForms/PDF/test.pdf" form:=firstLight;
-    tyEdges path="IncantForms/PDF/test.pdf" form:=tsForm;
+    tyLight path="/tmp/incantTest.pdf" form:=firstLight;
+    tyEdges path="/tmp/incantTest.pdf" form:=tsForm;
     ;
 redrawForm(tyLight);
 readPDF(pdfRead);

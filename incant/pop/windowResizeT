@@ -23,16 +23,16 @@ define
         rgAt(argument);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     rgWin x=300 y=450 width=500 height=600;
     rgBig x=300 y=450 width=1200 height=600;
     rgSmall x=300 y=450 width=500 height=600;
     ;
 search WindowResizeT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
-    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
-    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    rgFresh path="/tmp/incantTest.pdf" form:=firstLight;
+    rgFreshBig path="/tmp/incantTest.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="/tmp/incantTest.pdf" form:=firstLight frame:=rgWin;
     // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
     rgResize code={
         rgF := argument;

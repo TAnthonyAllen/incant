@@ -32,11 +32,11 @@ define
         rdBig x=0 y=0 width=20 height=20 fill=red rounded=500;
     rdBadTop x=0 y=0 width=20 height=20 fill=white
         rdBad x=0 y=0 width=20 height=20 fill=red rounded="much";
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     ;
 search RoundedT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    pdfReq path="IncantForms/PDF/test.pdf" form:=simple;
+    pdfReq path="/tmp/incantTest.pdf" form:=simple;
     ;
 cerr "RD-1 bare rounded, default radius 5: corner (0,0) white, (2,2) red, edge middle (20,0) red, centre (20,10) red":;
 mergeStyles(rdPlain);
@@ -108,6 +108,6 @@ roundedT -- forms step 9 (Tony, 2026-11-11, SEQ 621): rounded on the fill and bo
 radius in points, on a field or its style; a bare rounded takes defaultStyle's (5, IncantForms/Controls/styles). Rows are in
 genLadder/formsPop.sh. Each corner row is paired with a painted pixel of the same field, so an undrawn field cannot pass. Pixels on a curve are
 anti-aliased, so the harness reads each pixel as a class (white, red, blue, green, clear), never as an exact value there.
-RD-8 draws IncantForms/Windows/simple to IncantForms/PDF/test.pdf and reads it back.
+RD-8 draws IncantForms/Windows/simple to /tmp/incantTest.pdf and reads it back.
 
 FILL RESPELLED (SEQ 657, Tony R1 2026-11-14): a style spells its fill fill; fillColor is retired. A style is merged into its field by setFrame; this fixture frames by hand, so it calls mergeStyles on a field before drawing it.

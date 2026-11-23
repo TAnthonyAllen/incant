@@ -23,7 +23,7 @@ define
         rgAt(argument);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     wgN = 0;
     wgList
         wgA;
@@ -41,9 +41,9 @@ define
     ;
 search WindowGcT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    rgFresh path="IncantForms/PDF/test.pdf" form:=firstLight;
-    rgFreshBig path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgBig;
-    rgReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=rgWin;
+    rgFresh path="/tmp/incantTest.pdf" form:=firstLight;
+    rgFreshBig path="/tmp/incantTest.pdf" form:=firstLight frame:=rgBig;
+    rgReq path="/tmp/incantTest.pdf" form:=firstLight frame:=rgWin;
     // rgResize the mock resize (G3 item 2): the window takes the new frame, then redrawWindow keeps it in formFrames and lays out from there
     rgResize code={
         rgF := argument;

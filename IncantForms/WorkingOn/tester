@@ -89,7 +89,7 @@ define
     cA x=0 y=0 width=200 height=100 down
         one;
         two;
-    cAreq form:=cA path="IncantForms/PDF/test.pdf";
+    cAreq form:=cA path="/tmp/incantTest.pdf";
     cpRun code={
         cpA := setFrame(argument);
         print "CP direct" argument.taG:;

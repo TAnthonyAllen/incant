@@ -29,7 +29,7 @@ ip () {
 }
 
 T=${TMPDIR:-/tmp}/genpop.$$
-#  userPdf IncantForms/PDF/output.pdf is the user's (Tony, 2026-11-17); test.pdf is the fleet's. Two runs here write output.pdf --
+#  userPdf IncantForms/PDF/output.pdf is the user's (Tony, 2026-11-17); the fleet's is /tmp/incantTest.pdf (outside Dropbox since 2026-11-23). Two runs here write output.pdf --
 #  Tony's tester (show(firstLight)) and showT's SH-4 -- so it is set aside now and put back at exit, whatever happens (SEQ 686;
 #  found by a binary wrapper logging every run that changed it). formsPop does the same around its showT.
 _userPdf=IncantForms/PDF/output.pdf

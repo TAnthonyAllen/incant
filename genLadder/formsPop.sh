@@ -360,7 +360,7 @@ echo "-- the first PDF: step 4."
 #  for pixelAt. REGISTERED ON TRUNK BEFORE THE BUILD: each row pinned at today's value, the intended beside it. The file is
 #  deleted first, so a stale one cannot pass. H7 (the walk skipped): the file rows hold, the page reads blank.
 _pdF=$(ip firstPdfT)
-_pdO=IncantForms/PDF/test.pdf
+_pdO=/tmp/incantTest.pdf
 rm -f "$_pdO"
 perl -e 'alarm 20; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
 _pdp () { grep -h '^=== pixelAt pdfRead ' "$T/pd.o" "$T/pd.e" 2>/dev/null | sed -n "$1,$2p" | sed 's/.*= \(r[0-9]* g[0-9]* b[0-9]* a[0-9]*\) ===.*/\1/' | tr '\n' '/'; }
@@ -495,7 +495,7 @@ _ofeq "viewerT exit / sentinel" "$_vtx $(grep -c '^VIEWERT SENTINEL' "$T/vt.e")"
 _ofeq "viewerT VT-1 viewer = 0: viewer off, no open attempted (viewer lines / could-not-open lines)" "$(_vtb VT-1)" "viewer off;0"
 _ofeq "viewerT VT-2 viewer = 1 but INCANT_NOVIEW set: viewer off, no open attempted" "$(_vtb VT-2)" "viewer off;0"
 _ofeq "viewerT VT-3 a form with its own path, not the output path: no viewer line at all" "$(_vtb VT-3)" "0"
-_ofeq "viewerT output.pdf untouched by the fleet: three shows, every one to test.pdf" "$(grep -c '^=== show .* to IncantForms/PDF/test.pdf ===' "$T/vt.o") $(grep -c 'output.pdf' "$T/vt.o")" "3 0"
+_ofeq "viewerT output.pdf untouched by the fleet: three shows, every one to test.pdf" "$(grep -c '^=== show .* to /tmp/incantTest.pdf ===' "$T/vt.o") $(grep -c 'output.pdf' "$T/vt.o")" "3 0"
 
 echo "-- the stash: show finds a form by name (stashT, showBootT; SEQ 688)."
 #  ⚑ stashT -- the stash dispatch (Tony, 2026-11-17): sTASh, a registry of its own loaded at Start() from incant/stash, which
@@ -508,7 +508,7 @@ _ofeq "stashT ST-1 THE 2b GUARD: after Start(), the bare names read nothing and 
 _ofeq "stashT ST-2 a file on disk not on the list: refused not in the stash, nothing loaded (refusals / deferred lines before ST-4)" "$(grep -c '^REFUSED show simple -- not in the stash' "$T/st.e") $(awk '/^=== show .* deferred/{n++} END{print n+0}' "$T/st.o")" "1 1"
 _ofeq "stashT ST-3 no file and no entry: refused the same way" "$(grep -c '^REFUSED show zzNoSuchForm -- not in the stash' "$T/st.e")" "1"
 #  re-pinned SEQ 723 (looks by name): firstLight gained looks:=firstLightLooks, one attribute, so its list length is 13 where it was 12.
-_ofeq "stashT ST-4 through the stash: drawn to test.pdf; the form in FORMs, the bare name the form, the entry File + text as fILEs' is" "$(grep -c '^=== show firstLight to IncantForms/PDF/test.pdf ===' "$T/st.o") / $(grep '^ST-4 FORMs' "$T/st.e" | sed 's/ *$//')" "1 / ST-4 FORMs[firstLight] 13 bare firstLight 13 sTASh[firstLight] 2 fILEs[utilities] 2 FORMs[simple] 0"
+_ofeq "stashT ST-4 through the stash: drawn to test.pdf; the form in FORMs, the bare name the form, the entry File + text as fILEs' is" "$(grep -c '^=== show firstLight to /tmp/incantTest.pdf ===' "$T/st.o") / $(grep '^ST-4 FORMs' "$T/st.e" | sed 's/ *$//')" "1 / ST-4 FORMs[firstLight] 13 bare firstLight 13 sTASh[firstLight] 2 fILEs[utilities] 2 FORMs[simple] 0"
 #  ⚑ showBootT -- show(firstLight) after Start(); alone writes output.pdf, which is Tony's: set aside here and put back.
 #  H7 (SEQ 688, committed file): showFinish calling showForm by its bare name -> SB-1 has no draw line (the name binds when the
 #  body is first built, with the search list of that moment, and Utilities is not on it).
@@ -528,12 +528,12 @@ echo "-- the tabs form, respelled as tabForm: definitions only, placeholders onl
 #  The tabs are labelled by their value; cards, tabs= and selectFill are not read yet (strokes 2-4, docs/tabsRecon.md).
 #  H7 (SEQ 700, committed file, measured): tabFill out of defaultLook -> TF-3 reads the tab and the help white (r255 g255 b255).
 _tfF=$(ip tabFormT)
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_tfF" > "$T/tf.o" 2> "$T/tf.e"; _tfx=$?
 _tfp () { awk '/^TF-4 /{exit} {print}' "$T/tf.o" | grep -A1 "^TF-AT $1 *$" | grep 'pixelAt' | sed 's/.*= //; s/ ===.*//'; }
 _tf4 () { awk '/^TF-4 /{on=1} on' "$T/tf.o" | grep -A1 "^TF-AT $1 *$" | grep 'pixelAt' | sed 's/.*= //; s/ ===.*//'; }
 _ofeq "tabFormT exit / sentinel / no refusal" "$_tfx $(grep -c '^TABFORMT SENTINEL' "$T/tf.e") $(grep -c '^REFUSED\|^REMOVED' "$T/tf.e")" "0 1 0"
-_ofeq "tabFormT TF-1 drawn by show to test.pdf (twice, TF-4 the second); the tabs labelled by their value, in tabFont (headerFont)" "$(grep -c '^=== show tabForm to IncantForms/PDF/test.pdf ===' "$T/tf.o") / $(awk '/^TF-4 /{exit} $2=="drawSpans" && $3 ~ /^tab/ {printf "%s %s %s %s %s;", $3, $5, $6, $15, $17}' "$T/tf.o")" "2 / tabOne Palatino 14 3 3;tabTwo Palatino 14 3 3;tabThree Palatino 14 5 5;"
+_ofeq "tabFormT TF-1 drawn by show to test.pdf (twice, TF-4 the second); the tabs labelled by their value, in tabFont (headerFont)" "$(grep -c '^=== show tabForm to /tmp/incantTest.pdf ===' "$T/tf.o") / $(awk '/^TF-4 /{exit} $2=="drawSpans" && $3 ~ /^tab/ {printf "%s %s %s %s %s;", $3, $5, $6, $15, $17}' "$T/tf.o")" "2 / tabOne Palatino 14 3 3;tabTwo Palatino 14 3 3;tabThree Palatino 14 5 5;"
 #  RE-PINNED SEQ 701 (tabs stroke 2): only the selected card is drawn, in the cards field's whole box; nothing selected is the
 #  first tab, so TF-2 draws firstCard alone and TF-3's three card pixels all read cardOneFill.
 _ofeq "tabFormT TF-2 the heading in headingFont (titleFont); nothing selected, so only the first card is drawn" "$(awk '/^TF-4 /{exit} $2=="drawSpans" && ($3=="heading" || $3 ~ /Card$/) {printf "%s %s %s;", $3, $5, $6}' "$T/tf.o")" "heading Palatino 24;firstCard Helvetica 12;"
@@ -550,7 +550,7 @@ echo "-- cards: one card shown, picked by the selected tab (cardsT; SEQ 701)."
 #  the bar's tabs:= holds a field outside the form that holds the selected tab (0: the first tab); the tab's card:= names the card.
 #  H7 (SEQ 701, committed file, cardsPick's call taken out of setFrame by hand): every run draws both cards of each cards field.
 _ctF=$(ip cardsT)
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_ctF" > "$T/ct.o" 2> "$T/ct.e"; _ctx=$?
 _ctr () { awk -v r="$1" '/^CT RUN/{n=$3} n==r && $2=="drawSpans" && $3 ~ /^ct(One|Two|X|Y)$/ {printf "%s ", $3}' "$T/ct.o"; }
 _ofeq "cardsT exit / sentinel / no list errors" "$_ctx $(grep -c '^CARDST SENTINEL' "$T/ct.e") $(grep -c 'nextGroup: ERROR' "$T/ct.e")" "0 1 0"
@@ -568,7 +568,7 @@ echo "-- the tab click: selectTab and clickShow (tabClickT; SEQ 737)."
 #  clickShow's showForm taken out -> tabSelected moves, one draw in all, every page TK-0's (TK-1, TK-2, TK-4 red).
 #  Pixels: tab One, Two, Three at y=62, the cards box top and low. green r0 g158 b15, blue r0 g81 b186, red r239 g43 b45, tabFill r175 g211 b120.
 _tkF=$(ip tabClickT)
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_tkF" > "$T/tk.o" 2> "$T/tk.e"; _tkx=$?
 _tkp () { awk -v p="$1" '/^TK-PAGE/{on=($2==p)} on && /pixelAt/ {s=$0; sub(/.* = /,"",s); sub(/ a255 ===.*/,"",s); printf "%s%s", sep, s; sep=" | "}' "$T/tk.o"; }
 _tks () { grep "^$1 tabSelected" "$T/tk.e" | sed 's/ *$//; s/.*tabSelected //'; }
@@ -578,7 +578,7 @@ _ofeq "tabClickT TK-0 show alone: nothing selected, tab One and the box green" "
 _ofeq "tabClickT TK-1 clickShow tabThree: one call fires tabClick, selectTab, and draws; tab Three and the whole box red, tab One tabFill" "$(grep -c '^=== click tabForm tabThree fired onClick tabClick' "$T/tk.o") $(grep -c '^=== selectTab tabThree ===' "$T/tk.o") $(_tks TK-1) / $(_tkp TK-1)" "1 1 tabThree / $_tkF0 | $_tkF0 | $_tkR | $_tkR | $_tkR"
 _ofeq "tabClickT TK-2 tabTwo: blue" "$(_tks TK-2) / $(_tkp TK-2)" "tabTwo / $_tkF0 | $_tkB | $_tkF0 | $_tkB | $_tkB"
 _ofeq "tabClickT TK-3 tabOne: green again" "$(_tks TK-3) / $(_tkp TK-3)" "tabOne / $_tkG | $_tkF0 | $_tkF0 | $_tkG | $_tkG"
-_ofeq "tabClickT TK-4 a name the form lacks: click refuses by name, clickShow draws nothing; four draws of tabForm in all; selection kept" "$(grep -c '^click: REFUSING tkNoSuch -- the form tabForm has no field named nosuch' "$T/tk.e") $(grep -c '^clickShow: nothing drawn for tkNoSuch -- the click refused' "$T/tk.e") $(grep -c '^=== show tabForm to IncantForms/PDF/test.pdf ===' "$T/tk.o") $(_tks TK-4)" "1 1 4 tabOne"
+_ofeq "tabClickT TK-4 a name the form lacks: click refuses by name, clickShow draws nothing; four draws of tabForm in all; selection kept" "$(grep -c '^click: REFUSING tkNoSuch -- the form tabForm has no field named nosuch' "$T/tk.e") $(grep -c '^clickShow: nothing drawn for tkNoSuch -- the click refused' "$T/tk.e") $(grep -c '^=== show tabForm to /tmp/incantTest.pdf ===' "$T/tk.o") $(_tks TK-4)" "1 1 4 tabOne"
 _ofeq "tabClickT TK-5 selectTab under a parent with no tabs:= refuses naming the field and the parent; tabSelected unchanged" "$(grep -c '^selectTab: REFUSING tkOrphan -- its parent tkNotBar is no tab bar (tabs:=)' "$T/tk.e") $(_tks TK-5)" "1 tabOne"
 _ofeq "tabClickT TK-6 the definition is never written: its thirdCard is not hidden after the clicks" "$(grep '^TK-6 ' "$T/tk.e" | sed 's/ *$//')" "TK-6 the definition's thirdCard isHidden 0"
 
@@ -589,7 +589,7 @@ echo "-- pour: data poured into a form (pourT; SEQ 741)."
 #  H7 (SEQ 741, committed file, fixture alone, each undone from git with an md5 check): pour's count out -> 31 rows, what fits; the mark out ->
 #  14 rows with no member (no white swatch, 14 third cells, 68 refusals); the threshold out -> every swatch white and ptLight white.
 _ptF=$(ip pourT)
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_ptF" > "$T/pt.o" 2> "$T/pt.e"; _ptx=$?
 _ptr () { awk -v r="$1" '/^PT RUN/{on=($3==r)} on' "$T/pt.o"; }
 _ptc () { _ptr "$1" | awk -v f="$2" '$2=="drawSpans" && $3==f {c=$9" "$10" "$11; n[c]++} END{for (k in n) printf "%s x%d;", k, n[k]}' | tr ';' '\n' | sort | tr '\n' ';'; }
@@ -614,12 +614,12 @@ _ofeq "pourT PT-9 the definition is never written: one row, no each" "$(grep '^P
 #  RE-PINNED SEQ 742 (pour stage 2): colorList is the derived form now -- no template row, so the cells are pour's own (pourName, pourShow,
 #  pourWhat), its descriptions are in dESCRIPTIONs, and CL-5 is new: height=fit, the page 452 high.
 _clF=${CL_FILE:-$(ip colorListT)}
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clx=$?
 _ofeq "colorListT exit / sentinel / no refusal" "$_clx $(grep -c '^COLORLISTT SENTINEL' "$T/cl.e") $(grep -c 'REFUS\|^REMOVED' "$T/cl.e")" "0 1 0"
 #  SEQ 745: tester's shape prints nothing on stderr but this fixture's own two lines (the 16 compare warnings a run are cured at their source).
 _ofeq "colorListT CL-0 stderr holds this fixture's CL-4 line and its sentinel and nothing else" "$(grep -c . "$T/cl.e") $(grep -c '^CL-4 \|^COLORLISTT SENTINEL' "$T/cl.e")" "2 2"
-_ofeq "colorListT CL-1 found in the stash (deferred), drawn to test.pdf" "$(grep -c '^=== show colorList deferred' "$T/cl.o") $(grep -c '^=== show colorList to IncantForms/PDF/test.pdf ===' "$T/cl.o")" "1 1"
+_ofeq "colorListT CL-1 found in the stash (deferred), drawn to test.pdf" "$(grep -c '^=== show colorList deferred' "$T/cl.o") $(grep -c '^=== show colorList to /tmp/incantTest.pdf ===' "$T/cl.o")" "1 1"
 _ofeq "colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="pourName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
 _ofeq "colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="pourShow"){c[$9]++; if($15==7)v++}} END{print n["pourShow"], v, c["r255"], c["r0"], n["pourWhat"]}' "$T/cl.o")" "14 14 3 11 14"
 _ofeq "colorListT CL-4 loading the form leaves cOLOr as it was; black's description is words, not a colour (its wording is the form's to change)" "$(grep '^CL-4 ' "$T/cl.e" | sed 's/ its description.*//') / $(grep '^CL-4 ' "$T/cl.e" | grep -c 'its description \[ [a-zA-Z]')" "CL-4 cOLOr black [ #000000 ] white [ #ffffff ] / 1"
@@ -632,7 +632,7 @@ echo "-- pour stage 2: rows derived from what is poured; margin, gap, height=fit
 #  value out -> every show is plain text (no white, one font sample); margin out -> the title at x=- 490 wide; gap out -> rows 24 apart;
 #  the fit sum out -> the top 792.
 _pdF=$(ip pourDeriveT)
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 90; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
 _pdr () { awk -v r="$1" '/^PD RUN/{on=($3==r)} on' "$T/pd.o"; }
 _pdn () { _pdr "$1" | awk -v f="$2" '$2=="drawSpans" && $3==f{n++} END{print n+0}'; }
@@ -1000,7 +1000,7 @@ _ofeq "windowLoopT WL-TWO two windows open at once, each drawn: tabForm's card g
 _ofeq "windowLoopT WL-SIZE after: displaySize is published (both parts more than 0) and fitCap is put back" "$(_wls after)" "sized fitCap 792"
 _wlTall=$(grep '^=== readWindow wlReadTall' "$T/wl.o" | sed 's/.*size 200x//; s/ ===.*//'); _wlHigh=$(grep '^WL-SIZE tall ' "$T/wl.o" | awk '{print $6}')
 _ofeq "windowLoopT WL-TALL a height=fit form needing 6000: IN A WINDOW it is capped at the display's usable height, not at a page's 792; fitCap put back" "$([ -n "$_wlTall" ] && [ "$_wlTall" = "$_wlHigh" ] && echo same || echo "differ $_wlTall $_wlHigh") $([ "${_wlTall:-792}" != 792 ] && echo not-792 || echo IS-792) $(_wls tall)" "same not-792 sized fitCap 792"
-_ofeq "windowLoopT WL-SHOW SHOW DECIDES: windows 0, a form written window goes to its PDF; windows 2, the same show makes a window and no PDF; a form not written window still goes to its PDF" "$(_wlblock '^WL-SHOW' '^WL-LAST')" "show tkLoose to IncantForms/PDF/test.pdf;show tkLoose in a window, not shown;readWindow wlReadLoose title [incant] size 100x100;show wlSmall to IncantForms/PDF/test.pdf"
+_ofeq "windowLoopT WL-SHOW SHOW DECIDES: windows 0, a form written window goes to its PDF; windows 2, the same show makes a window and no PDF; a form not written window still goes to its PDF" "$(_wlblock '^WL-SHOW' '^WL-LAST')" "show tkLoose to /tmp/incantTest.pdf;show tkLoose in a window, not shown;readWindow wlReadLoose title [incant] size 100x100;show wlSmall to /tmp/incantTest.pdf"
 _ofeq "windowLoopT WL-LAST the script's last line printed, and before the loop started: every opening returned at once" "$(grep -n '^WL-LAST\|^=== window loop: started' "$T/wl.o" | sed 's/^[0-9]*://; s/ the script.*//; s/,.*//' | tr '\n' ' ' | xargs)" "WL-LAST === window loop: started"
 _ofeq "windowLoopT THE LOOP: started after stop with 3 open and 4 kept; the kept click runs kant inside it; three closes keep their frames; it ends with none open" "$(_wlblock '^WL-LAST' '')" "window loop: started, 3 open, 0 shown, 4 kept for later;windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree;window closed: tabForm kept 360x400 at (400,400);window closed: wlSmall kept 120x80 at (40,60);window closed: tkLoose kept 100x100 at (0,0);window loop: ended, 0 open"
 
@@ -1149,7 +1149,7 @@ echo "-- show(form): a form fired by one call (showT)."
 _shF=$(ip showT)
 _shOut=IncantForms/PDF/output.pdf
 rm -f "$T/sh.keep"; [ -f "$_shOut" ] && mv "$_shOut" "$T/sh.keep"
-rm -f IncantForms/PDF/test.pdf
+rm -f /tmp/incantTest.pdf
 perl -e 'alarm 60; exec @ARGV' "$B" "$_shF" > "$T/sh.o" 2> "$T/sh.e"; _shx=$?
 _shNew=0; [ -s "$_shOut" ] && _shNew=1
 [ -f "$T/sh.keep" ] && mv "$T/sh.keep" "$_shOut"
@@ -1159,12 +1159,12 @@ _shs () { _shb "$1" | grep '^=== show .* to ' | sed 's/^=== show //; s/ ===.*//'
 _sht () { _shb "$1" | awk '$1=="===" && $2=="drawSpans"' | sed 's/.*drawSpans \([A-Za-z]*\) font \(.*\) color \(r[0-9]* g[0-9]* b[0-9]*\) .*/\1 \2 \3/'; }
 _shp () { _shb "$1" | grep 'pixelAt pdfRead' | sed 's/.*= //; s/ ===.*//'; }
 _ofeq "showT exit / sentinel" "$_shx $(grep -c '^SHOWT SENTINEL' "$T/sh.e")" "0 1"
-_ofeq "showT SH-1 A FORM WITH path=: show names the form and its path, and the page is drawn there under defaultLook" "$(_shs plain) / $(_shp plain) / $(_sht plain)" "shPlain to IncantForms/PDF/test.pdf / r255 g255 b255 a255 / shA Palatino 24 1 r0 g0 b0"
-_ofeq "showT SH-2 A FORM NAMING look:=shNight is laid out under it: black page, Courier white" "$(_shs dark) / $(_shp dark) / $(_sht dark)" "shDark to IncantForms/PDF/test.pdf / r0 g0 b0 a255 / shB Courier New 24 1 r255 g255 b255"
+_ofeq "showT SH-1 A FORM WITH path=: show names the form and its path, and the page is drawn there under defaultLook" "$(_shs plain) / $(_shp plain) / $(_sht plain)" "shPlain to /tmp/incantTest.pdf / r255 g255 b255 a255 / shA Palatino 24 1 r0 g0 b0"
+_ofeq "showT SH-2 A FORM NAMING look:=shNight is laid out under it: black page, Courier white" "$(_shs dark) / $(_shp dark) / $(_sht dark)" "shDark to /tmp/incantTest.pdf / r0 g0 b0 a255 / shB Courier New 24 1 r255 g255 b255"
 _ofeq "showT SH-3 the look does not stay in show's request: shPlain again reads as SH-1" "$(_shp plain2) / $(_sht plain2)" "$(_shp plain) / $(_sht plain)"
 _ofeq "showT SH-4 A FORM WITH NO path is written to IncantForms/PDF/output.pdf (line / a new file written)" "$(_shs home) / $_shNew" "shHome to IncantForms/PDF/output.pdf / 1"
 _ofeq "showT SH-5 show returns the laid-out copy: a list of 10 (its attributes and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 10 width 400"
-_ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form" "$(grep -c '^=== show IBkant to IncantForms/PDF/test.pdf ===' "$T/ib.o") $(grep -c '^=== show ' "$T/ib.o")" "4 4"
+_ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form" "$(grep -c '^=== show IBkant to /tmp/incantTest.pdf ===' "$T/ib.o") $(grep -c '^=== show ' "$T/ib.o")" "4 4"
 
 echo "-- looks by name (looksByNameT)."
 #  ⚑ looksByNameT -- SEQ 723 R1-R4 (Tony, 2026-11-20): firstLight carries looks:=firstLightLooks (standard, dark); the first is the default; a

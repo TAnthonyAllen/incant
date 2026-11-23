@@ -13,7 +13,7 @@ register(IbkantT);
 search IbkantT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     ibRuns = 0;
-    ibToTest path="IncantForms/PDF/test.pdf";
+    ibToTest path="/tmp/incantTest.pdf";
     ibCounts listenTo:=ibPage code={
         ibRuns = ibRuns + 1;
         };

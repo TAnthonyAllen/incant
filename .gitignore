@@ -113,7 +113,7 @@ Directives/
 genLadder/.binRecord*
 
 # IncantForms/PDF: two files (Tony, 2026-11-10; done 2026-11-13, SEQ 646). output.pdf is what Tony opens: only his runs and tester's stanzas write it.
-# test.pdf is the fleet's: every fixture writes it, overwritten each run. The directory is kept by .keep
+# The fleet's PDF is /tmp/incantTest.pdf since 2026-11-23 (Tony; SEQ 753): outside Dropbox, which raced the fleet's rewrites into conflicted copies. The line below stays for an old checkout's test.pdf. The directory is kept by .keep
 IncantForms/PDF/output.pdf
 IncantForms/PDF/test.pdf
 # docs/sealCaptures/*.pdf: the form captures (genLadder/pdfCaptures.sh, SEQ 684) embed Tony's own pictures; kept on disk, never tracked (Tony, 2026-11-17: no pictures in the repo)

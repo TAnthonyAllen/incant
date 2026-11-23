@@ -24,12 +24,12 @@ define
     rnHost window x=0 y=0 width=300 height=200 down fill:=pageFill font:=bodyFont color:=textColor
         rnHead="host" text height=100;
         rnInside form:=rnForm;
-    rqPlain path="IncantForms/PDF/test.pdf" form:=rnForm;
-    rqNight path="IncantForms/PDF/test.pdf" form:=rnForm look:=rnNight;
-    rqBox path="IncantForms/PDF/test.pdf" form:=rnBoxForm;
-    rqLost path="IncantForms/PDF/test.pdf" form:=rnLostForm;
-    rqHost path="IncantForms/PDF/test.pdf" form:=rnHost;
-    rqHostNight path="IncantForms/PDF/test.pdf" form:=rnHost look:=rnNight;
+    rqPlain path="/tmp/incantTest.pdf" form:=rnForm;
+    rqNight path="/tmp/incantTest.pdf" form:=rnForm look:=rnNight;
+    rqBox path="/tmp/incantTest.pdf" form:=rnBoxForm;
+    rqLost path="/tmp/incantTest.pdf" form:=rnLostForm;
+    rqHost path="/tmp/incantTest.pdf" form:=rnHost;
+    rqHostNight path="/tmp/incantTest.pdf" form:=rnHost look:=rnNight;
     rnPara code={
         for grup in argument;
             rpWord = *grup;

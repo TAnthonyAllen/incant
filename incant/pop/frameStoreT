@@ -19,11 +19,11 @@ define
     ;
 search FrameStoreT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    flReq path="IncantForms/PDF/test.pdf" form:=firstLight frame:=flWin;
-    flPlain path="IncantForms/PDF/test.pdf" form:=firstLight;
+    flReq path="/tmp/incantTest.pdf" form:=firstLight frame:=flWin;
+    flPlain path="/tmp/incantTest.pdf" form:=firstLight;
     flWideReq form:=firstLight frame:=fsWide;
     dsKeep form:=descriptions frame:=fsSmall;
-    dsPlain path="IncantForms/PDF/test.pdf" form:=descriptions;
+    dsPlain path="/tmp/incantTest.pdf" form:=descriptions;
     flClick form:=firstLight field="ok";
     fsWinTakes code={
         fwF := argument;
@@ -75,7 +75,7 @@ include is dropped and the same rows must stay green against utilities.
 The mock window is flWin, the frame firstLight's window is at: an open or a redraw sets it from the laid-out copy, a resize
 sets it to the new frame. The events: mockOpen (a plain open, redrawForm with no frame), mockResize (the window takes the
 new frame, then redrawWindow), mockClose (keepFrame with the window's frame), mockClickShow (click, then redrawWindow).
-All draw to IncantForms/PDF/test.pdf, not output.pdf.
+All draw to /tmp/incantTest.pdf, not output.pdf.
 
 S1  a plain open with no entry: declared, 500x600 at 300,450.
 S2  resize to 1200x800: the frame comes from the store; inside (height=60%) is 480.

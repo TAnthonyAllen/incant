@@ -68,12 +68,12 @@ define
         nrLine(**nrForm0);
         print "NR-END" argument.taG:;
         };
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     ;
 search NoRoomT UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
-    nrReq path="IncantForms/PDF/test.pdf" form:=nrForm;
-    nrPlainReq path="IncantForms/PDF/test.pdf" form:=nrPlain;
+    nrReq path="/tmp/incantTest.pdf" form:=nrForm;
+    nrPlainReq path="/tmp/incantTest.pdf" form:=nrPlain;
     ;
 nrRun(nrReq);
 nrRun(nrPlainReq);

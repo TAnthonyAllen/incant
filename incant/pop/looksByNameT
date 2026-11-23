@@ -21,17 +21,17 @@ define
         argument :% copyOf(py);
         pixelAt(argument);
         };
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     lbRun code={
         redrawForm(argument);
         readPDF(pdfRead);
         lbX = 450; lbY = 15;  lbAt(pdfRead);
         lbX = 200; lbY = 580; lbAt(pdfRead);
         };
-    rqNone path="IncantForms/PDF/test.pdf" form:=firstLight;
-    rqStandard path="IncantForms/PDF/test.pdf" form:=firstLight look="standard";
-    rqDark path="IncantForms/PDF/test.pdf" form:=firstLight look="dark";
-    rqPrint path="IncantForms/PDF/test.pdf" form:=firstLight look="print";
+    rqNone path="/tmp/incantTest.pdf" form:=firstLight;
+    rqStandard path="/tmp/incantTest.pdf" form:=firstLight look="standard";
+    rqDark path="/tmp/incantTest.pdf" form:=firstLight look="dark";
+    rqPrint path="/tmp/incantTest.pdf" form:=firstLight look="print";
     lbHeldLooks
         standard pageFill:=red;
     lbHeld window x=0 y=0 width=100 height=100 down fill:=pageFill looks:=lbHeldLooks
@@ -42,8 +42,8 @@ define
     lbHost window x=0 y=0 width=200 height=200 down fill:=pageFill looks:=lbHostLooks
         lbTop="top" text height=50%;
         lbIn form:=lbHeld height=50%;
-    rqHostStd path="IncantForms/PDF/test.pdf" form:=lbHost look="standard";
-    rqHostDark path="IncantForms/PDF/test.pdf" form:=lbHost look="dark";
+    rqHostStd path="/tmp/incantTest.pdf" form:=lbHost look="standard";
+    rqHostDark path="/tmp/incantTest.pdf" form:=lbHost look="dark";
     lbHostRun code={
         redrawForm(argument);
         readPDF(pdfRead);

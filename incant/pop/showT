@@ -7,13 +7,13 @@ register(ShowT);
 search ShowT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
 define
     shNight pageFill:=black headingFont:=courierFont bodyFont:=normalFont textColor:=white accent:=lightBlue;
-    shPlain window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont color:=textColor path="IncantForms/PDF/test.pdf"
+    shPlain window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont color:=textColor path="/tmp/incantTest.pdf"
         shA="alpha" text font:=headingFont;
-    shDark window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont color:=textColor path="IncantForms/PDF/test.pdf" look:=shNight
+    shDark window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont color:=textColor path="/tmp/incantTest.pdf" look:=shNight
         shB="beta" text font:=headingFont;
     shHome window x=0 y=0 width=400 height=200 down fill:=wall font:=normalFont color:=blue
         shC="gamma" text;
-    pdfRead path="IncantForms/PDF/test.pdf";
+    pdfRead path="/tmp/incantTest.pdf";
     shPixel code={
         readPDF(pdfRead);
         px = 10;

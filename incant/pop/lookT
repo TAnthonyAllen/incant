@@ -16,11 +16,11 @@ define
         lkC="gamma" text style:=lkHead;
     lkBad window x=0 y=0 width=400 height=100 down fill:=orphan
         lkBadText="orphan" text;
-    rqNone path="IncantForms/PDF/test.pdf" form:=lkForm;
-    rqNight path="IncantForms/PDF/test.pdf" form:=lkForm look:=lkNight;
-    rqGreen path="IncantForms/PDF/test.pdf" form:=lkForm look:=lkGreen;
-    rqBad path="IncantForms/PDF/test.pdf" form:=lkBad;
-    pdfRead path="IncantForms/PDF/test.pdf";
+    rqNone path="/tmp/incantTest.pdf" form:=lkForm;
+    rqNight path="/tmp/incantTest.pdf" form:=lkForm look:=lkNight;
+    rqGreen path="/tmp/incantTest.pdf" form:=lkForm look:=lkGreen;
+    rqBad path="/tmp/incantTest.pdf" form:=lkBad;
+    pdfRead path="/tmp/incantTest.pdf";
     lkRun code={
         lkLaid := redrawForm(argument);
         printDefinition(*lkLaid);
