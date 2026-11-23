@@ -917,6 +917,11 @@ define
         cardsPick(*sfLaid);
         selectionPick(*sfLaid);
         describePick(*sfLaid);
+        // lookOnTheCopy the copy's top keeps the look this layout resolved through, as laidLook: a holder to the look, or the word none (popups stroke 0, F-158; Tony, 2026-11-23). typeset reads it at draw (tsLookFind). Written after mergeStyles, which would read an empty look as a placeholder, and before frameMembers, where a held form's layout moves the shared look fields
+        sfLk := new("laidLook");
+        if lkHas == 1;      *sfLk := *lkLook;
+        if lkHas == 0;      *sfLk = "none";
+        *sfLaid :% *sfLk;
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;
@@ -1331,6 +1336,27 @@ define
             if teHops < 32;     teAt := *teAt.parenT;
             teHops += 1;
         };
+    tsLkHit = 0;
+    tsLkAt;
+    // lookOf the look a field was laid out under: the laidLook of the nearest field at or above the one handed in (setFrame put it on each laid-out copy's top, a held form's too); the climb stops at the top, which holds the drawing context. None found: a form drawn without setFrame
+    tsLookFind code={
+        tsLkHit = 0;
+        tlAt := argument;
+        tlHops = 0;
+        while tlHops < 32;
+            tlLen = *tlAt.listLengtH;
+            tlHas = 0;
+            if tlLen > 0;
+                if *tlAt["laidLook"];   tlHas = 1;
+            if tlHas == 1;
+                tsLkAt := *tlAt["laidLook"];
+                tsLkHit = 1;
+                tlHops = 32;
+            tlTop = *tlAt.isPointeR;
+            if tlTop == 1;      tlHops = 32;
+            if tlHops < 32;     tlAt := *tlAt.parenT;
+            tlHops += 1;
+        };
     tsFind code={
         for grup in argument; members
             if tsHit == 0;
@@ -1546,7 +1572,18 @@ define
                 if tyIsStyle == 1;
                     tyOwn := copyDeep(sTYLEs[*tyNm]);
                     rlSays = "drawSpans:";
+                    // ownLayoutsLook the run is resolved through the look its own form was laid out under, read from the copy (tsLookFind), not through the look of whichever layout ran last; the shared look fields are put back after (popups stroke 0, F-158)
+                    tsLookFind(*tsWho);
+                    tyLkWasHas = lkHas;
+                    tyLkWas := *lkLook;
+                    if tsLkHit == 1;
+                        tyLkIs = *tsLkAt.isGrouP;
+                        lkHas = 0;
+                        if tyLkIs == 1;     lkLook := **tsLkAt;
+                        if tyLkIs == 1;     lkHas = 1;
                     resolveLook(*tyOwn);
+                    lkHas = tyLkWasHas;
+                    if tyLkWasHas == 1;     lkLook := *tyLkWas;
                     rlSays = "setFrame:";
                     tsRun.style := *tyOwn;
                     tsRunName = *tyNm;
