@@ -64,7 +64,7 @@ stop();
 
 runLookT -- stroke 4 of the styles build (SEQ 655; Clay's dispatch, Tony 2026-11-14). Three things.
 A RUN'S STYLE THROUGH THE LOOK: a run {rnAccent: text} takes its own deep copy of the style, and a placeholder in it (color:=accent)
-is resolved through the look of the last layout. SPAN lines print each span of the last text field drawn and the colour it holds
+is resolved through the look its form was laid out under (since SEQ 762, popups stroke 0, read from the laid-out copy: lookCopyT; until then the last layout's). SPAN lines print each span of the last text field drawn and the colour it holds
 (field means none of its own). The style's definition is never written.
 THE LOOK GOES DOWN: rnHost holds rnForm in a field. Under look:=rnNight the held form is laid out under rnNight too.
 THE BOX WARNING: rnBoxy holds fill and rounded; a run naming it is warned once for each, and still takes its colour.

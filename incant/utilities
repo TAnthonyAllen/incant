@@ -1568,7 +1568,7 @@ define
                 if tyIsStyle == 0;
                     tyFt := *tsWho.taG;
                     cerr "drawSpans: WARNING" tyFt "-- its text names the style" tyNm "-- not a style; that run is printed plain":;
-                // runsOwnStyle the run holds its own deep copy of the style, with its placeholders resolved through the look of the last layout (SEQ 655, stroke 4); a box attribute in it is warned by name and does nothing in a run
+                // runsOwnStyle the run holds its own deep copy of the style, with its placeholders resolved through the look its form was laid out under (ownLayoutsLook, below; until SEQ 762 the look of the last layout) (SEQ 655, stroke 4); a box attribute in it is warned by name and does nothing in a run
                 if tyIsStyle == 1;
                     tyOwn := copyDeep(sTYLEs[*tyNm]);
                     rlSays = "drawSpans:";

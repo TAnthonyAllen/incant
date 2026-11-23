@@ -64,11 +64,11 @@ define
     lcReqD form:=lcFormD look:=lcDay;
     lcN1 form:=lcFormN;
     lcN2 form:=lcFormN;
-    lcN3 form:=lcFormN;
+    lcD3 form:=lcFormD;
     lcD1 form:=lcFormD;
     lcD2 form:=lcFormD;
     lcNN first:=lcN1 second:=lcN2;
-    lcN13 first:=lcN1 second:=lcN3;
+    lcD13 first:=lcD1 second:=lcD3;
     lcDD first:=lcD1 second:=lcD2;
     lcPara code={
         for grup in argument;
@@ -117,8 +117,9 @@ readWindow(lcD2);
 displayDiff(lcDD);
 windowResize(wrToBig);
 windowClick(wrOkBig);
-readWindow(lcN3);
-displayDiff(lcN13);
+readWindow(lcD3);
+rgX = 84; rgY = 10; rgRead(lcD3);
+displayDiff(lcD13);
 cout "LC PAGE hostA":;      lcRun(rqHostA);
 cout "LC PAGE hostB":;      lcRun(rqHostB);
 cout "LC PAGE plain":;      lcRun(rqPlain);
@@ -127,3 +128,20 @@ cout "LC PAGE definition":; printDefinition(lcFormN); printDefinition(lcHostA);
 cout "LC PAGE end":;
 cerr "LOOKCOPYT SENTINEL":;
 stop();
+
+lookCopyT -- popups stroke 0 (SEQ 762, 2026-11-23; F-158; Tony's ruling via Clay): the look rides on the laid-out copy. setFrame
+leaves the look it resolved through on the copy's top as laidLook (a holder to the look, or the word none), a held form's top too;
+typeset, at draw, climbs from the field it is drawing to the nearest laidLook and resolves a run's placeholders through that, not
+through the look of whichever layout ran last. Rows in genLadder/formsPop.sh, run at GCSTRESS=1000. No window is shown.
+
+night / day / night again   two offscreen windows, lcFormN under lcNight (accent red) and lcFormD under lcDay (accent green), each
+          with a run naming color:=accent. Pixel (84,10) is inside the run. The night window is read again after the day window
+          was laid out: until this stroke its run turned green and 470 of 30000 pixels differed.
+third     firstLight in a third window (defaultLook, accent red), clicked: the day window read again; then resized and clicked
+          again: the day window read once more. Both equal its first read, the run still green.
+hostA     lcHostA under look="dark" holds lcHeld, whose list has standard only: lcHeld falls back to its own standard (accent
+          blue). SPAN lines print the last text drawn, lcHeld's: its run is blue, its own look's, not the host's green.
+hostB     the same with the held field first, so the last text drawn is the host's: its run is the host's green.
+plain     a form naming no placeholder of its own, no look: laidLook none; the run is defaultLook's red.
+nightPdf  the PDF road under a look field: laidLook is lcNight.
+definition  the definitions carry no laidLook.

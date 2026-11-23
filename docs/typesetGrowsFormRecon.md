@@ -75,6 +75,16 @@ Three more, for Tony:
 4. Flow's continuation: named by the form, added by typesetting, or both.
 5. The order of customers. Lean: fit on one text field (the help box), wrapping rows, flow, pages, the float.
 
+## 5a. RULED (Tony, 2026-11-23, via Clay)
+
+1. Bounds: Clay's five plus Clod's three (section 4). Four passes for now; the number is revisited once a layout's cost is measured.
+2. The opt-in word: `height=fit`.
+3. A window the user resized is not resized again; cut and warn.
+4. Flow's continuation is named by the form. Typesetting adds only pages (the case nothing can name ahead).
+5. Order: the help box, wrapping rows, flow, pages, the float.
+
+First step when it is sent: the measure alone (section 6, step 1), with its row. Not started.
+
 ## 6. Smallest first step
 
 **Step 1: the measure, alone.** drawSpans measures with no display and writes the answer into its request (A), and
