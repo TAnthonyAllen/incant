@@ -1004,6 +1004,18 @@ _ofeq "windowLoopT WL-SHOW SHOW DECIDES: windows 0, a form written window goes t
 _ofeq "windowLoopT WL-LAST the script's last line printed, and before the loop started: every opening returned at once" "$(grep -n '^WL-LAST\|^=== window loop: started' "$T/wl.o" | sed 's/^[0-9]*://; s/ the script.*//; s/,.*//' | tr '\n' ' ' | xargs)" "WL-LAST === window loop: started"
 _ofeq "windowLoopT THE LOOP: started after stop with 3 open and 4 kept; the kept click runs kant inside it; three closes keep their frames; it ends with none open" "$(_wlblock '^WL-LAST' '')" "window loop: started, 3 open, 0 shown, 4 kept for later;windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree;window closed: tabForm kept 360x400 at (400,400);window closed: wlSmall kept 120x80 at (40,60);window closed: tkLoose kept 100x100 at (0,0);window loop: ended, 0 open"
 
+#  ⚑ windowSearchT -- fix stroke W5-1 (SEQ 754, 2026-11-23): the first shown window was blank, REFUSED drawFill. show puts the search list back, so a
+#  window's later calls into kant ran with no Utilities on the list and drawWalk bound drawFill to a fresh local. The fixture is tester's shape (the
+#  bootstrap show, no include of utilities), which no other window fixture is. H7: runUnder made to ignore the kept list, WS-1 and WS-2 both red.
+echo ""
+echo "-- a window's calls into kant run under the search list it was opened with (windowSearchT)."
+_wsF=$(ip windowSearchT)
+INCANT_NOVIEW=1 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wsF" > "$T/ws.o" 2> "$T/ws.e"; _wsx=$?
+_wsblock () { awk -v a="$1" -v b="$2" '$0 ~ a {on=1; next} b != "" && $0 ~ b {on=0} on && /^===/ && !/drawSpans|show viewer off/' "$T/ws.o" | sed 's/^=== //; s/ *=== *$//; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
+_ofeq "windowSearchT exit / sentinel / nothing refused on either stream" "$_wsx $(grep -c '^WS END' "$T/ws.o") $(cat "$T/ws.o" "$T/ws.e" | grep -c 'REFUS')" "0 1 0"
+_ofeq "windowSearchT WS-1 the window show made, drawn with Utilities off the search list, paints: the first card's green and tab One's selected green" "$(_wsblock '^WS-1' '^WS END')" "readWindow wsRead title [Using Tabs] size 360x400;pixelAt wsRead (180,200) = r0 g158 b15 a255;pixelAt wsRead (20,62) = r0 g128 b12 a255"
+_ofeq "windowSearchT WS-2 inside the loop, the script ended: the click fires tabClick, the resize lays out, the close keeps the frame, the loop ends" "$(_wsblock '^WS END' '')" "window loop: started, 1 open, 0 shown, 3 kept for later;windowClick tabForm at (180,62): tabTwo;click tabForm tabTwo selected;click tabForm tabTwo fired onClick tabClick;selectTab tabTwo;window resized: tabForm now 500x500 at (400,400);window closed: tabForm kept 500x500 at (400,400);window loop: ended, 0 open"
+
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none
 #  in the gap); the run band beside the before and after bands (red and no blue, against blue and no red). Before the slice the same text drew as one

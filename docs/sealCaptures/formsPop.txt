@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2258400 bytes  Nov 22 14:38
+  bin   2258528 bytes  Nov 23 10:27
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -362,6 +362,11 @@
   ok    windowLoopT WL-LAST the script's last line printed, and before the loop started: every opening returned at once = [WL-LAST === window loop: started]
   ok    windowLoopT THE LOOP: started after stop with 3 open and 4 kept; the kept click runs kant inside it; three closes keep their frames; it ends with none open = [window loop: started, 3 open, 0 shown, 4 kept for later;windowClick tabForm at (300,62): tabThree;click tabForm tabThree selected;click tabForm tabThree fired onClick tabClick;selectTab tabThree;window closed: tabForm kept 360x400 at (400,400);window closed: wlSmall kept 120x80 at (40,60);window closed: tkLoose kept 100x100 at (0,0);window loop: ended, 0 open]
 
+-- a window's calls into kant run under the search list it was opened with (windowSearchT).
+  ok    windowSearchT exit / sentinel / nothing refused on either stream = [0 1 0]
+  ok    windowSearchT WS-1 the window show made, drawn with Utilities off the search list, paints: the first card's green and tab One's selected green = [readWindow wsRead title [Using Tabs] size 360x400;pixelAt wsRead (180,200) = r0 g158 b15 a255;pixelAt wsRead (20,62) = r0 g128 b12 a255]
+  ok    windowSearchT WS-2 inside the loop, the script ended: the click fires tabClick, the resize lays out, the close keeps the frame, the loop ends = [window loop: started, 1 open, 0 shown, 3 kept for later;windowClick tabForm at (180,62): tabTwo;click tabForm tabTwo selected;click tabForm tabTwo fired onClick tabClick;selectTab tabTwo;window resized: tabForm now 500x500 at (400,400);window closed: tabForm kept 500x500 at (400,400);window loop: ended, 0 open]
+
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
   ok    typesetT TY-1 firstLight's words: two paragraphs, one run, every character drawn in three lines = [lines 3 drawn 205 of 205 next end paragraphs 2 of 2 runs 1]
@@ -462,4 +467,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 399 green, see above
+FORMS POP FAILED -- 402 green, see above
