@@ -108,7 +108,7 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   host; a window's close clears its form's selection (`windowShut`, the one C++ line: the close calls it, not keepFrame).
   formsPop windowClimbT.
 
-- The outline over a held form (SEQ 765, branch outline-over-held, the buy Tony's): a selected field that holds a form has
+- The outline over a held form (SEQ 765, bought and merged 2026-11-23): a selected field that holds a form has
   its border drawn once more after its members. formsPop windowClimbT C-3o.
 
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
