@@ -5,30 +5,29 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**537, 2026-11-22, topic: windows, SEQ 751 (assigned by Clod), SHUTDOWN.** Windows strokes 0-3 bought and merged today. Stroke 4, the loop
-(W1), the display's size and show deciding, was BOUGHT and merged after the seal: all five built strokes are on trunk, formsPop 399.
-A fresh session reads this page and Topics/windows, then opens stroke 5: a real run with Tony watching.
-**OPEN (Tony):** whether windows should default to 1 after stroke 5 (it is 0); two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete (the fleet's PDF is /tmp/incantTest.pdf since 2026-11-23, SEQ 753, so no more should appear); Topics/kant's budget (5 over); carried from 482, whether an indented `define` should work;
-**RULED, NOT BUILT:** registries items 3-5 (where defined as a property; the narrowed overwrite warning; the wARNINGs registry); describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
+**538, 2026-11-23, topic: windows, SEQ 752-756 (assigned by Clod).** Windows stroke 5, the watched run, PASSED: Tony saw tabForm and firstLight
+in real windows, clicked, resized, closed and reopened. One fix stroke on the way, W5-1 (bought): a window runs its kant calls under the search list it was opened with.
+**OPEN (Tony):** two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete (the fleet's PDF is /tmp/incantTest.pdf since SEQ 753, so no more should appear); Topics/kant's budget (6 over); carried from 482, whether an indented `define` should work;
+**RULED, NOT BUILT:** windows defaults to 1; a second show raises the open window; selection as an outline; describe on select (all Topics/windows, 2026-11-23). Registries items 3-5 (where defined as a property; the narrowed overwrite warning; the wARNINGs registry); describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** windows stroke 5 on Fable 5.2, a real run Tony watches: `windows = 1;` then show a form written window (tabForm; firstLight is not written window). Expect fix strokes from it: nothing shown has been run. F-167 stays docketed. Later: registries items 3-5, re-parked in incant++.
+**NEXT:** windows stroke A on its own branch (the default, the second show, the outline; measure the outline's cost first), then stroke B, describe on select. F-167 stays docketed. Later: registries items 3-5, parked in incant++.
 
-## The numbers (trunk at seal 537, as run on each stroke's branch before its buy; trunk rebuilt bare after the seal)
+## The numbers (trunk at seal 538)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4235 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 399 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 402 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | run at 537 on the branch: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 538 (not a shutdown); at 537: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
 | extern canary | 490 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize, windows-loop (all bought 2026-11-22). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize, windows-loop (all bought 2026-11-22), windows-search (bought 2026-11-23). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
 for-members, for-attributes, print-dot, looks-by-name, kant-environment, g3-one-direction, g3-cheat). BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
@@ -38,11 +37,11 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 54 / 60 | this page. |
+| `docs/wakeup.md` | 53 / 60 | this page. |
 | `Topics/forms` | 278 / 280 | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 206 / 200, OVER by 6 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/windows` | 105 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
+| `Topics/windows` | 115 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 116 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
