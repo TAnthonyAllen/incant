@@ -1,0 +1,76 @@
+Start();
+windows = 2;
+show(firstLight);
+search FORMs cOLOr fONTs sTYLEs;
+register(dESCRIPTIONs);
+define
+    wsOne="The words about one";
+    wsTwo="The words about two, which are longer";
+    ;
+register(FORMs);
+define
+    wsA window x=0 y=0 width=200 height=200 fill:=pageFill
+        wsOne="1" height=40 fill:=green;
+        wsShared="S" height=40;
+        wsBoxA describe="own A" height=120;
+    wsB window x=0 y=0 width=200 height=200 fill:=pageFill
+        wsTwo="2" height=40 fill:=green;
+        wsShared="S" height=40;
+        wsBoxB describe="own text of B" height=120;
+    ;
+show(wsA);
+show(wsB);
+search FORMs;
+register(WindowSelectT);
+define
+    wsFrame x=0 y=0 width=200 height=200;
+    wsAtop form:=wsA px=1 py=20;
+    wsAmid form:=wsA px=1 py=60;
+    wsBtop form:=wsB px=1 py=20;
+    wsBmid form:=wsB px=1 py=60;
+    wsRelayA form:=wsA frame:=wsFrame;
+    wsRelayB form:=wsB frame:=wsFrame;
+    wsOnOne form:=wsA px=100 py=20;
+    wsOnSharedA form:=wsA px=100 py=60;
+    wsOnBoxA form:=wsA px=100 py=140;
+    wsOnTwo form:=wsB px=100 py=20;
+    wsOnBoxB form:=wsB px=100 py=140;
+    wsMock form:=wsA field="wsOne";
+    wsPage code={
+        windowResize(wsRelayA);
+        windowResize(wsRelayB);
+        cout "WS-READ" argument:;
+        readWindow(wsAtop);     pixelAt(wsAtop);
+        readWindow(wsAmid);     pixelAt(wsAmid);
+        readWindow(wsBtop);     pixelAt(wsBtop);
+        readWindow(wsBmid);     pixelAt(wsBmid);
+        };
+    ;
+search WindowSelectT Utilities;
+cout "WS-PAGE S-0":;    wsPage("S-0");
+cout "WS-PAGE S-1":;    windowClick(wsOnOne);       wsPage("S-1");
+cout "WS-PAGE S-2":;    windowClick(wsOnTwo);       wsPage("S-2");
+cout "WS-PAGE S-3":;    windowClick(wsOnBoxA);      wsPage("S-3");
+cout "WS-PAGE S-4":;    windowClick(wsOnSharedA);   wsPage("S-4");
+cout "WS-PAGE S-5":;    unselect(wsA);              wsPage("S-5");
+cout "WS-PAGE S-6":;    click(wsMock);              wsPage("S-6");
+cout "WS-PAGE END":;
+cerr "WINDOWSELECT SENTINEL":;
+stop();
+
+windowSelectT -- popups stroke 1 (SEQ 763, 2026-11-23; Tony's ruling 6 on docs/popupsRecon.md): SELECTION IS PER FORM. Tester's
+shape, a delta of windowDescribeT. Two plain windows side by side, wsA and wsB, never shown. Each has a green field of its
+own (wsOne, wsTwo), a field named wsShared in both, and a help box. Before every read both windows are laid out again (a
+resize to the size they have), so what is read is what each form remembers, not what the last click left on the screen.
+Read: the pixel at each form's left edge on its first field (y 20) and on wsShared (y 60) -- midBlue r0 g120 b215 is the
+selection outline -- and, from the floor's trace, how many characters each help box drew.
+S-0  nothing selected: no outline, each box its own text (5 and 13 characters).
+S-1  wsOne clicked in A: outlined, A's box shows its 19; B untouched.
+S-2  wsTwo clicked in B: outlined, B's box shows its 37; A STILL outlines wsOne and still shows its 19. (One selection for
+     the run, as it was until this stroke: A's outline and help text were gone.)
+S-3  A's help box itself clicked: A's box still shows wsOne's 19, what A described last, not wsTwo's. The outline is on the
+     box, so wsOne's edge is plain again.
+S-4  wsShared clicked in A: outlined in A ONLY; B's wsShared is plain and B still outlines wsTwo. A's box is back to its own
+     text (wsShared has no description).
+S-5  unselect(wsA): A has no outline; B keeps its own.
+S-6  the mock click by name, click(form:=wsA field="wsOne"): kept under the same form, outlined after the next layout.
