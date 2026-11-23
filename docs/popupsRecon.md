@@ -95,6 +95,14 @@ open side by side today.
 
 Strokes 0-6 below are bought as the plan, in that order; none starts until Tony sends it.
 
+## 3b. Built
+
+- Stroke 0 (SEQ 762, bought and merged 2026-11-23): `laidLook` on every laid-out copy's top; typeset reads it. F-158 closed.
+- Stroke 1 (SEQ 763, branch popups-selection, the buy Tony's): `selections` and `describedNames` in utilities keep, by the
+  name of the form a window shows, the selected field's name and what the help box described last. Every laid-out copy's
+  top carries `laidForm`, the form its layout was for (a held form's top carries its host's), and a click reads it.
+  `unselect(form)` clears one form's. `selection` still holds the last field clicked in any form. formsPop windowSelectT.
+
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
 | # | stroke | size | proof with nobody watching |

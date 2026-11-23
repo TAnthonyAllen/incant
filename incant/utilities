@@ -884,6 +884,9 @@ define
         if sfChain[*sfName];
             cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
             return;
+        // topForm the name of the form this layout is for: the first one on sfChain, so a form held inside it is laid out under the same name. selectionPick and describePick read the selection kept under it (popups stroke 1)
+        sfDeep = sfChain.listLengtH;
+        if sfDeep == 0;     slTop = string $*sfName$;
         sfMark := new(*sfName);
         sfChain +% *sfMark;
         // deepCopy copyOf shares bodies below the second level, so a deep form would be written (measured, SEQ 626)
@@ -922,6 +925,10 @@ define
         if lkHas == 1;      *sfLk := *lkLook;
         if lkHas == 0;      *sfLk = "none";
         *sfLaid :% *sfLk;
+        // formOnTheCopy the copy's top also keeps the name of the form this layout is for (slTop), a held form's top its host's: a click reads it to know which form's selection it is (popups stroke 1)
+        sfLf := new("laidForm");
+        *sfLf = string $slTop$;
+        *sfLaid :% *sfLf;
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;
@@ -1887,7 +1894,14 @@ define
     /***************************************************************************
         selectionPick -- the selected field shows (windows stroke 2; W3, Tony
         2026-11-22). setFrame calls it on the laid-out copy, after cardsPick.
-        When selection holds a field, the copy's first field of that name
+        SELECTION IS PER FORM (popups stroke 1; Tony, 2026-11-23): selections
+        keeps, by the name of the form a click was made in, the name of the
+        field selected there (selectKeep), and a layout reads the entry of the
+        form it is laying out (slTop; a form held inside it reads the same
+        one). So two open forms each keep their own selection, and a field of
+        the same name in another form is not outlined. `selection` itself still
+        holds the field clicked last, in any form, for actions that read it.
+        When the form has a selection, the copy's first field of that name
         (the top, then depth first) is OUTLINED in a selectFill (it was filled
         with it until 2026-11-23; the placeholder keeps its name): its own, when
         it names one (as a tab does), else the one the look holds (the
@@ -1898,11 +1912,14 @@ define
         (a click from a point), and neither is in this copy.
     ***************************************************************************/
     selectionPick code={
-        spIs = selection.isGrouP;
-        if spIs == 0;       return;
-        spSel := selection;
-        spName = string $**spSel.taG$;
         spHit = 0;
+        spN = selections.listLengtH;
+        spHas = 0;
+        if spN > 0;
+            if selections[slTop];   spHas = 1;
+        if spHas == 0;      return;
+        spEnt := selections[slTop];
+        spName = string $*spEnt$;
         spTopName = string $argument.taG$;
         if spTopName == spName;
             spField := argument;
@@ -1937,14 +1954,12 @@ define
         name, the help box's describe text, on the copy, becomes that entry's,
         and drawText shows it. A field with no entry: the box is left with its
         own text. Selecting the help box itself changes nothing: the box goes
-        on showing what it described last (describedName). The definition is
-        never written: every layout starts from the box's own text.
-        ONE describedName for the run, as there is one selection: two open
-        forms do not each remember their own.
+        on showing what it described last (describedNames, kept by the form's
+        name since popups stroke 1, so two open forms each remember their own).
+        The definition is never written: every layout starts from the box's
+        own text.
     ***************************************************************************/
     describePick code={
-        dpSel = selection.isGrouP;
-        if dpSel == 0;      return;
         if spHit == 0;      return;
         dpHit = 0;
         dpFind(argument);
@@ -1953,8 +1968,20 @@ define
         dpName = string $spName$;
         dpIsBox = 0;
         if dpName == dpBoxName;     dpIsBox = 1;
-        if dpIsBox == 1;    dpName = string $describedName$;
-        if dpIsBox == 0;    describedName = string $spName$;
+        // describedPerForm what a form's help box described last is kept by the form's name, as its selection is (popups stroke 1)
+        dpN = describedNames.listLengtH;
+        dpHadWas = 0;
+        if dpN > 0;
+            if describedNames[slTop];   dpHadWas = 1;
+        dpOld := describedNames[slTop];
+        dpWas = "none";
+        if dpHadWas == 1;   dpWas = string $*dpOld$;
+        if dpIsBox == 1;    dpName = string $dpWas$;
+        if dpIsBox == 0;
+            if dpHadWas == 1;   describedNames -% *dpOld;
+            dpNew := new(slTop);
+            *dpNew = string $spName$;
+            describedNames +% *dpNew;
         dpHas = 0;
         if registries["dESCRIPTIONs"];
             dpWords := registries["dESCRIPTIONs"];
@@ -2036,8 +2063,41 @@ define
     dpHit = 0;
     dpBox;
     dpWords;
-    // describedName the name describePick described last ("none" before any), so selecting the help box itself changes nothing (two actions do not touch it; it is declared because it must outlive the call)
-    describedName = "none";
+    // describedNames by form name, the name that form's help box described last, so selecting the help box itself changes nothing (popups stroke 1; it was one describedName for the run)
+    describedNames;
+    // selections by form name, the name of the field selected in that form (selectKeep writes, selectionPick reads; popups stroke 1). slTop is the form a layout is for; skForm and skField are what a click hands selectKeep
+    selections;
+    slTop = "none";
+    skForm = "none";
+    skField = "none";
+    selectKeep code={
+        skF = string $skForm$;
+        skN = selections.listLengtH;
+        skHad = 0;
+        if skN > 0;
+            if selections[skF];     skHad = 1;
+        skOld := selections[skF];
+        if skHad == 1;      selections -% *skOld;
+        skEnt := new(skF);
+        *skEnt = string $skField$;
+        selections +% *skEnt;
+        };
+    // unselect ONE argument, a form (or its laid-out copy): that form has no selection from here on, and its help box forgets what it described; the other forms keep theirs
+    unselect code={
+        usF = string $argument.taG$;
+        usN = selections.listLengtH;
+        usHad = 0;
+        if usN > 0;
+            if selections[usF];     usHad = 1;
+        usOld := selections[usF];
+        if usHad == 1;      selections -% *usOld;
+        usN = describedNames.listLengtH;
+        usHad = 0;
+        if usN > 0;
+            if describedNames[usF];     usHad = 1;
+        usOldD := describedNames[usF];
+        if usHad == 1;      describedNames -% *usOldD;
+        };
     spField;
     spHasFill = 0;
     // clickDone click writes it, clickShow reads it: 1 when the click found its field, 0 when it refused (two actions touch it, so it is declared)
@@ -2281,6 +2341,9 @@ define
         // ownHolder the field is kept in a local: an action fired below may redraw, and the redraw's own search writes tsFound
         ckField := *tsFound;
         selection := *ckField;
+        skForm = string $*ckFn$;
+        skField = string $*ckNm$;
+        selectKeep();
         ckDone = 1;
         cout "=== click" ckFn ckNm "selected ===":;
         clickFire(*ckField);
@@ -2301,7 +2364,7 @@ define
         cfHit := argument;
         selection := *cfHit;
         cfName = string $*cfHit.taG$;
-        // topIsNoMember the copy's top is the one field on the way up that is no member; a held form's top is a member of its host, so the climb goes on into the host
+        // topIsNoMember the climb stops at the first field on the way up that reads as no member: the copy's top, and ALSO a held form's top (measured 2026-11-23, SEQ 763: a click in descriptions inside firstLight stops at descriptions; this comment said the climb went on into the host). So bubbling ends at a held form's top and the click lines name the held form
         cfAt := argument;
         cfHops = 0;
         while cfHops < 32;
@@ -2310,6 +2373,16 @@ define
             if cfHops < 32;     cfAt := *cfAt.parenT;
             cfHops += 1;
         ckFn := *cfAt.taG;
+        // windowsForm the selection is kept under the form the window shows. The climb above stops at the nearest laid-out copy's top, which for a field in a held form is the held form's (its top reads as no member); every copy's top carries laidForm, the form its layout was for (setFrame), and that is the name used
+        skForm = string $*ckFn$;
+        skL = *cfAt.listLengtH;
+        skHasF = 0;
+        if skL > 0;
+            if *cfAt["laidForm"];   skHasF = 1;
+        skLf := *cfAt["laidForm"];
+        if skHasF == 1;     skForm = string $*skLf$;
+        skField = string $cfName$;
+        selectKeep();
         cout "=== click" ckFn cfName "selected ===":;
         ckFired = 0;
         cfDepth = 0;
