@@ -1,14 +1,20 @@
 /*****************************************************************************
 	This is the tester incantation. It is a working file for testing new features
     under development so it changes when there is a new feature in the works.
-    Today: tester's final shape, two lines (SEQ 741, the pour stroke): show(colorList) draws IncantForms/Windows/colorList, a poured
-    form (down="*" pour:=cOLOr), to output.pdf (Tony's; test.pdf is the fleet's and Clod's runs rewrite it).
+    Today (2026-11-23, SEQ 752, windows stroke 5): the watched run -- windows = 1; show(tabForm); opens tabForm in a real window.
+    The line it replaced, show(colorList), is parked just below stop().
     Below stop(): what tester is, then Clod's probes still parked (SEQ 726). Cleared 2026-11-22 (Tony): colorListHand,
     Clod's sampler and G3 specimens, Tony's show test -- all in git history.
 *****************************************************************************/
 Start();
-show(colorList);
+windows = 1;
+show(tabForm);
 stop();
+
+PARKED 2026-11-23 (Clod, windows stroke 5, the watched run): tester's line until today was
+    show(colorList);
+Put it back above stop() in place of the two window lines when the watched run is over. For firstLight's watched run,
+change show(tabForm) to show(firstLight). windows = 1 opens a form written window in a real window; without it, the PDF.
 
 WHAT TESTER IS
 tester is the shared working incantation: Tony and Clod both use it to try out whatever feature is in the works, so what
