@@ -1,0 +1,147 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+registry(fILEs);
+define
+    firstLightFile File='IncantForms/Windows/firstLight';
+    ;
+include(styles);
+search cOLOr fONTs sTYLEs;
+include(firstLightFile);
+registry(sTYLEs);
+define
+    lcAccent color:=accent;
+    ;
+register(LookCopyT);
+define
+    rgX = 0;
+    rgY = 0;
+    rgAt code={
+        px = rgX;
+        py = rgY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        };
+    rgRead code={
+        rgAt(argument);
+        pixelAt(argument);
+        };
+    rgBig x=300 y=450 width=1200 height=600;
+    ;
+search LookCopyT FORMs UnitTests Utilities cOLOr fONTs sTYLEs list;
+define
+    lcNight pageFill:=black headingFont:=courierFont bodyFont:=normalFont textColor:=white accent:=red;
+    lcDay pageFill:=white headingFont:=courierFont bodyFont:=normalFont textColor:=black accent:=green;
+    lcFormN window x=0 y=0 width=300 height=100 down fill:=pageFill font:=bodyFont color:=textColor
+        lcTextN="plain {lcAccent: run run run run} end" text;
+    lcFormD window x=0 y=0 width=300 height=100 down fill:=pageFill font:=bodyFont color:=textColor
+        lcTextD="plain {lcAccent: run run run run} end" text;
+    lcPlain window x=0 y=0 width=300 height=100 down fill:=white font:=normalFont color:=black
+        lcTextP="plain {lcAccent: run} end" text;
+    lcHeldLooks
+        standard pageFill:=white accent:=blue;
+    lcHeld window x=0 y=0 width=200 height=100 down fill:=pageFill font:=normalFont color:=black looks:=lcHeldLooks
+        lcHeldText="held {lcAccent: run} end" text;
+    lcHostLooks
+        standard pageFill:=wall accent:=red;
+        dark pageFill:=black accent:=green;
+    lcHostA window x=0 y=0 width=200 height=200 down fill:=pageFill font:=normalFont color:=white looks:=lcHostLooks
+        lcTopA="host {lcAccent: run} end" text height=50%;
+        lcInA form:=lcHeld height=50%;
+    lcHostB window x=0 y=0 width=200 height=200 down fill:=pageFill font:=normalFont color:=white looks:=lcHostLooks
+        lcInB form:=lcHeld height=50%;
+        lcTopB="host {lcAccent: run} end" text height=50%;
+    rqHostA path="/tmp/incantTest.pdf" form:=lcHostA look="dark";
+    rqHostB path="/tmp/incantTest.pdf" form:=lcHostB look="dark";
+    rqPlain path="/tmp/incantTest.pdf" form:=lcPlain;
+    rqNightPdf path="/tmp/incantTest.pdf" form:=lcFormN look:=lcNight;
+    wrReq form:=firstLight;
+    wrToBig form:=firstLight frame:=rgBig;
+    wrOk form:=firstLight px=490 py=230;
+    wrOkBig form:=firstLight px=1190 py=230;
+    lcReqN form:=lcFormN look:=lcNight;
+    lcReqD form:=lcFormD look:=lcDay;
+    lcN1 form:=lcFormN;
+    lcN2 form:=lcFormN;
+    lcD3 form:=lcFormD;
+    lcD1 form:=lcFormD;
+    lcD2 form:=lcFormD;
+    lcNN first:=lcN1 second:=lcN2;
+    lcD13 first:=lcD1 second:=lcD3;
+    lcDD first:=lcD1 second:=lcD2;
+    lcPara code={
+        for grup in argument;
+            rpWord = *grup;
+            rpInk = "field";
+            rpAt := *grup["color"];
+            rpHeld = *rpAt.isGrouP;
+            if rpHeld == 1;     rpInk = ***rpAt.taG;
+            print "SPAN" rpWord rpInk:;
+        };
+    lcSpans code={
+        for grup in tsOut;
+            lcPara(*grup);
+        };
+    lcStamp code={
+        lsTop := argument;
+        lsAt := *lsTop["laidLook"];
+        lsIs = *lsAt.isGrouP;
+        lsName = string $*lsAt$;
+        if lsIs == 1;   lsName = string $**lsAt.taG$;
+        lsTag = string $*lsTop.taG$;
+        cout "LC-STAMP" lsTag lsName:;
+        };
+    lcRun code={
+        lcLaid := redrawForm(argument);
+        lcSpans();
+        lcStamp(*lcLaid);
+        };
+    ;
+cout "LC PAGE night":;
+windowOffscreen(lcReqN);
+readWindow(lcN1);
+rgX = 84; rgY = 10; rgRead(lcN1);
+cout "LC PAGE day":;
+windowOffscreen(lcReqD);
+readWindow(lcD1);
+rgX = 84; rgY = 10; rgRead(lcD1);
+cout "LC PAGE night again":;
+readWindow(lcN2);
+rgX = 84; rgY = 10; rgRead(lcN2);
+displayDiff(lcNN);
+cout "LC PAGE third":;
+windowOffscreen(wrReq);
+windowClick(wrOk);
+readWindow(lcD2);
+displayDiff(lcDD);
+windowResize(wrToBig);
+windowClick(wrOkBig);
+readWindow(lcD3);
+rgX = 84; rgY = 10; rgRead(lcD3);
+displayDiff(lcD13);
+cout "LC PAGE hostA":;      lcRun(rqHostA);
+cout "LC PAGE hostB":;      lcRun(rqHostB);
+cout "LC PAGE plain":;      lcRun(rqPlain);
+cout "LC PAGE nightPdf":;   lcRun(rqNightPdf);
+cout "LC PAGE definition":; printDefinition(lcFormN); printDefinition(lcHostA);
+cout "LC PAGE end":;
+cerr "LOOKCOPYT SENTINEL":;
+stop();
+
+lookCopyT -- popups stroke 0 (SEQ 762, 2026-11-23; F-158; Tony's ruling via Clay): the look rides on the laid-out copy. setFrame
+leaves the look it resolved through on the copy's top as laidLook (a holder to the look, or the word none), a held form's top too;
+typeset, at draw, climbs from the field it is drawing to the nearest laidLook and resolves a run's placeholders through that, not
+through the look of whichever layout ran last. Rows in genLadder/formsPop.sh, run at GCSTRESS=1000. No window is shown.
+
+night / day / night again   two offscreen windows, lcFormN under lcNight (accent red) and lcFormD under lcDay (accent green), each
+          with a run naming color:=accent. Pixel (84,10) is inside the run. The night window is read again after the day window
+          was laid out: until this stroke its run turned green and 470 of 30000 pixels differed.
+third     firstLight in a third window (defaultLook, accent red), clicked: the day window read again; then resized and clicked
+          again: the day window read once more. Both equal its first read, the run still green.
+hostA     lcHostA under look="dark" holds lcHeld, whose list has standard only: lcHeld falls back to its own standard (accent
+          blue). SPAN lines print the last text drawn, lcHeld's: its run is blue, its own look's, not the host's green.
+hostB     the same with the held field first, so the last text drawn is the host's: its run is the host's green.
+plain     a form naming no placeholder of its own, no look: laidLook none; the run is defaultLook's red.
+nightPdf  the PDF road under a look field: laidLook is lcNight.
+definition  the definitions carry no laidLook.

@@ -1181,7 +1181,7 @@ _ofeq "lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as
 _ofeq "lookT LK-8 A STYLE WITH NO FILL DRAWS WITH NO REFUSAL (F-156): lkC, whose style holds font and colour only, 0 displayFill refusals on four pages; the one refusal in the run is lkBad's unresolved fill" "$(grep -c '^displayFill: REFUSING lkC ' "$T/lk.e") $(grep -c '^displayFill: REFUSING lkBad ' "$T/lk.e") $(grep -c '^displayFill: REFUSING' "$T/lk.e")" "0 1 1"
 
 echo "-- a run's style through the look; the look goes down to a held form; the box warning (runLookT)."
-#  ⚑ runLookT -- stroke 4 (SEQ 655): a run's style is its own deep copy with its placeholders resolved through the last layout's look; a form held
+#  ⚑ runLookT -- stroke 4 (SEQ 655): a run's style is its own deep copy with its placeholders resolved through the look its form was laid out under (the last layout's until SEQ 762; lookCopyT); a form held
 #  in a field is laid out under its host's look; a run whose style holds a box attribute is warned by name. H7, one variable each: with resolveLook
 #  removed from typeset RL-1, RL-2, RL-5, RL-6 (the colour) and RL-7 go red; with placeForm's look line removed RL-4 and RL-5 go red (the held form stays white and red under the night look).
 _rlF=$(ip runLookT)
@@ -1218,8 +1218,30 @@ _ofeq "showT SH-1 A FORM WITH path=: show names the form and its path, and the p
 _ofeq "showT SH-2 A FORM NAMING look:=shNight is laid out under it: black page, Courier white" "$(_shs dark) / $(_shp dark) / $(_sht dark)" "shDark to /tmp/incantTest.pdf / r0 g0 b0 a255 / shB Courier New 24 1 r255 g255 b255"
 _ofeq "showT SH-3 the look does not stay in show's request: shPlain again reads as SH-1" "$(_shp plain2) / $(_sht plain2)" "$(_shp plain) / $(_sht plain)"
 _ofeq "showT SH-4 A FORM WITH NO path is written to IncantForms/PDF/output.pdf (line / a new file written)" "$(_shs home) / $_shNew" "shHome to IncantForms/PDF/output.pdf / 1"
-_ofeq "showT SH-5 show returns the laid-out copy: a list of 10 (its attributes and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 10 width 400"
+#  SH-5 re-pinned 10 -> 11 (SEQ 762, popups stroke 0): the laid-out copy's top carries one attribute more, laidLook, the look it was laid out under.
+_ofeq "showT SH-5 show returns the laid-out copy: a list of 11 (its attributes, laidLook among them, and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 11 width 400"
 _ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form" "$(grep -c '^=== show IBkant to /tmp/incantTest.pdf ===' "$T/ib.o") $(grep -c '^=== show ' "$T/ib.o")" "4 4"
+
+echo "-- the look rides on the laid-out copy (lookCopyT)."
+#  ⚑ lookCopyT -- popups stroke 0 (SEQ 762, 2026-11-23; F-158): setFrame leaves the look it resolved through on the copy's top (laidLook), a held form's
+#  top too, and typeset resolves a run through the nearest one above the field it draws, not through the look of the last layout. Run at GCSTRESS=1000.
+#  Control (H7, 2026-11-23, on the committed file, no build): typeset's tsLookFind call replaced by tsLkHit = 0 -> LC-1 reads green and 470 differing,
+#  LC-2 470 twice, LC-3 the held run green. LC-4 to LC-6 do not move under it (the stamp is still written; they pin the stamp and the unchanged roads).
+_lcF=$(ip lookCopyT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_lcF" > "$T/lc.o" 2> "$T/lc.e"; _lcx=$?
+_lcb() { awk -v p="LC PAGE $1 " '$0 == p {f=1; next} /^LC PAGE /{f=0} f' "$T/lc.o"; }
+_lcpx() { _lcb "$1" | grep '^=== pixelAt' | sed 's/.*= //; s/ ===//' | xargs; }
+_lcdf() { _lcb "$1" | grep '^=== displayDiff' | sed 's/.*differing \([0-9]*\),.*/\1/' | xargs; }
+_lcsp() { _lcb "$1" | grep '^SPAN' | awk '{print $2, $3}' | xargs; }
+_lcst() { _lcb "$1" | grep '^LC-STAMP' | awk '{print $2, $3}' | xargs; }
+_ofeq "lookCopyT exit / sentinel / no refusal" "$_lcx $(grep -c '^LOOKCOPYT SENTINEL' "$T/lc.e") $(grep -c 'REFUS' "$T/lc.e")" "0 1 0"
+_ofeq "lookCopyT LC-0 two windows under two looks: the night window's run red, the day window's green" "$(_lcpx night) / $(_lcpx day)" "r239 g43 b45 a255 / r0 g158 b15 a255"
+_ofeq "lookCopyT LC-1 THE NIGHT WINDOW READ AGAIN AFTER THE DAY WINDOW'S LAYOUT: its run still red, 0 of 30000 pixels differ (470 and green until SEQ 762)" "$(_lcpx 'night again') / $(_lcdf 'night again')" "r239 g43 b45 a255 / 0"
+_ofeq "lookCopyT LC-2 a click in a third window, then a resize and a click there: the day window unchanged both times, its run still green" "$(_lcdf third) / $(_lcpx third)" "0 0 / r0 g158 b15 a255"
+_ofeq "lookCopyT LC-3 A HELD FORM THAT FELL BACK to its own look: its run is its own blue; the host's run, drawn last in hostB, the host's green" "$(_lcsp hostA) / $(_lcsp hostB)" "held field run blue end field / host field run green end field"
+_ofeq "lookCopyT LC-4 the copy's top says which look: by name from a list, none, a look field" "$(_lcst hostA) / $(_lcst plain) / $(_lcst nightPdf)" "lcHostA dark / lcPlain none / lcFormN lcNight"
+_ofeq "lookCopyT LC-5 no look and a look field on the PDF road, as before: defaultLook's red; lcNight's red on every run word" "$(_lcsp plain) / $(_lcsp nightPdf)" "plain field run red end field / plain field run red run red run red run red end field"
+_ofeq "lookCopyT LC-6 the definitions carry no laidLook" "$(_lcb definition | grep -c laidLook) $(_lcb definition | grep -c 'lcFormN x=0')" "0 1"
 
 echo "-- looks by name (looksByNameT)."
 #  ⚑ looksByNameT -- SEQ 723 R1-R4 (Tony, 2026-11-20): firstLight carries looks:=firstLightLooks (standard, dark); the first is the default; a
