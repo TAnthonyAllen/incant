@@ -1,0 +1,99 @@
+Start();
+windows = 2;
+show(firstLight);
+search FORMs cOLOr fONTs sTYLEs;
+register(dESCRIPTIONs);
+define
+    ccIn="The words about the field that holds a form";
+    ;
+register(FORMs);
+define
+    ccSay code={
+        ccWho = string $argument.taG$;
+        cout "CC-SAY handed" ccWho:;
+        };
+    ccHeld window x=0 y=0 width=200 height=100 fill:=pageFill
+        ccWrap
+            ccRoom height=40;
+            ccText="t" height=40;
+    ccHost window x=0 y=0 width=200 height=240 fill:=pageFill
+        ccTop="top" height=40 fill:=green;
+        ccIn form:=ccHeld height=100 onClick:=ccSay;
+        ccBox describe="own" height=100;
+    ccBare window x=0 y=0 width=100 height=100 fill:=pageFill
+        ccGap height=50;
+    ;
+show(ccHost);
+show(ccBare);
+search FORMs;
+register(WindowClimbT);
+define
+    flFrame x=300 y=450 width=500 height=600;
+    flRelay form:=firstLight frame:=flFrame;
+    flReq form:=firstLight;
+    flHeadEdge form:=firstLight px=1 py=20;
+    flBefore form:=firstLight;
+    flAfter form:=firstLight;
+    flSame first:=flBefore second:=flAfter;
+    flOnHeading form:=firstLight px=250 py=20;
+    flOnSpace form:=firstLight px=150 py=221;
+    flOnDescHead form:=firstLight px=250 py=265;
+    ccFrame x=0 y=0 width=200 height=240;
+    ccRelay form:=ccHost frame:=ccFrame;
+    ccTopEdge form:=ccHost px=1 py=20;
+    ccOnRoom form:=ccHost px=100 py=60;
+    ccOnTop form:=ccHost px=100 py=20;
+    ccBareRead form:=ccBare;
+    ccOnGap form:=ccBare px=50 py=25;
+    ccOnBare form:=ccBare px=50 py=80;
+    ;
+search WindowClimbT Utilities;
+cout "CC-PAGE C-1":;
+windowClick(flOnHeading);
+readWindow(flHeadEdge);     pixelAt(flHeadEdge);
+readWindow(flBefore);
+windowClick(flOnSpace);
+readWindow(flHeadEdge);     pixelAt(flHeadEdge);
+readWindow(flAfter);
+displayDiff(flSame);
+cout "CC-PAGE C-2":;
+windowClick(flOnDescHead);
+cout "CC-PAGE C-3":;
+windowClick(ccOnRoom);
+readWindow(ccTopEdge);      pixelAt(ccTopEdge);
+cout "CC-PAGE C-4":;
+windowClick(ccOnGap);
+windowClick(ccOnBare);
+readWindow(ccBareRead);
+cout "CC-PAGE C-5":;
+windowClick(flOnHeading);
+readWindow(flHeadEdge);     pixelAt(flHeadEdge);
+windowClose(flReq);
+windowOffscreen(flReq);
+readWindow(flHeadEdge);     pixelAt(flHeadEdge);
+windowResize(ccRelay);
+readWindow(ccTopEdge);      pixelAt(ccTopEdge);
+cout "CC-PAGE END":;
+cerr "WINDOWCLIMB SENTINEL":;
+stop();
+
+windowClimbT -- the climb (SEQ 764, 2026-11-23; Tony's rulings via Clay): an only-room field is not selectable, the selection
+climbs to the first selectable field, both climbs cross a held form's top into its host, and a closed window's form loses
+its selection. Tester's shape, a delta of windowSelectT. No window is shown.
+C-1  firstLight: the heading is clicked (selected, its left edge midBlue). Then the empty field left of OK, space, is
+     clicked -- the click Tony made: space, bar and firstLight are all only room, so nothing is selected, the heading is
+     still outlined, and the window is the same pixel for pixel.
+C-2  a click on describeHead, in descriptions held in firstLight: it fires nothing on the way up through 7 fields --
+     describeHead, first, wrap, body, descriptions, then inside and firstLight, the host's (5 until this stroke: the
+     climb stopped at descriptions).
+C-3  ccHost holds ccHeld in ccIn. A click on ccRoom, only room two levels down inside the held form (under ccWrap: a field
+     directly under a held form's top climbs into the host by itself, a deeper one reaches the held top and needs the
+     crossing -- measured, SEQ 764): the selection climbs through ccWrap and ccHeld's top into the host and lands on ccIn (selectable: it has an onClick and a description), which is described in the host's
+     help box; the firing climb crosses too and fires ccIn's onClick, handed ccIn. ccTop is not outlined. ccIn's own
+     outline is NOT read: the held form's fill is drawn over the field that holds it, so the outline is under it
+     (measured: its edge reads the held form's white).
+     (descriptions as held in firstLight has NO room a point can land on -- 240 points scanned, all on its four text and
+     image fields -- so this form stands in for it.)
+C-4  ccBare: only room everywhere. A click on its one field and a click on the form itself: nothing selected, nothing fired.
+C-5  the heading selected again; the window closed and opened again: nothing is selected (the heading's edge is the page's
+     wall again and no describe line follows). ccHost, never closed and laid out again, still describes ccIn.

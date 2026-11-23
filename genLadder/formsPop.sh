@@ -956,9 +956,13 @@ _ofeq "windowClickT WC-3 a point outside the form: no field, nothing fired, said
 #  WS-0 .. WS-5 RE-AIMED 2026-11-23 (SEQ 757; Tony: selection is an OUTLINE, not a fill). Each page now reads six points: the three fields' middles, then a
 #  point on each one's left edge (x 1). A selected field's middle keeps its own fill and its edge reads the selection colour. Before, the middle read the colour.
 _ofeq "windowClickT WS-0 the second form as declared: inner red, plain the page's white, lower green; the edges the same" "$(_wcp WS-PAGE WS-0)" "red | white | green | red | white | green"
-_ofeq "windowClickT WS-1 BUBBLING: a point in wcInner (no action) fires its parent wcOuter's onClick, handed wcOuter" "$(_wcb WS-0)" "windowClick wcForm at (100,25): wcInner;click wcForm wcInner selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter"
-_ofeq "windowClickT WS-1 SELECTION: the selected field is OUTLINED in the look's selectFill, blue, its own red left inside; the others as they were" "$(_wcp WS-PAGE WS-1)" "red | white | green | blue | white | green"
-_ofeq "windowClickT WS-2 a selected field naming no fill is given none: plain's middle still the page's white, its edge blue; inner's edge red again" "$(_wcp WS-PAGE WS-2)" "red | white | green | red | blue | green"
+#  WS-1 RE-PINNED 2026-11-23 (SEQ 764; Tony: an only-room field is not selectable): wcInner has a fill and nothing else, so it is only room; the selection
+#  climbs to wcOuter, its parent, selectable by its onClick. The click line names wcOuter and the outline is wcOuter's, round both its members: wcInner's red
+#  fill is drawn over it, so wcInner's edge reads red again; wcPlain names no fill, so the outline shows at its edge, blue. Until SEQ 764 wcInner itself was
+#  selected and its own edge was blue. WS-2 and WS-4 click wcPlain, also only room: they read as before, but because wcOuter is outlined, not wcPlain.
+_ofeq "windowClickT WS-1 BUBBLING: a point in wcInner (only room, no action) selects and fires its parent wcOuter, handed wcOuter" "$(_wcb WS-0)" "windowClick wcForm at (100,25): wcInner;click wcForm wcOuter selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter"
+_ofeq "windowClickT WS-1 SELECTION: wcOuter, the selected field, is outlined in the look's selectFill, blue; wcInner keeps its red; lower as it was" "$(_wcp WS-PAGE WS-1)" "red | white | green | red | blue | green"
+_ofeq "windowClickT WS-2 a point in wcPlain, only room: wcOuter is selected again; plain's middle still the page's white, the outline showing at its edge, blue; inner's edge red" "$(_wcp WS-PAGE WS-2)" "red | white | green | red | blue | green"
 _ofeq "windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower's edge wall, not blue, its middle still green; nothing fires on the way up" "$(_wcp WS-PAGE WS-3) / $(_wcb WS-2 | sed 's/.*;//')" "red | white | green | red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields"
 #  WS-4 RE-AIMED 2026-11-22 (SEQ 750): it asked "a look with no selectFill: drawn as it was". defaultLook holds one now (lightBlue), and defaultLook is the second
 #  place every layout looks, so with styles loaded no layout is without one. The row now pins the fallback: a request naming no look shows defaultLook's lightBlue.
@@ -1244,6 +1248,26 @@ _ofeq "windowSelectT S-3 A's help box itself clicked: A's box still shows what A
 _ofeq "windowSelectT S-4 wsShared clicked in A: outlined in A only; B's wsShared plain, B still outlines wsTwo" "$(_wsr S-4)" "green BLUE BLUE white / A 5 / B 37"
 _ofeq "windowSelectT S-5 unselect(wsA): A has no outline; B keeps its own" "$(_wsr S-5)" "green white BLUE white / A 5 / B 37"
 _ofeq "windowSelectT S-6 the mock click by name is kept under the same form: wsOne outlined and described in A at the next layout" "$(_wsr S-6)" "BLUE white BLUE white / A 19 / B 37"
+
+echo "-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT)."
+#  ⚑ windowClimbT -- SEQ 764 (2026-11-23; Tony's rulings via Clay). utilities' selectable: a field is selectable when it has text, an image, an action or an
+#  attribute holding one, a describe, a selectFill of its own, or a dESCRIPTIONs entry; else it is only room. clickField selects the first selectable field at or
+#  above the one hit, and fires from the one hit; both climbs cross a held form's top into its host through heldIn, which a held form's setFrame writes on its
+#  copy's top. A window's close goes to windowShut: keepFrame, then unselect. Run at GCSTRESS=1000; no window shown.
+#  Controls (H7, 2026-11-23, on the committed file, no build), one each: clickUp never crossing -> C-2 reads 5 fields, C-3 "selected nothing" and nothing fired;
+#  selectable answering 1 for every field -> C-1 selects space, the heading's outline goes, 4040 pixels differ; windowShut not calling unselect -> C-5's
+#  reopened heading is still outlined.
+_ccF=$(ip windowClimbT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_ccF" > "$T/cc.o" 2> "$T/cc.e"; _ccx=$?
+_ccb() { awk -v p="CC-PAGE $1 " '$0 == p {f=1; next} /^CC-PAGE /{f=0} f' "$T/cc.o"; }
+_ccl() { _ccb "$1" | grep '^=== click\|^=== describe\|^CC-SAY' | sed 's/^=== //; s/ *=== *$//; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
+_ccp() { _ccb "$1" | grep '^=== pixelAt' | sed 's/.*= //; s/ ===//; s/r0 g120 b215 a255/BLUE/; s/r247 g232 b170 a255/wall/; s/r0 g158 b15 a255/green/' | xargs; }
+_ofeq "windowClimbT exit / sentinel / nothing refused" "$_ccx $(grep -c '^WINDOWCLIMB SENTINEL' "$T/cc.e") $(cat "$T/cc.o" "$T/cc.e" | grep -c 'REFUS')" "0 1 0"
+_ofeq "windowClimbT C-1 THE EMPTY FIELD LEFT OF OK: only room all the way up, nothing selected; the heading keeps its outline before and after; the window the same pixel for pixel" "$(_ccl C-1 | sed 's/^[^;]*;[^;]*;//') / $(_ccp C-1) / $(_ccb C-1 | grep '^=== displayDiff' | sed 's/.*differing \([0-9]*\),.*/\1/')" "click firstLight space selected nothing: only room, on the way up through 3 fields;click firstLight space fired nothing, on the way up through 3 fields / BLUE BLUE / 0"
+_ofeq "windowClimbT C-2 A CLICK IN A HELD FORM BUBBLES ON INTO ITS HOST: describeHead in descriptions in firstLight, 7 fields on the way up (5 until SEQ 764)" "$(_ccl C-2)" "click descriptions describeHead selected;click descriptions describeHead fired nothing, on the way up through 7 fields;describe describeHelp shows the description of describeHead"
+_ofeq "windowClimbT C-3 ROOM INSIDE A HELD FORM lands on the host's field that holds it: selected, its onClick fired and handed it, described in the host's help box; ccTop not outlined" "$(_ccl C-3) / $(_ccp C-3)" "click ccHeld ccIn selected;click ccHeld ccIn fired onClick ccSay;CC-SAY handed ccIn;describe ccBox shows the description of ccIn / green"
+_ofeq "windowClimbT C-4 ERRANT a form that is only room: a click on its field and on the form itself select nothing and fire nothing" "$(_ccl C-4)" "click ccBare ccGap selected nothing: only room, on the way up through 2 fields;click ccBare ccGap fired nothing, on the way up through 2 fields;click ccBare ccBare selected nothing: only room, on the way up through 1 fields;click ccBare ccBare fired nothing, on the way up through 1 fields"
+_ofeq "windowClimbT C-5 A CLOSED WINDOW'S FORM LOSES ITS SELECTION: the heading outlined, then closed and reopened: the page's wall; the other window, laid out again, still describes its own" "$(_ccp C-5) / $(_ccb C-5 | grep -c '^=== window closed: firstLight') $(_ccb C-5 | grep '^=== describe' | sed 's/^=== //; s/ *=== *$//')" "BLUE wall green / 1 describe ccBox shows the description of ccIn"
 
 echo "-- the look rides on the laid-out copy (lookCopyT)."
 #  ⚑ lookCopyT -- popups stroke 0 (SEQ 762, 2026-11-23; F-158): setFrame leaves the look it resolved through on the copy's top (laidLook), a held form's

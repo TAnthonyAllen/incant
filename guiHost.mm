@@ -293,14 +293,14 @@ void windowResized(Layout *view)
     windowRelay(view);
 }
 
-//  windowClosed keepFrame alone is a close (G3): the frame is kept for the form's next opening; the window is forgotten and its form no longer held
+//  windowClosed a close goes to kant's windowShut: keepFrame (G3: the frame is kept for the form's next opening), then the form's selection goes (Tony, 2026-11-23); the window is forgotten and its form no longer held
 static void windowClosed(Layout *view)
 {
     WindowRecord *w = windowOf(view);
     if ( !w ) return;
     if ( w->held[1] ) {
         NSRect now = formFrame(view);
-        GroupItem *keep = utilityAction("keepFrame");
+        GroupItem *keep = utilityAction("windowShut");
         printf("=== window closed: %s kept %gx%g at (%g,%g) ===\n", view->base ? view->base->groupBody->tag : "nothing", now.size.width, now.size.height, now.origin.x, now.origin.y);
         fflush(stdout);
         if ( keep ) runUnder(w->held[2], windowRequest(w->held[1], &now), keep);
