@@ -828,6 +828,8 @@ define
         pfKeep := *lkLook;
         lkHeld = 1;
         if lkNamed == 1;    lkHeld = 2;
+        // heldLayout tells the setFrame called next that its form is held in a field: it writes heldIn on its copy's top (the copy handed back here is a copy of that top, and the fields under it climb to the one setFrame made)
+        sfHeldNext = 1;
         pfLaid := setFrame(placeReq);
         lkHas = pfHas;
         lkNamed = pfNamed;
@@ -884,6 +886,9 @@ define
         if sfChain[*sfName];
             cerr "setFrame: REFUSING" argument.taG "-- the form" sfName "holds itself, directly or through another form; it is not laid out inside itself":;
             return;
+        // heldRead read once and cleared, before anything below can lay out another held form
+        sfHeldBy = sfHeldNext;
+        sfHeldNext = 0;
         // topForm the name of the form this layout is for: the first one on sfChain, so a form held inside it is laid out under the same name. selectionPick and describePick read the selection kept under it (popups stroke 1)
         sfDeep = sfChain.listLengtH;
         if sfDeep == 0;     slTop = string $*sfName$;
@@ -926,6 +931,11 @@ define
         if lkHas == 0;      *sfLk = "none";
         *sfLaid :% *sfLk;
         // formOnTheCopy the copy's top also keeps the name of the form this layout is for (slTop), a held form's top its host's: a click reads it to know which form's selection it is (popups stroke 1)
+        // heldInItsHost a held form's top keeps a holder to the field that holds it, the request's frame. The fields under it climb to this top, which reads as no member and has no parent, so a click's climb crosses into the host through heldIn (clickUp; Tony, 2026-11-23)
+        if sfHeldBy == 1;
+            sfIn := new("heldIn");
+            *sfIn := **sfFrame;
+            *sfLaid :% *sfIn;
         sfLf := new("laidForm");
         *sfLf = string $slTop$;
         *sfLaid :% *sfLf;
@@ -2067,9 +2077,67 @@ define
     describedNames;
     // selections by form name, the name of the field selected in that form (selectKeep writes, selectionPick reads; popups stroke 1). slTop is the form a layout is for; skForm and skField are what a click hands selectKeep
     selections;
+    sfHeldNext = 0;
     slTop = "none";
     skForm = "none";
     skField = "none";
+    /***************************************************************************
+        selectable -- which fields a click can select (Tony, 2026-11-23, windows
+        TO DO 1; narrows 2026-11-04's "a click always selects first"). ONE
+        argument, a field on a laid-out copy. A field that is only room is not
+        selectable. It is selectable when it has any of: text of its own; an
+        image; an action of its own or an attribute holding one (onClick:=);
+        a describe attribute (a help box); a selectFill of its own (a tab); an
+        entry of its name in dESCRIPTIONs. The answer is selCan, 1 or 0, and
+        selWhy says which, the first found in that order.
+    ***************************************************************************/
+    selCan = 0;
+    selWhy = "room";
+    selectable code={
+        selCan = 0;
+        selWhy = "room";
+        sbData = argument.datA;
+        sbHeld = argument.isGrouP;
+        if sbHeld == 1;     sbData = 0;
+        if sbData != 0;
+            selCan = 1;
+            selWhy = "text";
+        sbL = argument.listLengtH;
+        if sbL > 0;
+            if selCan == 0;
+                if argument["image"];       selWhy = "image";
+                if argument["image"];       selCan = 1;
+            if selCan == 0;
+                if argument["CodE"];        selWhy = "action";
+                if argument["CodE"];        selCan = 1;
+            if selCan == 0;     selectableAttr(argument);
+            if selCan == 0;
+                if argument["describe"];    selWhy = "describe";
+                if argument["describe"];    selCan = 1;
+            if selCan == 0;
+                if argument["selectFill"];  selWhy = "selectFill";
+                if argument["selectFill"];  selCan = 1;
+        if selCan == 0;
+            sbName = string $argument.taG$;
+            if registries["dESCRIPTIONs"];
+                sbWords := registries["dESCRIPTIONs"];
+                if *sbWords[sbName];    selWhy = "description";
+                if *sbWords[sbName];    selCan = 1;
+        };
+    // selectableAttr an attribute holding an action, as clickFire finds one; its own loop, since a for inside an if arm is not written anywhere here
+    selectableAttr code={
+        for grup in argument; attributes
+            saHeld = *grup.isGrouP;
+            saActs = 0;
+            if saHeld == 1;
+                if **grup["CodE"];      saActs = 1;
+            saAn := *grup.taG;
+            if *saAn == "this";     saActs = 0;
+            if *saAn == "heldIn";   saActs = 0;
+            if saActs == 1;
+                selCan = 1;
+                selWhy = "action";
+        };
     selectKeep code={
         skF = string $skForm$;
         skN = selections.listLengtH;
@@ -2081,6 +2149,15 @@ define
         skEnt := new(skF);
         *skEnt = string $skField$;
         selections +% *skEnt;
+        };
+    // windowShut a window's close (guiHost.mm windowClosed calls it): ONE argument, the window's request, form:= and frame:=. The frame is kept for the form's next opening (keepFrame alone is a close, G3), and the form's selection goes: a form reopened starts with nothing selected and its help box with its own text (Tony, 2026-11-23)
+    windowShut code={
+        keepFrame(argument);
+        wxReq := argument;
+        wxHas = 0;
+        if *wxReq["form"];      wxHas = 1;
+        wxForm := *wxReq["form"];
+        if wxHas == 1;      unselect(**wxForm);
         };
     // unselect ONE argument, a form (or its laid-out copy): that form has no selection from here on, and its help box forgets what it described; the other forms keep theirs
     unselect code={
@@ -2298,6 +2375,8 @@ define
             // notItself a field with an action holds itself under the name this; that is the own action, already fired
             ckAn := *grup.taG;
             if *ckAn == "this";     ckActs = 0;
+            // notItsHost a held form's top holds its host field under heldIn; that is the way up, not an action of this field
+            if *ckAn == "heldIn";   ckActs = 0;
             if ckActs == 1;
                 ckTo := **grup.taG;
                 cout "=== click" ckFn ckNm "fired" ckAn ckTo "===":;
@@ -2352,19 +2431,22 @@ define
         clickField -- a click from a point (windows stroke 2; W2, Tony
         2026-11-22). ONE argument: the field itself, on a laid-out copy -- the
         window finds it under the point (guiHost.mm, windowClickAt) and hands
-        it here. It selects the field (selection), then fires as click does:
-        the field's own action, then its attribute actions left to right, each
-        handed the field. BUBBLING: when the field fired nothing, its parent
-        on the copy is tried the same way, and so on up to the top; the first
-        level that fires anything ends the climb, and its actions are handed
-        that level's field. Nothing fired at any level says so. Nothing here
-        redraws. The mock click by name (click) is unchanged and does not climb.
+        it here. It selects the first SELECTABLE field at or above it
+        (selectable; only room all the way up: nothing is selected and the
+        selection stays as it was), then fires as click does, starting from
+        the field that was hit: the field's own action, then its attribute
+        actions left to right, each handed the field. BUBBLING: when the field
+        fired nothing, its parent on the copy is tried the same way, and so on
+        up to the top; the first level that fires anything ends the climb, and
+        its actions are handed that level's field. Both climbs cross a held
+        form's top into its host (clickUp; Tony, 2026-11-23). Nothing fired at
+        any level says so. Nothing here redraws. The mock click by name (click)
+        names its field, selects it whatever it is, and does not climb.
     ***************************************************************************/
     clickField code={
         cfHit := argument;
-        selection := *cfHit;
-        cfName = string $*cfHit.taG$;
-        // topIsNoMember the climb stops at the first field on the way up that reads as no member: the copy's top, and ALSO a held form's top (measured 2026-11-23, SEQ 763: a click in descriptions inside firstLight stops at descriptions; this comment said the climb went on into the host). So bubbling ends at a held form's top and the click lines name the held form
+        cfHitName = string $*cfHit.taG$;
+        // topIsNoMember the name the click lines print is the nearest laid-out copy's top: the first field on the way up that reads as no member -- the copy's top, or a held form's top (measured 2026-11-23, SEQ 763)
         cfAt := argument;
         cfHops = 0;
         while cfHops < 32;
@@ -2373,7 +2455,7 @@ define
             if cfHops < 32;     cfAt := *cfAt.parenT;
             cfHops += 1;
         ckFn := *cfAt.taG;
-        // windowsForm the selection is kept under the form the window shows. The climb above stops at the nearest laid-out copy's top, which for a field in a held form is the held form's (its top reads as no member); every copy's top carries laidForm, the form its layout was for (setFrame), and that is the name used
+        // windowsForm the selection is kept under the form the window shows; every copy's top carries laidForm, the form its layout was for (setFrame), a held form's top its host's
         skForm = string $*ckFn$;
         skL = *cfAt.listLengtH;
         skHasF = 0;
@@ -2381,23 +2463,58 @@ define
             if *cfAt["laidForm"];   skHasF = 1;
         skLf := *cfAt["laidForm"];
         if skHasF == 1;     skForm = string $*skLf$;
-        skField = string $cfName$;
-        selectKeep();
-        cout "=== click" ckFn cfName "selected ===":;
+        // selectsTheFirstSelectable a field that is only room is not selected: the selection climbs to the first enclosing field that is selectable, through a held form's top into its host; none, nothing is selected and the selection stays as it was (Tony, 2026-11-23)
+        clAt := argument;
+        clEnd = 0;
+        cfSeen = 0;
+        cfSel = 0;
+        cfHops = 0;
+        while cfHops < 64;
+            cfSeen += 1;
+            selectable(*clAt);
+            if selCan == 1;     cfSel = 1;
+            if selCan == 1;     cfHops = 64;
+            if cfHops < 64;     clickUp();
+            if clEnd == 1;      cfHops = 64;
+            cfHops += 1;
+        if cfSel == 1;
+            selection := *clAt;
+            cfName = string $*clAt.taG$;
+            skField = string $cfName$;
+            selectKeep();
+            cout "=== click" ckFn cfName "selected ===":;
+        if cfSel == 0;      cout "=== click" ckFn cfHitName "selected nothing: only room, on the way up through" cfSeen "fields ===":;
+        // firesOnTheWayUp from the field that was hit, whether or not it is selectable (a spacer with an action still fires it); the first level that fires ends the climb; a held form's top is crossed into its host
         ckFired = 0;
         cfDepth = 0;
-        cfAt := *cfHit;
+        clAt := *cfHit;
+        clEnd = 0;
         cfHops = 0;
-        while cfHops < 32;
-            ckNm := *cfAt.taG;
+        while cfHops < 64;
+            ckNm := *clAt.taG;
             cfDepth += 1;
-            clickFire(*cfAt);
-            cfM = *cfAt.isMembeR;
-            if cfM == 0;        cfHops = 32;
-            if ckFired == 1;    cfHops = 32;
-            if cfHops < 32;     cfAt := *cfAt.parenT;
+            clickFire(*clAt);
+            if ckFired == 1;    cfHops = 64;
+            if cfHops < 64;     clickUp();
+            if clEnd == 1;      cfHops = 64;
             cfHops += 1;
-        if ckFired == 0;    cout "=== click" ckFn cfName "fired nothing, on the way up through" cfDepth "fields ===":;
+        if ckFired == 0;    cout "=== click" ckFn cfHitName "fired nothing, on the way up through" cfDepth "fields ===":;
+        };
+    // clickUp one step up from clAt: its parent; at a held form's top (no member, heldIn) the field that holds it; at the window's top, clEnd = 1 and clAt stays
+    clAt;
+    clEnd = 0;
+    clickUp code={
+        cuM = *clAt.isMembeR;
+        cuHeld = 0;
+        if cuM == 0;
+            cuL = *clAt.listLengtH;
+            if cuL > 0;
+                if *clAt["heldIn"];     cuHeld = 1;
+        cuIn := *clAt["heldIn"];
+        if cuM == 0;
+            if cuHeld == 0;     clEnd = 1;
+        if cuHeld == 1;     clAt := **cuIn;
+        if cuM == 1;        clAt := *clAt.parenT;
         };
     /***************************************************************************
         clickShow -- click, then draw (tabs stroke 4, docs/tabsRecon.md item 4a).
