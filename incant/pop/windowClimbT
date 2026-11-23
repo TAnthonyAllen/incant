@@ -41,6 +41,8 @@ define
     ccFrame x=0 y=0 width=200 height=240;
     ccRelay form:=ccHost frame:=ccFrame;
     ccTopEdge form:=ccHost px=1 py=20;
+    ccInEdge form:=ccHost px=1 py=90;
+    ccInMid form:=ccHost px=100 py=120;
     ccOnRoom form:=ccHost px=100 py=60;
     ccOnTop form:=ccHost px=100 py=20;
     ccBareRead form:=ccBare;
@@ -59,8 +61,11 @@ displayDiff(flSame);
 cout "CC-PAGE C-2":;
 windowClick(flOnDescHead);
 cout "CC-PAGE C-3":;
+readWindow(ccInEdge);       pixelAt(ccInEdge);
 windowClick(ccOnRoom);
 readWindow(ccTopEdge);      pixelAt(ccTopEdge);
+readWindow(ccInEdge);       pixelAt(ccInEdge);
+readWindow(ccInMid);        pixelAt(ccInMid);
 cout "CC-PAGE C-4":;
 windowClick(ccOnGap);
 windowClick(ccOnBare);
@@ -90,8 +95,9 @@ C-3  ccHost holds ccHeld in ccIn. A click on ccRoom, only room two levels down i
      directly under a held form's top climbs into the host by itself, a deeper one reaches the held top and needs the
      crossing -- measured, SEQ 764): the selection climbs through ccWrap and ccHeld's top into the host and lands on ccIn (selectable: it has an onClick and a description), which is described in the host's
      help box; the firing climb crosses too and fires ccIn's onClick, handed ccIn. ccTop is not outlined. ccIn's own
-     outline is NOT read: the held form's fill is drawn over the field that holds it, so the outline is under it
-     (measured: its edge reads the held form's white).
+     OUTLINE IS OVER THE HELD FORM (Tony, 2026-11-23, SEQ 765): the pixels are ccIn's left edge before the click (the held
+     form's white), ccTop's edge (green), ccIn's edge after (midBlue), and the held form's middle (white: only the outline
+     is drawn over it). Until SEQ 765 the outline was drawn before the held form and its fill covered it.
      (descriptions as held in firstLight has NO room a point can land on -- 240 points scanned, all on its four text and
      image fields -- so this form stands in for it.)
 C-4  ccBare: only room everywhere. A click on its one field and a click on the form itself: nothing selected, nothing fired.
