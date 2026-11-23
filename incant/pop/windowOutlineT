@@ -1,0 +1,55 @@
+Start();
+cout "WO-D windows as setup leaves it" windows:;
+windows = 2;
+show(firstLight);
+search FORMs;
+register(WindowOutlineT);
+define
+    woX = 0;
+    woY = 0;
+    woRead form:=firstLight;
+    woHead form:=firstLight px=250 py=265;
+    woBig x=300 y=450 width=640 height=700;
+    woResize form:=firstLight frame:=woBig;
+    woClose form:=firstLight;
+    woAt code={
+        px = woX;
+        py = woY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    woScan code={
+        readWindow(woRead);
+        woX = 10;
+        woY = 265;
+        while woX < 490;
+            woAt(woRead);
+            woX = woX + 4;
+        woX = 1; woAt(woRead);
+        woX = 498; woAt(woRead);
+        };
+    ;
+search WindowOutlineT;
+cout "WO-0 nothing selected":;
+woScan();
+windowClick(woHead);
+cout "WO-1 describeHead selected":;
+woScan();
+cout "WO-2 a second show of the open form":;
+show(firstLight);
+windowResize(woResize);
+cout "WO-3 closed, then shown again":;
+windowClose(woClose);
+show(firstLight);
+cout "WO END":;
+stop();
+
+windowOutlineT -- windows stroke A (2026-11-23, SEQ 757): selection as an outline, and the second show. Tester's shape.
+WO-D  windows is 1 before this file sets it (the default, Tony 2026-11-23); the fleet then sets 2.
+WO-0  firstLight in a window, nothing selected: a scan across the held form's heading (y 265, every 4 points) reads the
+      heading's green and its white text; the two ends of the line (x 1 and 498) are green.
+WO-1  the heading clicked: the SAME scan, sample for sample -- the fill is still green and the white text still on it --
+      and the two ends are the selection colour: the outline. When selection was a fill the scan read no green at all.
+WO-2  show(firstLight) again while its window is open: said by name, no second window; then one resize, of the one window.
+WO-3  the window closed and the form shown again: a window is made anew, at the frame the close kept (640x700).

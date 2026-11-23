@@ -1850,7 +1850,8 @@ define
         selectionPick -- the selected field shows (windows stroke 2; W3, Tony
         2026-11-22). setFrame calls it on the laid-out copy, after cardsPick.
         When selection holds a field, the copy's first field of that name
-        (the top, then depth first) is filled with a selectFill: its own, when
+        (the top, then depth first) is OUTLINED in a selectFill (it was filled
+        with it until 2026-11-23; the placeholder keeps its name): its own, when
         it names one (as a tab does), else the one the look holds (the
         request's look, then defaultLook). No selectFill anywhere: the field
         is drawn as it was, and nothing is said. The definition is never
@@ -1899,16 +1900,42 @@ define
             if spHit == 0;
                 if *grup.hasMemberS;    spFind(*grup);
         };
-    // spPaint argument is the attribute holding the colour; a field with a fill has it re-pointed (as cardsPick does a tab's), one with none is given a fill of its own on the copy
+    // spPaint argument is the attribute holding the selection colour. The selected field is OUTLINED in it, on the copy, and its fill is left alone, so its text is never hidden (Tony, 2026-11-23; it was a fill). The outline is the field's border, two points wide, in that colour: displayBorder draws a border inside the frame and layout reads no border, so nothing moves. A field naming sides (bottomBorder ...) is given all four, since named sides are the only ones drawn; any other field a plain border, which follows rounded corners.
     spPaint code={
         spSrc := argument;
-        if spHasFill == 1;
-            spTo := *spField["fill"];
+        spSides = 0;
+        if *spField["topBorder"];       spSides = 1;
+        if *spField["bottomBorder"];    spSides = 1;
+        if *spField["leftBorder"];      spSides = 1;
+        if *spField["rightBorder"];     spSides = 1;
+        if spSides == 0;    spEdge("border");
+        if spSides == 1;
+            spEdge("topBorder");
+            spEdge("bottomBorder");
+            spEdge("leftBorder");
+            spEdge("rightBorder");
+        spHasStroke = 0;
+        if *spField["strokeColor"];     spHasStroke = 1;
+        if spHasStroke == 1;
+            spTo := *spField["strokeColor"];
             *spTo := **spSrc;
-        if spHasFill == 0;
-            spNew := new("fill");
+        if spHasStroke == 0;
+            spNew := new("strokeColor");
             *spNew := **spSrc;
             *spField +% *spNew;
+        };
+    // spEdge the named border of the selected field becomes two points wide, made if the field has none
+    spEdge code={
+        seName = string $argument$;
+        seHas = 0;
+        if *spField[seName];    seHas = 1;
+        if seHas == 1;
+            seTo := *spField[seName];
+            *seTo = 2;
+        if seHas == 0;
+            seNew := new(seName);
+            *seNew = 2;
+            *spField +% *seNew;
         };
     showPath path="IncantForms/PDF/output.pdf";
     showReq path form look;

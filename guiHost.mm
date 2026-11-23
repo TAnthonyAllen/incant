@@ -659,11 +659,45 @@ extern "C" GroupItem *displayDiff(GroupItem *request)
     return request;
 }
 
+/***************************************************************************
+    A SECOND SHOW (Tony, 2026-11-23). Opening a form that a window already
+    holds never makes a second window: the window it has is brought to the
+    front (out of the dock first, if it was minimized) and laid out again, so
+    it shows the form as it is now. Only a REQUEST is matched, by the form it
+    names; a bare laid-out copy is a new thing each time and opens a window.
+    A form whose window was closed is in no record, so it opens afresh, at
+    its kept frame (windowLay reads formFrames).
+***************************************************************************/
+static bool alreadyOpen(GroupItem *request, bool visible)
+{
+    GroupItem *formF = request ? request->get((char *)"form") : 0;
+    GroupItem *form = (formF && isGROUP(formF->groupBody->flags.data)) ? formF->getGroup() : 0;
+    if ( !form ) return false;
+    for ( WindowRecord &w : gWindows ) {
+        GroupItem *heldF = w.held[1] ? w.held[1]->get((char *)"form") : 0;
+        GroupItem *held = (heldF && isGROUP(heldF->groupBody->flags.data)) ? heldF->getGroup() : 0;
+        if ( !held || held->groupBody != form->groupBody ) continue;
+        Layout *view = w.view;
+        bool shown = w.shown;
+        printf("=== %s: %s is already open in a window; %s ===\n", visible ? "openWindow" : "windowOffscreen", form->groupBody->tag,
+               shown ? "brought to the front" : "no second window");
+        fflush(stdout);
+        windowRelay(view);
+        if ( shown ) {
+            NSWindow *win = [view window];
+            if ( [win isMiniaturized] ) [win deminiaturize:nil];
+            [win makeKeyAndOrderFront:nil];
+            [NSApp activateIgnoringOtherApps:YES]; }
+        return true; }
+    return false;
+}
+
 extern "C" GroupItem *windowOffscreen(GroupItem *input)
 {
     @autoreleasepool {
         unsigned before = _dyld_image_count();
         GroupItem *request = isRequest(input) ? input : 0;
+        if ( alreadyOpen(request, false) ) return input;
         GroupItem *top = request ? windowLayout(request, 0, 0) : input;
         if ( request && !top ) {
             fprintf(stderr, "windowOffscreen: REFUSING %s -- its form was not laid out\n", input->groupBody->tag);
@@ -684,6 +718,7 @@ extern "C" GroupItem *openWindow(GroupItem *input)
 {
     @autoreleasepool {
         GroupItem *request = isRequest(input) ? input : 0;
+        if ( alreadyOpen(request, true) ) return input;
         GroupItem *top = request ? windowLayout(request, 0, 0) : input;
         if ( request && !top ) {
             fprintf(stderr, "openWindow: REFUSING %s -- its form was not laid out\n", input->groupBody->tag);
