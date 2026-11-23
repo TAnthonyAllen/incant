@@ -103,7 +103,7 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   top carries `laidForm`, the form its layout was for (a held form's top carries its host's), and a click reads it.
   `unselect(form)` clears one form's. `selection` still holds the last field clicked in any form. formsPop windowSelectT.
 
-- The climb (SEQ 764, branch popups-climb, the buy Tony's; windows TO DO 1 with two rulings of 2026-11-23): an only-room
+- The climb (SEQ 764, bought and merged 2026-11-23; windows TO DO 1 with two rulings of 2026-11-23): an only-room
   field is not selectable and the selection climbs to the first field that is; a click in a held form bubbles on into its
   host; a window's close clears its form's selection (`windowShut`, the one C++ line: the close calls it, not keepFrame).
   formsPop windowClimbT.
