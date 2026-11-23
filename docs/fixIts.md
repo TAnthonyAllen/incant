@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-168 — OPEN, docketed 2026-11-23 (SEQ 767, seal 540; Clay's dispatch, ruled by Tony: a docket row and a census at a later session, not a stroke) — zeroTestsAbsent: kant tests an attribute's presence by its truth, and an attribute holding 0 tests false
+
+**What:** (kant) `if field["name"];` is false both when the attribute is absent and when it is there holding 0. Code that means "is it there" and is handed a real 0 takes the absent arm. Found in keepFrame and setFrame's frame store (cured there, SEQ 766): a kept frame lost its x or y at 0, so a window at the screen's left edge or top fell back to its declared place.
+**Where:** not known beyond the two cured sites; that is the census. Candidates named by the dispatch: frames, sizes, counts, colour parts.
+**Evidence:** measured 2026-11-23 (scratch): a field written `x=0 y=7`, `if argument["x"]` reads false, `if argument["y"]` true, an absent name false. Presence read as `d = 0; d = *attr.datA; if d > 0` reads 1 for the 0 and 0 for the absent one. formsPop windowPopupT P-4, with its H7 (the old value test: x lost).
+**Done when:** a read-only census of `incant/utilities` and the forms lists every presence-by-truth test where 0 is a real value, each with what goes wrong at 0; the cures are ruled from it.
+**Owner:** Clod, at a later session; read only. **Size:** not measured.
+**Attempt log:** SEQ 766: framePart (presence from datA) in keepFrame and setFrame's store read -> a frame part of 0 is kept (windowPopupT P-4).
+
 ### F-167 — OPEN, docketed 2026-11-22 (SEQ 747, found by windows stroke 0; row only, no fix) — jitterSetFrameHoldsItself: with `jitter;` on, setFrame compiles and then refuses every later layout of the same form
 
 **What:** (emitted; kant source `incant/utilities` setFrame) after `jitter;`, the first layout of a form draws; every later one is refused: `setFrame: REFUSING <request> -- the form firstLight holds itself, directly or through another form`, with `REFUSED sfChain -- Operator remove-attribute -- an operand that is nothing` once. Interpreted, the same run lays out four times. No window is involved. Read, not traced: compiled, setFrame's removal of the form's name from sfChain at its foot does not happen, so the next layout meets the name still on the list.

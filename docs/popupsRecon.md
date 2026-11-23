@@ -111,7 +111,7 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
 - The outline over a held form (SEQ 765, bought and merged 2026-11-23): a selected field that holds a form has
   its border drawn once more after its members. formsPop windowClimbT C-3o.
 
-- Stroke 2 (SEQ 766, branch popups-open, the buy Tony's): `popup(request)`, form:= the popup form and on:= a field of a
+- Stroke 2 (SEQ 766, bought and merged 2026-11-23): `popup(request)`, form:= the popup form and on:= a field of a
   laid-out copy. It opens under the field's bottom left, every time. WHERE IT REMEMBERS: `popupTargets` in utilities, by
   the popup form's name, holding form=, field= and each= as NAMES -- names because the clicked copy is thrown away at
   the next layout and a value goes back by name; by the popup form because one popup form is one window; in kant so OK
