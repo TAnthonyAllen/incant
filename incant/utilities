@@ -2364,7 +2364,7 @@ define
         cfHit := argument;
         selection := *cfHit;
         cfName = string $*cfHit.taG$;
-        // topIsNoMember the copy's top is the one field on the way up that is no member; a held form's top is a member of its host, so the climb goes on into the host
+        // topIsNoMember the climb stops at the first field on the way up that reads as no member: the copy's top, and ALSO a held form's top (measured 2026-11-23, SEQ 763: a click in descriptions inside firstLight stops at descriptions; this comment said the climb went on into the host). So bubbling ends at a held form's top and the click lines name the held form
         cfAt := argument;
         cfHops = 0;
         while cfHops < 32;

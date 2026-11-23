@@ -1219,8 +1219,31 @@ _ofeq "showT SH-2 A FORM NAMING look:=shNight is laid out under it: black page, 
 _ofeq "showT SH-3 the look does not stay in show's request: shPlain again reads as SH-1" "$(_shp plain2) / $(_sht plain2)" "$(_shp plain) / $(_sht plain)"
 _ofeq "showT SH-4 A FORM WITH NO path is written to IncantForms/PDF/output.pdf (line / a new file written)" "$(_shs home) / $_shNew" "shHome to IncantForms/PDF/output.pdf / 1"
 #  SH-5 re-pinned 10 -> 11 (SEQ 762, popups stroke 0): the laid-out copy's top carries one attribute more, laidLook, the look it was laid out under.
-_ofeq "showT SH-5 show returns the laid-out copy: a list of 11 (its attributes, laidLook among them, and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 11 width 400"
+#  SH-5 re-pinned 11 -> 12 (SEQ 763, popups stroke 1): and one more, laidForm, the name of the form the layout was for.
+_ofeq "showT SH-5 show returns the laid-out copy: a list of 12 (its attributes, laidLook and laidForm among them, and its one member), width 400" "$(grep '^SH-5 ' "$T/sh.e" | xargs)" "SH-5 list 12 width 400"
 _ofeq "ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form" "$(grep -c '^=== show IBkant to /tmp/incantTest.pdf ===' "$T/ib.o") $(grep -c '^=== show ' "$T/ib.o")" "4 4"
+
+echo "-- selection is per form: two plain windows side by side (windowSelectT)."
+#  ⚑ windowSelectT -- popups stroke 1 (SEQ 763, 2026-11-23; Tony's ruling 6, docs/popupsRecon.md): SELECTION IS PER FORM. utilities' selections keeps, by the
+#  name of the form a window shows, the name of the field selected there; describedNames the same for what its help box described last. A layout reads its own
+#  form's entry (slTop); a click knows its form from laidForm on the copy's top. Two offscreen windows, both laid out again before every read. Each row reads
+#  four left-edge pixels (A's first field, A's wsShared, B's first field, B's wsShared; BLUE is the outline, midBlue) and each help box's characters drawn.
+#  Control (H7, 2026-11-23, on the committed file, no build): one key for every form (slTop = "one" in setFrame, skF = "one" in selectKeep), which is the
+#  one selection for the run that stood until this stroke -> S-2 to S-6 all move: A's outline and help text go when B is clicked, A's box shows B's words
+#  at S-3, wsShared is outlined in both at S-4, unselect(wsA) at S-5 leaves B's wsShared outlined.
+_wsF=$(ip windowSelectT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wsF" > "$T/ws.o" 2> "$T/ws.e"; _wsx=$?
+_wsr() { awk -v p="WS-PAGE $1 " '$0 == p {f=1; next} /^WS-PAGE /{f=0} f' "$T/ws.o" > "$T/ws.page"
+         printf '%s / A %s / B %s' "$(grep '^=== pixelAt' "$T/ws.page" | sed 's/.*= //; s/ ===//; s/r0 g120 b215 a255/BLUE/; s/r0 g158 b15 a255/green/; s/r255 g255 b255 a255/white/' | xargs)" \
+            "$(grep '^=== drawSpans wsBoxA ' "$T/ws.page" | tail -1 | sed 's/.* drawn \([0-9]*\) of.*/\1/')" "$(grep '^=== drawSpans wsBoxB ' "$T/ws.page" | tail -1 | sed 's/.* drawn \([0-9]*\) of.*/\1/')"; }
+_ofeq "windowSelectT exit / sentinel / nothing refused" "$_wsx $(grep -c '^WINDOWSELECT SENTINEL' "$T/ws.e") $(cat "$T/ws.o" "$T/ws.e" | grep -c 'REFUS')" "0 1 0"
+_ofeq "windowSelectT S-0 nothing selected: no outline in either window, each help box its own text" "$(_wsr S-0)" "green white green white / A 5 / B 13"
+_ofeq "windowSelectT S-1 wsOne clicked in A: outlined, A's box shows its description; B untouched" "$(_wsr S-1)" "BLUE white green white / A 19 / B 13"
+_ofeq "windowSelectT S-2 wsTwo clicked in B: B outlines it and describes it; A STILL OUTLINES wsOne AND STILL SHOWS ITS WORDS (both gone until SEQ 763)" "$(_wsr S-2)" "BLUE white BLUE white / A 19 / B 37"
+_ofeq "windowSelectT S-3 A's help box itself clicked: A's box still shows what A described last (19), not B's (37)" "$(_wsr S-3)" "green white BLUE white / A 19 / B 37"
+_ofeq "windowSelectT S-4 wsShared clicked in A: outlined in A only; B's wsShared plain, B still outlines wsTwo" "$(_wsr S-4)" "green BLUE BLUE white / A 5 / B 37"
+_ofeq "windowSelectT S-5 unselect(wsA): A has no outline; B keeps its own" "$(_wsr S-5)" "green white BLUE white / A 5 / B 37"
+_ofeq "windowSelectT S-6 the mock click by name is kept under the same form: wsOne outlined and described in A at the next layout" "$(_wsr S-6)" "BLUE white BLUE white / A 19 / B 37"
 
 echo "-- the look rides on the laid-out copy (lookCopyT)."
 #  ⚑ lookCopyT -- popups stroke 0 (SEQ 762, 2026-11-23; F-158): setFrame leaves the look it resolved through on the copy's top (laidLook), a held form's
