@@ -75,7 +75,7 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
     built       (strokes A and B, bought 2026-11-23) windows defaults to 1; a second show
                 raises the open window (guiHost.mm alreadyOpen); selection is an OUTLINE, a two-point border in selectFill (defaultLook's is midBlue,
                 r0 g120 b215); describe on select (utilities describePick: the help box is the copy's first field carrying describe).
-    not built   image actions, editing, popups. PARKED in incant++ (Tony sends): a field that is only room is not selectable; a describe
+    not built   image actions, editing, popups (RECON 2026-11-23, SEQ 760: docs/popupsRecon.md, seven decisions for Tony, strokes 0-6; stroke 0 is F-158, the look on the copy, ruled). PARKED in incant++ (Tony sends): a field that is only room is not selectable; a describe
                 text naming a dESCRIPTIONs entry shows that entry; long descriptions cut at the box are fine for now.
 
 /*****************************************************************************
