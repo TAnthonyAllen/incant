@@ -71,12 +71,8 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
     FIRST PIECE BUILT (SEQ 724): environment in incant/setup (root ".", paths ".", forShow); show reads only from it. Kept in view:
     include reading paths (bear-trap #28); the user's folder at the front of paths; a remedy for the absolute paths in the tree.
 
-39. `keep`, a cheap finally (Tony, 2026-11-23, via Clay; a RECON ITEM, nothing built; Tony likes it, even if the JIT half costs more).
-    `keep lookFont, lookColor` at the top of an action body: the engine puts those fields back when the action leaves, however it
-    leaves (a return, or a refusal unwinding). No user code runs in the unwind, so there is no "finally refused" case. Likely hook:
-    the exit that already restores locals (saveLocalFields). RECON FIRST, read only: does a refusal leave an action through the same
-    exit as a return, on each road; does the JIT road restore locals the same way (the costly half); does it run on stop() and bail().
-    Until then the standing cure: set or clear on entry, never restore on exit (formNestT NF-5, SEQ 764).
+39. `keep`, a cheap finally (Tony, 2026-11-23, via Clay; a RECON ITEM, nothing built; Tony likes it, even if the JIT half costs more). `keep lookFont, lookColor` at the top of an action body: the engine puts those fields back when the action leaves, however it leaves (a return, or a refusal unwinding); no user code runs in the unwind. Likely hook: the exit that already restores locals (saveLocalFields).
+    RECON FIRST, read only: does a refusal leave an action through the same exit as a return, on each road; does the JIT road restore locals the same way (the costly half); does it run on stop() and bail(). Until then the standing cure: set or clear on entry, never restore on exit (formNestT NF-5, SEQ 764).
 
 ## Not harvested, and why
 

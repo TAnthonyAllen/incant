@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2258720 bytes  Nov 23 11:27
+  bin   2258720 bytes  Nov 23 14:59
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -334,9 +334,9 @@
   ok    windowClickT WC-2 a point in the card: the shown card is hit, not a hidden one; nothing fires on the way up, said with the count of fields tried = [windowClick tabForm at (300,260): thirdCard;click tabForm thirdCard selected;click tabForm thirdCard fired nothing, on the way up through 4 fields]
   ok    windowClickT WC-3 a point outside the form: no field, nothing fired, said so; no click line follows = [windowClick tabForm at (500,500): no field, nothing fired]
   ok    windowClickT WS-0 the second form as declared: inner red, plain the page's white, lower green; the edges the same = [red | white | green | red | white | green]
-  ok    windowClickT WS-1 BUBBLING: a point in wcInner (no action) fires its parent wcOuter's onClick, handed wcOuter = [windowClick wcForm at (100,25): wcInner;click wcForm wcInner selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter]
-  ok    windowClickT WS-1 SELECTION: the selected field is OUTLINED in the look's selectFill, blue, its own red left inside; the others as they were = [red | white | green | blue | white | green]
-  ok    windowClickT WS-2 a selected field naming no fill is given none: plain's middle still the page's white, its edge blue; inner's edge red again = [red | white | green | red | blue | green]
+  ok    windowClickT WS-1 BUBBLING: a point in wcInner (only room, no action) selects and fires its parent wcOuter, handed wcOuter = [windowClick wcForm at (100,25): wcInner;click wcForm wcOuter selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter]
+  ok    windowClickT WS-1 SELECTION: wcOuter, the selected field, is outlined in the look's selectFill, blue; wcInner keeps its red; lower as it was = [red | white | green | red | blue | green]
+  ok    windowClickT WS-2 a point in wcPlain, only room: wcOuter is selected again; plain's middle still the page's white, the outline showing at its edge, blue; inner's edge red = [red | white | green | red | blue | green]
   ok    windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower's edge wall, not blue, its middle still green; nothing fires on the way up = [red | white | green | red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields]
   ok    windowClickT WS-4 a request naming NO look: the selected field is outlined in defaultLook's selectFill, midBlue since 2026-11-23 (the request's look's was blue) = [red | white | green | red | midBlue | green]
   ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner's edge blue = [click wcForm wcInner selected / red | white | green | blue | white | green]
@@ -436,7 +436,7 @@
   ok    styleMergeT SM-4 a style's text properties reach three levels down, and a nearer own colour wins: smD1, smD3 (black from smD2); smE has no style = [Palatino 24 1 r239 g43 b45 top center / Palatino 24 1 r0 g0 b0 top center / Palatino 14 0 r0 g81 b186 top left]
   ok    styleMergeT SM-5 no name lands twice on the laid-out copy: smC holds one color and one font = [1 1]
   ok    styleMergeT SM-6 the form's definition and the style print the same after two runs as before (11 lines) = [63f501db1fc81ab636f2db856701d55d 11]
-  ok    styleMergeT SM-7 a second run prints and draws as the first = [b75c11c15deb6a05457fbff7f6cbe02a]
+  ok    styleMergeT SM-7 a second run prints and draws as the first = [d212227790d6a6e52a9140f1c58beca7]
 -- placeholders and looks (lookT).
   ok    lookT exit / sentinel = [0 1]
   ok    lookT LK-1 NO LOOK IN THE REQUEST, defaultLook: the page white, lkA in headingFont and textColor, lkC (through a style) in headingFont and accent = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r239 g43 b45]
@@ -444,7 +444,7 @@
   ok    lookT LK-3 a look that merges defaultLook and writes accent: only lkC's colour changes (green) = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r0 g158 b15]
   ok    lookT LK-4 an ordinary name falls through under every look: lkB's fill:=wall and color:=blue, four pages = [fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / ]
   ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [0116de895994df4c11d84ddd1459b3fb 7]
-  ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [5488e14b31cf1a757da705649cac2b2a 9]
+  ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [2c54c7e9b724a508907cbda0fb5426c9 9]
   ok    lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written = [1 1]
   ok    lookT LK-8 A STYLE WITH NO FILL DRAWS WITH NO REFUSAL (F-156): lkC, whose style holds font and colour only, 0 displayFill refusals on four pages; the one refusal in the run is lkBad's unresolved fill = [0 1 1]
 -- a run's style through the look; the look goes down to a held form; the box warning (runLookT).
@@ -462,8 +462,43 @@
   ok    showT SH-2 A FORM NAMING look:=shNight is laid out under it: black page, Courier white = [shDark to /tmp/incantTest.pdf / r0 g0 b0 a255 / shB Courier New 24 1 r255 g255 b255]
   ok    showT SH-3 the look does not stay in show's request: shPlain again reads as SH-1 = [r255 g255 b255 a255 / shA Palatino 24 1 r0 g0 b0]
   ok    showT SH-4 A FORM WITH NO path is written to IncantForms/PDF/output.pdf (line / a new file written) = [shHome to IncantForms/PDF/output.pdf / 1]
-  ok    showT SH-5 show returns the laid-out copy: a list of 10 (its attributes and its one member), width 400 = [SH-5 list 10 width 400]
+  ok    showT SH-5 show returns the laid-out copy: a list of 12 (its attributes, laidLook and laidForm among them, and its one member), width 400 = [SH-5 list 12 width 400]
   ok    ibkantT IB-7 IBkant's OWN listener calls show(IBkant): four show lines (the first page and three clicks), each to the path the fixture put on the form = [4 4]
+-- selection is per form: two plain windows side by side (windowSelectT).
+  ok    windowSelectT exit / sentinel / nothing refused = [0 1 0]
+  ok    windowSelectT S-0 nothing selected: no outline in either window, each help box its own text = [green white green white / A 5 / B 13]
+  ok    windowSelectT S-1 wsOne clicked in A: outlined, A's box shows its description; B untouched = [BLUE white green white / A 19 / B 13]
+  ok    windowSelectT S-2 wsTwo clicked in B: B outlines it and describes it; A STILL OUTLINES wsOne AND STILL SHOWS ITS WORDS (both gone until SEQ 763) = [BLUE white BLUE white / A 19 / B 37]
+  ok    windowSelectT S-3 A's help box itself clicked: A's box still shows what A described last (19), not B's (37) = [green white BLUE white / A 19 / B 37]
+  ok    windowSelectT S-4 wsShared clicked in A: outlined in A only; B's wsShared plain, B still outlines wsTwo = [green BLUE BLUE white / A 5 / B 37]
+  ok    windowSelectT S-5 unselect(wsA): A has no outline; B keeps its own = [green white BLUE white / A 5 / B 37]
+  ok    windowSelectT S-6 the mock click by name is kept under the same form: wsOne outlined and described in A at the next layout = [BLUE white BLUE white / A 19 / B 37]
+-- popup(request): a form opened at the field it is opened on, and what it remembers (windowPopupT).
+  ok    windowPopupT exit / sentinel / the three refusals and readWindow's, no other = [0 1 4]
+  ok    windowPopupT P-0 no popup yet: no target = [target none, of 0]
+  ok    windowPopupT P-1 A FIELD'S CLICK OPENS THE POPUP AT THAT FIELD: under ppA's bottom left (40,100), its own 120x80; it remembers form ppHost, field ppA = [popup ppPop opened on ppHost ppA each none at 40 100;target form ppHost field ppA each none of 1;readWindow ppRead title [A popup] size 120x80]
+  ok    windowPopupT P-2 OPENED AGAIN ON ANOTHER FIELD: closed where P-1 put it, (40,100), opened at ppB's (40,140); the target is ppB; one entry, one window = [window closed: ppPop kept 120x80 at (40,100);popup ppPop opened on ppHost ppB each none at 40 140;target form ppHost field ppB each none of 1;readWindow ppRead title [A popup] size 120x80]
+  ok    windowPopupT P-3 THE POPUP CLOSED: it was at (40,140); the target is gone; no window holds it = [window closed: ppPop kept 120x80 at (40,140);target none, of 0 / 1]
+  ok    windowPopupT P-4 A FIELD AT THE SCREEN'S (0,0): the popup opens at x 0, y 30 -- a frame part of 0 is kept (dropped until SEQ 766) = [popup ppPop opened on ppEdge ppZ each none at 0 30;target form ppEdge field ppZ each none of 1;window closed: ppPop kept 120x80 at (0,30)]
+  ok    windowPopupT P-5 ERRANT no on:=, and a field with no frame: each refused by name, once; nothing opened, no target = [1 1 / target none, of 0]
+  ok    windowPopupT P-6 ERRANT windows = 0: refused by name, once; nothing opened, no target = [1 / target none, of 0]
+-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT).
+  ok    windowClimbT exit / sentinel / nothing refused = [0 1 0]
+  ok    windowClimbT C-1 THE EMPTY FIELD LEFT OF OK: only room all the way up, nothing selected; the heading keeps its outline before and after; the window the same pixel for pixel = [click firstLight space selected nothing: only room, on the way up through 3 fields;click firstLight space fired nothing, on the way up through 3 fields / BLUE BLUE / 0]
+  ok    windowClimbT C-2 A CLICK IN A HELD FORM BUBBLES ON INTO ITS HOST: describeHead in descriptions in firstLight, 7 fields on the way up (5 until SEQ 764) = [click descriptions describeHead selected;click descriptions describeHead fired nothing, on the way up through 7 fields;describe describeHelp shows the description of describeHead]
+  ok    windowClimbT C-3 ROOM INSIDE A HELD FORM lands on the host's field that holds it: selected, its onClick fired and handed it, described in the host's help box = [click ccHeld ccIn selected;click ccHeld ccIn fired onClick ccSay;CC-SAY handed ccIn;describe ccBox shows the description of ccIn]
+  ok    windowClimbT C-3o THE OUTLINE IS OVER THE HELD FORM: ccIn's edge white before the click; after it ccTop's edge green (not selected), ccIn's edge BLUE, the held form's middle still white = [white green BLUE white]
+  ok    windowClimbT C-4 ERRANT a form that is only room: a click on its field and on the form itself select nothing and fire nothing = [click ccBare ccGap selected nothing: only room, on the way up through 2 fields;click ccBare ccGap fired nothing, on the way up through 2 fields;click ccBare ccBare selected nothing: only room, on the way up through 1 fields;click ccBare ccBare fired nothing, on the way up through 1 fields]
+  ok    windowClimbT C-5 A CLOSED WINDOW'S FORM LOSES ITS SELECTION: the heading outlined, then closed and reopened: the page's wall; the other window, laid out again, still describes its own = [BLUE wall green / 1 describe ccBox shows the description of ccIn]
+-- the look rides on the laid-out copy (lookCopyT).
+  ok    lookCopyT exit / sentinel / no refusal = [0 1 0]
+  ok    lookCopyT LC-0 two windows under two looks: the night window's run red, the day window's green = [r239 g43 b45 a255 / r0 g158 b15 a255]
+  ok    lookCopyT LC-1 THE NIGHT WINDOW READ AGAIN AFTER THE DAY WINDOW'S LAYOUT: its run still red, 0 of 30000 pixels differ (470 and green until SEQ 762) = [r239 g43 b45 a255 / 0]
+  ok    lookCopyT LC-2 a click in a third window, then a resize and a click there: the day window unchanged both times, its run still green = [0 0 / r0 g158 b15 a255]
+  ok    lookCopyT LC-3 A HELD FORM THAT FELL BACK to its own look: its run is its own blue; the host's run, drawn last in hostB, the host's green = [held field run blue end field / host field run green end field]
+  ok    lookCopyT LC-4 the copy's top says which look: by name from a list, none, a look field = [lcHostA dark / lcPlain none / lcFormN lcNight]
+  ok    lookCopyT LC-5 no look and a look field on the PDF road, as before: defaultLook's red; lcNight's red on every run word = [plain field run red end field / plain field run red run red run red run red end field]
+  ok    lookCopyT LC-6 the definitions carry no laidLook = [0 1]
 -- looks by name (looksByNameT).
   ok    looksByNameT exit / sentinel = [0 1]
   ok    looksByNameT LB-1 NO LOOK ASKED: the list's first member, standard, gives the page wall; the held form's lightGreen = [r247 g232 b170 a255 / r175 g211 b120 a255]
@@ -484,4 +519,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 415 green, see above
+FORMS POP FAILED -- 446 green, see above
