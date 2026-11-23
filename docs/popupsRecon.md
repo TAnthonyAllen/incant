@@ -55,7 +55,7 @@ Clod's lean: (b) resting on (a). The popup is told three things: the form it was
 
 **D2. Where it appears.** At the hit field (its top left under the field's bottom left, moved to stay on the display);
 or centred on its form; or where it was last closed (formFrames does this for every window today). Lean: at the hit
-field the first time; after that, wherever the user left it.
+field the first time; after that, wherever the user left it. (Ruled otherwise: 3a, item 2.)
 
 **D3. Modal or not.** Lean: not modal by default, since the sampler and a colour popup are meant to sit beside the
 form while it redraws. `modal` as an attribute of the popup form for the cases that need it (the scope question, "you
@@ -83,7 +83,19 @@ open side by side today.
 **D7. Chrome.** Lean: a popup keeps the title bar and close button and loses resize, read from the form
 (`resize` is already an inert attribute name, W4).
 
-## 4. Strokes, smallest first (proposed; none ruled but stroke 0)
+## 3a. RULED (Tony, 2026-11-23, via Clay)
+
+1. What opens one: `popup:=aForm`, resting on a plain `popup(request)` action.
+2. Where it appears: at the hit field, every time. Remembering where it was left is not ruled; parked.
+3. Modal: not by default; `modal` as an attribute where needed.
+4. OK and Cancel: two shared actions popup forms use by name; the value goes back by name; Cancel writes nothing.
+5. Closing the form closes its popups, as Cancel; the popup is a child window above its form and moves with it.
+6. Selection: per form. A fix for two plain windows too, not only for popups.
+7. Chrome: title bar and close button, no resize.
+
+Strokes 0-6 below are bought as the plan, in that order; none starts until Tony sends it.
+
+## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
 | # | stroke | size | proof with nobody watching |
 |---|---|---|---|
