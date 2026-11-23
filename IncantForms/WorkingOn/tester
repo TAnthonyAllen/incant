@@ -9,7 +9,22 @@
 Start();
 windows = 1;
 show(tabForm);
+search FORMs cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    reopenClick code={ show(tabForm); };
+    reopener window x=100 y=400 width=220 height=60 fill:=pageFill title="Reopen"
+        again="Click here to open tabForm again" border align=center valign=center onClick:=reopenClick;
+    ;
+show(reopener);
+show(firstLight);
 stop();
+
+THE REOPEN TEST (Clod, 2026-11-23, SEQ 755). Tony's three lines here were show(tabForm); show(tabForm); show(firstLight);
+and all three opened at once: a show returns at once and the windows only come alive when the script ends (W1), so no
+statement can wait for a close. To close a window and open it again in one run, something must run AFTER the close:
+the small Reopen window above has one button whose click shows tabForm again. Drag tabForm bigger, close it, click the
+button: tabForm should come back at the size and place it was closed at. The program ends when the last window closes.
 
 PARKED 2026-11-23 (Clod, windows stroke 5, the watched run): tester's line until today was
     show(colorList);
