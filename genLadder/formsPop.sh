@@ -597,9 +597,12 @@ _ptr () { awk -v r="$1" '/^PT RUN/{on=($3==r)} on' "$T/pt.o"; }
 _ptc () { _ptr "$1" | awk -v f="$2" '$2=="drawSpans" && $3==f {c=$9" "$10" "$11; n[c]++} END{for (k in n) printf "%s x%d;", k, n[k]}' | tr ';' '\n' | sort | tr '\n' ';'; }
 _ptp () { _ptr ptColors | grep -A1 "^PT-AT $1 *$" | grep pixelAt | sed 's/.*= //; s/ a255 ===.*//'; }
 _ofeq "pourT exit / sentinel" "$_ptx $(grep -c '^POURT SENTINEL' "$T/pt.e")" "0 1"
-_ofeq "pourT PT-1 cOLOr poured: 14 rows whatever fits, names in cOLOr's order by their length (black blue darkBrown ... wall white)" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptName" {printf "%s ", $15}')" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
-_ofeq "pourT PT-2 the swatch text is the value (7 characters, 14 times) and its colour is contrast's: white on 3 (black, blue, darkBrown), black on 11" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptSwatch" && $15==7' | wc -l | tr -d ' ') / $(_ptc ptColors ptSwatch)" "14 / r0 g0 b0 x11;r255 g255 b255 x3;"
-_ofeq "pourT PT-3 the swatch pixels are the members' colours: rows 1, 2, 13, 14; below row 14 is the page" "$(_ptp ptBlack) | $(_ptp ptBlue) | $(_ptp ptWall) | $(_ptp ptWhite) | $(_ptp ptPastEnd)" "r0 g0 b0 | r0 g81 b186 | r247 g232 b170 | r255 g255 b255 | r255 g255 b255"
+#  RE-PINNED 2026-11-23 (SEQ 758): cOLOr gained one entry, midBlue (IncantForms/Controls/styles; Tony: the default selection colour, r0 g120 b215), so every row
+#  that pours cOLOr reads 15 where it read 14: pourT PT-1..3 (PT-3's last three points moved down one row, 24 points, in the fixture), colorListT CL-2, CL-3, CL-5
+#  (the page 28 taller: one row and one gap), pourDeriveT PD-1, PD-2. midBlue's swatch text is black by the contrast rule. Nothing else in these rows moved.
+_ofeq "pourT PT-1 cOLOr poured: 15 rows whatever fits, names in cOLOr's order by their length (black blue darkBrown ... wall white)" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptName" {printf "%s ", $15}')" "5 4 9 10 4 5 9 10 7 8 11 3 10 4 5 "
+_ofeq "pourT PT-2 the swatch text is the value (7 characters, 15 times) and its colour is contrast's: white on 3 (black, blue, darkBrown), black on 12" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptSwatch" && $15==7' | wc -l | tr -d ' ') / $(_ptc ptColors ptSwatch)" "15 / r0 g0 b0 x12;r255 g255 b255 x3;"
+_ofeq "pourT PT-3 the swatch pixels are the members' colours: rows 1, 2, 14, 15; below row 15 is the page" "$(_ptp ptBlack) | $(_ptp ptBlue) | $(_ptp ptWall) | $(_ptp ptWhite) | $(_ptp ptPastEnd)" "r0 g0 b0 | r0 g81 b186 | r247 g232 b170 | r255 g255 b255 | r255 g255 b255"
 _ofeq "pourT PT-4 a member with no entry in the qualified registry shows NOTHING: two third cells drawn (black 11, wall 13 characters), no warning, no tag" "$(_ptr ptColors | awk '$2=="drawSpans" && $3=="ptWhat" {printf "%s ", $15}')/ $(grep -c 'ptWhat.*no such entry\|ptWhat.*left as written' "$T/pt.e")" "11 13 / 0"
 _ofeq "pourT PT-5 a registry of three in room for two: three rows; black fill white text, wall and red (#ef2b2d, 20.9%) black text" "$(_ptr ptThree | awk '$2=="drawSpans" && $3=="ptCell3" {printf "%s %s;", $15, $9}')" "5 r255;4 r0;5 r0;"
 _ofeq "pourT PT-6 contrast with no pour: a blue fill white, a literal #ffffff black, no fill the text colour in effect (red)" "$(_ptr ptPlain | awk '$2=="drawSpans" {printf "%s %s %s %s;", $3, $9, $10, $11}')" "ptDark r255 g255 b255;ptLight r0 g0 b0;ptBare r239 g43 b45;"
@@ -622,10 +625,10 @@ _ofeq "colorListT exit / sentinel / no refusal" "$_clx $(grep -c '^COLORLISTT SE
 #  SEQ 745: tester's shape prints nothing on stderr but this fixture's own two lines (the 16 compare warnings a run are cured at their source).
 _ofeq "colorListT CL-0 stderr holds this fixture's CL-4 line and its sentinel and nothing else" "$(grep -c . "$T/cl.e") $(grep -c '^CL-4 \|^COLORLISTT SENTINEL' "$T/cl.e")" "2 2"
 _ofeq "colorListT CL-1 found in the stash (deferred), drawn to test.pdf" "$(grep -c '^=== show colorList deferred' "$T/cl.o") $(grep -c '^=== show colorList to /tmp/incantTest.pdf ===' "$T/cl.o")" "1 1"
-_ofeq "colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="pourName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 8 11 3 10 4 5 "
-_ofeq "colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="pourShow"){c[$9]++; if($15==7)v++}} END{print n["pourShow"], v, c["r255"], c["r0"], n["pourWhat"]}' "$T/cl.o")" "14 14 3 11 14"
+_ofeq "colorListT CL-2 15 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white)" "$(awk '$2=="drawSpans" && $3=="pourName"{printf "%s ", $15}' "$T/cl.o")" "5 4 9 10 4 5 9 10 7 8 11 3 10 4 5 "
+_ofeq "colorListT CL-3 15 swatches printing their value, white text on 3 and black on 12; 14 descriptions (midBlue has none)" "$(awk '$2=="drawSpans"{n[$3]++; if($3=="pourShow"){c[$9]++; if($15==7)v++}} END{print n["pourShow"], v, c["r255"], c["r0"], n["pourWhat"]}' "$T/cl.o")" "15 15 3 12 14"
 _ofeq "colorListT CL-4 loading the form leaves cOLOr as it was; black's description is words, not a colour (its wording is the form's to change)" "$(grep '^CL-4 ' "$T/cl.e" | sed 's/ its description.*//') / $(grep '^CL-4 ' "$T/cl.e" | grep -c 'its description \[ [a-zA-Z]')" "CL-4 cOLOr black [ #000000 ] white [ #ffffff ] / 1"
-_ofeq "colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 14 x 24 + 13 x 4 + 2 x 12" "$(grep '^=== readPDF' "$T/cl.o" | sed 's/.*size //; s/ ===.*//')" "490x452"
+_ofeq "colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 15 x 24 + 14 x 4 + 2 x 12" "$(grep '^=== readPDF' "$T/cl.o" | sed 's/.*size //; s/ ===.*//')" "490x480"
 
 echo "-- pour stage 2: rows derived from what is poured; margin, gap, height=fit (pourDeriveT; SEQ 742)."
 #  ⚑ pourDeriveT -- Tony ruled D1-D6, 2026-11-22 (Clay's dispatch), and with the build: kind by value; descriptions from dESCRIPTIONs by the
@@ -639,8 +642,8 @@ perl -e 'alarm 90; exec @ARGV' "$B" "$_pdF" > "$T/pd.o" 2> "$T/pd.e"; _pdx=$?
 _pdr () { awk -v r="$1" '/^PD RUN/{on=($3==r)} on' "$T/pd.o"; }
 _pdn () { _pdr "$1" | awk -v f="$2" '$2=="drawSpans" && $3==f{n++} END{print n+0}'; }
 _ofeq "pourDeriveT exit / sentinel / no refusal" "$_pdx $(grep -c '^POURDERIVET SENTINEL' "$T/pd.e") $(grep -c 'REFUS\|^REMOVED' "$T/pd.e")" "0 1 0"
-_ofeq "pourDeriveT PD-1 cOLOr derived: 14 names, 14 swatches printing their value (white text 3, black 11), 2 descriptions (black, wall)" "$(_pdn pdColors pourName) $(_pdr pdColors | awk '$2=="drawSpans" && $3=="pourShow"{c[$9]++; if($15==7)v++} END{print v, c["r255"], c["r0"]}') $(_pdr pdColors | awk '$2=="drawSpans" && $3=="pourWhat"{printf "%s ", $15}')" "14 14 3 11 11 13 "
-_ofeq "pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 452 high" "$(_pdr pdColors | grep 'pdTitle x=' | xargs) / $(_pdr pdColors | grep 'pourRow x=' | head -2 | awk '{printf "%s ", $3}')/ $(_pdr pdColors | grep '^pdColors x=' | awk '{print $5}')" "pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=452"
+_ofeq "pourDeriveT PD-1 cOLOr derived: 15 names, 15 swatches printing their value (white text 3, black 12), 2 descriptions (black, wall)" "$(_pdn pdColors pourName) $(_pdr pdColors | awk '$2=="drawSpans" && $3=="pourShow"{c[$9]++; if($15==7)v++} END{print v, c["r255"], c["r0"]}') $(_pdr pdColors | awk '$2=="drawSpans" && $3=="pourWhat"{printf "%s ", $15}')" "15 15 3 12 11 13 "
+_ofeq "pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 480 high" "$(_pdr pdColors | grep 'pdTitle x=' | xargs) / $(_pdr pdColors | grep 'pourRow x=' | head -2 | awk '{printf "%s ", $3}')/ $(_pdr pdColors | grep '^pdColors x=' | awk '{print $5}')" "pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=480"
 _ofeq "pourDeriveT PD-3 fONTs: seven samples, each in its own font; a row as tall as its sample needs" "$(_pdr pdFonts | awk '$2=="drawSpans" && $3=="pourShow"{printf "%s %s %s|", $5,$6,$7}') / $(_pdr pdFonts | grep 'pourRow x=' | awk '{printf "%s ", $5}')" ".AppleSystemUIFont 18 0|Copperplate 12 0|Courier New 24|Helvetica 10 0|Palatino 14 1|Palatino 14 0|Palatino 24 1| / h=30 h=24 h=36 h=24 h=26 h=26 h=36 "
 #  PD-4 RE-PINNED 2026-11-22 (SEQ 750): 16 rows -> 17. sTYLEs gained one entry, the placeholder selectFill (IncantForms/Controls/styles), and the form pours one row per entry.
 _ofeq "pourDeriveT PD-4 sTYLEs: 17 rows; emphasis's sample is red (the style applied, one r239); accent, a placeholder, is defaultLook's red swatch (black text)" "$(_pdn pdStyles pourName) $(_pdr pdStyles | awk '$2=="drawSpans" && $3=="pourShow" && $9=="r239"{n++} END{print n+0}') $(_pdr pdStyles | awk '$2=="drawSpans" && $3=="pourShow"{print $9; exit}')" "17 1 r0"
@@ -960,7 +963,7 @@ _ofeq "windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's:
 #  WS-4 RE-AIMED 2026-11-22 (SEQ 750): it asked "a look with no selectFill: drawn as it was". defaultLook holds one now (lightBlue), and defaultLook is the second
 #  place every layout looks, so with styles loaded no layout is without one. The row now pins the fallback: a request naming no look shows defaultLook's lightBlue.
 #  The none-anywhere arm of selectionPick is still there (a run without styles' defaultLook) and has no row; said in the seal.
-_ofeq "windowClickT WS-4 a request naming NO look: the selected field is outlined in defaultLook's selectFill, lightBlue (the request's look's was blue)" "$(_wcp WS-PAGE WS-4 | sed 's/r206 g255 b255 a255/lightBlue/')" "red | white | green | red | lightBlue | green"
+_ofeq "windowClickT WS-4 a request naming NO look: the selected field is outlined in defaultLook's selectFill, midBlue since 2026-11-23 (the request's look's was blue)" "$(_wcp WS-PAGE WS-4 | sed 's/r0 g120 b215 a255/midBlue/')" "red | white | green | red | midBlue | green"
 _ofeq "windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner's edge blue" "$(_wcb WS-4 | sed 's/^[^;]*;[^;]*;[^;]*;[^;]*;//') / $(_wcp WS-PAGE WS-5)" "click wcForm wcInner selected / red | white | green | blue | white | green"
 
 #  ⚑ windowResizeT -- windows stroke 3 (SEQ 750, 2026-11-22): resize and close. A window opened with a request keeps it; a resize, a click and a close each go
@@ -1024,21 +1027,37 @@ _ofeq "windowSearchT WS-2 inside the loop, the script ended: the click fires tab
 
 #  ⚑ windowOutlineT -- windows stroke A (SEQ 757, 2026-11-23; Tony's rulings after the watched runs). SELECTION IS AN OUTLINE: a scan across firstLight's held
 #  heading (white text on green), before and after it is selected, reads the same green and the same white, and only the line's two ends turn the selection
-#  colour. When selection was a fill the scan read no green (the H7: spPaint's old body, WO-1 red). A SECOND SHOW of an open form makes no second window; a form
+#  colour (defaultLook's midBlue since SEQ 758; lightBlue was too faint on white). When selection was a fill the scan read no green (the H7: spPaint's old body, WO-1 red). A SECOND SHOW of an open form makes no second window; a form
 #  closed and shown again opens at the kept frame. THE DEFAULT: windows is 1 as incant/setup leaves it (WO-D, printed before the fixture sets 2); INCANT_NOVIEW still winning is every show row here that draws a window form to its PDF.
 echo ""
 echo "-- selection as an outline, the second show, the windows default (windowOutlineT)."
 _woF=$(ip windowOutlineT)
 INCANT_NOVIEW=1 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_woF" > "$T/wo.o" 2> "$T/wo.e"; _wox=$?
-_wosc () { awk -v a="^$1" '$0 ~ a {on=1; next} /^WO-/ {on=0} on && /pixelAt/' "$T/wo.o" | sed 's/.*= //; s/ ===.*//' | awk '{k = ($0 == "r175 g211 b120 a255") ? "green" : ($0 == "r255 g255 b255 a255") ? "white" : ($0 == "r206 g255 b255 a255") ? "lightBlue" : "edge"; n[k]++} END {printf "green %d white %d lightBlue %d", n["green"], n["white"], n["lightBlue"]}'; }
-_woends () { awk -v a="^$1" '$0 ~ a {on=1; next} /^WO-/ {on=0} on && /pixelAt .*\((1|498),265\)/' "$T/wo.o" | sed 's/.*= //; s/ ===.*//; s/r175 g211 b120 a255/green/; s/r206 g255 b255 a255/lightBlue/' | tr '\n' ' ' | xargs; }
+_wosc () { awk -v a="^$1" '$0 ~ a {on=1; next} /^WO-/ {on=0} on && /pixelAt/' "$T/wo.o" | sed 's/.*= //; s/ ===.*//' | awk '{k = ($0 == "r175 g211 b120 a255") ? "green" : ($0 == "r255 g255 b255 a255") ? "white" : ($0 == "r0 g120 b215 a255") ? "midBlue" : "edge"; n[k]++} END {printf "green %d white %d midBlue %d", n["green"], n["white"], n["midBlue"]}'; }
+_woends () { awk -v a="^$1" '$0 ~ a {on=1; next} /^WO-/ {on=0} on && /pixelAt .*\((1|498),265\)/' "$T/wo.o" | sed 's/.*= //; s/ ===.*//; s/r175 g211 b120 a255/green/; s/r0 g120 b215 a255/midBlue/' | tr '\n' ' ' | xargs; }
 _wol () { awk -v a="^$1" -v b="$2" '$0 ~ a {on=1; next} b != "" && $0 ~ b {on=0} on && /^=== (show|window|openWindow|windowOffscreen)/' "$T/wo.o" | sed 's/^=== //; s/ *=== *$//; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
 _ofeq "windowOutlineT exit / sentinel / nothing refused" "$_wox $(grep -c '^WO END' "$T/wo.o") $(cat "$T/wo.o" "$T/wo.e" | grep -c 'REFUS')" "0 1 0"
 _ofeq "windowOutlineT WO-D THE DEFAULT: windows reads 1 before the fixture sets it" "$(grep '^WO-D' "$T/wo.o" | xargs)" "WO-D windows as setup leaves it 1"
-_ofeq "windowOutlineT WO-0 nothing selected: the scan across the heading reads its green and its white text; both ends green" "$(_wosc WO-0) / $(_woends WO-0)" "green 86 white 18 lightBlue 0 / green green"
-_ofeq "windowOutlineT WO-1 THE HEADING SELECTED: the white text is still on green (the same 18 white; green less only the two ends), and the two ends are the selection colour" "$(_wosc WO-1) / $(_woends WO-1)" "green 84 white 18 lightBlue 2 / lightBlue lightBlue"
+_ofeq "windowOutlineT WO-0 nothing selected: the scan across the heading reads its green and its white text; both ends green" "$(_wosc WO-0) / $(_woends WO-0)" "green 86 white 18 midBlue 0 / green green"
+_ofeq "windowOutlineT WO-1 THE HEADING SELECTED: the white text is still on green (the same 18 white; green less only the two ends), and the two ends are the selection colour" "$(_wosc WO-1) / $(_woends WO-1)" "green 84 white 18 midBlue 2 / midBlue midBlue"
 _ofeq "windowOutlineT WO-2 A SECOND SHOW of the open form: said by name, no second window made (one windowOffscreen line so far); the one window resizes" "$(_wol WO-2 '^WO-3') / made $(grep -c '^=== windowOffscreen: a window' "$T/wo.e")" "show firstLight in a window, not shown;windowOffscreen: firstLight is already open in a window; no second window;window resized: firstLight now 640x700 at (300,450) / made 2"
 _ofeq "windowOutlineT WO-3 closed, then shown again: a window is made anew at the frame the close kept" "$(_wol WO-3 '') / $(grep '^=== windowOffscreen: a window' "$T/wo.e" | tail -1 | sed 's/=== //; s/ ===//')" "window closed: firstLight kept 640x700 at (300,450);show firstLight in a window, not shown / windowOffscreen: a window 640 x 700, not shown"
+
+#  ⚑ windowDescribeT -- windows stroke B (SEQ 758, 2026-11-23; Tony's ruling 4): DESCRIBE ON SELECT. Selecting a field puts dESCRIPTIONs' entry of its name in the
+#  form's help box (the first field carrying describe), on the laid-out copy. Read from the floor's trace: characters the help box drew, of how many it held.
+#  H7: describePick's call removed from setFrame -> WD-1..WD-5 red (every box reads its own text).
+echo ""
+echo "-- describe on select (windowDescribeT)."
+_wdF=$(ip windowDescribeT)
+INCANT_NOVIEW=1 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_wdF" > "$T/wd.o" 2> "$T/wd.e"; _wdx=$?
+_wdr () { awk -v t="$1" '/^WD-/ {on = ($1 == t)} on && /^=== describe / {sub(/^=== describe /,""); sub(/ *===.*/,""); d=$0} on && $0 ~ "drawSpans ('"$2"') " {sub(/.*drawn /,""); sub(/ next.*/,""); n=$0} END {print (d == "" ? "no describe line" : d) " / " (n == "" ? "not drawn" : n)}' "$T/wd.o"; }
+_ofeq "windowDescribeT exit / sentinel / nothing refused" "$_wdx $(grep -c '^WD END' "$T/wd.o") $(cat "$T/wd.o" "$T/wd.e" | grep -c 'REFUS')" "0 1 0"
+_ofeq "windowDescribeT WD-0 nothing selected: each help box shows its own text" "$(_wdr WD-0 describeHelp) ; $(_wdr WD-0 wdBox)" "no describe line / 61 of 61 ; no describe line / 8 of 8"
+_ofeq "windowDescribeT WD-1 firstLight's heading selected: the help box holds describeHead's description and draws what fits" "$(_wdr WD-1 describeHelp)" "describeHelp shows the description of describeHead / 311 of 2008"
+_ofeq "windowDescribeT WD-2 a picture selected: saber's description; WD-3 the help box itself selected: nothing changes, still saber's" "$(_wdr WD-2 describeHelp) ; $(_wdr WD-3 describeHelp)" "describeHelp shows the description of saber / 111 of 111 ; describeHelp shows the description of saber / 111 of 111"
+_ofeq "windowDescribeT WD-4 a second form: A's description in its own help box; WD-5 the box itself: still A's" "$(_wdr WD-4 wdBox) ; $(_wdr WD-5 wdBox)" "wdBox shows the description of wdA / 49 of 49 ; wdBox shows the description of wdA / 49 of 49"
+_ofeq "windowDescribeT WD-6 ERRANT a field with no description: the help box is back to its own text (so the definition was never written)" "$(_wdr WD-6 wdBox)" "no describe line / 8 of 8"
+_ofeq "windowDescribeT WD-7 ERRANT a form with no help box: the described field is selected and nothing else happens" "$(awk '/^WD-7/ {on=1} on && /^=== (click|describe)/' "$T/wd.o" | sed 's/^=== //; s/ *=== *$//' | tr '\n' ';' | sed 's/;$//')" "click wdNoBox wdC selected;click wdNoBox wdC fired nothing, on the way up through 2 fields"
 
 #  ⚑ typesetT -- typesetting's first slice (Tony, 2026-11-12), in firstLight: two paragraphs in one field separated by a blank line, wrapping in its
 #  frame, and one {styleName: text} run in the second. The bands are read from the PDF. Controls: the gap band beside the before band (ink there, none

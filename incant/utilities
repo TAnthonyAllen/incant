@@ -916,6 +916,7 @@ define
         mergeStyles(*sfLaid);
         cardsPick(*sfLaid);
         selectionPick(*sfLaid);
+        describePick(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;
@@ -1890,6 +1891,56 @@ define
         if spVia == 1;      spPaint(*lkLook["selectFill"]);
         if spBase == 1;     spPaint(*lkBase["selectFill"]);
         };
+    /***************************************************************************
+        describePick -- describe on select (Tony, 2026-11-23; windows stroke B).
+        setFrame calls it on the laid-out copy, after selectionPick. The form's
+        HELP BOX is the copy's first field carrying a describe attribute (depth
+        first); a form with none: nothing. When the selected field is in this
+        copy (selectionPick found it) and dESCRIPTIONs holds an entry of its
+        name, the help box's describe text, on the copy, becomes that entry's,
+        and drawText shows it. A field with no entry: the box is left with its
+        own text. Selecting the help box itself changes nothing: the box goes
+        on showing what it described last (describedName). The definition is
+        never written: every layout starts from the box's own text.
+        ONE describedName for the run, as there is one selection: two open
+        forms do not each remember their own.
+    ***************************************************************************/
+    describePick code={
+        dpSel = selection.isGrouP;
+        if dpSel == 0;      return;
+        if spHit == 0;      return;
+        dpHit = 0;
+        dpFind(argument);
+        if dpHit == 0;      return;
+        dpBoxName = string $*dpBox.taG$;
+        dpName = string $spName$;
+        dpIsBox = 0;
+        if dpName == dpBoxName;     dpIsBox = 1;
+        if dpIsBox == 1;    dpName = string $describedName$;
+        if dpIsBox == 0;    describedName = string $spName$;
+        dpHas = 0;
+        if registries["dESCRIPTIONs"];
+            dpWords := registries["dESCRIPTIONs"];
+            if *dpWords[dpName];    dpHas = 1;
+        if dpHas == 0;      return;
+        dpEnt := *dpWords[dpName];
+        dpTo := *dpBox["describe"];
+        *dpTo = *dpEnt;
+        cout "=== describe" dpBoxName "shows the description of" dpName "===":;
+        };
+    dpFind code={
+        for grup in argument; members
+            if dpHit == 0;
+                dfL = *grup.listLengtH;
+                dfHas = 0;
+                if dfL > 0;
+                    if *grup["describe"];   dfHas = 1;
+                if dfHas == 1;
+                    dpBox := *grup;
+                    dpHit = 1;
+            if dpHit == 0;
+                if *grup.hasMemberS;    dpFind(*grup);
+        };
     spFind code={
         for grup in argument; members
             if spHit == 0;
@@ -1945,6 +1996,11 @@ define
     ckFired = 0;
     spName;
     spHit = 0;
+    dpHit = 0;
+    dpBox;
+    dpWords;
+    // describedName the name describePick described last ("none" before any), so selecting the help box itself changes nothing (two actions do not touch it; it is declared because it must outlive the call)
+    describedName = "none";
     spField;
     spHasFill = 0;
     // clickDone click writes it, clickShow reads it: 1 when the click found its field, 0 when it refused (two actions touch it, so it is declared)

@@ -1,0 +1,71 @@
+Start();
+windows = 2;
+show(firstLight);
+search FORMs cOLOr fONTs sTYLEs;
+register(dESCRIPTIONs);
+define
+    wdA="The words about A, from the descriptions registry";
+    wdC="The words about C";
+    ;
+register(FORMs);
+define
+    wdForm window x=0 y=0 width=200 height=200 fill:=pageFill
+        wdA="A" height=50 fill:=green;
+        wdB="B" height=50;
+        wdBox describe="own text" height=100;
+    wdNoBox window x=0 y=0 width=200 height=100 fill:=pageFill
+        wdC="C" height=50 fill:=green;
+    ;
+show(wdForm);
+show(wdNoBox);
+search FORMs;
+register(WindowDescribeT);
+define
+    flRead form:=firstLight;
+    flHead form:=firstLight px=250 py=265;
+    flPic form:=firstLight px=120 py=400;
+    flBox form:=firstLight px=250 py=570;
+    wdRead form:=wdForm;
+    wdOnA form:=wdForm px=100 py=25;
+    wdOnB form:=wdForm px=100 py=75;
+    wdOnBox form:=wdForm px=100 py=150;
+    wdNoRead form:=wdNoBox;
+    wdOnC form:=wdNoBox px=100 py=25;
+    ;
+search WindowDescribeT;
+cout "WD-0 nothing selected":;
+readWindow(flRead);
+readWindow(wdRead);
+cout "WD-1 firstLight: the heading":;
+windowClick(flHead);
+readWindow(flRead);
+cout "WD-2 firstLight: a picture":;
+windowClick(flPic);
+readWindow(flRead);
+cout "WD-3 firstLight: the help box itself":;
+windowClick(flBox);
+readWindow(flRead);
+cout "WD-4 wdForm: A, described":;
+windowClick(wdOnA);
+readWindow(wdRead);
+cout "WD-5 wdForm: the help box itself":;
+windowClick(wdOnBox);
+readWindow(wdRead);
+cout "WD-6 wdForm: B, no description":;
+windowClick(wdOnB);
+readWindow(wdRead);
+cout "WD-7 wdNoBox: C, described, in a form with no help box":;
+windowClick(wdOnC);
+readWindow(wdNoRead);
+cout "WD END":;
+stop();
+
+windowDescribeT -- windows stroke B (2026-11-23, SEQ 758): describe on select. Tester's shape.
+Selecting a field puts its description (dESCRIPTIONs' entry of the field's name) in the form's help box, the first
+field carrying a describe attribute. Read from the floor's own trace: how many characters the help box drew, of how many.
+WD-0  nothing selected: each help box shows its own text (firstLight's 61 characters, wdForm's 8).
+WD-1  firstLight's heading: the box holds describeHead's 2008 characters and draws what fits.
+WD-2  a picture: saber's 111.   WD-3  the help box itself: nothing changes, still saber's 111.
+WD-4  wdForm's A: its 49.       WD-5  the help box itself: still A's 49.
+WD-6  B, which has no description: the box is back to its own 8 -- so no layout ever wrote the definition.
+WD-7  a form with no help box: the click selects and nothing else happens; no describe line, nothing refused.
