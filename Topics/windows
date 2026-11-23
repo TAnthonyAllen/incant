@@ -72,8 +72,10 @@ Gathered here 2026-11-19 from Topics/forms, Topics/drawing, docs/gcRecon.md and 
     built       windowOffscreen(form): the window made and never shown, no loop, returns (stroke 0; the fleet's door).
     seen        (stroke 5, Tony watching, 2026-11-23) tabForm and firstLight shown, clicked, resized, closed and reopened at the kept frame.
                 a window keeps the search list it was opened under and runs every call into kant under it (W5-1, guiHost.mm runUnder).
-    not built   windows defaulting to 1, a second show raising the open window, selection as an outline, describe on select (all ruled
-                2026-11-23, below); image actions, editing.
+    built       (strokes A and B, 2026-11-23, on branches windows-raise and windows-describe until bought) windows defaults to 1; a second show
+                raises the open window (guiHost.mm alreadyOpen); selection is an OUTLINE, a two-point border in selectFill (defaultLook's is midBlue,
+                r0 g120 b215); describe on select (utilities describePick: the help box is the copy's first field carrying describe).
+    not built   image actions, editing.
 
 /*****************************************************************************
     Plan

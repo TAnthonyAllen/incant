@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2258720 bytes  Nov 23 11:10
+  bin   2258720 bytes  Nov 23 11:27
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -182,9 +182,9 @@
   ok    tabClickT TK-6 the definition is never written: its thirdCard is not hidden after the clicks = [TK-6 the definition's thirdCard isHidden 0]
 -- pour: data poured into a form (pourT; SEQ 741).
   ok    pourT exit / sentinel = [0 1]
-  ok    pourT PT-1 cOLOr poured: 14 rows whatever fits, names in cOLOr's order by their length (black blue darkBrown ... wall white) = [5 4 9 10 4 5 9 10 8 11 3 10 4 5 ]
-  ok    pourT PT-2 the swatch text is the value (7 characters, 14 times) and its colour is contrast's: white on 3 (black, blue, darkBrown), black on 11 = [14 / r0 g0 b0 x11;r255 g255 b255 x3;]
-  ok    pourT PT-3 the swatch pixels are the members' colours: rows 1, 2, 13, 14; below row 14 is the page = [r0 g0 b0 | r0 g81 b186 | r247 g232 b170 | r255 g255 b255 | r255 g255 b255]
+  ok    pourT PT-1 cOLOr poured: 15 rows whatever fits, names in cOLOr's order by their length (black blue darkBrown ... wall white) = [5 4 9 10 4 5 9 10 7 8 11 3 10 4 5 ]
+  ok    pourT PT-2 the swatch text is the value (7 characters, 15 times) and its colour is contrast's: white on 3 (black, blue, darkBrown), black on 12 = [15 / r0 g0 b0 x12;r255 g255 b255 x3;]
+  ok    pourT PT-3 the swatch pixels are the members' colours: rows 1, 2, 14, 15; below row 15 is the page = [r0 g0 b0 | r0 g81 b186 | r247 g232 b170 | r255 g255 b255 | r255 g255 b255]
   ok    pourT PT-4 a member with no entry in the qualified registry shows NOTHING: two third cells drawn (black 11, wall 13 characters), no warning, no tag = [11 13 / 0]
   ok    pourT PT-5 a registry of three in room for two: three rows; black fill white text, wall and red (#ef2b2d, 20.9%) black text = [5 r255;4 r0;5 r0;]
   ok    pourT PT-6 contrast with no pour: a blue fill white, a literal #ffffff black, no fill the text colour in effect (red) = [ptDark r255 g255 b255;ptLight r0 g0 b0;ptBare r239 g43 b45;]
@@ -194,14 +194,14 @@
   ok    colorListT exit / sentinel / no refusal = [0 1 0]
   ok    colorListT CL-0 stderr holds this fixture's CL-4 line and its sentinel and nothing else = [2 2]
   ok    colorListT CL-1 found in the stash (deferred), drawn to test.pdf = [1 1]
-  ok    colorListT CL-2 14 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white) = [5 4 9 10 4 5 9 10 8 11 3 10 4 5 ]
-  ok    colorListT CL-3 14 swatches printing their value, white text on 3 and black on 11; 14 descriptions = [14 14 3 11 14]
+  ok    colorListT CL-2 15 rows, the names in cOLOr's order (by length: black blue darkBrown ... wall white) = [5 4 9 10 4 5 9 10 7 8 11 3 10 4 5 ]
+  ok    colorListT CL-3 15 swatches printing their value, white text on 3 and black on 12; 14 descriptions (midBlue has none) = [15 15 3 12 14]
   ok    colorListT CL-4 loading the form leaves cOLOr as it was; black's description is words, not a colour (its wording is the form's to change) = [CL-4 cOLOr black [ #000000 ] white [ #ffffff ] / 1]
-  ok    colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 14 x 24 + 13 x 4 + 2 x 12 = [490x452]
+  ok    colorListT CL-5 height=fit: the page is as tall as its rows need, 40 + 15 x 24 + 14 x 4 + 2 x 12 = [490x480]
 -- pour stage 2: rows derived from what is poured; margin, gap, height=fit (pourDeriveT; SEQ 742).
   ok    pourDeriveT exit / sentinel / no refusal = [0 1 0]
-  ok    pourDeriveT PD-1 cOLOr derived: 14 names, 14 swatches printing their value (white text 3, black 11), 2 descriptions (black, wall) = [14 14 3 11 11 13 ]
-  ok    pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 452 high = [pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=452]
+  ok    pourDeriveT PD-1 cOLOr derived: 15 names, 15 swatches printing their value (white text 3, black 12), 2 descriptions (black, wall) = [15 15 3 12 11 13 ]
+  ok    pourDeriveT PD-2 margin, gap, fit by frame: title 12 in and 466 wide; rows 1 and 2 at y 52 and 80 (24 + 4); the top 480 high = [pdTitle x=12 y=12 w=466 h=40 / y=52 y=80 / h=480]
   ok    pourDeriveT PD-3 fONTs: seven samples, each in its own font; a row as tall as its sample needs = [.AppleSystemUIFont 18 0|Copperplate 12 0|Courier New 24|Helvetica 10 0|Palatino 14 1|Palatino 14 0|Palatino 24 1| / h=30 h=24 h=36 h=24 h=26 h=26 h=36 ]
   ok    pourDeriveT PD-4 sTYLEs: 17 rows; emphasis's sample is red (the style applied, one r239); accent, a placeholder, is defaultLook's red swatch (black text) = [17 1 r0]
   ok    pourDeriveT PD-5 the same pour under a look of its own (accent blue, pageFill black): accent's swatch reads white text; one more white than by day = [r255 2 4]
@@ -338,7 +338,7 @@
   ok    windowClickT WS-1 SELECTION: the selected field is OUTLINED in the look's selectFill, blue, its own red left inside; the others as they were = [red | white | green | blue | white | green]
   ok    windowClickT WS-2 a selected field naming no fill is given none: plain's middle still the page's white, its edge blue; inner's edge red again = [red | white | green | red | blue | green]
   ok    windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower's edge wall, not blue, its middle still green; nothing fires on the way up = [red | white | green | red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields]
-  ok    windowClickT WS-4 a request naming NO look: the selected field is outlined in defaultLook's selectFill, lightBlue (the request's look's was blue) = [red | white | green | red | lightBlue | green]
+  ok    windowClickT WS-4 a request naming NO look: the selected field is outlined in defaultLook's selectFill, midBlue since 2026-11-23 (the request's look's was blue) = [red | white | green | red | midBlue | green]
   ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner's edge blue = [click wcForm wcInner selected / red | white | green | blue | white | green]
 
 -- a window resized, clicked, closed and reopened (windowResizeT).
@@ -370,10 +370,19 @@
 -- selection as an outline, the second show, the windows default (windowOutlineT).
   ok    windowOutlineT exit / sentinel / nothing refused = [0 1 0]
   ok    windowOutlineT WO-D THE DEFAULT: windows reads 1 before the fixture sets it = [WO-D windows as setup leaves it 1]
-  ok    windowOutlineT WO-0 nothing selected: the scan across the heading reads its green and its white text; both ends green = [green 86 white 18 lightBlue 0 / green green]
-  ok    windowOutlineT WO-1 THE HEADING SELECTED: the white text is still on green (the same 18 white; green less only the two ends), and the two ends are the selection colour = [green 84 white 18 lightBlue 2 / lightBlue lightBlue]
+  ok    windowOutlineT WO-0 nothing selected: the scan across the heading reads its green and its white text; both ends green = [green 86 white 18 midBlue 0 / green green]
+  ok    windowOutlineT WO-1 THE HEADING SELECTED: the white text is still on green (the same 18 white; green less only the two ends), and the two ends are the selection colour = [green 84 white 18 midBlue 2 / midBlue midBlue]
   ok    windowOutlineT WO-2 A SECOND SHOW of the open form: said by name, no second window made (one windowOffscreen line so far); the one window resizes = [show firstLight in a window, not shown;windowOffscreen: firstLight is already open in a window; no second window;window resized: firstLight now 640x700 at (300,450) / made 2]
   ok    windowOutlineT WO-3 closed, then shown again: a window is made anew at the frame the close kept = [window closed: firstLight kept 640x700 at (300,450);show firstLight in a window, not shown / windowOffscreen: a window 640 x 700, not shown]
+
+-- describe on select (windowDescribeT).
+  ok    windowDescribeT exit / sentinel / nothing refused = [0 1 0]
+  ok    windowDescribeT WD-0 nothing selected: each help box shows its own text = [no describe line / 61 of 61 ; no describe line / 8 of 8]
+  ok    windowDescribeT WD-1 firstLight's heading selected: the help box holds describeHead's description and draws what fits = [describeHelp shows the description of describeHead / 311 of 2008]
+  ok    windowDescribeT WD-2 a picture selected: saber's description; WD-3 the help box itself selected: nothing changes, still saber's = [describeHelp shows the description of saber / 111 of 111 ; describeHelp shows the description of saber / 111 of 111]
+  ok    windowDescribeT WD-4 a second form: A's description in its own help box; WD-5 the box itself: still A's = [wdBox shows the description of wdA / 49 of 49 ; wdBox shows the description of wdA / 49 of 49]
+  ok    windowDescribeT WD-6 ERRANT a field with no description: the help box is back to its own text (so the definition was never written) = [no describe line / 8 of 8]
+  ok    windowDescribeT WD-7 ERRANT a form with no help box: the described field is selected and nothing else happens = [click wdNoBox wdC selected;click wdNoBox wdC fired nothing, on the way up through 2 fields]
 
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
@@ -434,7 +443,7 @@
   ok    lookT LK-2 THE SAME FORM UNDER look:=lkNight: the page black, lkA Courier white, lkC Courier lightBlue = [r0 g0 b0 a255 / Courier New 24 1 r255 g255 b255 / Courier New 24 1 r206 g255 b255]
   ok    lookT LK-3 a look that merges defaultLook and writes accent: only lkC's colour changes (green) = [r255 g255 b255 a255 / Palatino 24 1 r0 g0 b0 / Palatino 24 1 r0 g158 b15]
   ok    lookT LK-4 an ordinary name falls through under every look: lkB's fill:=wall and color:=blue, four pages = [fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / fill=wall Palatino 14 0 r0 g81 b186 / ]
-  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [36dd437b074f2b3e39b1d2c59d263c8e 7]
+  ok    lookT LK-5 the form, its style, defaultLook and lkNight print the same after five layouts as before (7 lines) = [0116de895994df4c11d84ddd1459b3fb 7]
   ok    lookT LK-6 with no look again the page reads as LK-1 (9 lines each) = [5488e14b31cf1a757da705649cac2b2a 9]
   ok    lookT LK-7 A PLACEHOLDER IN NO LOOK is refused by name, once, and left as written = [1 1]
   ok    lookT LK-8 A STYLE WITH NO FILL DRAWS WITH NO REFUSAL (F-156): lkC, whose style holds font and colour only, 0 displayFill refusals on four pages; the one refusal in the run is lkBad's unresolved fill = [0 1 1]
@@ -475,4 +484,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 408 green, see above
+FORMS POP FAILED -- 415 green, see above
