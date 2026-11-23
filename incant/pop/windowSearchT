@@ -1,0 +1,42 @@
+Start();
+windows = 2;
+show(tabForm);
+search FORMs;
+register(WindowSearchT);
+define
+    wsX = 0;
+    wsY = 0;
+    wsRead form:=tabForm;
+    wsAt code={
+        px = wsX;
+        py = wsY;
+        argument :% copyOf(px);
+        argument :% copyOf(py);
+        pixelAt(argument);
+        };
+    wsClick form:=tabForm px=180 py=62 later;
+    wsBig x=400 y=400 width=500 height=500;
+    wsResize form:=tabForm frame:=wsBig later;
+    wsClose form:=tabForm later;
+    ;
+search WindowSearchT;
+cout "WS-1 before the draw":;
+readWindow(wsRead);
+wsX = 180; wsY = 200; wsAt(wsRead);
+wsX = 20; wsY = 62; wsAt(wsRead);
+windowClick(wsClick);
+windowResize(wsResize);
+windowClose(wsClose);
+cout "WS END":;
+stop();
+
+windowSearchT -- fix stroke W5-1 (2026-11-23, SEQ 754). The first window anyone saw was blank: REFUSED drawFill.
+show puts the search list back when it returns, so a window's later calls into kant (a draw, a click, a resize, a
+close) ran under the script's own list, with no Utilities on it; drawWalk, first built then, bound drawFill to a
+fresh local. Every other window fixture includes utilities itself and keeps it on the list, so none could see it.
+This one is tester's shape: the bootstrap show and nothing else, then a list holding only FORMs and this registry.
+The cure: a window keeps the search list in force when it was opened and runs every call into kant under it
+(guiHost.mm, runUnder).
+WS-1  the window show made, read with Utilities off the list, paints: the first card's green, tab One's selected green.
+WS-2  inside the real loop, after the script has ended: a click on tab Two fires tabClick, the resize lays out at
+      500x500, the close keeps the frame; no REFUSED line anywhere.

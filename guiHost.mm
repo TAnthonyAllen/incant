@@ -37,7 +37,7 @@
 #import "Stylish.h"
 
 //  windows every window made, with the cell that keeps its form alive; found by the form's body (a field and its faces share one)
-//  windows held[0] is the laid-out copy, held[1] the request the window was opened with (0 for a window handed a bare copy)
+//  windows held[0] is the laid-out copy, held[1] the request the window was opened with (0 for a window handed a bare copy), held[2] the search list in force when it was opened
 struct WindowRecord { Layout *view; GroupItem **held; bool shown; };
 static std::vector<WindowRecord> gWindows;
 
@@ -159,6 +159,28 @@ extern "C" GroupItem *windowRootProbe(GroupItem *input)
 ***************************************************************************/
 static GroupItem **gTaken;
 
+/***************************************************************************
+    THE WINDOW'S SEARCH LIST (fix stroke W5-1, 2026-11-23). A window calls
+    kant long after the statement that opened it: a draw, a click, a resize,
+    a close, all from the event loop, which runs when the script has ended.
+    show puts the search list back when it returns, so by then Utilities is
+    not on it -- and a kant body binds its names when it is first built, with
+    the search list of that moment. drawWalk, first built inside the loop,
+    bound drawFill to a fresh local and the first window anyone saw was blank
+    (REFUSED drawFill; Tony's watched run). So each window keeps the search
+    list in force when it was opened (held[2]), and every call a window makes
+    into kant runs under that list, the caller's put back after.
+***************************************************************************/
+static GroupItem *runUnder(GroupItem *search, GroupItem *argument, GroupItem *action)
+{
+    if ( !search ) return runAction(argument, action);
+    GroupItem *was = searchSave(0);
+    searchRestore(search);
+    GroupItem *result = runAction(argument, action);
+    searchRestore(was);
+    return result;
+}
+
 extern "C" GroupItem *windowTake(GroupItem *input)
 {
     if ( !gTaken ) gTaken = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *));
@@ -221,13 +243,13 @@ static void displayPublish()
         high->setCount((int)usable.size.height); }
 }
 
-static GroupItem *windowLayout(GroupItem *opened, NSRect *frame)
+static GroupItem *windowLayout(GroupItem *opened, NSRect *frame, GroupItem *search)
 {
     GroupItem *lay = utilityAction("windowLay");
     if ( !lay ) return 0;
     displayPublish();
     windowTake(0);
-    runAction(windowRequest(opened, frame), lay);
+    runUnder(search, windowRequest(opened, frame), lay);
     return *gTaken;
 }
 
@@ -252,8 +274,11 @@ static void windowRelay(Layout *view)
     WindowRecord *w = windowOf(view);
     if ( !w || !w->held[1] ) return;
     NSRect now = formFrame(view);
-    GroupItem *laid = windowLayout(w->held[1], &now);
+    GroupItem *laid = windowLayout(w->held[1], &now, w->held[2]);
     if ( !laid ) return;
+    //  refetch the layout ran kant, which may open a window: gWindows can have moved
+    w = windowOf(view);
+    if ( !w ) return;
     w->held[0] = laid;
     view->base = laid;
     [view setNeedsDisplay:YES];
@@ -278,9 +303,12 @@ static void windowClosed(Layout *view)
         GroupItem *keep = utilityAction("keepFrame");
         printf("=== window closed: %s kept %gx%g at (%g,%g) ===\n", view->base ? view->base->groupBody->tag : "nothing", now.size.width, now.size.height, now.origin.x, now.origin.y);
         fflush(stdout);
-        if ( keep ) runAction(windowRequest(w->held[1], &now), keep); }
+        if ( keep ) runUnder(w->held[2], windowRequest(w->held[1], &now), keep);
+        w = windowOf(view);
+        if ( !w ) return; }
     w->held[0] = 0;
     w->held[1] = 0;
+    w->held[2] = 0;
     view->base = 0;
     gWindows.erase(gWindows.begin() + (w - &gWindows[0]));
 }
@@ -329,8 +357,10 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
     if ( getenv("WINDOW_CLEAR_ROOTS") ) GC_clear_roots();
     GC_add_roots((char *)&GroupControl::groupController,
                  (char *)&GroupControl::groupController + sizeof(GroupControl *));
-    GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *) * 2);
+    GroupItem **heldForm = (GroupItem **)GC_MALLOC_UNCOLLECTABLE(sizeof(GroupItem *) * 3);
     heldForm[0] = input;
+    //  ownSearch the search list of the statement that opened the window (show's, or a fixture's own): every later call into kant runs under it (runUnder)
+    heldForm[2] = searchSave(0);
     //  ownRequest the window keeps a request of its own: the caller's field may be reused for the next window (showForm's showReq is)
     heldForm[1] = request ? windowRequest(request, 0) : 0;
     GroupItem *titleF = input ? input->get((char *)"title") : 0;
@@ -374,6 +404,8 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
     drawWalk on the top, and clears the slot again -- the context is
     AppKit's and is gone when drawRect returns.
 ***************************************************************************/
+static WindowRecord *windowHolding(GroupItem *top);
+
 void windowDrawForm(GroupItem *top, double height)
 {
     if ( !top ) return;
@@ -390,7 +422,8 @@ void windowDrawForm(GroupItem *top, double height)
     CGContextTranslateCTM(ctx, -framed.origin.x, -framed.origin.y);
     top->setPointer((void *)ctx);
     handDisplay(top, top);
-    runAction(top, walk);
+    WindowRecord *drawn = windowHolding(top);
+    runUnder(drawn ? drawn->held[2] : 0, top, walk);
     top->groupBody->gPointer = 0;
     top->groupBody->flags.isPointer = 0;
     CGContextRestoreGState(ctx);
@@ -473,7 +506,8 @@ static void windowClickAt(Layout *view, NSPoint inView)
     if ( !clicker ) {
         fprintf(stderr, "windowClick: REFUSING %s -- no clickField in Utilities\n", top->groupBody->tag);
         return; }
-    runAction(hit, clicker);
+    WindowRecord *clicked = windowOf(view);
+    runUnder(clicked ? clicked->held[2] : 0, hit, clicker);
     //  clickRedraws a window that knows its request lays out again after the click (clickShow's kin), so what the click changed, and the selection, show
     windowRelay(view);
 }
@@ -630,7 +664,7 @@ extern "C" GroupItem *windowOffscreen(GroupItem *input)
     @autoreleasepool {
         unsigned before = _dyld_image_count();
         GroupItem *request = isRequest(input) ? input : 0;
-        GroupItem *top = request ? windowLayout(request, 0) : input;
+        GroupItem *top = request ? windowLayout(request, 0, 0) : input;
         if ( request && !top ) {
             fprintf(stderr, "windowOffscreen: REFUSING %s -- its form was not laid out\n", input->groupBody->tag);
             return 0; }
@@ -650,7 +684,7 @@ extern "C" GroupItem *openWindow(GroupItem *input)
 {
     @autoreleasepool {
         GroupItem *request = isRequest(input) ? input : 0;
-        GroupItem *top = request ? windowLayout(request, 0) : input;
+        GroupItem *top = request ? windowLayout(request, 0, 0) : input;
         if ( request && !top ) {
             fprintf(stderr, "openWindow: REFUSING %s -- its form was not laid out\n", input->groupBody->tag);
             return 0; }
