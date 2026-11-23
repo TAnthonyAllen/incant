@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2258528 bytes  Nov 23 10:44
+  bin   2258720 bytes  Nov 23 11:10
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -136,8 +136,8 @@
 -- the mock click: G2 stroke 3, goal G1 (clickT).
   ok    clickT exit / sentinel = [0 1]
   ok    clickT CK-1 before: no listener run; (200,580) is the descriptions form's lightGreen = [runs 0 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255]
-  ok    clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,580) is the note form's white and its text is drawn; heading unmoved; ok, selected, is the look's selectFill (lightBlue) = [runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r206 g255 b255 a255 / heading words ok okNoteText]
-  ok    clickT CK-3 a second click brings descriptions back: two runs; the page and text calls are CK-1's by value but for ok, still selected (lightBlue) = [runs 2 / r247 g232 b170 a255 / r175 g211 b120 a255 / r206 g255 b255 a255 / heading words ok describeHead describeHelp]
+  ok    clickT CK-2 THE CLICK: ok selected, its onClick fired okClick, one listener run; (200,580) is the note form's white and its text is drawn; heading unmoved; ok, selected, keeps its own lightGreen inside its outline = [runs 1 selected ok / firstLight ok selected / firstLight ok fired onClick okClick / r247 g232 b170 a255 / r255 g255 b255 a255 / r175 g211 b120 a255 / heading words ok okNoteText]
+  ok    clickT CK-3 a second click brings descriptions back: two runs; the page and text calls are CK-1's by value (ok, still selected, reads its own fill at its middle) = [runs 2 / r247 g232 b170 a255 / r175 g211 b120 a255 / r175 g211 b120 a255 / heading words ok describeHead describeHelp]
   ok    clickT CK-4 a field with no action: heading is selected, nothing fired, no listener run = [runs 2 selected heading / firstLight heading selected]
   ok    clickT CK-5 a name the form lacks and a request with no field name: each refused by name; no click line, no run, the selection as it was = [1 1 / [] / runs 2 selected heading]
   ok    clickT CK-6 ORDER: the field's own action, then its attribute actions left to right (a plain attribute between them fires nothing): 123 = [123 / ckBoth ckOwn selected / ckBoth ckOwn fired its own action / ckBoth ckOwn fired first ckFirst / ckBoth ckOwn fired second ckSecond]
@@ -333,21 +333,21 @@
   ok    windowClickT WC-1 redrawn in the window: tab Three and the whole card red, tab One tabFill (tabClickT's TK-1, from a point) = [tabFill | tabFill | red | red | red]
   ok    windowClickT WC-2 a point in the card: the shown card is hit, not a hidden one; nothing fires on the way up, said with the count of fields tried = [windowClick tabForm at (300,260): thirdCard;click tabForm thirdCard selected;click tabForm thirdCard fired nothing, on the way up through 4 fields]
   ok    windowClickT WC-3 a point outside the form: no field, nothing fired, said so; no click line follows = [windowClick tabForm at (500,500): no field, nothing fired]
-  ok    windowClickT WS-0 the second form as declared: inner red, plain the page's white, lower green = [red | white | green]
+  ok    windowClickT WS-0 the second form as declared: inner red, plain the page's white, lower green; the edges the same = [red | white | green | red | white | green]
   ok    windowClickT WS-1 BUBBLING: a point in wcInner (no action) fires its parent wcOuter's onClick, handed wcOuter = [windowClick wcForm at (100,25): wcInner;click wcForm wcInner selected;click wcForm wcOuter fired onClick wcSay;WC-SAY handed wcOuter]
-  ok    windowClickT WS-1 SELECTION: the selected field is drawn with the look's selectFill, blue; the others as they were = [blue | white | green]
-  ok    windowClickT WS-2 a selected field naming no fill is given one: plain blue; inner red again = [red | blue | green]
-  ok    windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower wall, not blue; nothing fires on the way up = [red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields]
-  ok    windowClickT WS-4 a request naming NO look: the selected field takes defaultLook's selectFill, lightBlue (the request's look's was blue) = [red | lightBlue | green]
-  ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner blue = [click wcForm wcInner selected / blue | white | green]
+  ok    windowClickT WS-1 SELECTION: the selected field is OUTLINED in the look's selectFill, blue, its own red left inside; the others as they were = [red | white | green | blue | white | green]
+  ok    windowClickT WS-2 a selected field naming no fill is given none: plain's middle still the page's white, its edge blue; inner's edge red again = [red | white | green | red | blue | green]
+  ok    windowClickT WS-3 a field naming ITS OWN selectFill wins over the look's: lower's edge wall, not blue, its middle still green; nothing fires on the way up = [red | white | green | red | white | wall / click wcForm wcLower fired nothing, on the way up through 3 fields]
+  ok    windowClickT WS-4 a request naming NO look: the selected field is outlined in defaultLook's selectFill, lightBlue (the request's look's was blue) = [red | white | green | red | lightBlue | green]
+  ok    windowClickT WS-5 the mock click by name still selects, does not climb, and shows the same way: inner's edge blue = [click wcForm wcInner selected / red | white | green | blue | white | green]
 
 -- a window resized, clicked, closed and reopened (windowResizeT).
   ok    windowResizeT exit / sentinel = [0 1]
   ok    windowResizeT open: a window opened with a REQUEST lays the form out itself; the page = resizeLightT's RG-1 by value = [500x600 wall white wall green]
   ok    windowResizeT big: A RESIZE to 1200x600 -- the frame it reports, and the page = resizeLightT's RG-2 by value (the mock resize, same size) = [window resized: firstLight now 1200x600 at (300,450) / 1200x600 wall white wall green wall]
   ok    windowResizeT big: the store's entry was read and cleared by the layout, as redrawWindow leaves it = [WR-STORE after-resize entry 0]
-  ok    windowResizeT click: at the big size the window LAYS OUT AGAIN BY ITSELF after a click -- still 1200x600, and ok, selected, is lightBlue = [windowClick firstLight at (1190,230): ok;click firstLight ok selected;click firstLight ok fired onClick okClick / 1200x600 wall white wall lightBlue wall]
-  ok    windowResizeT small: resized back, the page is 500x600 with resizeLightT's small points, ok still selected = [500x600 wall white wall lightBlue]
+  ok    windowResizeT click: at the big size the window LAYS OUT AGAIN BY ITSELF after a click -- still 1200x600, the held form swapped; ok, selected, keeps its green inside = [windowClick firstLight at (1190,230): ok;click firstLight ok selected;click firstLight ok fired onClick okClick / 1200x600 wall white wall green wall]
+  ok    windowResizeT small: resized back, the page is 500x600 with resizeLightT's small points, ok still selected (its middle its own green) = [500x600 wall white wall green]
   ok    windowResizeT close: A CLOSE keeps the window's frame for its form (keepFrame alone), and the window is forgotten: reading it refuses by name = [window closed: firstLight kept 1200x600 at (300,450);WR-STORE after-close entry 1 / 1]
   ok    windowResizeT reopen: THE REOPENED WINDOW READS THE KEPT FRAME -- 1200x600, where the form declares 500x600 -- and the entry is cleared = [1200x600 / WR-STORE after-reopen entry 0]
   ok    windowResizeT errant: a resize and a close for a form no window shows are refused by name; firstLight still declares 500x600 = [1 1 / firstLight x=300 y=450 width=500 height=600]
@@ -366,6 +366,14 @@
   ok    windowSearchT exit / sentinel / nothing refused on either stream = [0 1 0]
   ok    windowSearchT WS-1 the window show made, drawn with Utilities off the search list, paints: the first card's green and tab One's selected green = [readWindow wsRead title [Using Tabs] size 360x400;pixelAt wsRead (180,200) = r0 g158 b15 a255;pixelAt wsRead (20,62) = r0 g128 b12 a255]
   ok    windowSearchT WS-2 inside the loop, the script ended: the click fires tabClick, the resize lays out, the close keeps the frame, the loop ends = [window loop: started, 1 open, 0 shown, 3 kept for later;windowClick tabForm at (180,62): tabTwo;click tabForm tabTwo selected;click tabForm tabTwo fired onClick tabClick;selectTab tabTwo;window resized: tabForm now 500x500 at (400,400);window closed: tabForm kept 500x500 at (400,400);window loop: ended, 0 open]
+
+-- selection as an outline, the second show, the windows default (windowOutlineT).
+  ok    windowOutlineT exit / sentinel / nothing refused = [0 1 0]
+  ok    windowOutlineT WO-D THE DEFAULT: windows reads 1 before the fixture sets it = [WO-D windows as setup leaves it 1]
+  ok    windowOutlineT WO-0 nothing selected: the scan across the heading reads its green and its white text; both ends green = [green 86 white 18 lightBlue 0 / green green]
+  ok    windowOutlineT WO-1 THE HEADING SELECTED: the white text is still on green (the same 18 white; green less only the two ends), and the two ends are the selection colour = [green 84 white 18 lightBlue 2 / lightBlue lightBlue]
+  ok    windowOutlineT WO-2 A SECOND SHOW of the open form: said by name, no second window made (one windowOffscreen line so far); the one window resizes = [show firstLight in a window, not shown;windowOffscreen: firstLight is already open in a window; no second window;window resized: firstLight now 640x700 at (300,450) / made 2]
+  ok    windowOutlineT WO-3 closed, then shown again: a window is made anew at the frame the close kept = [window closed: firstLight kept 640x700 at (300,450);show firstLight in a window, not shown / windowOffscreen: a window 640 x 700, not shown]
 
 -- paragraphs and one run in firstLight (typesetT).
   ok    typesetT exit / sentinel = [0 1]
@@ -467,4 +475,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 402 green, see above
+FORMS POP FAILED -- 408 green, see above
