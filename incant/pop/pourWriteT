@@ -1,0 +1,135 @@
+Start();
+windows = 2;
+show(firstLight);
+registry(PwThree);
+define
+    pwOne="#000000";
+    pwTwo="#f7e8aa" note="keep";
+    pwThree="#ef2b2d";
+    ;
+registry(PwActs);
+define
+    pwDoIt code={ cout "PW pwDoIt FIRED":; };
+    ;
+register(dESCRIPTIONs);
+define
+    pwTwo="words for two";
+    ;
+register(FORMs);
+search FORMs cOLOr fONTs sTYLEs PwThree PwActs dESCRIPTIONs;
+define
+    pwNext = "none";
+    pwAsk on value;
+    pwSet code={
+        pwAsk.on := argument;
+        pwAsk.value = string $pwNext$;
+        pourWriteAt(pwAsk);
+        };
+    pwShows code={
+        pwsD = *selection.datA;
+        pwsT = "nothing";
+        if pwsD != 0;   pwsT = string $*selection$;
+        pwsN = string $*selection.taG$;
+        cout "PW-SHOWS" pwsN "[" pwsT "]":;
+        };
+    pwTpl window x=0 y=0 width=400 height=100 down fill:=pageFill font:=bodyFont
+        pwRows down="*" pour:=PwThree
+            pwRow across height=24
+                pwName="{each.taG}" width=100 onClick:=pwSet;
+                pwVal="{each}" width=100 onClick:=pwSet;
+                pwWord="{dESCRIPTIONs.each}" onClick:=pwSet;
+    pwDer window x=0 y=120 width=400 height=120 down fill:=pageFill font:=bodyFont
+        pwDrows down="*" pour:=PwThree gap=4 onClick:=pwShows;
+    pwPlain window x=420 y=0 width=200 height=60 down fill:=pageFill font:=bodyFont
+        pwOut="not poured" height=30 onClick:=pwSet;
+    ;
+show(pwTpl);
+show(pwDer);
+show(pwPlain);
+register(PourWriteT);
+define
+    pwOnName2 form:=pwTpl px=50 py=36;
+    pwOnVal2 form:=pwTpl px=150 py=36;
+    pwOnVal3 form:=pwTpl px=150 py=60;
+    pwOnWord1 form:=pwTpl px=300 py=12;
+    pwOnWord3 form:=pwTpl px=300 py=60;
+    pwOnDer3 form:=pwDer px=160 py=68;
+    pwOnOut form:=pwPlain px=50 py=15;
+    pwgIn = "PwThree";
+    pwgOut = "gone";
+    pwgAttrs = 0;
+    pwGet code={
+        pwgOut = "gone";
+        pwgAttrs = 0;
+        pwgR := registries[pwgIn];
+        pefName = string $argument$;
+        pourEntryFind(*pwgR);
+        if pefHit == 1;     pwgOut = string $*pefAt$;
+        if pefHit == 1;     pwgAttrs = *pefAt.listLengtH;
+        };
+    pwState code={
+        pwgIn = "PwThree";
+        pwGet("pwOne");
+        pws1 = string $pwgOut$;
+        pwGet("pwTwo");
+        pws2 = string $pwgOut$;
+        pwsA = pwgAttrs;
+        pwGet("pwThree");
+        pws3 = string $pwgOut$;
+        pwgIn = "dESCRIPTIONs";
+        pwGet("pwOne");
+        pwd1 = string $pwgOut$;
+        pwGet("pwTwo");
+        pwd2 = string $pwgOut$;
+        cout "PW-STATE" argument "pwOne" pws1 "pwTwo" pws2 "attrs" pwsA "pwThree" pws3 "/ words pwOne [" pwd1 "] pwTwo [" pwd2 "] wrote" pourWrote:;
+        };
+    pwDrop code={
+        pwdR := registries["PwThree"];
+        pefName = "pwThree";
+        pourEntryFind(*pwdR);
+        if pefHit == 1;     *pwdR -= *pefAt;
+        };
+    pwNoValue source="PwThree" entry="pwOne";
+    pwNoReg source="PwNowhere" entry="pwOne" value="x";
+    pwRule source="PwActs" entry="pwDoIt" value="x";
+    pwByName source="PwThree" entry="pwOne" value="#0000ff";
+    ;
+search PourWriteT FORMs Utilities;
+cout "PW-PAGE W-0":;    cerr "PW-PAGE W-0":;    pwState("W-0");
+pwNext = "#123456";
+cout "PW-PAGE W-1":;    cerr "PW-PAGE W-1":;    windowClick(pwOnVal3);      pwState("W-1");
+cout "PW-PAGE W-2":;    cerr "PW-PAGE W-2":;    windowClick(pwOnDer3);      windowClick(pwOnDer3);
+pwNext = "renamed";
+cout "PW-PAGE W-3":;    cerr "PW-PAGE W-3":;    windowClick(pwOnName2);     pwState("W-3");
+pwNext = "new words for one";
+cout "PW-PAGE W-4":;    cerr "PW-PAGE W-4":;    windowClick(pwOnWord1);     pwState("W-4");
+pwNext = "better words for two";
+cout "PW-PAGE W-5":;    cerr "PW-PAGE W-5":;    windowClick(pwOnWord3);     pwState("W-5");
+pwNext = "#654321";
+cout "PW-PAGE W-6":;    cerr "PW-PAGE W-6":;    pwDrop();   windowClick(pwOnVal2);      pwState("W-6");
+cout "PW-PAGE W-7":;    cerr "PW-PAGE W-7":;    windowClick(pwOnOut);       pourWrite(pwNoValue);   pourWrite(pwNoReg);     pourWrite(pwRule);  pwState("W-7");
+cout "PW-PAGE W-8":;    cerr "PW-PAGE W-8":;    pourWrite(pwByName);        pwState("W-8");
+cout "PW-PAGE END":;    cerr "PW-PAGE END":;
+cerr "POURWRITE SENTINEL":;
+stop();
+
+pourWriteT -- popups stroke 4b, B2 (SEQ 774, 2026-11-24; Tony's rulings of 2026-11-24, docs/popupsRecon.md section 6): THE
+WRITE through the return address. The source is the truth and the form a view. Tester's shape; no popup; no window is shown;
+every click is a real mouse-up. pwTpl is a written row over PwThree (the name, the value, dESCRIPTIONs' words); each cell's
+click action calls utilities' pourWriteAt with on:= the cell and value= pwNext. pwDer is a second form pouring the same
+source, derived rows; its click prints what the clicked cell shows. PwThree pours in name order: pwOne, pwThree, pwTwo.
+Read (PW-STATE): the three entries' values IN THE SOURCE, pwTwo's attribute count (it carries note=), dESCRIPTIONs' entries
+for pwOne and pwTwo (gone when there is none), and pourWrote.
+W-0  as defined.
+W-1  the value cell of pwTwo (third row) clicked: the SOURCE reads the new value, pwTwo keeps its attribute (the text alone
+     is written), and pwTpl is laid out again in place.
+W-2  THE SECOND FORM: pwDer's cell for pwTwo still shows the old value at the first click, the new one at the second (a
+     click lays its form out again). No live update.
+W-3  READ-ONLY: the name cell clicked: it says so with the reason; nothing written.
+W-4  A DESCRIPTION THAT DOES NOT EXIST YET (pwOne): the entry is made, and the line says so.
+W-5  one that exists (pwTwo): written, nothing made.
+W-6  DELETED MEANWHILE: pwThree is removed from the source while pwTpl's copy still holds its row; its value cell is clicked:
+     refused by name, loudly; nothing written.
+W-7  ERRANT: a field in no poured row; a request with no value; a registry that does not exist; an entry that is an action
+     (not fired): each refused by name, nothing written.
+W-8  pourWrite by names alone, no form: written.

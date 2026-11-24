@@ -1352,6 +1352,32 @@ _ofeq "pourAddressT A-11 a field in no poured row: not poured" "$(_pal A-11)" "p
 _ofeq "pourAddressT A-12 derived from sTYLEs, every row clicked: some a style's sample, some the look's value, none writable" "$( [ "$(_pab A-12 | grep -c "^PA-AT pourShow .*computed: a style's sample text")" -gt 0 ] && echo style) $( [ "$(_pab A-12 | grep -c "^PA-AT pourShow .*the value is the look's, not the entry's")" -gt 0 ] && echo look) writable $(_pab A-12 | grep -c '^PA-AT pourShow .*: source ')" "style look writable 0"
 _ofeq "pourAddressT A-13 a pour inside a poured row: read-only" "$(_pal A-13)" "paNinVal of alpha : read-only: a pour inside a poured row;paNinVal of beta : read-only: a pour inside a poured row"
 
+echo "-- the write through the return address: the source is written by name, the text alone, and the form redrawn (pourWriteT)."
+#  ⚑ pourWriteT -- popups stroke 4b, B2 (SEQ 774, 2026-11-24; Tony's rulings of 2026-11-24; docs/popupsRecon.md section 6). utilities' pourWriteAt(request),
+#  on:= a clicked cell and value=: it reads the cell's address (pourAddress) and calls pourWrite(request) -- source=, entry=, value= by name, make=1 when the
+#  entry was not there at the layout, form= the form to lay out again in place. The entry's text alone is written (F-169). No popup; real mouse-ups, offscreen,
+#  GCSTRESS=1000. Each row reads the write's own lines, any refusal, and the state line: the three entries IN THE SOURCE, pwTwo's attribute count, the two
+#  descriptions (gone = no entry) and pourWrote.
+#  Controls (H7, 2026-11-24, on the committed file, no build), one each: the write line removed -> W-1, W-5, W-8 keep the old values; the write made from
+#  the string expression -> W-1 reads attrs 3; make ignored -> W-4 refused, pwOne's words stay gone; make forced -> W-6 makes pwThree again; the read-only
+#  gate removed -> W-3 writes "renamed" into pwTwo's value; the redraw removed -> no "window redrawn" at W-1, W-4, W-5; the rule test removed -> W-7 writes
+#  the action entry. W-2 has no control of its own: it is what one redraw per write leaves in a second form.
+_pwF=$(ip pourWriteT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_pwF" > "$T/pw.o" 2> "$T/pw.e"; _pwx=$?
+_pwb() { awk -v p="PW-PAGE $1 " '$0 == p {f=1; next} /^PW-PAGE /{f=0} f' "$2"; }
+_pwl() { printf '%s / %s' "$(_pwb "$1" "$T/pw.o" | grep '^=== pourWrite\|^=== window redrawn\|^PW-SHOWS\|^PW-STATE' | sed 's/^=== //; s/ *=== *$//; s/ *$//; s/^PW-STATE [^ ]* //' | tr '\n' ';' | sed 's/;$//')" \
+            "$(_pwb "$1" "$T/pw.e" | grep 'REFUSING\|READ-ONLY' | sed 's/ *$//' | tr '\n' ';' | sed 's/;$//')"; }
+_ofeq "pourWriteT exit / sentinel / refusals: W-6's one and W-7's four, no other / the action entry never fired" "$_pwx $(grep -c '^POURWRITE SENTINEL' "$T/pw.e") $(cat "$T/pw.o" "$T/pw.e" | grep -c 'REFUS') $(grep -c 'pwDoIt FIRED' "$T/pw.o")" "0 1 5 0"
+_ofeq "pourWriteT W-0 as defined" "$(_pwl W-0)" "pwOne #000000 pwTwo #f7e8aa attrs 1 pwThree #ef2b2d / words pwOne [ gone ] pwTwo [ words for two ] wrote 0 / "
+_ofeq "pourWriteT W-1 A CLICKED CELL WRITES ITS SOURCE, BY NAME: pwTwo reads the new value in PwThree, keeps its attribute (the text alone), and the form is laid out again in place" "$(_pwl W-1)" "pourWrite PwThree pwTwo value #123456;window redrawn in place: pwTpl;pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ gone ] pwTwo [ words for two ] wrote 1 / "
+_ofeq "pourWriteT W-2 A SECOND FORM pouring the same source shows the old value until it is laid out again: old at the first click, new at the second" "$(_pwl W-2)" "PW-SHOWS pourShow [ #f7e8aa ];PW-SHOWS pourShow [ #123456 ] / "
+_ofeq "pourWriteT W-3 READ-ONLY (the name cell): it says so with the reason; nothing written" "$(_pwl W-3)" "pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ gone ] pwTwo [ words for two ] wrote 0 / pourWriteAt: READ-ONLY pwName -- the entry's name: a rename is not a write ; nothing written"
+_ofeq "pourWriteT W-4 A DESCRIPTION WITH NO ENTRY YET: the entry is made and the line says so" "$(_pwl W-4)" "pourWrite: made dESCRIPTIONs entry pwOne;pourWrite dESCRIPTIONs pwOne value new words for one;window redrawn in place: pwTpl;pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ new words for one ] pwTwo [ words for two ] wrote 1 / "
+_ofeq "pourWriteT W-5 a description that exists: written, nothing made" "$(_pwl W-5)" "pourWrite dESCRIPTIONs pwTwo value better words for two;window redrawn in place: pwTpl;pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ new words for one ] pwTwo [ better words for two ] wrote 1 / "
+_ofeq "pourWriteT W-6 THE ENTRY DELETED MEANWHILE: refused by name, loudly; nothing written, and it is not made again" "$(_pwl W-6)" "pwOne #000000 pwTwo #123456 attrs 1 pwThree gone / words pwOne [ new words for one ] pwTwo [ better words for two ] wrote 0 / pourWrite: REFUSING the write to PwThree pwThree -- no entry of that name now (deleted or renamed since the form was laid out); nothing written"
+_ofeq "pourWriteT W-7 ERRANT: no poured row; no value; no such registry; an action entry -- each refused by name, once; nothing written" "$(_pwb W-7 "$T/pw.e" | grep -c '^pourWriteAt: REFUSING pwOut -- it is in no poured row') $(_pwb W-7 "$T/pw.e" | grep -c '^pourWrite: REFUSING pwNoValue -- its request needs source=') $(_pwb W-7 "$T/pw.e" | grep -c '^pourWrite: REFUSING the write to PwNowhere pwOne -- there is no registry named PwNowhere') $(_pwb W-7 "$T/pw.e" | grep -c '^pourWrite: REFUSING the write to PwActs pwDoIt -- the entry is a rule or an action') / $(_pwb W-7 "$T/pw.o" | grep '^PW-STATE' | sed 's/.* wrote/wrote/; s/ *$//')" "1 1 1 1 / wrote 0"
+_ofeq "pourWriteT W-8 pourWrite by names alone, no form named: written, nothing redrawn" "$(_pwl W-8)" "pourWrite PwThree pwOne value #0000ff;pwOne #0000ff pwTwo #123456 attrs 1 pwThree gone / words pwOne [ new words for one ] pwTwo [ better words for two ] wrote 1 / "
+
 echo "-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT)."
 #  ⚑ windowClimbT -- SEQ 764 (2026-11-23; Tony's rulings via Clay). utilities' selectable: a field is selectable when it has text, an image, an action or an
 #  attribute holding one, a describe, a selectFill of its own, or a dESCRIPTIONs entry; else it is only room. clickField selects the first selectable field at or

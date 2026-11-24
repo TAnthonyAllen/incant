@@ -223,3 +223,13 @@ through the look as a placeholder (resolveLook; a styles pour has an entry named
 FOUND: a cell that shows nothing (a description cell with no description) cannot be reached by a click -- only room is not
 selectable, and a click action is handed the level that fired, not the field that was hit. B2's "make the entry" needs a
 way to that cell. formsPop pourAddressT, 14 rows.
+
+**B2 BUILT (SEQ 774, 2026-11-24): the write.** `pourWriteAt(request)`, on:= a clicked cell and value=, reads the cell's
+address and calls `pourWrite(request)`: source=, entry= and value= BY NAME, make=1 when the entry was not there at the
+layout (the cell carries `pourMake`), form= the form to lay out again in place. The entry's text alone is written. A
+read-only cell says so with its reason. Refused by name, nothing written: an entry no longer there (deleted or renamed
+since the layout), no such registry, an entry that is a rule or an action, a field in no poured row, a request lacking a
+part. A description with no entry yet is made, and the line says "made dESCRIPTIONs entry <name>". A second form pouring
+the same source shows the old value until it is laid out again. formsPop pourWriteT, 10 rows.
+NOT HERE: Cancel through the link (no popup in this test; windowOkT K-1 pins Cancel for the text write, and stroke 5's
+OK is the link's first popup user); a cell that shows nothing is still not reached by a click (B1's finding).
