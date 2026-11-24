@@ -274,6 +274,8 @@ define
     paLone = "{each}";
     paName = "{each.taG}";
     paText = "none";
+    // makeFlag 1 when the cell's entry is not in its source at this layout (a description not written yet): pourMake on the cell, and a write may make the entry (ruling c). 0 everywhere else, so an entry gone later reads as deleted or renamed
+    paMake = 0;
     pourTag code={
         ptS := new("pourSource");
         *ptS = paSrc.texT;
@@ -285,6 +287,7 @@ define
             ptM := new("pourMember");
             *ptM = paMem.texT;
             argument :% *ptM;
+            if paMake == 1;     argument :% new("pourMake");
         if paWhy != "none";
             ptW := new("pourReadOnly");
             *ptW = paWhy.texT;
@@ -293,6 +296,7 @@ define
     pourRowTag code={
         paSrc = string $psRn$;
         paMem = "value";
+        paMake = 0;
         paWhy = "a row holds no value of its own; its cells do";
         if paNest == 1;     paWhy = "a pour inside a poured row";
         pourTag(argument);
@@ -371,6 +375,7 @@ define
         paSrc = string $psRn$;
         paMem = "value";
         paWhy = "none";
+        paMake = 0;
         pctD = argument.datA;
         pctHeld = argument.isGrouP;
         if pctHeld == 1;    pctD = 0;
@@ -398,6 +403,12 @@ define
             if pctDone == 0;
                 pourQualified();
                 if paQual == 0;     paWhy = "computed: its text is more than one insert of the entry";
+                if paQual == 1;
+                    pctR := registries[paSrc];
+                    pctX := *pctR[paEnt];
+                    pctXd = 0;
+                    pctXd = *pctX.datA;
+                    if pctXd == 0;      paMake = 1;
         if pctOwn == 1;     pourEntryKind();
         pourTag(argument);
         };
@@ -410,6 +421,7 @@ define
                           or "not poured"
             pourAtSource, pourAtEntry, pourAtMember, pourAtWhy   the parts
                           (none where there is none)
+            pourAtMake    1 when the entry was not in its source at the layout
     ***************************************************************************/
     pourAtKind = "none";
     pourAtAnswer = "not poured";
@@ -417,7 +429,9 @@ define
     pourAtEntry = "none";
     pourAtMember = "none";
     pourAtWhy = "none";
+    pourAtMake = 0;
     pourAddress code={
+        pourAtMake = 0;
         pourAtKind = "none";
         pourAtAnswer = "not poured";
         pourAtSource = "none";
@@ -448,6 +462,7 @@ define
         if pdaRo == 0;
             pourAtKind = "write";
             pourAtMember = string $*pdaAt["pourMember"]$;
+            if *pdaAt["pourMake"];      pourAtMake = 1;
             // commasCarryTheSpaces a literal's leading space is dropped when a string is built, so each piece after the first starts with its comma
             pourAtAnswer = string $"source " pourAtSource ", entry " pourAtEntry ", member " pourAtMember$;
         };
@@ -732,7 +747,12 @@ define
         paSrc = "dESCRIPTIONs";
         paMem = "value";
         paWhy = "none";
+        paMake = 0;
+        prbWd = 0;
+        prbWd = *pdCell.datA;
+        if prbWd == 0;      paMake = 1;
         pourTag(*pdCell);
+        paMake = 0;
         pourCentre();
         *pdField +/ *pdRow;
         };
@@ -2739,6 +2759,135 @@ define
             return;
         cout "=== popupCancel" popName "closed, nothing written ===":;
         popupShut();
+        };
+    /***************************************************************************
+        THE WRITE (popups stroke 4b, B2; Tony's rulings of 2026-11-24). The
+        source is the truth and the form a view: a write goes to the source
+        entry, BY NAME, the text alone (F-169), and the form is laid out again
+        whole, so its rows are poured from the source. No form keeps a copy:
+        another form pouring the same source shows the old value until it is
+        laid out again.
+        pourWrite(request)    source= the registry's name, entry= the entry's
+            name, value= the text; optional make=1 (the entry was not there
+            when the address was read: make it, and say so) and form= the name
+            of a form in FORMs whose window is then laid out again in place.
+            pourWrote is 1 when something was written.
+            Refused by name, nothing written: a request lacking one of the
+            three; no registry of that name; no entry of that name now, without
+            make (deleted or renamed since the form was laid out); an entry
+            that is a rule or an action.
+        pourWriteAt(request)  on:= a field of a laid-out copy (a clicked cell),
+            value= the text. It reads the field's address (pourAddress) and
+            writes through it, then redraws the form the field's window shows.
+            A read-only field says so, with the reason, and nothing is
+            written; a field in no poured row is refused by name.
+    ***************************************************************************/
+    pourWrote = 0;
+    pourReq source entry value make form;
+    pefName = "none";
+    pefHit = 0;
+    pefAt;
+    // entryByName the entry named pefName among a registry's members, by walking them: a subscript's truth cannot tell an entry holding 0, or nothing, from no entry (F-168)
+    pourEntryFind code={
+        pefHit = 0;
+        for grup in argument; members
+            if pefHit == 0;
+                pefT = string $*grup.taG$;
+                if pefT == pefName;
+                    pefAt := *grup;
+                    pefHit = 1;
+        };
+    pourWrite code={
+        pourWrote = 0;
+        pwR := argument;
+        pwOk = 1;
+        if *pwR["source"];      pwOk = pwOk + 1;
+        if *pwR["entry"];       pwOk = pwOk + 1;
+        pwVa := *pwR["value"];
+        pwVd = 0;
+        pwVd = *pwVa.datA;
+        if pwVd != 0;           pwOk = pwOk + 1;
+        if pwOk != 4;
+            cerr "pourWrite: REFUSING" argument.taG "-- its request needs source=aRegistry's name, entry=the entry's name and value=the text; nothing written":;
+            return;
+        pwSrc = string $*pwR["source"]$;
+        pwEnt = string $*pwR["entry"]$;
+        pwVal = string $*pwR["value"]$;
+        pwMake = 0;
+        if *pwR["make"];        pwMake = 1;
+        pwFd = 0;
+        pwFa := *pwR["form"];
+        pwFd = *pwFa.datA;
+        pwForm = "none";
+        if pwFd != 0;           pwForm = string $*pwR["form"]$;
+        pwHasR = 0;
+        if registries[pwSrc];   pwHasR = 1;
+        if pwHasR == 0;
+            cerr "pourWrite: REFUSING the write to" pwSrc pwEnt "-- there is no registry named" pwSrc "; nothing written":;
+            return;
+        pwReg := registries[pwSrc];
+        pefName = string $pwEnt$;
+        pourEntryFind(*pwReg);
+        if pefHit == 0;
+            if pwMake == 0;
+                cerr "pourWrite: REFUSING the write to" pwSrc pwEnt "-- no entry of that name now (deleted or renamed since the form was laid out); nothing written":;
+                return;
+            pwN := new(pwEnt);
+            *pwN = pwVal.texT;
+            *pwReg +/ *pwN;
+            cout "=== pourWrite: made" pwSrc "entry" pwEnt "===":;
+        if pefHit == 1;
+            pwE := *pefAt;
+            pwBad = 0;
+            pwK = *pwE.isRulE;
+            if pwK != 0;    pwBad = 1;
+            pwK = *pwE.actionTypE;
+            if pwK != 0;    pwBad = 1;
+            pwK = *pwE.isMethoD;
+            if pwK != 0;    pwBad = 1;
+            if pwBad == 1;
+                cerr "pourWrite: REFUSING the write to" pwSrc pwEnt "-- the entry is a rule or an action; nothing written":;
+                return;
+            // textOnly the text alone: the entry keeps its attributes (F-169)
+            *pwE = pwVal.texT;
+        pourWrote = 1;
+        cout "=== pourWrite" pwSrc pwEnt "value" pwVal "===":;
+        if pwForm != "none";
+            pfmName = string $pwForm$;
+            popForm();
+            if pfmHit == 1;
+                popOwn.form := *pfmFound;
+                windowRedraw(popOwn);
+        };
+    pourWriteAt code={
+        pourWrote = 0;
+        pwaR := argument;
+        pwaOk = 1;
+        if *pwaR["on"];     pwaOk = pwaOk + 1;
+        pwaVa := *pwaR["value"];
+        pwaVd = 0;
+        pwaVd = *pwaVa.datA;
+        if pwaVd != 0;      pwaOk = pwaOk + 1;
+        if pwaOk != 3;
+            cerr "pourWriteAt: REFUSING" argument.taG "-- its request needs on:=theField (a cell of a laid-out copy) and value=the text; nothing written":;
+            return;
+        pwaOn := *pwaR["on"];
+        pwaN = string $**pwaOn.taG$;
+        pourAddress(**pwaOn);
+        if pourAtKind == "none";
+            cerr "pourWriteAt: REFUSING" pwaN "-- it is in no poured row; nothing written":;
+            return;
+        if pourAtKind == "readOnly";
+            cerr "pourWriteAt: READ-ONLY" pwaN "--" pourAtWhy "; nothing written":;
+            return;
+        // itsForm the form the field's window shows, as popupOf reads it for a popup: laidForm on the copy's top
+        popupOf(**pwaOn);
+        pourReq.source = string $pourAtSource$;
+        pourReq.entry = string $pourAtEntry$;
+        pourReq.value = string $*pwaR["value"]$;
+        pourReq.make = pourAtMake;
+        pourReq.form = string $popName$;
+        pourWrite(pourReq);
         };
     // unselect ONE argument, a form (or its laid-out copy): that form has no selection from here on, and its help box forgets what it described; the other forms keep theirs
     unselect code={
