@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2258832 bytes  Nov 24 07:57
+  bin   2286672 bytes  Nov 24 08:23
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -491,6 +491,15 @@
   ok    windowOkT K-4 OK: THE VALUE GOES BACK BY NAME -- okA reads red in the definition, its height kept; the popup closed; okHost redrawn in place and its page differs = [popupPick okPop value red;popupOk okPop wrote red to okHost okA;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ second ] okA height 40 targets 0 / page differs / popup gone]
   ok    windowOkT K-5 opened on okB, two picks: the later one is written, to okB; okA keeps red = [popupPick okPop value red;popupPick okPop value a longer blue;popupOk okPop wrote a longer blue to okHost okB;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page differs / popup gone]
   ok    windowOkT K-6 ERRANT popupOk fired by a field in no popup: refused by name, once; nothing written = [1 / okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page same / popup gone]
+-- the popup belongs to its form: it closes with it, has no resize, and modal stops the form's clicks (windowOwnerT).
+  ok    windowOwnerT exit / sentinel / refusals: readWindow's fourteen (a form no window holds), no other = [0 1 14]
+  ok    windowOwnerT W-0 only the form is open = [owA [ first ] hits 0 targets 0 / holds Host]
+  ok    windowOwnerT W-1 A POPUP BELONGS TO THE FORM IT WAS OPENED FROM, no resize; NOT MODAL: the form's owC still fires under it = [popup window: owPop belongs to owHost, no resize;owC fired, hits 1;owA [ first ] hits 1 targets 1 / holds Host Pop]
+  ok    windowOwnerT W-2 THE FORM CLOSED WITH ITS POPUP OPEN: the popup closes with it, as Cancel -- red was picked and owA still reads first; no window, no target = [popupPick owPop value red;window closing: owHost takes its popup owPop with it;window closed: owPop;window closed: owHost;owA [ first ] hits 1 targets 0 / holds]
+  ok    windowOwnerT W-3 MODAL (modal=1 on the popup form): the form's clicks fire nothing and say so -- owC does not count, owA opens no second popup = [popup window: owModal belongs to owHost, no resize;popup window: owModal is modal: owHost takes no clicks while it is open;windowClick owHost: under its modal popup owModal, nothing fired;windowClick owHost: under its modal popup owModal, nothing fired;owA [ first ] hits 1 targets 1 / holds Host Modal]
+  ok    windowOwnerT W-4 the modal's own Cancel is not blocked: it closes, and the form's owC fires again = [popupCancel owModal closed, nothing written;window closed: owModal;owC fired, hits 2;owA [ first ] hits 2 targets 0 / holds Host]
+  ok    windowOwnerT W-5 the form closed under its modal popup: the modal closes with it = [popup window: owModal belongs to owHost, no resize;popup window: owModal is modal: owHost takes no clicks while it is open;window closing: owHost takes its popup owModal with it;window closed: owModal;window closed: owHost;owA [ first ] hits 2 targets 0 / holds]
+  ok    windowOwnerT W-6 NO OWNER FORM (the form is registered outside FORMs): the popup still opens, tied to no window, and says so by name, once in the run; its form closed, it stays open with its target = [1 of 1 / popup window: owPop has no owner window, no resize;window closed: owFar;owA [ first ] hits 2 targets 1 / holds Pop]
 -- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT).
   ok    windowClimbT exit / sentinel / nothing refused = [0 1 0]
   ok    windowClimbT C-1 THE EMPTY FIELD LEFT OF OK: only room all the way up, nothing selected; the heading keeps its outline before and after; the window the same pixel for pixel = [click firstLight space selected nothing: only room, on the way up through 3 fields;click firstLight space fired nothing, on the way up through 3 fields / BLUE BLUE / 0]
@@ -528,4 +537,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 454 green, see above
+FORMS POP FAILED -- 462 green, see above
