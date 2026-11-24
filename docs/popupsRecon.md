@@ -128,7 +128,7 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   file read under show cannot write `onClick:=popupOk` (Utilities is not searched at its define); it wraps the action
   in one of its own, as tabForm's tabClick wraps selectTab. formsPop windowOkT.
 
-- Stroke 4 (SEQ 770, 2026-11-24, on branch popups-owner, not bought): the popup belongs to its form. utilities' popup
+- Stroke 4 (SEQ 770, bought and merged 2026-11-24; modal=1 stands, a bare modal word is not wanted now; rider: a popup whose owner form is not in FORMs still opens, unowned, and says so by name -- windowOwnerT W-6): the popup belongs to its form. utilities' popup
   hands the window `owner:=` the form it was opened from (by name, FORMs); `guiHost.mm` keeps the owner's view and
   `modal` in the window's record. A window that closes closes its popups first, as Cancel. A popup's window has a title
   bar and close button and no resize. A popup form carrying `modal=1` stops its owner's clicks while it is open: nothing

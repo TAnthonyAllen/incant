@@ -2316,6 +2316,10 @@ define
         pfmName = string $poIn$;
         popForm();
         if pfmHit == 1;     popWin.owner := *pfmFound;
+        // noOwnerSaysSo the popup still opens, unowned, and says so (Tony, 2026-11-24): it will not close with the form, and OK will find no form to write
+        if pfmHit == 0;
+            poWho = string $"popup " poForm ": no owner form"$;
+            cerr poWho "-- FORMs has no form named" poIn "; it opens tied to no window":;
         cout "=== popup" poForm "opened on" poIn poField "each" poEach "at" poX poY "===":;
         poHide = 0;
         if windows == 2;    poHide = 1;

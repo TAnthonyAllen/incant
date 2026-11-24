@@ -34,9 +34,17 @@ define
         owC="third" height=40 onClick:=owHit;
     ;
 show(owHost);
-search FORMs;
+register(OwElsewhere);
+define
+    owFar window x=300 y=60 width=100 height=100 fill:=pageFill
+        owF="far" height=40 onClick:=owOpen;
+    ;
+show(owFar);
+search FORMs OwElsewhere;
 register(WindowOwnerT);
 define
+    owOnF form:=owFar px=50 py=20;
+    owShutFar form:=owFar;
     owOnA form:=owHost px=100 py=20;
     owOnB form:=owHost px=100 py=60;
     owOnC form:=owHost px=100 py=100;
@@ -66,6 +74,7 @@ search WindowOwnerT Utilities;
 cout "OW-PAGE W-3":;    cerr "OW-PAGE W-3":;    windowClick(owOnB);     windowClick(owOnC);     windowClick(owOnA);     owSay("W-3");
 cout "OW-PAGE W-4":;    cerr "OW-PAGE W-4":;    windowClick(owOnMno);   windowClick(owOnC);     owSay("W-4");
 cout "OW-PAGE W-5":;    cerr "OW-PAGE W-5":;    windowClick(owOnB);     windowClose(owShutHost);    owSay("W-5");
+cout "OW-PAGE W-6":;    cerr "OW-PAGE W-6":;    windowClick(owOnF);     windowClose(owShutFar);     owSay("W-6");
 cout "OW-PAGE END":;    cerr "OW-PAGE END":;
 cerr "WINDOWOWNER SENTINEL":;
 stop();
@@ -85,3 +94,6 @@ W-3  owHost shown again; owB opens owModal: it belongs to owHost and is modal. o
      (hits stays 1). owA clicked: likewise, so no second popup opens.
 W-4  the modal's own Cancel, clicked in the modal's window (not blocked): it closes; owC fires again (hits 2).
 W-5  owModal open again, owHost closed: the modal closes with it.
+W-6  NO OWNER FORM (Tony's rider, 2026-11-24): owFar is a form registered outside FORMs (OwElsewhere). Its field opens
+     owPop: the popup still opens, tied to no window, and says so by name on stderr, once in the whole run (the five
+     popups opened from owHost say nothing). owFar is then closed: the popup stays open, with its target.
