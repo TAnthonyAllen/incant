@@ -5,31 +5,30 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**540, 2026-11-23, topic: windows, SEQ 760-767 (assigned by Clod), SHUTDOWN.** The resurrection dispatch (typeset state measured clean; the popups recon and the typesetting-grows-its-form recon, both ruled) and five strokes bought:
-popups stroke 0 (the look on the laid-out copy, F-158 closed), stroke 1 (selection per form), the climb (only room is not selectable; a held form is crossed into its host; a close clears the selection), the outline over a held form, stroke 2 (popup(request) at the field, popupTargets). All on trunk, formsPop 446.
-**OPEN (Tony):** two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete; Topics/kant's budget (6 over) and Topics/forms' (7 over); tester still holds the reopen test; carried from 482, whether an indented `define` should work.
-**NOT SEEN YET in a shown window:** per-form selection, the only-room click, the climb into a host, the outline over a held form, a popup, and seal 539's midBlue outline and describe on select. Popups stroke 6 is the watched run.
-**RULED, NOT BUILT:** popups strokes 3-6 (docs/popupsRecon.md); typesetting grows its form (docs/typesetGrowsFormRecon.md 5a; first step the measure alone); user edits (Topics/forms). Registries items 3-5; describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
-**DOCKETED:** F-168, an attribute holding 0 tests false (a read-only census at a later session). F-167 stays docketed. Features 39, `keep`, is a recon item.
+**541, 2026-11-24, topic: windows, SEQ 768-769 (assigned by Clod).** Popups stroke 3 bought and merged: popupPick, popupOk, popupCancel (OK writes the picked text back by name, closes the popup, redraws its form in place; Cancel writes nothing). Topics/fieldIndex opened (the virtual OS idea, parked). All on trunk, formsPop 454.
+**OPEN (Tony):** two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete; Topics/kant's budget (6 over), Topics/forms' (7 over) and Topics/windows' (1 over); tester still holds the reopen test; carried from 482, whether an indented `define` should work.
+**NOT SEEN YET in a shown window:** per-form selection, the only-room click, the climb into a host, the outline over a held form, a popup, OK and Cancel (a window closing from its own click), and seal 539's midBlue outline and describe on select. Popups stroke 6 is the watched run.
+**RULED, NOT BUILT:** popups strokes 4-6 (docs/popupsRecon.md); typesetting grows its form (docs/typesetGrowsFormRecon.md 5a; first step the measure alone); user edits (Topics/forms). Registries items 3-5; describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
+**DOCKETED:** F-169, assigning a string expression to a field wipes its attributes (a read-only census at a later session). F-168, an attribute holding 0 tests false (likewise). F-167 stays docketed. Features 39, `keep`, is a recon item.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** popups strokes 3-6; fieldIndex recon (read-only, Topics/fieldIndex step 0) before registries 3-5; then typesetting's measure; lighten / darken; registries 3-5; windows TO DO 2-3 (describe text naming an entry; long descriptions). Tony sends each from incant++'s parked section.
+**NEXT:** popups strokes 4-6; fieldIndex recon (read-only, Topics/fieldIndex step 0) before registries 3-5; then typesetting's measure; lighten / darken; registries 3-5; windows TO DO 2-3 (describe text naming an entry; long descriptions). Tony sends each from incant++'s parked section.
 
-## The numbers (trunk at seal 540)
+## The numbers (trunk at seal 541)
 | instrument | reads |
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4235 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 446 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 454 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | run at 540 on trunk: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
+| `genLadder/dirCheck.sh` (shutdown seals only) | last run at 540 on trunk: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
 | extern canary | 490 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize, windows-loop (all bought 2026-11-22), windows-search, windows-raise, windows-describe, popups-look, popups-selection, popups-climb, outline-over-held, popups-open (bought 2026-11-23). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize, windows-loop (all bought 2026-11-22), windows-search, windows-raise, windows-describe, popups-look, popups-selection, popups-climb, outline-over-held, popups-open (bought 2026-11-23), popups-ok (bought 2026-11-24). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
 for-members, for-attributes, print-dot, looks-by-name, kant-environment, g3-one-direction, g3-cheat). BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
@@ -43,7 +42,7 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 | `Topics/forms` | 287 / 280, OVER by 7 (the next forms session opens with the trim) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 206 / 200, OVER by 6 (trimmed at seal 522; the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
-| `Topics/windows` | 120 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
+| `Topics/windows` | 121 / 120, OVER by 1 (the next windows trim) | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 118 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |

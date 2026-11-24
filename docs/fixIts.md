@@ -92,6 +92,15 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-169 — OPEN, docketed 2026-11-24 (SEQ 769, seal 541; Clay's dispatch, ruled by Tony: a docket row and a census at a later session, not a stroke) — stringAssignWipesAttributes: assigning a string expression to a field replaces the field's attributes with the expression's own parts
+
+**What:** (kant) `*field = string $x$;` writes the text and also carries the string expression's own parts onto the target: the target's attributes are gone and three others stand in their place. Assigning from `x.texT` writes the text alone and the attributes stay.
+**Where:** not known beyond the one cured site (popupOk's write in `incant/utilities`, textOnly); that is the census. The spelling is common in utilities for fields that have no attributes (selectKeep, the popupTargets entries), where it does no harm.
+**Evidence:** measured 2026-11-24 (scratch probe, since deleted): a member written `zA="first" height=40` read 1 attribute and height 40; after `*zf = string $zV$;` it read text red, 3 attributes, no height. After `*zf = zV;` (a plain field), `*zf = zSrc.texT;` and `*zf = zs.texT;` (zs itself assigned from a string expression): text red, 1 attribute, height 40. `x.texT = y` has no write case and says so. In stroke 3 the target field lost its height and the form's layout broke. formsPop windowOkT K-4 reads the height, with its H7 (the write from the string expression: the height is lost, 2110 pixels differ).
+**Done when:** a read-only census lists every assignment from a string expression whose target can carry attributes, each with what is lost; the cures are ruled from it.
+**Owner:** Clod, at a later session; read only. **Size:** not measured.
+**Attempt log:** SEQ 768: popupOk writes from .texT -> the target keeps its height (windowOkT K-4).
+
 ### F-168 — OPEN, docketed 2026-11-23 (SEQ 767, seal 540; Clay's dispatch, ruled by Tony: a docket row and a census at a later session, not a stroke) — zeroTestsAbsent: kant tests an attribute's presence by its truth, and an attribute holding 0 tests false
 
 **What:** (kant) `if field["name"];` is false both when the attribute is absent and when it is there holding 0. Code that means "is it there" and is handed a real 0 takes the absent arm. Found in keepFrame and setFrame's frame store (cured there, SEQ 766): a kept frame lost its x or y at 0, so a window at the screen's left edge or top fell back to its declared place.

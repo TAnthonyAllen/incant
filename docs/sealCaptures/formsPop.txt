@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2258720 bytes  Nov 23 14:59
+  bin   2258832 bytes  Nov 24 07:57
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -482,6 +482,15 @@
   ok    windowPopupT P-4 A FIELD AT THE SCREEN'S (0,0): the popup opens at x 0, y 30 -- a frame part of 0 is kept (dropped until SEQ 766) = [popup ppPop opened on ppEdge ppZ each none at 0 30;target form ppEdge field ppZ each none of 1;window closed: ppPop kept 120x80 at (0,30)]
   ok    windowPopupT P-5 ERRANT no on:=, and a field with no frame: each refused by name, once; nothing opened, no target = [1 1 / target none, of 0]
   ok    windowPopupT P-6 ERRANT windows = 0: refused by name, once; nothing opened, no target = [1 / target none, of 0]
+-- OK and Cancel: a popup's value goes back by name, the popup closes, its form is redrawn in place (windowOkT).
+  ok    windowOkT exit / sentinel / refusals: readWindow's seven (no popup window, one a page) and K-6's, no other = [0 1 8]
+  ok    windowOkT K-0 nothing yet: first, second = [okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone]
+  ok    windowOkT K-1 CANCEL, CLICKED IN THE POPUP'S OWN WINDOW: red was picked; nothing written, the popup closed, the form's page equal pixel for pixel = [popupPick okPop value red;popupCancel okPop closed, nothing written;window closed: okPop;okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone]
+  ok    windowOkT K-2 the close button after a pick: the same as Cancel = [popupPick okPop value red;window closed: okPop;okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone]
+  ok    windowOkT K-3 OK with nothing picked: says so, writes nothing, closes; the form laid out again in place, its page equal = [popupOk okPop nothing picked, nothing written;window closed: okPop;window redrawn in place: okHost;okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone]
+  ok    windowOkT K-4 OK: THE VALUE GOES BACK BY NAME -- okA reads red in the definition, its height kept; the popup closed; okHost redrawn in place and its page differs = [popupPick okPop value red;popupOk okPop wrote red to okHost okA;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ second ] okA height 40 targets 0 / page differs / popup gone]
+  ok    windowOkT K-5 opened on okB, two picks: the later one is written, to okB; okA keeps red = [popupPick okPop value red;popupPick okPop value a longer blue;popupOk okPop wrote a longer blue to okHost okB;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page differs / popup gone]
+  ok    windowOkT K-6 ERRANT popupOk fired by a field in no popup: refused by name, once; nothing written = [1 / okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page same / popup gone]
 -- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT).
   ok    windowClimbT exit / sentinel / nothing refused = [0 1 0]
   ok    windowClimbT C-1 THE EMPTY FIELD LEFT OF OK: only room all the way up, nothing selected; the heading keeps its outline before and after; the window the same pixel for pixel = [click firstLight space selected nothing: only room, on the way up through 3 fields;click firstLight space fired nothing, on the way up through 3 fields / BLUE BLUE / 0]
@@ -519,4 +528,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 446 green, see above
+FORMS POP FAILED -- 454 green, see above
