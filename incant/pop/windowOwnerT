@@ -1,0 +1,87 @@
+Start();
+windows = 2;
+show(firstLight);
+search FORMs cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    owPick code={ popupPick(argument); };
+    owDrop code={ popupCancel(argument); };
+    owHits = 0;
+    owHit code={
+        owHits += 1;
+        cout "=== owC fired, hits" owHits "===":;
+        };
+    owPop window x=5 y=5 width=120 height=60 fill:=pageFill title="Plain"
+        owRed="red" height=30 onClick:=owPick;
+        owNo="Cancel" height=30 onClick:=owDrop;
+    owModal window modal=1 x=5 y=5 width=120 height=60 fill:=pageFill title="Modal"
+        owMsg="sure?" height=30;
+        owMno="Cancel" height=30 onClick:=owDrop;
+    owAsk form on;
+    owOpen code={
+        owAsk.form := owPop;
+        owAsk.on := argument;
+        popup(owAsk);
+        };
+    owOpenM code={
+        owAsk.form := owModal;
+        owAsk.on := argument;
+        popup(owAsk);
+        };
+    owHost window x=40 y=60 width=200 height=200 fill:=pageFill
+        owA="first" height=40 onClick:=owOpen;
+        owB="second" height=40 onClick:=owOpenM;
+        owC="third" height=40 onClick:=owHit;
+    ;
+show(owHost);
+search FORMs;
+register(WindowOwnerT);
+define
+    owOnA form:=owHost px=100 py=20;
+    owOnB form:=owHost px=100 py=60;
+    owOnC form:=owHost px=100 py=100;
+    owOnRed form:=owPop px=60 py=15;
+    owOnMno form:=owModal px=60 py=45;
+    owShutHost form:=owHost;
+    owReadHost form:=owHost;
+    owReadPop form:=owPop;
+    owReadModal form:=owModal;
+    owSay code={
+        osAf := owHost["owA"];
+        osA = string $*osAf$;
+        osN = popupTargets.listLengtH;
+        cout "OW-STATE" argument "owA [" osA "] hits" owHits "targets" osN:;
+        readWindow(owReadHost);
+        readWindow(owReadPop);
+        readWindow(owReadModal);
+        };
+    ;
+search WindowOwnerT Utilities;
+cout "OW-PAGE W-0":;    cerr "OW-PAGE W-0":;    owSay("W-0");
+cout "OW-PAGE W-1":;    cerr "OW-PAGE W-1":;    windowClick(owOnA);     windowClick(owOnC);     owSay("W-1");
+cout "OW-PAGE W-2":;    cerr "OW-PAGE W-2":;    windowClick(owOnRed);   windowClose(owShutHost);    owSay("W-2");
+search FORMs cOLOr fONTs sTYLEs;
+show(owHost);
+search WindowOwnerT Utilities;
+cout "OW-PAGE W-3":;    cerr "OW-PAGE W-3":;    windowClick(owOnB);     windowClick(owOnC);     windowClick(owOnA);     owSay("W-3");
+cout "OW-PAGE W-4":;    cerr "OW-PAGE W-4":;    windowClick(owOnMno);   windowClick(owOnC);     owSay("W-4");
+cout "OW-PAGE W-5":;    cerr "OW-PAGE W-5":;    windowClick(owOnB);     windowClose(owShutHost);    owSay("W-5");
+cout "OW-PAGE END":;    cerr "OW-PAGE END":;
+cerr "WINDOWOWNER SENTINEL":;
+stop();
+
+windowOwnerT -- popups stroke 4 (SEQ 770, 2026-11-24; Tony's rulings 3, 5 and 7 on docs/popupsRecon.md): the popup belongs to
+its form. Tester's shape, a delta of windowOkT. No window is shown. owHost has three fields: owA opens owPop (a plain popup),
+owB opens owModal (a popup form carrying modal=1), owC counts its clicks (owHits). The window's own lines are read: "popup
+window: X belongs to Y, no resize" (the resize word is the window's style mask read back), "window closing: Y takes its
+popup X with it", and "windowClick Y: under its modal popup X, nothing fired".
+Read too: owA's text in the definition, owHits, how many popups are open (targets), and which of the three forms a window
+still holds (readWindow refuses by name when none does).
+W-0  only owHost is open.
+W-1  owA opens owPop: it belongs to owHost and has no resize. NOT MODAL: owC under it still fires (hits 1).
+W-2  red is picked in the popup, then owHost is closed: owPop closes with it, as Cancel -- owA still reads first; no window
+     holds either form; no target.
+W-3  owHost shown again; owB opens owModal: it belongs to owHost and is modal. owC clicked: nothing fires and it says so
+     (hits stays 1). owA clicked: likewise, so no second popup opens.
+W-4  the modal's own Cancel, clicked in the modal's window (not blocked): it closes; owC fires again (hits 2).
+W-5  owModal open again, owHost closed: the modal closes with it.

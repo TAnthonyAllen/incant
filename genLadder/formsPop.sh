@@ -1255,12 +1255,13 @@ echo "-- popup(request): a form opened at the field it is opened on, and what it
 #  screen points), every time -- open already, it is closed and opened again there. popupTargets keeps, by the popup form's name, the form and field (and the
 #  poured member) it was opened on, by NAME; windowShut removes the entry when the popup closes. Also here: a frame part holding 0 is kept (framePart).
 #  Where the window really is, is read from its close line ("kept WxH at (x,y)", the window's own frame), not from popup's own line. GCSTRESS=1000, not shown.
+#  (SEQ 770: the row reader takes popup's own "opened" line by its full shape, so the window's new "popup window:" lines, stroke 4's and read by windowOwnerT, are not in these rows.)
 #  Controls (H7, 2026-11-23, on the committed file, no build), one each: the frame not handed to the window -> every close reads the declared (5,5);
 #  the target not written -> every PP-TARGET reads none (and P-2 no longer moves the popup); framePart's old value test -> P-4 closes at (5,30), x lost.
 _ppF=$(ip windowPopupT)
 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_ppF" > "$T/pp.o" 2> "$T/pp.e"; _ppx=$?
 _ppb() { awk -v p="PP-PAGE $1 " '$0 == p {f=1; next} /^PP-PAGE /{f=0} f' "$T/pp.o"; }
-_ppl() { _ppb "$1" | grep '^=== popup\|^=== window closed\|^PP-TARGET\|^=== readWindow' | sed 's/^=== //; s/ *=== *$//; s/ *$//; s/^PP-TARGET [^ ]* /target /' | tr '\n' ';' | sed 's/;$//'; }
+_ppl() { _ppb "$1" | grep '^=== popup [A-Za-z]* opened\|^=== window closed\|^PP-TARGET\|^=== readWindow' | sed 's/^=== //; s/ *=== *$//; s/ *$//; s/^PP-TARGET [^ ]* /target /' | tr '\n' ';' | sed 's/;$//'; }
 _ofeq "windowPopupT exit / sentinel / the three refusals and readWindow's, no other" "$_ppx $(grep -c '^WINDOWPOPUP SENTINEL' "$T/pp.e") $(cat "$T/pp.o" "$T/pp.e" | grep -c 'REFUS')" "0 1 4"
 _ofeq "windowPopupT P-0 no popup yet: no target" "$(_ppl P-0)" "target none, of 0"
 _ofeq "windowPopupT P-1 A FIELD'S CLICK OPENS THE POPUP AT THAT FIELD: under ppA's bottom left (40,100), its own 120x80; it remembers form ppHost, field ppA" "$(_ppl P-1)" "popup ppPop opened on ppHost ppA each none at 40 100;target form ppHost field ppA each none of 1;readWindow ppRead title [A popup] size 120x80"
@@ -1295,6 +1296,29 @@ _ofeq "windowOkT K-3 OK with nothing picked: says so, writes nothing, closes; th
 _ofeq "windowOkT K-4 OK: THE VALUE GOES BACK BY NAME -- okA reads red in the definition, its height kept; the popup closed; okHost redrawn in place and its page differs" "$(_okl K-4)" "popupPick okPop value red;popupOk okPop wrote red to okHost okA;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ second ] okA height 40 targets 0 / page differs / popup gone"
 _ofeq "windowOkT K-5 opened on okB, two picks: the later one is written, to okB; okA keeps red" "$(_okl K-5)" "popupPick okPop value red;popupPick okPop value a longer blue;popupOk okPop wrote a longer blue to okHost okB;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page differs / popup gone"
 _ofeq "windowOkT K-6 ERRANT popupOk fired by a field in no popup: refused by name, once; nothing written" "$(grep -c '^popupOk: REFUSING okLoose -- it is in no open popup' "$T/ok.e") / $(_okl K-6)" "1 / okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page same / popup gone"
+
+echo "-- the popup belongs to its form: it closes with it, has no resize, and modal stops the form's clicks (windowOwnerT)."
+#  ⚑ windowOwnerT -- popups stroke 4 (SEQ 770, 2026-11-24; Tony's rulings 3, 5, 7; docs/popupsRecon.md). utilities' popup hands the window owner:= the form it
+#  was opened from (found by name in FORMs); guiHost.mm keeps the owner's view and modal in the window's record. A window that closes closes its popups first,
+#  as Cancel; a popup's window has a title bar and close button and no resize (the word in its line is the window's style mask read back); a popup form
+#  carrying modal=1 stops its owner's clicks while it is open -- nothing fires and the click line says so. Not modal by default. A shown popup of a shown window
+#  is made its child window (above it, moving with it): AppKit's, not reached offscreen, stroke 6's to see.
+#  Each row reads the window's lines on that page, the state line (owA's text in the definition, owC's hits, popups open) and which forms a window holds.
+#  Controls (H7, 2026-11-24, one build each): the owner never recorded (ownerView nil) -> W-1 reads "has no owner window", W-2 and W-5 leave the popup open
+#  with its target, W-3 fires owC and opens a second popup; then, owner recorded, the modal test and the resize mask both removed -> W-3 fires (hits 2) and
+#  every popup line reads resizable.
+_owF=$(ip windowOwnerT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_owF" > "$T/ow.o" 2> "$T/ow.e"; _owx=$?
+_owb() { awk -v p="OW-PAGE $1 " '$0 == p {f=1; next} /^OW-PAGE /{f=0} f' "$2"; }
+_owl() { printf '%s / holds%s' "$(_owb "$1" "$T/ow.o" | grep '^OW-STATE\|^=== popup window\|^=== window clos\|^=== windowClick [A-Za-z]*: under\|^=== owC fired\|^=== popupCancel\|^=== popupPick' | sed 's/^=== //; s/ *=== *$//; s/ *$//; s/^OW-STATE [^ ]* //; s/ kept .*//' | tr '\n' ';' | sed 's/;$//')" \
+            "$(for f in Host Pop Modal; do [ "$(_owb "$1" "$T/ow.e" | grep -c "^readWindow: REFUSING owRead$f ")" = 0 ] && printf ' %s' "$f"; done)"; }
+_ofeq "windowOwnerT exit / sentinel / refusals: readWindow's twelve (a form no window holds), no other" "$_owx $(grep -c '^WINDOWOWNER SENTINEL' "$T/ow.e") $(cat "$T/ow.o" "$T/ow.e" | grep -c 'REFUS')" "0 1 12"
+_ofeq "windowOwnerT W-0 only the form is open" "$(_owl W-0)" "owA [ first ] hits 0 targets 0 / holds Host"
+_ofeq "windowOwnerT W-1 A POPUP BELONGS TO THE FORM IT WAS OPENED FROM, no resize; NOT MODAL: the form's owC still fires under it" "$(_owl W-1)" "popup window: owPop belongs to owHost, no resize;owC fired, hits 1;owA [ first ] hits 1 targets 1 / holds Host Pop"
+_ofeq "windowOwnerT W-2 THE FORM CLOSED WITH ITS POPUP OPEN: the popup closes with it, as Cancel -- red was picked and owA still reads first; no window, no target" "$(_owl W-2)" "popupPick owPop value red;window closing: owHost takes its popup owPop with it;window closed: owPop;window closed: owHost;owA [ first ] hits 1 targets 0 / holds"
+_ofeq "windowOwnerT W-3 MODAL (modal=1 on the popup form): the form's clicks fire nothing and say so -- owC does not count, owA opens no second popup" "$(_owl W-3)" "popup window: owModal belongs to owHost, no resize;popup window: owModal is modal: owHost takes no clicks while it is open;windowClick owHost: under its modal popup owModal, nothing fired;windowClick owHost: under its modal popup owModal, nothing fired;owA [ first ] hits 1 targets 1 / holds Host Modal"
+_ofeq "windowOwnerT W-4 the modal's own Cancel is not blocked: it closes, and the form's owC fires again" "$(_owl W-4)" "popupCancel owModal closed, nothing written;window closed: owModal;owC fired, hits 2;owA [ first ] hits 2 targets 0 / holds Host"
+_ofeq "windowOwnerT W-5 the form closed under its modal popup: the modal closes with it" "$(_owl W-5)" "popup window: owModal belongs to owHost, no resize;popup window: owModal is modal: owHost takes no clicks while it is open;window closing: owHost takes its popup owModal with it;window closed: owModal;window closed: owHost;owA [ first ] hits 2 targets 0 / holds"
 
 echo "-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT)."
 #  ⚑ windowClimbT -- SEQ 764 (2026-11-23; Tony's rulings via Clay). utilities' selectable: a field is selectable when it has text, an image, an action or an

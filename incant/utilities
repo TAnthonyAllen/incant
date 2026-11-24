@@ -2214,9 +2214,10 @@ define
         window and does not show it; windows = 0 refuses by name: a popup has
         no PDF. Refuses by name: a request lacking form:= or on:=; a field with
         no frame (not on a laid-out copy).
+        IT BELONGS TO ITS FORM (stroke 4): see itsOwner, below.
     ***************************************************************************/
     popupTargets;
-    popWin form look frame;
+    popWin form look frame owner;
     popName = "none";
     popupForget code={
         pfN = popupTargets.listLengtH;
@@ -2310,6 +2311,11 @@ define
         if poLooks == 1;
             poLk := **poFa["look"];
             popWin.look := **poLk;
+        // itsOwner the popup belongs to the form it was opened from (popups stroke 4; ruling 5): the window is handed that form as owner:=, found by name in FORMs. The window closes with its owner's, sits above it, has no resize, and a popup form carrying modal=1 stops its owner's clicks while it is open (guiHost.mm). Not in FORMs: owner holds nothing and the popup is tied to no window
+        popWin.owner = 0;
+        pfmName = string $poIn$;
+        popForm();
+        if pfmHit == 1;     popWin.owner := *pfmFound;
         cout "=== popup" poForm "opened on" poIn poField "each" poEach "at" poX poY "===":;
         poHide = 0;
         if windows == 2;    poHide = 1;

@@ -128,6 +128,14 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   file read under show cannot write `onClick:=popupOk` (Utilities is not searched at its define); it wraps the action
   in one of its own, as tabForm's tabClick wraps selectTab. formsPop windowOkT.
 
+- Stroke 4 (SEQ 770, 2026-11-24, on branch popups-owner, not bought): the popup belongs to its form. utilities' popup
+  hands the window `owner:=` the form it was opened from (by name, FORMs); `guiHost.mm` keeps the owner's view and
+  `modal` in the window's record. A window that closes closes its popups first, as Cancel. A popup's window has a title
+  bar and close button and no resize. A popup form carrying `modal=1` stops its owner's clicks while it is open: nothing
+  fires, the click line says so, a shown popup comes forward. A shown popup of a shown window is made its child window
+  (above it, moves with it): that part is AppKit's, not reached offscreen, and is stroke 6's to see. `modal` is written
+  `modal=1`, as title= is written: a bare word on a form's line is not an attribute unless defined. formsPop windowOwnerT.
+
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
 | # | stroke | size | proof with nobody watching |
@@ -147,5 +155,5 @@ waits on keys.
 
 - MEASURED (SEQ 768): closing a window from a click inside it is clean at GCSTRESS=1000, offscreen (windowOkT K-1, K-3 to K-5). A shown window has not been tried.
 - Whether a window opened at a frame partly off the display is moved onto it by AppKit or must be moved by us.
-- Whether a child window that is never shown behaves as a shown one does (stroke 4's offscreen proof depends on it).
+- NOT MEASURED, by choice (SEQ 770): an unshown popup is not made a child window at all; closing with the form, modal and no resize are our record's and are proved offscreen. The child window (above, moves with it) waits for stroke 6.
 - An open popup under `GCSTRESS`: each window holds its form in its own cell, so no new question is expected; not run.
