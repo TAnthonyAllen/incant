@@ -12,7 +12,7 @@ popups stroke 0 (the look on the laid-out copy, F-158 closed), stroke 1 (selecti
 **RULED, NOT BUILT:** popups strokes 3-6 (docs/popupsRecon.md); typesetting grows its form (docs/typesetGrowsFormRecon.md 5a; first step the measure alone); user edits (Topics/forms). Registries items 3-5; describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DOCKETED:** F-168, an attribute holding 0 tests false (a read-only census at a later session). F-167 stays docketed. Features 39, `keep`, is a recon item.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** popups strokes 3-6; then typesetting's measure; lighten / darken; registries 3-5; windows TO DO 2-3 (describe text naming an entry; long descriptions). Tony sends each from incant++'s parked section.
+**NEXT:** popups strokes 3-6; fieldIndex recon (read-only, Topics/fieldIndex step 0) before registries 3-5; then typesetting's measure; lighten / darken; registries 3-5; windows TO DO 2-3 (describe text naming an entry; long descriptions). Tony sends each from incant++'s parked section.
 
 ## The numbers (trunk at seal 540)
 | instrument | reads |
@@ -48,6 +48,7 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 | `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
 | `Topics/features` | 79 / 80 | the parking list; not a session topic. |
+| `Topics/fieldIndex` | 60 / 80 | the virtual OS: an inverted field lookup, where defined / used, statement switches; parked, not ruled. |
 
 ## Where the old seals are
 - Seals 373-444, in full: `git show cf9522cb:docs/wakeup.md`. Each is digested in its topic file.

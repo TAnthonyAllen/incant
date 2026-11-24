@@ -20,4 +20,5 @@ row Topics/typesetting    120
 row Topics/cleanup        120
 row Topics/documentation  120
 row Topics/features       80
+row Topics/fieldIndex     80
 exit 0

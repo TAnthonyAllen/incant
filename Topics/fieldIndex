@@ -1,0 +1,60 @@
+# TOPIC: fieldIndex (the virtual OS)
+ 
+Read after docs/wakeup.md when the session's topic is fieldIndex. Opened 2026-11-24 from Tony's offline status.
+Status: PARKED, NOT RULED. Nothing here is built. Budget proposed: 80 lines.
+ 
+## The idea
+Incant as a virtual OS: an inverted lookup keyed by field takes the place of a file system. A user (or Clod at recon)
+finds a field and sees:
+- its description, if it has one;
+- what it is (it can be several things at once): registry, rule, incantation, action, command (a field with a C++ method);
+- where it is defined (which incantation; can be more than one; file, line, host);
+- where it is used, and how: call, attribute or member;
+- the statement dresses on it: probe, warning, design-doc link, directive. Each is a field invoked as a field and can be
+  switched on and off.
+Queries: which actions call this field, or read it as an attribute or member. A search can be limited to the search list
+or not.
+Readers of the switch: typesetting steps over a statement that is switched off and prints nothing. The jitter skips it too.
+ 
+## Already ruled pieces this pulls together (Clod, 2026-11-24)
+- Where defined = registries stroke 3. Statement switches = the wARNINGs registry (stroke 5), widened.
+- Finding a field and seeing what it is = lookup with no index (Topics/documentation), generate-don't-type.
+- Also touches: describe (Topics/windows), the describe-lookup branch, IBkant, the sampler form.
+ 
+## Design questions the pass must settle
+1. When things are recorded. What a field is, where it is defined and its description are recorded at define time.
+   Where it is used is NOT: an action's body is built on its first run. An action that has never run shows no uses,
+   unless a search forces the build or there is a parse-only pass.
+2. Two meanings of "used": the name as written in a body, or the field it resolves to through the search list (which is
+   decided at run time). The index says which one it reports.
+3. The facts do not live on the field. They leak into every copy (the Reference recon measured this). They go in
+   registries keyed by name, the way fORMfACTs does it.
+4. Delete and redefine are one job. An overwrite (last wins) retracts the old uses exactly as a delete does. A delete
+   rule is needed, the inverse of define. The tester checks the round trip.
+5. The switch gets its own flag, not noPrint. Typesetting and the jitter both read it.
+6. Jitter and the switch: bake it in at emit and rejit when it flips (costs nothing while off, which matters for probes),
+   or emit a run-time check and never rejit. Unmeasured. Known: a second testing() on one action corrupted state, hence
+   jitRefire. Is a rejit mid-run safe, or only once per run?
+ 
+## Order of attack (proposed; Tony rules)
+0. Read-only recon by Clod after popups strokes 3-6 and before registries 3-5: docs/fieldIndexRecon.md. It covers what
+   each definer records today, where a delete must clean up, when action bodies get built, and whether the jitter can
+   swap an action's code mid-run.
+1. Clay's design pass with the recon in hand; Tony rules. Names the where-defined property before registries stroke 3.
+2. Registries stroke 3: where defined (file, line, host).
+3. Registries stroke 5: the wARNINGs registry widened to the switch flag; typesetting honors it.
+4. The delete rule; redefine retracts.
+5. Where used (settles questions 1 and 2), then the queries (call / attribute / member; search list or not).
+6. A find-a-field window (describe / forms).
+7. The jitter honors the switch, by whichever road question 6's measurement picks.
+8. When aCTionDefinE is rewritten in kant (Topics/kant, kant-in-kant), recording moves there.
+ 
+## Later, not in the first pass
+- Comments become design-doc links, and comments inside actions likewise. This touches every source file and
+  Topics/documentation: a lot of work.
+- Directives folded into fields. This changes what dirCheck.sh counts (116 at seal 540).
+- Incantations on another machine: record the host in "where defined" and stop there. The rest waits for the web channel.
+- The rest of "what is it" (the list that goes on and on): add kinds one at a time, as each earns its place.
+ 
+## Digest (one paragraph per seal)
+(none yet)
