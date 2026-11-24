@@ -1,0 +1,82 @@
+Start();
+windows = 2;
+show(firstLight);
+search FORMs cOLOr fONTs sTYLEs;
+register(FORMs);
+define
+    okPick code={ popupPick(argument); };
+    okDone code={ popupOk(argument); };
+    okDrop code={ popupCancel(argument); };
+    okPop window x=5 y=5 width=120 height=120 fill:=pageFill title="Pick"
+        okRed="red" height=30 onClick:=okPick;
+        okBlue="a longer blue" height=30 onClick:=okPick;
+        okYes="OK" height=30 onClick:=okDone;
+        okNo="Cancel" height=30 onClick:=okDrop;
+    okAsk form on;
+    okOpen code={
+        okAsk.form := okPop;
+        okAsk.on := argument;
+        popup(okAsk);
+        };
+    okHost window x=40 y=60 width=200 height=200 fill:=pageFill
+        okA="first" height=40 onClick:=okOpen;
+        okB="second" height=40 onClick:=okOpen;
+        okLoose="loose" height=40 onClick:=okDone;
+    ;
+show(okHost);
+search FORMs;
+register(WindowOkT);
+define
+    okOnA form:=okHost px=100 py=20;
+    okOnB form:=okHost px=100 py=60;
+    okOnLoose form:=okHost px=100 py=100;
+    okOnRed form:=okPop px=60 py=15;
+    okOnBlue form:=okPop px=60 py=45;
+    okOnYes form:=okPop px=60 py=75;
+    okOnNo form:=okPop px=60 py=105;
+    okShut form:=okPop;
+    okWas form:=okHost;
+    okNow form:=okHost;
+    okSame first:=okWas second:=okNow;
+    okPopRead form:=okPop;
+    okSay code={
+        osAf := okHost["okA"];
+        osBf := okHost["okB"];
+        osA = string $*osAf$;
+        osB = string $*osBf$;
+        osAh = *osAf["height"];
+        osN = popupTargets.listLengtH;
+        cout "OK-TEXT" argument "okA [" osA "] okB [" osB "] okA height" osAh "targets" osN:;
+        readWindow(okNow);
+        displayDiff(okSame);
+        readWindow(okPopRead);
+        };
+    ;
+search WindowOkT Utilities;
+readWindow(okWas);
+cout "OK-PAGE K-0":;    cerr "OK-PAGE K-0":;    okSay("K-0");
+cout "OK-PAGE K-1":;    cerr "OK-PAGE K-1":;    windowClick(okOnA);     readWindow(okWas);  windowClick(okOnRed);   windowClick(okOnNo);    okSay("K-1");
+cout "OK-PAGE K-2":;    cerr "OK-PAGE K-2":;    windowClick(okOnA);     readWindow(okWas);  windowClick(okOnRed);   windowClose(okShut);    okSay("K-2");
+cout "OK-PAGE K-3":;    cerr "OK-PAGE K-3":;    windowClick(okOnA);     readWindow(okWas);  windowClick(okOnYes);   okSay("K-3");
+cout "OK-PAGE K-4":;    cerr "OK-PAGE K-4":;    windowClick(okOnA);     readWindow(okWas);  windowClick(okOnRed);   windowClick(okOnYes);   okSay("K-4");
+cout "OK-PAGE K-5":;    cerr "OK-PAGE K-5":;    windowClick(okOnB);     readWindow(okWas);  windowClick(okOnRed);   windowClick(okOnBlue);  windowClick(okOnYes);   okSay("K-5");
+cout "OK-PAGE K-6":;    cerr "OK-PAGE K-6":;    windowClick(okOnLoose); readWindow(okWas);  okSay("K-6");
+cout "OK-PAGE END":;    cerr "OK-PAGE END":;
+cerr "WINDOWOK SENTINEL":;
+stop();
+
+windowOkT -- popups stroke 3 (SEQ 768, 2026-11-24; Tony's ruling 4 on docs/popupsRecon.md): OK and Cancel. Tester's shape, a
+delta of windowPopupT. No window is shown. okHost has two fields, okA "first" and okB "second", each opening okPop at itself.
+okPop has two rows that pick their own text (popupPick), an OK (popupOk) and a Cancel (popupCancel). Every click in okPop is a
+real mouse-up in okPop's own window, so OK and Cancel close the window they were clicked in.
+Read: the text of okA and okB in the DEFINITION, and okA's height there (a write must leave a field's attributes alone); how many popups are open (targets); okHost's window against the bitmap read
+just after the popup was opened, the clicked field already outlined (displayDiff: differing 0 is equal pixel for pixel); and whether a window still holds okPop (readWindow refuses by name
+when none does).
+K-0  nothing yet: first, second; the page equal to itself.
+K-1  okA opens the popup, red is picked, CANCEL: closed, nothing written, the page equal pixel for pixel.
+K-2  the same with the close button (windowClose): the same.
+K-3  OK with nothing picked: closed, nothing written and it says so, the page equal.
+K-4  red picked, OK: okA's text is red in the definition; the popup is closed; okHost's window is laid out again in place
+     (not closed, not moved) and its page differs from the one read before.
+K-5  opened on okB, red picked then blue: the later pick wins; okB is written, okA keeps red.
+K-6  ERRANT: popupOk fired by a field that is in no popup (okLoose, in okHost): refused by name, nothing written.

@@ -617,6 +617,25 @@ extern "C" GroupItem *windowClose(GroupItem *request)
 }
 
 /***************************************************************************
+    windowRedraw(request): form:= a form a window shows (or the copy it
+    holds). The window lays its form out again at the frame it has now and
+    draws it, IN PLACE: it is not moved, not raised and not made key, where a
+    second show brings it to the front (popups stroke 3: a popup's OK writes
+    its form's definition, and that form's window shows the write at once).
+    A window handed a bare copy has no request and keeps what it holds.
+***************************************************************************/
+extern "C" GroupItem *windowRedraw(GroupItem *request)
+{
+    WindowRecord *w = windowNamed(request, "windowRedraw");
+    if ( !w ) return 0;
+    Layout *view = w->view;
+    printf("=== window redrawn in place: %s ===\n", view->base ? view->base->groupBody->tag : "nothing");
+    fflush(stdout);
+    windowRelay(view);
+    return request;
+}
+
+/***************************************************************************
     displayDiff(request): first:= and second:= two fields that each hold a
     bitmap (readPDF's request, readWindow's request, a makeDisplay top).
     Compares them pixel for pixel and prints how many differ, by how much at

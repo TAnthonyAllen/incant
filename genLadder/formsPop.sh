@@ -1270,6 +1270,32 @@ _ofeq "windowPopupT P-4 A FIELD AT THE SCREEN'S (0,0): the popup opens at x 0, y
 _ofeq "windowPopupT P-5 ERRANT no on:=, and a field with no frame: each refused by name, once; nothing opened, no target" "$(grep -c '^popup: REFUSING ppNoOn -- its request needs form:=thePopupForm and on:=theField' "$T/pp.e") $(grep -c '^popup: REFUSING ppDef -- the field ppLoose has no frame' "$T/pp.e") / $(_ppl P-5)" "1 1 / target none, of 0"
 _ofeq "windowPopupT P-6 ERRANT windows = 0: refused by name, once; nothing opened, no target" "$(grep -c '^popup: REFUSING ppAsk -- windows are off' "$T/pp.e") / $(_ppl P-6)" "1 / target none, of 0"
 
+echo "-- OK and Cancel: a popup's value goes back by name, the popup closes, its form is redrawn in place (windowOkT)."
+#  ⚑ windowOkT -- popups stroke 3 (SEQ 768, 2026-11-24; Tony's ruling 4; docs/popupsRecon.md). utilities' popupPick, popupOk and popupCancel, the shared click
+#  actions of a popup form, each handed the clicked field and knowing its popup from laidForm on the copy's top. popupPick keeps the field's text as the
+#  popup's value (popupTargets, value=); popupOk writes it as the TEXT of the field the popup was opened on, in the DEFINITION, found by name in FORMs, closes
+#  the popup and has the form's window laid out again where it is (guiHost.mm windowRedraw: not moved, not raised); popupCancel closes and writes nothing.
+#  Every click in the popup is a real mouse-up in the popup's own window, so OK and Cancel close the window they were clicked in (not measured until now).
+#  Each row reads: the definition's two texts and okA's height; popups open (targets); the form's window against the bitmap read just after the popup opened
+#  (same = equal pixel for pixel); and whether a window still holds the popup (readWindow's refusal by name: gone). GCSTRESS=1000, not shown.
+#  Controls (H7, 2026-11-24, on the committed file, no build), one each: the write removed -> K-4 and K-5 keep first / second and the page same; the close
+#  removed -> the popup is held and its target stays at K-3 to K-5; windowRedraw removed -> K-4 and K-5 are written but the page reads same; the write made
+#  from the string expression, not its .texT -> okA loses its height at K-4 (the read echoes its own name) and the page breaks.
+_okF=$(ip windowOkT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_okF" > "$T/ok.o" 2> "$T/ok.e"; _okx=$?
+_okb() { awk -v p="OK-PAGE $1 " '$0 == p {f=1; next} /^OK-PAGE /{f=0} f' "$2"; }
+_okl() { printf '%s / page %s / popup %s' "$(_okb "$1" "$T/ok.o" | grep '^OK-TEXT\|^=== popupPick\|^=== popupOk\|^=== popupCancel\|^=== window closed\|^=== window redrawn' | sed 's/^=== //; s/ *=== *$//; s/ *$//; s/^OK-TEXT [^ ]* //; s/ kept .*//' | tr '\n' ';' | sed 's/;$//')" \
+            "$(_okb "$1" "$T/ok.o" | grep '^=== displayDiff okSame' | sed 's/.*differing \([0-9]*\),.*/\1/; s/^0$/same/; s/^[0-9][0-9]*$/differs/')" \
+            "$( [ "$(_okb "$1" "$T/ok.e" | grep -c '^readWindow: REFUSING okPopRead')" = 1 ] && echo gone || echo held)"; }
+_ofeq "windowOkT exit / sentinel / refusals: readWindow's seven (no popup window, one a page) and K-6's, no other" "$_okx $(grep -c '^WINDOWOK SENTINEL' "$T/ok.e") $(cat "$T/ok.o" "$T/ok.e" | grep -c 'REFUS')" "0 1 8"
+_ofeq "windowOkT K-0 nothing yet: first, second" "$(_okl K-0)" "okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone"
+_ofeq "windowOkT K-1 CANCEL, CLICKED IN THE POPUP'S OWN WINDOW: red was picked; nothing written, the popup closed, the form's page equal pixel for pixel" "$(_okl K-1)" "popupPick okPop value red;popupCancel okPop closed, nothing written;window closed: okPop;okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone"
+_ofeq "windowOkT K-2 the close button after a pick: the same as Cancel" "$(_okl K-2)" "popupPick okPop value red;window closed: okPop;okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone"
+_ofeq "windowOkT K-3 OK with nothing picked: says so, writes nothing, closes; the form laid out again in place, its page equal" "$(_okl K-3)" "popupOk okPop nothing picked, nothing written;window closed: okPop;window redrawn in place: okHost;okA [ first ] okB [ second ] okA height 40 targets 0 / page same / popup gone"
+_ofeq "windowOkT K-4 OK: THE VALUE GOES BACK BY NAME -- okA reads red in the definition, its height kept; the popup closed; okHost redrawn in place and its page differs" "$(_okl K-4)" "popupPick okPop value red;popupOk okPop wrote red to okHost okA;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ second ] okA height 40 targets 0 / page differs / popup gone"
+_ofeq "windowOkT K-5 opened on okB, two picks: the later one is written, to okB; okA keeps red" "$(_okl K-5)" "popupPick okPop value red;popupPick okPop value a longer blue;popupOk okPop wrote a longer blue to okHost okB;window closed: okPop;window redrawn in place: okHost;okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page differs / popup gone"
+_ofeq "windowOkT K-6 ERRANT popupOk fired by a field in no popup: refused by name, once; nothing written" "$(grep -c '^popupOk: REFUSING okLoose -- it is in no open popup' "$T/ok.e") / $(_okl K-6)" "1 / okA [ red ] okB [ a longer blue ] okA height 40 targets 0 / page same / popup gone"
+
 echo "-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT)."
 #  ⚑ windowClimbT -- SEQ 764 (2026-11-23; Tony's rulings via Clay). utilities' selectable: a field is selectable when it has text, an image, an action or an
 #  attribute holding one, a describe, a selectFill of its own, or a dESCRIPTIONs entry; else it is only room. clickField selects the first selectable field at or
