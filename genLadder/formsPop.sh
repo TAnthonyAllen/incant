@@ -1329,8 +1329,8 @@ echo "-- the return address: every poured row and cell knows its source, entry a
 #  each cell that shows something get, on the copy, pourSource, pourEntry (names) and pourMember, or pourReadOnly and why. A written row's cells are read by
 #  their text as written (pourCellTag); a derived row is told as it is built (pourRowBuild) and now carries each. utilities' pourAddress(field) answers
 #  "source S, entry E, member M", "read-only: why" or "not poured". Nothing is written back (B2). Every click is a real mouse-up, offscreen, GCSTRESS=1000.
-#  Controls (H7, 2026-11-24, on the committed file, no build), one each: the written rows' cell walk removed -> A-1 to A-6 and A-8 all answer the row's
-#  "a row holds no value"; the name test removed -> A-1 computed; the lone-insert test removed -> A-2 computed; the attribute test removed -> A-3 the row's;
+#  Controls (H7, 2026-11-24, on the committed file, no build), one each: the written rows' cell walk removed -> A-1 to A-6, A-8 and A-13 all answer the row's
+#  "a row holds no value"; the name test removed -> A-1 computed; the lone-insert test removed -> A-2 computed (and A-8, the same cell kind); the attribute test removed -> A-3 the row's;
 #  the qualified test removed -> A-4 computed; the brace test removed -> A-6 computed; the entry-kind test removed -> A-8 doIt writable; the derived
 #  cells' tags removed -> A-9, A-10, A-12 the row's; the sample-text and look tests removed -> A-10 and A-12 writable; the nested test removed -> A-13 writable.
 _paF=$(ip pourAddressT)
