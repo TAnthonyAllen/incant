@@ -500,6 +500,21 @@
   ok    windowOwnerT W-4 the modal's own Cancel is not blocked: it closes, and the form's owC fires again = [popupCancel owModal closed, nothing written;window closed: owModal;owC fired, hits 2;owA [ first ] hits 2 targets 0 / holds Host]
   ok    windowOwnerT W-5 the form closed under its modal popup: the modal closes with it = [popup window: owModal belongs to owHost, no resize;popup window: owModal is modal: owHost takes no clicks while it is open;window closing: owHost takes its popup owModal with it;window closed: owModal;window closed: owHost;owA [ first ] hits 2 targets 0 / holds]
   ok    windowOwnerT W-6 NO OWNER FORM (the form is registered outside FORMs): the popup still opens, tied to no window, and says so by name, once in the run; its form closed, it stays open with its target = [1 of 1 / popup window: owPop has no owner window, no resize;window closed: owFar;owA [ first ] hits 2 targets 1 / holds Pop]
+-- the return address: every poured row and cell knows its source, entry and member, or why it is read-only (pourAddressT).
+  ok    pourAddressT exit / sentinel / nothing refused / the action entry never fired = [0 1 0 0]
+  ok    pourAddressT A-1 written row, {each.taG}: read-only, the name = [paName of beta : read-only: the entry's name: a rename is not a write]
+  ok    pourAddressT A-2 WRITTEN ROW, {each}: THE ADDRESS -- source, entry by name, member = [paVal of beta : source PaThree, entry beta, member value]
+  ok    pourAddressT A-3 no text, fill:=each: the same address = [paSwatch of beta : source PaThree, entry beta, member value]
+  ok    pourAddressT A-4 {PaWords.each}: the source is PaWords, for an entry it holds (alpha) and one it does not hold yet (beta) = [paWord of alpha : source PaWords, entry alpha, member value;paWord of beta : source PaWords, entry beta, member value]
+  ok    pourAddressT A-5 an insert and more text: read-only, computed = [paMix of beta : read-only: computed: its text is more than one insert of the entry]
+  ok    pourAddressT A-6 text with no insert: read-only, written in the form = [paLit of beta : read-only: its text is written in the form, not poured]
+  ok    pourAddressT A-7 the row itself: read-only, a row holds no value = [paRow of beta : read-only: a row holds no value of its own; its cells do]
+  ok    pourAddressT A-8 an entry that is an action: read-only (and not fired); its neighbour is writable = [paAval of doIt : read-only: the entry is a rule or an action: it is never read;paAval of plain : source PaActs, entry plain, member value]
+  ok    pourAddressT A-9 DERIVED ROW (colorList's kind): name read-only, the value in its registry, the description in dESCRIPTIONs; a description cell with no text is not reached by a click (the poured field answers) = [pourName of beta : read-only: the entry's name: a rename is not a write;pourShow of beta : source PaThree, entry beta, member value;pourWhat of beta : source dESCRIPTIONs, entry beta, member value;paDrows of none : not poured]
+  ok    pourAddressT A-10 derived from fONTs: a font's sample text, read-only = [read-only: computed: a font's sample text]
+  ok    pourAddressT A-11 a field in no poured row: not poured = [paOut of none : not poured]
+  ok    pourAddressT A-12 derived from sTYLEs, every row clicked: some a style's sample, some the look's value, none writable = [style look writable 0]
+  ok    pourAddressT A-13 a pour inside a poured row: read-only = [paNinVal of alpha : read-only: a pour inside a poured row;paNinVal of beta : read-only: a pour inside a poured row]
 -- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT).
   ok    windowClimbT exit / sentinel / nothing refused = [0 1 0]
   ok    windowClimbT C-1 THE EMPTY FIELD LEFT OF OK: only room all the way up, nothing selected; the heading keeps its outline before and after; the window the same pixel for pixel = [click firstLight space selected nothing: only room, on the way up through 3 fields;click firstLight space fired nothing, on the way up through 3 fields / BLUE BLUE / 0]
@@ -537,4 +552,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 462 green, see above
+FORMS POP FAILED -- 476 green, see above
