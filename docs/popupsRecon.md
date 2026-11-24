@@ -157,3 +157,53 @@ waits on keys.
 - Whether a window opened at a frame partly off the display is moved onto it by AppKit or must be moved by us.
 - NOT MEASURED, by choice (SEQ 770): an unshown popup is not made a child window at all; closing with the form, modal and no resize are our record's and are proved offscreen. The child window (above, moves with it) waits for stroke 6.
 - An open popup under `GCSTRESS`: each window holds its form in its own cell, so no new question is expected; not run.
+
+## 6. Stroke 4b, the pour return link: part A, read only (SEQ 772, assigned by Clod, 2026-11-24)
+
+Tony's ruled shape (2026-11-24) is in the dispatch: the source is the truth, the form a view; a write goes to the source
+entry's member and the row is poured again; each poured field has a return address (source, entry by name, member); the
+text alone is written. Read: `incant/utilities` (fillDownAcross, pourOpen to pourRowBuild, tsEachFind, typeset's inserts),
+pourT, colorList. Measured where it says so (a scratch probe, two forms over a three-entry registry, real clicks offscreen).
+
+**1. What pour knows today.** There are two kinds of poured row and they differ.
+- A WRITTEN TEMPLATE ROW (stage 1; pourT): each copy of the row carries `each`, holding the source ENTRY ITSELF (not a
+  name, not a position). The entry's registry is read from the entry (`registrY`). Measured: a click in the second row
+  reads each beta, registry PrThree. The cells under the row carry nothing of their own; what a cell shows is in its
+  TEXT, still as written when it is clicked (measured: `{each.taG}`, `{each}`, `is {each}!`), and typeset resolves it at
+  the draw. An attribute holding each (fill:=each) is re-pointed at the entry and no longer says each.
+- A DERIVED ROW (stage 2; colorList, stroke 5's customer): the row and its three cells are built from the entry and
+  carry NO each (measured: each none). `pour` is taken off the field. pourName's text is the entry's name, copied;
+  pourShow's is the entry's value, copied (or sample text for a font or a style); pourWhat's is dESCRIPTIONs' entry of
+  that name, copied. So a derived row has no way back at all today.
+- A click action is handed the level that fired (the row, or the poured field), not the cell; the cell is `selection`.
+
+**2. Where the address should live.** Not a registry keyed by form and field: every poured row has the same field
+names (ptRow, ptName; pourRow, pourName), so the key would need the entry's name too, and the registry would have to
+be rebuilt at every layout or it goes stale when the source changes. The leak the Reference recon measured is a
+DEFINITION's facts reaching its copies; this address is never on the definition. Lean: on the laid-out copy, where
+`each` already is, written at every layout, as NAMES (source registry, entry) on the row, and per CELL where a cell's
+source differs from its row's (pourWhat's is dESCRIPTIONs). Whoever must remember past a layout copies the names out,
+as popupTargets already does with each=.
+
+**3. One row again, or the whole form.** Nothing pours one row: every redraw is a fresh deep copy of the definition
+laid out whole, and every click already does that. Measured: colorList (14 rows), 20 whole layouts through
+windowRedraw, 0.17 s, about 9 ms each (layout only; offscreen nothing draws). Pouring one row would be new machinery,
+and a row whose height changes moves every row under it. Lean: "poured again" is the whole form's redraw.
+
+**4. What the write-back cannot reach.**
+- the entry's NAME (`{each.taG}`, pourName): a rename, not a member write. Read-only.
+- text that is more than one insert (`is {each}!`), and a font's or a style's sample text: computed. Read-only.
+- a placeholder read through the look (pourShow, an empty sTYLEs entry): the value is the look's, not the entry's.
+- an entry that is a rule or an action: pour never reads one (reading fires it). Read-only.
+- `{aRegistry.each}` and pourWhat when that registry has NO entry of the name: there is nothing to write to. Refuse,
+  or make the entry: Tony's.
+- an entry's own attributes: `{each.X}` is read for taG only today, so no cell shows one.
+- a pour inside a poured row: not measured.
+
+**5. One stroke or two.** Two. B1, the address: template and derived rows and their cells carry it; one action answers,
+for a clicked field, source, entry and member, or read-only and why; rows for each case in 4. B2, the write: by name,
+the text alone, the errant cases (entry gone or renamed, a second form, Cancel), then the form's redraw; its own test,
+no popup. Stroke 5's OK is then the first user.
+
+**For Tony:** (a) the address on the copy, not in a registry (2); (b) poured again = the whole form (3); (c) a
+description cell with no entry yet: refuse, or make the entry (4); (d) the read-only list in 4 as it stands; (e) the split.
