@@ -207,3 +207,19 @@ no popup. Stroke 5's OK is then the first user.
 
 **For Tony:** (a) the address on the copy, not in a registry (2); (b) poured again = the whole form (3); (c) a
 description cell with no entry yet: refuse, or make the entry (4); (d) the read-only list in 4 as it stands; (e) the split.
+
+**RULED (Tony, 2026-11-24, on part A):** (a) the address lives on the laid-out copy, not in a registry; (b) poured again =
+the whole form redraws; (c) a description cell whose entry does not exist yet: B2 makes the entry and says so on the click
+line ("made dESCRIPTIONs entry <name>"); (d) finding 4's read-only list stands, a pour inside a poured row is read-only
+until measured, and a rename is not a write-back (a separate operation, later); (e) split into B1 and B2.
+
+**B1 BUILT (SEQ 773, 2026-11-24): the return address.** At every layout a poured row and each cell that shows something
+carry `pourSource`, `pourEntry` (names) and `pourMember`, or `pourReadOnly` and why, on the copy. A written row's cells are
+read by their text as written; a derived row is told as it is built and now carries `each`, as a written row does.
+`pourAddress(field)` answers "source S, entry E, member M", "read-only: why" or "not poured". Read-only reasons reached:
+the entry's name; text that is more than one insert; text written in the form; a row; a rule or an action; a font's or a
+style's sample text; a value read through the look; a pour inside a poured row. Also: a row's `each` is no longer read
+through the look as a placeholder (resolveLook; a styles pour has an entry named each, and derived rows now carry the mark).
+FOUND: a cell that shows nothing (a description cell with no description) cannot be reached by a click -- only room is not
+selectable, and a click action is handed the level that fired, not the field that was hit. B2's "make the entry" needs a
+way to that cell. formsPop pourAddressT, 14 rows.

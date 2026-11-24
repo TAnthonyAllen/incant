@@ -196,6 +196,7 @@ define
             return;
         psReg := **poA;
         poRn = string $**poA.taG$;
+        psRn = string $poRn$;
         poLen = *psReg.listLengtH;
         if poLen > 0;   pourCount(*psReg);
         if psN == 0;
@@ -223,7 +224,232 @@ define
         pmE := new("each");
         *pmE := *psMember;
         argument :% *pmE;
+        // returnAddress the row and its cells are told where they came from before each is resolved away (pourAddress, below); a pour inside a poured row is read-only until measured (Tony, 2026-11-24): its field was marked so when the outer row was
+        paEnt = string $*psMember.taG$;
+        paNest = 0;
+        pmUp := argument.parenT;
+        pmL = *pmUp.listLengtH;
+        if pmL > 0;
+            if *pmUp["pourReadOnly"];   paNest = 1;
+        pourRowTag(argument);
+        if paNest == 0;     pourAddrWalk(argument);
+        if paNest == 1;     pourNestWalk(argument);
         pourResolve(argument);
+        };
+    /***************************************************************************
+        THE RETURN ADDRESS (popups stroke 4b, B1; Tony's rulings of 2026-11-24,
+        docs/popupsRecon.md section 6). Every poured row and every cell that
+        shows something is told where it came from, ON THE LAID-OUT COPY, at
+        every layout, as plain attributes holding NAMES:
+            pourSource    the registry the value lives in
+            pourEntry     the entry's name (a name, not a position)
+            pourMember    what of the entry the cell shows: value
+        or, where a write could not go back, in place of pourMember:
+            pourReadOnly  why not
+        A written template row: the row carries each already; its cells are
+        read by their text as written. "{each}" is the entry's value in the
+        poured registry; "{aRegistry.each}" that registry's entry of the same
+        name (it need not exist yet); a cell with no text and an attribute
+        holding each (fill:=each) is the entry's value too. Read-only:
+        "{each.taG}" (the name); text holding an insert and more; text with no
+        insert (written in the form); an entry that is a rule or an action; a
+        pour inside a poured row. A field under a row that shows nothing is
+        given no address: the row's stands for it.
+        A derived row (pourRowBuild) is told as it is built: it now carries
+        each too; pourName is the name, pourShow the value (read-only for a
+        font's or a style's sample text, a value read through the look, a rule
+        or an action), pourWhat dESCRIPTIONs' entry of the name.
+        pourAddress(field) answers for a clicked field: see below.
+        Nothing here writes a source. That is B2.
+    ***************************************************************************/
+    psRn = "none";
+    paSrc = "none";
+    paEnt = "none";
+    paMem = "value";
+    paWhy = "none";
+    paNest = 0;
+    paBrace = 0;
+    paHolds = 0;
+    paQual = 0;
+    paLone = "{each}";
+    paName = "{each.taG}";
+    paText = "none";
+    pourTag code={
+        ptS := new("pourSource");
+        *ptS = paSrc.texT;
+        argument :% *ptS;
+        ptE := new("pourEntry");
+        *ptE = paEnt.texT;
+        argument :% *ptE;
+        if paWhy == "none";
+            ptM := new("pourMember");
+            *ptM = paMem.texT;
+            argument :% *ptM;
+        if paWhy != "none";
+            ptW := new("pourReadOnly");
+            *ptW = paWhy.texT;
+            argument :% *ptW;
+        };
+    pourRowTag code={
+        paSrc = string $psRn$;
+        paMem = "value";
+        paWhy = "a row holds no value of its own; its cells do";
+        if paNest == 1;     paWhy = "a pour inside a poured row";
+        pourTag(argument);
+        };
+    pourAddrWalk code={
+        pawHas = argument.hasMemberS;
+        if pawHas == 0;     return;
+        for grup in argument; members
+            pawP = 0;
+            pawL = *grup.listLengtH;
+            if pawL > 0;
+                if *grup["pour"];   pawP = 1;
+            if pawP == 1;   pourNestTag(*grup);
+            if pawP == 0;   pourCellTag(*grup);
+            if pawP == 0;   pourAddrWalk(*grup);
+        };
+    // nestedIsReadOnly a poured field inside a poured row, and everything under it
+    pourNestTag code={
+        paSrc = string $psRn$;
+        paWhy = "a pour inside a poured row";
+        pourTag(argument);
+        pourNestWalk(argument);
+        };
+    pourNestWalk code={
+        pnwHas = argument.hasMemberS;
+        if pnwHas == 0;     return;
+        for grup in argument; members
+            paSrc = string $psRn$;
+            paWhy = "a pour inside a poured row";
+            pourTag(*grup);
+            pourNestWalk(*grup);
+        };
+    // holdsEach 1 when an attribute of the field holds each (fill:=each), read before pourResolve re-points it
+    pourHoldsEach code={
+        paHolds = 0;
+        for grup in argument; attributes
+            pheHeld = *grup.isGrouP;
+            if pheHeld == 1;
+                pheTo = string $**grup.taG$;
+                pheAt = string $*grup.taG$;
+                if pheTo == "each";
+                    if pheAt != "each";     paHolds = 1;
+        };
+    // hasBrace 1 when paText holds an insert's opening brace (123)
+    pourBrace code={
+        paBrace = 0;
+        pbW = string $paText$;
+        while pbW.datA;
+            pbC = pbW.numbeR;
+            if pbC == 123;      paBrace = 1;
+            ++pbW;
+        };
+    // qualifiedInsert paText is exactly "{aRegistry.each}" for a registry that exists: paQual 1 and paSrc its name
+    pourQualified code={
+        paQual = 0;
+        for grup in registries; members
+            if paQual == 0;
+                pqN = string $*grup.taG$;
+                pqT = string $"{" pqN ".each}"$;
+                if pqT == paText;
+                    paSrc = string $pqN$;
+                    paQual = 1;
+        };
+    // neverRead a rule or an action is never read for its text (pourRowBuild, neverFire): psMember's value cannot be written back
+    pourEntryKind code={
+        pekR = *psMember.isRulE;
+        pekA = *psMember.actionTypE;
+        pekM = *psMember.isMethoD;
+        pekBad = 0;
+        if pekR != 0;   pekBad = 1;
+        if pekA != 0;   pekBad = 1;
+        if pekM != 0;   pekBad = 1;
+        if pekBad == 1;     paWhy = "the entry is a rule or an action: it is never read";
+        };
+    pourCellTag code={
+        paSrc = string $psRn$;
+        paMem = "value";
+        paWhy = "none";
+        pctD = argument.datA;
+        pctHeld = argument.isGrouP;
+        if pctHeld == 1;    pctD = 0;
+        pctOwn = 0;
+        if pctD == 0;
+            pctL = argument.listLengtH;
+            paHolds = 0;
+            if pctL > 0;    pourHoldsEach(argument);
+            if paHolds == 0;    return;
+            pctOwn = 1;
+        if pctD != 0;
+            paText = string $argument$;
+            pctDone = 0;
+            if paText == paLone;
+                pctDone = 1;
+                pctOwn = 1;
+            if paText == paName;
+                paWhy = "the entry's name: a rename is not a write";
+                pctDone = 1;
+            if pctDone == 0;
+                pourBrace();
+                if paBrace == 0;
+                    paWhy = "its text is written in the form, not poured";
+                    pctDone = 1;
+            if pctDone == 0;
+                pourQualified();
+                if paQual == 0;     paWhy = "computed: its text is more than one insert of the entry";
+        if pctOwn == 1;     pourEntryKind();
+        pourTag(argument);
+        };
+    /***************************************************************************
+        pourAddress -- ONE argument, a field of a laid-out copy (a clicked cell:
+        selection; or the level a click action was handed). It answers from the
+        nearest field at or above it that carries an address:
+            pourAtKind    write, readOnly, or none (not in a poured row)
+            pourAtAnswer  "source S, entry E, member M", or "read-only: why",
+                          or "not poured"
+            pourAtSource, pourAtEntry, pourAtMember, pourAtWhy   the parts
+                          (none where there is none)
+    ***************************************************************************/
+    pourAtKind = "none";
+    pourAtAnswer = "not poured";
+    pourAtSource = "none";
+    pourAtEntry = "none";
+    pourAtMember = "none";
+    pourAtWhy = "none";
+    pourAddress code={
+        pourAtKind = "none";
+        pourAtAnswer = "not poured";
+        pourAtSource = "none";
+        pourAtEntry = "none";
+        pourAtMember = "none";
+        pourAtWhy = "none";
+        pdaAt := argument;
+        pdaHit = 0;
+        pdaHops = 0;
+        while pdaHops < 32;
+            pdaLen = *pdaAt.listLengtH;
+            if pdaLen > 0;
+                if *pdaAt["pourSource"];    pdaHit = 1;
+            if pdaHit == 1;     pdaHops = 32;
+            pdaTop = *pdaAt.isPointeR;
+            if pdaTop == 1;     pdaHops = 32;
+            if pdaHops < 32;    pdaAt := *pdaAt.parenT;
+            pdaHops += 1;
+        if pdaHit == 0;     return;
+        pourAtSource = string $*pdaAt["pourSource"]$;
+        pourAtEntry = string $*pdaAt["pourEntry"]$;
+        pdaRo = 0;
+        if *pdaAt["pourReadOnly"];      pdaRo = 1;
+        if pdaRo == 1;
+            pourAtKind = "readOnly";
+            pourAtWhy = string $*pdaAt["pourReadOnly"]$;
+            pourAtAnswer = string $"read-only: " pourAtWhy$;
+        if pdaRo == 0;
+            pourAtKind = "write";
+            pourAtMember = string $*pdaAt["pourMember"]$;
+            // commasCarryTheSpaces a literal's leading space is dropped when a string is built, so each piece after the first starts with its comma
+            pourAtAnswer = string $"source " pourAtSource ", entry " pourAtEntry ", member " pourAtMember$;
         };
     pourResolve code={
         // leafHasNoList a field with no attribute and no member has no list to walk
@@ -295,6 +521,7 @@ define
         poIs = *poA.isGrouP;
         if poIs == 0;   return;
         psReg := **poA;
+        psRn = string $**poA.taG$;
         psN = 0;
         poLen = *psReg.listLengtH;
         if poLen > 0;   pourCount(*psReg);
@@ -428,8 +655,19 @@ define
         *prbH = prbRowH;
         *pdRow :% *prbH;
         pdTotal = pdTotal + prbRowH;
+        // returnAddress a derived row carries each, as a written row does, and its three cells their address (popups stroke 4b, B1). Each cell is told after its text is written (valueThenAttributes)
+        prbEa := new("each");
+        *prbEa := *pdM;
+        *pdRow :% *prbEa;
+        psMember := *pdM;
+        paEnt = string $prbName$;
+        paNest = 0;
+        pourRowTag(*pdRow);
         pourCell("pourName");
         *pdCell = prbName;
+        paSrc = string $psRn$;
+        paWhy = "the entry's name: a rename is not a write";
+        pourTag(*pdCell);
         pourCentre();
         pourWide(30);
         pourCell("pourShow");
@@ -449,6 +687,15 @@ define
             prbD = *pdM.datA;
             if prbD == 0;       prbSafe = 0;
             if prbSafe == 1;    *prbS = string $*pdM$;
+        paSrc = string $psRn$;
+        paMem = "value";
+        paWhy = "none";
+        if pdKind == 1;
+            if pdVia == 1;      paWhy = "the value is the look's, not the entry's";
+        if pdKind == 2;     paWhy = "computed: a font's sample text";
+        if pdKind == 3;     paWhy = "computed: a style's sample text";
+        if pdKind == 4;     pourEntryKind();
+        pourTag(*prbS);
         pourCentre();
         pourWide(25);
         prbSa := new("align");
@@ -482,6 +729,10 @@ define
                 if *pdWords[prbName];
                     prbWe := *pdWords[prbName];
                     *pdCell = string $*prbWe$;
+        paSrc = "dESCRIPTIONs";
+        paMem = "value";
+        paWhy = "none";
+        pourTag(*pdCell);
         pourCentre();
         *pdField +/ *pdRow;
         };
@@ -1080,12 +1331,17 @@ define
                 msAn = string $*grup.taG$;
                 // pourHoldsARegistry an empty registry is a held field with nothing in it, as a placeholder is: pour's own refusal names it
                 if msAn == "pour";      msPh = 0;
+                // theMarkIsNoPlaceholder a poured row's each holds its entry, and stays that entry: an empty sTYLEs entry there is the row's source, not a placeholder to read through the look (and the entry named each is not each used outside a pour). Derived rows carry each since popups stroke 4b
+                msMark = 0;
+                if msAn == "each";      msMark = 1;
+                if msMark == 1;         msPh = 0;
                 if msPn == "contrast";  msPh = 0;
-                if msPn == "each";
-                    msPh = 0;
-                    if psDepth == 0;
-                        msAttr = *grup.taG;
-                        cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names each outside a poured field; each stands for a member only under down=\"*\" pour:=aRegistry":;
+                if msMark == 0;
+                    if msPn == "each";
+                        msPh = 0;
+                        if psDepth == 0;
+                            msAttr = *grup.taG;
+                            cerr rlSays "REFUSING" argument.taG "-- its" msAttr "names each outside a poured field; each stands for a member only under down=\"*\" pour:=aRegistry":;
             if msPh == 1;
                 msName := **grup.taG;
                 msDone = 0;

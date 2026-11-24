@@ -1,0 +1,186 @@
+Start();
+windows = 2;
+show(firstLight);
+registry(PaWords);
+define
+    alpha="the first";
+    ;
+registry(PaThree);
+define
+    alpha="#000000";
+    beta="#f7e8aa";
+    gamma="#ef2b2d";
+    ;
+registry(PaActs);
+define
+    plain="words";
+    doIt code={ cout "PA doIt FIRED":; };
+    ;
+register(dESCRIPTIONs);
+define
+    beta="described beta";
+    ;
+register(FORMs);
+search FORMs cOLOr fONTs sTYLEs PaThree PaWords PaActs;
+define
+    paCell code={
+        pourAddress(argument);
+        cout "PA-AT" argument.taG "of" pourAtEntry ":" pourAtAnswer:;
+        };
+    paSel code={
+        pourAddress(*selection);
+        paN = string $*selection.taG$;
+        cout "PA-AT" paN "of" pourAtEntry ":" pourAtAnswer:;
+        };
+    paTpl window x=0 y=0 width=600 height=100 down fill:=pageFill font:=bodyFont
+        paRows down="*" pour:=PaThree
+            paRow across height=24 onClick:=paCell
+                paName="{each.taG}" width=100 onClick:=paCell;
+                paVal="{each}" width=100 onClick:=paCell;
+                paSwatch width=50 fill:=each onClick:=paCell;
+                paWord="{PaWords.each}" width=100 onClick:=paCell;
+                paMix="is {each}!" width=100 onClick:=paCell;
+                paLit="label" width=100 onClick:=paCell;
+    paActs window x=0 y=120 width=300 height=60 down fill:=pageFill font:=bodyFont
+        paArows down="*" pour:=PaActs
+            paArow across height=24
+                paAval="{each}" width=100 onClick:=paCell;
+    paDer window x=0 y=200 width=400 height=120 down fill:=pageFill font:=bodyFont
+        paDrows down="*" pour:=PaThree gap=4 onClick:=paSel;
+    paFonts window x=0 y=340 width=400 height=200 down fill:=pageFill font:=bodyFont
+        paFrows down="*" pour:=fONTs gap=4 onClick:=paSel;
+    paSty window x=0 y=0 width=400 height=780 down fill:=pageFill font:=bodyFont
+        paSrows down="*" pour:=sTYLEs gap=4 onClick:=paSel;
+    paNestF window x=0 y=0 width=400 height=200 down fill:=pageFill font:=bodyFont
+        paNrows down="*" pour:=PaActs
+            paNrow down height=80
+                paNhead="{each}" height=20 onClick:=paCell;
+                paNin down="*" pour:=PaThree
+                    paNinVal="{each}" height=20 onClick:=paCell;
+    paPlain window x=420 y=0 width=200 height=60 down fill:=pageFill font:=bodyFont
+        paOut="not poured" height=30 onClick:=paCell;
+    ;
+show(paTpl);
+show(paActs);
+show(paDer);
+show(paFonts);
+show(paPlain);
+show(paSty);
+show(paNestF);
+register(PourAddressT);
+define
+    paT1 form:=paTpl px=50 py=36;
+    paT2 form:=paTpl px=150 py=36;
+    paT3 form:=paTpl px=225 py=36;
+    paT4 form:=paTpl px=300 py=12;
+    paT5 form:=paTpl px=300 py=36;
+    paT6 form:=paTpl px=400 py=36;
+    paT7 form:=paTpl px=500 py=36;
+    paT8 form:=paTpl px=590 py=36;
+    paA1 form:=paActs px=50 py=12;
+    paA2 form:=paActs px=50 py=36;
+    paD1 form:=paDer px=20 py=40;
+    paD2 form:=paDer px=160 py=40;
+    paD3 form:=paDer px=300 py=40;
+    paD4 form:=paDer px=300 py=12;
+    paF1 form:=paFonts px=160 py=12;
+    paP1 form:=paPlain px=50 py=15;
+    paS0 form:=paSty px=160 py=12;
+    paS1 form:=paSty px=160 py=40;
+    paS2 form:=paSty px=160 py=68;
+    paS3 form:=paSty px=160 py=96;
+    paS4 form:=paSty px=160 py=124;
+    paS5 form:=paSty px=160 py=152;
+    paS6 form:=paSty px=160 py=180;
+    paS7 form:=paSty px=160 py=208;
+    paS8 form:=paSty px=160 py=236;
+    paS9 form:=paSty px=160 py=264;
+    paS10 form:=paSty px=160 py=292;
+    paS11 form:=paSty px=160 py=320;
+    paS12 form:=paSty px=160 py=348;
+    paS13 form:=paSty px=160 py=376;
+    paS14 form:=paSty px=160 py=404;
+    paS15 form:=paSty px=160 py=432;
+    paS16 form:=paSty px=160 py=460;
+    paS17 form:=paSty px=160 py=488;
+    paS18 form:=paSty px=160 py=516;
+    paS19 form:=paSty px=160 py=544;
+    paS20 form:=paSty px=160 py=572;
+    paS21 form:=paSty px=160 py=600;
+    paS22 form:=paSty px=160 py=628;
+    paS23 form:=paSty px=160 py=656;
+    paS24 form:=paSty px=160 py=684;
+    paS25 form:=paSty px=160 py=712;
+    paN1 form:=paNestF px=50 py=30;
+    paN2 form:=paNestF px=50 py=50;
+    ;
+search PourAddressT FORMs Utilities;
+cout "PA-PAGE A-1":;    windowClick(paT1);
+cout "PA-PAGE A-2":;    windowClick(paT2);
+cout "PA-PAGE A-3":;    windowClick(paT3);
+cout "PA-PAGE A-4":;    windowClick(paT4);      windowClick(paT5);
+cout "PA-PAGE A-5":;    windowClick(paT6);
+cout "PA-PAGE A-6":;    windowClick(paT7);
+cout "PA-PAGE A-7":;    windowClick(paT8);
+cout "PA-PAGE A-8":;    windowClick(paA1);      windowClick(paA2);
+cout "PA-PAGE A-9":;    windowClick(paD1);      windowClick(paD2);      windowClick(paD3);      windowClick(paD4);
+cout "PA-PAGE A-10":;   windowClick(paF1);
+cout "PA-PAGE A-11":;   windowClick(paP1);
+cout "PA-PAGE A-12":;
+windowClick(paS0);
+windowClick(paS1);
+windowClick(paS2);
+windowClick(paS3);
+windowClick(paS4);
+windowClick(paS5);
+windowClick(paS6);
+windowClick(paS7);
+windowClick(paS8);
+windowClick(paS9);
+windowClick(paS10);
+windowClick(paS11);
+windowClick(paS12);
+windowClick(paS13);
+windowClick(paS14);
+windowClick(paS15);
+windowClick(paS16);
+windowClick(paS17);
+windowClick(paS18);
+windowClick(paS19);
+windowClick(paS20);
+windowClick(paS21);
+windowClick(paS22);
+windowClick(paS23);
+windowClick(paS24);
+windowClick(paS25);
+cout "PA-PAGE A-13":;   windowClick(paN1);      windowClick(paN2);
+cout "PA-PAGE END":;
+cerr "POURADDRESS SENTINEL":;
+stop();
+
+pourAddressT -- popups stroke 4b, B1 (SEQ 773, 2026-11-24; Tony's rulings of 2026-11-24, docs/popupsRecon.md section 6): THE
+RETURN ADDRESS. Every poured row and cell is told, on the laid-out copy, where it came from; utilities' pourAddress(field)
+answers for a clicked field "source S, entry E, member M", or "read-only: why", or "not poured". Nothing is written back
+here (B2). Tester's shape; no window is shown; every click is a real mouse-up. A cell of a written row carries the fixture's
+own click action and is handed to pourAddress itself; a derived row's cells cannot carry one, so there the selected field
+is handed in. Each line also names the entry (of X).
+Sources: PaThree (alpha beta gamma, colour values); PaWords (alpha only); PaActs (doIt, an action, and plain);
+dESCRIPTIONs holds beta; fONTs and sTYLEs as they are.
+A-1   WRITTEN ROW, {each.taG}: read-only, the entry's name.
+A-2   {each}: source PaThree, entry beta (the second row), member value.
+A-3   no text, fill:=each: the same address.
+A-4   {PaWords.each}: source PaWords -- for alpha, which PaWords holds, and for beta, which it does not (the address names
+      the entry all the same).
+A-5   text holding an insert and more: read-only, computed.
+A-6   text with no insert: read-only, written in the form.
+A-7   the row itself, clicked past its last cell: read-only, a row holds no value.
+A-8   an entry that is an action (doIt): read-only, and the action is NOT fired; its neighbour plain is writable.
+A-9   DERIVED ROW (no template written): pourName read-only (the name); pourShow the entry's value in PaThree; pourWhat
+      dESCRIPTIONs' entry of the name. Last click: the description cell of alpha, which has no description, so no text:
+      it cannot be selected (only room), the selection climbs to the poured field, and that answers not poured. A cell
+      that shows nothing cannot be reached by a click today.
+A-10  derived from fONTs: pourShow is a font's sample text, read-only.
+A-11  a field in no poured row: not poured.
+A-12  derived from sTYLEs, a click down every row: some are a style's sample text and some a value read through the look,
+      each read-only for that reason; none is writable. (Counted by reason: the rows are sTYLEs' own and may change.)
+A-13  a pour inside a poured row: its cells are read-only, for that reason.
