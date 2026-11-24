@@ -38,7 +38,8 @@
 
 //  windows every window made, with the cell that keeps its form alive; found by the form's body (a field and its faces share one)
 //  windows held[0] is the laid-out copy, held[1] the request the window was opened with (0 for a window handed a bare copy), held[2] the search list in force when it was opened
-struct WindowRecord { Layout *view; GroupItem **held; bool shown; };
+//  windows owner is the view of the window a popup belongs to (popups stroke 4), nil for an ordinary window; modal, the popup's form carries modal: while it is open its owner takes no clicks
+struct WindowRecord { Layout *view; GroupItem **held; bool shown; Layout *owner; bool modal; };
 static std::vector<WindowRecord> gWindows;
 
 /***************************************************************************
@@ -213,8 +214,8 @@ static GroupItem *frameField(NSRect r)
 static GroupItem *windowRequest(GroupItem *opened, NSRect *frame)
 {
     GroupItem *request = new GroupItem((char *)"windowRequest");
-    const char *carried[3] = { "form", "look", "frame" };
-    for (int i = 0; i < 3; i++) {
+    const char *carried[4] = { "form", "look", "frame", "owner" };
+    for (int i = 0; i < 4; i++) {
         GroupItem *part = opened->get((char *)carried[i]);
         if ( !part || (i == 2 && frame) ) continue;
         //  freshNodes never a copy of the caller's attribute: a copy shares its body, so the caller re-pointing its form:= (showForm's showReq does, at the next show) would re-point this window's too (measured, stroke 4)
@@ -262,6 +263,8 @@ static NSRect formFrame(Layout *view)
     return c;
 }
 
+static WindowRecord *windowHolding(GroupItem *top);
+
 static WindowRecord *windowOf(Layout *view)
 {
     for ( WindowRecord &w : gWindows ) if ( w.view == view ) return &w;
@@ -298,6 +301,17 @@ static void windowClosed(Layout *view)
 {
     WindowRecord *w = windowOf(view);
     if ( !w ) return;
+    //  popupsCloseWithIt a form's popups close with it, as Cancel: nothing is written (ruling 5). Their views are gathered first, since each close changes gWindows
+    std::vector<Layout *> owned;
+    for ( WindowRecord &o : gWindows ) if ( o.owner == view ) owned.push_back(o.view);
+    for ( Layout *popup : owned ) {
+        if ( !windowOf(popup) ) continue;
+        printf("=== window closing: %s takes its popup %s with it ===\n", view->base ? view->base->groupBody->tag : "nothing", popup->base ? popup->base->groupBody->tag : "nothing");
+        fflush(stdout);
+        [[popup window] close]; }
+    w = windowOf(view);
+    if ( !w ) return;
+    if ( [[view window] parentWindow] ) [[[view window] parentWindow] removeChildWindow:[view window]];
     if ( w->held[1] ) {
         NSRect now = formFrame(view);
         GroupItem *keep = utilityAction("windowShut");
@@ -375,9 +389,17 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
                content.origin.x, content.origin.y,
                scr.size.width, scr.size.height);
     content.origin.y = scr.size.height - content.origin.y - content.size.height;
+    //  popupChrome a popup's request carries owner (utilities' popup): title bar and close button, no resize (ruling 7). owner holding a form whose window is open makes the popup that window's
+    GroupItem *ownerF = request ? request->get((char *)"owner") : 0;
+    GroupItem *ownerForm = (ownerF && isGROUP(ownerF->groupBody->flags.data)) ? ownerF->getGroup() : 0;
+    WindowRecord *ownerRecord = windowHolding(ownerForm);
+    Layout *ownerView = ownerRecord ? ownerRecord->view : nil;
+    bool ownerShown = ownerRecord && ownerRecord->shown;
+    GroupItem *modalF = input ? input->get((char *)"modal") : 0;
+    bool modal = ownerView && modalF && modalF->getNumber() != 0;
     NSWindow *win = [[NSWindow alloc]
         initWithContentRect:content
-        styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable)
+        styleMask:(NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | (ownerF ? 0 : NSWindowStyleMaskResizable))
         backing:NSBackingStoreBuffered
         defer:(visible ? NO : YES)];
     [win setReleasedWhenClosed:NO];
@@ -386,7 +408,15 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
     Layout *view = [[Layout alloc] initWithFrame:NSMakeRect(0, 0, content.size.width, content.size.height)];
     view->base = input;
     [win setContentView:view];
-    gWindows.push_back({view, heldForm, visible});
+    gWindows.push_back({view, heldForm, visible, ownerView, modal});
+    if ( ownerF ) {
+        //  readFromTheWindow the resize word is the window's own style mask, read back, not what was asked for
+        printf("=== popup window: %s %s%s, %s ===\n", input->groupBody->tag, ownerView ? "belongs to " : "has no owner window", ownerView ? ownerView->base->groupBody->tag : "",
+               ([win styleMask] & NSWindowStyleMaskResizable) ? "resizable" : "no resize");
+        if ( modal ) printf("=== popup window: %s is modal: %s takes no clicks while it is open ===\n", input->groupBody->tag, ownerView->base->groupBody->tag);
+        fflush(stdout); }
+    //  childAbove a shown popup of a shown window is its child: it stays above its form and moves with it (ruling 5). Unshown windows are tied by the record alone
+    if ( ownerView && visible && ownerShown ) [[ownerView window] addChildWindow:win ordered:NSWindowAbove];
     //  closeKeeps a close keeps the window's frame for its form (keepFrame) and forgets the window; the last shown window closing stops the loop (loopCheck)
     [[NSNotificationCenter defaultCenter]
         addObserverForName:NSWindowWillCloseNotification
@@ -404,8 +434,6 @@ static Layout *makeWindow(GroupItem *input, GroupItem *request, bool visible)
     drawWalk on the top, and clears the slot again -- the context is
     AppKit's and is gone when drawRect returns.
 ***************************************************************************/
-static WindowRecord *windowHolding(GroupItem *top);
-
 void windowDrawForm(GroupItem *top, double height)
 {
     if ( !top ) return;
@@ -493,6 +521,13 @@ static void windowClickAt(Layout *view, NSPoint inView)
 {
     GroupItem *top = view->base;
     if ( !top ) return;
+    //  underModal a window with a modal popup open takes no clicks: nothing fires, it says so, and a shown popup comes forward (ruling 3; one test here, not AppKit's modal loop)
+    for ( WindowRecord &o : gWindows ) {
+        if ( o.owner != view || !o.modal ) continue;
+        printf("=== windowClick %s: under its modal popup %s, nothing fired ===\n", top->groupBody->tag, o.view->base ? o.view->base->groupBody->tag : "nothing");
+        fflush(stdout);
+        if ( o.shown ) [[o.view window] makeKeyAndOrderFront:nil];
+        return; }
     NSRect  framed = getFrame(top);
     double  down = [view bounds].size.height - inView.y;
     NSPoint p = NSMakePoint(inView.x + framed.origin.x, down + framed.origin.y);
