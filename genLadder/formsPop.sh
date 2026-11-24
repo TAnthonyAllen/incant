@@ -1324,6 +1324,34 @@ _ofeq "windowOwnerT W-5 the form closed under its modal popup: the modal closes 
 #  which five popups open from a form that IS in FORMs and say nothing. Control (H7, 2026-11-24, on the committed file, no build): the line removed -> 0.
 _ofeq "windowOwnerT W-6 NO OWNER FORM (the form is registered outside FORMs): the popup still opens, tied to no window, and says so by name, once in the run; its form closed, it stays open with its target" "$(grep -c '^popup owPop: no owner form -- FORMs has no form named owFar' "$T/ow.e") of $(grep -c 'no owner form' "$T/ow.e") / $(_owl W-6)" "1 of 1 / popup window: owPop has no owner window, no resize;window closed: owFar;owA [ first ] hits 2 targets 1 / holds Pop"
 
+echo "-- the return address: every poured row and cell knows its source, entry and member, or why it is read-only (pourAddressT)."
+#  ⚑ pourAddressT -- popups stroke 4b, B1 (SEQ 773, 2026-11-24; Tony's rulings of 2026-11-24; docs/popupsRecon.md section 6). At every layout a poured row and
+#  each cell that shows something get, on the copy, pourSource, pourEntry (names) and pourMember, or pourReadOnly and why. A written row's cells are read by
+#  their text as written (pourCellTag); a derived row is told as it is built (pourRowBuild) and now carries each. utilities' pourAddress(field) answers
+#  "source S, entry E, member M", "read-only: why" or "not poured". Nothing is written back (B2). Every click is a real mouse-up, offscreen, GCSTRESS=1000.
+#  Controls (H7, 2026-11-24, on the committed file, no build), one each: the written rows' cell walk removed -> A-1 to A-6 and A-8 all answer the row's
+#  "a row holds no value"; the name test removed -> A-1 computed; the lone-insert test removed -> A-2 computed; the attribute test removed -> A-3 the row's;
+#  the qualified test removed -> A-4 computed; the brace test removed -> A-6 computed; the entry-kind test removed -> A-8 doIt writable; the derived
+#  cells' tags removed -> A-9, A-10, A-12 the row's; the sample-text and look tests removed -> A-10 and A-12 writable; the nested test removed -> A-13 writable.
+_paF=$(ip pourAddressT)
+GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_paF" > "$T/pa.o" 2> "$T/pa.e"; _pax=$?
+_pab() { awk -v p="PA-PAGE $1 " '$0 == p {f=1; next} /^PA-PAGE /{f=0} f' "$T/pa.o"; }
+_pal() { _pab "$1" | grep '^PA-AT' | sed 's/^PA-AT //; s/ *$//' | tr '\n' ';' | sed 's/;$//'; }
+_ofeq "pourAddressT exit / sentinel / nothing refused / the action entry never fired" "$_pax $(grep -c '^POURADDRESS SENTINEL' "$T/pa.e") $(cat "$T/pa.o" "$T/pa.e" | grep -c 'REFUS') $(grep -c 'PA doIt FIRED' "$T/pa.o")" "0 1 0 0"
+_ofeq "pourAddressT A-1 written row, {each.taG}: read-only, the name" "$(_pal A-1)" "paName of beta : read-only: the entry's name: a rename is not a write"
+_ofeq "pourAddressT A-2 WRITTEN ROW, {each}: THE ADDRESS -- source, entry by name, member" "$(_pal A-2)" "paVal of beta : source PaThree, entry beta, member value"
+_ofeq "pourAddressT A-3 no text, fill:=each: the same address" "$(_pal A-3)" "paSwatch of beta : source PaThree, entry beta, member value"
+_ofeq "pourAddressT A-4 {PaWords.each}: the source is PaWords, for an entry it holds (alpha) and one it does not hold yet (beta)" "$(_pal A-4)" "paWord of alpha : source PaWords, entry alpha, member value;paWord of beta : source PaWords, entry beta, member value"
+_ofeq "pourAddressT A-5 an insert and more text: read-only, computed" "$(_pal A-5)" "paMix of beta : read-only: computed: its text is more than one insert of the entry"
+_ofeq "pourAddressT A-6 text with no insert: read-only, written in the form" "$(_pal A-6)" "paLit of beta : read-only: its text is written in the form, not poured"
+_ofeq "pourAddressT A-7 the row itself: read-only, a row holds no value" "$(_pal A-7)" "paRow of beta : read-only: a row holds no value of its own; its cells do"
+_ofeq "pourAddressT A-8 an entry that is an action: read-only (and not fired); its neighbour is writable" "$(_pal A-8)" "paAval of doIt : read-only: the entry is a rule or an action: it is never read;paAval of plain : source PaActs, entry plain, member value"
+_ofeq "pourAddressT A-9 DERIVED ROW (colorList's kind): name read-only, the value in its registry, the description in dESCRIPTIONs; a description cell with no text is not reached by a click (the poured field answers)" "$(_pal A-9)" "pourName of beta : read-only: the entry's name: a rename is not a write;pourShow of beta : source PaThree, entry beta, member value;pourWhat of beta : source dESCRIPTIONs, entry beta, member value;paDrows of none : not poured"
+_ofeq "pourAddressT A-10 derived from fONTs: a font's sample text, read-only" "$(_pal A-10 | sed 's/^pourShow of [A-Za-z]* : //')" "read-only: computed: a font's sample text"
+_ofeq "pourAddressT A-11 a field in no poured row: not poured" "$(_pal A-11)" "paOut of none : not poured"
+_ofeq "pourAddressT A-12 derived from sTYLEs, every row clicked: some a style's sample, some the look's value, none writable" "$( [ "$(_pab A-12 | grep -c "^PA-AT pourShow .*computed: a style's sample text")" -gt 0 ] && echo style) $( [ "$(_pab A-12 | grep -c "^PA-AT pourShow .*the value is the look's, not the entry's")" -gt 0 ] && echo look) writable $(_pab A-12 | grep -c '^PA-AT pourShow .*: source ')" "style look writable 0"
+_ofeq "pourAddressT A-13 a pour inside a poured row: read-only" "$(_pal A-13)" "paNinVal of alpha : read-only: a pour inside a poured row;paNinVal of beta : read-only: a pour inside a poured row"
+
 echo "-- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT)."
 #  ⚑ windowClimbT -- SEQ 764 (2026-11-23; Tony's rulings via Clay). utilities' selectable: a field is selectable when it has text, an image, an action or an
 #  attribute holding one, a describe, a selectFill of its own, or a dESCRIPTIONs entry; else it is only room. clickField selects the first selectable field at or
