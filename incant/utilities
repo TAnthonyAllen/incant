@@ -2319,6 +2319,161 @@ define
         if poHide == 0;     openWindow(popWin);
         if poHide == 1;     windowOffscreen(popWin);
         };
+    /***************************************************************************
+        popupPick, popupOk, popupCancel -- popups stroke 3 (Tony, 2026-11-23;
+        docs/popupsRecon.md, ruling 4). The shared actions a popup form uses by
+        name, as click actions: onClick:=popupOk. Each is handed the field that
+        was clicked, and knows its popup from that field: the form its window
+        shows (laidForm on the copy's top), which is popupTargets' key.
+        popupPick   the clicked field's text becomes the value OK will write. It
+                    is kept in the popup's target entry (value=), so it goes
+                    when the popup closes. A later pick replaces it.
+        popupOk     writes the value, BY NAME, as the text of the field the
+                    popup was opened on: the field named field= in the form
+                    named form= (found in FORMs), in the DEFINITION -- the copy
+                    that was clicked is gone at the next layout. Then the popup
+                    is closed, and the window showing that form is laid out
+                    again where it is (windowRedraw: not moved, not raised).
+                    Nothing picked: nothing is written, and it says so.
+        popupCancel closes the popup. Nothing is written. The popup's close
+                    button does the same.
+        Each refuses by name a field that is in no open popup. popupOk refuses
+        the write by name when FORMs has no such form, or the form no such
+        field; the popup still closes. popupPick refuses a field with no text.
+        NOT BUILT: a write to the poured member (each=); a value that is not a
+        field's text (a colour, an attribute).
+    ***************************************************************************/
+    popHas = 0;
+    popOwn form;
+    pfmHit = 0;
+    pfmName = "none";
+    pfmFound;
+    // popupOf the popup a clicked field is in: popName, from laidForm on the nearest copy's top (that top's own name when it carries none), and popHas, 1 when that form is an open popup
+    popupOf code={
+        pwAt := argument;
+        pwHops = 0;
+        while pwHops < 32;
+            pwM = *pwAt.isMembeR;
+            if pwM == 0;        pwHops = 32;
+            if pwHops < 32;     pwAt := *pwAt.parenT;
+            pwHops += 1;
+        popName = string $*pwAt.taG$;
+        pwL = *pwAt.listLengtH;
+        pwHasF = 0;
+        if pwL > 0;
+            if *pwAt["laidForm"];   pwHasF = 1;
+        pwLf := *pwAt["laidForm"];
+        if pwHasF == 1;     popName = string $*pwLf$;
+        popHas = 0;
+        pwN = popupTargets.listLengtH;
+        if pwN > 0;
+            if popupTargets[popName];   popHas = 1;
+        };
+    // popForm the form named pfmName, looked up in FORMs: pfmHit 1 and pfmFound holding it, else pfmHit 0
+    popForm code={
+        pfmHit = 0;
+        pfmHasR = 0;
+        if registries["FORMs"];     pfmHasR = 1;
+        if pfmHasR == 1;
+            pfmReg := registries["FORMs"];
+            if *pfmReg[pfmName];    pfmHit = 1;
+        if pfmHit == 1;     pfmFound := *pfmReg[pfmName];
+        };
+    // popupShut closes the popup named popName, as its close button does (windowShut then forgets its target)
+    popupShut code={
+        pfmName = string $popName$;
+        popForm();
+        if pfmHit == 0;
+            cerr "popup: REFUSING to close" popName "-- FORMs has no form of that name":;
+            return;
+        popWin.form := *pfmFound;
+        popWin.look = 0;
+        popWin.frame = 0;
+        windowClose(popWin);
+        };
+    popupPick code={
+        popupOf(argument);
+        if popHas == 0;
+            cerr "popupPick: REFUSING" argument.taG "-- it is in no open popup; popupPick is a click action of a popup form's field":;
+            return;
+        ppkD = argument.datA;
+        ppkHeld = argument.isGrouP;
+        if ppkHeld == 1;    ppkD = 0;
+        if ppkD == 0;
+            cerr "popupPick: REFUSING" argument.taG "-- the field has no text to pick":;
+            return;
+        // wholeEntry the target entry is replaced whole, value= added: an entry is tested by its name, never an attribute by its value (F-168)
+        ppkE := popupTargets[popName];
+        ppkF = string $*ppkE["form"]$;
+        ppkN = string $*ppkE["field"]$;
+        ppkM = string $*ppkE["each"]$;
+        ppkV = string $argument$;
+        popupForget();
+        ppkNew := new(popName);
+        ppk1 := new("form");
+        *ppk1 = string $ppkF$;
+        *ppkNew +% *ppk1;
+        ppk2 := new("field");
+        *ppk2 = string $ppkN$;
+        *ppkNew +% *ppk2;
+        ppk3 := new("each");
+        *ppk3 = string $ppkM$;
+        *ppkNew +% *ppk3;
+        ppk4 := new("value");
+        *ppk4 = string $ppkV$;
+        *ppkNew +% *ppk4;
+        popupTargets +% *ppkNew;
+        cout "=== popupPick" popName "value" ppkV "===":;
+        };
+    popupOk code={
+        popupOf(argument);
+        if popHas == 0;
+            cerr "popupOk: REFUSING" argument.taG "-- it is in no open popup; popupOk is a click action of a popup form's field":;
+            return;
+        pkPop = string $popName$;
+        pkE := popupTargets[popName];
+        pkForm = string $*pkE["form"]$;
+        pkField = string $*pkE["field"]$;
+        pkL = *pkE.listLengtH;
+        pkWrote = 0;
+        pkOwns = 0;
+        pfmName = string $pkForm$;
+        popForm();
+        if pfmHit == 1;
+            pkOwner := *pfmFound;
+            pkOwns = 1;
+        if pkL < 4;     cout "=== popupOk" pkPop "nothing picked, nothing written ===":;
+        if pkL > 3;
+            pkValue = string $*pkE["value"]$;
+            if pkOwns == 0;     cerr "popupOk: REFUSING the write from" pkPop "-- FORMs has no form named" pkForm:;
+            if pkOwns == 1;
+                tsHit = 0;
+                tsWant := pkField;
+                if pkForm == pkField;
+                    tsFound := *pkOwner;
+                    tsHit = 1;
+                if tsHit == 0;      tsFind(*pkOwner);
+                if tsHit == 0;      cerr "popupOk: REFUSING the write from" pkPop "-- the form" pkForm "has no field named" pkField:;
+                if tsHit == 1;
+                    pkTo := *tsFound;
+                    // textOnly the text alone is written: an assignment from a string expression carries that expression's own parts onto the target and the field's attributes (its height) are gone (measured, SEQ 768); from .texT they stay
+                    *pkTo = pkValue.texT;
+                    pkWrote = 1;
+                    cout "=== popupOk" pkPop "wrote" pkValue "to" pkForm pkField "===":;
+        popName = string $pkPop$;
+        popupShut();
+        if pkOwns == 1;
+            popOwn.form := *pkOwner;
+            windowRedraw(popOwn);
+        };
+    popupCancel code={
+        popupOf(argument);
+        if popHas == 0;
+            cerr "popupCancel: REFUSING" argument.taG "-- it is in no open popup; popupCancel is a click action of a popup form's field":;
+            return;
+        cout "=== popupCancel" popName "closed, nothing written ===":;
+        popupShut();
+        };
     // unselect ONE argument, a form (or its laid-out copy): that form has no selection from here on, and its help box forgets what it described; the other forms keep theirs
     unselect code={
         usF = string $argument.taG$;

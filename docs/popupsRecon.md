@@ -118,6 +118,16 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   and Cancel read it without a door into the window code. Cleared when the popup closes. Not built: moving a popup that
   would fall off the display back onto it. formsPop windowPopupT.
 
+- Stroke 3 (SEQ 768, 2026-11-24, on branch popups-ok, not bought): `popupPick`, `popupOk`, `popupCancel` in utilities, the
+  shared click actions of a popup form, each handed the clicked field. popupPick keeps that field's text as the popup's
+  value (in its `popupTargets` entry, so it goes when the popup closes); popupOk writes it as the TEXT of the field the
+  popup was opened on, in the definition, found by name in FORMs, closes the popup, and has the form's window laid out
+  again where it is (`windowRedraw`, the one new C++ command: no move, no raise); popupCancel closes and writes nothing.
+  CLOD'S CHOICES, Tony's to keep or change: the value is picked by a third action (ruling 4 names two); what is written
+  is a field's text. Not built: a write to the poured member (each=), a value that is a colour or an attribute. A form
+  file read under show cannot write `onClick:=popupOk` (Utilities is not searched at its define); it wraps the action
+  in one of its own, as tabForm's tabClick wraps selectTab. formsPop windowOkT.
+
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
 | # | stroke | size | proof with nobody watching |
@@ -135,7 +145,7 @@ waits on keys.
 
 ## 5. Not measured, and what would measure it
 
-- Closing a window from a click inside it (windowClose called by the popup's own OK action): one offscreen run.
+- MEASURED (SEQ 768): closing a window from a click inside it is clean at GCSTRESS=1000, offscreen (windowOkT K-1, K-3 to K-5). A shown window has not been tried.
 - Whether a window opened at a frame partly off the display is moved onto it by AppKit or must be moved by us.
 - Whether a child window that is never shown behaves as a shown one does (stroke 4's offscreen proof depends on it).
 - An open popup under `GCSTRESS`: each window holds its form in its own cell, so no new question is expected; not run.

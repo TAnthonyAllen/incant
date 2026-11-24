@@ -89,6 +89,7 @@ define
     windowClick immediateAction=windowClick;
     windowClose immediateAction=windowClose;
     windowResize immediateAction=windowResize;
+    windowRedraw immediateAction=windowRedraw;
     windowTake immediateAction=windowTake;
     windowHold immediateAction=windowHold;
     windowOffscreen immediateAction=windowOffscreen;
