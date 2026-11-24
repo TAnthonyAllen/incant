@@ -10808,6 +10808,21 @@ mkdir -p "$T/rootRun"; printf 'Start();\ncerr "ROOT OK":;\nstop();\n' > "$T/root
 _ofeq "incantRoot a run from outside the checkout, no INCANT_ROOT: the built-in root opens incant/setup (exit / ROOT OK)" "$(cat "$T/rootRun/ro1.x") $(grep -c '^ROOT OK' "$T/rootRun/ro1.e")" "0 1"
 _ofeq "incantRoot no root to be found (another machine's case): exit 2, getFile names incant/setup, nothing runs" "$(cat "$T/rootRun/ro2.x") $(grep -c 'getFile: could not open file: incant/setup' "$T/rootRun/ro2.e") $(grep -c '^ROOT OK' "$T/rootRun/ro2.e")" "2 1 0"
 
+#  ---------------------------------------------------------------------------
+#  ownTermLocalT -- a rule body that names one of the rule's own terms gets a LOCAL
+#  holding the label, never the global of that name the term matches with (Tony,
+#  2026-11-24; resolveName, ownTermIsLocal). hits 3 is the non-zero sibling: the
+#  term matched on all three fires. H7 (the change removed, rebuilt): the line
+#  reads isGroup 0 data 0 hits 1 text [ otSep ].
+run1 ownTermLocalT "$T/otl";  check "ownTermLocalT runs" 0 $?
+sentinel "ownTermLocalT sentinel" "$T/otl" "OWNTERMLOCALT SENTINEL"
+_otl=$(grep "^OT global" "$T/otl" | tr -s ' ')
+if [ "$_otl" = "OT global isGroup 0 data 13 hits 3 text [ ; ] " ]; then
+    echo "  ok    ownTermLocalT: the global a term matches with is untouched after three fires, and the body saw the label each time"; green=$((green+1))
+else
+    echo "  FAIL  ownTermLocalT: got [$_otl] want [OT global isGroup 0 data 13 hits 3 text [ ; ] ]"; fail=1
+fi
+
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then
     exec 2>&3 3>&-

@@ -13496,7 +13496,13 @@ extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
 	if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
 	if ( !(result && result->groupBody->registry == ruler->opFields) ) {
 	if ( result ) {
-	if ( owner->isRuleTerm() && result->isRuleTerm() ) {
+	//  ownTermIsLocal a name the rule's body shares with one of the rule's own terms is always a local that takes the label's value -- bound to a global of that name, the label bind wrote the label into the global the term matches with (Tony, 2026-11-24)
+	//  ruleAboveCode the names of a rule's body are created in its CodE, which hangs off the rule directly or through its builtinActoR carrier -- the rule whose terms are asked is the first rule above the CodE, two steps at most
+	GroupItem *ownRule = owner->parent;
+	if ( ownRule && !ownRule->isRuleTerm() )    ownRule = ownRule->parent;
+	if ( !ownRule || !ownRule->isRuleTerm() )   ownRule = owner;
+	GroupItem *ownTerm = owner->isRuleTerm() ? ownRule->get(arg) : 0;
+	if ( owner->isRuleTerm() && (result->isRuleTerm() || (ownTerm && ownTerm != result && ownTerm->isRuleTerm())) ) {
 	result = owner->addAttribute(grup);
 	result->groupBody->flags.isLocal = 1; }
 	else    result = owner->addAttribute(result); }

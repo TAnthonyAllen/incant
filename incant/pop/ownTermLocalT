@@ -1,0 +1,35 @@
+Start();
+register(OwnTermT);
+define
+    otSep=";";
+    otDelim=[;];
+    otSrc=(a;b;c;d#);
+    otHits=0;
+    otField isRule otCell=otDelim{ otSep? guard='n' code={
+        otSeen := otSep.isGrouP;
+        if *otSeen == 1;     ++otHits;
+        return otCell;
+        };
+    otRun code={
+        pushInputField(argument);
+        otField();
+        otField();
+        otField();
+        popInputField();
+        otG := otSep.isGrouP;
+        otD := otSep.datA;
+        cerr "OT global isGroup " otG " data " otD " hits " otHits " text [" otSep "]":;
+        };
+    ;
+otRun(otSrc);
+cerr "OWNTERMLOCALT SENTINEL":;
+stop();
+
+A rule's body names one of the rule's own terms (otSep), and a global of that name exists and is what the term matches
+with. The body's name must be a local that takes the label, never the global (Tony, 2026-11-24;
+ruleActions.rtn resolveName, ownTermIsLocal). Before the change the label bind wrote the label into the global, so the
+term stopped matching on the second call and the global was emptied on the third.
+
+The row wants: the global still a string after three fires (isGroup 0, data 13, text ;), and hits 3. Hits is the
+non-zero sibling: it counts the fires in which the body saw the label under the term's name, so it is 3 only when the
+term matched all three times. Before the change the line read isGroup 0 data 0 hits 1 text [otSep].

@@ -31,14 +31,14 @@ define
     record;
     recordCount=0;
     fieldList one two SKIp some SKIp SKIp more;
-    DataInputField isRule inputField=dataDelimiter{ comma?^ newLine?^ guard='n' code={
-        if newLine; lastField = 1;
+    DataInputField isRule inputField=dataDelimiter{ comma? newLine?^ guard='n' code={
+        $$inputField;
+        $$comma;
+        if newLine.datA != 0;   lastField = 1;
         if currentField.isGrouP;
-            recordField := copyOf(currentField);
-            recordField = inputField;
-            $$recordField;
-            record      +/ *recordField;
-            $$record;
+            *currentField = *inputField;
+            record      +/ *currentField;
+            clear(currentField);
         return  inputField;
         };
     getRecord code={
@@ -47,16 +47,11 @@ define
         iterate grup on fieldList;
         while ++grup;
             fieldName = *grup.taG;
-            if fieldName != "SKIp";
-                $$fieldName;
-                currentField := new(fieldName);
-                $$currentField;
-            else    clear(currentField);
-            $$currentField;
+            cerr "Processing" fieldName:;
+            if fieldName != "SKIp"; currentField := new(fieldName);
             if DataInputField();
                 if lastField == 1;
                     lastField = 0;
-                    record = recordCount;
                     $$record;
                     recordField = source += copyOf(record);
                     clear(record);
@@ -68,11 +63,14 @@ define
         };
     loadRecords code={
         pushInputField(argument);
-        while getRecord(); continue;
+        getRecord();
+        getRecord();
+        //while getRecord(); continue;
         popInputField();
         };
     ;
 getFile(source);
+debug ALL DataInputField;
 loadRecords(source);
 dumpField(source);
 /*****************************************************************************
