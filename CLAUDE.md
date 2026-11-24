@@ -3103,6 +3103,12 @@ direction the campaign might take, it is a state the machinery must report as a 
 > methods changed position in the source and the code-only bytes read **1768 lines, identical** —
 > which is a claim no amount of careful reading could have made.
 >
+> ⚠ **A THIRD, SAME TIER, 2026-11-24 (Tony): `genLadder/nameLint.py <incantation>...`.** Kant does not refuse a
+> misspelled name: an undeclared name in an action body is a fresh empty local, so `currrentField` beside `currentField`
+> ran clean and read empty. The script lists every name one keystroke from a better-established one (a letter doubled,
+> dropped, added, changed, or two swapped), reading only the live part of the file. Always exits 0. Run it on an
+> incantation, not a notes file: prose is full of near words.
+>
 > ⚠ **THE "BUT FOR TONY'S TWO NAMED FILES" CLAUSE RETIRED 2026-09-02, AND ITS RETIREMENT IS THE
 > QUIET PAYOFF OF UNTRACKING THEM.** From mid-August until that date every seal read *"clean and
 > pushed but for Tony's two named files"*, and `IncantForms/WorkingOn/incant++` and
