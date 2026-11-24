@@ -515,6 +515,17 @@
   ok    pourAddressT A-11 a field in no poured row: not poured = [paOut of none : not poured]
   ok    pourAddressT A-12 derived from sTYLEs, every row clicked: some a style's sample, some the look's value, none writable = [style look writable 0]
   ok    pourAddressT A-13 a pour inside a poured row: read-only = [paNinVal of alpha : read-only: a pour inside a poured row;paNinVal of beta : read-only: a pour inside a poured row]
+-- the write through the return address: the source is written by name, the text alone, and the form redrawn (pourWriteT).
+  ok    pourWriteT exit / sentinel / refusals: W-6's one and W-7's four, no other / the action entry never fired = [0 1 5 0]
+  ok    pourWriteT W-0 as defined = [pwOne #000000 pwTwo #f7e8aa attrs 1 pwThree #ef2b2d / words pwOne [ gone ] pwTwo [ words for two ] wrote 0 / ]
+  ok    pourWriteT W-1 A CLICKED CELL WRITES ITS SOURCE, BY NAME: pwTwo reads the new value in PwThree, keeps its attribute (the text alone), and the form is laid out again in place = [pourWrite PwThree pwTwo value #123456;window redrawn in place: pwTpl;pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ gone ] pwTwo [ words for two ] wrote 1 / ]
+  ok    pourWriteT W-2 A SECOND FORM pouring the same source shows the old value until it is laid out again: old at the first click, new at the second = [PW-SHOWS pourShow [ #f7e8aa ];PW-SHOWS pourShow [ #123456 ] / ]
+  ok    pourWriteT W-3 READ-ONLY (the name cell): it says so with the reason; nothing written = [pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ gone ] pwTwo [ words for two ] wrote 0 / pourWriteAt: READ-ONLY pwName -- the entry's name: a rename is not a write ; nothing written]
+  ok    pourWriteT W-4 A DESCRIPTION WITH NO ENTRY YET: the entry is made and the line says so = [pourWrite: made dESCRIPTIONs entry pwOne;pourWrite dESCRIPTIONs pwOne value new words for one;window redrawn in place: pwTpl;pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ new words for one ] pwTwo [ words for two ] wrote 1 / ]
+  ok    pourWriteT W-5 a description that exists: written, nothing made = [pourWrite dESCRIPTIONs pwTwo value better words for two;window redrawn in place: pwTpl;pwOne #000000 pwTwo #123456 attrs 1 pwThree #ef2b2d / words pwOne [ new words for one ] pwTwo [ better words for two ] wrote 1 / ]
+  ok    pourWriteT W-6 THE ENTRY DELETED MEANWHILE: refused by name, loudly; nothing written, and it is not made again = [pwOne #000000 pwTwo #123456 attrs 1 pwThree gone / words pwOne [ new words for one ] pwTwo [ better words for two ] wrote 0 / pourWrite: REFUSING the write to PwThree pwThree -- no entry of that name now (deleted or renamed since the form was laid out); nothing written]
+  ok    pourWriteT W-7 ERRANT: no poured row; no value; no such registry; an action entry -- each refused by name, once; nothing written = [1 1 1 1 / wrote 0]
+  ok    pourWriteT W-8 pourWrite by names alone, no form named: written, nothing redrawn = [pourWrite PwThree pwOne value #0000ff;pwOne #0000ff pwTwo #123456 attrs 1 pwThree gone / words pwOne [ new words for one ] pwTwo [ better words for two ] wrote 1 / ]
 -- the climb: only room is not selectable, a held form is crossed into its host, a close clears the selection (windowClimbT).
   ok    windowClimbT exit / sentinel / nothing refused = [0 1 0]
   ok    windowClimbT C-1 THE EMPTY FIELD LEFT OF OK: only room all the way up, nothing selected; the heading keeps its outline before and after; the window the same pixel for pixel = [click firstLight space selected nothing: only room, on the way up through 3 fields;click firstLight space fired nothing, on the way up through 3 fields / BLUE BLUE / 0]
@@ -552,4 +563,4 @@
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 
-FORMS POP FAILED -- 476 green, see above
+FORMS POP FAILED -- 486 green, see above
