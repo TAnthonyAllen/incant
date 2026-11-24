@@ -2153,6 +2153,37 @@ int result;
 }
 
 /*****************************************************************************
+                                compareMixed
+    A number against a string, for compareValues, and it warns. A string that is a
+    number in full compares by value; any other string has no order against a
+    number, which is returned as 2147483647. sign is 1 when the number is on the
+    left and -1 when the string is. Anything else against a number is less (-1).
+*****************************************************************************/
+int compareMixed(GroupItem numberSide,GroupItem textSide,int sign)
+{
+String  scan = textSide.text;
+int     digits = 0;
+int     dots = 0;
+double  diff = 0;
+    if !textSide.isSTRING && !textSide.isTOKEN && !textSide.isBUFFER    return -1;
+    while *scan == ' '  scan++;
+    if *scan == '-' || *scan == '+'     scan++;
+    while (*scan >= '0' && *scan <= '9') || *scan == '.' {
+        if *scan == '.' dots++;
+        else            digits++;
+        scan++; }
+    while *scan == ' '  scan++;
+    if *scan || !digits || dots > 1 {
+        cerr "WARNING compare: number",numberSide.tag,"[",numberSide.text,"] against string",textSide.tag,"[",textSide.text,"] -- the string is not a number, so they have no order":;
+        return 2147483647; }
+    cerr "WARNING compare: string",textSide.tag,"[",textSide.text,"] read as a number against",numberSide.tag,"[",numberSide.text,"]":;
+    diff = numberSide.number - atof(textSide.text);
+    if diff < 0     return 0 - sign;
+    if diff > 0     return sign;
+    return 0;
+}
+
+/*****************************************************************************
                                 compareValues
     Compare value of group1 to value of group2. A number against a string warns: a
     string that is a number in full compares by value, and any other string has no
@@ -2164,27 +2195,8 @@ int compareValues(GroupItem group1,GroupItem group2)
 int result = -1;
 int numeric = 0;
 double diff = 0;
-    -%
-    if ( group1 && group2 ) {
-        int d1 = group1->groupBody->flags.data, d2 = group2->groupBody->flags.data;
-        bool n1 = isCOUNT(d1) || isNUMBER(d1), n2 = isCOUNT(d2) || isNUMBER(d2);
-        bool s1 = isSTRING(d1) || isTOKEN(d1) || isBUFFER(d1), s2 = isSTRING(d2) || isTOKEN(d2) || isBUFFER(d2);
-        if ( (n1 && s2) || (s1 && n2) ) {
-            GroupItem *textSide = s1 ? group1 : group2, *numberSide = s1 ? group2 : group1;
-            const char *txt = textSide->getText();
-            const char *p = txt;
-            char *end = 0;
-            while ( isspace((unsigned char)*p) ) p++;
-            bool startsRight = isdigit((unsigned char)*p) || *p == '-' || *p == '+' || *p == '.';
-            double textValue = startsRight && !strpbrk(p,"xX") ? strtod(p,&end) : 0;
-            if ( end ) while ( isspace((unsigned char)*end) ) end++;
-            if ( !end || end == p || *end ) {
-                fprintf(stderr,"WARNING compare: number %s [%s] against string %s [%s] -- the string is not a number, so they have no order\n",numberSide->groupBody->tag,numberSide->getText(),textSide->groupBody->tag,txt);
-                return 2147483647; }
-            fprintf(stderr,"WARNING compare: string %s [%s] read as a number against %s [%s]\n",textSide->groupBody->tag,txt,numberSide->groupBody->tag,numberSide->getText());
-            double left = s1 ? textValue : group1->getNumber(), right = s1 ? group2->getNumber() : textValue;
-            return left < right ? -1 : left > right ? 1 : 0; } }
-    %-
+String text1;
+String text2;
 use group1
     if group1 && !group2    result = 1;
     or group2 && !group1    result = -1;
@@ -2199,21 +2211,28 @@ use group1
                     numeric = 1;
                     diff = gNumber - group2.number;
                     }
-            case isBUFFER:
-            case isSTRING:
-            case isTOKEN:
-                result = compare(text,group2.text);
+                else    result = compareMixed(group1,group2,1);
             case isCOUNT:
                 if group2.isNUMBER
                     {
                     numeric = 1;
-                    diff = count - group2.number;
+                    diff = number - group2.number;
                     }
                 or group2.isCOUNT   result = count - group2.count;
-            default:            result = compare(text,group2.text);
+                else    result = compareMixed(group1,group2,1);
+            case isBUFFER:
+            case isSTRING:
+            case isTOKEN:
+                if group2.isCOUNT || group2.isNUMBER    result = compareMixed(group2,group1,-1);
+                else
+                    {
+                    text1 = group1.text;
+                    text2 = group2.text;
+                    result = compare(text1,text2);
+                    }
+            default:    result = compare(group1.text,group2.text);
             }
-    or group2.data              result = -1;
-    else result = compare(text,group2.text);
+    or group2.data      result = -1;
     // numberCompare a number against a number compares the values -- never (int)(a - b), never a rounded count
     if numeric
         {

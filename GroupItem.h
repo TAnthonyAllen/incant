@@ -144,5 +144,6 @@ void updateListeners();
 GroupItem *walk(GroupItem *item);
 };
 int compareAttribute(GroupItem *group1, GroupItem *group2);
+int compareMixed(GroupItem *numberSide, GroupItem *textSide, int sign);
 int compareTags(GroupItem *group1, GroupItem *group2);
 int compareValues(GroupItem *group1, GroupItem *group2);

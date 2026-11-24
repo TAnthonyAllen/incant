@@ -20,24 +20,25 @@ registry(TESTing);
     terminated by a \n character.
 *****************************************************************************/
 define
+    comma=",";
     currentField;
     dataDelimiter=[,\n];
     fieldList;
     lastField;
+    newLine="\n";
     SKIp;
     source File="Tests/delimitTest";
     record;
     recordCount=0;
     fieldList one two SKIp some SKIp SKIp more;
-    DataInputField isRule inputField=dataDelimiter{ dataDelimiter guard='n' code={
-        if dataDelimiter != ","; lastField = 1;
-        $$currentField;
-        $$inputField;
-        $$dataDelimiter;
+    DataInputField isRule inputField=dataDelimiter{ comma?^ newLine?^ guard='n' code={
+        if newLine; lastField = 1;
         if currentField.isGrouP;
-            recordField := copyOf(*currentField);
+            recordField := copyOf(currentField);
             recordField = inputField;
-            record      += *recordField;
+            $$recordField;
+            record      +/ *recordField;
+            $$record;
         return  inputField;
         };
     getRecord code={
@@ -46,12 +47,13 @@ define
         iterate grup on fieldList;
         while ++grup;
             fieldName = *grup.taG;
-            cerr "  field" fieldName:;
-            if fieldName != "SKIp";     currentField = grup;
+            if fieldName != "SKIp";
+                $$fieldName;
+                currentField := new(fieldName);
+                $$currentField;
             else    clear(currentField);
             $$currentField;
-            if hasInput = DataInputField();
-                cerr "    hasInput truthy, text=" hasInput.text " lastField=" lastField:;
+            if DataInputField();
                 if lastField == 1;
                     lastField = 0;
                     record = recordCount;

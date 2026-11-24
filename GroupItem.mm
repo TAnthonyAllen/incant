@@ -69,6 +69,48 @@ int 		result = 0;
 }
 
 /*****************************************************************************
+                                compareMixed
+    A number against a string, for compareValues, and it warns. A string that is a
+    number in full compares by value; any other string has no order against a
+    number, which is returned as 2147483647. sign is 1 when the number is on the
+    left and -1 when the string is. Anything else against a number is less (-1).
+*****************************************************************************/
+int compareMixed(GroupItem *numberSide, GroupItem *textSide, int sign)
+{
+char 	*scan = textSide->getText();
+int 	digits = 0;
+int 	dots = 0;
+double 	diff = 0;
+	if ( !isSTRING(textSide->groupBody->flags.data) && !isTOKEN(textSide->groupBody->flags.data) && !isBUFFER(textSide->groupBody->flags.data) )
+		return -1;
+	while ( *scan == ' ' )
+		scan++;
+	if ( *scan == '-' || *scan == '+' )
+		scan++;
+	while ( (*scan >= '0' && *scan <= '9') || *scan == '.' )
+		{
+		if ( *scan == '.' )
+			dots++;
+		else	digits++;
+		scan++;
+		}
+	while ( *scan == ' ' )
+		scan++;
+	if ( *scan || !digits || dots > 1 )
+		{
+		::fprintf(stderr,"WARNING compare: number %s [ %s ] against string %s [ %s ] -- the string is not a number, so they have no order\n",numberSide->groupBody->tag,numberSide->getText(),textSide->groupBody->tag,textSide->getText());
+		return 2147483647;
+		}
+	::fprintf(stderr,"WARNING compare: string %s [ %s ] read as a number against %s [ %s ]\n",textSide->groupBody->tag,textSide->getText(),numberSide->groupBody->tag,numberSide->getText());
+	diff = numberSide->getNumber() - ::atof(textSide->getText());
+	if ( diff < 0 )
+		return 0 - sign;
+	if ( diff > 0 )
+		return sign;
+	return 0;
+}
+
+/*****************************************************************************
                                 compareTags
     Compare tag of group1 to tag of group2. Attributes are less than members.
 *****************************************************************************/
@@ -102,27 +144,8 @@ int compareValues(GroupItem *group1, GroupItem *group2)
 int 	result = -1;
 int 	numeric = 0;
 double 	diff = 0;
-	
-	if ( group1 && group2 ) {
-	int d1 = group1->groupBody->flags.data, d2 = group2->groupBody->flags.data;
-	bool n1 = isCOUNT(d1) || isNUMBER(d1), n2 = isCOUNT(d2) || isNUMBER(d2);
-	bool s1 = isSTRING(d1) || isTOKEN(d1) || isBUFFER(d1), s2 = isSTRING(d2) || isTOKEN(d2) || isBUFFER(d2);
-	if ( (n1 && s2) || (s1 && n2) ) {
-	GroupItem *textSide = s1 ? group1 : group2, *numberSide = s1 ? group2 : group1;
-	const char *txt = textSide->getText();
-	const char *p = txt;
-	char *end = 0;
-	while ( isspace((unsigned char)*p) ) p++;
-	bool startsRight = isdigit((unsigned char)*p) || *p == '-' || *p == '+' || *p == '.';
-	double textValue = startsRight && !strpbrk(p,"xX") ? strtod(p,&end) : 0;
-	if ( end ) while ( isspace((unsigned char)*end) ) end++;
-	if ( !end || end == p || *end ) {
-	fprintf(stderr,"WARNING compare: number %s [%s] against string %s [%s] -- the string is not a number, so they have no order\n",numberSide->groupBody->tag,numberSide->getText(),textSide->groupBody->tag,txt);
-	return 2147483647; }
-	fprintf(stderr,"WARNING compare: string %s [%s] read as a number against %s [%s]\n",textSide->groupBody->tag,txt,numberSide->groupBody->tag,numberSide->getText());
-	double left = s1 ? textValue : group1->getNumber(), right = s1 ? group2->getNumber() : textValue;
-	return left < right ? -1 : left > right ? 1 : 0; } }
-	
+char 	*text1 = 0;
+char 	*text2 = 0;
 	if ( group1 && !group2 )
 		result = 1;
 	else
@@ -144,21 +167,29 @@ double 	diff = 0;
 					numeric = 1;
 					diff = group1->groupBody->gNumber - group2->getNumber();
 					}
-				break;
-			case 4:
-			case 13:
-			case 14:
-				result = ::compare(group1->getText(),group2->getText());
+				else	result = ::compareMixed(group1,group2,1);
 				break;
 			case 5:
 				if ( isNUMBER(group2->groupBody->flags.data) )
 					{
 					numeric = 1;
-					diff = group1->getCount() - group2->getNumber();
+					diff = group1->getNumber() - group2->getNumber();
 					}
 				else
 				if ( isCOUNT(group2->groupBody->flags.data) )
 					result = group1->getCount() - group2->getCount();
+				else	result = ::compareMixed(group1,group2,1);
+				break;
+			case 4:
+			case 13:
+			case 14:
+				if ( isCOUNT(group2->groupBody->flags.data) || isNUMBER(group2->groupBody->flags.data) )
+					result = ::compareMixed(group2,group1,-1);
+				else {
+					text1 = group1->getText();
+					text2 = group2->getText();
+					result = ::compare(text1,text2);
+					}
 				break;
 			default:
 				result = ::compare(group1->getText(),group2->getText());
@@ -166,7 +197,6 @@ double 	diff = 0;
 	else
 	if ( group2->groupBody->flags.data )
 		result = -1;
-	else	result = ::compare(group1->getText(),group2->getText());
 	// numberCompare a number against a number compares the values -- never (int)(a - b), never a rounded count
 	if ( numeric )
 		{
