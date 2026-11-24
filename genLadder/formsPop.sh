@@ -1280,7 +1280,7 @@ echo "-- OK and Cancel: a popup's value goes back by name, the popup closes, its
 #  (same = equal pixel for pixel); and whether a window still holds the popup (readWindow's refusal by name: gone). GCSTRESS=1000, not shown.
 #  Controls (H7, 2026-11-24, on the committed file, no build), one each: the write removed -> K-4 and K-5 keep first / second and the page same; the close
 #  removed -> the popup is held and its target stays at K-3 to K-5; windowRedraw removed -> K-4 and K-5 are written but the page reads same; the write made
-#  from the string expression, not its .texT -> okA's height reads 0 at K-4.
+#  from the string expression, not its .texT -> okA loses its height at K-4 (the read echoes its own name) and the page breaks.
 _okF=$(ip windowOkT)
 GCSTRESS=1000 perl -e 'alarm 120; exec @ARGV' "$B" "$_okF" > "$T/ok.o" 2> "$T/ok.e"; _okx=$?
 _okb() { awk -v p="OK-PAGE $1 " '$0 == p {f=1; next} /^OK-PAGE /{f=0} f' "$2"; }
