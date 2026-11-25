@@ -370,6 +370,14 @@ define
         if pekA != 0;   pekBad = 1;
         if pekM != 0;   pekBad = 1;
         if pekBad == 1;     paWhy = "the entry is a rule or an action: it is never read";
+        // virtualIsReadOnly each and contrast are virtual in Controls/styles: resolved when drawn, and nothing stores them, so there is nothing to write back to (Tony, 2026-11-25). Told by what they are, an entry of sTYLEs holding nothing: the virtual flag does not read as set on a styles entry, and isVirtuaL has no read arm (measured 2026-11-25). A placeholder a look gives a value is read-only already, for the look's reason
+        pekD = *psMember.datA;
+        pekL = *psMember.listLengtH;
+        pekV = 0;
+        if psRn == "sTYLEs";
+            if pekD == 0;
+                if pekL == 0;   pekV = 1;
+        if pekV == 1;       paWhy = "virtual in sTYLEs: it is resolved when drawn, and nothing stores it";
         };
     pourCellTag code={
         paSrc = string $psRn$;
@@ -2448,6 +2456,14 @@ define
             if saActs == 1;
                 selCan = 1;
                 selWhy = "action";
+            // opensAPopup a field carrying popup:=aForm is selectable: opening a popup is a job, and the field is not only room (Tony, 2026-11-25)
+            saPops = 0;
+            if saHeld == 1;
+                if saActs == 0;
+                    if *saAn == "popup";    saPops = 1;
+            if saPops == 1;
+                if selCan == 0;     selWhy = "popup";
+                selCan = 1;
         };
     selectKeep code={
         skF = string $skForm$;
@@ -2952,6 +2968,16 @@ define
             if pwK != 0;    pwBad = 1;
             if pwBad == 1;
                 cerr "pourWrite: REFUSING the write to" pwSrc pwEnt "-- the entry is a rule or an action; nothing written":;
+                return;
+            // virtualIsReadOnly by name too: an entry of sTYLEs holding nothing (each, contrast, a placeholder) is resolved when drawn; nothing stores it
+            pwVd = *pwE.datA;
+            pwVl = *pwE.listLengtH;
+            pwVirt = 0;
+            if pwSrc == "sTYLEs";
+                if pwVd == 0;
+                    if pwVl == 0;   pwVirt = 1;
+            if pwVirt == 1;
+                cerr "pourWrite: REFUSING the write to" pwSrc pwEnt "-- virtual in sTYLEs: it is resolved when drawn, and nothing stores it; nothing written":;
                 return;
             // textOnly the text alone: the entry keeps its attributes (F-169)
             *pwE = pwVal.texT;

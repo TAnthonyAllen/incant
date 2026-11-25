@@ -131,9 +131,10 @@ Q-2  THE EMPTY ADDRESSED CELL: pqOne has no description, so its cell shows nothi
 Q-3  CANCEL THROUGH THE LINK: pqThree's empty cell, a pick, Cancel: nothing written, no entry made.
 Q-4  an entry that exists (pqTwo): written, nothing made.
 Q-5  READ-ONLY: opened on pqOne's name cell, a pick, OK: it says read-only with the reason, writes nothing, closes.
-Q-6  NOT POURED, AND THE CLIMB: pqRoom is only room under pqBox, which carries popup:=pqPop. Nothing is selected (the negative
-     control for Q-2: an empty cell with no address still climbs); the popup opens from pqBox, on the cell that was hit.
+Q-6  A FIELD CARRYING ONLY popup:= IS SELECTABLE (Tony, 2026-11-25): pqRoom is only room under pqBox, which carries
+     popup:=pqPop and nothing else. The selection climbs to pqBox; the popup opens from pqBox, on the cell that was hit.
 Q-7  a plain field carrying popup:= itself: a pick and OK write its text in the definition, as stroke 3 does (no link).
-Q-8  only room with no popup above it: nothing selected, nothing fired, no popup.
+Q-8  THE NEGATIVE CONTROL for Q-2 and Q-6: an empty field with no popup and no address still climbs -- nothing selected,
+     nothing fired, no popup.
 Q-9  THE CUSTOMER: colorList's clRows carries popup:=colorWords. A point in radialGreen's row opens colorWords showing that
      colour's name and words; its OK closes it, nothing picked, nothing written.
