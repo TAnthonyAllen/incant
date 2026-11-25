@@ -686,6 +686,8 @@ define
                     and every tally still counts a null as a refusal.#);
             copyOf="the cheap copy: it shares the attributes of the original.":
                 sharesByDesign=(BY DESIGN (Tony, 2026-11-25): a copyOf copy shares the attributes of its original, so a later write to one is read through the other. To keep a copy of your own, use copyDeep.#);
+            pushInputField="diverts input to a field; popInputField ends the divert.":
+                ownFloor=(A PUSHED FIELD IS ITS OWN FLOOR, as a drive message is (SEQ 779, 2026-11-25). A rule that reads it to its very end fails there. Without the floor the parse pops the field itself and popInputField then pops the calling file: the rest of that file is lost at exit 0. The floor in force before is kept on the suspended source as atFLOOR and put back by popInputField. Fleet: incant/pop/heldFieldEndT.#);
             stop="Immediate method for the stop command.":
                 twoVerbs=(TWO VERBS THROUGH ONE EXTERN, told apart by the node handed in.
                     bail LEAVES THE FILE and stop LEAVES THE PROCESS, and the whole

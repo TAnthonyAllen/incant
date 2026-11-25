@@ -10829,8 +10829,8 @@ fi
 #  rows). A rule that reads the field to its very end fails THERE and the calling
 #  file goes on. Every row prints its count, and each wants a non-zero one but
 #  HF-3, whose sibling is HF-4's outer count. H7 (2026-11-25, the floor line taken
-#  out of pushInputField, rebuilt): HF-1 prints and nothing after it -- no HF-2 to
-#  HF-5 and no sentinel, at exit 0.
+#  out of pushInputField, rebuilt): no HF line prints and no sentinel, at exit 0 --
+#  the file is lost at the first field's end.
 run1 heldFieldEndT "$T/hfe";  check "heldFieldEndT runs" 0 $?
 sentinel "heldFieldEndT sentinel" "$T/hfe" "HELDFIELDEND SENTINEL"
 _hfe=$(grep '^HF-' "$T/hfe" | sed 's/^\(HF-[0-9]\).*: \(.*\)$/\1 \2/; s/(want [0-9]*)//g; s/, and the .*//' | tr -s ' ' | tr '\n' ';')

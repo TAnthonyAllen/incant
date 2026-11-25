@@ -14,8 +14,10 @@ should hand over data and decide nothing; the destination (the form) says what i
   at the start of each record (a reused attribute would otherwise show the last record's value).
 - `getField(n)` skips n fields and fills the next attribute. The pour works out n from the names its form fields ask
   for. A skip still scans for the delimiter; it saves the minting and the copy.
-- The source signals "ended". Today a rule cannot tell that diverted input ended (fixit `heldFieldEndLosesFile`;
-  delimitedData's `#end` line is the workaround). That fixit is cured first.
+- The source signals "ended". CURED 2026-11-25 (SEQ 779, on branch held-field-end until bought): a field pushed with
+  pushInputField is its own floor, so a rule that reads it to its very end fails there and the calling file goes on
+  (`incant/pop/heldFieldEndT`). delimitedData's `#end` line and its `#end` test are no longer needed: a copy without
+  the line reads both records and ends cleanly.
 - A row with too few fields is refused, naming the record count. A row longer than the first, so with no name for its
   extra fields, is refused too.
 - A file source is read-only. A registry source takes writes (popups stroke 4b's link: pourWrite).
@@ -42,6 +44,6 @@ combinations of them through embedded forms.
 
 ## Where things are
 `IncantForms/WorkingOn/delimitedData` (Tony's, working: two records of four named fields from `Tests/delimitTest`,
-three columns skipped); `incant/fixits/heldFieldEndLosesFile`; pour in `incant/utilities` (pourPlan, fillDownAcross,
+three columns skipped); `incant/attic/heldFieldEndLosesFile` (retired, cured); pour in `incant/utilities` (pourPlan, fillDownAcross,
 pourWrite); `docs/popupsRecon.md` section 6 (the return link); `Topics/features` 31 and 34 (the data topic, text poured
 into a form); `Topics/fieldIndex`.
