@@ -1387,7 +1387,7 @@ echo "-- popup:=aForm as an attribute, and OK and Cancel through the pour return
 #  Controls (H7, 2026-11-25, on the committed file, no build), one each: the popup arm removed from clickFire -> no popup opens at Q-1 to Q-7 and Q-9;
 #  the pour-address arm removed from selectable -> Q-2 and Q-3 select nothing; the hit cell not handed (the level is) -> Q-1 to Q-5 open on pqRows, kind
 #  none, and nothing reaches dESCRIPTIONs; the link removed from popupOk -> Q-2 and Q-4 write nothing to dESCRIPTIONs; each not put on the popup's copy ->
-#  Q-1 and Q-2 read each none and Q-1's words are not drawn.
+#  Q-1 and Q-2 read each none, and pqWords prints its insert as written (19 characters), refused by name. All five run 2026-11-25, each red as said.
 _pqF=$(ip popupAttrT)
 GCSTRESS=1000 perl -e 'alarm 180; exec @ARGV' "$B" "$_pqF" > "$T/pq.o" 2> "$T/pq.e"; _pqx=$?
 _pqb() { awk -v p="PQ-PAGE $1 " '$0 == p {f=1; next} /^PQ-PAGE /{f=0} f' "$T/pq.o"; }
