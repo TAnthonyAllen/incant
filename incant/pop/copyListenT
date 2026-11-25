@@ -1,0 +1,74 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(CopyListenStuff);
+define
+    clA=1 clX=8;
+    clARuns=0;
+    clL=0 listenTo:=clA code={ clARuns = clARuns + 1; };
+    clO;
+    clD;
+    clOx;
+    clDx;
+    clP=1;
+    clKid=2;
+    clKidRuns=0;
+    clKL=0 listenTo:=clKid code={ clKidRuns = clKidRuns + 1; };
+    clPD;
+    clPK;
+    clOn;
+    clDn;
+    ;
+clP +/ clKid;
+clO := copyOf(clA);
+clD := copyDeep(clA);
+clOn := *clO.listLengtH;
+clDn := *clD.listLengtH;
+cerr "CL lists: A" clA.listLengtH " copyOf" clOn " copyDeep" clDn:;
+*clO = 5;
+cerr "CL copyOf write: listener of A fired" clARuns " A=" clA " copy=" clO:;
+*clD = 6;
+cerr "CL copyDeep write: listener of A fired" clARuns " A=" clA " copy=" clD:;
+clA = 7;
+cerr "CL write to A: listener of A fired" clARuns " A=" clA " copyOf=" clO " copyDeep=" clD:;
+clA = 9;
+cerr "CL write to A again: listener of A fired" clARuns:;
+clOx := *clO.clX;
+*clOx = 40;
+cerr "CL shared attribute, written through the copyOf: A reads" clA.clX:;
+clDx := *clD.clX;
+*clDx = 50;
+cerr "CL own attribute, written through the copyDeep: A reads" clA.clX " the copy reads" clDx:;
+clPD := copyDeep(clP);
+clPK := *clPD.clKid;
+*clPK = 3;
+cerr "CL nested copyDeep write: listener of the child fired" clKidRuns " the child=" clKid " its copy=" clPK:;
+clKid = 4;
+cerr "CL write to the child: listener of the child fired" clKidRuns:;
+cerr "COPYLISTENT SENTINEL":;
+stop();
+
+copyListenT -- a copy starts with no listeners (Tony, 2026-11-25; SEQ 783). Listeners belong to the field, not to its
+value or its attributes, so copyOf and copyDeep give the copy none; copyOf still shares the original's attributes.
+
+Row by row, in pop.sh:
+  CL-1 the copies carry no listener list: A's list is 2 (its attribute and its listener list), each copy's is 1.
+       Before the cure each copy's was 2.
+  CL-2 a write to the copyOf, and to the copyDeep, fires none of A's listeners and leaves A's value alone.
+       Before the cure each write fired A's listener once.
+  CL-3 A's listeners still fire, once per write to A, after both copies were made; the copies do not move.
+  CL-4 control: copyOf shares A's attributes (a write through the copy reaches A, 40) and copyDeep does not (A stays 40,
+       the copy reads 50).
+  CL-5 every level of a copyDeep: a listened-to child inside a copied parent. A write to the copy's child fires nothing
+       and the child keeps its value; a write to the child fires its listener.
+NOT COVERED, and why: a listener added to the copy. listenTo names its field in a define, and a copy held by a holder has
+no name a define can reach (listenTo:=theHolder listens to the holder). CL-1 pins what a fresh listener depends on: the
+copy holds no listener list of A's to add to.
+H7 in the commit after this file's.
