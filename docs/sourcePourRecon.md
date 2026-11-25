@@ -65,8 +65,9 @@ Refinements:
 - The middleman works today: B's action ran once per write to A, and C fired only on the writes where B changed its
   own value (B written from a computed value, `mB = mB + 1`).
 - F-170 (`docs/fixIts.md`): a middleman that wrote `B = A`, with A listened to, took A's listener list in place of
-  its own. CURED 2026-11-25 (SEQ 782, on branch assign-keeps-listeners until bought): B = A gives B the value of A and
-  nothing else (`incant/pop/assignListenT`). copyOf and copyDeep still carry a field's listeners onto the copy.
+  its own. CURED and bought 2026-11-25 (SEQ 782): B = A gives B the value of A and nothing else
+  (`incant/pop/assignListenT`). A copy starts with no listeners (SEQ 783, on branch copy-no-listeners until bought;
+  `incant/pop/copyListenT`): a kept record made with copyDeep does not fire the reused record's listeners.
 - `incant/grammar`'s IterSource is `UnaryOPS? ANYtoken`: one name, optionally starred, not an expression. So
   `iterate grup on aPour` parses in action bodies and forms, but its action (aCTionIterate) walks a list the source
   already holds; nothing fetches a record on demand. kantGrammar's ITERATe takes an EXPRESSIOn, with the same limit.
