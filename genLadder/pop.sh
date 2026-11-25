@@ -10597,6 +10597,17 @@ _ofeq "assignListenT AL-3 control, the middleman writing a computed value" "$(gr
 _ofeq "assignListenT AL-4 a source holding only its listener list carries no list: the target keeps its own attribute" "$(grep '^AL own attribute' "$T/al.e" | xargs)" "AL own attribute: B= 3 mine= 5 B list 1"
 _ofeq "assignListenT AL-5 a source with an attribute beside its listeners: the attribute arrives, the listener list does not, the target's listener fires" "$(grep '^AL real list' "$T/al.e" | sed 's/^AL real list *//' | tr '\n' ' ' | xargs)" ": B= 4 x= 8 B list 2 C fired 1 then a write to B: C fired 2"
 
+#  copyListenT -- a copy starts with no listeners (Tony, 2026-11-25, SEQ 783). H7: copyOf's and copyDeep's takeListeners out reds CL-1, CL-2, CL-3 and CL-5; CL-4 is the control and stays green.
+_clF=$(ip copyListenT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_clF" > "$T/cl.o" 2> "$T/cl.e"; _clX=$?
+_ofeq "copyListenT exit status" "$_clX" "0"
+_ofeq "copyListenT sentinel" "$(grep -c '^COPYLISTENT SENTINEL' "$T/cl.e")" "1"
+_ofeq "copyListenT CL-1 the copies carry no listener list (the original's list is 2, each copy's 1)" "$(grep '^CL lists' "$T/cl.e" | xargs)" "CL lists: A 2 copyOf 1 copyDeep 1"
+_ofeq "copyListenT CL-2 a write to the copyOf and to the copyDeep fires none of the original's listeners" "$(grep '^CL copy.* write' "$T/cl.e" | sed 's/^CL *//' | tr '\n' ' ' | xargs)" "copyOf write: listener of A fired 0 A= 1 copy= 5 copyDeep write: listener of A fired 0 A= 1 copy= 6"
+_ofeq "copyListenT CL-3 the original's listeners still fire, once per write, and the copies do not move" "$(grep '^CL write to A' "$T/cl.e" | sed 's/^CL *//' | tr '\n' ' ' | xargs)" "write to A: listener of A fired 1 A= 7 copyOf= 5 copyDeep= 6 write to A again: listener of A fired 2"
+_ofeq "copyListenT CL-4 control: copyOf shares the original's attributes, copyDeep does not" "$(grep '^CL .* attribute' "$T/cl.e" | sed 's/^CL *//' | tr '\n' ' ' | xargs)" "shared attribute, written through the copyOf: A reads 40 own attribute, written through the copyDeep: A reads 40 the copy reads 50"
+_ofeq "copyListenT CL-5 every level of a copyDeep: a write to the copy of a listened-to child fires nothing; a write to the child fires once" "$(grep '^CL nested\|^CL write to the child' "$T/cl.e" | sed 's/^CL *//' | tr '\n' ' ' | xargs)" "nested copyDeep write: listener of the child fired 0 the child= 2 its copy= 3 write to the child: listener of the child fired 1"
+
 #  ⚑ notifyT -- which writes tell a field's listeners (Tony, 2026-11-12, SEQ 629): arithmetic writes notify, with a re-entry guard.
 #  BEFORE the stroke (measured the same day, same probe): count += *= ++ -- and number += fired 0. H7 for the guard, run on this fixture
 #  alone under an alarm: with updateListeners' two hasListeners lines removed, a listener writing its own notifier recurses until the run dies: exit 139, no re-entry row, no sentinel.
