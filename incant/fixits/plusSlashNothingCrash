@@ -1,0 +1,46 @@
+Start();
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities list;
+registry(PlusSlashNothingCrash);
+define
+    psA=1;
+    psH;
+    ;
+psH := psA;
+cerr "ANCHOR plusSlashNothingCrash -- registry(PsHome); psNoSuch +/ *psH; (a registry just made, the left names no field, the right is a starred holder)":;
+cerr "PIN today: exit 139 after this line, no sentinel. Want: REFUSED by name, as +% gives (an operand that is nothing)":;
+fixPlusSlashNothingCrashHere = 0;
+registry(PsHome);
+psNoSuch +/ *psH;
+cerr "SENTINEL plusSlashNothingCrash reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's dispatch of 2026-11-25, ruled by Tony: docketed, not chased)
+SEVERITY: crash -- exit 139, at the top level on kantGrammar.
+
+plusSlashNothingCrash -- right after a registry(Home); line, X +/ *holder, where X names no field, kills the process
+with no output instead of refusing by name (R-2, refuse loud). Seen with X the new registry's own name
+(registry(Home); Home +/ *h;) while writing copyListenT, SEQ 783. Without the registry line the same statement says
+nothing and the run goes on, which is the same missing refusal without the crash.
+
+Measured 2026-11-25, one run each, kantGrammar top level, h := a plain field:
+Each line below came right after registry(RsHome);
+  psNoSuch +/ *psH;     exit 139
+  RsHome   +/ *psH;     exit 139
+  psNoSuch +/ psA;      exit 0, no refusal, nothing said
+  RsHome   +% *psH;     exit 0, REFUSED RsHome -- Operator +% -- an operand that is nothing
+With no registry line before it:  psNoSuch +/ *psH;  exit 0, nothing said, the sentinel prints.
+The same lines at the top level on incant/grammar (no kantGrammar), after a registry line: every one exit 0, nothing said.
+
+NEXT: OPEN
+  Not chased. The measurement that would say: a backtrace of this file, then where +/ reads its left operand when the
+  right arrives as a deref, and what the registry line changed (not known). The plain-operand line that says nothing is the same missing refusal without the crash.
+  Taken: a REFUSED line naming psNoSuch, and the sentinel prints. Not taken (today): exit 139 after the PIN line.
