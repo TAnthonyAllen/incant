@@ -1,0 +1,47 @@
+Start();
+windows = 2;
+show(firstLight);
+register(FORMs);
+search FORMs cOLOr fONTs sTYLEs Utilities;
+define
+    pbFirst window x=5 y=5 width=120 height=40 fill:=pageFill title="First"
+        pbF1="first popup" height=30;
+    pbLast window x=5 y=5 width=120 height=40 fill:=pageFill title="Last"
+        pbL1="last popup" height=30;
+    pbHost window x=40 y=60 width=200 height=100 fill:=pageFill
+        pbA="opens First" height=40 popup:=pbFirst;
+        pbB="opens Last" height=40 popup:=pbLast;
+    ;
+show(pbHost);
+register(PopupAttrBindsAction);
+define
+    pbOnA form:=pbHost px=100 py=20;
+    ;
+search PopupAttrBindsAction FORMs Utilities;
+cerr "ANCHOR popupAttrBindsAction -- pbA carries popup:=pbFirst; the click line below should say opened popup pbFirst":;
+fixPopupAttrBindsActionHere = 0;
+windowClick(pbOnA);
+cerr "SENTINEL popupAttrBindsAction reached the foot":;
+stop();
+
+LANE:  forms
+BLAST: DISJOINT
+OWNER: Clod     (minted by Tony's ruling via Clay, 2026-11-25)
+SEVERITY: wrong -- every popup:= opens the last form written, and the run can crash.
+
+popupAttrBindsAction -- popup:=aForm binds to utilities' own popup action when Utilities is on the search list while the
+form is defined. One name, one field: each popup:= re-points that one field, so every popup then opens the LAST form
+written. Found 2026-11-25 (kant, SEQ 777) preparing the watched run in IncantForms/WorkingOn/tester: with colorList shown
+after, every popup:= opened colorWords and the run died at exit 139.
+The same family as seal 527's finding: a name on the search list is reopened by a define under another registry.
+
+WORKAROUND: define the forms first, search Utilities after (tester does). A form file read under show is not affected:
+Utilities is not searched at its define.
+
+What the run above shows: the click line reads "opened popup pbLast" (want pbFirst), and then the run does not return:
+it never reaches its sentinel (measured 2026-11-25: killed by an alarm at 30 seconds; in tester the same fault ended at exit 139).
+
+NEXT: OPEN
+  What would generate a fix: read how a define resolves an attribute's NAME (not its value) against the search list, and
+  whether an attribute name should ever be looked up there; seal 527's finding and F-169 are the nearest kin.
+  Taken: the click line reads "opened popup pbFirst". Not taken (today): "opened popup pbLast", then a hang or a crash.

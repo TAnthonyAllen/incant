@@ -261,19 +261,23 @@ offscreen with real mouse-ups first and read as written; none had been seen in a
 
 | # | click | should be seen | covers | seen by Tony |
 |---|---|---|---|---|
-| 1 | Watch A: "Clicks counted: 0" | a mid-blue outline round it; the text becomes "Clicks counted: 1"; the help box at the bottom reads "waTally: counts the clicks it gets." | seal 539's outline and describe | |
-| 2 | Watch B: "B one" | outlined in B; B's help box reads "wbOne: the first field of window B."; in A the outline stays on the counter and A's help text does not change | selection per form | |
-| 3 | Watch A: the empty bordered box under the counter | nothing changes: no new outline, the counter keeps its outline, the help text stays | the only-room click | |
-| 4 | Watch A: the words "text inside the held form" (yellow area) | those words are outlined, inside the yellow form | a click inside a held form | |
-| 5 | Watch A: the empty yellow area under those words | the whole yellow form is outlined, the outline drawn over it; help reads "waHeld: this field holds another form." | the climb into a host; the outline over a held form | |
-| 6 | Watch A: "Pick: click me" | a small window titled Pick opens just under that field, above Watch A, with no resize control | popup open | |
-| 7 | drag Watch A by its title bar | Pick moves with it and stays on top of it | the popup above its form and moving with it | |
-| 8 | Pick: "apple", then "OK" | Pick closes; the field in Watch A now reads "apple" | OK | |
-| 9 | Watch A: "apple" (the same field), then Pick: "pear", then "Cancel" | Pick opens again, then closes; the field still reads "apple" | Cancel | |
-| 10 | Watch A: "Modal: click me" | a window titled Modal opens under it | modal popup open | |
-| 11 | Watch A: the counter, twice | the count does not change; Modal comes to the front | modal | |
-| 12 | Modal: "Close", then Watch A: the counter | Modal closes; the count goes up by one | modal ends with the popup | |
-| 13 | Colors: any colour's row | a window titled Color opens under the cell clicked, showing that colour's name large and its words; "OK" closes it | stroke 5's colour description popup | |
-| 14 | Colors: midBlue's row, in the empty space right of its swatch | the empty cell is outlined and Color opens with the name midBlue and no words | the empty addressed cell | |
-| 15 | open Pick again (step 6), then close Watch A with its close button | Pick closes with it | a form's close closes its popups | |
-| 16 | close Watch B and Colors | the program ends by itself | the loop | |
+| 1 | Watch A: "Clicks counted: 0" | a mid-blue outline round it; the text becomes "Clicks counted: 1"; the help box at the bottom reads "waTally: counts the clicks it gets." | seal 539's outline and describe | seen, as written |
+| 2 | Watch B: "B one" | outlined in B; B's help box reads "wbOne: the first field of window B."; in A the outline stays on the counter and A's help text does not change | selection per form | seen, as written |
+| 3 | Watch A: the empty bordered box under the counter | nothing changes: no new outline, the counter keeps its outline, the help text stays | the only-room click | seen, as written |
+| 4 | Watch A: the words "text inside the held form" (yellow area) | those words are outlined, inside the yellow form | a click inside a held form | seen, as written |
+| 5 | Watch A: the empty yellow area under those words | the whole yellow form is outlined, the outline drawn over it; help reads "waHeld: this field holds another form." | the climb into a host; the outline over a held form | seen, as written |
+| 6 | Watch A: "Pick: click me" | a small window titled Pick opens just under that field, above Watch A, with no resize control | popup open | seen, as written |
+| 7 | drag Watch A by its title bar | Pick moves with it and stays on top of it | the popup above its form and moving with it | seen, as written |
+| 8 | Pick: "apple", then "OK" | Pick closes; the field in Watch A now reads "apple" | OK | seen, as written |
+| 9 | Watch A: "apple" (the same field), then Pick: "pear", then "Cancel" | Pick opens again, then closes; the field still reads "apple" | Cancel | seen, as written |
+| 10 | Watch A: "Modal: click me" | a window titled Modal opens under it | modal popup open | seen, as written |
+| 11 | Watch A: the counter, twice | the count does not change; Modal comes to the front | modal | seen, as written |
+| 12 | Modal: "Close", then Watch A: the counter | Modal closes; the count goes up by one | modal ends with the popup | seen, as written |
+| 13 | Colors: any colour's row | a window titled Color opens under the cell clicked, showing that colour's name large and its words; "OK" closes it | stroke 5's colour description popup | seen, as written |
+| 14 | Colors: midBlue's row, in the empty space right of its swatch | the empty cell is outlined and Color opens with the name midBlue and no words | the empty addressed cell | seen, as written |
+| 15 | Watch A: the top field, which reads "apple" by now (corrected 2026-11-25: the step first said "Pick: click me", text that step 8 had replaced), then close Watch A with its close button | Pick closes with it | a form's close closes its popups | seen, as written |
+| 16 | close Watch B and Colors | the program ends by itself | the loop | seen, as written |
+
+**SEEN BY TONY, 2026-11-25, from Xcode: all 16 steps, each as written.** The one hiccup was step 15's wording, corrected
+above. Nothing on the "not seen yet in a shown window" list is left. The popups campaign (strokes 0-6, 4b and the
+follow-up of SEQ 776) is sealed at seal 546.

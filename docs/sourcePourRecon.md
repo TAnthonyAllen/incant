@@ -26,6 +26,7 @@ should hand over data and decide nothing; the destination (the form) says what i
 - Pour one (what exists): feeds the form field by field, the next source field into the next form field that wants one.
 - Pour two: every form field sees every record, as a guard (does this record match?) plus an action (what the field
   does with it: add a salary, count one). A field that keeps a running total gets a "pour ended" signal.
+- The pour builds its field list from the destination form's fields; no one types it by hand (Tony, 2026-11-25).
 - The two stay separate: in one the form consumes the source; in the other the source is shown to every field.
 - Reading a record during the pour is free. Keeping one means `copyDeep`, done by the pour on behalf of a collection
   form: `copyOf` shares the original's attributes by design (Tony, 2026-11-25), and the record is reused.
