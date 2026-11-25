@@ -1,0 +1,61 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(HeldFieldEndT);
+define
+    hfSrc=(first line
+second line
+#);
+    hfTwo=(a,b
+c,d
+#);
+    hfN=0;
+    hfC=0;
+    hfLine   isRule hfL='\n'} guard='n' code={ ++hfN; return hfL; };
+    hfDelim=[,\n];
+    hfCell   isRule hfV=hfDelim{ hfDelim^ guard='n' code={ ++hfC; return hfV; };
+    hfRead code={
+        pushInputField(argument);
+        while hfLine(); continue;
+        popInputField();
+        };
+    hfCells code={
+        pushInputField(argument);
+        while hfCell(); continue;
+        popInputField();
+        };
+    hfNest code={
+        pushInputField(hfSrc);
+        hfLine();
+        hfCells(hfTwo);
+        hfLine();
+        hfAfter = 0;
+        if hfLine();    hfAfter = 1;
+        popInputField();
+        cerr "HF-3 after the inner field ended, the outer field went on: its second line read, then its own end" hfAfter "(want 0)":;
+        };
+    ;
+hfRead(hfSrc);
+cerr "HF-1 a rule read a pushed field to its very end: lines" hfN "(want 2), and the next top-level statement ran":;
+hfCells(hfTwo);
+cerr "HF-2 a set-delimited field read to its end: cells" hfC "(want 4), and the file went on":;
+hfN = 0;
+hfC = 0;
+hfNest();
+cerr "HF-4 nested: outer lines" hfN "(want 2) inner cells" hfC "(want 4), and the file went on":;
+hfRead(hfSrc);
+cerr "HF-5 the same field pushed again after all that: lines" hfN "(want 4)":;
+cerr "HELDFIELDEND SENTINEL":;
+stop();
+
+heldFieldEndT -- a pushed field is its own floor (SEQ 779, 2026-11-25; the cure of fixit heldFieldEndLosesFile). A rule that
+reads a field pushed with pushInputField to its very end now FAILS THERE, as it does at the end of a drive's message, and
+the calling file goes on. Before: the parse's failure path popped the field itself and the action's popInputField then
+popped the calling file, so everything after the call was lost at exit 0 with no refusal.
+HF-1  the fixit's own case: a line rule ('\n'}) reads two lines; the statement after the call runs.
+HF-2  the same with a set delimiter read by a labelled term (delimitedData's shape): four cells.
+HF-3, HF-4  one field pushed inside another: the inner field's end does not end the outer one, which reads its second
+      line and then meets its own end; the file goes on after both.
+HF-5  the field pushed again afterwards reads its two lines again: the floor was put back each time.

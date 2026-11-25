@@ -106,3 +106,4 @@ NEXT:
     upToOver (the { or } modifier), makes the rule unguarded (Tony's words of 2026-11-17, above). Promoted by PIN 2
     reading 1 with no fleet row moving, and by delimitedData running with DataInputField's guard='n' taken out.
   Found b and d are the ones DataInputField meets next; each wants Tony's word before it is chased.
+  FOUND d IS CURED (SEQ 779, 2026-11-25): a pushed field is its own floor; incant/pop/heldFieldEndT.

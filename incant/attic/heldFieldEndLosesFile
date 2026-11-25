@@ -43,3 +43,10 @@ NEXT: BEST GUESS -- not a recommendation.
   field into the file; the action's own popInputField then pops again. Grade: a reading of the source, not traced.
   Promoted by a trace of the input stack's depth at that pop; killed if the depth there is the field's own.
   Taken: PIN 1, PIN 2 and the SENTINEL print. Not taken (today): PIN 1 prints and nothing after it.
+
+RETIRED SEQ 779 (2026-11-25), BY MAPPING. The best guess above was traced and held: at the field's end the parse's failure
+path popped the field (the stack went 2 to 1, back to this file), and popInputField then popped this file. THE CURE
+(Commands.rtn, pushInputField / popInputField, ownFloor): a pushed field is its own floor, as a drive's message is, so a rule
+at its end fails there; the floor that was in force is kept on the suspended source (atFLOOR) and put back by popInputField.
+Taken: PIN 1, PIN 2 and the SENTINEL print (run 2026-11-25). Its assertions now live in incant/pop/heldFieldEndT and three
+pop.sh rows: HF-1 is this file's case; HF-2 a set delimiter; HF-3 and HF-4 nested fields; HF-5 the floor put back.
