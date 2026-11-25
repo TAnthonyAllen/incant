@@ -684,6 +684,8 @@ define
                     one, and the census is the thing being terminated. Adding the name
                     costs nothing a caller was relying on -- the return value is unchanged
                     and every tally still counts a null as a refusal.#);
+            copyOf="the cheap copy: it shares the attributes of the original.":
+                sharesByDesign=(BY DESIGN (Tony, 2026-11-25): a copyOf copy shares the attributes of its original, so a later write to one is read through the other. To keep a copy of your own, use copyDeep.#);
             stop="Immediate method for the stop command.":
                 twoVerbs=(TWO VERBS THROUGH ONE EXTERN, told apart by the node handed in.
                     bail LEAVES THE FILE and stop LEAVES THE PROCESS, and the whole

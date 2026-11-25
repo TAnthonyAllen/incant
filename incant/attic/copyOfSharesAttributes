@@ -46,3 +46,7 @@ is the design, the cure is a line where copyOf is described and nothing else. ka
 copyOf(instruct) followed by clear(instruct), which works because clear drops the list and does not write into it.
 
 NEXT: OPEN -- Tony's answer. Taken (if a defect): the copyOf line reads 1 and 2. Not taken: it reads 2 and 2.
+
+RETIRED 2026-11-25, BY RULING (Tony, via Clay, R1): BY DESIGN, DOCUMENTED. copyOf is the cheap copy and shares the
+original's attributes; copyDeep gives the copy its own. Nothing is cured: the measured line still reads 2 and 2, and that
+is the design. The one line that documents it is DesignDocs Commands -> copyOf -> sharesByDesign.
