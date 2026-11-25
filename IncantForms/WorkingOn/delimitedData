@@ -39,7 +39,6 @@ define
         if newLine.datA != 0;   lastField = 1;
         if currentField.isGrouP;
             *currentField = *inputField;
-            if *currentField == "#end"; return 0;
             record      +/ *currentField;
             ++fieldsRead;
         return  inputField;
@@ -77,8 +76,6 @@ define
     ;
 getFile(source);
 loadRecords(source);
-// The following line is needed otherwise loadRecords will keep on reading text without noticing it ran out of input because the parse just pops diverted input and keeps on parsing. We could use a way to tell it to not do that.
-#end
 stop();
 
 The following is the transcript of a discussion I had w/ChatGPT on our source pour form design
