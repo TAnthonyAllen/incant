@@ -1,0 +1,78 @@
+Start();
+include(utilities);
+include(unitTests);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+search reset stack KantGrammar Grokking;
+search Utilities UnitTests list;
+registry(AssignListenStuff);
+define
+    alA=1;
+    alARuns=0;
+    alCRuns=0;
+    alL=0 listenTo:=alA code={ alARuns = alARuns + 1; };
+    alB=0;
+    alC=0 listenTo:=alB code={ alCRuns = alCRuns + 1; };
+    amA=1;
+    amBRuns=0;
+    amCRuns=0;
+    amCSaw=0;
+    amB=0 listenTo:=amA code={ amBRuns = amBRuns + 1; if amA > 5; amB = amA; };
+    amC=0 listenTo:=amB code={ amCRuns = amCRuns + 1; amCSaw = amB; };
+    anA=1;
+    anBRuns=0;
+    anCRuns=0;
+    anB=0 listenTo:=anA code={ anBRuns = anBRuns + 1; if anA > 5; anB = anB + 1; };
+    anC=0 listenTo:=anB code={ anCRuns = anCRuns + 1; };
+    aoA=3;
+    aoL=0 listenTo:=aoA;
+    aoB=0 aoMine=5;
+    arA=4 arX=8;
+    arL=0 listenTo:=arA;
+    arB=0 arMine=5;
+    arCRuns=0;
+    arC=0 listenTo:=arB code={ arCRuns = arCRuns + 1; };
+    ;
+alB = alA;
+cerr "AL top copy: C fired" alCRuns " listener of A fired" alARuns " B=" alB " B list" alB.listLengtH:;
+alB = 6;
+cerr "AL top then a write to B: C fired" alCRuns " listener of A fired" alARuns " B=" alB:;
+alA = 7;
+cerr "AL top then a write to A: C fired" alCRuns " listener of A fired" alARuns:;
+amA = 2;
+cerr "AL body small: B ran" amBRuns " C fired" amCRuns " B=" amB:;
+amA = 9;
+cerr "AL body copy: B ran" amBRuns " C fired" amCRuns " C saw" amCSaw " B=" amB:;
+amA = 12;
+cerr "AL body copy again: B ran" amBRuns " C fired" amCRuns " C saw" amCSaw:;
+anA = 2;
+cerr "AL computed small: B ran" anBRuns " C fired" anCRuns " B=" anB:;
+anA = 9;
+cerr "AL computed big: B ran" anBRuns " C fired" anCRuns " B=" anB:;
+aoB = aoA;
+cerr "AL own attribute: B=" aoB " mine=" aoB.aoMine " B list" aoB.listLengtH:;
+arB = arA;
+cerr "AL real list: B=" arB " x=" arB.arX " B list" arB.listLengtH " C fired" arCRuns:;
+arB = 2;
+cerr "AL real list then a write to B: C fired" arCRuns:;
+cerr "ASSIGNLISTENT SENTINEL":;
+stop();
+
+assignListenT -- F-170, assigning a field copies its value, never its listeners (Tony, 2026-11-25; SEQ 782).
+B = A gives B the value of A and nothing else: B keeps its own listeners and A's listeners stay A's.
+
+Row by row, in pop.sh:
+  AL-1 top level (kantGrammar), alB = alA with alA listened to: C fires, A's listener does not, B's list stays 1 (its own
+       listener list). A later write to B fires C again and still not A's listener; a write to A fires A's listener only.
+       Before the cure: C fired 0, A's listener fired 1 then 2, B list 2.
+  AL-2 the same inside an action body (the old road): the middleman amB writes amB = amA. It runs once per write to A and
+       C fires each time B changes. Before the cure: B ran twice for one write and C never fired.
+  AL-3 the control: the middleman writes a computed value (anB = anB + 1). Unchanged by the cure.
+  AL-4 a source whose only list entry is its listener list carries no list: the target keeps its own attribute.
+       Before the cure the target's attribute was replaced by the source's listener list.
+  AL-5 a source with a real attribute beside its listeners: the attribute arrives, the listener list does not, and the
+       target's own listener still fires (the whole write of listenT LN-6, with a listened-to source).
+H7 in the commit after this file's.
