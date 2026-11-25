@@ -31,9 +31,14 @@ define
     ;
 register(FORMs);
 define
+    cwDone code={ popupOk(argument); };
+    colorWords window x=0 y=0 width=300 height=150 margin=12 down fill:=pageFill font:=bodyFont title="Color"
+        cwName="{each.taG}" text height=40 font:=headingFont;
+        cwWords="{dESCRIPTIONs.each}" text height=40;
+        cwOk="OK" text height=28 align=center valign=center border onClick:=cwDone;
     colorList window x=0 y=0 width=490 height=fit margin=12 down fill:=pageFill font:=bodyFont title="Colors"
         clTitle="Colors" text height=40 font:=headingFont align=center valign=center bottomBorder;
-        clRows down="*" pour:=cOLOr gap=4;
+        clRows down="*" pour:=cOLOr gap=4 popup:=colorWords;
     ;
 bail();
 
@@ -44,5 +49,9 @@ HOW IT WORKS (pour stage 2, SEQ 742; incant/utilities, pourPlan):
     A written template row under clRows is the override (stage 1): pour then copies that row, and each stands for the
     member under its copy -- {each}, {each.taG}, fill:=each, {dESCRIPTIONs.each}. incant/pop/pourT keeps one.
     Poured from fONTs or sTYLEs the same field shows sample text in each font, or with each style.
+THE POPUP (popups stroke 5, 2026-11-25): popup:=colorWords on clRows. A click anywhere in a row opens colorWords under the
+    cell that was hit, showing that colour's name and its words ({each.taG}, {dESCRIPTIONs.each}: a popup's top carries
+    each, the member it was opened on). OK closes it. Nothing in it can be picked yet, so OK writes nothing: changing the
+    words waits for keys. The pour knows nothing of the popup.
 ISSUES:
 - Six descriptions are the design pass's short ones (tester's colorListHand, 2026-11-22); Clod shortened the other eight to match.

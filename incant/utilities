@@ -1214,6 +1214,7 @@ define
         sfLf := new("laidForm");
         *sfLf = string $slTop$;
         *sfLaid :% *sfLf;
+        popupEachOn(*sfLaid);
         frameMembers(*sfLaid);
         sfChain -% *sfMark;
         return *sfLaid;
@@ -2422,6 +2423,11 @@ define
             if selCan == 0;
                 if argument["selectFill"];  selWhy = "selectFill";
                 if argument["selectFill"];  selCan = 1;
+        // hasAJob a poured cell that carries a write-back address is selectable even when it shows nothing: it is not only room (Tony, 2026-11-24). A read-only cell and a cell with no address and nothing to show still climb
+        if sbL > 0;
+            if selCan == 0;
+                if argument["pourMember"];  selWhy = "pour address";
+                if argument["pourMember"];  selCan = 1;
         if selCan == 0;
             sbName = string $argument.taG$;
             if registries["dESCRIPTIONs"];
@@ -2494,7 +2500,86 @@ define
     ***************************************************************************/
     popupTargets;
     popWin form look frame owner;
+    pourReq source entry value make form;
     popName = "none";
+    // popupEntry one popup's target entry, made whole from the pe fields and added to popupTargets under peName: form, field, each, eachIn (the registry the poured row's member is in), the hit cell's pour address as names (kind write, readOnly or none; source, entry, why, make yes or no), and value only once something is picked -- so nine parts is nothing picked, ten is a pick (an entry is counted, never an attribute tested by its value, F-168)
+    peName = "none";
+    peForm = "none";
+    peField = "none";
+    peEach = "none";
+    peEachIn = "none";
+    peKind = "none";
+    peSource = "none";
+    peEntry = "none";
+    peWhy = "none";
+    peMake = "no";
+    peValue = "none";
+    pePicked = 0;
+    pePart = "none";
+    peText = "none";
+    peNew;
+    popupPart code={
+        pptA := new(pePart);
+        *pptA = peText.texT;
+        *peNew +% *pptA;
+        };
+    popupEntry code={
+        peNew := new(peName);
+        pePart = "form";        peText = string $peForm$;       popupPart();
+        pePart = "field";       peText = string $peField$;      popupPart();
+        pePart = "each";        peText = string $peEach$;       popupPart();
+        pePart = "eachIn";      peText = string $peEachIn$;     popupPart();
+        pePart = "kind";        peText = string $peKind$;       popupPart();
+        pePart = "source";      peText = string $peSource$;     popupPart();
+        pePart = "entry";       peText = string $peEntry$;      popupPart();
+        pePart = "why";         peText = string $peWhy$;        popupPart();
+        pePart = "make";        peText = string $peMake$;       popupPart();
+        if pePicked == 1;
+            pePart = "value";
+            peText = string $peValue$;
+            popupPart();
+        popupTargets +% *peNew;
+        };
+    // popEachSource the registry the poured member is in: the pourSource of the nearest field at or above the one handed in that carries each (the row; B1 wrote both there)
+    popEachSource code={
+        pesAt := argument;
+        pesHops = 0;
+        pesHit = 0;
+        while pesHops < 32;
+            pesL = *pesAt.listLengtH;
+            if pesL > 0;
+                if *pesAt["each"];      pesHit = 1;
+            if pesHit == 1;     pesHops = 32;
+            pesTop = *pesAt.isPointeR;
+            if pesTop == 1;     pesHops = 32;
+            if pesHops < 32;    pesAt := *pesAt.parenT;
+            pesHops += 1;
+        if pesHit == 0;     return;
+        if *pesAt["pourSource"];    peEachIn = string $*pesAt["pourSource"]$;
+        };
+    // popupEachOn a popup's laid-out copy is told the poured member it was opened on: its top carries each, as a poured row does, so the popup form's own text may say {each.taG}, {each} and {aRegistry.each} (popups stroke 5). ONE argument, the copy's top, at every layout (setFrame); found by NAME in the row's source, so a member deleted meanwhile leaves the popup with no each
+    popupEachOn code={
+        peoN = popupTargets.listLengtH;
+        if peoN == 0;       return;
+        peoHas = 0;
+        if popupTargets[slTop];     peoHas = 1;
+        if peoHas == 0;     return;
+        peoE := popupTargets[slTop];
+        peoM = string $*peoE["each"]$;
+        peoR = string $*peoE["eachIn"]$;
+        if peoM == "none";  return;
+        if peoR == "none";  return;
+        peoOk = 0;
+        if registries[peoR];    peoOk = 1;
+        if peoOk == 0;      return;
+        peoReg := registries[peoR];
+        pefName = string $peoM$;
+        pourEntryFind(*peoReg);
+        if pefHit == 0;     return;
+        peoA := new("each");
+        *peoA := *pefAt;
+        argument :% *peoA;
+        };
     popupForget code={
         pfN = popupTargets.listLengtH;
         pfHad = 0;
@@ -2562,17 +2647,22 @@ define
         if poN > 0;
             if popupTargets[poForm];    poOpen = 1;
         if poOpen == 1;     windowClose(popWin);
-        poEnt := new(poForm);
-        poE1 := new("form");
-        *poE1 = string $poIn$;
-        *poEnt +% *poE1;
-        poE2 := new("field");
-        *poE2 = string $poField$;
-        *poEnt +% *poE2;
-        poE3 := new("each");
-        *poE3 = string $poEach$;
-        *poEnt +% *poE3;
-        popupTargets +% *poEnt;
+        // itsAddress the pour return address of the field it is opened on, read NOW, as names: OK writes through it (popups stroke 5; the 4b link), and the copy that holds it is gone at the next layout
+        pourAddress(**poOa);
+        peName = string $poForm$;
+        peForm = string $poIn$;
+        peField = string $poField$;
+        peEach = string $poEach$;
+        peEachIn = "none";
+        if tsEachHit == 1;      popEachSource(**poOa);
+        peKind = string $pourAtKind$;
+        peSource = string $pourAtSource$;
+        peEntry = string $pourAtEntry$;
+        peWhy = string $pourAtWhy$;
+        peMake = "no";
+        if pourAtMake == 1;     peMake = "yes";
+        pePicked = 0;
+        popupEntry();
         // atTheField a frame of x and y only: the popup form's own width and height stand (keepFrame keeps the parts a frame has)
         poFr := new("popupFrame");
         poXa := new("x");
@@ -2690,25 +2780,21 @@ define
             return;
         // wholeEntry the target entry is replaced whole, value= added: an entry is tested by its name, never an attribute by its value (F-168)
         ppkE := popupTargets[popName];
-        ppkF = string $*ppkE["form"]$;
-        ppkN = string $*ppkE["field"]$;
-        ppkM = string $*ppkE["each"]$;
+        peName = string $popName$;
+        peForm = string $*ppkE["form"]$;
+        peField = string $*ppkE["field"]$;
+        peEach = string $*ppkE["each"]$;
+        peEachIn = string $*ppkE["eachIn"]$;
+        peKind = string $*ppkE["kind"]$;
+        peSource = string $*ppkE["source"]$;
+        peEntry = string $*ppkE["entry"]$;
+        peWhy = string $*ppkE["why"]$;
+        peMake = string $*ppkE["make"]$;
         ppkV = string $argument$;
+        peValue = string $ppkV$;
+        pePicked = 1;
         popupForget();
-        ppkNew := new(popName);
-        ppk1 := new("form");
-        *ppk1 = string $ppkF$;
-        *ppkNew +% *ppk1;
-        ppk2 := new("field");
-        *ppk2 = string $ppkN$;
-        *ppkNew +% *ppk2;
-        ppk3 := new("each");
-        *ppk3 = string $ppkM$;
-        *ppkNew +% *ppk3;
-        ppk4 := new("value");
-        *ppk4 = string $ppkV$;
-        *ppkNew +% *ppk4;
-        popupTargets +% *ppkNew;
+        popupEntry();
         cout "=== popupPick" popName "value" ppkV "===":;
         };
     popupOk code={
@@ -2728,8 +2814,28 @@ define
         if pfmHit == 1;
             pkOwner := *pfmFound;
             pkOwns = 1;
-        if pkL < 4;     cout "=== popupOk" pkPop "nothing picked, nothing written ===":;
-        if pkL > 3;
+        pkKind = string $*pkE["kind"]$;
+        pkLinked = 0;
+        if pkKind != "none";    pkLinked = 1;
+        if pkL < 10;    cout "=== popupOk" pkPop "nothing picked, nothing written ===":;
+        // throughTheLink opened on a poured cell, the value goes to the SOURCE entry that cell was poured from, by the names read when the popup opened (pourWrite, the 4b link): the text alone, a description with no entry yet made and said so, an entry gone since refused by name. A read-only cell says so with its reason and nothing is written. The form is laid out again below, once
+        if pkL > 9;
+            if pkKind == "readOnly";
+                pkWhy = string $*pkE["why"]$;
+                cerr "popupOk: READ-ONLY" pkField "--" pkWhy "; nothing written from" pkPop:;
+            if pkKind == "write";
+                pourReq.source = string $*pkE["source"]$;
+                pourReq.entry = string $*pkE["entry"]$;
+                pourReq.value = string $*pkE["value"]$;
+                pourReq.make = 0;
+                pkMake = string $*pkE["make"]$;
+                if pkMake == "yes";     pourReq.make = 1;
+                pourReq.form = "none";
+                pourWrite(pourReq);
+        pkPlain = 0;
+        if pkL > 9;
+            if pkLinked == 0;   pkPlain = 1;
+        if pkPlain == 1;
             pkValue = string $*pkE["value"]$;
             if pkOwns == 0;     cerr "popupOk: REFUSING the write from" pkPop "-- FORMs has no form named" pkForm:;
             if pkOwns == 1;
@@ -2783,7 +2889,6 @@ define
             written; a field in no poured row is refused by name.
     ***************************************************************************/
     pourWrote = 0;
-    pourReq source entry value make form;
     pefName = "none";
     pefHit = 0;
     pefAt;
@@ -3096,7 +3201,7 @@ define
         if argument["CodE"];
             cout "=== click" ckFn ckNm "fired its own action ===":;
             ckFired = 1;
-            argument(argument);
+            argument(*ckHand);
         for grup in argument; attributes
             ckHeld = *grup.isGrouP;
             ckActs = 0;
@@ -3111,7 +3216,19 @@ define
                 ckTo := **grup.taG;
                 cout "=== click" ckFn ckNm "fired" ckAn ckTo "===":;
                 ckFired = 1;
-                **grup(argument);
+                **grup(*ckHand);
+            // popupAttribute popup:=aForm on a field (popups stroke 5; ruling 1): a click on the field, or on anything under it that fires nothing itself, opens that form as a popup AT THE CELL THAT WAS HIT. It is a held form under the name popup, not an action, so it is opened, not fired; it ends the climb as an action does
+            ckPops = 0;
+            if ckHeld == 1;
+                if ckActs == 0;
+                    if *ckAn == "popup";    ckPops = 1;
+            if ckPops == 1;
+                ckTo := **grup.taG;
+                cout "=== click" ckFn ckNm "opened popup" ckTo "===":;
+                ckFired = 1;
+                popAttr.form := **grup;
+                popAttr.on := *ckHand;
+                popup(popAttr);
         };
     /***************************************************************************
         click -- the mock click (goal G1; G2 stroke 3; Tony, 2026-11-13). ONE
@@ -3149,6 +3266,7 @@ define
             return;
         // ownHolder the field is kept in a local: an action fired below may redraw, and the redraw's own search writes tsFound
         ckField := *tsFound;
+        ckHand := *ckField;
         selection := *ckField;
         skForm = string $*ckFn$;
         skField = string $*ckNm$;
@@ -3175,6 +3293,8 @@ define
     ***************************************************************************/
     clickField code={
         cfHit := argument;
+        // handsTheHitCell every action this click fires, at whatever level, is handed the cell that was hit, not the level that fired (Tony, 2026-11-24): a level's action learns where in it the click fell, and climbs from there for anything above
+        ckHand := argument;
         cfHitName = string $*cfHit.taG$;
         // topIsNoMember the name the click lines print is the nearest laid-out copy's top: the first field on the way up that reads as no member -- the copy's top, or a held form's top (measured 2026-11-23, SEQ 763)
         cfAt := argument;
@@ -3233,6 +3353,8 @@ define
     // clickUp one step up from clAt: its parent; at a held form's top (no member, heldIn) the field that holds it; at the window's top, clEnd = 1 and clAt stays
     clAt;
     clEnd = 0;
+    ckHand;
+    popAttr form on;
     clickUp code={
         cuM = *clAt.isMembeR;
         cuHeld = 0;
