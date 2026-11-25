@@ -93,6 +93,8 @@ define
     pwNoReg source="PwNowhere" entry="pwOne" value="x";
     pwRule source="PwActs" entry="pwDoIt" value="x";
     pwByName source="PwThree" entry="pwOne" value="#0000ff";
+    pwVirtual source="sTYLEs" entry="contrast" value="#0000ff";
+    pwPlaced source="sTYLEs" entry="pageFill" value="#0000ff";
     ;
 search PourWriteT FORMs Utilities;
 cout "PW-PAGE W-0":;    cerr "PW-PAGE W-0":;    pwState("W-0");
@@ -109,6 +111,7 @@ pwNext = "#654321";
 cout "PW-PAGE W-6":;    cerr "PW-PAGE W-6":;    pwDrop();   windowClick(pwOnVal2);      pwState("W-6");
 cout "PW-PAGE W-7":;    cerr "PW-PAGE W-7":;    windowClick(pwOnOut);       pourWrite(pwNoValue);   pourWrite(pwNoReg);     pourWrite(pwRule);  pwState("W-7");
 cout "PW-PAGE W-8":;    cerr "PW-PAGE W-8":;    pourWrite(pwByName);        pwState("W-8");
+cout "PW-PAGE W-9":;    cerr "PW-PAGE W-9":;    pourWrite(pwVirtual);       pourWrite(pwPlaced);    pwState("W-9");
 cout "PW-PAGE END":;    cerr "PW-PAGE END":;
 cerr "POURWRITE SENTINEL":;
 stop();
@@ -133,3 +136,5 @@ W-6  DELETED MEANWHILE: pwThree is removed from the source while pwTpl's copy st
 W-7  ERRANT: a field in no poured row; a request with no value; a registry that does not exist; an entry that is an action
      (not fired): each refused by name, nothing written.
 W-8  pourWrite by names alone, no form: written.
+W-9  VIRTUAL (Tony, 2026-11-25): contrast and pageFill are entries of sTYLEs holding nothing -- virtual in Controls/styles,
+     resolved when drawn, stored nowhere. A write to either by name is refused with that reason; nothing written.

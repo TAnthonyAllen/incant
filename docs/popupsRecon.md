@@ -136,7 +136,7 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   (above it, moves with it): that part is AppKit's, not reached offscreen, and is stroke 6's to see. `modal` is written
   `modal=1`, as title= is written: a bare word on a form's line is not an attribute unless defined. formsPop windowOwnerT.
 
-- Stroke 5 (SEQ 775, 2026-11-25; on branch popups-attribute, Tony buys): `popup:=aForm` as an attribute. clickFire
+- Stroke 5 (SEQ 775, 2026-11-25; bought and merged 2026-11-25): `popup:=aForm` as an attribute. clickFire
   opens a held form under the name popup as a popup, at the cell that was hit; it ends the climb as an action does, so a
   click on anything under the field that fires nothing itself opens it. WITH TONY'S TWO OF 2026-11-24: every action a
   click fires is handed the cell that was hit, not the level that fired; a poured cell carrying a write-back address is
@@ -147,8 +147,13 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   `each`, the member it was opened on (found by name in the row's registry at every layout), so the popup form's own text
   may say `{each.taG}`, `{each}` and `{aRegistry.each}`. THE CUSTOMER: colorList's clRows carries `popup:=colorWords`; a
   click in a row shows that colour's name and words, OK closes it. Nothing in colorWords can be picked, so its OK writes
-  nothing: changing the words waits for keys. NOT DECIDED: whether a field carrying popup:= and nothing else is itself
-  selectable (today it is not: pqBox). formsPop popupAttrT, 12 rows, five H7s.
+  nothing: changing the words waits for keys. formsPop popupAttrT, 12 rows, five H7s.
+- The follow-up (SEQ 776, 2026-11-25; on branch popups-selectable, Tony buys; his two rulings of 2026-11-25): a field
+  carrying only popup:= is selectable (selWhy popup); an entry of sTYLEs holding nothing (each, contrast, any
+  placeholder) is read-only in a pour and refused by pourWrite by name -- virtual in Controls/styles, resolved when
+  drawn, nothing stores it. Told by what the entry is, not by the virtual flag: the flag reads 0 on every loaded styles
+  entry, and isVirtuaL has no read arm in opDot (both measured, with the arm added for the measurement and taken out).
+  popupAttrT Q-6 re-pinned, Q-8 the negative control; pourWriteT W-9 new; pourAddressT A-12 back to 0. Two H7s.
 
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
@@ -247,3 +252,28 @@ part. A description with no entry yet is made, and the line says "made dESCRIPTI
 the same source shows the old value until it is laid out again. formsPop pourWriteT, 10 rows.
 NOT HERE: Cancel through the link (no popup in this test; windowOkT K-1 pins Cancel for the text write, and stroke 5's
 OK is the link's first popup user); a cell that shows nothing is still not reached by a click (B1's finding).
+
+## 7. Stroke 6, the watched run (SEQ 777, assigned by Clod, 2026-11-25)
+
+Run `IncantForms/WorkingOn/tester` (Xcode with tester as the argument, or `~/bin/incant IncantForms/WorkingOn/tester`
+from the repo root). Three windows: Colors (left), Watch A (middle), Watch B (right). Every step below was run
+offscreen with real mouse-ups first and read as written; none had been seen in a shown window before this run.
+
+| # | click | should be seen | covers | seen by Tony |
+|---|---|---|---|---|
+| 1 | Watch A: "Clicks counted: 0" | a mid-blue outline round it; the text becomes "Clicks counted: 1"; the help box at the bottom reads "waTally: counts the clicks it gets." | seal 539's outline and describe | |
+| 2 | Watch B: "B one" | outlined in B; B's help box reads "wbOne: the first field of window B."; in A the outline stays on the counter and A's help text does not change | selection per form | |
+| 3 | Watch A: the empty bordered box under the counter | nothing changes: no new outline, the counter keeps its outline, the help text stays | the only-room click | |
+| 4 | Watch A: the words "text inside the held form" (yellow area) | those words are outlined, inside the yellow form | a click inside a held form | |
+| 5 | Watch A: the empty yellow area under those words | the whole yellow form is outlined, the outline drawn over it; help reads "waHeld: this field holds another form." | the climb into a host; the outline over a held form | |
+| 6 | Watch A: "Pick: click me" | a small window titled Pick opens just under that field, above Watch A, with no resize control | popup open | |
+| 7 | drag Watch A by its title bar | Pick moves with it and stays on top of it | the popup above its form and moving with it | |
+| 8 | Pick: "apple", then "OK" | Pick closes; the field in Watch A now reads "apple" | OK | |
+| 9 | Watch A: "apple" (the same field), then Pick: "pear", then "Cancel" | Pick opens again, then closes; the field still reads "apple" | Cancel | |
+| 10 | Watch A: "Modal: click me" | a window titled Modal opens under it | modal popup open | |
+| 11 | Watch A: the counter, twice | the count does not change; Modal comes to the front | modal | |
+| 12 | Modal: "Close", then Watch A: the counter | Modal closes; the count goes up by one | modal ends with the popup | |
+| 13 | Colors: any colour's row | a window titled Color opens under the cell clicked, showing that colour's name large and its words; "OK" closes it | stroke 5's colour description popup | |
+| 14 | Colors: midBlue's row, in the empty space right of its swatch | the empty cell is outlined and Color opens with the name midBlue and no words | the empty addressed cell | |
+| 15 | open Pick again (step 6), then close Watch A with its close button | Pick closes with it | a form's close closes its popups | |
+| 16 | close Watch B and Colors | the program ends by itself | the loop | |
