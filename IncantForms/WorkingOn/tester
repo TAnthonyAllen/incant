@@ -1,24 +1,85 @@
 /*****************************************************************************
 	This is the tester incantation. It is a working file for testing new features
     under development so it changes when there is a new feature in the works.
-    Today (2026-11-23, SEQ 752, windows stroke 5): the watched run -- windows = 1; show(tabForm); opens tabForm in a real window.
-    The line it replaced, show(colorList), is parked just below stop().
+    Today (2026-11-25, SEQ 777, popups stroke 6): the watched run -- colorList, Watch A and Watch B in real windows; the
+    steps are in Clod's report of that day and in the note just below stop(). The reopen test it replaced is parked there too.
     Below stop(): what tester is, then Clod's probes still parked (SEQ 726). Cleared 2026-11-22 (Tony): colorListHand,
     Clod's sampler and G3 specimens, Tony's show test -- all in git history.
 *****************************************************************************/
 Start();
 windows = 1;
-show(tabForm);
-search FORMs cOLOr fONTs sTYLEs;
-register(FORMs);
+show(colorList);
+register(dESCRIPTIONs);
 define
-    reopenClick code={ show(tabForm); };
-    reopener window x=100 y=400 width=220 height=60 fill:=pageFill title="Reopen"
-        again="Click here to open tabForm again" border align=center valign=center onClick:=reopenClick;
+    waPick="waPick: a click here opens the Pick popup under it.";
+    waSure="waSure: a click here opens a modal popup.";
+    waTally="waTally: counts the clicks it gets.";
+    waHeld="waHeld: this field holds another form.";
+    wbOne="wbOne: the first field of window B.";
     ;
-show(reopener);
-show(firstLight);
+register(FORMs);
+search FORMs cOLOr fONTs sTYLEs dESCRIPTIONs;
+define
+    waN = 0;
+    waCount code={
+        waN += 1;
+        waT = string $"Clicks counted: " waN$;
+        waF := waHost["waTally"];
+        *waF = waT.texT;
+        cout "=== watch: waTally counted" waN "===":;
+        };
+    waPickIt code={ popupPick(argument); };
+    waOk code={ popupOk(argument); };
+    waNo code={ popupCancel(argument); };
+    waPop window x=0 y=0 width=200 height=130 down fill:=pageFill font:=bodyFont title="Pick"
+        wpApple="apple" text height=30 onClick:=waPickIt;
+        wpPear="pear" text height=30 onClick:=waPickIt;
+        wpOk="OK" text height=30 align=center border onClick:=waOk;
+        wpNo="Cancel" text height=30 align=center border onClick:=waNo;
+    waModal window modal=1 x=0 y=0 width=220 height=80 down fill:=pageFill font:=bodyFont title="Modal"
+        wmMsg="Window A ignores clicks now." text height=40;
+        wmNo="Close" text height=30 align=center border onClick:=waNo;
+    waInner window x=0 y=0 width=300 height=80 down fill:=wall font:=bodyFont
+        wiText="text inside the held form" text height=30;
+        wiRoom height=40;
+    waHost window x=520 y=60 width=340 height=470 margin=10 down fill:=pageFill font:=bodyFont title="Watch A"
+        waPick="Pick: click me" text height=36 border popup:=waPop;
+        waSure="Modal: click me" text height=36 border popup:=waModal;
+        waTally="Clicks counted: 0" text height=36 border onClick:=waCount;
+        waEmpty height=50 border
+            waRoom height=30;
+        waHeld form:=waInner height=90;
+        waHelp describe="Select a field: its description shows here." text height=90 border;
+    wbHost window x=880 y=60 width=300 height=220 margin=10 down fill:=pageFill font:=bodyFont title="Watch B"
+        wbOne="B one" text height=36 border;
+        wbTwo="B two" text height=36 border;
+        wbHelp describe="Window B's own help box." text height=90 border;
+    ;
+search FORMs cOLOr fONTs sTYLEs dESCRIPTIONs Utilities;
+show(waHost);
+show(wbHost);
 stop();
+
+THE WATCHED RUN, POPUPS STROKE 6 (Clod, 2026-11-25, SEQ 777). Three windows open: Colors at the left, Watch A in the
+middle, Watch B at the right. What to click and what to see is
+in docs/popupsRecon.md, section 7. The forms are defined with Utilities OFF the search list and shown with it ON: with
+Utilities searched at the define, popup:=waPop was bound to utilities' own popup action (one name, one field) and every
+popup:= opened the last form written.
+
+PARKED 2026-11-25 (Clod): the reopen test that was above stop() until today:
+    Start();
+    windows = 1;
+    show(tabForm);
+    search FORMs cOLOr fONTs sTYLEs;
+    register(FORMs);
+    define
+        reopenClick code={ show(tabForm); };
+        reopener window x=100 y=400 width=220 height=60 fill:=pageFill title="Reopen"
+            again="Click here to open tabForm again" border align=center valign=center onClick:=reopenClick;
+        ;
+    show(reopener);
+    show(firstLight);
+    stop();
 
 THE REOPEN TEST (Clod, 2026-11-23, SEQ 755). Tony's three lines here were show(tabForm); show(tabForm); show(firstLight);
 and all three opened at once: a show returns at once and the windows only come alive when the script ends (W1), so no
