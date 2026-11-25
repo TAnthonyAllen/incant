@@ -10823,6 +10823,24 @@ else
     echo "  FAIL  ownTermLocalT: got [$_otl] want [OT global isGroup 0 data 13 hits 3 text [ ; ] ]"; fail=1
 fi
 
+#  ---------------------------------------------------------------------------
+#  heldFieldEndT -- a field pushed with pushInputField is its own floor (SEQ 779,
+#  2026-11-25; the cure of fixit heldFieldEndLosesFile, retired by mapping to these
+#  rows). A rule that reads the field to its very end fails THERE and the calling
+#  file goes on. Every row prints its count, and each wants a non-zero one but
+#  HF-3, whose sibling is HF-4's outer count. H7 (2026-11-25, the floor line taken
+#  out of pushInputField, rebuilt): HF-1 prints and nothing after it -- no HF-2 to
+#  HF-5 and no sentinel, at exit 0.
+run1 heldFieldEndT "$T/hfe";  check "heldFieldEndT runs" 0 $?
+sentinel "heldFieldEndT sentinel" "$T/hfe" "HELDFIELDEND SENTINEL"
+_hfe=$(grep '^HF-' "$T/hfe" | sed 's/^\(HF-[0-9]\).*: \(.*\)$/\1 \2/; s/(want [0-9]*)//g; s/, and the .*//' | tr -s ' ' | tr '\n' ';')
+_hfw="HF-1 lines 2 ;HF-2 cells 4 ;HF-3 its second line read, then its own end 0 ;HF-4 outer lines 2 inner cells 4 ;HF-5 lines 4 ;"
+if [ "$_hfe" = "$_hfw" ]; then
+    echo "  ok    heldFieldEndT: a pushed field read to its very end ends THERE -- the file goes on, a set-delimited field too, nested fields each end alone, and the floor is put back = [$_hfw]"; green=$((green+1))
+else
+    echo "  FAIL  heldFieldEndT: got [$_hfe] want [$_hfw]"; fail=1
+fi
+
 #  helperLoud close the fleet's end of the FIFO and let tee drain (bounded: a stray child may hold it open), then read it
 if [ -n "$_popTee" ]; then
     exec 2>&3 3>&-

@@ -12421,8 +12421,15 @@ extern "C" GroupItem *plusEQshapeRefusal(char *kind, GroupItem *argument, GroupI
 *******************************************************************************/
 extern "C" GroupItem *popInputField(GroupItem *input)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	ruler->popInput();
+	// ownFloor the floor pushInputField raised goes back to what the suspended source kept
+	
+	{
+	GroupRules *r = GroupControl::groupController->groupRules;
+	r->popInput();
+	GroupItem *keep = r->sourceFILE ? r->sourceFILE->get("atFLOOR") : 0;
+	if ( keep ) r->inputFloor = keep->getCount();
+	}
+	
 	return input;
 }
 
@@ -13001,13 +13008,26 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 *******************************************************************************/
 extern "C" GroupItem *pushInputField(GroupItem *source)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !source )
 		{
 		::fprintf(stderr,"pushInputField: no source provided\n");
 		return 0;
 		}
-	ruler->pushInput(source);
+	// ownFloor a pushed field is its own floor, as a drive's message is: a rule that reads it to its very end FAILS THERE and never pops out into the caller's file
+	
+	{
+	GroupRules *r = GroupControl::groupController->groupRules;
+	GroupItem *wasIn = r->sourceFILE;
+	r->pushInput(source);
+	if ( wasIn )
+	{
+	GroupItem *keep = wasIn->get("atFLOOR");
+	if ( !keep ) keep = wasIn->addString("atFLOOR");
+	keep->setCount(r->inputFloor);
+	}
+	if ( r->inputSTAK ) r->inputFloor = r->inputSTAK->length;
+	}
+	
 	return source;
 }
 
