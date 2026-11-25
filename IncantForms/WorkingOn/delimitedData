@@ -80,3 +80,230 @@ loadRecords(source);
 // The following line is needed otherwise loadRecords will keep on reading text without noticing it ran out of input because the parse just pops diverted input and keeps on parsing. We could use a way to tell it to not do that.
 #end
 stop();
+
+The following is the transcript of a discussion I had w/ChatGPT on our source pour form design
+
+Source, Pour and Destination — Design Reflections
+
+2026-11-25 — A follow-on to sourcePourRecon
+
+1. Introduction
+
+The design discussion prompted by delimitedData did not radically change the proposed separation of source, pour and destination. It did, however, uncover some interesting implications of that separation, particularly when considered in the context of capabilities already present in kant.
+
+Much of the discussion involved discovering things we did not need to design. In particular, the existing field, method/action, listening and iterator machinery appears capable of supporting a considerably more general notion of pour than the one that prompted the exercise.
+
+The following are the more interesting outcomes of the discussion. This is a reflection on the design, not a build plan.
+
+2. A pour pours a field
+
+We began with a distinction between two kinds of pour: one that provides successive fields and another that provides records matching some criteria.
+
+The distinction largely disappears when we consider what is actually being poured. A record is just a kant field wearing a record dress.
+
+A pour pours a field.
+
+The receiving field is responsible for deciding what to do with what it receives. It can have a method or action that extracts information, accumulates values, counts occurrences, collects records or performs whatever other bippity boppity is appropriate.
+
+In the absence of an explicit method/action, a simple default behavior is envisaged:
+
+If the incoming field has attributes, extract the attribute whose tag matches that of the receiving field.
+
+If the incoming field has no attributes, accept the field as is.
+
+This allows a straightforward record-based display form to be populated without requiring the programmer to write actions for its individual fields.
+
+A query form, on the other hand, can have fields whose actions do considerably more interesting things with the records they receive.
+
+Neither case requires pour to understand what the receiving field is doing.
+
+3. Pour need not know about forms
+
+Although the existing pour machinery was developed in the context of forms, there is no fundamental reason for pour to know that a form exists.
+
+A field establishes itself as a pour target, identifies its source and is prepared to deal with what gets poured into it.
+
+The position of that field within a form is irrelevant to pour. The field's own action may take its position into account, but that is its business.
+
+A form may have elaborate layout, embedded forms and fields deriving their data from several unrelated sources. None of this need complicate pour.
+
+Indeed, a pour target need not be in a form at all.
+
+Display forms, collection forms and query forms are consequently ways of using fields and pours, rather than different kinds of machinery that pour needs to support.
+
+The form may provide the context in which a pour is provoked, but it is the field that provokes it.
+
+4. Source data and source instances
+
+A source typically has data associated with it. That data might be the contents of a delimited file, a registry, the result of a MongoDB query or the result of running another incantation.
+
+Ultimately, the source data is held in a kant field, potentially containing a considerable amount of information.
+
+An interesting issue arises when several customers want to make use of the same data, but at different times and with different notions of what they want next.
+
+The proposed solution is to distinguish the source data from the source instance.
+
+Two source instances can reference the same underlying data while maintaining independent positions within it.
+
+Next is therefore a property of the source instance, not of the source data.
+
+The programmer can choose to have several fields share a source instance or have each field use its own instance. A form can also make use of multiple source instances associated with entirely different data.
+
+A simple record-based display form might require only one source instance. A more complex query form might make use of several.
+
+The choice belongs to the programmer.
+
+Advancing a source and provoking a pour from it are separate decisions. A field may want what the source is currently holding without wanting the source to advance.
+
+5. Pour into a pour
+
+Perhaps the most interesting extension to the original design came from considering the nature of pour itself.
+
+A pour is just a kant field wearing a pour dress.
+
+There is consequently no fundamental reason why a pour cannot itself be a pour target.
+
+source -> pour -> pour -> field
+
+A pour can be both a customer and a provider. It can receive data from another pour, process that data and make the result available to its own customers.
+
+One pour might obtain records from a delimited file. Another might select records of interest. A further pour might accumulate information derived from those records.
+
+The eventual customer need not know how many pours were involved in producing what it receives.
+
+From the perspective of that customer, the final pour can serve as its source.
+
+This is a potentially significant generalization. We are no longer simply talking about transferring data from a file into a form. We are talking about ordinary kant fields cooperating in the acquisition, processing and distribution of data.
+
+6. Listening and the middleman
+
+Listening is an existing and demonstrated capability of kant.
+
+If field B listens to field A, a change in A causes B to fire its action to deal with that change.
+
+One of the questions raised during the discussion was whether a listening field should react to every change in the field it listens to.
+
+The simplest answer is yes.
+
+Rather than complicating listening with mechanisms for filtering notifications, an interesting alternative is to introduce a middleman.
+
+A -> B -> C
+
+B listens to A and reacts to every change. C listens to B. B can process the changes in A without necessarily changing the data it makes available to C. When B is good and ready, it changes its data and C reacts.
+
+The middleman is not a new kind of kant object. It is simply a field with an appropriate action.
+
+A middleman could filter incoming data, accumulate values, transform records, suppress insignificant changes or wait until it has something complete to pass on.
+
+Different customers could have different middlemen, each with its own notion of what constitutes a significant change. The original notifying field need not know anything about those customers.
+
+This has particularly interesting implications when combined with pour. A pour can itself be a middleman, and a chain of pours can make use of listening to propagate data and results.
+
+The middleman model has not yet been exercised. It is a promising follow-on experiment using existing kant machinery.
+
+The question of a field listening to multiple fields, including how its action identifies which field triggered it, remains HPDL (Hard Part Do Later).
+
+7. Iterators
+
+The discussion of independent source instances led naturally to a consideration of kant's existing iterator machinery.
+
+Given:
+
+iterate grup on fieldList;
+iterate someOtherField on fieldList;
+
+we already have two independent iterators operating on the same underlying data.
+
+There is no need to invent the concept of independent traversal for sources.
+
+A particularly interesting possibility is to extend the Iterate rule to support a pour field as its source.
+
+Conceptually:
+
+iterate grup on aPour;
+while ++grup;
+
+The current kantGrammar definition of ITERATe already allows an EXPRESSIOn as its source. It appears possible to accommodate a pour source through changes to the rule action without introducing a new grammatical shape.
+
+This would allow a chain of pours to present itself to an ordinary incantation as something to iterate over.
+
+The distinction between iterating over a list of existing fields and iterating over fields produced on demand would then be largely irrelevant to the consuming incantation.
+
+It also suggests two complementary ways of working with data in kant:
+
+Listening allows a field to react when data changes.
+
+Iterating allows an incantation to request successive fields when it wants them.
+
+A pour could potentially participate in either arrangement.
+
+This extension to Iterate has not yet been tried.
+
+8. Pour and redisplay
+
+Forms were originally conceived as a means of displaying data. The form machinery processes fields from left to right and then down, with the attributes of a field themselves being processed from left to right.
+
+However, redisplaying a form does not, by default, change its data.
+
+A click on a field may invoke an action that changes data and induces a cascade of further changes through listening. Those changes are consequences of the action, not of redisplay itself.
+
+This distinction should be preserved when introducing the new pour capabilities.
+
+Advancing a source, provoking a pour, processing the incoming field and displaying the result are not necessarily part of the same operation.
+
+A resize should not inadvertently advance a source or cause a query field to count the same record twice.
+
+An undisplayed form can also be fired deliberately, with the programmer controlling when it executes and dealing with the consequences.
+
+The precise means by which a field specifies when to provoke a pour or advance a source remains part of the design exercise.
+
+9. Matters to be exercised
+
+The discussion suggests several relatively small experiments that could inform the subsequent implementation.
+
+Establish the behavior of a pour that is itself a pour target.
+
+Exercise the listening middleman model, establishing that a field can process every incoming change while passing on results selectively.
+
+Extend Iterate to obtain successive fields from a pour.
+
+Exercise independent source instances referencing the same underlying data.
+
+Other details remain to be worked out, including the lifetime of reusable record fields, when notifications are generated, the behavior of the default pour action when no matching attribute exists, and how the end of a source is communicated to customers.
+
+These are matters to be addressed without unnecessarily complicating the underlying design.
+
+10. Reflection
+
+The most interesting outcome of the discussion is not the introduction of new machinery, but the recognition of what can potentially be accomplished by combining machinery that kant already has.
+
+A record is a field wearing a record dress.
+
+A source is a field making data available.
+
+A pour is a field wearing a pour dress.
+
+A middleman is a field with an action.
+
+A form is an arrangement of fields that may or may not be displayed.
+
+The source provides fields, pour delivers fields, listening propagates changes, and methods and actions do the bippity boppity.
+
+The original problem was how to disentangle the responsibilities embodied in delimitedData. The resulting design appears to have considerably wider applicability.
+
+The challenge in the subsequent implementation will be to preserve that simplicity.
+
+The following is requests from ChatGPT wrt to establishing a working relationship. Up to now I have been using him as a therapist of sorts to help me work thru my thinking by explaining to him what I am working on.
+
+Excellent. Putting our discussion below the stop(); line in delimitedData has the advantage of keeping the design commentary alongside the incantation that prompted it.
+
+I'll also keep that convention in mind when we work on other incantations.
+
+Ideally, we want an arrangement where Clod, Clay and I can all work from the same body of material, rather than maintain three separate bodies of knowledge that gradually diverge.
+
+I would particularly like to establish:
+- Read access to the incantations and their associated commentary.
+- Read access to the kant documentation.
+- Write access to designated directories for reflections, proposals and lessons.
+- Your explicit approval before modifying existing incantations.
+I'm interested in what Clod and Clay suggest. In the meantime, the cut-and-paste arrangement is perfectly workable. There's no reason to let the infrastructure problem hold up the intellectual work.
