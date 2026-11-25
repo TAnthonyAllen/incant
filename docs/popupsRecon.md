@@ -136,6 +136,20 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   (above it, moves with it): that part is AppKit's, not reached offscreen, and is stroke 6's to see. `modal` is written
   `modal=1`, as title= is written: a bare word on a form's line is not an attribute unless defined. formsPop windowOwnerT.
 
+- Stroke 5 (SEQ 775, 2026-11-25; on branch popups-attribute, Tony buys): `popup:=aForm` as an attribute. clickFire
+  opens a held form under the name popup as a popup, at the cell that was hit; it ends the climb as an action does, so a
+  click on anything under the field that fires nothing itself opens it. WITH TONY'S TWO OF 2026-11-24: every action a
+  click fires is handed the cell that was hit, not the level that fired; a poured cell carrying a write-back address is
+  selectable even when it shows nothing. THE LINK: popup() reads the hit cell's pour address when it opens and keeps it
+  in its target as names (kind, source, entry, make, why); popupOk writes through it with pourWrite -- the source entry,
+  the text alone, a missing description made and said so -- and a read-only cell says so with its reason; a field in no
+  poured row is written as stroke 3 writes it. Cancel through the link writes nothing. A popup's laid-out copy carries
+  `each`, the member it was opened on (found by name in the row's registry at every layout), so the popup form's own text
+  may say `{each.taG}`, `{each}` and `{aRegistry.each}`. THE CUSTOMER: colorList's clRows carries `popup:=colorWords`; a
+  click in a row shows that colour's name and words, OK closes it. Nothing in colorWords can be picked, so its OK writes
+  nothing: changing the words waits for keys. NOT DECIDED: whether a field carrying popup:= and nothing else is itself
+  selectable (today it is not: pqBox). formsPop popupAttrT, 12 rows, five H7s.
+
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
 | # | stroke | size | proof with nobody watching |
