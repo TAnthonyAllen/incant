@@ -10586,6 +10586,17 @@ _ofeq "listenT LN-5 a listener with an action fires once per write and keeps its
 #  LN-6 a whole write (Tony, 2026-11-12, stroke 4): control, measured before setContent's listenersStay lines: fired= 0 on both writes, and the listener list gone
 _ofeq "listenT LN-6 a whole-list write to a listened-to field fires once with all values arrived, and the listener survives it" "$(grep '^LN whole' "$T/ln.e" | sed 's/.*: //' | tr '\n' ' ' | xargs)" "fired= 1 saw= 600 width= 600 fired= 2 saw= 800 width= 800"
 
+#  assignListenT -- F-170 (Tony, 2026-11-25, SEQ 782): B = A gives B the value of A and never A's listeners. H7: setContent's and copyListFrom's cure out reds AL-1, AL-2, AL-4 and AL-5; AL-3 is the control and stays green.
+_alF=$(ip assignListenT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_alF" > "$T/al.o" 2> "$T/al.e"; _alX=$?
+_ofeq "assignListenT exit status" "$_alX" "0"
+_ofeq "assignListenT sentinel" "$(grep -c '^ASSIGNLISTENT SENTINEL' "$T/al.e")" "1"
+_ofeq "assignListenT AL-1 top level, B = A with A listened to: B's listener fires, A's does not, on the copy and on a later write to B; a write to A fires A's only" "$(grep '^AL top' "$T/al.e" | sed 's/^AL top *//' | tr '\n' ' ' | xargs)" "copy: C fired 1 listener of A fired 0 B= 1 B list 1 then a write to B: C fired 2 listener of A fired 0 B= 6 then a write to A: C fired 2 listener of A fired 1"
+_ofeq "assignListenT AL-2 in an action body, a middleman writing B = A runs once per write and its listener fires each time it changes" "$(grep '^AL body' "$T/al.e" | sed 's/^AL body *//' | tr '\n' ' ' | xargs)" "small: B ran 1 C fired 0 B= 0 copy: B ran 2 C fired 1 C saw 9 B= 9 copy again: B ran 3 C fired 2 C saw 12"
+_ofeq "assignListenT AL-3 control, the middleman writing a computed value" "$(grep '^AL computed' "$T/al.e" | sed 's/^AL computed *//' | tr '\n' ' ' | xargs)" "small: B ran 1 C fired 0 B= 0 big: B ran 2 C fired 1 B= 1"
+_ofeq "assignListenT AL-4 a source holding only its listener list carries no list: the target keeps its own attribute" "$(grep '^AL own attribute' "$T/al.e" | xargs)" "AL own attribute: B= 3 mine= 5 B list 1"
+_ofeq "assignListenT AL-5 a source with an attribute beside its listeners: the attribute arrives, the listener list does not, the target's listener fires" "$(grep '^AL real list' "$T/al.e" | sed 's/^AL real list *//' | tr '\n' ' ' | xargs)" ": B= 4 x= 8 B list 2 C fired 1 then a write to B: C fired 2"
+
 #  ⚑ notifyT -- which writes tell a field's listeners (Tony, 2026-11-12, SEQ 629): arithmetic writes notify, with a re-entry guard.
 #  BEFORE the stroke (measured the same day, same probe): count += *= ++ -- and number += fired 0. H7 for the guard, run on this fixture
 #  alone under an alarm: with updateListeners' two hasListeners lines removed, a listener writing its own notifier recurses until the run dies: exit 139, no re-entry row, no sentinel.

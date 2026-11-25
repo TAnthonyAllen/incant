@@ -64,8 +64,9 @@ Refinements:
   notifier, including a write of the value it already holds. A write to one of the notifier's attributes fires nothing.
 - The middleman works today: B's action ran once per write to A, and C fired only on the writes where B changed its
   own value (B written from a computed value, `mB = mB + 1`).
-- One defect in the way, F-170 (`docs/fixIts.md`): a middleman that writes `B = A`, with A listened to, takes A's
-  listener list in place of its own. C never fires again, and A's listeners then fire on writes to B.
+- F-170 (`docs/fixIts.md`): a middleman that wrote `B = A`, with A listened to, took A's listener list in place of
+  its own. CURED 2026-11-25 (SEQ 782, on branch assign-keeps-listeners until bought): B = A gives B the value of A and
+  nothing else (`incant/pop/assignListenT`). copyOf and copyDeep still carry a field's listeners onto the copy.
 - `incant/grammar`'s IterSource is `UnaryOPS? ANYtoken`: one name, optionally starred, not an expression. So
   `iterate grup on aPour` parses in action bodies and forms, but its action (aCTionIterate) walks a list the source
   already holds; nothing fetches a record on demand. kantGrammar's ITERATe takes an EXPRESSIOn, with the same limit.

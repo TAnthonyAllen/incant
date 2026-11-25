@@ -703,6 +703,10 @@ GroupItem 	*entry = 0;
 	if ( grup->groupBody->groupList )
 		while ( entry = grup->next(entry) )
 			{
+			if ( ::compare(entry->groupBody->tag,"notifyLIST") == 0 )
+				{
+				continue;
+				}
 			if ( entry->groupBody->groupList )
 				fild = new GroupItem(entry);
 			else	fild = entry;
@@ -2304,19 +2308,23 @@ void GroupItem::setContent(GroupItem *item)
 {
 GroupItem 	*listeners = 0;
 int 		listening = 0;
+int 		carried = 0;
 	if ( item )
 		{
+		if ( item->groupBody->groupList )
+			if ( item->groupBody->groupList->listLength > 1 || !item->getAttribute("notifyLIST") )
+				carried = 1;
 		if ( groupBody != item->groupBody )
 			if ( !item->contents() )
 				setText(item->groupBody->tag);
 			else {
 				// listenersStay a field that is listened to and takes a whole list (a frame's four values in one write) keeps its listener list, which the list copy would replace, and tells its listeners once, after everything has arrived (Tony, 2026-11-12, stroke 4)
-				if ( item->groupBody->groupList && groupBody->flags.hasListeners )
+				if ( carried && groupBody->flags.hasListeners )
 					{
 					listening = 1;
 					listeners = takeListeners();
 					}
-				if ( item->groupBody->groupList )
+				if ( carried )
 					copyListFrom(item);
 				if ( isGROUP(item->groupBody->flags.data) )
 					setGroup(item->groupBody->gGroup);
