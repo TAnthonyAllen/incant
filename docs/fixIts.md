@@ -92,14 +92,16 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-170 — OPEN, docketed 2026-11-25 (SEQ 781; found by a read-only check in Clay's dispatch, not ruled) — assignCarriesListeners: `B = A`, with A listened to, puts A's listener list on B in place of B's own
+### F-170 — CURED ON BRANCH assign-keeps-listeners 2026-11-25 (SEQ 782, seal 549; ruled by Tony the same day: B = A gives B the value of A and nothing else), the buy Tony's; docketed SEQ 781 — assignCarriesListeners: `B = A`, with A listened to, puts A's listener list on B in place of B's own
 
 **What:** (kant) assigning a listened-to field to another field copies the notifier's listener list along with the value. B's own listeners are gone and A's listeners now hang on B too.
 **Where:** GroupItem.twk `setContent`: `copyListFrom(item)` copies item's whole list, and the listener list (notifyLIST) is an attribute on it. Read, not proven by a control: the mechanism is inferred from the symptom below.
 **Evidence:** measured 2026-11-25, scratch probes since deleted. pA listened to by pL, pB listened to by pC. `pB = 4;` -> pC fired. `pB = pA;` -> pC did not fire, pL fired, pB's list length went 1 -> 2. `pB = 6;` -> pC did not fire, pL fired again. In a chain, B's action `if mA > 5; mB = mA;` ran twice for one write to A and C never fired; the same action written `mB = mB + 1;` ran once per write and C fired each time B changed.
 **Done when:** a field assigned from a listened-to field keeps its own listeners and gains none; a row beside `incant/pop/listenT` pins it, with its H7. The source / pour middleman (docs/sourcePourRecon.md, Extensions) will write `B = A` as its ordinary move.
 **Owner:** not assigned; Tony or Clay rules whether it is a stroke. **Size:** not measured.
-**Attempt log:** none.
+**Attempt log:** SEQ 782, measure: a dump of B after `B = A` shows two notifyLIST attributes, the source's ahead of B's own -> cause confirmed; a source with an attribute and no listeners leaves B's listeners firing (the control).
+SEQ 782, build: copyListFrom skips notifyLIST; setContent copies a list only when the source has an entry besides its listener list -> C fires, A's listeners do not, B's own attributes stay. Certified by pop.sh's seven assignListenT rows (AL-1 to AL-5); H7, the cure out: AL-1, AL-2, AL-4, AL-5 red, AL-3 green.
+SEQ 782, read only, not changed: copyOf and copyDeep carry the listener list and the hasListeners flag onto the copy (a write to the copy fired the original's listener once; the original's value did not move); `hold +/ A` adds A itself, so its listeners are still A's.
 
 ### F-169 — OPEN, docketed 2026-11-24 (SEQ 769, seal 541; Clay's dispatch, ruled by Tony: a docket row and a census at a later session, not a stroke) — stringAssignWipesAttributes: assigning a string expression to a field replaces the field's attributes with the expression's own parts
 
