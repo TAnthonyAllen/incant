@@ -2571,6 +2571,9 @@ GroupItem 	*block = new GroupItem();
 			entry = entry->nextInParent;
 			}
 		}
+	// noListeners as copyOf: the copy of the listener list goes, and every level of the copy passes here
+	if ( grup->groupBody->flags.hasListeners )
+		block->takeListeners();
 	return block;
 }
 
@@ -2594,6 +2597,9 @@ GroupItem 	*block = new GroupItem();
 		block->groupBody->groupList = new GroupList();
 		grup->copyListTo(block);
 		}
+	// noListeners a copy starts with no listeners: they belong to the field, not to its value or its attributes (Tony, 2026-11-25)
+	if ( grup->groupBody->flags.hasListeners )
+		block->takeListeners();
 	return block;
 }
 
