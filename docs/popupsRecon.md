@@ -136,7 +136,7 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   (above it, moves with it): that part is AppKit's, not reached offscreen, and is stroke 6's to see. `modal` is written
   `modal=1`, as title= is written: a bare word on a form's line is not an attribute unless defined. formsPop windowOwnerT.
 
-- Stroke 5 (SEQ 775, 2026-11-25; on branch popups-attribute, Tony buys): `popup:=aForm` as an attribute. clickFire
+- Stroke 5 (SEQ 775, 2026-11-25; bought and merged 2026-11-25): `popup:=aForm` as an attribute. clickFire
   opens a held form under the name popup as a popup, at the cell that was hit; it ends the climb as an action does, so a
   click on anything under the field that fires nothing itself opens it. WITH TONY'S TWO OF 2026-11-24: every action a
   click fires is handed the cell that was hit, not the level that fired; a poured cell carrying a write-back address is
@@ -147,8 +147,13 @@ Strokes 0-6 below are bought as the plan, in that order; none starts until Tony 
   `each`, the member it was opened on (found by name in the row's registry at every layout), so the popup form's own text
   may say `{each.taG}`, `{each}` and `{aRegistry.each}`. THE CUSTOMER: colorList's clRows carries `popup:=colorWords`; a
   click in a row shows that colour's name and words, OK closes it. Nothing in colorWords can be picked, so its OK writes
-  nothing: changing the words waits for keys. NOT DECIDED: whether a field carrying popup:= and nothing else is itself
-  selectable (today it is not: pqBox). formsPop popupAttrT, 12 rows, five H7s.
+  nothing: changing the words waits for keys. formsPop popupAttrT, 12 rows, five H7s.
+- The follow-up (SEQ 776, 2026-11-25; on branch popups-selectable, Tony buys; his two rulings of 2026-11-25): a field
+  carrying only popup:= is selectable (selWhy popup); an entry of sTYLEs holding nothing (each, contrast, any
+  placeholder) is read-only in a pour and refused by pourWrite by name -- virtual in Controls/styles, resolved when
+  drawn, nothing stores it. Told by what the entry is, not by the virtual flag: the flag reads 0 on every loaded styles
+  entry, and isVirtuaL has no read arm in opDot (both measured, with the arm added for the measurement and taken out).
+  popupAttrT Q-6 re-pinned, Q-8 the negative control; pourWriteT W-9 new; pourAddressT A-12 back to 0. Two H7s.
 
 ## 4. Strokes, smallest first (RULED as the plan, Tony 2026-11-23)
 
