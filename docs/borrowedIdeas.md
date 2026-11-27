@@ -8,6 +8,15 @@ goal: take the best computational ideas of Forth, Self, Smalltalk, Scheme, Prolo
 write-up with ChatGPT listed thirteen languages; Clod's reading is that Tony's six cover the ground, and that the
 agenda is better kept by missing primitive than by language. The parking line is `Topics/features` item 41.
 
+## Tony's steal list (2026-11-27): DIRECTION, not ruled, not built
+
+- **APL:** `+ - * /` and `+= -= *= /=` work on whole matrices; an interpreted arm AND a jitter arm (he agreed to both).
+- **Messages:** merge listening and messaging, as the first step toward object-oriented kant; extend later or not.
+- **Prolog:** only the matching: rules applied to fields instead of input text; no general inference machine.
+- **Forth:** features item 40 stands.
+
+What each would involve is measured in `docs/borrowedIdeasRecon.md` (SEQ 797, read-only).
+
 ## The four missing primitives
 
 | missing primitive | why it is missing today | what it would unlock | already on the list as |
