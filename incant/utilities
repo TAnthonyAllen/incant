@@ -2175,10 +2175,10 @@ define
             imageReq.fit = 0;
             displayImage(imageReq);
         };
-    drawFill code={
+    drawFill newRoad code={
         if argument["fill"];    displayFill(argument);
         };
-    drawBorder code={
+    drawBorder newRoad code={
         if argument["border"];          displayBorder(argument);
         or argument["topBorder"];       displayBorder(argument);
         or argument["bottomBorder"];    displayBorder(argument);

@@ -671,6 +671,8 @@ define
         return  *actionLabel;
         };
     ;
+/*  loadedFiles  kantGrammar joins the loaded files the bootstrap show (incant/setup) reads, so show loads it once: utilities carries newRoad-marked bodies (full monty step 3) -- marked here with no action call, as utilities and styles are  */
+loadedFiles +% new("kantGrammar");
 bail();
 
 /***************************************************************************

@@ -391,6 +391,7 @@ define
     stashList File='incant/stashList';
     showStageFile File='incant/showStage';
     showFinishFile File='incant/showFinish';
+    kantGrammar File='incant/kantGrammar';
     ;
 include(stash);
 include(grammar);
@@ -410,7 +411,7 @@ define
         paths ".";
         forShow
             searchNames "FORMs" "Utilities" "cOLOr" "fONTs" "sTYLEs";
-            fileNames "styles" "utilities" "unitTests";
+            fileNames "styles" "utilities" "unitTests" "kantGrammar";
             stageNames "cOLOr" "fONTs" "sTYLEs";
     ;
 define
