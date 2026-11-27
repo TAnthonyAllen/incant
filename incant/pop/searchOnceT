@@ -1,0 +1,46 @@
+Start();
+register(SoT);
+define
+    soRq form="firstLight";
+    soWalk code={
+        for grup in argument;
+            sn = string $*grup.taG$; sa := *grup.isAttributE;
+            cerr "ENTRY" sn sa:;
+        };
+    soList code={
+        k := searchSave(0);
+        soWalk(*k);
+        };
+    ;
+show(soRq);
+search SoT;
+showStage();
+showSearch();
+cerr "SO PAGE 1":;   soList();
+search cOLOr;
+cerr "SO PAGE 2":;   soList();
+search Utilities dESCRIPTIONs SoT;
+cerr "SO PAGE 3":;   soList();
+search reset Grokking SoT sTYLEs cOLOr;
+cerr "SO PAGE 4":;   soList();
+search sTYLEs fONTs;
+cerr "SO PAGE 5":;   soList();
+cerr "SO SENTINEL":;
+stop();
+
+searchOnceT -- a registry already on the search list keeps its place (Tony, 2026-11-27; SEQ 790).
+
+What it asks. The search list's order is its meaning: the first registry holding a name answers. Before this
+stroke, show's stage step and its search step each appended their registries, and a plain search appended a
+registry that was already there, so the list carried repeats (cOLOr fONTs sTYLEs twice during every show).
+Now show adds its registries as members, and both show and search skip a registry already on the list: no
+second entry, and the first one does not move. Changing the order is done by search reset and naming everything.
+
+The pages. Each prints the list as ENTRY name affiliation, one line per entry (affiliation 0 is a member).
+    1   after show, search SoT, then show's own two steps called by name (showStage, showSearch): show puts
+        the list back when it ends, so its steps are called here to leave their adds on the list.
+    2   search cOLOr, already there: the list is page 1's.
+    3   search Utilities dESCRIPTIONs SoT: two already there and one new. Only the new one is added, at the end.
+        This is the row that fails if search stopped adding anything at all.
+    4   search reset, then four names: exactly those four, in that order.
+    5   after the reset, search sTYLEs fONTs: sTYLEs stays where it was, fONTs is added at the end.

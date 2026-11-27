@@ -1493,6 +1493,32 @@ _ofeq "envT EN-5 a request naming only form:= keeps every default: drawn with no
 _ofeq "envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted)" "$(_enb again | awk '/^loaded/{print $2}' | sort | xargs)" "styles unitTests utilities"
 _ofeq "envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path" "$(_enb root | awk '/^showPath/{print $2}' | xargs)" "elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf"
 
+echo "-- the search list holds each registry once (searchOnceT, cheatShow)."
+#  ⚑ searchOnceT -- SEQ 790 (Tony, 2026-11-27): the search list's order is its meaning, so show adds its registries as MEMBERS, and show and
+#  the plain search command both SKIP a registry already on the list: no second entry, no move. The order changes only by search reset and
+#  naming everything. Before, show's stage and search steps each appended (cOLOr fONTs sTYLEs twice during every show) and a repeated
+#  search appended again. Every draw writes output.pdf, Tony's, set aside here and put back.
+#  H7 (run SEQ 790, each half alone on the committed fix): without aCTionSearch's onList check SO-2, SO-3 and SO-5 go red (repeats);
+#  with showAddRegs back to the plain +% SO-1 goes red (cOLOr fONTs sTYLEs twice). No row tells +/ from +% once the skip is there: putting the list back makes every entry a member either way.
+_soF=$(ip searchOnceT)
+_soOut=IncantForms/PDF/output.pdf
+rm -f "$T/so.keep"; [ -f "$_soOut" ] && mv "$_soOut" "$T/so.keep"
+perl -e 'alarm 60; exec @ARGV' "$B" "$_soF" > "$T/so.o" 2> "$T/so.e"; _sox=$?
+_sop () { awk -v pg="$1" '/^SO PAGE/{b=$3; next} b==pg && /^ENTRY/{print $2":"$3}' "$T/so.e" | xargs; }
+_ofeq "searchOnceT exit / sentinel" "$_sox $(grep -c '^SO SENTINEL' "$T/so.e")" "0 1"
+_ofeq "searchOnceT SO-1 after show's stage and search steps: each registry once, first-added order, every entry a member (:0)" "$(_sop 1)" "Grokking:0 SoT:0 cOLOr:0 fONTs:0 sTYLEs:0 FORMs:0 Utilities:0"
+_ofeq "searchOnceT SO-2 search cOLOr, already there: no second entry, no move" "$(_sop 2)" "Grokking:0 SoT:0 cOLOr:0 fONTs:0 sTYLEs:0 FORMs:0 Utilities:0"
+_ofeq "searchOnceT SO-3 two already there and one new: only the new one is added, at the end (search still adds)" "$(_sop 3)" "Grokking:0 SoT:0 cOLOr:0 fONTs:0 sTYLEs:0 FORMs:0 Utilities:0 dESCRIPTIONs:0"
+_ofeq "searchOnceT SO-4 search reset then four names: exactly those four, in that order" "$(_sop 4)" "Grokking:0 SoT:0 sTYLEs:0 cOLOr:0"
+_ofeq "searchOnceT SO-5 after the reset, sTYLEs keeps its place and fONTs is added" "$(_sop 5)" "Grokking:0 SoT:0 sTYLEs:0 cOLOr:0 fONTs:0"
+#  cheatShow (IncantForms/WorkingOn/cheatShow) puts CheaT ahead of Utilities before the first show, so its own copies answer first. No row
+#  pinned its hits before SEQ 790; the count is the cheat copies reached, and 0 means the run measured utilities.
+perl -e 'alarm 120; exec @ARGV' "$B" IncantForms/WorkingOn/cheatShow > "$T/cs.o" 2> "$T/cs.e"; _csx=$?
+rm -f "$_soOut"; [ -f "$T/so.keep" ] && mv "$T/so.keep" "$_soOut"
+_ofeq "cheatShow exit / sentinel" "$_csx $(cat "$T/cs.o" "$T/cs.e" | grep -c '^CHEAT SENTINEL')" "0 1"
+_ofeq "cheatShow CHEAT hits: CheaT stays ahead of Utilities, its nine copies answer" "$(cat "$T/cs.o" "$T/cs.e" | awk '/^CHEAT hits/{print $3}')" "9"
+_ofeq "cheatShow the search list under show: each registry once, CheaT ahead of Utilities" "$(cat "$T/cs.o" "$T/cs.e" | grep '^Search list:' | tail -1 | sed 's/ *$//')" "Search list: Grokking CheaT Utilities cOLOr fONTs sTYLEs dESCRIPTIONs"
+
 #  missingFixtureFoot every fixture a row ran must have existed
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

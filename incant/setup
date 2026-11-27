@@ -541,7 +541,11 @@ define
             arN = string $*grup$;
             arOk = 0;
             if registries[arN];     arOk = 1;
-            if arOk == 1;           *showSearchKeep +% registries[arN];
+            // onceAsMember a registry goes on the list as a member, and one already there keeps its place (Tony, 2026-11-27)
+            arAdd = 0;
+            if arOk == 1;           arAdd = 1;
+            if *showSearchKeep[arN];    arAdd = 0;
+            if arAdd == 1;          *showSearchKeep +/ registries[arN];
             if arOk == 0;           cerr "REFUSED show -- its search list names" arN "-- not a registry; nothing drawn":;
             if arOk == 0;           swBad = 1;
         };
