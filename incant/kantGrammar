@@ -493,6 +493,17 @@ define
                     opnd := *cur;
                     if pfIs == 1;   opnd := *postI;
                     pp := *cur.prioR;
+                    // starBindsName a star binds to the NAME before a subscript, as on the old road: *h["x"] is (*h)["x"], and **k["x"] is (**k)["x"]. INVOKEr has already folded the subscript, so the stars nearest it wrap its base and the subscript is put back round them; any other prefix wraps the whole (newroad-star-subscript; without this the star was handed the subscript's nothing and the run ended at exit 139)
+                    sbGo = 0;
+                    if pfIs == 0;
+                        if *cur.taG == "instruct";
+                            sbHead := *cur[1];
+                            if *sbHead.taG == "=[";
+                                if *pp.taG == "*";  sbGo = 1;
+                    if sbGo == 1;
+                        sbOp := Operators["=["];
+                        sbArg := *cur[3];
+                        opnd := *cur[2];
                     while npre > 0;
                         pOp = pp;
                         // arrowNoTarget a <- in a prefix position has no target: refused by name, the old road's wording, and the statement does nothing (SEQ 596 R0); without this the <- was dropped and its operand used
@@ -509,6 +520,15 @@ define
                             refusalSaid = 1;
                             clear(*actionLabel);
                             return *actionLabel;
+                        sbPut = 0;
+                        if sbGo == 1;
+                            if *pOp.taG != "deref";     sbPut = 1;
+                        if sbPut == 1;
+                            instruct    +% sbOp opnd sbArg;
+                            instruct.methoD = "testOP";
+                            opnd        := copyOf(instruct);
+                            clear(instruct);
+                            sbGo = 0;
                         instruct    +% pOp opnd;
                         // an instruct is known by its method: testOP runs it (SEQ 428)
                         instruct.methoD = "testOP";
@@ -517,6 +537,12 @@ define
                         clear(pOp);
                         pp := *pp.prioR;
                         npre = npre - 1;
+                    if sbGo == 1;
+                        instruct    +% sbOp opnd sbArg;
+                        instruct.methoD = "testOP";
+                        opnd        := copyOf(instruct);
+                        clear(instruct);
+                        sbGo = 0;
                     clear(pre);
                     wrapped = 1;
                 else    opnd = cur;

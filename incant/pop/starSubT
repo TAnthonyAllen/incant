@@ -1,0 +1,91 @@
+Start();
+include(utilities);
+registry(fILEs);
+define
+    kantGrammar File='incant/kantGrammar';
+    ;
+include(kantGrammar);
+registry(StarSubT);
+define
+    ssF name="cd" size=7;
+    ssReadOld code={
+        ssH := argument;
+        ssV := *ssH["name"];
+        cerr "SS-1" ssV:;
+        ssN := *ssH["size"];
+        ssM = *ssN + 1;
+        cerr "SS-1n" ssM:;
+        };
+    ssReadNew newRoad code={
+        ssH := argument;
+        ssV := *ssH["name"];
+        cerr "SS-1" ssV:;
+        ssN := *ssH["size"];
+        ssM = *ssN + 1;
+        cerr "SS-1n" ssM:;
+        };
+    ssIfOld code={
+        ssH := argument;
+        if *ssH["name"];    cerr "SS-2 present":;
+        if *ssH["nope"];    cerr "SS-2 WRONG":;
+        cerr "SS-2 done":;
+        };
+    ssIfNew newRoad code={
+        ssH := argument;
+        if *ssH["name"];    cerr "SS-2 present":;
+        if *ssH["nope"];    cerr "SS-2 WRONG":;
+        cerr "SS-2 done":;
+        };
+    ssTwoOld code={
+        ssH := argument;
+        ssK := ssH;
+        ssV := **ssK["name"];
+        cerr "SS-3" ssV:;
+        };
+    ssTwoNew newRoad code={
+        ssH := argument;
+        ssK := ssH;
+        ssV := **ssK["name"];
+        cerr "SS-3" ssV:;
+        };
+    ssMissOld code={
+        ssH := argument;
+        ssV := *ssH["nope"];
+        cerr "SS-4 after":;
+        cerr "SS-4" ssV:;
+        };
+    ssMissNew newRoad code={
+        ssH := argument;
+        ssV := *ssH["nope"];
+        cerr "SS-4 after":;
+        cerr "SS-4" ssV:;
+        };
+    ;
+search Utilities StarSubT;
+cerr "SS OLD":;
+ssReadOld(ssF);
+ssIfOld(ssF);
+ssTwoOld(ssF);
+ssMissOld(ssF);
+cerr "SS NEW":;
+ssReadNew(ssF);
+ssIfNew(ssF);
+ssTwoNew(ssF);
+ssMissNew(ssF);
+cerr "STARSUB SENTINEL":;
+stop();
+
+starSubT -- a star and then a subscript on a held field, on both roads (full monty step 3, GO 4 item 1; 2026-11-27).
+
+What it asks. *h["name"] is (*h)["name"]: the star binds to the name, then the subscript applies. The old road has
+always read it so. On kantGrammar the subscript was folded first and the star handed its nothing, and the run ended
+at exit 139 with no message (fixit newRoadLabelSubscriptCrash; what stopped drawImage). Now the stars nearest a
+subscript wrap its base (kantGrammar, EXPRESSIOn's action, starBindsName).
+
+The rows. Each action has an old-road twin and a newRoad twin with the same body; the two blocks must read the same.
+    SS-1    v := *h["name"] reads cd; SS-1n the number beside it, plus one, reads 8 (a value the default cannot give).
+    SS-2    the read as an if condition: present for a name the field has; nothing for one it lacks.
+    SS-3    through two holders: **k["name"] reads cd.
+    SS-4    a name the held field lacks: the capture holds nothing and the action goes on (prints its own tag).
+            The old road does not refuse here, so the new road does not either: the row is that the two agree.
+The H7. With starBindsName taken out the run ends at exit 139 after SS NEW, with no sentinel.
