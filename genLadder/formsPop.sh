@@ -1499,7 +1499,7 @@ echo "-- the search list holds each registry once (searchOnceT, cheatShow)."
 #  naming everything. Before, show's stage and search steps each appended (cOLOr fONTs sTYLEs twice during every show) and a repeated
 #  search appended again. Every draw writes output.pdf, Tony's, set aside here and put back.
 #  H7 (run SEQ 790, each half alone on the committed fix): without aCTionSearch's onList check SO-2, SO-3 and SO-5 go red (repeats);
-#  with showAddRegs back to the plain +% SO-1 goes red (repeats, entries marked attribute).
+#  with showAddRegs back to the plain +% SO-1 goes red (cOLOr fONTs sTYLEs twice). No row tells +/ from +% once the skip is there: putting the list back makes every entry a member either way.
 _soF=$(ip searchOnceT)
 _soOut=IncantForms/PDF/output.pdf
 rm -f "$T/so.keep"; [ -f "$_soOut" ] && mv "$_soOut" "$T/so.keep"

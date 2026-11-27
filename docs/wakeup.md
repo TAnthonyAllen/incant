@@ -5,6 +5,7 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
+**552, 2026-11-27, topic: kant, SEQ 790 (assigned by Clod), on branch search-no-duplicate, NOT BOUGHT.** The search list holds each registry once: show adds its registries as members, and show and the plain search command skip one already on the list (no second entry, no move). formsPop 499 -> 508 green (searchOnceT, cheatShow's hits); nothing else moved. Earlier the same day, read-only: SEQ 786 (cleanupList checked; two recons) and SEQ 787 (the counting pass, branch count-late-attrs, throwaway). Stroke B (late attributes before the first member) follows the buy. Trunk is still at seal 551, below.
 **551, 2026-11-25, topic: kant, SEQ 784 (assigned by Clod), SHUTDOWN.** Listeners belong to the field, two strokes bought and merged the same day: B = A gives B the value of A and never A's listeners (F-170, seal 549; incant/pop/assignListenT), and copyOf and copyDeep give the copy no listeners while copyOf still shares attributes (seal 550; incant/pop/copyListenT). The binary is rebuilt from trunk. Fixit plusSlashNothingCrash filed (Clod's lane). SEQ 781 (forms, docs only): the source / pour extensions banked in docs/sourcePourRecon.md, from Tony's offline discussion with ChatGPT (its full text is below the stop() in IncantForms/WorkingOn/delimitedData, which lost its #end line); AGENTS.md is a short pointer to CLAUDE.md: ChatGPT / Codex reads and proposes, and never edits. incant++ was saved over twice today by Xcode; it is closed there now. Seal 548 before these: held-field-end bought, and seals 545-547, the popups campaign sealed.
 **OPEN (Tony):** two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete; Topics/forms' budget (7 over); tester holds the watched run (the reopen test is parked below its stop); carried from 482, whether an indented `define` should work.
 **FOR CLAY TO DECIDE (Tony, 2026-11-24, after seal 544):** should kant warn, by itself, when a body mints a new name one keystroke from a known one? Kant does not refuse a misspelled name: `$$currrentField` beside `currentField` became a fresh empty local, ran clean, and read as `:=` having failed. `genLadder/nameLint.py <incantation>` finds these today (a letter doubled, dropped, added, changed, or two swapped) but must be run by hand. The automatic version is one check where an action body mints an undeclared local, printing one warning line, so it runs in Xcode too. Tony expects to want it unless it is expensive. NOT MEASURED: how many existing incantations would trip it (fleet rows that compare captured output could move), and what it costs per mint. NOT BUILT; a read-only count comes first if Clay says go.
@@ -18,7 +19,7 @@ and any number that moved. One seal sequence and one SEQ sequence across topics,
 |---|---|
 | `genLadder/pop.sh` | exit 1, 4255 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
-| `genLadder/formsPop.sh` | 499 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
+| `genLadder/formsPop.sh` | 499 green on trunk, 508 on search-no-duplicate (seal 552), F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
@@ -38,9 +39,9 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 55 / 60 | this page. |
+| `docs/wakeup.md` | 56 / 60 | this page. |
 | `Topics/forms` | 287 / 280, OVER by 7 (the next forms session opens with the trim) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 200 / 200 (trimmed at seal 549) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/kant` | 201 / 200, OVER by 1 (the next kant session opens with the trim) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 120 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 118 / 120 | sub-topic of forms until forms step 7. |

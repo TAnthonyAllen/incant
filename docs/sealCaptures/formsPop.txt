@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2286320 bytes  Nov 25 12:08
+  bin   2286320 bytes  Nov 27 09:30
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -576,5 +576,15 @@
   ok    envT EN-5 a request naming only form:= keeps every default: drawn with nothing to load = [to IncantForms/PDF/output.pdf|]
   ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
+-- the search list holds each registry once (searchOnceT, cheatShow).
+  ok    searchOnceT exit / sentinel = [0 1]
+  ok    searchOnceT SO-1 after show's stage and search steps: each registry once, first-added order, every entry a member (:0) = [Grokking:0 SoT:0 cOLOr:0 fONTs:0 sTYLEs:0 FORMs:0 Utilities:0]
+  ok    searchOnceT SO-2 search cOLOr, already there: no second entry, no move = [Grokking:0 SoT:0 cOLOr:0 fONTs:0 sTYLEs:0 FORMs:0 Utilities:0]
+  ok    searchOnceT SO-3 two already there and one new: only the new one is added, at the end (search still adds) = [Grokking:0 SoT:0 cOLOr:0 fONTs:0 sTYLEs:0 FORMs:0 Utilities:0 dESCRIPTIONs:0]
+  ok    searchOnceT SO-4 search reset then four names: exactly those four, in that order = [Grokking:0 SoT:0 sTYLEs:0 cOLOr:0]
+  ok    searchOnceT SO-5 after the reset, sTYLEs keeps its place and fONTs is added = [Grokking:0 SoT:0 sTYLEs:0 cOLOr:0 fONTs:0]
+  ok    cheatShow exit / sentinel = [0 1]
+  ok    cheatShow CHEAT hits: CheaT stays ahead of Utilities, its nine copies answer = [9]
+  ok    cheatShow the search list under show: each registry once, CheaT ahead of Utilities = [Search list: Grokking CheaT Utilities cOLOr fONTs sTYLEs dESCRIPTIONs]
 
-FORMS POP FAILED -- 499 green, see above
+FORMS POP FAILED -- 508 green, see above
