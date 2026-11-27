@@ -1,0 +1,78 @@
+Start();
+registry(LaR);
+define
+    laF one=1 two=2
+        m1;
+    laBare;
+    laOnly one=1;
+    laLate=9;
+    laLate2=8;
+    laMem;
+    ;
+define
+    laAll code={
+        for grup in argument;
+            ft := *grup.taG; fa := *grup.isAttributE; cerr "ALL" ft fa:;
+        };
+    laAttrs code={
+        for grup in argument; attributes
+            ft := *grup.taG; cerr "ATTRS" ft:;
+        };
+    laMems code={
+        for grup in argument; members
+            ft := *grup.taG; cerr "MEMBERS" ft:;
+        };
+    laIter code={
+        iterate grup on argument;
+        while ++grup;
+            ft := *grup.taG; cerr "ITERATE" ft:;
+        };
+    laGo code={
+        xf := LaR["laF"];
+        xl := LaR["laLate"];
+        xl2 := LaR["laLate2"];
+        xm := LaR["laMem"];
+        cerr "LA PAGE 1":;      laAll(*xf);
+        *xf +% *xl;
+        cerr "LA PAGE 2":;      laAll(*xf);
+        cerr "LA PAGE 3":;      laIter(*xf);
+        cerr "LA PAGE 4":;      laAttrs(*xf);   laMems(*xf);
+        n3 := *xf[3]; t3 := *n3.taG;
+        n4 := *xf[4]; t4 := *n4.taG;
+        cerr "LA PAGE 5":;      cerr "POS" t3 t4:;
+        *xf +/ *xm;
+        *xf +% *xl2;
+        cerr "LA PAGE 6":;      laAll(*xf);
+        xo := LaR["laOnly"];
+        *xo +% *xl;
+        *xo +/ *xm;
+        cerr "LA PAGE 7":;      laAll(*xo);
+        xb := LaR["laBare"];
+        *xb +/ *xm;
+        *xb +% *xl;
+        *xb +% *xl2;
+        cerr "LA PAGE 8":;      laAll(*xb);
+        };
+    ;
+laGo();
+cerr "LA SENTINEL":;
+stop();
+
+lateAttrT -- an attribute added after the members goes before the first member (Tony, 2026-11-27; SEQ 791).
+
+What it asks. A definition writes attributes first, then members, and both sit on one chain. Before this
+stroke an attribute added later (by +%) went to the end of that chain, after the members: one, two, m1,
+laLate. Now it goes at the end of the attributes, before the first member: one, two, laLate, m1. A sorted
+or stacked list keeps its own order, and the search list holds members only (seal 552).
+
+The pages. ALL prints name and affiliation (1 attribute, 0 member) in chain order.
+    1   laF as defined: one two m1. The control: the definition's own order is untouched.
+    2   after +% laLate: one two laLate m1.
+    3   iterate shows the same chain order as the plain for of page 2.
+    4   for ... attributes and for ... members: one two laLate, and m1. Unchanged by the stroke (they filter).
+    5   position reads: [3] is laLate and [4] is m1 (before the stroke [3] was m1).
+    6   then +/ laMem and +% laLate2: one two laLate laLate2 m1 laMem. A second late attribute goes after
+        the first, and a member added later still goes last.
+    7   a field with no member: the attribute is added at the end as always, and the member after it.
+    8   a field with no attribute and one member: both late attributes land before the member, in the
+        order added.

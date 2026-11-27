@@ -97,6 +97,8 @@ GroupItem addAttribute(GroupItem grup)
     grup                = addGroup(grup);
     grup.isAttribute	= true;
     hasAttributes       = true;
+    // lateBeforeMembers an attribute added after the members goes at the end of the attributes, before the first member (Tony, 2026-11-27); a sorted or stacked list keeps its own order
+    if hasMembers && !isSorted && !actionType   placeBeforeMembers(grup);
     /***************************************************************
         hasTraits is set if the field passed in is not noPrint-class.
     ***************************************************************/
@@ -1435,6 +1437,27 @@ GroupItem parseHolder()
 GroupItem   carrier = getProperty("builtinParseR");
     if carrier && carrier.getProperty("CodE")   return carrier;
     return this;
+}
+
+/***************************************************************************
+                                placeBeforeMembers
+    Move the attribute just added, which addGroup put last, to sit before
+    the first member. Does nothing when there is no member, when the entry
+    is not the last in this list, or when the list is stacked.
+***************************************************************************/
+void placeBeforeMembers(GroupItem grup)
+{
+GroupItem   member,
+            before;
+    if !grup || this.lastInList != grup || this.stakked     return;
+    member  = this.nextMember(0);
+    before  = grup.priorInParent;
+    if !member || member == grup || !before     return;
+    before.nextInParent = null;
+    this.lastInList     = before;
+    grup.priorInParent  = null;
+    grup.nextInParent   = null;
+    member.prepend(grup);
 }
 
 /***************************************************************************
