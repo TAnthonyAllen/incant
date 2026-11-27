@@ -82,6 +82,9 @@ Refinements:
 - The default action when no attribute matches the receiving field's tag.
 - A field held without a name (a copy in a holder) cannot be listened to, because listenTo takes only a defined
   name. This is new-road middleman work (Tony, 2026-11-25).
+- Does a pour promise an order? (docs/borrowedIdeas.md, 2026-11-27: APL leaves the order to the engine.)
+- Can a source yield on demand, one record when asked, instead of all at once?
+- Are reduce and scan pours?
 
 ## Where things are
 `IncantForms/WorkingOn/delimitedData` (Tony's, working: two records of four named fields from `Tests/delimitTest`,

@@ -15,9 +15,7 @@ One line per item: the idea, then where it is written down and its date. Tony ru
 7. Multi-processing and a web channel -- possibly one shape: processes exchanging fields as messages, dispatch() as the sender. (docs/webchannelAttack.md, docs/webchannel-step0-recon.md, 2026-07-02)
 8. EXPRESSIOn as operators: each Operators entry becomes a grammar rule whose operands are expressions, so the grammar that parses expressions is built from the operators it parses. Tiers become nested repetition (a sum is a product, then any number of + product) -- never left recursion, which a top-down parse loops on. SEQ 578's recon: an infix-only EXPRESSIOn keeps about two-thirds of today's shape; prefix runs leave. The natural next campaign once the control rules are done. (docs/ruleAsOperator.md, 2026-11-09)
 
-## Harvested from the md files and the notes (SEQ 612, 2026-11-11)
-
-Found by a marker search and by reading the files nothing cites; not a line-by-line read of every file. Each was never scheduled or ruled, and is not in the list above.
+## Harvested from the md files and the notes (SEQ 612, 2026-11-11; by a marker search and the files nothing cites, not a line-by-line read; none was scheduled or ruled)
 
 9. A local, editable wiki for the documentation, served by the web channel's first step. (docs/wiki-recon.md, 2026-06-30)
 10. Claude as a field: isCLAUDE beside isSTRING and isGROUP -- the AI is a field in kant, not a tool called from it. (projectBible.md (retired 2026-11-11, git 2144dde6), "Claude is a GroupItem"; docs/vision-recon-inventory.md (retired 2026-11-11, git 2144dde6), 2026-06-28)
@@ -74,6 +72,7 @@ Found by a marker search and by reading the files nothing cites; not a line-by-l
 39. `keep`, a cheap finally (Tony, 2026-11-23, via Clay; a RECON ITEM, nothing built; Tony likes it, even if the JIT half costs more). `keep lookFont, lookColor` at the top of an action body: the engine puts those fields back when the action leaves, however it leaves (a return, or a refusal unwinding); no user code runs in the unwind. Likely hook: the exit that already restores locals (saveLocalFields).
     RECON FIRST, read only: does a refusal leave an action through the same exit as a return, on each road; does the JIT road restore locals the same way (the costly half); does it run on stop() and bail(). Until then the standing cure: set or clear on entry, never restore on exit (formNestT NF-5, SEQ 764).
 40. A tiny stack language, like Forth, as a template for task-specific little languages (Tony, 2026-11-26, SEQ 785 notion 2): small and efficient, perhaps embedded, not general purpose; a web channel language is the first example (items 7, 11). Incant already holds several little languages (kant, drawing, forms). The natural test after the full monty. Nothing built.
+41. Borrowed ideas (Tony, 2026-11-27, SEQ 793): steal the best of Forth, Self, Smalltalk, Scheme, Prolog and APL, kept as four missing primitives (a frame that outlives its call, undo on failure, aggregates as operands, declared effects). Long term; every claim unchecked against the tree. (docs/borrowedIdeas.md)
 
 ## Not harvested, and why
 

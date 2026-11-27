@@ -3295,6 +3295,18 @@ decision it asks of Tony, in one sentence.
   ⚠⚠ **A DISPATCH IS A RULING ONLY WHEN TONY FORWARDS IT (standing, 2026-11-08).** Anything parked in incant++ is a
   DRAFT: Tony may revise it after Clod's report, and Clod will not see the revision. Clod reads incant++ but never acts on
   a draft found there, and never moves, removes or copies anything out of it; only Tony changes it.
+  ⚠⚠ **AMENDED FOR TWO SECTIONS: INCANT++ IS THE WALKIE-TALKIE BETWEEN CLAY AND CLOD (Tony, ruled 2026-11-27, SEQ 793).**
+  One writer per section; edit in place, and read the file again just before writing (Dropbox, three writers).
+  - **"Go orders" (Clay writes): an order there IS a go.** When Clod finishes one, he erases it and puts his report in
+    "Clod response", newest first, one plain line first as always.
+  - **"Clod response": Clod writes.** Reports go there, not only in chat.
+  - **"Instructions parked": unchanged.** Nothing there starts until Tony sends it in chat.
+  - **"Rulings pending for Tony" (Clay writes): Clod never writes there.** Anything that needs a ruling, Clod says so in
+    his report and stops that task.
+  - **"Offline Status" and everything below "Clod response" are Tony's: hands off.**
+  - **Without Tony: only read-only work and branch builds, inside the order he set.** No merge to trunk, no buy, no
+    reorder, no pick between options.
+  - When a task ends, Clod checks "Go orders".
 - **`IncantForms/WorkingOn/macros`: Clod changes it too (Tony, 2026-10-29: "you can change macros and probably better you do
   it than me").** It is the shared plan Tony and Clay revise; Clod keeps it current and commits it, saying what changed.
 - **Everything else of Tony's (utilities, unitTests, printFamily and the rest): changed as a stroke needs, named in the
