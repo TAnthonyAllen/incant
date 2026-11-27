@@ -3449,5 +3449,8 @@ include(parser);
     straight after include(utilities) rely on it being Utilities  */
 include(forms);
 register(Utilities);
+/*  needsKantGrammar  utilities carries newRoad-marked bodies (full monty step 3), and a marked body is read on kantGrammar wherever utilities draws, under show or not; kantGrammar guards itself, so a file that includes it again loads nothing  */
+include(kantGrammar);
+register(Utilities);
 /*  loadedFiles  utilities joins the loaded files the bootstrap show (incant/setup) reads (SEQ 687; one list, SEQ 724) -- marked here with no action call: one writer, and a call at a foot primes lastREF (SEQ 726)  */
 loadedFiles +% new("utilities");

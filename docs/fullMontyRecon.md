@@ -91,3 +91,23 @@ The step 2 census re-run on the same 22 bodies, one process each through `compil
 refused by name ("REFUSED FOr a trailing attributes / members"): resolveLook 1, mergeStyles 2, drawKids 1, frameMembers 3,
 fillDownAcross 2, tsBoxWarn 1 -- **10 statements, 7 members and 3 attributes.** frameMembers' three were not in the step 2
 count above because its whole body failed then (=: scope, stroke 2). Ruled (Tony, 2026-11-20): they respell at step 2.
+
+## Step 3, what group 1 found (2026-11-27, SEQ 796-799)
+
+Group 1 (drawFill, drawBorder, drawImage) stopped on two things the recon above could not see, because it built the
+bodies and never ran them.
+- `*held["name"]` crashed on the new road (drawImage). Cured and bought: a star binds to the name before a subscript
+  (seal 555, incant/pop/starSubT).
+- A mark in utilities needs kantGrammar wherever utilities draws, under show or not, and kantGrammar loaded twice
+  crashed. Cured on branch kantgrammar-once: kantGrammar's first line leaves the file when it is already loaded, and
+  utilities includes it (incant/pop/kgOnceT).
+Measured with drawFill and drawBorder marked: tester's firstLight PDF equals the old road's byte for byte.
+
+## Tony's idea for the LATER step: one grammar loaded, never both (2026-11-27; recorded, not ruled, not built)
+
+The search list names a holder, `Grammar`, set by the user (`Grammar := Grokking;` or `Grammar := KantGrammar;`), and
+kantGrammar carries its own copies of the leaf rules it borrows today, with their C++ methods and no kant actions.
+- Blocked until every body and every file's top level run on kantGrammar.
+- The precedent to read first: rung 1's failed copy (2026-10-27).
+- A later measurement, not now: tester with only kantGrammar loaded, on a scratch copy, to see how far it gets.
+- What it would save, measured 2026-11-27: loading kantGrammar beside the old grammar costs about 0.03 s a process.

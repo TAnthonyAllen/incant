@@ -7981,7 +7981,7 @@ kindRow "ruleOfT RO-2 copies at rest > 300 (anti-vacuity for RO-1)" "$([ "${_roc
 _rol=$(grep '^RULEOF nodes' "$T/ro.e" | tail -1 | sed 's/.* labels=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-3 labels in the walk after parser(Start) > 100 (anti-vacuity: labels were censused)" "$([ "${_rol:-0}" -gt 100 ] && echo yes || echo "no ($_rol)")" "yes"
 #  RE-PINNED 2026-10-29 (Tony, SEQ 458 R0): 17 -> 16, UnitTests/counter dropped -- UnitTests' counter is its own node since define-own (Shape A).
-kindRow "ruleOfT RO-4 the 16 cross-registry copies, by name" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ Utilities/parser "
+kindRow "ruleOfT RO-4 the 23 cross-registry copies, by name (16 + kantGrammar's seven borrowed leaf rules and branch words, since utilities loads kantGrammar: re-pinned 2026-11-27, kantgrammar-once)" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return KantGrammar/ANYtoken KantGrammar/NumbeR KantGrammar/QuotE KantGrammar/SemI KantGrammar/break KantGrammar/continue KantGrammar/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ Utilities/parser "
 #  RO-5 (stroke 4.2, SEQ 228): isCopy is DELETED -- the zero-reader census. Every *.twk/*.rtn line naming isCopy, less
 #  comment lines and the three measure prints whose pinned `isCopy=%d` label now reports ruleOf (pointerT L5a/L5b), must
 #  read 0. RO-6 is its non-zero sibling: the code lines that name ruleOf (the copy constructor's write, the four switched
@@ -9023,6 +9023,16 @@ kindRow "starSubT old road: the read, the number beside it plus one, the if, two
 kindRow "starSubT new road reads what the old road reads, row for row" "$_ssNew" "$_ssOld"
 kindRow "starSubT new road by value (not only by agreement): SS-1n 8 and SS-3 cd" "$(echo "$_ssNew" | tr '|' '\n' | grep -c '^SS-1n 8$' | tr -d ' ') $(echo "$_ssNew" | tr '|' '\n' | grep -c '^SS-3 cd$' | tr -d ' ')" "1 1"
 kindRow "starSubT nothing refused on either road" "$(grep -c '^REFUSED' "$T/ss.e" | tr -d ' ')" "0"
+#  ---- kgOnceT: kantGrammar LOADS ONCE (full monty step 3, GO 4 item 2; 2026-11-27). utilities includes kantGrammar (it carries newRoad-marked
+#  bodies), and kantGrammar's own first line leaves the file when loadedFiles holds its mark. Before: a second load gave each rule its terms
+#  twice and the next new-road body ended at exit 139. H7 (the first line taken out): exit 139, no sentinel.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip kgOnceT)" > "$T/ko" 2> "$T/ko.e"; _kox=$?
+kindRow "kgOnceT runs" "$_kox" "0"
+sentinel "kgOnceT sentinel" "$T/ko.e" "KGONCE SENTINEL"
+kindRow "kgOnceT one KantGrammar registry after utilities, after a second include, after a third" "$(grep '^KO registries' "$T/ko.e" | awk '{print $NF}' | tr '\n' ' ')" "1 1 1 "
+kindRow "kgOnceT its rules keep their length across the includes (FOr 7, STARt 3: a second load would grow them)" "$(grep '^KO terms' "$T/ko.e" | sed 's/ *$//' | sort -u | tr '\n' '|') $(grep -c '^KO terms' "$T/ko.e" | tr -d ' ')" "KO terms FOr 7 STARt 3| 3"
+kindRow "kgOnceT one kantGrammar mark in loadedFiles each time" "$(grep '^KO loadedFiles' "$T/ko.e" | awk '{print $NF}' | tr '\n' ' ')" "1 1 1 "
+kindRow "kgOnceT a newRoad body runs after the third include, twice, on kantGrammar (road proof [ 7 ]) and reads 7" "$(grep -c '^KO-BODY \[ 7 \] *7 *$' "$T/ko.e" | tr -d ' ')" "2"
 
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.

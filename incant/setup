@@ -391,6 +391,7 @@ define
     stashList File='incant/stashList';
     showStageFile File='incant/showStage';
     showFinishFile File='incant/showFinish';
+    kantGrammar File='incant/kantGrammar';
     ;
 include(stash);
 include(grammar);

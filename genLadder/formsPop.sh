@@ -1485,12 +1485,12 @@ _ens () { _enb "$1" | grep -E '^=== show firstLight (deferred|to)' | sed 's/ *$/
 _ofeq "envT exit / sentinel" "$_enx $(grep -c '^ENVT SENTINEL' "$T/en.e")" "0 1"
 #  LOOSENED SEQ 726 (Tony, 2026-11-21): EN-1 and EN-6 check MEMBERSHIP, not load order -- each list is sorted before the compare.
 #  The order is the order the files finish loading (only a file's foot writes loadedFiles), which is not the claim; each once is.
-_ofeq "envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn" "$(_ens files) / $(_enb loaded | awk '/^loaded/{print $2}' | sort | xargs)" "deferred|to IncantForms/PDF/output.pdf| / styles utilities"
+_ofeq "envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn" "$(_ens files) / $(_enb loaded | awk '/^loaded/{print $2}' | sort | xargs)" "deferred|to IncantForms/PDF/output.pdf| / kantGrammar styles utilities"
 _ofeq "envT EN-2 showPath derives from environment.root: root . gives the relative path" "$(_enb path | grep '^showPath' | awk '{print $2}')" "IncantForms/PDF/output.pdf"
 _ofeq "envT EN-3 searchNames:= FORMs Utilities: drawn; fileNames not named, so environment's stand and unitTests loads first (deferred)" "$(_ens short)" "deferred|to IncantForms/PDF/output.pdf|"
 _ofeq "envT EN-4 searchNames:= naming noSuchRegistry: refused by name, once, and nothing drawn" "$(grep -c '^REFUSED show -- its search list names noSuchRegistry -- not a registry; nothing drawn' "$T/en.e") $(_enb noreg | grep -c '^=== show firstLight')" "1 0"
 _ofeq "envT EN-5 a request naming only form:= keeps every default: drawn with nothing to load" "$(_ens plain)" "to IncantForms/PDF/output.pdf|"
-_ofeq "envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted)" "$(_enb again | awk '/^loaded/{print $2}' | sort | xargs)" "styles unitTests utilities"
+_ofeq "envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted)" "$(_enb again | awk '/^loaded/{print $2}' | sort | xargs)" "kantGrammar styles unitTests utilities"
 _ofeq "envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path" "$(_enb root | awk '/^showPath/{print $2}' | xargs)" "elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf"
 
 echo "-- the search list holds each registry once (searchOnceT, cheatShow)."

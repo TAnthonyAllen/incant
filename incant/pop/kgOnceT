@@ -1,0 +1,60 @@
+Start();
+include(utilities);
+registry(KgOnceT);
+define
+    koN = 0;
+    koCount code={
+        koN = 0;
+        for grup in registries;
+            koT = string $*grup.taG$;
+            if koT == "KantGrammar";    koN = koN + 1;
+        cerr "KO registries named KantGrammar" koN:;
+        };
+    koTerms code={
+        koF := KantGrammar["FOr"];
+        koL := *koF.listLengtH;
+        koS := KantGrammar["STARt"];
+        koM := *koS.listLengtH;
+        cerr "KO terms FOr" koL "STARt" koM:;
+        };
+    koLoaded code={
+        koN = 0;
+        for grup in loadedFiles; attributes
+            koT = string $*grup.taG$;
+            if koT == "kantGrammar";    koN = koN + 1;
+        cerr "KO loadedFiles entries named kantGrammar" koN:;
+        };
+    koBody newRoad code={
+        koV = 3 + 4;
+        cerr "KO-BODY [" 7 #5d "]" koV:;
+        };
+    ;
+search Utilities KgOnceT;
+cerr "KO AFTER UTILITIES":;
+koCount(); koTerms(); koLoaded();
+include(kantGrammar);
+registry(KgOnceT);
+cerr "KO AFTER A SECOND INCLUDE":;
+koCount(); koTerms(); koLoaded();
+include(kantGrammar);
+registry(KgOnceT);
+cerr "KO AFTER A THIRD INCLUDE":;
+koCount(); koTerms(); koLoaded();
+koBody();
+koBody();
+cerr "KGONCE SENTINEL":;
+stop();
+
+kgOnceT -- kantGrammar loads once (full monty step 3, GO 4 item 2; 2026-11-27).
+
+What it asks. utilities carries newRoad-marked bodies, so utilities includes kantGrammar. 93 files include
+kantGrammar themselves; before this stroke a second load gave every rule its terms twice and the next new-road
+body ended at exit 139. Now kantGrammar's first line leaves the file when loadedFiles already holds its mark.
+
+The rows. Three blocks: after utilities alone, after a second include, after a third. Each prints
+    the registries named KantGrammar (1 each time);
+    the length of two of its rules, FOr and STARt (the same each time: a second load would have grown them);
+    the loadedFiles entries named kantGrammar (1 each time).
+Then a newRoad body runs twice: the road proof reads [ 7 ] (the old grammar reads [     7 ]) and the sum 7.
+No kantGrammar entry in fILEs is defined here: incant/setup carries it.
+The H7. With kantGrammar's first line taken out, the run ends at exit 139 with no sentinel.
