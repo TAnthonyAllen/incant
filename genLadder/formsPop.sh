@@ -1537,9 +1537,54 @@ perl -e 'alarm 60; exec @ARGV' "$B" "$(ip mergeNoListT)" > "$T/mn.o" 2> "$T/mn.e
 _ofeq "mergeNoListT exit / sentinel" "$_mnx $(grep -c '^MERGENOLIST SENTINEL' "$T/mn.o")" "0 1"
 _ofeq "mergeNoListT a field with a list takes its held style; the bare member is left as it was; the member after it is still reached and takes its style; a bare field alone" "$(grep '^MN ' "$T/mn.o" | sed 's/ *$//' | tr '\n' '|')" "MN mnWith length 8 strokeColor red|MN mnBare length 0 strokeColor none|MN mnKid length 3 strokeColor red|MN mnAlone length 0 strokeColor none|"
 _ofeq "mergeNoListT stderr: nextGroup lines / bytes" "$(grep -c 'nextGroup' "$T/mn.e" | tr -d ' ') $(wc -c < "$T/mn.e" | tr -d ' ')" "0 0"
+_sqOut=IncantForms/PDF/output.pdf
+rm -f "$T/sq.keep"; [ -f "$_sqOut" ] && mv "$_sqOut" "$T/sq.keep"
 INCANT_NOVIEW=1 perl -e 'alarm 60; exec @ARGV' "$B" "$(ip showQuietT)" > "$T/sq.o" 2> "$T/sq.e"; _sqx=$?
+rm -f "$_sqOut"; [ -f "$T/sq.keep" ] && mv "$T/sq.keep" "$_sqOut"
 _ofeq "showQuietT exit / sentinel / the form was drawn" "$_sqx $(grep -c '^SHOWQUIET SENTINEL' "$T/sq.o") $(grep -c '^=== show firstLight to ' "$T/sq.o")" "0 1 1"
 _ofeq "showQuietT show(firstLight) leaves stderr EMPTY (bytes; seal 531's ruling, its row)" "$(wc -c < "$T/sq.e" | tr -d ' ')" "0"
+echo "-- full monty step 3, group 1: drawFill, drawBorder, drawImage on the new road (montyNewT and its four old-road twins)."
+#  Tony's dispatch of 2026-11-27 (Topics/kant, THE FULL MONTY, step 3). The three bodies are marked newRoad in incant/utilities. montyNewT shows
+#  firstLight as it is; the other four put old-road copies of all three, or of one, ahead of Utilities before the first show (the cheat pattern).
+#  INCANT_NEWROAD_CALLS arms measureNewRoadCall (measure.twk): one line a call of an action whose body was read on kantGrammar.
+#  PER RUN: the three counts, and the PDF with /CreationDate, /ModDate and the trailer /ID blanked (output.pdf is Tony's: set aside, put back).
+#  H7 (the mark taken off drawFill in utilities, committed file, measured): montyNewT's drawFill count reads 0 and its row fails by name; the PDF rows hold.
+_mgOut=IncantForms/PDF/output.pdf
+_mgRun () {                     # _mgRun <fixture>: sets _mgx, _mgCounts "fill border image", _mgPdf (md5 of the blanked PDF), _mgSent, _mgNoise
+    rm -f "$T/mg.keep"; [ -f "$_mgOut" ] && mv "$_mgOut" "$T/mg.keep"
+    INCANT_NEWROAD_CALLS=1 INCANT_NOVIEW=1 perl -e 'alarm 60; exec @ARGV' "$B" "$(ip "$1")" > "$T/mg.o" 2> "$T/mg.e"; _mgx=$?
+    _mgCounts="$(grep -c '^NEWROADCALL drawFill$' "$T/mg.e" | tr -d ' ') $(grep -c '^NEWROADCALL drawBorder$' "$T/mg.e" | tr -d ' ') $(grep -c '^NEWROADCALL drawImage$' "$T/mg.e" | tr -d ' ')"
+    _mgSent=$(grep -c '^MONTY SENTINEL' "$T/mg.o" | tr -d ' ')
+    _mgNoise=$(grep -vc '^NEWROADCALL ' "$T/mg.e" | tr -d ' ')
+    _mgPdf=none; [ -s "$_mgOut" ] && _mgPdf=$(perl -0777 -pe 's#/(CreationDate|ModDate)\s*\([^)]*\)#/$1 ()#g; s#/ID\s*\[[^\]]*\]#/ID []#g' "$_mgOut" | md5)
+    rm -f "$_mgOut"; [ -f "$T/mg.keep" ] && mv "$T/mg.keep" "$_mgOut"
+}
+_mgRun montyNewT; _mgNewPdf=$_mgPdf
+_ofeq "montyNewT exit / sentinel / stderr lines that are not the witness" "$_mgx $_mgSent $_mgNoise" "0 1 0"
+for _mgB in "drawFill 1" "drawBorder 2" "drawImage 3"; do
+    set -- $_mgB
+    _mgN=$(echo "$_mgCounts" | awk -v c="$2" '{print $c}')
+    if [ "$_mgN" = "0" ]; then echo "  FAIL  montyNewT $1 NEVER RAN ON THE NEW ROAD (0 calls through the new-road reader): this run measured the old road"; fail=1
+    else _ofeq "montyNewT $1: calls through the new-road reader" "$_mgN" "16"; fi
+done
+_ofeq "montyNewT a PDF was written (anti-vacuity for the compares below)" "$([ "$_mgNewPdf" != none ] && echo 1 || echo 0)" "1"
+_mgRun montyOldT
+_ofeq "montyOldT exit / sentinel / the old copies answered: new-road calls fill border image" "$_mgx $_mgSent / $_mgCounts" "0 1 / 0 0 0"
+_ofeq "montyOldT THE MILESTONE CHECK: firstLight's PDF with the three on the new road = with the three on the old road, byte for byte (dates and trailer ID blanked)" "$([ "$_mgPdf" = "$_mgNewPdf" ] && [ "$_mgPdf" != none ] && echo same || echo "differs $_mgPdf / $_mgNewPdf")" "same"
+for _mgB in "montyFillOldT drawFill 0_16_16" "montyBorderOldT drawBorder 16_0_16" "montyImageOldT drawImage 16_16_0"; do
+    set -- $_mgB
+    _mgRun "$1"
+    _ofeq "$1 exit / sentinel / only $2 on the old road: new-road calls fill border image" "$_mgx $_mgSent / $_mgCounts" "0 1 / $(echo "$3" | tr '_' ' ')"
+    _ofeq "$1 $2 alone on the old road draws the same PDF as on the new" "$([ "$_mgPdf" = "$_mgNewPdf" ] && [ "$_mgPdf" != none ] && echo same || echo "differs")" "same"
+done
+#  the copies are still utilities' text, the mark aside: a body edited in utilities and not here would compare a stale twin
+_mgBody () { awk -v n="$2" '$0 ~ "^    "n" (newRoad )?code=\\{$" {p=1} p {print} p && /^        \};$/ {exit}' "$1" | sed 's/ newRoad code={/ code={/'; }
+_mgDrift=0
+for _mgB in drawFill drawBorder drawImage; do
+    [ -n "$(_mgBody incant/utilities $_mgB)" ] && [ "$(_mgBody incant/utilities $_mgB)" = "$(_mgBody "$(ip montyOldT)" $_mgB)" ] || _mgDrift=$((_mgDrift+1))
+done
+_ofeq "montyOldT its three copies are utilities' bodies, the mark aside (bodies that differ or are missing)" "$_mgDrift" "0"
+_ofeq "utilities marks exactly the three: newRoad bodies named" "$(grep -c '^    [A-Za-z]* newRoad code={' incant/utilities | tr -d ' ') $(grep '^    [A-Za-z]* newRoad code={' incant/utilities | awk '{print $1}' | sort | tr '\n' ' ')" "3 drawBorder drawFill drawImage "
 if [ "$green" -lt 1 ]; then
     echo "FORMS POP FAILED -- ZERO green checks were recorded."
     echo "  That is not 'everything failed'. It is almost certainly a HELPER that"

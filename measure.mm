@@ -563,6 +563,21 @@ extern "C" GroupItem *measureMarkPoint(char *where)
 	return 0;
 }
 
+/*  THE NEW-ROAD CALL WITNESS (full monty step 3). One line a call of an action whose body was read on
+    kantGrammar: such a body's BlocK is bound to testOP by processCode's newRoad arm, an old-road body's to
+    aCTionBlocK, and the witness reads that off the block it is handed; it re-derives nothing. A fixture counts
+    the lines per action: a body that never ran on the new road counts 0, and a run that measured the old road
+    cannot pass for one that measured the new. Armed by INCANT_NEWROAD_CALLS, inert otherwise.
+    measure.measureNewRoadCall  */
+extern "C" GroupItem *measureNewRoadCall(GroupItem *action, GroupItem *block)
+{
+	
+	if ( action && block && ::getenv("INCANT_NEWROAD_CALLS") && block->groupBody->gMethod == ::testOP )
+	::fprintf(stderr,"NEWROADCALL %s\n", action->groupBody->tag ? action->groupBody->tag : "(untagged)");
+	
+	return action;
+}
+
 // measureOldFireFlag witness: an OLD-road activation's own verdict right after its action fired, handed in -- a local since 1.2d, so no nested drive can overwrite it (F-121). parseTrace-gated, reads only
 extern "C" GroupItem *measureOldFireFlag(GroupItem *field, int callOK)
 {

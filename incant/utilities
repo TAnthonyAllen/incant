@@ -2171,7 +2171,7 @@ define
         no attribute names a fit yet. Drawn after the fill and before the
         border, so the border sits on the image.
     ***************************************************************************/
-    drawImage code={
+    drawImage newRoad code={
         diSelf := argument;
         if *diSelf["image"];
             imageReq.field := argument;
@@ -2179,10 +2179,10 @@ define
             imageReq.fit = 0;
             displayImage(imageReq);
         };
-    drawFill code={
+    drawFill newRoad code={
         if argument["fill"];    displayFill(argument);
         };
-    drawBorder code={
+    drawBorder newRoad code={
         if argument["border"];          displayBorder(argument);
         or argument["topBorder"];       displayBorder(argument);
         or argument["bottomBorder"];    displayBorder(argument);

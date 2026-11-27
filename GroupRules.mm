@@ -12801,6 +12801,7 @@ GroupItem 	*action = field;
 		if ( doorHit == gIRDoor.end() || doorHit->second.second != 1 ) result = ::refuse(fireRule,(char*)"is marked KanT, and no ptr (ptr) function is compiled under the name the mark carries");
 		else result = ((GroupItem*(*)(GroupItem*))doorHit->second.first)(result); }
 		else {
+		::measureNewRoadCall(fireRule,result);
 		result = result->groupBody->gMethod(result);
 		//  actionNothing an ACTION whose body ends without a return hands back nothing, and nothing reads false, as a failed rule does (Tony, 2026-11-19, R1)
 		if ( !fireIsRule && !ruler->jitting && ruler->branchKind != 3 && !ruler->refused ) result = nullptr; }
