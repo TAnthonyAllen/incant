@@ -39,16 +39,17 @@ Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 56 / 60 | this page. |
+| `docs/wakeup.md` | 57 / 60 | this page. |
 | `Topics/forms` | 287 / 280, OVER by 7 (the next forms session opens with the trim) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
-| `Topics/kant` | 199 / 200 (trimmed at seal 554) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
+| `Topics/kant` | 200 / 200 (trimmed at seal 554) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
 | `Topics/windows` | 120 / 120 | sibling of forms (2026-11-19): the click, the resize, describe, editing, the collector; starts once tabs runs on mock clicks. |
 | `Topics/typesetting` | 118 / 120 | sub-topic of forms until forms step 7. |
 | `Topics/cleanup` | 75 / 120 | clean up; the recorded census and split dispatches. |
 | `Topics/documentation` | 120 / 120 | lookup with no index; the documenter; the goal, IBkant, and its skeleton. |
-| `Topics/features` | 80 / 80 | the parking list; not a session topic. |
-| `Topics/fieldIndex` | 60 / 80 | the virtual OS: an inverted field lookup, where defined / used, statement switches; parked, not ruled. |
+| `Topics/features` | 79 / 80 | the parking list; not a session topic. |
+| `Topics/fieldIndex` | 61 / 80 | the virtual OS: an inverted field lookup, where defined / used, statement switches; parked, not ruled. Step 0 done: docs/fieldIndexRecon.md. |
+| `Topics/measuring` | 51 / 80 | measuring notes; not a session topic. |
 
 ## Where the old seals are
 - Seals 373-444, in full: `git show cf9522cb:docs/wakeup.md`. Each is digested in its topic file.

@@ -1,7 +1,7 @@
 # TOPIC: measuring (how the tree is measured, and measuring in kant)
 
-Read after docs/wakeup.md when the session's topic is measuring. Opened 2026-11-27 (SEQ 794, Clay's go order) as the
-gap filler beside the fieldIndex recon. Status: NOTES, NOT RULED. Nothing here is built. Budget proposed: 80 lines.
+Standing notes in its own file: not a session topic, not folded into Topics/fieldIndex (Tony, 2026-11-27, SEQ 795).
+Opened 2026-11-27 (SEQ 794, Clay's go order) beside the fieldIndex recon. Nothing here is built. Budget: 80 lines.
 SEQ 785's sketch (2026-11-26) left no commit, so this file is built from the tree, read on 2026-11-27.
 
 ## How measuring works today

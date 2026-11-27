@@ -46,6 +46,7 @@ The design and its reasoning are in IncantForms/WorkingOn/macros ("Kant in kant:
     incant/setup                    Operators and the registries
     IncantForms/WorkingOn/macros    the plan and its reasoning (Clod keeps it current)
     IncantForms/WorkingOn/tester    Tony's driver
+    Topics/measuring                how the tree is measured; measuring in kant (probes as kant directives) is its open question
     Instruct.rtn, Generate.rtn, ruleActions.rtn, jitEmitters.rtn, jitContext.h   the engine and the jitter
     docs/           jit.md, jitDesign.md, objectModel.md, deepClean.md, gcRecon.md, f146Recon.md, ruleJitCensus.md, operatorRungRecon.md, operatorStroke2Census.md, fixIts.md, knownErrors.md, cleanupList.md
 
