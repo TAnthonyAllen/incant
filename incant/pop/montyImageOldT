@@ -1,0 +1,28 @@
+Start();
+include(utilities);
+registry(MontyOld);
+define
+    drawImage code={
+        diSelf := argument;
+        if *diSelf["image"];
+            imageReq.field := argument;
+            imageReq.source := *diSelf["image"];
+            imageReq.fit = 0;
+            displayImage(imageReq);
+        };
+    ;
+search MontyOld Utilities list;
+show(firstLight);
+print "MONTY SENTINEL":;
+stop();
+
+montyImageOldT -- full monty step 3, group 1 (2026-11-27): drawFill, drawBorder and drawImage are marked newRoad in incant/utilities.
+
+This file is one of five. montyNewT shows firstLight as it is: the three bodies run on kantGrammar. The other four put a
+registry of OLD-ROAD copies (the same bodies, unmarked) ahead of Utilities before the first show, so drawWalk and
+drawKids bind to the copies: montyOldT copies all three, montyFillOldT, montyBorderOldT and montyImageOldT one each.
+The harness (genLadder/formsPop.sh) arms INCANT_NEWROAD_CALLS and reads, per run: how many calls of each body went
+through the new-road reader (16 or 0), and the PDF with its dates and trailer ID blanked. Every run's PDF must be
+the same bytes; a body's count must be 16 where it is marked and 0 where its old copy answered. A count of 0 where
+16 is wanted fails by name: that run measured the old road. The harness also checks that each copy here is still
+the text of utilities' body, the mark aside.

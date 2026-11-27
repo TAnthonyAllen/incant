@@ -40,6 +40,7 @@ extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, Gro
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field, int timesMatched);
 extern "C" GroupItem *measureMarkArm(GroupItem *driveNode);
 extern "C" GroupItem *measureMarkPoint(char *where);
+extern "C" GroupItem *measureNewRoadCall(GroupItem *action, GroupItem *block);
 extern "C" GroupItem *measureOldFireFlag(GroupItem *field, int callOK);
 extern "C" GroupItem *measureParentProbe(GroupItem *field);
 extern "C" GroupItem *measureParseClass(GroupItem *field);
