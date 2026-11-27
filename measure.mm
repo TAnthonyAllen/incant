@@ -568,6 +568,7 @@ extern "C" GroupItem *measureMarkPoint(char *where)
     aCTionBlocK, and the witness reads that off the block it is handed; it re-derives nothing. A fixture counts
     the lines per action: a body that never ran on the new road counts 0, and a run that measured the old road
     cannot pass for one that measured the new. Armed by INCANT_NEWROAD_CALLS, inert otherwise.
+    SCAFFOLDING (Tony, 2026-11-27): it leaves, with its callout and its rows, in the sweep that takes the newRoad marks off.
     measure.measureNewRoadCall  */
 extern "C" GroupItem *measureNewRoadCall(GroupItem *action, GroupItem *block)
 {
