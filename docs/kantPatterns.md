@@ -36,6 +36,8 @@ empty cells ends: `cells isRule cell+;` over `,,` gives two pieces (`RR-18`).
     n := *t.name;           x := *n.texT;
 
 Row: `ifElseShapeT IE-24`. To walk all the pieces in order: `for e in t;` (same row).
+By a name held in quotes: `n := *t["name"];` reads the same on both grammars (`starSubT`, `ifElseShapeT IE-25`). A name
+the held field lacks hands back nothing and does not refuse (ruled, Tony, 2026-11-27): test it, `if *t["name"];`.
 
 **4. Several arguments: hand over one request field carrying them as attributes.** `f(a, b)` is not kant.
 

@@ -87,5 +87,6 @@ The rows. Each action has an old-road twin and a newRoad twin with the same body
     SS-2    the read as an if condition: present for a name the field has; nothing for one it lacks.
     SS-3    through two holders: **k["name"] reads cd.
     SS-4    a name the held field lacks: the capture holds nothing and the action goes on (prints its own tag).
-            The old road does not refuse here, so the new road does not either: the row is that the two agree.
+            RULED (Tony, 2026-11-27): a name the held field lacks STAYS SILENT on both roads: it hands back nothing
+            and does not refuse. The row is that the two roads agree.
 The H7. With starBindsName taken out the run ends at exit 139 after SS NEW, with no sentinel.
