@@ -5,7 +5,8 @@ into its topic file's digest (one paragraph) and in full into its commit message
 and any number that moved. One seal sequence and one SEQ sequence across topics, each seal tagged by topic.
 
 ## Last seal
-**554, 2026-11-27, topic: kant, SEQ 792 (assigned by Clod), SHUTDOWN.** Two strokes bought and merged the same day. 552: the search list holds each registry once; show adds its registries as members, and show and the plain search command skip one already on the list (no second entry, no move; reorder by search reset and naming everything; incant/pop/searchOnceT, cheatShow's hits pinned at 9). 553: an attribute added after the members goes at the end of the attributes, before the first member (addAttribute, GroupItem.twk; incant/pop/lateAttrT). Read-only before them: SEQ 786, docs/cleanupList.md checked against the tree, and the narrow parent-through-a-copy recon, not built (memberRehome stays); SEQ 787, the counting pass (throwaway branch, deleted). SEQ 785 (2026-11-26) left no commit: the power went. Topics/kant trimmed to 199; Topics/features item 40, the Forth-like template language. The binary is rebuilt from trunk.
+**555, 2026-11-27, topic: kant, SEQ 798 (assigned by Clod), BOUGHT.** On kantGrammar a star binds to the name before a subscript, as on the old road: `*h["name"]` in a newRoad action crashed (exit 139) and now reads as its old-road twin does (incant/kantGrammar, starBindsName, kant only; incant/pop/starSubT; fixit newRoadLabelSubscriptCrash retired). It is the first of two cures full monty step 3 needs; group 1 itself is stopped on branch monty-group1 (SEQ 796: drawImage crashed on this; a mark in utilities needs kantGrammar loaded wherever utilities draws). Read-only the same day: SEQ 793-797, docs/borrowedIdeas.md, docs/borrowedIdeasRecon.md, docs/fieldIndexRecon.md, Topics/measuring. Also: incant++'s Go orders and Clod response are the Clay-Clod walkie-talkie (CLAUDE.md).
+Seal 554 before it (2026-11-27, SHUTDOWN): the search list holds each registry once (552); an attribute added after the members goes before the first member (553).
 Seal 551 before these (2026-11-25, SHUTDOWN): listeners belong to the field (F-170; a copy starts with no listeners).
 **OPEN (Tony):** two Dropbox conflicted copies of test.pdf in IncantForms/PDF, his to delete; Topics/forms' budget (7 over); tester holds the watched run (the reopen test is parked below its stop); carried from 482, whether an indented `define` should work.
 **FOR CLAY TO DECIDE (Tony, 2026-11-24, after seal 544):** should kant warn, by itself, when a body mints a new name one keystroke from a known one? Kant does not refuse a misspelled name: `$$currrentField` beside `currentField` became a fresh empty local, ran clean, and read as `:=` having failed. `genLadder/nameLint.py <incantation>` finds these today (a letter doubled, dropped, added, changed, or two swapped) but must be run by hand. The automatic version is one check where an action body mints an undeclared local, printing one warning line, so it runs in Xcode too. Tony expects to want it unless it is expensive. NOT MEASURED: how many existing incantations would trip it (fleet rows that compare captured output could move), and what it costs per mint. NOT BUILT; a read-only count comes first if Clay says go.
@@ -14,27 +15,27 @@ Seal 551 before these (2026-11-25, SHUTDOWN): listeners belong to the field (F-1
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
 **NEXT (Tony, 2026-11-27):** the next session opens with the fieldIndex recon (read-only, Topics/fieldIndex step 0; its dispatch is parked in incant++), with the Measuring topic file as its gap filler. The rest of the 2026-11-25 order is unchanged: full monty step 3, the first group of tester's actions marked newRoad -> source/pour design exercise (Tony and Clay, from docs/sourcePourRecon.md) -> source/pour build, in strokes ruled at the exercise's end -> typesetting's measure -> lighten / darken; registries 3-5; windows TO DO 2-3. Also parked in incant++: replace keeps its place, a read-only count (from SEQ 789). Tony sends each from incant++'s parked section.
 
-## The numbers (trunk at seal 554)
+## The numbers (trunk at seal 555)
 | instrument | reads |
 |---|---|
-| `genLadder/pop.sh` | exit 1, 4265 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
+| `genLadder/pop.sh` | exit 1, 4271 green, FAIL rows identical by name to the bank (63; `docs/sealCaptures/pop.fails.txt`); output.pdf unchanged by a run |
 | `jitLadder/ladder.sh` | exit 0, every rung ok (no capture banked) |
 | `genLadder/formsPop.sh` | 508 green, F-149 red as banked; output.pdf unchanged by a run (`docs/sealCaptures/formsPop.txt`) |
 | `genLadder/printPop.sh` | exit 0 |
 | `genLadder/decodePop.sh` | = its capture but for the binary line (`docs/sealCaptures/decodePop.txt`) |
 | `genLadder/ddPop.sh` | 5 green / 1 red (trim gate violations 32) |
 | `incant/frontier` | = its capture (`docs/sealCaptures/frontier.txt`) |
-| `genLadder/dirCheck.sh` (shutdown seals only) | run at 554 on trunk: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
+| `genLadder/dirCheck.sh` (shutdown seals only) | not run at 555; at 554 on trunk: exit 0, 116 directives, 108 inject, 8 parked dark; tree retokked bare, byte-identical |
 | extern canary | 490 (`grep -c '^extern' GroupRules.h`) |
 | exec bits | clean |
 
 ## Repos
-Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize, windows-loop (all bought 2026-11-22), windows-search, windows-raise, windows-describe, popups-look, popups-selection, popups-climb, outline-over-held, popups-open (bought 2026-11-23), popups-ok, popups-owner (bought 2026-11-24), pour-address, pour-write (sealed by dispatch 2026-11-24), popups-attribute, popups-selectable, held-field-end, assign-keeps-listeners, copy-no-listeners (bought 2026-11-25), search-no-duplicate, late-attributes (bought 2026-11-27). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
+Groups, support, TOK clean and pushed; main = trunk (`jit-unified-emit-wip`). Merged: g3-one-direction, g3-cheat, m1-utilities-families, tabs-click, string-pointer, pour, pour-stage2, registries-home, tester-noise, windows-f153, windows-draw, windows-click, windows-resize, windows-loop (all bought 2026-11-22), windows-search, windows-raise, windows-describe, popups-look, popups-selection, popups-climb, outline-over-held, popups-open (bought 2026-11-23), popups-ok, popups-owner (bought 2026-11-24), pour-address, pour-write (sealed by dispatch 2026-11-24), popups-attribute, popups-selectable, held-field-end, assign-keeps-listeners, copy-no-listeners (bought 2026-11-25), search-no-duplicate, late-attributes, newroad-star-subscript (bought 2026-11-27). Not for buying: monty-group1 (stopped WIP). On a branch, not bought: describe-lookup; firstLight-park holds Tony's working copy of firstLight as found after seal 517, untouched until he looks; for-filter is superseded, its branch left for Tony to delete (also the merged
 for-members, for-attributes, print-dot, looks-by-name, kant-environment, g3-one-direction, g3-cheat). BeforeSave last refreshed at seal 492; the refresh after this seal is Tony's.
 
 ## Fixit lanes (generated by `genLadder/fixitNag.sh`, not typed)
 Tony's fixit incantations waiting: 0
-Clod's fixit incantations waiting: 32 (oldest: defineCapture, since 2026-10-02)
+Clod's fixit incantations waiting: 31 (oldest: defineCapture, since 2026-10-02)
 
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
