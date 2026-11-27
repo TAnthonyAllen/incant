@@ -3307,6 +3307,9 @@ decision it asks of Tony, in one sentence.
   - **Without Tony: only read-only work and branch builds, inside the order he set.** No merge to trunk, no buy, no
     reorder, no pick between options.
   - When a task ends, Clod checks "Go orders".
+  - **Before starting any go order, Clod says in chat which one, in one line: its GO number and title (Tony, 2026-11-27,
+    GO 5).** No OK is needed; it tells Tony what the commands scrolling by belong to. Clod says it again when moving from
+    one numbered item of an order to the next.
 - **`IncantForms/WorkingOn/macros`: Clod changes it too (Tony, 2026-10-29: "you can change macros and probably better you do
   it than me").** It is the shared plan Tony and Clay revise; Clod keeps it current and commits it, saying what changed.
 - **Everything else of Tony's (utilities, unitTests, printFamily and the rest): changed as a stroke needs, named in the
