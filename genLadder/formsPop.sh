@@ -1528,6 +1528,18 @@ echo ""
 #  RULE H2 TURNED ON THE HARNESS ITSELF. A green count is a tally of the checks
 #  that RAN; a check that evaporates because a helper went missing is INVISIBLE
 #  in it, since nobody knows what the number should have been.
+echo "-- mergeStyles does not walk a field with no list (mergeNoListT, showQuietT)."
+#  GO 6 (Tony, 2026-11-27): a for over a field with no list prints "nextGroup: ERROR <tag> does not contain a list"; mergeStyles and the
+#  resolveLook it calls each looped over firstLight's space, so every show(firstLight) printed the line twice. mergeStyles now leaves at
+#  once for a field with no list (incant/utilities, noListNoWalk). Fixit mergeStylesNoList retired by mapping: its two lines -> showQuietT's
+#  empty stderr; its sentinel -> showQuietT's. H7 (noListNoWalk out): showQuietT stderr holds 2 nextGroup lines, mergeNoListT's 4.
+perl -e 'alarm 60; exec @ARGV' "$B" "$(ip mergeNoListT)" > "$T/mn.o" 2> "$T/mn.e"; _mnx=$?
+_ofeq "mergeNoListT exit / sentinel" "$_mnx $(grep -c '^MERGENOLIST SENTINEL' "$T/mn.o")" "0 1"
+_ofeq "mergeNoListT a field with a list takes its held style; the bare member is left as it was; the member after it is still reached and takes its style; a bare field alone" "$(grep '^MN ' "$T/mn.o" | sed 's/ *$//' | tr '\n' '|')" "MN mnWith length 8 strokeColor red|MN mnBare length 0 strokeColor none|MN mnKid length 3 strokeColor red|MN mnAlone length 0 strokeColor none|"
+_ofeq "mergeNoListT stderr: nextGroup lines / bytes" "$(grep -c 'nextGroup' "$T/mn.e" | tr -d ' ') $(wc -c < "$T/mn.e" | tr -d ' ')" "0 0"
+INCANT_NOVIEW=1 perl -e 'alarm 60; exec @ARGV' "$B" "$(ip showQuietT)" > "$T/sq.o" 2> "$T/sq.e"; _sqx=$?
+_ofeq "showQuietT exit / sentinel / the form was drawn" "$_sqx $(grep -c '^SHOWQUIET SENTINEL' "$T/sq.o") $(grep -c '^=== show firstLight to ' "$T/sq.o")" "0 1 1"
+_ofeq "showQuietT show(firstLight) leaves stderr EMPTY (bytes; seal 531's ruling, its row)" "$(wc -c < "$T/sq.e" | tr -d ' ')" "0"
 if [ "$green" -lt 1 ]; then
     echo "FORMS POP FAILED -- ZERO green checks were recorded."
     echo "  That is not 'everything failed'. It is almost certainly a HELPER that"

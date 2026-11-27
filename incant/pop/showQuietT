@@ -1,0 +1,8 @@
+Start();
+show(firstLight);
+print "SHOWQUIET SENTINEL":;
+bail();
+
+showQuietT -- show(firstLight) leaves stderr EMPTY (GO 6, 2026-11-27: the row seal 531's ruling never had).
+The harness reads stderr whole: zero bytes. The sentinel and the show line are on stdout.
+H7: with noListNoWalk taken out of mergeStyles, stderr holds two nextGroup lines.
