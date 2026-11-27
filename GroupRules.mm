@@ -1317,9 +1317,10 @@ int 		onList = 0;
 			// onceOnly a registry already on the list keeps its place: no second entry, no move (Tony, 2026-11-27); the order changes only by reset and naming everything
 			onList = 0;
 			base = 0;
-			while ( base = searchLIST->next(base) )
-				if ( base->groupBody == grup->groupBody )
-					onList = 1;
+			if ( searchLIST->groupBody->groupList )
+				while ( base = searchLIST->next(base) )
+					if ( base->groupBody == grup->groupBody )
+						onList = 1;
 			if ( !onList )
 				base = searchLIST->addMember(grup);
 			}

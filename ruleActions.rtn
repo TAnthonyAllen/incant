@@ -1044,8 +1044,9 @@ int         setStakked,
             // onceOnly a registry already on the list keeps its place: no second entry, no move (Tony, 2026-11-27); the order changes only by reset and naming everything
             onList  = 0;
             base    = 0;
-            while base = searchLIST.next(base)
-                if base.groupBody == grup.groupBody     onList = 1;
+            if searchLIST.groupList
+                while base = searchLIST.next(base)
+                    if base.groupBody == grup.groupBody     onList = 1;
             if !onList  base = searchLIST += grup; }
         else cout "WARNING:",tag,"must be a registry to add to searchlist":;
     return input;
