@@ -1,5 +1,5 @@
   bin   /Users/anthony/bin/incant
-  bin   2286480 bytes  Nov 27 10:04
+  bin   2286608 bytes  Nov 27 15:38
 
 -- displayFill, INTERPRETED (dsFill).
   ok    dsFill runs
@@ -569,12 +569,12 @@
   ok    looksByNameT LB-6 the list prints after four draws as defined = [firstLightLooks standard pageFill=wall; dark pageFill=black;]
 -- the kant environment, first piece (envT).
   ok    envT exit / sentinel = [0 1]
-  ok    envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn = [deferred|to IncantForms/PDF/output.pdf| / styles utilities]
+  ok    envT EN-1 fileNames:= IN PLACE OF environment's: firstLight from the stash, styles and utilities loaded once each though styles is named twice, unitTests not at all; drawn = [deferred|to IncantForms/PDF/output.pdf| / kantGrammar styles utilities]
   ok    envT EN-2 showPath derives from environment.root: root . gives the relative path = [IncantForms/PDF/output.pdf]
   ok    envT EN-3 searchNames:= FORMs Utilities: drawn; fileNames not named, so environment's stand and unitTests loads first (deferred) = [deferred|to IncantForms/PDF/output.pdf|]
   ok    envT EN-4 searchNames:= naming noSuchRegistry: refused by name, once, and nothing drawn = [1 0]
   ok    envT EN-5 a request naming only form:= keeps every default: drawn with nothing to load = [to IncantForms/PDF/output.pdf|]
-  ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [styles unitTests utilities]
+  ok    envT EN-6 EACH FILE ONCE: after four shows the loaded list holds styles, unitTests and utilities, once each (sorted) = [kantGrammar styles unitTests utilities]
   ok    envT EN-7 THE DERIVATION IS REAL: root elsewhere gives elsewhere/IncantForms/PDF/output.pdf; root . back gives the relative path = [elsewhere/IncantForms/PDF/output.pdf IncantForms/PDF/output.pdf]
 -- the search list holds each registry once (searchOnceT, cheatShow).
   ok    searchOnceT exit / sentinel = [0 1]
@@ -587,4 +587,26 @@
   ok    cheatShow CHEAT hits: CheaT stays ahead of Utilities, its nine copies answer = [9]
   ok    cheatShow the search list under show: each registry once, CheaT ahead of Utilities = [Search list: Grokking CheaT Utilities cOLOr fONTs sTYLEs dESCRIPTIONs]
 
-FORMS POP FAILED -- 508 green, see above
+-- mergeStyles does not walk a field with no list (mergeNoListT, showQuietT).
+  ok    mergeNoListT exit / sentinel = [0 1]
+  ok    mergeNoListT a field with a list takes its held style; the bare member is left as it was; the member after it is still reached and takes its style; a bare field alone = [MN mnWith length 8 strokeColor red|MN mnBare length 0 strokeColor none|MN mnKid length 3 strokeColor red|MN mnAlone length 0 strokeColor none|]
+  ok    mergeNoListT stderr: nextGroup lines / bytes = [0 0]
+  ok    showQuietT exit / sentinel / the form was drawn = [0 1 1]
+  ok    showQuietT show(firstLight) leaves stderr EMPTY (bytes; seal 531's ruling, its row) = [0]
+-- full monty step 3, group 1: drawFill, drawBorder, drawImage on the new road (montyNewT and its four old-road twins).
+  ok    montyNewT exit / sentinel / stderr lines that are not the witness = [0 1 0]
+  ok    montyNewT drawFill: calls through the new-road reader = [16]
+  ok    montyNewT drawBorder: calls through the new-road reader = [16]
+  ok    montyNewT drawImage: calls through the new-road reader = [16]
+  ok    montyNewT a PDF was written (anti-vacuity for the compares below) = [1]
+  ok    montyOldT exit / sentinel / the old copies answered: new-road calls fill border image = [0 1 / 0 0 0]
+  ok    montyOldT THE MILESTONE CHECK: firstLight's PDF with the three on the new road = with the three on the old road, byte for byte (dates and trailer ID blanked) = [same]
+  ok    montyFillOldT exit / sentinel / only drawFill on the old road: new-road calls fill border image = [0 1 / 0 16 16]
+  ok    montyFillOldT drawFill alone on the old road draws the same PDF as on the new = [same]
+  ok    montyBorderOldT exit / sentinel / only drawBorder on the old road: new-road calls fill border image = [0 1 / 16 0 16]
+  ok    montyBorderOldT drawBorder alone on the old road draws the same PDF as on the new = [same]
+  ok    montyImageOldT exit / sentinel / only drawImage on the old road: new-road calls fill border image = [0 1 / 16 16 0]
+  ok    montyImageOldT drawImage alone on the old road draws the same PDF as on the new = [same]
+  ok    montyOldT its three copies are utilities' bodies, the mark aside (bodies that differ or are missing) = [0]
+  ok    utilities marks exactly the three: newRoad bodies named = [3 drawBorder drawFill drawImage ]
+FORMS POP FAILED -- 528 green, see above
