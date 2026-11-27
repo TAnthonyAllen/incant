@@ -1739,7 +1739,7 @@ _ieR IE-22 "for over a holder, unstarred, walks what it holds" "1 |2 |3 |after |
 _ieR IE-23 "for over a starred holder: old road walks the star and the name (pinned as read)" "* |fsrc |after | R0 x0" "1 |2 |3 |after | R0 x0"
 _ieR IE-24 "a parse result's pieces by label (*t.name, *t.reg) and by for" "name cd |reg ab |ab |. |cd |after | R0 x0"
 _ofeq "ifElseShapeT IE-25 old road: a parse result's piece by subscript, *t[\"name\"] (value / sentinel)" "$(_iev "$T/ie.IE-25.o" "$T/ie.IE-25.oe" "$T/ie.IE-25.ox") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.oe")" "name cd |after | R0 x0 1"
-_ofeq "ifElseShapeT IE-25 new road: *t[\"name\"] dies 139 (pinned as read) (value / sentinel)" "$(_iev "$T/ie.IE-25.n" "$T/ie.IE-25.ne" "$T/ie.IE-25.nx") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.ne")" " R0 x139 0"
+_ofeq "ifElseShapeT IE-25 new road: *t[\"name\"] reads as the old road does (re-pinned 2026-11-27, starBindsName: it died 139; fixit newRoadLabelSubscriptCrash retired into this row) (value / sentinel)" "$(_iev "$T/ie.IE-25.n" "$T/ie.IE-25.ne" "$T/ie.IE-25.nx") $(grep -c '^IE SENTINEL' "$T/ie.IE-25.ne")" "name cd |after | R0 x0 1"
 _ieR IE-26 "a return carrying a named member (a copyDeep record)" "w 5 |after | R0 x0"
 #  THE COMPARE LAW (Tony, 2026-11-19, R1-R4): a compare never derefs a holder. A holder against a plain value refuses by name
 #  and ends the action at the compare (IE-27, IE-32 to IE-34); holder against holder stays legal (IE-30, IE-31); *h is the
@@ -9010,6 +9010,19 @@ perl -e 'alarm 30; exec @ARGV' "$B" "$(ip newRoadMarkNoKgT)" > "$T/nk" 2> "$T/nk
 kindRow "newRoadMarkNoKgT runs" "$_nkx" "0"
 sentinel "newRoadMarkNoKgT sentinel" "$T/nk" "NEWROADMARKNOKG SENTINEL"
 kindRow "newRoadMarkNoKgT marked body refused by name with kantGrammar not loaded, not run; the unmarked one runs" "$(grep -c "^REFUSED nkGood -- is marked newRoad, and KantGrammar's STARt is not loaded" "$T/nk.e" | tr -d ' ') $(grep -c '^NK-1' "$T/nk" | tr -d ' ') $(grep -c '^NK-2 ran' "$T/nk" | tr -d ' ')" "1 0 1"
+#  ---- starSubT: A STAR THEN A SUBSCRIPT ON A HELD FIELD, BOTH ROADS (full monty step 3, GO 4 item 1; 2026-11-27). *h["name"] is (*h)["name"].
+#  On kantGrammar the star was handed the folded subscript's nothing and the run ended at exit 139 (what stopped drawImage; fixit
+#  newRoadLabelSubscriptCrash, retired into IE-25's new-road row above and these). Each action has an old-road twin and a newRoad twin.
+#  H7 (starBindsName taken out of kantGrammar): exit 139, no sentinel, the NEW block empty -- every row below but the old-road one red.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip starSubT)" > "$T/ss" 2> "$T/ss.e"; _ssx=$?
+kindRow "starSubT runs" "$_ssx" "0"
+sentinel "starSubT sentinel" "$T/ss.e" "STARSUB SENTINEL"
+_ssOld="$(sed -n '/^SS OLD/,/^SS NEW/p' "$T/ss.e" | grep '^SS-' | sed 's/ *$//' | tr '\n' '|')"
+_ssNew="$(sed -n '/^SS NEW/,$p' "$T/ss.e" | grep '^SS-' | sed 's/ *$//' | tr '\n' '|')"
+kindRow "starSubT old road: the read, the number beside it plus one, the if, two holders, a name the field lacks" "$_ssOld" "SS-1 cd|SS-1n 8|SS-2 present|SS-2 done|SS-3 cd|SS-4 after|SS-4 ssV|"
+kindRow "starSubT new road reads what the old road reads, row for row" "$_ssNew" "$_ssOld"
+kindRow "starSubT new road by value (not only by agreement): SS-1n 8 and SS-3 cd" "$(echo "$_ssNew" | tr '|' '\n' | grep -c '^SS-1n 8$' | tr -d ' ') $(echo "$_ssNew" | tr '|' '\n' | grep -c '^SS-3 cd$' | tr -d ' ')" "1 1"
+kindRow "starSubT nothing refused on either road" "$(grep -c '^REFUSED' "$T/ss.e" | tr -d ' ')" "0"
 
 #  ---- compareMixT: A NUMBER AGAINST A STRING (Tony, 2026-11-06). A string that is a number in full compares by value, any
 #  other has no order; both warn. The number-only and string-only pairs are the controls and must not warn.
