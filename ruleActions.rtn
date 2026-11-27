@@ -1020,7 +1020,8 @@ extern GroupItem aCTionSearch(GroupItem input)
 GroupItem   searchLIST = searchList;
 GroupItem   base,
             grup;
-int         setStakked;
+int         setStakked,
+            onList;
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
     // degradeByDefault GroupRules.h's extern block to zero
     if jitting {
@@ -1040,7 +1041,12 @@ int         setStakked;
             if setStakked
                 if !groupList || listLength < 10    cerr "WARNING:",tag,"list too short to stack":;
                 or !stakked     stakked = new(grup);
-            base = searchLIST += grup; }
+            // onceOnly a registry already on the list keeps its place: no second entry, no move (Tony, 2026-11-27); the order changes only by reset and naming everything
+            onList  = 0;
+            base    = 0;
+            while base = searchLIST.next(base)
+                if base.groupBody == grup.groupBody     onList = 1;
+            if !onList  base = searchLIST += grup; }
         else cout "WARNING:",tag,"must be a registry to add to searchlist":;
     return input;
 }

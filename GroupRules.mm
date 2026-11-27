@@ -1280,6 +1280,7 @@ GroupItem 	*searchLIST = GroupControl::groupController->groupRules->searchList;
 GroupItem 	*base = 0;
 GroupItem 	*grup = 0;
 int 		setStakked = 0;
+int 		onList = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
@@ -1313,7 +1314,14 @@ int 		setStakked = 0;
 				else
 				if ( !grup->groupBody->groupList->stakked )
 					grup->groupBody->groupList->stakked = new GroupStak(grup);
-			base = searchLIST->addMember(grup);
+			// onceOnly a registry already on the list keeps its place: no second entry, no move (Tony, 2026-11-27); the order changes only by reset and naming everything
+			onList = 0;
+			base = 0;
+			while ( base = searchLIST->next(base) )
+				if ( base->groupBody == grup->groupBody )
+					onList = 1;
+			if ( !onList )
+				base = searchLIST->addMember(grup);
 			}
 		else	::printf("WARNING: %s must be a registry to add to searchlist\n",grup->groupBody->tag);
 	return input;
