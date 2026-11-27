@@ -57,4 +57,4 @@ Readers of the switch: typesetting steps over a statement that is switched off a
 - The rest of "what is it" (the list that goes on and on): add kinds one at a time, as each earns its place.
  
 ## Digest (one paragraph per seal)
-(none yet)
+SEQ 794, 2026-11-27 (no seal; read-only): step 0 is done, docs/fieldIndexRecon.md. A define records no file or line; a body is built at its first call; the name seat (resolveName) has the written name, the action and the resolved field, not the kind of use; a built body goes on reading a field after it is removed or redefined (measured); only the kant jitter could swap code, by a new name; kant cannot list a field's set flags. Next is step 1, Clay's design pass.

@@ -1,0 +1,51 @@
+# TOPIC: measuring (how the tree is measured, and measuring in kant)
+
+Read after docs/wakeup.md when the session's topic is measuring. Opened 2026-11-27 (SEQ 794, Clay's go order) as the
+gap filler beside the fieldIndex recon. Status: NOTES, NOT RULED. Nothing here is built. Budget proposed: 80 lines.
+SEQ 785's sketch (2026-11-26) left no commit, so this file is built from the tree, read on 2026-11-27.
+
+## How measuring works today
+- THE WITNESSES. measure.twk (938 lines, its own measure.mm, outside the GroupRules include chain) holds 43 externs;
+  27 carry the reserved `measure` prefix. 49 callout lines in the engine call them. Each callout is permanent and
+  carries no gate; the witness opens with its own arming check and prints one tagged line to stderr when armed
+  (CLAUDE.md, bear-trap 23's amendment; incant/designDocs MeasureCallouts). Census: grep -n 'measure[A-Z]' *.twk *.rtn.
+  Every name with the prefix is a witness; none is a hand.
+- ARMING, ONE SWITCH FOR MOST. About 22 witnesses are armed by parseTrace (GroupRules.twk:113), set from kant by
+  traceParse(); (incant/setup:124; genParse.rtn:87). It turns them all on at once. No off verb was found.
+- ARMING, BY ENVIRONMENT. Three witnesses read a shell variable instead: INCANT_COUNT_LOOPS (measureAttachRepeat,
+  measureLoopVerdict), INCANT_KIND_PROBE (measureKindArm), INCANT_PARSE_RETURN, a list of rule names
+  (measureParseReturn). pop.sh arms the last two for its kindT, kindJitT and zeroWidthT rows.
+  Seven more INCANT_ variables are read elsewhere in the source (ACCUM_TRACE, PRINT_PROBE, SLOT_PROBE, JIT_DUMP,
+  JIT_PINS, JIT_RECORD, JITTER_ERR); what the first three gate was not chased.
+- THE REPORT VERBS. Kant commands that print whenever called, no gate (measure.twk; incant/setup:21-120): addrOf,
+  lastRefOf, audit, branchKindOf, canonOf, chanReport, labelTree, labelSpans, modsOf, parseClassify, probeNode,
+  showBody. Also dumpContents (Commands.rtn:163).
+- THE OTHERS. The jitDegrade counter, printed on every jit run (jitEmitters.rtn:1029). Directives: tok builds with
+  Directives/ injected, a different program, checked by genLadder/dirCheck.sh at shutdown seals. The debug flags
+  (debugAllRules, debugGuards; `debug` in kant). jitNotes(), a kant toggle in incant/kantJitter, off by default.
+  genLadder/kantSpeed.sh, times only, on no checklist.
+
+## What kant can and cannot do today (measured 2026-11-27, one scratch fixture, exit 0)
+- Kant reads one flag at a time by accessor (argument.isCodeD, argument.isActioN; the GroupFields registry in
+  incant/setup:318 lists about 55). An action never called read coded 1 action 0; one already called read coded 0
+  action 1.
+- Kant cannot LIST a field's set flags. Nothing walks the accessors and prints the ones that are set. The only
+  listing is C++: dumpContents prints a few flags as words ("is local noPrint").
+- No witness or probe is written in kant. The only kant-side switch is traceParse (on only) and jitNotes.
+
+## The open question: measuring in kant
+A probe as a kant field, invoked as a field and switched on and off (Topics/fieldIndex, the statement dresses, design
+questions 5 and 6). Known wants for one switch mechanism: warnings (registries stroke 5), describe, measuring probes,
+fieldIndex's statement switches, and `debug` in a body (ruled, not built). Clay's note on stroke 5: design ONE switch
+mechanism before building it for warnings alone.
+Questions the design must answer:
+1. What a kant probe is handed. A C++ witness is handed its seat's state as arguments; a kant probe at an engine seat
+   would need a callout that calls kant, which costs on every pass unless the gate is tested first in C++.
+2. Where the switch lives: a flag on the probe field, or an entry in a registry of switches (the wARNINGs shape).
+3. Off: parseTrace has no off; a kant switch needs both directions.
+4. The jitter: bake the switch in and compile again when it flips, or test it at run time (docs/fieldIndexRecon.md, D).
+5. Whether the 27 C++ witnesses stay as they are (Clod's lean: yes; they sit at engine seats kant cannot reach) and
+   kant probes cover what kant code does.
+
+## Digest (one paragraph per seal)
+(none yet)
