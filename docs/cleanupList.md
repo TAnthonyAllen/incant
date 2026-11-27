@@ -6,11 +6,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
-### utilities' `flatten`: its descent test `grup.hasMembers` never fires (forms step 2, 2026-11-08)
-- **What/where:** `incant/utilities`, `flatten`, `if grup.hasMembers; flatten(*grup);`.
-- **Why it looks deletable or owed a respell:** two spellings are off. `hasMembers` is tok; kant's is `hasMemberS` (Tony). And `grup` is the loop's holder, so the read needs `*grup`. Measured while writing drawWalk: `grup.hasMemberS` reads nothing, `*grup.hasMemberS` reads 1 on firstLight's bar and 0 on every leaf. So flatten never recurses; every member goes to whatsIt. Its comment says "Just a test action for now", and nothing in the fleet calls it (to confirm).
-- **Confirm:** `git grep -n 'flatten(' -- incant IncantForms genLadder` for callers; then either respell to `*grup.hasMemberS` with a fixture, or cut it.
-- **Seen:** 2026-11-08. **CUT 2026-11-21 (SEQ 735; no caller in the whole tree, docs/kantLibraryRecon.md R1 D2).**
+Every entry here was checked against the tree on 2026-11-27 (SEQ 786): each still exists unless its own line says what moved (line numbers in the older entries have drifted and were not all rewritten). Five closed entries went to Done, and eight entries that had been appended below the Done heading while still open were brought back here (the last eight).
 
 ### EXPRESSIOn's `instruct = kind;`, and pop.sh's 25 `^Assign at end` filters (SEQ 562, 2026-11-08)
 - **What/where:** `incant/kantGrammar`, EXPRESSIOn's action, `instruct    = kind;` (the line after `instruct +% op target;` in the loose-tier arm). And `genLadder/pop.sh`, 25 `grep -v` filters naming `^Assign at end` (`_ajv`, `_whv`, `_btv`, `_ccv` and kin), which strip a print removed in `726dac7d`.
@@ -18,44 +14,14 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - ⚠ **CORRECTED 2026-11-08 (SEQ 564, docs/f146Recon.md): `instruct = kind;` IS read when XPRESs (or EXPRESSIOn) runs compiled.** `jitStmtRTValueRT` follows the returned label to the chain's top instruct, finds its count and sends a bare count, so the rule door's guard fires (XPRESs `qr = qa + 1` reads QR 0; without the line, QR 3). The interpreted-fleet measurement below stands, but the line is NOT inert; leave it until F-146's cure, which may make it so.
 - **Confirm:** measured 2026-11-08 with `instruct = kind;` removed: pop.sh unmoved row for row, and the prose's worked example, compare-or, chained assign and a zero row (each paired with a non-zero sibling) all read the same on the new road. For the filters: `git grep -n "Assign at end" -- genLadder` after the cut, then the fleet row for row.
 - **Seen:** 2026-11-08.
+- **Checked 2026-11-27:** the line is still there (`incant/kantGrammar:641`); pop.sh now has 21 `grep -v` filters naming `Assign at end`, not 25.
 
 ### Methods out of alphabetical order, in the `.rtn` and `.twk` files (Tony, 2026-11-07: "seriously not")
 - **What/where:** measured by `genLadder/alphaLint.sh`, report tier. `.rtn` sweep: alphaLint -- 8 file(s) examined, 81 out-of-order method(s), 0 broken unit(s). By file: jitEmitters.rtn 46 of 162, ruleActions.rtn 21 of 78, Instruct.rtn 6 of 88, GroupActions.rtn 5 of 70, Generate.rtn 2 of 20, genParse.rtn 1 of 6. `.twk` sweep (`alphaLint.sh *.twk`): alphaLint -- 11 file(s) examined, 11 out-of-order method(s), 0 broken unit(s). By file: measure.twk 4 of 43, GroupRules.twk 3 of 7, Stylish.twk 2 of 10, GroupDraw.twk 1 of 5, GroupStak.twk 1 of 10; GroupItem.twk, RuleStuff.twk and the rest in order.
 - **Why it is here:** the standing rule (Tony, 2026-08-15) is that new methods go in alphabetically. Tony's reason (2026-11-07): he knows about where to look when searching for a method. "No big deal", so it is low priority, and it is the test for any family kept together: can it still be found by name? Strokes have added methods beside the code they serve, so the order has drifted. Some of it reads as families kept together, such as ruleActions.rtn's `acc*` and jitEmitters.rtn's `jitWalk*`; whether a family stays together is part of the ruling.
 - **Confirm:** re-run the lint at the pass, because these numbers move with every stroke. **A reorder is not automatically inert in tok:** bare-name resolution is last-mentioned-wins (bear-traps #42, #57), and a sticky `print` default crosses externs and files, so moving an extern can change downstream code. Certify each file by `genLadder/codeOnly.py`, line counts both sides, plus a full bare tokall diff, then the checklist. `GroupItem.twk`'s 2026-09-15 sweep is the worked example.
 - **Seen:** 2026-11-07.
-
-### ✅ DONE 2026-11-01 -- MacPorts on the M6 -- uninstall whole if nothing uses it (Tony, 2026-10-31)
-- **Done:** Tony removed /opt/local, /Applications/MacPorts and the macports user; Clod removed the PATH lines (~/.zprofile,
-  ~/.profile, ~/.zshrc -- backups .bak-2026-11-01) and TOK.xcodeproj's eight /opt/local search paths (TOK 55d1c0e, binary
-  byte-identical). Fresh login shell clean, full checklist row for row (seal 308).
-- **What/where:** MacPorts at `/opt/local`; the hidden `macports` user it builds under, which the M4 -> M6 transition added;
-  and its PATH line in `~/.zprofile:3` (`/opt/local/bin:/opt/local/sbin` prepended -- position 3 and 4 of the login PATH,
-  ahead of the system dirs and of `/opt/homebrew/bin`; seal 299's census).
-- **Why it looks deletable:** ARM Homebrew at `/opt/homebrew` now carries the third-party tools (LLVM, gh). Tony would like
-  the `macports` user gone if MacPorts is not in use.
-- **Confirm (measure first, touch nothing until then):** what in `/opt/local` the build, the fleet and Tony's own scripts
-  actually use -- TOK's search paths and link flags (build log), every command the seven checklist scripts and `~/bin`
-  scripts (`bs fz gz pz rz tz`) resolve to `/opt/local/bin` in a fresh login shell, and `~/.zshrc` / Tawk functions.
-- **The ruling it carries:** if NOTHING uses it, uninstall MacPorts whole -- the `macports` user, `/opt/local`, and the
-  `~/.zprofile` PATH line go together. If SOMETHING uses it, keep it all: the user is MacPorts' safety feature (it builds
-  ports unprivileged), so it does not go on its own.
-- **Seen:** 2026-10-31.
-- **CENSUS 2026-11-01 (SEQ 505, read only) -- NOTHING USES IT. Recommendation: uninstall whole, per the ruling above.**
-  - It holds ONE port, `boehmgc` 8.2.10 (libgc, libgccpp, libgctba, libcord), and the `port` tool -- which no longer runs on
-    this OS (`OS platform mismatch`), so `port uninstall` cannot be the way out.
-  - The build does not read it: Groups links its own tracked gc 8.3.0 (`Groups/lib`, a different md5); all 43 of the
-    incant build's dependency files read 0 headers from /opt/local; `otool -L` on incant, tok and plg: 0 references.
-  - TOK.xcodeproj names it 8 times as a search path only: `/opt/local/include` in the Groups and TOK targets' and the
-    project's USER_HEADER_SEARCH_PATHS, `/opt/local/lib` in the TOK target's LIBRARY_SEARCH_PATHS (empty OTHER_LDFLAGS; the
-    TOK target has never been built in this DerivedData). Dead entries once it is gone; a separate small stroke can drop them.
-  - Nothing calls its tools: /opt/local/bin holds only daemondo, port, port-tclsh, portf, portindex, portmirror; none appears
-    in the checklist scripts, ~/bin, ~/.zshrc or ~/.zprofile. They resolve there in a login shell only because it is their
-    only copy.
-  - Left on the machine: the `macports` user (UID 502), /Applications/MacPorts, no launch daemons. PATH lines:
-    `~/.zprofile:3`, four in `~/.profile` (3, 12, 21, 30 -- zsh does not read it), and `~/.zshrc:138` (MANPATH) / `:141`.
-  - ⚠ The first source search ran under ugrep, which ignores --include, and was VOID; redone with /usr/bin/grep and with
-    find over all 25 Xcode projects / Makefiles under ~/Dropbox/data -- the only live hit is TOK.xcodeproj.
+- **Checked 2026-11-27:** the lint now reads 101 out of order in the `.rtn` sweep (8 files) and 16 in the `.twk` sweep (11 files).
 
 ### A set with a modifier after its brackets is stored as a GROUP (data 6) -- HELD for the in-depth cleanup (SEQ 455 R4)
 - **What/where:** `aCTionTraiTdata` (designDocs `scannerKeepsDatA`): `[a-z]+`, `[a-z]*`, `[a-z]?` make the term a group
@@ -96,6 +62,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   live.
 - **Confirm:** cut the registration and `opPointer`; setup is read at runtime, so rebuild in the same commit (#31); fleet
   row for row.
+- **Checked 2026-11-27:** still there, at `incant/setup:112` and `Instruct.rtn:1068`.
 
 ### `genParse.rtn` -- the file name, not its contents (a move, not a cut)
 - **What/where:** the header says this is "what is left of the C++ parse-method emitter" (retired by mapping 2026-09-26).
@@ -105,18 +72,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Why listed:** nothing in it generates a parse any more. If Tony wants the name to match the contents, the cost is a
   file move plus the `GroupRules.twk` include line and the DesignDocs `TokFiles -> genParse` keys.
 - **Seen:** 2026-09-30.
-
-### The three escaped `::enclosingFace` calls -- NOT a cut; a respell, parked by ruling (SEQ 235 R3)
-- **What/where:** `Generate.rtn:145` (parseContainer), `:196` (parseLoop), `:221` (parseRule), each
-  `-% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-`.
-- **Why listed:** stroke 5.1 gave `enclosingFace` its `groups.ext` line, so tok can now call it; the passthrough is
-  no longer needed to reach it. **Not respelled now (Tony, R3), for bear-trap #42:** the tok spelling needs a new
-  local for `zEnc`, and a new declaration mid-function re-points every bare field below it -- in `parseRule`, the
-  whole body under its `use` lines. Calling it twice instead (`if enclosingFace(field) field = enclosingFace(field)`)
-  avoids the local and doubles the lookup.
-- **Confirm:** respell one site at a time; full bare tokall diff of the function must show only that line, then
-  fleet row for row. Read the generated tail (#42), not only the canary.
-- **Seen:** 2026-10-01.
 
 ### `testAny` and the bootstrap rule `Any` -- the rest of parseAny's question (open; seen 2026-10-02)
 - **Where:** `testAny` (RuleStuff.twk, bound by `setTestMatch`'s `case isANY:`), the bootstrap rule `Any` (GroupMain.twk,
@@ -135,16 +90,12 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Confirm:** route its fire through `driveStep` (the jitted carrier swap would need a seat there), then the drive
   census row in `pop.sh` drops `jitEmitters.rtn:jitProbeDrive` and reads 3; every `probeDrive` fixture row for row.
 - **Seen:** 2026-10-01.
+- **Checked 2026-11-27:** still there, now `jitEmitters.rtn:1408`.
 
 ### `modPercent` and `modPointer` -- RuleStuff flags with no reader but a measure (seen 2026-10-02, SEQ 269/270)
 - **What/where:** `RuleStuff.twk:26-27`; written only by `modify()` (`GroupActions.rtn:565-566`, the `%` and `&` modifiers).
 - **Why deletable:** read only by `measure.twk` `modsOf` (the MODSOF witness, :766-770). Whole-tree word census of `*.twk`/`*.rtn`, 2026-10-02.
 - **Confirm:** a census of `incant/`, `IncantForms/` and the grammar for `%`/`&` modifiers in use; cut the two flags, the two `modify` arms and the witness columns; layout (groups.ext + full bare tokall); fleet row for row. The draft Part 1 amendment (objectModel.md A2f) classes them measurement-only.
-
-### Fold `interpretXP` into `aCTionExpressioN` (seen 2026-10-02, SEQ 269/270)
-- **What/where:** `ruleActions.rtn:441-445` `aCTionExpressioN` is `return interpretXP(xpList);`; `interpretXP` at `ruleActions.rtn:1396`.
-- **Why:** the bytecode branch that made it a dispatcher retired in deepClean S4 (2026-10-02). `aCTionExpressioN` is the ONLY caller -- searched in `*.twk`, `*.rtn`, the generated `.mm` and `incant/`, 2026-10-02.
-- **Confirm:** move the body, keep the `aCTionExpressioN` name (it is the registered rule action), respell the DesignDocs keys `ruleActions.interpretXP.*` and the `jitEmitters.rtn:1925` comment; fleet and jitLadder row for row.
 
 ### `parseTrace` / `traceParse` -- overlaps Tony's directives (seen 2026-10-02, SEQ 269/270)
 - **What/where:** `GroupRules.parseTrace`, set by `traceParse` (`genParse.rtn:87-92`, registered `incant/setup:81`); gates about 51 lines in `measure.twk` and three inline blocks in `GroupItem.twk:226-291`.
@@ -160,6 +111,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Confirm:** a census of every `isLabel` reader, each read classified by meaning; a separate flag for the local
   case, fleet row for row.
 - **Seen:** 2026-10-01 (stroke 5.6a mint-site census).
+- **Checked 2026-11-27:** still there, now `GroupActions.rtn:765` (the write) and `:773` (the read).
 
 ### GroupItem's C++ escapes, and parse() readability (Tony, 2026-10-06 offline status)
 - **What / where:** eleven `-% %-` escapes in `GroupItem.twk`: `attachLabel` (:252, :272), `captureSpan` (:309, :329),
@@ -174,6 +126,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   escape sat at that point. When that escape is respelled in tok, the label and the no-op assign leave together and the
   directive is re-aimed at the respelled statement (dirCheck confirms).
 - **Seen:** 2026-10-06. Tony proposes a "do we need this" cleanup day or two once the design docket is done.
+- **Checked 2026-11-27:** `GroupItem.twk` holds 12 `-%` openers today; `beforeAction:` is at :1365.
 
 ### `processingCodE` (GroupFields 412) -- Tony cut it offline, restored by R2a (2026-10-06)
 - **What / where:** `incant/setup` `processingCodE=412`; `Instruct.rtn` its read (`case 412: product.count = inCompile();`)
@@ -194,14 +147,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   every term-wanting walk filters noPrint for itself.
 - **Confirm:** grep every repo and the gitignored directive files for a writer; cut the flag and its one read; full bare
   tokall diff (the read goes, nothing else moves); fleet row for row.
-- **Seen:** 2026-10-06.
-
-### `updateContentFlags` -- no callers (containers recon step 1, 2026-10-06; SEQ 309 step 1b R4)
-- **What / where:** `GroupItem.twk:1955`, which re-derives `hasAttributes`/`hasMembers`/`hasTraits` from a walk.
-- **Why it looks deletable:** no caller in any `.twk`, `.rtn` or kant file (the 2026-08-29 isGroupActorPoison probe once
-  suppressed it and measured it irrelevant).
-- **Confirm:** census callers across all three repos and the directive files; cut it; full bare tokall diff; fleet row
-  for row. If the containers shape lands, its flag upkeep is the place a replacement would be decided, not here.
 - **Seen:** 2026-10-06.
 
 ### `recordLabel` -- no caller since the ruleName stroke (2026-10-06)
@@ -285,6 +230,47 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   a move should not orphan one; dirCheck runs at the seal regardless.
 - **Seen:** 2026-11-03.
 
+### checkSkip's `/#` comment form, and three bookkeeping fields nobody reads
+- **What/where:** `GroupRules.twk` checkSkip, the `or (atContent + 1) == '#'` arm (skips from `/#` to the next `#`); and
+  the members `beforeSkip`, `lastSkip`, `noSkipping` (GroupRules.twk:90-91, :112; written at :243-248; mirrored in
+  `groups.ext` :427-428, :448).
+- **Why it looks deletable:** an env-gated tap that disabled the `/#` arm left pop.sh row for row (2420, SEQ 511 R1). The
+  three fields have writers only: 0 readers in any `.twk` / `.rtn` (grep, 2026-11-02).
+- **Confirm:** the tap re-run at cut time with jitLadder, printPop, decodePop, ddPop, frontier; a grep of the gitignored
+  directive files for the three names (SEQ 284 R2); groups.ext lines go in the same stroke (mirror-arity row moves).
+- **Note:** the old road's checkSkip is ruled untouched (2026-11-01) -- these are Tony's to cut or keep.
+- **Seen:** 2026-11-02 (SEQ 511 R1).
+
+### `aligh` in `IncantForms/Tests/flash` -- a misspelt `align`
+- **What/where:** `IncantForms/Tests/flash`, two uses of the attribute `aligh` (see `grep -n aligh` there).
+- **Why it looks deletable:** no code anywhere reads `aligh`; it is `align` misspelt, so those fields never got the
+  alignment they ask for (found by the forms inventory sweep, A1 Part 1).
+- **Confirm:** `grep -rn aligh IncantForms` -- the only hits are this file and formsRecon. A form file, not engine code:
+  respell to `align` when the form is reworked under kant, or with the next touch of the file.
+- **Seen:** 2026-11-03 (forms afternoon track, A1).
+
+### The Groups target's `-include gcEngine.h`
+- **What/where:** `TOK.xcodeproj`, Groups target, OTHER_CPLUSPLUSFLAGS (Debug and Release): `-include
+  /Users/anthony/Dropbox/data/InProcess/Groups/gcEngine.h`.
+- **Why it could go:** it exists only because tok emits a type's `#include` in its type table's hash order
+  (`Tokf/FormatC.twk` printCode iterates `types`, a BaseHash), so `gcEngine.h` lands after `GroupItem.h`. A tok fix
+  that emits a class's base before the class would retire it (SEQ 590 R3).
+- **Confirm:** remove the flag, retok bare, build: every generated .mm must include gcEngine.h ahead of the first class
+  header that extends it; fleet and ladder row for row.
+- **Seen:** 2026-11-10 (SEQ 589 / 590).
+- **Checked 2026-11-27:** the flag is still in `TOK.xcodeproj` (two lines name `gcEngine.h`).
+
+- **ITERSOURCe in incant/kantGrammar** (the line `ITERSOURCe      UnaryOPS? ANYtoken;`, and its name in genLadder/kantGrammarNames.sh). Why deletable: since SEQ 601 no kantGrammar rule uses it; ITERATe's four shapes take an EXPRESSIOn source. To confirm: grep kantGrammar and incant/pop for ITERSOURCe; removing a rule moves the registry-count rows (itRT, jitCursorLifeT, itBackRT, termCountT). Seen 2026-11-10.
+
+- **`styleOf` and `styleComponent`, `GroupDraw.twk` (the block above `roundedOf`)** — seen 2026-11-14 (SEQ 657, F-156). Not called since the floor stopped reading a held style: a style is merged into its field at layout. Kept because `styleComponent` is an extern, and deleting an extern is a `groups.ext` change that a branch does not make. Confirm with `grep -n "styleOf\|styleComponent" *.twk *.rtn` (only their own definitions) and the mirror line in `groups.ext`; a deletion moves the extern canary by one and pop.sh's mirror-arity row.
+
+- **The second `GroupItem locate(String name)`, `GroupControl.twk:92-109`** — seen 2026-11-20. A byte-for-byte twin of the one above it (77-90; only the header comment's indent differs). tok emits one: `GroupControl.mm` has a single `locate(char *name)` (:87). Confirm: delete the twin, `tok GroupControl.twk`, and `GroupControl.mm` / `.h` are byte-identical.
+
+- **The stale name list in `genLadder/kantGrammarNames.sh` (its `NEW=` list)** — seen 2026-11-20 (seal 512; Tony, R4). It names PRINTFIELd, INVOKEARg, BRACEd and PARENs, which incant/kantGrammar no longer registers, so the script fails with "not registered by the load" on trunk as on any branch. It is on no checklist, so nothing saw it. Confirm: `genLadder/kantGrammarNames.sh | grep 'not registered'` lists exactly those four; drop them from the list and the script passes (or fails only on a real collision).
+  **Checked 2026-11-27:** the four names are still in the list and the script still ends KANTGRAMMAR NAMES FAILED.
+
+- **`GC_set_no_dls(1)` in `guiHost.mm` makeWindow** — seen 2026-11-22 (SEQ 747, windows stroke 0). Why it looks deletable: it was put there to dodge AppKit's "Too many root sets" abort, and with `WINDOW_KEEP_DLS=1` (the switch skipped) an offscreen window opens, 197 more images load, and nothing aborts, at GCSTRESS=1000. Confirm: a VISIBLE window inside `[NSApp run]` with `WINDOW_KEEP_DLS=1` (stroke 5's run can carry it); only then is the switch unneeded. `WINDOW_KEEP_DLS` and `WINDOW_IMAGES` go with it or stay as its measurement.
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
@@ -295,6 +281,72 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 | `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
 
 ## Done
+
+### utilities' `flatten`: its descent test `grup.hasMembers` never fires (forms step 2, 2026-11-08)
+- **What/where:** `incant/utilities`, `flatten`, `if grup.hasMembers; flatten(*grup);`.
+- **Why it looks deletable or owed a respell:** two spellings are off. `hasMembers` is tok; kant's is `hasMemberS` (Tony). And `grup` is the loop's holder, so the read needs `*grup`. Measured while writing drawWalk: `grup.hasMemberS` reads nothing, `*grup.hasMemberS` reads 1 on firstLight's bar and 0 on every leaf. So flatten never recurses; every member goes to whatsIt. Its comment says "Just a test action for now", and nothing in the fleet calls it (to confirm).
+- **Confirm:** `git grep -n 'flatten(' -- incant IncantForms genLadder` for callers; then either respell to `*grup.hasMemberS` with a fixture, or cut it.
+- **Seen:** 2026-11-08. **CUT 2026-11-21 (SEQ 735; no caller in the whole tree, docs/kantLibraryRecon.md R1 D2).**
+
+### ✅ DONE 2026-11-01 -- MacPorts on the M6 -- uninstall whole if nothing uses it (Tony, 2026-10-31)
+- **Done:** Tony removed /opt/local, /Applications/MacPorts and the macports user; Clod removed the PATH lines (~/.zprofile,
+  ~/.profile, ~/.zshrc -- backups .bak-2026-11-01) and TOK.xcodeproj's eight /opt/local search paths (TOK 55d1c0e, binary
+  byte-identical). Fresh login shell clean, full checklist row for row (seal 308).
+- **What/where:** MacPorts at `/opt/local`; the hidden `macports` user it builds under, which the M4 -> M6 transition added;
+  and its PATH line in `~/.zprofile:3` (`/opt/local/bin:/opt/local/sbin` prepended -- position 3 and 4 of the login PATH,
+  ahead of the system dirs and of `/opt/homebrew/bin`; seal 299's census).
+- **Why it looks deletable:** ARM Homebrew at `/opt/homebrew` now carries the third-party tools (LLVM, gh). Tony would like
+  the `macports` user gone if MacPorts is not in use.
+- **Confirm (measure first, touch nothing until then):** what in `/opt/local` the build, the fleet and Tony's own scripts
+  actually use -- TOK's search paths and link flags (build log), every command the seven checklist scripts and `~/bin`
+  scripts (`bs fz gz pz rz tz`) resolve to `/opt/local/bin` in a fresh login shell, and `~/.zshrc` / Tawk functions.
+- **The ruling it carries:** if NOTHING uses it, uninstall MacPorts whole -- the `macports` user, `/opt/local`, and the
+  `~/.zprofile` PATH line go together. If SOMETHING uses it, keep it all: the user is MacPorts' safety feature (it builds
+  ports unprivileged), so it does not go on its own.
+- **Seen:** 2026-10-31.
+- **CENSUS 2026-11-01 (SEQ 505, read only) -- NOTHING USES IT. Recommendation: uninstall whole, per the ruling above.**
+  - It holds ONE port, `boehmgc` 8.2.10 (libgc, libgccpp, libgctba, libcord), and the `port` tool -- which no longer runs on
+    this OS (`OS platform mismatch`), so `port uninstall` cannot be the way out.
+  - The build does not read it: Groups links its own tracked gc 8.3.0 (`Groups/lib`, a different md5); all 43 of the
+    incant build's dependency files read 0 headers from /opt/local; `otool -L` on incant, tok and plg: 0 references.
+  - TOK.xcodeproj names it 8 times as a search path only: `/opt/local/include` in the Groups and TOK targets' and the
+    project's USER_HEADER_SEARCH_PATHS, `/opt/local/lib` in the TOK target's LIBRARY_SEARCH_PATHS (empty OTHER_LDFLAGS; the
+    TOK target has never been built in this DerivedData). Dead entries once it is gone; a separate small stroke can drop them.
+  - Nothing calls its tools: /opt/local/bin holds only daemondo, port, port-tclsh, portf, portindex, portmirror; none appears
+    in the checklist scripts, ~/bin, ~/.zshrc or ~/.zprofile. They resolve there in a login shell only because it is their
+    only copy.
+  - Left on the machine: the `macports` user (UID 502), /Applications/MacPorts, no launch daemons. PATH lines:
+    `~/.zprofile:3`, four in `~/.profile` (3, 12, 21, 30 -- zsh does not read it), and `~/.zshrc:138` (MANPATH) / `:141`.
+  - ⚠ The first source search ran under ugrep, which ignores --include, and was VOID; redone with /usr/bin/grep and with
+    find over all 25 Xcode projects / Makefiles under ~/Dropbox/data -- the only live hit is TOK.xcodeproj.
+
+### The three escaped `::enclosingFace` calls -- NOT a cut; a respell, parked by ruling (SEQ 235 R3)
+- **What/where:** `Generate.rtn:145` (parseContainer), `:196` (parseLoop), `:221` (parseRule), each
+  `-% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-`.
+- **Why listed:** stroke 5.1 gave `enclosingFace` its `groups.ext` line, so tok can now call it; the passthrough is
+  no longer needed to reach it. **Not respelled now (Tony, R3), for bear-trap #42:** the tok spelling needs a new
+  local for `zEnc`, and a new declaration mid-function re-points every bare field below it -- in `parseRule`, the
+  whole body under its `use` lines. Calling it twice instead (`if enclosingFace(field) field = enclosingFace(field)`)
+  avoids the local and doubles the lookup.
+- **Confirm:** respell one site at a time; full bare tokall diff of the function must show only that line, then
+  fleet row for row. Read the generated tail (#42), not only the canary.
+- **Seen:** 2026-10-01.
+- **CLOSED, found at the 2026-11-27 check (SEQ 786):** the three passthroughs are gone; no `.twk` or `.rtn` names `enclosingFace` today. They left with stroke 1.3 (`b392611c`, ParseActivation.face renamed instance). Nothing to respell.
+
+### Fold `interpretXP` into `aCTionExpressioN` (seen 2026-10-02, SEQ 269/270)
+- **What/where:** `ruleActions.rtn:441-445` `aCTionExpressioN` is `return interpretXP(xpList);`; `interpretXP` at `ruleActions.rtn:1396`.
+- **Why:** the bytecode branch that made it a dispatcher retired in deepClean S4 (2026-10-02). `aCTionExpressioN` is the ONLY caller -- searched in `*.twk`, `*.rtn`, the generated `.mm` and `incant/`, 2026-10-02.
+- **Confirm:** move the body, keep the `aCTionExpressioN` name (it is the registered rule action), respell the DesignDocs keys `ruleActions.interpretXP.*` and the `jitEmitters.rtn:1925` comment; fleet and jitLadder row for row.
+- **CLOSED, found at the 2026-11-27 check (SEQ 786):** not folded, deleted. `interpretXP` went with the old builder (`333eda64`, SEQ 355 stroke 2, 2026-10-14); no `.twk` or `.rtn` defines it or `aCTionExpressioN` today.
+
+### `updateContentFlags` -- no callers (containers recon step 1, 2026-10-06; SEQ 309 step 1b R4)
+- **What / where:** `GroupItem.twk:1955`, which re-derives `hasAttributes`/`hasMembers`/`hasTraits` from a walk.
+- **Why it looks deletable:** no caller in any `.twk`, `.rtn` or kant file (the 2026-08-29 isGroupActorPoison probe once
+  suppressed it and measured it irrelevant).
+- **Confirm:** census callers across all three repos and the directive files; cut it; full bare tokall diff; fleet row
+  for row. If the containers shape lands, its flag upkeep is the place a replacement would be decided, not here.
+- **Seen:** 2026-10-06.
+- **CLOSED AS NOT DELETABLE, found at the 2026-11-27 check (SEQ 786):** it has three callers now, all in `Instruct.rtn` (the `:%` / `:+` operators since `b4df2aa8`, 2026-11-06, and the remove-attribute operator since `1b11c54b`, SEQ 630). The entry's premise no longer holds.
 
 ### `parseAny` -- CUT 2026-10-02 (deepClean S6, SEQ 260)
 - Witness re-run first: parseAny **0** calls, parseString sibling 18,487. Cut: the function, its `case isANY:` installer in
@@ -343,40 +395,6 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
   countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
   `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
 
-### checkSkip's `/#` comment form, and three bookkeeping fields nobody reads
-- **What/where:** `GroupRules.twk` checkSkip, the `or (atContent + 1) == '#'` arm (skips from `/#` to the next `#`); and
-  the members `beforeSkip`, `lastSkip`, `noSkipping` (GroupRules.twk:90-91, :112; written at :243-248; mirrored in
-  `groups.ext` :427-428, :448).
-- **Why it looks deletable:** an env-gated tap that disabled the `/#` arm left pop.sh row for row (2420, SEQ 511 R1). The
-  three fields have writers only: 0 readers in any `.twk` / `.rtn` (grep, 2026-11-02).
-- **Confirm:** the tap re-run at cut time with jitLadder, printPop, decodePop, ddPop, frontier; a grep of the gitignored
-  directive files for the three names (SEQ 284 R2); groups.ext lines go in the same stroke (mirror-arity row moves).
-- **Note:** the old road's checkSkip is ruled untouched (2026-11-01) -- these are Tony's to cut or keep.
-- **Seen:** 2026-11-02 (SEQ 511 R1).
-
-### `aligh` in `IncantForms/Tests/flash` -- a misspelt `align`
-- **What/where:** `IncantForms/Tests/flash`, two uses of the attribute `aligh` (see `grep -n aligh` there).
-- **Why it looks deletable:** no code anywhere reads `aligh`; it is `align` misspelt, so those fields never got the
-  alignment they ask for (found by the forms inventory sweep, A1 Part 1).
-- **Confirm:** `grep -rn aligh IncantForms` -- the only hits are this file and formsRecon. A form file, not engine code:
-  respell to `align` when the form is reworked under kant, or with the next touch of the file.
-- **Seen:** 2026-11-03 (forms afternoon track, A1).
-
-### The Groups target's `-include gcEngine.h`
-- **What/where:** `TOK.xcodeproj`, Groups target, OTHER_CPLUSPLUSFLAGS (Debug and Release): `-include
-  /Users/anthony/Dropbox/data/InProcess/Groups/gcEngine.h`.
-- **Why it could go:** it exists only because tok emits a type's `#include` in its type table's hash order
-  (`Tokf/FormatC.twk` printCode iterates `types`, a BaseHash), so `gcEngine.h` lands after `GroupItem.h`. A tok fix
-  that emits a class's base before the class would retire it (SEQ 590 R3).
-- **Confirm:** remove the flag, retok bare, build: every generated .mm must include gcEngine.h ahead of the first class
-  header that extends it; fleet and ladder row for row.
-- **Seen:** 2026-11-10 (SEQ 589 / 590).
-
-- **ITERSOURCe in incant/kantGrammar** (the line `ITERSOURCe      UnaryOPS? ANYtoken;`, and its name in genLadder/kantGrammarNames.sh). Why deletable: since SEQ 601 no kantGrammar rule uses it; ITERATe's four shapes take an EXPRESSIOn source. To confirm: grep kantGrammar and incant/pop for ITERSOURCe; removing a rule moves the registry-count rows (itRT, jitCursorLifeT, itBackRT, termCountT). Seen 2026-11-10.
-
-- **`styleOf` and `styleComponent`, `GroupDraw.twk` (the block above `roundedOf`)** — seen 2026-11-14 (SEQ 657, F-156). Not called since the floor stopped reading a held style: a style is merged into its field at layout. Kept because `styleComponent` is an extern, and deleting an extern is a `groups.ext` change that a branch does not make. Confirm with `grep -n "styleOf\|styleComponent" *.twk *.rtn` (only their own definitions) and the mirror line in `groups.ext`; a deletion moves the extern canary by one and pop.sh's mirror-arity row.
 - **`newStuff isList;`, `incant/utilities` (above `fillDownAcross`)** — seen 2026-11-14 (SEQ 653). **CUT 2026-11-21 (SEQ 735; R1 D5).** Unused since fillDownAcross adds its repeats to the field itself. Confirm with `grep -n newStuff incant/utilities`.
-- **The second `GroupItem locate(String name)`, `GroupControl.twk:92-109`** — seen 2026-11-20. A byte-for-byte twin of the one above it (77-90; only the header comment's indent differs). tok emits one: `GroupControl.mm` has a single `locate(char *name)` (:87). Confirm: delete the twin, `tok GroupControl.twk`, and `GroupControl.mm` / `.h` are byte-identical.
-- **The stale name list in `genLadder/kantGrammarNames.sh` (its `NEW=` list)** — seen 2026-11-20 (seal 512; Tony, R4). It names PRINTFIELd, INVOKEARg, BRACEd and PARENs, which incant/kantGrammar no longer registers, so the script fails with "not registered by the load" on trunk as on any branch. It is on no checklist, so nothing saw it. Confirm: `genLadder/kantGrammarNames.sh | grep 'not registered'` lists exactly those four; drop them from the list and the script passes (or fails only on a real collision).
+
 - **`displayCell`, `displayImage`, `displayText` and the ivars `textField`, `layoutPath`, `style`, `selection`, `Layout.twk` (:18, :46, :64; the class head)** — seen 2026-11-22 (SEQ 740, docs/windowsRecon.md section 1). **CUT 2026-11-22 (SEQ 748, windows stroke 1, by the dispatch): the three methods and the ivars `textField`, `style` (and the mirrors' `cell`, `strokeColor`, `textColor` in groups.ext). `layoutPath` (init uses it) and `selection` (stroke 2 decides) stay.** The July rewrite's display methods, from before the floor existed (GroupDraw.twk draws now). Nothing calls them: grep of every `.twk`, `.rtn` and guiHost.mm outside `Layout.twk` and `GUI/` finds no caller, and `drawRect` strokes one frame without them. `invertY` (:125) is likewise uncalled today but a click from a point will want it. **Confirm:** remove them, retok bare, build; the fleet does not open a window, so the proof is the build and a watched `openWindow` run. Windows stroke 1 would cut them in passing.
-- **`GC_set_no_dls(1)` in `guiHost.mm` makeWindow** — seen 2026-11-22 (SEQ 747, windows stroke 0). Why it looks deletable: it was put there to dodge AppKit's "Too many root sets" abort, and with `WINDOW_KEEP_DLS=1` (the switch skipped) an offscreen window opens, 197 more images load, and nothing aborts, at GCSTRESS=1000. Confirm: a VISIBLE window inside `[NSApp run]` with `WINDOW_KEEP_DLS=1` (stroke 5's run can carry it); only then is the switch unneeded. `WINDOW_KEEP_DLS` and `WINDOW_IMAGES` go with it or stay as its measurement.
