@@ -1401,6 +1401,10 @@ define
         is not followed: styles are composed from styles by merge in a define.
     ***************************************************************************/
     mergeStyles code={
+        // noListNoWalk a field with no list has no style to merge, no placeholder to re-point and no member to visit: leave before the loops, since a for over a field with no list prints an error line for each (firstLight's space printed two on every show; fixit mergeStylesNoList)
+        msGo = 0;
+        if argument.listLengtH;     msGo = 1;
+        if msGo == 0;   return;
         for grup in argument; attributes
             msTag = *grup.taG;
             msIs = 0;

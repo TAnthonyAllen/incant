@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include(styles);
+search cOLOr fONTs sTYLEs;
+register(MergeNoListT);
+define
+    mnSt strokeColor="red";
+    mnWith x=0 y=0 width=10 height=10 style:=mnSt
+        mnBare;
+        mnKid width=5 style:=mnSt;
+    mnAlone;
+    mnRead code={
+        mnH := argument;
+        mnT = string $argument.taG$;
+        mnL := argument.listLengtH;
+        mnV = "none";
+        if *mnH["strokeColor"];     mnV = *mnH["strokeColor"];
+        print "MN" mnT "length" mnL "strokeColor" mnV:;
+        };
+    mnKids code={
+        for grup in argument; members
+            mnRead(*grup);
+        };
+    ;
+search Utilities MergeNoListT;
+mergeStyles(mnWith);
+mnRead(mnWith);
+mnKids(mnWith);
+mergeStyles(mnAlone);
+mnRead(mnAlone);
+print "MERGENOLIST SENTINEL":;
+stop();
+
+mergeNoListT -- mergeStyles does not walk a field with no list (GO 6, 2026-11-27; fixit mergeStylesNoList retired into it).
+
+What it asks. mergeStyles walks a form and merges each field's held style into it. A field with no attribute and
+no member has no list, and a for over such a field prints "nextGroup: ERROR <tag> does not contain a list". firstLight's
+bar holds one (space), so every show(firstLight) printed that line twice: once from mergeStyles' own loop and once
+from resolveLook's, which it calls. Now mergeStyles leaves at once when its field has no list.
+
+The rows.
+    mnWith      a field with a list and a held style: the style's strokeColor is merged (red).
+    mnBare      its first member, no list: read as it was, length 0, no strokeColor, and nothing on stderr.
+    mnKid       the member AFTER the bare one, with its own held style: red. The walk went on past the bare member.
+    mnAlone     mergeStyles called on a field with no list directly: nothing, and nothing on stderr.
+    stderr      holds no nextGroup line (the harness reads it; this file prints on stdout so stderr can be read whole).
+The H7. With noListNoWalk taken out of mergeStyles, stderr holds four nextGroup lines (two a bare field).
