@@ -20,6 +20,8 @@
     The list of shared names, with the collision report, is in the plan of
     record, IncantForms/WorkingOn/macros.
 *****************************************************************************/
+/*  loadsOnce  kantGrammar guards itself: a second include leaves at once (bail leaves the file, the includer goes on). Loaded twice, its rules took their terms twice and the next new-road body ended at exit 139 (measured 2026-11-27). The mark is written at this file's foot  */
+if loadedFiles["kantGrammar"];   bail();
 // makeInstruct lives in Utilities, which every reader of this file searches: a name defined in KantGrammar is not reachable as an action (SEQ 494, measured)
 registry(Utilities);
 define
@@ -697,6 +699,8 @@ define
         return  *actionLabel;
         };
     ;
+/*  loadedFiles  kantGrammar joins the loaded files (incant/setup), read by its own first line -- marked here with no action call, as utilities and styles are  */
+loadedFiles +% new("kantGrammar");
 bail();
 
 /***************************************************************************
