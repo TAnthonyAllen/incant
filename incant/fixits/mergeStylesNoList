@@ -1,0 +1,33 @@
+Start();
+include(utilities);
+cerr "ANCHOR mergeStylesNoList -- mergeStyles loops over a field with no list (firstLight's space)":;
+cerr "PIN today: two lines, nextGroup: ERROR space does not contain a list, before the form is drawn. Want: none":;
+fixMergeStylesNoListHere = 0;
+show(firstLight);
+cerr "SENTINEL mergeStylesNoList reached the foot":;
+stop();
+
+LANE:  forms
+BLAST: DISJOINT
+OWNER: Clod     (Clay's go order GO 4 item 3, ruled by Tony, 2026-11-27; not chased)
+SEVERITY: noise on stderr; the PDF is the same either way.
+
+mergeStylesNoList -- mergeStyles (incant/utilities) walks every member of a form, and for each one runs
+`for grup in argument; attributes`. firstLight's bar holds a member `space` with no attribute and no member, so it
+has no list. A for over a field with no list does one of two things, depending on how its source arrived:
+  - it prints "nextGroup: ERROR space does not contain a list" (twice), or
+  - it silently walks a holder further up the chain in its place (aCTionFOR, ruleActions.rtn: "if !LoopOn.groupList
+    && result  LoopOn = result").
+Which one happens depends on what ran just before. Measured 2026-11-27 on trunk: `show(firstLight);` alone is
+silent; `include(utilities); show(firstLight);` prints the two lines; a cerr added at mergeStyles' head makes both
+print them. With kantGrammar loaded by utilities (branch kantgrammar-once) every show(firstLight) prints them.
+Found by lldb: the two lines come from aCTionFOR under mergeStyles under mergeStyles, LoopOn tagged space, no list.
+
+NEXT: BEST GUESS
+  Not a recommendation. Two candidates, neither run:
+  1. mergeStyles skips its attributes loop when argument has no list (kant, one line). Grade: likely cures the
+     noise; it would also end the silent walk of the wrong holder, which may or may not have been merging a style
+     onto space by accident. Promote: formsPop unmoved and tester's PDF byte for byte. Kill: any form changes.
+  2. aCTionFOR itself: a for over a field with no list runs no statement and says nothing, and never takes a holder
+     further up in its place. Grade: the real seat, but engine work and every for in the tree is its blast radius;
+     needs a count first of how often the "walk a holder further up" arm is taken in a fleet run.
