@@ -320,6 +320,9 @@ GroupItem *GroupItem::addAttribute(GroupItem *grup)
 	grup = addGroup(grup);
 	grup->options.affiliation = 1;
 	groupBody->flags.hasAttributes = 1;
+	// lateBeforeMembers an attribute added after the members goes at the end of the attributes, before the first member (Tony, 2026-11-27); a sorted or stacked list keeps its own order
+	if ( groupBody->flags.hasMembers && !groupBody->flags.isSorted && !groupBody->flags.actionType )
+		placeBeforeMembers(grup);
 	/***************************************************************
 	hasTraits is set if the field passed in is not noPrint-class.
 	***************************************************************/
@@ -1940,6 +1943,29 @@ GroupItem 	*carrier = getProperty("builtinParseR");
 	if ( carrier && carrier->getProperty("CodE") )
 		return carrier;
 	return this;
+}
+
+/***************************************************************************
+                                placeBeforeMembers
+    Move the attribute just added, which addGroup put last, to sit before
+    the first member. Does nothing when there is no member, when the entry
+    is not the last in this list, or when the list is stacked.
+***************************************************************************/
+void GroupItem::placeBeforeMembers(GroupItem *grup)
+{
+GroupItem 	*member = 0;
+GroupItem 	*before = 0;
+	if ( !grup || this->groupBody->groupList->lastInList != grup || this->groupBody->groupList->stakked )
+		return;
+	member = this->nextMember(0);
+	before = grup->priorInParent;
+	if ( !member || member == grup || !before )
+		return;
+	before->nextInParent = 0;
+	this->groupBody->groupList->lastInList = before;
+	grup->priorInParent = 0;
+	grup->nextInParent = 0;
+	member->prepend(grup);
 }
 
 /***************************************************************************

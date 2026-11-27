@@ -104,6 +104,7 @@ GroupItem *parse(RuleStuff *pStuff, int guardPassed, GroupItem *into);
 GroupItem *parseBlocK();
 GroupItem *parseBody();
 GroupItem *parseHolder();
+void placeBeforeMembers(GroupItem *grup);
 GroupItem *pop();
 void prepend(GroupItem *grup);
 GroupItem *prior(GroupItem *grup);
