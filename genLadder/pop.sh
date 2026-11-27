@@ -10878,6 +10878,23 @@ for _to in "$T"/.timedOut.*; do
     [ -e "$_to" ] || continue
     echo "  FAIL  ${_to##*.timedOut.} TIMED OUT -- a capped direct run was killed; every row that read it measured nothing"; fail=1
 done
+#  lateAttrT -- an attribute added after the members goes before the first member (Tony, 2026-11-27, SEQ 791). Both sit on one chain; before, a late +% landed
+#  after the members. H7 (run SEQ 791, on the committed fix): without addAttribute's placeBeforeMembers call LA-2, LA-3, LA-5, LA-6 and LA-8 go red; LA-1, LA-4 and LA-7 are
+#  the controls and stay green (the definition's own order, the filtered walks, and a field with no member).
+_laF=$(ip lateAttrT)
+perl -e 'alarm 30; exec @ARGV' "$B" "$_laF" > "$T/la.o" 2> "$T/la.e"; _laX=$?
+_lap () { awk -v pg="$1" '/^LA PAGE/{b=$3; next} /^LA SENTINEL/{b=0} b==pg{$1=$1; print}' "$T/la.e" | sed 's/^ALL //; s/^ITERATE //; s/^POS //' | tr '\n' ',' | sed 's/,$//'; }
+_ofeq "lateAttrT exit status" "$_laX" "0"
+_ofeq "lateAttrT sentinel" "$(grep -c '^LA SENTINEL' "$T/la.e")" "1"
+_ofeq "lateAttrT LA-1 control: as defined, attributes then the member (name affiliation, 1 = attribute)" "$(_lap 1)" "one 1,two 1,m1 0"
+_ofeq "lateAttrT LA-2 +% laLate lands at the end of the attributes, before the member" "$(_lap 2)" "one 1,two 1,laLate 1,m1 0"
+_ofeq "lateAttrT LA-3 iterate walks the same chain order" "$(_lap 3)" "one,two,laLate,m1"
+_ofeq "lateAttrT LA-4 control: for ... attributes and for ... members filter as before" "$(_lap 4)" "ATTRS one,ATTRS two,ATTRS laLate,MEMBERS m1"
+_ofeq "lateAttrT LA-5 position reads: [3] is laLate, [4] is m1" "$(_lap 5)" "laLate m1"
+_ofeq "lateAttrT LA-6 a second late attribute goes after the first; a member added later still goes last" "$(_lap 6)" "one 1,two 1,laLate 1,laLate2 1,m1 0,laMem 0"
+_ofeq "lateAttrT LA-7 control: no member yet, the attribute is added at the end and the member after it" "$(_lap 7)" "one 1,laLate 1,laMem 0"
+_ofeq "lateAttrT LA-8 no attribute and one member: both late attributes land before it, in the order added" "$(_lap 8)" "laLate 1,laLate2 1,laMem 0"
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
