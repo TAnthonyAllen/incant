@@ -50,3 +50,10 @@ NEXT: OPEN
   What would say more: what kantGrammar hands opPlusEQ for the right side of += (the built instruct, printed), beside
   what it hands *= .
   Taken: the second PIN reads 5 (4.5 cast into the count, as a = a + 1.5 gives), no ERROR line. Not taken (today): 3.
+
+RETIRED 2026-11-28 (GO 4, SEQ 805), by mapping. Cause: testOP never picked the per-kind member of '+=', so the op that ran was
+opPlusEQ, the named refusal. Cured by one line in testOP (pickKindOP). Where its assertions live now:
+  a += 1.5 in a new-road body reads as the old road, no ERROR line   -> incant/pop/compoundT 'plus count by number', and pop.sh's
+                                                                        'no ERROR line on either road' and 'reads what the old road reads' rows
+  the control a = a + 1.5                                             -> not carried: it never failed
+  -= *= /= not tried on counts                                        -> compoundT's minus / times / over cases, both roads

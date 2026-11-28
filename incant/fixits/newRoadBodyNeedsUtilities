@@ -1,0 +1,55 @@
+Start();
+include(utilities);
+registry(PrProbe);
+define
+    prA newRoad code={
+        b = 3;
+        cerr "A two words" b:;
+        };
+    prB newRoad code={
+        b = 3;
+        cerr "Bword" b:;
+        };
+    prC newRoad code={
+        prVal = 3;
+        cerr "C two words" prVal:;
+        };
+    prD newRoad code={
+        prVal = 3;
+        print "D two words" prVal:;
+        };
+    prE newRoad code={
+        prVal = 3;
+        prVal += 1;
+        cerr "E plus-equals" prVal:;
+        };
+    ;
+search PrProbe;
+cerr "ANCHOR newRoadBodyNeedsUtilities -- five newRoad bodies, the search line naming only this file's registry":;
+fixNewRoadBodyNeedsUtilitiesHere = 0;
+prA();
+prB();
+prC();
+prD();
+prE();
+cerr "SENTINEL newRoadBodyNeedsUtilities reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: DISJOINT
+OWNER: Clod     (Clay's GO 4 of 2026-11-28, ruled by Tony: file it, do not chase it)
+
+newRoadBodyNeedsUtilities -- a body marked newRoad, in a file whose search line names only its own registry
+(search PrProbe;), does not build: "REFUSED makeInstruct -- a call to a name with nothing to call" and then "REFUSED prA --
+is marked newRoad, and its body does not build on kantGrammar". Every body here has a cerr or a print line. The refusal
+does not say which name had nothing to call. Found 2026-11-28 (SEQ 804, a scratch probe).
+Measured, one variable each: the same file with  search Utilities PrProbe;  builds and runs all five bodies (3, 3, 3, 3, 4);
+calling the actions with an argument instead of ()  changes nothing. The mark's fixtures that work (starSubT, montyNewT)
+all have Utilities on the search list when the body is first built.
+Not measured: which name is missed; whether a body with no cerr / print line builds; whether this is F-164 working as ruled
+(a body's names bind with the search list of the moment it is first built) with a refusal that should name the name.
+
+NEXT: OPEN
+  What would say more: the name makeInstruct is holding when it refuses, printed in the refusal.
+  Taken: every body prints its line (A two words 3, Bword 3, C two words 3, D two words 3, E plus-equals 4), nothing REFUSED.
+  Not taken (today): five REFUSED pairs, then PR SENTINEL.
