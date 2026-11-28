@@ -1,0 +1,618 @@
+Start();
+include(utilities);
+registry(CompoundT);
+define
+    caThree code={
+        return 3;
+        };
+    ca00O code={
+        caV = 7;
+        caV += 2;
+        cerr "CA plus count by count" caV:;
+        };
+    ca01O code={
+        caV = 7;
+        caV += 1.5;
+        cerr "CA plus count by number" caV:;
+        };
+    ca02O code={
+        caV = 7.5;
+        caV += 2;
+        cerr "CA plus number by count" caV:;
+        };
+    ca03O code={
+        caV = 7.5;
+        caV += 1.5;
+        cerr "CA plus number by number" caV:;
+        };
+    ca04O code={
+        caV = "ab";
+        caV += "cd";
+        cerr "CA plus string by string" caV:;
+        };
+    ca05O code={
+        caV = "ab";
+        caV += 2;
+        cerr "CA plus string by count" caV:;
+        };
+    ca06O code={
+        argument += 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA plus list by count: length" caLen "first" caFirst:;
+        };
+    ca07O code={
+        caV = 12;
+        caK = 3;
+        caV += caK;
+        cerr "CA plus operand a name" caV:;
+        };
+    ca08O code={
+        caV = 12;
+        caV += caThree();
+        cerr "CA plus operand a call" caV:;
+        };
+    ca09O code={
+        caV = 12;
+        caK = 2;
+        caV += caK + 1;
+        cerr "CA plus operand an expression" caV:;
+        };
+    ca10O code={
+        caV = 7;
+        caV -= 2;
+        cerr "CA minus count by count" caV:;
+        };
+    ca11O code={
+        caV = 7;
+        caV -= 1.5;
+        cerr "CA minus count by number" caV:;
+        };
+    ca12O code={
+        caV = 7.5;
+        caV -= 2;
+        cerr "CA minus number by count" caV:;
+        };
+    ca13O code={
+        caV = 7.5;
+        caV -= 1.5;
+        cerr "CA minus number by number" caV:;
+        };
+    ca14O code={
+        caV = "ab";
+        caV -= "cd";
+        cerr "CA minus string by string" caV:;
+        };
+    ca15O code={
+        caV = "ab";
+        caV -= 2;
+        cerr "CA minus string by count" caV:;
+        };
+    ca16O code={
+        argument -= 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA minus list by count: length" caLen "first" caFirst:;
+        };
+    ca17O code={
+        caV = 12;
+        caK = 3;
+        caV -= caK;
+        cerr "CA minus operand a name" caV:;
+        };
+    ca18O code={
+        caV = 12;
+        caV -= caThree();
+        cerr "CA minus operand a call" caV:;
+        };
+    ca19O code={
+        caV = 12;
+        caK = 2;
+        caV -= caK + 1;
+        cerr "CA minus operand an expression" caV:;
+        };
+    ca20O code={
+        caV = 7;
+        caV *= 2;
+        cerr "CA times count by count" caV:;
+        };
+    ca21O code={
+        caV = 7;
+        caV *= 1.5;
+        cerr "CA times count by number" caV:;
+        };
+    ca22O code={
+        caV = 7.5;
+        caV *= 2;
+        cerr "CA times number by count" caV:;
+        };
+    ca23O code={
+        caV = 7.5;
+        caV *= 1.5;
+        cerr "CA times number by number" caV:;
+        };
+    ca24O code={
+        caV = "ab";
+        caV *= "cd";
+        cerr "CA times string by string" caV:;
+        };
+    ca25O code={
+        caV = "ab";
+        caV *= 2;
+        cerr "CA times string by count" caV:;
+        };
+    ca26O code={
+        argument *= 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA times list by count: length" caLen "first" caFirst:;
+        };
+    ca27O code={
+        caV = 12;
+        caK = 3;
+        caV *= caK;
+        cerr "CA times operand a name" caV:;
+        };
+    ca28O code={
+        caV = 12;
+        caV *= caThree();
+        cerr "CA times operand a call" caV:;
+        };
+    ca29O code={
+        caV = 12;
+        caK = 2;
+        caV *= caK + 1;
+        cerr "CA times operand an expression" caV:;
+        };
+    ca30O code={
+        caV = 7;
+        caV /= 2;
+        cerr "CA over count by count" caV:;
+        };
+    ca31O code={
+        caV = 7;
+        caV /= 1.5;
+        cerr "CA over count by number" caV:;
+        };
+    ca32O code={
+        caV = 7.5;
+        caV /= 2;
+        cerr "CA over number by count" caV:;
+        };
+    ca33O code={
+        caV = 7.5;
+        caV /= 1.5;
+        cerr "CA over number by number" caV:;
+        };
+    ca34O code={
+        caV = "ab";
+        caV /= "cd";
+        cerr "CA over string by string" caV:;
+        };
+    ca35O code={
+        caV = "ab";
+        caV /= 2;
+        cerr "CA over string by count" caV:;
+        };
+    ca36O code={
+        argument /= 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA over list by count: length" caLen "first" caFirst:;
+        };
+    ca37O code={
+        caV = 12;
+        caK = 3;
+        caV /= caK;
+        cerr "CA over operand a name" caV:;
+        };
+    ca38O code={
+        caV = 12;
+        caV /= caThree();
+        cerr "CA over operand a call" caV:;
+        };
+    ca39O code={
+        caV = 12;
+        caK = 2;
+        caV /= caK + 1;
+        cerr "CA over operand an expression" caV:;
+        };
+    ca40O code={
+        caI = 0;
+        caTurns = 0;
+        while caI < 5;
+            caI += 1;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 1000;
+        cerr "CA plus in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca41O code={
+        caI = 5;
+        caTurns = 0;
+        while caI > 0;
+            caI -= 1;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 0;
+        cerr "CA minus in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca42O code={
+        caI = 1;
+        caTurns = 0;
+        while caI < 40;
+            caI *= 2;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 1000;
+        cerr "CA times in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca43O code={
+        caI = 64;
+        caTurns = 0;
+        while caI > 1;
+            caI /= 2;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 0;
+        cerr "CA over in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca00N newRoad code={
+        caV = 7;
+        caV += 2;
+        cerr "CA plus count by count" caV:;
+        };
+    ca01N newRoad code={
+        caV = 7;
+        caV += 1.5;
+        cerr "CA plus count by number" caV:;
+        };
+    ca02N newRoad code={
+        caV = 7.5;
+        caV += 2;
+        cerr "CA plus number by count" caV:;
+        };
+    ca03N newRoad code={
+        caV = 7.5;
+        caV += 1.5;
+        cerr "CA plus number by number" caV:;
+        };
+    ca04N newRoad code={
+        caV = "ab";
+        caV += "cd";
+        cerr "CA plus string by string" caV:;
+        };
+    ca05N newRoad code={
+        caV = "ab";
+        caV += 2;
+        cerr "CA plus string by count" caV:;
+        };
+    ca06N newRoad code={
+        argument += 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA plus list by count: length" caLen "first" caFirst:;
+        };
+    ca07N newRoad code={
+        caV = 12;
+        caK = 3;
+        caV += caK;
+        cerr "CA plus operand a name" caV:;
+        };
+    ca08N newRoad code={
+        caV = 12;
+        caV += caThree();
+        cerr "CA plus operand a call" caV:;
+        };
+    ca09N newRoad code={
+        caV = 12;
+        caK = 2;
+        caV += caK + 1;
+        cerr "CA plus operand an expression" caV:;
+        };
+    ca10N newRoad code={
+        caV = 7;
+        caV -= 2;
+        cerr "CA minus count by count" caV:;
+        };
+    ca11N newRoad code={
+        caV = 7;
+        caV -= 1.5;
+        cerr "CA minus count by number" caV:;
+        };
+    ca12N newRoad code={
+        caV = 7.5;
+        caV -= 2;
+        cerr "CA minus number by count" caV:;
+        };
+    ca13N newRoad code={
+        caV = 7.5;
+        caV -= 1.5;
+        cerr "CA minus number by number" caV:;
+        };
+    ca14N newRoad code={
+        caV = "ab";
+        caV -= "cd";
+        cerr "CA minus string by string" caV:;
+        };
+    ca15N newRoad code={
+        caV = "ab";
+        caV -= 2;
+        cerr "CA minus string by count" caV:;
+        };
+    ca16N newRoad code={
+        argument -= 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA minus list by count: length" caLen "first" caFirst:;
+        };
+    ca17N newRoad code={
+        caV = 12;
+        caK = 3;
+        caV -= caK;
+        cerr "CA minus operand a name" caV:;
+        };
+    ca18N newRoad code={
+        caV = 12;
+        caV -= caThree();
+        cerr "CA minus operand a call" caV:;
+        };
+    ca19N newRoad code={
+        caV = 12;
+        caK = 2;
+        caV -= caK + 1;
+        cerr "CA minus operand an expression" caV:;
+        };
+    ca20N newRoad code={
+        caV = 7;
+        caV *= 2;
+        cerr "CA times count by count" caV:;
+        };
+    ca21N newRoad code={
+        caV = 7;
+        caV *= 1.5;
+        cerr "CA times count by number" caV:;
+        };
+    ca22N newRoad code={
+        caV = 7.5;
+        caV *= 2;
+        cerr "CA times number by count" caV:;
+        };
+    ca23N newRoad code={
+        caV = 7.5;
+        caV *= 1.5;
+        cerr "CA times number by number" caV:;
+        };
+    ca24N newRoad code={
+        caV = "ab";
+        caV *= "cd";
+        cerr "CA times string by string" caV:;
+        };
+    ca25N newRoad code={
+        caV = "ab";
+        caV *= 2;
+        cerr "CA times string by count" caV:;
+        };
+    ca26N newRoad code={
+        argument *= 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA times list by count: length" caLen "first" caFirst:;
+        };
+    ca27N newRoad code={
+        caV = 12;
+        caK = 3;
+        caV *= caK;
+        cerr "CA times operand a name" caV:;
+        };
+    ca28N newRoad code={
+        caV = 12;
+        caV *= caThree();
+        cerr "CA times operand a call" caV:;
+        };
+    ca29N newRoad code={
+        caV = 12;
+        caK = 2;
+        caV *= caK + 1;
+        cerr "CA times operand an expression" caV:;
+        };
+    ca30N newRoad code={
+        caV = 7;
+        caV /= 2;
+        cerr "CA over count by count" caV:;
+        };
+    ca31N newRoad code={
+        caV = 7;
+        caV /= 1.5;
+        cerr "CA over count by number" caV:;
+        };
+    ca32N newRoad code={
+        caV = 7.5;
+        caV /= 2;
+        cerr "CA over number by count" caV:;
+        };
+    ca33N newRoad code={
+        caV = 7.5;
+        caV /= 1.5;
+        cerr "CA over number by number" caV:;
+        };
+    ca34N newRoad code={
+        caV = "ab";
+        caV /= "cd";
+        cerr "CA over string by string" caV:;
+        };
+    ca35N newRoad code={
+        caV = "ab";
+        caV /= 2;
+        cerr "CA over string by count" caV:;
+        };
+    ca36N newRoad code={
+        argument /= 2;
+        caLen = argument.listLengtH;
+        caFirst = argument.first;
+        cerr "CA over list by count: length" caLen "first" caFirst:;
+        };
+    ca37N newRoad code={
+        caV = 12;
+        caK = 3;
+        caV /= caK;
+        cerr "CA over operand a name" caV:;
+        };
+    ca38N newRoad code={
+        caV = 12;
+        caV /= caThree();
+        cerr "CA over operand a call" caV:;
+        };
+    ca39N newRoad code={
+        caV = 12;
+        caK = 2;
+        caV /= caK + 1;
+        cerr "CA over operand an expression" caV:;
+        };
+    ca40N newRoad code={
+        caI = 0;
+        caTurns = 0;
+        while caI < 5;
+            caI += 1;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 1000;
+        cerr "CA plus in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca41N newRoad code={
+        caI = 5;
+        caTurns = 0;
+        while caI > 0;
+            caI -= 1;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 0;
+        cerr "CA minus in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca42N newRoad code={
+        caI = 1;
+        caTurns = 0;
+        while caI < 40;
+            caI *= 2;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 1000;
+        cerr "CA times in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca43N newRoad code={
+        caI = 64;
+        caTurns = 0;
+        while caI > 1;
+            caI /= 2;
+            caTurns = caTurns + 1;
+            if caTurns > 20;   caI = 0;
+        cerr "CA over in a while: ends at" caI "after turns" caTurns:;
+        };
+    caG06O first=1 second=2;
+    caG06N first=1 second=2;
+    caG16O first=1 second=2;
+    caG16N first=1 second=2;
+    caG26O first=1 second=2;
+    caG26N first=1 second=2;
+    caG36O first=1 second=2;
+    caG36N first=1 second=2;
+    ;
+search Utilities CompoundT;
+cerr "CAROAD old":;
+ca00O();
+ca01O();
+ca02O();
+ca03O();
+ca04O();
+ca05O();
+ca06O(caG06O);
+ca07O();
+ca08O();
+ca09O();
+ca10O();
+ca11O();
+ca12O();
+ca13O();
+ca14O();
+ca15O();
+ca16O(caG16O);
+ca17O();
+ca18O();
+ca19O();
+ca20O();
+ca21O();
+ca22O();
+ca23O();
+ca24O();
+ca25O();
+ca26O(caG26O);
+ca27O();
+ca28O();
+ca29O();
+ca30O();
+ca31O();
+ca32O();
+ca33O();
+ca34O();
+ca35O();
+ca36O(caG36O);
+ca37O();
+ca38O();
+ca39O();
+ca40O();
+ca41O();
+ca42O();
+ca43O();
+cerr "CAROAD new":;
+ca00N();
+ca01N();
+ca02N();
+ca03N();
+ca04N();
+ca05N();
+ca06N(caG06N);
+ca07N();
+ca08N();
+ca09N();
+ca10N();
+ca11N();
+ca12N();
+ca13N();
+ca14N();
+ca15N();
+ca16N(caG16N);
+ca17N();
+ca18N();
+ca19N();
+ca20N();
+ca21N();
+ca22N();
+ca23N();
+ca24N();
+ca25N();
+ca26N(caG26N);
+ca27N();
+ca28N();
+ca29N();
+ca30N();
+ca31N();
+ca32N();
+ca33N();
+ca34N();
+ca35N();
+ca36N(caG36N);
+ca37N();
+ca38N();
+ca39N();
+ca40N();
+ca41N();
+ca42N();
+ca43N();
+cerr "CAROAD end":;
+print "COMPOUNDT SENTINEL":;
+stop();
+
+compoundT -- the compound assignments += -= *= /= in a new-road body (GO 4, SEQ 805, 2026-11-28; Tony's ruling on SEQ 804).
+
+Every case is one action written twice with the same text: caNNO is read on the old road (incant/grammar), caNNN is marked
+newRoad and read on kantGrammar. Per operator: a count by a count and by a number, a number by a count and by a number,
+a string by a string and by a count, a list (a field with two attributes, handed in as argument) by a count; the operand
+a name, a call (caThree) and an expression; and the operator closing a while (drawText's dtHops shape), with a turn
+counter that ends a loop which would not end by itself. All lines go to stderr, the engine's own ERROR lines among them,
+so the block after CAROAD old and the block after CAROAD new can be compared whole. The harness (genLadder/pop.sh) pins
+that the two blocks are THE SAME, and pins a few values by name. Where the old road's own answer looks wrong the twin
+still only pins agreement: this fixture fixes nothing on the old road. The table of what each operator does on each
+kind is docs/compoundAssignTable.md, read off this fixture's output.

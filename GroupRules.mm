@@ -14694,6 +14694,8 @@ GroupItem 	*lookup = 0;
 	// unarySlot a unary instruct built as `op target` carries its one operand in slot 2 -- slot 3, when present, keeps priority
 	// notBuilt the new road's seat for the same refusal runOPdirect makes: a reserved operator is named here, where the op is still in hand (SEQ 599 A0)
 	 if ( isOperator(op->groupBody->flags.instructType) && (void*)op->groupBody->gOp == (void*)&opNotBuilt ) return ::refuse(op,(char*)"is not built yet -- a reserved operator (SEQ 599)"); 
+	// kindPick the per-kind member is picked here as runOPdirect picks it; without it += reached opPlusEQ, which is only the named refusal (SEQ 805)
+	 if ( op->groupBody->flags.hasMembers && !op->groupBody->flags.isUnary ) op = ::pickKindOP(op,target,argument); 
 	if ( op->groupBody->flags.isUnary && argument )
 		result = op->groupBody->gMethod(argument);
 	else

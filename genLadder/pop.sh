@@ -9023,6 +9023,27 @@ kindRow "starSubT old road: the read, the number beside it plus one, the if, two
 kindRow "starSubT new road reads what the old road reads, row for row" "$_ssNew" "$_ssOld"
 kindRow "starSubT new road by value (not only by agreement): SS-1n 8 and SS-3 cd" "$(echo "$_ssNew" | tr '|' '\n' | grep -c '^SS-1n 8$' | tr -d ' ') $(echo "$_ssNew" | tr '|' '\n' | grep -c '^SS-3 cd$' | tr -d ' ')" "1 1"
 kindRow "starSubT nothing refused on either road" "$(grep -c '^REFUSED' "$T/ss.e" | tr -d ' ')" "0"
+#  ---- compoundT: += -= *= /= IN A NEW-ROAD BODY DO WHAT THE OLD ROAD DOES (GO 4, SEQ 805, 2026-11-28; Tony's ruling on SEQ 804).
+#  The cause: testOP, the new road's runner, never picked the per-kind member of an operator that has members ('+=isCOUNT' and its kin),
+#  so += reached opPlusEQ, which is only the named refusal ("ERROR Operator += failed on x and TOKEn") and left the target as it was; a
+#  while closed by += never ended (drawText's dtHops). The cure is one line in testOP: pickKindOP, as runOPdirect picks. -= *= /= have
+#  no members and already agreed; they are pinned here beside +=. Fixit newRoadPlusEqFails retired into these rows (its a += 1.5 is
+#  'plus count by number'). Each case is one action written twice, old road and newRoad; docs/compoundAssignTable.md reads this output.
+#  H7 (the pick taken out of testOP, committed file first, rebuilt, measured): the blocks differ, the ERROR count is not 0, the while row fails.
+perl -e 'alarm 30; exec @ARGV' "$B" "$(ip compoundT)" > "$T/ca" 2> "$T/ca.e"; _cax=$?
+kindRow "compoundT runs" "$_cax" "0"
+sentinel "compoundT sentinel" "$T/ca" "COMPOUNDT SENTINEL"
+_caOld=$(awk '/^CAROAD old/{b=1;next} /^CAROAD /{b=0} b' "$T/ca.e" | sed 's/ *$//' | tr '\n' '|')
+_caNew=$(awk '/^CAROAD new/{b=1;next} /^CAROAD /{b=0} b' "$T/ca.e" | sed 's/ *$//' | tr '\n' '|')
+kindRow "compoundT old road: 44 lines, one a case (anti-vacuity for the compare below)" "$(echo "$_caOld" | tr '|' '\n' | grep -c '^CA ' | tr -d ' ')" "44"
+kindRow "compoundT THE NEW ROAD READS WHAT THE OLD ROAD READS, all 44 cases, the engine's own ERROR lines included" "$_caNew" "$_caOld"
+kindRow "compoundT no ERROR line on either road / none REFUSED" "$(grep -c '^ERROR' "$T/ca.e" | tr -d ' ') $(grep -c '^REFUSED' "$T/ca.e" | tr -d ' ')" "0 0"
+_caN () { echo "$_caNew" | tr '|' '\n' | grep "^CA $1" | sed "s/^CA $1 *//" | tr '\n' ';'; }
+kindRow "compoundT new road by value, +=: count by count, count by number (the fixit's case), number by count, string by string, string by count" "$(_caN 'plus count by count')$(_caN 'plus count by number')$(_caN 'plus number by count')$(_caN 'plus string by string')$(_caN 'plus string by count')" "9;9;9.5;abcd;ab2;"
+kindRow "compoundT new road by value, -= *= /= on a count by a count" "$(_caN 'minus count by count')$(_caN 'times count by count')$(_caN 'over count by count')" "5;14;4;"
+kindRow "compoundT new road, the operand a name, a call, an expression (12 and 3): += -= *= /=" "$(_caN 'plus operand')|$(_caN 'minus operand')|$(_caN 'times operand')|$(_caN 'over operand')" "a name 15;a call 15;an expression 15;|a name 9;a call 9;an expression 9;|a name 36;a call 36;an expression 36;|a name 4;a call 4;an expression 4;"
+kindRow "compoundT new road, THE WHILE ENDS BY ITSELF (drawText's dtHops shape; a loop its turn counter had to stop reads 1000 or more than 20 turns)" "$(_caN 'plus in a while')$(_caN 'minus in a while')$(_caN 'times in a while')$(_caN 'over in a while')" ": ends at 5 after turns 5;: ends at 0 after turns 5;: ends at 64 after turns 6;: ends at 1 after turns 6;"
+kindRow "compoundT pinned as read, both roads, NOT RULED RIGHT: a list target is left as it was by all four (length 2, first 1); -= *= /= leave a string as it was" "$(_caN 'plus list')$(_caN 'minus list')$(_caN 'times list')$(_caN 'over list')/$(_caN 'minus string by string')$(_caN 'times string by string')$(_caN 'over string by string')" "by count: length 2 first 1;by count: length 2 first 1;by count: length 2 first 1;by count: length 2 first 1;/ab;ab;ab;"
 #  ---- kgOnceT: kantGrammar LOADS ONCE (full monty step 3, GO 4 item 2; 2026-11-27). utilities includes kantGrammar (it carries newRoad-marked
 #  bodies), and kantGrammar's own first line leaves the file when loadedFiles holds its mark. Before: a second load gave each rule its terms
 #  twice and the next new-road body ended at exit 139. H7 (the first line taken out): exit 139, no sentinel.
