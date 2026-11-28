@@ -5,6 +5,7 @@ define
     caThree code={
         return 3;
         };
+    caItem="x";
     ca00O code={
         caV = 7;
         caV += 2;
@@ -252,6 +253,78 @@ define
             caTurns = caTurns + 1;
             if caTurns > 20;   caI = 0;
         cerr "CA over in a while: ends at" caI "after turns" caTurns:;
+        };
+    ca44O code={
+        argument += 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA plus attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca45O code={
+        argument += 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA plus member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca46O code={
+        argument += caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA plus member list by a field: length" caLen "has a value of its own" caHas:;
+        };
+    ca47O code={
+        argument -= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA minus attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca48O code={
+        argument -= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA minus member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca49O code={
+        argument -= caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA minus member list by a field: length" caLen "has a value of its own" caHas:;
+        };
+    ca50O code={
+        argument *= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA times attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca51O code={
+        argument *= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA times member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca52O code={
+        argument *= caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA times member list by a field: length" caLen "has a value of its own" caHas:;
+        };
+    ca53O code={
+        argument /= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA over attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca54O code={
+        argument /= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA over member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca55O code={
+        argument /= caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA over member list by a field: length" caLen "has a value of its own" caHas:;
         };
     ca00N newRoad code={
         caV = 7;
@@ -501,6 +574,78 @@ define
             if caTurns > 20;   caI = 0;
         cerr "CA over in a while: ends at" caI "after turns" caTurns:;
         };
+    ca44N newRoad code={
+        argument += 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA plus attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca45N newRoad code={
+        argument += 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA plus member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca46N newRoad code={
+        argument += caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA plus member list by a field: length" caLen "has a value of its own" caHas:;
+        };
+    ca47N newRoad code={
+        argument -= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA minus attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca48N newRoad code={
+        argument -= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA minus member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca49N newRoad code={
+        argument -= caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA minus member list by a field: length" caLen "has a value of its own" caHas:;
+        };
+    ca50N newRoad code={
+        argument *= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA times attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca51N newRoad code={
+        argument *= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA times member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca52N newRoad code={
+        argument *= caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA times member list by a field: length" caLen "has a value of its own" caHas:;
+        };
+    ca53N newRoad code={
+        argument /= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA over attribute list by count, seen whole: length" caLen "has a value of its own" caHas:;
+        };
+    ca54N newRoad code={
+        argument /= 2;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA over member list by count: length" caLen "has a value of its own" caHas:;
+        };
+    ca55N newRoad code={
+        argument /= caItem;
+        caLen = argument.listLengtH;
+        caHas = argument.datA;
+        cerr "CA over member list by a field: length" caLen "has a value of its own" caHas:;
+        };
     caG06O first=1 second=2;
     caG06N first=1 second=2;
     caG16O first=1 second=2;
@@ -509,6 +654,62 @@ define
     caG26N first=1 second=2;
     caG36O first=1 second=2;
     caG36N first=1 second=2;
+    caG44O first=1 second=2;
+    caG44N first=1 second=2;
+    caG45O first=1
+        m1;
+        m2;
+    caG45N first=1
+        m1;
+        m2;
+    caG46O first=1
+        m1;
+        m2;
+    caG46N first=1
+        m1;
+        m2;
+    caG47O first=1 second=2;
+    caG47N first=1 second=2;
+    caG48O first=1
+        m1;
+        m2;
+    caG48N first=1
+        m1;
+        m2;
+    caG49O first=1
+        m1;
+        m2;
+    caG49N first=1
+        m1;
+        m2;
+    caG50O first=1 second=2;
+    caG50N first=1 second=2;
+    caG51O first=1
+        m1;
+        m2;
+    caG51N first=1
+        m1;
+        m2;
+    caG52O first=1
+        m1;
+        m2;
+    caG52N first=1
+        m1;
+        m2;
+    caG53O first=1 second=2;
+    caG53N first=1 second=2;
+    caG54O first=1
+        m1;
+        m2;
+    caG54N first=1
+        m1;
+        m2;
+    caG55O first=1
+        m1;
+        m2;
+    caG55N first=1
+        m1;
+        m2;
     ;
 search Utilities CompoundT;
 cerr "CAROAD old":;
@@ -556,6 +757,18 @@ ca40O();
 ca41O();
 ca42O();
 ca43O();
+ca44O(caG44O);
+ca45O(caG45O);
+ca46O(caG46O);
+ca47O(caG47O);
+ca48O(caG48O);
+ca49O(caG49O);
+ca50O(caG50O);
+ca51O(caG51O);
+ca52O(caG52O);
+ca53O(caG53O);
+ca54O(caG54O);
+ca55O(caG55O);
 cerr "CAROAD new":;
 ca00N();
 ca01N();
@@ -601,6 +814,18 @@ ca40N();
 ca41N();
 ca42N();
 ca43N();
+ca44N(caG44N);
+ca45N(caG45N);
+ca46N(caG46N);
+ca47N(caG47N);
+ca48N(caG48N);
+ca49N(caG49N);
+ca50N(caG50N);
+ca51N(caG51N);
+ca52N(caG52N);
+ca53N(caG53N);
+ca54N(caG54N);
+ca55N(caG55N);
 cerr "CAROAD end":;
 print "COMPOUNDT SENTINEL":;
 stop();
@@ -616,3 +841,7 @@ so the block after CAROAD old and the block after CAROAD new can be compared who
 that the two blocks are THE SAME, and pins a few values by name. Where the old road's own answer looks wrong the twin
 still only pins agreement: this fixture fixes nothing on the old road. The table of what each operator does on each
 kind is docs/compoundAssignTable.md, read off this fixture's output.
+
+ADDED at SEQ 806 (GO 3's added line, Clay, Tony's yes): twelve more cases at the end. The attribute-only list is read
+again with what the first cases did not print: whether the field took a value of its own. And a list WITH MEMBERS
+(one attribute, two members) takes each operator by a count and by a field (caItem). The first 44 cases are unchanged.

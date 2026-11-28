@@ -1,0 +1,95 @@
+Start();
+include(utilities);
+registry(MontyOld);
+define
+    drawText code={
+        textReq.field := argument;
+        dtG = argument.isGrouP;
+        if dtG == 1;    textReq.source := *argument;
+        else            textReq.source := argument;
+        // sourceHeld the same choice kept in a local, for the pre-pass below: a slot of textReq cannot be starred through a dot
+        if dtG == 1;    dtSrc := *argument;
+        else            dtSrc := argument;
+        // describeShown a field with a describe attribute shows that attribute's text (SEQ 608 R2)
+        dtSelf := argument;
+        if *dtSelf["describe"];     textReq.source := *dtSelf["describe"];
+        if *dtSelf["describe"];     dtSrc := *dtSelf["describe"];
+        // imageText an image field's text is its description, never drawn over the image (SEQ 608 R2)
+        dtDraw = 1;
+        if *dtSelf["image"];        dtDraw = 0;
+        textReq.font = 0;
+        textReq.color = 0;
+        textReq.align = 0;
+        textReq.valign = 0;
+        textReq.italic = 0;
+        dtItalic = 0;
+        dtFont = 0;
+        dtColor = 0;
+        dtAlign = 0;
+        dtValign = 0;
+        dtCur := argument;
+        dtHops = 0;
+        while dtHops < 32;
+            if dtFont == 0;
+                if *dtCur["font"];
+                    textReq.font := *dtCur["font"];
+                    dtFont = 1;
+            if dtColor == 0;
+                if *dtCur["color"];
+                    textReq.color := *dtCur["color"];
+                    dtColor = 1;
+            if dtAlign == 0;
+                if *dtCur["align"];
+                    textReq.align := *dtCur["align"];
+                    dtAlign = 1;
+            if dtValign == 0;
+                if *dtCur["valign"];
+                    textReq.valign := *dtCur["valign"];
+                    dtValign = 1;
+            // italicInherits a text property (SEQ 624): the nearest field naming italic decides
+            if dtItalic == 0;
+                if *dtCur["italic"];
+                    textReq.italic := *dtCur["italic"];
+                    dtItalic = 1;
+            dtTop = *dtCur.isPointeR;
+            if dtTop == 1;      dtHops = 32;
+            if dtFont == 1;
+                if dtColor == 1;
+                    if dtAlign == 1;
+                        if dtValign == 1;
+                            if dtItalic == 1;   dtHops = 32;
+            // climbUp the walk goes on to the enclosing field (style is scoped to the subtree, 2026-11-03)
+            dtCur := *dtCur.parenT;
+            dtHops += 1;
+        // prePass kant's typeset builds the span list from a source that holds its own string; the floor refuses every other source by name, as it did (typesetting T1, 2026-11-12)
+        textReq.spans = 0;
+        textReq.runs = 0;
+        if dtDraw == 1;
+            tsWho := argument;
+            dtHas = *dtSrc.datA;
+            dtHeld = *dtSrc.isGrouP;
+            dtTopText = *dtSrc.isPointeR;
+            if dtHeld == 1;     dtHas = 0;
+            if dtTopText == 1;  dtHas = 0;
+            if dtHas != 0;
+                typeset(*dtSrc);
+                textReq.spans := tsOut;
+                textReq.runs = tsRunCount;
+            drawSpans(textReq);
+        };
+    ;
+search MontyOld Utilities list;
+show(firstLight);
+print "MONTY SENTINEL":;
+stop();
+
+montyTextOldT -- full monty step 3, group 3 (2026-11-28): drawText and typeset are marked newRoad in incant/utilities.
+
+One of three twins beside montyNewT (group 1's file, which shows firstLight as it is). Each puts a registry of OLD-ROAD
+copies (the same bodies, unmarked) ahead of Utilities before the first show: montyOld3T copies both, montyTextOldT
+drawText alone, montyTypesetOldT typeset alone. The harness (genLadder/formsPop.sh) arms INCANT_NEWROAD_CALLS and
+reads, per run: how many calls of each body went through the new-road reader (drawText 16, typeset 5, or 0 where its
+old copy answered), and the PDF with its dates and trailer ID blanked. Every run's PDF must be the same bytes. A count
+of 0 where a call is wanted fails by name: that run measured the old road. The harness also checks that each copy here
+is still the text of utilities' body, the mark aside. firstLight has no insert, so it never reaches typeset's insert
+path; the harness reads that path on the new road through typesetT and passageT.
