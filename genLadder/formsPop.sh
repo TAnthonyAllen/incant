@@ -1625,7 +1625,50 @@ INCANT_NEWROAD_CALLS=1 perl -e 'alarm 60; exec @ARGV' "$B" "$_rlF" > "$T/m2rl.o"
 _m2Box=$(grep -c '^NEWROADCALL tsBoxWarn$' "$T/m2rl.e" | tr -d ' ')
 if [ "$_m2Box" = "0" ]; then echo "  FAIL  runLookT tsBoxWarn NEVER RAN ON THE NEW ROAD (0 calls through the new-road reader): RL-6 measured the old road"; fail=1
 else _ofeq "runLookT tsBoxWarn on the new road still warns by name: exit / fill warnings / rounded warnings / all box warnings (RL-6's numbers)" "$_m2x $(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute fill ' "$T/m2rl.e") $(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute rounded ' "$T/m2rl.e") $(grep -c 'holds the box attribute' "$T/m2rl.e")" "0 1 1 2"; fi
-_ofeq "utilities marks exactly the six: newRoad bodies named" "$(grep -c '^    [A-Za-z]* newRoad code={' incant/utilities | tr -d ' ') $(grep '^    [A-Za-z]* newRoad code={' incant/utilities | awk '{print $1}' | sort | tr '\n' ' ')" "6 drawBorder drawFill drawImage drawKids drawWalk tsBoxWarn "
+echo "-- full monty step 3, group 3: drawText, typeset on the new road (montyNewT and three more old-road twins; typesetT and passageT for the paths firstLight never reaches)."
+#  GO 3 (Clay, approved by Tony 2026-11-28; SEQ 806), after the += cure (seal 560). The two bodies are marked newRoad in incant/utilities; neither
+#  has a loop to respell. Counts in show(firstLight): drawText 16, typeset 5.
+#  WHAT firstLight NEVER REACHES: it has no insert, so typeset's insert path ({name}, {registry.name}, a passage, its warnings, and the climb
+#  closed by tyHops += 1) is not in those five calls; in drawText, a describe attribute and a field that holds a group. They are read on the new
+#  road by the fleet's own rows above (typesetT, passageT, the text rows), which pass with the marks on; the rows here prove those two files went
+#  through the new-road reader, and that arming the witness changes nothing they print.
+#  H7 (typeset's mark taken off in utilities, committed file, measured): montyNewT's typeset row fails by name; the PDF rows hold.
+_m3Run () {                     # _m3Run <fixture>: as _mgRun, and sets _m3Counts "text typeset"
+    _mgRun "$1"
+    _m3Counts="$(grep -c '^NEWROADCALL drawText$' "$T/mg.e" | tr -d ' ') $(grep -c '^NEWROADCALL typeset$' "$T/mg.e" | tr -d ' ')"
+}
+_m3Run montyNewT
+_ofeq "montyNewT (group 3) exit / sentinel / stderr lines that are not the witness / the PDF is the one group 1's rows read" "$_mgx $_mgSent $_mgNoise $([ "$_mgPdf" = "$_mgNewPdf" ] && echo same || echo differs)" "0 1 0 same"
+for _mgB in "drawText 1 16" "typeset 2 5"; do
+    set -- $_mgB
+    _mgN=$(echo "$_m3Counts" | awk -v c="$2" '{print $c}')
+    if [ "$_mgN" = "0" ]; then echo "  FAIL  montyNewT $1 NEVER RAN ON THE NEW ROAD (0 calls through the new-road reader): this run measured the old road"; fail=1
+    else _ofeq "montyNewT $1: calls through the new-road reader" "$_mgN" "$3"; fi
+done
+_m3Run montyOld3T
+_ofeq "montyOld3T exit / sentinel / the old copies answered: new-road calls text typeset / group 1's three still on the new: fill border image" "$_mgx $_mgSent / $_m3Counts / $_mgCounts" "0 1 / 0 0 / 16 16 16"
+_ofeq "montyOld3T THE MILESTONE CHECK: firstLight's PDF with group 3's two on the new road = with the two on the old road, byte for byte (dates and trailer ID blanked)" "$([ "$_mgPdf" = "$_mgNewPdf" ] && [ "$_mgPdf" != none ] && echo same || echo "differs $_mgPdf / $_mgNewPdf")" "same"
+for _mgB in "montyTextOldT drawText 0_5" "montyTypesetOldT typeset 16_0"; do
+    set -- $_mgB
+    _m3Run "$1"
+    _ofeq "$1 exit / sentinel / only $2 on the old road: new-road calls text typeset" "$_mgx $_mgSent / $_m3Counts" "0 1 / $(echo "$3" | tr '_' ' ')"
+    _ofeq "$1 $2 alone on the old road draws the same PDF as on the new" "$([ "$_mgPdf" = "$_mgNewPdf" ] && [ "$_mgPdf" != none ] && echo same || echo "differs")" "same"
+done
+_mgDrift=0
+for _mgB in drawText typeset; do
+    [ -n "$(_mgBody incant/utilities $_mgB)" ] && [ "$(_mgBody incant/utilities $_mgB)" = "$(_mgBody "$(ip montyOld3T)" $_mgB)" ] || _mgDrift=$((_mgDrift+1))
+done
+_ofeq "montyOld3T its two copies are utilities' bodies, the mark aside (bodies that differ or are missing)" "$_mgDrift" "0"
+#  the paths firstLight never reaches: typesetT (inserts, warnings) and passageT (an insert read as text), run again with the witness armed
+for _mgB in "typesetT ty 120" "passageT pg 60"; do
+    set -- $_mgB
+    INCANT_NEWROAD_CALLS=1 perl -e 'alarm '"$3"'; exec @ARGV' "$B" "$(ip "$1")" > "$T/m3.o" 2> "$T/m3.e"; _m3x=$?
+    _m3T=$(grep -c '^NEWROADCALL typeset$' "$T/m3.e" | tr -d ' '); _m3D=$(grep -c '^NEWROADCALL drawText$' "$T/m3.e" | tr -d ' ')
+    if [ "$_m3T" = "0" ] || [ "$_m3D" = "0" ]; then echo "  FAIL  $1 typeset or drawText NEVER RAN ON THE NEW ROAD (typeset $_m3T, drawText $_m3D): its rows above measured the old road"; fail=1
+    else _ofeq "$1 with the witness armed: exit / its stdout and its stderr (the witness lines aside) are what its own rows above read" "$_m3x $(cmp -s "$T/m3.o" "$T/$2.o" && echo same || echo differs) $(grep -v '^NEWROADCALL ' "$T/m3.e" | cmp -s - "$T/$2.e" && echo same || echo differs)" "0 same same"; fi
+done
+_ofeq "typesetT reaches typeset's insert path on the new road: inserts in its texts / warnings by name it draws out (anti-vacuity: both more than 0)" "$([ "$(grep -c '{[A-Za-z][A-Za-z.]*}' "$(ip typesetT)")" -gt 0 ] && echo inserts || echo none) $([ "$(grep -c 'WARNING' "$T/ty.e")" -gt 0 ] && echo warnings || echo none)" "inserts warnings"
+_ofeq "utilities marks exactly the eight: newRoad bodies named" "$(grep -c '^    [A-Za-z]* newRoad code={' incant/utilities | tr -d ' ') $(grep '^    [A-Za-z]* newRoad code={' incant/utilities | awk '{print $1}' | sort | tr '\n' ' ')" "8 drawBorder drawFill drawImage drawKids drawText drawWalk tsBoxWarn typeset "
 if [ "$green" -lt 1 ]; then
     echo "FORMS POP FAILED -- ZERO green checks were recorded."
     echo "  That is not 'everything failed'. It is almost certainly a HELPER that"

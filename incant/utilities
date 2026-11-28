@@ -1735,7 +1735,7 @@ define
         name and is left as written. This replaces T3's "nothing inside it is
         read as a mark".
     ***************************************************************************/
-    typeset code={
+    typeset newRoad code={
         tyTree := tsText(argument);
         clear(tsOut);
         clear(tsRuns);
@@ -2088,7 +2088,7 @@ define
         field holds a group, that group's (*argument, one level). A field with
         no text costs a call and draws nothing (drawSpans skips it).
     ***************************************************************************/
-    drawText code={
+    drawText newRoad code={
         textReq.field := argument;
         dtG = argument.isGrouP;
         if dtG == 1;    textReq.source := *argument;
