@@ -1,0 +1,29 @@
+Start();
+include(utilities);
+registry(MontyOld);
+define
+    tsBoxWarn code={
+        for grup in argument; attributes
+            bwTag := *grup.taG;
+            bwHit = 0;
+            if tsBoxNames[*bwTag];      bwHit = 1;
+            if bwHit == 1;
+                bwField := *tsWho.taG;
+                cerr "drawSpans: WARNING" bwField "-- its text names the style" tsRunName "which holds the box attribute" bwTag "-- a run takes font, color, italic and space only":;
+        };
+    ;
+search MontyOld Utilities list;
+show(firstLight);
+print "MONTY SENTINEL":;
+stop();
+
+montyBoxOldT -- full monty step 3, group 2 (2026-11-28): drawWalk, drawKids and tsBoxWarn are marked newRoad in incant/utilities.
+
+One of four twins beside montyNewT (group 1's file, which shows firstLight as it is). Each puts a registry of OLD-ROAD
+copies (the same bodies, unmarked, their filtered for loops in the old road's spelling: the word after the semicolon)
+ahead of Utilities before the first show: montyOld2T copies all three, montyWalkOldT, montyKidsOldT and montyBoxOldT
+one each. The harness (genLadder/formsPop.sh) arms INCANT_NEWROAD_CALLS and reads, per run: how many calls of each
+body went through the new-road reader (drawWalk 1, drawKids 8, tsBoxWarn 1, or 0 where its old copy answered), and
+the PDF with its dates and trailer ID blanked. Every run's PDF must be the same bytes. A count of 0 where a call is
+wanted fails by name: that run measured the old road. The harness also checks that each copy here is still the text
+of utilities' body, the mark and the loop's spelling aside.
