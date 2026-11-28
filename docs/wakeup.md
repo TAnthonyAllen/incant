@@ -13,7 +13,7 @@ Seal 554 before these (2026-11-27, SHUTDOWN): the search list holds each registr
 **RULED, NOT BUILT:** typesetting grows its form (docs/typesetGrowsFormRecon.md 5a; first step the measure alone); user edits (Topics/forms). Registries items 3-5; describe virtual; `debug` in a body; upToSetDelimiter item 2; ruleUsedBeforeDefined's refusal; the float (Topics/typesetting 8); the panels (Topics/windows 2); the alpha reorder with its headers.
 **DOCKETED:** F-169, assigning a string expression to a field wipes its attributes (a read-only census at a later session). F-168, an attribute holding 0 tests false (likewise). F-167 stays docketed. Features 39, `keep`, is a recon item.
 **DEFERRED:** the three XML-era Controls files, with the bigify / db / inspector ruling. M2 (splitting files) is not yet decided.
-**NEXT:** full monty step 3, group 3: drawText, typeset (GO 3 in incant++). After the full monty groups, unchanged: source/pour design exercise (docs/sourcePourRecon.md, with its three new open lines) -> source/pour build -> typesetting's measure -> lighten / darken; registries 3-5; windows TO DO 2-3; the fieldIndex design pass (Clay, with docs/fieldIndexRecon.md). Also parked in incant++: replace keeps its place, a read-only count.
+**NEXT:** full monty step 3, group 3 (drawText, typeset; GO 3 in incant++) STOPPED at SEQ 804 on `+=` in a new-road body (fixit newRoadPlusEqFails); it waits on that cure, a ruling for Tony. After the full monty groups, unchanged: source/pour design exercise (docs/sourcePourRecon.md, with its three new open lines) -> source/pour build -> typesetting's measure -> lighten / darken; registries 3-5; windows TO DO 2-3; the fieldIndex design pass (Clay, with docs/fieldIndexRecon.md). Also parked in incant++: replace keeps its place, a read-only count.
 
 ## The numbers (trunk at seal 558)
 | instrument | reads |
@@ -40,7 +40,7 @@ Clod's fixit incantations waiting: 31 (oldest: defineCapture, since 2026-10-02)
 ## Topic files (lines / budget, printed by `genLadder/topicBudget.sh`; the budget was ruled 2026-11-11, SEQ 621 R1)
 | file | lines / budget | what |
 |---|---|---|
-| `docs/wakeup.md` | 57 / 60 | this page. |
+| `docs/wakeup.md` | 58 / 60 | this page. |
 | `Topics/forms` | 287 / 280, OVER by 7 (the next forms session opens with the trim) | the forms incantation (the drawing fields, above its bail) and the forms notes. |
 | `Topics/kant` | 200 / 200 (trimmed at seal 554) | the language, its grammar in kant, the jitter. Plan: the full monty (docs/fullMontyRecon.md). |
 | `Topics/drawing` | 140 / 160 | drawing, sub-topic of forms: the floor, the floor census, the box and text property rulings. |
