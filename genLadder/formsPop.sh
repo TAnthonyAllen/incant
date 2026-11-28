@@ -1584,7 +1584,48 @@ for _mgB in drawFill drawBorder drawImage; do
     [ -n "$(_mgBody incant/utilities $_mgB)" ] && [ "$(_mgBody incant/utilities $_mgB)" = "$(_mgBody "$(ip montyOldT)" $_mgB)" ] || _mgDrift=$((_mgDrift+1))
 done
 _ofeq "montyOldT its three copies are utilities' bodies, the mark aside (bodies that differ or are missing)" "$_mgDrift" "0"
-_ofeq "utilities marks exactly the three: newRoad bodies named" "$(grep -c '^    [A-Za-z]* newRoad code={' incant/utilities | tr -d ' ') $(grep '^    [A-Za-z]* newRoad code={' incant/utilities | awk '{print $1}' | sort | tr '\n' ' ')" "3 drawBorder drawFill drawImage "
+echo "-- full monty step 3, group 2: drawWalk, drawKids, tsBoxWarn on the new road (montyNewT and four more old-road twins)."
+#  Tony's go of 2026-11-28 on Clay's dispatch of 2026-11-27 (SEQ 803). The three bodies are marked newRoad in incant/utilities, and the filtered
+#  for loops of drawKids and tsBoxWarn are respelled for kantGrammar (for members x in y; / for attributes x in y;). The twins keep the old
+#  road's spelling (the word after the semicolon): incant/grammar reads no other. Counts in show(firstLight): drawWalk 1, drawKids 8, tsBoxWarn 1.
+#  H7 (the mark taken off drawWalk in utilities, committed file, measured; drawWalk because its text has no respelled loop, so the mark is the one variable): montyNewT's drawWalk row fails by name; the PDF rows hold.
+_m2Run () {                     # _m2Run <fixture>: as _mgRun, and sets _m2Counts "walk kids box"
+    _mgRun "$1"
+    _m2Counts="$(grep -c '^NEWROADCALL drawWalk$' "$T/mg.e" | tr -d ' ') $(grep -c '^NEWROADCALL drawKids$' "$T/mg.e" | tr -d ' ') $(grep -c '^NEWROADCALL tsBoxWarn$' "$T/mg.e" | tr -d ' ')"
+}
+_m2Run montyNewT
+_ofeq "montyNewT (group 2) exit / sentinel / stderr lines that are not the witness / the PDF is the one group 1's rows read" "$_mgx $_mgSent $_mgNoise $([ "$_mgPdf" = "$_mgNewPdf" ] && echo same || echo differs)" "0 1 0 same"
+for _mgB in "drawWalk 1 1" "drawKids 2 8" "tsBoxWarn 3 1"; do
+    set -- $_mgB
+    _mgN=$(echo "$_m2Counts" | awk -v c="$2" '{print $c}')
+    if [ "$_mgN" = "0" ]; then echo "  FAIL  montyNewT $1 NEVER RAN ON THE NEW ROAD (0 calls through the new-road reader): this run measured the old road"; fail=1
+    else _ofeq "montyNewT $1: calls through the new-road reader" "$_mgN" "$3"; fi
+done
+_m2Run montyOldT
+_ofeq "montyOldT group 1's three on the old road, group 2's three still on the new: new-road calls walk kids box" "$_m2Counts" "1 8 1"
+_m2Run montyOld2T
+_ofeq "montyOld2T exit / sentinel / the old copies answered: new-road calls walk kids box / group 1's three still on the new: fill border image" "$_mgx $_mgSent / $_m2Counts / $_mgCounts" "0 1 / 0 0 0 / 16 16 16"
+_ofeq "montyOld2T THE MILESTONE CHECK: firstLight's PDF with group 2's three on the new road = with the three on the old road, byte for byte (dates and trailer ID blanked)" "$([ "$_mgPdf" = "$_mgNewPdf" ] && [ "$_mgPdf" != none ] && echo same || echo "differs $_mgPdf / $_mgNewPdf")" "same"
+for _mgB in "montyWalkOldT drawWalk 0_8_1" "montyKidsOldT drawKids 1_0_1" "montyBoxOldT tsBoxWarn 1_8_0"; do
+    set -- $_mgB
+    _m2Run "$1"
+    _ofeq "$1 exit / sentinel / only $2 on the old road: new-road calls walk kids box" "$_mgx $_mgSent / $_m2Counts" "0 1 / $(echo "$3" | tr '_' ' ')"
+    _ofeq "$1 $2 alone on the old road draws the same PDF as on the new" "$([ "$_mgPdf" = "$_mgNewPdf" ] && [ "$_mgPdf" != none ] && echo same || echo "differs")" "same"
+done
+#  the copies are still utilities' text, the mark and the loop's spelling aside (the old road's filter word goes back before the cursor to compare)
+_m2Body () { _mgBody "$1" "$2" | sed -e 's/^\(  *\)for \([A-Za-z]*\) in \(.*\); members$/\1for members \2 in \3;/' -e 's/^\(  *\)for \([A-Za-z]*\) in \(.*\); attributes$/\1for attributes \2 in \3;/'; }
+_mgDrift=0
+for _mgB in drawWalk drawKids tsBoxWarn; do
+    [ -n "$(_m2Body incant/utilities $_mgB)" ] && [ "$(_m2Body incant/utilities $_mgB)" = "$(_m2Body "$(ip montyOld2T)" $_mgB)" ] || _mgDrift=$((_mgDrift+1))
+done
+_ofeq "montyOld2T its three copies are utilities' bodies, the mark and the loop's spelling aside (bodies that differ or are missing)" "$_mgDrift" "0"
+_ofeq "montyOld2T the twins keep the old road's loop spelling, utilities' marked bodies the new one: old-spelled loops in the twin / in utilities' three" "$(grep -c '; \(members\|attributes\)$' "$(ip montyOld2T)" | tr -d ' ') / $(for _mgB in drawWalk drawKids tsBoxWarn; do _mgBody incant/utilities $_mgB; done | grep -c '; \(members\|attributes\)$' | tr -d ' ')" "2 / 0"
+#  tsBoxWarn draws nothing, so the PDF cannot see it: its own evidence is runLookT's warning (RL-6 above), read again here with the witness armed
+INCANT_NEWROAD_CALLS=1 perl -e 'alarm 60; exec @ARGV' "$B" "$_rlF" > "$T/m2rl.o" 2> "$T/m2rl.e"; _m2x=$?
+_m2Box=$(grep -c '^NEWROADCALL tsBoxWarn$' "$T/m2rl.e" | tr -d ' ')
+if [ "$_m2Box" = "0" ]; then echo "  FAIL  runLookT tsBoxWarn NEVER RAN ON THE NEW ROAD (0 calls through the new-road reader): RL-6 measured the old road"; fail=1
+else _ofeq "runLookT tsBoxWarn on the new road still warns by name: exit / fill warnings / rounded warnings / all box warnings (RL-6's numbers)" "$_m2x $(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute fill ' "$T/m2rl.e") $(grep -c '^drawSpans: WARNING rnBoxText -- its text names the style rnBoxy which holds the box attribute rounded ' "$T/m2rl.e") $(grep -c 'holds the box attribute' "$T/m2rl.e")" "0 1 1 2"; fi
+_ofeq "utilities marks exactly the six: newRoad bodies named" "$(grep -c '^    [A-Za-z]* newRoad code={' incant/utilities | tr -d ' ') $(grep '^    [A-Za-z]* newRoad code={' incant/utilities | awk '{print $1}' | sort | tr '\n' ' ')" "6 drawBorder drawFill drawImage drawKids drawWalk tsBoxWarn "
 if [ "$green" -lt 1 ]; then
     echo "FORMS POP FAILED -- ZERO green checks were recorded."
     echo "  That is not 'everything failed'. It is almost certainly a HELPER that"

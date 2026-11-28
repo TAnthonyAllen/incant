@@ -1691,8 +1691,8 @@ define
                 if *grup.hasMemberS;    tsFind(*grup);
         };
     // boxWarn its own action because a for loop walks an argument's attributes and not a starred holder's (measured, SEQ 655)
-    tsBoxWarn code={
-        for grup in argument; attributes
+    tsBoxWarn newRoad code={
+        for attributes grup in argument;
             bwTag := *grup.taG;
             bwHit = 0;
             if tsBoxNames[*bwTag];      bwHit = 1;
@@ -2067,7 +2067,7 @@ define
         the star is needed (grup.hasMemberS reads nothing; measured 2026-11-08,
         bar 1, every leaf 0).
     ***************************************************************************/
-    drawWalk code={
+    drawWalk newRoad code={
         dwOpen = argument.isPointeR;
         if dwOpen == 0;     makeDisplay(argument);
         drawFill(argument);
@@ -2189,8 +2189,8 @@ define
         or argument["leftBorder"];      displayBorder(argument);
         or argument["rightBorder"];     displayBorder(argument);
         };
-    drawKids code={
-        for grup in argument; members
+    drawKids newRoad code={
+        for members grup in argument;
             // skipsHiddenAndNoRoom neither an isHidden field nor a noRoom one is drawn, nor anything under it (forms step 6)
             dkSkip = *grup.isHiddeN;
             dkGone = *grup.noRooM;
